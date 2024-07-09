@@ -528,7 +528,7 @@ IceObjC::StreamTransceiver::checkErrorStatus(
 
     if (status == kCFStreamStatusAtEnd || status == kCFStreamStatusClosed)
     {
-        throw ConnectionLostException(file, line);
+        throw ConnectionLostException(file, line, 0);
     }
 
     assert(status == kCFStreamStatusError);
@@ -551,7 +551,7 @@ IceObjC::StreamTransceiver::checkErrorStatus(
         }
         else if (connectionRefused())
         {
-            throw ConnectionRefusedException(file, line, getSocketErrno());
+            throw ConnectionRefusedException(file, line);
         }
         else if (connectFailed())
         {
@@ -578,6 +578,9 @@ IceObjC::StreamTransceiver::checkErrorStatus(
         }
         throw DNSException(file, line, rs, _host);
     }
-    throw CFNetworkException(file, line, static_cast<int>(CFErrorGetCode(err.get())), fromCFString(domain));
+    throw SocketException{
+        file,
+        line,
+        "CFNetwork error in domain " + fromCFString(domain) + ": " + to_string(CFErrorGetCode(err.get()))};
 }
 #endif

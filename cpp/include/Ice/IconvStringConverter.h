@@ -10,7 +10,7 @@
 //
 #ifndef _WIN32
 #    include "Config.h"
-#    include "LocalException.h"
+#    include "LocalExceptions.h"
 #    include "StringConverter.h"
 #    include "StringUtil.h"
 
@@ -20,47 +20,6 @@
 #    include <langinfo.h>
 #    include <memory>
 #    include <sstream>
-
-#    if (defined(__APPLE__) && _LIBICONV_VERSION < 0x010B)
-//
-// See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
-//
-#        define ICE_CONST_ICONV_INBUF 1
-#    endif
-
-namespace Ice
-{
-    /**
-     * Indicates that Iconv does not support the code.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API IconvInitializationException final : public LocalException
-    {
-    public:
-        /**
-         * Constructs the exception with a reason. The file and line number are required.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param reason More detail about the failure.
-         */
-        IconvInitializationException(const char* file, int line, std::string reason) noexcept;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        const char* ice_id() const noexcept final;
-
-        /**
-         * Prints a description of this exception to the given stream.
-         * @param str The output stream.
-         */
-        void ice_print(std::ostream& str) const final;
-
-    private:
-        std::string _reason;
-    };
-}
 
 namespace IceInternal
 {
@@ -94,7 +53,7 @@ namespace IceInternal
                 {
                     std::ostringstream os;
                     os << "iconv cannot convert from " << externalCode << " to " << internalCode;
-                    throw Ice::IllegalConversionException(__FILE__, __LINE__, os.str());
+                    throw Ice::FeatureNotSupportedException{__FILE__, __LINE__, os.str()};
                 }
 
                 descriptor.second = iconv_open(externalCode, internalCode.c_str());
@@ -103,22 +62,17 @@ namespace IceInternal
                     iconv_close(descriptor.first);
                     std::ostringstream os;
                     os << "iconv cannot convert from " << internalCode << " to " << externalCode;
-                    throw Ice::IllegalConversionException(__FILE__, __LINE__, os.str());
+                    throw Ice::FeatureNotSupportedException{__FILE__, __LINE__, os.str()};
                 }
             }
 
             ~DescriptorHolder()
             {
-#    ifndef NDEBUG
-                int rs = iconv_close(descriptor.first);
+                [[maybe_unused]] int rs = iconv_close(descriptor.first);
                 assert(rs == 0);
 
                 rs = iconv_close(descriptor.second);
                 assert(rs == 0);
-#    else
-                iconv_close(descriptor.first);
-                iconv_close(descriptor.second);
-#    endif
             }
 
             DescriptorHolder(const DescriptorHolder&) = delete;
@@ -140,14 +94,7 @@ namespace IceInternal
         //
         // Verify that iconv supports conversion to/from internalCode
         //
-        try
-        {
-            const DescriptorHolder descriptorHolder(internalCode);
-        }
-        catch (const Ice::IllegalConversionException& sce)
-        {
-            throw Ice::IconvInitializationException(__FILE__, __LINE__, sce.what());
-        }
+        const DescriptorHolder descriptorHolder(internalCode);
     }
 
     template<typename charT> std::pair<iconv_t, iconv_t> IconvStringConverter<charT>::getDescriptors() const
@@ -165,18 +112,9 @@ namespace IceInternal
         //
         // Reset cd
         //
-#    ifdef NDEBUG
-        iconv(cd, 0, 0, 0, 0);
-#    else
-        size_t rs = iconv(cd, 0, 0, 0, 0);
-        assert(rs == 0);
-#    endif
+        [[maybe_unused]] size_t rs = iconv(cd, 0, 0, 0, 0);
 
-#    ifdef ICE_CONST_ICONV_INBUF
-        const char* inbuf = reinterpret_cast<const char*>(sourceStart);
-#    else
         char* inbuf = reinterpret_cast<char*>(const_cast<charT*>(sourceStart));
-#    endif
         size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart) * sizeof(charT);
         std::byte* outbuf = nullptr;
 
@@ -212,18 +150,9 @@ namespace IceInternal
         //
         // Reset cd
         //
-#    ifdef NDEBUG
-        iconv(cd, 0, 0, 0, 0);
-#    else
-        size_t rs = iconv(cd, 0, 0, 0, 0);
+        [[maybe_unused]] size_t rs = iconv(cd, 0, 0, 0, 0);
         assert(rs == 0);
-#    endif
-
-#    ifdef ICE_CONST_ICONV_INBUF
-        const char* inbuf = reinterpret_cast<const char*>(sourceStart);
-#    else
         char* inbuf = reinterpret_cast<char*>(const_cast<std::byte*>(sourceStart));
-#    endif
         assert(sourceEnd > sourceStart);
         size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart);
 
@@ -269,7 +198,7 @@ namespace Ice
      * Creates a string converter for the given code.
      * @param internalCodeWithDefault The desired code. If empty or not provided, a default code is used.
      * @return The converter object.
-     * @throws IconvInitializationException If the code is not supported.
+     * @throws FeatureNotSupportedException If the code is not supported.
      */
     template<typename charT>
     std::shared_ptr<Ice::BasicStringConverter<charT>>

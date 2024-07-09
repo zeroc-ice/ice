@@ -11,29 +11,10 @@
 using namespace IceInternal;
 using namespace std;
 
-Slice::FileException::FileException(const char* file, int line, const string& r)
-    : Ice::LocalException(file, line),
-      _reason(r)
-{
-}
-
 const char*
 Slice::FileException::ice_id() const noexcept
 {
     return "::Slice::FileException";
-}
-
-void
-Slice::FileException::ice_print(ostream& out) const
-{
-    Ice::LocalException::ice_print(out);
-    out << ": " << _reason;
-}
-
-string
-Slice::FileException::reason() const
-{
-    return _reason;
 }
 
 static Slice::FileTrackerPtr Instance;

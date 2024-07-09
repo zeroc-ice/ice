@@ -63,7 +63,7 @@ IceBox::IceBoxService::start(int argc, char* argv[], int& status)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        error(e.reason);
+        error(e.what());
         usage(argv[0]);
         return false;
     }

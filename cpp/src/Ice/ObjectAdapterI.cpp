@@ -45,14 +45,6 @@ using namespace IceInternal;
 
 namespace
 {
-    inline void checkServant(const ObjectPtr& servant)
-    {
-        if (!servant)
-        {
-            throw IllegalServantException(__FILE__, __LINE__, "cannot add null servant to Object Adapter");
-        }
-    }
-
     inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
 }
 
@@ -377,7 +369,10 @@ Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, co
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkServant(object);
+    if (!object)
+    {
+        throw std::invalid_argument{"cannot add null servant to Ice object adapter"};
+    }
     checkIdentity(ident, __FILE__, __LINE__);
 
     _servantManager->addServant(object, ident, facet);
@@ -402,7 +397,10 @@ Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& fac
 void
 Ice::ObjectAdapterI::addDefaultServant(const ObjectPtr& servant, const string& category)
 {
-    checkServant(servant);
+    if (!servant)
+    {
+        throw std::invalid_argument{"cannot add null servant to Ice object adapter"};
+    }
 
     lock_guard lock(_mutex);
 

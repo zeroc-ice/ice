@@ -1394,7 +1394,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         }
         catch (const SocketException& ex)
         {
-            if (noMoreFds(ex.error))
+            if (noMoreFds(ex.error()))
             {
                 Error out(_instance->initializationData().logger);
                 out << "can't accept more connections:\n" << ex << '\n' << _acceptor->toString();

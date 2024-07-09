@@ -88,9 +88,11 @@ final class AlreadyRegisteredException extends LocalException
 
 final class CommunicatorDestroyedException extends LocalException {}
 
-final class ConnectionIdleException extends LocalException {}
+// We don't map closedByApplication because it's very difficult to produce a ConnectionAbortedException or
+// ConnectionClosedException without AMI.
+final class ConnectionAbortedException extends LocalException {}
 
-final class ConnectionManuallyClosedException extends LocalException {}
+final class ConnectionClosedException extends LocalException {}
 
 final class FixedProxyException extends LocalException {}
 

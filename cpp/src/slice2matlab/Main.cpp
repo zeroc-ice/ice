@@ -4560,7 +4560,7 @@ compile(const vector<string>& argv)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        consoleErr << argv[0] << ": error: " << e.reason << endl;
+        consoleErr << argv[0] << ": error: " << e.what() << endl;
         if (!validate)
         {
             usage(argv[0]);
@@ -4758,7 +4758,7 @@ compile(const vector<string>& argv)
                         //
                         FileTracker::instance()->cleanup();
                         u->destroy();
-                        consoleErr << argv[0] << ": error: " << ex.reason() << endl;
+                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
                         status = EXIT_FAILURE;
                         FileTracker::instance()->error();
                         break;

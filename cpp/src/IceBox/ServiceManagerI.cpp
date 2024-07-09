@@ -39,7 +39,7 @@ namespace
                 throw FailureException(
                     __FILE__,
                     __LINE__,
-                    "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.reason);
+                    "ServiceManager: invalid arguments for service '" + name + "':\n" + string{ex.what()});
             }
 
             assert(!args.empty());
@@ -479,7 +479,7 @@ IceBox::ServiceManagerI::start()
     catch (const FailureException& ex)
     {
         Error out(_logger);
-        out << ex.reason;
+        out << ex.what();
         stopAll();
         return false;
     }

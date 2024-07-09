@@ -135,9 +135,9 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
             do {
                 _ = try connection.getInfo()
                 Thread.sleep(forTimeInterval: 0.01)
-            } catch let ex as Ice.ConnectionManuallyClosedException {
+            } catch let ex as Ice.ConnectionClosedException {
                 // Expected.
-                try test(ex.graceful)
+                try test(ex.closedByApplication)
                 break
             }
         }

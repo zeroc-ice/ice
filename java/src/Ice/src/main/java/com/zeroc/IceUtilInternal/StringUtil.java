@@ -479,22 +479,6 @@ public final class StringUtil {
   }
 
   //
-  // Join a list of strings using the given delimiter.
-  //
-  public static String joinString(java.util.List<String> values, String delimiter) {
-    StringBuffer s = new StringBuffer();
-    boolean first = true;
-    for (String v : values) {
-      if (!first) {
-        s.append(delimiter);
-      }
-      s.append(v);
-      first = false;
-    }
-    return s.toString();
-  }
-
-  //
   // Split string helper; returns null for unmatched quotes
   //
   public static String[] splitString(String str, String delim) {
@@ -545,10 +529,6 @@ public final class StringUtil {
       return null; // Unmatched quote.
     }
     return l.toArray(new String[0]);
-  }
-
-  public static int checkQuote(String s) {
-    return checkQuote(s, 0);
   }
 
   //

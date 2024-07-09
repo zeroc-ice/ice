@@ -452,13 +452,16 @@ Ice::ConnectionI::destroy(DestructionReason reason)
     {
         case ObjectAdapterDeactivated:
         {
-            setState(StateClosing, make_exception_ptr(ObjectAdapterDeactivatedException(__FILE__, __LINE__)));
+            setState(
+                StateClosing,
+                make_exception_ptr(
+                    ObjectAdapterDeactivatedException{__FILE__, __LINE__, _adapter ? _adapter->getName() : ""}));
             break;
         }
 
         case CommunicatorDestroyed:
         {
-            setState(StateClosing, make_exception_ptr(CommunicatorDestroyedException(__FILE__, __LINE__)));
+            setState(StateClosing, make_exception_ptr(CommunicatorDestroyedException{__FILE__, __LINE__}));
             break;
         }
     }
@@ -471,11 +474,20 @@ Ice::ConnectionI::close(ConnectionClose mode) noexcept
 
     if (mode == ConnectionClose::Forcefully)
     {
-        setState(StateClosed, make_exception_ptr(ConnectionManuallyClosedException(__FILE__, __LINE__, false)));
+        setState(
+            StateClosed,
+            make_exception_ptr(
+                ConnectionAbortedException{__FILE__, __LINE__, "connection aborted by the application", true}));
     }
     else if (mode == ConnectionClose::Gracefully)
     {
-        setState(StateClosing, make_exception_ptr(ConnectionManuallyClosedException(__FILE__, __LINE__, true)));
+        setState(
+            StateClosing,
+            make_exception_ptr(ConnectionClosedException{
+                __FILE__,
+                __LINE__,
+                "connection closed gracefully by the application",
+                true}));
     }
     else
     {
@@ -486,7 +498,13 @@ Ice::ConnectionI::close(ConnectionClose mode) noexcept
         //
         _conditionVariable.wait(lock, [this] { return _asyncRequests.empty(); });
 
-        setState(StateClosing, make_exception_ptr(ConnectionManuallyClosedException(__FILE__, __LINE__, true)));
+        setState(
+            StateClosing,
+            make_exception_ptr(ConnectionClosedException{
+                __FILE__,
+                __LINE__,
+                "connection closed gracefully by the application",
+                true}));
     }
 }
 
@@ -882,7 +900,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
             {
                 rethrow_exception(ex);
             }
-            catch (const ConnectionIdleException&)
+            catch (const ConnectionAbortedException&)
             {
                 setState(StateClosed, ex);
             }
@@ -920,7 +938,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                 {
                     rethrow_exception(ex);
                 }
-                catch (const ConnectionIdleException&)
+                catch (const ConnectionAbortedException&)
                 {
                     setState(StateClosed, ex);
                 }
@@ -946,7 +964,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                 {
                     rethrow_exception(ex);
                 }
-                catch (const ConnectionIdleException&)
+                catch (const ConnectionAbortedException&)
                 {
                     setState(StateClosed, ex);
                 }
@@ -1686,13 +1704,10 @@ Ice::ConnectionI::finish(bool close)
             catch (const CloseConnectionException&)
             {
             }
-            catch (const ConnectionManuallyClosedException&)
+            catch (const ConnectionAbortedException&)
             {
             }
             catch (const ConnectionClosedException&)
-            {
-            }
-            catch (const ConnectionIdleException&)
             {
             }
             catch (const CommunicatorDestroyedException&)
@@ -2031,13 +2046,10 @@ Ice::ConnectionI::setState(State state, exception_ptr ex)
             catch (const CloseConnectionException&)
             {
             }
-            catch (const ConnectionManuallyClosedException&)
+            catch (const ConnectionAbortedException&)
             {
             }
             catch (const ConnectionClosedException&)
-            {
-            }
-            catch (const ConnectionIdleException&)
             {
             }
             catch (const CommunicatorDestroyedException&)
@@ -2219,13 +2231,10 @@ Ice::ConnectionI::setState(State state)
             catch (const CloseConnectionException&)
             {
             }
-            catch (const ConnectionManuallyClosedException&)
+            catch (const ConnectionAbortedException&)
             {
             }
             catch (const ConnectionClosedException&)
-            {
-            }
-            catch (const ConnectionIdleException&)
             {
             }
             catch (const CommunicatorDestroyedException&)
@@ -2347,7 +2356,14 @@ Ice::ConnectionI::idleCheck(const Ice::TimerTaskPtr& idleCheckTimerTask, const c
                 out << _transceiver->toDetailedString();
             }
 
-            setState(StateClosed, make_exception_ptr(ConnectionIdleException(__FILE__, __LINE__)));
+            setState(
+                StateClosed,
+                make_exception_ptr(ConnectionAbortedException{
+                    __FILE__,
+                    __LINE__,
+                    "connection aborted by the idle check because it did not receive any bytes for " +
+                        to_string(idleTimeout.count()) + "s",
+                    false})); // closedByApplication: false
         }
     }
     // else, nothing to do
@@ -2372,7 +2388,8 @@ Ice::ConnectionI::inactivityCheck() noexcept
                 make_exception_ptr(ConnectionClosedException{
                     __FILE__,
                     __LINE__,
-                    "connection closed because it remained inactive for longer than the inactivity timeout"}));
+                    "connection closed because it remained inactive for longer than the inactivity timeout",
+                    false}));
         }
     }
 }

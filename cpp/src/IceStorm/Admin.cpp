@@ -90,7 +90,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     }
     catch (const IceInternal::BadOptException& e)
     {
-        consoleErr << e.reason << endl;
+        consoleErr << e.what() << endl;
         usage(args[0]);
         return 1;
     }

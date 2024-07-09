@@ -76,7 +76,7 @@ Slice::Ruby::compile(const vector<string>& argv)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        consoleErr << argv[0] << ": error: " << e.reason << endl;
+        consoleErr << argv[0] << ": error: " << e.what() << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -281,7 +281,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                         // any created files.
                         FileTracker::instance()->cleanup();
                         u->destroy();
-                        consoleErr << argv[0] << ": error: " << ex.reason() << endl;
+                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
                         return EXIT_FAILURE;
                     }
                 }

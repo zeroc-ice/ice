@@ -36,7 +36,7 @@ Publisher::run(int argc, char** argv)
     catch (const IceInternal::BadOptException& e)
     {
         ostringstream os;
-        os << argv[0] << ": " << e.reason;
+        os << argv[0] << ": " << e.what();
         throw invalid_argument(os.str());
     }
 

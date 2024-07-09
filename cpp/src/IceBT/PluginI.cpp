@@ -15,13 +15,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-void
-IceBT::BluetoothException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nbluetooth exception: `" << reason << "'";
-}
-
 //
 // Plug-in factory function.
 //

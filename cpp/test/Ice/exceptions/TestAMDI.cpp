@@ -247,7 +247,7 @@ ThrowerI::throwLocalExceptionAsync(function<void()>, function<void(exception_ptr
 {
     try
     {
-        throw Ice::TimeoutException(__FILE__, __LINE__);
+        throw Ice::TimeoutException{__FILE__, __LINE__, "thrower throwing timeout exception"};
     }
     catch (...)
     {
@@ -285,19 +285,9 @@ ThrowerI::throwMemoryLimitExceptionAsync(
 }
 
 void
-ThrowerI::throwLocalExceptionIdempotentAsync(
-    function<void()>,
-    function<void(exception_ptr)> exception,
-    const Ice::Current&)
+ThrowerI::throwLocalExceptionIdempotentAsync(function<void()>, function<void(exception_ptr)> error, const Ice::Current&)
 {
-    try
-    {
-        throw Ice::TimeoutException(__FILE__, __LINE__);
-    }
-    catch (...)
-    {
-        exception(current_exception());
-    }
+    error(make_exception_ptr(Ice::TimeoutException{__FILE__, __LINE__, "thrower throwing timeout exception"}));
 }
 
 void

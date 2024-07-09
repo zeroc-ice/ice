@@ -7,7 +7,6 @@
 #include "ice.h"
 
 #include <array>
-#include <codecvt>
 #include <locale>
 #include <string>
 
@@ -50,45 +49,19 @@ namespace
 mxArray*
 IceMatlab::createStringFromUTF8(const string& s)
 {
-    if (s.empty())
-    {
-        return mxCreateString("");
-    }
-    else
-    {
-#if defined(_MSC_VER)
-        // Workaround for Visual Studio bug that causes a link error when using char16_t.
-        wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
-
-#else
-        u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
-#endif
-        mwSize dims[2] = {1, static_cast<mwSize>(utf16.size())};
-        auto r = mxCreateCharArray(2, dims);
-        auto buf = mxGetChars(r);
-        int i = 0;
-
-#if defined(_MSC_VER)
-        for (wchar_t c : utf16)
-#else
-        for (char16_t c : utf16)
-#endif
-        {
-            buf[i++] = static_cast<mxChar>(c);
-        }
-        return r;
-    }
+    // mxCreateString accepts a UTF-8 input since MATLAB 2020b.
+    return mxCreateString(s.c_str());
 }
 
 string
 IceMatlab::getStringFromUTF16(mxArray* p)
 {
-    auto s = mxArrayToUTF8String(p);
+    char* s = mxArrayToUTF8String(p);
     if (!s)
     {
         throw std::invalid_argument("value is not a char array");
     }
-    string str(s);
+    string str{s};
     mxFree(s);
     return str;
 }
@@ -341,11 +314,21 @@ namespace
         return ex;
     }
 
-    template<size_t N> mxArray* createMatlabExceptionWithTrap(const char* typeId, std::array<mxArray*, N> params)
+    // Create a "standard" MATLAB exception for the given typeId then fallback to LocalException.
+    mxArray* createMatlabException(const char* typeId, const char* what)
     {
+        string errID = replace(string{typeId}.substr(2), "::", ":");
+        std::array params{IceMatlab::createStringFromUTF8(errID), IceMatlab::createStringFromUTF8(what)};
+
         string className = replace(string{typeId}.substr(2), "::", ".");
         mxArray* ex;
-        mexCallMATLABWithTrap(1, &ex, static_cast<int>(N), params.data(), className.c_str()); // keep going on error
+
+        // keep going on error
+        mexCallMATLABWithTrap(1, &ex, static_cast<int>(params.size()), params.data(), className.c_str());
+        if (!ex)
+        {
+            mexCallMATLAB(1, &ex, static_cast<int>(params.size()), params.data(), "Ice.LocalException");
+        }
         return ex;
     }
 }
@@ -364,6 +347,44 @@ IceMatlab::convertException(const std::exception_ptr exc)
     // - local exceptions thrown from MATLAB code for which we provide a convience constructor (e.g. MarshalException)
     // - local exceptions that define extra properties we want to expose to MATLAB users (e.g. ObjectNotExistException
     // via its base class, RequestFailedException)
+    catch (const Ice::AlreadyRegisteredException& e)
+    {
+        // Adapt to convenience constructor. We don't pass what() to MATLAB.
+        std::array params{createStringFromUTF8(e.kindOfObject()), createStringFromUTF8(e.id())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::NotRegisteredException& e)
+    {
+        // Adapt to convenience constructor. We don't pass what() to MATLAB.
+        std::array params{createStringFromUTF8(e.kindOfObject()), createStringFromUTF8(e.id())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::ConnectionAbortedException& e)
+    {
+        // ConnectionAbortedException does not have a convenience constructor since it's never thrown from MATLAB code.
+        string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
+        std::array params{
+            createBool(e.closedByApplication()),
+            createStringFromUTF8(errID),
+            createStringFromUTF8(e.what())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::ConnectionClosedException& e)
+    {
+        // ConnectionClosedException does not have a convenience constructor since it's never thrown from MATLAB code.
+        string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
+        std::array params{
+            createBool(e.closedByApplication()),
+            createStringFromUTF8(errID),
+            createStringFromUTF8(e.what())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::MarshalException& e)
+    {
+        // Adapt to convenience constructor.
+        std::array params{createStringFromUTF8(e.what())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
     catch (const Ice::RequestFailedException& e)
     {
         // The *NotExist exceptions are thrown only from the C++ code. They don't have a convenience constructor, but
@@ -376,26 +397,13 @@ IceMatlab::convertException(const std::exception_ptr exc)
             createStringFromUTF8(errID),
             createStringFromUTF8(e.what())};
 
-        result = createMatlabException(e.ice_id(), params);
-    }
-    catch (const Ice::MarshalException& e)
-    {
-        // Adapt to convenience constructor.
-        std::array params{createStringFromUTF8(e.what())};
-        result = createMatlabException(e.ice_id(), params);
+        result = createMatlabException(e.ice_id(), std::move(params));
     }
     catch (const Ice::UnknownUserException& e)
     {
         // Adapt to convenience constructor. First parameter is ignored.
         std::array params{createStringFromUTF8(""), createStringFromUTF8(e.what())};
-        result = createMatlabException(e.ice_id(), params);
-    }
-    catch (const Ice::AlreadyRegisteredException&)
-    {
-        // The Ice C++ client runtime does not throw this exception. We handle it here because it has a special
-        // constructor in MATLAB.
-        assert(false);
-        result = nullptr;
+        result = createMatlabException(e.ice_id(), std::move(params));
     }
     catch (const Ice::TwowayOnlyException&)
     {
@@ -406,28 +414,17 @@ IceMatlab::convertException(const std::exception_ptr exc)
     }
     catch (const Ice::LocalException& e)
     {
-        // Ice.LocalException and "standard" derived local exceptions have the same (errID, what) constructor.
-        string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
-        std::array params{createStringFromUTF8(errID), createStringFromUTF8(e.what())};
-        result = createMatlabExceptionWithTrap(e.ice_id(), params);
-
-        // If unsuccessful, create a plain LocalException.
-        if (!result)
-        {
-            // The failed attempt apparently updates the params, so we recreate them.
-            params = {createStringFromUTF8(errID), createStringFromUTF8(e.what())};
-            result = createMatlabException(localExceptionTypeId, params);
-        }
+        result = createMatlabException(e.ice_id(), e.what());
     }
     catch (const std::exception& e)
     {
         std::array params{createStringFromUTF8("Ice:CppException"), createStringFromUTF8(e.what())};
-        result = createMatlabException(localExceptionTypeId, params);
+        result = createMatlabException(localExceptionTypeId, std::move(params));
     }
     catch (...)
     {
         std::array params{createStringFromUTF8("Ice:CppException"), createStringFromUTF8("unknown C++ exception")};
-        result = createMatlabException(localExceptionTypeId, params);
+        result = createMatlabException(localExceptionTypeId, std::move(params));
     }
 
     return result;

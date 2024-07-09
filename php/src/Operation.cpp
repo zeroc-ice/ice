@@ -565,10 +565,9 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, pair<const byte*, const b
         }
         else
         {
-            // TODO: provide convenience constructor / factory function for UnknownUserException.
-            ostringstream os;
-            os << "operation raised undeclared exception '" << info->id << "'";
-            convertException(zex, make_exception_ptr(Ice::UnknownUserException{__FILE__, __LINE__, os.str()}));
+            convertException(
+                zex,
+                make_exception_ptr(Ice::UnknownUserException::fromTypeId(__FILE__, __LINE__, info->id.c_str())));
         }
     }
     catch (...)

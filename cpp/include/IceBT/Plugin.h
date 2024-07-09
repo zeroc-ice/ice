@@ -6,6 +6,7 @@
 #define ICE_BT_PLUGIN_H
 
 #include "Ice/Plugin.h"
+#include "Types.h"
 
 #include <functional>
 #include <map>
@@ -22,7 +23,7 @@ namespace IceBT
      * Represents the IceBT plug-in object.
      * \headerfile IceBT/IceBT.h
      */
-    class Plugin : public Ice::Plugin
+    class ICEBT_API Plugin : public Ice::Plugin
     {
     public:
         /**

@@ -5,6 +5,8 @@
 #include "Ice/Identity.h"
 #include "Ice/LocalExceptions.h"
 
+#include <sstream>
+
 namespace Ice
 {
     // An identity with an empty name is illegal for all Ice APIs: no Ice API returns such an identity, and no Ice API
@@ -13,7 +15,9 @@ namespace Ice
     {
         if (identity.name.empty())
         {
-            throw IllegalIdentityException(file, line);
+            std::ostringstream os;
+            os << file << ':' << line << ": the name component of an Ice identity cannot be empty";
+            throw std::invalid_argument(os.str());
         }
     }
 }

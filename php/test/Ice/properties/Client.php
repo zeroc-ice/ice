@@ -57,7 +57,7 @@ class Client extends TestHelper
             $properties->load("./config/xxxx.config");
             test(False);
         } catch (\Ice\LocalException $ex) {
-            test($ex->getMessage() == "::Ice::FileException"); // temporary C++ what() message
+            test(str_contains($ex->getMessage(), "error while accessing file './config/xxxx.config'"));
         }
         echo "ok\n";
 

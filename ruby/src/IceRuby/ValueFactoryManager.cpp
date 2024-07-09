@@ -71,8 +71,10 @@ IceRuby::ValueFactoryManager::ValueFactoryManager() : _defaultFactory{make_share
 void
 IceRuby::ValueFactoryManager::add(Ice::ValueFactory, string_view)
 {
-    // This means a C++ plugin cannot register a value factory with a Ruby application/communicator.
-    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
+    throw Ice::FeatureNotSupportedException{
+        __FILE__,
+        __LINE__,
+        "cannot register a C++ value factory with the Ice Ruby value factory manager"};
 }
 
 Ice::ValueFactory

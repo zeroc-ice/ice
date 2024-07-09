@@ -6,20 +6,6 @@
 
 require 'Ice'
 
-class App < Ice::Application
-    def run(args)
-        print "testing load properties from UTF-8 path using Ice::Application... "
-        properties = Ice::Application::communicator().getProperties()
-        test(properties.getProperty("Ice.Trace.Network") == "1")
-        test(properties.getProperty("Ice.Trace.Protocol") == "1")
-        test(properties.getProperty("Config.Path").eql? "./config/中国_client.config")
-        test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
-        test(Ice::Application::appName() == properties.getProperty("Ice.ProgramName"))
-        puts "ok"
-        return true
-    end
-end
-
 class Client < ::TestHelper
     def run(args)
 
@@ -29,7 +15,7 @@ class Client < ::TestHelper
             props.load("./config/xxxx.config")
         rescue Ice::LocalException => ex
             # The corresponding C++ exception (Ice::FileException) is not mapped to Ruby.
-            test(ex.message == "::Ice::FileException") # TODO: temporary until C++ message is fixed
+            test(ex.message["error while accessing file './config/xxxx.config'"])
         end
         puts "ok"
 
@@ -41,9 +27,6 @@ class Client < ::TestHelper
         test(properties.getProperty("Config.Path").eql? "./config/中国_client.config")
         test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
         puts "ok"
-
-        app = App.new()
-        app.main(args, "./config/中国_client.config")
 
         print "testing using Ice.Config with multiple config files... "
         properties = Ice.createProperties(["--Ice.Config=config/config.1, config/config.2, config/config.3"]);

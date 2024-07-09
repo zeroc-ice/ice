@@ -61,8 +61,10 @@ IcePy::ValueFactoryManager::~ValueFactoryManager()
 void
 IcePy::ValueFactoryManager::add(Ice::ValueFactory, string_view)
 {
-    // This means a C++ plugin cannot register a value factory with a Python application/communicator.
-    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
+    throw Ice::FeatureNotSupportedException{
+        __FILE__,
+        __LINE__,
+        "the Ice Python value factory manager does not accept C++ value factories"};
 }
 
 Ice::ValueFactory

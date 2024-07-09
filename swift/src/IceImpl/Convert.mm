@@ -28,6 +28,44 @@ convertException(std::exception_ptr exc)
     {
         rethrow_exception(exc);
     }
+    catch (const Ice::AlreadyRegisteredException& e)
+    {
+        return [factory registeredException:toNSString(e.ice_id())
+                               kindOfObject:toNSString(e.kindOfObject())
+                                   objectId:toNSString(e.id())
+                                    message:toNSString(e.what())
+                             cxxDescription:toNSString(cxxDescription(e))
+                                       file:toNSString(e.ice_file())
+                                       line:e.ice_line()];
+    }
+    catch (const Ice::NotRegisteredException& e)
+    {
+        return [factory registeredException:toNSString(e.ice_id())
+                               kindOfObject:toNSString(e.kindOfObject())
+                                   objectId:toNSString(e.id())
+                                    message:toNSString(e.what())
+                             cxxDescription:toNSString(cxxDescription(e))
+                                       file:toNSString(e.ice_file())
+                                       line:e.ice_line()];
+    }
+    catch (const Ice::ConnectionAbortedException& e)
+    {
+        return [factory connectionClosedException:toNSString(e.ice_id())
+                              closedByApplication:e.closedByApplication()
+                                          message:toNSString(e.what())
+                                   cxxDescription:toNSString(cxxDescription(e))
+                                             file:toNSString(e.ice_file())
+                                             line:e.ice_line()];
+    }
+    catch (const Ice::ConnectionClosedException& e)
+    {
+        return [factory connectionClosedException:toNSString(e.ice_id())
+                              closedByApplication:e.closedByApplication()
+                                          message:toNSString(e.what())
+                                   cxxDescription:toNSString(cxxDescription(e))
+                                             file:toNSString(e.ice_file())
+                                             line:e.ice_line()];
+    }
     catch (const Ice::RequestFailedException& e)
     {
         return [factory requestFailedException:toNSString(e.ice_id())
@@ -39,34 +77,6 @@ convertException(std::exception_ptr exc)
                                 cxxDescription:toNSString(cxxDescription(e))
                                           file:toNSString(e.ice_file())
                                           line:e.ice_line()];
-    }
-    catch (const Ice::AlreadyRegisteredException& e)
-    {
-        return [factory registeredException:toNSString(e.ice_id())
-                               kindOfObject:toNSString(e.kindOfObject)
-                                   objectId:toNSString(e.id)
-                                    message:toNSString(e.what())
-                             cxxDescription:toNSString(cxxDescription(e))
-                                       file:toNSString(e.ice_file())
-                                       line:e.ice_line()];
-    }
-    catch (const Ice::NotRegisteredException& e)
-    {
-        return [factory registeredException:toNSString(e.ice_id())
-                               kindOfObject:toNSString(e.kindOfObject)
-                                   objectId:toNSString(e.id)
-                                    message:toNSString(e.what())
-                             cxxDescription:toNSString(cxxDescription(e))
-                                       file:toNSString(e.ice_file())
-                                       line:e.ice_line()];
-    }
-    catch (const Ice::ConnectionManuallyClosedException& e)
-    {
-        return [factory connectionManuallyClosedException:e.graceful
-                                                  message:toNSString(e.what())
-                                           cxxDescription:toNSString(cxxDescription(e))
-                                                     file:toNSString(e.ice_file())
-                                                     line:e.ice_line()];
     }
     catch (const Ice::LocalException& e)
     {

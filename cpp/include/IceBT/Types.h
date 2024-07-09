@@ -18,63 +18,19 @@
 #    endif
 #endif
 
-#if defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
 namespace IceBT
 {
     /**
      * Indicates a failure in the Bluetooth plug-in.
      * \headerfile IceBT/IceBT.h
      */
-    class ICEBT_API BluetoothException : public Ice::LocalException
+    class ICEBT_API BluetoothException final : public Ice::LocalException
     {
     public:
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param reason Provides more information about the failure.
-         */
-        BluetoothException(const char* file, int line, std::string reason) noexcept
-            : LocalException(file, line),
-              reason(std::move(reason))
-        {
-        }
+        using Ice::LocalException::LocalException;
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        void ice_print(std::ostream& stream) const override;
-
-        const char* ice_id() const noexcept override;
-
-        /**
-         * Provides more information about the failure.
-         */
-        std::string reason;
+        const char* ice_id() const noexcept final;
     };
 }
-
-#if defined(__clang__)
-#    pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#endif
 
 #endif

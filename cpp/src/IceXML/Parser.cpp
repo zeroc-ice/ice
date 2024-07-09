@@ -18,36 +18,11 @@ using namespace IceXML;
 //
 // ParserException
 //
-IceXML::ParserException::ParserException(const char* file, int line, string reason) noexcept
-    : LocalException(file, line),
-      _reason(std::move(reason))
-{
-}
 
 const char*
 IceXML::ParserException::ice_id() const noexcept
 {
     return "::IceXML::ParserException";
-}
-
-void
-IceXML::ParserException::ice_print(std::ostream& out) const
-{
-    Exception::ice_print(out);
-    if (!_reason.empty())
-    {
-        out << "\n" << _reason;
-    }
-    else
-    {
-        out << ":\nXML parser exception";
-    }
-}
-
-string
-IceXML::ParserException::reason() const noexcept
-{
-    return _reason;
 }
 
 //

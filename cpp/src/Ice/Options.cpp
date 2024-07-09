@@ -12,62 +12,16 @@
 
 using namespace std;
 
-IceInternal::APIException::APIException(const char* file, int line, string r) noexcept
-    : Ice::LocalException(file, line),
-      reason(std::move(r))
-{
-}
-
 const char*
 IceInternal::APIException::ice_id() const noexcept
 {
     return "::IceInternal::APIException";
 }
 
-void
-IceInternal::APIException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    if (!reason.empty())
-    {
-        out << ": " << reason;
-    }
-}
-
-ostream&
-IceInternal::operator<<(ostream& out, const IceInternal::APIException& ex)
-{
-    ex.ice_print(out);
-    return out;
-}
-
-IceInternal::BadOptException::BadOptException(const char* file, int line, string r) noexcept
-    : Ice::LocalException(file, line),
-      reason(std::move(r))
-{
-}
-
 const char*
 IceInternal::BadOptException::ice_id() const noexcept
 {
     return "::IceInternal::BadOptException";
-}
-
-void
-IceInternal::BadOptException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    if (!reason.empty())
-    {
-        out << ": " << reason;
-    }
-}
-
-ostream&
-IceInternal::operator<<(ostream& out, const IceInternal::BadOptException& ex)
-{
-    ex.ice_print(out);
-    return out;
 }
 
 IceInternal::Options::Options() : parseCalled(false) {}

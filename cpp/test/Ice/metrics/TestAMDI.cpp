@@ -49,14 +49,7 @@ MetricsI::opWithRequestFailedExceptionAsync(function<void()>, function<void(exce
 void
 MetricsI::opWithLocalExceptionAsync(function<void()>, function<void(exception_ptr)> error, const Ice::Current&)
 {
-    try
-    {
-        throw Ice::SyscallException(__FILE__, __LINE__);
-    }
-    catch (...)
-    {
-        error(current_exception());
-    }
+    error(make_exception_ptr(Ice::SyscallException{__FILE__, __LINE__, "opWithLocalException simulated failure", 0}));
 }
 
 void

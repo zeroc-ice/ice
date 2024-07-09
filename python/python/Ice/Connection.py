@@ -340,10 +340,8 @@ if "Connection" not in _M_Ice.__dict__:
 
         def throwException(self):
             """
-            Throw an exception indicating the reason for connection closure. For example,
-            CloseConnectionException is raised if the connection was closed gracefully, whereas
-            ConnectionManuallyClosedException is raised if the connection was manually closed by
-            the application. This operation does nothing if the connection is not yet closed.
+            Throw an exception indicating the reason for connection closure. This operation does nothing if
+            the connection is not yet closed.
             """
             raise NotImplementedError("method 'throwException' not implemented")
 

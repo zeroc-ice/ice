@@ -256,7 +256,7 @@ Subscriber::run(int argc, char** argv)
     catch (const IceInternal::BadOptException& e)
     {
         ostringstream os;
-        os << argv[0] << ": error: " << e.reason;
+        os << argv[0] << ": error: " << e.what();
         throw invalid_argument(os.str());
     }
 
