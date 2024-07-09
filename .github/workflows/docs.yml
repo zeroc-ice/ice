@@ -72,10 +72,9 @@ jobs:
 
           aws s3 sync ./js/docs s3://${AWS_S3_DOC_BUCKET}/api/ice/main/js --delete
 
-          aws s3 sync ./swift/docs/ice s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/ice --delete
-          aws s3 sync ./swift/docs/glacier2 s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/glacier2 --delete
-          aws s3 sync ./swift/docs/icegrid s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/icegrid --delete
-          aws s3 sync ./swift/docs/icestorm s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/icestorm  --delete
+          for target in Ice Glacier2 IceGrid IceStorm; do
+            aws s3 sync ./swift/docs/$target s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/$target --delete
+          done
 
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
