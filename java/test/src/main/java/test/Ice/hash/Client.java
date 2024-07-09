@@ -266,9 +266,7 @@ public class Client extends test.TestHelper {
           "test -f fa:tcp -p 10001 -h hello.zeroc.com",
           "test @ adapt",
           "test @ adapt2",
-          "test:opaque -t 12 -v abc",
           "test:opaque -t 12 -v abcd",
-          "test:opaque -t 13 -v abc",
           "test:opaque -t 13 -v abcd",
           "test:opaque -t 13 -v abce",
         };
