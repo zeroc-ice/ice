@@ -300,8 +300,8 @@ final class UdpEndpointI extends IPEndpointI {
   }
 
   @Override
-  public int hashInit(int h) {
-    h = super.hashInit(h);
+  public int hashCode() {
+    int h = super.hashCode();
     h = HashUtil.hashAdd(h, _mcastInterface);
     h = HashUtil.hashAdd(h, _mcastTtl);
     h = HashUtil.hashAdd(h, _connect);

@@ -27,14 +27,6 @@ using namespace IceInternal;
 
 namespace
 {
-    void hashAdd(long& hashCode, const std::string& value)
-    {
-        for (std::string::const_iterator p = value.begin(); p != value.end(); ++p)
-        {
-            hashCode = ((hashCode << 5) + hashCode) ^ *p;
-        }
-    }
-
     string typeToBufferString(const TypePtr& type)
     {
         static const char* builtinBufferTable[] = {
@@ -616,7 +608,10 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 
     const string data = os.str();
     long hashCode = 5381;
-    hashAdd(hashCode, data);
+    for (const auto& c : data)
+    {
+        hashCode = ((hashCode << 5) + hashCode) ^ c;
+    }
     return hashCode;
 }
 

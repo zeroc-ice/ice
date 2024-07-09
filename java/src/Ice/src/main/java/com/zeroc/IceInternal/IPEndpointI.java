@@ -18,7 +18,6 @@ public abstract class IPEndpointI extends EndpointI {
     _port = port;
     _sourceAddr = sourceAddr;
     _connectionId = connectionId;
-    _hashInitialized = false;
   }
 
   protected IPEndpointI(ProtocolInstance instance) {
@@ -27,7 +26,6 @@ public abstract class IPEndpointI extends EndpointI {
     _port = 0;
     _sourceAddr = null;
     _connectionId = "";
-    _hashInitialized = false;
   }
 
   protected IPEndpointI(ProtocolInstance instance, com.zeroc.Ice.InputStream s) {
@@ -36,7 +34,6 @@ public abstract class IPEndpointI extends EndpointI {
     _port = s.readInt();
     _sourceAddr = null;
     _connectionId = "";
-    _hashInitialized = false;
   }
 
   @Override
@@ -176,14 +173,16 @@ public abstract class IPEndpointI extends EndpointI {
   }
 
   @Override
-  public synchronized int hashCode() {
-    if (!_hashInitialized) {
-      _hashValue = 5381;
-      _hashValue = HashUtil.hashAdd(_hashValue, type());
-      _hashValue = hashInit(_hashValue);
-      _hashInitialized = true;
+  public int hashCode() {
+    int h = 5381;
+    h = HashUtil.hashAdd(h, type());
+    h = HashUtil.hashAdd(h, _host);
+    h = HashUtil.hashAdd(h, _port);
+    h = HashUtil.hashAdd(h, _connectionId);
+    if (_sourceAddr != null) {
+      h = HashUtil.hashAdd(h, _sourceAddr.getAddress().getHostAddress());
     }
-    return _hashValue;
+    return h;
   }
 
   @Override
@@ -262,16 +261,6 @@ public abstract class IPEndpointI extends EndpointI {
   public void streamWriteImpl(com.zeroc.Ice.OutputStream s) {
     s.writeString(_host);
     s.writeInt(_port);
-  }
-
-  public int hashInit(int h) {
-    h = HashUtil.hashAdd(h, _host);
-    h = HashUtil.hashAdd(h, _port);
-    if (_sourceAddr != null) {
-      h = HashUtil.hashAdd(h, _sourceAddr.getAddress().getHostAddress());
-    }
-    h = HashUtil.hashAdd(h, _connectionId);
-    return h;
   }
 
   public void fillEndpointInfo(com.zeroc.Ice.IPEndpointInfo info) {
@@ -355,11 +344,9 @@ public abstract class IPEndpointI extends EndpointI {
 
   protected abstract IPEndpointI createEndpoint(String host, int port, String connectionId);
 
-  protected ProtocolInstance _instance;
+  protected final ProtocolInstance _instance;
   protected String _host;
   protected int _port;
   protected java.net.InetSocketAddress _sourceAddr;
-  protected String _connectionId;
-  private boolean _hashInitialized;
-  private int _hashValue;
+  protected final String _connectionId;
 }

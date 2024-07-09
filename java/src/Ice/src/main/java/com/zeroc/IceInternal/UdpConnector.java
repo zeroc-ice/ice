@@ -31,7 +31,16 @@ final class UdpConnector implements Connector {
 
   @Override
   public int hashCode() {
-    return _hashCode;
+    int h = 5381;
+    h = HashUtil.hashAdd(h, _addr.getAddress().getHostAddress());
+    h = HashUtil.hashAdd(h, _addr.getPort());
+    if (_sourceAddr != null) {
+      h = HashUtil.hashAdd(h, _sourceAddr.getAddress().getHostAddress());
+    }
+    h = HashUtil.hashAdd(h, _mcastInterface);
+    h = HashUtil.hashAdd(h, _mcastTtl);
+    h = HashUtil.hashAdd(h, _connectionId);
+    return h;
   }
 
   //
@@ -50,16 +59,6 @@ final class UdpConnector implements Connector {
     _mcastInterface = mcastInterface;
     _mcastTtl = mcastTtl;
     _connectionId = connectionId;
-
-    _hashCode = 5381;
-    _hashCode = HashUtil.hashAdd(_hashCode, _addr.getAddress().getHostAddress());
-    _hashCode = HashUtil.hashAdd(_hashCode, _addr.getPort());
-    if (_sourceAddr != null) {
-      _hashCode = HashUtil.hashAdd(_hashCode, _sourceAddr.getAddress().getHostAddress());
-    }
-    _hashCode = HashUtil.hashAdd(_hashCode, _mcastInterface);
-    _hashCode = HashUtil.hashAdd(_hashCode, _mcastTtl);
-    _hashCode = HashUtil.hashAdd(_hashCode, _connectionId);
   }
 
   @Override
@@ -92,11 +91,10 @@ final class UdpConnector implements Connector {
     return Network.compareAddress(_addr, p._addr) == 0;
   }
 
-  private ProtocolInstance _instance;
-  private java.net.InetSocketAddress _addr;
-  private java.net.InetSocketAddress _sourceAddr;
-  private String _mcastInterface;
-  private int _mcastTtl;
-  private String _connectionId;
-  private int _hashCode;
+  private final ProtocolInstance _instance;
+  private final java.net.InetSocketAddress _addr;
+  private final java.net.InetSocketAddress _sourceAddr;
+  private final String _mcastInterface;
+  private final int _mcastTtl;
+  private final String _connectionId;
 }

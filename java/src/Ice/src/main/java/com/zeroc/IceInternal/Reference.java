@@ -169,11 +169,7 @@ public abstract class Reference implements Cloneable {
   public abstract Reference changeConnection(com.zeroc.Ice.ConnectionI connection);
 
   @Override
-  public synchronized int hashCode() {
-    if (_hashInitialized) {
-      return _hashValue;
-    }
-
+  public  int hashCode() {
     int h = 5381;
     h = HashUtil.hashAdd(h, _mode);
     h = HashUtil.hashAdd(h, _secure);
@@ -183,14 +179,10 @@ public abstract class Reference implements Cloneable {
     if (_compress.isPresent()) {
       h = HashUtil.hashAdd(h, _compress.get());
     }
-    h = HashUtil.hashAdd(h, _protocol);
-    h = HashUtil.hashAdd(h, _encoding);
+    // We don't include protocol and encoding in the hash; they are using 1.0 and 1.1, respectively.
     h = HashUtil.hashAdd(h, _invocationTimeout);
 
-    _hashValue = h;
-    _hashInitialized = true;
-
-    return _hashValue;
+    return h;
   }
 
   // Gets the effective compression setting, taking into account the override.
@@ -417,22 +409,20 @@ public abstract class Reference implements Cloneable {
     return c;
   }
 
-  protected int _hashValue;
-  protected boolean _hashInitialized;
   private static java.util.Map<String, String> _emptyContext = new java.util.HashMap<>();
 
   private final Instance _instance;
   private final com.zeroc.Ice.Communicator _communicator;
 
-  private int _mode;
-  private boolean _secure;
-  private java.util.Optional<Boolean> _compress;
-  private com.zeroc.Ice.Identity _identity;
-  private java.util.Map<String, String> _context;
-  private String _facet;
-  private com.zeroc.Ice.ProtocolVersion _protocol;
-  private com.zeroc.Ice.EncodingVersion _encoding;
-  private int _invocationTimeout;
+  private final int _mode;
+  private final boolean _secure;
+  private final java.util.Optional<Boolean> _compress;
+  private final com.zeroc.Ice.Identity _identity;
+  private final java.util.Map<String, String> _context;
+  private final String _facet;
+  private final com.zeroc.Ice.ProtocolVersion _protocol;
+  private final com.zeroc.Ice.EncodingVersion _encoding;
+  private final int _invocationTimeout;
 
   protected Reference(
       Instance instance,
@@ -464,6 +454,5 @@ public abstract class Reference implements Cloneable {
     _protocol = protocol;
     _encoding = encoding;
     _invocationTimeout = invocationTimeout;
-    _hashInitialized = false;
   }
 }

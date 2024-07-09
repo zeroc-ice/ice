@@ -207,7 +207,7 @@ final class WSEndpoint extends EndpointI {
   }
 
   @Override
-  public synchronized int hashCode() {
+  public int hashCode() {
     int h = _delegate.hashCode();
     h = HashUtil.hashAdd(h, _resource);
     return h;

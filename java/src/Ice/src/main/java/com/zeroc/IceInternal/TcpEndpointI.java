@@ -206,8 +206,8 @@ final class TcpEndpointI extends IPEndpointI {
   }
 
   @Override
-  public int hashInit(int h) {
-    h = super.hashInit(h);
+  public int hashCode() {
+    int h = super.hashCode();
     h = HashUtil.hashAdd(h, _timeout);
     h = HashUtil.hashAdd(h, _compress);
     return h;

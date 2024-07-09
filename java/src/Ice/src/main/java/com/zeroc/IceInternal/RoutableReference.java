@@ -306,12 +306,11 @@ public class RoutableReference extends Reference {
   }
 
   @Override
-  public synchronized int hashCode() {
-    if (!_hashInitialized) {
-      super.hashCode(); // Initializes _hashValue.
-      _hashValue = HashUtil.hashAdd(_hashValue, _adapterId);
-    }
-    return _hashValue;
+  public int hashCode() {
+    int h = super.hashCode();
+    h = HashUtil.hashAdd(h, _adapterId);
+    h = HashUtil.hashAdd(h, _endpoints);
+    return h;
   }
 
   @Override
@@ -480,7 +479,7 @@ public class RoutableReference extends Reference {
       RouterInfo routerInfo,
       boolean collocationOptimized,
       boolean cacheConnection,
-      boolean prefereSecure,
+      boolean preferSecure,
       com.zeroc.Ice.EndpointSelectionType endpointSelection,
       int locatorCacheTimeout,
       int invocationTimeout,
@@ -503,7 +502,7 @@ public class RoutableReference extends Reference {
     _routerInfo = routerInfo;
     _collocationOptimized = collocationOptimized;
     _cacheConnection = cacheConnection;
-    _preferSecure = prefereSecure;
+    _preferSecure = preferSecure;
     _endpointSelection = endpointSelection;
     _locatorCacheTimeout = locatorCacheTimeout;
 
@@ -737,7 +736,7 @@ public class RoutableReference extends Reference {
       }
     }
 
-    private boolean _preferSecure;
+    private final boolean _preferSecure;
   }
 
   private static EndpointComparator _preferNonSecureEndpointComparator =
@@ -745,14 +744,14 @@ public class RoutableReference extends Reference {
   private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
   private static EndpointI[] _emptyEndpoints = new EndpointI[0];
 
-  private EndpointI[] _endpoints;
-  private String _adapterId;
-  private LocatorInfo _locatorInfo; // Null if no router is used.
-  private RouterInfo _routerInfo; // Null if no router is used.
-  private boolean _collocationOptimized;
-  private boolean _cacheConnection;
-  private boolean _preferSecure;
-  private com.zeroc.Ice.EndpointSelectionType _endpointSelection;
-  private int _locatorCacheTimeout;
-  private String _connectionId = "";
+  private final EndpointI[] _endpoints;
+  private final String _adapterId;
+  private final LocatorInfo _locatorInfo; // Null if no router is used.
+  private final RouterInfo _routerInfo; // Null if no router is used.
+  private final boolean _collocationOptimized;
+  private final boolean _cacheConnection;
+  private final boolean _preferSecure;
+  private final com.zeroc.Ice.EndpointSelectionType _endpointSelection;
+  private final int _locatorCacheTimeout;
+  private final String _connectionId = "";
 }

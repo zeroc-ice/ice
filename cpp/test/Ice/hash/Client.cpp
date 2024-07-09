@@ -112,8 +112,10 @@ Client::run(int argc, char** argv)
         "test @ adapt",
         "test @ adapt2",
         "test:opaque -t 12 -v abc",
+        "test:opaque -t 12 -v abcd",
         "test:opaque -t 13 -v abc",
         "test:opaque -t 13 -v abcd",
+        "test:opaque -t 13 -v abce",
     };
 
     set<size_t> hashes;

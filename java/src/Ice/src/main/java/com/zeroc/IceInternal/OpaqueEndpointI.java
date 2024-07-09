@@ -22,8 +22,6 @@ final class OpaqueEndpointI extends EndpointI {
     if (_rawBytes.length == 0) {
       throw new EndpointParseException("no -v option in endpoint " + toString());
     }
-
-    calcHashValue();
   }
 
   public OpaqueEndpointI(short type, com.zeroc.Ice.InputStream s) {
@@ -31,8 +29,6 @@ final class OpaqueEndpointI extends EndpointI {
     _rawEncoding = s.getEncoding();
     int sz = s.getEncapsulationSize();
     _rawBytes = s.readBlob(sz);
-
-    calcHashValue();
   }
 
   //
@@ -215,7 +211,10 @@ final class OpaqueEndpointI extends EndpointI {
 
   @Override
   public int hashCode() {
-    return _hashCode;
+    int h = 5381;
+    h = HashUtil.hashAdd(h, _type);
+    h = HashUtil.hashAdd(h, _rawBytes);
+    return h;
   }
 
   @Override
@@ -356,16 +355,7 @@ final class OpaqueEndpointI extends EndpointI {
     }
   }
 
-  private void calcHashValue() {
-    int h = 5381;
-    h = HashUtil.hashAdd(h, _type);
-    h = HashUtil.hashAdd(h, _rawEncoding);
-    h = HashUtil.hashAdd(h, _rawBytes);
-    _hashCode = h;
-  }
-
   private short _type;
   private com.zeroc.Ice.EncodingVersion _rawEncoding;
   private byte[] _rawBytes;
-  private int _hashCode;
 }
