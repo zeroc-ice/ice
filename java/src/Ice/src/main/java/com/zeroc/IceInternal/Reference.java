@@ -414,15 +414,15 @@ public abstract class Reference implements Cloneable {
   private final Instance _instance;
   private final com.zeroc.Ice.Communicator _communicator;
 
-  private final int _mode;
-  private final boolean _secure;
-  private final java.util.Optional<Boolean> _compress;
-  private final com.zeroc.Ice.Identity _identity;
-  private final java.util.Map<String, String> _context;
-  private final String _facet;
+  private int _mode;
+  private boolean _secure;
+  private java.util.Optional<Boolean> _compress;
+  private com.zeroc.Ice.Identity _identity;
+  private java.util.Map<String, String> _context;
+  private String _facet;
   private final com.zeroc.Ice.ProtocolVersion _protocol;
-  private final com.zeroc.Ice.EncodingVersion _encoding;
-  private final int _invocationTimeout;
+  private com.zeroc.Ice.EncodingVersion _encoding;
+  private int _invocationTimeout;
 
   protected Reference(
       Instance instance,

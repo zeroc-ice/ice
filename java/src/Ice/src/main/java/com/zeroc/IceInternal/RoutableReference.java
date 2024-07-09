@@ -744,14 +744,14 @@ public class RoutableReference extends Reference {
   private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
   private static EndpointI[] _emptyEndpoints = new EndpointI[0];
 
-  private final EndpointI[] _endpoints;
-  private final String _adapterId;
-  private final LocatorInfo _locatorInfo; // Null if no router is used.
-  private final RouterInfo _routerInfo; // Null if no router is used.
-  private final boolean _collocationOptimized;
-  private final boolean _cacheConnection;
-  private final boolean _preferSecure;
-  private final com.zeroc.Ice.EndpointSelectionType _endpointSelection;
-  private final int _locatorCacheTimeout;
-  private final String _connectionId = "";
+  private EndpointI[] _endpoints;
+  private String _adapterId;
+  private LocatorInfo _locatorInfo; // Null if no router is used.
+  private RouterInfo _routerInfo; // Null if no router is used.
+  private boolean _collocationOptimized;
+  private boolean _cacheConnection;
+  private boolean _preferSecure;
+  private com.zeroc.Ice.EndpointSelectionType _endpointSelection;
+  private int _locatorCacheTimeout;
+  private String _connectionId = "";
 }
