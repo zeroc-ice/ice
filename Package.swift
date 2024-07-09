@@ -43,6 +43,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/mxcl/PromiseKit.git", from: "8.1.2"),
         .package(url: "https://github.com/zeroc-ice/mcpp.git", branch: "master"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.1.0"),
     ],
     targets: [
         .target(
