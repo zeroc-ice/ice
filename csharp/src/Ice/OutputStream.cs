@@ -126,7 +126,7 @@ public class OutputStream
     }
 
     /// <summary>
-    /// Releases any data retained by encapsulations.
+    /// Releases any data retained by encapsulations. The reset() method internally calls clear().
     /// </summary>
     public void clear()
     {
