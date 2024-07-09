@@ -446,103 +446,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public void setHeartbeatCallback(HeartbeatCallback callback)
-    {
-        lock (this)
-        {
-            if (_state >= StateClosed)
-            {
-                return;
-            }
-            _heartbeatCallback = callback;
-        }
-    }
-
-    public void heartbeat()
-    {
-        heartbeatAsync().Wait();
-    }
-
-    private class HeartbeatTaskCompletionCallback : TaskCompletionCallback<object>
-    {
-        public HeartbeatTaskCompletionCallback(System.IProgress<bool> progress,
-                                               CancellationToken cancellationToken) :
-            base(progress, cancellationToken)
-        {
-        }
-
-        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
-        {
-            SetResult(null);
-        }
-    }
-
-    private class HeartbeatAsync : OutgoingAsyncBase
-    {
-        public HeartbeatAsync(Ice.ConnectionI connection,
-                              Instance instance,
-                              OutgoingAsyncCompletionCallback completionCallback) :
-            base(instance, completionCallback)
-        {
-            _connection = connection;
-        }
-
-        public void invoke()
-        {
-            try
-            {
-                os_.writeBlob(Ice.Internal.Protocol.magic);
-                ProtocolVersion.ice_write(os_, Ice.Util.currentProtocol);
-                EncodingVersion.ice_write(os_, Ice.Util.currentProtocolEncoding);
-                os_.writeByte(Ice.Internal.Protocol.validateConnectionMsg);
-                os_.writeByte((byte)0);
-                os_.writeInt(Ice.Internal.Protocol.headerSize); // Message size.
-
-                int status = _connection.sendAsyncRequest(this, false, false, 0);
-
-                if ((status & AsyncStatusSent) != 0)
-                {
-                    sentSynchronously_ = true;
-                    if ((status & AsyncStatusInvokeSentCallback) != 0)
-                    {
-                        invokeSent();
-                    }
-                }
-            }
-            catch (RetryException ex)
-            {
-                try
-                {
-                    throw ex.get();
-                }
-                catch (Ice.LocalException ee)
-                {
-                    if (exception(ee))
-                    {
-                        invokeExceptionAsync();
-                    }
-                }
-            }
-            catch (Ice.Exception ex)
-            {
-                if (exception(ex))
-                {
-                    invokeExceptionAsync();
-                }
-            }
-        }
-
-        private readonly Ice.ConnectionI _connection;
-    }
-
-    public Task heartbeatAsync(IProgress<bool> progress = null, CancellationToken cancel = default)
-    {
-        var completed = new HeartbeatTaskCompletionCallback(progress, cancel);
-        var outgoing = new HeartbeatAsync(this, _instance, completed);
-        outgoing.invoke();
-        return completed.Task;
-    }
-
     public void asyncRequestCanceled(OutgoingAsyncBase outAsync, LocalException ex)
     {
         //
@@ -1151,19 +1054,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             ++completedUpcallCount;
         }
 
-        if (info.heartbeatCallback is not null)
-        {
-            try
-            {
-                info.heartbeatCallback(this);
-            }
-            catch (System.Exception ex)
-            {
-                _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
-            }
-            ++completedUpcallCount;
-        }
-
         //
         // Method invocation (or multiple invocations for batch messages)
         // must be done outside the thread synchronization, so that nested
@@ -1230,8 +1120,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         // to call code that will potentially block (this avoids promoting a new leader and
         // unnecessary thread creation, especially if this is called on shutdown).
         //
-        if (_startCallback is null && _sendStreams.Count == 0 && _asyncRequests.Count == 0 &&
-           _closeCallback is null && _heartbeatCallback is null)
+        if (_startCallback is null && _sendStreams.Count == 0 && _asyncRequests.Count == 0 && _closeCallback is null)
         {
             finish();
             return;
@@ -1369,8 +1258,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
             _closeCallback = null;
         }
-
-        _heartbeatCallback = null;
 
         //
         // This must be done last as this will cause waitUntilFinished() to return (and communicator
@@ -2288,7 +2175,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         public byte compress;
         public ObjectAdapter adapter;
         public OutgoingAsyncBase outAsync;
-        public HeartbeatCallback heartbeatCallback;
         public int upcallCount;
     }
 
@@ -2448,11 +2334,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 case Protocol.validateConnectionMsg:
                 {
                     TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
-                    if (_heartbeatCallback is not null)
-                    {
-                        info.heartbeatCallback = _heartbeatCallback;
-                        ++info.upcallCount;
-                    }
                     break;
                 }
 
@@ -2959,8 +2840,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, etc.).
     private int _upcallCount;
 
-    // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
-    // callback is not null. Maintained only while state is StateActive or StateHolding.
+    // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
     private int _dispatchCount;
 
     private int _state; // The current state.
@@ -2973,7 +2853,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private ConnectionInfo _info;
 
     private CloseCallback _closeCallback;
-    private HeartbeatCallback _heartbeatCallback;
 
     private static ConnectionState[] connectionStateMap = [
         ConnectionState.ConnectionStateValidating,   // StateNotInitialized

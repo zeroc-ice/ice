@@ -32,19 +32,3 @@ Ice::Connection::flushBatchRequestsAsync(CompressBatch compress)
         [promise](bool) { promise->set_value(); });
     return promise->get_future();
 }
-
-void
-Ice::Connection::heartbeat()
-{
-    heartbeatAsync().get();
-}
-
-std::future<void>
-Ice::Connection::heartbeatAsync()
-{
-    auto promise = std::make_shared<std::promise<void>>();
-    heartbeatAsync(
-        [promise](std::exception_ptr ex) { promise->set_exception(ex); },
-        [promise](bool) { promise->set_value(); });
-    return promise->get_future();
-}

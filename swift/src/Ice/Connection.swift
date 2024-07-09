@@ -150,14 +150,6 @@ public protocol ConnectionInfo: AnyObject {
 /// - parameter _: `Connection?` The connection that closed.
 public typealias CloseCallback = (Connection?) -> Void
 
-/// An application can implement this interface to receive notifications when a connection receives a heartbeat
-/// message.
-///
-/// This method is called by the connection when a heartbeat is received from the peer.
-///
-/// - parameter _: `Connection?` The connection on which a heartbeat was received.
-public typealias HeartbeatCallback = (Connection?) -> Void
-
 /// The user-level interface to a connection.
 public protocol Connection: AnyObject, CustomStringConvertible {
     /// Manually close the connection using the specified closure mode.
@@ -230,32 +222,6 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     ///
     /// - parameter _: `CloseCallback?` The close callback object.
     func setCloseCallback(_ callback: CloseCallback?) throws
-
-    /// Set a heartbeat callback on the connection. The callback is called by the connection when a heartbeat is
-    /// received. The callback is called from the Ice thread pool associated with the connection.
-    ///
-    /// - parameter _: `HeartbeatCallback?` The heartbeat callback object.
-    func setHeartbeatCallback(_ callback: HeartbeatCallback?)
-
-    /// Send a heartbeat message.
-    func heartbeat() throws
-
-    /// Send a heartbeat message.
-    ///
-    /// - parameter sentOn: `Dispatch.DispatchQueue?` - Optional dispatch queue used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags?` - Optional dispatch flags used
-    ///   to dispatch the sent callback
-    ///
-    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
-    /// - returns: `PromiseKit.Promise<>` - The result of the operation
-    func heartbeatAsync(
-        sentOn: Dispatch.DispatchQueue?,
-        sentFlags: Dispatch.DispatchWorkItemFlags?,
-        sent: ((Bool) -> Void)?
-    ) -> PromiseKit.Promise<Void>
 
     /// Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
     ///
