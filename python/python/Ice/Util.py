@@ -6,6 +6,8 @@ import IcePy
 from .PropertiesI import PropertiesI
 from .CommunicatorI import CommunicatorI
 
+__name__ = "Ice"
+
 
 def initialize(args=None, data=None):
     """Initializes a new communicator. The optional arguments represent
@@ -97,30 +99,3 @@ def getSliceDir():
             return dir
 
     return None
-
-
-# TODO refactor generated code to use builtins directly for example
-# import builtins as __builtins, __builtins.type(xxx)
-
-#
-# Used by generated code. Defining these in the Ice module means the generated code
-# can avoid the need to qualify the type() and hash() functions with their module
-# names. Since the functions are in the __builtin__ module (for Python 2.x) and the
-# builtins module (for Python 3.x), it's easier to define them here.
-#
-
-
-def getType(o):
-    return type(o)
-
-
-#
-# Used by generated code. Defining this in the Ice module means the generated code
-# can avoid the need to qualify the hash() function with its module name. Since
-# the function is in the __builtin__ module (for Python 2.x) and the builtins
-# module (for Python 3.x), it's easier to define it here.
-#
-
-
-def getHash(o):
-    return hash(o)
