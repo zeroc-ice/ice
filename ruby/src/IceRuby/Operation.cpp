@@ -572,7 +572,8 @@ IceRuby::OperationI::unmarshalException(const vector<byte>& bytes, const Ice::Co
         }
         else
         {
-            throw Ice::UnknownUserException::fromTypeId(__FILE__, __LINE__, r.ice_id());
+            return convertException(
+                make_exception_ptr(Ice::UnknownUserException::fromTypeId(__FILE__, __LINE__, r.ice_id())));
         }
     }
     catch (...)
