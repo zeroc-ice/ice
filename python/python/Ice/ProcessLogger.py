@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
-#
 # Copyright (c) ZeroC, Inc. All rights reserved.
-#
 
-import IcePy
+from IcePy import getProcessLogger as _getProcessLogger, setProcessLogger as _setProcessLogger
 from .Logger import Logger
 from .LoggerI import LoggerI
 
 def getProcessLogger():
     """Returns the default logger object."""
-    logger = IcePy.getProcessLogger()
+    logger = _getProcessLogger()
     if isinstance(logger, Logger):
         return logger
     else:
@@ -18,4 +15,4 @@ def getProcessLogger():
 
 def setProcessLogger(logger):
     """Sets the default logger object."""
-    IcePy.setProcessLogger(logger)
+    _setProcessLogger(logger)

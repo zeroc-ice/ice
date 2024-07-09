@@ -89,7 +89,8 @@ from .Current import Current
 from .Communicator import Communicator
 
 from .ImplicitContext import ImplicitContext
-import Ice.Endpoint
+from .Endpoint import Endpoint
+from .EndpointInfo import EndpointInfo
 from .EndpointSelectionType import EndpointSelectionType
 
 
@@ -102,10 +103,13 @@ import Ice.Process_ice
 import Ice.PropertiesAdmin_ice
 import Ice.RemoteLogger_ice
 import Ice.Router_ice
+from .ConnectionClose import ConnectionClose
+from .CompressBatch import CompressBatch
 from .ServantLocator import ServantLocator
-import Ice.Connection
+from .CloseCallback import CloseCallback
+from .Connection import Connection
+from .ConnectionInfo import *
 import Ice.Version_ice
-import Ice.Instrumentation
 import Ice.Metrics_ice
 
 from .InitializationData import InitializationData
