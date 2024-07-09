@@ -48,38 +48,39 @@ jobs:
         run: |
           make doc
 
-      - name: Generate Documentation for Swift
-        working-directory: ./swift
-        run: |
-          make V=1 srcs
+      # TODO: Enable Swift documentation generation
+      # - name: Generate Documentation for Swift
+      #   working-directory: ./swift
+      #   run: |
+      #     make V=1 srcs
 
-          xcodebuild docbuild \
-            -project ice.xcodeproj \
-            -scheme 'Ice macOS' \
-            -derivedDataPath /tmp/docbuild \
-            -destination 'generic/platform=macOS'
+      #     xcodebuild docbuild \
+      #       -project ice.xcodeproj \
+      #       -scheme 'Ice macOS' \
+      #       -derivedDataPath /tmp/docbuild \
+      #       -destination 'generic/platform=macOS'
 
-          mkdir docs
+      #     mkdir docs
 
-          $(xcrun --find docc) process-archive \
-            transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/Ice.doccarchive \
-            --hosting-base-path /api/ice/main/swift/ice \
-            --output-path docs/ice;
+      #     $(xcrun --find docc) process-archive \
+      #       transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/Ice.doccarchive \
+      #       --hosting-base-path /api/ice/main/swift/ice \
+      #       --output-path docs/ice;
 
-          $(xcrun --find docc) process-archive \
-            transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/Glacier2.doccarchive \
-            --hosting-base-path /api/ice/main/swift/glacier2 \
-            --output-path docs/glacier2;
+      #     $(xcrun --find docc) process-archive \
+      #       transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/Glacier2.doccarchive \
+      #       --hosting-base-path /api/ice/main/swift/glacier2 \
+      #       --output-path docs/glacier2;
 
-          $(xcrun --find docc) process-archive \
-            transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/IceGrid.doccarchive \
-            --hosting-base-path /api/ice/main/swift/icegrid \
-            --output-path docs/icegrid;
+      #     $(xcrun --find docc) process-archive \
+      #       transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/IceGrid.doccarchive \
+      #       --hosting-base-path /api/ice/main/swift/icegrid \
+      #       --output-path docs/icegrid;
 
-          $(xcrun --find docc) process-archive \
-            transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/IceStorm.doccarchive \
-            --hosting-base-path /api/ice/main/swift/icestorm \
-            --output-path docs/icestorm;
+      #     $(xcrun --find docc) process-archive \
+      #       transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/IceStorm.doccarchive \
+      #       --hosting-base-path /api/ice/main/swift/icestorm \
+      #       --output-path docs/icestorm;
 
       # This will perform a full sync of the documentation to S3 every time the workflow is run since
       # the timestamps will always be different. Using --size-only is not sufficient since the
@@ -96,10 +97,10 @@ jobs:
 
           aws s3 sync ./js/docs s3://${AWS_S3_DOC_BUCKET}/api/ice/main/js --delete
 
-          aws s3 sync ./swift/docs/ice s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/ice --delete
-          aws s3 sync ./swift/docs/glacier2 s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/glacier2 --delete
-          aws s3 sync ./swift/docs/icegrid s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/icegrid --delete
-          aws s3 sync ./swift/docs/icestorm s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/icestorm  --delete
+          # aws s3 sync ./swift/docs/ice s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/ice --delete
+          # aws s3 sync ./swift/docs/glacier2 s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/glacier2 --delete
+          # aws s3 sync ./swift/docs/icegrid s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/icegrid --delete
+          # aws s3 sync ./swift/docs/icestorm s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/icestorm  --delete
 
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

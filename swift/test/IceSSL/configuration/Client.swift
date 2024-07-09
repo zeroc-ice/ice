@@ -11,14 +11,14 @@ class Client: TestHelperI {
             defer {
                 communicator.destroy()
             }
-            var path = Bundle.main.bundlePath
-            #if os(iOS) || os(watchOS) || os(tvOS)
-                path += "/Frameworks/IceSSLConfiguration.bundle/certs"
-            #else
-                path += "/Contents/Frameworks/IceSSLConfiguration.bundle/Contents/Resources/certs"
-            #endif
 
-            let factory = try allTests(self, path)
+            guard let resourcePath = Bundle.main.resourcePath else {
+                fatalError("Bundle resources missing")
+            }
+
+            let certsDir = resourcePath.appending("/ice-test_IceSSL_configuration.bundle/certs")
+
+            let factory = try allTests(self, certsDir)
             try factory.shutdown()
         }
     }

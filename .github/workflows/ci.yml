@@ -43,15 +43,17 @@ jobs:
             config: "debug"
             build_flags: "OPTIMIZE=no"
             # https://github.com/zeroc-ice/ice/issues/2061
-            test_flags: "--swift-config=Debug --rfilter=csharp/Ice/adapterDeactivation"
+            test_flags: "--swift-config=debug --rfilter=csharp/Ice/adapterDeactivation"
           - os: ubuntu-22.04
             config: "debug"
             build_flags: "OPTIMIZE=no"
           # TODO - figure out how to properly install debug Python
-          # - os: windows-2022
-          #   config: "debug"
-          #   build_flags: "/p:Platform=x64 /p:Configuration=Debug"
-          #   test_flags: "--platform=x64 --config=Debug"
+          - os: windows-2022
+            config: "debug"
+            working_directory: "cpp"
+            build_flags: "/p:Platform=x64 /p:Configuration=Debug"
+            test_flags: "--platform=x64 --config=Debug"
+            msbuild_project: "msbuild/ice.proj"
 
           # Xcode SDK builds
           # TODO - Should we also test the debug config here as well?

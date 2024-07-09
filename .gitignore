@@ -133,3 +133,7 @@ Carthage
 
 # Python Formatter cache
 .ruff_cache
+
+# SPM build artifacts
+.build
+.swiftpm

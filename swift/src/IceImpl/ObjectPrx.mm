@@ -1,10 +1,10 @@
-// Copyright (c) ZeroC, Inc.
-#import "ObjectPrx.h"
+// Copyright (c) ZeroC, Inc. All rights reserved.
 
-#import "Communicator.h"
-#import "Connection.h"
+#import "include/ObjectPrx.h"
 #import "Convert.h"
-#import "OutputStream.h"
+#import "include/Communicator.h"
+#import "include/Connection.h"
+#import "include/OutputStream.h"
 
 @implementation ICEObjectPrx
 

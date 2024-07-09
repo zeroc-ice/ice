@@ -13,19 +13,6 @@ public class Client extends test.TestHelper {
     }
   }
 
-  class PropertiesClient extends com.zeroc.Ice.Application {
-    @Override
-    public int run(String[] args) {
-      Properties properties = communicator().getProperties();
-      test(properties.getProperty("Ice.Trace.Network").equals("1"));
-      test(properties.getProperty("Ice.Trace.Protocol").equals("1"));
-      test(properties.getProperty("Config.Path").equals(configPath));
-      test(properties.getProperty("Ice.ProgramName").equals("PropertiesClient"));
-      test(appName().equals(properties.getProperty("Ice.ProgramName")));
-      return 0;
-    }
-  }
-
   public void run(String[] args) {
     {
       System.out.print("testing load properties from UTF-8 path... ");
@@ -36,11 +23,8 @@ public class Client extends test.TestHelper {
       test(properties.getProperty("Config.Path").equals(configPath));
       test(properties.getProperty("Ice.ProgramName").equals("PropertiesClient"));
       System.out.println("ok");
-      System.out.print("testing load properties from UTF-8 path using Ice::Application... ");
-      PropertiesClient c = new PropertiesClient();
-      c.main("", args, configPath);
-      System.out.println("ok");
     }
+
     {
       //
       // Try to load multiple config files.

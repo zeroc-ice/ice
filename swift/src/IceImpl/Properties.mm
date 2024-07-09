@@ -1,6 +1,6 @@
-// Copyright (c) ZeroC, Inc.
-#import "Properties.h"
+// Copyright (c) ZeroC, Inc. All rights reserved.
 
+#import "include/Properties.h"
 #import "Convert.h"
 
 @implementation ICEProperties

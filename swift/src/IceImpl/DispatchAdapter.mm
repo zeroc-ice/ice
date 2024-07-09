@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
-#import "DispatchAdapter.h"
-#import "Connection.h"
+#import "include/DispatchAdapter.h"
 #import "Convert.h"
 #import "Ice/AsyncResponseHandler.h"
-#import "LocalExceptionFactory.h"
-#import "ObjectAdapter.h"
+#import "include/Connection.h"
+#import "include/LocalExceptionFactory.h"
+#import "include/ObjectAdapter.h"
 
 void
 CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse)
