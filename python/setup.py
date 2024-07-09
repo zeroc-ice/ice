@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
-from setuptools import setup, Extension, Command
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 from setuptools.command.sdist import sdist as _sdist
 import urllib.request
