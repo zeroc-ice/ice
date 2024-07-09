@@ -693,7 +693,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // to_s
     //
-    _out << sp << nl << "def to_s";
+    _out << nl << "def to_s";
     _out.inc();
     _out << nl << "'" << scoped << "'";
     _out.dec();
@@ -717,7 +717,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     _out.dec();
-    _out << nl << "end"; // End of class.
+    _out << nl << "end"; // End of exception class.
 
     //
     // Emit the type information.
