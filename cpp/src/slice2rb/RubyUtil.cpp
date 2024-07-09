@@ -690,54 +690,6 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     _out.inc();
 
-    DataMemberList members = p->dataMembers();
-
-    //
-    // initialize
-    //
-    _out << nl << "def initialize";
-    MemberInfoList allMembers;
-    collectExceptionMembers(p, allMembers, false);
-    bool inheritsMembers = false;
-    if (!allMembers.empty())
-    {
-        _out << '(';
-        writeConstructorParams(allMembers);
-        _out << ')';
-        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-        {
-            if (q->inherited)
-            {
-                inheritsMembers = true;
-            }
-        }
-    }
-    _out.inc();
-    if (!allMembers.empty())
-    {
-        if (inheritsMembers)
-        {
-            _out << nl << "super" << spar;
-            for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-            {
-                if (q->inherited)
-                {
-                    _out << q->lowerName;
-                }
-            }
-            _out << epar;
-        }
-        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-        {
-            if (!q->inherited)
-            {
-                _out << nl << '@' << q->fixedName << " = " << q->lowerName;
-            }
-        }
-    }
-    _out.dec();
-    _out << nl << "end";
-
     //
     // to_s
     //
@@ -750,6 +702,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // read/write accessors for data members.
     //
+    DataMemberList members = p->dataMembers();
     if (!members.empty())
     {
         _out << sp << nl << "attr_accessor ";
