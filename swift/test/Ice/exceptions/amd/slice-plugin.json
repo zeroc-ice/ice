@@ -1,0 +1,4 @@
+{
+  "sources": ["TestAMD.ice"],
+  "search_paths": ["../../../../slice"]
+}

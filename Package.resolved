@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "mcpp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zeroc-ice/mcpp.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "bfd4b159d9428c983e2abb48c8d344003a019caf"
+      }
+    },
+    {
+      "identity" : "promisekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mxcl/PromiseKit.git",
+      "state" : {
+        "revision" : "6fcc08077124e9747f1ec7bd8bb78f5caffe5a79",
+        "version" : "8.1.2"
+      }
+    }
+  ],
+  "version" : 2
+}

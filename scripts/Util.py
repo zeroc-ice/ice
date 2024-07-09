@@ -2065,6 +2065,7 @@ class ClientAMDServerTestCase(ClientServerTestCase):
     def getServerType(self):
         return "serveramd"
 
+
 class Result:
     def getKey(self, current):
         return (
@@ -2623,7 +2624,7 @@ class RemoteProcessController(ProcessController):
                     return self.processControllerProxies[ident]
 
             # If the controller isn't up after a while, we restart it. With the iOS simulator,
-            # it's not uncommon to get Springoard crashes when starting the controller.
+            # it's not uncommon to get Springboard crashes when starting the controller.
             if nRetry == 50:
                 sys.stdout.write("controller application unreachable, restarting... ")
                 sys.stdout.flush()
@@ -2897,9 +2898,10 @@ class iOSSimulatorProcessController(RemoteProcessController):
                     self.runtimeID = m.group(1)
         except Exception:
             pass
+
         if not self.runtimeID:
             self.runtimeID = (
-                "com.apple.CoreSimulator.SimRuntime.iOS-17-4"  # Default value
+                "com.apple.CoreSimulator.SimRuntime.iOS-17-5"  # Default value
             )
 
     def __str__(self):
@@ -4293,7 +4295,8 @@ class JavaScriptMixin:
             self.getCommonDir(current),
             os.path.join(self.getTestCwd(process, current), exe),
             Path(exe).stem,
-            args)
+            args,
+        )
 
     def getSSLProps(self, process, current):
         return {}
@@ -4362,35 +4365,23 @@ class SwiftMapping(Mapping):
         def __init__(self, options=[]):
             CppBasedClientMapping.Config.__init__(self, options)
             if self.buildConfig == platform.getDefaultBuildConfig():
-                # Check the OPTIMIZE environment variable to figure out if it's Debug/Release build
+                # Check the OPTIMIZE environment variable to figure out if it's debug/release build
                 self.buildConfig = (
-                    "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
+                    "release" if os.environ.get("OPTIMIZE", "yes") != "no" else "debug"
                 )
 
     def getCommandLine(self, current, process, exe, args):
         testdir = self.component.getTestDir(self)
         assert current.testcase.getPath(current).startswith(testdir)
         package = current.testcase.getPath(current)[len(testdir) + 1 :].replace(
-            os.sep, "."
+            os.sep, "_"
         )
 
-        cmd = "xcodebuild -project {0} -target 'TestDriver {1}' -configuration {2} -showBuildSettings".format(
-            self.getXcodeProject(current), "macOS", current.config.buildConfig
-        )
+        print(current.config.buildConfig)
 
-        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
-
-        testDriver = os.path.join(
-            targetBuildDir, "TestDriver.app/Contents/MacOS/TestDriver"
+        testDriver = "swift run -c {0} --skip-build TestDriver".format(
+            current.config.buildConfig
         )
-        if not os.path.exists(testDriver):
-            # Fallback location, required with Xcode 14.2
-            testDriver = os.path.join(
-                current.testcase.getMapping().getPath(),
-                "build",
-                current.config.buildConfig,
-                "TestDriver.app/Contents/MacOS/TestDriver",
-            )
 
         return "{0} {1} {2} {3}".format(testDriver, package, exe, args)
 
@@ -4412,27 +4403,16 @@ class SwiftMapping(Mapping):
 
     def getIOSAppFullPath(self, current):
         cmd = "xcodebuild -project {0} \
-                          -target 'TestDriver iOS' \
+                          -target 'TestDriverApp' \
                           -configuration {1} \
                           -showBuildSettings \
                           -sdk {2}".format(
             self.getXcodeProject(current),
-            current.config.buildConfig,
+            current.config.buildConfig.capitalize(),  # SwiftPM uses lowercase. Xcode users uppercase.
             current.config.buildPlatform,
         )
         targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
-
-        testDriver = os.path.join(targetBuildDir, "TestDriver.app")
-        if not os.path.exists(testDriver):
-            # Fallback location, required with Xcode 14.2
-            testDriver = os.path.join(
-                current.testcase.getMapping().getPath(),
-                "build",
-                "{0}-{1}".format(
-                    current.config.buildConfig, current.config.buildPlatform
-                ),
-                "TestDriver.app",
-            )
+        testDriver = os.path.join(targetBuildDir, "TestDriverApp.app")
         return testDriver
 
     def getSSLProps(self, process, current):
@@ -4449,11 +4429,8 @@ class SwiftMapping(Mapping):
 
     def getXcodeProject(self, current):
         return "{0}/{1}".format(
-            current.testcase.getMapping().getPath(), "ice.xcodeproj"
+            current.testcase.getMapping().getPath(), "test/ios/TestDriverApp.xcodeproj"
         )
-
-    # TODO ice-test.xcodeproj once Carthage supports binary XCFramework projects
-    # "ice-test.xcodeproj" if self.component.useBinDist(self, current) else "ice.xcodeproj")
 
 
 #
