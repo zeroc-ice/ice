@@ -101,22 +101,74 @@ else:
     if not sys.platform.startswith('freebsd'):
         libraries.append('dl')
 
-class PreBuildCommand(Command):
-    """A custom command to run pre-build steps"""
-    description = 'run pre-build commands'
-    user_options = []
 
-    def initialize_options(self):
-        pass
+def filter_source(filename):
+    # Filter out sources that are not needed for building the extension depending on the target platform.
+    if "ios/" in filename:
+        return False
 
-    def finalize_options(self):
-        pass
+    # Bzip2lib sources
+    bzip2sources = ["blocksort.c", "bzlib.c", "compress.c", "crctable.c", "decompress.c", "huffman.c", "randtable.c"]
+    if "bzip2-" in filename and os.path.basename(filename) not in bzip2sources:
+        return False
+
+    if sys.platform == 'win32':
+        for exclude in ["SysLoggerI", "OpenSSL", "SecureTransport"]:
+            if exclude in filename:
+                # Skip SysLoggerI, OpenSSL and SecureTransport on Windows
+                return False
+    elif sys.platform == 'darwin':
+        for exclude in ["DLLMain", "Schannel", "OpenSSL", "bzip2-"]:
+            if exclude in filename:
+                # Skip Schannel, OpenSSL and bzip2 on macOS
+                return False
+    else:
+        for exclude in ["DLLMain", "Schannel", "SecureTransport", "bzip2-"]:
+            if exclude in filename:
+                # Skip Schannel, SecureTransport and bzip2 on Linux
+                return False
+
+    return True
+
+# Customize the build_ext command to filter sources and add extra compile args for C++ files
+class CustomBuildExtCommand(_build_ext):
 
     def run(self):
-        global sources  # Use the global sources list
+        sources = []
+        for root, dirs, files in os.walk("dist"):
+            for file in files:
+                if pathlib.Path(file).suffix.lower() in ['.c', '.cpp']:
+                    sources.append(os.path.join(root, file))
 
-        if not os.path.exists('dist'):
-            os.mkdir('dist')
+        filtered = list(filter(filter_source, sources))
+        self.distribution.ext_modules[0].sources = filtered
+        _build_ext.run(self)
+
+    def build_extension(self, ext):
+        original_compile = self.compiler._compile
+
+        # Monkey-patch the compiler to add extra compile args for C++ files. This works around errors with Clang and
+        # GCC as they don't accept --std=c++XX when compiling C files. The MSVC backend doesn't use _compile.
+        def _compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
+            original_compile(
+                obj,
+                src,
+                ext,
+                cc_args,
+                cpp_extra_compile_args + extra_postargs if src.endswith('.cpp') else extra_postargs,
+                pp_opts)
+
+        self.compiler._compile = _compile
+        try:
+            _build_ext.build_extension(self, ext)
+        finally:
+            self.compiler._compile = original_compile
+
+# Customize the sdist command to ensure that the third-party sources and the generated sources are included in the
+# source distribution.
+class CustomSdistCommand(_sdist):
+    def run(self):
+        global sources  # Use the global sources list
 
         sources = []  # Clear the sources list
 
@@ -218,74 +270,6 @@ class PreBuildCommand(Command):
                         os.makedirs(target_dir)
                     shutil.copy(source_file, target_file)
                     sources.append(os.path.relpath(target_file, script_directory))
-
-def filter_source(filename):
-    # Filter out sources that are not needed for building the extension depending on the target platform.
-    if "ios/" in filename:
-        return False
-
-    # Bzip2lib sources
-    bzip2sources = ["blocksort.c", "bzlib.c", "compress.c", "crctable.c", "decompress.c", "huffman.c", "randtable.c"]
-    if "bzip2-" in filename and os.path.basename(filename) not in bzip2sources:
-        return False
-
-    if sys.platform == 'win32':
-        for exclude in ["SysLoggerI", "OpenSSL", "SecureTransport"]:
-            if exclude in filename:
-                # Skip SysLoggerI, OpenSSL and SecureTransport on Windows
-                return False
-    elif sys.platform == 'darwin':
-        for exclude in ["DLLMain", "Schannel", "OpenSSL", "bzip2-"]:
-            if exclude in filename:
-                # Skip Schannel, OpenSSL and bzip2 on macOS
-                return False
-    else:
-        for exclude in ["DLLMain", "Schannel", "SecureTransport", "bzip2-"]:
-            if exclude in filename:
-                # Skip Schannel, SecureTransport and bzip2 on Linux
-                return False
-
-    return True
-
-# Customize the build_ext command to filter sources and add extra compile args for C++ files
-class CustomBuildExtCommand(_build_ext):
-
-    def run(self):
-        sources = []
-        for root, dirs, files in os.walk("dist"):
-            for file in files:
-                if pathlib.Path(file).suffix.lower() in ['.c', '.cpp']:
-                    sources.append(os.path.join(root, file))
-
-        filtered = list(filter(filter_source, sources))
-        self.distribution.ext_modules[0].sources = filtered
-        _build_ext.run(self)
-
-    def build_extension(self, ext):
-        original_compile = self.compiler._compile
-
-        # Monkey-patch the compiler to add extra compile args for C++ files. This works around errors with Clang and
-        # GCC as they don't accept --std=c++XX when compiling C files. The MSVC backend doesn't use _compile.
-        def _compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
-            original_compile(
-                obj,
-                src,
-                ext,
-                cc_args,
-                cpp_extra_compile_args + extra_postargs if src.endswith('.cpp') else extra_postargs,
-                pp_opts)
-
-        self.compiler._compile = _compile
-        try:
-            _build_ext.build_extension(self, ext)
-        finally:
-            self.compiler._compile = original_compile
-
-# Customize the sdist command to ensure that the third-party sources and the generated sources are included in the
-# source distribution.
-class CustomSdistCommand(_sdist):
-    def run(self):
-        self.run_command('pre_build')
         self.distribution.ext_modules[0].sources = sources
         _sdist.run(self)
 
@@ -312,7 +296,6 @@ setup(
     include_package_data=True,
     ext_modules=[ice_py],
     cmdclass={
-        'pre_build': PreBuildCommand,
         'build_ext': CustomBuildExtCommand,
         'sdist': CustomSdistCommand,
     },
