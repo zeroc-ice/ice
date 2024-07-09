@@ -105,52 +105,6 @@ function allTests()
         test($v->zeroD == 0);
         test($v->zeroDotD == 0);
     }
-
-    {
-        $v = new Test\BaseEx();
-        test(!$v->boolFalse);
-        test($v->boolTrue);
-        test($v->b == 1);
-        test($v->s == 2);
-        test($v->i == 3);
-        test($v->l == 4);
-        test($v->f == 5.1);
-        test($v->d == 6.2);
-        test($v->str == "foo \ \"bar\n \r\n\t\013\f\007\010? \007 \007");
-        test(strlen($v->noDefault) == 0);
-        test($v->zeroI == 0);
-        test($v->zeroL == 0);
-        test($v->zeroF == 0);
-        test($v->zeroDotF == 0);
-        test($v->zeroD == 0);
-        test($v->zeroDotD == 0);
-    }
-
-    {
-        $v = new Test\DerivedEx();
-        test(!$v->boolFalse);
-        test($v->boolTrue);
-        test($v->b == 1);
-        test($v->s == 2);
-        test($v->i == 3);
-        test($v->l == 4);
-        test($v->f == 5.1);
-        test($v->d == 6.2);
-        test($v->str == "foo \ \"bar\n \r\n\t\013\f\007\010? \007 \007");
-        test(strlen($v->noDefault) == 0);
-        test($v->c1 == Test\Color::red);
-        test($v->c2 == Test\Color::green);
-        test($v->c3 == Test\Color::blue);
-        test($v->nc1 == Test\Nested\Color::red);
-        test($v->nc2 == Test\Nested\Color::green);
-        test($v->nc3 == Test\Nested\Color::blue);
-        test($v->zeroI == 0);
-        test($v->zeroL == 0);
-        test($v->zeroF == 0);
-        test($v->zeroDotF == 0);
-        test($v->zeroD == 0);
-        test($v->zeroDotD == 0);
-    }
     echo "ok\n";
 
     echo "testing default constructor... ";
@@ -170,13 +124,6 @@ function allTests()
         test($v->is == null);
         test($v->dict == null);
         test($v->st instanceof Test\InnerStruct);
-
-        $e = new Test\ExceptionNoDefaults();
-        test($e->str == '');
-        test($e->c1 == Test\Color::red);
-        test($e->bs == null);
-        test($e->st instanceof Test\InnerStruct);
-        test($e->dict == null);
 
         $cl = new Test\ClassNoDefaults();
         test($cl->str == '');
