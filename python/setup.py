@@ -123,9 +123,9 @@ class PreBuildCommand(Command):
             if pathlib.Path(filename).suffix.lower() not in ['.c', '.cpp', '.h']:
                 return False
             if sys.platform == 'win32':
-                if "generated" in filename and not os.path.join(platform, configuration) in filename:
+                if "generated" in filename and os.path.join(platform, configuration) not in filename:
                     return False
-                elif "msbuild" in filename and not os.path.join(platform, configuration) in filename:
+                elif "msbuild" in filename and os.path.join(platform, configuration) not in filename:
                     return False
             return True
 
@@ -220,7 +220,7 @@ def filter_source(filename):
     # Filter out sources that are not needed for building the extension depending on the target platform.
     if "ios/" in filename:
         return False
-    
+
     # Bzip2lib sources
     bzip2sources = ["blocksort.c", "bzlib.c", "compress.c", "crctable.c", "decompress.c", "huffman.c", "randtable.c"]
     if "bzip2-" in filename and os.path.basename(filename) not in bzip2sources:
@@ -260,7 +260,7 @@ class CustomBuildExtCommand(_build_ext):
 
     def build_extension(self, ext):
         original_compile = self.compiler.compile
-        
+
         # Monkey-patch the compiler to add extra compile args for C++ files. This works around errors with Clang and
         # GCC as they don't accept --std=c++XX when compiling C files. The MSVC backend doesn't use _compile.
         def _compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
