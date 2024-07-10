@@ -49,17 +49,6 @@ module Ice
         private_class_method :new
     end
 
-    class ConnectionInfo
-        def initialize(underlying=nil, incoming=false, adapterName='', connectionId='')
-            @underlying = underlying
-            @incoming = incoming
-            @adapterName = adapterName
-            @connectionId = connectionId
-        end
-
-        attr_accessor :underlying, :incoming, :adapterName, :connectionId
-    end
-
     class ConnectionClose
         include Comparable
 
@@ -106,46 +95,23 @@ module Ice
         private_class_method :new
     end
 
-    class IPConnectionInfo < Ice::ConnectionInfo
-        def initialize(underlying=nil, incoming=false, adapterName='', connectionId='', localAddress="", localPort=-1, remoteAddress="", remotePort=-1)
-            super(underlying, incoming, adapterName, connectionId)
-            @localAddress = localAddress
-            @localPort = localPort
-            @remoteAddress = remoteAddress
-            @remotePort = remotePort
-        end
+    class ConnectionInfo
+        attr_accessor :underlying, :incoming, :adapterName, :connectionId
+    end
 
+    class IPConnectionInfo < ConnectionInfo
         attr_accessor :localAddress, :localPort, :remoteAddress, :remotePort
     end
 
-    class TCPConnectionInfo < Ice::IPConnectionInfo
-        def initialize(underlying=nil, incoming=false, adapterName='', connectionId='', localAddress="", localPort=-1, remoteAddress="", remotePort=-1, rcvSize=0, sndSize=0)
-            super(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
-            @rcvSize = rcvSize
-            @sndSize = sndSize
-        end
-
+    class TCPConnectionInfo < IPConnectionInfo
         attr_accessor :rcvSize, :sndSize
     end
 
-    class UDPConnectionInfo < Ice::IPConnectionInfo
-        def initialize(underlying=nil, incoming=false, adapterName='', connectionId='', localAddress="", localPort=-1, remoteAddress="", remotePort=-1, mcastAddress='', mcastPort=-1, rcvSize=0, sndSize=0)
-            super(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
-            @mcastAddress = mcastAddress
-            @mcastPort = mcastPort
-            @rcvSize = rcvSize
-            @sndSize = sndSize
-        end
-
+    class UDPConnectionInfo < IPConnectionInfo
         attr_accessor :mcastAddress, :mcastPort, :rcvSize, :sndSize
     end
 
-    class WSConnectionInfo < Ice::ConnectionInfo
-        def initialize(underlying=nil, incoming=false, adapterName='', connectionId='', headers=nil)
-            super(underlying, incoming, adapterName, connectionId)
-            @headers = headers
-        end
-
+    class WSConnectionInfo < ConnectionInfo
         attr_accessor :headers
     end
 end
