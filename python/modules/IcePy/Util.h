@@ -100,8 +100,8 @@ namespace IcePy
         PyObjectHandle(const PyObjectHandle&);
         ~PyObjectHandle();
 
-        void operator=(PyObject*);
-        void operator=(const PyObjectHandle&);
+        PyObjectHandle& operator=(PyObject*);
+        PyObjectHandle& operator=(const PyObjectHandle&);
 
         PyObject* get() const;
         PyObject* release();
