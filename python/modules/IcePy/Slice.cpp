@@ -16,8 +16,8 @@
 //
 // Python headers needed for PyEval_EvalCode.
 //
-#include <compile.h>
 #include <ceval.h>
+#include <compile.h>
 
 using namespace std;
 using namespace IcePy;
