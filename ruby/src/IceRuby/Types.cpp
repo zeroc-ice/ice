@@ -2971,26 +2971,6 @@ IceRuby_declareClass(VALUE /*self*/, VALUE id)
 }
 
 extern "C" VALUE
-IceRuby_declareLocalClass(VALUE /*self*/, VALUE id)
-{
-    ICE_RUBY_TRY
-    {
-        string idstr = getString(id);
-        ClassInfoPtr info = lookupClassInfo(idstr);
-        if (!info)
-        {
-            info = make_shared<ClassInfo>(id, true);
-            info->init();
-            addClassInfo(idstr, info);
-        }
-
-        return info->typeObj;
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
 IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE members)
 {
     ICE_RUBY_TRY
@@ -3169,7 +3149,6 @@ IceRuby::initTypes(VALUE iceModule)
     rb_define_module_function(iceModule, "__defineDictionary", CAST_METHOD(IceRuby_defineDictionary), 3);
     rb_define_module_function(iceModule, "__declareProxy", CAST_METHOD(IceRuby_declareProxy), 1);
     rb_define_module_function(iceModule, "__declareClass", CAST_METHOD(IceRuby_declareClass), 1);
-    rb_define_module_function(iceModule, "__declareLocalClass", CAST_METHOD(IceRuby_declareLocalClass), 1);
     rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 4);
 
     rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 5);
