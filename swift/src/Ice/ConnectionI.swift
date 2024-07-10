@@ -25,22 +25,6 @@ extension Connection {
         }
     }
 
-    public func heartbeatAsync(
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
-    ) -> Promise<Void> {
-        let impl = self as! ConnectionI
-        return Promise<Void> { seal in
-            impl.handle.heartbeatAsync(
-                exception: { error in seal.reject(error) },
-                sent: createSentCallback(
-                    sentOn: sentOn,
-                    sentFlags: sentFlags,
-                    sent: sent))
-        }
-    }
-
     // CustomStringConvertible implementation
     public var description: String {
         return toString()
@@ -99,24 +83,6 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
                 precondition(c.getCachedSwiftObject(ConnectionI.self) === self)
                 cb(self)
             }
-        }
-    }
-
-    func setHeartbeatCallback(_ callback: HeartbeatCallback?) {
-        guard let cb = callback else {
-            handle.setHeartbeatCallback(nil)
-            return
-        }
-
-        handle.setHeartbeatCallback { c in
-            precondition(c.getCachedSwiftObject(ConnectionI.self) === self)
-            cb(self)
-        }
-    }
-
-    func heartbeat() throws {
-        return try autoreleasepool {
-            try handle.heartbeat()
         }
     }
 

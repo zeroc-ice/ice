@@ -166,8 +166,6 @@ extern "C"
     ICE_MATLAB_API mxArray* Ice_Connection_flushBatchRequests(void*, mxArray*);
     ICE_MATLAB_API mxArray* Ice_Connection_flushBatchRequestsAsync(void*, mxArray*, void**);
     ICE_MATLAB_API mxArray* Ice_Connection_getEndpoint(void*, void**);
-    ICE_MATLAB_API mxArray* Ice_Connection_heartbeat(void*);
-    ICE_MATLAB_API mxArray* Ice_Connection_heartbeatAsync(void*, void**);
     ICE_MATLAB_API mxArray* Ice_Connection_type(void*);
     ICE_MATLAB_API mxArray* Ice_Connection_toString(void*);
     ICE_MATLAB_API mxArray* Ice_Connection_getInfo(void*);

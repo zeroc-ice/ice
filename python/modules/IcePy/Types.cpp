@@ -93,11 +93,8 @@ namespace IcePy
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static TypeInfoObject*
-    typeInfoNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" TypeInfoObject*
+typeInfoNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     TypeInfoObject* self = reinterpret_cast<TypeInfoObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -108,11 +105,8 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    typeInfoDealloc(TypeInfoObject* self)
+extern "C" void
+typeInfoDealloc(TypeInfoObject* self)
 {
     //
     // Every TypeInfo object is assigned to a "_t_XXX" variable in its enclosing module. Python releases these
@@ -124,11 +118,8 @@ extern "C"
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static ExceptionInfoObject*
-    exceptionInfoNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" ExceptionInfoObject*
+exceptionInfoNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     ExceptionInfoObject* self = reinterpret_cast<ExceptionInfoObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -139,30 +130,21 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    exceptionInfoDealloc(ExceptionInfoObject* self)
+extern "C" void
+exceptionInfoDealloc(ExceptionInfoObject* self)
 {
     delete self->info;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    unsetDealloc(PyTypeObject* /*self*/)
+extern "C" void
+unsetDealloc(PyTypeObject* /*self*/)
 {
     Py_FatalError("deallocating Unset");
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static int
-    unsetNonzero(PyObject* /*v*/)
+extern "C" int
+unsetNonzero(PyObject* /*v*/)
 {
     //
     // We define tp_as_number->nb_nonzero so that the Unset marker value evaluates as "zero" or "false".
@@ -170,11 +152,8 @@ extern "C"
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    unsetRepr(PyObject* /*v*/)
+extern "C" PyObject*
+unsetRepr(PyObject* /*v*/)
 {
     return PyBytes_FromString("Unset");
 }

@@ -197,8 +197,6 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    // TODO: add heartbeat test
-
     cout << "testing server shutdown... " << flush;
     cl->shutdown();
     cout << "ok" << endl;

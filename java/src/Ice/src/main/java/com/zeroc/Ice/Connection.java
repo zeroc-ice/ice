@@ -99,25 +99,6 @@ public interface Connection {
   void setCloseCallback(CloseCallback callback);
 
   /**
-   * Set a heartbeat callback on the connection. The callback is called by the connection when a
-   * heartbeat is received. The callback is called from the Ice thread pool associated with the
-   * connection.
-   *
-   * @param callback The heartbeat callback object.
-   */
-  void setHeartbeatCallback(HeartbeatCallback callback);
-
-  /** Send a heartbeat message. */
-  void heartbeat();
-
-  /**
-   * Send a heartbeat message.
-   *
-   * @return A future that will be completed when the invocation completes.
-   */
-  java.util.concurrent.CompletableFuture<Void> heartbeatAsync();
-
-  /**
    * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
    *
    * @return The type of the connection.

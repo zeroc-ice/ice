@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-#
 # Copyright (c) ZeroC, Inc. All rights reserved.
-#
 
 class InitializationData(object):
     """The attributes of this class are used to initialize a new

@@ -35,12 +35,9 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 
-    int getHeartbeatCount(const Ice::Current&) override;
-
     void shutdown(const Ice::Current&) override;
 
     void removeConnection(const Ice::ConnectionPtr&);
-    void incHeartbeatCount(const Ice::ConnectionPtr&);
 
 private:
     void checkConnection(const Ice::ConnectionPtr&);

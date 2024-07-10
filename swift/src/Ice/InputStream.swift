@@ -1435,12 +1435,7 @@ private class EncapsDecoder11: EncapsDecoder {
             try skipSlice()
 
             if current.sliceFlags.contains(.FLAG_IS_LAST_SLICE) {
-                // TODO: the correct exception is MarshalException!!
-                if let range = mostDerivedId.range(of: "::") {
-                    throw UnknownUserException(badTypeId: String(mostDerivedId[range.upperBound...]))
-                } else {
-                    throw UnknownUserException(badTypeId: mostDerivedId)
-                }
+                throw MarshalException("cannot unmarshal user exception with type ID '\(mostDerivedId)'")
             }
 
             try startSlice()

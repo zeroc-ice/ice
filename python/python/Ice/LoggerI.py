@@ -1,11 +1,4 @@
-# -*- coding: utf-8 -*-
-#
 # Copyright (c) ZeroC, Inc. All rights reserved.
-#
-
-#
-# Logger wrapper.
-#
 
 from .Logger import Logger
 

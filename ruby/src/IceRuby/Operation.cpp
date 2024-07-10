@@ -572,12 +572,17 @@ IceRuby::OperationI::unmarshalException(const vector<byte>& bytes, const Ice::Co
         }
         else
         {
-            throw Ice::UnknownUserException::fromTypeId(__FILE__, __LINE__, r.ice_id());
+            return convertException(
+                make_exception_ptr(Ice::UnknownUserException::fromTypeId(__FILE__, __LINE__, r.ice_id())));
         }
     }
+    catch (...)
+    {
+        return convertException(std::current_exception());
+    }
 
-    // TODO: we should never reach this line, and throwing UnknownUserException is not correct.
-    throw Ice::UnknownUserException::fromTypeId(__FILE__, __LINE__, "unknown exception");
+    // Never reached.
+    return Qnil;
 }
 
 bool

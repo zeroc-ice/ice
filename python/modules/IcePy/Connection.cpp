@@ -111,59 +111,10 @@ namespace IcePy
         PyObject* _con;
     };
     using CloseCallbackWrapperPtr = shared_ptr<CloseCallbackWrapper>;
-
-    class HeartbeatCallbackWrapper final
-    {
-    public:
-        HeartbeatCallbackWrapper(PyObject* cb, PyObject* con) : _cb(cb), _con(con)
-        {
-            Py_INCREF(cb);
-            Py_INCREF(con);
-        }
-
-        ~HeartbeatCallbackWrapper()
-        {
-            AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-            Py_DECREF(_cb);
-            Py_DECREF(_con);
-        }
-
-        void heartbeat()
-        {
-            AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-            PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), _con);
-            assert(_cb);
-            PyObjectHandle tmp = PyObject_Call(_cb, args.get(), 0);
-            if (PyErr_Occurred())
-            {
-                PyException ex; // Retrieve it before another Python API call clears it.
-
-                //
-                // A callback that calls sys.exit() will raise the SystemExit exception.
-                // This is normally caught by the interpreter, causing it to exit.
-                // However, we have no way to pass this exception to the interpreter,
-                // so we act on it directly.
-                //
-                ex.checkSystemExit();
-
-                ex.raise();
-            }
-        }
-
-    private:
-        PyObject* _cb;
-        PyObject* _con;
-    };
-    using HeartbeatCallbackWrapperPtr = shared_ptr<HeartbeatCallbackWrapper>;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static ConnectionObject*
-    connectionNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" ConnectionObject*
+connectionNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     assert(type && type->tp_alloc);
     ConnectionObject* self = reinterpret_cast<ConnectionObject*>(type->tp_alloc(type, 0));
@@ -176,22 +127,16 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    connectionDealloc(ConnectionObject* self)
+extern "C" void
+connectionDealloc(ConnectionObject* self)
 {
     delete self->connection;
     delete self->communicator;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionCompare(ConnectionObject* c1, PyObject* other, int op)
+extern "C" PyObject*
+connectionCompare(ConnectionObject* c1, PyObject* other, int op)
 {
     bool result = false;
 
@@ -241,20 +186,14 @@ extern "C"
     return result ? incTrue() : incFalse();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static long
-    connectionHash(ConnectionObject* self)
+extern "C" long
+connectionHash(ConnectionObject* self)
 {
     return hashPointer((*self->connection).get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionClose(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionClose(ConnectionObject* self, PyObject* args)
 {
     PyObject* closeType = lookupType("Ice.ConnectionClose");
     PyObject* mode;
@@ -283,11 +222,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionCreateProxy(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionCreateProxy(ConnectionObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -318,11 +254,8 @@ extern "C"
     return createProxy(proxy.value(), (*self->communicator));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionSetAdapter(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionSetAdapter(ConnectionObject* self, PyObject* args)
 {
     PyObject* adapter = Py_None;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &adapter))
@@ -355,11 +288,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionGetAdapter(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionGetAdapter(ConnectionObject* self, PyObject* /*args*/)
 {
     Ice::ObjectAdapterPtr adapter;
 
@@ -386,11 +316,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
@@ -419,11 +346,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
@@ -470,11 +394,8 @@ extern "C"
     return future.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
 {
     assert(self->connection);
 
@@ -519,82 +440,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionSetHeartbeatCallback(ConnectionObject* self, PyObject* args)
-{
-    assert(self->connection);
-
-    PyObject* cb;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &cb))
-    {
-        return 0;
-    }
-
-    PyObject* callbackType = lookupType("types.FunctionType");
-    if (cb != Py_None && !PyObject_IsInstance(cb, callbackType))
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a function"));
-        return 0;
-    }
-
-    HeartbeatCallbackWrapperPtr wrapper;
-    if (cb != Py_None)
-    {
-        wrapper = make_shared<HeartbeatCallbackWrapper>(cb, reinterpret_cast<PyObject*>(self));
-    }
-
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
-        if (wrapper)
-        {
-            (*self->connection)->setHeartbeatCallback([wrapper](const Ice::ConnectionPtr&) { wrapper->heartbeat(); });
-        }
-        else
-        {
-            (*self->connection)->setHeartbeatCallback(nullptr);
-        }
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return 0;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionHeartbeat(ConnectionObject* self, PyObject* /*args*/)
-{
-    assert(self->connection);
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        (*self->connection)->heartbeat();
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return 0;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionType(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionType(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     string type;
@@ -611,11 +458,8 @@ extern "C"
     return createString(type);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionToString(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionToString(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     string str;
@@ -632,11 +476,8 @@ extern "C"
     return createString(str);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionGetInfo(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionGetInfo(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try
@@ -651,11 +492,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionGetEndpoint(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionGetEndpoint(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try
@@ -670,11 +508,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionSetBufferSize(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionSetBufferSize(ConnectionObject* self, PyObject* args)
 {
     int rcvSize;
     int sndSize;
@@ -698,11 +533,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try
@@ -748,14 +580,6 @@ static PyMethodDef ConnectionMethods[] = {
      reinterpret_cast<PyCFunction>(connectionSetCloseCallback),
      METH_VARARGS,
      PyDoc_STR(STRCAST("setCloseCallback(Ice.CloseCallback) -> None"))},
-    {STRCAST("setHeartbeatCallback"),
-     reinterpret_cast<PyCFunction>(connectionSetHeartbeatCallback),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("setHeartbeatCallback(Ice.HeartbeatCallback) -> None"))},
-    {STRCAST("heartbeat"),
-     reinterpret_cast<PyCFunction>(connectionHeartbeat),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("heartbeat() -> None"))},
     {STRCAST("type"),
      reinterpret_cast<PyCFunction>(connectionType),
      METH_NOARGS,

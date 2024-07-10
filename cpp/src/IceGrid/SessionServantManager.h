@@ -42,7 +42,6 @@ namespace IceGrid
         Ice::ObjectPrx add(const Ice::ObjectPtr&, const Ice::ObjectPtr&);
         void remove(const Ice::Identity&);
 
-        void connectionHeartbeat(const Ice::ConnectionPtr&);
         void connectionClosed(const Ice::ConnectionPtr&);
 
     private:

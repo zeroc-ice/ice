@@ -1,14 +1,6 @@
-# -*- coding: utf-8 -*-
-#
 # Copyright (c) ZeroC, Inc. All rights reserved.
-#
 
 from .ImplicitContext import ImplicitContext
-
-#
-# ImplicitContext wrapper
-#
-
 
 class ImplicitContextI(ImplicitContext):
     def __init__(self, impl):

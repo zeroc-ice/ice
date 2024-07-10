@@ -44,11 +44,6 @@ declare module "ice" {
          * @param con The connection that closed.
          */
         type CloseCallback = (con: Ice.Connection) => void;
-        /**
-         * This method is called by the connection when a heartbeat is received from the peer.
-         * @param con The connection on which a heartbeat was received.
-         */
-        type HeartbeatCallback = (con: Ice.Connection) => void;
 
         /**
          * Determines the behavior when manually closing a connection.
@@ -134,17 +129,6 @@ declare module "ice" {
              * @param callback The close callback object.
              */
             setCloseCallback(callback: Ice.CloseCallback): void;
-            /**
-             * Set a heartbeat callback on the connection. The callback is called by the connection when a heartbeat is
-             * received. The callback is called from the Ice thread pool associated with the connection.
-             * @param callback The heartbeat callback object.
-             */
-            setHeartbeatCallback(callback: Ice.HeartbeatCallback): void;
-            /**
-             * Send a heartbeat message.
-             * @return The asynchronous result object for the invocation.
-             */
-            heartbeat(): AsyncResultBase<void>;
             /**
              * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
              * @return The type of the connection.

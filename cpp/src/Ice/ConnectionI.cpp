@@ -725,109 +725,6 @@ Ice::ConnectionI::flushBatchRequestsAsync(
     return [outAsync]() { outAsync->cancel(); };
 }
 
-namespace
-{
-    class HeartbeatAsync : public OutgoingAsyncBase
-    {
-    public:
-        HeartbeatAsync(
-            const ConnectionIPtr& connection,
-            const CommunicatorPtr& communicator,
-            const InstancePtr& instance)
-            : OutgoingAsyncBase(instance),
-              _communicator(communicator),
-              _connection(connection)
-        {
-        }
-
-        virtual CommunicatorPtr getCommunicator() const { return _communicator; }
-
-        virtual ConnectionPtr getConnection() const { return _connection; }
-
-        virtual string_view getOperation() const { return _operationName; }
-
-        void invoke()
-        {
-            _observer.attach(_instance.get(), _operationName);
-            try
-            {
-                _os.write(magic[0]);
-                _os.write(magic[1]);
-                _os.write(magic[2]);
-                _os.write(magic[3]);
-                _os.write(currentProtocol);
-                _os.write(currentProtocolEncoding);
-                _os.write(validateConnectionMsg);
-                _os.write(static_cast<uint8_t>(0)); // Compression status (always zero for validate connection).
-                _os.write(headerSize);              // Message size.
-                _os.i = _os.b.begin();
-
-                AsyncStatus status = _connection->sendAsyncRequest(shared_from_this(), false, false, 0);
-                if (status & AsyncStatusSent)
-                {
-                    _sentSynchronously = true;
-                    if (status & AsyncStatusInvokeSentCallback)
-                    {
-                        invokeSent();
-                    }
-                }
-            }
-            catch (const RetryException& ex)
-            {
-                if (exception(ex.get()))
-                {
-                    invokeExceptionAsync();
-                }
-            }
-            catch (const Exception&)
-            {
-                if (exception(current_exception()))
-                {
-                    invokeExceptionAsync();
-                }
-            }
-        }
-
-    private:
-        CommunicatorPtr _communicator;
-        ConnectionIPtr _connection;
-        static constexpr string_view _operationName = "heartbeat";
-    };
-}
-
-std::function<void()>
-Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex, ::std::function<void(bool)> sent)
-{
-    class HeartbeatLambda : public HeartbeatAsync, public LambdaInvoke
-    {
-    public:
-        HeartbeatLambda(
-            std::shared_ptr<Ice::ConnectionI>&& connection,
-            Ice::CommunicatorPtr& communicator,
-            const InstancePtr& instance,
-            std::function<void(std::exception_ptr)> ex,
-            std::function<void(bool)> sent)
-            : HeartbeatAsync(connection, communicator, instance),
-              LambdaInvoke(std::move(ex), std::move(sent))
-        {
-        }
-    };
-    auto outAsync = make_shared<HeartbeatLambda>(shared_from_this(), _communicator, _instance, ex, sent);
-    outAsync->invoke();
-    return [outAsync]() { outAsync->cancel(); };
-}
-
-void
-Ice::ConnectionI::setHeartbeatCallback(HeartbeatCallback callback)
-{
-    std::lock_guard lock(_mutex);
-    if (_state >= StateClosed)
-    {
-        return;
-    }
-    _heartbeatCallback = std::move(callback);
-}
-
 void
 Ice::ConnectionI::setCloseCallback(CloseCallback callback)
 {
@@ -1643,7 +1540,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     // potentially block (this avoids promoting a new leader and unecessary thread creation, especially if this is
     // called on shutdown).
     if (!_connectionStartCompleted && !_connectionStartFailed && _sendStreams.empty() && _asyncRequests.empty() &&
-        !_closeCallback && !_heartbeatCallback)
+        !_closeCallback)
     {
         finish(close);
         return;
@@ -1815,8 +1712,6 @@ Ice::ConnectionI::finish(bool close)
         closeCallback(_closeCallback);
         _closeCallback = nullptr;
     }
-
-    _heartbeatCallback = nullptr;
 
     // This must be done last as this will cause waitUntilFinished() to return (and communicator
     // objects such as the timer might be destroyed too).
@@ -2003,7 +1898,6 @@ Ice::ConnectionI::~ConnectionI()
     assert(!_connectionStartCompleted);
     assert(!_connectionStartFailed);
     assert(!_closeCallback);
-    assert(!_heartbeatCallback);
     assert(_state == StateFinished);
     assert(_upcallCount == 0);
     assert(_sendStreams.empty());
@@ -3383,28 +3277,6 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
             case validateConnectionMsg:
             {
                 traceRecv(stream, _logger, _traceLevels);
-                if (_heartbeatCallback)
-                {
-                    upcall = [self = shared_from_this(), heartbeatCallback = _heartbeatCallback](InputStream&)
-                    {
-                        try
-                        {
-                            heartbeatCallback(self);
-                        }
-                        catch (const std::exception& ex)
-                        {
-                            Error out(self->_instance->initializationData().logger);
-                            out << "connection callback exception:\n" << ex << '\n' << self->_desc;
-                        }
-                        catch (...)
-                        {
-                            Error out(self->_instance->initializationData().logger);
-                            out << "connection callback exception:\nunknown c++ exception" << '\n' << self->_desc;
-                        }
-                        return true; // upcall is done
-                    };
-                    ++upcallCount;
-                }
                 // a heartbeat has no effect on the dispatch count or the inactivity timer task.
                 break;
             }

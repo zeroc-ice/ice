@@ -1,6 +1,5 @@
-#
 # Copyright (c) ZeroC, Inc. All rights reserved.
-#
+
 from .Communicator import Communicator
 from .PropertiesI import PropertiesI
 from .ObjectAdapterI import ObjectAdapterI
@@ -8,9 +7,6 @@ from .ImplicitContextI import ImplicitContextI
 from .LoggerI import LoggerI
 from .Logger import Logger
 
-#
-# Communicator wrapper.
-#
 class CommunicatorI(Communicator):
     def __init__(self, impl):
         self._impl = impl
