@@ -172,8 +172,7 @@ final class TcpEndpointI extends IPEndpointI {
   // Compare endpoints for sorting purposes
   //
   @Override
-  public int compareTo(EndpointI obj) // From java.lang.Comparable
-      {
+  public int compareTo(EndpointI obj) {
     if (!(obj instanceof TcpEndpointI)) {
       return type() < obj.type() ? -1 : 1;
     }

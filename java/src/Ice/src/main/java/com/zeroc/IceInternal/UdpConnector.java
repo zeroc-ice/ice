@@ -84,11 +84,11 @@ final class UdpConnector implements Connector {
       return false;
     }
 
-    if (Network.compareAddress(_sourceAddr, p._sourceAddr) != 0) {
+    if (!java.util.Objects.equals(_sourceAddr, p._sourceAddr)) {
       return false;
     }
 
-    return Network.compareAddress(_addr, p._addr) == 0;
+    return java.util.Objects.equals(_addr, p._addr);
   }
 
   private final ProtocolInstance _instance;

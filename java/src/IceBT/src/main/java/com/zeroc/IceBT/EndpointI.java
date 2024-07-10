@@ -306,8 +306,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
   }
 
   @Override
-  public int compareTo(com.zeroc.IceInternal.EndpointI obj) // From java.lang.Comparable
-      {
+  public int compareTo(com.zeroc.IceInternal.EndpointI obj) {
     if (!(obj instanceof EndpointI)) {
       return type() < obj.type() ? -1 : 1;
     }

@@ -240,8 +240,7 @@ final class WSEndpoint extends EndpointI {
   }
 
   @Override
-  public int compareTo(EndpointI obj) // From java.lang.Comparable
-      {
+  public int compareTo(EndpointI obj) {
     if (!(obj instanceof WSEndpoint)) {
       return type() < obj.type() ? -1 : 1;
     }

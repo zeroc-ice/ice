@@ -247,8 +247,7 @@ final class UdpEndpointI extends IPEndpointI {
   }
 
   @Override
-  public int compareTo(EndpointI obj) // From java.lang.Comparable
-      {
+  public int compareTo(EndpointI obj) {
     if (!(obj instanceof UdpEndpointI)) {
       return type() < obj.type() ? -1 : 1;
     }

@@ -160,7 +160,7 @@ public abstract class IPEndpointI extends EndpointI {
     return ipEndpointI.type() == type()
         && ipEndpointI._host.equals(_host)
         && ipEndpointI._port == _port
-        && Network.compareAddress(ipEndpointI._sourceAddr, _sourceAddr) == 0;
+        && java.util.Objects.equals(ipEndpointI._sourceAddr, _sourceAddr);
   }
 
   public java.util.List<Connector> connectors(
@@ -227,8 +227,7 @@ public abstract class IPEndpointI extends EndpointI {
   }
 
   @Override
-  public int compareTo(EndpointI obj) // From java.lang.Comparable
-      {
+  public int compareTo(EndpointI obj) {
     if (!(obj instanceof IPEndpointI)) {
       return type() < obj.type() ? -1 : 1;
     }
