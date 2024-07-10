@@ -565,7 +565,7 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
     return os.str();
 }
 
-long
+int64_t
 Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 {
     string name = p->scoped();
