@@ -21,9 +21,7 @@ class InitializationData(object):
         The callable receives three arguments: a BatchRequest object, an integer representing
         the number of requests in the queue, and an integer representing the number of bytes
         consumed by the requests in the queue. The interceptor must eventually invoke the
-        enqueue method on the BatchRequest object.
-
-    valueFactoryManager: An object that implements ValueFactoryManager."""
+        enqueue method on the BatchRequest object."""
 
     def __init__(self):
         self.properties = None
@@ -32,4 +30,3 @@ class InitializationData(object):
         self.threadStop = None
         self.dispatcher = None
         self.batchRequestInterceptor = None
-        self.valueFactoryManager = None
