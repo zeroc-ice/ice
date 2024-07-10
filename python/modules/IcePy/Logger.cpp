@@ -106,11 +106,8 @@ IcePy::LoggerWrapper::getObject()
     return _logger.get();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static LoggerObject*
-    loggerNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" LoggerObject*
+loggerNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     LoggerObject* self = reinterpret_cast<LoggerObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -121,21 +118,15 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    loggerDealloc(LoggerObject* self)
+extern "C" void
+loggerDealloc(LoggerObject* self)
 {
     delete self->logger;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    loggerPrint(LoggerObject* self, PyObject* args)
+extern "C" PyObject*
+loggerPrint(LoggerObject* self, PyObject* args)
 {
     PyObject* messageObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &messageObj))
@@ -164,11 +155,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    loggerTrace(LoggerObject* self, PyObject* args)
+extern "C" PyObject*
+loggerTrace(LoggerObject* self, PyObject* args)
 {
     PyObject* categoryObj;
     PyObject* messageObj;
@@ -203,11 +191,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    loggerWarning(LoggerObject* self, PyObject* args)
+extern "C" PyObject*
+loggerWarning(LoggerObject* self, PyObject* args)
 {
     PyObject* messageObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &messageObj))
@@ -236,11 +221,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    loggerError(LoggerObject* self, PyObject* args)
+extern "C" PyObject*
+loggerError(LoggerObject* self, PyObject* args)
 {
     PyObject* messageObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &messageObj))
@@ -269,11 +251,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    loggerGetPrefix(LoggerObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+loggerGetPrefix(LoggerObject* self, PyObject* /*args*/)
 {
     string prefix;
 
@@ -291,11 +270,8 @@ extern "C"
     return createString(prefix);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
+extern "C" PyObject*
+loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
 {
     PyObject* prefixObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &prefixObj))

@@ -18,11 +18,8 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PropertiesObject*
-    propertiesNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" PropertiesObject*
+propertiesNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PropertiesObject* self = reinterpret_cast<PropertiesObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -33,11 +30,8 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static int
-    propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
+extern "C" int
+propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     PyObject* arglist = 0;
     PyObject* defaultsObj = 0;
@@ -121,21 +115,15 @@ extern "C"
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    propertiesDealloc(PropertiesObject* self)
+extern "C" void
+propertiesDealloc(PropertiesObject* self)
 {
     delete self->properties;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesStr(PropertiesObject* self)
+extern "C" PyObject*
+propertiesStr(PropertiesObject* self)
 {
     assert(self->properties);
 
@@ -163,11 +151,8 @@ extern "C"
     return createString(str);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetProperty(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetProperty(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
@@ -196,11 +181,8 @@ extern "C"
     return createString(value);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetIceProperty(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetIceProperty(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
@@ -229,11 +211,8 @@ extern "C"
     return createString(value);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetPropertyWithDefault(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetPropertyWithDefault(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     PyObject* defObj;
@@ -268,11 +247,8 @@ extern "C"
     return createString(value);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetPropertyAsInt(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetPropertyAsInt(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
@@ -301,11 +277,8 @@ extern "C"
     return PyLong_FromLong(value);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetIcePropertyAsInt(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetIcePropertyAsInt(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
@@ -334,11 +307,8 @@ extern "C"
     return PyLong_FromLong(value);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     int def;
@@ -368,11 +338,8 @@ extern "C"
     return PyLong_FromLong(value);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetPropertyAsList(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetPropertyAsList(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
@@ -411,11 +378,8 @@ extern "C"
     return list;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetIcePropertyAsList(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetIcePropertyAsList(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
@@ -454,11 +418,8 @@ extern "C"
     return list;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     PyObject* defList;
@@ -504,11 +465,8 @@ extern "C"
     return list;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
 {
     PyObject* prefixObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &prefixObj))
@@ -551,11 +509,8 @@ extern "C"
     return result.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesSetProperty(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesSetProperty(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     PyObject* valueObj;
@@ -590,11 +545,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesGetCommandLineOptions(PropertiesObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+propertiesGetCommandLineOptions(PropertiesObject* self, PyObject* /*args*/)
 {
     Ice::StringSeq options;
     assert(self->properties);
@@ -621,11 +573,8 @@ extern "C"
     return list;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesParseCommandLineOptions(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesParseCommandLineOptions(PropertiesObject* self, PyObject* args)
 {
     PyObject* prefixObj;
     PyObject* options;
@@ -671,11 +620,8 @@ extern "C"
     return list;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesParseIceCommandLineOptions(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesParseIceCommandLineOptions(PropertiesObject* self, PyObject* args)
 {
     PyObject* options;
     if (!PyArg_ParseTuple(args, STRCAST("O!"), &PyList_Type, &options))
@@ -714,11 +660,8 @@ extern "C"
     return list;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesLoad(PropertiesObject* self, PyObject* args)
+extern "C" PyObject*
+propertiesLoad(PropertiesObject* self, PyObject* args)
 {
     PyObject* fileObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &fileObj))
@@ -747,11 +690,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    propertiesClone(PropertiesObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+propertiesClone(PropertiesObject* self, PyObject* /*args*/)
 {
     Ice::PropertiesPtr properties;
     assert(self->properties);

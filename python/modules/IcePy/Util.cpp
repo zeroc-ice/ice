@@ -231,30 +231,26 @@ IcePy::PyObjectHandle::PyObjectHandle(PyObject* p) : _p(p) {}
 
 IcePy::PyObjectHandle::PyObjectHandle(const PyObjectHandle& p) : _p(p._p) { Py_XINCREF(_p); }
 
-IcePy::PyObjectHandle::~PyObjectHandle()
-{
-    if (_p)
-    {
-        Py_DECREF(_p);
-    }
-}
+IcePy::PyObjectHandle::~PyObjectHandle() { Py_XDECREF(_p); }
 
-void
+IcePy::PyObjectHandle&
 IcePy::PyObjectHandle::operator=(PyObject* p)
 {
-    if (_p)
-    {
-        Py_DECREF(_p);
-    }
+    Py_XDECREF(_p);
     _p = p;
+    return *this;
 }
 
-void
+IcePy::PyObjectHandle&
 IcePy::PyObjectHandle::operator=(const PyObjectHandle& p)
 {
-    Py_XDECREF(_p);
-    _p = p._p;
-    Py_XINCREF(_p);
+    if (this != &p)
+    {
+        Py_XDECREF(_p);
+        _p = p._p;
+        Py_XINCREF(_p);
+    }
+    return *this;
 }
 
 PyObject*
@@ -267,7 +263,7 @@ PyObject*
 IcePy::PyObjectHandle::release()
 {
     PyObject* result = _p;
-    _p = 0;
+    _p = nullptr;
     return result;
 }
 

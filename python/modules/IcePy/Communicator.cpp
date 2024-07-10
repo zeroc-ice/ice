@@ -54,11 +54,8 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static CommunicatorObject*
-    communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" CommunicatorObject*
+communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     assert(type && type->tp_alloc);
     CommunicatorObject* self = reinterpret_cast<CommunicatorObject*>(type->tp_alloc(type, 0));
@@ -75,11 +72,8 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static int
-    communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
+extern "C" int
+communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     //
     // The argument options are:
@@ -346,11 +340,8 @@ extern "C"
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    communicatorDealloc(CommunicatorObject* self)
+extern "C" void
+communicatorDealloc(CommunicatorObject* self)
 {
     if (self->communicator)
     {
@@ -370,11 +361,8 @@ extern "C"
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
 
@@ -415,11 +403,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorShutdown(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorShutdown(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     try
@@ -437,11 +422,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
 {
     //
     // This method differs somewhat from the standard Ice API because of
@@ -519,11 +501,8 @@ extern "C"
     PyRETURN_TRUE;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorIsShutdown(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorIsShutdown(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     bool isShutdown;
@@ -540,11 +519,8 @@ extern "C"
     PyRETURN_BOOL(isShutdown);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
 {
     PyObject* strObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
@@ -578,11 +554,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorProxyToString(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorProxyToString(CommunicatorObject* self, PyObject* args)
 {
     PyObject* obj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &obj))
@@ -612,11 +585,8 @@ extern "C"
     return createString(str);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
 {
     PyObject* strObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
@@ -650,11 +620,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
 {
     //
     // We don't want to accept None here, so we can specify ProxyType and force
@@ -703,11 +670,8 @@ extern "C"
     return result.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* obj;
@@ -737,11 +701,8 @@ extern "C"
     return createString(str);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
@@ -770,11 +731,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
+extern "C" PyObject*
+communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
@@ -821,11 +779,8 @@ extern "C"
     return future.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
 {
     PyObject* adapter;
     PyObject* identityType = lookupType("Ice.Identity");
@@ -871,11 +826,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorGetAdmin(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorGetAdmin(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     optional<Ice::ObjectPrx> proxy;
@@ -897,11 +849,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorAddAdminFacet(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorAddAdminFacet(CommunicatorObject* self, PyObject* args)
 {
     PyObject* objectType = lookupType("Ice.Object");
     PyObject* servant;
@@ -938,11 +887,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
 {
     PyObject* facetObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &facetObj))
@@ -994,11 +940,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::FacetMap facetMap;
@@ -1048,11 +991,8 @@ extern "C"
     return result.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
 {
     PyObject* facetObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &facetObj))
@@ -1092,11 +1032,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
 {
     PyObject* wrapper;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &wrapper))
@@ -1112,22 +1049,16 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorGetWrapper(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorGetWrapper(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->wrapper);
     Py_INCREF(self->wrapper);
     return self->wrapper;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorGetProperties(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorGetProperties(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::PropertiesPtr properties;
@@ -1144,11 +1075,8 @@ extern "C"
     return createProperties(properties);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::LoggerPtr logger;
@@ -1180,21 +1108,15 @@ extern "C"
     return createLogger(logger);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorGetValueFactoryManager(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorGetValueFactoryManager(CommunicatorObject* self, PyObject* /*args*/)
 {
     auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
     return vfm->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorGetImplicitContext(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorGetImplicitContext(CommunicatorObject* self, PyObject* /*args*/)
 {
     Ice::ImplicitContextPtr implicitContext = (*self->communicator)->getImplicitContext();
 
@@ -1207,11 +1129,8 @@ extern "C"
     return createImplicitContext(implicitContext);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorCreateObjectAdapter(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorCreateObjectAdapter(CommunicatorObject* self, PyObject* args)
 {
     PyObject* strObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
@@ -1252,11 +1171,8 @@ extern "C"
     return obj;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorCreateObjectAdapterWithEndpoints(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorCreateObjectAdapterWithEndpoints(CommunicatorObject* self, PyObject* args)
 {
     PyObject* nameObj;
     PyObject* endpointsObj;
@@ -1303,11 +1219,8 @@ extern "C"
     return obj;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* args)
 {
     PyObject* nameObj;
     PyObject* p;
@@ -1358,11 +1271,8 @@ extern "C"
     return obj;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorGetDefaultRouter(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorGetDefaultRouter(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     optional<Ice::RouterPrx> router;
@@ -1387,11 +1297,8 @@ extern "C"
     return createProxy(router.value(), *self->communicator, routerProxyType);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
 {
     PyObject* p;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &p))
@@ -1422,11 +1329,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorGetDefaultLocator(CommunicatorObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+communicatorGetDefaultLocator(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     optional<Ice::LocatorPrx> locator;
@@ -1451,11 +1355,8 @@ extern "C"
     return createProxy(locator.value(), *self->communicator, locatorProxyType);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
+extern "C" PyObject*
+communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
 {
     PyObject* p;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &p))

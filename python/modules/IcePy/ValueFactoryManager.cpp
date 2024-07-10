@@ -239,31 +239,22 @@ IcePy::DefaultValueFactory::create(std::string_view id)
     return make_shared<ValueReader>(obj.get(), info);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static ValueFactoryManagerObject*
-    valueFactoryManagerNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" ValueFactoryManagerObject*
+valueFactoryManagerNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("Do not instantiate this object directly"));
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    valueFactoryManagerDealloc(ValueFactoryManagerObject* self)
+extern "C" void
+valueFactoryManagerDealloc(ValueFactoryManagerObject* self)
 {
     delete self->vfm;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
+extern "C" PyObject*
+valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
 {
     assert(self->vfm);
 
@@ -293,11 +284,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
+extern "C" PyObject*
+valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
 {
     assert(self->vfm);
 

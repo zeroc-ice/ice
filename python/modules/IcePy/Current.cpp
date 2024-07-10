@@ -42,11 +42,8 @@ namespace IcePy
     const Py_ssize_t CURRENT_ENCODING = 8;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static CurrentObject*
-    currentNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" CurrentObject*
+currentNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     CurrentObject* self = reinterpret_cast<CurrentObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -68,11 +65,8 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    currentDealloc(CurrentObject* self)
+extern "C" void
+currentDealloc(CurrentObject* self)
 {
     Py_XDECREF(self->adapter);
     Py_XDECREF(self->con);
@@ -87,11 +81,8 @@ extern "C"
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    currentGetter(CurrentObject* self, void* closure)
+extern "C" PyObject*
+currentGetter(CurrentObject* self, void* closure)
 {
     //
     // This function intercepts requests for attributes of a Current object. We use this

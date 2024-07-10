@@ -17,21 +17,15 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static EndpointInfoObject*
-    endpointInfoNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" EndpointInfoObject*
+endpointInfoNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("An endpoint info cannot be created directly"));
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    endpointInfoDealloc(EndpointInfoObject* self)
+extern "C" void
+endpointInfoDealloc(EndpointInfoObject* self)
 {
     delete self->endpointInfo;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
@@ -40,11 +34,8 @@ extern "C"
 //
 // Ice::EndpointInfo::type
 //
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointInfoType(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointInfoType(EndpointInfoObject* self, PyObject* /*args*/)
 {
     assert(self->endpointInfo);
     try
@@ -62,11 +53,8 @@ extern "C"
 //
 // Ice::EndpointInfo::datagram
 //
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointInfoDatagram(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointInfoDatagram(EndpointInfoObject* self, PyObject* /*args*/)
 {
     assert(self->endpointInfo);
     PyObject* b;
@@ -87,11 +75,8 @@ extern "C"
 //
 // Ice::EndpointInfo::secure
 //
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointInfoSecure(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointInfoSecure(EndpointInfoObject* self, PyObject* /*args*/)
 {
     assert(self->endpointInfo);
     PyObject* b;
@@ -109,104 +94,74 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointInfoGetUnderlying(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointInfoGetUnderlying(EndpointInfoObject* self, PyObject* /*args*/)
 {
     return createEndpointInfo((*self->endpointInfo)->underlying);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointInfoGetTimeout(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointInfoGetTimeout(EndpointInfoObject* self, PyObject* /*args*/)
 {
     return PyLong_FromLong((*self->endpointInfo)->timeout);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointInfoGetCompress(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointInfoGetCompress(EndpointInfoObject* self, PyObject* /*args*/)
 {
     return (*self->endpointInfo)->compress ? incTrue() : incFalse();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    ipEndpointInfoGetHost(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+ipEndpointInfoGetHost(EndpointInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::IPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return createString(info->host);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    ipEndpointInfoGetSourceAddress(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+ipEndpointInfoGetSourceAddress(EndpointInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::IPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return createString(info->sourceAddress);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    ipEndpointInfoGetPort(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+ipEndpointInfoGetPort(EndpointInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::IPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return PyLong_FromLong(info->port);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    udpEndpointInfoGetMcastInterface(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+udpEndpointInfoGetMcastInterface(EndpointInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return createString(info->mcastInterface);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    udpEndpointInfoGetMcastTtl(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+udpEndpointInfoGetMcastTtl(EndpointInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return PyLong_FromLong(info->mcastTtl);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    wsEndpointInfoGetResource(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+wsEndpointInfoGetResource(EndpointInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::WSEndpointInfo>(*self->endpointInfo);
     assert(info);
     return createString(info->resource);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    opaqueEndpointInfoGetRawBytes(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+opaqueEndpointInfoGetRawBytes(EndpointInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(*self->endpointInfo);
     assert(info);
@@ -215,11 +170,8 @@ extern "C"
         static_cast<int>(info->rawBytes.size()));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    opaqueEndpointInfoGetRawEncoding(EndpointInfoObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+opaqueEndpointInfoGetRawEncoding(EndpointInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(*self->endpointInfo);
     assert(info);

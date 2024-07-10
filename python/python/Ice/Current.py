@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-#
 # Copyright (c) ZeroC, Inc. All rights reserved.
-#
 
-import Ice
+import Ice.OperationMode_ice
 
 class Current(object):
     """
@@ -27,26 +24,20 @@ class Current(object):
         self,
         adapter=None,
         con=None,
-        id=Ice._struct_marker,
+        id=None,
         facet="",
         operation="",
         mode=Ice.OperationMode.Normal,
         ctx=None,
         requestId=0,
-        encoding=Ice._struct_marker,
+        encoding=None,
     ):
         self.adapter = adapter
         self.con = con
-        if id is Ice._struct_marker:
-            self.id = Ice.Identity()
-        else:
-            self.id = id
+        self.id = Ice.Identity() if id is None else id
         self.facet = facet
         self.operation = operation
         self.mode = mode
         self.ctx = ctx
         self.requestId = requestId
-        if encoding is Ice._struct_marker:
-            self.encoding = Ice.EncodingVersion()
-        else:
-            self.encoding = encoding
+        self.encoding = Ice.EncodingVersion() if encoding is None else encoding
