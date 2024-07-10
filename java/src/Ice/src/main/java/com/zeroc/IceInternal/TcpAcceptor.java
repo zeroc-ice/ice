@@ -115,8 +115,8 @@ class TcpAcceptor implements Acceptor {
   }
 
   private TcpEndpointI _endpoint;
-  private ProtocolInstance _instance;
+  private final ProtocolInstance _instance;
   private java.nio.channels.ServerSocketChannel _fd;
-  private int _backlog;
+  private final int _backlog;
   private java.net.InetSocketAddress _addr;
 }

@@ -1128,8 +1128,8 @@ size_t
 IceInternal::RoutableReference::hash() const noexcept
 {
     size_t h = Reference::hash();
-    hashAdd(h, _endpoints);
     hashAdd(h, _adapterId);
+    hashAdd(h, _endpoints);
     return h;
 }
 

@@ -199,9 +199,6 @@ export class ObjectAdapter {
     }
 
     getName() {
-        //
-        // No mutex lock necessary, _name is immutable.
-        //
         return this._noConfig ? "" : this._name;
     }
 
