@@ -533,10 +533,7 @@ class EncapsDecoder11 extends EncapsDecoder {
             this.skipSlice();
 
             if ((this._current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) !== 0) {
-                if (mostDerivedId.indexOf("::") === 0) {
-                    throw new UnknownUserException(mostDerivedId.substr(2));
-                }
-                throw new UnknownUserException(mostDerivedId);
+                throw new MarshalException(`cannot unmarshal user exception with type ID '${mostDerivedId}'`);
             }
 
             this.startSlice();
