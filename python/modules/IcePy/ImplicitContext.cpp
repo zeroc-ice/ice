@@ -21,11 +21,8 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static ImplicitContextObject*
-    implicitContextNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" ImplicitContextObject*
+implicitContextNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     ImplicitContextObject* self = reinterpret_cast<ImplicitContextObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -36,21 +33,15 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    implicitContextDealloc(ImplicitContextObject* self)
+extern "C" void
+implicitContextDealloc(ImplicitContextObject* self)
 {
     delete self->implicitContext;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    implicitContextCompare(ImplicitContextObject* c1, PyObject* other, int op)
+extern "C" PyObject*
+implicitContextCompare(ImplicitContextObject* c1, PyObject* other, int op)
 {
     bool result = false;
 
@@ -100,11 +91,8 @@ extern "C"
     return result ? incTrue() : incFalse();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    implicitContextGetContext(ImplicitContextObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+implicitContextGetContext(ImplicitContextObject* self, PyObject* /*args*/)
 {
     Ice::Context ctx = (*self->implicitContext)->getContext();
 
@@ -122,11 +110,8 @@ extern "C"
     return dict.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    implicitContextSetContext(ImplicitContextObject* self, PyObject* args)
+extern "C" PyObject*
+implicitContextSetContext(ImplicitContextObject* self, PyObject* args)
 {
     PyObject* dict;
     if (!PyArg_ParseTuple(args, STRCAST("O!"), &PyDict_Type, &dict))
@@ -146,11 +131,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
+extern "C" PyObject*
+implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
 {
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
@@ -178,11 +160,8 @@ extern "C"
     PyRETURN_BOOL(containsKey);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    implicitContextGet(ImplicitContextObject* self, PyObject* args)
+extern "C" PyObject*
+implicitContextGet(ImplicitContextObject* self, PyObject* args)
 {
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
@@ -209,11 +188,8 @@ extern "C"
     return createString(val);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    implicitContextPut(ImplicitContextObject* self, PyObject* args)
+extern "C" PyObject*
+implicitContextPut(ImplicitContextObject* self, PyObject* args)
 {
     PyObject* keyObj;
     PyObject* valueObj;
@@ -246,11 +222,8 @@ extern "C"
     return createString(oldVal);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    implicitContextRemove(ImplicitContextObject* self, PyObject* args)
+extern "C" PyObject*
+implicitContextRemove(ImplicitContextObject* self, PyObject* args)
 {
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
