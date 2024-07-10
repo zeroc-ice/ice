@@ -687,7 +687,7 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
 }
 
 #ifdef __APPLE__
-optional<dispatch_queue_t>
+dispatch_queue_t
 Ice::ObjectAdapterI::getDispatchQueue() const
 {
     lock_guard lock(_mutex);

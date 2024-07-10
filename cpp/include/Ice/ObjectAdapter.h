@@ -451,9 +451,9 @@ namespace Ice
 #ifdef __APPLE__
         /**
          * Get the dispatch queue used by this object adapter's thread pool, if any.
-         * @return The dispatch queue, or nullopt if none is configured.
+         * @return The dispatch queue, or nullptr if none is configured.
          */
-        virtual std::optional<dispatch_queue_t> getDispatchQueue() const = 0;
+        virtual dispatch_queue_t getDispatchQueue() const = 0;
 #endif
     };
 }

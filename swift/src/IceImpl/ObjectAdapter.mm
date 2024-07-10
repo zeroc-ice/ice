@@ -225,7 +225,7 @@
     {
         // Swift always sets InitializationData.useDispatchQueueExecutor to true
         assert(self.objectAdapter->getDispatchQueue());
-        return self.objectAdapter->getDispatchQueue().value();
+        return self.objectAdapter->getDispatchQueue();
     }
     catch (...)
     {

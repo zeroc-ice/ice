@@ -4,7 +4,6 @@ import Foundation
 import PackageDescription
 
 let iceCppSettings: [CXXSetting] = [
-    .define("ICE_STATIC_LIBS"),
     .define("ICE_BUILDING_SRC"),
     .headerSearchPath("src"),
     .headerSearchPath("include"),

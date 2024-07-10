@@ -381,7 +381,7 @@
     {
         // Swift always sets InitializationData.useDispatchQueueExecutor to true
         assert(self.communicator->getClientDispatchQueue());
-        return self.communicator->getClientDispatchQueue().value();
+        return self.communicator->getClientDispatchQueue();
     }
     catch (...)
     {
@@ -396,7 +396,7 @@
     {
         // Swift always sets InitializationData.useDispatchQueueExecutor to true
         assert(self.communicator->getServerDispatchQueue());
-        return self.communicator->getServerDispatchQueue().value();
+        return self.communicator->getServerDispatchQueue();
     }
     catch (...)
     {

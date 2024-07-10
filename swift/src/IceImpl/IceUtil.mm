@@ -111,10 +111,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
             communicator = Ice::initialize(initData);
         }
 
-        assert(initData.useDispatchQueueExecutor);
-        assert(communicator->hasClientDispatchQueue());
         assert(communicator->getClientDispatchQueue());
-        assert(communicator->getServerDispatchQueue());
 
         return [ICECommunicator getHandle:communicator];
     }

@@ -53,7 +53,7 @@ namespace
         return "com.zeroc.ice.oa." + string{prefix.substr(0, end)};
     }
 
-    optional<dispatch_queue_t> initDispatchQueue(const InitializationData& initData, string_view prefix)
+    dispatch_queue_t initDispatchQueue(const InitializationData& initData, string_view prefix)
     {
         if (initData.useDispatchQueueExecutor)
         {
@@ -61,7 +61,7 @@ namespace
                 prefixToDispatchQueueLabel(prefix).c_str(),
                 DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL);
         }
-        return nullopt;
+        return nullptr;
     }
 #endif
 }
@@ -361,7 +361,7 @@ IceInternal::ThreadPool::~ThreadPool()
 #ifdef __APPLE__
     if (_dispatchQueue)
     {
-        dispatch_release(*_dispatchQueue);
+        dispatch_release(_dispatchQueue);
     }
 #endif
 }
@@ -500,7 +500,7 @@ IceInternal::ThreadPool::executeFromThisThread(function<void()> call, const Ice:
 #ifdef __APPLE__
     if (_dispatchQueue)
     {
-        dispatch_sync(*_dispatchQueue, ^{
+        dispatch_sync(_dispatchQueue, ^{
           call();
         });
         return;
@@ -577,7 +577,7 @@ IceInternal::ThreadPool::prefix() const
 }
 
 #ifdef __APPLE__
-optional<dispatch_queue_t>
+dispatch_queue_t
 IceInternal::ThreadPool::getDispatchQueue() const noexcept
 {
     return _dispatchQueue;

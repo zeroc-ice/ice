@@ -366,18 +366,16 @@ namespace Ice
         /**
          * Returns the client dispatch queue, if any.
          * @return The dispatch queue associated wih this Communicator's
-         * client thread pool, or nullopt if none is configured.
+         * client thread pool, or nullptr if none is configured.
          */
-        std::optional<dispatch_queue_t> getClientDispatchQueue() const;
+        dispatch_queue_t getClientDispatchQueue() const;
 
         /**
          * Returns the server dispatch queue.
          * @return The dispatch queue associated wih the Communicator's
-         * server thread pool, or nullopt if none is configured.
+         * server thread pool, or nullptr if none is configured.
          */
-        std::optional<dispatch_queue_t> getServerDispatchQueue() const;
-
-        bool hasClientDispatchQueue() const;
+        dispatch_queue_t getServerDispatchQueue() const;
 #endif
 
         void postToClientThreadPool(std::function<void()> call);

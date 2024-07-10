@@ -88,7 +88,7 @@ namespace Ice
         void setPublishedEndpoints(const EndpointSeq&) final;
 
 #ifdef __APPLE__
-        std::optional<dispatch_queue_t> getDispatchQueue() const final;
+        dispatch_queue_t getDispatchQueue() const final;
 #endif
 
         bool isLocal(const IceInternal::ReferencePtr&) const;

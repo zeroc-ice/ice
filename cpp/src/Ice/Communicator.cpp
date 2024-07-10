@@ -228,26 +228,18 @@ Ice::Communicator::getValueFactoryManager() const noexcept
 }
 
 #ifdef __APPLE__
-optional<dispatch_queue_t>
+dispatch_queue_t
 Ice::Communicator::getClientDispatchQueue() const
 {
-    auto queue = _instance->clientThreadPool()->getDispatchQueue();
-    assert(queue);
-    assert(queue.has_value());
-    return queue;
+    return _instance->clientThreadPool()->getDispatchQueue();
 }
 
-optional<dispatch_queue_t>
+dispatch_queue_t
 Ice::Communicator::getServerDispatchQueue() const
 {
     return _instance->serverThreadPool()->getDispatchQueue();
 }
 
-bool
-Ice::Communicator::hasClientDispatchQueue() const
-{
-    return _instance->clientThreadPool()->getDispatchQueue().has_value();
-}
 #endif
 
 void

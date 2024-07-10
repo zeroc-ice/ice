@@ -82,7 +82,7 @@ namespace IceInternal
         std::string prefix() const;
 
 #ifdef __APPLE__
-        std::optional<dispatch_queue_t> getDispatchQueue() const noexcept;
+        dispatch_queue_t getDispatchQueue() const noexcept;
 #endif
 
     private:
@@ -109,7 +109,7 @@ namespace IceInternal
         const InstancePtr _instance;
 
 #ifdef __APPLE__
-        const std::optional<dispatch_queue_t> _dispatchQueue;
+        const dispatch_queue_t _dispatchQueue;
 #endif
 
         std::function<void(std::function<void()>, const Ice::ConnectionPtr&)> _executor;
