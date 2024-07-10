@@ -288,21 +288,15 @@ IcePy::ServantLocatorWrapper::Cookie::~Cookie()
     Py_XDECREF(cookie);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static ObjectAdapterObject*
-    adapterNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" ObjectAdapterObject*
+adapterNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("Use communicator.createObjectAdapter to create an adapter"));
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    adapterDealloc(ObjectAdapterObject* self)
+extern "C" void
+adapterDealloc(ObjectAdapterObject* self)
 {
     delete self->adapter;
 
@@ -316,11 +310,8 @@ extern "C"
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterGetName(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterGetName(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     string name;
@@ -337,11 +328,8 @@ extern "C"
     return createString(name);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterGetCommunicator(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterGetCommunicator(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     Ice::CommunicatorPtr communicator;
@@ -358,11 +346,8 @@ extern "C"
     return createCommunicator(communicator);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -388,11 +373,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterHold(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterHold(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -409,11 +391,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
 {
     //
     // This method differs somewhat from the standard Ice API because of
@@ -492,11 +471,8 @@ extern "C"
     PyRETURN_TRUE;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterDeactivate(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterDeactivate(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -514,11 +490,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
 {
     //
     // This method differs somewhat from the standard Ice API because of
@@ -596,11 +569,8 @@ extern "C"
     PyRETURN_TRUE;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterIsDeactivated(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterIsDeactivated(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -617,11 +587,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterDestroy(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterDestroy(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -639,11 +606,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterAdd(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterAdd(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* servant;
@@ -680,11 +644,8 @@ extern "C"
     return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* servant;
@@ -728,11 +689,8 @@ extern "C"
     return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* servant;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &servant))
@@ -761,11 +719,8 @@ extern "C"
     return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* servant;
     PyObject* facetObj;
@@ -801,11 +756,8 @@ extern "C"
     return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterAddDefaultServant(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterAddDefaultServant(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* servant;
     PyObject* categoryObj;
@@ -841,11 +793,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterRemove(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterRemove(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -883,11 +832,8 @@ extern "C"
     return wrapper->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -932,11 +878,8 @@ extern "C"
     return wrapper->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -983,11 +926,8 @@ extern "C"
     return result.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterRemoveDefaultServant(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterRemoveDefaultServant(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* categoryObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
@@ -1024,11 +964,8 @@ extern "C"
     return wrapper->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterFind(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterFind(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -1066,11 +1003,8 @@ extern "C"
     return wrapper->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -1115,11 +1049,8 @@ extern "C"
     return wrapper->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -1166,11 +1097,8 @@ extern "C"
     return result.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
 {
     //
     // We don't want to accept None here, so we can specify ProxyType and force
@@ -1207,11 +1135,8 @@ extern "C"
     return wrapper->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterFindDefaultServant(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterFindDefaultServant(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* categoryObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
@@ -1248,11 +1173,8 @@ extern "C"
     return wrapper->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* locatorType = lookupType("Ice.ServantLocator");
     PyObject* locator;
@@ -1284,11 +1206,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterRemoveServantLocator(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterRemoveServantLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* categoryObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
@@ -1325,11 +1244,8 @@ extern "C"
     return wrapper->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* categoryObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
@@ -1366,11 +1282,8 @@ extern "C"
     return wrapper->getObject();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterCreateProxy(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterCreateProxy(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -1400,11 +1313,8 @@ extern "C"
     return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterCreateDirectProxy(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterCreateDirectProxy(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -1434,11 +1344,8 @@ extern "C"
     return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -1468,11 +1375,8 @@ extern "C"
     return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* p;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &p))
@@ -1504,11 +1408,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     optional<Ice::LocatorPrx> locator;
@@ -1533,11 +1434,8 @@ extern "C"
     return createProxy(locator.value(), (*self->adapter)->getCommunicator(), locatorProxyType);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterGetEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterGetEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
 
@@ -1568,11 +1466,8 @@ extern "C"
     return result.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterRefreshPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterRefreshPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -1590,11 +1485,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterGetPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+adapterGetPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
 
@@ -1625,11 +1517,8 @@ extern "C"
     return result.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
+extern "C" PyObject*
+adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
 {
     assert(self->adapter);
 

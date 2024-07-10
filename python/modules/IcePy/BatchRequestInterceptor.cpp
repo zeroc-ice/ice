@@ -20,21 +20,15 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static BatchRequestObject*
-    batchRequestNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" BatchRequestObject*
+batchRequestNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("Batch requests can only be created by the Ice runtime"));
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    batchRequestDealloc(BatchRequestObject* self)
+extern "C" void
+batchRequestDealloc(BatchRequestObject* self)
 {
     Py_XDECREF(self->size);
     Py_XDECREF(self->operation);
@@ -42,11 +36,8 @@ extern "C"
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
     if (!self->size)
@@ -68,11 +59,8 @@ extern "C"
     return self->size;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    batchRequestGetOperation(BatchRequestObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+batchRequestGetOperation(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
     if (!self->operation)
@@ -94,11 +82,8 @@ extern "C"
     return self->operation;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
     if (!self->proxy)
@@ -121,11 +106,8 @@ extern "C"
     return self->proxy;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
 

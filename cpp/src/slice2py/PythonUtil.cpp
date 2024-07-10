@@ -1784,7 +1784,7 @@ Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int&
         return;
     }
 
-    _out << nl << "_h = 5 * _h + Ice.getHash(" << name << ")";
+    _out << nl << "_h = 5 * _h + _builtins.hash(" << name << ")";
 }
 
 void
@@ -2751,7 +2751,9 @@ Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& inclu
     Slice::Python::MetaDataVisitor visitor;
     un->visit(&visitor, false);
 
-    out << nl << "import Ice, IcePy";
+    out << nl << "import Ice";
+    out << nl << "import IcePy";
+    out << nl << "import builtins as _builtins";
 
     if (!all)
     {

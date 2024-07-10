@@ -324,11 +324,8 @@ namespace
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static OperationObject*
-    operationNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" OperationObject*
+operationNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     OperationObject* self = reinterpret_cast<OperationObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -339,11 +336,8 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static int
-    operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
+extern "C" int
+operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     char* name;
     PyObject* modeType = lookupType("Ice.OperationMode");
@@ -382,21 +376,15 @@ extern "C"
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    operationDealloc(OperationObject* self)
+extern "C" void
+operationDealloc(OperationObject* self)
 {
     delete self->op;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    operationInvoke(OperationObject* self, PyObject* args)
+extern "C" PyObject*
+operationInvoke(OperationObject* self, PyObject* args)
 {
     PyObject* pyProxy;
     PyObject* opArgs;
@@ -412,11 +400,8 @@ extern "C"
     return i->invoke(opArgs);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    operationInvokeAsync(OperationObject* self, PyObject* args)
+extern "C" PyObject*
+operationInvokeAsync(OperationObject* self, PyObject* args)
 {
     PyObject* proxy;
     PyObject* opArgs;
@@ -430,11 +415,8 @@ extern "C"
     return i->invoke(opArgs);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    operationDeprecate(OperationObject* self, PyObject* args)
+extern "C" PyObject*
+operationDeprecate(OperationObject* self, PyObject* args)
 {
     char* msg;
     if (!PyArg_ParseTuple(args, STRCAST("s"), &msg))
@@ -452,11 +434,8 @@ extern "C"
 // DispatchCallbackObject operations
 //
 
-#ifdef WIN32
-extern "C"
-#endif
-    static DispatchCallbackObject*
-    dispatchCallbackNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" DispatchCallbackObject*
+dispatchCallbackNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     DispatchCallbackObject* self = reinterpret_cast<DispatchCallbackObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -467,21 +446,15 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    dispatchCallbackDealloc(DispatchCallbackObject* self)
+extern "C" void
+dispatchCallbackDealloc(DispatchCallbackObject* self)
 {
     delete self->upcall;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    dispatchCallbackResponse(DispatchCallbackObject* self, PyObject* args)
+extern "C" PyObject*
+dispatchCallbackResponse(DispatchCallbackObject* self, PyObject* args)
 {
     PyObject* result = 0;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &result))
@@ -505,11 +478,8 @@ extern "C"
     return incRef(Py_None);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    dispatchCallbackException(DispatchCallbackObject* self, PyObject* args)
+extern "C" PyObject*
+dispatchCallbackException(DispatchCallbackObject* self, PyObject* args)
 {
     PyObject* ex = 0;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &ex))
@@ -538,11 +508,8 @@ extern "C"
 // AsyncInvocationContext operations
 //
 
-#ifdef WIN32
-extern "C"
-#endif
-    static AsyncInvocationContextObject*
-    asyncInvocationContextNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" AsyncInvocationContextObject*
+asyncInvocationContextNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     auto self = reinterpret_cast<AsyncInvocationContextObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -554,22 +521,16 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    asyncInvocationContextDealloc(AsyncInvocationContextObject* self)
+extern "C" void
+asyncInvocationContextDealloc(AsyncInvocationContextObject* self)
 {
     delete self->cancel;
     delete self->communicator;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    asyncInvocationContextCancel(AsyncInvocationContextObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+asyncInvocationContextCancel(AsyncInvocationContextObject* self, PyObject* /*args*/)
 {
     try
     {
@@ -583,11 +544,8 @@ extern "C"
     return incRef(Py_None);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* args)
+extern "C" PyObject*
+asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* args)
 {
     PyObject* callback;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &callback))
@@ -650,11 +608,8 @@ extern "C"
 // MarshaledResult operations
 //
 
-#ifdef WIN32
-extern "C"
-#endif
-    static MarshaledResultObject*
-    marshaledResultNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" MarshaledResultObject*
+marshaledResultNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     MarshaledResultObject* self = reinterpret_cast<MarshaledResultObject*>(type->tp_alloc(type, 0));
     if (!self)
@@ -665,11 +620,8 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static int
-    marshaledResultInit(MarshaledResultObject* self, PyObject* args, PyObject* /*kwds*/)
+extern "C" int
+marshaledResultInit(MarshaledResultObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     PyObject* versionType = IcePy::lookupType("Ice.EncodingVersion");
     PyObject* result;
@@ -713,11 +665,8 @@ extern "C"
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    marshaledResultDealloc(MarshaledResultObject* self)
+extern "C" void
+marshaledResultDealloc(MarshaledResultObject* self)
 {
     delete self->out;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));

@@ -17,31 +17,22 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static EndpointObject*
-    endpointNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" EndpointObject*
+endpointNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("An endpoint cannot be created directly"));
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    endpointDealloc(EndpointObject* self)
+extern "C" void
+endpointDealloc(EndpointObject* self)
 {
     delete self->endpoint;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointCompare(EndpointObject* p1, PyObject* other, int op)
+extern "C" PyObject*
+endpointCompare(EndpointObject* p1, PyObject* other, int op)
 {
     bool result = false;
 
@@ -91,11 +82,8 @@ extern "C"
     return result ? incTrue() : incFalse();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointToString(EndpointObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointToString(EndpointObject* self, PyObject* /*args*/)
 {
     assert(self->endpoint);
     try
@@ -110,20 +98,14 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointRepr(EndpointObject* self)
+extern "C" PyObject*
+endpointRepr(EndpointObject* self)
 {
     return endpointToString(self, 0);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
 {
     assert(self->endpoint);
     try

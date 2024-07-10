@@ -1,6 +1,4 @@
-#
-# ObjectAdapter wrapper.
-#
+# Copyright (c) ZeroC, Inc. All rights reserved.
 
 from .ObjectAdapter import ObjectAdapter
 
