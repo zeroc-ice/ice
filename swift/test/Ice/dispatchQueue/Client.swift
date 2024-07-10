@@ -21,7 +21,7 @@ public class Client: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.activate()
 
-        let semaphore  = DispatchSemaphore(value: 0)
+        let semaphore = DispatchSemaphore(value: 0)
         try communicator.getClientDispatchQueue().async {
             semaphore.signal()
         }
