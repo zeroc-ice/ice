@@ -2478,11 +2478,8 @@ public class InputStream {
         skipSlice();
 
         if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0) {
-          if (mostDerivedId.startsWith("::")) {
-            throw new UnknownUserException(mostDerivedId.substring(2));
-          } else {
-            throw new UnknownUserException(mostDerivedId);
-          }
+          throw new MarshalException(
+              "cannot unmarshal user exception with type ID '" + mostDerivedId + "'");
         }
 
         startSlice();
@@ -2629,11 +2626,8 @@ public class InputStream {
                   + "slicing (the sender should use the sliced format instead)",
               _current.typeId);
         } else {
-          if (_current.typeId.startsWith("::")) {
-            throw new UnknownUserException(_current.typeId.substring(2));
-          } else {
-            throw new UnknownUserException(_current.typeId);
-          }
+          throw new MarshalException(
+              "cannot find user exception for type ID '" + _current.typeId + "'");
         }
       }
 
