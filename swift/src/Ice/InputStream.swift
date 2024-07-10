@@ -1435,7 +1435,7 @@ private class EncapsDecoder11: EncapsDecoder {
             try skipSlice()
 
             if current.sliceFlags.contains(.FLAG_IS_LAST_SLICE) {
-                throw MarshalException("cannot unmarshal user exception with type ID '\(mostDerivedId)'");
+                throw MarshalException("cannot unmarshal user exception with type ID '\(mostDerivedId)'")
             }
 
             try startSlice()
