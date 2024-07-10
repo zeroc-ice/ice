@@ -608,7 +608,7 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 
     // We use a custom hash instead of relying on `std::hash` to ensure cross-platform consistency.
     const string data = os.str();
-    long hashCode = 5381;
+    int64_t hashCode = 5381;
     for (const auto& c : data)
     {
         hashCode = ((hashCode << 5) + hashCode) ^ c;
