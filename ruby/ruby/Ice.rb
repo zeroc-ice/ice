@@ -233,20 +233,22 @@ end
 #
 
 require_relative 'Ice/BuiltinSequences.rb'
-require_relative 'Ice/Context.rb'
-require_relative 'Ice/ToStringMode.rb'
-require_relative 'Ice/EndpointSelectionType.rb'
 require_relative 'Ice/Connection.rb'
-require_relative 'Ice/Version.rb'
+require_relative 'Ice/Context.rb'
 require_relative 'Ice/Endpoint.rb'
+require_relative 'Ice/EndpointSelectionType.rb'
 require_relative 'Ice/EndpointTypes.rb'
 require_relative 'Ice/LocalExceptions.rb'
 require_relative 'Ice/OperationMode.rb'
+require_relative 'Ice/ToStringMode.rb'
+require_relative 'Ice/Version.rb'
+
+# Files that define proxies must be last.
 require_relative 'Ice/Locator.rb'
-require_relative 'Ice/Process.rb'
-require_relative 'Ice/Router.rb'
 require_relative 'Ice/Metrics.rb'
+require_relative 'Ice/Process.rb'
 require_relative 'Ice/RemoteLogger.rb'
+require_relative 'Ice/Router.rb'
 
 module Ice
     #
