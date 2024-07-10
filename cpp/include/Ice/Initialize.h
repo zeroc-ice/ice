@@ -294,7 +294,7 @@ namespace Ice
         /**
          * Whether or not to use a dispatch queue for ThreadPool execution. If true, each {@link ThreadPool} will
          * create and use a dispatch queue for executing tasks. The default is false. Both this and {@link executor}
-         * cannot be set at the same time.
+         * cannot be set at the same time. Only available on Apple platforms.
          */
         bool useDispatchQueueExecutor = false;
 #endif
