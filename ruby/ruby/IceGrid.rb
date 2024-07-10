@@ -2,8 +2,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-require 'IceGrid/Admin.rb'
-require 'IceGrid/Descriptor.rb'
-require 'IceGrid/FileParser.rb'
-require 'IceGrid/Registry.rb'
-require 'IceGrid/UserAccountMapper.rb'
+require_relative 'IceGrid/Admin.rb'
+require_relative 'IceGrid/Descriptor.rb'
+require_relative 'IceGrid/FileParser.rb'
+require_relative 'IceGrid/Registry.rb'
+require_relative 'IceGrid/UserAccountMapper.rb'
