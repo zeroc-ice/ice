@@ -229,27 +229,24 @@ module Ice
 end
 
 #
-# Include certain generated files.
+# Pull in other files.
 #
-# TODO: the order is currently important, which is not correct. Each file should required
-# the symbols it needs.
 
-require 'Ice/BuiltinSequences.rb'
-require 'Ice/Context.rb'
-require_relative 'IceLocal/ToStringMode.rb'
-require_relative 'IceLocal/EndpointSelectionType.rb'
-require_relative 'IceLocal/Connection.rb'
-require 'Ice/Version.rb'
-require_relative 'IceLocal/Endpoint.rb'
-require 'Ice/EndpointTypes.rb'
-require_relative 'IceLocal/LocalExceptions.rb'
-require 'Ice/OperationMode.rb'
-require 'Ice/Locator.rb'
-require 'Ice/Process.rb'
-require 'Ice/Router.rb'
-require_relative 'IceLocal/Connection.rb'
-require 'Ice/Metrics.rb'
-require 'Ice/RemoteLogger.rb'
+require_relative 'Ice/BuiltinSequences.rb'
+require_relative 'Ice/Context.rb'
+require_relative 'Ice/ToStringMode.rb'
+require_relative 'Ice/EndpointSelectionType.rb'
+require_relative 'Ice/Connection.rb'
+require_relative 'Ice/Version.rb'
+require_relative 'Ice/Endpoint.rb'
+require_relative 'Ice/EndpointTypes.rb'
+require_relative 'Ice/LocalExceptions.rb'
+require_relative 'Ice/OperationMode.rb'
+require_relative 'Ice/Locator.rb'
+require_relative 'Ice/Process.rb'
+require_relative 'Ice/Router.rb'
+require_relative 'Ice/Metrics.rb'
+require_relative 'Ice/RemoteLogger.rb'
 
 module Ice
     #
