@@ -235,7 +235,6 @@ end
 require_relative 'Ice/BuiltinSequences.rb'
 require_relative 'Ice/Connection.rb'
 require_relative 'Ice/Context.rb'
-require_relative 'Ice/Endpoint.rb'
 require_relative 'Ice/EndpointSelectionType.rb'
 require_relative 'Ice/EndpointTypes.rb'
 require_relative 'Ice/LocalExceptions.rb'
