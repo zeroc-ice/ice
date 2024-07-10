@@ -15,7 +15,7 @@
 #include "Selector.h"
 #include "ThreadPoolF.h"
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 #    include <dispatch/dispatch.h>
 #endif
 
@@ -81,8 +81,8 @@ namespace IceInternal
 
         std::string prefix() const;
 
-#ifdef ICE_SWIFT
-        dispatch_queue_t getDispatchQueue() const noexcept;
+#ifdef __APPLE__
+        std::optional<dispatch_queue_t> getDispatchQueue() const noexcept;
 #endif
 
     private:
@@ -107,11 +107,13 @@ namespace IceInternal
         static void shutdown(const ThreadPoolCurrent&, const InstancePtr&);
 
         const InstancePtr _instance;
-#ifdef ICE_SWIFT
-        const dispatch_queue_t _dispatchQueue;
-#else // Ice for Swift does not support an executor
-        std::function<void(std::function<void()>, const Ice::ConnectionPtr&)> _executor;
+
+#ifdef __APPLE__
+        const std::optional<dispatch_queue_t> _dispatchQueue;
 #endif
+
+        std::function<void(std::function<void()>, const Ice::ConnectionPtr&)> _executor;
+
         ThreadPoolWorkQueuePtr _workQueue;
         bool _destroyed;
         const std::string _prefix;

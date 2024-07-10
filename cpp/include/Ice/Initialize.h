@@ -290,6 +290,15 @@ namespace Ice
          */
         std::function<void()> threadStop;
 
+#ifdef __APPLE__
+        /**
+         * Whether or not to use a dispatch queue for ThreadPool execution. If true, each {@link ThreadPool} will
+         * create and use a dispatch queue for executing tasks. The default is false. Both this and {@link executor}
+         * cannot be set at the same time.
+         */
+        bool useDispatchQueueExecutor = false;
+#endif
+
         /**
          * You can control which thread receives operation dispatches and async invocation
          * callbacks by supplying an executor.

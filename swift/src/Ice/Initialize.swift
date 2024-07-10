@@ -90,7 +90,7 @@ public func initialize(args: inout [String], configFile: String) throws -> Commu
 
 /// Creates a communicator.
 ///
-/// - parameter _: `Ice.InitializationData` - Additional intialization data.
+/// - parameter _: `Ice.InitializationData` - Additional initialization data.
 ///
 /// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(_ initData: InitializationData? = nil) throws -> Communicator {

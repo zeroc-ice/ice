@@ -17,7 +17,7 @@
 #include "Proxy.h"
 #include "SSL/ServerAuthenticationOptions.h"
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 #    include <dispatch/dispatch.h>
 #endif
 
@@ -362,20 +362,22 @@ namespace Ice
          */
         FacetMap findAllAdminFacets();
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
         /**
-         * Returns the client dispatch queue.
+         * Returns the client dispatch queue, if any.
          * @return The dispatch queue associated wih this Communicator's
-         * client thread pool.
+         * client thread pool, or nullopt if none is configured.
          */
-        dispatch_queue_t getClientDispatchQueue() const;
+        std::optional<dispatch_queue_t> getClientDispatchQueue() const;
 
         /**
          * Returns the server dispatch queue.
          * @return The dispatch queue associated wih the Communicator's
-         * server thread pool.
+         * server thread pool, or nullopt if none is configured.
          */
-        dispatch_queue_t getServerDispatchQueue() const;
+        std::optional<dispatch_queue_t> getServerDispatchQueue() const;
+
+        bool hasClientDispatchQueue() const;
 #endif
 
         void postToClientThreadPool(std::function<void()> call);

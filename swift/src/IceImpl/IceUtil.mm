@@ -10,6 +10,8 @@
 #import "Ice/Network.h"
 #import "Ice/StringUtil.h"
 
+#include <iostream>
+
 namespace
 {
     class Init
@@ -88,6 +90,9 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     Ice::InitializationData initData;
     initData.properties = [properties properties];
 
+    // Ice for Swift always uses the dispatch queue executor
+    initData.useDispatchQueueExecutor = true;
+
     if (logger)
     {
         initData.logger = std::make_shared<LoggerWrapperI>(logger);
@@ -105,6 +110,12 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         {
             communicator = Ice::initialize(initData);
         }
+
+        assert(initData.useDispatchQueueExecutor);
+        assert(communicator->hasClientDispatchQueue());
+        assert(communicator->getClientDispatchQueue());
+        assert(communicator->getServerDispatchQueue());
+
         return [ICECommunicator getHandle:communicator];
     }
     catch (...)

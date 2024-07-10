@@ -11,7 +11,7 @@
 #include "ObjectAdapterF.h"
 #include "ServantLocator.h"
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 #    include <dispatch/dispatch.h>
 #endif
 
@@ -448,8 +448,12 @@ namespace Ice
          */
         virtual void setPublishedEndpoints(const EndpointSeq& newEndpoints) = 0;
 
-#ifdef ICE_SWIFT
-        virtual dispatch_queue_t getDispatchQueue() const = 0;
+#ifdef __APPLE__
+        /**
+         * Get the dispatch queue used by this object adapter's thread pool, if any.
+         * @return The dispatch queue, or nullopt if none is configured.
+         */
+        virtual std::optional<dispatch_queue_t> getDispatchQueue() const = 0;
 #endif
     };
 }
