@@ -231,22 +231,24 @@ end
 #
 # Include certain generated files.
 #
+# TODO: the order is currently important, which is not correct. Each file should required
+# the symbols it needs.
+
 require 'Ice/BuiltinSequences.rb'
 require 'Ice/Context.rb'
-require_relative 'IceLocal/Current.rb'
-require_relative 'IceLocal/Communicator.rb'
+require_relative 'IceLocal/ToStringMode.rb'
 require_relative 'IceLocal/EndpointSelectionType.rb'
+require_relative 'IceLocal/Connection.rb'
+require 'Ice/Version.rb'
+require_relative 'IceLocal/Endpoint.rb'
 require 'Ice/EndpointTypes.rb'
 require_relative 'IceLocal/LocalExceptions.rb'
-require 'Ice/Locator.rb'
-require_relative 'IceLocal/Logger.rb'
-require_relative 'IceLocal/ValueFactory.rb'
 require 'Ice/OperationMode.rb'
+require 'Ice/Locator.rb'
+require_relative 'IceLocal/ValueFactory.rb'
 require 'Ice/Process.rb'
 require 'Ice/Router.rb'
 require_relative 'IceLocal/Connection.rb'
-require 'Ice/Version.rb'
-require_relative 'IceLocal/Instrumentation.rb'
 require 'Ice/Metrics.rb'
 require 'Ice/RemoteLogger.rb'
 

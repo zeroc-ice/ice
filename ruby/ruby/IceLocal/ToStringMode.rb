@@ -1,8 +1,9 @@
 # encoding: utf-8
 #
 # Copyright (c) ZeroC, Inc.
+
 module Ice
-    class EndpointSelectionType
+    class ToStringMode
         include Comparable
 
         def initialize(name, value)
@@ -23,7 +24,7 @@ module Ice
         end
 
         def <=>(other)
-            other.is_a?(EndpointSelectionType) or raise ArgumentError, "value must be a EndpointSelectionType"
+            raise ArgumentError, "value must be a ToStringMode" unless other.is_a?(ToStringMode)
             @value <=> other.to_i
         end
 
@@ -35,10 +36,11 @@ module Ice
             @@_enumerators.each_value(&block)
         end
 
-        Random = EndpointSelectionType.new("Random", 0)
-        Ordered = EndpointSelectionType.new("Ordered", 1)
+        Unicode = ToStringMode.new("Unicode", 0)
+        ASCII = ToStringMode.new("ASCII", 1)
+        Compat = ToStringMode.new("Compat", 2)
 
-        @@_enumerators = {0=>Random, 1=>Ordered}
+        @@_enumerators = { 0 => Unicode, 1 => ASCII, 2 => Compat }
 
         def self._enumerators
             @@_enumerators
