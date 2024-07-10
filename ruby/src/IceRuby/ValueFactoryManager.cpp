@@ -81,18 +81,14 @@ Ice::ValueFactory
 IceRuby::ValueFactoryManager::find(string_view typeId) const noexcept
 {
     ValueFactoryPtr factory;
+    CustomFactoryMap::const_iterator p = _customFactories.find(typeId);
+    if (p != _customFactories.end())
     {
-        std::lock_guard lock(_mutex);
-
-        CustomFactoryMap::const_iterator p = _customFactories.find(typeId);
-        if (p != _customFactories.end())
-        {
-            factory = p->second;
-        }
-        else if (typeId.empty())
-        {
-            factory = _defaultFactory;
-        }
+        factory = p->second;
+    }
+    else if (typeId.empty())
+    {
+        factory = _defaultFactory;
     }
 
     if (factory)
@@ -110,12 +106,11 @@ void IceRuby::ValueFactoryManager::addValueFactory(VALUE valueFactory, string_vi
     // clang-format off
     ICE_RUBY_TRY
     {
-        std::lock_guard lock(_mutex);
         auto [_, inserted] = _customFactories.try_emplace(string{id}, make_shared<CustomValueFactory>(valueFactory));
 
         if (!inserted)
         {
-            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
+            throw Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}};
         }
     }
     ICE_RUBY_CATCH
@@ -125,8 +120,6 @@ void IceRuby::ValueFactoryManager::addValueFactory(VALUE valueFactory, string_vi
 VALUE
 IceRuby::ValueFactoryManager::findValueFactory(string_view id) const
 {
-    std::lock_guard lock(_mutex);
-
     CustomFactoryMap::const_iterator p = _customFactories.find(id);
     if (p != _customFactories.end())
     {
@@ -139,7 +132,6 @@ IceRuby::ValueFactoryManager::findValueFactory(string_view id) const
 void
 IceRuby::ValueFactoryManager::mark()
 {
-    std::lock_guard lock(_mutex);
     for (const auto& [_, factory] : _customFactories)
     {
         factory->mark();
@@ -149,13 +141,7 @@ IceRuby::ValueFactoryManager::mark()
 void
 IceRuby::ValueFactoryManager::markSelf()
 {
-    volatile VALUE self;
-
-    {
-        std::lock_guard lock(_mutex);
-        self = _self;
-    }
-
+    volatile VALUE self = _self;
     if (!NIL_P(self))
     {
         rb_gc_mark(self);
@@ -170,20 +156,17 @@ IceRuby::ValueFactoryManager::destroy()
 {
     CustomFactoryMap factories;
 
+    if (_self == Qnil)
     {
-        std::lock_guard lock(_mutex);
-        if (_self == Qnil)
-        {
-            //
-            // Nothing to do if already destroyed (this can occur if communicator destroy is called multiple times)
-            //
-            return;
-        }
-
-        factories.swap(_customFactories);
-
-        _self = Qnil;
+        //
+        // Nothing to do if already destroyed (this can occur if communicator destroy is called multiple times)
+        //
+        return;
     }
+
+    factories.swap(_customFactories);
+
+    _self = Qnil;
 }
 
 IceRuby::CustomValueFactory::CustomValueFactory(VALUE factory) : _factory(factory) {}
@@ -289,7 +272,7 @@ IceRuby_ValueFactoryManager_find(VALUE self, VALUE id)
 bool
 IceRuby::initValueFactoryManager(VALUE iceModule)
 {
-    _valueFactoryManagerClass = rb_define_class_under(iceModule, "ValueFactoryManagerI", rb_cObject);
+    _valueFactoryManagerClass = rb_define_class_under(iceModule, "ValueFactoryManager", rb_cObject);
     rb_undef_alloc_func(_valueFactoryManagerClass);
 
     //
