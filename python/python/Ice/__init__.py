@@ -114,11 +114,3 @@ Encoding_1_1 = Ice.EncodingVersion(1, 1)
 # Native PropertiesAdmin admin facet.
 #
 NativePropertiesAdmin = IcePy.NativePropertiesAdmin
-
-#
-# This value is used as the default value for struct types in the constructors
-# of user-defined types. It allows us to determine whether the application has
-# supplied a value. (See bug 3676)
-#
-# TODO: can we use None instead?
-_struct_marker = object()

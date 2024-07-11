@@ -39,8 +39,6 @@ namespace Ice
     abstract class UserException extends Exception
     {
         abstract public function ice_id();
-
-        public $_ice_slicedData;
     }
 
     class Value
