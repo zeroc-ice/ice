@@ -25,4 +25,3 @@ $(eval $(call make-python-slice,$(slicedir),$(lang_srcdir)/python,Ice,Metrics))
 install:: | $(DESTDIR)$(install_pythondir)/Ice
 	$(E) "Installing python code"
 	$(Q)$(INSTALL) -m 644 Ice/*.py $(DESTDIR)$(install_pythondir)/Ice
-
