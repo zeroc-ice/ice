@@ -12,11 +12,4 @@ class CompressBatch
     const BasedOnProxy = 2;
 }
 
-class ConnectionClose
-{
-    const Forcefully = 0;
-    const Gracefully = 1;
-    const GracefullyWithWait = 2;
-}
-
 ?>
