@@ -88,7 +88,7 @@ import Ice.EndpointTypes_ice
 import Ice.Identity_ice
 import Ice.Locator_ice
 from .ObjectAdapter import ObjectAdapter
-from .ValueFactory import ValueFactory, ValueFactoryManager
+from .ValueFactory import ValueFactory
 import Ice.Process_ice
 import Ice.PropertiesAdmin_ice
 import Ice.RemoteLogger_ice
