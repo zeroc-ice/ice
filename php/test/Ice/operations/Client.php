@@ -284,9 +284,9 @@ function twoways($communicator, $p, $bprx)
 
     {
         $r = $p->opMyClass($p, $c1, $c2);
-        test(Ice_proxyIdentityAndFacetEqual($c1, $p));
-        test(!Ice_proxyIdentityAndFacetEqual($c2, $p));
-        test(Ice_proxyIdentityAndFacetEqual($r, $p));
+        test(Ice\proxyIdentityAndFacetEqual($c1, $p));
+        test(!Ice\proxyIdentityAndFacetEqual($c2, $p));
+        test(Ice\proxyIdentityAndFacetEqual($r, $p));
         test($c1->ice_getIdentity() == Ice\stringToIdentity("test"));
         test($c2->ice_getIdentity() == Ice\stringToIdentity("noSuchIdentity"));
         test($r->ice_getIdentity() == Ice\stringToIdentity("test"));
