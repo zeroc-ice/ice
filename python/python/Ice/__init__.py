@@ -8,7 +8,6 @@
 Ice module
 """
 
-import array
 import atexit
 import IcePy
 
