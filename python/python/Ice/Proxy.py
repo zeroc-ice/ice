@@ -1,6 +1,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
-from IcePy import ObjectPrx
+import IcePy
+
+IcePy._t_ObjectPrx = IcePy.defineProxy("::Ice::Object", IcePy.ObjectPrx)
 
 #
 # Proxy comparison functions.
@@ -13,8 +15,8 @@ def proxyIdentityEqual(lhs, rhs):
 
 def proxyIdentityCompare(lhs, rhs):
     """Compares the identities of two proxies."""
-    if (lhs and not isinstance(lhs, ObjectPrx)) or (
-        rhs and not isinstance(rhs, ObjectPrx)
+    if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (
+        rhs and not isinstance(rhs, IcePy.ObjectPrx)
     ):
         raise ValueError("argument is not a proxy")
     if not lhs and not rhs:
@@ -37,8 +39,8 @@ def proxyIdentityAndFacetEqual(lhs, rhs):
 
 def proxyIdentityAndFacetCompare(lhs, rhs):
     """Compares the identities and facets of two proxies."""
-    if (lhs and not isinstance(lhs, ObjectPrx)) or (
-        rhs and not isinstance(rhs, ObjectPrx)
+    if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (
+        rhs and not isinstance(rhs, IcePy.ObjectPrx)
     ):
         raise ValueError("argument is not a proxy")
     if not lhs and not rhs:

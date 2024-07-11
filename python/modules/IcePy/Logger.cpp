@@ -398,7 +398,7 @@ IcePy::cleanupLogger()
     //
     // Python is about to exit; we need to remove the wrapper around the process logger.
     //
-    Ice::setProcessLogger(0);
+    Ice::setProcessLogger(nullptr);
 }
 
 PyObject*

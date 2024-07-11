@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
+import IcePy
+
 class Value(object):
     def ice_id(self):
         """Obtains the type id corresponding to the most-derived Slice
@@ -30,3 +32,5 @@ class Value(object):
         Returns:
             The sliced data or null."""
         return getattr(self, "_ice_slicedData", None)
+
+IcePy._t_Value = IcePy.defineValue("::Ice::Object", Value, -1, (), False, None, ())

@@ -1683,19 +1683,6 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
         return;
     }
 
-    StructPtr st = dynamic_pointer_cast<Struct>(p);
-    if (st)
-    {
-        //
-        // We cannot emit a call to the struct's constructor here because Python
-        // only evaluates this expression once (see bug 3676). Instead, we emit
-        // a marker that allows us to determine whether the application has
-        // supplied a value.
-        //
-        _out << "Ice._struct_marker";
-        return;
-    }
-
     _out << "None";
 }
 
@@ -1776,7 +1763,7 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
     StructPtr st = dynamic_pointer_cast<Struct>(info.dataMember->type());
     if (st && !info.dataMember->optional())
     {
-        _out << nl << "if " << paramName << " is Ice._struct_marker:";
+        _out << nl << "if " << paramName << " is None:";
         _out.inc();
         _out << nl << "self." << memberName << " = " << getSymbol(st) << "()";
         _out.dec();
