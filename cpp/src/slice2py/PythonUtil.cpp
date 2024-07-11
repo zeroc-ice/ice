@@ -1559,7 +1559,6 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
 {
-
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
 
