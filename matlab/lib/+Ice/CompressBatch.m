@@ -18,18 +18,4 @@ classdef CompressBatch < uint8
         % Compress the batch requests if at least one request was made on a compressed proxy.
         BasedOnProxy (2)
     end
-    methods(Static)
-        function r = ice_getValue(v)
-            switch v
-                case 0
-                    r = Ice.CompressBatch.Yes;
-                case 1
-                    r = Ice.CompressBatch.No;
-                case 2
-                    r = Ice.CompressBatch.BasedOnProxy;
-                otherwise
-                    throw(Ice.MarshalException(sprintf('enumerator value %d is out of range', v)));
-            end
-        end
-    end
 end

@@ -26,18 +26,4 @@ classdef ToStringMode < uint8
         % to generate strings compatible with Ice 3.6 and earlier.
         Compat (2)
     end
-    methods(Static)
-        function r = ice_getValue(v)
-            switch v
-                case 0
-                    r = Ice.ToStringMode.Unicode;
-                case 1
-                    r = Ice.ToStringMode.ASCII;
-                case 2
-                    r = Ice.ToStringMode.Compat;
-                otherwise
-                    throw(Ice.MarshalException(sprintf('enumerator value %d is out of range', v)));
-            end
-        end
-    end
 end
