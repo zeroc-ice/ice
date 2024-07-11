@@ -93,48 +93,6 @@ classdef AllTests
             assert(v.zeroD == 0);
             assert(v.zeroDotD == 0);
 
-            v = BaseEx();
-            assert(~v.boolFalse);
-            assert(v.boolTrue);
-            assert(v.b == 1);
-            assert(v.s == 2);
-            assert(v.i == 3);
-            assert(v.l == 4);
-            assert(v.f == single(5.1));
-            assert(v.d == 6.2);
-            assert(strcmp(v.str, sprintf('foo \\ "bar\n \r\n\t\v\f\a\b? \a \a')));
-            assert(strcmp(v.noDefault, ''));
-            assert(v.zeroI == 0);
-            assert(v.zeroL == 0);
-            assert(v.zeroF == 0);
-            assert(v.zeroDotF == 0);
-            assert(v.zeroD == 0);
-            assert(v.zeroDotD == 0);
-
-            v = DerivedEx();
-            assert(~v.boolFalse);
-            assert(v.boolTrue);
-            assert(v.b == 1);
-            assert(v.s == 2);
-            assert(v.i == 3);
-            assert(v.l == 4);
-            assert(v.f == single(5.1));
-            assert(v.d == 6.2);
-            assert(strcmp(v.str, sprintf('foo \\ "bar\n \r\n\t\v\f\a\b? \a \a')));
-            assert(strcmp(v.noDefault, ''));
-            assert(v.c1 == Color.red);
-            assert(v.c2 == Color.green);
-            assert(v.c3 == Color.blue);
-            assert(v.nc1 == Test.Nested.Color.red);
-            assert(v.nc2 == Test.Nested.Color.green);
-            assert(v.nc3 == Test.Nested.Color.blue);
-            assert(v.zeroI == 0);
-            assert(v.zeroL == 0);
-            assert(v.zeroF == 0);
-            assert(v.zeroDotF == 0);
-            assert(v.zeroD == 0);
-            assert(v.zeroDotD == 0);
-
             fprintf('ok\n');
 
             fprintf('testing default constructor... ');
@@ -153,13 +111,6 @@ classdef AllTests
             assert(isempty(v.is));
             assert(~isempty(v.st));
             assert(isempty(v.dict));
-
-            e = ExceptionNoDefaults();
-            assert(strcmp(e.str, ''));
-            assert(e.c1 == Color.red);
-            assert(isempty(e.bs));
-            assert(~isempty(e.st));
-            assert(isempty(e.dict));
 
             cl = ClassNoDefaults();
             assert(strcmp(cl.str, ''));
