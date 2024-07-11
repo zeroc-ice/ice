@@ -230,6 +230,21 @@ lookupKwd(const string& name)
     return found ? "_" + name : name;
 }
 
+static string
+getDictLookup(const ContainedPtr& cont, const string& suffix = "", const string& prefix = "")
+{
+    string scope = Slice::Python::scopedToName(cont->scope());
+    assert(!scope.empty());
+
+    string package = Slice::Python::getPackageMetadata(cont);
+    if (!package.empty())
+    {
+        scope = package + "." + scope;
+    }
+
+    return "'" + suffix + Slice::Python::fixIdent(cont->name() + prefix) + "' not in _M_" + scope + "__dict__";
+}
+
 //
 // ModuleVisitor implementation.
 //
@@ -362,7 +377,10 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
+        _out << sp << nl << "if " << getDictLookup(p) << ':';
+        _out.inc();
         _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.declareValue('" << scoped << "')";
+        _out.dec();
         _classHistory.insert(scoped); // Avoid redundant declarations.
     }
 }
@@ -376,8 +394,11 @@ Slice::Python::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
+        _out << sp << nl << "if " << getDictLookup(p) << ':';
+        _out.inc();
         _out << nl << "_M_" << getAbsolute(p, "_t_", "Disp") << " = IcePy.declareClass('" << scoped << "')";
         _out << nl << "_M_" << getAbsolute(p, "_t_", "Prx") << " = IcePy.declareProxy('" << scoped << "')";
+        _out.dec();
         _classHistory.insert(scoped); // Avoid redundant declarations.
     }
 }
@@ -450,6 +471,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     string valueName = fixIdent(p->name());
     ClassDefPtr base = p->base();
 
+    _out << sp << nl << "if " << getDictLookup(p) << ':';
+    _out.inc();
     _out << nl << "_M_" << abs << " = None";
     _out << nl << "class " << valueName << '(';
     if (!base)
@@ -598,6 +621,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     registerName(valueName);
 
+    _out.dec();
+
     if (_classHistory.count(scoped) == 0)
     {
         _classHistory.insert(scoped); // Avoid redundant declarations.
@@ -624,6 +649,9 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "_M_" << type << " = IcePy.defineValue('" << scoped << "', Ice.Value, -1, ";
     writeMetaData(p->getMetaData());
     _out << ", True, None, ())";
+
+    _out << sp << nl << "if " << getDictLookup(p, "", "Prx") << ':';
+    _out.inc();
 
     // Define the proxy class
     _out << nl << "_M_" << prxAbs << " = None";
@@ -997,6 +1025,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     registerName(className);
+    _out.dec();
 
     if (_classHistory.count(scoped) == 0)
     {
@@ -1013,6 +1042,8 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
 
+    _out << sp << nl << "if " << getDictLookup(p) << ':';
+    _out.inc();
     _out << nl << "_M_" << abs << " = None";
     _out << nl << "class " << name << '(';
     ExceptionPtr base = p->base();
@@ -1141,6 +1172,8 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     registerName(name);
 
+    _out.dec();
+
     return false;
 }
 
@@ -1163,6 +1196,8 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         }
     }
 
+    _out << sp << nl << "if " << getDictLookup(p) << ':';
+    _out.inc();
     _out << nl << "_M_" << abs << " = None";
     _out << nl << "class " << name << "(object):";
     _out.inc();
@@ -1410,6 +1445,8 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 
     registerName(name);
 
+    _out.dec();
+
     return false;
 }
 
@@ -1419,11 +1456,14 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     // Emit the type information.
     StringList metaData = p->getMetaData();
     string scoped = p->scoped();
+    _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
+    _out.inc();
     _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
     writeMetaData(metaData);
     _out << ", ";
     writeType(p->type());
     _out << ")";
+    _out.dec();
 }
 
 void
@@ -1431,6 +1471,8 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
     // Emit the type information.
     string scoped = p->scoped();
+    _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
+    _out.inc();
     _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineDictionary('" << scoped << "', ";
     writeMetaData(p->getMetaData());
     _out << ", ";
@@ -1438,6 +1480,7 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     _out << ", ";
     writeType(p->valueType());
     _out << ")";
+    _out.dec();
 }
 
 void
@@ -1449,6 +1492,8 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     EnumeratorList enums = p->enumerators();
     EnumeratorList::iterator q;
 
+    _out << sp << nl << "if " << getDictLookup(p) << ':';
+    _out.inc();
     _out << nl << "_M_" << abs << " = None";
     _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
@@ -1499,6 +1544,8 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << ", " << name << "._enumerators)";
 
     registerName(name);
+
+    _out.dec();
 }
 
 void

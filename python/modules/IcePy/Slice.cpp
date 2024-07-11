@@ -10,9 +10,6 @@
 #include "Util.h"
 #include "slice2py/PythonUtil.h"
 
-#include <set>
-#include <string>
-
 //
 // Python headers needed for PyEval_EvalCode.
 //
@@ -24,11 +21,6 @@ using namespace IcePy;
 using namespace Slice;
 using namespace Slice::Python;
 using namespace IceInternal;
-
-namespace
-{
-    set<string> loadedSliceFiles;
-}
 
 extern "C" PyObject*
 IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
@@ -128,11 +120,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     for (const auto& file : files)
     {
-        if (!loadedSliceFiles.insert(Slice::fullPath(file)).second)
-        {
-            continue;
-        }
-
         Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
         FILE* cppHandle = icecpp->preprocess(keepComments, "-D__SLICE2PY__");
 
