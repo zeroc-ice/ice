@@ -94,24 +94,4 @@ module Ice
 
         private_class_method :new
     end
-
-    class ConnectionInfo
-        attr_accessor :underlying, :incoming, :adapterName, :connectionId
-    end
-
-    class IPConnectionInfo < ConnectionInfo
-        attr_accessor :localAddress, :localPort, :remoteAddress, :remotePort
-    end
-
-    class TCPConnectionInfo < IPConnectionInfo
-        attr_accessor :rcvSize, :sndSize
-    end
-
-    class UDPConnectionInfo < IPConnectionInfo
-        attr_accessor :mcastAddress, :mcastPort, :rcvSize, :sndSize
-    end
-
-    class WSConnectionInfo < ConnectionInfo
-        attr_accessor :headers
-    end
 end
