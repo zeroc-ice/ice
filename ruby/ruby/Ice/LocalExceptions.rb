@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # Copyright (c) ZeroC, Inc.
 
 # This file provides all the exceptions derived from Ice::LocalException. Application code should not throw any of

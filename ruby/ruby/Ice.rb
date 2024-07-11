@@ -229,25 +229,26 @@ module Ice
 end
 
 #
-# Include certain generated files.
+# Pull in other files.
 #
-require 'Ice/BuiltinSequences.rb'
-require 'Ice/Context.rb'
-require_relative 'IceLocal/Current.rb'
-require_relative 'IceLocal/Communicator.rb'
-require_relative 'IceLocal/EndpointSelectionType.rb'
-require 'Ice/EndpointTypes.rb'
-require_relative 'IceLocal/LocalExceptions.rb'
-require 'Ice/Locator.rb'
-require_relative 'IceLocal/Logger.rb'
-require 'Ice/OperationMode.rb'
-require 'Ice/Process.rb'
-require 'Ice/Router.rb'
-require_relative 'IceLocal/Connection.rb'
-require 'Ice/Version.rb'
-require_relative 'IceLocal/Instrumentation.rb'
-require 'Ice/Metrics.rb'
-require 'Ice/RemoteLogger.rb'
+
+require_relative 'Ice/BuiltinSequences.rb'
+require_relative 'Ice/CompressBatch.rb'
+require_relative 'Ice/ConnectionClose.rb'
+require_relative 'Ice/Context.rb'
+require_relative 'Ice/EndpointSelectionType.rb'
+require_relative 'Ice/EndpointTypes.rb'
+require_relative 'Ice/LocalExceptions.rb'
+require_relative 'Ice/OperationMode.rb'
+require_relative 'Ice/ToStringMode.rb'
+require_relative 'Ice/Version.rb'
+
+# Files that define proxies must be last.
+require_relative 'Ice/Locator.rb'
+require_relative 'Ice/Metrics.rb'
+require_relative 'Ice/Process.rb'
+require_relative 'Ice/RemoteLogger.rb'
+require_relative 'Ice/Router.rb'
 
 module Ice
     #

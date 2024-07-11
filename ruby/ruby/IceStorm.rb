@@ -2,5 +2,5 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-require 'IceStorm/IceStorm'
-require 'IceStorm/Metrics'
+require_relative 'IceStorm/IceStorm'
+require_relative 'IceStorm/Metrics'
