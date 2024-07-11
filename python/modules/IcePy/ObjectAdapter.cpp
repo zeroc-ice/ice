@@ -1807,7 +1807,7 @@ IcePy::wrapObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
     {
         return 0;
     }
-    PyObject* wrapperType = lookupType("Ice.ObjectAdapterI");
+    PyObject* wrapperType = lookupType("Ice.ObjectAdapterI.ObjectAdapterI");
     assert(wrapperType);
     PyObjectHandle args = PyTuple_New(1);
     if (!args.get())
@@ -1822,7 +1822,7 @@ Ice::ObjectAdapterPtr
 IcePy::unwrapObjectAdapter(PyObject* obj)
 {
 #ifndef NDEBUG
-    PyObject* wrapperType = lookupType("Ice.ObjectAdapterI");
+    PyObject* wrapperType = lookupType("Ice.ObjectAdapterI.ObjectAdapterI");
 #endif
     assert(wrapperType);
     assert(PyObject_IsInstance(obj, wrapperType));
