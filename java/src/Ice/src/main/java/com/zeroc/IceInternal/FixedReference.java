@@ -241,11 +241,6 @@ public class FixedReference extends Reference {
     return _fixedConnection.equals(rhs._fixedConnection);
   }
 
-  @Override
-  public int hashCode() {
-    return super.hashCode();
-  }
-
   private com.zeroc.Ice.ConnectionI _fixedConnection;
   private static EndpointI[] _emptyEndpoints = new EndpointI[0];
 }

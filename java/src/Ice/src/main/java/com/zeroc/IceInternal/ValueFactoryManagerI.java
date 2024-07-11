@@ -22,5 +22,5 @@ final class ValueFactoryManagerI implements com.zeroc.Ice.ValueFactoryManager {
     return _factoryMap.get(id);
   }
 
-  private java.util.Map<String, ValueFactory> _factoryMap = new java.util.HashMap<>();
+  private final java.util.Map<String, ValueFactory> _factoryMap = new java.util.HashMap<>();
 }

@@ -61,6 +61,6 @@ final class WSAcceptor implements Acceptor {
   }
 
   private WSEndpoint _endpoint;
-  private ProtocolInstance _instance;
-  private Acceptor _delegate;
+  private final ProtocolInstance _instance;
+  private final Acceptor _delegate;
 }
