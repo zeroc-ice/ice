@@ -62,12 +62,12 @@ def allTests(helper, communicator)
     fs = Test::FixedStruct.new(78)
     vs = Test::VarStruct.new("hello")
     mo1 = Test::MultiOptional.new(15, true, 19, 78, 99, 5.5, 1.0, "test", Test::MyEnum::MyEnumMember, \
-                                  Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test")), \
+                                  Test::MyInterfacePrx.new(communicator, "test"), \
                                   [5], ["test", "test2"], {4=>3}, {"test"=>10}, fs, vs, [1], \
                                   [Test::MyEnum::MyEnumMember, Test::MyEnum::MyEnumMember], [ fs ], [ vs ], \
-                                  [ Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test")) ], \
+                                  [ Test::MyInterfacePrx.new(communicator, "test") ], \
                                   {4=> Test::MyEnum::MyEnumMember}, {4=>fs}, {5=>vs}, \
-                                  {5=> Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test"))}, \
+                                  {5=> Test::MyInterfacePrx.new(communicator, "test")}, \
                                   [false, true, false])
 
     test(mo1.a == 15)
@@ -477,7 +477,7 @@ def allTests(helper, communicator)
 
     p2, p3 = initial.opMyInterfaceProxy(Ice::Unset)
     test(p2 == Ice::Unset && p3 == Ice::Unset)
-    p1 = Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test"))
+    p1 = Test::MyInterfacePrx.new(communicator, "test")
     p2, p3 = initial.opMyInterfaceProxy(p1)
     test(p2 == p1 && p3 == p1)
 
