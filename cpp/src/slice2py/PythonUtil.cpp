@@ -1763,7 +1763,7 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
     StructPtr st = dynamic_pointer_cast<Struct>(info.dataMember->type());
     if (st && !info.dataMember->optional())
     {
-        _out << nl << "self." << memberName << " = " << paramName << "if " << paramName << " is not None else "
+        _out << nl << "self." << memberName << " = " << paramName << " if " << paramName << " is not None else "
              << getSymbol(st) << "()";
     }
     else
