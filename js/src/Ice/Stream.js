@@ -671,16 +671,14 @@ class EncapsDecoder11 extends EncapsDecoder {
         if ((this._current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) !== 0) {
             Debug.assert(this._current.sliceSize >= 4);
             this._stream.skip(this._current.sliceSize - 4);
-        } else if (this._current.sliceType === SliceType.ValueSlice) {
-            throw new NoValueFactoryException(
-                "no value factory found and compact format prevents slicing " +
-                    "(the sender should use the sliced format instead)",
-                this._current.typeId,
-            );
-        } else if (this._current.typeId.indexOf("::") === 0) {
-            throw new UnknownUserException(this._current.typeId.substring(2));
         } else {
-            throw new UnknownUserException(this._current.typeId);
+            if (this._current.sliceType == SliceType.ValueSlice) {
+                throw new MarshalException(
+                    `Cannot find value factory for type ID '${this._current.typeId}' and compact format prevents slicing.`,
+                );
+            } else {
+                throw new MarshalException(`Cannot find user exception for type ID '${this._current.typeId}'`);
+            }
         }
 
         //
