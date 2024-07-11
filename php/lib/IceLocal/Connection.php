@@ -12,11 +12,6 @@ class CompressBatch
     const BasedOnProxy = 2;
 }
 
-interface CloseCallback
-{
-    public function closed($con);
-}
-
 class ConnectionClose
 {
     const Forcefully = 0;
