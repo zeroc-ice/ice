@@ -2,6 +2,9 @@
 
 import inspect
 import sys
+import IcePy
+import Ice.OperationMode_ice
+import Ice.BuiltinSequences_ice
 from .Future import Future
 
 class Object(object):
@@ -95,3 +98,51 @@ class Object(object):
             cb.response(ex.value)
         except BaseException:
             cb.exception(sys.exc_info()[1])
+
+IcePy._t_Object = IcePy.defineClass("::Ice::Object", Object, (), None, ())
+Object._ice_type = IcePy._t_Object
+
+Object._op_ice_isA = IcePy.Operation(
+    "ice_isA",
+    Ice.OperationMode.Idempotent,
+    False,
+    None,
+    (),
+    (((), IcePy._t_string, False, 0),),
+    (),
+    ((), IcePy._t_bool, False, 0),
+    (),
+)
+Object._op_ice_ping = IcePy.Operation(
+    "ice_ping",
+    Ice.OperationMode.Idempotent,
+    False,
+    None,
+    (),
+    (),
+    (),
+    None,
+    (),
+)
+Object._op_ice_ids = IcePy.Operation(
+    "ice_ids",
+    Ice.OperationMode.Idempotent,
+    False,
+    None,
+    (),
+    (),
+    (),
+    ((), Ice._t_StringSeq, False, 0),
+    (),
+)
+Object._op_ice_id = IcePy.Operation(
+    "ice_id",
+    Ice.OperationMode.Idempotent,
+    False,
+    None,
+    (),
+    (),
+    (),
+    ((), IcePy._t_string, False, 0),
+    (),
+)

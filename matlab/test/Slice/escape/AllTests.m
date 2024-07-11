@@ -103,21 +103,21 @@ classdef AllTests
             fprintf('testing exception... ');
 
             e = classdef_.break_.persistent_();
-            assert(strcmp(e.identifier_, '1'));
-            assert(strcmp(e.message_, '2'));
-            assert(strcmp(e.stack_, '3'));
-            assert(strcmp(e.cause_, '4'));
-            assert(strcmp(e.type_, '5'));
+            assert(isempty(e.identifier_));
+            assert(isempty(e.message_));
+            assert(isempty(e.stack_));
+            assert(isempty(e.cause_));
+            assert(isempty(e.type_));
             assert(isempty(e.end_));
 
             g = classdef_.break_.global_();
-            assert(strcmp(g.identifier_, '1'));
-            assert(strcmp(g.message_, '2'));
-            assert(strcmp(g.stack_, '3'));
-            assert(strcmp(g.cause_, '4'));
-            assert(strcmp(g.type_, '5'));
+            assert(isempty(g.identifier_));
+            assert(isempty(g.message_));
+            assert(isempty(g.stack_));
+            assert(isempty(g.cause_));
+            assert(isempty(g.type_));
             assert(isempty(g.end_));
-            assert(g.enumeration_ == 1);
+            assert(isempty(g.enumeration_));
 
             fprintf('ok\n');
 

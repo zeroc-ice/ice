@@ -2658,71 +2658,39 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Constructor
     //
-    out << nl << "function " << self << " = " << name << spar << "ice_exid"
-        << "ice_exmsg" << allNames << epar;
+    out << nl << "function " << self << " = " << name << spar << "errID" << "msg" << epar;
     out.inc();
-    string exid = abs;
-    const string exmsg = abs;
+    string errID = abs;
+    const string msg = abs;
     //
     // The ID argument must use colon separators.
     //
-    string::size_type pos = exid.find('.');
+    string::size_type pos = errID.find('.');
     assert(pos != string::npos);
     while (pos != string::npos)
     {
-        exid[pos] = ':';
-        pos = exid.find('.', pos);
+        errID[pos] = ':';
+        pos = errID.find('.', pos);
     }
 
-    if (!allMembers.empty())
-    {
-        out << nl << "if nargin <= 2";
-        out.inc();
-        for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-        {
-            out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
-        }
-        out.dec();
-        out << nl << "end";
-    }
-
-    out << nl << "if nargin == 0 || isempty(ice_exid)";
+    out << nl << "if nargin == 0";
     out.inc();
-    out << nl << "ice_exid = '" << exid << "';";
+    out << nl << "errID = '" << errID << "';";
+    out << nl << "msg = '" << msg << "';";
     out.dec();
-    out << nl << "end";
-
-    out << nl << "if nargin < 2 || isempty(ice_exmsg)";
+    out << nl << "else";
     out.inc();
-    out << nl << "ice_exmsg = '" << exmsg << "';";
+    out << nl << "assert(nargin == 2, 'Invalid number of arguments');";
     out.dec();
     out << nl << "end";
 
     if (!base)
     {
-        out << nl << self << " = " << self << "@"
-            << "Ice.UserException" << spar << "ice_exid"
-            << "ice_exmsg" << epar << ';';
+        out << nl << self << " = " << self << "@Ice.UserException" << spar << "errID" << "msg" << epar << ';';
     }
     else
     {
-        out << nl << self << " = " << self << "@" << getAbsolute(base) << spar << "ice_exid"
-            << "ice_exmsg";
-        for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-        {
-            if (q->inherited)
-            {
-                out << q->fixedName;
-            }
-        }
-        out << epar << ';';
-    }
-    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-    {
-        if (!q->inherited)
-        {
-            out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
-        }
+        out << nl << self << " = " << self << "@" << getAbsolute(base) << spar << "errID" << "msg" << epar << ';';
     }
     out.dec();
     out << nl << "end";
@@ -2732,16 +2700,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "id = '" << scoped << "';";
     out.dec();
     out << nl << "end";
-
-    if (preserved && !basePreserved)
-    {
-        out << nl << "function r = ice_getSlicedData(obj)";
-        out.inc();
-        out << nl << "r = obj.iceSlicedData_;";
-        out.dec();
-        out << nl << "end";
-    }
-
     out.dec();
     out << nl << "end";
 
@@ -2750,20 +2708,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         out << nl << "methods(Hidden=true)";
         out.inc();
-
-        if (preserved && !basePreserved)
-        {
-            //
-            // Override read_ for the first exception in the hierarchy that has the "preserve-slice" metadata.
-            //
-            out << nl << "function obj = iceRead(obj, is)";
-            out.inc();
-            out << nl << "is.startException();";
-            out << nl << "obj = obj.iceReadImpl(is);";
-            out << nl << "obj.iceSlicedData_ = is.endException(true);";
-            out.dec();
-            out << nl << "end";
-        }
 
         if (!classMembers.empty() || !convertMembers.empty())
         {
@@ -2837,16 +2781,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out.dec();
     out << nl << "end";
-
-    if (preserved && !basePreserved)
-    {
-        out << nl << "properties(Access=protected)";
-        out.inc();
-        out << nl << "iceSlicedData_";
-        out.dec();
-        out << nl << "end";
-    }
-
     out.dec();
     out << nl << "end";
     out << nl;

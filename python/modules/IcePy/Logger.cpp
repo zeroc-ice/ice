@@ -29,7 +29,7 @@ IcePy::LoggerWrapper::print(const string& message)
     //
     // Method must be named "_print".
     //
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("_print"), STRCAST("s"), message.c_str());
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "_print", "s", message.c_str());
     if (!tmp.get())
     {
         throwPythonException();
@@ -41,8 +41,7 @@ IcePy::LoggerWrapper::trace(const string& category, const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp =
-        PyObject_CallMethod(_logger.get(), STRCAST("trace"), STRCAST("ss"), category.c_str(), message.c_str());
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "trace", "ss", category.c_str(), message.c_str());
     if (!tmp.get())
     {
         throwPythonException();
@@ -54,7 +53,7 @@ IcePy::LoggerWrapper::warning(const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("warning"), STRCAST("s"), message.c_str());
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "warning", "s", message.c_str());
     if (!tmp.get())
     {
         throwPythonException();
@@ -66,7 +65,7 @@ IcePy::LoggerWrapper::error(const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("error"), STRCAST("s"), message.c_str());
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "error", "s", message.c_str());
     if (!tmp.get())
     {
         throwPythonException();
@@ -78,7 +77,7 @@ IcePy::LoggerWrapper::getPrefix()
 {
     AdoptThread adoptThread;
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("getPrefix"), 0);
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "getPrefix", 0);
     if (!tmp.get())
     {
         throwPythonException();
@@ -91,7 +90,7 @@ IcePy::LoggerWrapper::cloneWithPrefix(const string& prefix)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("cloneWithPrefix"), STRCAST("s"), prefix.c_str());
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "cloneWithPrefix", "s", prefix.c_str());
     if (!tmp.get())
     {
         throwPythonException();
@@ -129,7 +128,7 @@ extern "C" PyObject*
 loggerPrint(LoggerObject* self, PyObject* args)
 {
     PyObject* messageObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &messageObj))
+    if (!PyArg_ParseTuple(args, "O", &messageObj))
     {
         return 0;
     }
@@ -160,7 +159,7 @@ loggerTrace(LoggerObject* self, PyObject* args)
 {
     PyObject* categoryObj;
     PyObject* messageObj;
-    if (!PyArg_ParseTuple(args, STRCAST("OO"), &categoryObj, &messageObj))
+    if (!PyArg_ParseTuple(args, "OO", &categoryObj, &messageObj))
     {
         return 0;
     }
@@ -195,7 +194,7 @@ extern "C" PyObject*
 loggerWarning(LoggerObject* self, PyObject* args)
 {
     PyObject* messageObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &messageObj))
+    if (!PyArg_ParseTuple(args, "O", &messageObj))
     {
         return 0;
     }
@@ -225,7 +224,7 @@ extern "C" PyObject*
 loggerError(LoggerObject* self, PyObject* args)
 {
     PyObject* messageObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &messageObj))
+    if (!PyArg_ParseTuple(args, "O", &messageObj))
     {
         return 0;
     }
@@ -274,7 +273,7 @@ extern "C" PyObject*
 loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
 {
     PyObject* prefixObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &prefixObj))
+    if (!PyArg_ParseTuple(args, "O", &prefixObj))
     {
         return 0;
     }
@@ -317,30 +316,15 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
 }
 
 static PyMethodDef LoggerMethods[] = {
-    {STRCAST("_print"),
-     reinterpret_cast<PyCFunction>(loggerPrint),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("_print(message) -> None"))},
-    {STRCAST("trace"),
-     reinterpret_cast<PyCFunction>(loggerTrace),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("trace(category, message) -> None"))},
-    {STRCAST("warning"),
-     reinterpret_cast<PyCFunction>(loggerWarning),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("warning(message) -> None"))},
-    {STRCAST("error"),
-     reinterpret_cast<PyCFunction>(loggerError),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("error(message) -> None"))},
-    {STRCAST("getPrefix"),
-     reinterpret_cast<PyCFunction>(loggerGetPrefix),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("getPrefix() -> string"))},
-    {STRCAST("cloneWithPrefix"),
+    {"_print", reinterpret_cast<PyCFunction>(loggerPrint), METH_VARARGS, PyDoc_STR("_print(message) -> None")},
+    {"trace", reinterpret_cast<PyCFunction>(loggerTrace), METH_VARARGS, PyDoc_STR("trace(category, message) -> None")},
+    {"warning", reinterpret_cast<PyCFunction>(loggerWarning), METH_VARARGS, PyDoc_STR("warning(message) -> None")},
+    {"error", reinterpret_cast<PyCFunction>(loggerError), METH_VARARGS, PyDoc_STR("error(message) -> None")},
+    {"getPrefix", reinterpret_cast<PyCFunction>(loggerGetPrefix), METH_NOARGS, PyDoc_STR("getPrefix() -> string")},
+    {"cloneWithPrefix",
      reinterpret_cast<PyCFunction>(loggerCloneWithPrefix),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("cloneWithPrefix(prefix) -> Ice.Logger"))},
+     PyDoc_STR("cloneWithPrefix(prefix) -> Ice.Logger")},
     {0, 0} /* sentinel */
 };
 
@@ -349,9 +333,9 @@ namespace IcePy
     PyTypeObject LoggerType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.Logger"), /* tp_name */
-        sizeof(LoggerObject),                                /* tp_basicsize */
-        0,                                                   /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Logger", /* tp_name */
+        sizeof(LoggerObject),                       /* tp_basicsize */
+        0,                                          /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(loggerDealloc), /* tp_dealloc */
         0,                                           /* tp_print */
@@ -400,7 +384,7 @@ IcePy::initLogger(PyObject* module)
         return false;
     }
     PyTypeObject* type = &LoggerType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("Logger"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "Logger", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -414,7 +398,7 @@ IcePy::cleanupLogger()
     //
     // Python is about to exit; we need to remove the wrapper around the process logger.
     //
-    Ice::setProcessLogger(0);
+    Ice::setProcessLogger(nullptr);
 }
 
 PyObject*
@@ -467,7 +451,7 @@ IcePy_setProcessLogger(PyObject* /*self*/, PyObject* args)
     assert(loggerType);
 
     PyObject* logger;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), loggerType, &logger))
+    if (!PyArg_ParseTuple(args, "O!", loggerType, &logger))
     {
         return 0;
     }

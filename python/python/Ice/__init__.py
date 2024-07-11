@@ -1,6 +1,4 @@
-#
 # Copyright (c) ZeroC, Inc. All rights reserved.
-#
 
 # ruff: noqa: F401, F821, E402, F403
 
@@ -8,14 +6,9 @@
 Ice module
 """
 
-import array
-import atexit
 import IcePy
-
-#
-# Give the extension an opportunity to clean up before a graceful exit.
-#
-atexit.register(IcePy.cleanup)
+from .ModuleUtil import *
+from .EnumBase import EnumBase
 
 #
 # Add some symbols to the Ice module.
@@ -35,36 +28,6 @@ loadSlice = IcePy.loadSlice
 AsyncInvocationContext = IcePy.AsyncInvocationContext
 Unset = IcePy.Unset
 
-from .Future import Future, wrap_future
-from .InvocationFuture import InvocationFuture
-
-from .Object import Object
-from .Blobject import Blobject
-from .BlobjectAsync import BlobjectAsync
-from .Value import Value
-from .FormatType import FormatType
-from .ModuleUtil import *
-
-#
-# This value is used as the default value for struct types in the constructors
-# of user-defined types. It allows us to determine whether the application has
-# supplied a value. (See bug 3676)
-#
-# TODO: can we use None instead?
-_struct_marker = object()
-
-
-#
-# Native PropertiesAdmin admin facet.
-#
-NativePropertiesAdmin = IcePy.NativePropertiesAdmin
-
-
-from .PropertiesAdminUpdateCallback import PropertiesAdminUpdateCallback
-from .Util import *
-from .UnknownSlicedValue import UnknownSlicedValue, SlicedData, SliceInfo
-
-
 #
 # Forward declarations.
 #
@@ -72,44 +35,55 @@ IcePy._t_Object = IcePy.declareClass("::Ice::Object")
 IcePy._t_Value = IcePy.declareValue("::Ice::Object")
 IcePy._t_ObjectPrx = IcePy.declareProxy("::Ice::Object")
 
+#
+# Import local definitions that are part of the Ice module public API.
+#
+from .Future import *
+from .InvocationFuture import *
+from .Value import *
+from .Object import *
+from .Blobject import *
+from .BlobjectAsync import *
+from .FormatType import *
+from .PropertiesAdminUpdateCallback import *
+from .Util import *
+from .UnknownSlicedValue import *
+from .ToStringMode import *
+from .Exception import *
+from .LocalException import *
+from .UserException import *
+from .Communicator import *
+from .ImplicitContext import *
+from .EndpointSelectionType import *
+from .ObjectAdapter import *
+from .ValueFactory import *
+from .ConnectionClose import *
+from .CompressBatch import *
+from .ServantLocator import *
+from .InitializationData import *
+from .Properties import *
+from .Logger import *
+from .BatchRequestInterceptor import *
+from .LocalExceptions import *
+from .Proxy import *
 
-from .EnumBase import EnumBase
-from .ToStringMode import ToStringMode
-from .Exception import Exception
-from .LocalException import LocalException
-from .UserException import UserException
+#
+# Import the generated code for the Ice module.
+#
 import Ice.BuiltinSequences_ice
 import Ice.OperationMode_ice
-from .Current import Current
-from .Communicator import Communicator
-from .ImplicitContext import ImplicitContext
-from .EndpointSelectionType import EndpointSelectionType
 import Ice.EndpointTypes_ice
 import Ice.Identity_ice
 import Ice.Locator_ice
-from .ObjectAdapter import ObjectAdapter
-from .ValueFactory import ValueFactory
 import Ice.Process_ice
 import Ice.PropertiesAdmin_ice
 import Ice.RemoteLogger_ice
 import Ice.Router_ice
-from .ConnectionClose import ConnectionClose
-from .CompressBatch import CompressBatch
-from .ServantLocator import ServantLocator
 import Ice.Version_ice
 import Ice.Metrics_ice
-from .InitializationData import InitializationData
-from .Properties import Properties
-from .PropertiesI import PropertiesI
-from .ObjectAdapterI import ObjectAdapterI
-from .ImplicitContextI import ImplicitContextI
-from .Logger import Logger
-from .LoggerI import LoggerI
-from .BatchRequestInterceptor import BatchRequestInterceptor
-from .LocalExceptions import *
 
 #
-# Replace EndpointInfo with our implementation.
+# Add EndpointInfo alias in Ice module.
 #
 EndpointInfo = IcePy.EndpointInfo
 IPEndpointInfo = IcePy.IPEndpointInfo
@@ -117,132 +91,26 @@ TCPEndpointInfo = IcePy.TCPEndpointInfo
 UDPEndpointInfo = IcePy.UDPEndpointInfo
 WSEndpointInfo = IcePy.WSEndpointInfo
 OpaqueEndpointInfo = IcePy.OpaqueEndpointInfo
-
 SSLEndpointInfo = IcePy.SSLEndpointInfo
 
 #
-# Replace ConnectionInfo with our implementation.
+# Add ConnectionInfo alias in Ice module.
 #
 ConnectionInfo = IcePy.ConnectionInfo
 IPConnectionInfo = IcePy.IPConnectionInfo
 TCPConnectionInfo = IcePy.TCPConnectionInfo
 UDPConnectionInfo = IcePy.UDPConnectionInfo
 WSConnectionInfo = IcePy.WSConnectionInfo
-
 SSLConnectionInfo = IcePy.SSLConnectionInfo
 
-
-from .Proxy import *
-
 #
-# Define Ice::Value and Ice::ObjectPrx.
+# Protocol and Encoding constants
 #
-IcePy._t_Object = IcePy.defineClass("::Ice::Object", Object, (), None, ())
-IcePy._t_Value = IcePy.defineValue("::Ice::Object", Value, -1, (), False, None, ())
-IcePy._t_ObjectPrx = IcePy.defineProxy("::Ice::Object", ObjectPrx)
-Object._ice_type = IcePy._t_Object
-
-Object._op_ice_isA = IcePy.Operation(
-    "ice_isA",
-    Ice.OperationMode.Idempotent,
-    False,
-    None,
-    (),
-    (((), IcePy._t_string, False, 0),),
-    (),
-    ((), IcePy._t_bool, False, 0),
-    (),
-)
-Object._op_ice_ping = IcePy.Operation(
-    "ice_ping",
-    Ice.OperationMode.Idempotent,
-    False,
-    None,
-    (),
-    (),
-    (),
-    None,
-    (),
-)
-Object._op_ice_ids = IcePy.Operation(
-    "ice_ids",
-    Ice.OperationMode.Idempotent,
-    False,
-    None,
-    (),
-    (),
-    (),
-    ((), Ice._t_StringSeq, False, 0),
-    (),
-)
-Object._op_ice_id = IcePy.Operation(
-    "ice_id",
-    Ice.OperationMode.Idempotent,
-    False,
-    None,
-    (),
-    (),
-    (),
-    ((), IcePy._t_string, False, 0),
-    (),
-)
-
-IcePy._t_UnknownSlicedValue = IcePy.defineValue(
-    "::Ice::UnknownSlicedValue", UnknownSlicedValue, -1, (), False, None, ()
-)
-UnknownSlicedValue._ice_type = IcePy._t_UnknownSlicedValue
-
-
 Protocol_1_0 = Ice.ProtocolVersion(1, 0)
 Encoding_1_0 = Ice.EncodingVersion(1, 0)
 Encoding_1_1 = Ice.EncodingVersion(1, 1)
 
-
-BuiltinBool = 0
-BuiltinByte = 1
-BuiltinShort = 2
-BuiltinInt = 3
-BuiltinLong = 4
-BuiltinFloat = 5
-BuiltinDouble = 6
-
-BuiltinTypes = [
-    BuiltinBool,
-    BuiltinByte,
-    BuiltinShort,
-    BuiltinInt,
-    BuiltinLong,
-    BuiltinFloat,
-    BuiltinDouble,
-]
-BuiltinArrayTypes = ["b", "b", "h", "i", "q", "f", "d"]
-
-
-def createArray(view, t, copy):
-    if t not in BuiltinTypes:
-        raise ValueError("`{0}' is not an array builtin type".format(t))
-    a = array.array(BuiltinArrayTypes[t])
-    a.frombytes(view)
-    return a
-
-
-try:
-    import numpy
-
-    BuiltinNumpyTypes = [
-        numpy.bool_,
-        numpy.int8,
-        numpy.int16,
-        numpy.int32,
-        numpy.int64,
-        numpy.float32,
-        numpy.float64,
-    ]
-
-    def createNumPyArray(view, t, copy):
-        if t not in BuiltinTypes:
-            raise ValueError("`{0}' is not an array builtin type".format(t))
-        return numpy.frombuffer(view.tobytes() if copy else view, BuiltinNumpyTypes[t])
-
-except ImportError:
-    pass
+#
+# Native PropertiesAdmin admin facet.
+#
+NativePropertiesAdmin = IcePy.NativePropertiesAdmin
