@@ -13,13 +13,8 @@
 //
 // Python headers needed for PyEval_EvalCode.
 //
+#include <ceval.h>
 #include <compile.h>
-// Use ceval.h instead of eval.h with Python 3.11 and greater
-#if PY_VERSION_HEX >= 0x030B0000
-#    include <ceval.h>
-#else
-#    include <eval.h>
-#endif
 
 using namespace std;
 using namespace IcePy;
