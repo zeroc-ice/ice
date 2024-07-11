@@ -92,6 +92,7 @@ static PyMethodDef methods[] = {
      reinterpret_cast<PyCFunction>(IcePy_defineSequence),
      METH_VARARGS,
      PyDoc_STR("internal function")},
+    {"defineCustom", reinterpret_cast<PyCFunction>(IcePy_defineCustom), METH_VARARGS, PyDoc_STR("internal function")},
     {"defineDictionary",
      reinterpret_cast<PyCFunction>(IcePy_defineDictionary),
      METH_VARARGS,

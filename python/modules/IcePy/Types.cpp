@@ -2556,6 +2556,170 @@ IcePy::SequenceInfo::SequenceMapping::setItem(PyObject* cont, int i, PyObject* v
 }
 
 //
+// CustomInfo implementation.
+//
+IcePy::CustomInfo::CustomInfo(string ident, PyObject* t) : id(std::move(ident)), pythonType(t)
+{
+    assert(PyType_Check(t));
+}
+
+string
+IcePy::CustomInfo::getId() const
+{
+    return id;
+}
+
+bool
+IcePy::CustomInfo::validate(PyObject* val)
+{
+    return PyObject_IsInstance(val, pythonType) == 1;
+}
+
+bool
+IcePy::CustomInfo::variableLength() const
+{
+    return true;
+}
+
+int
+IcePy::CustomInfo::wireSize() const
+{
+    return 1;
+}
+
+Ice::OptionalFormat
+IcePy::CustomInfo::optionalFormat() const
+{
+    return Ice::OptionalFormat::VSize;
+}
+
+bool
+IcePy::CustomInfo::usesClasses() const
+{
+    return false;
+}
+
+void
+IcePy::CustomInfo::marshal(
+    PyObject* p,
+    Ice::OutputStream* os,
+    ObjectMap* /*objectMap*/,
+    bool,
+    const Ice::StringSeq* /*metaData*/)
+{
+    assert(PyObject_IsInstance(p, pythonType) == 1); // validate() should have caught this.
+
+    PyObjectHandle obj = PyObject_CallMethod(p, "IsInitialized", 0);
+    if (!obj.get())
+    {
+        throwPythonException();
+    }
+    if (!PyObject_IsTrue(obj.get()))
+    {
+        setPythonException(make_exception_ptr(Ice::MarshalException{__FILE__, __LINE__, "type not fully initialized"}));
+        throw AbortMarshaling();
+    }
+
+    obj = PyObject_CallMethod(p, "SerializeToString", 0);
+    if (!obj.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    assert(checkString(obj.get()));
+    char* str;
+    Py_ssize_t sz;
+    PyBytes_AsStringAndSize(obj.get(), &str, &sz);
+    os->write(reinterpret_cast<const uint8_t*>(str), reinterpret_cast<const uint8_t*>(str + sz));
+}
+
+void
+IcePy::CustomInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    bool,
+    const Ice::StringSeq* /*metaData*/)
+{
+    //
+    // Unmarshal the raw byte sequence.
+    //
+    pair<const uint8_t*, const uint8_t*> seq;
+    is->read(seq);
+    int sz = static_cast<int>(seq.second - seq.first);
+
+    //
+    // Create a new instance of the protobuf type.
+    //
+    PyObjectHandle args = PyTuple_New(0);
+    if (!args.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType);
+    PyObjectHandle p = type->tp_new(type, args.get(), 0);
+    if (!p.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    //
+    // Initialize the object.
+    //
+    PyObjectHandle obj = PyObject_CallMethod(p.get(), "__init__", 0, 0);
+    if (!obj.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    //
+    // Convert the seq to a string.
+    //
+    obj = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(seq.first), sz);
+    if (!obj.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    //
+    // Parse the string.
+    //
+    obj = PyObject_CallMethod(p.get(), "ParseFromString", "O", obj.get(), 0);
+    if (!obj.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    cb->unmarshaled(p.get(), target, closure);
+}
+
+void
+IcePy::CustomInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory*)
+{
+    if (!validate(value))
+    {
+        out << "<invalid value - expected " << id << ">";
+        return;
+    }
+
+    // TODO what is this for?
+    if (value == Py_None)
+    {
+        out << "{}";
+    }
+    else
+    {
+    }
+}
+
+//
 // DictionaryInfo implementation.
 //
 IcePy::DictionaryInfo::DictionaryInfo(string ident, PyObject* kt, PyObject* vt) : id(std::move(ident))
@@ -4339,6 +4503,21 @@ IcePy_defineSequence(PyObject*, PyObject* args)
         assert(PyErr_Occurred());
         return 0;
     }
+}
+
+extern "C" PyObject*
+IcePy_defineCustom(PyObject*, PyObject* args)
+{
+    char* id;
+    PyObject* type;
+    if (!PyArg_ParseTuple(args, "sO", &id, &type))
+    {
+        return 0;
+    }
+
+    CustomInfoPtr info = make_shared<CustomInfo>(id, type);
+
+    return createType(info);
 }
 
 extern "C" PyObject*
