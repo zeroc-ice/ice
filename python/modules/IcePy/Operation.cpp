@@ -352,7 +352,7 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* exceptions;
     if (!PyArg_ParseTuple(
             args,
-            STRCAST("sO!iOO!O!O!OO!"),
+            "sO!iOO!O!O!OO!",
             &name,
             modeType,
             &mode,
@@ -388,7 +388,7 @@ operationInvoke(OperationObject* self, PyObject* args)
 {
     PyObject* pyProxy;
     PyObject* opArgs;
-    if (!PyArg_ParseTuple(args, STRCAST("O!O!"), &ProxyType, &pyProxy, &PyTuple_Type, &opArgs))
+    if (!PyArg_ParseTuple(args, "O!O!", &ProxyType, &pyProxy, &PyTuple_Type, &opArgs))
     {
         return 0;
     }
@@ -405,7 +405,7 @@ operationInvokeAsync(OperationObject* self, PyObject* args)
 {
     PyObject* proxy;
     PyObject* opArgs;
-    if (!PyArg_ParseTuple(args, STRCAST("O!O!"), &ProxyType, &proxy, &PyTuple_Type, &opArgs))
+    if (!PyArg_ParseTuple(args, "O!O!", &ProxyType, &proxy, &PyTuple_Type, &opArgs))
     {
         return 0;
     }
@@ -419,7 +419,7 @@ extern "C" PyObject*
 operationDeprecate(OperationObject* self, PyObject* args)
 {
     char* msg;
-    if (!PyArg_ParseTuple(args, STRCAST("s"), &msg))
+    if (!PyArg_ParseTuple(args, "s", &msg))
     {
         return 0;
     }
@@ -457,7 +457,7 @@ extern "C" PyObject*
 dispatchCallbackResponse(DispatchCallbackObject* self, PyObject* args)
 {
     PyObject* result = 0;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &result))
+    if (!PyArg_ParseTuple(args, "O", &result))
     {
         return 0;
     }
@@ -482,7 +482,7 @@ extern "C" PyObject*
 dispatchCallbackException(DispatchCallbackObject* self, PyObject* args)
 {
     PyObject* ex = 0;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &ex))
+    if (!PyArg_ParseTuple(args, "O", &ex))
     {
         return 0;
     }
@@ -548,14 +548,14 @@ extern "C" PyObject*
 asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* args)
 {
     PyObject* callback;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &callback))
+    if (!PyArg_ParseTuple(args, "O", &callback))
     {
         return 0;
     }
 
     if (!PyCallable_Check(callback))
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("invalid argument passed to callLater"));
+        PyErr_Format(PyExc_ValueError, "invalid argument passed to callLater");
         return 0;
     }
 
@@ -628,7 +628,7 @@ marshaledResultInit(MarshaledResultObject* self, PyObject* args, PyObject* /*kwd
     OperationObject* opObj;
     PyObject* communicatorObj;
     PyObject* encodingObj;
-    if (!PyArg_ParseTuple(args, STRCAST("OOOO!"), &result, &opObj, &communicatorObj, versionType, &encodingObj))
+    if (!PyArg_ParseTuple(args, "OOOO!", &result, &opObj, &communicatorObj, versionType, &encodingObj))
     {
         return -1;
     }
@@ -703,7 +703,7 @@ IcePy::Operation::Operation(
     // mode
     //
     PyObjectHandle modeValue = getAttr(m, "value", true);
-    mode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
+    mode = static_cast<Ice::OperationMode>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
 
     //
@@ -1005,42 +1005,30 @@ IcePy::Operation::convertParam(PyObject* p, Py_ssize_t pos)
 }
 
 static PyMethodDef OperationMethods[] = {
-    {STRCAST("invoke"),
-     reinterpret_cast<PyCFunction>(operationInvoke),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("invokeAsync"),
-     reinterpret_cast<PyCFunction>(operationInvokeAsync),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("deprecate"),
-     reinterpret_cast<PyCFunction>(operationDeprecate),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
+    {"invoke", reinterpret_cast<PyCFunction>(operationInvoke), METH_VARARGS, PyDoc_STR("internal function")},
+    {"invokeAsync", reinterpret_cast<PyCFunction>(operationInvokeAsync), METH_VARARGS, PyDoc_STR("internal function")},
+    {"deprecate", reinterpret_cast<PyCFunction>(operationDeprecate), METH_VARARGS, PyDoc_STR("internal function")},
     {0, 0} /* sentinel */
 };
 
 static PyMethodDef DispatchCallbackMethods[] = {
-    {STRCAST("response"),
-     reinterpret_cast<PyCFunction>(dispatchCallbackResponse),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("exception"),
+    {"response", reinterpret_cast<PyCFunction>(dispatchCallbackResponse), METH_VARARGS, PyDoc_STR("internal function")},
+    {"exception",
      reinterpret_cast<PyCFunction>(dispatchCallbackException),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
+     PyDoc_STR("internal function")},
     {0, 0} /* sentinel */
 };
 
 static PyMethodDef AsyncInvocationContextMethods[] = {
-    {STRCAST("cancel"),
+    {"cancel",
      reinterpret_cast<PyCFunction>(asyncInvocationContextCancel),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("cancels the invocation"))},
-    {STRCAST("callLater"),
+     PyDoc_STR("cancels the invocation")},
+    {"callLater",
      reinterpret_cast<PyCFunction>(asyncInvocationContextCallLater),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
+     PyDoc_STR("internal function")},
     {0, 0} /* sentinel */
 };
 
@@ -1049,9 +1037,9 @@ namespace IcePy
     PyTypeObject OperationType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.Operation"), /* tp_name */
-        sizeof(OperationObject),                                /* tp_basicsize */
-        0,                                                      /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Operation", /* tp_name */
+        sizeof(OperationObject),                       /* tp_basicsize */
+        0,                                             /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(operationDealloc), /* tp_dealloc */
         0,                                              /* tp_print */
@@ -1094,9 +1082,9 @@ namespace IcePy
     static PyTypeObject DispatchCallbackType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.Dispatch"), /* tp_name */
-        sizeof(DispatchCallbackObject),                        /* tp_basicsize */
-        0,                                                     /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Dispatch", /* tp_name */
+        sizeof(DispatchCallbackObject),               /* tp_basicsize */
+        0,                                            /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(dispatchCallbackDealloc), /* tp_dealloc */
         0,                                                     /* tp_print */
@@ -1139,9 +1127,9 @@ namespace IcePy
     PyTypeObject AsyncInvocationContextType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.AsyncInvocationContext"), /* tp_name */
-        sizeof(AsyncInvocationContextObject),                                /* tp_basicsize */
-        0,                                                                   /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.AsyncInvocationContext", /* tp_name */
+        sizeof(AsyncInvocationContextObject),                       /* tp_basicsize */
+        0,                                                          /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(asyncInvocationContextDealloc), /* tp_dealloc */
         0,                                                           /* tp_print */
@@ -1184,9 +1172,9 @@ namespace IcePy
     PyTypeObject MarshaledResultType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.MarshaledResult"), /* tp_name */
-        sizeof(MarshaledResultObject),                                /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.MarshaledResult", /* tp_name */
+        sizeof(MarshaledResultObject),                       /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(marshaledResultDealloc), /* tp_dealloc */
         0,                                                    /* tp_print */
@@ -1235,7 +1223,7 @@ IcePy::initOperation(PyObject* module)
         return false;
     }
     PyTypeObject* opType = &OperationType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("Operation"), reinterpret_cast<PyObject*>(opType)) < 0)
+    if (PyModule_AddObject(module, "Operation", reinterpret_cast<PyObject*>(opType)) < 0)
     {
         return false;
     }
@@ -1245,7 +1233,7 @@ IcePy::initOperation(PyObject* module)
         return false;
     }
     PyTypeObject* dispatchType = &DispatchCallbackType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("DispatchCallback"), reinterpret_cast<PyObject*>(dispatchType)) < 0)
+    if (PyModule_AddObject(module, "DispatchCallback", reinterpret_cast<PyObject*>(dispatchType)) < 0)
     {
         return false;
     }
@@ -1255,7 +1243,7 @@ IcePy::initOperation(PyObject* module)
         return false;
     }
     PyTypeObject* arType = &AsyncInvocationContextType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("AsyncInvocationContext"), reinterpret_cast<PyObject*>(arType)) < 0)
+    if (PyModule_AddObject(module, "AsyncInvocationContext", reinterpret_cast<PyObject*>(arType)) < 0)
     {
         return false;
     }
@@ -1265,7 +1253,7 @@ IcePy::initOperation(PyObject* module)
         return false;
     }
     PyTypeObject* mrType = &MarshaledResultType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("MarshaledResult"), reinterpret_cast<PyObject*>(mrType)) < 0)
+    if (PyModule_AddObject(module, "MarshaledResult", reinterpret_cast<PyObject*>(mrType)) < 0)
     {
         return false;
     }
@@ -1305,11 +1293,7 @@ IcePy::Invocation::prepareRequest(
         {
             opName = fixIdent(op->name);
         }
-        PyErr_Format(
-            PyExc_RuntimeError,
-            STRCAST("%s expects %d in parameters"),
-            opName.c_str(),
-            static_cast<int>(paramCount));
+        PyErr_Format(PyExc_RuntimeError, "%s expects %d in parameters", opName.c_str(), static_cast<int>(paramCount));
         return false;
     }
 
@@ -1345,7 +1329,7 @@ IcePy::Invocation::prepareRequest(
                     }
                     PyErr_Format(
                         PyExc_ValueError,
-                        STRCAST("invalid value for argument %" PY_FORMAT_SIZE_T "d in operation '%s'"),
+                        "invalid value for argument %" PY_FORMAT_SIZE_T "d in operation '%s'",
                         info->pos + 1,
                         const_cast<char*>(name.c_str()));
                     return false;
@@ -1603,7 +1587,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         {
             if (!PyDict_Check(pyctx))
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("context argument must be None or a dictionary"));
+                PyErr_Format(PyExc_ValueError, "context argument must be None or a dictionary");
                 return 0;
             }
 
@@ -1991,7 +1975,7 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
     {
         if (!PyDict_Check(pyctx))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("context argument must be None or a dictionary"));
+            PyErr_Format(PyExc_ValueError, "context argument must be None or a dictionary");
             return 0;
         }
 
@@ -2085,15 +2069,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     PyObject* inParams;
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     PyObject* ctx = 0;
-    if (!PyArg_ParseTuple(
-            args,
-            STRCAST("sO!O!|O"),
-            &operation,
-            operationModeType,
-            &mode,
-            &PyBytes_Type,
-            &inParams,
-            &ctx))
+    if (!PyArg_ParseTuple(args, "sO!O!|O", &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
     {
         return 0;
     }
@@ -2183,15 +2159,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     PyObject* inParams;
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     PyObject* ctx = 0;
-    if (!PyArg_ParseTuple(
-            args,
-            STRCAST("sO!O!|O"),
-            &operation,
-            operationModeType,
-            &mode,
-            &PyBytes_Type,
-            &inParams,
-            &ctx))
+    if (!PyArg_ParseTuple(args, "sO!O!|O", &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
     {
         return 0;
     }

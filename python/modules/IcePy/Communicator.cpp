@@ -88,7 +88,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     PyObject* arg1 = 0;
     PyObject* arg2 = 0;
-    if (!PyArg_ParseTuple(args, STRCAST("|OO"), &arg1, &arg2))
+    if (!PyArg_ParseTuple(args, "|OO", &arg1, &arg2))
     {
         return -1;
     }
@@ -127,7 +127,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         {
             PyErr_Format(
                 PyExc_ValueError,
-                STRCAST("initialize expects an argument list, Ice.InitializationData or a configuration filename"));
+                "initialize expects an argument list, Ice.InitializationData or a configuration filename");
             return -1;
         }
     }
@@ -138,7 +138,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         {
             if (argList)
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("unexpected list argument to initialize"));
+                PyErr_Format(PyExc_ValueError, "unexpected list argument to initialize");
                 return -1;
             }
             argList = arg2;
@@ -147,7 +147,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         {
             if (initData)
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("unexpected Ice.InitializationData argument to initialize"));
+                PyErr_Format(PyExc_ValueError, "unexpected Ice.InitializationData argument to initialize");
                 return -1;
             }
             initData = arg2;
@@ -156,7 +156,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         {
             if (configFile)
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("unexpected string argument to initialize"));
+                PyErr_Format(PyExc_ValueError, "unexpected string argument to initialize");
                 return -1;
             }
             configFile = arg2;
@@ -165,16 +165,14 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         {
             PyErr_Format(
                 PyExc_ValueError,
-                STRCAST("initialize expects an argument list, Ice.InitializationData or a configuration filename"));
+                "initialize expects an argument list, Ice.InitializationData or a configuration filename");
             return -1;
         }
     }
 
     if (initData && configFile)
     {
-        PyErr_Format(
-            PyExc_ValueError,
-            STRCAST("initialize accepts either Ice.InitializationData or a configuration filename"));
+        PyErr_Format(PyExc_ValueError, "initialize accepts either Ice.InitializationData or a configuration filename");
         return -1;
     }
 
@@ -317,7 +315,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
         for (i = 0; i < argc; ++i)
         {
-            PyObjectHandle str = Py_BuildValue(STRCAST("s"), argv[i]);
+            PyObjectHandle str = Py_BuildValue("s", argv[i]);
             PyList_Append(argList, str.get());
         }
     }
@@ -435,7 +433,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
     // and ignore the timeout.
     //
     int timeout = 0;
-    if (!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
+    if (!PyArg_ParseTuple(args, "i", &timeout))
     {
         return 0;
     }
@@ -523,7 +521,7 @@ extern "C" PyObject*
 communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
 {
     PyObject* strObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
+    if (!PyArg_ParseTuple(args, "O", &strObj))
     {
         return 0;
     }
@@ -558,7 +556,7 @@ extern "C" PyObject*
 communicatorProxyToString(CommunicatorObject* self, PyObject* args)
 {
     PyObject* obj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &obj))
+    if (!PyArg_ParseTuple(args, "O", &obj))
     {
         return 0;
     }
@@ -589,7 +587,7 @@ extern "C" PyObject*
 communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
 {
     PyObject* strObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
+    if (!PyArg_ParseTuple(args, "O", &strObj))
     {
         return 0;
     }
@@ -629,7 +627,7 @@ communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
     //
     PyObject* proxyObj;
     PyObject* strObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O!O"), &ProxyType, &proxyObj, &strObj))
+    if (!PyArg_ParseTuple(args, "O!O", &ProxyType, &proxyObj, &strObj))
     {
         return 0;
     }
@@ -675,7 +673,7 @@ communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* obj;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &obj))
+    if (!PyArg_ParseTuple(args, "O!", identityType, &obj))
     {
         return 0;
     }
@@ -706,7 +704,7 @@ communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), compressBatchType, &compressBatch))
+    if (!PyArg_ParseTuple(args, "O!", compressBatchType, &compressBatch))
     {
         return 0;
     }
@@ -736,7 +734,7 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), compressBatchType, &compressBatch))
+    if (!PyArg_ParseTuple(args, "O!", compressBatchType, &compressBatch))
     {
         return 0;
     }
@@ -785,7 +783,7 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
     PyObject* adapter;
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    if (!PyArg_ParseTuple(args, STRCAST("OO!"), &adapter, identityType, &id))
+    if (!PyArg_ParseTuple(args, "OO!", &adapter, identityType, &id))
     {
         return 0;
     }
@@ -795,7 +793,7 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
     PyObject* adapterType = lookupType("Ice.ObjectAdapter");
     if (adapter != Py_None && !PyObject_IsInstance(adapter, adapterType))
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("expected ObjectAdapter or None"));
+        PyErr_Format(PyExc_ValueError, "expected ObjectAdapter or None");
         return 0;
     }
 
@@ -855,7 +853,7 @@ communicatorAddAdminFacet(CommunicatorObject* self, PyObject* args)
     PyObject* objectType = lookupType("Ice.Object");
     PyObject* servant;
     PyObject* facetObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O!O"), objectType, &servant, &facetObj))
+    if (!PyArg_ParseTuple(args, "O!O", objectType, &servant, &facetObj))
     {
         return 0;
     }
@@ -891,7 +889,7 @@ extern "C" PyObject*
 communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
 {
     PyObject* facetObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &facetObj))
+    if (!PyArg_ParseTuple(args, "O", &facetObj))
     {
         return 0;
     }
@@ -995,7 +993,7 @@ extern "C" PyObject*
 communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
 {
     PyObject* facetObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &facetObj))
+    if (!PyArg_ParseTuple(args, "O", &facetObj))
     {
         return 0;
     }
@@ -1036,7 +1034,7 @@ extern "C" PyObject*
 communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
 {
     PyObject* wrapper;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &wrapper))
+    if (!PyArg_ParseTuple(args, "O", &wrapper))
     {
         return 0;
     }
@@ -1133,7 +1131,7 @@ extern "C" PyObject*
 communicatorCreateObjectAdapter(CommunicatorObject* self, PyObject* args)
 {
     PyObject* strObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
+    if (!PyArg_ParseTuple(args, "O", &strObj))
     {
         return 0;
     }
@@ -1176,7 +1174,7 @@ communicatorCreateObjectAdapterWithEndpoints(CommunicatorObject* self, PyObject*
 {
     PyObject* nameObj;
     PyObject* endpointsObj;
-    if (!PyArg_ParseTuple(args, STRCAST("OO"), &nameObj, &endpointsObj))
+    if (!PyArg_ParseTuple(args, "OO", &nameObj, &endpointsObj))
     {
         return 0;
     }
@@ -1224,7 +1222,7 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
 {
     PyObject* nameObj;
     PyObject* p;
-    if (!PyArg_ParseTuple(args, STRCAST("OO"), &nameObj, &p))
+    if (!PyArg_ParseTuple(args, "OO", &nameObj, &p))
     {
         return 0;
     }
@@ -1301,7 +1299,7 @@ extern "C" PyObject*
 communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
 {
     PyObject* p;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &p))
+    if (!PyArg_ParseTuple(args, "O", &p))
     {
         return 0;
     }
@@ -1359,7 +1357,7 @@ extern "C" PyObject*
 communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
 {
     PyObject* p;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &p))
+    if (!PyArg_ParseTuple(args, "O", &p))
     {
         return 0;
     }
@@ -1388,126 +1386,117 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
 }
 
 static PyMethodDef CommunicatorMethods[] = {
-    {STRCAST("destroy"),
-     reinterpret_cast<PyCFunction>(communicatorDestroy),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("destroy() -> None"))},
-    {STRCAST("shutdown"),
-     reinterpret_cast<PyCFunction>(communicatorShutdown),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("shutdown() -> None"))},
-    {STRCAST("waitForShutdown"),
+    {"destroy", reinterpret_cast<PyCFunction>(communicatorDestroy), METH_NOARGS, PyDoc_STR("destroy() -> None")},
+    {"shutdown", reinterpret_cast<PyCFunction>(communicatorShutdown), METH_NOARGS, PyDoc_STR("shutdown() -> None")},
+    {"waitForShutdown",
      reinterpret_cast<PyCFunction>(communicatorWaitForShutdown),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("waitForShutdown() -> None"))},
-    {STRCAST("isShutdown"),
+     PyDoc_STR("waitForShutdown() -> None")},
+    {"isShutdown",
      reinterpret_cast<PyCFunction>(communicatorIsShutdown),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("isShutdown() -> bool"))},
-    {STRCAST("stringToProxy"),
+     PyDoc_STR("isShutdown() -> bool")},
+    {"stringToProxy",
      reinterpret_cast<PyCFunction>(communicatorStringToProxy),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("stringToProxy(str) -> Ice.ObjectPrx"))},
-    {STRCAST("proxyToString"),
+     PyDoc_STR("stringToProxy(str) -> Ice.ObjectPrx")},
+    {"proxyToString",
      reinterpret_cast<PyCFunction>(communicatorProxyToString),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("proxyToString(Ice.ObjectPrx) -> string"))},
-    {STRCAST("propertyToProxy"),
+     PyDoc_STR("proxyToString(Ice.ObjectPrx) -> string")},
+    {"propertyToProxy",
      reinterpret_cast<PyCFunction>(communicatorPropertyToProxy),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("propertyToProxy(str) -> Ice.ObjectPrx"))},
-    {STRCAST("proxyToProperty"),
+     PyDoc_STR("propertyToProxy(str) -> Ice.ObjectPrx")},
+    {"proxyToProperty",
      reinterpret_cast<PyCFunction>(communicatorProxyToProperty),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("proxyToProperty(Ice.ObjectPrx, str) -> dict"))},
-    {STRCAST("identityToString"),
+     PyDoc_STR("proxyToProperty(Ice.ObjectPrx, str) -> dict")},
+    {"identityToString",
      reinterpret_cast<PyCFunction>(communicatorIdentityToString),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("identityToString(Ice.Identity) -> string"))},
-    {STRCAST("createObjectAdapter"),
+     PyDoc_STR("identityToString(Ice.Identity) -> string")},
+    {"createObjectAdapter",
      reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapter),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("createObjectAdapter(name) -> Ice.ObjectAdapter"))},
-    {STRCAST("createObjectAdapterWithEndpoints"),
+     PyDoc_STR("createObjectAdapter(name) -> Ice.ObjectAdapter")},
+    {"createObjectAdapterWithEndpoints",
      reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapterWithEndpoints),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("createObjectAdapterWithEndpoints(name, endpoints) -> Ice.ObjectAdapter"))},
-    {STRCAST("createObjectAdapterWithRouter"),
+     PyDoc_STR("createObjectAdapterWithEndpoints(name, endpoints) -> Ice.ObjectAdapter")},
+    {"createObjectAdapterWithRouter",
      reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapterWithRouter),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("createObjectAdapterWithRouter(name, router) -> Ice.ObjectAdapter"))},
-    {STRCAST("getValueFactoryManager"),
+     PyDoc_STR("createObjectAdapterWithRouter(name, router) -> Ice.ObjectAdapter")},
+    {"getValueFactoryManager",
      reinterpret_cast<PyCFunction>(communicatorGetValueFactoryManager),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getValueFactoryManager() -> Ice.ValueFactoryManager"))},
-    {STRCAST("getImplicitContext"),
+     PyDoc_STR("getValueFactoryManager() -> Ice.ValueFactoryManager")},
+    {"getImplicitContext",
      reinterpret_cast<PyCFunction>(communicatorGetImplicitContext),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getImplicitContext() -> Ice.ImplicitContext"))},
-    {STRCAST("getProperties"),
+     PyDoc_STR("getImplicitContext() -> Ice.ImplicitContext")},
+    {"getProperties",
      reinterpret_cast<PyCFunction>(communicatorGetProperties),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getProperties() -> Ice.Properties"))},
-    {STRCAST("getLogger"),
+     PyDoc_STR("getProperties() -> Ice.Properties")},
+    {"getLogger",
      reinterpret_cast<PyCFunction>(communicatorGetLogger),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getLogger() -> Ice.Logger"))},
-    {STRCAST("getDefaultRouter"),
+     PyDoc_STR("getLogger() -> Ice.Logger")},
+    {"getDefaultRouter",
      reinterpret_cast<PyCFunction>(communicatorGetDefaultRouter),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getDefaultRouter() -> proxy"))},
-    {STRCAST("setDefaultRouter"),
+     PyDoc_STR("getDefaultRouter() -> proxy")},
+    {"setDefaultRouter",
      reinterpret_cast<PyCFunction>(communicatorSetDefaultRouter),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("setDefaultRouter(proxy) -> None"))},
-    {STRCAST("getDefaultLocator"),
+     "setDefaultRouter(proxy) -> None"},
+    {"getDefaultLocator",
      reinterpret_cast<PyCFunction>(communicatorGetDefaultLocator),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getDefaultLocator() -> proxy"))},
-    {STRCAST("setDefaultLocator"),
+     PyDoc_STR("getDefaultLocator() -> proxy")},
+    {"setDefaultLocator",
      reinterpret_cast<PyCFunction>(communicatorSetDefaultLocator),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("setDefaultLocator(proxy) -> None"))},
-    {STRCAST("flushBatchRequests"),
+     PyDoc_STR("setDefaultLocator(proxy) -> None")},
+    {"flushBatchRequests",
      reinterpret_cast<PyCFunction>(communicatorFlushBatchRequests),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("flushBatchRequests(compress) -> None"))},
-    {STRCAST("flushBatchRequestsAsync"),
+     PyDoc_STR("flushBatchRequests(compress) -> None")},
+    {"flushBatchRequestsAsync",
      reinterpret_cast<PyCFunction>(communicatorFlushBatchRequestsAsync),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("flushBatchRequestsAsync(compress) -> Ice.Future"))},
-    {STRCAST("createAdmin"),
+     PyDoc_STR("flushBatchRequestsAsync(compress) -> Ice.Future")},
+    {"createAdmin",
      reinterpret_cast<PyCFunction>(communicatorCreateAdmin),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("createAdmin(adminAdapter, adminIdentity) -> Ice.ObjectPrx"))},
-    {STRCAST("getAdmin"),
+     PyDoc_STR("createAdmin(adminAdapter, adminIdentity) -> Ice.ObjectPrx")},
+    {"getAdmin",
      reinterpret_cast<PyCFunction>(communicatorGetAdmin),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getAdmin() -> Ice.ObjectPrx"))},
-    {STRCAST("addAdminFacet"),
+     PyDoc_STR("getAdmin() -> Ice.ObjectPrx")},
+    {"addAdminFacet",
      reinterpret_cast<PyCFunction>(communicatorAddAdminFacet),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("addAdminFacet(servant, facet) -> None"))},
-    {STRCAST("findAdminFacet"),
+     PyDoc_STR("addAdminFacet(servant, facet) -> None")},
+    {"findAdminFacet",
      reinterpret_cast<PyCFunction>(communicatorFindAdminFacet),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("findAdminFacet(facet) -> Ice.Object"))},
-    {STRCAST("findAllAdminFacets"),
+     PyDoc_STR("findAdminFacet(facet) -> Ice.Object")},
+    {"findAllAdminFacets",
      reinterpret_cast<PyCFunction>(communicatorFindAllAdminFacets),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("findAllAdminFacets() -> dictionary"))},
-    {STRCAST("removeAdminFacet"),
+     PyDoc_STR("findAllAdminFacets() -> dictionary")},
+    {"removeAdminFacet",
      reinterpret_cast<PyCFunction>(communicatorRemoveAdminFacet),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("removeAdminFacet(facet) -> Ice.Object"))},
-    {STRCAST("_setWrapper"),
+     PyDoc_STR("removeAdminFacet(facet) -> Ice.Object")},
+    {"_setWrapper",
      reinterpret_cast<PyCFunction>(communicatorSetWrapper),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("_getWrapper"),
-     reinterpret_cast<PyCFunction>(communicatorGetWrapper),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("internal function"))},
+     PyDoc_STR("internal function")},
+    {"_getWrapper", reinterpret_cast<PyCFunction>(communicatorGetWrapper), METH_NOARGS, PyDoc_STR("internal function")},
     {0, 0} /* sentinel */
 };
 
@@ -1516,9 +1505,9 @@ namespace IcePy
     PyTypeObject CommunicatorType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.Communicator"), /* tp_name */
-        sizeof(CommunicatorObject),                                /* tp_basicsize */
-        0,                                                         /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Communicator", /* tp_name */
+        sizeof(CommunicatorObject),                       /* tp_basicsize */
+        0,                                                /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(communicatorDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -1569,7 +1558,7 @@ IcePy::initCommunicator(PyObject* module)
         return false;
     }
     PyTypeObject* type = &CommunicatorType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("Communicator"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "Communicator", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -1630,7 +1619,7 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* obj;
     PyObject* mode = 0;
-    if (!PyArg_ParseTuple(args, STRCAST("O!O"), identityType, &obj, &mode))
+    if (!PyArg_ParseTuple(args, "O!O", identityType, &obj, &mode))
     {
         return 0;
     }
@@ -1642,7 +1631,7 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
     }
 
     Ice::ToStringMode toStringMode = Ice::ToStringMode::Unicode;
-    if (mode != Py_None && PyObject_HasAttrString(mode, STRCAST("value")))
+    if (mode != Py_None && PyObject_HasAttrString(mode, "value"))
     {
         PyObjectHandle modeValue = getAttr(mode, "value", true);
         toStringMode = static_cast<Ice::ToStringMode>(PyLong_AsLong(modeValue.get()));

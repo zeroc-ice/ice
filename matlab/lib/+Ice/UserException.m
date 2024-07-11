@@ -2,29 +2,11 @@ classdef (Abstract) UserException < Ice.Exception
     % UserException   Summary of UserException
     %
     % Base class for exceptions defined in Slice.
-    %
-    % UserException Methods:
-    %   ice_getSlicedData - Obtain the SlicedData object that contains the
-    %     marshaled state of any slices for unknown exception types.
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods(Abstract)
         ice_id(obj)
-    end
-    methods
-        function obj = UserException(id, msg)
-            obj = obj@Ice.Exception(id, msg);
-        end
-        % ice_getSlicedData - Obtain the SlicedData object that contains the
-        %   marshaled state of any slices for unknown exception types.
-        %
-        % Returns (Ice.SlicedData) - The marshaled state of any slices for
-        %   unknown exception types.
-
-        function r = ice_getSlicedData(~)
-            r = [];
-        end
     end
     methods(Hidden=true)
         function obj = iceRead(obj, is)
