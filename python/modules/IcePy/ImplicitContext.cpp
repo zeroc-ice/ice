@@ -263,18 +263,9 @@ static PyMethodDef ImplicitContextMethods[] = {
      reinterpret_cast<PyCFunction>(implicitContextContainsKey),
      METH_VARARGS,
      PyDoc_STR("containsKey(key) -> bool")},
-    {"get",
-     reinterpret_cast<PyCFunction>(implicitContextGet),
-     METH_VARARGS,
-     PyDoc_STR("get(key) -> string")},
-    {"put",
-     reinterpret_cast<PyCFunction>(implicitContextPut),
-     METH_VARARGS,
-     PyDoc_STR("put(key, value) -> string")},
-    {"remove",
-     reinterpret_cast<PyCFunction>(implicitContextRemove),
-     METH_VARARGS,
-     PyDoc_STR("remove(key) -> string")},
+    {"get", reinterpret_cast<PyCFunction>(implicitContextGet), METH_VARARGS, PyDoc_STR("get(key) -> string")},
+    {"put", reinterpret_cast<PyCFunction>(implicitContextPut), METH_VARARGS, PyDoc_STR("put(key, value) -> string")},
+    {"remove", reinterpret_cast<PyCFunction>(implicitContextRemove), METH_VARARGS, PyDoc_STR("remove(key) -> string")},
     {0, 0} /* sentinel */
 };
 
@@ -284,8 +275,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.ImplicitContext", /* tp_name */
-        sizeof(ImplicitContextObject),                                /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
+        sizeof(ImplicitContextObject),                       /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(implicitContextDealloc),  /* tp_dealloc */
         0,                                                     /* tp_print */

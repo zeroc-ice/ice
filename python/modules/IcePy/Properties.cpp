@@ -765,14 +765,8 @@ static PyMethodDef PropertyMethods[] = {
      reinterpret_cast<PyCFunction>(propertiesParseIceCommandLineOptions),
      METH_VARARGS,
      PyDoc_STR("parseIceCommandLineOptions(prefix, options) -> list")},
-    {"load",
-     reinterpret_cast<PyCFunction>(propertiesLoad),
-     METH_VARARGS,
-     PyDoc_STR("load(file) -> None")},
-    {"clone",
-     reinterpret_cast<PyCFunction>(propertiesClone),
-     METH_NOARGS,
-     PyDoc_STR("clone() -> Ice.Properties")},
+    {"load", reinterpret_cast<PyCFunction>(propertiesLoad), METH_VARARGS, PyDoc_STR("load(file) -> None")},
+    {"clone", reinterpret_cast<PyCFunction>(propertiesClone), METH_NOARGS, PyDoc_STR("clone() -> Ice.Properties")},
     {0, 0} /* sentinel */
 };
 
@@ -782,8 +776,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.Properties", /* tp_name */
-        sizeof(PropertiesObject),                                /* tp_basicsize */
-        0,                                                       /* tp_itemsize */
+        sizeof(PropertiesObject),                       /* tp_basicsize */
+        0,                                              /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(propertiesDealloc), /* tp_dealloc */
         0,                                               /* tp_print */

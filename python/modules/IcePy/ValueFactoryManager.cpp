@@ -305,14 +305,8 @@ valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
 }
 
 static PyMethodDef ValueFactoryManagerMethods[] = {
-    {"add",
-     reinterpret_cast<PyCFunction>(valueFactoryManagerAdd),
-     METH_VARARGS,
-     PyDoc_STR("add(factory, id) -> None")},
-    {"find",
-     reinterpret_cast<PyCFunction>(valueFactoryManagerFind),
-     METH_VARARGS,
-     PyDoc_STR("find(id) -> function")},
+    {"add", reinterpret_cast<PyCFunction>(valueFactoryManagerAdd), METH_VARARGS, PyDoc_STR("add(factory, id) -> None")},
+    {"find", reinterpret_cast<PyCFunction>(valueFactoryManagerFind), METH_VARARGS, PyDoc_STR("find(id) -> function")},
     {0, 0} /* sentinel */
 };
 
@@ -322,8 +316,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.ValueFactoryManager", /* tp_name */
-        sizeof(ValueFactoryManagerObject),                                /* tp_basicsize */
-        0,                                                                /* tp_itemsize */
+        sizeof(ValueFactoryManagerObject),                       /* tp_basicsize */
+        0,                                                       /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(valueFactoryManagerDealloc), /* tp_dealloc */
         0,                                                        /* tp_print */

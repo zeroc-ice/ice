@@ -224,51 +224,19 @@ currentGetter(CurrentObject* self, void* closure)
 }
 
 static PyGetSetDef CurrentGetSetters[] = {
-    {"adapter",
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     "object adapter",
-     reinterpret_cast<void*>(CURRENT_ADAPTER)},
-    {"con",
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     "connection info",
-     reinterpret_cast<void*>(CURRENT_CONNECTION)},
-    {"id",
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     "identity",
-     reinterpret_cast<void*>(CURRENT_ID)},
-    {"facet",
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     "facet name",
-     reinterpret_cast<void*>(CURRENT_FACET)},
+    {"adapter", reinterpret_cast<getter>(currentGetter), 0, "object adapter", reinterpret_cast<void*>(CURRENT_ADAPTER)},
+    {"con", reinterpret_cast<getter>(currentGetter), 0, "connection info", reinterpret_cast<void*>(CURRENT_CONNECTION)},
+    {"id", reinterpret_cast<getter>(currentGetter), 0, "identity", reinterpret_cast<void*>(CURRENT_ID)},
+    {"facet", reinterpret_cast<getter>(currentGetter), 0, "facet name", reinterpret_cast<void*>(CURRENT_FACET)},
     {"operation",
      reinterpret_cast<getter>(currentGetter),
      0,
      "operation name",
      reinterpret_cast<void*>(CURRENT_OPERATION)},
-    {"mode",
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     "operation mode",
-     reinterpret_cast<void*>(CURRENT_MODE)},
-    {"ctx",
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     "context",
-     reinterpret_cast<void*>(CURRENT_CTX)},
-    {"requestId",
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     "requestId",
-     reinterpret_cast<void*>(CURRENT_REQUEST_ID)},
-    {"encoding",
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     "encoding",
-     reinterpret_cast<void*>(CURRENT_ENCODING)},
+    {"mode", reinterpret_cast<getter>(currentGetter), 0, "operation mode", reinterpret_cast<void*>(CURRENT_MODE)},
+    {"ctx", reinterpret_cast<getter>(currentGetter), 0, "context", reinterpret_cast<void*>(CURRENT_CTX)},
+    {"requestId", reinterpret_cast<getter>(currentGetter), 0, "requestId", reinterpret_cast<void*>(CURRENT_REQUEST_ID)},
+    {"encoding", reinterpret_cast<getter>(currentGetter), 0, "encoding", reinterpret_cast<void*>(CURRENT_ENCODING)},
     {0} /* Sentinel */
 };
 
@@ -278,8 +246,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.Current", /* tp_name */
-        sizeof(CurrentObject),                                /* tp_basicsize */
-        0,                                                    /* tp_itemsize */
+        sizeof(CurrentObject),                       /* tp_basicsize */
+        0,                                           /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(currentDealloc), /* tp_dealloc */
         0,                                            /* tp_print */

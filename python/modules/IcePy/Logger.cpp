@@ -41,8 +41,7 @@ IcePy::LoggerWrapper::trace(const string& category, const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp =
-        PyObject_CallMethod(_logger.get(), "trace", "ss", category.c_str(), message.c_str());
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "trace", "ss", category.c_str(), message.c_str());
     if (!tmp.get())
     {
         throwPythonException();
@@ -317,26 +316,11 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
 }
 
 static PyMethodDef LoggerMethods[] = {
-    {"_print",
-     reinterpret_cast<PyCFunction>(loggerPrint),
-     METH_VARARGS,
-     PyDoc_STR("_print(message) -> None")},
-    {"trace",
-     reinterpret_cast<PyCFunction>(loggerTrace),
-     METH_VARARGS,
-     PyDoc_STR("trace(category, message) -> None")},
-    {"warning",
-     reinterpret_cast<PyCFunction>(loggerWarning),
-     METH_VARARGS,
-     PyDoc_STR("warning(message) -> None")},
-    {"error",
-     reinterpret_cast<PyCFunction>(loggerError),
-     METH_VARARGS,
-     PyDoc_STR("error(message) -> None")},
-    {"getPrefix",
-     reinterpret_cast<PyCFunction>(loggerGetPrefix),
-     METH_NOARGS,
-     PyDoc_STR("getPrefix() -> string")},
+    {"_print", reinterpret_cast<PyCFunction>(loggerPrint), METH_VARARGS, PyDoc_STR("_print(message) -> None")},
+    {"trace", reinterpret_cast<PyCFunction>(loggerTrace), METH_VARARGS, PyDoc_STR("trace(category, message) -> None")},
+    {"warning", reinterpret_cast<PyCFunction>(loggerWarning), METH_VARARGS, PyDoc_STR("warning(message) -> None")},
+    {"error", reinterpret_cast<PyCFunction>(loggerError), METH_VARARGS, PyDoc_STR("error(message) -> None")},
+    {"getPrefix", reinterpret_cast<PyCFunction>(loggerGetPrefix), METH_NOARGS, PyDoc_STR("getPrefix() -> string")},
     {"cloneWithPrefix",
      reinterpret_cast<PyCFunction>(loggerCloneWithPrefix),
      METH_VARARGS,
@@ -350,8 +334,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.Logger", /* tp_name */
-        sizeof(LoggerObject),                                /* tp_basicsize */
-        0,                                                   /* tp_itemsize */
+        sizeof(LoggerObject),                       /* tp_basicsize */
+        0,                                          /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(loggerDealloc), /* tp_dealloc */
         0,                                           /* tp_print */

@@ -126,10 +126,7 @@ batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef BatchRequestMethods[] = {
-    {"getSize",
-     reinterpret_cast<PyCFunction>(batchRequestGetSize),
-     METH_NOARGS,
-     PyDoc_STR("getSize() -> int")},
+    {"getSize", reinterpret_cast<PyCFunction>(batchRequestGetSize), METH_NOARGS, PyDoc_STR("getSize() -> int")},
     {"getOperation",
      reinterpret_cast<PyCFunction>(batchRequestGetOperation),
      METH_NOARGS,
@@ -138,10 +135,7 @@ static PyMethodDef BatchRequestMethods[] = {
      reinterpret_cast<PyCFunction>(batchRequestGetProxy),
      METH_NOARGS,
      PyDoc_STR("getProxy() -> Ice.ObjectPrx")},
-    {"enqueue",
-     reinterpret_cast<PyCFunction>(batchRequestEnqueue),
-     METH_NOARGS,
-     PyDoc_STR("enqueue() -> None")},
+    {"enqueue", reinterpret_cast<PyCFunction>(batchRequestEnqueue), METH_NOARGS, PyDoc_STR("enqueue() -> None")},
     {0, 0} /* sentinel */
 };
 
@@ -151,8 +145,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.BatchRequest", /* tp_name */
-        sizeof(BatchRequestObject),                                /* tp_basicsize */
-        0,                                                         /* tp_itemsize */
+        sizeof(BatchRequestObject),                       /* tp_basicsize */
+        0,                                                /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(batchRequestDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */

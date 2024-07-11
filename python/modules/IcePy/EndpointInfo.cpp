@@ -179,18 +179,9 @@ opaqueEndpointInfoGetRawEncoding(EndpointInfoObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef EndpointInfoMethods[] = {
-    {"type",
-     reinterpret_cast<PyCFunction>(endpointInfoType),
-     METH_NOARGS,
-     PyDoc_STR("type() -> int")},
-    {"datagram",
-     reinterpret_cast<PyCFunction>(endpointInfoDatagram),
-     METH_NOARGS,
-     PyDoc_STR("datagram() -> bool")},
-    {"secure",
-     reinterpret_cast<PyCFunction>(endpointInfoSecure),
-     METH_NOARGS,
-     PyDoc_STR("secure() -> bool")},
+    {"type", reinterpret_cast<PyCFunction>(endpointInfoType), METH_NOARGS, PyDoc_STR("type() -> int")},
+    {"datagram", reinterpret_cast<PyCFunction>(endpointInfoDatagram), METH_NOARGS, PyDoc_STR("datagram() -> bool")},
+    {"secure", reinterpret_cast<PyCFunction>(endpointInfoSecure), METH_NOARGS, PyDoc_STR("secure() -> bool")},
     {0, 0} /* sentinel */
 };
 
@@ -200,31 +191,15 @@ static PyGetSetDef EndpointInfoGetters[] = {
      0,
      PyDoc_STR("underling endpoint information"),
      0},
-    {"timeout",
-     reinterpret_cast<getter>(endpointInfoGetTimeout),
-     0,
-     PyDoc_STR("timeout in milliseconds"),
-     0},
-    {"compress",
-     reinterpret_cast<getter>(endpointInfoGetCompress),
-     0,
-     PyDoc_STR("compression status"),
-     0},
+    {"timeout", reinterpret_cast<getter>(endpointInfoGetTimeout), 0, PyDoc_STR("timeout in milliseconds"), 0},
+    {"compress", reinterpret_cast<getter>(endpointInfoGetCompress), 0, PyDoc_STR("compression status"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef IPEndpointInfoGetters[] = {
-    {"host",
-     reinterpret_cast<getter>(ipEndpointInfoGetHost),
-     0,
-     PyDoc_STR("host name or IP address"),
-     0},
+    {"host", reinterpret_cast<getter>(ipEndpointInfoGetHost), 0, PyDoc_STR("host name or IP address"), 0},
     {"port", reinterpret_cast<getter>(ipEndpointInfoGetPort), 0, PyDoc_STR("TCP port number"), 0},
-    {"sourceAddress",
-     reinterpret_cast<getter>(ipEndpointInfoGetSourceAddress),
-     0,
-     PyDoc_STR("source IP address"),
-     0},
+    {"sourceAddress", reinterpret_cast<getter>(ipEndpointInfoGetSourceAddress), 0, PyDoc_STR("source IP address"), 0},
     {0, 0} /* sentinel */
 };
 
@@ -234,11 +209,7 @@ static PyGetSetDef UDPEndpointInfoGetters[] = {
      0,
      PyDoc_STR("multicast interface"),
      0},
-    {"mcastTtl",
-     reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl),
-     0,
-     PyDoc_STR("multicast time-to-live"),
-     0},
+    {"mcastTtl", reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl), 0, PyDoc_STR("multicast time-to-live"), 0},
     {0, 0} /* sentinel */
 };
 
@@ -248,11 +219,7 @@ static PyGetSetDef WSEndpointInfoGetters[] = {
 };
 
 static PyGetSetDef OpaqueEndpointInfoGetters[] = {
-    {"rawBytes",
-     reinterpret_cast<getter>(opaqueEndpointInfoGetRawBytes),
-     0,
-     PyDoc_STR("raw encoding"),
-     0},
+    {"rawBytes", reinterpret_cast<getter>(opaqueEndpointInfoGetRawBytes), 0, PyDoc_STR("raw encoding"), 0},
     {"rawEncoding",
      reinterpret_cast<getter>(opaqueEndpointInfoGetRawEncoding),
      0,
@@ -267,8 +234,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.EndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                                /* tp_basicsize */
-        0,                                                         /* tp_itemsize */
+        sizeof(EndpointInfoObject),                       /* tp_basicsize */
+        0,                                                /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -312,8 +279,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) ".IPEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                             /* tp_basicsize */
-        0,                                                      /* tp_itemsize */
+        sizeof(EndpointInfoObject),                    /* tp_basicsize */
+        0,                                             /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -357,8 +324,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.TCPEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                                   /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
+        sizeof(EndpointInfoObject),                          /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -402,8 +369,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.UDPEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                                   /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
+        sizeof(EndpointInfoObject),                          /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -447,8 +414,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.WSEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                                  /* tp_basicsize */
-        0,                                                           /* tp_itemsize */
+        sizeof(EndpointInfoObject),                         /* tp_basicsize */
+        0,                                                  /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -492,8 +459,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.SSLEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                                   /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
+        sizeof(EndpointInfoObject),                          /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -537,8 +504,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.OpaqueEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                                      /* tp_basicsize */
-        0,                                                               /* tp_itemsize */
+        sizeof(EndpointInfoObject),                             /* tp_basicsize */
+        0,                                                      /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */

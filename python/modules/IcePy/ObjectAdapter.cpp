@@ -222,8 +222,7 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr
     ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(c->servant);
     PyObjectHandle servantObj = wrapper->getObject();
 
-    PyObjectHandle res =
-        PyObject_CallMethod(_locator, "finished", "OOO", c->current, servantObj.get(), c->cookie);
+    PyObjectHandle res = PyObject_CallMethod(_locator, "finished", "OOO", c->current, servantObj.get(), c->cookie);
     if (PyErr_Occurred())
     {
         PyException ex; // Retrieve the exception before another Python API call clears it.
@@ -1561,27 +1560,18 @@ adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
 }
 
 static PyMethodDef AdapterMethods[] = {
-    {"getName",
-     reinterpret_cast<PyCFunction>(adapterGetName),
-     METH_NOARGS,
-     PyDoc_STR("getName() -> string")},
+    {"getName", reinterpret_cast<PyCFunction>(adapterGetName), METH_NOARGS, PyDoc_STR("getName() -> string")},
     {"getCommunicator",
      reinterpret_cast<PyCFunction>(adapterGetCommunicator),
      METH_NOARGS,
      PyDoc_STR("getCommunicator() -> Ice.Communicator")},
-    {"activate",
-     reinterpret_cast<PyCFunction>(adapterActivate),
-     METH_NOARGS,
-     PyDoc_STR("activate() -> None")},
+    {"activate", reinterpret_cast<PyCFunction>(adapterActivate), METH_NOARGS, PyDoc_STR("activate() -> None")},
     {"hold", reinterpret_cast<PyCFunction>(adapterHold), METH_NOARGS, PyDoc_STR("hold() -> None")},
     {"waitForHold",
      reinterpret_cast<PyCFunction>(adapterWaitForHold),
      METH_VARARGS,
      PyDoc_STR("waitForHold() -> None")},
-    {"deactivate",
-     reinterpret_cast<PyCFunction>(adapterDeactivate),
-     METH_NOARGS,
-     PyDoc_STR("deactivate() -> None")},
+    {"deactivate", reinterpret_cast<PyCFunction>(adapterDeactivate), METH_NOARGS, PyDoc_STR("deactivate() -> None")},
     {"waitForDeactivate",
      reinterpret_cast<PyCFunction>(adapterWaitForDeactivate),
      METH_VARARGS,
@@ -1590,10 +1580,7 @@ static PyMethodDef AdapterMethods[] = {
      reinterpret_cast<PyCFunction>(adapterIsDeactivated),
      METH_NOARGS,
      PyDoc_STR("isDeactivated() -> None")},
-    {"destroy",
-     reinterpret_cast<PyCFunction>(adapterDestroy),
-     METH_NOARGS,
-     PyDoc_STR("destroy() -> None")},
+    {"destroy", reinterpret_cast<PyCFunction>(adapterDestroy), METH_NOARGS, PyDoc_STR("destroy() -> None")},
     {"add",
      reinterpret_cast<PyCFunction>(adapterAdd),
      METH_VARARGS,
@@ -1614,10 +1601,7 @@ static PyMethodDef AdapterMethods[] = {
      reinterpret_cast<PyCFunction>(adapterAddDefaultServant),
      METH_VARARGS,
      PyDoc_STR("addDefaultServant(servant, category) -> None")},
-    {"remove",
-     reinterpret_cast<PyCFunction>(adapterRemove),
-     METH_VARARGS,
-     PyDoc_STR("remove(identity) -> Ice.Object")},
+    {"remove", reinterpret_cast<PyCFunction>(adapterRemove), METH_VARARGS, PyDoc_STR("remove(identity) -> Ice.Object")},
     {"removeFacet",
      reinterpret_cast<PyCFunction>(adapterRemoveFacet),
      METH_VARARGS,
@@ -1630,10 +1614,7 @@ static PyMethodDef AdapterMethods[] = {
      reinterpret_cast<PyCFunction>(adapterRemoveDefaultServant),
      METH_VARARGS,
      PyDoc_STR("removeDefaultServant(category) -> Ice.Object")},
-    {"find",
-     reinterpret_cast<PyCFunction>(adapterFind),
-     METH_VARARGS,
-     PyDoc_STR("find(identity) -> Ice.Object")},
+    {"find", reinterpret_cast<PyCFunction>(adapterFind), METH_VARARGS, PyDoc_STR("find(identity) -> Ice.Object")},
     {"findFacet",
      reinterpret_cast<PyCFunction>(adapterFindFacet),
      METH_VARARGS,
@@ -1707,8 +1688,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.ObjectAdapter", /* tp_name */
-        sizeof(ObjectAdapterObject),                                /* tp_basicsize */
-        0,                                                          /* tp_itemsize */
+        sizeof(ObjectAdapterObject),                       /* tp_basicsize */
+        0,                                                 /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(adapterDealloc), /* tp_dealloc */
         0,                                            /* tp_print */

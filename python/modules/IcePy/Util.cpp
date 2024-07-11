@@ -24,8 +24,7 @@ namespace IcePy
         {
             return false;
         }
-        if (PyObject_SetAttrString(p, "major", major.get()) < 0 ||
-            PyObject_SetAttrString(p, "minor", minor.get()) < 0)
+        if (PyObject_SetAttrString(p, "major", major.get()) < 0 || PyObject_SetAttrString(p, "minor", minor.get()) < 0)
         {
             return false;
         }
@@ -875,8 +874,7 @@ IcePy::setIdentity(PyObject* p, const Ice::Identity& ident)
     {
         return false;
     }
-    if (PyObject_SetAttrString(p, "name", name.get()) < 0 ||
-        PyObject_SetAttrString(p, "category", category.get()) < 0)
+    if (PyObject_SetAttrString(p, "name", name.get()) < 0 || PyObject_SetAttrString(p, "category", category.get()) < 0)
     {
         return false;
     }

@@ -187,73 +187,29 @@ static PyGetSetDef ConnectionInfoGetters[] = {
 };
 
 static PyGetSetDef IPConnectionInfoGetters[] = {
-    {"localAddress",
-     reinterpret_cast<getter>(ipConnectionInfoGetLocalAddress),
-     0,
-     PyDoc_STR("local address"),
-     0},
-    {"localPort",
-     reinterpret_cast<getter>(ipConnectionInfoGetLocalPort),
-     0,
-     PyDoc_STR("local port"),
-     0},
-    {"remoteAddress",
-     reinterpret_cast<getter>(ipConnectionInfoGetRemoteAddress),
-     0,
-     PyDoc_STR("remote address"),
-     0},
-    {"remotePort",
-     reinterpret_cast<getter>(ipConnectionInfoGetRemotePort),
-     0,
-     PyDoc_STR("remote port"),
-     0},
+    {"localAddress", reinterpret_cast<getter>(ipConnectionInfoGetLocalAddress), 0, PyDoc_STR("local address"), 0},
+    {"localPort", reinterpret_cast<getter>(ipConnectionInfoGetLocalPort), 0, PyDoc_STR("local port"), 0},
+    {"remoteAddress", reinterpret_cast<getter>(ipConnectionInfoGetRemoteAddress), 0, PyDoc_STR("remote address"), 0},
+    {"remotePort", reinterpret_cast<getter>(ipConnectionInfoGetRemotePort), 0, PyDoc_STR("remote port"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef TCPConnectionInfoGetters[] = {
-    {"rcvSize",
-     reinterpret_cast<getter>(tcpConnectionInfoGetRcvSize),
-     0,
-     PyDoc_STR("receive buffer size"),
-     0},
-    {"sndSize",
-     reinterpret_cast<getter>(tcpConnectionInfoGetSndSize),
-     0,
-     PyDoc_STR("send buffer size"),
-     0},
+    {"rcvSize", reinterpret_cast<getter>(tcpConnectionInfoGetRcvSize), 0, PyDoc_STR("receive buffer size"), 0},
+    {"sndSize", reinterpret_cast<getter>(tcpConnectionInfoGetSndSize), 0, PyDoc_STR("send buffer size"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef UDPConnectionInfoGetters[] = {
-    {"mcastAddress",
-     reinterpret_cast<getter>(udpConnectionInfoGetMcastAddress),
-     0,
-     PyDoc_STR("multicast address"),
-     0},
-    {"mcastPort",
-     reinterpret_cast<getter>(udpConnectionInfoGetMcastPort),
-     0,
-     PyDoc_STR("multicast port"),
-     0},
-    {"rcvSize",
-     reinterpret_cast<getter>(udpConnectionInfoGetRcvSize),
-     0,
-     PyDoc_STR("receive buffer size"),
-     0},
-    {"sndSize",
-     reinterpret_cast<getter>(udpConnectionInfoGetSndSize),
-     0,
-     PyDoc_STR("send buffer size"),
-     0},
+    {"mcastAddress", reinterpret_cast<getter>(udpConnectionInfoGetMcastAddress), 0, PyDoc_STR("multicast address"), 0},
+    {"mcastPort", reinterpret_cast<getter>(udpConnectionInfoGetMcastPort), 0, PyDoc_STR("multicast port"), 0},
+    {"rcvSize", reinterpret_cast<getter>(udpConnectionInfoGetRcvSize), 0, PyDoc_STR("receive buffer size"), 0},
+    {"sndSize", reinterpret_cast<getter>(udpConnectionInfoGetSndSize), 0, PyDoc_STR("send buffer size"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef WSConnectionInfoGetters[] = {
-    {"headers",
-     reinterpret_cast<getter>(wsConnectionInfoGetHeaders),
-     0,
-     PyDoc_STR("request headers"),
-     0},
+    {"headers", reinterpret_cast<getter>(wsConnectionInfoGetHeaders), 0, PyDoc_STR("request headers"), 0},
     {0, 0} /* sentinel */
 };
 
@@ -272,8 +228,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.ConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                                /* tp_basicsize */
-        0,                                                           /* tp_itemsize */
+        sizeof(ConnectionInfoObject),                       /* tp_basicsize */
+        0,                                                  /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -317,8 +273,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.IPConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                                  /* tp_basicsize */
-        0,                                                             /* tp_itemsize */
+        sizeof(ConnectionInfoObject),                         /* tp_basicsize */
+        0,                                                    /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -362,8 +318,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.TCPConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                                   /* tp_basicsize */
-        0,                                                              /* tp_itemsize */
+        sizeof(ConnectionInfoObject),                          /* tp_basicsize */
+        0,                                                     /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -407,8 +363,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.UDPConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                                   /* tp_basicsize */
-        0,                                                              /* tp_itemsize */
+        sizeof(ConnectionInfoObject),                          /* tp_basicsize */
+        0,                                                     /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -452,8 +408,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.WSConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                                  /* tp_basicsize */
-        0,                                                             /* tp_itemsize */
+        sizeof(ConnectionInfoObject),                         /* tp_basicsize */
+        0,                                                    /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -497,8 +453,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.SSLConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                                   /* tp_basicsize */
-        0,                                                              /* tp_itemsize */
+        sizeof(ConnectionInfoObject),                          /* tp_basicsize */
+        0,                                                     /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */

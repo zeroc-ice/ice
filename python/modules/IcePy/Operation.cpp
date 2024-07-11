@@ -1005,26 +1005,14 @@ IcePy::Operation::convertParam(PyObject* p, Py_ssize_t pos)
 }
 
 static PyMethodDef OperationMethods[] = {
-    {"invoke",
-     reinterpret_cast<PyCFunction>(operationInvoke),
-     METH_VARARGS,
-     PyDoc_STR("internal function")},
-    {"invokeAsync",
-     reinterpret_cast<PyCFunction>(operationInvokeAsync),
-     METH_VARARGS,
-     PyDoc_STR("internal function")},
-    {"deprecate",
-     reinterpret_cast<PyCFunction>(operationDeprecate),
-     METH_VARARGS,
-     PyDoc_STR("internal function")},
+    {"invoke", reinterpret_cast<PyCFunction>(operationInvoke), METH_VARARGS, PyDoc_STR("internal function")},
+    {"invokeAsync", reinterpret_cast<PyCFunction>(operationInvokeAsync), METH_VARARGS, PyDoc_STR("internal function")},
+    {"deprecate", reinterpret_cast<PyCFunction>(operationDeprecate), METH_VARARGS, PyDoc_STR("internal function")},
     {0, 0} /* sentinel */
 };
 
 static PyMethodDef DispatchCallbackMethods[] = {
-    {"response",
-     reinterpret_cast<PyCFunction>(dispatchCallbackResponse),
-     METH_VARARGS,
-     PyDoc_STR("internal function")},
+    {"response", reinterpret_cast<PyCFunction>(dispatchCallbackResponse), METH_VARARGS, PyDoc_STR("internal function")},
     {"exception",
      reinterpret_cast<PyCFunction>(dispatchCallbackException),
      METH_VARARGS,
@@ -1050,8 +1038,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.Operation", /* tp_name */
-        sizeof(OperationObject),                                /* tp_basicsize */
-        0,                                                      /* tp_itemsize */
+        sizeof(OperationObject),                       /* tp_basicsize */
+        0,                                             /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(operationDealloc), /* tp_dealloc */
         0,                                              /* tp_print */
@@ -1095,8 +1083,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.Dispatch", /* tp_name */
-        sizeof(DispatchCallbackObject),                        /* tp_basicsize */
-        0,                                                     /* tp_itemsize */
+        sizeof(DispatchCallbackObject),               /* tp_basicsize */
+        0,                                            /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(dispatchCallbackDealloc), /* tp_dealloc */
         0,                                                     /* tp_print */
@@ -1140,8 +1128,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.AsyncInvocationContext", /* tp_name */
-        sizeof(AsyncInvocationContextObject),                                /* tp_basicsize */
-        0,                                                                   /* tp_itemsize */
+        sizeof(AsyncInvocationContextObject),                       /* tp_basicsize */
+        0,                                                          /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(asyncInvocationContextDealloc), /* tp_dealloc */
         0,                                                           /* tp_print */
@@ -1185,8 +1173,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.MarshaledResult", /* tp_name */
-        sizeof(MarshaledResultObject),                                /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
+        sizeof(MarshaledResultObject),                       /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(marshaledResultDealloc), /* tp_dealloc */
         0,                                                    /* tp_print */
@@ -1305,11 +1293,7 @@ IcePy::Invocation::prepareRequest(
         {
             opName = fixIdent(op->name);
         }
-        PyErr_Format(
-            PyExc_RuntimeError,
-            "%s expects %d in parameters",
-            opName.c_str(),
-            static_cast<int>(paramCount));
+        PyErr_Format(PyExc_RuntimeError, "%s expects %d in parameters", opName.c_str(), static_cast<int>(paramCount));
         return false;
     }
 
@@ -2085,15 +2069,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     PyObject* inParams;
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     PyObject* ctx = 0;
-    if (!PyArg_ParseTuple(
-            args,
-            "sO!O!|O",
-            &operation,
-            operationModeType,
-            &mode,
-            &PyBytes_Type,
-            &inParams,
-            &ctx))
+    if (!PyArg_ParseTuple(args, "sO!O!|O", &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
     {
         return 0;
     }
@@ -2183,15 +2159,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     PyObject* inParams;
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     PyObject* ctx = 0;
-    if (!PyArg_ParseTuple(
-            args,
-            "sO!O!|O",
-            &operation,
-            operationModeType,
-            &mode,
-            &PyBytes_Type,
-            &inParams,
-            &ctx))
+    if (!PyArg_ParseTuple(args, "sO!O!|O", &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
     {
         return 0;
     }

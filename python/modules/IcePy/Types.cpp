@@ -4149,8 +4149,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.TypeInfo", /* tp_name */
-        sizeof(TypeInfoObject),                                /* tp_basicsize */
-        0,                                                     /* tp_itemsize */
+        sizeof(TypeInfoObject),                       /* tp_basicsize */
+        0,                                            /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(typeInfoDealloc), /* tp_dealloc */
         0,                                             /* tp_print */
@@ -4194,8 +4194,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.ExceptionInfo", /* tp_name */
-        sizeof(ExceptionInfoObject),                                /* tp_basicsize */
-        0,                                                          /* tp_itemsize */
+        sizeof(ExceptionInfoObject),                       /* tp_basicsize */
+        0,                                                 /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(exceptionInfoDealloc), /* tp_dealloc */
         0,                                                  /* tp_print */
@@ -4252,8 +4252,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(&PyType_Type, 0) "IcePy.UnsetType", /* tp_name */
-        0,                                                                 /* tp_basicsize */
-        0,                                                                 /* tp_itemsize */
+        0,                                                        /* tp_basicsize */
+        0,                                                        /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(unsetDealloc), /* tp_dealloc */
         0,                                          /* tp_print */

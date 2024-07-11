@@ -580,14 +580,8 @@ static PyMethodDef ConnectionMethods[] = {
      reinterpret_cast<PyCFunction>(connectionSetCloseCallback),
      METH_VARARGS,
      PyDoc_STR("setCloseCallback(Ice.CloseCallback) -> None")},
-    {"type",
-     reinterpret_cast<PyCFunction>(connectionType),
-     METH_NOARGS,
-     PyDoc_STR("type() -> string")},
-    {"toString",
-     reinterpret_cast<PyCFunction>(connectionToString),
-     METH_NOARGS,
-     PyDoc_STR("toString() -> string")},
+    {"type", reinterpret_cast<PyCFunction>(connectionType), METH_NOARGS, PyDoc_STR("type() -> string")},
+    {"toString", reinterpret_cast<PyCFunction>(connectionToString), METH_NOARGS, PyDoc_STR("toString() -> string")},
     {"getInfo",
      reinterpret_cast<PyCFunction>(connectionGetInfo),
      METH_NOARGS,
@@ -613,8 +607,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.Connection", /* tp_name */
-        sizeof(ConnectionObject),                                /* tp_basicsize */
-        0,                                                       /* tp_itemsize */
+        sizeof(ConnectionObject),                       /* tp_basicsize */
+        0,                                              /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(connectionDealloc),  /* tp_dealloc */
         0,                                                /* tp_print */

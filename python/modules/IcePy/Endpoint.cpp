@@ -121,10 +121,7 @@ endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef EndpointMethods[] = {
-    {"toString",
-     reinterpret_cast<PyCFunction>(endpointToString),
-     METH_NOARGS,
-     PyDoc_STR("toString() -> string")},
+    {"toString", reinterpret_cast<PyCFunction>(endpointToString), METH_NOARGS, PyDoc_STR("toString() -> string")},
     {"getInfo",
      reinterpret_cast<PyCFunction>(endpointGetInfo),
      METH_NOARGS,
@@ -138,8 +135,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.Endpoint", /* tp_name */
-        sizeof(EndpointObject),                                /* tp_basicsize */
-        0,                                                     /* tp_itemsize */
+        sizeof(EndpointObject),                       /* tp_basicsize */
+        0,                                            /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointDealloc),  /* tp_dealloc */
         0,                                              /* tp_print */
