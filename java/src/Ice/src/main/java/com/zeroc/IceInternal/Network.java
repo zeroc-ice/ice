@@ -114,9 +114,7 @@ public final class Network {
   public static java.nio.channels.ServerSocketChannel createTcpServerSocket() {
     try {
       java.nio.channels.ServerSocketChannel fd = java.nio.channels.ServerSocketChannel.open();
-      //
-      // It's not possible to set TCP_NODELAY or KEEP_ALIVE
-      // on a server socket in Java
+      // It's not possible to set TCP_NODELAY or KEEP_ALIVE on a server socket in Java
       //
       // java.net.Socket socket = fd.socket();
       // socket.setTcpNoDelay(true);
@@ -129,39 +127,13 @@ public final class Network {
 
   public static java.nio.channels.DatagramChannel createUdpSocket(java.net.InetSocketAddress addr) {
     try {
-      //
-      // Use reflection so this code still compiles with older JDK versions.
-      // java.net.StandardProtocolFamily is new in JDK 1.7
-      //
-      Class<?> c = Util.findClass("java.net.StandardProtocolFamily", null);
-      if (addr.getAddress().isMulticastAddress() && c != null) {
-        //
-        // For multicast sockets with JDK 7 we must use the open overload that accepts
-        // ProtocolFamily and specify the ProtocolFamily that corresponds to the address
-        // type of the multicast groups that the channel will join.
-        //
-        String family = "INET";
-        if (addr.getAddress() instanceof java.net.Inet6Address) {
-          family = "INET6";
-        }
-        java.lang.reflect.Method valueOf =
-            c.getDeclaredMethod("valueOf", new Class<?>[] {String.class});
-
-        Object[] args = new Object[] {valueOf.invoke(null, new Object[] {family})};
-
-        java.lang.reflect.Method open =
-            java.nio.channels.DatagramChannel.class.getDeclaredMethod(
-                "open", new Class<?>[] {Util.findClass("java.net.ProtocolFamily", null)});
-        return (java.nio.channels.DatagramChannel) open.invoke(null, args);
+      if (addr.getAddress().isMulticastAddress()) {
+        var familyStr = (addr.getAddress() instanceof java.net.Inet6Address) ? "INET6" : "INET";
+        var family = java.net.StandardProtocolFamily.valueOf(familyStr);
+        return java.nio.channels.DatagramChannel.open(family);
       } else {
         return java.nio.channels.DatagramChannel.open();
       }
-    } catch (IllegalAccessException ex) {
-      throw new SocketException(ex);
-    } catch (java.lang.reflect.InvocationTargetException ex) {
-      throw new SocketException(ex);
-    } catch (NoSuchMethodException ex) {
-      throw new SocketException(ex);
     } catch (java.io.IOException ex) {
       throw new SocketException(ex);
     }
@@ -172,14 +144,6 @@ public final class Network {
       fd.close();
     } catch (java.io.IOException ex) {
       // Ignore
-    }
-  }
-
-  public static void closeSocket(java.nio.channels.SelectableChannel fd) {
-    try {
-      fd.close();
-    } catch (java.io.IOException ex) {
-      throw new SocketException(ex);
     }
   }
 
@@ -309,7 +273,7 @@ public final class Network {
         fd = afd.accept();
         break;
       } catch (java.io.IOException ex) {
-        if (interrupted(ex)) {
+        if (ex instanceof java.io.InterruptedIOException) {
           continue;
         }
 
@@ -569,39 +533,23 @@ public final class Network {
   public static int compareAddress(
       java.net.InetSocketAddress addr1, java.net.InetSocketAddress addr2) {
     if (addr1 == null) {
-      if (addr2 == null) {
-        return 0;
-      } else {
-        return -1;
-      }
+      return (addr2 == null) ? 0 : -1;
     } else if (addr2 == null) {
       return 1;
     }
 
-    if (addr1.getPort() < addr2.getPort()) {
-      return -1;
-    } else if (addr2.getPort() < addr1.getPort()) {
-      return 1;
+    int v = Integer.compare(addr1.getPort(), addr2.getPort());
+    if (v != 0) {
+      return v;
     }
 
     byte[] larr = addr1.getAddress().getAddress();
     byte[] rarr = addr2.getAddress().getAddress();
-    if (larr.length < rarr.length) {
-      return -1;
-    } else if (rarr.length < larr.length) {
-      return 1;
+    v = larr.length - rarr.length;
+    if (v != 0) {
+      return v;
     }
-    assert (larr.length == rarr.length);
-
-    for (int i = 0; i < larr.length; i++) {
-      if (larr[i] < rarr[i]) {
-        return -1;
-      } else if (rarr[i] < larr[i]) {
-        return 1;
-      }
-    }
-
-    return 0;
+    return java.util.Arrays.compare(larr, rarr);
   }
 
   public static java.net.InetAddress getLocalAddress(int protocol) {
@@ -733,23 +681,6 @@ public final class Network {
     }
 
     return result;
-  }
-
-  public static final class SocketPair {
-    public java.nio.channels.spi.AbstractSelectableChannel source;
-    public java.nio.channels.WritableByteChannel sink;
-  }
-
-  public static SocketPair createPipe() {
-    SocketPair fds = new SocketPair();
-    try {
-      java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
-      fds.sink = pipe.sink();
-      fds.source = pipe.source();
-    } catch (java.io.IOException ex) {
-      throw new SocketException(ex);
-    }
-    return fds;
   }
 
   public static java.util.ArrayList<String> getHostsForEndpointExpand(
@@ -1005,10 +936,6 @@ public final class Network {
     s.append(':');
     s.append(addr.getPort());
     return s.toString();
-  }
-
-  public static boolean interrupted(java.io.IOException ex) {
-    return ex instanceof java.io.InterruptedIOException;
   }
 
   private static boolean isValidAddr(java.net.InetAddress addr, int protocol) {

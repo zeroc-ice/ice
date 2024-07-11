@@ -306,12 +306,11 @@ public class RoutableReference extends Reference {
   }
 
   @Override
-  public synchronized int hashCode() {
-    if (!_hashInitialized) {
-      super.hashCode(); // Initializes _hashValue.
-      _hashValue = HashUtil.hashAdd(_hashValue, _adapterId);
-    }
-    return _hashValue;
+  public int hashCode() {
+    int h = super.hashCode();
+    h = HashUtil.hashAdd(h, _adapterId);
+    h = HashUtil.hashAdd(h, _endpoints);
+    return h;
   }
 
   @Override
@@ -480,7 +479,7 @@ public class RoutableReference extends Reference {
       RouterInfo routerInfo,
       boolean collocationOptimized,
       boolean cacheConnection,
-      boolean prefereSecure,
+      boolean preferSecure,
       com.zeroc.Ice.EndpointSelectionType endpointSelection,
       int locatorCacheTimeout,
       int invocationTimeout,
@@ -503,7 +502,7 @@ public class RoutableReference extends Reference {
     _routerInfo = routerInfo;
     _collocationOptimized = collocationOptimized;
     _cacheConnection = cacheConnection;
-    _preferSecure = prefereSecure;
+    _preferSecure = preferSecure;
     _endpointSelection = endpointSelection;
     _locatorCacheTimeout = locatorCacheTimeout;
 
@@ -737,7 +736,7 @@ public class RoutableReference extends Reference {
       }
     }
 
-    private boolean _preferSecure;
+    private final boolean _preferSecure;
   }
 
   private static EndpointComparator _preferNonSecureEndpointComparator =

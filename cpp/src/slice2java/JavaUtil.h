@@ -16,7 +16,7 @@ namespace Slice
     // and proxies get their implementation from `_ObjectPrxI`.
     //
     std::string getSerialVersionUID(const ContainedPtr&);
-    long computeDefaultSerialVersionUID(const ContainedPtr&);
+    std::int64_t computeDefaultSerialVersionUID(const ContainedPtr&);
 
     //
     // Returns true if we can generate a method from the given data member list. A Java method

@@ -208,7 +208,7 @@ public final class Selector {
         // for that special case here and ignore it.
         // Hopefully we're not masking something important!
         //
-        if (Network.interrupted(ex)) {
+        if (ex instanceof java.io.InterruptedIOException) {
           continue;
         }
 

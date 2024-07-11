@@ -58,10 +58,3 @@ def updateModules():
         else:
             sys.modules[name] = _pendingModules[name]
     _pendingModules = {}
-
-
-def createTempClass():
-    class __temp:
-        pass
-
-    return __temp
