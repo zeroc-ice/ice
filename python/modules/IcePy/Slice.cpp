@@ -118,9 +118,8 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     bool keepComments = true;
 
-    for (vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
+    for (const auto& file : files)
     {
-        string file = *p;
         Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
         FILE* cppHandle = icecpp->preprocess(keepComments, "-D__SLICE2PY__");
 
