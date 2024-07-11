@@ -10,25 +10,22 @@
 #include "Util.h"
 #include "slice2py/PythonUtil.h"
 
-#include <set>
-#include <string>
-
 //
 // Python headers needed for PyEval_EvalCode.
 //
-#include <ceval.h>
 #include <compile.h>
+// Use ceval.h instead of eval.h with Python 3.11 and greater
+#if PY_VERSION_HEX >= 0x030B0000
+#    include <ceval.h>
+#else
+#    include <eval.h>
+#endif
 
 using namespace std;
 using namespace IcePy;
 using namespace Slice;
 using namespace Slice::Python;
 using namespace IceInternal;
-
-namespace
-{
-    set<string> loadedSliceFiles;
-}
 
 extern "C" PyObject*
 IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
@@ -126,13 +123,9 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     bool keepComments = true;
 
-    for (const auto& file : files)
+    for (vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
     {
-        if (!loadedSliceFiles.insert(Slice::fullPath(file)).second)
-        {
-            continue;
-        }
-
+        string file = *p;
         Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
         FILE* cppHandle = icecpp->preprocess(keepComments, "-D__SLICE2PY__");
 
