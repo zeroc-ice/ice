@@ -158,11 +158,9 @@ namespace
     require_once 'Ice/EndpointTypes.php';
     require_once 'IceLocal/LocalExceptions.php';
     require_once 'Ice/Locator.php';
-    require_once 'IceLocal/ValueFactory.php';
     require_once 'Ice/Process.php';
     require_once 'Ice/Router.php';
     require_once 'Ice/Version.php';
-    require_once 'IceLocal/Instrumentation.php';
     require_once 'Ice/Metrics.php';
     require_once 'Ice/RemoteLogger.php';
     require_once 'IceLocal/Communicator.php';
