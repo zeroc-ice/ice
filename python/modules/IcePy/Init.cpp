@@ -26,7 +26,7 @@
 using namespace std;
 using namespace IcePy;
 
-extern "C" PyObject* IcePy_cleanup(PyObject*, PyObject*);
+extern "C" void IcePy_cleanup(void*);
 
 static PyMethodDef methods[] = {
     {"stringVersion",
@@ -112,12 +112,9 @@ static PyMethodDef methods[] = {
      METH_VARARGS,
      PyDoc_STR("internal function")},
     {"loadSlice", reinterpret_cast<PyCFunction>(IcePy_loadSlice), METH_VARARGS, PyDoc_STR("loadSlice(cmd) -> None")},
-    {"cleanup", reinterpret_cast<PyCFunction>(IcePy_cleanup), METH_NOARGS, PyDoc_STR("internal function")},
     {"compile", reinterpret_cast<PyCFunction>(IcePy_compile), METH_VARARGS, PyDoc_STR("internal function")},
     {0, 0} /* sentinel */
 };
-
-#define INIT_RETURN return (0)
 
 static struct PyModuleDef iceModule = {
     PyModuleDef_HEAD_INIT,
@@ -128,7 +125,7 @@ static struct PyModuleDef iceModule = {
     nullptr,
     nullptr,
     nullptr,
-    nullptr};
+    IcePy_cleanup};
 
 #if defined(__GNUC__)
 extern "C" __attribute__((visibility("default"))) PyObject*
@@ -156,80 +153,77 @@ PyInit_IcePy(void)
     //
     if (!initProxy(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initTypes(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initProperties(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initPropertiesAdmin(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initDispatcher(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initBatchRequest(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initCommunicator(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initCurrent(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initObjectAdapter(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initOperation(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initLogger(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initConnection(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initConnectionInfo(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initImplicitContext(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initEndpoint(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initEndpointInfo(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initValueFactoryManager(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     return module;
 }
 
-extern "C" PyObject*
-IcePy_cleanup(PyObject* /*self*/, PyObject* /*args*/)
+extern "C" void
+IcePy_cleanup(void* /*self*/)
 {
     cleanupLogger();
-
-    Py_INCREF(Py_None);
-    return Py_None;
 }
