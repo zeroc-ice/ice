@@ -379,35 +379,6 @@ namespace IcePy
     using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 
     //
-    // Custom information.
-    //
-    class CustomInfo : public TypeInfo
-    {
-    public:
-        CustomInfo(std::string, PyObject*);
-
-        virtual std::string getId() const;
-
-        virtual bool validate(PyObject*);
-
-        virtual bool variableLength() const;
-        virtual int wireSize() const;
-        virtual Ice::OptionalFormat optionalFormat() const;
-
-        virtual bool usesClasses() const;
-
-        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-        virtual void
-        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
-
-        virtual void print(PyObject*, IceInternal::Output&, PrintObjectHistory*);
-
-        const std::string id;
-        PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-    };
-    using CustomInfoPtr = std::shared_ptr<CustomInfo>;
-
-    //
     // Dictionary information.
     //
     class DictionaryInfo : public TypeInfo, public std::enable_shared_from_this<DictionaryInfo>
@@ -715,7 +686,6 @@ namespace IcePy
 extern "C" PyObject* IcePy_defineEnum(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineStruct(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineSequence(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_defineCustom(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineDictionary(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_declareProxy(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineProxy(PyObject*, PyObject*);

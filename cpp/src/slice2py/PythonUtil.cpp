@@ -1416,42 +1416,14 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    static const string protobuf = "python:protobuf:";
-    StringList metaData = p->getMetaData();
-    bool isCustom = false;
-    string customType;
-    for (const auto& q : metaData)
-    {
-        if (q.find(protobuf) == 0)
-        {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-            if (!builtin || builtin->kind() != Builtin::KindByte)
-            {
-                continue;
-            }
-            isCustom = true;
-            customType = q.substr(protobuf.size());
-            break;
-        }
-    }
-
     // Emit the type information.
+    StringList metaData = p->getMetaData();
     string scoped = p->scoped();
-    if (isCustom)
-    {
-        string package = customType.substr(0, customType.find('.'));
-        _out << nl << "import " << package;
-        _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineCustom('" << scoped << "', " << customType
-             << ")";
-    }
-    else
-    {
-        _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
-        writeMetaData(metaData);
-        _out << ", ";
-        writeType(p->type());
-        _out << ")";
-    }
+    _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
+    writeMetaData(metaData);
+    _out << ", ";
+    writeType(p->type());
+    _out << ")";
 }
 
 void
