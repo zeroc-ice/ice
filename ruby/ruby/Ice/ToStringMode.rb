@@ -1,8 +1,7 @@
-# encoding: utf-8
-#
 # Copyright (c) ZeroC, Inc.
 
 module Ice
+
     class ToStringMode
         include Comparable
 

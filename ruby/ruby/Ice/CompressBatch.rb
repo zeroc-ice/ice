@@ -2,7 +2,7 @@
 
 module Ice
 
-    class EndpointSelectionType
+    class CompressBatch
         include Comparable
 
         def initialize(name, value)
@@ -10,7 +10,7 @@ module Ice
             @value = value
         end
 
-        def self.from_int(val)
+        def CompressBatch.from_int(val)
             @@_enumerators[val]
         end
 
@@ -23,7 +23,7 @@ module Ice
         end
 
         def <=>(other)
-            other.is_a?(EndpointSelectionType) or raise ArgumentError, "value must be an EndpointSelectionType"
+            other.is_a?(CompressBatch) or raise ArgumentError, "value must be a CompressBatch"
             @value <=> other.to_i
         end
 
@@ -31,16 +31,17 @@ module Ice
             @value.hash
         end
 
-        def self.each(&block)
+        def CompressBatch.each(&block)
             @@_enumerators.each_value(&block)
         end
 
-        Random = EndpointSelectionType.new("Random", 0)
-        Ordered = EndpointSelectionType.new("Ordered", 1)
+        Yes = CompressBatch.new("Yes", 0)
+        No = CompressBatch.new("No", 1)
+        BasedOnProxy = CompressBatch.new("BasedOnProxy", 2)
 
-        @@_enumerators = {0=>Random, 1=>Ordered}
+        @@_enumerators = {0=>Yes, 1=>No, 2=>BasedOnProxy}
 
-        def self._enumerators
+        def CompressBatch._enumerators
             @@_enumerators
         end
 
