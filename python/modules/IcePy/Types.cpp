@@ -2459,19 +2459,19 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
 {
     if (type == SEQ_ARRAY)
     {
-        factory = lookupType("Ice.createArray");
+        factory = lookupType("Ice.ArrayUtil.createArray");
         if (!factory)
         {
-            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found 'Ice.createArray'"));
+            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found 'Ice.ArrayUtil.createArray'"));
             throw InvalidSequenceFactoryException();
         }
     }
     else if (type == SEQ_NUMPYARRAY)
     {
-        factory = lookupType("Ice.createNumPyArray");
+        factory = lookupType("Ice.ArrayUtil.createNumPyArray");
         if (!factory)
         {
-            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found 'Ice.createNumPyArray'"));
+            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found 'Ice.ArrayUtil.createNumPyArray'"));
             throw InvalidSequenceFactoryException();
         }
     }
