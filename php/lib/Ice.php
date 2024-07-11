@@ -153,19 +153,18 @@ namespace
     // Include certain generated files.
     //
     require_once 'Ice/BuiltinSequences.php';
-    require_once 'IceLocal/Connection.php';
-    require_once 'IceLocal/EndpointSelectionType.php';
+    require_once 'Ice/CompressBatch.php';
+    require_once 'Ice/ConnectionClose.php';
+    require_once 'Ice/EndpointSelectionType.php';
     require_once 'Ice/EndpointTypes.php';
-    require_once 'IceLocal/LocalExceptions.php';
+    require_once 'Ice/LocalExceptions.php';
     require_once 'Ice/Locator.php';
-    require_once 'IceLocal/ValueFactory.php';
-    require_once 'Ice/Process.php';
-    require_once 'Ice/Router.php';
-    require_once 'Ice/Version.php';
-    require_once 'IceLocal/Instrumentation.php';
     require_once 'Ice/Metrics.php';
+    require_once 'Ice/Process.php';
     require_once 'Ice/RemoteLogger.php';
-    require_once 'IceLocal/Communicator.php';
+    require_once 'Ice/Router.php';
+    require_once 'Ice/ToStringMode.php';
+    require_once 'Ice/Version.php';
 
     global $Ice_Protocol_1_0;
     global $Ice_Encoding_1_0;
