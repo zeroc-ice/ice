@@ -242,7 +242,7 @@ IcePy::DefaultValueFactory::create(std::string_view id)
 extern "C" ValueFactoryManagerObject*
 valueFactoryManagerNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PyErr_Format(PyExc_RuntimeError, STRCAST("Do not instantiate this object directly"));
+    PyErr_Format(PyExc_RuntimeError, "Do not instantiate this object directly");
     return 0;
 }
 
@@ -263,7 +263,7 @@ valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
 
     PyObject* factory;
     PyObject* idObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O!O"), factoryType, &factory, &idObj))
+    if (!PyArg_ParseTuple(args, "O!O", factoryType, &factory, &idObj))
     {
         return 0;
     }
@@ -290,7 +290,7 @@ valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
     assert(self->vfm);
 
     PyObject* idObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &idObj))
+    if (!PyArg_ParseTuple(args, "O", &idObj))
     {
         return 0;
     }
@@ -305,14 +305,14 @@ valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
 }
 
 static PyMethodDef ValueFactoryManagerMethods[] = {
-    {STRCAST("add"),
+    {"add",
      reinterpret_cast<PyCFunction>(valueFactoryManagerAdd),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("add(factory, id) -> None"))},
-    {STRCAST("find"),
+     PyDoc_STR("add(factory, id) -> None")},
+    {"find",
      reinterpret_cast<PyCFunction>(valueFactoryManagerFind),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("find(id) -> function"))},
+     PyDoc_STR("find(id) -> function")},
     {0, 0} /* sentinel */
 };
 
@@ -321,7 +321,7 @@ namespace IcePy
     PyTypeObject ValueFactoryManagerType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.ValueFactoryManager"), /* tp_name */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.ValueFactoryManager", /* tp_name */
         sizeof(ValueFactoryManagerObject),                                /* tp_basicsize */
         0,                                                                /* tp_itemsize */
         /* methods */
@@ -372,7 +372,7 @@ IcePy::initValueFactoryManager(PyObject* module)
         return false;
     }
     PyTypeObject* type = &ValueFactoryManagerType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("ValueFactoryManager"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "ValueFactoryManager", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }

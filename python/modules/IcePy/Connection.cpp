@@ -87,7 +87,7 @@ namespace IcePy
         {
             AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-            PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), _con);
+            PyObjectHandle args = Py_BuildValue("(O)", _con);
             assert(_cb);
             PyObjectHandle tmp = PyObject_Call(_cb, args.get(), 0);
             if (PyErr_Occurred())
@@ -197,7 +197,7 @@ connectionClose(ConnectionObject* self, PyObject* args)
 {
     PyObject* closeType = lookupType("Ice.ConnectionClose");
     PyObject* mode;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), closeType, &mode))
+    if (!PyArg_ParseTuple(args, "O!", closeType, &mode))
     {
         return 0;
     }
@@ -227,7 +227,7 @@ connectionCreateProxy(ConnectionObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
+    if (!PyArg_ParseTuple(args, "O!", identityType, &id))
     {
         return 0;
     }
@@ -258,7 +258,7 @@ extern "C" PyObject*
 connectionSetAdapter(ConnectionObject* self, PyObject* args)
 {
     PyObject* adapter = Py_None;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &adapter))
+    if (!PyArg_ParseTuple(args, "O", &adapter))
     {
         return 0;
     }
@@ -321,7 +321,7 @@ connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), compressBatchType, &compressBatch))
+    if (!PyArg_ParseTuple(args, "O!", compressBatchType, &compressBatch))
     {
         return 0;
     }
@@ -351,7 +351,7 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), compressBatchType, &compressBatch))
+    if (!PyArg_ParseTuple(args, "O!", compressBatchType, &compressBatch))
     {
         return 0;
     }
@@ -400,7 +400,7 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
     assert(self->connection);
 
     PyObject* cb;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &cb))
+    if (!PyArg_ParseTuple(args, "O", &cb))
     {
         return 0;
     }
@@ -408,7 +408,7 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
     PyObject* callbackType = lookupType("types.FunctionType");
     if (cb != Py_None && !PyObject_IsInstance(cb, callbackType))
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a function"));
+        PyErr_Format(PyExc_ValueError, "callback must be None or a function");
         return 0;
     }
 
@@ -513,7 +513,7 @@ connectionSetBufferSize(ConnectionObject* self, PyObject* args)
 {
     int rcvSize;
     int sndSize;
-    if (!PyArg_ParseTuple(args, STRCAST("ii"), &rcvSize, &sndSize))
+    if (!PyArg_ParseTuple(args, "ii", &rcvSize, &sndSize))
     {
         return 0;
     }
@@ -552,58 +552,58 @@ connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef ConnectionMethods[] = {
-    {STRCAST("close"),
+    {"close",
      reinterpret_cast<PyCFunction>(connectionClose),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("close(Ice.ConnectionClose) -> None"))},
-    {STRCAST("createProxy"),
+     PyDoc_STR("close(Ice.ConnectionClose) -> None")},
+    {"createProxy",
      reinterpret_cast<PyCFunction>(connectionCreateProxy),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("createProxy(Ice.Identity) -> Ice.ObjectPrx"))},
-    {STRCAST("setAdapter"),
+     PyDoc_STR("createProxy(Ice.Identity) -> Ice.ObjectPrx")},
+    {"setAdapter",
      reinterpret_cast<PyCFunction>(connectionSetAdapter),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("setAdapter(Ice.ObjectAdapter) -> None"))},
-    {STRCAST("getAdapter"),
+     PyDoc_STR("setAdapter(Ice.ObjectAdapter) -> None")},
+    {"getAdapter",
      reinterpret_cast<PyCFunction>(connectionGetAdapter),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getAdapter() -> Ice.ObjectAdapter"))},
-    {STRCAST("flushBatchRequests"),
+     PyDoc_STR("getAdapter() -> Ice.ObjectAdapter")},
+    {"flushBatchRequests",
      reinterpret_cast<PyCFunction>(connectionFlushBatchRequests),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("flushBatchRequests(Ice.CompressBatch) -> None"))},
-    {STRCAST("flushBatchRequestsAsync"),
+     PyDoc_STR("flushBatchRequests(Ice.CompressBatch) -> None")},
+    {"flushBatchRequestsAsync",
      reinterpret_cast<PyCFunction>(connectionFlushBatchRequestsAsync),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("flushBatchRequestsAsync(Ice.CompressBatch) -> Ice.Future"))},
-    {STRCAST("setCloseCallback"),
+     PyDoc_STR("flushBatchRequestsAsync(Ice.CompressBatch) -> Ice.Future")},
+    {"setCloseCallback",
      reinterpret_cast<PyCFunction>(connectionSetCloseCallback),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("setCloseCallback(Ice.CloseCallback) -> None"))},
-    {STRCAST("type"),
+     PyDoc_STR("setCloseCallback(Ice.CloseCallback) -> None")},
+    {"type",
      reinterpret_cast<PyCFunction>(connectionType),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("type() -> string"))},
-    {STRCAST("toString"),
+     PyDoc_STR("type() -> string")},
+    {"toString",
      reinterpret_cast<PyCFunction>(connectionToString),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("toString() -> string"))},
-    {STRCAST("getInfo"),
+     PyDoc_STR("toString() -> string")},
+    {"getInfo",
      reinterpret_cast<PyCFunction>(connectionGetInfo),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getInfo() -> Ice.ConnectionInfo"))},
-    {STRCAST("getEndpoint"),
+     PyDoc_STR("getInfo() -> Ice.ConnectionInfo")},
+    {"getEndpoint",
      reinterpret_cast<PyCFunction>(connectionGetEndpoint),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getEndpoint() -> Ice.Endpoint"))},
-    {STRCAST("setBufferSize"),
+     PyDoc_STR("getEndpoint() -> Ice.Endpoint")},
+    {"setBufferSize",
      reinterpret_cast<PyCFunction>(connectionSetBufferSize),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("setBufferSize(int, int) -> None"))},
-    {STRCAST("throwException"),
+     PyDoc_STR("setBufferSize(int, int) -> None")},
+    {"throwException",
      reinterpret_cast<PyCFunction>(connectionThrowException),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("throwException() -> None"))},
+     PyDoc_STR("throwException() -> None")},
     {0, 0} /* sentinel */
 };
 
@@ -612,7 +612,7 @@ namespace IcePy
     PyTypeObject ConnectionType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.Connection"), /* tp_name */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Connection", /* tp_name */
         sizeof(ConnectionObject),                                /* tp_basicsize */
         0,                                                       /* tp_itemsize */
         /* methods */
@@ -663,7 +663,7 @@ IcePy::initConnection(PyObject* module)
         return false;
     }
     PyTypeObject* type = &ConnectionType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("Connection"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "Connection", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -702,7 +702,7 @@ IcePy::getConnectionArg(PyObject* p, const string& func, const string& arg, Ice:
     {
         PyErr_Format(
             PyExc_ValueError,
-            STRCAST("%s expects an Ice.Connection object or None for argument '%s'"),
+            "%s expects an Ice.Connection object or None for argument '%s'",
             func.c_str(),
             arg.c_str());
         return false;

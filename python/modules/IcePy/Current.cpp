@@ -224,50 +224,50 @@ currentGetter(CurrentObject* self, void* closure)
 }
 
 static PyGetSetDef CurrentGetSetters[] = {
-    {STRCAST("adapter"),
+    {"adapter",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("object adapter"),
+     "object adapter",
      reinterpret_cast<void*>(CURRENT_ADAPTER)},
-    {STRCAST("con"),
+    {"con",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("connection info"),
+     "connection info",
      reinterpret_cast<void*>(CURRENT_CONNECTION)},
-    {STRCAST("id"),
+    {"id",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("identity"),
+     "identity",
      reinterpret_cast<void*>(CURRENT_ID)},
-    {STRCAST("facet"),
+    {"facet",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("facet name"),
+     "facet name",
      reinterpret_cast<void*>(CURRENT_FACET)},
-    {STRCAST("operation"),
+    {"operation",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("operation name"),
+     "operation name",
      reinterpret_cast<void*>(CURRENT_OPERATION)},
-    {STRCAST("mode"),
+    {"mode",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("operation mode"),
+     "operation mode",
      reinterpret_cast<void*>(CURRENT_MODE)},
-    {STRCAST("ctx"),
+    {"ctx",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("context"),
+     "context",
      reinterpret_cast<void*>(CURRENT_CTX)},
-    {STRCAST("requestId"),
+    {"requestId",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("requestId"),
+     "requestId",
      reinterpret_cast<void*>(CURRENT_REQUEST_ID)},
-    {STRCAST("encoding"),
+    {"encoding",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("encoding"),
+     "encoding",
      reinterpret_cast<void*>(CURRENT_ENCODING)},
     {0} /* Sentinel */
 };
@@ -277,7 +277,7 @@ namespace IcePy
     PyTypeObject CurrentType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.Current"), /* tp_name */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Current", /* tp_name */
         sizeof(CurrentObject),                                /* tp_basicsize */
         0,                                                    /* tp_itemsize */
         /* methods */
@@ -328,7 +328,7 @@ IcePy::initCurrent(PyObject* module)
         return false;
     }
     PyTypeObject* type = &CurrentType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("Current"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "Current", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
