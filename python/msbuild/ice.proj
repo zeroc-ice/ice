@@ -36,7 +36,10 @@
                       Exclude="..\..\slice\Ice\Metrics.ice">
             <AdditionalOptions>--no-package %(AdditionalOptions)</AdditionalOptions>
         </SliceCompile>
-        <SliceCompile Include="..\..\slice\Ice\Metrics.ice"/>
+        <!-- Generate this file individually without the "no-package" option to ensure the
+             IceMX package is updated. -->
+        <SliceCompile Include="..\..\slice\Ice\Metrics.ice">
+        </SliceCompile>
         <PythonGenerated Include="$(MSBuildThisFileDirectory)\..\python\**\*_ice.py"/>
     </ItemGroup>
 
