@@ -3,19 +3,8 @@
 #
 
 def allTests(helper, communicator)
-    print "testing stringToProxy... "
-    STDOUT.flush
     ref = "initial:#{helper.getTestEndpoint()}"
-    base = communicator.stringToProxy(ref)
-    test(base)
-    puts "ok"
-
-    print "testing checked cast... "
-    STDOUT.flush
-    initial = Test::InitialPrx::checkedCast(base)
-    test(initial)
-    test(initial == base)
-    puts "ok"
+    initial = Test::InitialPrx.new(communicator, ref)
 
     print "testing optional data members... "
     STDOUT.flush
@@ -287,7 +276,7 @@ def allTests(helper, communicator)
     test(r.gg2Opt.a == 20)
     test(r.gg1.a == "gg1")
 
-    initial2 = Test::Initial2Prx::uncheckedCast(base)
+    initial2 = Test::Initial2Prx::uncheckedCast(initial)
     initial2.opVoid(15, "test")
 
     puts "ok"
@@ -393,7 +382,7 @@ def allTests(helper, communicator)
         print "testing operations with unknown optionals... "
         STDOUT.flush
 
-        initial2 = Test::Initial2Prx::uncheckedCast(base)
+        initial2 = Test::Initial2Prx::uncheckedCast(initial)
         ovs = Test::VarStruct.new("test")
         initial2.opClassAndUnknownOptional(Test::A.new, ovs)
 

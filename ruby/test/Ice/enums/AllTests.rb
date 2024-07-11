@@ -4,11 +4,7 @@
 
 def allTests(helper, communicator)
     ref = "test:#{helper.getTestEndpoint()}"
-    base = communicator.stringToProxy(ref)
-    test(base)
-
-    proxy = Test::TestIntfPrx::checkedCast(base)
-    test(proxy)
+    proxy = Test::TestIntfPrx.new(communicator, ref)
 
     print "testing enum values... "
     STDOUT.flush

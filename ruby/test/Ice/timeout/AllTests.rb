@@ -18,7 +18,7 @@ end
 
 def allTests(helper, communicator)
     controller = Test::ControllerPrx::checkedCast(
-        communicator.stringToProxy("controller:#{helper.getTestEndpoint(num:1)}"))
+        Ice::ObjectPrx.new(communicator,"controller:#{helper.getTestEndpoint(num:1)}"))
     test(controller)
     begin
         allTestsWithController(helper, communicator, controller)

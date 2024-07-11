@@ -286,10 +286,7 @@ def allTests(helper, communicator)
     print "testing UnexpectedObjectException... "
     STDOUT.flush
     ref = "uoet:#{helper.getTestEndpoint()}"
-    base = communicator.stringToProxy(ref)
-    test(base)
-    uoet = Test::UnexpectedObjectExceptionTestPrx::uncheckedCast(base)
-    test(uoet)
+    uoet = Test::UnexpectedObjectExceptionTestPrx.new(communicator, ref)
     begin
         uoet.op()
         test(false)
