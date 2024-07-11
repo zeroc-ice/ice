@@ -24,8 +24,7 @@ namespace IcePy
         {
             return false;
         }
-        if (PyObject_SetAttrString(p, STRCAST("major"), major.get()) < 0 ||
-            PyObject_SetAttrString(p, STRCAST("minor"), minor.get()) < 0)
+        if (PyObject_SetAttrString(p, "major", major.get()) < 0 || PyObject_SetAttrString(p, "minor", minor.get()) < 0)
         {
             return false;
         }
@@ -41,13 +40,13 @@ namespace IcePy
             major = PyNumber_Long(major.get());
             if (!major.get())
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("version major must be a numeric value"));
+                PyErr_Format(PyExc_ValueError, "version major must be a numeric value");
                 return false;
             }
             long m = PyLong_AsLong(major.get());
             if (m < 0 || m > 255)
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("version major must be a value between 0 and 255"));
+                PyErr_Format(PyExc_ValueError, "version major must be a value between 0 and 255");
                 return false;
             }
             v.major = static_cast<uint8_t>(m);
@@ -62,13 +61,13 @@ namespace IcePy
             major = PyNumber_Long(minor.get());
             if (!minor.get())
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("version minor must be a numeric value"));
+                PyErr_Format(PyExc_ValueError, "version minor must be a numeric value");
                 return false;
             }
             long m = PyLong_AsLong(minor.get());
             if (m < 0 || m > 255)
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("version minor must be a value between 0 and 255"));
+                PyErr_Format(PyExc_ValueError, "version minor must be a value between 0 and 255");
                 return false;
             }
             v.minor = static_cast<uint8_t>(m);
@@ -102,7 +101,7 @@ namespace IcePy
     {
         PyObject* versionType = IcePy::lookupType(type);
         PyObject* p;
-        if (!PyArg_ParseTuple(args, STRCAST("O!"), versionType, &p))
+        if (!PyArg_ParseTuple(args, "O!", versionType, &p))
         {
             return nullptr;
         }
@@ -129,7 +128,7 @@ namespace IcePy
     template<typename T> PyObject* stringToVersion(PyObject* args, const char* type)
     {
         char* str;
-        if (!PyArg_ParseTuple(args, STRCAST("s"), &str))
+        if (!PyArg_ParseTuple(args, "s", &str))
         {
             return nullptr;
         }
@@ -182,7 +181,7 @@ IcePy::getStringArg(PyObject* p, const string& arg, string& val)
     else if (p != Py_None)
     {
         string funcName = getFunction();
-        PyErr_Format(PyExc_ValueError, STRCAST("%s expects a string for argument '%s'"), funcName.c_str(), arg.c_str());
+        PyErr_Format(PyExc_ValueError, "%s expects a string for argument '%s'", funcName.c_str(), arg.c_str());
         return false;
     }
     return true;
@@ -214,12 +213,7 @@ IcePy::getFunction()
     //
     // Get name of current function.
     //
-    // Use PyEval_GetFrame with Python >= 3.11
-#if PY_VERSION_HEX >= 0x030B0000
     PyFrameObject* f = PyEval_GetFrame();
-#else
-    PyFrameObject* f = PyThreadState_GET()->frame;
-#endif
     PyObjectHandle code = getAttr(reinterpret_cast<PyObject*>(f), "f_code", false);
     assert(code.get());
     PyObjectHandle func = getAttr(code.get(), "co_name", false);
@@ -306,7 +300,7 @@ IcePy::PyException::raise()
         }
         else
         {
-            PyObjectHandle name = PyObject_CallMethod(ex.get(), STRCAST("ice_id"), 0);
+            PyObjectHandle name = PyObject_CallMethod(ex.get(), "ice_id", 0);
             PyErr_Clear();
             if (!name.get())
             {
@@ -505,7 +499,7 @@ IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
         }
         else if (item != Py_None)
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("list element must be a string"));
+            PyErr_Format(PyExc_ValueError, "list element must be a string");
             return false;
         }
         seq.push_back(str);
@@ -521,7 +515,7 @@ IcePy::stringSeqToList(const Ice::StringSeq& seq, PyObject* l)
 
     for (Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-        PyObject* str = Py_BuildValue(STRCAST("s"), p->c_str());
+        PyObject* str = Py_BuildValue("s", p->c_str());
         if (!str)
         {
             Py_DECREF(l);
@@ -559,7 +553,7 @@ IcePy::tupleToStringSeq(PyObject* t, Ice::StringSeq& seq)
         }
         else if (item != Py_None)
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("tuple element must be a string"));
+            PyErr_Format(PyExc_ValueError, "tuple element must be a string");
             return false;
         }
         seq.push_back(str);
@@ -585,7 +579,7 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
         }
         else if (key != Py_None)
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("context key must be a string"));
+            PyErr_Format(PyExc_ValueError, "context key must be a string");
             return false;
         }
 
@@ -596,7 +590,7 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
         }
         else if (value != Py_None)
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("context value must be a string"));
+            PyErr_Format(PyExc_ValueError, "context value must be a string");
             return false;
         }
 
@@ -836,7 +830,7 @@ IcePy::handleSystemExit(PyObject* ex)
     else
     {
         PyObject_Print(code.get(), stderr, Py_PRINT_RAW);
-        PySys_WriteStderr(STRCAST("\n"));
+        PySys_WriteStderr("\n");
         status = 1;
     }
 
@@ -880,8 +874,7 @@ IcePy::setIdentity(PyObject* p, const Ice::Identity& ident)
     {
         return false;
     }
-    if (PyObject_SetAttrString(p, STRCAST("name"), name.get()) < 0 ||
-        PyObject_SetAttrString(p, STRCAST("category"), category.get()) < 0)
+    if (PyObject_SetAttrString(p, "name", name.get()) < 0 || PyObject_SetAttrString(p, "category", category.get()) < 0)
     {
         return false;
     }
@@ -898,7 +891,7 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
     {
         if (!checkString(name.get()))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("identity name must be a string"));
+            PyErr_Format(PyExc_ValueError, "identity name must be a string");
             return false;
         }
         ident.name = getString(name.get());
@@ -907,7 +900,7 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
     {
         if (!checkString(category.get()))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("identity category must be a string"));
+            PyErr_Format(PyExc_ValueError, "identity category must be a string");
             return false;
         }
         ident.category = getString(category.get());

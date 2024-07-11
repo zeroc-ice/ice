@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
 from .Value import Value
+import IcePy
 
 
 class UnknownSlicedValue(Value):
@@ -33,3 +34,8 @@ class SliceInfo(object):
     # hasOptionalMembers - boolean
     # isLastSlice - boolean
     pass
+
+IcePy._t_UnknownSlicedValue = IcePy.defineValue(
+    "::Ice::UnknownSlicedValue", UnknownSlicedValue, -1, (), False, None, ()
+)
+UnknownSlicedValue._ice_type = IcePy._t_UnknownSlicedValue
