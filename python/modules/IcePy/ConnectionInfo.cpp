@@ -22,7 +22,7 @@ namespace IcePy
 extern "C" ConnectionInfoObject*
 connectionInfoNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PyErr_Format(PyExc_RuntimeError, STRCAST("A connection info cannot be created directly"));
+    PyErr_Format(PyExc_RuntimeError, "A connection info cannot be created directly");
     return 0;
 }
 
@@ -168,100 +168,56 @@ sslConnectionInfoGetPeerCertificiate(ConnectionInfoObject* self, PyObject* /*arg
 }
 
 static PyGetSetDef ConnectionInfoGetters[] = {
-    {STRCAST("underlying"),
+    {"underlying",
      reinterpret_cast<getter>(connectionInfoGetUnderlying),
      0,
-     PyDoc_STR(STRCAST("get underlying connection information")),
+     PyDoc_STR("get underlying connection information"),
      0},
-    {STRCAST("incoming"),
+    {"incoming",
      reinterpret_cast<getter>(connectionInfoGetIncoming),
      0,
-     PyDoc_STR(STRCAST("whether connection is incoming")),
+     PyDoc_STR("whether connection is incoming"),
      0},
-    {STRCAST("adapterName"),
+    {"adapterName",
      reinterpret_cast<getter>(connectionInfoGetAdapterName),
      0,
-     PyDoc_STR(STRCAST("adapter associated the connection")),
+     PyDoc_STR("adapter associated the connection"),
      0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef IPConnectionInfoGetters[] = {
-    {STRCAST("localAddress"),
-     reinterpret_cast<getter>(ipConnectionInfoGetLocalAddress),
-     0,
-     PyDoc_STR(STRCAST("local address")),
-     0},
-    {STRCAST("localPort"),
-     reinterpret_cast<getter>(ipConnectionInfoGetLocalPort),
-     0,
-     PyDoc_STR(STRCAST("local port")),
-     0},
-    {STRCAST("remoteAddress"),
-     reinterpret_cast<getter>(ipConnectionInfoGetRemoteAddress),
-     0,
-     PyDoc_STR(STRCAST("remote address")),
-     0},
-    {STRCAST("remotePort"),
-     reinterpret_cast<getter>(ipConnectionInfoGetRemotePort),
-     0,
-     PyDoc_STR(STRCAST("remote port")),
-     0},
+    {"localAddress", reinterpret_cast<getter>(ipConnectionInfoGetLocalAddress), 0, PyDoc_STR("local address"), 0},
+    {"localPort", reinterpret_cast<getter>(ipConnectionInfoGetLocalPort), 0, PyDoc_STR("local port"), 0},
+    {"remoteAddress", reinterpret_cast<getter>(ipConnectionInfoGetRemoteAddress), 0, PyDoc_STR("remote address"), 0},
+    {"remotePort", reinterpret_cast<getter>(ipConnectionInfoGetRemotePort), 0, PyDoc_STR("remote port"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef TCPConnectionInfoGetters[] = {
-    {STRCAST("rcvSize"),
-     reinterpret_cast<getter>(tcpConnectionInfoGetRcvSize),
-     0,
-     PyDoc_STR(STRCAST("receive buffer size")),
-     0},
-    {STRCAST("sndSize"),
-     reinterpret_cast<getter>(tcpConnectionInfoGetSndSize),
-     0,
-     PyDoc_STR(STRCAST("send buffer size")),
-     0},
+    {"rcvSize", reinterpret_cast<getter>(tcpConnectionInfoGetRcvSize), 0, PyDoc_STR("receive buffer size"), 0},
+    {"sndSize", reinterpret_cast<getter>(tcpConnectionInfoGetSndSize), 0, PyDoc_STR("send buffer size"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef UDPConnectionInfoGetters[] = {
-    {STRCAST("mcastAddress"),
-     reinterpret_cast<getter>(udpConnectionInfoGetMcastAddress),
-     0,
-     PyDoc_STR(STRCAST("multicast address")),
-     0},
-    {STRCAST("mcastPort"),
-     reinterpret_cast<getter>(udpConnectionInfoGetMcastPort),
-     0,
-     PyDoc_STR(STRCAST("multicast port")),
-     0},
-    {STRCAST("rcvSize"),
-     reinterpret_cast<getter>(udpConnectionInfoGetRcvSize),
-     0,
-     PyDoc_STR(STRCAST("receive buffer size")),
-     0},
-    {STRCAST("sndSize"),
-     reinterpret_cast<getter>(udpConnectionInfoGetSndSize),
-     0,
-     PyDoc_STR(STRCAST("send buffer size")),
-     0},
+    {"mcastAddress", reinterpret_cast<getter>(udpConnectionInfoGetMcastAddress), 0, PyDoc_STR("multicast address"), 0},
+    {"mcastPort", reinterpret_cast<getter>(udpConnectionInfoGetMcastPort), 0, PyDoc_STR("multicast port"), 0},
+    {"rcvSize", reinterpret_cast<getter>(udpConnectionInfoGetRcvSize), 0, PyDoc_STR("receive buffer size"), 0},
+    {"sndSize", reinterpret_cast<getter>(udpConnectionInfoGetSndSize), 0, PyDoc_STR("send buffer size"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef WSConnectionInfoGetters[] = {
-    {STRCAST("headers"),
-     reinterpret_cast<getter>(wsConnectionInfoGetHeaders),
-     0,
-     PyDoc_STR(STRCAST("request headers")),
-     0},
+    {"headers", reinterpret_cast<getter>(wsConnectionInfoGetHeaders), 0, PyDoc_STR("request headers"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef SSLConnectionInfoGetters[] = {
-    {STRCAST("peerCertificate"),
+    {"peerCertificate",
      reinterpret_cast<getter>(sslConnectionInfoGetPeerCertificiate),
      0,
-     PyDoc_STR(STRCAST("peer certificate")),
+     PyDoc_STR("peer certificate"),
      0},
     {0, 0} /* sentinel */
 };
@@ -271,9 +227,9 @@ namespace IcePy
     PyTypeObject ConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.ConnectionInfo"), /* tp_name */
-        sizeof(ConnectionInfoObject),                                /* tp_basicsize */
-        0,                                                           /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.ConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                       /* tp_basicsize */
+        0,                                                  /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -316,9 +272,9 @@ namespace IcePy
     PyTypeObject IPConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.IPConnectionInfo"), /* tp_name */
-        sizeof(ConnectionInfoObject),                                  /* tp_basicsize */
-        0,                                                             /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.IPConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                         /* tp_basicsize */
+        0,                                                    /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -361,9 +317,9 @@ namespace IcePy
     PyTypeObject TCPConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.TCPConnectionInfo"), /* tp_name */
-        sizeof(ConnectionInfoObject),                                   /* tp_basicsize */
-        0,                                                              /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.TCPConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                          /* tp_basicsize */
+        0,                                                     /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -406,9 +362,9 @@ namespace IcePy
     PyTypeObject UDPConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.UDPConnectionInfo"), /* tp_name */
-        sizeof(ConnectionInfoObject),                                   /* tp_basicsize */
-        0,                                                              /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.UDPConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                          /* tp_basicsize */
+        0,                                                     /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -451,9 +407,9 @@ namespace IcePy
     PyTypeObject WSConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.WSConnectionInfo"), /* tp_name */
-        sizeof(ConnectionInfoObject),                                  /* tp_basicsize */
-        0,                                                             /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.WSConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                         /* tp_basicsize */
+        0,                                                    /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -496,9 +452,9 @@ namespace IcePy
     PyTypeObject SSLConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.SSLConnectionInfo"), /* tp_name */
-        sizeof(ConnectionInfoObject),                                   /* tp_basicsize */
-        0,                                                              /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.SSLConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                          /* tp_basicsize */
+        0,                                                     /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -547,7 +503,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
     PyTypeObject* type = &ConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("ConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "ConnectionInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -558,7 +514,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
     type = &IPConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("IPConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "IPConnectionInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -569,7 +525,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
     type = &TCPConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("TCPConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "TCPConnectionInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -580,7 +536,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
     type = &UDPConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("UDPConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "UDPConnectionInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -591,7 +547,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
     type = &WSConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("WSConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "WSConnectionInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -602,7 +558,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
     type = &SSLConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("SSLConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "SSLConnectionInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }

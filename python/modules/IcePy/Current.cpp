@@ -224,51 +224,19 @@ currentGetter(CurrentObject* self, void* closure)
 }
 
 static PyGetSetDef CurrentGetSetters[] = {
-    {STRCAST("adapter"),
+    {"adapter", reinterpret_cast<getter>(currentGetter), 0, "object adapter", reinterpret_cast<void*>(CURRENT_ADAPTER)},
+    {"con", reinterpret_cast<getter>(currentGetter), 0, "connection info", reinterpret_cast<void*>(CURRENT_CONNECTION)},
+    {"id", reinterpret_cast<getter>(currentGetter), 0, "identity", reinterpret_cast<void*>(CURRENT_ID)},
+    {"facet", reinterpret_cast<getter>(currentGetter), 0, "facet name", reinterpret_cast<void*>(CURRENT_FACET)},
+    {"operation",
      reinterpret_cast<getter>(currentGetter),
      0,
-     STRCAST("object adapter"),
-     reinterpret_cast<void*>(CURRENT_ADAPTER)},
-    {STRCAST("con"),
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     STRCAST("connection info"),
-     reinterpret_cast<void*>(CURRENT_CONNECTION)},
-    {STRCAST("id"),
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     STRCAST("identity"),
-     reinterpret_cast<void*>(CURRENT_ID)},
-    {STRCAST("facet"),
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     STRCAST("facet name"),
-     reinterpret_cast<void*>(CURRENT_FACET)},
-    {STRCAST("operation"),
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     STRCAST("operation name"),
+     "operation name",
      reinterpret_cast<void*>(CURRENT_OPERATION)},
-    {STRCAST("mode"),
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     STRCAST("operation mode"),
-     reinterpret_cast<void*>(CURRENT_MODE)},
-    {STRCAST("ctx"),
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     STRCAST("context"),
-     reinterpret_cast<void*>(CURRENT_CTX)},
-    {STRCAST("requestId"),
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     STRCAST("requestId"),
-     reinterpret_cast<void*>(CURRENT_REQUEST_ID)},
-    {STRCAST("encoding"),
-     reinterpret_cast<getter>(currentGetter),
-     0,
-     STRCAST("encoding"),
-     reinterpret_cast<void*>(CURRENT_ENCODING)},
+    {"mode", reinterpret_cast<getter>(currentGetter), 0, "operation mode", reinterpret_cast<void*>(CURRENT_MODE)},
+    {"ctx", reinterpret_cast<getter>(currentGetter), 0, "context", reinterpret_cast<void*>(CURRENT_CTX)},
+    {"requestId", reinterpret_cast<getter>(currentGetter), 0, "requestId", reinterpret_cast<void*>(CURRENT_REQUEST_ID)},
+    {"encoding", reinterpret_cast<getter>(currentGetter), 0, "encoding", reinterpret_cast<void*>(CURRENT_ENCODING)},
     {0} /* Sentinel */
 };
 
@@ -277,9 +245,9 @@ namespace IcePy
     PyTypeObject CurrentType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.Current"), /* tp_name */
-        sizeof(CurrentObject),                                /* tp_basicsize */
-        0,                                                    /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Current", /* tp_name */
+        sizeof(CurrentObject),                       /* tp_basicsize */
+        0,                                           /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(currentDealloc), /* tp_dealloc */
         0,                                            /* tp_print */
@@ -328,7 +296,7 @@ IcePy::initCurrent(PyObject* module)
         return false;
     }
     PyTypeObject* type = &CurrentType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("Current"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "Current", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }

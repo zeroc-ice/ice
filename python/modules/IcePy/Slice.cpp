@@ -35,7 +35,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 {
     char* cmd;
     PyObject* list = 0;
-    if (!PyArg_ParseTuple(args, STRCAST("s|O!"), &cmd, &PyList_Type, &list))
+    if (!PyArg_ParseTuple(args, "s|O!", &cmd, &PyList_Type, &list))
     {
         return 0;
     }
@@ -204,7 +204,7 @@ extern "C" PyObject*
 IcePy_compile(PyObject* /*self*/, PyObject* args)
 {
     PyObject* list = 0;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), &PyList_Type, &list))
+    if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &list))
     {
         return 0;
     }
