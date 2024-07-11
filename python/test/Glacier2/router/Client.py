@@ -10,6 +10,7 @@ import Glacier2
 
 from TestHelper import TestHelper
 
+TestHelper.loadSlice(f"--all {Ice.getSliceDir()}/Glacier2/Router.ice")
 TestHelper.loadSlice("Callback.ice")
 import Test
 

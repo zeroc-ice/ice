@@ -26,12 +26,8 @@ configuration = os.getenv('CPP_CONFIGURATION', "Release")
 
 # Define Python packages to be included
 packages = [
-    'Glacier2',
     'Ice',
-    'IceBox',
-    'IceGrid',
     'IceMX',
-    'IceStorm',
     'slice',
     'slice.Glacier2',
     'slice.Ice',
