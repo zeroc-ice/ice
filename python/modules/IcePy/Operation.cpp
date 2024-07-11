@@ -1501,25 +1501,17 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, pair<const byte*, 
         }
         else
         {
-            try
-            {
-                PyException pye(ex); // No traceback information available.
-                pye.raise();
-            }
-            catch (const Ice::UnknownUserException&)
-            {
-                return convertException(current_exception());
-            }
+            return convertException(
+                make_exception_ptr(Ice::UnknownUserException::fromTypeId(__FILE__, __LINE__, r.ice_id())));
         }
     }
-
-    //
-    // Getting here should be impossible: we can get here only if the
-    // sender has marshaled a sequence of type IDs, none of which we
-    // have a factory for. This means that sender and receiver disagree
-    // about the Slice definitions they use.
-    //
-    return convertException(make_exception_ptr(Ice::UnknownUserException{__FILE__, __LINE__, "unknown exception"}));
+    catch (...)
+    {
+        return convertException(std::current_exception());
+    }
+    assert(false);
+    // Never reached.
+    return incRef(Py_None);
 }
 
 bool
