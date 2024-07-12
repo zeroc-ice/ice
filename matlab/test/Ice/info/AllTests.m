@@ -54,8 +54,7 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            base = communicator.stringToProxy(['test:', helper.getTestEndpoint(), ':', helper.getTestEndpoint('udp')]);
-            testIntf = TestIntfPrx.checkedCast(base);
+            testIntf = TestIntfPrx(communicator, ['test:', helper.getTestEndpoint(), ':', helper.getTestEndpoint('udp')]);
 
             endpointPort = helper.getTestPort();
 

@@ -2516,27 +2516,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    /*
-    if (bases.size() > 1)
-    {
-        //
-        // Constructor.
-        //
-        out << nl << "methods(Hidden=true)";
-        out.inc();
-        out << nl << "function obj = " << prxName << "(communicator, encoding, impl, bytes)";
-        out.inc();
-        out << nl << "fprintf('******************* calling ctor ***************');" << nl;
-        for (const auto& q : bases)
-        {
-            out << nl << "obj@" << getAbsolute(q, "", "Prx") << "(communicator, encoding, impl, bytes);";
-        }
-        out.dec();
-        out << nl << "end";
-        out.dec();
-        out << nl << "end";
-    }
-    */
+    // The constructor is inherited, even with multiple inheritance.
 
     if (hasExceptions)
     {

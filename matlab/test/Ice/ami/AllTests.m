@@ -10,16 +10,10 @@ classdef AllTests
             communicator = helper.communicator();
 
             sref = ['test:', helper.getTestEndpoint()];
-            obj = communicator.stringToProxy(sref);
-            assert(~isempty(obj));
-
-            p = TestIntfPrx.uncheckedCast(obj);
+            p = TestIntfPrx(communicator, sref);
 
             sref = ['testController:', helper.getTestEndpoint(1)];
-            obj = communicator.stringToProxy(sref);
-            assert(~isempty(obj));
-
-            testController = TestIntfControllerPrx.uncheckedCast(obj);
+            testController = TestIntfControllerPrx(communicator, sref);
 
             fprintf('testing begin/end invocation... ');
 
