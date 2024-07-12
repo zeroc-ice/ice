@@ -150,7 +150,6 @@ loggerPrint(LoggerObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -186,7 +185,6 @@ loggerTrace(LoggerObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -216,7 +214,6 @@ loggerWarning(LoggerObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -246,7 +243,6 @@ loggerError(LoggerObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -467,6 +463,5 @@ IcePy_setProcessLogger(PyObject* /*self*/, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }

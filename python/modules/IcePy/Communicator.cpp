@@ -396,7 +396,6 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
     }
     else
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 }
@@ -416,7 +415,6 @@ communicatorShutdown(CommunicatorObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -460,7 +458,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
                 AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
                 if (self->shutdownFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
                 {
-                    PyRETURN_FALSE;
+                    return Py_False;
                 }
             }
 
@@ -496,7 +494,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
         }
     }
 
-    PyRETURN_TRUE;
+    return Py_True;
 }
 
 extern "C" PyObject*
@@ -514,7 +512,7 @@ communicatorIsShutdown(CommunicatorObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    PyRETURN_BOOL(isShutdown);
+    return isShutdown ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
@@ -548,7 +546,6 @@ communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -614,7 +611,6 @@ communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -725,7 +721,6 @@ communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -843,7 +838,6 @@ communicatorGetAdmin(CommunicatorObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -881,7 +875,6 @@ communicatorAddAdminFacet(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -934,7 +927,6 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1026,7 +1018,6 @@ communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1043,7 +1034,6 @@ communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
     self->wrapper = wrapper;
     Py_INCREF(self->wrapper);
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1120,7 +1110,6 @@ communicatorGetImplicitContext(CommunicatorObject* self, PyObject* /*args*/)
 
     if (implicitContext == 0)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1286,7 +1275,6 @@ communicatorGetDefaultRouter(CommunicatorObject* self, PyObject* /*args*/)
 
     if (!router)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1323,7 +1311,6 @@ communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1344,7 +1331,6 @@ communicatorGetDefaultLocator(CommunicatorObject* self, PyObject* /*args*/)
 
     if (!locator)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1381,7 +1367,6 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1608,7 +1593,6 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
         //
         // Communicator must have been destroyed already.
         //
-        Py_INCREF(Py_None);
         return Py_None;
     }
 }

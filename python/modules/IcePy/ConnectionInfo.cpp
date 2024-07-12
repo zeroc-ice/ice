@@ -42,7 +42,7 @@ connectionInfoGetUnderlying(ConnectionInfoObject* self, PyObject* /*args*/)
 extern "C" PyObject*
 connectionInfoGetIncoming(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    return (*self->connectionInfo)->incoming ? incTrue() : incFalse();
+    return (*self->connectionInfo)->incoming ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
@@ -579,7 +579,6 @@ IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
 {
     if (!connectionInfo)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 

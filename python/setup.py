@@ -91,7 +91,7 @@ elif sys.platform == 'win32':
     libraries = ['dbghelp', 'Shlwapi', 'rpcrt4', 'advapi32', 'Iphlpapi', 'secur32', 'crypt32', 'ws2_32']
 else:
     extra_compile_args = ['-w']
-    cpp_extra_compile_args = ['-std=c++17']
+    cpp_extra_compile_args = ['-std=c++20']
     extra_link_args = []
     libraries = ['ssl', 'crypto', 'bz2', 'rt']
     if not sys.platform.startswith('freebsd'):

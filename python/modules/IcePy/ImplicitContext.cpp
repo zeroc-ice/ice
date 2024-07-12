@@ -88,7 +88,7 @@ implicitContextCompare(ImplicitContextObject* c1, PyObject* other, int op)
         }
     }
 
-    return result ? incTrue() : incFalse();
+    return result ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
@@ -127,7 +127,6 @@ implicitContextSetContext(ImplicitContextObject* self, PyObject* args)
 
     (*self->implicitContext)->setContext(ctx);
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -157,7 +156,7 @@ implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
         return 0;
     }
 
-    PyRETURN_BOOL(containsKey);
+    return containsKey ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
