@@ -1039,10 +1039,3 @@ IcePy_stringToEncodingVersion(PyObject* /*self*/, PyObject* args)
 {
     return IcePy::stringToVersion<Ice::EncodingVersion>(args, IcePy::Ice_EncodingVersion);
 }
-
-extern "C" PyObject*
-IcePy_generateUUID(PyObject* /*self*/, PyObject* /*args*/)
-{
-    string uuid = Ice::generateUUID();
-    return IcePy::createString(uuid);
-}
