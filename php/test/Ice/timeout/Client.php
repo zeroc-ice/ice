@@ -65,7 +65,7 @@ function allTestsWithController($helper, $controller)
     flush();
     {
         $connection = $timeout->ice_getConnection();
-        $to = $timeout->ice_invocationTimeout(100)->ice_uncheckedCast("::Test::Timeout");
+        $to = $timeout->ice_invocationTimeout(100);
         test($connection == $to->ice_getConnection());
         try
         {

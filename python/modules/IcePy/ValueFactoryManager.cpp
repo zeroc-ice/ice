@@ -181,7 +181,7 @@ IcePy::CustomValueFactory::create(string_view id)
 
     if (!info)
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle obj = PyObject_CallFunction(_valueFactory, "s#", id.data(), static_cast<Py_ssize_t>(id.size()));
@@ -194,7 +194,7 @@ IcePy::CustomValueFactory::create(string_view id)
 
     if (obj.get() == Py_None)
     {
-        return 0;
+        return nullptr;
     }
 
     return make_shared<ValueReader>(obj.get(), info);
@@ -242,7 +242,7 @@ extern "C" ValueFactoryManagerObject*
 valueFactoryManagerNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, "Do not instantiate this object directly");
-    return 0;
+    return nullptr;
 }
 
 extern "C" void
@@ -264,19 +264,19 @@ valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
     PyObject* idObj;
     if (!PyArg_ParseTuple(args, "O!O", factoryType, &factory, &idObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string id;
     if (!getStringArg(idObj, "id", id))
     {
-        return 0;
+        return nullptr;
     }
 
     (*self->vfm)->add(factory, id);
     if (PyErr_Occurred())
     {
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -290,13 +290,13 @@ valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
     PyObject* idObj;
     if (!PyArg_ParseTuple(args, "O", &idObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string id;
     if (!getStringArg(idObj, "id", id))
     {
-        return 0;
+        return nullptr;
     }
 
     return (*self->vfm)->findValueFactory(id);

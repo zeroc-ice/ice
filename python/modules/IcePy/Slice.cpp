@@ -29,7 +29,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     PyObject* list = 0;
     if (!PyArg_ParseTuple(args, "s|O!", &cmd, &PyList_Type, &list))
     {
-        return 0;
+        return nullptr;
     }
 
     vector<string> argSeq;
@@ -40,19 +40,19 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     catch (const IceInternal::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.what());
-        return 0;
+        return nullptr;
     }
     catch (const IceInternal::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.what());
-        return 0;
+        return nullptr;
     }
 
     if (list)
     {
         if (!listToStringSeq(list, argSeq))
         {
-            return 0;
+            return nullptr;
         }
     }
 
@@ -71,18 +71,18 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         if (files.empty())
         {
             PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%s'", cmd);
-            return 0;
+            return nullptr;
         }
     }
     catch (const IceInternal::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.what());
-        return 0;
+        return nullptr;
     }
     catch (const IceInternal::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.what());
-        return 0;
+        return nullptr;
     }
 
     vector<string> cppArgs;
@@ -126,7 +126,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         if (cppHandle == 0)
         {
             PyErr_Format(PyExc_RuntimeError, "Slice preprocessing failed for `%s'", cmd);
-            return 0;
+            return nullptr;
         }
 
         UnitPtr u = Slice::Unit::createUnit(all);
@@ -136,7 +136,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         {
             PyErr_Format(PyExc_RuntimeError, "Slice parsing failed for `%s'", cmd);
             u->destroy();
-            return 0;
+            return nullptr;
         }
 
         //
@@ -166,20 +166,20 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             Py_CompileString(const_cast<char*>(code.c_str()), const_cast<char*>(file.c_str()), Py_file_input);
         if (!src.get())
         {
-            return 0;
+            return nullptr;
         }
 
         PyObjectHandle globals = PyDict_New();
         if (!globals.get())
         {
-            return 0;
+            return nullptr;
         }
 
         PyDict_SetItemString(globals.get(), "__builtins__", PyEval_GetBuiltins());
         PyObjectHandle val = PyEval_EvalCode(src.get(), globals.get(), 0);
         if (!val.get())
         {
-            return 0;
+            return nullptr;
         }
     }
 
@@ -192,7 +192,7 @@ IcePy_compile(PyObject* /*self*/, PyObject* args)
     PyObject* list = 0;
     if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &list))
     {
-        return 0;
+        return nullptr;
     }
 
     vector<string> argSeq;
@@ -200,7 +200,7 @@ IcePy_compile(PyObject* /*self*/, PyObject* args)
     {
         if (!listToStringSeq(list, argSeq))
         {
-            return 0;
+            return nullptr;
         }
     }
 

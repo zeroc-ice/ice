@@ -39,7 +39,7 @@ dispatcherCallInvoke(DispatcherCallObject* self, PyObject* /*args*/, PyObject* /
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;

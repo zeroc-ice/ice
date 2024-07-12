@@ -23,7 +23,7 @@ extern "C" ConnectionInfoObject*
 connectionInfoNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, "A connection info cannot be created directly");
-    return 0;
+    return nullptr;
 }
 
 extern "C" void
@@ -146,7 +146,7 @@ wsConnectionInfoGetHeaders(ConnectionInfoObject* self, PyObject* /*args*/)
             PyObjectHandle val = createString(p->second);
             if (!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
             {
-                return 0;
+                return nullptr;
             }
         }
     }
@@ -611,7 +611,7 @@ IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
     ConnectionInfoObject* obj = reinterpret_cast<ConnectionInfoObject*>(type->tp_alloc(type, 0));
     if (!obj)
     {
-        return 0;
+        return nullptr;
     }
     obj->connectionInfo = new Ice::ConnectionInfoPtr(connectionInfo);
 

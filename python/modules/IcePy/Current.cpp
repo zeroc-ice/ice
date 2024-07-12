@@ -48,7 +48,7 @@ currentNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     CurrentObject* self = reinterpret_cast<CurrentObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
-        return 0;
+        return nullptr;
     }
 
     self->current = new Ice::Current;
@@ -103,7 +103,7 @@ currentGetter(CurrentObject* self, void* closure)
                 self->adapter = wrapObjectAdapter(self->current->adapter);
                 if (!self->adapter)
                 {
-                    return 0;
+                    return nullptr;
                 }
             }
             Py_INCREF(self->adapter);
@@ -117,7 +117,7 @@ currentGetter(CurrentObject* self, void* closure)
                 self->con = createConnection(self->current->con, self->current->adapter->getCommunicator());
                 if (!self->con)
                 {
-                    return 0;
+                    return nullptr;
                 }
             }
             Py_INCREF(self->con);

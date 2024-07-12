@@ -5,6 +5,7 @@
 import Ice
 import Test
 import sys
+import uuid
 
 
 class HelloI(Test.Hello):
@@ -238,11 +239,11 @@ def allTests(helper, communicator):
 
     sys.stdout.write("testing indirect references to collocated objects... ")
     sys.stdout.flush()
-    communicator.getProperties().setProperty("Hello.AdapterId", Ice.generateUUID())
+    communicator.getProperties().setProperty("Hello.AdapterId", str(uuid.uuid4()))
     adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default")
 
     id = Ice.Identity()
-    id.name = Ice.generateUUID()
+    id.name = str(uuid.uuid4())
     adapter.add(HelloI(), id)
 
     helloPrx = Test.HelloPrx(communicator, Ice.identityToString(id))
