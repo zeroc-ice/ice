@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
+__name__ = "Ice"
+
 class Communicator(object):
     """
     The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator

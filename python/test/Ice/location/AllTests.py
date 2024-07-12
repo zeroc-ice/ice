@@ -18,21 +18,20 @@ def test(b):
 
 
 def allTests(helper, communicator):
-    ref = "ServerManager:{0}".format(helper.getTestEndpoint())
-    manager = Test.ServerManagerPrx.checkedCast(communicator.stringToProxy(ref))
+    manager = Test.ServerManagerPrx(communicator, f"ServerManager:{helper.getTestEndpoint()}")
     locator = communicator.getDefaultLocator()
     test(manager)
 
     registry = Test.TestLocatorRegistryPrx.checkedCast(locator.getRegistry())
     test(registry)
 
-    sys.stdout.write("testing stringToProxy... ")
+    sys.stdout.write("testing proxy creation... ")
     sys.stdout.flush()
-    base = communicator.stringToProxy("test @ TestAdapter")
-    base2 = communicator.stringToProxy("test @ TestAdapter")
-    base3 = communicator.stringToProxy("test")
-    base4 = communicator.stringToProxy("ServerManager")
-    base5 = communicator.stringToProxy("test2")
+    base = Ice.ObjectPrx(communicator, "test @ TestAdapter")
+    base2 = Ice.ObjectPrx(communicator, "test @ TestAdapter")
+    base3 = Ice.ObjectPrx(communicator, "test")
+    base4 = Ice.ObjectPrx(communicator, "ServerManager")
+    base5 = Ice.ObjectPrx(communicator, "test2")
     print("ok")
 
     sys.stdout.write("testing ice_locator and ice_getLocator...  ")
@@ -40,18 +39,16 @@ def allTests(helper, communicator):
     test(
         Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator())
     )
-    anotherLocator = Ice.LocatorPrx.uncheckedCast(
-        communicator.stringToProxy("anotherLocator")
-    )
+    anotherLocator = Ice.LocatorPrx(communicator, "anotherLocator")
     base = base.ice_locator(anotherLocator)
     test(Ice.proxyIdentityEqual(base.ice_getLocator(), anotherLocator))
     communicator.setDefaultLocator(None)
-    base = communicator.stringToProxy("test @ TestAdapter")
+    base = Ice.ObjectPrx(communicator, "test @ TestAdapter")
     test(not base.ice_getLocator())
     base = base.ice_locator(anotherLocator)
     test(Ice.proxyIdentityEqual(base.ice_getLocator(), anotherLocator))
     communicator.setDefaultLocator(locator)
-    base = communicator.stringToProxy("test @ TestAdapter")
+    base = Ice.ObjectPrx(communicator, "test @ TestAdapter")
     test(
         Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator())
     )
@@ -61,17 +58,15 @@ def allTests(helper, communicator):
     # test/Ice/router test?)
     #
     test(not base.ice_getRouter())
-    anotherRouter = Ice.RouterPrx.uncheckedCast(
-        communicator.stringToProxy("anotherRouter")
-    )
+    anotherRouter = Ice.RouterPrx(communicator,"anotherRouter")
     base = base.ice_router(anotherRouter)
     test(Ice.proxyIdentityEqual(base.ice_getRouter(), anotherRouter))
-    router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"))
+    router = Ice.RouterPrx(communicator, "dummyrouter")
     communicator.setDefaultRouter(router)
-    base = communicator.stringToProxy("test @ TestAdapter")
+    base = Ice.ObjectPrx(communicator, "test @ TestAdapter")
     test(Ice.proxyIdentityEqual(base.ice_getRouter(), communicator.getDefaultRouter()))
     communicator.setDefaultRouter(None)
-    base = communicator.stringToProxy("test @ TestAdapter")
+    base = Ice.ObjectPrx(communicator, "test @ TestAdapter")
     test(not base.ice_getRouter())
     print("ok")
 
@@ -83,13 +78,9 @@ def allTests(helper, communicator):
     sys.stdout.write("testing checked cast... ")
     sys.stdout.flush()
     obj = Test.TestIntfPrx.checkedCast(base)
-    obj = Test.TestIntfPrx.checkedCast(communicator.stringToProxy("test@TestAdapter"))
-    obj = Test.TestIntfPrx.checkedCast(
-        communicator.stringToProxy("test   @TestAdapter")
-    )
-    obj = Test.TestIntfPrx.checkedCast(
-        communicator.stringToProxy("test@   TestAdapter")
-    )
+    obj = Test.TestIntfPrx.checkedCast(Ice.ObjectPrx(communicator, "test@TestAdapter"))
+    obj = Test.TestIntfPrx.checkedCast(Ice.ObjectPrx(communicator, "test   @TestAdapter"))
+    obj = Test.TestIntfPrx.checkedCast(Ice.ObjectPrx(communicator, "test@   TestAdapter"))
     test(obj)
     obj2 = Test.TestIntfPrx.checkedCast(base2)
     test(obj2)
@@ -177,7 +168,7 @@ def allTests(helper, communicator):
     sys.stdout.write("testing reference with unknown identity... ")
     sys.stdout.flush()
     try:
-        base = communicator.stringToProxy("unknown/unknown")
+        base = Ice.ObjectPrx(communicator, "unknown/unknown")
         base.ice_ping()
         test(False)
     except Ice.NotRegisteredException as ex:
@@ -188,7 +179,7 @@ def allTests(helper, communicator):
     sys.stdout.write("testing reference with unknown adapter... ")
     sys.stdout.flush()
     try:
-        base = communicator.stringToProxy("test @ TestAdapterUnknown")
+        base = Ice.ObjectPrx(communicator, "test @ TestAdapterUnknown")
         base.ice_ping()
         test(False)
     except Ice.NotRegisteredException as ex:
@@ -211,7 +202,7 @@ def allTests(helper, communicator):
 
     sys.stdout.write("testing object migration... ")
     sys.stdout.flush()
-    hello = Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"))
+    hello = Test.HelloPrx(communicator, "hello")
     obj.migrateHello()
     hello.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
     hello.sayHello()
@@ -254,9 +245,7 @@ def allTests(helper, communicator):
     id.name = Ice.generateUUID()
     adapter.add(HelloI(), id)
 
-    helloPrx = Test.HelloPrx.checkedCast(
-        communicator.stringToProxy(Ice.identityToString(id))
-    )
+    helloPrx = Test.HelloPrx(communicator, Ice.identityToString(id))
     test(not helloPrx.ice_getConnection())
 
     helloPrx = Test.HelloPrx.checkedCast(adapter.createIndirectProxy(id))

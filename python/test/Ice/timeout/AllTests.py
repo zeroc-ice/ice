@@ -63,11 +63,7 @@ def connect(prx):
 
 
 def allTests(helper, communicator):
-    controller = Test.ControllerPrx.checkedCast(
-        communicator.stringToProxy(
-            "controller:{0}".format(helper.getTestEndpoint(num=1))
-        )
-    )
+    controller = Test.ControllerPrx(communicator, f"controller:{helper.getTestEndpoint(num=1)}")
     test(controller is not None)
 
     try:
@@ -80,9 +76,7 @@ def allTests(helper, communicator):
 
 
 def allTestsWithController(helper, communicator, controller):
-    sref = "timeout:{0}".format(helper.getTestEndpoint())
-    obj = communicator.stringToProxy(sref)
-    test(obj is not None)
+    obj = Ice.ObjectPrx(communicator, f"timeout:{helper.getTestEndpoint()}")
 
     timeout = Test.TimeoutPrx.checkedCast(obj)
     test(timeout is not None)

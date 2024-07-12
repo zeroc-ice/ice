@@ -15,19 +15,7 @@ def test(b):
 
 
 def allTests(helper, communicator):
-    sys.stdout.write("testing stringToProxy... ")
-    sys.stdout.flush()
-    ref = "initial:{0}".format(helper.getTestEndpoint())
-    base = communicator.stringToProxy(ref)
-    test(base)
-    print("ok")
-
-    sys.stdout.write("testing checked cast... ")
-    sys.stdout.flush()
-    initial = Test.InitialPrx.checkedCast(base)
-    test(initial)
-    test(initial == base)
-    print("ok")
+    initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing types without package... ")
     sys.stdout.flush()

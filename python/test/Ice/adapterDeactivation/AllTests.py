@@ -13,18 +13,8 @@ def test(b):
 
 
 def allTests(helper, communicator):
-    sys.stdout.write("testing stringToProxy... ")
-    sys.stdout.flush()
-    base = communicator.stringToProxy("test:{0}".format(helper.getTestEndpoint()))
-    test(base)
-    print("ok")
 
-    sys.stdout.write("testing checked cast... ")
-    sys.stdout.flush()
-    obj = Test.TestIntfPrx.checkedCast(base)
-    test(obj)
-    test(obj == base)
-    print("ok")
+    obj = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint()}")
 
     sys.stdout.write("creating/destroying/recreating object adapter... ")
     sys.stdout.flush()
@@ -115,7 +105,7 @@ def allTests(helper, communicator):
     routerId = Ice.Identity()
     routerId.name = "router"
     router = Ice.RouterPrx.uncheckedCast(
-        base.ice_identity(routerId).ice_connectionId("rc")
+        obj.ice_identity(routerId).ice_connectionId("rc")
     )
     adapter = communicator.createObjectAdapterWithRouter("", router)
     test(len(adapter.getPublishedEndpoints()) == 1)
@@ -137,7 +127,7 @@ def allTests(helper, communicator):
 
     try:
         routerId.name = "test"
-        router = Ice.RouterPrx.uncheckedCast(base.ice_identity(routerId))
+        router = Ice.RouterPrx.uncheckedCast(obj.ice_identity(routerId))
         communicator.createObjectAdapterWithRouter("", router)
         test(False)
     except Ice.OperationNotExistException:

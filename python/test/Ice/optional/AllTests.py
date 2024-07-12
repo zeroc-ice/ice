@@ -13,19 +13,7 @@ def test(b):
 
 
 def allTests(helper, communicator):
-    sys.stdout.write("testing stringToProxy... ")
-    sys.stdout.flush()
-    ref = "initial:{0}".format(helper.getTestEndpoint())
-    base = communicator.stringToProxy(ref)
-    test(base)
-    print("ok")
-
-    sys.stdout.write("testing checked cast... ")
-    sys.stdout.flush()
-    initial = Test.InitialPrx.checkedCast(base)
-    test(initial)
-    test(initial == base)
-    print("ok")
+    initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing optional data members... ")
     sys.stdout.flush()
@@ -81,7 +69,7 @@ def allTests(helper, communicator):
         1.0,
         "test",
         Test.MyEnum.MyEnumMember,
-        Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")),
+        Test.MyInterfacePrx(communicator, "test"),
         [5],
         ["test", "test2"],
         {4: 3},
@@ -92,11 +80,11 @@ def allTests(helper, communicator):
         [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember],
         [fs],
         [vs],
-        [Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))],
+        [Test.MyInterfacePrx(communicator, "test")],
         {4: Test.MyEnum.MyEnumMember},
         {4: fs},
         {5: vs},
-        {5: Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))},
+        {5: Test.MyInterfacePrx(communicator, "test")},
         [False, True, False],
     )
 
@@ -109,7 +97,7 @@ def allTests(helper, communicator):
     test(mo1.g == 1.0)
     test(mo1.h == "test")
     test(mo1.i == Test.MyEnum.MyEnumMember)
-    test(mo1.j == communicator.stringToProxy("test"))
+    test(mo1.j == Test.MyInterfacePrx(communicator, "test"))
     test(mo1.bs == [5])
     test(mo1.ss == ["test", "test2"])
     test(mo1.iid[4] == 3)
@@ -123,12 +111,12 @@ def allTests(helper, communicator):
     )
     test(mo1.fss[0] == Test.FixedStruct(78))
     test(mo1.vss[0] == Test.VarStruct("hello"))
-    test(mo1.mips[0] == communicator.stringToProxy("test"))
+    test(mo1.mips[0] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo1.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo1.ifsd[4] == Test.FixedStruct(78))
     test(mo1.ivsd[5] == Test.VarStruct("hello"))
-    test(mo1.imipd[5] == communicator.stringToProxy("test"))
+    test(mo1.imipd[5] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo1.bos == [False, True, False])
 
@@ -205,12 +193,12 @@ def allTests(helper, communicator):
     )
     test(mo5.fss[0] == Test.FixedStruct(78))
     test(mo5.vss[0] == Test.VarStruct("hello"))
-    test(mo5.mips[0] == communicator.stringToProxy("test"))
+    test(mo5.mips[0] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo5.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo5.ifsd[4] == Test.FixedStruct(78))
     test(mo5.ivsd[5] == Test.VarStruct("hello"))
-    test(mo5.imipd[5] == communicator.stringToProxy("test"))
+    test(mo5.imipd[5] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo5.bos == mo1.bos)
 
@@ -303,12 +291,12 @@ def allTests(helper, communicator):
     )
     test(mo9.fss is Ice.Unset)
     test(mo9.vss[0] == Test.VarStruct("hello"))
-    test(mo9.mips[0] == communicator.stringToProxy("test"))
+    test(mo9.mips[0] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo9.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo9.ifsd is Ice.Unset)
     test(mo9.ivsd[5] == Test.VarStruct("hello"))
-    test(mo9.imipd[5] == communicator.stringToProxy("test"))
+    test(mo9.imipd[5] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo9.bos is Ice.Unset)
 
@@ -323,7 +311,7 @@ def allTests(helper, communicator):
     test(r.gg2Opt.a == 20)
     test(r.gg1.a == "gg1")
 
-    initial2 = Test.Initial2Prx.uncheckedCast(base)
+    initial2 = Test.Initial2Prx(communicator, f"initial:{helper.getTestEndpoint()}")
     initial2.opVoid(15, "test")
 
     print("ok")
@@ -427,7 +415,7 @@ def allTests(helper, communicator):
         sys.stdout.write("testing operations with unknown optionals... ")
         sys.stdout.flush()
 
-        initial2 = Test.Initial2Prx.uncheckedCast(base)
+        initial2 = Test.Initial2Prx(communicator, f"initial:{helper.getTestEndpoint()}")
         ovs = Test.VarStruct("test")
         initial2.opClassAndUnknownOptional(Test.A(), ovs)
 
@@ -549,7 +537,7 @@ def allTests(helper, communicator):
 
     (p2, p3) = initial.opMyInterfaceProxy(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))
+    p1 = Test.MyInterfacePrx.uncheckedCast(Test.MyInterfacePrx(communicator, "test"))
     (p2, p3) = initial.opMyInterfaceProxy(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opMyInterfaceProxyAsync(p1)

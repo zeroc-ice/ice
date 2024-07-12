@@ -1263,9 +1263,7 @@ def twowaysFuture(helper, p):
 
             ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
-            p3 = Test.MyClassPrx.uncheckedCast(
-                ic.stringToProxy("test:{0}".format(helper.getTestEndpoint()))
-            )
+            p3 = Test.MyClassPrx(ic, f"test:{helper.getTestEndpoint()}")
 
             ic.getImplicitContext().setContext(ctx)
             test(ic.getImplicitContext().getContext() == ctx)

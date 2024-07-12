@@ -414,15 +414,7 @@ class Thrower(CallbackBase):
 
 
 def allTests(helper, communicator, collocated):
-    sref = "test:{0}".format(helper.getTestEndpoint(num=0))
-    obj = communicator.stringToProxy(sref)
-    test(obj)
-
-    p = Test.TestIntfPrx.uncheckedCast(obj)
-
-    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
-    obj = communicator.stringToProxy(sref)
-    test(obj)
+    p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
 
     if p.ice_getConnection() and p.supportsAMD():
         sys.stdout.write("testing graceful close connection without wait... ")
@@ -497,17 +489,9 @@ def allTests(helper, communicator, collocated):
 
 
 def allTestsFuture(helper, communicator, collocated):
-    sref = "test:{0}".format(helper.getTestEndpoint(num=0))
-    obj = communicator.stringToProxy(sref)
-    test(obj)
 
-    p = Test.TestIntfPrx.uncheckedCast(obj)
-
-    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
-    obj = communicator.stringToProxy(sref)
-    test(obj)
-
-    testController = Test.TestIntfControllerPrx.uncheckedCast(obj)
+    p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
+    testController = Test.TestIntfControllerPrx(communicator, f"testController:{helper.getTestEndpoint(num=1)}")
 
     sys.stdout.write("testing future invocations... ")
     sys.stdout.flush()

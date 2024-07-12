@@ -14,11 +14,7 @@ def test(b):
 
 
 def allTests(helper, communicator):
-    ref = "test:{0}".format(helper.getTestEndpoint())
-    base = communicator.stringToProxy(ref)
-    test(base)
-
-    custom = Test.CustomPrx.checkedCast(base)
+    custom = Test.CustomPrx(communicator, f"test:{helper.getTestEndpoint()}")
     test(custom)
 
     byteList = [1, 2, 3, 4, 5]
