@@ -5,6 +5,7 @@ description = "Ice is a comprehensive RPC framework with support for Python, C++
 authors = [
     {name = "ZeroC, Inc.", email = "info@zeroc.com"}
 ]
+requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "GPLv2 License"}
 keywords = ["ice", "RPC"]

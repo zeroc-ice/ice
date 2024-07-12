@@ -541,7 +541,6 @@ propertiesSetProperty(PropertiesObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -686,7 +685,6 @@ propertiesLoad(PropertiesObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 

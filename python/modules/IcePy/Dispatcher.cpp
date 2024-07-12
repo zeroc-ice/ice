@@ -42,7 +42,7 @@ dispatcherCallInvoke(DispatcherCallObject* self, PyObject* /*args*/, PyObject* /
         return 0;
     }
 
-    return incRef(Py_None);
+    return Py_None;
 }
 
 namespace IcePy

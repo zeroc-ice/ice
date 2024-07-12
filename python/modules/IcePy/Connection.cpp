@@ -183,7 +183,7 @@ connectionCompare(ConnectionObject* c1, PyObject* other, int op)
         }
     }
 
-    return result ? incTrue() : incFalse();
+    return result ? Py_True : Py_False;
 }
 
 extern "C" long
@@ -218,7 +218,6 @@ connectionClose(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -284,7 +283,6 @@ connectionSetAdapter(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -311,7 +309,6 @@ connectionGetAdapter(ConnectionObject* self, PyObject* /*args*/)
     }
     else
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 }
@@ -342,7 +339,6 @@ connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -436,7 +432,6 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -529,7 +524,6 @@ connectionSetBufferSize(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -547,7 +541,6 @@ connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 

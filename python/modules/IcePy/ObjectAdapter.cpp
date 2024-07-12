@@ -368,7 +368,6 @@ adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -386,7 +385,6 @@ adapterHold(ObjectAdapterObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -431,7 +429,7 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
                 AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
                 if (self->holdFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
                 {
-                    PyRETURN_FALSE;
+                    return Py_False;
                 }
             }
 
@@ -467,7 +465,7 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
         }
     }
 
-    PyRETURN_TRUE;
+    return Py_True;
 }
 
 extern "C" PyObject*
@@ -485,7 +483,6 @@ adapterDeactivate(ObjectAdapterObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -529,7 +526,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
                 AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
                 if (self->deactivateFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
                 {
-                    PyRETURN_FALSE;
+                    return Py_False;
                 }
             }
 
@@ -565,7 +562,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
         }
     }
 
-    PyRETURN_TRUE;
+    return Py_True;
 }
 
 extern "C" PyObject*
@@ -582,7 +579,6 @@ adapterIsDeactivated(ObjectAdapterObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -601,7 +597,6 @@ adapterDestroy(ObjectAdapterObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -788,7 +783,6 @@ adapterAddDefaultServant(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -822,7 +816,6 @@ adapterRemove(ObjectAdapterObject* self, PyObject* args)
 
     if (!obj)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -868,7 +861,6 @@ adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
 
     if (!obj)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -954,7 +946,6 @@ adapterRemoveDefaultServant(ObjectAdapterObject* self, PyObject* args)
 
     if (!obj)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -993,7 +984,6 @@ adapterFind(ObjectAdapterObject* self, PyObject* args)
 
     if (!obj)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1039,7 +1029,6 @@ adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
 
     if (!obj)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1125,7 +1114,6 @@ adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
 
     if (!obj)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1163,7 +1151,6 @@ adapterFindDefaultServant(ObjectAdapterObject* self, PyObject* args)
 
     if (!obj)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1201,7 +1188,6 @@ adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1234,7 +1220,6 @@ adapterRemoveServantLocator(ObjectAdapterObject* self, PyObject* args)
 
     if (!locator)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1272,7 +1257,6 @@ adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
 
     if (!locator)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1403,7 +1387,6 @@ adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1424,7 +1407,6 @@ adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
 
     if (!locator)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1480,7 +1462,6 @@ adapterRefreshPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1555,7 +1536,6 @@ adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 

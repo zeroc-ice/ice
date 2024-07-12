@@ -77,7 +77,6 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
     (*self->callbacks).push_back(make_pair(callback, remover));
     Py_INCREF(callback);
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -102,7 +101,6 @@ nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject*
         callbacks.erase(p);
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
