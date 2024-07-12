@@ -112,16 +112,24 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
     methods
         function obj = ObjectPrx(communicator, encoding, impl, bytes)
-            obj@IceInternal.WrapperObject(impl, 'Ice_ObjectPrx');
-            obj.communicator = communicator;
-            obj.encoding = encoding;
-            if nargin == 4
-                obj.bytes = bytes;
+            if nargin == 0 % default constructor
+                superArgs = {};
+            else
+                assert(nargin == 4, 'Invalid number of arguments');
+                superArgs = {impl, 'Ice_ObjectPrx'};
             end
+            obj@IceInternal.WrapperObject(superArgs{:});
 
-            if ~isempty(impl)
-                obj.isTwoway = obj.iceCallWithResult('ice_isTwoway');
+            if nargin > 0
+                obj.communicator = communicator;
+                obj.encoding = encoding;
+                obj.bytes = bytes;
+                if ~isempty(impl)
+                    obj.isTwoway = obj.iceCallWithResult('ice_isTwoway');
+                end
             end
+            % else, we leave the properties unset as they may be already set by another call to the same constructor
+            % when using multiple inheritance.
         end
 
         function delete(obj)
@@ -1277,7 +1285,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 %
                 % We don't retain the proxy's existing type for a couple of factory functions.
                 %
-                r = Ice.ObjectPrx(obj.communicator, obj.encoding, newImpl);
+                r = Ice.ObjectPrx(obj.communicator, obj.encoding, newImpl, []);
             end
         end
 
@@ -1305,6 +1313,6 @@ classdef ObjectPrx < IceInternal.WrapperObject
         encoding
         isTwoway
         cachedInputStream % Only used for synchronous invocations
-        bytes
+        bytes % The marshaled form of the proxy
     end
 end

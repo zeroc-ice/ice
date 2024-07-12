@@ -95,7 +95,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isNull(impl)
                 r = [];
             else
-                r = Ice.ObjectPrx(obj, obj.encoding, impl);
+                r = Ice.ObjectPrx(obj, obj.encoding, impl, []);
             end
         end
         function r = proxyToString(~, proxy)
@@ -140,7 +140,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isNull(impl)
                 r = [];
             else
-                r = Ice.ObjectPrx(obj, obj.encoding, impl);
+                r = Ice.ObjectPrx(obj, obj.encoding, impl, []);
             end
         end
         function r = proxyToProperty(obj, proxy, prop)
