@@ -72,7 +72,7 @@ runs:
         dotnet-version: 8.x
 
     - name: Install testing dependencies from pip
-      run: python3 -m pip install passlib cryptography numpy
+      run: python3 -m pip install --break-system-packages passlib cryptography numpy
       shell: bash
       if: runner.os == 'Linux'
 
