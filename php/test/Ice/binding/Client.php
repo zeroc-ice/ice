@@ -52,13 +52,11 @@ function allTests($helper)
 
         $com->deactivateObjectAdapter($adapter);
 
-        $test3 = $test1;
-        test($test3->ice_getConnection() == $test1->ice_getConnection());
-        test($test3->ice_getConnection() == $test2->ice_getConnection());
+        test($test1->ice_getConnection() == $test2->ice_getConnection());
 
         try
         {
-            $test3->ice_ping();
+            $test1->ice_ping();
             test(false);
         }
         catch(Exception $ex)
@@ -284,10 +282,9 @@ function allTests($helper)
 
         $com->deactivateObjectAdapter($adapter);
 
-        $test3 = $test1;
         try
         {
-            test($test3->ice_getConnection() == $test1->ice_getConnection());
+            test($test1->ice_getConnection() != null);
             test(false);
         }
         catch(Exception $ex)
