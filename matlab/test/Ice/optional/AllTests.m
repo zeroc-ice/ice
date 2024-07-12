@@ -290,7 +290,7 @@ classdef AllTests
             assert(r.gg2Opt.a == 20);
             assert(strcmp(r.gg1.a, 'gg1'));
 
-            initial2 = Initial2Prx.uncheckedCast(base);
+            initial2 = Initial2Prx.uncheckedCast(initial);
             initial2.opVoid(15, 'test');
 
             fprintf('ok\n');
@@ -384,7 +384,7 @@ classdef AllTests
 
                 fprintf('testing operations with unknown optionals... ');
 
-                initial2 = Initial2Prx.uncheckedCast(base);
+                initial2 = Initial2Prx.uncheckedCast(initial);
                 ovs = VarStruct('test');
                 initial2.opClassAndUnknownOptional(A(), ovs);
 
