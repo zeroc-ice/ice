@@ -24,7 +24,7 @@ extern "C" NativePropertiesAdminObject*
 nativePropertiesAdminNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, "This object cannot be created directly");
-    return 0;
+    return nullptr;
 }
 
 extern "C" void
@@ -42,7 +42,7 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
     PyObject* callback;
     if (!PyArg_ParseTuple(args, "O!", callbackType, &callback))
     {
-        return 0;
+        return nullptr;
     }
 
     std::function<void()> remover =
@@ -87,7 +87,7 @@ nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject*
     PyObject* callback;
     if (!PyArg_ParseTuple(args, "O!", callbackType, &callback))
     {
-        return 0;
+        return nullptr;
     }
 
     auto& callbacks = *self->callbacks;
@@ -187,7 +187,7 @@ IcePy::createNativePropertiesAdmin(const Ice::NativePropertiesAdminPtr& admin)
     NativePropertiesAdminObject* p = reinterpret_cast<NativePropertiesAdminObject*>(type->tp_alloc(type, 0));
     if (!p)
     {
-        return 0;
+        return nullptr;
     }
 
     p->admin = new Ice::NativePropertiesAdminPtr(admin);

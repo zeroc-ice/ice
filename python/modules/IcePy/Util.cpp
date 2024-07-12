@@ -86,12 +86,12 @@ namespace IcePy
         PyObjectHandle obj = PyObject_CallObject(versionType, 0);
         if (!obj.get())
         {
-            return 0;
+            return nullptr;
         }
 
         if (!setVersion<T>(obj.get(), version))
         {
-            return 0;
+            return nullptr;
         }
 
         return obj.release();
@@ -456,7 +456,7 @@ IcePy::byteSeqToList(const Ice::ByteSeq& seq)
     PyObject* l = PyList_New(0);
     if (!l)
     {
-        return 0;
+        return nullptr;
     }
 
     for (Ice::ByteSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
@@ -465,14 +465,14 @@ IcePy::byteSeqToList(const Ice::ByteSeq& seq)
         if (!byte)
         {
             Py_DECREF(l);
-            return 0;
+            return nullptr;
         }
         int status = PyList_Append(l, byte);
         Py_DECREF(byte); // Give ownership to the list.
         if (status < 0)
         {
             Py_DECREF(l);
-            return 0;
+            return nullptr;
         }
     }
 
@@ -646,7 +646,7 @@ IcePy::lookupType(const string& typeName)
         PyObjectHandle h = PyImport_ImportModule(const_cast<char*>(moduleName.c_str()));
         if (!h.get())
         {
-            return 0;
+            return nullptr;
         }
 
         dict = PyModule_GetDict(h.get());
@@ -667,7 +667,7 @@ IcePy::createExceptionInstance(PyObject* type)
     IcePy::PyObjectHandle args = PyTuple_New(0);
     if (!args.get())
     {
-        return 0;
+        return nullptr;
     }
     return PyEval_CallObject(type, args.get());
 }
@@ -846,12 +846,12 @@ IcePy::createIdentity(const Ice::Identity& ident)
     PyObjectHandle obj = PyObject_CallObject(identityType, 0);
     if (!obj.get())
     {
-        return 0;
+        return nullptr;
     }
 
     if (!setIdentity(obj.get(), ident))
     {
-        return 0;
+        return nullptr;
     }
 
     return obj.release();
@@ -937,7 +937,7 @@ IcePy::callMethod(PyObject* obj, const string& name, PyObject* arg1, PyObject* a
     PyObjectHandle method = PyObject_GetAttrString(obj, const_cast<char*>(name.c_str()));
     if (!method.get())
     {
-        return 0;
+        return nullptr;
     }
     return callMethod(method.get(), arg1, arg2);
 }
@@ -951,35 +951,39 @@ IcePy::callMethod(PyObject* method, PyObject* arg1, PyObject* arg2)
         args = PyTuple_New(2);
         if (!args.get())
         {
-            return 0;
+            return nullptr;
         }
-        PyTuple_SET_ITEM(args.get(), 0, incRef(arg1));
-        PyTuple_SET_ITEM(args.get(), 1, incRef(arg2));
+        Py_XINCREF(arg1);
+        PyTuple_SET_ITEM(args.get(), 0, arg1);
+        Py_XINCREF(arg2);
+        PyTuple_SET_ITEM(args.get(), 1, arg2);
     }
     else if (arg1)
     {
         args = PyTuple_New(1);
         if (!args.get())
         {
-            return 0;
+            return nullptr;
         }
-        PyTuple_SET_ITEM(args.get(), 0, incRef(arg1));
+        Py_XINCREF(arg1);
+        PyTuple_SET_ITEM(args.get(), 0, arg1);
     }
     else if (arg2)
     {
         args = PyTuple_New(1);
         if (!args.get())
         {
-            return 0;
+            return nullptr;
         }
-        PyTuple_SET_ITEM(args.get(), 0, incRef(arg2));
+        Py_XINCREF(arg2);
+        PyTuple_SET_ITEM(args.get(), 0, arg2);
     }
     else
     {
         args = PyTuple_New(0);
         if (!args.get())
         {
-            return 0;
+            return nullptr;
         }
     }
     return PyObject_Call(method, args.get(), 0);

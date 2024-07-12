@@ -27,7 +27,7 @@ implicitContextNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     ImplicitContextObject* self = reinterpret_cast<ImplicitContextObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
-        return 0;
+        return nullptr;
     }
     self->implicitContext = 0;
     return self;
@@ -84,7 +84,7 @@ implicitContextCompare(ImplicitContextObject* c1, PyObject* other, int op)
         else
         {
             PyErr_Format(PyExc_TypeError, "can't compare %s to %s", Py_TYPE(c1)->tp_name, Py_TYPE(other)->tp_name);
-            return 0;
+            return nullptr;
         }
     }
 
@@ -99,12 +99,12 @@ implicitContextGetContext(ImplicitContextObject* self, PyObject* /*args*/)
     PyObjectHandle dict = PyDict_New();
     if (!dict.get())
     {
-        return 0;
+        return nullptr;
     }
 
     if (!contextToDictionary(ctx, dict.get()))
     {
-        return 0;
+        return nullptr;
     }
 
     return dict.release();
@@ -116,13 +116,13 @@ implicitContextSetContext(ImplicitContextObject* self, PyObject* args)
     PyObject* dict;
     if (!PyArg_ParseTuple(args, "O!", &PyDict_Type, &dict))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::Context ctx;
     if (!dictionaryToContext(dict, ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     (*self->implicitContext)->setContext(ctx);
@@ -136,13 +136,13 @@ implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, "O", &keyObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     bool containsKey;
@@ -153,7 +153,7 @@ implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return containsKey ? Py_True : Py_False;
@@ -165,13 +165,13 @@ implicitContextGet(ImplicitContextObject* self, PyObject* args)
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, "O", &keyObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     string val;
@@ -182,7 +182,7 @@ implicitContextGet(ImplicitContextObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
     return createString(val);
 }
@@ -194,18 +194,18 @@ implicitContextPut(ImplicitContextObject* self, PyObject* args)
     PyObject* valueObj;
     if (!PyArg_ParseTuple(args, "OO", &keyObj, &valueObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     string value;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
     if (!getStringArg(valueObj, "value", value))
     {
-        return 0;
+        return nullptr;
     }
 
     string oldVal;
@@ -216,7 +216,7 @@ implicitContextPut(ImplicitContextObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
     return createString(oldVal);
 }
@@ -227,13 +227,13 @@ implicitContextRemove(ImplicitContextObject* self, PyObject* args)
     PyObject* keyObj;
     if (!PyArg_ParseTuple(args, "O", &keyObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     string val;
@@ -244,7 +244,7 @@ implicitContextRemove(ImplicitContextObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
     return createString(val);
 }

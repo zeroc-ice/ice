@@ -21,7 +21,7 @@ extern "C" EndpointObject*
 endpointNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, "An endpoint cannot be created directly");
-    return 0;
+    return nullptr;
 }
 
 extern "C" void
@@ -75,7 +75,7 @@ endpointCompare(EndpointObject* p1, PyObject* other, int op)
         else
         {
             PyErr_Format(PyExc_TypeError, "can't compare %s to %s", Py_TYPE(p1)->tp_name, Py_TYPE(other)->tp_name);
-            return 0;
+            return nullptr;
         }
     }
 
@@ -94,7 +94,7 @@ endpointToString(EndpointObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -116,7 +116,7 @@ endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -208,7 +208,7 @@ IcePy::createEndpoint(const Ice::EndpointPtr& endpoint)
     EndpointObject* obj = reinterpret_cast<EndpointObject*>(EndpointType.tp_alloc(&EndpointType, 0));
     if (!obj)
     {
-        return 0;
+        return nullptr;
     }
     obj->endpoint = new Ice::EndpointPtr(endpoint);
     return (PyObject*)obj;

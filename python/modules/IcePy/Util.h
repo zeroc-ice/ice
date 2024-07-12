@@ -10,12 +10,6 @@
 
 namespace IcePy
 {
-    inline PyObject* incRef(PyObject* obj)
-    {
-        Py_XINCREF(obj);
-        return obj;
-    }
-
     //
     // Create a string object.
     //
