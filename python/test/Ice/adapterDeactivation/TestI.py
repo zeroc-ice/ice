@@ -36,7 +36,8 @@ class RouterI(Ice.Router):
     def getServerProxy(self, c):
         port = self._nextPort
         self._nextPort += 1
-        return c.adapter.getCommunicator().stringToProxy(
+        return Ice.ObjectPrx(
+            c.adapter.getCommunicator(),
             "dummy:tcp -h localhost -p {0} -t 30000".format(port)
         )
 

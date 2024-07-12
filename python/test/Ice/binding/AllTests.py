@@ -47,7 +47,7 @@ def createTestIntfPrx(adapters):
         test = p.getTestIntf()
         edpts = test.ice_getEndpoints()
         endpoints.extend(edpts)
-    return Test.TestIntfPrx.uncheckedCast(test.ice_endpoints(endpoints))
+    return test.ice_endpoints(endpoints)
 
 
 def deactivate(com, adapters):
@@ -56,8 +56,7 @@ def deactivate(com, adapters):
 
 
 def allTests(helper, communicator):
-    ref = "communicator:{0}".format(helper.getTestEndpoint())
-    com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref))
+    com = Test.RemoteCommunicatorPrx(communicator, f"communicator:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing binding with single endpoint... ")
     sys.stdout.flush()
@@ -73,12 +72,8 @@ def allTests(helper, communicator):
 
     com.deactivateObjectAdapter(adapter)
 
-    test3 = Test.TestIntfPrx.uncheckedCast(test1)
-    test(test3.ice_getConnection() == test1.ice_getConnection())
-    test(test3.ice_getConnection() == test2.ice_getConnection())
-
     try:
-        test3.ice_ping()
+        test1.ice_ping()
         test(False)
     except Ice.ConnectionRefusedException:
         pass
@@ -277,9 +272,7 @@ def allTests(helper, communicator):
             names.remove(name)
         t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
 
-    t = Test.TestIntfPrx.uncheckedCast(
-        t.ice_endpointSelection(Ice.EndpointSelectionType.Random)
-    )
+    t = t.ice_endpointSelection(Ice.EndpointSelectionType.Random)
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
 
     names.append("Adapter21")
@@ -304,9 +297,7 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("Adapter33", "default"))
 
     t = createTestIntfPrx(adapters)
-    t = Test.TestIntfPrx.uncheckedCast(
-        t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
-    )
+    t = t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
     nRetry = 5
 
@@ -372,12 +363,9 @@ def allTests(helper, communicator):
 
     adapter = com.createObjectAdapter("Adapter41", "default")
 
-    test1 = Test.TestIntfPrx.uncheckedCast(
-        adapter.getTestIntf().ice_connectionCached(False)
-    )
-    test2 = Test.TestIntfPrx.uncheckedCast(
-        adapter.getTestIntf().ice_connectionCached(False)
-    )
+    test1 = adapter.getTestIntf().ice_connectionCached(False)
+    test2 = adapter.getTestIntf().ice_connectionCached(False)
+
     test(not test1.ice_isConnectionCached())
     test(not test2.ice_isConnectionCached())
     test(test1.ice_getConnection() == test2.ice_getConnection())
@@ -386,9 +374,8 @@ def allTests(helper, communicator):
 
     com.deactivateObjectAdapter(adapter)
 
-    test3 = Test.TestIntfPrx.uncheckedCast(test1)
     try:
-        test(test3.ice_getConnection() == test1.ice_getConnection())
+        test1.ice_getConnection()
         test(False)
     except Ice.ConnectionRefusedException:
         pass
@@ -405,9 +392,7 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("Adapter52", "default"))
     adapters.append(com.createObjectAdapter("Adapter53", "default"))
 
-    t = Test.TestIntfPrx.uncheckedCast(
-        createTestIntfPrx(adapters).ice_connectionCached(False)
-    )
+    t = createTestIntfPrx(adapters).ice_connectionCached(False)
     test(not t.ice_isConnectionCached())
 
     names = ["Adapter51", "Adapter52", "Adapter53"]
@@ -441,9 +426,7 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("AdapterAMI52", "default"))
     adapters.append(com.createObjectAdapter("AdapterAMI53", "default"))
 
-    t = Test.TestIntfPrx.uncheckedCast(
-        createTestIntfPrx(adapters).ice_connectionCached(False)
-    )
+    t = createTestIntfPrx(adapters).ice_connectionCached(False)
     test(not t.ice_isConnectionCached())
 
     names = ["AdapterAMI51", "AdapterAMI52", "AdapterAMI53"]
@@ -478,11 +461,9 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("Adapter63", "default"))
 
     t = createTestIntfPrx(adapters)
-    t = Test.TestIntfPrx.uncheckedCast(
-        t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
-    )
+    t = t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
-    t = Test.TestIntfPrx.uncheckedCast(t.ice_connectionCached(False))
+    t = t.ice_connectionCached(False)
     test(not t.ice_isConnectionCached())
     nRetry = 5
 
@@ -552,11 +533,9 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("AdapterAMI63", "default"))
 
     t = createTestIntfPrx(adapters)
-    t = Test.TestIntfPrx.uncheckedCast(
-        t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
-    )
+    t = t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
-    t = Test.TestIntfPrx.uncheckedCast(t.ice_connectionCached(False))
+    t = t.ice_connectionCached(False)
     test(not t.ice_isConnectionCached())
     nRetry = 5
 
@@ -625,7 +604,7 @@ def allTests(helper, communicator):
     t = createTestIntfPrx(adapters)
     test(t.getAdapterName() == "Adapter71")
 
-    testUDP = Test.TestIntfPrx.uncheckedCast(t.ice_datagram())
+    testUDP = t.ice_datagram()
     test(t.ice_getConnection() != testUDP.ice_getConnection())
     try:
         testUDP.getAdapterName()
@@ -647,11 +626,11 @@ def allTests(helper, communicator):
             test(t.getAdapterName() == "Adapter82")
             t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
 
-        testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
+        testSecure = t.ice_secure(True)
         test(testSecure.ice_isSecure())
-        testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(False))
+        testSecure = t.ice_secure(False)
         test(not testSecure.ice_isSecure())
-        testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
+        testSecure = t.ice_secure(True)
         test(testSecure.ice_isSecure())
         test(t.ice_getConnection() != testSecure.ice_getConnection())
 

@@ -16,6 +16,7 @@
 #include "Thread.h"
 #include "Types.h"
 #include "Util.h"
+
 #include <structmember.h>
 
 using namespace std;
@@ -64,10 +65,47 @@ allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communica
 }
 
 extern "C" ProxyObject*
-proxyNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+proxyNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PyErr_Format(PyExc_RuntimeError, "A proxy cannot be created directly");
-    return nullptr;
+    ProxyObject* self = reinterpret_cast<ProxyObject*>(type->tp_alloc(type, 0));
+    if (!self)
+    {
+        return nullptr;
+    }
+    self->proxy = nullptr;
+    self->communicator = nullptr;
+    return self;
+}
+
+extern "C" int
+proxyInit(ProxyObject* self, PyObject* args, PyObject* /*kwds*/)
+{
+    PyObject* communicatorWrapperType = lookupType("Ice.Communicator");
+    assert(communicatorWrapperType);
+
+    PyObject* communicatorWrapper;
+    char* proxyString;
+
+    if (!PyArg_ParseTuple(args, "O!s", communicatorWrapperType, &communicatorWrapper, &proxyString))
+    {
+        return -1;
+    }
+
+    PyObject* communicatorImpl = PyObject_GetAttrString(communicatorWrapper, "_impl");
+
+    Ice::CommunicatorPtr communicator = getCommunicator(communicatorImpl);
+    try
+    {
+        Ice::ObjectPrx proxy{communicator, proxyString};
+        self->proxy = new Ice::ObjectPrx(std::move(proxy));
+        self->communicator = new Ice::CommunicatorPtr(std::move(communicator));
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
+        return -1;
+    }
+    return 0;
 }
 
 extern "C" void
@@ -2182,7 +2220,7 @@ namespace IcePy
         0,                                           /* tp_descr_get */
         0,                                           /* tp_descr_set */
         0,                                           /* tp_dictoffset */
-        0,                                           /* tp_init */
+        reinterpret_cast<initproc>(proxyInit),       /* tp_init */
         0,                                           /* tp_alloc */
         reinterpret_cast<newfunc>(proxyNew),         /* tp_new */
         0,                                           /* tp_free */

@@ -14,12 +14,7 @@ def test(b):
 
 
 async def allTestsAsync(helper, communicator):
-
-    sref = "test:{0}".format(helper.getTestEndpoint(num=0))
-    obj = communicator.stringToProxy(sref)
-    test(obj)
-
-    p = Test.TestIntfPrx.uncheckedCast(obj)
+    p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
 
     sys.stdout.write("testing invocation... ")
     sys.stdout.flush()

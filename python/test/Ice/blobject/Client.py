@@ -19,9 +19,7 @@ def test(b):
 
 class Client(TestHelper):
     def allTests(self, communicator, sync):
-        hello = Test.HelloPrx.checkedCast(
-            communicator.stringToProxy("test:{0}".format(self.getTestEndpoint()))
-        )
+        hello = Test.HelloPrx(communicator, f"test:{self.getTestEndpoint()}")
         hello.sayHello(False)
         hello.sayHello(False, {"_fwd": "o"})
         test(hello.add(10, 20) == 30)
@@ -33,9 +31,7 @@ class Client(TestHelper):
 
         try:
             Test.HelloPrx.checkedCast(
-                communicator.stringToProxy(
-                    "unknown:{0} -t 10000".format(self.getTestEndpoint())
-                )
+                Ice.ObjectPrx(communicator, f"unknown:{self.getTestEndpoint()} -t 10000")
             )
             test(False)
         except Ice.ObjectNotExistException:
@@ -44,7 +40,7 @@ class Client(TestHelper):
         # First try an object at a non-existent endpoint.
         try:
             Test.HelloPrx.checkedCast(
-                communicator.stringToProxy("missing:default -p 12000 -t 10000")
+                Ice.ObjectPrx(communicator, "missing:default -p 12000 -t 10000")
             )
             test(False)
         except Ice.UnknownLocalException as e:

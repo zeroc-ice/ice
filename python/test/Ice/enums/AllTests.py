@@ -12,11 +12,7 @@ def test(b):
 
 
 def allTests(helper, communicator):
-    ref = "test:{0}".format(helper.getTestEndpoint())
-    base = communicator.stringToProxy(ref)
-    test(base)
-
-    proxy = Test.TestIntfPrx.checkedCast(base)
+    proxy = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint()}")
     test(proxy)
 
     sys.stdout.write("testing enum values... ")

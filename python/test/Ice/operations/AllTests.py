@@ -19,10 +19,8 @@ def test(b):
 
 
 def allTests(helper, communicator):
-    ref = "test:{0}".format(helper.getTestEndpoint())
-    base = communicator.stringToProxy(ref)
-    cl = Test.MyClassPrx.checkedCast(base)
-    derived = Test.MyDerivedClassPrx.checkedCast(cl)
+    cl = Test.MyClassPrx(communicator, f"test:{helper.getTestEndpoint()}")
+    derived = Test.MyDerivedClassPrx(communicator, f"test:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing twoway operations... ")
     sys.stdout.flush()

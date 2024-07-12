@@ -29,6 +29,8 @@ namespace
         }
         return name;
     }
+
+    const string tripleQuotes = "\"\"\"";
 }
 
 namespace Slice
@@ -685,6 +687,27 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     _out << "):";
     _out.inc();
+
+    _out << sp;
+    _out << nl << "def __init__(self, communicator, proxyString):";
+    _out.inc();
+    _out << nl << tripleQuotes;
+    _out << nl << "Creates a new " << prxName << " proxy";
+    _out << nl;
+    _out << nl << "Parameters";
+    _out << nl << "----------";
+    _out << nl << "communicator : Ice.Communicator";
+    _out << nl << "    The communicator of the new proxy.";
+    _out << nl << "proxyString : str";
+    _out << nl << "    The string representation of the proxy.";
+    _out << nl;
+    _out << nl << "Raises";
+    _out << nl << "------";
+    _out << nl << "ParseException";
+    _out << nl << "    Thrown when proxyString is not a valid proxy string.";
+    _out << nl << tripleQuotes;
+    _out << nl << "super().__init__(communicator, proxyString)";
+    _out.dec();
 
     OperationList ops = p->operations();
     for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
