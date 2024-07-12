@@ -210,7 +210,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 #ifdef __APPLE__
     if (_dispatchQueue && _executor)
     {
-        throw InitializationException(__FILE__, __LINE__, "Cannot use both dispatch queues and custom executors");
+        throw InitializationException{__FILE__, __LINE__, "cannot use both dispatch queues and custom executors"};
     }
 #endif
 }

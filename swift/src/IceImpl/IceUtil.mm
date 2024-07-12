@@ -10,8 +10,6 @@
 #import "Ice/Network.h"
 #import "Ice/StringUtil.h"
 
-#include <iostream>
-
 namespace
 {
     class Init
@@ -23,6 +21,8 @@ namespace
             // Register plug-ins included in the Ice framework (a single binary file)
             // See also RegisterPluginsInit.cpp in cpp/src/Ice
             //
+            Ice::registerIceUDP(true);
+            Ice::registerIceWS(true);
             Ice::registerIceDiscovery(false);
             Ice::registerIceLocatorDiscovery(false);
 #if defined(__APPLE__) && TARGET_OS_IPHONE != 0
@@ -110,8 +110,6 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         {
             communicator = Ice::initialize(initData);
         }
-
-        assert(communicator->getClientDispatchQueue());
 
         return [ICECommunicator getHandle:communicator];
     }
