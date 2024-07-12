@@ -125,7 +125,6 @@ IcePy::ValueFactoryManager::findValueFactory(string_view id) const
         return p->second->getValueFactory();
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -280,7 +279,6 @@ valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 

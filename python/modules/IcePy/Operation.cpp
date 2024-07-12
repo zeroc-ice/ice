@@ -427,7 +427,7 @@ operationDeprecate(OperationObject* self, PyObject* args)
     assert(self->op);
     (*self->op)->deprecate(msg);
 
-    return incRef(Py_None);
+    return Py_None;
 }
 
 //
@@ -475,7 +475,7 @@ dispatchCallbackResponse(DispatchCallbackObject* self, PyObject* args)
         assert(false);
     }
 
-    return incRef(Py_None);
+    return Py_None;
 }
 
 extern "C" PyObject*
@@ -501,7 +501,7 @@ dispatchCallbackException(DispatchCallbackObject* self, PyObject* args)
         assert(false);
     }
 
-    return incRef(Py_None);
+    return Py_None;
 }
 
 //
@@ -541,7 +541,7 @@ asyncInvocationContextCancel(AsyncInvocationContextObject* self, PyObject* /*arg
         assert(false);
     }
 
-    return incRef(Py_None);
+    return Py_None;
 }
 
 extern "C" PyObject*
@@ -601,7 +601,7 @@ asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* ar
         assert(false);
     }
 
-    return incRef(Py_None);
+    return Py_None;
 }
 
 //
@@ -1511,7 +1511,7 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, pair<const byte*, 
     }
     assert(false);
     // Never reached.
-    return incRef(Py_None);
+    return Py_None;
 }
 
 bool
@@ -1662,7 +1662,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         return 0;
     }
 
-    return incRef(Py_None);
+    return Py_None;
 }
 
 //
@@ -1754,7 +1754,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
     {
         if (_sent)
         {
-            PyObjectHandle tmp = callMethod(future.get(), "set_sent", _sentSynchronously ? getTrue() : getFalse());
+            PyObjectHandle tmp = callMethod(future.get(), "set_sent", _sentSynchronously ? Py_True : Py_False);
             if (PyErr_Occurred())
             {
                 return 0;
@@ -1915,7 +1915,7 @@ IcePy::AsyncInvocation::sent(bool sentSynchronously)
         Py_INCREF(_future);
     }
 
-    PyObjectHandle tmp = callMethod(future.get(), "set_sent", sentSynchronously ? getTrue() : getFalse());
+    PyObjectHandle tmp = callMethod(future.get(), "set_sent", sentSynchronously ? Py_True : Py_False);
     if (PyErr_Occurred())
     {
         handleException();
@@ -2024,7 +2024,7 @@ IcePy::AsyncTypedInvocation::handleResponse(PyObject* future, bool ok, pair<cons
             PyObjectHandle r;
             if (PyTuple_GET_SIZE(args.get()) == 0)
             {
-                r = incRef(Py_None);
+                r = Py_None;
             }
             else if (PyTuple_GET_SIZE(args.get()) == 1)
             {
@@ -2111,7 +2111,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             throwPythonException();
         }
 
-        PyTuple_SET_ITEM(result.get(), 0, ok ? incTrue() : incFalse());
+        PyTuple_SET_ITEM(result.get(), 0, ok ? Py_True : Py_False);
 
         PyObjectHandle op;
         if (out.empty())
@@ -2202,7 +2202,7 @@ IcePy::AsyncBlobjectInvocation::handleResponse(PyObject* future, bool ok, pair<c
         return;
     }
 
-    PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse());
+    PyTuple_SET_ITEM(args.get(), 0, ok ? Py_True : Py_False);
 
     Py_ssize_t sz = results.second - results.first;
     PyObjectHandle op;
@@ -2705,7 +2705,7 @@ IcePy::FlushAsyncCallback::setFuture(PyObject* future)
     }
     else if (_sent)
     {
-        PyObjectHandle tmp = callMethod(future, "set_sent", _sentSynchronously ? getTrue() : getFalse());
+        PyObjectHandle tmp = callMethod(future, "set_sent", _sentSynchronously ? Py_True : Py_False);
         PyErr_Clear();
         //
         // We consider the invocation complete when sent.
@@ -2757,7 +2757,7 @@ IcePy::FlushAsyncCallback::sent(bool sentSynchronously)
         return;
     }
 
-    PyObjectHandle tmp = callMethod(_future, "set_sent", _sentSynchronously ? getTrue() : getFalse());
+    PyObjectHandle tmp = callMethod(_future, "set_sent", _sentSynchronously ? Py_True : Py_False);
     PyErr_Clear();
     //
     // We consider the invocation complete when sent.

@@ -8,20 +8,6 @@
 #include "Config.h"
 #include "Ice/Ice.h"
 
-//
-// These macros replace Py_RETURN_FALSE and Py_RETURN_TRUE. We use these
-// instead of the standard ones in order to avoid GCC warnings about
-// strict aliasing and type punning.
-//
-#define PyRETURN_FALSE return incFalse()
-#define PyRETURN_TRUE return incTrue()
-
-#define PyRETURN_BOOL(b)                                                                                               \
-    if (b)                                                                                                             \
-        PyRETURN_TRUE;                                                                                                 \
-    else                                                                                                               \
-        PyRETURN_FALSE
-
 namespace IcePy
 {
     inline PyObject* incRef(PyObject* obj)
@@ -29,28 +15,6 @@ namespace IcePy
         Py_XINCREF(obj);
         return obj;
     }
-
-    //
-    // This should be used instead of Py_False to avoid GCC compiler warnings.
-    //
-    inline PyObject* getFalse()
-    {
-        PyLongObject* i = &_Py_FalseStruct;
-        return reinterpret_cast<PyObject*>(i);
-    }
-
-    //
-    // This should be used instead of Py_True to avoid GCC compiler warnings.
-    //
-    inline PyObject* getTrue()
-    {
-        PyLongObject* i = &_Py_TrueStruct;
-        return reinterpret_cast<PyObject*>(i);
-    }
-
-    inline PyObject* incFalse() { return incRef(getFalse()); }
-
-    inline PyObject* incTrue() { return incRef(getTrue()); }
 
     //
     // Create a string object.

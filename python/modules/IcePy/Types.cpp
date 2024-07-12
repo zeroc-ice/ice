@@ -430,7 +430,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         //
         // hasOptionalMembers
         //
-        PyObject* hasOptionalMembers = (*p)->hasOptionalMembers ? getTrue() : getFalse();
+        PyObject* hasOptionalMembers = (*p)->hasOptionalMembers ? Py_True : Py_False;
         if (PyObject_SetAttrString(slice.get(), "hasOptionalMembers", hasOptionalMembers) < 0)
         {
             assert(PyErr_Occurred());
@@ -440,7 +440,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         //
         // isLastSlice
         //
-        PyObject* isLastSlice = (*p)->isLastSlice ? getTrue() : getFalse();
+        PyObject* isLastSlice = (*p)->isLastSlice ? Py_True : Py_False;
         if (PyObject_SetAttrString(slice.get(), "isLastSlice", isLastSlice) < 0)
         {
             assert(PyErr_Occurred());
@@ -873,11 +873,11 @@ IcePy::PrimitiveInfo::unmarshal(
             is->read(b);
             if (b)
             {
-                cb->unmarshaled(getTrue(), target, closure);
+                cb->unmarshaled(Py_True, target, closure);
             }
             else
             {
-                cb->unmarshaled(getFalse(), target, closure);
+                cb->unmarshaled(Py_False, target, closure);
             }
             break;
         }
@@ -2101,11 +2101,10 @@ IcePy::SequenceInfo::createSequenceFromMemory(
     Py_ssize_t size,
     BuiltinType type)
 {
-    PyObjectHandle memoryview;
     char* buf = const_cast<char*>(size == 0 ? emptySeq : buffer);
-    memoryview = PyMemoryView_FromMemory(buf, size, PyBUF_READ);
+    PyObjectHandle memoryView = PyMemoryView_FromMemory(buf, size, PyBUF_READ);
 
-    if (!memoryview.get())
+    if (!memoryView.get())
     {
         assert(PyErr_Occurred());
         throw AbortMarshaling();
@@ -2121,9 +2120,9 @@ IcePy::SequenceInfo::createSequenceFromMemory(
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
     PyObjectHandle args = PyTuple_New(3);
-    PyTuple_SET_ITEM(args.get(), 0, incRef(memoryview.get()));
-    PyTuple_SET_ITEM(args.get(), 1, incRef(builtinType.get()));
-    PyTuple_SET_ITEM(args.get(), 2, incTrue());
+    PyTuple_SET_ITEM(args.get(), 0, memoryView.release());
+    PyTuple_SET_ITEM(args.get(), 1, builtinType.release());
+    PyTuple_SET_ITEM(args.get(), 2, Py_True);
     PyObjectHandle result = PyObject_Call(sm->factory, args.get(), 0);
 
     if (!result.get())
@@ -2173,7 +2172,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
 
                 for (int i = 0; i < sz; ++i)
                 {
-                    sm->setItem(result.get(), i, p.first[i] ? getTrue() : getFalse());
+                    sm->setItem(result.get(), i, p.first[i] ? Py_True : Py_False);
                 }
             }
             break;

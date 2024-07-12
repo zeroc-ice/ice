@@ -79,7 +79,7 @@ endpointCompare(EndpointObject* p1, PyObject* other, int op)
         }
     }
 
-    return result ? incTrue() : incFalse();
+    return result ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
