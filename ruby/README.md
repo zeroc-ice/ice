@@ -28,8 +28,7 @@ require 'Ice'
 Ice::loadSlice('Hello.ice')
 
 Ice::initialize(ARGV) do |communicator|
-    hello = Demo::HelloPrx::checkedCast(
-        communicator.stringToProxy("hello:default -h localhost -p 10000"))
+    hello = Demo::HelloPrx:new(communicator, "hello:default -h localhost -p 10000")
     hello.sayHello()
 end
 ```
