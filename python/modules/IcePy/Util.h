@@ -221,6 +221,5 @@ extern "C" PyObject* IcePy_protocolVersionToString(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_stringToProtocolVersion(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_encodingVersionToString(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_stringToEncodingVersion(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_generateUUID(PyObject*, PyObject*);
 
 #endif

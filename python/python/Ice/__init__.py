@@ -23,7 +23,6 @@ stringToProtocolVersion = IcePy.stringToProtocolVersion
 protocolVersionToString = IcePy.protocolVersionToString
 stringToEncodingVersion = IcePy.stringToEncodingVersion
 encodingVersionToString = IcePy.encodingVersionToString
-generateUUID = IcePy.generateUUID
 loadSlice = IcePy.loadSlice
 AsyncInvocationContext = IcePy.AsyncInvocationContext
 Unset = IcePy.Unset
