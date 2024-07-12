@@ -24,7 +24,7 @@ extern "C" BatchRequestObject*
 batchRequestNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, "Batch requests can only be created by the Ice runtime");
-    return 0;
+    return nullptr;
 }
 
 extern "C" void
@@ -50,7 +50,7 @@ batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
         catch (...)
         {
             setPythonException(current_exception());
-            return 0;
+            return nullptr;
         }
 
         self->size = PyLong_FromLong(size);
@@ -73,7 +73,7 @@ batchRequestGetOperation(BatchRequestObject* self, PyObject* /*args*/)
         catch (...)
         {
             setPythonException(current_exception());
-            return 0;
+            return nullptr;
         }
 
         self->operation = createString(operation);
@@ -97,7 +97,7 @@ batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
         catch (...)
         {
             setPythonException(current_exception());
-            return 0;
+            return nullptr;
         }
 
         self->proxy = createProxy(proxy.value(), proxy->ice_getCommunicator());
@@ -118,7 +118,7 @@ batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;

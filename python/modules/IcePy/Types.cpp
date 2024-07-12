@@ -99,7 +99,7 @@ typeInfoNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     TypeInfoObject* self = reinterpret_cast<TypeInfoObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
-        return 0;
+        return nullptr;
     }
     self->info = 0;
     return self;
@@ -124,7 +124,7 @@ exceptionInfoNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     ExceptionInfoObject* self = reinterpret_cast<ExceptionInfoObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
-        return 0;
+        return nullptr;
     }
     self->info = 0;
     return self;
@@ -229,7 +229,7 @@ lookupProxyInfo(string_view id)
     {
         return p->second;
     }
-    return 0;
+    return nullptr;
 }
 
 //
@@ -1109,7 +1109,7 @@ IcePy::EnumInfo::enumeratorForValue(int32_t v) const
     EnumeratorMap::const_iterator p = enumerators.find(v);
     if (p == enumerators.end())
     {
-        return 0;
+        return nullptr;
     }
     PyObject* r = p->second.get();
     Py_INCREF(r);
@@ -2534,7 +2534,7 @@ IcePy::SequenceInfo::SequenceMapping::createContainer(int sz) const
         // is created by the user factory function.
         //
         assert(false);
-        return 0;
+        return nullptr;
     }
 }
 
@@ -3961,7 +3961,7 @@ IcePy::lookupValueInfo(string_view id)
     {
         return p->second;
     }
-    return 0;
+    return nullptr;
 }
 
 //
@@ -3975,7 +3975,7 @@ IcePy::lookupExceptionInfo(std::string_view id)
     {
         return p->second;
     }
-    return 0;
+    return nullptr;
 }
 
 namespace IcePy
@@ -4286,7 +4286,7 @@ IcePy_defineEnum(PyObject*, PyObject* args)
     PyObject* enumerators;
     if (!PyArg_ParseTuple(args, "sOOO", &id, &type, &meta, &enumerators))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(PyTuple_Check(meta));
@@ -4305,7 +4305,7 @@ IcePy_defineStruct(PyObject*, PyObject* args)
     PyObject* members;
     if (!PyArg_ParseTuple(args, "sOOO", &id, &type, &meta, &members))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(PyType_Check(type));
@@ -4325,7 +4325,7 @@ IcePy_defineSequence(PyObject*, PyObject* args)
     PyObject* elementType;
     if (!PyArg_ParseTuple(args, "sOO", &id, &meta, &elementType))
     {
-        return 0;
+        return nullptr;
     }
 
     try
@@ -4336,7 +4336,7 @@ IcePy_defineSequence(PyObject*, PyObject* args)
     catch (const InvalidSequenceFactoryException&)
     {
         assert(PyErr_Occurred());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -4349,7 +4349,7 @@ IcePy_defineDictionary(PyObject*, PyObject* args)
     PyObject* valueType;
     if (!PyArg_ParseTuple(args, "sOOO", &id, &meta, &keyType, &valueType))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(PyTuple_Check(meta));
@@ -4365,7 +4365,7 @@ IcePy_declareProxy(PyObject*, PyObject* args)
     char* id;
     if (!PyArg_ParseTuple(args, "s", &id))
     {
-        return 0;
+        return nullptr;
     }
 
     string proxyId = id;
@@ -4393,7 +4393,7 @@ IcePy_defineProxy(PyObject*, PyObject* args)
     PyObject* type;
     if (!PyArg_ParseTuple(args, "sO", &id, &type))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(PyType_Check(type));
@@ -4424,7 +4424,7 @@ IcePy_declareClass(PyObject*, PyObject* args)
     char* id;
     if (!PyArg_ParseTuple(args, "s", &id))
     {
-        return 0;
+        return nullptr;
     }
 
     ClassInfoPtr info = lookupClassInfo(id);
@@ -4452,7 +4452,7 @@ IcePy_defineClass(PyObject*, PyObject* args)
     PyObject* interfaces;
     if (!PyArg_ParseTuple(args, "sOOOO", &id, &type, &meta, &base, &interfaces))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(PyTuple_Check(meta));
@@ -4485,7 +4485,7 @@ IcePy_declareValue(PyObject*, PyObject* args)
     char* id;
     if (!PyArg_ParseTuple(args, "s", &id))
     {
-        return 0;
+        return nullptr;
     }
 
     ValueInfoPtr info = lookupValueInfo(id);
@@ -4515,7 +4515,7 @@ IcePy_defineValue(PyObject*, PyObject* args)
     PyObject* members;
     if (!PyArg_ParseTuple(args, "sOiOiOO", &id, &type, &compactId, &meta, &interface, &base, &members))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(PyTuple_Check(meta));
@@ -4566,7 +4566,7 @@ IcePy_defineException(PyObject*, PyObject* args)
     PyObject* members;
     if (!PyArg_ParseTuple(args, "sOOOO", &id, &type, &meta, &base, &members))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(PyExceptionClass_Check(type));
@@ -4611,7 +4611,7 @@ IcePy_stringify(PyObject*, PyObject* args)
     PyObject* type;
     if (!PyArg_ParseTuple(args, "OO", &value, &type))
     {
-        return 0;
+        return nullptr;
     }
 
     TypeInfoPtr info = getType(type);
@@ -4633,7 +4633,7 @@ IcePy_stringifyException(PyObject*, PyObject* args)
     PyObject* value;
     if (!PyArg_ParseTuple(args, "O", &value))
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle iceType = getAttr(value, "_ice_type", false);

@@ -44,7 +44,7 @@ allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communica
     ProxyObject* p = reinterpret_cast<ProxyObject*>(typeObj->tp_alloc(typeObj, 0));
     if (!p)
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -67,7 +67,7 @@ extern "C" ProxyObject*
 proxyNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, "A proxy cannot be created directly");
-    return 0;
+    return nullptr;
 }
 
 extern "C" void
@@ -126,7 +126,7 @@ proxyCompare(ProxyObject* p1, PyObject* other, int op)
         else
         {
             PyErr_Format(PyExc_TypeError, "can't compare %s to %s", Py_TYPE(p1)->tp_name, Py_TYPE(other)->tp_name);
-            return 0;
+            return nullptr;
         }
     }
 
@@ -159,7 +159,7 @@ proxyIceIsA(ProxyObject* self, PyObject* args)
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, "O|O!", &type, &PyDict_Type, &ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -177,7 +177,7 @@ proxyIceIsAAsync(ProxyObject* self, PyObject* args)
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, "O|O!", &type, &PyDict_Type, &ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -194,7 +194,7 @@ proxyIcePing(ProxyObject* self, PyObject* args)
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -211,7 +211,7 @@ proxyIcePingAsync(ProxyObject* self, PyObject* args)
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -228,7 +228,7 @@ proxyIceIds(ProxyObject* self, PyObject* args)
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -245,7 +245,7 @@ proxyIceIdsAsync(ProxyObject* self, PyObject* args)
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -262,7 +262,7 @@ proxyIceId(ProxyObject* self, PyObject* args)
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -279,7 +279,7 @@ proxyIceIdAsync(ProxyObject* self, PyObject* args)
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -303,7 +303,7 @@ proxyIceGetIdentity(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createIdentity(id);
@@ -317,7 +317,7 @@ proxyIceIdentity(ProxyObject* self, PyObject* args)
     PyObject* id;
     if (!PyArg_ParseTuple(args, "O!", identityType, &id))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -325,7 +325,7 @@ proxyIceIdentity(ProxyObject* self, PyObject* args)
     Ice::Identity ident;
     if (!getIdentity(id, ident))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> newProxy;
@@ -336,7 +336,7 @@ proxyIceIdentity(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator);
@@ -355,7 +355,7 @@ proxyIceGetContext(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle result = PyDict_New();
@@ -363,7 +363,7 @@ proxyIceGetContext(ProxyObject* self, PyObject* /*args*/)
     {
         return result.release();
     }
-    return 0;
+    return nullptr;
 }
 
 extern "C" PyObject*
@@ -372,7 +372,7 @@ proxyIceContext(ProxyObject* self, PyObject* args)
     PyObject* dict;
     if (!PyArg_ParseTuple(args, "O!", &PyDict_Type, &dict))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -380,7 +380,7 @@ proxyIceContext(ProxyObject* self, PyObject* args)
     Ice::Context ctx;
     if (!dictionaryToContext(dict, ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> newProxy;
@@ -391,7 +391,7 @@ proxyIceContext(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -410,7 +410,7 @@ proxyIceGetFacet(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(facet);
@@ -422,13 +422,13 @@ proxyIceFacet(ProxyObject* self, PyObject* args)
     PyObject* facetObj;
     if (!PyArg_ParseTuple(args, "O", &facetObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string facet;
     if (!getStringArg(facetObj, "facet", facet))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -441,7 +441,7 @@ proxyIceFacet(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator);
@@ -460,7 +460,7 @@ proxyIceGetAdapterId(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(id);
@@ -472,13 +472,13 @@ proxyIceAdapterId(ProxyObject* self, PyObject* args)
     PyObject* idObj;
     if (!PyArg_ParseTuple(args, "O", &idObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string id;
     if (!getStringArg(idObj, "id", id))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -491,7 +491,7 @@ proxyIceAdapterId(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -510,7 +510,7 @@ proxyIceGetEndpoints(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     int count = static_cast<int>(endpoints.size());
@@ -521,7 +521,7 @@ proxyIceGetEndpoints(ProxyObject* self, PyObject* /*args*/)
         PyObjectHandle endp = createEndpoint(*p);
         if (!endp.get())
         {
-            return 0;
+            return nullptr;
         }
         PyTuple_SET_ITEM(result.get(), i, endp.release()); // PyTuple_SET_ITEM steals a reference.
     }
@@ -535,13 +535,13 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
     PyObject* endpoints;
     if (!PyArg_ParseTuple(args, "O", &endpoints))
     {
-        return 0;
+        return nullptr;
     }
 
     if (!PyTuple_Check(endpoints) && !PyList_Check(endpoints))
     {
         PyErr_Format(PyExc_ValueError, "argument must be a tuple or list");
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -549,7 +549,7 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
     Ice::EndpointSeq seq;
     if (!toEndpointSeq(endpoints, seq))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> newProxy;
@@ -560,7 +560,7 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -579,7 +579,7 @@ proxyIceGetLocatorCacheTimeout(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -596,7 +596,7 @@ proxyIceGetInvocationTimeout(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -613,7 +613,7 @@ proxyIceGetConnectionId(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -623,7 +623,7 @@ proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
     int timeout;
     if (!PyArg_ParseTuple(args, "i", &timeout))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -636,12 +636,12 @@ proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
     catch (const invalid_argument& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
-        return 0;
+        return nullptr;
     }
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -653,7 +653,7 @@ proxyIceInvocationTimeout(ProxyObject* self, PyObject* args)
     int timeout;
     if (!PyArg_ParseTuple(args, "i", &timeout))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -666,12 +666,12 @@ proxyIceInvocationTimeout(ProxyObject* self, PyObject* args)
     catch (const invalid_argument& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
-        return 0;
+        return nullptr;
     }
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -690,7 +690,7 @@ proxyIceIsConnectionCached(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -703,13 +703,13 @@ proxyIceConnectionCached(ProxyObject* self, PyObject* args)
     PyObject* flag;
     if (!PyArg_ParseTuple(args, "O", &flag))
     {
-        return 0;
+        return nullptr;
     }
 
     int n = PyObject_IsTrue(flag);
     if (n < 0)
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -722,7 +722,7 @@ proxyIceConnectionCached(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -757,7 +757,7 @@ proxyIceGetEndpointSelection(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(type);
@@ -772,7 +772,7 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
     PyObject* type;
     if (!PyArg_ParseTuple(args, "O!", cls, &type))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::EndpointSelectionType val;
@@ -791,7 +791,7 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
     else
     {
         PyErr_Format(PyExc_ValueError, "ice_endpointSelection requires Random or Ordered");
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -804,7 +804,7 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -823,7 +823,7 @@ proxyIceIsSecure(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -836,13 +836,13 @@ proxyIceSecure(ProxyObject* self, PyObject* args)
     PyObject* flag;
     if (!PyArg_ParseTuple(args, "O", &flag))
     {
-        return 0;
+        return nullptr;
     }
 
     int n = PyObject_IsTrue(flag);
     if (n < 0)
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -855,7 +855,7 @@ proxyIceSecure(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -874,7 +874,7 @@ proxyIceGetEncodingVersion(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(version);
@@ -888,14 +888,14 @@ proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
     PyObject* p;
     if (!PyArg_ParseTuple(args, "O!", versionType, &p))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::EncodingVersion val;
     if (!getEncodingVersion(p, val))
     {
         PyErr_Format(PyExc_ValueError, "ice_encodingVersion requires an encoding version");
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -908,7 +908,7 @@ proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -927,7 +927,7 @@ proxyIceIsPreferSecure(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -940,13 +940,13 @@ proxyIcePreferSecure(ProxyObject* self, PyObject* args)
     PyObject* flag;
     if (!PyArg_ParseTuple(args, "O", &flag))
     {
-        return 0;
+        return nullptr;
     }
 
     int n = PyObject_IsTrue(flag);
     if (n < 0)
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -959,7 +959,7 @@ proxyIcePreferSecure(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -978,7 +978,7 @@ proxyIceGetRouter(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     if (!router)
@@ -997,13 +997,13 @@ proxyIceRouter(ProxyObject* self, PyObject* args)
     PyObject* p;
     if (!PyArg_ParseTuple(args, "O", &p))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> proxy;
     if (!getProxyArg(p, "ice_router", "rtr", proxy, "Ice.RouterPrx"))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
@@ -1018,7 +1018,7 @@ proxyIceRouter(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1037,7 +1037,7 @@ proxyIceGetLocator(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     if (!locator)
@@ -1056,13 +1056,13 @@ proxyIceLocator(ProxyObject* self, PyObject* args)
     PyObject* p;
     if (!PyArg_ParseTuple(args, "O", &p))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> proxy;
     if (!getProxyArg(p, "ice_locator", "loc", proxy, "Ice.LocatorPrx"))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
@@ -1077,7 +1077,7 @@ proxyIceLocator(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1096,7 +1096,7 @@ proxyIceTwoway(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1115,7 +1115,7 @@ proxyIceIsTwoway(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -1135,7 +1135,7 @@ proxyIceOneway(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1154,7 +1154,7 @@ proxyIceIsOneway(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -1174,7 +1174,7 @@ proxyIceBatchOneway(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1193,7 +1193,7 @@ proxyIceIsBatchOneway(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -1213,7 +1213,7 @@ proxyIceDatagram(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1232,7 +1232,7 @@ proxyIceIsDatagram(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -1252,7 +1252,7 @@ proxyIceBatchDatagram(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1271,7 +1271,7 @@ proxyIceIsBatchDatagram(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -1284,13 +1284,13 @@ proxyIceCompress(ProxyObject* self, PyObject* args)
     PyObject* flag;
     if (!PyArg_ParseTuple(args, "O", &flag))
     {
-        return 0;
+        return nullptr;
     }
 
     int n = PyObject_IsTrue(flag);
     if (n < 0)
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -1303,7 +1303,7 @@ proxyIceCompress(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1330,7 +1330,7 @@ proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
     Py_INCREF(b);
     return b;
@@ -1349,7 +1349,7 @@ proxyIceIsCollocationOptimized(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -1362,13 +1362,13 @@ proxyIceCollocationOptimized(ProxyObject* self, PyObject* args)
     PyObject* flag;
     if (!PyArg_ParseTuple(args, "O", &flag))
     {
-        return 0;
+        return nullptr;
     }
 
     int n = PyObject_IsTrue(flag);
     if (n < 0)
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -1381,7 +1381,7 @@ proxyIceCollocationOptimized(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1393,13 +1393,13 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
     PyObject* idObj;
     if (!PyArg_ParseTuple(args, "O", &idObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string id;
     if (!getStringArg(idObj, "id", id))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->proxy);
@@ -1412,7 +1412,7 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1426,13 +1426,13 @@ proxyIceFixed(ProxyObject* self, PyObject* args)
     PyObject* p;
     if (!PyArg_ParseTuple(args, "O", &p))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::ConnectionPtr connection;
     if (!getConnectionArg(p, "ice_fixed", "connection", connection))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> newProxy;
@@ -1443,12 +1443,12 @@ proxyIceFixed(ProxyObject* self, PyObject* args)
     catch (const invalid_argument& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
-        return 0;
+        return nullptr;
     }
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
@@ -1467,7 +1467,7 @@ proxyIceIsFixed(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -1487,7 +1487,7 @@ proxyIceGetConnection(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     if (con)
@@ -1518,19 +1518,19 @@ proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kw
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(cancel, *self->communicator);
     if (!asyncInvocationContextObj.get())
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
     if (!future.get())
     {
-        return 0;
+        return nullptr;
     }
     callback->setFuture(future.get());
     return future.release();
@@ -1549,7 +1549,7 @@ proxyIceGetCachedConnection(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     if (con)
@@ -1575,7 +1575,7 @@ proxyIceFlushBatchRequests(ProxyObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -1599,19 +1599,19 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(std::move(cancel), *self->communicator);
     if (!asyncInvocationContextObj.get())
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
     if (!future.get())
     {
-        return 0;
+        return nullptr;
     }
     callback->setFuture(future.get());
     return future.release();
@@ -1652,7 +1652,7 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
         {
             if (!dictionaryToContext(ctx, c))
             {
-                return 0;
+                return nullptr;
             }
         }
 
@@ -1666,7 +1666,7 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     if (b)
@@ -1690,7 +1690,7 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
     PyObject* ctx = 0;
     if (!PyArg_ParseTuple(args, "OsOO", &obj, &id, &facetOrContext, &ctx))
     {
-        return 0;
+        return nullptr;
     }
 
     if (obj == Py_None)
@@ -1701,7 +1701,7 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
     if (!checkProxy(obj))
     {
         PyErr_Format(PyExc_ValueError, "ice_checkedCast requires a proxy argument");
-        return 0;
+        return nullptr;
     }
 
     PyObject* facet = 0;
@@ -1715,20 +1715,20 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
         if (ctx != Py_None)
         {
             PyErr_Format(PyExc_ValueError, "facet argument to checkedCast must be a string");
-            return 0;
+            return nullptr;
         }
         ctx = facetOrContext;
     }
     else if (facetOrContext != Py_None)
     {
         PyErr_Format(PyExc_ValueError, "second argument to checkedCast must be a facet or context");
-        return 0;
+        return nullptr;
     }
 
     if (ctx != Py_None && !PyDict_Check(ctx))
     {
         PyErr_Format(PyExc_ValueError, "context argument to checkedCast must be a dictionary");
-        return 0;
+        return nullptr;
     }
 
     return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), id, facet, ctx, type);
@@ -1745,7 +1745,7 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
     char* facet = 0;
     if (!PyArg_ParseTuple(args, "Oz", &obj, &facet))
     {
-        return 0;
+        return nullptr;
     }
 
     if (obj == Py_None)
@@ -1756,7 +1756,7 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
     if (!checkProxy(obj))
     {
         PyErr_Format(PyExc_ValueError, "ice_uncheckedCast requires a proxy argument");
-        return 0;
+        return nullptr;
     }
 
     ProxyObject* p = reinterpret_cast<ProxyObject*>(obj);
@@ -1779,7 +1779,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
     PyObject* arg2 = 0;
     if (!PyArg_ParseTuple(args, "O|OO", &obj, &arg1, &arg2))
     {
-        return 0;
+        return nullptr;
     }
 
     if (obj == Py_None)
@@ -1790,7 +1790,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
     if (!checkProxy(obj))
     {
         PyErr_Format(PyExc_ValueError, "checkedCast requires a proxy argument");
-        return 0;
+        return nullptr;
     }
 
     PyObject* facet = 0;
@@ -1813,7 +1813,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
             if (!checkString(arg1))
             {
                 PyErr_Format(PyExc_ValueError, "facet argument to checkedCast must be a string");
-                return 0;
+                return nullptr;
             }
             facet = arg1;
         }
@@ -1821,7 +1821,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
         if (arg2 != 0 && !PyDict_Check(arg2))
         {
             PyErr_Format(PyExc_ValueError, "context argument to checkedCast must be a dictionary");
-            return 0;
+            return nullptr;
         }
         ctx = arg2;
     }
@@ -1838,7 +1838,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
         else
         {
             PyErr_Format(PyExc_ValueError, "second argument to checkedCast must be a facet or context");
-            return 0;
+            return nullptr;
         }
     }
 
@@ -1852,7 +1852,7 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
     PyObject* facetObj = 0;
     if (!PyArg_ParseTuple(args, "O|O", &obj, &facetObj))
     {
-        return 0;
+        return nullptr;
     }
 
     if (obj == Py_None)
@@ -1865,14 +1865,14 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
     {
         if (!getStringArg(facetObj, "facet", facet))
         {
-            return 0;
+            return nullptr;
         }
     }
 
     if (!checkProxy(obj))
     {
         PyErr_Format(PyExc_ValueError, "uncheckedCast requires a proxy argument");
-        return 0;
+        return nullptr;
     }
 
     ProxyObject* p = reinterpret_cast<ProxyObject*>(obj);

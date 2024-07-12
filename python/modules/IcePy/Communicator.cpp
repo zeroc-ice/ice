@@ -61,7 +61,7 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     CommunicatorObject* self = reinterpret_cast<CommunicatorObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
-        return 0;
+        return nullptr;
     }
     self->communicator = 0;
     self->wrapper = 0;
@@ -392,7 +392,7 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 
     if (PyErr_Occurred())
     {
-        return 0;
+        return nullptr;
     }
     else
     {
@@ -412,7 +412,7 @@ communicatorShutdown(CommunicatorObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -433,7 +433,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
     int timeout = 0;
     if (!PyArg_ParseTuple(args, "i", &timeout))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(timeout > 0);
@@ -477,7 +477,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
         if (self->shutdownException)
         {
             setPythonException(*self->shutdownException);
-            return 0;
+            return nullptr;
         }
     }
     else
@@ -490,7 +490,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
         catch (...)
         {
             setPythonException(current_exception());
-            return 0;
+            return nullptr;
         }
     }
 
@@ -509,7 +509,7 @@ communicatorIsShutdown(CommunicatorObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return isShutdown ? Py_True : Py_False;
@@ -521,13 +521,13 @@ communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
     PyObject* strObj;
     if (!PyArg_ParseTuple(args, "O", &strObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string str;
     if (!getStringArg(strObj, "str", str))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->communicator);
@@ -543,7 +543,7 @@ communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -555,13 +555,13 @@ communicatorProxyToString(CommunicatorObject* self, PyObject* args)
     PyObject* obj;
     if (!PyArg_ParseTuple(args, "O", &obj))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> proxy;
     if (!getProxyArg(obj, "proxyToString", "obj", proxy))
     {
-        return 0;
+        return nullptr;
     }
 
     string str;
@@ -574,7 +574,7 @@ communicatorProxyToString(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(str);
@@ -586,13 +586,13 @@ communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
     PyObject* strObj;
     if (!PyArg_ParseTuple(args, "O", &strObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string str;
     if (!getStringArg(strObj, "property", str))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->communicator);
@@ -608,7 +608,7 @@ communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -625,14 +625,14 @@ communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
     PyObject* strObj;
     if (!PyArg_ParseTuple(args, "O!O", &ProxyType, &proxyObj, &strObj))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::ObjectPrx proxy = getProxy(proxyObj);
     string str;
     if (!getStringArg(strObj, "property", str))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->communicator);
@@ -644,7 +644,7 @@ communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle result = PyDict_New();
@@ -656,7 +656,7 @@ communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
             PyObjectHandle val = createString(p->second);
             if (!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
             {
-                return 0;
+                return nullptr;
             }
         }
     }
@@ -671,13 +671,13 @@ communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
     PyObject* obj;
     if (!PyArg_ParseTuple(args, "O!", identityType, &obj))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::Identity id;
     if (!getIdentity(obj, id))
     {
-        return 0;
+        return nullptr;
     }
     string str;
 
@@ -689,7 +689,7 @@ communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(str);
@@ -702,7 +702,7 @@ communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
     PyObject* compressBatch;
     if (!PyArg_ParseTuple(args, "O!", compressBatchType, &compressBatch))
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle v = getAttr(compressBatch, "_value", false);
@@ -718,7 +718,7 @@ communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -731,7 +731,7 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
     PyObject* compressBatch;
     if (!PyArg_ParseTuple(args, "O!", compressBatchType, &compressBatch))
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle v = getAttr(compressBatch, "_value", false);
@@ -754,19 +754,19 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(std::move(cancel), *self->communicator);
     if (!asyncInvocationContextObj.get())
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
     if (!future.get())
     {
-        return 0;
+        return nullptr;
     }
     callback->setFuture(future.get());
     return future.release();
@@ -780,7 +780,7 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
     PyObject* id;
     if (!PyArg_ParseTuple(args, "OO!", &adapter, identityType, &id))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::ObjectAdapterPtr oa;
@@ -789,7 +789,7 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
     if (adapter != Py_None && !PyObject_IsInstance(adapter, adapterType))
     {
         PyErr_Format(PyExc_ValueError, "expected ObjectAdapter or None");
-        return 0;
+        return nullptr;
     }
 
     if (adapter != Py_None)
@@ -800,7 +800,7 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
     Ice::Identity identity;
     if (!getIdentity(id, identity))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->communicator);
@@ -815,7 +815,7 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -835,7 +835,7 @@ communicatorGetAdmin(CommunicatorObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -849,19 +849,19 @@ communicatorAddAdminFacet(CommunicatorObject* self, PyObject* args)
     PyObject* facetObj;
     if (!PyArg_ParseTuple(args, "O!O", objectType, &servant, &facetObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string facet;
     if (!getStringArg(facetObj, "facet", facet))
     {
-        return 0;
+        return nullptr;
     }
 
     ServantWrapperPtr wrapper = createServantWrapper(servant);
     if (PyErr_Occurred())
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->communicator);
@@ -872,7 +872,7 @@ communicatorAddAdminFacet(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -884,13 +884,13 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
     PyObject* facetObj;
     if (!PyArg_ParseTuple(args, "O", &facetObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string facet;
     if (!getStringArg(facetObj, "facet", facet))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->communicator);
@@ -924,7 +924,7 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -942,13 +942,13 @@ communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle result = PyDict_New();
     if (!result.get())
     {
-        return 0;
+        return nullptr;
     }
 
     PyTypeObject* objectType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Object"));
@@ -974,7 +974,7 @@ communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
 
         if (PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
         {
-            return 0;
+            return nullptr;
         }
     }
 
@@ -987,13 +987,13 @@ communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
     PyObject* facetObj;
     if (!PyArg_ParseTuple(args, "O", &facetObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string facet;
     if (!getStringArg(facetObj, "facet", facet))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->communicator);
@@ -1015,7 +1015,7 @@ communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -1027,7 +1027,7 @@ communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
     PyObject* wrapper;
     if (!PyArg_ParseTuple(args, "O", &wrapper))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(!self->wrapper);
@@ -1057,7 +1057,7 @@ communicatorGetProperties(CommunicatorObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProperties(properties);
@@ -1075,7 +1075,7 @@ communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     //
@@ -1122,13 +1122,13 @@ communicatorCreateObjectAdapter(CommunicatorObject* self, PyObject* args)
     PyObject* strObj;
     if (!PyArg_ParseTuple(args, "O", &strObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string name;
     if (!getStringArg(strObj, "name", name))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->communicator);
@@ -1140,7 +1140,7 @@ communicatorCreateObjectAdapter(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObject* obj = createObjectAdapter(adapter);
@@ -1165,18 +1165,18 @@ communicatorCreateObjectAdapterWithEndpoints(CommunicatorObject* self, PyObject*
     PyObject* endpointsObj;
     if (!PyArg_ParseTuple(args, "OO", &nameObj, &endpointsObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string name;
     string endpoints;
     if (!getStringArg(nameObj, "name", name))
     {
-        return 0;
+        return nullptr;
     }
     if (!getStringArg(endpointsObj, "endpoints", endpoints))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->communicator);
@@ -1188,7 +1188,7 @@ communicatorCreateObjectAdapterWithEndpoints(CommunicatorObject* self, PyObject*
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObject* obj = createObjectAdapter(adapter);
@@ -1213,19 +1213,19 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
     PyObject* p;
     if (!PyArg_ParseTuple(args, "OO", &nameObj, &p))
     {
-        return 0;
+        return nullptr;
     }
 
     string name;
     if (!getStringArg(nameObj, "name", name))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> proxy;
     if (!getProxyArg(p, "createObjectAdapterWithRouter", "rtr", proxy, "Ice.RouterPrx"))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
@@ -1240,7 +1240,7 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObject* obj = createObjectAdapter(adapter);
@@ -1270,7 +1270,7 @@ communicatorGetDefaultRouter(CommunicatorObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     if (!router)
@@ -1289,13 +1289,13 @@ communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
     PyObject* p;
     if (!PyArg_ParseTuple(args, "O", &p))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> proxy;
     if (!getProxyArg(p, "setDefaultRouter", "rtr", proxy, "Ice.RouterPrx"))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
@@ -1308,7 +1308,7 @@ communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -1326,7 +1326,7 @@ communicatorGetDefaultLocator(CommunicatorObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     if (!locator)
@@ -1345,13 +1345,13 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
     PyObject* p;
     if (!PyArg_ParseTuple(args, "O", &p))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::ObjectPrx> proxy;
     if (!getProxyArg(p, "setDefaultLocator", "loc", proxy, "Ice.LocatorPrx"))
     {
-        return 0;
+        return nullptr;
     }
 
     optional<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
@@ -1364,7 +1364,7 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -1605,13 +1605,13 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
     PyObject* mode = 0;
     if (!PyArg_ParseTuple(args, "O!O", identityType, &obj, &mode))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::Identity id;
     if (!getIdentity(obj, id))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::ToStringMode toStringMode = Ice::ToStringMode::Unicode;
@@ -1630,7 +1630,7 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(str);
@@ -1642,7 +1642,7 @@ IcePy_stringToIdentity(PyObject* /*self*/, PyObject* obj)
     string str;
     if (!getStringArg(obj, "str", str))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::Identity id;
@@ -1653,7 +1653,7 @@ IcePy_stringToIdentity(PyObject* /*self*/, PyObject* obj)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createIdentity(id);

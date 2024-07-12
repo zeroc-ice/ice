@@ -120,7 +120,7 @@ connectionNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     ConnectionObject* self = reinterpret_cast<ConnectionObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
-        return 0;
+        return nullptr;
     }
     self->connection = 0;
     self->communicator = 0;
@@ -179,7 +179,7 @@ connectionCompare(ConnectionObject* c1, PyObject* other, int op)
         else
         {
             PyErr_Format(PyExc_TypeError, "can't compare %s to %s", Py_TYPE(c1)->tp_name, Py_TYPE(other)->tp_name);
-            return 0;
+            return nullptr;
         }
     }
 
@@ -199,7 +199,7 @@ connectionClose(ConnectionObject* self, PyObject* args)
     PyObject* mode;
     if (!PyArg_ParseTuple(args, "O!", closeType, &mode))
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle v = getAttr(mode, "_value", true);
@@ -215,7 +215,7 @@ connectionClose(ConnectionObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -228,13 +228,13 @@ connectionCreateProxy(ConnectionObject* self, PyObject* args)
     PyObject* id;
     if (!PyArg_ParseTuple(args, "O!", identityType, &id))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::Identity ident;
     if (!getIdentity(id, ident))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->connection);
@@ -247,7 +247,7 @@ connectionCreateProxy(ConnectionObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProxy(proxy.value(), (*self->communicator));
@@ -259,14 +259,14 @@ connectionSetAdapter(ConnectionObject* self, PyObject* args)
     PyObject* adapter = Py_None;
     if (!PyArg_ParseTuple(args, "O", &adapter))
     {
-        return 0;
+        return nullptr;
     }
 
     PyObject* adapterType = lookupType("Ice.ObjectAdapter");
     if (adapter != Py_None && !PyObject_IsInstance(adapter, adapterType))
     {
         PyErr_Format(PyExc_TypeError, "value for 'adapter' argument must be None or an Ice.ObjectAdapter instance");
-        return 0;
+        return nullptr;
     }
 
     Ice::ObjectAdapterPtr oa = adapter != Py_None ? unwrapObjectAdapter(adapter) : Ice::ObjectAdapterPtr();
@@ -280,7 +280,7 @@ connectionSetAdapter(ConnectionObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -300,7 +300,7 @@ connectionGetAdapter(ConnectionObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     if (adapter)
@@ -320,7 +320,7 @@ connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
     PyObject* compressBatch;
     if (!PyArg_ParseTuple(args, "O!", compressBatchType, &compressBatch))
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle v = getAttr(compressBatch, "_value", true);
@@ -336,7 +336,7 @@ connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -349,7 +349,7 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
     PyObject* compressBatch;
     if (!PyArg_ParseTuple(args, "O!", compressBatchType, &compressBatch))
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle v = getAttr(compressBatch, "_value", true);
@@ -372,19 +372,19 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(std::move(cancel), *self->communicator);
     if (!asyncInvocationContextObj.get())
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
     if (!future.get())
     {
-        return 0;
+        return nullptr;
     }
     callback->setFuture(future.get());
     return future.release();
@@ -398,14 +398,14 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
     PyObject* cb;
     if (!PyArg_ParseTuple(args, "O", &cb))
     {
-        return 0;
+        return nullptr;
     }
 
     PyObject* callbackType = lookupType("types.FunctionType");
     if (cb != Py_None && !PyObject_IsInstance(cb, callbackType))
     {
         PyErr_Format(PyExc_ValueError, "callback must be None or a function");
-        return 0;
+        return nullptr;
     }
 
     CloseCallbackWrapperPtr wrapper;
@@ -429,7 +429,7 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -447,7 +447,7 @@ connectionType(ConnectionObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(type);
@@ -465,7 +465,7 @@ connectionToString(ConnectionObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(str);
@@ -483,7 +483,7 @@ connectionGetInfo(ConnectionObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -499,7 +499,7 @@ connectionGetEndpoint(ConnectionObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -510,7 +510,7 @@ connectionSetBufferSize(ConnectionObject* self, PyObject* args)
     int sndSize;
     if (!PyArg_ParseTuple(args, "ii", &rcvSize, &sndSize))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->connection);
@@ -521,7 +521,7 @@ connectionSetBufferSize(ConnectionObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -538,7 +538,7 @@ connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;

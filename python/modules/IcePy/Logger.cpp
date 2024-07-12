@@ -111,7 +111,7 @@ loggerNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     LoggerObject* self = reinterpret_cast<LoggerObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
-        return 0;
+        return nullptr;
     }
     self->logger = 0;
     return self;
@@ -130,13 +130,13 @@ loggerPrint(LoggerObject* self, PyObject* args)
     PyObject* messageObj;
     if (!PyArg_ParseTuple(args, "O", &messageObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string message;
     if (!getStringArg(messageObj, "message", message))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->logger);
@@ -147,7 +147,7 @@ loggerPrint(LoggerObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -160,18 +160,18 @@ loggerTrace(LoggerObject* self, PyObject* args)
     PyObject* messageObj;
     if (!PyArg_ParseTuple(args, "OO", &categoryObj, &messageObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string category;
     string message;
     if (!getStringArg(categoryObj, "category", category))
     {
-        return 0;
+        return nullptr;
     }
     if (!getStringArg(messageObj, "message", message))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->logger);
@@ -182,7 +182,7 @@ loggerTrace(LoggerObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -194,13 +194,13 @@ loggerWarning(LoggerObject* self, PyObject* args)
     PyObject* messageObj;
     if (!PyArg_ParseTuple(args, "O", &messageObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string message;
     if (!getStringArg(messageObj, "message", message))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->logger);
@@ -211,7 +211,7 @@ loggerWarning(LoggerObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -223,13 +223,13 @@ loggerError(LoggerObject* self, PyObject* args)
     PyObject* messageObj;
     if (!PyArg_ParseTuple(args, "O", &messageObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string message;
     if (!getStringArg(messageObj, "message", message))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->logger);
@@ -240,7 +240,7 @@ loggerError(LoggerObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;
@@ -259,7 +259,7 @@ loggerGetPrefix(LoggerObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(prefix);
@@ -271,13 +271,13 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
     PyObject* prefixObj;
     if (!PyArg_ParseTuple(args, "O", &prefixObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string prefix;
     if (!getStringArg(prefixObj, "prefix", prefix))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::LoggerPtr clone;
@@ -290,7 +290,7 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     //
@@ -419,7 +419,7 @@ IcePy_getProcessLogger(PyObject* /*self*/, PyObject* /*args*/)
     catch (...)
     {
         IcePy::setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     //
@@ -449,7 +449,7 @@ IcePy_setProcessLogger(PyObject* /*self*/, PyObject* args)
     PyObject* logger;
     if (!PyArg_ParseTuple(args, "O!", loggerType, &logger))
     {
-        return 0;
+        return nullptr;
     }
 
     auto wrapper = make_shared<LoggerWrapper>(logger);
@@ -460,7 +460,7 @@ IcePy_setProcessLogger(PyObject* /*self*/, PyObject* args)
     catch (...)
     {
         IcePy::setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return Py_None;

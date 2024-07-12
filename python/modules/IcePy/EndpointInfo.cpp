@@ -21,7 +21,7 @@ extern "C" EndpointInfoObject*
 endpointInfoNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, "An endpoint info cannot be created directly");
-    return 0;
+    return nullptr;
 }
 
 extern "C" void
@@ -46,7 +46,7 @@ endpointInfoType(EndpointInfoObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -65,7 +65,7 @@ endpointInfoDatagram(EndpointInfoObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -87,7 +87,7 @@ endpointInfoSecure(EndpointInfoObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -677,7 +677,7 @@ IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
     EndpointInfoObject* obj = reinterpret_cast<EndpointInfoObject*>(type->tp_alloc(type, 0));
     if (!obj)
     {
-        return 0;
+        return nullptr;
     }
     obj->endpointInfo = new Ice::EndpointInfoPtr(endpointInfo);
 
