@@ -562,10 +562,7 @@ asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* ar
     class CallbackWrapper final
     {
     public:
-        CallbackWrapper(PyObject* callback) : _callback(callback)
-        {
-            Py_XINCREF(_callback);
-        }
+        CallbackWrapper(PyObject* callback) : _callback(callback) { Py_XINCREF(_callback); }
 
         ~CallbackWrapper()
         {
@@ -2044,7 +2041,6 @@ IcePy::AsyncTypedInvocation::handleResponse(PyObject* future, bool ok, pair<cons
                 PyObject* obj = PyTuple_GET_ITEM(args.get(), 0);
                 Py_XINCREF(obj);
                 r = obj;
-                
             }
             else
             {
@@ -2290,7 +2286,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     PyTuple_SET_ITEM(dispatchArgs.get(), 0, reinterpret_cast<PyObject*>(callback)); // Steals a reference.
     PyTuple_SET_ITEM(dispatchArgs.get(), 1, servantMethod.release());               // Steals a reference.
     Py_XINCREF(args);
-    PyTuple_SET_ITEM(dispatchArgs.get(), 2, args);                          // Steals a reference.
+    PyTuple_SET_ITEM(dispatchArgs.get(), 2, args); // Steals a reference.
 
     //
     // Ignore the return value of _iceDispatch -- it will use the dispatch callback.
