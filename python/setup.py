@@ -25,15 +25,7 @@ platform = os.getenv('CPP_PLATFORM', "x64")
 configuration = os.getenv('CPP_CONFIGURATION', "Release")
 
 # Define Python packages to be included
-packages = [
-    'Ice',
-    'IceMX',
-    'slice',
-    'slice.Glacier2',
-    'slice.Ice',
-    'slice.IceBox',
-    'slice.IceGrid',
-    'slice.IceStorm']
+packages = ['Ice', 'IceMX', 'slice']
 
 # Define source directories for Ice C++
 ice_cpp_sources = [
@@ -288,7 +280,7 @@ setup(
     version='3.8.0a0',
     packages=packages,
     package_dir={'': 'dist/lib'},
-    package_data={'': ['*.ice']},
+    package_data={'slice': ['*.ice']},
     include_package_data=True,
     ext_modules=[ice_py],
     cmdclass={
