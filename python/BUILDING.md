@@ -3,15 +3,15 @@
 This document describes how to build and install Ice for Python from source.
 You can also download and install a [binary distribution].
 
-* [Building with Build Python Package Builder](#building-with-build-python-package-builder)
+* [Building Python Packages with build](#building-python-packages-with-build)
 * [Building with Visual Studio 2022 and MSBuild (Python 3\.12 for Windows)](#building-with-visual-studio-2022-and-msbuild-python-312-for-windows)
 * [Building on Linux or macOS](#building-on-linux-or-macos)
 * [Configuring your Environment for Python](#configuring-your-environment-for-python)
 * [Running the Python Tests](#running-the-python-tests)
 
-## Building with Build Python Package Builder
+## Building Python Packages with build
 
-You can build the Ice for Python extension using `build` Python package builder. Follow these steps:
+You can build the Ice for Python extension using [build]. Follow these steps:
 
 Ensure you have pip installed
 
@@ -177,3 +177,4 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [binary distribution]: https://zeroc.com/downloads/ice
+[build]: https://packaging.python.org/en/latest/key_projects/#build
