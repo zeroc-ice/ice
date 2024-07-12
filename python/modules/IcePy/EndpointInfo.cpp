@@ -60,7 +60,7 @@ endpointInfoDatagram(EndpointInfoObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->endpointInfo)->datagram() ? getTrue() : getFalse();
+        b = (*self->endpointInfo)->datagram() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -82,7 +82,7 @@ endpointInfoSecure(EndpointInfoObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->endpointInfo)->secure() ? getTrue() : getFalse();
+        b = (*self->endpointInfo)->secure() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -109,7 +109,7 @@ endpointInfoGetTimeout(EndpointInfoObject* self, PyObject* /*args*/)
 extern "C" PyObject*
 endpointInfoGetCompress(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    return (*self->endpointInfo)->compress ? incTrue() : incFalse();
+    return (*self->endpointInfo)->compress ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
@@ -641,7 +641,6 @@ IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
 {
     if (!endpointInfo)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 

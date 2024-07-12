@@ -1,4 +1,3 @@
-Glacier2/*
 Ice/BuiltinSequences.rb
 Ice/Context.rb
 Ice/EndpointTypes.rb
@@ -12,7 +11,4 @@ Ice/PropertyDict.rb
 Ice/RemoteLogger.rb
 Ice/Router.rb
 Ice/Version.rb
-IceBox/*
-IceGrid/*
-IceStorm/*
 IceRuby.*

@@ -130,7 +130,7 @@ proxyCompare(ProxyObject* p1, PyObject* other, int op)
         }
     }
 
-    return result ? incTrue() : incFalse();
+    return result ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
@@ -685,7 +685,7 @@ proxyIceIsConnectionCached(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isConnectionCached() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isConnectionCached() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -818,7 +818,7 @@ proxyIceIsSecure(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isSecure() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isSecure() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -922,7 +922,7 @@ proxyIceIsPreferSecure(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isPreferSecure() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isPreferSecure() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -983,7 +983,6 @@ proxyIceGetRouter(ProxyObject* self, PyObject* /*args*/)
 
     if (!router)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1043,7 +1042,6 @@ proxyIceGetLocator(ProxyObject* self, PyObject* /*args*/)
 
     if (!locator)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1112,7 +1110,7 @@ proxyIceIsTwoway(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isTwoway() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isTwoway() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -1151,7 +1149,7 @@ proxyIceIsOneway(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isOneway() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isOneway() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -1190,7 +1188,7 @@ proxyIceIsBatchOneway(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isBatchOneway() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isBatchOneway() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -1229,7 +1227,7 @@ proxyIceIsDatagram(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isDatagram() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isDatagram() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -1268,7 +1266,7 @@ proxyIceIsBatchDatagram(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isBatchDatagram() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isBatchDatagram() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -1322,7 +1320,7 @@ proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
         optional<bool> compress = (*self->proxy)->ice_getCompress();
         if (compress)
         {
-            b = *compress ? getTrue() : getFalse();
+            b = *compress ? Py_True : Py_False;
         }
         else
         {
@@ -1346,7 +1344,7 @@ proxyIceIsCollocationOptimized(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isCollocationOptimized() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isCollocationOptimized() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -1464,7 +1462,7 @@ proxyIceIsFixed(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isFixed() ? getTrue() : getFalse();
+        b = (*self->proxy)->ice_isFixed() ? Py_True : Py_False;
     }
     catch (...)
     {
@@ -1498,7 +1496,6 @@ proxyIceGetConnection(ProxyObject* self, PyObject* /*args*/)
     }
     else
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 }
@@ -1561,7 +1558,6 @@ proxyIceGetCachedConnection(ProxyObject* self, PyObject* /*args*/)
     }
     else
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 }
@@ -1582,7 +1578,6 @@ proxyIceFlushBatchRequests(ProxyObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1679,7 +1674,6 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
         return createProxy(target.value(), *p->communicator, type);
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1701,7 +1695,6 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
 
     if (obj == Py_None)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1757,7 +1750,6 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
 
     if (obj == Py_None)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1792,7 +1784,6 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
 
     if (obj == Py_None)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -1866,7 +1857,6 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 
     if (obj == Py_None)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 

@@ -740,12 +740,12 @@ IcePy::convertException(std::exception_ptr exPtr)
     }
     catch (const Ice::ConnectionAbortedException& ex)
     {
-        std::array args{ex.closedByApplication() ? incTrue() : incFalse(), IcePy::createString(ex.what())};
+        std::array args{ex.closedByApplication() ? Py_True : Py_False, IcePy::createString(ex.what())};
         return createPythonException(ex.ice_id(), std::move(args));
     }
     catch (const Ice::ConnectionClosedException& ex)
     {
-        std::array args{ex.closedByApplication() ? incTrue() : incFalse(), IcePy::createString(ex.what())};
+        std::array args{ex.closedByApplication() ? Py_True : Py_False, IcePy::createString(ex.what())};
         return createPythonException(ex.ice_id(), std::move(args));
     }
     catch (const Ice::RequestFailedException& ex)

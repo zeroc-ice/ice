@@ -3,19 +3,36 @@
 This document describes how to build and install Ice for Python from source.
 You can also download and install a [binary distribution].
 
-* [Building with Pip](#building-with-pip)
+* [Building Python Packages with build](#building-python-packages-with-build)
 * [Building with Visual Studio 2022 and MSBuild (Python 3\.12 for Windows)](#building-with-visual-studio-2022-and-msbuild-python-312-for-windows)
 * [Building on Linux or macOS](#building-on-linux-or-macos)
 * [Configuring your Environment for Python](#configuring-your-environment-for-python)
 * [Running the Python Tests](#running-the-python-tests)
 
-## Building with Pip
+## Building Python Packages with build
 
-You can build the Ice for Python extension from source using `pip`:
+You can build the Ice for Python extension using [build]. Follow these steps:
+
+Ensure you have pip installed
 
 ```shell
-pip install <URL of Ice source distribution for Python>
+python -m ensurepip --upgrade
 ```
+
+Install the build module
+
+```shell
+pip install build
+```
+
+Build the extension
+
+```shell
+python -m build
+```
+
+After running these commands, the build module will generate both the source distribution (.tar.gz) and the wheel
+distribution (.whl) in the dist directory.
 
 ## Building with Visual Studio 2022 and MSBuild (Python 3.12 for Windows)
 
@@ -37,9 +54,6 @@ In the Command Prompt, change to the `python` subdirectory:
 ```shell
 cd python
 ```
-
-You must build Ice for C++ from the `cpp` subdirectory. If you have not done so,
-refer to the [C++ build instructions](../cpp/BUILDING.md).
 
 Then build the extension:
 
@@ -89,15 +103,15 @@ on the command prompt's default platform.
 The build will use the default location for Python defined in
 `python\msbuild\ice.props`. You can override it by setting the `PythonHome`
 MSBuild property. For example, the following command will use the Python
-installation from `C:\Python310-AMD64` instead of the default location:
+installation from `C:\Python312-AMD64` instead of the default location:
 
 ```shell
-msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64 /p:PythonHome=C:\Python310-AMD64
+msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64 /p:PythonHome=C:\Python312-AMD64
 ```
 
 ## Building on Linux or macOS
 
-Ice for Python supports Python versions 3.11 and greater. Note however that
+Ice for Python supports Python versions 3.12 and greater. Note however that
 your Python installation must have been built with a C++ compiler that is
 compatible with the compiler used to build Ice for C++.
 
@@ -129,16 +143,16 @@ the Python source files in the `python` subdirectory. This is normally
 accomplished by setting the `PYTHONPATH` environment variable to contain the
 necessary subdirectory.
 
-For example on Windows, with Ice for Python installed in `C:\Ice`:
+For example on Windows, with Ice for Python installed in `C:\Ice-3.8.0`:
 
 ```shell
-set PYTHONPATH=C:\Ice\python;C:\Ice\python\Win32\Release
+set PYTHONPATH=C:\Ice-3.8.0\python;C:\Ice\python\Win32\Release
 ```
 
-For example on Linux or macOS, with Ice for Python installed in `/opt/Ice`:
+For example on Linux or macOS, with Ice for Python installed in `/opt/Ice-3.8.0`:
 
 ```shell
-export PYTHONPATH=/opt/Ice/python
+export PYTHONPATH=/opt/Ice-3.8.0/python
 ```
 
 ## Running the Python Tests
@@ -163,3 +177,4 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [binary distribution]: https://zeroc.com/downloads/ice
+[build]: https://packaging.python.org/en/latest/key_projects/#build
