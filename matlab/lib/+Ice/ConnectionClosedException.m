@@ -22,7 +22,7 @@ classdef ConnectionClosedException < Ice.LocalException
                 superArgs = {errID, what};
             end
 
-            obj = obj@Ice.LocalException(superArgs{:});
+            obj@Ice.LocalException(superArgs{:});
             obj.closedByApplication = closedByApplication;
         end
     end

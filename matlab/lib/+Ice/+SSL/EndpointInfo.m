@@ -12,7 +12,7 @@ classdef EndpointInfo < Ice.EndpointInfo
                 timeout = 0;
                 compress = false;
             end
-            obj = obj@Ice.EndpointInfo(type, false, secure, underlying, timeout, compress);
+            obj@Ice.EndpointInfo(type, false, secure, underlying, timeout, compress);
         end
     end
 end

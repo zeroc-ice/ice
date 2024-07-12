@@ -2526,13 +2526,13 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     if (bases.empty())
     {
-        out << nl << "obj = obj@Ice.ObjectPrx(communicator, encoding, impl, bytes);";
+        out << nl << "obj@Ice.ObjectPrx(communicator, encoding, impl, bytes);";
     }
     else
     {
         for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
-            out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(communicator, encoding, impl, bytes);";
+            out << nl << "obj@" << getAbsolute(*q, "", "Prx") << "(communicator, encoding, impl, bytes);";
         }
     }
     out.dec();

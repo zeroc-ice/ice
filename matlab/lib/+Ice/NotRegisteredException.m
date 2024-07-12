@@ -32,7 +32,7 @@ classdef NotRegisteredException < Ice.LocalException
                 superArgs = {'Ice:NotRegisteredException', sprintf('No %s is registered with ID ''%s''.', ...
                     kindOfObject, id)};
             end
-            obj = obj@Ice.LocalException(superArgs{:});
+            obj@Ice.LocalException(superArgs{:});
             obj.kindOfObject = kindOfObject;
             obj.id = id;
         end

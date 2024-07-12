@@ -14,7 +14,7 @@ classdef (Sealed) MarshalException < Ice.ProtocolException
                 assert(nargin == 1, 'Invalid number of arguments');
                 superArgs = {'Ice:MarshalException', what};
             end
-            obj = obj@Ice.ProtocolException(superArgs{:});
+            obj@Ice.ProtocolException(superArgs{:});
         end
     end
 end

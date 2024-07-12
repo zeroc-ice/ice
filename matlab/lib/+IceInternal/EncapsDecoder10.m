@@ -5,7 +5,7 @@
 classdef EncapsDecoder10 < IceInternal.EncapsDecoder
     methods
         function obj = EncapsDecoder10(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphDepthMax)
-            obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, ...
+            obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, ...
                                                 classGraphDepthMax);
             obj.sliceType = IceInternal.SliceType.NoSlice;
         end

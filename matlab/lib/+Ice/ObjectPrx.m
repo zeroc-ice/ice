@@ -112,7 +112,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
     methods
         function obj = ObjectPrx(communicator, encoding, impl, bytes)
-            obj = obj@IceInternal.WrapperObject(impl, 'Ice_ObjectPrx');
+            obj@IceInternal.WrapperObject(impl, 'Ice_ObjectPrx');
             obj.communicator = communicator;
             obj.encoding = encoding;
             if nargin == 4

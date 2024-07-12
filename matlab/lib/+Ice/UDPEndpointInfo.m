@@ -22,7 +22,7 @@ classdef UDPEndpointInfo < Ice.IPEndpointInfo
                 mcastInterface = '';
                 mcastTtl = 0;
             end
-            obj = obj@Ice.IPEndpointInfo(type, true, false, underlying, timeout, compress, host, port, sourceAddress);
+            obj@Ice.IPEndpointInfo(type, true, false, underlying, timeout, compress, host, port, sourceAddress);
             obj.mcastInterface = mcastInterface;
             obj.mcastTtl = mcastTtl;
         end

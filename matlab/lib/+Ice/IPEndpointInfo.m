@@ -20,7 +20,7 @@ classdef IPEndpointInfo < Ice.EndpointInfo
                 port = 0;
                 sourceAddress = '';
             end
-            obj = obj@Ice.EndpointInfo(type, datagram, secure, underlying, timeout, compress);
+            obj@Ice.EndpointInfo(type, datagram, secure, underlying, timeout, compress);
             obj.host = host;
             obj.port = port;
             obj.sourceAddress = sourceAddress;

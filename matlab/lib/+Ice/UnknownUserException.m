@@ -21,7 +21,7 @@ classdef (Sealed) UnknownUserException < Ice.UnknownException
                 assert(nargin == 2, 'Invalid number of arguments');
                 superArgs = {errID, what}; % we ignore typeID in this case
             end
-            obj = obj@Ice.UnknownException(superArgs{:});
+            obj@Ice.UnknownException(superArgs{:});
         end
     end
 end

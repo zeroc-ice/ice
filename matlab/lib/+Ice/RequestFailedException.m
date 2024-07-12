@@ -32,7 +32,7 @@ classdef RequestFailedException < Ice.LocalException
                 superArgs = {errID, what};
             end
 
-            obj = obj@Ice.LocalException(superArgs{:});
+            obj@Ice.LocalException(superArgs{:});
             obj.id = id;
             obj.facet = facet;
             obj.operation = operation;

@@ -38,7 +38,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
             if ~isa(impl, 'lib.pointer')
                 throw(LocalException('Ice:ArgumentException', 'invalid argument'));
             end
-            obj = obj@IceInternal.WrapperObject(impl);
+            obj@IceInternal.WrapperObject(impl);
         end
         function r = getContext(obj)
             % getContext - Get a copy of the underlying context.
