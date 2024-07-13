@@ -35,7 +35,7 @@ classdef Communicator < IceInternal.WrapperObject
             if ~isa(impl, 'lib.pointer')
                 throw(LocalException('Ice:ArgumentException', 'invalid argument'));
             end
-            obj = obj@IceInternal.WrapperObject(impl);
+            obj@IceInternal.WrapperObject(impl);
             obj.initData = initData;
 
             obj.valueFactoryManager = IceInternal.ValueFactoryManagerI();
@@ -95,7 +95,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isNull(impl)
                 r = [];
             else
-                r = Ice.ObjectPrx(obj, obj.encoding, impl);
+                r = Ice.ObjectPrx(obj, '', obj.encoding, impl, []);
             end
         end
         function r = proxyToString(~, proxy)
@@ -140,7 +140,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isNull(impl)
                 r = [];
             else
-                r = Ice.ObjectPrx(obj, obj.encoding, impl);
+                r = Ice.ObjectPrx(obj, '', obj.encoding, impl, []);
             end
         end
         function r = proxyToProperty(obj, proxy, prop)
@@ -217,7 +217,7 @@ classdef Communicator < IceInternal.WrapperObject
             impl = libpointer('voidPtr');
             obj.iceCall('getDefaultRouter', impl);
             if ~isNull(impl)
-                r = Ice.RouterPrx(impl, obj);
+                r = Ice.RouterPrx(obj, '', obj.encoding, impl, []);
             else
                 r = [];
             end
@@ -252,7 +252,7 @@ classdef Communicator < IceInternal.WrapperObject
             impl = libpointer('voidPtr');
             obj.iceCall('getDefaultLocator', impl);
             if ~isNull(impl)
-                r = Ice.LocatorPrx(impl, obj);
+                r = Ice.LocatorPrx(obj, '', obj.encoding, impl, []);
             else
                 r = [];
             end

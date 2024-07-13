@@ -16,7 +16,7 @@ classdef WSEndpointInfo < Ice.EndpointInfo
                 compress = false;
                 resource = '';
             end
-            obj = obj@Ice.EndpointInfo(type, false, secure, underlying, timeout, compress);
+            obj@Ice.EndpointInfo(type, false, secure, underlying, timeout, compress);
             obj.resource = resource;
         end
     end

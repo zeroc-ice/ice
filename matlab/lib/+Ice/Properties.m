@@ -35,7 +35,7 @@ classdef Properties < IceInternal.WrapperObject
             if ~isa(impl, 'lib.pointer')
                 throw(LocalException('Ice:ArgumentException', 'invalid argument'));
             end
-            obj = obj@IceInternal.WrapperObject(impl);
+            obj@IceInternal.WrapperObject(impl);
         end
         function r = getProperty(obj, key)
             % getProperty - Get a property by key. If the property is not set,

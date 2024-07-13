@@ -111,17 +111,39 @@ classdef ObjectPrx < IceInternal.WrapperObject
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = ObjectPrx(communicator, encoding, impl, bytes)
-            obj = obj@IceInternal.WrapperObject(impl, 'Ice_ObjectPrx');
-            obj.communicator = communicator;
-            obj.encoding = encoding;
-            if nargin == 4
-                obj.bytes = bytes;
+        function obj = ObjectPrx(communicator, proxyString, encoding, impl, bytes)
+            if nargin == 0 % default constructor, typically called with multiple inheritance
+                superArgs = {};
+            elseif nargin == 2
+                encoding = communicator.getEncoding();
+                impl = libpointer('voidPtr');
+                communicator.iceCall('stringToProxy', proxyString, impl);
+                assert(~isNull(impl), 'Invalid proxy string');
+                bytes = [];
+                superArgs = {impl, 'Ice_ObjectPrx'};
+            else
+                assert(nargin == 5, 'Invalid number of arguments');
+                assert(isempty(proxyString), 'proxyString must be empty');
+                assert(~isempty(encoding), 'encoding must be non-empty');
+                superArgs = {impl, 'Ice_ObjectPrx'};
             end
+            obj@IceInternal.WrapperObject(superArgs{:});
 
-            if ~isempty(impl)
-                obj.isTwoway = obj.iceCallWithResult('ice_isTwoway');
+            if nargin > 0
+                if isempty(bytes)
+                    assert(~isempty(impl), 'impl must be non-empty when bytes is empty');
+                end
+
+                obj.communicator = communicator;
+                obj.encoding = encoding;
+                obj.bytes = bytes;
+                if ~isempty(impl)
+                    assert(~isNull(impl), 'Invalid null proxy');
+                    obj.isTwoway = obj.iceCallWithResult('ice_isTwoway');
+                end
             end
+            % else, we leave the properties unset as they may be already set by another call to the same constructor
+            % when using multiple inheritance.
         end
 
         function delete(obj)
@@ -593,7 +615,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             if isNull(v)
                 r = [];
             else
-                r = Ice.RouterPrx(obj.communicator, obj.encoding, v, []);
+                r = Ice.RouterPrx(obj.communicator, '', obj.encoding, v, []);
             end
         end
 
@@ -627,7 +649,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             if isNull(v)
                 r = [];
             else
-                r = Ice.LocatorPrx(obj.communicator, obj.encoding, v, []);
+                r = Ice.LocatorPrx(obj.communicator, '', obj.encoding, v, []);
             end
         end
 
@@ -1189,11 +1211,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     if hasFacet
                         p = p.ice_facet(facet);
                     end
-                    if isa(p, cls)
-                        r = p;
-                    elseif p.ice_isA(id, context{:})
+                    if p.ice_isA(id, context{:})
                         constructor = str2func(cls);
-                        r = constructor(p.communicator, p.encoding, p.clone_(), []);
+                        r = constructor(p.communicator, '', p.encoding, p.clone_(), []);
                     else
                         r = [];
                     end
@@ -1226,7 +1246,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     r = p;
                 else
                     constructor = str2func(cls);
-                    r = constructor(p.communicator, p.encoding, p.clone_(), []);
+                    r = constructor(p.communicator, '', p.encoding, p.clone_(), []);
                 end
             else
                 r = p;
@@ -1277,7 +1297,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 %
                 % We don't retain the proxy's existing type for a couple of factory functions.
                 %
-                r = Ice.ObjectPrx(obj.communicator, obj.encoding, newImpl);
+                r = Ice.ObjectPrx(obj.communicator, '', obj.encoding, newImpl, []);
             end
         end
 
@@ -1286,7 +1306,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Return a new instance of this proxy type.
             %
             constructor = str2func(class(obj)); % Obtain the constructor for this class
-            r = constructor(obj.communicator, obj.encoding, impl, []); % Call the constructor
+            r = constructor(obj.communicator, '', obj.encoding, impl, []); % Call the constructor
         end
 
         function r = clone_(obj)
@@ -1305,6 +1325,6 @@ classdef ObjectPrx < IceInternal.WrapperObject
         encoding
         isTwoway
         cachedInputStream % Only used for synchronous invocations
-        bytes
+        bytes % The marshaled form of the proxy
     end
 end

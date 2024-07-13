@@ -2516,29 +2516,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    //
-    // Constructor.
-    //
-    out << nl << "methods(Hidden=true)";
-    out.inc();
-    out << nl << "function obj = " << prxName << "(communicator, encoding, impl, bytes)";
-    out.inc();
-
-    if (bases.empty())
-    {
-        out << nl << "obj = obj@Ice.ObjectPrx(communicator, encoding, impl, bytes);";
-    }
-    else
-    {
-        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-        {
-            out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(communicator, encoding, impl, bytes);";
-        }
-    }
-    out.dec();
-    out << nl << "end";
-    out.dec();
-    out << nl << "end";
+    // The constructor is inherited, even with multiple inheritance.
 
     if (hasExceptions)
     {

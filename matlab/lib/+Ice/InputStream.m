@@ -686,9 +686,9 @@ classdef InputStream < handle
                 % Instantiate a proxy of the requested type.
                 %
                 constructor = str2func(cls);
-                r = constructor(obj.communicator, obj.getEncoding(), [], bytes);
+                r = constructor(obj.communicator, '', obj.getEncoding(), [], bytes);
             else
-                r = Ice.ObjectPrx(obj.communicator, obj.getEncoding(), [], bytes);
+                r = Ice.ObjectPrx(obj.communicator, '', obj.getEncoding(), [], bytes);
             end
         end
         function r = readProxyOpt(obj, tag)

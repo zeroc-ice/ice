@@ -5,7 +5,7 @@
 classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods
         function obj = EncapsDecoder11(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphDepthMax)
-            obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, ...
+            obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, ...
                                                 classGraphDepthMax);
             obj.current = [];
             obj.valueIdIndex = 1;

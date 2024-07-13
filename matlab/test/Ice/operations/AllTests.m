@@ -10,8 +10,7 @@ classdef AllTests
 
             communicator = helper.communicator();
             ref = ['test:', helper.getTestEndpoint()];
-            base = communicator.stringToProxy(ref);
-            cl = MyClassPrx.checkedCast(base);
+            cl = MyClassPrx(communicator, ref);
             derived = MyDerivedClassPrx.checkedCast(cl);
 
             fprintf('testing twoway operations... ');
