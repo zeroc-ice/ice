@@ -22,6 +22,7 @@ classdef (Abstract) WrapperObject < handle
         function delete(obj)
             if ~isempty(obj.impl_)
                 obj.iceCall('unref');
+                obj.impl_ = [];
             end
         end
         function iceCall(obj, fn, varargin)

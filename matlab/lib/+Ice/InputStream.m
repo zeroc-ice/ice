@@ -681,14 +681,19 @@ classdef InputStream < handle
             %
             bytes = obj.buf(start:obj.pos - 1);
 
+            impl = libpointer('voidPtr');
+            start = 0; % Starting position for a C-style pointer.
+            IceInternal.Util.call('Ice_ObjectPrx_read', obj.communicator.impl_, obj.encoding, bytes, ...
+                                      start, length(bytes), impl);
+
             if nargin == 2
                 %
                 % Instantiate a proxy of the requested type.
                 %
                 constructor = str2func(cls);
-                r = constructor(obj.communicator, '', obj.getEncoding(), [], bytes);
+                r = constructor(obj.communicator, '', impl);
             else
-                r = Ice.ObjectPrx(obj.communicator, '', obj.getEncoding(), [], bytes);
+                r = Ice.ObjectPrx(obj.communicator, '', impl);
             end
         end
         function r = readProxyOpt(obj, tag)
