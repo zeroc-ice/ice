@@ -1150,9 +1150,13 @@ IceRuby_ObjectPrx_ice_staticId(VALUE /*self*/)
 }
 
 extern "C" VALUE
-IceRuby_ObjectPrx_new(int /*argc*/, VALUE* /*args*/, VALUE /*self*/)
+IceRuby_ObjectPrx_new(VALUE self, VALUE communicator, VALUE proxyString)
 {
-    ICE_RUBY_TRY { throw RubyException(rb_eRuntimeError, "a proxy cannot be created via new"); }
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx proxy{getCommunicator(communicator), getString(proxyString)};
+        return createProxy(proxy, self);
+    }
     ICE_RUBY_CATCH
     return Qnil;
 }
@@ -1250,7 +1254,7 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_singleton_method(_proxyClass, "ice_checkedCast", CAST_METHOD(IceRuby_ObjectPrx_ice_checkedCast), 4);
     rb_define_singleton_method(_proxyClass, "ice_uncheckedCast", CAST_METHOD(IceRuby_ObjectPrx_ice_uncheckedCast), 2);
     rb_define_singleton_method(_proxyClass, "ice_staticId", CAST_METHOD(IceRuby_ObjectPrx_ice_staticId), 0);
-    rb_define_singleton_method(_proxyClass, "new", CAST_METHOD(IceRuby_ObjectPrx_new), -1);
+    rb_define_singleton_method(_proxyClass, "new", CAST_METHOD(IceRuby_ObjectPrx_new), 2);
 }
 
 VALUE
