@@ -3,7 +3,6 @@
 #
 
 import sys
-import Ice
 import Test
 import array
 
