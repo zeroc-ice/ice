@@ -212,6 +212,16 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     {
         throw InitializationException{__FILE__, __LINE__, "cannot use both dispatch queues and custom executors"};
     }
+
+    if (_dispatchQueue)
+    {
+        _executor = [&](function<void()> call, const Ice::ConnectionPtr&)
+        {
+            dispatch_sync(_dispatchQueue, ^{
+              call();
+            });
+        };
+    }
 #endif
 }
 
@@ -497,15 +507,6 @@ IceInternal::ThreadPool::ready(const EventHandlerPtr& handler, SocketOperation o
 void
 IceInternal::ThreadPool::executeFromThisThread(function<void()> call, const Ice::ConnectionPtr& connection)
 {
-#ifdef __APPLE__
-    if (_dispatchQueue)
-    {
-        dispatch_sync(_dispatchQueue, ^{
-          call();
-        });
-        return;
-    }
-#endif
     if (_executor)
     {
         try
