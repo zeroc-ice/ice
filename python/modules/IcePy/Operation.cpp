@@ -1449,7 +1449,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
             }
             else
             {
-                PyTuple_SET_ITEM(results.get(), info->pos, Py_None); // PyTuple_SET_ITEM steals a reference.
+                PyTuple_SET_ITEM(results.get(), info->pos, Py_None);
             }
         }
 

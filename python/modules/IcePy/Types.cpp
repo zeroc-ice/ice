@@ -3413,7 +3413,8 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
             }
         }
         else if (
-            member->optional && (val.get() == Py_None || !os->writeOptional(member->tag, member->type->optionalFormat())))
+            member->optional &&
+            (val.get() == Py_None || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3662,7 +3663,8 @@ IcePy::ExceptionInfo::writeMembers(
             }
         }
         else if (
-            member->optional && (val.get() == Py_None || !os->writeOptional(member->tag, member->type->optionalFormat())))
+            member->optional &&
+            (val.get() == Py_None || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
