@@ -155,7 +155,7 @@ unsetNonzero(PyObject* /*v*/)
 extern "C" PyObject*
 unsetRepr(PyObject* /*v*/)
 {
-    return PyBytes_FromString("Unset");
+    return createString("Unset");
 }
 
 //
