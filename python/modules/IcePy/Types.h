@@ -670,8 +670,6 @@ namespace IcePy
     ValueInfoPtr lookupValueInfo(std::string_view);
     ExceptionInfoPtr lookupExceptionInfo(std::string_view);
 
-    extern PyObject* Unset;
-
     bool initTypes(PyObject*);
 
     PyObject* createType(const TypeInfoPtr&);

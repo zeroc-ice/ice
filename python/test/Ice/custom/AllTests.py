@@ -3,7 +3,6 @@
 #
 
 import sys
-import Ice
 import Test
 import array
 
@@ -264,12 +263,12 @@ def allTests(helper, communicator):
         test(round(d.doubleSeq[i], 1) == round(d1.doubleSeq[i], 1))
 
     d1 = custom.opD(Test.D())
-    test(d1.boolSeq == Ice.Unset)
-    test(d1.byteSeq == Ice.Unset)
-    test(d1.intSeq == Ice.Unset)
-    test(d1.longSeq == Ice.Unset)
-    test(d1.floatSeq == Ice.Unset)
-    test(d1.doubleSeq == Ice.Unset)
+    test(d1.boolSeq is None)
+    test(d1.byteSeq is None)
+    test(d1.intSeq is None)
+    test(d1.longSeq is None)
+    test(d1.floatSeq is None)
+    test(d1.doubleSeq is None)
 
     # Use the new buffer interface for marshaling sequences of types that implement the buffer protocol and this allow
     # Ice to check that the container item size and endianness
@@ -523,12 +522,12 @@ def allTests(helper, communicator):
             test(round(d.doubleSeq[i], 1) == round(d1.doubleSeq[i], 1))
 
         d1 = custom.opD(Test.NumPy.D())
-        test(d1.boolSeq == Ice.Unset)
-        test(d1.byteSeq == Ice.Unset)
-        test(d1.intSeq == Ice.Unset)
-        test(d1.longSeq == Ice.Unset)
-        test(d1.floatSeq == Ice.Unset)
-        test(d1.doubleSeq == Ice.Unset)
+        test(d1.boolSeq is None)
+        test(d1.byteSeq is None)
+        test(d1.intSeq is None)
+        test(d1.longSeq is None)
+        test(d1.floatSeq is None)
+        test(d1.doubleSeq is None)
 
         v1 = numpy.array(
             [
