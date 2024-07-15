@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import java.util.concurrent.Callable;
+
 public class RoutableReference extends Reference {
   @Override
   public final EndpointI[] getEndpoints() {
@@ -63,6 +65,13 @@ public class RoutableReference extends Reference {
   @Override
   public final com.zeroc.Ice.ConnectionI getConnection() {
     return null;
+  }
+
+  @Override
+  public Reference changeMode(int newMode) {
+    var r = (RoutableReference) super.changeMode(newMode);
+    r.setBatchRequestQueue();
+    return r;
   }
 
   @Override
@@ -315,6 +324,14 @@ public class RoutableReference extends Reference {
   }
 
   @Override
+  public Reference clone() {
+    var r = (RoutableReference) super.clone();
+    // Each reference gets its own batch request queue.
+    r.setBatchRequestQueue();
+    return r;
+  }
+
+  @Override
   public boolean equals(java.lang.Object obj) {
     if (this == obj) {
       return true;
@@ -361,13 +378,37 @@ public class RoutableReference extends Reference {
   }
 
   @Override
-  public RequestHandler getRequestHandler(com.zeroc.Ice._ObjectPrxI proxy) {
-    return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
+  RequestHandler getRequestHandler() {
+    com.zeroc.IceInternal.Instance instance = getInstance();
+    if (_collocationOptimized) {
+      com.zeroc.Ice.ObjectAdapter adapter = instance.objectAdapterFactory().findObjectAdapter(this);
+      if (adapter != null) {
+        return new CollocatedRequestHandler(this, adapter);
+      }
+    }
+
+    var handler = new ConnectRequestHandler(this);
+    if (instance.queueRequests()) {
+      final ConnectRequestHandler h = handler;
+      instance
+          .getQueueExecutor()
+          .executeNoThrow(
+              new Callable<Void>() {
+                @Override
+                public Void call() {
+                  getConnection(h);
+                  return null;
+                }
+              });
+    } else {
+      getConnection(handler);
+    }
+    return handler;
   }
 
   @Override
-  public BatchRequestQueue getBatchRequestQueue() {
-    return new BatchRequestQueue(getInstance(), getMode() == Reference.ModeBatchDatagram);
+  BatchRequestQueue getBatchRequestQueue() {
+    return _batchRequestQueue;
   }
 
   public void getConnection(final GetConnectionCallback callback) {
@@ -513,6 +554,7 @@ public class RoutableReference extends Reference {
     if (_adapterId == null) {
       _adapterId = "";
     }
+    setBatchRequestQueue();
     assert (_adapterId.isEmpty() || _endpoints.length == 0);
   }
 
@@ -711,6 +753,16 @@ public class RoutableReference extends Reference {
     }
   }
 
+  // Sets or resets `_batchRequestQueue` based on `_mode`.
+  private void setBatchRequestQueue() {
+    if (isBatch()) {
+      boolean isDatagram = getMode() == Reference.ModeBatchDatagram;
+      _batchRequestQueue = new BatchRequestQueue(getInstance(), isDatagram);
+    } else {
+      _batchRequestQueue = null;
+    }
+  }
+
   static class EndpointComparator implements java.util.Comparator<EndpointI> {
     EndpointComparator(boolean preferSecure) {
       _preferSecure = preferSecure;
@@ -744,6 +796,8 @@ public class RoutableReference extends Reference {
       new EndpointComparator(false);
   private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
   private static EndpointI[] _emptyEndpoints = new EndpointI[0];
+
+  private BatchRequestQueue _batchRequestQueue;
 
   private EndpointI[] _endpoints;
   private String _adapterId;

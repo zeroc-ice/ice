@@ -27,7 +27,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
         // NOTE: we don't call sent/completed callbacks for batch AMI requests
         //
         _sentSynchronously = true;
-        _proxy._getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
+        _proxy._getReference().getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
         finished(true, false);
       } else {
         //
@@ -84,7 +84,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
       // must notify the connection about that we give up ownership
       // of the batch stream.
       //
-      _proxy._getBatchRequestQueue().abortBatchRequest(_os);
+      _proxy._getReference().getBatchRequestQueue().abortBatchRequest(_os);
     }
 
     super.abort(ex);

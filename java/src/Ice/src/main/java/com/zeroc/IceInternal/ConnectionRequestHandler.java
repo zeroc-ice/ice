@@ -4,26 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-public class ConnectionRequestHandler implements RequestHandler {
-  @Override
-  public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler) {
-    try {
-      if (previousHandler == this) {
-        return newHandler;
-      } else if (previousHandler.getConnection() == _connection) {
-        //
-        // If both request handlers point to the same connection, we also
-        // update the request handler. See bug ICE-5489 for reasons why
-        // this can be useful.
-        //
-        return newHandler;
-      }
-    } catch (com.zeroc.Ice.Exception ex) {
-      // Ignore
-    }
-    return this;
-  }
-
+public final class ConnectionRequestHandler implements RequestHandler {
   @Override
   public int sendAsyncRequest(ProxyOutgoingAsyncBase out) throws RetryException {
     return out.invokeRemote(_connection, _compress, _response);
@@ -36,19 +17,14 @@ public class ConnectionRequestHandler implements RequestHandler {
   }
 
   @Override
-  public Reference getReference() {
-    return _reference;
-  }
-
-  @Override
   public com.zeroc.Ice.ConnectionI getConnection() {
     return _connection;
   }
 
   public ConnectionRequestHandler(
-      Reference ref, com.zeroc.Ice.ConnectionI connection, boolean compress) {
-    _reference = ref;
-    _response = _reference.getMode() == Reference.ModeTwoway;
+      Reference reference, com.zeroc.Ice.ConnectionI connection, boolean compress) {
+    _reference = reference;
+    _response = _reference.isTwoway();
     _connection = connection;
     _compress = compress;
   }

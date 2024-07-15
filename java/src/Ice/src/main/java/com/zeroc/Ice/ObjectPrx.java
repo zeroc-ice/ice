@@ -733,7 +733,7 @@ public interface ObjectPrx {
    * @return The new proxy with the specified facet.
    */
   static ObjectPrx uncheckedCast(ObjectPrx obj, String facet) {
-    return (obj == null) ? null : new _ObjectPrxI(obj.ice_facet(facet));
+    return (obj == null) ? null : obj.ice_facet(facet);
   }
 
   /**
