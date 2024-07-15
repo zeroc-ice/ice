@@ -41,9 +41,6 @@
     <Compile Include="..\..\AssemblyUtil.cs">
       <Link>AssemblyUtil.cs</Link>
     </Compile>
-    <Compile Include="..\..\AsyncIOThread.cs">
-      <Link>AsyncIOThread.cs</Link>
-    </Compile>
     <Compile Include="..\..\AsyncResult.cs">
       <Link>AsyncResult.cs</Link>
     </Compile>
