@@ -16,6 +16,7 @@ import random
 import subprocess
 import shutil
 import copy
+import uuid
 import xml.sax.saxutils
 from platform import machine as platform_machine
 from pathlib import Path
@@ -2542,7 +2543,7 @@ class RemoteProcessController(ProcessController):
 
         import Ice
 
-        comm.getProperties().setProperty("Adapter.AdapterId", Ice.generateUUID())
+        comm.getProperties().setProperty("Adapter.AdapterId", str(uuid.uuid4()))
         self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
         self.adapter.add(
             ProcessControllerRegistryI(self),
