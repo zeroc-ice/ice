@@ -921,35 +921,27 @@ checkedCastImpl(const Ice::ObjectPrx& p, const string& id, VALUE facet, VALUE ct
 {
     Ice::ObjectPrx target = (NIL_P(facet)) ? p : p->ice_facet(getString(facet));
 
-    try
+    if (NIL_P(ctx))
     {
-        if (NIL_P(ctx))
+        if (target->ice_isA(id))
         {
-            if (target->ice_isA(id))
-            {
-                return createProxy(target, type);
-            }
+            return createProxy(target, type);
         }
-        else
-        {
-            Ice::Context c;
+    }
+    else
+    {
+        Ice::Context c;
 #ifndef NDEBUG
-            bool b =
+        bool b =
 #endif
-                hashToContext(ctx, c);
-            assert(b);
+            hashToContext(ctx, c);
+        assert(b);
 
-            if (target->ice_isA(id, c))
-            {
-                return createProxy(target, type);
-            }
+        if (target->ice_isA(id, c))
+        {
+            return createProxy(target, type);
         }
     }
-    catch (const Ice::FacetNotExistException&)
-    {
-        // Ignore.
-    }
-
     return Qnil;
 }
 
