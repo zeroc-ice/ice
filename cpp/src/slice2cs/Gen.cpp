@@ -3168,29 +3168,18 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.dec();
 
     _out << sp << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
+         << "Prx? checkedCast(Ice.ObjectPrx? b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
             "null) =>";
     _out.inc();
     _out << nl << "b is not null && b.ice_isA(ice_staticId(), ctx) ? new " << name << "PrxHelper(b) : null;";
     _out.dec();
 
     _out << sp << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx b, string f, global::System.Collections.Generic.Dictionary<string, "
-            "string>? ctx = null)";
-    _out << sb;
-    _out << nl << "Ice.ObjectPrx? bb = b?.ice_facet(f);";
-    _out << nl << "try";
-    _out << sb;
-    _out << nl << "if (bb is not null && bb.ice_isA(ice_staticId(), ctx))";
-    _out << sb;
-    _out << nl << "return new " << name << "PrxHelper(bb);";
-    _out << eb;
-    _out << eb;
-    _out << nl << "catch (Ice.FacetNotExistException)";
-    _out << sb;
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
+         << "Prx? checkedCast(Ice.ObjectPrx? b, string f, global::System.Collections.Generic.Dictionary<string, "
+            "string>? ctx = null) =>";
+    _out.inc();
+    _out << nl << "checkedCast(b?.ice_facet(f), ctx);";
+    _out.dec();
 
     _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
     _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b) =>";
@@ -3201,7 +3190,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
     _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b, string f) =>";
     _out.inc();
-    _out << nl << "b is not null ? new " << name << "PrxHelper(b.ice_facet(f)) : null;";
+    _out << nl << "uncheckedCast(b?.ice_facet(f));";
     _out.dec();
 
     string scoped = p->scoped();
