@@ -20,8 +20,8 @@ namespace IcePy
 extern "C" EndpointInfoObject*
 endpointInfoNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PyErr_Format(PyExc_RuntimeError, STRCAST("An endpoint info cannot be created directly"));
-    return 0;
+    PyErr_Format(PyExc_RuntimeError, "An endpoint info cannot be created directly");
+    return nullptr;
 }
 
 extern "C" void
@@ -46,7 +46,7 @@ endpointInfoType(EndpointInfoObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
@@ -60,12 +60,12 @@ endpointInfoDatagram(EndpointInfoObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->endpointInfo)->datagram() ? getTrue() : getFalse();
+        b = (*self->endpointInfo)->datagram() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -82,12 +82,12 @@ endpointInfoSecure(EndpointInfoObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        b = (*self->endpointInfo)->secure() ? getTrue() : getFalse();
+        b = (*self->endpointInfo)->secure() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     Py_INCREF(b);
@@ -109,7 +109,7 @@ endpointInfoGetTimeout(EndpointInfoObject* self, PyObject* /*args*/)
 extern "C" PyObject*
 endpointInfoGetCompress(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    return (*self->endpointInfo)->compress ? incTrue() : incFalse();
+    return (*self->endpointInfo)->compress ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
@@ -179,84 +179,51 @@ opaqueEndpointInfoGetRawEncoding(EndpointInfoObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef EndpointInfoMethods[] = {
-    {STRCAST("type"),
-     reinterpret_cast<PyCFunction>(endpointInfoType),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("type() -> int"))},
-    {STRCAST("datagram"),
-     reinterpret_cast<PyCFunction>(endpointInfoDatagram),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("datagram() -> bool"))},
-    {STRCAST("secure"),
-     reinterpret_cast<PyCFunction>(endpointInfoSecure),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("secure() -> bool"))},
+    {"type", reinterpret_cast<PyCFunction>(endpointInfoType), METH_NOARGS, PyDoc_STR("type() -> int")},
+    {"datagram", reinterpret_cast<PyCFunction>(endpointInfoDatagram), METH_NOARGS, PyDoc_STR("datagram() -> bool")},
+    {"secure", reinterpret_cast<PyCFunction>(endpointInfoSecure), METH_NOARGS, PyDoc_STR("secure() -> bool")},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef EndpointInfoGetters[] = {
-    {STRCAST("underlying"),
+    {"underlying",
      reinterpret_cast<getter>(endpointInfoGetUnderlying),
      0,
-     PyDoc_STR(STRCAST("underling endpoint information")),
+     PyDoc_STR("underling endpoint information"),
      0},
-    {STRCAST("timeout"),
-     reinterpret_cast<getter>(endpointInfoGetTimeout),
-     0,
-     PyDoc_STR(STRCAST("timeout in milliseconds")),
-     0},
-    {STRCAST("compress"),
-     reinterpret_cast<getter>(endpointInfoGetCompress),
-     0,
-     PyDoc_STR(STRCAST("compression status")),
-     0},
+    {"timeout", reinterpret_cast<getter>(endpointInfoGetTimeout), 0, PyDoc_STR("timeout in milliseconds"), 0},
+    {"compress", reinterpret_cast<getter>(endpointInfoGetCompress), 0, PyDoc_STR("compression status"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef IPEndpointInfoGetters[] = {
-    {STRCAST("host"),
-     reinterpret_cast<getter>(ipEndpointInfoGetHost),
-     0,
-     PyDoc_STR(STRCAST("host name or IP address")),
-     0},
-    {STRCAST("port"), reinterpret_cast<getter>(ipEndpointInfoGetPort), 0, PyDoc_STR(STRCAST("TCP port number")), 0},
-    {STRCAST("sourceAddress"),
-     reinterpret_cast<getter>(ipEndpointInfoGetSourceAddress),
-     0,
-     PyDoc_STR(STRCAST("source IP address")),
-     0},
+    {"host", reinterpret_cast<getter>(ipEndpointInfoGetHost), 0, PyDoc_STR("host name or IP address"), 0},
+    {"port", reinterpret_cast<getter>(ipEndpointInfoGetPort), 0, PyDoc_STR("TCP port number"), 0},
+    {"sourceAddress", reinterpret_cast<getter>(ipEndpointInfoGetSourceAddress), 0, PyDoc_STR("source IP address"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef UDPEndpointInfoGetters[] = {
-    {STRCAST("mcastInterface"),
+    {"mcastInterface",
      reinterpret_cast<getter>(udpEndpointInfoGetMcastInterface),
      0,
-     PyDoc_STR(STRCAST("multicast interface")),
+     PyDoc_STR("multicast interface"),
      0},
-    {STRCAST("mcastTtl"),
-     reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl),
-     0,
-     PyDoc_STR(STRCAST("multicast time-to-live")),
-     0},
+    {"mcastTtl", reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl), 0, PyDoc_STR("multicast time-to-live"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef WSEndpointInfoGetters[] = {
-    {STRCAST("resource"), reinterpret_cast<getter>(wsEndpointInfoGetResource), 0, PyDoc_STR(STRCAST("resource")), 0},
+    {"resource", reinterpret_cast<getter>(wsEndpointInfoGetResource), 0, PyDoc_STR("resource"), 0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef OpaqueEndpointInfoGetters[] = {
-    {STRCAST("rawBytes"),
-     reinterpret_cast<getter>(opaqueEndpointInfoGetRawBytes),
-     0,
-     PyDoc_STR(STRCAST("raw encoding")),
-     0},
-    {STRCAST("rawEncoding"),
+    {"rawBytes", reinterpret_cast<getter>(opaqueEndpointInfoGetRawBytes), 0, PyDoc_STR("raw encoding"), 0},
+    {"rawEncoding",
      reinterpret_cast<getter>(opaqueEndpointInfoGetRawEncoding),
      0,
-     PyDoc_STR(STRCAST("raw encoding version")),
+     PyDoc_STR("raw encoding version"),
      0},
     {0, 0} /* sentinel */
 };
@@ -266,9 +233,9 @@ namespace IcePy
     PyTypeObject EndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.EndpointInfo"), /* tp_name */
-        sizeof(EndpointInfoObject),                                /* tp_basicsize */
-        0,                                                         /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.EndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                       /* tp_basicsize */
+        0,                                                /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -311,9 +278,9 @@ namespace IcePy
     PyTypeObject IPEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST(".IPEndpointInfo"), /* tp_name */
-        sizeof(EndpointInfoObject),                             /* tp_basicsize */
-        0,                                                      /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) ".IPEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                    /* tp_basicsize */
+        0,                                             /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -356,9 +323,9 @@ namespace IcePy
     PyTypeObject TCPEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.TCPEndpointInfo"), /* tp_name */
-        sizeof(EndpointInfoObject),                                   /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.TCPEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                          /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -401,9 +368,9 @@ namespace IcePy
     PyTypeObject UDPEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.UDPEndpointInfo"), /* tp_name */
-        sizeof(EndpointInfoObject),                                   /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.UDPEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                          /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -446,9 +413,9 @@ namespace IcePy
     PyTypeObject WSEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.WSEndpointInfo"), /* tp_name */
-        sizeof(EndpointInfoObject),                                  /* tp_basicsize */
-        0,                                                           /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.WSEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                         /* tp_basicsize */
+        0,                                                  /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -491,9 +458,9 @@ namespace IcePy
     PyTypeObject SSLEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.SSLEndpointInfo"), /* tp_name */
-        sizeof(EndpointInfoObject),                                   /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.SSLEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                          /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -536,9 +503,9 @@ namespace IcePy
     PyTypeObject OpaqueEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.OpaqueEndpointInfo"), /* tp_name */
-        sizeof(EndpointInfoObject),                                      /* tp_basicsize */
-        0,                                                               /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.OpaqueEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                             /* tp_basicsize */
+        0,                                                      /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -587,7 +554,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
     PyTypeObject* type = &EndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("EndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "EndpointInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -598,7 +565,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
     type = &IPEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("IPEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "IPEndpointInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -609,7 +576,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
     type = &TCPEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("TCPEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "TCPEndpointInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -620,7 +587,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
     type = &UDPEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("UDPEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "UDPEndpointInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -631,7 +598,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
     type = &WSEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("WSEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "WSEndpointInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -642,7 +609,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
     type = &SSLEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("SSLEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "SSLEndpointInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -653,7 +620,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
     type = &OpaqueEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("OpaqueEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "OpaqueEndpointInfo", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -674,7 +641,6 @@ IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
 {
     if (!endpointInfo)
     {
-        Py_INCREF(Py_None);
         return Py_None;
     }
 
@@ -711,7 +677,7 @@ IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
     EndpointInfoObject* obj = reinterpret_cast<EndpointInfoObject*>(type->tp_alloc(type, 0));
     if (!obj)
     {
-        return 0;
+        return nullptr;
     }
     obj->endpointInfo = new Ice::EndpointInfoPtr(endpointInfo);
 

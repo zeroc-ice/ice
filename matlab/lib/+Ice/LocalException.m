@@ -15,7 +15,7 @@ classdef LocalException < Ice.Exception
                 % the msg.
                 superArgs = {errID, '%s', what};
             end
-            obj = obj@Ice.Exception(superArgs{:});
+            obj@Ice.Exception(superArgs{:});
         end
     end
 end

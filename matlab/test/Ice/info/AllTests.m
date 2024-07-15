@@ -54,15 +54,14 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            base = communicator.stringToProxy(['test:', helper.getTestEndpoint(), ':', helper.getTestEndpoint('udp')]);
-            testIntf = TestIntfPrx.checkedCast(base);
+            testIntf = TestIntfPrx(communicator, ['test:', helper.getTestEndpoint(), ':', helper.getTestEndpoint('udp')]);
 
             endpointPort = helper.getTestPort();
 
             defaultHost = communicator.getProperties().getProperty('Ice.Default.Host');
             fprintf('test connection endpoint information... ');
 
-            info = base.ice_getConnection().getEndpoint().getInfo();
+            info = testIntf.ice_getConnection().getEndpoint().getInfo();
             tcpinfo = getTCPEndpointInfo(info);
             assert(tcpinfo.port == endpointPort);
             assert(~tcpinfo.compress);
@@ -74,7 +73,7 @@ classdef AllTests
             port = str2num(ctx('port'));
             assert(port > 0);
 
-            info = base.ice_datagram().ice_getConnection().getEndpoint().getInfo();
+            info = testIntf.ice_datagram().ice_getConnection().getEndpoint().getInfo();
             udp = info;
             assert(udp.port == endpointPort);
             assert(strcmp(udp.host, defaultHost));
@@ -83,7 +82,7 @@ classdef AllTests
 
             fprintf('testing connection information... ');
 
-            connection = base.ice_getConnection();
+            connection = testIntf.ice_getConnection();
             connection.setBufferSize(1024, 2048);
 
             info = getTCPConnectionInfo(connection.getInfo());
@@ -106,8 +105,8 @@ classdef AllTests
             assert(strcmp(ctx('remotePort'), num2str(info.localPort)));
             assert(strcmp(ctx('localPort'), num2str(info.remotePort)));
 
-            type = base.ice_getConnection().type();
-            if strcmp(base, 'ws') || strcmp(base, 'wss')
+            type = testIntf.ice_getConnection().type();
+            if strcmp(testIntf, 'ws') || strcmp(testIntf, 'wss')
                 headers = connection.getInfo().headers;
                 assert(strcmp(headers('Upgrade'), 'websocket'));
                 assert(strcmp(headers('Connection'), 'Upgrade'));
@@ -121,7 +120,7 @@ classdef AllTests
                 assert(ctx.isKey('ws.Sec-WebSocket-Key'));
             end
 
-            connection = base.ice_datagram().ice_getConnection();
+            connection = testIntf.ice_datagram().ice_getConnection();
             connection.setBufferSize(2048, 1024);
 
             udpinfo = connection.getInfo();

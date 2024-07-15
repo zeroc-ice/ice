@@ -5,21 +5,24 @@
 classdef (Abstract) WrapperObject < handle
     methods
         function obj = WrapperObject(impl, type)
-            %
-            % If no type was supplied, we convert the class name into the prefix that we'll use for invoking
-            % external C functions.
-            %
-            if nargin == 1
-                type = strrep(class(obj), '.', '_'); % E.g., Ice.Communicator -> Ice_Communicator
+            if nargin > 0 % don't do anything for the default constructor
+                %
+                % If no type was supplied, we convert the class name into the prefix that we'll use for invoking
+                % external C functions.
+                %
+                if nargin == 1
+                    type = strrep(class(obj), '.', '_'); % E.g., Ice.Communicator -> Ice_Communicator
+                end
+                obj.impl_ = impl;
+                obj.type_ = type;
             end
-            obj.impl_ = impl;
-            obj.type_ = type;
         end
     end
     methods(Hidden)
         function delete(obj)
             if ~isempty(obj.impl_)
                 obj.iceCall('unref');
+                obj.impl_ = [];
             end
         end
         function iceCall(obj, fn, varargin)

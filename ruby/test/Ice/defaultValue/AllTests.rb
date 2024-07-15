@@ -94,49 +94,6 @@ def allTests()
     test(v.zeroD == 0)
     test(v.zeroDotD == 0)
 
-    v = Test::BaseEx.new
-    test(!v.boolFalse)
-    test(v.boolTrue)
-    test(v.b == 1)
-    test(v.s == 2)
-    test(v.i == 3)
-    test(v.l == 4)
-    test(v.f == 5.1)
-    test(v.d == 6.2)
-    test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07")
-    test(v.noDefault == '')
-    test(v.zeroI == 0)
-    test(v.zeroL == 0)
-    test(v.zeroF == 0)
-    test(v.zeroDotF == 0)
-    test(v.zeroD == 0)
-    test(v.zeroDotD == 0)
-
-    v = Test::DerivedEx.new
-    test(!v.boolFalse)
-    test(v.boolTrue)
-    test(v.b == 1)
-    test(v.s == 2)
-    test(v.i == 3)
-    test(v.l == 4)
-    test(v.f == 5.1)
-    test(v.d == 6.2)
-    test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07")
-    test(v.noDefault == '')
-    test(v.c1 == Test::Color::Red)
-    test(v.c2 == Test::Color::Green)
-    test(v.c3 == Test::Color::Blue)
-    test(v.nc1 == Test::Nested::Color::Red)
-    test(v.nc2 == Test::Nested::Color::Green)
-    test(v.nc3 == Test::Nested::Color::Blue)
-    test(v.noDefault == '')
-    test(v.zeroI == 0)
-    test(v.zeroL == 0)
-    test(v.zeroF == 0)
-    test(v.zeroDotF == 0)
-    test(v.zeroD == 0)
-    test(v.zeroDotD == 0)
-
     puts "ok"
 
     print "testing default constructor... "
@@ -156,13 +113,6 @@ def allTests()
     test(v.is == nil)
     test(v.st.instance_of?(Test::InnerStruct));
     test(v.dict == nil);
-
-    e = Test::ExceptionNoDefaults.new
-    test(e.str == '')
-    test(e.c1 == Test::Color::Red)
-    test(e.bs == nil)
-    test(e.st.instance_of?(Test::InnerStruct));
-    test(e.dict == nil);
 
     c = Test::ClassNoDefaults.new
     test(c.str == '')

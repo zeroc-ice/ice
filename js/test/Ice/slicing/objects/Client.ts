@@ -67,18 +67,14 @@ export class Client extends TestHelper {
         }
 
         if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
-            try {
-                const sb = await prx.SBSUnknownDerivedAsSBaseCompact();
-                test(sb.sb == "SBSUnknownDerived.sb");
-            } catch (ex) {
-                test(ex instanceof Ice.OperationNotExistException, ex);
-            }
+            const sb = await prx.SBSUnknownDerivedAsSBaseCompact();
+            test(sb.sb == "SBSUnknownDerived.sb");
         } else {
             try {
                 await prx.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.OperationNotExistException || ex instanceof Ice.NoValueFactoryException, ex);
+                test(ex instanceof Ice.MarshalException, ex);
             }
         }
         out.writeLine("ok");
@@ -92,7 +88,7 @@ export class Client extends TestHelper {
             test(obj.ice_getSlicedData() !== null);
             await prx.checkSUnknown(obj);
         } catch (ex) {
-            test(ex instanceof Ice.NoValueFactoryException, ex);
+            test(ex instanceof Ice.MarshalException, ex);
             test(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
         }
         out.writeLine("ok");

@@ -5,7 +5,7 @@
 def batchOneways(p)
     bs1 = "\0" * (10 * 1024);
 
-    batch = Test::MyClassPrx::uncheckedCast(p.ice_batchOneway())
+    batch = p.ice_batchOneway()
 
     batch.ice_flushBatchRequests() # Empty flush
     batch.ice_getConnection().flushBatchRequests(Ice::CompressBatch::BasedOnProxy)
@@ -25,7 +25,7 @@ def batchOneways(p)
 
     batch.ice_getConnection().flushBatchRequests(Ice::CompressBatch::BasedOnProxy)
 
-    batch2 = Test::MyClassPrx::uncheckedCast(p.ice_batchOneway())
+    batch2 = p.ice_batchOneway()
 
     batch.ice_ping()
     batch2.ice_ping()

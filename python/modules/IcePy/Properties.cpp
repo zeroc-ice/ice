@@ -24,7 +24,7 @@ propertiesNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     PropertiesObject* self = reinterpret_cast<PropertiesObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
-        return 0;
+        return nullptr;
     }
     self->properties = 0;
     return self;
@@ -36,7 +36,7 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* arglist = 0;
     PyObject* defaultsObj = 0;
 
-    if (!PyArg_ParseTuple(args, STRCAST("|OO"), &arglist, &defaultsObj))
+    if (!PyArg_ParseTuple(args, "|OO", &arglist, &defaultsObj))
     {
         return -1;
     }
@@ -54,7 +54,7 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
         }
         else if (arglist != Py_None)
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("args must be None or a list"));
+            PyErr_Format(PyExc_ValueError, "args must be None or a list");
             return -1;
         }
     }
@@ -72,7 +72,7 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
         }
         else if (defaultsObj != Py_None)
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("defaults must be None or a Ice.Properties"));
+            PyErr_Format(PyExc_ValueError, "defaults must be None or a Ice.Properties");
             return -1;
         }
     }
@@ -135,7 +135,7 @@ propertiesStr(PropertiesObject* self)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     string str;
@@ -155,15 +155,15 @@ extern "C" PyObject*
 propertiesGetProperty(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    if (!PyArg_ParseTuple(args, "O", &keyObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -175,7 +175,7 @@ propertiesGetProperty(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(value);
@@ -185,15 +185,15 @@ extern "C" PyObject*
 propertiesGetIceProperty(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    if (!PyArg_ParseTuple(args, "O", &keyObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -205,7 +205,7 @@ propertiesGetIceProperty(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(value);
@@ -216,20 +216,20 @@ propertiesGetPropertyWithDefault(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     PyObject* defObj;
-    if (!PyArg_ParseTuple(args, STRCAST("OO"), &keyObj, &defObj))
+    if (!PyArg_ParseTuple(args, "OO", &keyObj, &defObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     string def;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
     if (!getStringArg(defObj, "value", def))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -241,7 +241,7 @@ propertiesGetPropertyWithDefault(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createString(value);
@@ -251,15 +251,15 @@ extern "C" PyObject*
 propertiesGetPropertyAsInt(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    if (!PyArg_ParseTuple(args, "O", &keyObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -271,7 +271,7 @@ propertiesGetPropertyAsInt(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return PyLong_FromLong(value);
@@ -281,15 +281,15 @@ extern "C" PyObject*
 propertiesGetIcePropertyAsInt(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    if (!PyArg_ParseTuple(args, "O", &keyObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -301,7 +301,7 @@ propertiesGetIcePropertyAsInt(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return PyLong_FromLong(value);
@@ -312,15 +312,15 @@ propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     int def;
-    if (!PyArg_ParseTuple(args, STRCAST("Oi"), &keyObj, &def))
+    if (!PyArg_ParseTuple(args, "Oi", &keyObj, &def))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -332,7 +332,7 @@ propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return PyLong_FromLong(value);
@@ -342,15 +342,15 @@ extern "C" PyObject*
 propertiesGetPropertyAsList(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    if (!PyArg_ParseTuple(args, "O", &keyObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -362,17 +362,17 @@ propertiesGetPropertyAsList(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObject* list = PyList_New(0);
     if (!list)
     {
-        return 0;
+        return nullptr;
     }
     if (!stringSeqToList(value, list))
     {
-        return 0;
+        return nullptr;
     }
 
     return list;
@@ -382,15 +382,15 @@ extern "C" PyObject*
 propertiesGetIcePropertyAsList(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    if (!PyArg_ParseTuple(args, "O", &keyObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -402,17 +402,17 @@ propertiesGetIcePropertyAsList(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObject* list = PyList_New(0);
     if (!list)
     {
-        return 0;
+        return nullptr;
     }
     if (!stringSeqToList(value, list))
     {
-        return 0;
+        return nullptr;
     }
 
     return list;
@@ -423,22 +423,22 @@ propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     PyObject* defList;
-    if (!PyArg_ParseTuple(args, STRCAST("OO!"), &keyObj, &PyList_Type, &defList))
+    if (!PyArg_ParseTuple(args, "OO!", &keyObj, &PyList_Type, &defList))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
     Ice::StringSeq def;
     if (!listToStringSeq(defList, def))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::StringSeq value;
@@ -449,17 +449,17 @@ propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObject* list = PyList_New(0);
     if (!list)
     {
-        return 0;
+        return nullptr;
     }
     if (!stringSeqToList(value, list))
     {
-        return 0;
+        return nullptr;
     }
 
     return list;
@@ -469,15 +469,15 @@ extern "C" PyObject*
 propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
 {
     PyObject* prefixObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &prefixObj))
+    if (!PyArg_ParseTuple(args, "O", &prefixObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string prefix;
     if (!getStringArg(prefixObj, "prefix", prefix))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -489,7 +489,7 @@ propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle result = PyDict_New();
@@ -501,7 +501,7 @@ propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
             PyObjectHandle val = createString(p->second);
             if (!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
             {
-                return 0;
+                return nullptr;
             }
         }
     }
@@ -514,20 +514,20 @@ propertiesSetProperty(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
     PyObject* valueObj;
-    if (!PyArg_ParseTuple(args, STRCAST("OO"), &keyObj, &valueObj))
+    if (!PyArg_ParseTuple(args, "OO", &keyObj, &valueObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string key;
     string value;
     if (!getStringArg(keyObj, "key", key))
     {
-        return 0;
+        return nullptr;
     }
     if (!getStringArg(valueObj, "value", value))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -538,10 +538,9 @@ propertiesSetProperty(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -557,17 +556,17 @@ propertiesGetCommandLineOptions(PropertiesObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObject* list = PyList_New(0);
     if (!list)
     {
-        return 0;
+        return nullptr;
     }
     if (!stringSeqToList(options, list))
     {
-        return 0;
+        return nullptr;
     }
 
     return list;
@@ -578,21 +577,21 @@ propertiesParseCommandLineOptions(PropertiesObject* self, PyObject* args)
 {
     PyObject* prefixObj;
     PyObject* options;
-    if (!PyArg_ParseTuple(args, STRCAST("OO!"), &prefixObj, &PyList_Type, &options))
+    if (!PyArg_ParseTuple(args, "OO!", &prefixObj, &PyList_Type, &options))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::StringSeq seq;
     if (!listToStringSeq(options, seq))
     {
-        return 0;
+        return nullptr;
     }
 
     string prefix;
     if (!getStringArg(prefixObj, "prefix", prefix))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -604,17 +603,17 @@ propertiesParseCommandLineOptions(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObject* list = PyList_New(0);
     if (!list)
     {
-        return 0;
+        return nullptr;
     }
     if (!stringSeqToList(filteredSeq, list))
     {
-        return 0;
+        return nullptr;
     }
 
     return list;
@@ -624,15 +623,15 @@ extern "C" PyObject*
 propertiesParseIceCommandLineOptions(PropertiesObject* self, PyObject* args)
 {
     PyObject* options;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), &PyList_Type, &options))
+    if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &options))
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::StringSeq seq;
     if (!listToStringSeq(options, seq))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -644,17 +643,17 @@ propertiesParseIceCommandLineOptions(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     PyObject* list = PyList_New(0);
     if (!list)
     {
-        return 0;
+        return nullptr;
     }
     if (!stringSeqToList(filteredSeq, list))
     {
-        return 0;
+        return nullptr;
     }
 
     return list;
@@ -664,15 +663,15 @@ extern "C" PyObject*
 propertiesLoad(PropertiesObject* self, PyObject* args)
 {
     PyObject* fileObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &fileObj))
+    if (!PyArg_ParseTuple(args, "O", &fileObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string file;
     if (!getStringArg(fileObj, "file", file))
     {
-        return 0;
+        return nullptr;
     }
 
     assert(self->properties);
@@ -683,10 +682,9 @@ propertiesLoad(PropertiesObject* self, PyObject* args)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -702,77 +700,71 @@ propertiesClone(PropertiesObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
     return createProperties(properties);
 }
 
 static PyMethodDef PropertyMethods[] = {
-    {STRCAST("getProperty"),
+    {"getProperty",
      reinterpret_cast<PyCFunction>(propertiesGetProperty),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getProperty(key) -> string"))},
-    {STRCAST("getIceProperty"),
+     PyDoc_STR("getProperty(key) -> string")},
+    {"getIceProperty",
      reinterpret_cast<PyCFunction>(propertiesGetIceProperty),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getIceProperty(key) -> string"))},
-    {STRCAST("getPropertyWithDefault"),
+     PyDoc_STR("getIceProperty(key) -> string")},
+    {"getPropertyWithDefault",
      reinterpret_cast<PyCFunction>(propertiesGetPropertyWithDefault),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getPropertyWithDefault(key, default) -> string"))},
-    {STRCAST("getPropertyAsInt"),
+     PyDoc_STR("getPropertyWithDefault(key, default) -> string")},
+    {"getPropertyAsInt",
      reinterpret_cast<PyCFunction>(propertiesGetPropertyAsInt),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getPropertyAsInt(key) -> int"))},
-    {STRCAST("getIcePropertyAsInt"),
+     PyDoc_STR("getPropertyAsInt(key) -> int")},
+    {"getIcePropertyAsInt",
      reinterpret_cast<PyCFunction>(propertiesGetIcePropertyAsInt),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getIcePropertyAsInt(key) -> int"))},
-    {STRCAST("getPropertyAsIntWithDefault"),
+     PyDoc_STR("getIcePropertyAsInt(key) -> int")},
+    {"getPropertyAsIntWithDefault",
      reinterpret_cast<PyCFunction>(propertiesGetPropertyAsIntWithDefault),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getPropertyAsIntWithDefault(key, default) -> int"))},
-    {STRCAST("getPropertyAsList"),
+     PyDoc_STR("getPropertyAsIntWithDefault(key, default) -> int")},
+    {"getPropertyAsList",
      reinterpret_cast<PyCFunction>(propertiesGetPropertyAsList),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getPropertyAsList(key) -> list"))},
-    {STRCAST("getIcePropertyAsList"),
+     PyDoc_STR("getPropertyAsList(key) -> list")},
+    {"getIcePropertyAsList",
      reinterpret_cast<PyCFunction>(propertiesGetIcePropertyAsList),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getIcePropertyAsList(key) -> list"))},
-    {STRCAST("getPropertyAsListWithDefault"),
+     PyDoc_STR("getIcePropertyAsList(key) -> list")},
+    {"getPropertyAsListWithDefault",
      reinterpret_cast<PyCFunction>(propertiesGetPropertyAsListWithDefault),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getPropertyAsListWithDefault(key, default) -> list"))},
-    {STRCAST("getPropertiesForPrefix"),
+     PyDoc_STR("getPropertyAsListWithDefault(key, default) -> list")},
+    {"getPropertiesForPrefix",
      reinterpret_cast<PyCFunction>(propertiesGetPropertiesForPrefix),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("getPropertiesForPrefix(prefix) -> dict"))},
-    {STRCAST("setProperty"),
+     PyDoc_STR("getPropertiesForPrefix(prefix) -> dict")},
+    {"setProperty",
      reinterpret_cast<PyCFunction>(propertiesSetProperty),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("setProperty(key, value) -> None"))},
-    {STRCAST("getCommandLineOptions"),
+     PyDoc_STR("setProperty(key, value) -> None")},
+    {"getCommandLineOptions",
      reinterpret_cast<PyCFunction>(propertiesGetCommandLineOptions),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getCommandLineOptions() -> list"))},
-    {STRCAST("parseCommandLineOptions"),
+     PyDoc_STR("getCommandLineOptions() -> list")},
+    {"parseCommandLineOptions",
      reinterpret_cast<PyCFunction>(propertiesParseCommandLineOptions),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("parseCommandLineOptions(prefix, options) -> list"))},
-    {STRCAST("parseIceCommandLineOptions"),
+     PyDoc_STR("parseCommandLineOptions(prefix, options) -> list")},
+    {"parseIceCommandLineOptions",
      reinterpret_cast<PyCFunction>(propertiesParseIceCommandLineOptions),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("parseIceCommandLineOptions(prefix, options) -> list"))},
-    {STRCAST("load"),
-     reinterpret_cast<PyCFunction>(propertiesLoad),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("load(file) -> None"))},
-    {STRCAST("clone"),
-     reinterpret_cast<PyCFunction>(propertiesClone),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("clone() -> Ice.Properties"))},
+     PyDoc_STR("parseIceCommandLineOptions(prefix, options) -> list")},
+    {"load", reinterpret_cast<PyCFunction>(propertiesLoad), METH_VARARGS, PyDoc_STR("load(file) -> None")},
+    {"clone", reinterpret_cast<PyCFunction>(propertiesClone), METH_NOARGS, PyDoc_STR("clone() -> Ice.Properties")},
     {0, 0} /* sentinel */
 };
 
@@ -781,9 +773,9 @@ namespace IcePy
     PyTypeObject PropertiesType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.Properties"), /* tp_name */
-        sizeof(PropertiesObject),                                /* tp_basicsize */
-        0,                                                       /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Properties", /* tp_name */
+        sizeof(PropertiesObject),                       /* tp_basicsize */
+        0,                                              /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(propertiesDealloc), /* tp_dealloc */
         0,                                               /* tp_print */
@@ -832,7 +824,7 @@ IcePy::initProperties(PyObject* module)
         return false;
     }
     PyTypeObject* type = &PropertiesType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("Properties"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "Properties", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -859,7 +851,7 @@ IcePy::getProperties(PyObject* p)
     {
         return *obj->properties;
     }
-    return 0;
+    return nullptr;
 }
 
 extern "C" PyObject*

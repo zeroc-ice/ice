@@ -23,8 +23,8 @@ namespace IcePy
 extern "C" BatchRequestObject*
 batchRequestNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PyErr_Format(PyExc_RuntimeError, STRCAST("Batch requests can only be created by the Ice runtime"));
-    return 0;
+    PyErr_Format(PyExc_RuntimeError, "Batch requests can only be created by the Ice runtime");
+    return nullptr;
 }
 
 extern "C" void
@@ -50,7 +50,7 @@ batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
         catch (...)
         {
             setPythonException(current_exception());
-            return 0;
+            return nullptr;
         }
 
         self->size = PyLong_FromLong(size);
@@ -73,7 +73,7 @@ batchRequestGetOperation(BatchRequestObject* self, PyObject* /*args*/)
         catch (...)
         {
             setPythonException(current_exception());
-            return 0;
+            return nullptr;
         }
 
         self->operation = createString(operation);
@@ -97,7 +97,7 @@ batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
         catch (...)
         {
             setPythonException(current_exception());
-            return 0;
+            return nullptr;
         }
 
         self->proxy = createProxy(proxy.value(), proxy->ice_getCommunicator());
@@ -118,30 +118,23 @@ batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyMethodDef BatchRequestMethods[] = {
-    {STRCAST("getSize"),
-     reinterpret_cast<PyCFunction>(batchRequestGetSize),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("getSize() -> int"))},
-    {STRCAST("getOperation"),
+    {"getSize", reinterpret_cast<PyCFunction>(batchRequestGetSize), METH_NOARGS, PyDoc_STR("getSize() -> int")},
+    {"getOperation",
      reinterpret_cast<PyCFunction>(batchRequestGetOperation),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getOperation() -> string"))},
-    {STRCAST("getProxy"),
+     PyDoc_STR("getOperation() -> string")},
+    {"getProxy",
      reinterpret_cast<PyCFunction>(batchRequestGetProxy),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getProxy() -> Ice.ObjectPrx"))},
-    {STRCAST("enqueue"),
-     reinterpret_cast<PyCFunction>(batchRequestEnqueue),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("enqueue() -> None"))},
+     PyDoc_STR("getProxy() -> Ice.ObjectPrx")},
+    {"enqueue", reinterpret_cast<PyCFunction>(batchRequestEnqueue), METH_NOARGS, PyDoc_STR("enqueue() -> None")},
     {0, 0} /* sentinel */
 };
 
@@ -150,9 +143,9 @@ namespace IcePy
     PyTypeObject BatchRequestType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.BatchRequest"), /* tp_name */
-        sizeof(BatchRequestObject),                                /* tp_basicsize */
-        0,                                                         /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.BatchRequest", /* tp_name */
+        sizeof(BatchRequestObject),                       /* tp_basicsize */
+        0,                                                /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(batchRequestDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -201,7 +194,7 @@ IcePy::initBatchRequest(PyObject* module)
         return false;
     }
     PyTypeObject* type = &BatchRequestType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("BatchRequest"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "BatchRequest", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -211,7 +204,7 @@ IcePy::initBatchRequest(PyObject* module)
 
 IcePy::BatchRequestInterceptorWrapper::BatchRequestInterceptorWrapper(PyObject* interceptor) : _interceptor(interceptor)
 {
-    if (!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, STRCAST("enqueue")))
+    if (!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, "enqueue"))
     {
         throw Ice::InitializationException(
             __FILE__,
@@ -240,11 +233,11 @@ IcePy::BatchRequestInterceptorWrapper::enqueue(const Ice::BatchRequest& request,
     PyObjectHandle tmp;
     if (PyCallable_Check(_interceptor.get()))
     {
-        tmp = PyObject_CallFunction(_interceptor.get(), STRCAST("Oii"), obj, queueCount, queueSize);
+        tmp = PyObject_CallFunction(_interceptor.get(), "Oii", obj, queueCount, queueSize);
     }
     else
     {
-        tmp = PyObject_CallMethod(_interceptor.get(), STRCAST("enqueue"), STRCAST("Oii"), obj, queueCount, queueSize);
+        tmp = PyObject_CallMethod(_interceptor.get(), "enqueue", "Oii", obj, queueCount, queueSize);
     }
     Py_DECREF(reinterpret_cast<PyObject*>(obj));
     if (!tmp.get())

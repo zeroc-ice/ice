@@ -257,8 +257,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     //
     // Instance members.
     //
-    rb_define_attr(_endpointInfoClass, "protocol", 1, 0);
-    rb_define_attr(_endpointInfoClass, "encoding", 1, 0);
+    rb_define_attr(_endpointInfoClass, "underlying", 1, 0);
     rb_define_attr(_endpointInfoClass, "timeout", 1, 0);
     rb_define_attr(_endpointInfoClass, "compress", 1, 0);
 

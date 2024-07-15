@@ -34,19 +34,7 @@ def allTests(helper, communicator):
     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E")
     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F")
 
-    sys.stdout.write("testing stringToProxy... ")
-    sys.stdout.flush()
-    ref = "initial:{0}".format(helper.getTestEndpoint())
-    base = communicator.stringToProxy(ref)
-    test(base)
-    print("ok")
-
-    sys.stdout.write("testing checked cast... ")
-    sys.stdout.flush()
-    initial = Test.InitialPrx.checkedCast(base)
-    test(initial)
-    test(initial == base)
-    print("ok")
+    initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
 
     sys.stdout.write("getting B1... ")
     sys.stdout.flush()
@@ -257,10 +245,7 @@ def allTests(helper, communicator):
     if initial.ice_getConnection():
         sys.stdout.write("testing UnexpectedObjectException... ")
         sys.stdout.flush()
-        ref = "uoet:{0}".format(helper.getTestEndpoint())
-        base = communicator.stringToProxy(ref)
-        test(base)
-        uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base)
+        uoet = Test.UnexpectedObjectExceptionTestPrx(communicator, f"uoet:{helper.getTestEndpoint()}")
         test(uoet)
         try:
             uoet.op()
@@ -302,8 +287,7 @@ def allTests(helper, communicator):
     test(f11.name == "F11")
     test(f12.name == "F12")
 
-    ref = "F21:{0}".format(helper.getTestEndpoint())
-    f21, f22 = initial.opF2(Test.F2Prx.uncheckedCast(communicator.stringToProxy(ref)))
+    f21, f22 = initial.opF2(Test.F2Prx(communicator, f"F21:{helper.getTestEndpoint()}"))
     test(f21.ice_getIdentity().name == "F21")
     f21.op()
     test(f22.ice_getIdentity().name == "F22")

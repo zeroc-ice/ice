@@ -233,8 +233,7 @@ classdef AllTests
                 end
 
                 try
-                    thrower2 = ThrowerPrx.uncheckedCast(...
-                        communicator.stringToProxy(['thrower:', helper.getTestEndpoint(1)]));
+                    thrower2 = ThrowerPrx(communicator, ['thrower:', helper.getTestEndpoint(1)]);
                     try
                         thrower2.throwMemoryLimitException(zeros(1, 2 * 1024 * 1024)); % 2MB (no limits)
                     catch ex
@@ -242,8 +241,7 @@ classdef AllTests
                             rethrow(ex);
                         end
                     end
-                    thrower3 = ThrowerPrx.uncheckedCast(...
-                        communicator.stringToProxy(['thrower:', helper.getTestEndpoint(2)]));
+                    thrower3 = ThrowerPrx(communicator, ['thrower:', helper.getTestEndpoint(2)]);
                     try
                         thrower3.throwMemoryLimitException(zeros(1, 1024)); % 1KB limit
                         assert(false);

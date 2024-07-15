@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
+__name__ = "Ice"
+
 class Communicator(object):
     """
     The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
@@ -7,7 +9,7 @@ class Communicator(object):
     """
 
     def __init__(self):
-        if type(self) == Communicator:
+        if type(self) is Communicator:
             raise RuntimeError("Ice.Communicator is an abstract class")
 
     def destroy(self):

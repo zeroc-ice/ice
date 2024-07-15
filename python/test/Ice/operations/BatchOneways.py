@@ -114,9 +114,7 @@ def batchOneways(p):
 
         ic = Ice.initialize(data=initData)
 
-        batch = Test.MyClassPrx.uncheckedCast(
-            ic.stringToProxy(p.ice_toString())
-        ).ice_batchOneway()
+        batch = Test.MyClassPrx(ic, p.ice_toString()).ice_batchOneway()
 
         test(interceptor.count() == 0)
         batch.ice_ping()

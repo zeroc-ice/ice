@@ -5,6 +5,7 @@
 
 import os
 import sys
+import uuid
 
 from Util import (
     Darwin,
@@ -213,7 +214,7 @@ class ControllerDriver(Driver):
             "ControllerAdapter.Endpoints", self.endpoints
         )
         self.communicator.getProperties().setProperty(
-            "ControllerAdapter.AdapterId", Ice.generateUUID()
+            "ControllerAdapter.AdapterId", str(uuid.uuid4())
         )
         adapter = self.communicator.createObjectAdapter("ControllerAdapter")
         adapter.add(ControllerI(self), Ice.stringToIdentity(self.id))

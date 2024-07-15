@@ -20,8 +20,7 @@ function createTestIntfPrx($adapters)
             $endpoints[] = $e;
         }
     }
-    $test = $test->ice_endpoints($endpoints);
-    return $test->ice_uncheckedCast("::Test::TestIntf");
+    return $test->ice_endpoints($endpoints);
 }
 
 function deactivate($com, $adapters)
@@ -53,13 +52,11 @@ function allTests($helper)
 
         $com->deactivateObjectAdapter($adapter);
 
-        $test3 = $test1->ice_uncheckedCast("::Test::TestIntf");
-        test($test3->ice_getConnection() == $test1->ice_getConnection());
-        test($test3->ice_getConnection() == $test2->ice_getConnection());
+        test($test1->ice_getConnection() == $test2->ice_getConnection());
 
         try
         {
-            $test3->ice_ping();
+            $test1->ice_ping();
             test(false);
         }
         catch(Exception $ex)
@@ -189,7 +186,7 @@ function allTests($helper)
             $test->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
         }
 
-        $test = $test->ice_endpointSelection(Ice\EndpointSelectionType::Random)->ice_uncheckedCast("::Test::TestIntf");
+        $test = $test->ice_endpointSelection(Ice\EndpointSelectionType::Random);
         test($test->ice_getEndpointSelection() == Ice\EndpointSelectionType::Random);
 
         $names = array("Adapter21", "Adapter22", "Adapter23");
@@ -216,7 +213,7 @@ function allTests($helper)
         $adapters[] = $com->createObjectAdapter("Adapter33", "default");
 
         $test = createTestIntfPrx($adapters);
-        $test = $test->ice_endpointSelection(Ice\EndpointSelectionType::Ordered)->ice_uncheckedCast("::Test::TestIntf");
+        $test = $test->ice_endpointSelection(Ice\EndpointSelectionType::Ordered);
         test($test->ice_getEndpointSelection() == Ice\EndpointSelectionType::Ordered);
         $nRetry = 5;
 
@@ -275,8 +272,8 @@ function allTests($helper)
     {
         $adapter = $com->createObjectAdapter("Adapter41", "default");
 
-        $test1 = $adapter->getTestIntf()->ice_connectionCached(false)->ice_uncheckedCast("::Test::TestIntf");
-        $test2 = $adapter->getTestIntf()->ice_connectionCached(false)->ice_uncheckedCast("::Test::TestIntf");
+        $test1 = $adapter->getTestIntf()->ice_connectionCached(false);
+        $test2 = $adapter->getTestIntf()->ice_connectionCached(false);
         test(!$test1->ice_isConnectionCached());
         test(!$test2->ice_isConnectionCached());
         test($test1->ice_getConnection() == $test2->ice_getConnection());
@@ -285,10 +282,9 @@ function allTests($helper)
 
         $com->deactivateObjectAdapter($adapter);
 
-        $test3 = $test1->ice_uncheckedCast("::Test::TestIntf");
         try
         {
-            test($test3->ice_getConnection() == $test1->ice_getConnection());
+            test($test1->ice_getConnection() != null);
             test(false);
         }
         catch(Exception $ex)
@@ -309,7 +305,7 @@ function allTests($helper)
         $adapters[] = $com->createObjectAdapter("Adapter52", "default");
         $adapters[] = $com->createObjectAdapter("Adapter53", "default");
 
-        $test = createTestIntfPrx($adapters)->ice_connectionCached(false)->ice_uncheckedCast("::Test::TestIntf");
+        $test = createTestIntfPrx($adapters)->ice_connectionCached(false);
         test(!$test->ice_isConnectionCached());
 
         $names = array("Adapter51", "Adapter52", "Adapter53");
@@ -351,9 +347,9 @@ function allTests($helper)
         $adapters[] = $com->createObjectAdapter("Adapter63", "default");
 
         $test = createTestIntfPrx($adapters);
-        $test = $test->ice_endpointSelection(Ice\EndpointSelectionType::Ordered)->ice_uncheckedCast("::Test::TestIntf");
+        $test = $test->ice_endpointSelection(Ice\EndpointSelectionType::Ordered);
         test($test->ice_getEndpointSelection() == Ice\EndpointSelectionType::Ordered);
-        $test = $test->ice_connectionCached(false)->ice_uncheckedCast("::Test::TestIntf");
+        $test = $test->ice_connectionCached(false);
         test(!$test->ice_isConnectionCached());
         $nRetry = 5;
 
@@ -415,7 +411,7 @@ function allTests($helper)
         $test = createTestIntfPrx($adapters);
         test($test->getAdapterName() == "Adapter71");
 
-        $testUDP = $test->ice_datagram()->ice_uncheckedCast("::Test::TestIntf");
+        $testUDP = $test->ice_datagram();
         test($test->ice_getConnection() != $testUDP->ice_getConnection());
         try
         {
@@ -447,11 +443,11 @@ function allTests($helper)
                 $test->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
             }
 
-            $testSecure = $test->ice_secure(true)->ice_uncheckedCast("::Test::TestIntf");
+            $testSecure = $test->ice_secure(true);
             test($testSecure->ice_isSecure());
-            $testSecure = $test->ice_secure(false)->ice_uncheckedCast("::Test::TestIntf");
+            $testSecure = $test->ice_secure(false);
             test(!$testSecure->ice_isSecure());
-            $testSecure = $test->ice_secure(true)->ice_uncheckedCast("::Test::TestIntf");
+            $testSecure = $test->ice_secure(true);
             test($testSecure->ice_isSecure());
             test($test->ice_getConnection() != $testSecure->ice_getConnection());
 

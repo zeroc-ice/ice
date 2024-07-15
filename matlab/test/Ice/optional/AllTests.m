@@ -10,8 +10,7 @@ classdef AllTests
             communicator = helper.communicator();
 
             ref = ['initial:', helper.getTestEndpoint()];
-            base = communicator.stringToProxy(ref);
-            initial = InitialPrx.checkedCast(base);
+            initial = InitialPrx(communicator, ref);
 
             fprintf('testing optional data members... ');
 
@@ -67,12 +66,12 @@ classdef AllTests
             ivsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             ivsd(5) = vs;
             imipd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-            imipd(5) = MyInterfacePrx.uncheckedCast(communicator.stringToProxy('test'));
+            imipd(5) = MyInterfacePrx(communicator, 'test');
             mo1 = MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', MyEnum.MyEnumMember, ...
-                                     MyInterfacePrx.uncheckedCast(communicator.stringToProxy('test')), ...
+                                     MyInterfacePrx(communicator, 'test'), ...
                                      [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
                                      [MyEnum.MyEnumMember, MyEnum.MyEnumMember], ...
-                                     [ fs ], [ vs ], { MyInterfacePrx.uncheckedCast(communicator.stringToProxy('test')) }, ...
+                                     [ fs ], [ vs ], { MyInterfacePrx(communicator, 'test') }, ...
                                      ied, ifsd, ivsd, imipd, [false, true, false], []);
 
             assert(mo1.a == 15);
@@ -291,7 +290,7 @@ classdef AllTests
             assert(r.gg2Opt.a == 20);
             assert(strcmp(r.gg1.a, 'gg1'));
 
-            initial2 = Initial2Prx.uncheckedCast(base);
+            initial2 = Initial2Prx.uncheckedCast(initial);
             initial2.opVoid(15, 'test');
 
             fprintf('ok\n');
@@ -385,7 +384,7 @@ classdef AllTests
 
                 fprintf('testing operations with unknown optionals... ');
 
-                initial2 = Initial2Prx.uncheckedCast(base);
+                initial2 = Initial2Prx.uncheckedCast(initial);
                 ovs = VarStruct('test');
                 initial2.opClassAndUnknownOptional(A(), ovs);
 

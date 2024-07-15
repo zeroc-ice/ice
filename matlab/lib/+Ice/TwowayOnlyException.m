@@ -17,7 +17,7 @@ classdef (Sealed) TwowayOnlyException < Ice.LocalException
                 superArgs = {'Ice:TwowayOnlyException', sprintf('operation ''%s'' can only be invoked with a twoway proxy',...
                     operation)};
             end
-            obj = obj@Ice.LocalException(superArgs{:});
+            obj@Ice.LocalException(superArgs{:});
         end
     end
 end

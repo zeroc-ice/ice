@@ -6,8 +6,7 @@ require 'Ice'
 Ice::loadSlice('-I. --all ClientPrivate.ice')
 
 def allTests(helper, communicator)
-    obj = communicator.stringToProxy("Test:#{helper.getTestEndpoint()}")
-    t = Test::TestIntfPrx::checkedCast(obj)
+    t = Test::TestIntfPrx.new(communicator, "Test:#{helper.getTestEndpoint()}")
 
     print "base as Object... "
     STDOUT.flush

@@ -16,7 +16,7 @@ class Client < ::TestHelper
             # Define some default values.
             #
             def_s2 = Test::S2.new(true, 98, 99, 100, 101, 1.0, 2.0, "string", ["one", "two", "three"], {"abc"=>"def"}, \
-                                  Test::S1.new("name"), Test::C.new(5), communicator.stringToProxy("test"))
+                                  Test::S1.new("name"), Test::C.new(5), Ice::ObjectPrx.new(communicator, "test"))
 
             #
             # Compare default-constructed structures.
@@ -156,11 +156,11 @@ class Client < ::TestHelper
             # Proxy member
             #
             v1 = def_s2.clone
-            v1.prx = communicator.stringToProxy("test")
+            v1.prx = Ice::ObjectPrx.new(communicator, "test")
             test(v1.eql?(def_s2))
 
             v1 = def_s2.clone
-            v1.prx = communicator.stringToProxy("test2")
+            v1.prx = Ice::ObjectPrx.new(communicator, "test2")
             test(!v1.eql?(def_s2))
 
             v1 = def_s2.clone

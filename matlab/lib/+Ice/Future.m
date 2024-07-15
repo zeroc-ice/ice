@@ -49,7 +49,7 @@ classdef Future < IceInternal.WrapperObject
             %
             persistent nextId;
 
-            obj = obj@IceInternal.WrapperObject(impl, type);
+            obj@IceInternal.WrapperObject(impl, type);
             obj.Operation = op;
             obj.NumOutputArguments = numOutArgs;
             obj.fetchFunc = fetchFunc;

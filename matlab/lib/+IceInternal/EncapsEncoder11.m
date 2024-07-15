@@ -5,7 +5,7 @@
 classdef EncapsEncoder11 < IceInternal.EncapsEncoder
     methods
         function obj = EncapsEncoder11(os, encaps)
-            obj = obj@IceInternal.EncapsEncoder(os, encaps);
+            obj@IceInternal.EncapsEncoder(os, encaps);
             obj.current = [];
             obj.valueIdIndex = 1;
             obj.marshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'int32');

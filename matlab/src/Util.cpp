@@ -67,12 +67,6 @@ IceMatlab::getStringFromUTF16(mxArray* p)
 }
 
 mxArray*
-IceMatlab::createEmpty()
-{
-    return mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
-}
-
-mxArray*
 IceMatlab::createBool(bool v)
 {
     auto r = mxCreateNumericMatrix(1, 1, mxLOGICAL_CLASS, mxREAL);
@@ -91,59 +85,11 @@ IceMatlab::createByte(uint8_t v)
 }
 
 mxArray*
-IceMatlab::createShort(short v)
-{
-    auto r = mxCreateNumericMatrix(1, 1, mxINT16_CLASS, mxREAL);
-    auto p = reinterpret_cast<short*>(mxGetPr(r));
-    *p = v;
-    return r;
-}
-
-mxArray*
 IceMatlab::createInt(int v)
 {
     auto r = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
     auto p = reinterpret_cast<int*>(mxGetPr(r));
     *p = v;
-    return r;
-}
-
-mxArray*
-IceMatlab::createLong(long long v)
-{
-    auto r = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
-    auto p = reinterpret_cast<long long*>(mxGetPr(r));
-    *p = v;
-    return r;
-}
-
-mxArray*
-IceMatlab::createFloat(float v)
-{
-    auto r = mxCreateNumericMatrix(1, 1, mxSINGLE_CLASS, mxREAL);
-    auto p = reinterpret_cast<float*>(mxGetPr(r));
-    *p = v;
-    return r;
-}
-
-mxArray*
-IceMatlab::createDouble(double v)
-{
-    auto r = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
-    auto p = reinterpret_cast<double*>(mxGetPr(r));
-    *p = v;
-    return r;
-}
-
-mxArray*
-IceMatlab::createEnumerator(const string& type, int v)
-{
-    auto func = type + ".ice_getValue";
-    auto param = createInt(v);
-    mxArray* r;
-    mexCallMATLAB(1, &r, 1, &param, func.c_str());
-    // Calling this causes MATLAB to crash:
-    // mxFree(param);
     return r;
 }
 
@@ -292,16 +238,6 @@ IceMatlab::createProtocolVersion(const Ice::ProtocolVersion& v)
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.ProtocolVersion");
     return r;
-}
-
-void
-IceMatlab::getProtocolVersion(mxArray* p, Ice::ProtocolVersion& v)
-{
-    if (!mxIsClass(p, "Ice.ProtocolVersion"))
-    {
-        throw std::invalid_argument("argument is not Ice.ProtocolVersion");
-    }
-    getMajorMinor(p, v.major, v.minor);
 }
 
 namespace
@@ -502,18 +438,6 @@ IceMatlab::createByteArray(const byte* begin, const byte* end)
 {
     mxArray* r = mxCreateUninitNumericMatrix(1, end - begin, mxUINT8_CLASS, mxREAL);
     memcpy(reinterpret_cast<uint8_t*>(mxGetData(r)), begin, end - begin);
-    return r;
-}
-
-mxArray*
-IceMatlab::createByteList(const vector<byte>& bytes)
-{
-    auto r = mxCreateCellMatrix(1, static_cast<int>(bytes.size()));
-    mwIndex i = 0;
-    for (auto byte : bytes)
-    {
-        mxSetCell(r, i++, createByte(static_cast<uint8_t>(byte)));
-    }
     return r;
 }
 

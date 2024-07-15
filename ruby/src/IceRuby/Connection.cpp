@@ -316,10 +316,10 @@ IceRuby::initConnection(VALUE iceModule)
     //
     // Instance members.
     //
+    rb_define_attr(_connectionInfoClass, "underlying", 1, 0);
     rb_define_attr(_connectionInfoClass, "incoming", 1, 0);
     rb_define_attr(_connectionInfoClass, "adapterName", 1, 0);
-    rb_define_attr(_connectionInfoClass, "rcvSize", 1, 0);
-    rb_define_attr(_connectionInfoClass, "sndSize", 1, 0);
+    rb_define_attr(_connectionInfoClass, "connectionId", 1, 0);
 
     //
     // IPConnectionInfo
@@ -342,6 +342,12 @@ IceRuby::initConnection(VALUE iceModule)
     rb_undef_alloc_func(_tcpConnectionInfoClass);
 
     //
+    // Instance members.
+    //
+    rb_define_attr(_tcpConnectionInfoClass, "rcvSize", 1, 0);
+    rb_define_attr(_tcpConnectionInfoClass, "sndSize", 1, 0);
+
+    //
     // UDPConnectionInfo
     //
     _udpConnectionInfoClass = rb_define_class_under(iceModule, "UDPConnectionInfo", _ipConnectionInfoClass);
@@ -352,6 +358,8 @@ IceRuby::initConnection(VALUE iceModule)
     //
     rb_define_attr(_udpConnectionInfoClass, "mcastAddress", 1, 0);
     rb_define_attr(_udpConnectionInfoClass, "mcastPort", 1, 0);
+    rb_define_attr(_udpConnectionInfoClass, "rcvSize", 1, 0);
+    rb_define_attr(_udpConnectionInfoClass, "sndSize", 1, 0);
 
     //
     // WSConnectionInfo

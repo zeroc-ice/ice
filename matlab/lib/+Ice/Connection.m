@@ -28,7 +28,7 @@ classdef Connection < IceInternal.WrapperObject
             if ~isa(impl, 'lib.pointer')
                 throw(LocalException('Ice:ArgumentException', 'invalid argument'));
             end
-            obj = obj@IceInternal.WrapperObject(impl);
+            obj@IceInternal.WrapperObject(impl);
             obj.communicator = communicator;
         end
         function r = eq(obj, other)
@@ -87,7 +87,7 @@ classdef Connection < IceInternal.WrapperObject
 
             proxy = libpointer('voidPtr');
             obj.iceCall('createProxy', id, proxy);
-            r = Ice.ObjectPrx(obj.communicator, obj.communicator.getEncoding(), proxy);
+            r = Ice.ObjectPrx(obj.communicator, '', proxy, obj.communicator.getEncoding());
         end
         function r = getEndpoint(obj)
             % getEndpoint   Get the endpoint from which the connection was

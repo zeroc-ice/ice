@@ -20,7 +20,7 @@ class ImplicitContext(object):
     """
 
     def __init__(self):
-        if type(self) == ImplicitContext:
+        if type(self) is ImplicitContext:
             raise RuntimeError("Ice.ImplicitContext is an abstract class")
 
     def getContext(self):

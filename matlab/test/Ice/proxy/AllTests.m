@@ -313,22 +313,22 @@ classdef AllTests
             b1 = b1.ice_invocationTimeout(1234);
             b1 = b1.ice_encodingVersion(Ice.EncodingVersion(1, 0));
 
-            router = communicator.stringToProxy('router');
+            router = Ice.RouterPrx(communicator, 'router');
             router = router.ice_connectionCached(true);
             router = router.ice_preferSecure(true);
             router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random);
             router = router.ice_locatorCacheTimeout(200);
             router = router.ice_invocationTimeout(1500);
 
-            locator = communicator.stringToProxy('locator');
+            locator = Ice.LocatorPrx(communicator, 'locator');
             locator = locator.ice_connectionCached(false);
             locator = locator.ice_preferSecure(true);
             locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random);
             locator = locator.ice_locatorCacheTimeout(300);
             locator = locator.ice_invocationTimeout(1500);
 
-            locator = locator.ice_router(Ice.RouterPrx.uncheckedCast(router));
-            b1 = b1.ice_locator(Ice.LocatorPrx.uncheckedCast(locator));
+            locator = locator.ice_router(router);
+            b1 = b1.ice_locator(locator);
 
             proxyProps = communicator.proxyToProperty(b1, 'Test');
             assert(length(proxyProps) == 21);
@@ -513,8 +513,8 @@ classdef AllTests
             assert(compObj.ice_compress(true).ice_getCompress() == true);
             assert(compObj.ice_compress(false).ice_getCompress() == false);
 
-            loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy('loc1:default -p 10000'));
-            loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy('loc2:default -p 10000'));
+            loc1 = Ice.LocatorPrx(communicator, 'loc1:default -p 10000');
+            loc2 = Ice.LocatorPrx(communicator, 'loc2:default -p 10000');
             assert(compObj.ice_locator([]) == compObj.ice_locator([]));
             assert(compObj.ice_locator(loc1) == compObj.ice_locator(loc1));
             assert(compObj.ice_locator(loc1) ~= compObj.ice_locator([]));
@@ -525,8 +525,8 @@ classdef AllTests
             %assert(compObj.ice_locator(loc1) < compObj.ice_locator(loc2));
             %assert(~(compObj.ice_locator(loc2) < compObj.ice_locator(loc1)));
 
-            rtr1 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy('rtr1:default -p 10000'));
-            rtr2 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy('rtr2:default -p 10000'));
+            rtr1 = Ice.RouterPrx(communicator, 'rtr1:default -p 10000');
+            rtr2 = Ice.RouterPrx(communicator, 'rtr2:default -p 10000');
             assert(compObj.ice_router([]) == compObj.ice_router([]));
             assert(compObj.ice_router(rtr1) == compObj.ice_router(rtr1));
             assert(compObj.ice_router(rtr1) ~= compObj.ice_router([]));
@@ -698,7 +698,7 @@ classdef AllTests
 
             fprintf('testing encoding versioning... ');
             ref20 = 'test -e 2.0:default -p 12010';
-            cl20 = MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
+            cl20 = MyClassPrx(communicator, ref20);
             try
                 cl20.ice_ping();
                 assert(false);
@@ -708,7 +708,7 @@ classdef AllTests
             end
 
             ref10 = 'test -e 1.0:default -p 12010';
-            cl10 = MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
+            cl10 = MyClassPrx(communicator, ref10);
             cl10.ice_ping();
             cl10.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
             cl.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
