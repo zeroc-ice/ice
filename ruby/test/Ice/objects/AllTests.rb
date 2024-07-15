@@ -286,10 +286,7 @@ def allTests(helper, communicator)
     print "testing UnexpectedObjectException... "
     STDOUT.flush
     ref = "uoet:#{helper.getTestEndpoint()}"
-    base = communicator.stringToProxy(ref)
-    test(base)
-    uoet = Test::UnexpectedObjectExceptionTestPrx::uncheckedCast(base)
-    test(uoet)
+    uoet = Test::UnexpectedObjectExceptionTestPrx.new(communicator, ref)
     begin
         uoet.op()
         test(false)
@@ -332,7 +329,7 @@ def allTests(helper, communicator)
     test(f11.name == "F11")
     test(f12.name == "F12")
 
-    f21, f22 = initial.opF2(Test::F2Prx::uncheckedCast(communicator.stringToProxy("F21:#{helper.getTestEndpoint()}")))
+    f21, f22 = initial.opF2(Test::F2Prx.new(communicator, "F21:#{helper.getTestEndpoint()}"))
     test(f21.ice_getIdentity().name == "F21")
     f21.op()
     test(f22.ice_getIdentity().name == "F22")

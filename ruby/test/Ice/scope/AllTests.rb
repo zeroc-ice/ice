@@ -50,7 +50,7 @@ def allTests(helper, communicator)
     c = i1.opC1(Test::C1.new("C1"))
     test(c.s == "C1")
 
-    i2 = Test::Inner::Inner2::IPrx::checkedCast(communicator.stringToProxy("i2:#{helper.getTestEndpoint()}"))
+    i2 = Test::Inner::Inner2::IPrx::checkedCast(Ice::ObjectPrx.new(communicator, "i2:#{helper.getTestEndpoint()}"))
 
     s1 = Test::Inner::Inner2::S.new(0)
     s2, s3 = i2.opS(s1)

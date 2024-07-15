@@ -26,141 +26,91 @@
 using namespace std;
 using namespace IcePy;
 
-extern "C" PyObject* IcePy_cleanup(PyObject*, PyObject*);
+extern "C" void IcePy_cleanup(void*);
 
 static PyMethodDef methods[] = {
-    {STRCAST("stringVersion"),
+    {"stringVersion",
      reinterpret_cast<PyCFunction>(IcePy_stringVersion),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("stringVersion() -> string"))},
-    {STRCAST("intVersion"),
-     reinterpret_cast<PyCFunction>(IcePy_intVersion),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("intVersion() -> int"))},
-    {STRCAST("currentProtocol"),
+     PyDoc_STR("stringVersion() -> string")},
+    {"intVersion", reinterpret_cast<PyCFunction>(IcePy_intVersion), METH_NOARGS, PyDoc_STR("intVersion() -> int")},
+    {"currentProtocol",
      reinterpret_cast<PyCFunction>(IcePy_currentProtocol),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("currentProtocol() -> Ice.ProtocolVersion"))},
-    {STRCAST("currentProtocolEncoding"),
+     PyDoc_STR("currentProtocol() -> Ice.ProtocolVersion")},
+    {"currentProtocolEncoding",
      reinterpret_cast<PyCFunction>(IcePy_currentProtocolEncoding),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("currentProtocolEncoding() -> Ice.EncodingVersion"))},
-    {STRCAST("currentEncoding"),
+     PyDoc_STR("currentProtocolEncoding() -> Ice.EncodingVersion")},
+    {"currentEncoding",
      reinterpret_cast<PyCFunction>(IcePy_currentEncoding),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("currentEncoding() -> Ice.EncodingVersion"))},
-    {STRCAST("stringToProtocolVersion"),
+     PyDoc_STR("currentEncoding() -> Ice.EncodingVersion")},
+    {"stringToProtocolVersion",
      reinterpret_cast<PyCFunction>(IcePy_stringToProtocolVersion),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("stringToProtocolVersion(str) -> Ice.ProtocolVersion"))},
-    {STRCAST("protocolVersionToString"),
+     PyDoc_STR("stringToProtocolVersion(str) -> Ice.ProtocolVersion")},
+    {"protocolVersionToString",
      reinterpret_cast<PyCFunction>(IcePy_protocolVersionToString),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("protocolVersionToString(Ice.ProtocolVersion) -> string"))},
-    {STRCAST("stringToEncodingVersion"),
+     PyDoc_STR("protocolVersionToString(Ice.ProtocolVersion) -> string")},
+    {"stringToEncodingVersion",
      reinterpret_cast<PyCFunction>(IcePy_stringToEncodingVersion),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("stringToEncodingVersion(str) -> Ice.EncodingVersion"))},
-    {STRCAST("encodingVersionToString"),
+     PyDoc_STR("stringToEncodingVersion(str) -> Ice.EncodingVersion")},
+    {"encodingVersionToString",
      reinterpret_cast<PyCFunction>(IcePy_encodingVersionToString),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("encodingVersionToString(Ice.EncodingVersion) -> string"))},
-    {STRCAST("generateUUID"),
-     reinterpret_cast<PyCFunction>(IcePy_generateUUID),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("generateUUID() -> string"))},
-    {STRCAST("createProperties"),
+     PyDoc_STR("encodingVersionToString(Ice.EncodingVersion) -> string")},
+    {"createProperties",
      reinterpret_cast<PyCFunction>(IcePy_createProperties),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("createProperties([args]) -> Ice.Properties"))},
-    {STRCAST("stringToIdentity"),
+     PyDoc_STR("createProperties([args]) -> Ice.Properties")},
+    {"stringToIdentity",
      reinterpret_cast<PyCFunction>(IcePy_stringToIdentity),
      METH_O,
-     PyDoc_STR(STRCAST("stringToIdentity(string) -> Ice.Identity"))},
-    {STRCAST("identityToString"),
+     PyDoc_STR("stringToIdentity(string) -> Ice.Identity")},
+    {"identityToString",
      reinterpret_cast<PyCFunction>(IcePy_identityToString),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("identityToString(Ice.Identity, Ice.ToStringMode) -> string"))},
-    {STRCAST("getProcessLogger"),
+     PyDoc_STR("identityToString(Ice.Identity, Ice.ToStringMode) -> string")},
+    {"getProcessLogger",
      reinterpret_cast<PyCFunction>(IcePy_getProcessLogger),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getProcessLogger() -> Ice.Logger"))},
-    {STRCAST("setProcessLogger"),
+     PyDoc_STR("getProcessLogger() -> Ice.Logger")},
+    {"setProcessLogger",
      reinterpret_cast<PyCFunction>(IcePy_setProcessLogger),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("setProcessLogger(logger) -> None"))},
-    {STRCAST("defineEnum"),
-     reinterpret_cast<PyCFunction>(IcePy_defineEnum),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("defineStruct"),
-     reinterpret_cast<PyCFunction>(IcePy_defineStruct),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("defineSequence"),
+     PyDoc_STR("setProcessLogger(logger) -> None")},
+    {"defineEnum", reinterpret_cast<PyCFunction>(IcePy_defineEnum), METH_VARARGS, PyDoc_STR("internal function")},
+    {"defineStruct", reinterpret_cast<PyCFunction>(IcePy_defineStruct), METH_VARARGS, PyDoc_STR("internal function")},
+    {"defineSequence",
      reinterpret_cast<PyCFunction>(IcePy_defineSequence),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("defineCustom"),
-     reinterpret_cast<PyCFunction>(IcePy_defineCustom),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("defineDictionary"),
+     PyDoc_STR("internal function")},
+    {"defineDictionary",
      reinterpret_cast<PyCFunction>(IcePy_defineDictionary),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("declareProxy"),
-     reinterpret_cast<PyCFunction>(IcePy_declareProxy),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("defineProxy"),
-     reinterpret_cast<PyCFunction>(IcePy_defineProxy),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("declareClass"),
-     reinterpret_cast<PyCFunction>(IcePy_declareClass),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("defineClass"),
-     reinterpret_cast<PyCFunction>(IcePy_defineClass),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("declareValue"),
-     reinterpret_cast<PyCFunction>(IcePy_declareValue),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("defineValue"),
-     reinterpret_cast<PyCFunction>(IcePy_defineValue),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("defineException"),
+     PyDoc_STR("internal function")},
+    {"declareProxy", reinterpret_cast<PyCFunction>(IcePy_declareProxy), METH_VARARGS, PyDoc_STR("internal function")},
+    {"defineProxy", reinterpret_cast<PyCFunction>(IcePy_defineProxy), METH_VARARGS, PyDoc_STR("internal function")},
+    {"declareClass", reinterpret_cast<PyCFunction>(IcePy_declareClass), METH_VARARGS, PyDoc_STR("internal function")},
+    {"defineClass", reinterpret_cast<PyCFunction>(IcePy_defineClass), METH_VARARGS, PyDoc_STR("internal function")},
+    {"declareValue", reinterpret_cast<PyCFunction>(IcePy_declareValue), METH_VARARGS, PyDoc_STR("internal function")},
+    {"defineValue", reinterpret_cast<PyCFunction>(IcePy_defineValue), METH_VARARGS, PyDoc_STR("internal function")},
+    {"defineException",
      reinterpret_cast<PyCFunction>(IcePy_defineException),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("stringify"),
-     reinterpret_cast<PyCFunction>(IcePy_stringify),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("stringifyException"),
+     PyDoc_STR("internal function")},
+    {"stringify", reinterpret_cast<PyCFunction>(IcePy_stringify), METH_VARARGS, PyDoc_STR("internal function")},
+    {"stringifyException",
      reinterpret_cast<PyCFunction>(IcePy_stringifyException),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("loadSlice"),
-     reinterpret_cast<PyCFunction>(IcePy_loadSlice),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("loadSlice(cmd) -> None"))},
-    {STRCAST("cleanup"),
-     reinterpret_cast<PyCFunction>(IcePy_cleanup),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("compile"),
-     reinterpret_cast<PyCFunction>(IcePy_compile),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("internal function"))},
+     PyDoc_STR("internal function")},
+    {"loadSlice", reinterpret_cast<PyCFunction>(IcePy_loadSlice), METH_VARARGS, PyDoc_STR("loadSlice(cmd) -> None")},
+    {"compile", reinterpret_cast<PyCFunction>(IcePy_compile), METH_VARARGS, PyDoc_STR("internal function")},
     {0, 0} /* sentinel */
 };
-
-#define INIT_RETURN return (0)
 
 static struct PyModuleDef iceModule = {
     PyModuleDef_HEAD_INIT,
@@ -171,7 +121,7 @@ static struct PyModuleDef iceModule = {
     nullptr,
     nullptr,
     nullptr,
-    nullptr};
+    IcePy_cleanup};
 
 #if defined(__GNUC__)
 extern "C" __attribute__((visibility("default"))) PyObject*
@@ -189,14 +139,6 @@ PyInit_IcePy(void)
     Ice::registerIceDiscovery(false);
     Ice::registerIceLocatorDiscovery(false);
 
-#if PY_VERSION_HEX < 0x03090000
-    //
-    // Notify Python that we are a multi-threaded extension. This method is deprecated
-    // and does nothing since Python 3.9
-    //
-    PyEval_InitThreads();
-#endif
-
     //
     // Create the module.
     //
@@ -207,80 +149,77 @@ PyInit_IcePy(void)
     //
     if (!initProxy(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initTypes(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initProperties(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initPropertiesAdmin(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initDispatcher(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initBatchRequest(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initCommunicator(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initCurrent(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initObjectAdapter(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initOperation(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initLogger(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initConnection(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initConnectionInfo(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initImplicitContext(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initEndpoint(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initEndpointInfo(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     if (!initValueFactoryManager(module))
     {
-        INIT_RETURN;
+        return nullptr;
     }
     return module;
 }
 
-extern "C" PyObject*
-IcePy_cleanup(PyObject* /*self*/, PyObject* /*args*/)
+extern "C" void
+IcePy_cleanup(void* /*self*/)
 {
     cleanupLogger();
-
-    Py_INCREF(Py_None);
-    return Py_None;
 }

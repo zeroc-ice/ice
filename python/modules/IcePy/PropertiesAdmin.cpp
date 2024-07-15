@@ -23,8 +23,8 @@ namespace IcePy
 extern "C" NativePropertiesAdminObject*
 nativePropertiesAdminNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PyErr_Format(PyExc_RuntimeError, STRCAST("This object cannot be created directly"));
-    return 0;
+    PyErr_Format(PyExc_RuntimeError, "This object cannot be created directly");
+    return nullptr;
 }
 
 extern "C" void
@@ -40,9 +40,9 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
 {
     PyObject* callbackType = lookupType("Ice.PropertiesAdminUpdateCallback");
     PyObject* callback;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), callbackType, &callback))
+    if (!PyArg_ParseTuple(args, "O!", callbackType, &callback))
     {
-        return 0;
+        return nullptr;
     }
 
     std::function<void()> remover =
@@ -66,7 +66,7 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                         }
                     }
 
-                    PyObjectHandle obj = PyObject_CallMethod(callback, STRCAST("updated"), STRCAST("O"), result.get());
+                    PyObjectHandle obj = PyObject_CallMethod(callback, "updated", "O", result.get());
                     if (!obj.get())
                     {
                         assert(PyErr_Occurred());
@@ -77,7 +77,6 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
     (*self->callbacks).push_back(make_pair(callback, remover));
     Py_INCREF(callback);
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -86,9 +85,9 @@ nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject*
 {
     PyObject* callbackType = lookupType("Ice.PropertiesAdminUpdateCallback");
     PyObject* callback;
-    if (!PyArg_ParseTuple(args, STRCAST("O!"), callbackType, &callback))
+    if (!PyArg_ParseTuple(args, "O!", callbackType, &callback))
     {
-        return 0;
+        return nullptr;
     }
 
     auto& callbacks = *self->callbacks;
@@ -102,19 +101,18 @@ nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject*
         callbacks.erase(p);
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyMethodDef NativePropertiesAdminMethods[] = {
-    {STRCAST("addUpdateCallback"),
+    {"addUpdateCallback",
      reinterpret_cast<PyCFunction>(nativePropertiesAdminAddUpdateCB),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("addUpdateCallback(callback) -> None"))},
-    {STRCAST("removeUpdateCallback"),
+     PyDoc_STR("addUpdateCallback(callback) -> None")},
+    {"removeUpdateCallback",
      reinterpret_cast<PyCFunction>(nativePropertiesAdminRemoveUpdateCB),
      METH_VARARGS,
-     PyDoc_STR(STRCAST("removeUpdateCallback(callback) -> None"))},
+     PyDoc_STR("removeUpdateCallback(callback) -> None")},
     {0, 0} /* sentinel */
 };
 
@@ -123,9 +121,9 @@ namespace IcePy
     PyTypeObject NativePropertiesAdminType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.NativePropertiesAdmin"), /* tp_name */
-        sizeof(NativePropertiesAdminObject),                                /* tp_basicsize */
-        0,                                                                  /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.NativePropertiesAdmin", /* tp_name */
+        sizeof(NativePropertiesAdminObject),                       /* tp_basicsize */
+        0,                                                         /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(nativePropertiesAdminDealloc), /* tp_dealloc */
         0,                                                          /* tp_print */
@@ -174,7 +172,7 @@ IcePy::initPropertiesAdmin(PyObject* module)
         return false;
     }
     PyTypeObject* type = &NativePropertiesAdminType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("NativePropertiesAdmin"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "NativePropertiesAdmin", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -189,7 +187,7 @@ IcePy::createNativePropertiesAdmin(const Ice::NativePropertiesAdminPtr& admin)
     NativePropertiesAdminObject* p = reinterpret_cast<NativePropertiesAdminObject*>(type->tp_alloc(type, 0));
     if (!p)
     {
-        return 0;
+        return nullptr;
     }
 
     p->admin = new Ice::NativePropertiesAdminPtr(admin);

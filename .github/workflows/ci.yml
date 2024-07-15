@@ -25,7 +25,7 @@ jobs:
             config: "release"
             # https://github.com/zeroc-ice/ice/issues/2061
             test_flags: "--rfilter=csharp/Ice/adapterDeactivation"
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             config: "release"
           - os: windows-2022
             config: "release"
@@ -44,7 +44,7 @@ jobs:
             build_flags: "OPTIMIZE=no"
             # https://github.com/zeroc-ice/ice/issues/2061
             test_flags: "--swift-config=debug --rfilter=csharp/Ice/adapterDeactivation"
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             config: "debug"
             build_flags: "OPTIMIZE=no"
           # TODO - figure out how to properly install debug Python
@@ -65,7 +65,7 @@ jobs:
             build_cpp_and_python: true
 
           # MATLAB
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             config: "matlab"
             working_directory: "matlab"
             build_cpp_and_python: true
@@ -78,7 +78,7 @@ jobs:
             build_cpp_and_python: true
 
           # Cross tests
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             config: "cross"
             test_flags: "--all-cross"
 

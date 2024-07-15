@@ -125,7 +125,6 @@ IcePy::ValueFactoryManager::findValueFactory(string_view id) const
         return p->second->getValueFactory();
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -182,7 +181,7 @@ IcePy::CustomValueFactory::create(string_view id)
 
     if (!info)
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle obj = PyObject_CallFunction(_valueFactory, "s#", id.data(), static_cast<Py_ssize_t>(id.size()));
@@ -195,7 +194,7 @@ IcePy::CustomValueFactory::create(string_view id)
 
     if (obj.get() == Py_None)
     {
-        return 0;
+        return nullptr;
     }
 
     return make_shared<ValueReader>(obj.get(), info);
@@ -242,8 +241,8 @@ IcePy::DefaultValueFactory::create(std::string_view id)
 extern "C" ValueFactoryManagerObject*
 valueFactoryManagerNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PyErr_Format(PyExc_RuntimeError, STRCAST("Do not instantiate this object directly"));
-    return 0;
+    PyErr_Format(PyExc_RuntimeError, "Do not instantiate this object directly");
+    return nullptr;
 }
 
 extern "C" void
@@ -263,24 +262,23 @@ valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
 
     PyObject* factory;
     PyObject* idObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O!O"), factoryType, &factory, &idObj))
+    if (!PyArg_ParseTuple(args, "O!O", factoryType, &factory, &idObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string id;
     if (!getStringArg(idObj, "id", id))
     {
-        return 0;
+        return nullptr;
     }
 
     (*self->vfm)->add(factory, id);
     if (PyErr_Occurred())
     {
-        return 0;
+        return nullptr;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -290,29 +288,23 @@ valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
     assert(self->vfm);
 
     PyObject* idObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &idObj))
+    if (!PyArg_ParseTuple(args, "O", &idObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string id;
     if (!getStringArg(idObj, "id", id))
     {
-        return 0;
+        return nullptr;
     }
 
     return (*self->vfm)->findValueFactory(id);
 }
 
 static PyMethodDef ValueFactoryManagerMethods[] = {
-    {STRCAST("add"),
-     reinterpret_cast<PyCFunction>(valueFactoryManagerAdd),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("add(factory, id) -> None"))},
-    {STRCAST("find"),
-     reinterpret_cast<PyCFunction>(valueFactoryManagerFind),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("find(id) -> function"))},
+    {"add", reinterpret_cast<PyCFunction>(valueFactoryManagerAdd), METH_VARARGS, PyDoc_STR("add(factory, id) -> None")},
+    {"find", reinterpret_cast<PyCFunction>(valueFactoryManagerFind), METH_VARARGS, PyDoc_STR("find(id) -> function")},
     {0, 0} /* sentinel */
 };
 
@@ -321,9 +313,9 @@ namespace IcePy
     PyTypeObject ValueFactoryManagerType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.ValueFactoryManager"), /* tp_name */
-        sizeof(ValueFactoryManagerObject),                                /* tp_basicsize */
-        0,                                                                /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.ValueFactoryManager", /* tp_name */
+        sizeof(ValueFactoryManagerObject),                       /* tp_basicsize */
+        0,                                                       /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(valueFactoryManagerDealloc), /* tp_dealloc */
         0,                                                        /* tp_print */
@@ -372,7 +364,7 @@ IcePy::initValueFactoryManager(PyObject* module)
         return false;
     }
     PyTypeObject* type = &ValueFactoryManagerType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("ValueFactoryManager"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "ValueFactoryManager", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }

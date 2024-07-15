@@ -24,7 +24,7 @@ classdef IPConnectionInfo < Ice.ConnectionInfo
                 remoteAddress = '';
                 remotePort = 0;
             end
-            obj = obj@Ice.ConnectionInfo(underlying, incoming, adapterName, connectionId);
+            obj@Ice.ConnectionInfo(underlying, incoming, adapterName, connectionId);
             obj.localAddress = localAddress;
             obj.localPort = localPort;
             obj.remoteAddress = remoteAddress;

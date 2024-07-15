@@ -8,7 +8,7 @@ classdef FI < Test.F
             if nargin == 0
                 e = [];
             end
-            obj = obj@Test.F(e, e);
+            obj@Test.F(e, e);
         end
 
         function r = checkValues(obj)

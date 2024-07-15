@@ -9,19 +9,8 @@ def test(b)
 end
 
 def allTests(helper, communicator)
-    print "testing stringToProxy... "
-    STDOUT.flush
     ref = "initial:#{helper.getTestEndpoint()}"
-    base = communicator.stringToProxy(ref)
-    test(base)
-    puts "ok"
-
-    print "testing checked cast... "
-    STDOUT.flush
-    initial = Test::InitialPrx::checkedCast(base)
-    test(initial)
-    test(initial == base)
-    puts "ok"
+    initial = Test::InitialPrx::new(communicator, ref)
 
     print "getting proxies for interface hierarchy... "
     STDOUT.flush

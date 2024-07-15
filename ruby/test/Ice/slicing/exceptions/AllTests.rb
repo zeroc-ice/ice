@@ -9,8 +9,7 @@ def test(b)
 end
 
 def allTests(helper, communicator)
-    obj = communicator.stringToProxy("Test:#{helper.getTestEndpoint()}")
-    t = Test::TestIntfPrx::checkedCast(obj)
+    t = Test::TestIntfPrx.new(communicator, "Test:#{helper.getTestEndpoint()}")
 
     print "base... "
     STDOUT.flush

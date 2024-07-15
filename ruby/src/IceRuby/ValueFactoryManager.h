@@ -9,7 +9,6 @@
 #include "Ice/ValueFactory.h"
 
 #include <map>
-#include <mutex>
 
 namespace IceRuby
 {
@@ -69,8 +68,6 @@ namespace IceRuby
         VALUE _self;
         CustomFactoryMap _customFactories;
         const DefaultValueFactoryPtr _defaultFactory;
-
-        mutable std::mutex _mutex;
     };
     using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
 }

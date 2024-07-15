@@ -18,7 +18,7 @@ classdef ConnectionInfo < Ice.ConnectionInfo
                 connectionId = '';
                 peerCertificate = '';
             end
-            obj = obj@Ice.ConnectionInfo(underlying, incoming, adapterName, connectionId);
+            obj@Ice.ConnectionInfo(underlying, incoming, adapterName, connectionId);
             obj.peerCertificate = peerCertificate;
         end
     end

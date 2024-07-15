@@ -7,7 +7,6 @@
 %   Ordered - Ordered forces the Ice run time to use the endpoints in the order they appeared in the proxy.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from EndpointSelectionType.ice by slice2matlab version 3.7.10
 
 classdef EndpointSelectionType < uint8
     enumeration

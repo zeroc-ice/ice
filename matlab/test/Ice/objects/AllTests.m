@@ -9,8 +9,7 @@ classdef AllTests
 
             communicator = helper.communicator();
             ref = ['initial:', helper.getTestEndpoint()];
-            base = communicator.stringToProxy(ref);
-            initial = InitialPrx.checkedCast(base);
+            initial = InitialPrx(communicator, ref);
 
             fprintf('getting B1... ');
             b1 = initial.getB1();
@@ -215,10 +214,7 @@ classdef AllTests
 
             fprintf('testing UnexpectedObjectException... ');
             ref = ['uoet:', helper.getTestEndpoint()];
-            base = communicator.stringToProxy(ref);
-            assert(~isempty(base));
-            uoet = UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
-            assert(~isempty(uoet));
+            uoet = UnexpectedObjectExceptionTestPrx(communicator, ref);
             try
                 uoet.op();
                 assert(false);
@@ -276,7 +272,7 @@ classdef AllTests
             assert(strcmp(f12.name, 'F12'));
 
             ref = ['F21:', helper.getTestEndpoint()];
-            [f21, f22] = initial.opF2(F2Prx.uncheckedCast(communicator.stringToProxy(ref)));
+            [f21, f22] = initial.opF2(F2Prx(communicator, ref));
             assert(strcmp(f21.ice_getIdentity().name, 'F21'));
             f21.op();
             assert(strcmp(f22.ice_getIdentity().name, 'F22'));

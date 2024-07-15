@@ -172,8 +172,7 @@ final class TcpEndpointI extends IPEndpointI {
   // Compare endpoints for sorting purposes
   //
   @Override
-  public int compareTo(EndpointI obj) // From java.lang.Comparable
-      {
+  public int compareTo(EndpointI obj) {
     if (!(obj instanceof TcpEndpointI)) {
       return type() < obj.type() ? -1 : 1;
     }
@@ -206,8 +205,8 @@ final class TcpEndpointI extends IPEndpointI {
   }
 
   @Override
-  public int hashInit(int h) {
-    h = super.hashInit(h);
+  public int hashCode() {
+    int h = super.hashCode();
     h = HashUtil.hashAdd(h, _timeout);
     h = HashUtil.hashAdd(h, _compress);
     return h;

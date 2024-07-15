@@ -15,7 +15,7 @@ classdef TCPEndpointInfo < Ice.IPEndpointInfo
                 port = 0;
                 sourceAddress = '';
             end
-            obj = obj@Ice.IPEndpointInfo(type, false, secure, underlying, timeout, compress, host, port, sourceAddress);
+            obj@Ice.IPEndpointInfo(type, false, secure, underlying, timeout, compress, host, port, sourceAddress);
         end
     end
 end

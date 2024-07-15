@@ -1431,9 +1431,7 @@ class Process(Runnable):
         allArgs += self.getArgs(current)
         allArgs += self.args(self, current) if callable(self.args) else self.args
         allArgs += args
-        allArgs = [
-            a.encode("utf-8") if type(a) == "unicode" else str(a) for a in allArgs
-        ]
+        allArgs = [str(a) for a in allArgs]
         return allArgs
 
     def getEffectiveProps(self, current, props):

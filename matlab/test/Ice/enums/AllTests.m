@@ -10,10 +10,7 @@ classdef AllTests
             communicator = helper.communicator();
 
             ref = ['test:', helper.getTestEndpoint()];
-            obj = communicator.stringToProxy(ref);
-            assert(~isempty(obj));
-            proxy = TestIntfPrx.checkedCast(obj);
-            assert(~isempty(proxy));
+            proxy = TestIntfPrx(communicator, ref);
 
             fprintf('testing enum values... ');
 

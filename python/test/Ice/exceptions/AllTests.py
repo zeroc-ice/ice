@@ -287,19 +287,7 @@ def allTests(helper, communicator):
         pass
     print("ok")
 
-    sys.stdout.write("testing stringToProxy... ")
-    sys.stdout.flush()
-    ref = "thrower:{0}".format(helper.getTestEndpoint())
-    base = communicator.stringToProxy(ref)
-    test(base)
-    print("ok")
-
-    sys.stdout.write("testing checked cast... ")
-    sys.stdout.flush()
-    thrower = Test.ThrowerPrx.checkedCast(base)
-    test(thrower)
-    test(thrower == base)
-    print("ok")
+    thrower = Test.ThrowerPrx(communicator, f"thrower:{helper.getTestEndpoint()}")
 
     sys.stdout.write("catching exact types... ")
     sys.stdout.flush()

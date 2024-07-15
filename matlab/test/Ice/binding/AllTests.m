@@ -33,7 +33,7 @@ classdef AllTests
             communicator = helper.communicator();
 
             ref = ['communicator:', helper.getTestEndpoint()];
-            rcom = RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+            rcom = RemoteCommunicatorPrx(communicator, ref);
 
             fprintf('testing binding with single endpoint... ');
 
@@ -48,9 +48,7 @@ classdef AllTests
 
             rcom.deactivateObjectAdapter(adapter);
 
-            test3 = TestIntfPrx.uncheckedCast(test1);
-            assert(test3.ice_getConnection() == test1.ice_getConnection());
-            assert(test3.ice_getConnection() == test2.ice_getConnection());
+            test3 = test1;
 
             try
                 test3.ice_ping();
@@ -472,7 +470,7 @@ classdef AllTests
 
             rcom.deactivateObjectAdapter(adapter);
 
-            test3 = TestIntfPrx.uncheckedCast(test1);
+            test3 = test1;
             try
                 assert(test3.ice_getConnection() == test1.ice_getConnection());
                 assert(false);

@@ -12,7 +12,7 @@ classdef OpaqueEndpointInfo < Ice.EndpointInfo
 
     methods
         function obj = OpaqueEndpointInfo(type, underlying, timeout, compress, rawEncoding, rawBytes)
-            obj = obj@Ice.EndpointInfo(type, false, false, underlying, timeout, compress);
+            obj@Ice.EndpointInfo(type, false, false, underlying, timeout, compress);
             obj.rawEncoding = rawEncoding;
             obj.rawBytes = rawBytes;
         end

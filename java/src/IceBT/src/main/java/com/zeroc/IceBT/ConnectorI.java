@@ -36,7 +36,12 @@ final class ConnectorI implements Connector {
 
   @Override
   public int hashCode() {
-    return _hashCode;
+    int h = 5381;
+    h = HashUtil.hashAdd(h, _addr);
+    h = HashUtil.hashAdd(h, _uuid);
+    h = HashUtil.hashAdd(h, _timeout);
+    h = HashUtil.hashAdd(h, _connectionId);
+    return h;
   }
 
   //
@@ -48,12 +53,6 @@ final class ConnectorI implements Connector {
     _uuid = uuid;
     _timeout = timeout;
     _connectionId = connectionId;
-
-    _hashCode = 5381;
-    _hashCode = HashUtil.hashAdd(_hashCode, _addr);
-    _hashCode = HashUtil.hashAdd(_hashCode, _uuid);
-    _hashCode = HashUtil.hashAdd(_hashCode, _timeout);
-    _hashCode = HashUtil.hashAdd(_hashCode, _connectionId);
   }
 
   @Override
@@ -82,10 +81,9 @@ final class ConnectorI implements Connector {
     return _addr.equals(p._addr);
   }
 
-  private Instance _instance;
-  private String _addr;
-  private String _uuid;
-  private int _timeout;
-  private String _connectionId;
-  private int _hashCode;
+  private final Instance _instance;
+  private final String _addr;
+  private final String _uuid;
+  private final int _timeout;
+  private final String _connectionId;
 }

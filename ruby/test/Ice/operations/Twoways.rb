@@ -1229,7 +1229,7 @@ def twoways(helper, communicator, p)
 
         ctx = {'one'=>'ONE', 'two'=>'TWO', 'three'=>'THREE'}
 
-        p = Test::MyClassPrx::uncheckedCast(ic.stringToProxy("test:#{helper.getTestEndpoint()}"))
+        p = Test::MyClassPrx.new(ic, "test:#{helper.getTestEndpoint()}")
 
         ic.getImplicitContext().setContext(ctx)
         test(ic.getImplicitContext().getContext() == ctx)
@@ -1250,7 +1250,7 @@ def twoways(helper, communicator, p)
         combined.update(prxContext)
         test(combined['one'] == 'UN')
 
-        p = Test::MyClassPrx::uncheckedCast(p.ice_context(prxContext))
+        p = p.ice_context(prxContext)
         ic.getImplicitContext().setContext({})
         test(p.opContext() == prxContext)
 

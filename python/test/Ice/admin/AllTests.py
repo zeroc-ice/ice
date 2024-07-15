@@ -144,9 +144,9 @@ def allTests(helper, communicator):
     com.destroy()
     print("ok")
 
-    ref = "factory:{0} -t 10000".format(helper.getTestEndpoint())
-    factory = Test.RemoteCommunicatorFactoryPrx.uncheckedCast(
-        communicator.stringToProxy(ref)
+    factory = Test.RemoteCommunicatorFactoryPrx(
+        communicator,
+        f"factory:{helper.getTestEndpoint()} -t 10000"
     )
 
     sys.stdout.write("testing process facet... ")

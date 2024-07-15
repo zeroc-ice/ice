@@ -28,7 +28,7 @@ classdef UDPConnectionInfo < Ice.IPConnectionInfo
                 rcvSize = 0;
                 sndSize = 0;
             end
-            obj = obj@Ice.IPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, ...
+            obj@Ice.IPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, ...
                                            localPort, remoteAddress, remotePort);
             obj.mcastAddress = mcastAddress;
             obj.mcastPort = mcastPort;

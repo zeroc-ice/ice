@@ -3260,9 +3260,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "int h_ = 5381;";
     out << nl << "h_ = com.zeroc.IceInternal.HashUtil.hashAdd(h_, \"" << p->scoped() << "\");";
     iter = 0;
-    for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (const auto& member : members)
     {
-        string memberName = fixKwd((*d)->name());
+        string memberName = fixKwd(member->name());
         out << nl << "h_ = com.zeroc.IceInternal.HashUtil.hashAdd(h_, " << memberName << ");";
     }
     out << nl << "return h_;";
