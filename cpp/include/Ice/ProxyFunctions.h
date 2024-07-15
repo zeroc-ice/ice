@@ -134,10 +134,8 @@ namespace Ice
      * facet is not of the requested type.
      */
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-    std::optional<Prx> checkedCast(
-        const std::optional<ObjectPrx>& proxy,
-        std::string facet,
-        const Context& context = noExplicitContext)
+    std::optional<Prx>
+    checkedCast(const std::optional<ObjectPrx>& proxy, std::string facet, const Context& context = noExplicitContext)
     {
         return proxy ? checkedCast<Prx>(proxy->ice_facet(std::move(facet)), context) : std::nullopt;
     }

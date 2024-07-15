@@ -628,7 +628,7 @@ func allTests(_ helper: TestHelper) throws {
         ]
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
-         do {
+        do {
             _ = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
             try test(false)
         } catch is Ice.FacetNotExistException {}
