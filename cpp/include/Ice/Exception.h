@@ -91,7 +91,7 @@ namespace Ice
         std::string ice_stackTrace() const;
 
     private:
-        friend std::ostream& operator<<(std::ostream&, const Exception&);
+        friend ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
 
         const char* _file;                                // can be nullptr
         int _line;                                        // not used when _file is nullptr
