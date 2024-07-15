@@ -8,7 +8,7 @@ class ValueFactory(object):
     """
 
     def __init__(self):
-        if type(self) == ValueFactory:
+        if type(self) is ValueFactory:
             raise RuntimeError("Ice.ValueFactory is an abstract class")
 
     def create(self, typeId):

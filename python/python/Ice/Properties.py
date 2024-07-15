@@ -8,7 +8,7 @@ class Properties(object):
     """
 
     def __init__(self):
-        if type(self) == Properties:
+        if type(self) is Properties:
             raise RuntimeError("Ice.Properties is an abstract class")
 
     def getProperty(self, key):

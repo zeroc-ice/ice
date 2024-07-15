@@ -6,7 +6,7 @@ class ServantLocator(object):
     """
 
     def __init__(self):
-        if type(self) == ServantLocator:
+        if type(self) is ServantLocator:
             raise RuntimeError("Ice.ServantLocator is an abstract class")
 
     def locate(self, curr):

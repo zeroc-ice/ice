@@ -9,7 +9,7 @@ class Communicator(object):
     """
 
     def __init__(self):
-        if type(self) == Communicator:
+        if type(self) is Communicator:
             raise RuntimeError("Ice.Communicator is an abstract class")
 
     def destroy(self):

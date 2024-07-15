@@ -8,7 +8,7 @@ class ObjectAdapter(object):
     """
 
     def __init__(self):
-        if type(self) == ObjectAdapter:
+        if type(self) is ObjectAdapter:
             raise RuntimeError("Ice.ObjectAdapter is an abstract class")
 
     def getName(self):

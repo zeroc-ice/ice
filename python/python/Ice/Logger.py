@@ -7,7 +7,7 @@ class Logger(object):
     """
 
     def __init__(self):
-        if type(self) == Logger:
+        if type(self) is Logger:
             raise RuntimeError("Ice.Logger is an abstract class")
 
     def _print(self, message):
