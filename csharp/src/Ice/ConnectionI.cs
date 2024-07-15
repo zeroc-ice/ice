@@ -362,6 +362,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
             og.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId);
 
+            // We're just about to send a request, so we are not inactive anymore.
+            cancelInactivityTimer();
+
             int status = OutgoingAsyncBase.AsyncStatusQueued;
             try
             {
@@ -1454,10 +1457,30 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     _state == StateActive &&              // only schedule the timer if the connection is active
                     _dispatchCount == 0 &&                // no pending dispatch
                     _asyncRequests.Count == 0 &&          // no pending invocation
-                    _readHeader &&                        // we're not waiting for the remainder of an incoming message
-                    _sendStreams.Count == 0)              // no pending outgoing messages
+                    _readHeader)                          // we're not waiting for the remainder of an incoming message
                 {
-                    scheduleInactivityTimer();
+                    // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
+                    // inactivity timer if all outgoing messages in _sendStreams are heartbeats.
+
+                    bool isInactive = true;
+
+                    if (_sendStreams.Count > 0)
+                    {
+                        // The stream of the first message is in _writeStream.
+                        if (!isHeartbeat(_writeStream))
+                        {
+                            isInactive = false;
+                        }
+                        else
+                        {
+                            isInactive = _sendStreams.Skip(1).All(message => isHeartbeat(message.stream));
+                        }
+                    }
+
+                    if (isInactive)
+                    {
+                        scheduleInactivityTimer();
+                    }
                 }
 
                 OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
@@ -1478,6 +1501,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
             // else nothing to do
         }
+
+        static bool isHeartbeat(OutputStream stream) =>
+            stream.getBuffer().b.get(8) == Protocol.validateConnectionMsg;
     }
 
     private const int StateNotInitialized = 0;
@@ -2032,25 +2058,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         Debug.Assert(_state >= StateActive);
         Debug.Assert(_state < StateClosed);
 
-        bool isHeartbeat = message.stream.getBuffer().b.get(8) == Protocol.validateConnectionMsg;
-        if (!isHeartbeat)
-        {
-            cancelInactivityTimer();
-        }
-
         if (_sendStreams.Count > 0)
         {
-            if (isHeartbeat)
-            {
-                // The message already queued does the job of the heartbeat.
-                return OutgoingAsyncBase.AsyncStatusSent; // not used by the caller
-            }
-            else
-            {
-                message.adopt();
-                _sendStreams.AddLast(message);
-                return OutgoingAsyncBase.AsyncStatusQueued;
-            }
+            message.adopt();
+            _sendStreams.AddLast(message);
+            return OutgoingAsyncBase.AsyncStatusQueued;
         }
 
         //
