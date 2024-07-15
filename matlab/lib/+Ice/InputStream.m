@@ -637,58 +637,24 @@ classdef InputStream < handle
             end
         end
         function r = readProxy(obj, cls)
-            %
-            % Manually unmarshal a proxy just to discover how many bytes it consumes.
-            %
+            proxyBuf = obj.buf(obj.pos:obj.size);
+            proxyBufSize = obj.size - obj.pos + 1;
+            impl = libpointer('voidPtr');
+            bytesRead = libpointer('int32Ptr', 0);
+            IceInternal.Util.call('Ice_ObjectPrx_read', obj.communicator.impl_, obj.encoding, ...
+                                    proxyBuf, proxyBufSize, impl, bytesRead);
 
-            start = obj.pos;
+            % Skips bytes decoded by the C++ code
+            obj.skip(bytesRead.Value);
 
-            id = Ice.Identity.ice_read(obj);
-
-            %
-            % A nil proxy is marshaled as an identity with empty category and name.
-            %
-            if isempty(id.category) && isempty(id.name)
+            if isNull(impl) % decoded a null proxy
                 r = [];
-                return;
-            end
-
-            obj.readStringSeq();
-            obj.readByte();
-            obj.readBool();
-
-            %
-            % The versions are only included in encoding >= 1.1.
-            %
-            if ~obj.encoding_1_0
-                Ice.ProtocolVersion.ice_read(obj);
-                Ice.EncodingVersion.ice_read(obj);
-            end
-
-            numEndpoints = obj.readSize();
-
-            if numEndpoints > 0
-                for i = 1:numEndpoints
-                    obj.readShort();
-                    obj.skipEncapsulation();
-                end
-            else
-                obj.readString();
-            end
-
-            %
-            % Now that we've reached the end, extract all of the bytes representing the marshaled form of the proxy.
-            %
-            bytes = obj.buf(start:obj.pos - 1);
-
-            if nargin == 2
-                %
+            elseif nargin == 2
                 % Instantiate a proxy of the requested type.
-                %
                 constructor = str2func(cls);
-                r = constructor(obj.communicator, '', obj.getEncoding(), [], bytes);
+                r = constructor(obj.communicator, '', impl);
             else
-                r = Ice.ObjectPrx(obj.communicator, '', obj.getEncoding(), [], bytes);
+                r = Ice.ObjectPrx(obj.communicator, '', impl);
             end
         end
         function r = readProxyOpt(obj, tag)
@@ -879,6 +845,6 @@ classdef InputStream < handle
         classGraphDepthMax = 0
     end
     properties(Constant,Access=private)
-        endOfBufferMessage = 'attempting to unmarshal past the end of the buffer'
+        endOfBufferMessage = 'attempting to unmarshal past the end of the InputStream buffer'
     end
 end

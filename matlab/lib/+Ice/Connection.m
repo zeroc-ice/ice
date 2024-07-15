@@ -87,7 +87,7 @@ classdef Connection < IceInternal.WrapperObject
 
             proxy = libpointer('voidPtr');
             obj.iceCall('createProxy', id, proxy);
-            r = Ice.ObjectPrx(obj.communicator, '', obj.communicator.getEncoding(), proxy, []);
+            r = Ice.ObjectPrx(obj.communicator, '', proxy, obj.communicator.getEncoding());
         end
         function r = getEndpoint(obj)
             % getEndpoint   Get the endpoint from which the connection was
