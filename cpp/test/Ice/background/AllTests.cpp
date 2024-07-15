@@ -356,7 +356,6 @@ initializeTests(
     catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
     background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -420,7 +419,6 @@ initializeTests(
     catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
     background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -434,7 +432,6 @@ initializeTests(
     catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
     background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -469,7 +466,6 @@ initializeTests(
     catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
     background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -507,7 +503,7 @@ initializeTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
+
             test(false);
         }
 
@@ -530,7 +526,6 @@ initializeTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
 
@@ -557,7 +552,6 @@ initializeTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
 
@@ -576,7 +570,6 @@ initializeTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
     }
@@ -618,7 +611,6 @@ validationTests(
     catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
 
@@ -651,7 +643,6 @@ validationTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
         background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -673,7 +664,6 @@ validationTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
 
@@ -756,7 +746,6 @@ validationTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
 
@@ -770,7 +759,6 @@ validationTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
         background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -791,7 +779,6 @@ validationTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
@@ -819,7 +806,6 @@ validationTests(
     catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
 
@@ -839,7 +825,6 @@ validationTests(
     catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
 
@@ -879,7 +864,6 @@ readWriteTests(
     catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
 
@@ -993,7 +977,6 @@ readWriteTests(
         catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
-            cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
 
