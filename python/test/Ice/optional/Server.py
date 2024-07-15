@@ -27,7 +27,7 @@ class InitialI(Test.Initial):
         e = Test.RequiredException()
         e.a = a
         e.b = b
-        if b is not Ice.Unset:
+        if b is not None:
             e.ss = b
         raise e
 

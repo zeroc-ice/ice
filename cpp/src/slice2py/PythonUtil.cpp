@@ -723,7 +723,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         string inParamsDecl;
 
         // Find the last required parameter, all optional parameters after the last required parameter will use
-        // Ice.Unset as the default.
+        // None as the default.
         ParamDeclPtr lastRequiredParameter;
         for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
@@ -747,7 +747,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 inParams.append(param);
                 if (afterLastRequiredParameter)
                 {
-                    param += "=Ice.Unset";
+                    param += "=None";
                 }
                 inParamsDecl.append(param);
 
@@ -1889,7 +1889,7 @@ Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members
         }
         else if (member->optional())
         {
-            _out << "Ice.Unset";
+            _out << "None";
         }
         else
         {

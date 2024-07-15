@@ -25,7 +25,6 @@ stringToEncodingVersion = IcePy.stringToEncodingVersion
 encodingVersionToString = IcePy.encodingVersionToString
 loadSlice = IcePy.loadSlice
 AsyncInvocationContext = IcePy.AsyncInvocationContext
-Unset = IcePy.Unset
 
 #
 # Forward declarations.

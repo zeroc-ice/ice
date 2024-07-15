@@ -1362,7 +1362,7 @@ proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
         }
         else
         {
-            b = Unset;
+            b = Py_None;
         }
     }
     catch (...)
