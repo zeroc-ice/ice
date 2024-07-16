@@ -215,9 +215,9 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 
     if (_dispatchQueue)
     {
-        _executor = [&](function<void()> call, const Ice::ConnectionPtr&)
+        _executor = [dispatchQueue = _dispatchQueue](function<void()> call, const Ice::ConnectionPtr&)
         {
-            dispatch_sync(_dispatchQueue, ^{
+            dispatch_sync(dispatchQueue, ^{
               call();
             });
         };
