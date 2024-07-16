@@ -4,8 +4,6 @@
 
 package com.zeroc.IceInternal;
 
-import java.util.concurrent.Callable;
-
 public class RoutableReference extends Reference {
   @Override
   public final EndpointI[] getEndpoints() {
@@ -393,12 +391,9 @@ public class RoutableReference extends Reference {
       instance
           .getQueueExecutor()
           .executeNoThrow(
-              new Callable<Void>() {
-                @Override
-                public Void call() {
-                  getConnection(h);
-                  return null;
-                }
+              () -> {
+                getConnection(h);
+                return null;
               });
     } else {
       getConnection(handler);

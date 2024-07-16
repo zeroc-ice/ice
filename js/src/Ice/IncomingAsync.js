@@ -130,7 +130,7 @@ export class IncomingAsync {
         this._instance.initializationData().logger.warning(s.join(""));
     }
 
-    handleException(ex) {
+    handleException(ex, amd) {
         Debug.assert(this._connection !== null);
 
         const props = this._instance.initializationData().properties;
@@ -327,7 +327,7 @@ export class IncomingAsync {
                         this._servant = this._locator.locate(this._current, this._cookie);
                     } catch (ex) {
                         this.skipReadParams(); // Required for batch requests.
-                        this.handleException(ex);
+                        this.handleException(ex, false);
                         return;
                     }
                 }
@@ -343,7 +343,7 @@ export class IncomingAsync {
                 }
             } catch (ex) {
                 this.skipReadParams(); // Required for batch requests.
-                this.handleException(ex);
+                this.handleException(ex, false);
                 return;
             }
         }
@@ -399,7 +399,7 @@ export class IncomingAsync {
                 try {
                     this._locator.finished(this._current, this._servant, this._cookie.value);
                 } catch (ex) {
-                    this.handleException(ex);
+                    this.handleException(ex, amd);
                     return;
                 }
             }
@@ -407,7 +407,7 @@ export class IncomingAsync {
             Debug.assert(this._connection !== null);
 
             if (exc !== null) {
-                this.handleException(exc);
+                this.handleException(exc, amd);
             } else if (this._response) {
                 this._connection.sendResponse(this._os);
             } else {

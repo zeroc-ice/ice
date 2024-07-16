@@ -166,7 +166,7 @@ public class AllTests {
       InvocationFuture<Void> f = null;
       int max = helper.isAndroid() ? 5000 : 10000;
 
-      // We yse the same proxy for all oneway calls.
+      // We use the same proxy for all oneway calls.
       holdSerializedOneway = holdSerialized.ice_oneway();
 
       for (int i = 0; i < max; ++i) {

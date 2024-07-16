@@ -569,7 +569,8 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
       if (communicator == null) {
         throw new java.io.IOException("Cannot deserialize proxy: no communicator provided");
       }
-      _ObjectPrxI proxy = (_ObjectPrxI) communicator.stringToProxy(s);
+      var ref = communicator.getInstance().referenceFactory().create(s, null);
+      var proxy = new _ObjectPrxI(ref);
       _reference = proxy._reference;
       _requestHandlerCache = proxy._requestHandlerCache;
     } catch (ClassCastException ex) {

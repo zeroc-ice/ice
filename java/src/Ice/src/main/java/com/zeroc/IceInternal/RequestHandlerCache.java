@@ -4,7 +4,7 @@ package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.Connection;
 
-public class RequestHandlerCache {
+public final class RequestHandlerCache {
   RequestHandler getRequestHandler() {
     if (_cacheConnection) {
       synchronized (this) {
