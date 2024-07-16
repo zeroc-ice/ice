@@ -227,8 +227,7 @@ Ice::Communicator::getValueFactoryManager() const noexcept
     return _instance->initializationData().valueFactoryManager;
 }
 
-#ifdef ICE_SWIFT
-
+#ifdef __APPLE__
 dispatch_queue_t
 Ice::Communicator::getClientDispatchQueue() const
 {
