@@ -6,6 +6,7 @@
 #define ICE_BT_DBUS_H
 
 #include <cassert>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <sstream>

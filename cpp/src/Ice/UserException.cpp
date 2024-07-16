@@ -9,13 +9,6 @@
 using namespace std;
 using namespace Ice;
 
-std::string_view
-Ice::UserException::ice_staticId() noexcept
-{
-    static constexpr string_view typeId = "::Ice::UserException";
-    return typeId;
-}
-
 void
 Ice::UserException::_write(OutputStream* os) const
 {

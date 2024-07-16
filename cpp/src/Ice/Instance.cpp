@@ -78,9 +78,7 @@ using namespace IceInternal;
 
 namespace IceInternal
 {
-    extern bool nullHandleAbort;
     extern bool printStackTraces;
-
 };
 
 namespace
