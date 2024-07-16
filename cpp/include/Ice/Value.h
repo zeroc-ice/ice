@@ -23,9 +23,9 @@ namespace Ice
     class ICE_API Value
     {
     public:
-        // There is no copy constructor, move constructor, copy-assignment operator or move-assignment operator
-        // to prevent accidental slicing.
-        Value() = default;
+        // There is no copy constructor, move constructor, copy-assignment operator or move-assignment operator to
+        // prevent accidental slicing.
+        Value() noexcept = default;
         Value(Value&&) = delete;
         virtual ~Value() = default;
 

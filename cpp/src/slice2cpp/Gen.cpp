@@ -1536,7 +1536,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID of this interface.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "static ::std::string_view ice_staticId() noexcept;";
+    H << nl << "static const char* ice_staticId() noexcept;";
 
     if (!bases.empty())
     {
@@ -1611,10 +1611,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << eb << ';';
 
     C << sp;
-    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
+    C << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
     C << sb;
-    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
-    C << nl << "return typeId;";
+    C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);
@@ -2791,7 +2790,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID corresponding to this interface.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "static ::std::string_view ice_staticId() noexcept;";
+    H << nl << "static const char* ice_staticId() noexcept;";
 
     C << sp;
     C << nl << "::std::vector<::std::string>" << nl << scoped.substr(2) << "::ice_ids(const "
@@ -2819,10 +2818,9 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << eb;
 
     C << sp;
-    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
+    C << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
     C << sb;
-    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
-    C << nl << "return typeId;";
+    C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
     return true;
 }

@@ -23,7 +23,7 @@ namespace Ice
     class ICE_API Object
     {
     public:
-        Object() = default;
+        Object() noexcept = default;
         virtual ~Object() = default;
 
         Object(const Object&) = delete;
@@ -93,9 +93,9 @@ namespace Ice
 
         /**
          * Gets the Slice type ID of this type.
-         * @return The return value is always "Ice::Object".
+         * @return The return value is always "::Ice::Object".
          */
-        static std::string_view ice_staticId() noexcept;
+        static const char* ice_staticId() noexcept;
 
     protected:
         /// \cond INTERNAL

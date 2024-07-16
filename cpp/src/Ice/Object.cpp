@@ -42,11 +42,10 @@ Ice::Object::ice_id(const Current&) const
     return string{ice_staticId()};
 }
 
-string_view
+const char*
 Ice::Object::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::Object";
-    return typeId;
+    return "::Ice::Object";
 }
 
 void
