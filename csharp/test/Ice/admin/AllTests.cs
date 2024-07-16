@@ -532,6 +532,7 @@ namespace Ice
                     {
                         // Expected
                     }
+                    com.destroy();
                 }
                 {
                     //
