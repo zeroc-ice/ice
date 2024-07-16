@@ -33,14 +33,15 @@ $INCFLAGS << ' -Idist/ice/cpp/src/IceLocatorDiscovery/generated'
 
 $CPPFLAGS << ' -DICE_STATIC_LIBS'
 $CPPFLAGS << ' -DICE_GEM'
+$CPPFLAGS << ' -w'
 
 if RUBY_PLATFORM =~ /darwin/
     $LOCAL_LIBS << ' -lbz2 -liconv -framework Security -framework CoreFoundation'
+    $CXXFLAGS << ' -std=c++20'
 elsif RUBY_PLATFORM =~ /linux/
     $LOCAL_LIBS << ' -lssl -lcrypto -lbz2 -lrt'
+    $CXXFLAGS << ' -std=c++17'
 end
-$CPPFLAGS << ' -w'
-$CXXFLAGS << ' -std=c++20'
 
 # Setup the object and source files.
 $objs = []
