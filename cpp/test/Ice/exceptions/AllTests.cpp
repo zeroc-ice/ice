@@ -49,11 +49,13 @@ allTests(Test::TestHelper* helper)
 
         Ice::OperationNotExistException opNotExist("thisFile", 99);
         string opNotExistWhat = "dispatch failed with OperationNotExistException";
-        string opNotExistPrint = "thisFile:99 ::Ice::OperationNotExistException " + opNotExistWhat;
+        string opNotExistPrint = opNotExist.ice_id();
+        string opNotExistStream = "thisFile:99 " + opNotExistPrint + " " + opNotExistWhat;
 
         string customMessage = "custom message";
         Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
-        string customUlePrint = "thisFile:199 ::Ice::UnknownLocalException " + customMessage;
+        string customUlePrint = customUle.ice_id();
+        string customUleStream = "thisFile:199 " + customUlePrint + " " + customMessage;
 
         //
         // Test ice_print().
@@ -80,17 +82,17 @@ allTests(Test::TestHelper* helper)
         {
             stringstream str;
             str << a;
-            test(str.str() == aMsg);
+            test(str.str().substr(0, aMsg.size()) == aMsg);
         }
         {
             stringstream str;
-            str << opNotExistPrint;
-            test(str.str() == opNotExistPrint);
+            str << opNotExist;
+            test(str.str().substr(0, opNotExistStream.size()) == opNotExistStream);
         }
         {
             stringstream str;
             str << customUle;
-            test(str.str() == customUlePrint);
+            test(str.str().substr(0, customUleStream.size()) == customUleStream);
         }
 
         //
@@ -518,7 +520,6 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::Exception& ex)
         {
             cout << ex << endl;
-            cout << ex.ice_stackTrace() << endl;
             test(false);
         }
         catch (...)
@@ -976,7 +977,6 @@ allTests(Test::TestHelper* helper)
             catch (const Ice::Exception& ex)
             {
                 cout << ex << endl;
-                cout << ex.ice_stackTrace() << endl;
                 test(false);
             }
             catch (...)

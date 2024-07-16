@@ -736,7 +736,7 @@ Glacier2::SessionFactoryHelper::getPort() const
 int
 Glacier2::SessionFactoryHelper::getPortInternal() const
 {
-    //  Must be called with the muext lock
+    //  Must be called with the mutex locked
     return _port == 0 ? ((_protocol == "ssl" || _protocol == "wss") ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
 }
 

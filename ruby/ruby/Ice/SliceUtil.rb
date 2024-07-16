@@ -23,6 +23,12 @@ module Ice
             return File::expand_path(dir)
         end
 
+        # Gem distribution
+        dir = File::join(rbHome, "..", "dist", "ice", "slice")
+        if File::exist?(dir)
+            return File::expand_path(dir)
+        end
+
         if RUBY_PLATFORM =~ /linux/i
 
             # Check the default Linux location.

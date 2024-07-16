@@ -15,11 +15,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace IceInternal
-{
-    extern bool printStackTraces;
-}
-
 namespace
 {
     // The "core" implementation of makeOutgoingResponse for exceptions. Note that it can throw an exception.
@@ -136,10 +131,6 @@ namespace
             replyStatus = ReplyStatus::UnknownLocalException;
             ostringstream str;
             str << ex; // this includes more details than ex.what()
-            if (IceInternal::printStackTraces)
-            {
-                str << '\n' << ex.ice_stackTrace();
-            }
             exceptionMessage = str.str();
         }
         catch (const Exception& ex)
@@ -148,10 +139,6 @@ namespace
             replyStatus = ReplyStatus::UnknownException;
             ostringstream str;
             str << ex; // this includes more details than ex.what()
-            if (IceInternal::printStackTraces)
-            {
-                str << '\n' << ex.ice_stackTrace();
-            }
             exceptionMessage = str.str();
         }
         catch (const std::exception& ex)

@@ -143,7 +143,7 @@ ldflags         = -pthread
 gcc_version = $(shell $(CXX) -dumpversion 2>&1 | cut -f1 -d\.)
 
 # As of GCC 13.4, https://gcc.gnu.org/projects/cxx-status.html#cxx20 still describes C++20 support as "experimental".
-cppflags       += -std=c++20
+cppflags       += -std=c++17
 
 nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
 nounusedparameter-cppflags    := -Wno-unused-parameter

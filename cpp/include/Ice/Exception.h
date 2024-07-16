@@ -57,18 +57,20 @@ namespace Ice
         const char* what() const noexcept override;
 
         /**
-         * Returns the type ID of this exception. This corresponds to the Slice
-         * type ID for Slice-defined exceptions, and to a similar fully scoped name
-         * for other exceptions. For example "::Ice::CommunicatorDestroyedException".
+         * Returns the type ID of this exception. This corresponds to the Slice type ID for Slice-defined exceptions,
+         * and to a similar fully scoped name for other exceptions. For example "::Ice::CommunicatorDestroyedException".
          * @return The type ID of this exception
          */
         virtual const char* ice_id() const noexcept = 0;
 
         /**
-         * Outputs a description of this exception to a stream.
+         * Outputs a description of this exception to a stream. This function is called by operator<<(std::ostream&,
+         * const Ice::Exception&). The default implementation outputs ice_id(). The application can override the
+         * ice_print of a user exception to produce a more detailed description, with typically the ice_id() plus
+         * additional information.
          * @param os The output stream.
          */
-        virtual void ice_print(std::ostream& os) const;
+        virtual void ice_print(std::ostream& os) const { os << ice_id(); }
 
         /**
          * Returns the name of the file where this exception was constructed.
@@ -89,6 +91,8 @@ namespace Ice
         std::string ice_stackTrace() const;
 
     private:
+        friend ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
+
         const char* _file;                                // can be nullptr
         int _line;                                        // not used when _file is nullptr
         std::shared_ptr<std::string> _whatString;         // shared storage for custom _what message.
