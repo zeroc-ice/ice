@@ -115,7 +115,7 @@ namespace Ice
      * @param proxy The source proxy.
      * @param facet A facet name.
      * @param context The context map for the invocation.
-     * @return A proxy with the requested type and facet, or nullopt or if the target facet is not of the requested
+     * @return A proxy with the requested type and facet, or nullopt if the target facet is not of the requested
      * type.
      */
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
