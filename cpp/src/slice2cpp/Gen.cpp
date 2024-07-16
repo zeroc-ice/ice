@@ -2340,7 +2340,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     H << sb;
     H.dec();
-    H << nl << "public:" << sp;
+    H << nl << "public:";
     H.inc();
 
     vector<string> params;
@@ -2350,21 +2350,40 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
         params.push_back(fixKwd(dataMember->name()));
     }
 
-    H << nl << name << "() = default;";
+    if (base && dataMembers.empty())
+    {
+        H << "using " << getUnqualified(fixKwd(base->scoped()), scope) << "::" << fixKwd(base->name()) << ";";
+    }
+    else
+    {
+        // We always generate this default constructor because we always generate a protected copy constructor.
+        H << nl << "/**";
+        H << nl << " * Default constructor.";
+        H << nl << " */";
+        H << nl << name << "() noexcept = default;";
 
-    emitOneShotConstructor(p);
+        if (!allDataMembers.empty())
+        {
+            emitOneShotConstructor(p);
+        }
+    }
 
     H << sp;
     H << nl << "/**";
     H << nl << " * Obtains the Slice type ID of this value.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId() noexcept;";
-
-    H << sp << nl << _dllMemberExport << "::std::string ice_id() const override;";
-    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id() const";
+    H << nl << _dllMemberExport << "static const char* ice_staticId() noexcept;";
+    C << sp;
+    C << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
     C << sb;
-    C << nl << "return ::std::string{ice_staticId()};";
+    C << nl << "return \"" << p->scoped() << "\";";
+    C << eb;
+
+    H << sp << nl << _dllMemberExport << "const char* ice_id() const noexcept override;";
+    C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_id() const noexcept";
+    C << sb;
+    C << nl << "return ice_staticId();";
     C << eb;
 
     if (!dataMembers.empty())
@@ -2382,7 +2401,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * Creates a shallow polymorphic copy of this instance.";
     H << nl << " * @return The cloned value.";
     H << nl << " */";
-    H << nl << p->name() << "Ptr ice_clone() const { return ::std::static_pointer_cast <" << name
+    H << nl << p->name() << "Ptr ice_clone() const { return ::std::static_pointer_cast<" << name
       << ">(_iceCloneImpl()); }";
 
     return true;
@@ -2395,13 +2414,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
     ClassDefPtr base = p->base();
-
-    C << sp;
-    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
-    C << sb;
-    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
-    C << nl << "return typeId;";
-    C << eb;
 
     //
     // Emit data members. Access visibility may be specified by metadata.
@@ -2447,7 +2459,11 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         emitDataMember(dataMember);
     }
 
-    if (!inProtected)
+    if (inProtected)
+    {
+        H << sp;
+    }
+    else
     {
         H.dec();
         H << sp << nl << "protected:";
@@ -2457,14 +2473,14 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if (generateFriend)
     {
-        H << sp;
         H << nl << "template<typename T>";
         H << nl << "friend struct Ice::StreamWriter;";
         H << nl << "template<typename T>";
         H << nl << "friend struct Ice::StreamReader;";
+        H << sp;
     }
 
-    H << sp << nl << name << "(const " << name << "&) = default;";
+    H << nl << name << "(const " << name << "&) = default;";
     H << sp << nl << _dllMemberExport << "::Ice::ValuePtr _iceCloneImpl() const override;";
     C << sp;
     C << nl << "::Ice::ValuePtr" << nl << scoped.substr(2) << "::_iceCloneImpl() const";
@@ -2603,7 +2619,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         {
             H << "explicit ";
         }
-        H << fixKwd(p->name()) << spar << allParamDecls << epar << " :";
+        H << fixKwd(p->name()) << spar << allParamDecls << epar << " noexcept :";
         H.inc();
 
         if (emitBaseInitializers(p))

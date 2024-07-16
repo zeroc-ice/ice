@@ -48,13 +48,13 @@ namespace Ice
          * Obtains the Slice type ID of the most-derived class supported by this object.
          * @return The type ID.
          */
-        virtual std::string ice_id() const;
+        virtual const char* ice_id() const noexcept;
 
         /**
          * Obtains the Slice type ID of this type.
-         * @return The return value is always "Ice::Object".
+         * @return The return value is always "::Ice::Object".
          */
-        static std::string_view ice_staticId() noexcept;
+        static const char* ice_staticId() noexcept;
 
         /**
          * Creates a shallow polymorphic copy of this instance.

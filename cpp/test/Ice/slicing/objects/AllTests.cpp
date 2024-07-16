@@ -156,7 +156,7 @@ namespace
         void response_SBaseAsObject(const ::Ice::ValuePtr& o)
         {
             test(o);
-            test(o->ice_id() == "::Test::SBase");
+            test(string{string{o->ice_id()}} == "::Test::SBase");
             SBasePtr sb = dynamic_pointer_cast<SBase>(o);
             test(sb);
             test(sb->sb == "SBase.sb");
@@ -214,7 +214,7 @@ namespace
         void response_SUnknownAsObject11(const Ice::ValuePtr& o)
         {
             test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o));
-            test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id() == "::Test::SUnknown");
+            test(string{string{dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id()}} == "::Test::SUnknown");
             called();
             dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
         }
@@ -224,7 +224,7 @@ namespace
         void response_oneElementCycle(const BPtr& b)
         {
             test(b);
-            test(b->ice_id() == "::Test::B");
+            test(string{string{b->ice_id()}} == "::Test::B");
             test(b->sb == "B1.sb");
             test(b->pb == b);
             breakCycles(b);
@@ -234,12 +234,12 @@ namespace
         void response_twoElementCycle(const BPtr& b1)
         {
             test(b1);
-            test(b1->ice_id() == "::Test::B");
+            test(string{string{b1->ice_id()}} == "::Test::B");
             test(b1->sb == "B1.sb");
 
             BPtr b2 = b1->pb;
             test(b2);
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             test(b2->sb == "B2.sb");
             test(b2->pb == b1);
             breakCycles(b1);
@@ -249,7 +249,7 @@ namespace
         void response_D1AsB(const BPtr& b1)
         {
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb);
             test(b1->pb != b1);
@@ -264,7 +264,7 @@ namespace
             test(b2);
             test(b2->pb == b1);
             test(b2->sb == "D2.sb");
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             breakCycles(b1);
             called();
         }
@@ -272,14 +272,14 @@ namespace
         void response_D1AsD1(const D1Ptr& d1)
         {
             test(d1);
-            test(d1->ice_id() == "::Test::D1");
+            test(string{string{d1->ice_id()}} == "::Test::D1");
             test(d1->sb == "D1.sb");
             test(d1->pb);
             test(d1->pb != d1);
 
             BPtr b2 = d1->pb;
             test(b2);
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             test(b2->sb == "D2.sb");
             test(b2->pb == d1);
             breakCycles(d1);
@@ -289,14 +289,14 @@ namespace
         void response_D2AsB(const BPtr& b2)
         {
             test(b2);
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             test(b2->sb == "D2.sb");
             test(b2->pb);
             test(b2->pb != b2);
 
             BPtr b1 = b2->pb;
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
             D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
@@ -313,7 +313,7 @@ namespace
         void response_paramTest1(const BPtr& b1, const BPtr& b2)
         {
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
             D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
@@ -322,7 +322,7 @@ namespace
             test(d1->pd1 == b2);
 
             test(b2);
-            test(b2->ice_id() == "::Test::B"); // No factory, must be sliced
+            test(string{string{b2->ice_id()}} == "::Test::B"); // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
             breakCycles(b1);
@@ -357,17 +357,17 @@ namespace
             test(p1);
             test(p1->sb == "D2.sb (p1 1)");
             test(p1->pb == 0);
-            test(p1->ice_id() == "::Test::B");
+            test(string{string{p1->ice_id()}} == "::Test::B");
 
             test(p2);
             test(p2->sb == "D2.sb (p2 1)");
             test(p2->pb == 0);
-            test(p2->ice_id() == "::Test::B");
+            test(string{string{p2->ice_id()}} == "::Test::B");
 
             test(ret);
             test(ret->sb == "D1.sb (p2 2)");
             test(ret->pb == 0);
-            test(ret->ice_id() == "::Test::D1");
+            test(string{string{ret->ice_id()}} == "::Test::D1");
             called();
 
             breakCycles(ret);
@@ -380,12 +380,12 @@ namespace
             test(b);
             test(b->sb == "D4.sb (1)");
             test(b->pb == 0);
-            test(b->ice_id() == "::Test::B");
+            test(string{string{b->ice_id()}} == "::Test::B");
 
             test(ret);
             test(ret->sb == "B.sb (2)");
             test(ret->pb == 0);
-            test(ret->ice_id() == "::Test::B");
+            test(string{string{ret->ice_id()}} == "::Test::B");
             called();
 
             breakCycles(ret);
@@ -586,7 +586,7 @@ namespace
             o = testPrx->SUnknownAsObject();
             test(testPrx->ice_getEncodingVersion() != Ice::Encoding_1_0);
             test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o));
-            test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id() == "::Test::SUnknown");
+            test(string{string{dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id()}} == "::Test::SUnknown");
             test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData());
             testPrx->checkSUnknown(o);
             dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
@@ -620,7 +620,7 @@ allTests(Test::TestHelper* helper)
         {
             o = testPrx->SBaseAsObject();
             test(o);
-            test(o->ice_id() == "::Test::SBase");
+            test(string{string{o->ice_id()}} == "::Test::SBase");
         }
         catch (const std::exception& ex)
         {
@@ -644,7 +644,7 @@ allTests(Test::TestHelper* helper)
         {
             auto o = f.get();
             test(o);
-            test(o->ice_id() == "::Test::SBase");
+            test(string{string{o->ice_id()}} == "::Test::SBase");
             auto sb = dynamic_pointer_cast<SBase>(o);
             test(sb);
             test(sb->sb == "SBase.sb");
@@ -892,7 +892,7 @@ allTests(Test::TestHelper* helper)
                 {
                     Ice::ValuePtr v = f.get();
                     test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v));
-                    test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_id() == "::Test::SUnknown");
+                    test(string{string{dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_id()}} == "::Test::SUnknown");
                     dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_getSlicedData()->clear();
                 }
                 catch (...)
@@ -914,7 +914,7 @@ allTests(Test::TestHelper* helper)
         {
             BPtr b = testPrx->oneElementCycle();
             test(b);
-            test(b->ice_id() == "::Test::B");
+            test(string{string{b->ice_id()}} == "::Test::B");
             test(b->sb == "B1.sb");
             test(b->pb == b);
 
@@ -934,7 +934,7 @@ allTests(Test::TestHelper* helper)
         {
             auto b = f.get();
             test(b);
-            test(b->ice_id() == "::Test::B");
+            test(string{string{b->ice_id()}} == "::Test::B");
             test(b->sb == "B1.sb");
             test(b->pb == b);
 
@@ -953,12 +953,12 @@ allTests(Test::TestHelper* helper)
         {
             BPtr b1 = testPrx->twoElementCycle();
             test(b1);
-            test(b1->ice_id() == "::Test::B");
+            test(string{string{b1->ice_id()}} == "::Test::B");
             test(b1->sb == "B1.sb");
 
             BPtr b2 = b1->pb;
             test(b2);
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             test(b2->sb == "B2.sb");
             test(b2->pb == b1);
 
@@ -979,12 +979,12 @@ allTests(Test::TestHelper* helper)
         {
             auto b1 = f.get();
             test(b1);
-            test(b1->ice_id() == "::Test::B");
+            test(string{string{b1->ice_id()}} == "::Test::B");
             test(b1->sb == "B1.sb");
 
             auto b2 = b1->pb;
             test(b2);
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             test(b2->sb == "B2.sb");
             test(b2->pb == b1);
 
@@ -1005,7 +1005,7 @@ allTests(Test::TestHelper* helper)
             BPtr b1;
             b1 = testPrx->D1AsB();
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb);
             test(b1->pb != b1);
@@ -1020,7 +1020,7 @@ allTests(Test::TestHelper* helper)
             test(b2);
             test(b2->pb == b1);
             test(b2->sb == "D2.sb");
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
 
             breakCycles(b1);
         }
@@ -1038,7 +1038,7 @@ allTests(Test::TestHelper* helper)
         {
             auto b1 = f.get();
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb);
             test(b1->pb != b1);
@@ -1053,7 +1053,7 @@ allTests(Test::TestHelper* helper)
             test(b2);
             test(b2->pb == b1);
             test(b2->sb == "D2.sb");
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
 
             breakCycles(b1);
         }
@@ -1071,14 +1071,14 @@ allTests(Test::TestHelper* helper)
             D1Ptr d1;
             d1 = testPrx->D1AsD1();
             test(d1);
-            test(d1->ice_id() == "::Test::D1");
+            test(string{string{d1->ice_id()}} == "::Test::D1");
             test(d1->sb == "D1.sb");
             test(d1->pb);
             test(d1->pb != d1);
 
             BPtr b2 = d1->pb;
             test(b2);
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             test(b2->sb == "D2.sb");
             test(b2->pb == d1);
 
@@ -1098,14 +1098,14 @@ allTests(Test::TestHelper* helper)
         {
             auto d1 = f.get();
             test(d1);
-            test(d1->ice_id() == "::Test::D1");
+            test(string{string{d1->ice_id()}} == "::Test::D1");
             test(d1->sb == "D1.sb");
             test(d1->pb);
             test(d1->pb != d1);
 
             auto b2 = d1->pb;
             test(b2);
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             test(b2->sb == "D2.sb");
             test(b2->pb == d1);
 
@@ -1125,14 +1125,14 @@ allTests(Test::TestHelper* helper)
             BPtr b2;
             b2 = testPrx->D2AsB();
             test(b2);
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             test(b2->sb == "D2.sb");
             test(b2->pb);
             test(b2->pb != b2);
 
             BPtr b1 = b2->pb;
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
             D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
@@ -1157,14 +1157,14 @@ allTests(Test::TestHelper* helper)
         {
             auto b2 = f.get();
             test(b2);
-            test(b2->ice_id() == "::Test::B");
+            test(string{string{b2->ice_id()}} == "::Test::B");
             test(b2->sb == "D2.sb");
             test(b2->pb);
             test(b2->pb != b2);
 
             auto b1 = b2->pb;
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
             auto d1 = dynamic_pointer_cast<D1>(b1);
@@ -1191,7 +1191,7 @@ allTests(Test::TestHelper* helper)
             testPrx->paramTest1(b1, b2);
 
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
             D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
@@ -1200,7 +1200,7 @@ allTests(Test::TestHelper* helper)
             test(d1->pd1 == b2);
 
             test(b2);
-            test(b2->ice_id() == "::Test::B"); // No factory, must be sliced
+            test(string{string{b2->ice_id()}} == "::Test::B"); // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
 
@@ -1224,7 +1224,7 @@ allTests(Test::TestHelper* helper)
             auto b2 = std::move(std::get<1>(result));
 
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
             D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
@@ -1233,7 +1233,7 @@ allTests(Test::TestHelper* helper)
             test(d1->pd1 == b2);
 
             test(b2);
-            test(b2->ice_id() == "::Test::B"); // No factory, must be sliced
+            test(string{string{b2->ice_id()}} == "::Test::B"); // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
 
@@ -1256,7 +1256,7 @@ allTests(Test::TestHelper* helper)
             testPrx->paramTest2(b2, b1);
 
             test(b1);
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
             D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
@@ -1265,7 +1265,7 @@ allTests(Test::TestHelper* helper)
             test(d1->pd1 == b2);
 
             test(b2);
-            test(b2->ice_id() == "::Test::B"); // No factory, must be sliced
+            test(string{string{b2->ice_id()}} == "::Test::B"); // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
 
@@ -1372,7 +1372,7 @@ allTests(Test::TestHelper* helper)
 
             test(b1);
             test(b1->sb == "D1.sb");
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             D1Ptr p1 = dynamic_pointer_cast<D1>(b1);
             test(p1);
             test(p1->sd1 == "D1.sd1");
@@ -1430,7 +1430,7 @@ allTests(Test::TestHelper* helper)
 
             test(b1);
             test(b1->sb == "D1.sb");
-            test(b1->ice_id() == "::Test::D1");
+            test(string{string{b1->ice_id()}} == "::Test::D1");
             D1Ptr p1 = dynamic_pointer_cast<D1>(b1);
             test(p1);
             test(p1->sd1 == "D1.sd1");
@@ -1491,7 +1491,7 @@ allTests(Test::TestHelper* helper)
             BPtr b2 = b1->pb;
             test(b2);
             test(b2->sb == "D1.sb");
-            test(b2->ice_id() == "::Test::D1");
+            test(string{string{b2->ice_id()}} == "::Test::D1");
             test(b2->pb == b1);
 
             D1Ptr p3 = dynamic_pointer_cast<D1>(b2);
@@ -1550,7 +1550,7 @@ allTests(Test::TestHelper* helper)
             BPtr b2 = b1->pb;
             test(b2);
             test(b2->sb == "D1.sb");
-            test(b2->ice_id() == "::Test::D1");
+            test(string{string{b2->ice_id()}} == "::Test::D1");
             test(b2->pb == b1);
             D1Ptr p3 = dynamic_pointer_cast<D1>(b2);
             test(p3);
@@ -1596,17 +1596,17 @@ allTests(Test::TestHelper* helper)
             test(p1);
             test(p1->sb == "D2.sb (p1 1)");
             test(p1->pb == 0);
-            test(p1->ice_id() == "::Test::B");
+            test(string{string{p1->ice_id()}} == "::Test::B");
 
             test(p2);
             test(p2->sb == "D2.sb (p2 1)");
             test(p2->pb == 0);
-            test(p2->ice_id() == "::Test::B");
+            test(string{string{p2->ice_id()}} == "::Test::B");
 
             test(ret);
             test(ret->sb == "D1.sb (p2 2)");
             test(ret->pb == 0);
-            test(ret->ice_id() == "::Test::D1");
+            test(string{string{ret->ice_id()}} == "::Test::D1");
 
             breakCycles(ret);
             breakCycles(p1);
@@ -1632,17 +1632,17 @@ allTests(Test::TestHelper* helper)
             test(p1);
             test(p1->sb == "D2.sb (p1 1)");
             test(p1->pb == 0);
-            test(p1->ice_id() == "::Test::B");
+            test(string{string{p1->ice_id()}} == "::Test::B");
 
             test(p2);
             test(p2->sb == "D2.sb (p2 1)");
             test(p2->pb == 0);
-            test(p2->ice_id() == "::Test::B");
+            test(string{string{p2->ice_id()}} == "::Test::B");
 
             test(ret);
             test(ret->sb == "D1.sb (p2 2)");
             test(ret->pb == 0);
-            test(ret->ice_id() == "::Test::D1");
+            test(string{string{ret->ice_id()}} == "::Test::D1");
 
             breakCycles(ret);
             breakCycles(p1);
@@ -1665,12 +1665,12 @@ allTests(Test::TestHelper* helper)
             test(b);
             test(b->sb == "D4.sb (1)");
             test(b->pb == 0);
-            test(b->ice_id() == "::Test::B");
+            test(string{string{b->ice_id()}} == "::Test::B");
 
             test(ret);
             test(ret->sb == "B.sb (2)");
             test(ret->pb == 0);
-            test(ret->ice_id() == "::Test::B");
+            test(string{string{ret->ice_id()}} == "::Test::B");
 
             breakCycles(ret);
             breakCycles(b);
@@ -1694,12 +1694,12 @@ allTests(Test::TestHelper* helper)
             test(b);
             test(b->sb == "D4.sb (1)");
             test(b->pb == nullptr);
-            test(b->ice_id() == "::Test::B");
+            test(string{string{b->ice_id()}} == "::Test::B");
 
             test(ret);
             test(ret->sb == "B.sb (2)");
             test(ret->pb == nullptr);
-            test(ret->ice_id() == "::Test::B");
+            test(string{string{ret->ice_id()}} == "::Test::B");
 
             breakCycles(ret);
             breakCycles(b);
@@ -1745,7 +1745,7 @@ allTests(Test::TestHelper* helper)
                 test(p3->pb == r);
                 test(p3->sd3 == "D3.sd3");
 
-                test(p3->pd3->ice_id() == "::Test::B");
+                test(string{string{p3->pd3->ice_id()}} == "::Test::B");
                 test(p3->pd3->sb == "B.sb(1)");
                 test(p3->pd3->pb == p3->pd3);
             }
@@ -1793,7 +1793,7 @@ allTests(Test::TestHelper* helper)
                 test(p3->pb == r);
                 test(p3->sd3 == "D3.sd3");
 
-                test(p3->pd3->ice_id() == "::Test::B");
+                test(string{string{p3->pd3->ice_id()}} == "::Test::B");
                 test(p3->pd3->sb == "B.sb(1)");
                 test(p3->pd3->pb == p3->pd3);
             }
@@ -1843,7 +1843,7 @@ allTests(Test::TestHelper* helper)
             {
                 test(p3);
                 test(p3->sd3 == "D3.sd3");
-                test(p3->pd3->ice_id() == "::Test::D1");
+                test(string{string{p3->pd3->ice_id()}} == "::Test::D1");
             }
 
             breakCycles(d3);
@@ -1892,7 +1892,7 @@ allTests(Test::TestHelper* helper)
             {
                 test(p3);
                 test(p3->sd3 == "D3.sd3");
-                test(p3->pd3->ice_id() == "::Test::D1");
+                test(string{string{p3->pd3->ice_id()}} == "::Test::D1");
             }
 
             breakCycles(d3);
@@ -1982,21 +1982,21 @@ allTests(Test::TestHelper* helper)
             test(ss2d1->pb == ss2b);
             test(ss2d3->pb == ss2b);
 
-            test(ss1b->ice_id() == "::Test::B");
-            test(ss1d1->ice_id() == "::Test::D1");
+            test(string{string{ss1b->ice_id()}} == "::Test::B");
+            test(string{string{ss1d1->ice_id()}} == "::Test::D1");
 
-            test(ss2b->ice_id() == "::Test::B");
-            test(ss2d1->ice_id() == "::Test::D1");
+            test(string{string{ss2b->ice_id()}} == "::Test::B");
+            test(string{string{ss2d1->ice_id()}} == "::Test::D1");
 
             if (testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
-                test(ss1d3->ice_id() == "::Test::B");
-                test(ss2d3->ice_id() == "::Test::B");
+                test(string{string{ss1d3->ice_id()}} == "::Test::B");
+                test(string{string{ss2d3->ice_id()}} == "::Test::B");
             }
             else
             {
-                test(ss1d3->ice_id() == "::Test::D3");
-                test(ss2d3->ice_id() == "::Test::D3");
+                test(string{string{ss1d3->ice_id()}} == "::Test::D3");
+                test(string{string{ss2d3->ice_id()}} == "::Test::D3");
             }
 
             breakCycles(ss.c1);
@@ -2083,21 +2083,21 @@ allTests(Test::TestHelper* helper)
             test(ss2d1->pb == ss2b);
             test(ss2d3->pb == ss2b);
 
-            test(ss1b->ice_id() == "::Test::B");
-            test(ss1d1->ice_id() == "::Test::D1");
+            test(string{ss1b->ice_id()} == "::Test::B");
+            test(string{ss1d1->ice_id()} == "::Test::D1");
 
-            test(ss2b->ice_id() == "::Test::B");
-            test(ss2d1->ice_id() == "::Test::D1");
+            test(string{ss2b->ice_id()} == "::Test::B");
+            test(string{ss2d1->ice_id()} == "::Test::D1");
 
             if (testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
-                test(ss1d3->ice_id() == "::Test::B");
-                test(ss2d3->ice_id() == "::Test::B");
+                test(string{ss1d3->ice_id()} == "::Test::B");
+                test(string{ss2d3->ice_id()} == "::Test::B");
             }
             else
             {
-                test(ss1d3->ice_id() == "::Test::D3");
-                test(ss2d3->ice_id() == "::Test::D3");
+                test(string{ss1d3->ice_id()} == "::Test::D3");
+                test(string{ss2d3->ice_id()} == "::Test::D3");
             }
 
             breakCycles(ss.c1);

@@ -85,7 +85,7 @@ namespace Ice
          * Determine the Slice type ID associated with this instance.
          * @return The type ID supplied to the constructor.
          */
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         /**
          * Clones this object.
