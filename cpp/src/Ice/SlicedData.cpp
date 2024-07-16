@@ -31,10 +31,10 @@ Ice::SlicedData::clear()
 
 Ice::UnknownSlicedValue::UnknownSlicedValue(const string& unknownTypeId) : _unknownTypeId(unknownTypeId) {}
 
-string
-Ice::UnknownSlicedValue::ice_id() const
+const char*
+Ice::UnknownSlicedValue::ice_id() const noexcept
 {
-    return _unknownTypeId;
+    return _unknownTypeId.c_str();
 }
 
 ValuePtr

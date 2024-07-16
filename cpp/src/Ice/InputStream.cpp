@@ -53,7 +53,7 @@ IceInternal::Ex::throwUOE(const char* file, int line, const string& expectedType
         throw MarshalException{
             file,
             line,
-            "cannot find value factory to unmarshal class with type ID '" + usv->ice_id() + "'"};
+            "cannot find value factory to unmarshal class with type ID '" + string{usv->ice_id()} + "'"};
     }
 
     string type = v->ice_id();

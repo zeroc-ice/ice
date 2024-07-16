@@ -154,8 +154,8 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     }
 
     {
-        test(Test::MyClassPrx::ice_staticId() == Test::MyClass::ice_staticId());
-        test(Ice::ObjectPrx::ice_staticId() == Ice::Object::ice_staticId());
+        test(string{Test::MyClassPrx::ice_staticId()} == Test::MyClass::ice_staticId());
+        test(string{Ice::ObjectPrx::ice_staticId()} == Ice::Object::ice_staticId());
     }
 
     {

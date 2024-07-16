@@ -95,7 +95,7 @@ namespace IceInternal
 
         ~DefaultUserExceptionFactoryInit() { factoryTable->removeExceptionFactory(typeId); }
 
-        const std::string typeId;
+        const std::string_view typeId;
     };
 
     template<class O> class DefaultValueFactoryInit
@@ -108,7 +108,7 @@ namespace IceInternal
 
         ~DefaultValueFactoryInit() { factoryTable->removeValueFactory(typeId); }
 
-        const std::string typeId;
+        const std::string_view typeId;
     };
 }
 
