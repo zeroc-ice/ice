@@ -512,7 +512,7 @@ def allTestsFuture(helper, communicator, collocated):
     test(len(p.ice_idsAsync(ctx).result()) == 2)
 
     if not collocated:
-        test(p.ice_getConnectionAsync().result() is IcePy.Connection)
+        test(type(p.ice_getConnectionAsync().result()) is IcePy.Connection)
 
     p.opAsync().result()
     p.opAsync(ctx).result()
