@@ -452,10 +452,24 @@ namespace Ice
                     props.Add("Ice.Admin.Facets", "Properties");
                     var com = factory.createCommunicator(props);
                     Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
-                    test(proc == null);
-                    var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
-                    test(tf == null);
+                    try
+                    {
+                        ProcessPrxHelper.checkedCast(obj, "Process");
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                        // Expected
+                    }
+                    try
+                    {
+                        Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                        // Expected
+                    }
                     com.destroy();
                 }
                 {
@@ -469,10 +483,24 @@ namespace Ice
                     props.Add("Ice.Admin.Facets", "Process");
                     var com = factory.createCommunicator(props);
                     Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
-                    test(pa == null);
-                    var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
-                    test(tf == null);
+                    try
+                    {
+                        PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                        // Expected
+                    }
+                    try
+                    {
+                        Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                        // Expected
+                    }
                     com.destroy();
                 }
                 {
@@ -486,10 +514,24 @@ namespace Ice
                     props.Add("Ice.Admin.Facets", "TestFacet");
                     var com = factory.createCommunicator(props);
                     Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
-                    test(pa == null);
-                    Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
-                    test(proc == null);
+                    try
+                    {
+                        PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                        // Expected
+                    }
+                    try
+                    {
+                        ProcessPrxHelper.checkedCast(obj, "Process");
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                        // Expected
+                    }
                     com.destroy();
                 }
                 {
@@ -507,8 +549,15 @@ namespace Ice
                     test(pa.getProperty("Ice.Admin.InstanceName") == "Test");
                     var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
                     tf.op();
-                    Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
-                    test(proc == null);
+                    try
+                    {
+                        ProcessPrxHelper.checkedCast(obj, "Process");
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                        // Expected
+                    }
                     com.destroy();
                 }
                 {
@@ -522,8 +571,15 @@ namespace Ice
                     props.Add("Ice.Admin.Facets", "TestFacet, Process");
                     var com = factory.createCommunicator(props);
                     Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
-                    test(pa == null);
+                    try
+                    {
+                        PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                        // Expected
+                    }
                     var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
                     tf.op();
                     Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");

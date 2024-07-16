@@ -1511,10 +1511,6 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             RETURN_NULL();
         }
     }
-    catch (const Ice::FacetNotExistException&)
-    {
-        // Ignore.
-    }
     catch (...)
     {
         throwException(current_exception());
