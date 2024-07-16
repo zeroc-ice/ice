@@ -35,11 +35,6 @@
 
 #include <list>
 
-namespace Ice
-{
-    class CommunicatorI;
-}
-
 namespace IceInternal
 {
     class ThreadObserverTimer;

@@ -6,20 +6,8 @@ package com.zeroc.IceInternal;
 
 import java.util.concurrent.Callable;
 
-public class ConnectRequestHandler
+public final class ConnectRequestHandler
     implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback {
-  public synchronized RequestHandler connect(com.zeroc.Ice._ObjectPrxI proxy) {
-    if (!initialized()) {
-      _proxies.add(proxy);
-    }
-    return _requestHandler;
-  }
-
-  @Override
-  public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler) {
-    return previousHandler == this ? newHandler : this;
-  }
-
   @Override
   public int sendAsyncRequest(ProxyOutgoingAsyncBase out) throws RetryException {
     synchronized (this) {
@@ -62,16 +50,11 @@ public class ConnectRequestHandler
   }
 
   @Override
-  public Reference getReference() {
-    return _reference;
-  }
-
-  @Override
   public synchronized com.zeroc.Ice.ConnectionI getConnection() {
     //
     // First check for the connection, it's important otherwise the user could first get a
     // connection
-    // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
+    // and then the exception if he tries to obtain the proxy cached connection multiple times (the
     // exception can be set after the connection is set if the flush of pending requests fails).
     //
     if (_connection != null) {
@@ -99,7 +82,7 @@ public class ConnectRequestHandler
     // add this proxy to the router info object.
     //
     RouterInfo ri = _reference.getRouterInfo();
-    if (ri != null && !ri.addProxy(_proxy, this)) {
+    if (ri != null && !ri.addProxy(_reference, this)) {
       return; // The request handler will be initialized once addProxy returns.
     }
 
@@ -117,17 +100,6 @@ public class ConnectRequestHandler
       _flushing = true; // Ensures request handler is removed before processing new requests.
     }
 
-    //
-    // NOTE: remove the request handler *before* notifying the requests that the connection
-    // failed. It's important to ensure that future invocations will obtain a new connect
-    // request handler once invocations are notified.
-    //
-    try {
-      _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-    } catch (com.zeroc.Ice.CommunicatorDestroyedException exc) {
-      // Ignore
-    }
-
     for (OutgoingAsyncBase outAsync : _requests) {
       if (outAsync.completed(_exception)) {
         outAsync.invokeCompletedAsync();
@@ -137,8 +109,6 @@ public class ConnectRequestHandler
 
     synchronized (this) {
       _flushing = false;
-      _proxies.clear();
-      _proxy = null; // Break cyclic reference count.
       notifyAll();
     }
   }
@@ -155,18 +125,11 @@ public class ConnectRequestHandler
     flushRequests();
   }
 
-  public ConnectRequestHandler(Reference ref, com.zeroc.Ice._ObjectPrxI proxy) {
+  public ConnectRequestHandler(Reference ref) {
     _reference = ref;
-    _response = _reference.getMode() == Reference.ModeTwoway;
-    _proxy = proxy;
+    _response = _reference.isTwoway();
     _initialized = false;
     _flushing = false;
-
-    if (_reference.getInstance().queueRequests()) {
-      _requestHandler = new QueueRequestHandler(_reference.getInstance(), this);
-    } else {
-      _requestHandler = this;
-    }
   }
 
   private boolean initialized() {
@@ -252,9 +215,6 @@ public class ConnectRequestHandler
         }
       } catch (RetryException ex) {
         exception = ex.get();
-
-        // Remove the request handler before retrying.
-        _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
         outAsync.retryException(ex.get());
       } catch (com.zeroc.Ice.LocalException ex) {
         exception = ex;
@@ -265,46 +225,17 @@ public class ConnectRequestHandler
     }
     _requests.clear();
 
-    //
-    // If we aren't caching the connection, don't bother creating a
-    // connection request handler. Otherwise, update the proxies
-    // request handler to use the more efficient connection request
-    // handler.
-    //
-    if (_reference.getCacheConnection() && exception == null) {
-      RequestHandler previous = _requestHandler;
-      _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
-      if (_reference.getInstance().queueRequests()) {
-        _requestHandler = new QueueRequestHandler(_reference.getInstance(), _requestHandler);
-      }
-      for (com.zeroc.Ice._ObjectPrxI proxy : _proxies) {
-        proxy._updateRequestHandler(previous, _requestHandler);
-      }
-    }
-
     synchronized (this) {
       assert (!_initialized);
       _exception = exception;
       _initialized = _exception == null;
       _flushing = false;
-
-      //
-      // Only remove once all the requests are flushed to
-      // guarantee serialization.
-      //
-      _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-
-      _proxies.clear();
-      _proxy = null; // Break cyclic reference count.
       notifyAll();
     }
   }
 
   private final Reference _reference;
   private boolean _response;
-
-  private com.zeroc.Ice._ObjectPrxI _proxy;
-  private java.util.Set<com.zeroc.Ice._ObjectPrxI> _proxies = new java.util.HashSet<>();
 
   private com.zeroc.Ice.ConnectionI _connection;
   private boolean _compress;
@@ -313,5 +244,4 @@ public class ConnectRequestHandler
   private boolean _flushing;
 
   private java.util.List<ProxyOutgoingAsyncBase> _requests = new java.util.LinkedList<>();
-  private RequestHandler _requestHandler;
 }

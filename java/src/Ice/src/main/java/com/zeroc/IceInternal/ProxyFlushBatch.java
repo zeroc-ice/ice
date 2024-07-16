@@ -8,7 +8,7 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void> {
   public ProxyFlushBatch(com.zeroc.Ice._ObjectPrxI prx) {
     super(prx, "ice_flushBatchRequests");
     _observer = ObserverHelper.get(prx, "ice_flushBatchRequests");
-    BatchRequestQueue.SwapResult r = prx._getBatchRequestQueue().swap(_os);
+    BatchRequestQueue.SwapResult r = prx._getReference().getBatchRequestQueue().swap(_os);
     _batchRequestNum = r != null ? r.batchRequestNum : 0;
   }
 

@@ -165,9 +165,12 @@ public class AllTests {
       CompletableFuture<Void> r = null;
       InvocationFuture<Void> f = null;
       int max = helper.isAndroid() ? 5000 : 10000;
+
+      // We use the same proxy for all oneway calls.
+      holdSerializedOneway = holdSerialized.ice_oneway();
+
       for (int i = 0; i < max; ++i) {
-        // Create a new proxy for each request
-        r = holdSerialized.ice_oneway().setOnewayAsync(value + 1, value);
+        r = holdSerializedOneway.setOnewayAsync(value + 1, value);
         f = com.zeroc.Ice.Util.getInvocationFuture(r);
         ++value;
         if ((i % 100) == 0) {

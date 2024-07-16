@@ -103,13 +103,14 @@ public final class RouterInfo {
     return ((com.zeroc.Ice._ObjectPrxI) serverProxy)._getReference().getEndpoints();
   }
 
-  public boolean addProxy(final com.zeroc.Ice.ObjectPrx proxy, final AddProxyCallback callback) {
-    assert (proxy != null);
+  public boolean addProxy(final Reference reference, final AddProxyCallback callback) {
+    com.zeroc.Ice.Identity identity = reference.getIdentity();
+
     synchronized (this) {
       if (!_hasRoutingTable) {
         return true; // The router implementation doesn't maintain a routing table.
       }
-      if (_identities.contains(proxy.ice_getIdentity())) {
+      if (_identities.contains(identity)) {
         //
         // Only add the proxy to the router if it's not already in our local map.
         //
@@ -118,7 +119,7 @@ public final class RouterInfo {
     }
 
     _router
-        .addProxiesAsync(new com.zeroc.Ice.ObjectPrx[] {proxy})
+        .addProxiesAsync(new com.zeroc.Ice.ObjectPrx[] {new com.zeroc.Ice._ObjectPrxI(reference)})
         .whenComplete(
             (com.zeroc.Ice.ObjectPrx[] evictedProxies, Throwable ex) -> {
               if (ex != null) {
@@ -128,7 +129,7 @@ public final class RouterInfo {
                   callback.setException(new com.zeroc.Ice.UnknownException(ex));
                 }
               } else {
-                addAndEvictProxies(proxy, evictedProxies);
+                addAndEvictProxies(identity, evictedProxies);
                 callback.addedProxy();
               }
             });
@@ -161,13 +162,13 @@ public final class RouterInfo {
   }
 
   private synchronized void addAndEvictProxies(
-      com.zeroc.Ice.ObjectPrx proxy, com.zeroc.Ice.ObjectPrx[] evictedProxies) {
+      com.zeroc.Ice.Identity identity, com.zeroc.Ice.ObjectPrx[] evictedProxies) {
     //
     // Check if the proxy hasn't already been evicted by a
     // concurrent addProxies call. If it's the case, don't
     // add it to our local map.
     //
-    int index = _evictedIdentities.indexOf(proxy.ice_getIdentity());
+    int index = _evictedIdentities.indexOf(identity);
     if (index >= 0) {
       _evictedIdentities.remove(index);
     } else {
@@ -175,7 +176,7 @@ public final class RouterInfo {
       // If we successfully added the proxy to the router,
       // we add it to our local map.
       //
-      _identities.add(proxy.ice_getIdentity());
+      _identities.add(identity);
     }
 
     //
