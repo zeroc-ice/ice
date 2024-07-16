@@ -55,7 +55,6 @@ end
 $excluded = ['DLLMain.cpp', 'Main.cpp']
 
 def filter(f)
-    puts "Filtering #{f}"
     # Filter sources for each platform.
     if $excluded.include?(f)
         return false

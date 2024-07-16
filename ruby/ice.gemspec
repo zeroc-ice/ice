@@ -33,7 +33,7 @@ eos
   spec.required_ruby_version = '>= 3.0.0'
   spec.require_paths = ['lib', 'dist/lib']
   spec.extensions = ['extconf.rb']
-  spec.rdoc_options = ['--exclude=ext/IceRuby/.*\.o$' '--exclude=IceRuby\.(bundle|so)$' '--exclude=lib/slice2rb$']
+  spec.rdoc_options = ['--exclude=ext/IceRuby/.*\.o$' '--exclude=IceRuby\.(bundle|so)$' '--exclude=scripts/slice2rb$']
   spec.executables   = ['slice2rb']
   spec.bindir        = 'scripts'
 end
