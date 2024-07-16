@@ -594,7 +594,11 @@ def allTests(helper, communicator)
     test(cl == base)
     test(derived == base)
     test(cl == derived)
-    test(Test::MyDerivedClassPrx::checkedCast(cl, "facet") == nil)
+    begin
+        Test::MyDerivedClassPrx::checkedCast(cl, "facet")
+        test(false)
+    rescue Ice::FacetNotExistException
+    end
 
     loc = Ice::LocatorPrx::checkedCast(base)
     test(loc == nil)

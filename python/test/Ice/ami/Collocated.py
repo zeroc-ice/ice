@@ -44,3 +44,4 @@ class Collocated(TestHelper):
             # adapter2.activate() # Collocated test doesn't need to active the OA
 
             AllTests.allTests(self, communicator, True)
+            AllTests.allTestsFuture(self, communicator, True)

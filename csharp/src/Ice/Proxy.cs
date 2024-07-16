@@ -1832,21 +1832,8 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="facet">The facet for the new proxy.</param>
     /// <param name="context">The Context map for the invocation.</param>
     /// <returns>The new proxy with the specified facet.</returns>
-    public static ObjectPrx? checkedCast(ObjectPrx? proxy, string facet, Dictionary<string, string>? context = null)
-    {
-        ObjectPrx? bb = proxy?.ice_facet(facet);
-        try
-        {
-            if (bb is not null && bb.ice_isA("::Ice::Object", context))
-            {
-                return bb;
-            }
-        }
-        catch (FacetNotExistException)
-        {
-        }
-        return null;
-    }
+    public static ObjectPrx? checkedCast(ObjectPrx? proxy, string facet, Dictionary<string, string>? context = null) =>
+        checkedCast(proxy?.ice_facet(facet), context);
 
     /// <summary>
     /// Casts a proxy to <see cref="ObjectPrx" />. This call does

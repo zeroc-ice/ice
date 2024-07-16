@@ -534,10 +534,14 @@ func allTests(_ helper: TestHelper) throws {
 
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
-        let proc = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
-        try test(proc == nil)
-        let tf = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")
-        try test(tf == nil)
+        do {
+            _ = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
+            try test(false)
+        } catch is Ice.FacetNotExistException {}
+        do {
+            _ = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")
+            try test(false)
+        } catch is Ice.FacetNotExistException {}
         try com.destroy()
     }
 
@@ -553,10 +557,14 @@ func allTests(_ helper: TestHelper) throws {
         ]
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
-        let pa = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
-        try test(pa == nil)
-        let tf = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")
-        try test(tf == nil)
+        do {
+            _ = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
+            try test(false)
+        } catch is Ice.FacetNotExistException {}
+        do {
+            _ = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")
+            try test(false)
+        } catch is Ice.FacetNotExistException {}
         try com.destroy()
     }
 
@@ -573,10 +581,14 @@ func allTests(_ helper: TestHelper) throws {
 
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
-        let pa = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
-        try test(pa == nil)
-        let proc = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
-        try test(proc == nil)
+        do {
+            _ = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
+            try test(false)
+        } catch is Ice.FacetNotExistException {}
+        do {
+            _ = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
+            try test(false)
+        } catch is Ice.FacetNotExistException {}
         try com.destroy()
     }
 
@@ -597,8 +609,10 @@ func allTests(_ helper: TestHelper) throws {
         try test(pa.getProperty("Ice.Admin.InstanceName") == "Test")
         let tf = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
         try tf.op()
-        let proc = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
-        try test(proc == nil)
+        do {
+            _ = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
+            try test(false)
+        } catch is Ice.FacetNotExistException {}
         try com.destroy()
     }
 
@@ -614,8 +628,10 @@ func allTests(_ helper: TestHelper) throws {
         ]
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
-        let pa = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
-        try test(pa == nil)
+        do {
+            _ = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
+            try test(false)
+        } catch is Ice.FacetNotExistException {}
         let tf = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
         try tf.op()
         let proc = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")!

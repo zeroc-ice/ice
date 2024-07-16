@@ -749,7 +749,15 @@ namespace Ice
                 test(cl.Equals(baseProxy));
                 test(derived.Equals(baseProxy));
                 test(cl.Equals(derived));
-                test(Test.MyDerivedClassPrxHelper.checkedCast(cl, "facet") == null);
+                try
+                {
+                    Test.MyDerivedClassPrxHelper.checkedCast(cl, "facet");
+                    test(false);
+                }
+                catch (Ice.FacetNotExistException)
+                {
+                    // expected
+                }
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast with context... ");
