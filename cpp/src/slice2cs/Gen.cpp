@@ -1910,7 +1910,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         vector<string> secondaryCtorMemberNames;
         vector<string> secondaryCtorBaseParamNames;
 
-         for (const auto& q : allDataMembers)
+        for (const auto& q : allDataMembers)
         {
             string memberName = fixId(q->name(), DotNet::Exception);
             string memberType = typeToString(q->type(), ns, q->optional());
@@ -1961,7 +1961,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << eb;
 
         // Secondary constructor. Can be parameterless.
-         if (secondaryCtorParams.size() != paramDecl.size())
+        if (secondaryCtorParams.size() != paramDecl.size())
         {
             _out << sp;
             emitGeneratedCodeAttribute();
