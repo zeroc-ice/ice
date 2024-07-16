@@ -2113,84 +2113,106 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << "public:";
     H.inc();
 
-    H << nl << "using " << baseClass << "::" << baseName << ";";
-
     if (!allDataMembers.empty())
     {
-        H << sp;
-        H << nl << "/**";
-        H << nl << " * One-shot constructor to initialize all data members.";
-        for (const auto& dataMember : allDataMembers)
+        if (base && dataMembers.empty())
         {
-            map<string, CommentPtr>::iterator r = allComments.find(dataMember->name());
-            if (r != allComments.end())
-            {
-                H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
-            }
+            // Reuse the base class constructors.
+            H << nl << "using " << baseClass << "::" << baseName << ";";
         }
-        H << nl << " */";
-        H << nl << name << "(";
-
-        for (vector<string>::const_iterator q = allParamDecls.begin(); q != allParamDecls.end(); ++q)
+        else
         {
-            if (q != allParamDecls.begin())
+            H << nl << "/**";
+            H << nl << " * Default constructor.";
+            H << nl << " */";
+            H << nl << name << "() noexcept = default;";
+
+            H << sp;
+            H << nl << "/**";
+            H << nl << " * One-shot constructor to initialize all data members.";
+            for (const auto& dataMember : allDataMembers)
             {
-                H << ", ";
+                map<string, CommentPtr>::iterator r = allComments.find(dataMember->name());
+                if (r != allComments.end())
+                {
+                    H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
+                }
             }
-            H << (*q);
-        }
-        H << ") noexcept :";
-        H.inc();
-        if (base || !baseDataMembers.empty())
-        {
-            H << nl << baseClass << "(";
+            H << nl << " */";
+            H << nl << name << "(";
 
-            for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+            for (vector<string>::const_iterator q = allParamDecls.begin(); q != allParamDecls.end(); ++q)
             {
-                if (q != baseDataMembers.begin())
+                if (q != allParamDecls.begin())
                 {
                     H << ", ";
                 }
+                H << (*q);
+            }
+            H << ") noexcept :";
+            H.inc();
+            if (base || !baseDataMembers.empty())
+            {
+                H << nl << baseClass << "(";
+
+                for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+                {
+                    if (q != baseDataMembers.begin())
+                    {
+                        H << ", ";
+                    }
+                    string memberName = fixKwd((*q)->name());
+                    TypePtr memberType = (*q)->type();
+                    H << condMove(isMovable(memberType), memberName);
+                }
+
+                H << ")";
+                if (!dataMembers.empty())
+                {
+                    H << ",";
+                }
+            }
+
+            for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            {
                 string memberName = fixKwd((*q)->name());
                 TypePtr memberType = (*q)->type();
-                H << condMove(isMovable(memberType), memberName);
+
+                if (q != dataMembers.begin())
+                {
+                    H << ",";
+                }
+                H << nl << memberName << "(" << condMove(isMovable(memberType), memberName) << ")";
             }
 
-            H << ")";
-            if (!dataMembers.empty())
-            {
-                H << ",";
-            }
+            H.dec();
+            H << sb;
+            H << eb;
         }
+        H << sp;
+    }
 
-        for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            string memberName = fixKwd((*q)->name());
-            TypePtr memberType = (*q)->type();
-
-            if (q != dataMembers.begin())
-            {
-                H << ",";
-            }
-            H << nl << memberName << "(" << condMove(isMovable(memberType), memberName) << ")";
-        }
-
-        H.dec();
-        H << sb;
-        H << eb;
+    StringList metaData = p->getMetaData();
+    if (find(metaData.begin(), metaData.end(), "cpp:ice_print") != metaData.end())
+    {
+        H << nl << "/**";
+        H << nl << " * Outputs a custom description of this exception to a stream.";
+        H << nl << " * @param stream The output stream.";
+        H << nl << " */";
+        H << nl << _dllMemberExport << "void ice_print(::std::ostream& stream) const override;";
+        H << sp;
     }
 
     if (!dataMembers.empty())
     {
-        H << sp;
         H << nl << "/**";
         H << nl << " * Obtains a tuple containing all of the exception's data members.";
         H << nl << " * @return The data members in a tuple.";
         H << nl << " */";
         writeIceTuple(H, p->allDataMembers(), _useWstring);
+        H << sp;
     }
 
-    H << sp;
     H << nl << "/**";
     H << nl << " * Obtains the Slice type ID of this exception.";
     H << nl << " * @return The fully-scoped type ID.";
@@ -2201,16 +2223,6 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << sb;
     C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
-
-    StringList metaData = p->getMetaData();
-    if (find(metaData.begin(), metaData.end(), "cpp:ice_print") != metaData.end())
-    {
-        H << nl << "/**";
-        H << nl << " * Prints this exception to the given stream.";
-        H << nl << " * @param stream The target stream.";
-        H << nl << " */";
-        H << nl << _dllMemberExport << "void ice_print(::std::ostream& stream) const override;";
-    }
 
     H << sp << nl << _dllMemberExport << "const char* ice_id() const noexcept override;";
     C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_id() const noexcept";

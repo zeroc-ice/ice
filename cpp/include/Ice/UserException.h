@@ -22,15 +22,9 @@ namespace Ice
     {
     public:
         /**
-         * Default constructor.
+         * Default constructor. The file, line and what message are never set for user exceptions.
          */
         UserException() : Exception(nullptr, 0) {}
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
 
         /**
          * Throws this exception.

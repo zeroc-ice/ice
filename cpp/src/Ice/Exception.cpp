@@ -3,10 +3,6 @@
 //
 
 #if defined(_MSC_VER)
-//
-// DbgHelp.dll on Windows XP does not contain Unicode functions, so we
-// "switch on" Unicode only with VS2012 and up
-//
 #    ifndef UNICODE
 #        define UNICODE
 #    endif
@@ -80,8 +76,6 @@ namespace IceInternal
 #else
     bool ICE_API printStackTraces = true;
 #endif
-
-    bool ICE_API nullHandleAbort = false;
 
     StackTraceImpl stackTraceImpl()
     {
@@ -526,21 +520,6 @@ Ice::Exception::what() const noexcept
     return _what ? _what : ice_id();
 }
 
-void
-Ice::Exception::ice_print(ostream& out) const
-{
-    if (_file && _line > 0)
-    {
-        out << _file << ':' << _line << ' ';
-    }
-    out << ice_id();
-    // We assume a custom what message does not repeat the exception type ID.
-    if (_what)
-    {
-        out << ' ' << _what;
-    }
-}
-
 const char*
 Ice::Exception::ice_file() const noexcept
 {
@@ -562,6 +541,22 @@ Ice::Exception::ice_stackTrace() const
 ostream&
 Ice::operator<<(ostream& out, const Ice::Exception& ex)
 {
+    if (ex.ice_file() && ex.ice_line() > 0)
+    {
+        out << ex.ice_file() << ':' << ex.ice_line() << ' ';
+    }
     ex.ice_print(out);
+
+    // We don't override ice_print when we have a custom _what message. And a custom what message typically does not
+    // repeat the Slice type ID.
+    if (ex._what)
+    {
+        out << ' ' << ex._what;
+    }
+    string stack = ex.ice_stackTrace();
+    if (!stack.empty())
+    {
+        out << "\nstack trace:\n" << stack;
+    }
     return out;
 }
