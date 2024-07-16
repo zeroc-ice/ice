@@ -53,7 +53,7 @@ class TestIntfI(Test.TestIntf):
     def startDispatch(self, current=None):
         with self._cond:
             if self._shutdown:
-                # Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+                # Ignore, this can occur with the forceful connection close test, shutdown can be dispatch
                 # before start dispatch.
                 v = Ice.Future()
                 v.set_result(None)
