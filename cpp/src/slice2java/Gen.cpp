@@ -4266,16 +4266,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@return A proxy for this type, or null if the object does not support this type.");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, " << contextParam << ')';
     out << sb;
-    out << nl << "if (obj != null)";
-    out << sb;
-    out << nl << "try";
-    out << sb;
-    out << nl << "boolean ok = obj.ice_isA(ice_staticId(), context);";
-    out << nl << "return ok ? new " << prxIName << "(obj) : null;";
-    out << eb;
-    out << nl << "catch (com.zeroc.Ice.FacetNotExistException ex)" << sb << eb;
-    out << eb;
-    out << nl << "return null;";
+    out << nl << "return (obj != null && obj.ice_isA(ice_staticId(), context)) ? new " << prxIName << "(obj) : null;";
     out << eb;
 
     out << sp;
