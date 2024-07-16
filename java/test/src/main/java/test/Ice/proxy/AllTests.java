@@ -6,6 +6,7 @@ package test.Ice.proxy;
 
 import com.zeroc.Ice.EncodingVersion;
 import com.zeroc.Ice.EndpointSelectionType;
+import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
@@ -811,7 +812,12 @@ public class AllTests {
     test(cl.equals(base));
     test(derived.equals(base));
     test(cl.equals(derived));
-    test(MyDerivedClassPrx.checkedCast(cl, "facet") == null);
+    try {
+      MyDerivedClassPrx.checkedCast(cl, "facet");
+      test(false);
+    } catch (FacetNotExistException ex) {
+      // expected
+    }
     out.println("ok");
 
     out.print("testing checked cast with context... ");

@@ -4,6 +4,7 @@
 
 package test.Ice.admin;
 
+import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.LogMessageType;
 import com.zeroc.Ice.ProcessPrx;
 import com.zeroc.Ice.PropertiesAdminPrx;
@@ -442,10 +443,19 @@ public class AllTests {
       props.put("Ice.Admin.Facets", "Properties");
       RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
       com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
-      ProcessPrx proc = ProcessPrx.checkedCast(obj, "Process");
-      test(proc == null);
-      TestFacetPrx tf = TestFacetPrx.checkedCast(obj, "TestFacet");
-      test(tf == null);
+
+      try {
+        ProcessPrx.checkedCast(obj, "Process");
+        test(false);
+      } catch (FacetNotExistException ex) {
+        // expected
+      }
+      try {
+        TestFacetPrx.checkedCast(obj, "TestFacet");
+        test(false);
+      } catch (FacetNotExistException ex) {
+        // expected
+      }
       rcom.destroy();
     }
     {
@@ -459,10 +469,20 @@ public class AllTests {
       props.put("Ice.Admin.Facets", "Process");
       RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
       com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
-      PropertiesAdminPrx pa = PropertiesAdminPrx.checkedCast(obj, "Properties");
-      test(pa == null);
-      TestFacetPrx tf = TestFacetPrx.checkedCast(obj, "TestFacet");
-      test(tf == null);
+
+      try {
+        PropertiesAdminPrx.checkedCast(obj, "Properties");
+        test(false);
+      } catch (FacetNotExistException ex) {
+        // expected
+      }
+      try {
+        TestFacetPrx.checkedCast(obj, "TestFacet");
+        test(false);
+      } catch (FacetNotExistException ex) {
+        // expected
+      }
+
       rcom.destroy();
     }
     {
@@ -476,10 +496,18 @@ public class AllTests {
       props.put("Ice.Admin.Facets", "TestFacet");
       RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
       com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
-      PropertiesAdminPrx pa = PropertiesAdminPrx.checkedCast(obj, "Properties");
-      test(pa == null);
-      ProcessPrx proc = ProcessPrx.checkedCast(obj, "Process");
-      test(proc == null);
+      try {
+        PropertiesAdminPrx.checkedCast(obj, "Properties");
+        test(false);
+      } catch (FacetNotExistException ex) {
+        // expected
+      }
+      try {
+        ProcessPrx.checkedCast(obj, "Process");
+        test(false);
+      } catch (FacetNotExistException ex) {
+        // expected
+      }
       rcom.destroy();
     }
     {
@@ -497,8 +525,12 @@ public class AllTests {
       test(pa.getProperty("Ice.Admin.InstanceName").equals("Test"));
       TestFacetPrx tf = TestFacetPrx.checkedCast(obj, "TestFacet");
       tf.op();
-      ProcessPrx proc = ProcessPrx.checkedCast(obj, "Process");
-      test(proc == null);
+      try {
+        ProcessPrx.checkedCast(obj, "Process");
+        test(false);
+      } catch (FacetNotExistException ex) {
+        // expected
+      }
       rcom.destroy();
     }
     {
@@ -512,8 +544,12 @@ public class AllTests {
       props.put("Ice.Admin.Facets", "TestFacet, Process");
       RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
       com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
-      PropertiesAdminPrx pa = PropertiesAdminPrx.checkedCast(obj, "Properties");
-      test(pa == null);
+      try {
+        PropertiesAdminPrx.checkedCast(obj, "Properties");
+        test(false);
+      } catch (FacetNotExistException ex) {
+        // expected
+      }
       TestFacetPrx tf = TestFacetPrx.checkedCast(obj, "TestFacet");
       tf.op();
       ProcessPrx proc = ProcessPrx.checkedCast(obj, "Process");
