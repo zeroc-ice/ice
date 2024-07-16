@@ -1457,46 +1457,43 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     _state == StateActive &&              // only schedule the timer if the connection is active
                     _dispatchCount == 0 &&                // no pending dispatch
                     _asyncRequests.Count == 0 &&          // no pending invocation
-                    _readHeader)                          // we're not waiting for the remainder of an incoming message
+                    _readHeader &&                        // we're not waiting for the remainder of an incoming message
+                    _sendStreams.Count <= 1)              // there is at most one pending outgoing message
                 {
                     // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
-                    // inactivity timer if all outgoing messages in _sendStreams are heartbeats.
+                    // inactivity timer if there is no pending outgoing message or the pending outgoing message is a
+                    // heartbeat.
 
-                    bool isInactive = true;
-
-                    if (_sendStreams.Count > 0)
-                    {
-                        // The stream of the first message is in _writeStream.
-                        if (!isHeartbeat(_writeStream))
-                        {
-                            isInactive = false;
-                        }
-                        else
-                        {
-                            isInactive = _sendStreams.Skip(1).All(message => isHeartbeat(message.stream));
-                        }
-                    }
-
-                    if (isInactive)
+                    // The stream of _sendStreams.First is in _writeStream.
+                    if (_sendStreams.Count == 0 || isHeartbeat(_writeStream))
                     {
                         scheduleInactivityTimer();
                     }
                 }
 
-                OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
-                os.writeBlob(Protocol.magic);
-                Util.currentProtocol.ice_writeMembers(os);
-                Util.currentProtocolEncoding.ice_writeMembers(os);
-                os.writeByte(Protocol.validateConnectionMsg);
-                os.writeByte(0);
-                os.writeInt(Protocol.headerSize); // Message size.
-                try
+                // We send a heartbeat to the peer to generate a "write" on the connection. This write in turns creates
+                // a read on the peer, and resets the peer's idle check timer. When _sendStream.Count > 0, there is
+                // already an outstanding write, so we don't need to send a heartbeat. It's possible _sendStream.First
+                // was sent already but not yet removed from _sendStreams: it means the last write occurred very
+                // recently, which good enough with respect to the idle check.
+                // As a result of this optimization, the only possible heartbeat in _sendStreams is _sendStreams.First.
+                if (_sendStreams.Count == 0)
                 {
-                    _ = sendMessage(new OutgoingMessage(os, false, false));
-                }
-                catch (LocalException ex)
-                {
-                    setState(StateClosed, ex);
+                    OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
+                    os.writeBlob(Protocol.magic);
+                    Util.currentProtocol.ice_writeMembers(os);
+                    Util.currentProtocolEncoding.ice_writeMembers(os);
+                    os.writeByte(Protocol.validateConnectionMsg);
+                    os.writeByte(0);
+                    os.writeInt(Protocol.headerSize); // Message size.
+                    try
+                    {
+                        _ = sendMessage(new OutgoingMessage(os, false, false));
+                    }
+                    catch (LocalException ex)
+                    {
+                        setState(StateClosed, ex);
+                    }
                 }
             }
             // else nothing to do
