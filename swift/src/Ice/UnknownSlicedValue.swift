@@ -5,7 +5,7 @@ public final class UnknownSlicedValue: Value {
     private let unknownTypeId: String
 
     public required init() {
-        unknownTypeId = ""
+        fatalError("UnknownSlicedValue must be initialized with an id")
     }
 
     public init(unknownTypeId: String) {

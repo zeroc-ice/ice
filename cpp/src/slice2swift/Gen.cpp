@@ -311,51 +311,6 @@ Gen::ImportVisitor::addImport(const string& module)
 Gen::TypesVisitor::TypesVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
-Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
-    const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
-    const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
-
-    // TODO: we most likely don't need the staticIds "trait".
-    ClassList allBases = p->allBases();
-    StringList allIds;
-    transform(
-        allBases.begin(),
-        allBases.end(),
-        back_inserter(allIds),
-        [](const ContainedPtr& it) { return it->scoped(); });
-    allIds.push_back(p->scoped());
-    allIds.push_back("::Ice::Object");
-    allIds.sort();
-    allIds.unique();
-
-    ostringstream ids;
-
-    ids << "[";
-    for (StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
-    {
-        if (r != allIds.begin())
-        {
-            ids << ", ";
-        }
-        ids << "\"" << (*r) << "\"";
-    }
-    ids << "]";
-
-    out << sp;
-    out << nl << "/// Traits for Slice class";
-    out << '`' << name << "`.";
-    out << nl << "public struct " << traits << ": " << getUnqualified("Ice.SliceTraits", swiftModule);
-    out << sb;
-    out << nl << "public static let staticIds = " << ids.str();
-    out << nl << "public static let staticId = \"" << p->scoped() << '"';
-    out << eb;
-
-    return false;
-}
-
-bool
 Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
@@ -453,25 +408,24 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
-    StringPairList extraParams;
-
     writeMembers(out, members, p);
 
-    bool rootClass = !base;
-    if (rootClass || !members.empty())
+    if (!allMembers.empty())
     {
-        writeDefaultInitializer(out, true, rootClass);
+        if (!members.empty())
+        {
+            writeDefaultInitializer(out, true, !base);
+            writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, !base);
+        }
+        // else inherit the base class initializers
     }
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass, extraParams);
+    // else inherit UserException's initializer.
 
     out << sp;
     out << nl << "/// Returns the Slice type ID of this exception.";
     out << nl << "///";
     out << nl << "/// - returns: `Swift.String` - the Slice type ID of this exception.";
-    out << nl << "open override class func ice_staticId() -> Swift.String";
-    out << sb;
-    out << nl << "return \"" << p->scoped() << "\"";
-    out << eb;
+    out << nl << "open override class func ice_staticId() -> Swift.String { \"" << p->scoped() << "\" }";
 
     out << sp;
     out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
@@ -1211,11 +1165,11 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // ice_staticId
     //
     out << sp;
-    out << nl << "/// Returns the Slice type id of the interface or class associated with this proxy type.";
+    out << nl << "/// Returns the Slice type id of the interface associated with this proxy type.";
     out << nl << "///";
     out << nl << "/// parameter type: `" << prx << ".Protocol` -  The proxy type to retrieve the type id.";
     out << nl << "///";
-    out << nl << "/// returns: `String` - The type id of the interface or class associated with this proxy type.";
+    out << nl << "/// returns: `String` - The type id of the interface associated with this proxy type.";
     out << nl << "public func ice_staticId" << spar << ("_ type: " + prx + ".Protocol") << epar << " -> Swift.String";
     out << sb;
     out << nl << "return " << traits << ".staticId";
@@ -1283,7 +1237,6 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string prefix = getClassResolverPrefix(p->unit());
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
-    const string traits = name + "Traits";
 
     ClassDefPtr base = p->base();
 
@@ -1359,27 +1312,22 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     writeMembers(out, members, p);
 
-    if (!base || !members.empty())
+    if (!allMembers.empty())
     {
-        writeDefaultInitializer(out, true, !base);
+        if (!members.empty())
+        {
+            writeDefaultInitializer(out, true, !base);
+            writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, !base);
+        }
+        // else inherit the base class initializers
     }
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, !base);
-
-    out << sp;
-    out << nl << "/// Returns the Slice type ID of the most-derived interface supported by this object.";
-    out << nl << "///";
-    out << nl << "/// - returns: `String` - The Slice type ID of the most-derived interface supported by this object";
-    out << nl << "open override func ice_id() -> Swift.String" << sb;
-    out << nl << "return " << traits << ".staticId";
-    out << eb;
+    // else inherit Value's initializer.
 
     out << sp;
     out << nl << "/// Returns the Slice type ID of the interface supported by this object.";
     out << nl << "///";
     out << nl << "/// - returns: `String` - The Slice type ID of the interface supported by this object.";
-    out << nl << "open override class func ice_staticId() -> Swift.String" << sb;
-    out << nl << "return " << traits << ".staticId";
-    out << eb;
+    out << nl << "open override class func ice_staticId() -> Swift.String { \"" << p->scoped() << "\" }";
 
     out << sp;
     out << nl << "open override func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
@@ -1408,7 +1356,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
-    out << nl << "ostr.startSlice(typeId: " << name << "Traits.staticId, compactId: " << p->compactId()
+    out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: " << p->compactId()
         << ", last: " << (!base ? "true" : "false") << ")";
     for (DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {

@@ -59,7 +59,6 @@ namespace Slice
         public:
             TypesVisitor(IceInternal::Output&);
 
-            bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
             bool visitStructStart(const StructPtr&) final;

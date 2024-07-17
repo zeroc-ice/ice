@@ -3,7 +3,7 @@
 import IceImpl
 import PromiseKit
 
-/// A SliceTraits struct describes a Slice interface, class or exception.
+/// A SliceTraits struct describes a Slice interface.
 public protocol SliceTraits {
     /// List of all type-ids.
     static var staticIds: [String] { get }
