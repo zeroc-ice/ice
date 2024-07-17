@@ -26,10 +26,10 @@ public abstract class UserException : Ice.Exception
     public virtual bool iceUsesClasses() => false;
 
     /// <summary>
-    /// Constructs an Ice user exception.
+    /// Parameterless constructor.
     /// </summary>
-    protected UserException(System.Exception? innerException = null)
-        : base(message: null, innerException)
+    protected UserException()
+        : base(message: null, innerException: null)
     {
     }
 
