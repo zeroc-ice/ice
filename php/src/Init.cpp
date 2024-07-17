@@ -245,7 +245,6 @@ initIceGlobals(zend_ice_globals* g)
 
 ZEND_MINIT_FUNCTION(ice)
 {
-    Ice::registerIceSSL(false);
     Ice::registerIceDiscovery(false);
     Ice::registerIceLocatorDiscovery(false);
 

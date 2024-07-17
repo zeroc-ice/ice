@@ -133,7 +133,6 @@ Test::TestHelper::TestHelper(bool registerPlugins)
     if (registerPlugins)
     {
 #ifdef ICE_STATIC_LIBS
-        Ice::registerIceSSL(false);
         Ice::registerIceWS(true);
         Ice::registerIceUDP(true);
 #    ifdef ICE_HAS_BT
