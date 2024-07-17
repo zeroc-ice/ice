@@ -49,10 +49,7 @@
 #endif
 
 #include <ruby.h>
-
-#ifdef HAVE_RUBY_ENCODING_H
-#    include <ruby/encoding.h>
-#endif
+#include <ruby/encoding.h>
 
 #if defined(__clang__)
 #    pragma clang diagnostic pop

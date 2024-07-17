@@ -22,7 +22,6 @@
 
 #    include "Communicator.h"
 #    include "Connection.h"
-#    include "IconvStringConverter.h"
 #    include "ImplicitContext.h"
 #    include "Initialize.h"
 #    include "Instrumentation.h"
