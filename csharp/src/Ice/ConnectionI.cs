@@ -362,6 +362,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
             og.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId);
 
+            // We're just about to send a request, so we are not inactive anymore.
+            cancelInactivityTimer();
+
             int status = OutgoingAsyncBase.AsyncStatusQueued;
             try
             {
@@ -1447,24 +1450,57 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (isActiveOrHolding())
             {
-                OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
-                os.writeBlob(Protocol.magic);
-                Util.currentProtocol.ice_writeMembers(os);
-                Util.currentProtocolEncoding.ice_writeMembers(os);
-                os.writeByte(Protocol.validateConnectionMsg);
-                os.writeByte(0);
-                os.writeInt(Protocol.headerSize); // Message size.
-                try
+                // We check if the connection has become inactive.
+                if (
+                    _inactivityTimer is null &&           // timer not already scheduled
+                    _inactivityTimeout > TimeSpan.Zero && // inactivity timeout is enabled
+                    _state == StateActive &&              // only schedule the timer if the connection is active
+                    _dispatchCount == 0 &&                // no pending dispatch
+                    _asyncRequests.Count == 0 &&          // no pending invocation
+                    _readHeader &&                        // we're not waiting for the remainder of an incoming message
+                    _sendStreams.Count <= 1)              // there is at most one pending outgoing message
                 {
-                    sendMessage(new OutgoingMessage(os, false, false));
+                    // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
+                    // inactivity timer if there is no pending outgoing message or the pending outgoing message is a
+                    // heartbeat.
+
+                    // The stream of _sendStreams.First is in _writeStream.
+                    if (_sendStreams.Count == 0 || isHeartbeat(_writeStream))
+                    {
+                        scheduleInactivityTimer();
+                    }
                 }
-                catch (LocalException ex)
+
+                // We send a heartbeat to the peer to generate a "write" on the connection. This write in turns creates
+                // a read on the peer, and resets the peer's idle check timer. When _sendStream.Count > 0, there is
+                // already an outstanding write, so we don't need to send a heartbeat. It's possible _sendStream.First
+                // was sent already but not yet removed from _sendStreams: it means the last write occurred very
+                // recently, which good enough with respect to the idle check.
+                // As a result of this optimization, the only possible heartbeat in _sendStreams is _sendStreams.First.
+                if (_sendStreams.Count == 0)
                 {
-                    setState(StateClosed, ex);
+                    OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
+                    os.writeBlob(Protocol.magic);
+                    Util.currentProtocol.ice_writeMembers(os);
+                    Util.currentProtocolEncoding.ice_writeMembers(os);
+                    os.writeByte(Protocol.validateConnectionMsg);
+                    os.writeByte(0);
+                    os.writeInt(Protocol.headerSize); // Message size.
+                    try
+                    {
+                        _ = sendMessage(new OutgoingMessage(os, false, false));
+                    }
+                    catch (LocalException ex)
+                    {
+                        setState(StateClosed, ex);
+                    }
                 }
             }
             // else nothing to do
         }
+
+        static bool isHeartbeat(OutputStream stream) =>
+            stream.getBuffer().b.get(8) == Protocol.validateConnectionMsg;
     }
 
     private const int StateNotInitialized = 0;
@@ -2018,46 +2054,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         Debug.Assert(_state >= StateActive);
         Debug.Assert(_state < StateClosed);
-
-        bool isHeartbeat = message.stream.getBuffer().b.get(8) == Protocol.validateConnectionMsg;
-        if (!isHeartbeat)
-        {
-            cancelInactivityTimer();
-        }
-        // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
-        // inactivity timer. It's ok to do this before actually sending the heartbeat since the heartbeat does not count
-        // as an "activity".
-        else if (
-            _inactivityTimer is null &&           // timer not already scheduled
-            _inactivityTimeout > TimeSpan.Zero && // inactivity timeout is enabled
-            _state == StateActive &&              // only schedule the timer if the connection is active
-            _dispatchCount == 0 &&                // no pending dispatch
-            _asyncRequests.Count == 0 &&          // no pending invocation
-            _readHeader)                          // we're not waiting for the remainder of an incoming message
-        {
-            bool isInactive = true;
-
-            // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
-            // inactivity timer if all outgoing messages in _sendStreams are heartbeats.
-            foreach (OutgoingMessage queuedMessage in _sendStreams)
-            {
-                // TODO: temporary work-around for #2336
-                Ice.Internal.Buffer buffer = queuedMessage.stream.getBuffer();
-                if (!buffer.empty()) // should never happen
-                {
-                    if (buffer.b.get(8) != Protocol.validateConnectionMsg)
-                    {
-                        isInactive = false;
-                        break; // for
-                    }
-                }
-            }
-
-            if (isInactive)
-            {
-                scheduleInactivityTimer();
-            }
-        }
 
         if (_sendStreams.Count > 0)
         {
