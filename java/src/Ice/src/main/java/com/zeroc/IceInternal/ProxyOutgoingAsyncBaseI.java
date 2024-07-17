@@ -305,7 +305,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     return super.finished(ok, invoke);
   }
 
-  protected int handleRetryAfterException(com.zeroc.Ice.Exception ex) {
+  private int handleRetryAfterException(com.zeroc.Ice.Exception ex) {
     // Clear the request handler
     _proxy._getRequestHandlerCache().clearCachedRequestHandler(_handler);
 
