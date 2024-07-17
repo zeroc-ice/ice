@@ -241,11 +241,7 @@ IceRuby::getString(VALUE val)
 VALUE
 IceRuby::createString(string_view str)
 {
-#ifdef HAVE_RUBY_ENCODING_H
     return callRuby(rb_enc_str_new, str.data(), static_cast<long>(str.size()), rb_utf8_encoding());
-#else
-    return callRuby(rb_str_new, str.data(), static_cast<long>(str.size()));
-#endif
 }
 
 namespace
