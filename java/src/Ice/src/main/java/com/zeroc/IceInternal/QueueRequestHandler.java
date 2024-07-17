@@ -7,28 +7,11 @@ package com.zeroc.IceInternal;
 import com.zeroc.Ice.ConnectionI;
 import java.util.concurrent.Callable;
 
-public class QueueRequestHandler implements RequestHandler {
+public final class QueueRequestHandler implements RequestHandler {
   public QueueRequestHandler(Instance instance, RequestHandler delegate) {
     _executor = instance.getQueueExecutor();
     assert (delegate != null);
     _delegate = delegate;
-  }
-
-  @Override
-  public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler) {
-    //
-    // Only update to new handler if the previous handler matches this one.
-    //
-    try {
-      if (previousHandler == this || previousHandler == _delegate) {
-        return newHandler;
-      } else if (previousHandler.getConnection() == _delegate.getConnection()) {
-        return newHandler;
-      }
-    } catch (com.zeroc.Ice.Exception ex) {
-      // Ignore
-    }
-    return this;
   }
 
   @Override
@@ -53,11 +36,6 @@ public class QueueRequestHandler implements RequestHandler {
             return null;
           }
         });
-  }
-
-  @Override
-  public Reference getReference() {
-    return _delegate.getReference();
   }
 
   @Override

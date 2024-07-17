@@ -5,7 +5,7 @@
 #ifndef ICE_OSLOG_LOGGER_I_H
 #define ICE_OSLOG_LOGGER_I_H
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 
 #    include "Ice/Logger.h"
 #    include "UniqueRef.h"

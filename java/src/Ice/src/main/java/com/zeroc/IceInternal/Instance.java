@@ -179,15 +179,6 @@ public final class Instance implements java.util.function.Function<String, Class
     return _referenceFactory;
   }
 
-  public synchronized RequestHandlerFactory requestHandlerFactory() {
-    if (_state == StateDestroyed) {
-      throw new CommunicatorDestroyedException();
-    }
-
-    assert (_requestHandlerFactory != null);
-    return _requestHandlerFactory;
-  }
-
   public synchronized OutgoingConnectionFactory outgoingConnectionFactory() {
     if (_state == StateDestroyed) {
       throw new CommunicatorDestroyedException();
@@ -846,8 +837,6 @@ public final class Instance implements java.util.function.Function<String, Class
 
       _referenceFactory = new ReferenceFactory(this, communicator);
 
-      _requestHandlerFactory = new RequestHandlerFactory(this);
-
       boolean isIPv6Supported = Network.isIPv6Supported();
       boolean ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
       boolean ipv6 = isIPv6Supported ? properties.getIcePropertyAsInt("Ice.IPv6") > 0 : false;
@@ -957,7 +946,6 @@ public final class Instance implements java.util.function.Function<String, Class
     try {
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_state == StateDestroyed);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_referenceFactory == null);
-      com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_requestHandlerFactory == null);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_objectAdapterFactory == null);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_clientThreadPool == null);
@@ -1298,7 +1286,6 @@ public final class Instance implements java.util.function.Function<String, Class
         _timer = null;
 
         _referenceFactory = null;
-        _requestHandlerFactory = null;
         _routerManager = null;
         _locatorManager = null;
         _endpointFactoryManager = null;
@@ -1553,7 +1540,6 @@ public final class Instance implements java.util.function.Function<String, Class
   private RouterManager _routerManager;
   private LocatorManager _locatorManager;
   private ReferenceFactory _referenceFactory;
-  private RequestHandlerFactory _requestHandlerFactory;
   private OutgoingConnectionFactory _outgoingConnectionFactory;
   private ObjectAdapterFactory _objectAdapterFactory;
   private int _protocolSupport;

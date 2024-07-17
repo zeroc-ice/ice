@@ -358,7 +358,7 @@ allTests(Test::TestHelper* helper)
         {
             BasePtr basePtr = p->opDerived();
             test(basePtr);
-            test(basePtr->ice_id() == "::Test::Derived");
+            test(string{basePtr->ice_id()} == "::Test::Derived");
         }
         cout << "ok" << endl;
 

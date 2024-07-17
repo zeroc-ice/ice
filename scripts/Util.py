@@ -16,6 +16,7 @@ import random
 import subprocess
 import shutil
 import copy
+import uuid
 import xml.sax.saxutils
 from platform import machine as platform_machine
 from pathlib import Path
@@ -1431,9 +1432,7 @@ class Process(Runnable):
         allArgs += self.getArgs(current)
         allArgs += self.args(self, current) if callable(self.args) else self.args
         allArgs += args
-        allArgs = [
-            a.encode("utf-8") if type(a) == "unicode" else str(a) for a in allArgs
-        ]
+        allArgs = [str(a) for a in allArgs]
         return allArgs
 
     def getEffectiveProps(self, current, props):
@@ -2544,7 +2543,7 @@ class RemoteProcessController(ProcessController):
 
         import Ice
 
-        comm.getProperties().setProperty("Adapter.AdapterId", Ice.generateUUID())
+        comm.getProperties().setProperty("Adapter.AdapterId", str(uuid.uuid4()))
         self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
         self.adapter.add(
             ProcessControllerRegistryI(self),

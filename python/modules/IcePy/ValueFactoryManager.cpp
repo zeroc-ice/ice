@@ -72,8 +72,6 @@ IcePy::ValueFactoryManager::find(string_view typeId) const noexcept
 {
     ValueFactoryPtr factory;
     {
-        std::lock_guard lock(_mutex);
-
         CustomFactoryMap::const_iterator p = _customFactories.find(typeId);
         if (p != _customFactories.end())
         {
@@ -100,9 +98,7 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
 {
     try
     {
-        std::lock_guard lock(_mutex);
         auto [_, inserted] = _customFactories.try_emplace(string{id}, make_shared<CustomValueFactory>(valueFactory));
-
         if (!inserted)
         {
             throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
@@ -139,25 +135,13 @@ void
 IcePy::ValueFactoryManager::destroy()
 {
     // Called by the Python thread during communicator destruction.
-
-    CustomFactoryMap factories;
-
+    if (_self != nullptr)
     {
-        std::lock_guard lock(_mutex); // TODO: may not be necessary.
-        if (_self == 0)
-        {
-            //
-            // Nothing to do if already destroyed (this can occur if communicator destroy is called multiple times)
-            //
-            return;
-        }
-        //
         // Break the cyclic reference.
-        //
         Py_DECREF(_self);
-        _self = 0;
+        _self = nullptr;
 
-        factories.swap(_customFactories);
+        _customFactories.clear();
     }
 }
 

@@ -1145,7 +1145,7 @@ open class ObjectPrxI: ObjectPrx {
                 bytesRead: &bytesRead) as? ICEObjectPrx
 
         // Since the proxy was read in C++ we need to skip over the bytes which were read
-        // We avoid using a defer statment for this since you can not throw from one
+        // We avoid using a defer statement for this since you can not throw from one
         try istr.skip(bytesRead)
 
         guard let handle = handleOpt else {
@@ -1436,17 +1436,13 @@ open class ObjectPrxI: ObjectPrx {
         context: Context? = nil
     ) throws -> ProxyImpl?
     where ProxyImpl: ObjectPrxI {
-        do {
-            let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
+        let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
 
-            // checkedCast always calls ice_isA - no optimization on purpose
-            guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
-                return nil
-            }
-            return ProxyImpl(from: objPrx)
-        } catch is FacetNotExistException {
+        // checkedCast always calls ice_isA - no optimization on purpose
+        guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
             return nil
         }
+        return ProxyImpl(from: objPrx)
     }
 
     public static func uncheckedCast<ProxyImpl>(

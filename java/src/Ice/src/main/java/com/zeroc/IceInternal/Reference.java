@@ -18,6 +18,14 @@ public abstract class Reference implements Cloneable {
     void setException(com.zeroc.Ice.LocalException ex);
   }
 
+  public final boolean isBatch() {
+    return _mode == ModeBatchOneway || _mode == ModeBatchDatagram;
+  }
+
+  public final boolean isTwoway() {
+    return _mode == ModeTwoway;
+  }
+
   public final int getMode() {
     return _mode;
   }
@@ -104,7 +112,7 @@ public abstract class Reference implements Cloneable {
     return r;
   }
 
-  public final Reference changeMode(int newMode) {
+  public Reference changeMode(int newMode) {
     Reference r = _instance.referenceFactory().copy(this);
     r._mode = newMode;
     return r;
@@ -347,9 +355,9 @@ public abstract class Reference implements Cloneable {
   //
   public abstract java.util.Map<String, String> toProperty(String prefix);
 
-  public abstract RequestHandler getRequestHandler(com.zeroc.Ice._ObjectPrxI proxy);
+  abstract RequestHandler getRequestHandler();
 
-  public abstract BatchRequestQueue getBatchRequestQueue();
+  abstract BatchRequestQueue getBatchRequestQueue();
 
   @Override
   public boolean equals(java.lang.Object obj) {

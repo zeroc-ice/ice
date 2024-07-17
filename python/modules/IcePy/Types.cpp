@@ -137,27 +137,6 @@ exceptionInfoDealloc(ExceptionInfoObject* self)
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-extern "C" void
-unsetDealloc(PyTypeObject* /*self*/)
-{
-    Py_FatalError("deallocating Unset");
-}
-
-extern "C" int
-unsetNonzero(PyObject* /*v*/)
-{
-    //
-    // We define tp_as_number->nb_nonzero so that the Unset marker value evaluates as "zero" or "false".
-    //
-    return 0;
-}
-
-extern "C" PyObject*
-unsetRepr(PyObject* /*v*/)
-{
-    return PyBytes_FromString("Unset");
-}
-
 //
 // addClassInfo()
 //
@@ -3172,9 +3151,9 @@ IcePy::ValueInfo::printMembers(PyObject* value, IceInternal::Output& out, PrintO
         {
             out << "<not defined>";
         }
-        else if (attr.get() == Unset)
+        else if (attr.get() == Py_None)
         {
-            out << "<unset>";
+            out << "<not set>";
         }
         else
         {
@@ -3434,7 +3413,8 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
             }
         }
         else if (
-            member->optional && (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
+            member->optional &&
+            (val.get() == Py_None || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3518,7 +3498,7 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
                 {
                     member->type->unmarshal(is, member, _object, 0, true, &member->metaData);
                 }
-                else if (PyObject_SetAttrString(_object, const_cast<char*>(member->name.c_str()), Unset) < 0)
+                else if (PyObject_SetAttrString(_object, const_cast<char*>(member->name.c_str()), Py_None) < 0)
                 {
                     assert(PyErr_Occurred());
                     throw AbortMarshaling();
@@ -3683,7 +3663,8 @@ IcePy::ExceptionInfo::writeMembers(
             }
         }
         else if (
-            member->optional && (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
+            member->optional &&
+            (val.get() == Py_None || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3735,7 +3716,7 @@ IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
             {
                 member->type->unmarshal(is, member, p.get(), 0, true, &member->metaData);
             }
-            else if (PyObject_SetAttrString(p.get(), const_cast<char*>(member->name.c_str()), Unset) < 0)
+            else if (PyObject_SetAttrString(p.get(), const_cast<char*>(member->name.c_str()), Py_None) < 0)
             {
                 assert(PyErr_Occurred());
                 throw AbortMarshaling();
@@ -3783,7 +3764,7 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceInternal::Output& out, Pr
         DataMemberPtr member = *q;
         PyObjectHandle attr = getAttr(value, member->name, true);
         out << nl << member->name << " = ";
-        if (!attr.get() || attr.get() == Unset)
+        if (!attr.get() || attr.get() == Py_None)
         {
             out << "<not defined>";
         }
@@ -3802,9 +3783,9 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceInternal::Output& out, Pr
         {
             out << "<not defined>";
         }
-        else if (attr.get() == Unset)
+        else if (attr.get() == Py_None)
         {
-            out << "<unset>";
+            out << "<not set>";
         }
         else
         {
@@ -4069,78 +4050,6 @@ namespace IcePy
         0,                                                  /* tp_free */
         0,                                                  /* tp_is_gc */
     };
-
-    static PyNumberMethods UnsetAsNumber = {
-        0,                                       /* nb_add */
-        0,                                       /* nb_subtract */
-        0,                                       /* nb_multiply */
-        0,                                       /* nb_remainder */
-        0,                                       /* nb_divmod */
-        0,                                       /* nb_power */
-        0,                                       /* nb_negative */
-        0,                                       /* nb_positive */
-        0,                                       /* nb_absolute */
-        reinterpret_cast<inquiry>(unsetNonzero), /* nb_nonzero/nb_bool */
-    };
-
-    PyTypeObject UnsetType = {
-        /* The ob_type field must be initialized in the module init function
-         * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(&PyType_Type, 0) "IcePy.UnsetType", /* tp_name */
-        0,                                                        /* tp_basicsize */
-        0,                                                        /* tp_itemsize */
-        /* methods */
-        reinterpret_cast<destructor>(unsetDealloc), /* tp_dealloc */
-        0,                                          /* tp_print */
-        0,                                          /* tp_getattr */
-        0,                                          /* tp_setattr */
-        0,                                          /* tp_reserved */
-        reinterpret_cast<reprfunc>(unsetRepr),      /* tp_repr */
-        &UnsetAsNumber,                             /* tp_as_number */
-        0,                                          /* tp_as_sequence */
-        0,                                          /* tp_as_mapping */
-        0,                                          /* tp_hash */
-        0,                                          /* tp_call */
-        0,                                          /* tp_str */
-        0,                                          /* tp_getattro */
-        0,                                          /* tp_setattro */
-        0,                                          /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,                         /* tp_flags */
-        0,                                          /* tp_doc */
-        0,                                          /* tp_traverse */
-        0,                                          /* tp_clear */
-        0,                                          /* tp_richcompare */
-        0,                                          /* tp_weaklistoffset */
-        0,                                          /* tp_iter */
-        0,                                          /* tp_iternext */
-        0,                                          /* tp_methods */
-        0,                                          /* tp_members */
-        0,                                          /* tp_getset */
-        0,                                          /* tp_base */
-        0,                                          /* tp_dict */
-        0,                                          /* tp_descr_get */
-        0,                                          /* tp_descr_set */
-        0,                                          /* tp_dictoffset */
-        0,                                          /* tp_init */
-        0,                                          /* tp_alloc */
-        0,                                          /* tp_new */
-        0,                                          /* tp_free */
-        0,                                          /* tp_is_gc */
-    };
-
-    //
-    // Unset is a singleton, similar to None.
-    //
-    PyObject UnsetValue = {
-        _PyObject_EXTRA_INIT
-#if PY_VERSION_HEX >= 0x030c0000
-        {1},
-#else
-        1,
-#endif
-        &UnsetType};
-
-    PyObject* Unset = &UnsetValue;
 }
 
 bool
@@ -4229,12 +4138,6 @@ IcePy::initTypes(PyObject* module)
         return false;
     }
     stringTypeObj.release(); // PyModule_AddObject steals a reference.
-
-    if (PyModule_AddObject(module, "Unset", Unset) < 0)
-    {
-        return false;
-    }
-    Py_IncRef(Unset); // PyModule_AddObject steals a reference.
 
     return true;
 }

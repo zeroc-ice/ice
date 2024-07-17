@@ -21,6 +21,8 @@ namespace
             // Register plug-ins included in the Ice framework (a single binary file)
             // See also RegisterPluginsInit.cpp in cpp/src/Ice
             //
+            Ice::registerIceUDP(true);
+            Ice::registerIceWS(true);
             Ice::registerIceDiscovery(false);
             Ice::registerIceLocatorDiscovery(false);
 #if defined(__APPLE__) && TARGET_OS_IPHONE != 0
@@ -88,6 +90,9 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     Ice::InitializationData initData;
     initData.properties = [properties properties];
 
+    // Ice for Swift always uses the dispatch queue executor
+    initData.useDispatchQueueExecutor = true;
+
     if (logger)
     {
         initData.logger = std::make_shared<LoggerWrapperI>(logger);
@@ -105,6 +110,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         {
             communicator = Ice::initialize(initData);
         }
+
         return [ICECommunicator getHandle:communicator];
     }
     catch (...)

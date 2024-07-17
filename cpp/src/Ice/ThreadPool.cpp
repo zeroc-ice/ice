@@ -31,8 +31,8 @@ namespace
     {
     };
 
-#ifdef ICE_SWIFT
-    string prefixToDispatchQueueLabel(const std::string& prefix)
+#ifdef __APPLE__
+    string prefixToDispatchQueueLabel(string_view prefix)
     {
         if (prefix == "Ice.ThreadPool.Client")
         {
@@ -50,7 +50,18 @@ namespace
             end = prefix.size();
         }
 
-        return "com.zeroc.ice.oa." + prefix.substr(0, end);
+        return "com.zeroc.ice.oa." + string{prefix.substr(0, end)};
+    }
+
+    dispatch_queue_t initDispatchQueue(const InitializationData& initData, string_view prefix)
+    {
+        if (initData.useDispatchQueueExecutor)
+        {
+            return dispatch_queue_create(
+                prefixToDispatchQueueLabel(prefix).c_str(),
+                DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL);
+        }
+        return nullptr;
     }
 #endif
 }
@@ -171,13 +182,10 @@ IceInternal::ThreadPool::create(const InstancePtr& instance, const string& prefi
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout)
     : _instance(instance),
-#ifdef ICE_SWIFT
-      _dispatchQueue(dispatch_queue_create(
-          prefixToDispatchQueueLabel(prefix).c_str(),
-          DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL)),
-#else
-      _executor(_instance->initializationData().executor),
+#ifdef __APPLE__
+      _dispatchQueue(initDispatchQueue(instance->initializationData(), prefix)),
 #endif
+      _executor(_instance->initializationData().executor),
       _destroyed(false),
       _prefix(prefix),
       _selector(instance),
@@ -199,6 +207,22 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 #endif
       _promote(true)
 {
+#ifdef __APPLE__
+    if (_dispatchQueue && _executor)
+    {
+        throw InitializationException{__FILE__, __LINE__, "cannot use both dispatch queues and custom executors"};
+    }
+
+    if (_dispatchQueue)
+    {
+        _executor = [dispatchQueue = _dispatchQueue](function<void()> call, const Ice::ConnectionPtr&)
+        {
+            dispatch_sync(dispatchQueue, ^{
+              call();
+            });
+        };
+    }
+#endif
 }
 
 void
@@ -344,8 +368,11 @@ IceInternal::ThreadPool::initialize()
 IceInternal::ThreadPool::~ThreadPool()
 {
     assert(_destroyed);
-#ifdef ICE_SWIFT
-    dispatch_release(_dispatchQueue);
+#ifdef __APPLE__
+    if (_dispatchQueue)
+    {
+        dispatch_release(_dispatchQueue);
+    }
 #endif
 }
 
@@ -480,11 +507,6 @@ IceInternal::ThreadPool::ready(const EventHandlerPtr& handler, SocketOperation o
 void
 IceInternal::ThreadPool::executeFromThisThread(function<void()> call, const Ice::ConnectionPtr& connection)
 {
-#ifdef ICE_SWIFT
-    dispatch_sync(_dispatchQueue, ^{
-      call();
-    });
-#else
     if (_executor)
     {
         try
@@ -512,7 +534,6 @@ IceInternal::ThreadPool::executeFromThisThread(function<void()> call, const Ice:
     {
         call();
     }
-#endif
 }
 
 void
@@ -556,14 +577,12 @@ IceInternal::ThreadPool::prefix() const
     return _prefix;
 }
 
-#ifdef ICE_SWIFT
-
+#ifdef __APPLE__
 dispatch_queue_t
 IceInternal::ThreadPool::getDispatchQueue() const noexcept
 {
     return _dispatchQueue;
 }
-
 #endif
 
 void

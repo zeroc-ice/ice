@@ -638,7 +638,7 @@ def allTests(helper, communicator, collocated):
     test(compObj.ice_compress(False) < compObj.ice_compress(True))
     test(not (compObj.ice_compress(True) < compObj.ice_compress(False)))
 
-    test(compObj.ice_getCompress() == Ice.Unset)
+    test(compObj.ice_getCompress() is None)
     test(compObj.ice_compress(True).ice_getCompress() is True)
     test(compObj.ice_compress(False).ice_getCompress() is False)
 

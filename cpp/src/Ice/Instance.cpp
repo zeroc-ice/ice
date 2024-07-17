@@ -78,9 +78,7 @@ using namespace IceInternal;
 
 namespace IceInternal
 {
-    extern bool nullHandleAbort;
     extern bool printStackTraces;
-
 };
 
 namespace
@@ -1054,7 +1052,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             else
 #endif
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
                 if (!_initData.logger && _initData.properties->getIcePropertyAsInt("Ice.UseOSLog") > 0)
             {
                 _initData.logger = make_shared<OSLogLoggerI>(_initData.properties->getIceProperty("Ice.ProgramName"));

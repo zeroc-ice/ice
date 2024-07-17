@@ -573,10 +573,25 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "Properties";
         optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
         optional<ObjectPrx> obj = com->getAdmin();
-        auto proc = checkedCast<ProcessPrx>(obj, "Process");
-        test(!proc);
-        auto tf = checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
-        test(!tf);
+
+        try
+        {
+            checkedCast<ProcessPrx>(obj, "Process");
+            test(false);
+        }
+        catch (const Ice::FacetNotExistException&)
+        {
+            // expected
+        }
+        try
+        {
+            checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+            test(false);
+        }
+        catch (const Ice::FacetNotExistException&)
+        {
+            // expected
+        }
         com->destroy();
     }
     {
@@ -590,10 +605,25 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "Process";
         optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
         optional<ObjectPrx> obj = com->getAdmin();
-        auto pa = checkedCast<PropertiesAdminPrx>(obj, "Properties");
-        test(!pa);
-        auto tf = checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
-        test(!tf);
+        try
+        {
+            checkedCast<PropertiesAdminPrx>(obj, "Properties");
+            test(false);
+        }
+        catch (const Ice::FacetNotExistException&)
+        {
+            // expected
+        }
+
+        try
+        {
+            checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+            test(false);
+        }
+        catch (const Ice::FacetNotExistException&)
+        {
+            // expected
+        }
         com->destroy();
     }
     {
@@ -607,10 +637,24 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "TestFacet";
         optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
         optional<ObjectPrx> obj = com->getAdmin();
-        auto pa = checkedCast<PropertiesAdminPrx>(obj, "Properties");
-        test(!pa);
-        auto proc = checkedCast<ProcessPrx>(obj, "Process");
-        test(!proc);
+        try
+        {
+            checkedCast<PropertiesAdminPrx>(obj, "Properties");
+            test(false);
+        }
+        catch (const Ice::FacetNotExistException&)
+        {
+            // expected
+        }
+        try
+        {
+            checkedCast<ProcessPrx>(obj, "Process");
+            test(false);
+        }
+        catch (const Ice::FacetNotExistException&)
+        {
+            // expected
+        }
         com->destroy();
     }
     {
@@ -628,8 +672,15 @@ allTests(Test::TestHelper* helper)
         test(pa->getProperty("Ice.Admin.InstanceName") == "Test");
         Test::TestFacetPrx tf(obj->ice_facet("TestFacet"));
         tf->op();
-        auto proc = checkedCast<ProcessPrx>(obj, "Process");
-        test(!proc);
+        try
+        {
+            checkedCast<ProcessPrx>(obj, "Process");
+            test(false);
+        }
+        catch (const Ice::FacetNotExistException&)
+        {
+            // expected
+        }
         com->destroy();
     }
     {
@@ -643,8 +694,15 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "TestFacet, Process";
         optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
         optional<ObjectPrx> obj = com->getAdmin();
-        auto pa = checkedCast<PropertiesAdminPrx>(obj, "Properties");
-        test(!pa);
+        try
+        {
+            checkedCast<PropertiesAdminPrx>(obj, "Properties");
+            test(false);
+        }
+        catch (const Ice::FacetNotExistException&)
+        {
+            // expected
+        }
         Test::TestFacetPrx tf(obj->ice_facet("TestFacet"));
         tf->op();
         ProcessPrx proc(obj->ice_facet("Process"));

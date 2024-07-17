@@ -126,6 +126,17 @@ namespace
         }
         return os.str();
     }
+
+    bool initHasExecutor(const InitializationData& initData)
+    {
+#ifdef __APPLE__
+        if (initData.useDispatchQueueExecutor)
+        {
+            return true;
+        }
+#endif
+        return initData.executor != nullptr;
+    }
 }
 
 ConnectionFlushBatchAsync::ConnectionFlushBatchAsync(const ConnectionIPtr& connection, const InstancePtr& instance)
@@ -1391,21 +1402,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         }
     }
 
-// executeFromThisThread dispatches to the correct DispatchQueue
-#ifdef ICE_SWIFT
-    auto stream = make_shared<InputStream>();
-    stream->swap(messageStream);
-
-    auto self = shared_from_this();
-    _threadPool->executeFromThisThread(
-        [self,
-         connectionStartCompleted = std::move(connectionStartCompleted),
-         sentCBs = std::move(sentCBs),
-         messageUpcall = std::move(messageUpcall),
-         stream]()
-        { self->upcall(std::move(connectionStartCompleted), std::move(sentCBs), std::move(messageUpcall), *stream); },
-        self);
-#else
     if (!_hasExecutor) // Optimization, call upcall() directly if there's no executor.
     {
         upcall(std::move(connectionStartCompleted), std::move(sentCBs), std::move(messageUpcall), messageStream);
@@ -1430,7 +1426,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             },
             self);
     }
-#endif
 }
 
 void
@@ -1548,11 +1543,6 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 
     current.ioCompleted();
 
-    // executeFromThisThread dispatches to the correct DispatchQueue
-#ifdef ICE_SWIFT
-    auto self = shared_from_this();
-    _threadPool->executeFromThisThread([self, close]() { self->finish(close); }, self);
-#else
     if (!_hasExecutor) // Optimization, call finish() directly if there's no executor.
     {
         finish(close);
@@ -1562,7 +1552,6 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
         auto self = shared_from_this();
         _threadPool->executeFromThisThread([self, close]() { self->finish(close); }, self);
     }
-#endif
 }
 
 void
@@ -1800,10 +1789,10 @@ Ice::ConnectionI::ConnectionI(
       _connector(connector),
       _endpoint(endpoint),
       _adapter(adapter),
-      _hasExecutor(_instance->initializationData().executor), // Cached for better performance.
-      _logger(_instance->initializationData().logger),        // Cached for better performance.
-      _traceLevels(_instance->traceLevels()),                 // Cached for better performance.
-      _timer(_instance->timer()),                             // Cached for better performance.
+      _hasExecutor(initHasExecutor(_instance->initializationData())), // Cached for better performance.
+      _logger(_instance->initializationData().logger),                // Cached for better performance.
+      _traceLevels(_instance->traceLevels()),                         // Cached for better performance.
+      _timer(_instance->timer()),                                     // Cached for better performance.
       _connectTimeout(options.connectTimeout),
       _closeTimeout(options.closeTimeout), // not used for datagram connections
       // suppress inactivity timeout for datagram connections

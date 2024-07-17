@@ -170,12 +170,12 @@ extern "C"
         }
     }
 
-    mxArray* Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int start, int size, void** r)
+    mxArray* Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int size, void** r, int* bytesRead)
     {
         assert(!mxIsEmpty(buf));
 
         pair<const byte*, const byte*> p;
-        p.first = reinterpret_cast<byte*>(mxGetData(buf)) + start;
+        p.first = reinterpret_cast<byte*>(mxGetData(buf));
         p.second = p.first + size;
 
         try
@@ -186,7 +186,8 @@ extern "C"
             Ice::InputStream in(deref<Ice::Communicator>(communicator), ev, p);
             std::optional<Ice::ObjectPrx> proxy;
             in.read(proxy);
-            *r = createProxy(std::move(proxy));
+            *r = createProxy(std::move(proxy)); // can return nullptr for a null proxy
+            *bytesRead = static_cast<int>(in.pos());
         }
         catch (...)
         {

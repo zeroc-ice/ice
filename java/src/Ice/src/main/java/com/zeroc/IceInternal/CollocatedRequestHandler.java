@@ -13,7 +13,7 @@ import com.zeroc.Ice.OutputStream;
 import com.zeroc.Ice.UnknownException;
 import java.util.concurrent.CompletionStage;
 
-public class CollocatedRequestHandler implements RequestHandler {
+public final class CollocatedRequestHandler implements RequestHandler {
   private class InvokeAllAsync extends RunnableThreadPoolWorkItem {
     private InvokeAllAsync(
         OutgoingAsyncBase outAsync,
@@ -39,21 +39,16 @@ public class CollocatedRequestHandler implements RequestHandler {
     private final int _batchRequestNum;
   }
 
-  public CollocatedRequestHandler(Reference ref, com.zeroc.Ice.ObjectAdapter adapter) {
-    _reference = ref;
-    _executor = ref.getInstance().initializationData().executor != null;
+  public CollocatedRequestHandler(Reference reference, com.zeroc.Ice.ObjectAdapter adapter) {
+    _reference = reference;
+    _executor = reference.getInstance().initializationData().executor != null;
     _adapter = adapter;
-    _response = _reference.getMode() == Reference.ModeTwoway;
+    _response = _reference.isTwoway();
 
     _logger =
         _reference.getInstance().initializationData().logger; // Cached for better performance.
     _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
     _requestId = 0;
-  }
-
-  @Override
-  public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler) {
-    return previousHandler == this ? newHandler : this;
   }
 
   @Override
@@ -87,11 +82,6 @@ public class CollocatedRequestHandler implements RequestHandler {
         }
       }
     }
-  }
-
-  @Override
-  public Reference getReference() {
-    return _reference;
   }
 
   @Override
@@ -326,7 +316,7 @@ public class CollocatedRequestHandler implements RequestHandler {
     }
   }
 
-  private void fillInValue(com.zeroc.Ice.OutputStream os, int pos, int value) {
+  private static void fillInValue(com.zeroc.Ice.OutputStream os, int pos, int value) {
     os.rewriteInt(value, pos);
   }
 
@@ -342,7 +332,9 @@ public class CollocatedRequestHandler implements RequestHandler {
   // A map of outstanding requests that can be canceled. A request
   // can be canceled if it has an invocation timeout, or we support
   // interrupts.
-  private java.util.Map<OutgoingAsyncBase, Integer> _sendAsyncRequests = new java.util.HashMap<>();
+  private final java.util.Map<OutgoingAsyncBase, Integer> _sendAsyncRequests =
+      new java.util.HashMap<>();
 
-  private java.util.Map<Integer, OutgoingAsyncBase> _asyncRequests = new java.util.HashMap<>();
+  private final java.util.Map<Integer, OutgoingAsyncBase> _asyncRequests =
+      new java.util.HashMap<>();
 }

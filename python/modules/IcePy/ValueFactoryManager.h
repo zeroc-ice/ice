@@ -73,8 +73,6 @@ namespace IcePy
         PyObject* _self;
         CustomFactoryMap _customFactories;
         const DefaultValueFactoryPtr _defaultFactory;
-
-        mutable std::mutex _mutex;
     };
 
     using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;

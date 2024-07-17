@@ -856,7 +856,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     {
         ParamInfoPtr info = *p;
         PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
-        if ((!info->optional || arg != Unset) && !info->type->validate(arg))
+        if ((!info->optional || arg != Py_None) && !info->type->validate(arg))
         {
             try
             {
@@ -876,7 +876,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     if (returnType)
     {
         PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
-        if ((!returnType->optional || res != Unset) && !returnType->type->validate(res))
+        if ((!returnType->optional || res != Py_None) && !returnType->type->validate(res))
         {
             try
             {
@@ -921,7 +921,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     {
         ParamInfoPtr info = *p;
         PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
-        if (arg != Unset && os.writeOptional(info->tag, info->type->optionalFormat()))
+        if (arg != Py_None && os.writeOptional(info->tag, info->type->optionalFormat()))
         {
             info->type->marshal(arg, &os, &objectMap, true, &info->metaData);
         }
@@ -1320,7 +1320,7 @@ IcePy::Invocation::prepareRequest(
             {
                 ParamInfoPtr info = *p;
                 PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
-                if ((!info->optional || arg != Unset) && !info->type->validate(arg))
+                if ((!info->optional || arg != Py_None) && !info->type->validate(arg))
                 {
                     string name;
                     if (mapping == AsyncMapping)
@@ -1358,7 +1358,7 @@ IcePy::Invocation::prepareRequest(
             for (const auto& info : op->optionalInParams)
             {
                 PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
-                if (arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
+                if (arg != Py_None && os->writeOptional(info->tag, info->type->optionalFormat()))
                 {
                     info->type->marshal(arg, os, &objectMap, true, &info->metaData);
                 }
@@ -1449,8 +1449,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
             }
             else
             {
-                Py_XINCREF(Unset);
-                PyTuple_SET_ITEM(results.get(), info->pos, Unset); // PyTuple_SET_ITEM steals a reference.
+                PyTuple_SET_ITEM(results.get(), info->pos, Py_None);
             }
         }
 
@@ -2379,8 +2378,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
                 }
                 else
                 {
-                    Py_XINCREF(Unset);
-                    PyTuple_SET_ITEM(args.get(), info->pos, Unset); // PyTuple_SET_ITEM steals a reference.
+                    PyTuple_SET_ITEM(args.get(), info->pos, Py_None);
                 }
             }
 
