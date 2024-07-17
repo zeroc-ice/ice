@@ -51,7 +51,6 @@
 #include <ruby.h>
 #include <ruby/encoding.h>
 
-
 #if defined(__clang__)
 #    pragma clang diagnostic pop
 #elif defined(__GNUC__)
