@@ -7,17 +7,27 @@ import { AsyncResult } from "./AsyncResult.js";
 import { AsyncStatus } from "./AsyncStatus.js";
 import { UserException } from "./Exception.js";
 import { RetryException } from "./RetryException.js";
+import { ReferenceMode } from "./ReferenceMode.js";
+import { Ice as Ice_OperationMode } from "./OperationMode.js";
+const { OperationMode } = Ice_OperationMode;
 import {
+    CloseConnectionException,
+    CommunicatorDestroyedException,
+    ConnectionManuallyClosedException,
+    FacetNotExistException,
+    InvocationCanceledException,
     InvocationTimeoutException,
     MarshalException,
+    ObjectAdapterDeactivatedException,
     ObjectNotExistException,
-    FacetNotExistException,
     OperationNotExistException,
+    RequestFailedException,
     UnknownException,
     UnknownLocalException,
     UnknownUserException,
     UnknownReplyStatusException,
 } from "./LocalException.js";
+import { LocalException } from "./Exception.js";
 import { Ice as Ice_Context } from "./Context.js";
 const { ContextHelper } = Ice_Context;
 import { Protocol } from "./Protocol.js";
@@ -182,7 +192,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
     }
 
     checkRetryAfterException(ex) {
-        const ref = this._reference;
+        const ref = this._proxy._reference;
         const instance = ref.getInstance();
         const traceLevels = instance.traceLevels();
         const logger = instance.initializationData().logger;

@@ -2,23 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { Debug } from "./Debug.js";
-import { Ice as Ice_OperationMode } from "./OperationMode.js";
-const { OperationMode } = Ice_OperationMode;
-import { ReferenceMode } from "./ReferenceMode.js";
-import { LocalException } from "./Exception.js";
-import {
-    CloseConnectionException,
-    ObjectNotExistException,
-    CommunicatorDestroyedException,
-    RequestFailedException,
-    MarshalException,
-    ObjectAdapterDeactivatedException,
-    ConnectionManuallyClosedException,
-    InvocationCanceledException,
-    InvocationTimeoutException,
-} from "./LocalException.js";
-
 export class RequestHandlerCache {
     get requestHandler() {
         if (this._cacheConnection) {
