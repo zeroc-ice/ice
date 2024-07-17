@@ -63,7 +63,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
 
     completedEx(ex) {
         try {
-            const interval = this.handleException(ex);
+            const interval = this.handleRetryAfterException(ex);
             this._instance.retryQueue().add(this, interval);
         } catch (ex) {
             this.markFinishedEx(ex);
@@ -115,7 +115,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
                         // Clear request handler and always retry
                         this._proxy._requestHandlerCache.clearCachedRequestHandler(this._handler);
                     } else {
-                        const interval = this.handleException(ex);
+                        const interval = this.handleRetryAfterException(ex);
                         if (interval > 0) {
                             this._instance.retryQueue().add(this, interval);
                             return;
@@ -145,14 +145,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
         super.markFinishedEx.call(this, ex);
     }
 
-    handleException(ex) {
-        const cnt = { value: this._cnt };
-        const interval = this.handleRetryAfterException(ex, cnt);
-        this._cnt = cnt.value;
-        return interval;
-    }
-
-    handleRetryAfterException(ex, cnt) {
+    handleRetryAfterException(ex) {
         // Clear the request handler
         this._proxy._requestHandlerCache.clearCachedRequestHandler(this._handler);
 
@@ -176,7 +169,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
                 ex instanceof ObjectNotExistException)
         ) {
             try {
-                return this.checkRetryAfterException(ex, cnt);
+                return this.checkRetryAfterException(ex);
             } catch (e) {
                 if (e instanceof CommunicatorDestroyedException) {
                     e = ex; // The communicator is already destroyed, so we cannot retry.
@@ -188,7 +181,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
         }
     }
 
-    checkRetryAfterException(ex, cnt) {
+    checkRetryAfterException(ex) {
         const ref = this._reference;
         const instance = ref.getInstance();
         const traceLevels = instance.traceLevels();
@@ -264,16 +257,16 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
             throw ex;
         }
 
-        ++cnt.value;
-        Debug.assert(cnt.value > 0);
+        ++_cnt.value;
+        Debug.assert(_cnt.value > 0);
 
         var retryIntervals = instance._retryIntervals;
 
         let interval = 0;
-        if (cnt.value == retryIntervals.length + 1 && ex instanceof CloseConnectionException) {
+        if (_cnt.value == retryIntervals.length + 1 && ex instanceof CloseConnectionException) {
             // A close connection exception is always retried at least once, even if the retry limit is reached.
             interval = 0;
-        } else if (cnt.value > retryIntervals.length) {
+        } else if (_cnt.value > retryIntervals.length) {
             if (traceLevels.retry >= 1) {
                 logger.trace(
                     traceLevels.retryCat,
@@ -282,7 +275,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
             }
             throw ex;
         } else {
-            interval = retryIntervals[cnt.value - 1];
+            interval = retryIntervals[_cnt.value - 1];
         }
 
         if (traceLevels.retry >= 1) {
