@@ -1902,7 +1902,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return true;
     }
 
-
     /// <summary>
     /// Sends the next queued messages. This method is called by message() once the message which is being sent
     /// (_sendStreams.First) is fully sent. Before sending the next message, this message is removed from _sendsStream
@@ -2078,7 +2077,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
         }
 
-        // Some messages are queued for sending. Just adds the message to the send queue and indicates the caller that
+        // Some messages are queued for sending. Just adds the message to the send queue and tell the caller that
         // the message was queued.
         if (_sendStreams.Count > 0)
         {
@@ -2857,7 +2856,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     // next the remainder of a message that was already partially received.
     private bool _readHeader;
 
-    // Contains the message which is being sent. The output stream buffer is empty if not message is being sent.
+    // Contains the message which is being sent. The write stream buffer is empty if no message is being sent.
     private OutputStream _writeStream;
 
     private ConnectionObserver _observer;

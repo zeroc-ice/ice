@@ -285,7 +285,20 @@ namespace Ice
 
         bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
         bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
+
+        /// Sends the next queued messages. This method is called by message() once the message which is being sent
+        /// (_sendStreams.First) is fully sent. Before sending the next message, this message is removed from
+        /// _sendsStream. If any, its sent callback is also queued in given callback queue.
+        ///
+        /// @param callback The sent callbacks to call for the messages that were sent.
+        /// @return The socket operation to register with the thread pool's selector to send the remainder of the
+        /// pending message being sent (_sendStreams.First).
         IceInternal::SocketOperation sendNextMessages(std::vector<OutgoingMessage>&);
+
+        /// Sends or queues the given message.
+        ///
+        /// @param The message to send.
+        /// @return The send status.
         IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
 #ifdef ICE_HAS_BZIP2
@@ -358,11 +371,16 @@ namespace Ice
 
         std::deque<OutgoingMessage> _sendStreams;
 
+        // Contains the message which is being received. If the connection is waiting to receive a message (_readHeader
+        // == true), its size is Protocol.headerSize. Otherwise, its size is the message size specified in the received
+        // message header.
         Ice::InputStream _readStream;
 
         // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're
         // reading next the remainder of a message that was already partially received.
         bool _readHeader;
+
+        // Contains the message which is being sent. The write stream buffer is empty if no message is being sent.
         Ice::OutputStream _writeStream;
 
         Observer _observer;
