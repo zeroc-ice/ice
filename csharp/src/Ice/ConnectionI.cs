@@ -1904,12 +1904,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
 
     /// <summary>
-    /// Sends the next queued messages. This is called by message() when the message from _writeStream was fully sent so
-    /// before sending the next message the message which was being sent (_sendStreams.First) is first removed from the
-    /// queue and if it has a sent callback to call, the sent callback is queued.
+    /// Sends the next queued messages. This method is called by message() once the message which is being sent
+    /// (_sendStreams.First) is fully sent. Before sending the next message, this message is removed from _sendsStream
+    /// If any, its sent callback is also queued in given callback queue.
     /// </summary>
     /// <param name="callbacks">The sent callbacks to call for the messages that were sent.</param>
-    /// <returns></returns>
+    /// <returns>The socket operation to register with the thread pool's selector to send the remainder of the pending
+    /// message being sent (_sendStreams.First).</returns>
     private int sendNextMessage(out Queue<OutgoingMessage> callbacks)
     {
         callbacks = null;
@@ -1937,9 +1938,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             while (true)
             {
                 //
-                // The message that was being sent is sent so we can swap back the write stream buffer to the
-                // outgoing message (required for retry) and queue its sent callback if there's a sent callback to
-                // call.
+                // The message that was being sent is sent. We can swap back the write stream buffer to the
+                // outgoing message (required for retry) and queue its sent callback (if any).
                 //
                 OutgoingMessage message = _sendStreams.First.Value;
                 _writeStream.swap(message.stream);
@@ -2848,11 +2848,16 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 
+    // Contains the message which is being received. If the connection is waiting to receive a message (_readHeader ==
+    // true), its size is Protocol.headerSize. Otherwise, its size is the message size specified in the received message
+    // header.
     private InputStream _readStream;
 
     // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're reading
     // next the remainder of a message that was already partially received.
     private bool _readHeader;
+
+    // Contains the message which is being sent. The output stream buffer is empty if not message is being sent.
     private OutputStream _writeStream;
 
     private ConnectionObserver _observer;
