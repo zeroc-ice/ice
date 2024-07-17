@@ -171,7 +171,10 @@ public class FixedReference extends Reference {
   }
 
   @Override
-  public RequestHandler getRequestHandler(com.zeroc.Ice._ObjectPrxI proxy) {
+  RequestHandler getRequestHandler() {
+    // We need to perform all these checks here and not in the constructor because
+    // `changeConnection()` clones then sets the connection.
+
     switch (getMode()) {
       case Reference.ModeTwoway:
       case Reference.ModeOneway:
@@ -218,7 +221,7 @@ public class FixedReference extends Reference {
     if (getInstance().queueRequests()) {
       handler = new QueueRequestHandler(getInstance(), handler);
     }
-    return proxy._setRequestHandler(handler);
+    return handler;
   }
 
   @Override

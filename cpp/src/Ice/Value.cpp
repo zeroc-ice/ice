@@ -38,17 +38,16 @@ Ice::Value::_iceRead(Ice::InputStream* is)
     _slicedData = is->endValue();
 }
 
-string
-Ice::Value::ice_id() const
+const char*
+Ice::Value::ice_id() const noexcept
 {
-    return string{ice_staticId()};
+    return ice_staticId();
 }
 
-string_view
+const char*
 Ice::Value::ice_staticId() noexcept
 {
-    static constexpr string_view typeId = "::Ice::Object";
-    return typeId;
+    return "::Ice::Object";
 }
 
 SlicedDataPtr

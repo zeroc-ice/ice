@@ -21,7 +21,7 @@
 #include "ServantManagerF.h"
 #include "ThreadPoolF.h"
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 #    include <dispatch/dispatch.h>
 #endif
 
@@ -87,7 +87,7 @@ namespace Ice
         EndpointSeq getPublishedEndpoints() const noexcept;
         void setPublishedEndpoints(const EndpointSeq&) final;
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
         dispatch_queue_t getDispatchQueue() const final;
 #endif
 

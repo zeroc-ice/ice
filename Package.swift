@@ -6,7 +6,6 @@ import PackageDescription
 let iceCppSettings: [CXXSetting] = [
     .define("ICE_BUILDING_SRC"),
     .define("ICE_STATIC_LIBS"),
-    .define("ICE_SWIFT"),
     .headerSearchPath("src"),
     .headerSearchPath("include"),
     .headerSearchPath("include/generated"),
@@ -81,7 +80,6 @@ let package = Package(
             cxxSettings: [
                 .define("ICE_BUILDING_SRC"),
                 .define("ICE_STATIC_LIBS"),
-                .define("ICE_SWIFT"),
                 .headerSearchPath("../../../cpp/src/"),
                 .headerSearchPath("../../../cpp/include"),
                 .headerSearchPath("../../../cpp/include/generated"),

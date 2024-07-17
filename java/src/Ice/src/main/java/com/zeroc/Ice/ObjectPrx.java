@@ -677,14 +677,7 @@ public interface ObjectPrx {
    * @return <code>obj</code>.
    */
   static ObjectPrx checkedCast(ObjectPrx obj, java.util.Map<String, String> context) {
-    if (obj != null) {
-      try {
-        boolean ok = obj.ice_isA(ice_staticId, context);
-        return ok ? obj : null;
-      } catch (FacetNotExistException ex) {
-      }
-    }
-    return null;
+    return (obj != null && obj.ice_isA(ice_staticId, context)) ? obj : null;
   }
 
   /**
@@ -733,7 +726,7 @@ public interface ObjectPrx {
    * @return The new proxy with the specified facet.
    */
   static ObjectPrx uncheckedCast(ObjectPrx obj, String facet) {
-    return (obj == null) ? null : new _ObjectPrxI(obj.ice_facet(facet));
+    return (obj == null) ? null : obj.ice_facet(facet);
   }
 
   /**
