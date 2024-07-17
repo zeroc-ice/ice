@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "OutgoingAsync.h"
+#include "Ice/OutgoingAsync.h"
 #include "CollocatedRequestHandler.h"
 #include "ConnectionFactory.h"
 #include "ConnectionI.h"
@@ -13,10 +13,10 @@
 #include "LocatorInfo.h"
 #include "ObjectAdapterFactory.h"
 #include "Reference.h"
-#include "RouterInfo.h"
 #include "ReplyStatus.h"
 #include "RequestHandlerCache.h"
 #include "RetryQueue.h"
+#include "RouterInfo.h"
 #include "ThreadPool.h"
 #include "TraceLevels.h"
 
