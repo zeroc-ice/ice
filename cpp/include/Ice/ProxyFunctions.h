@@ -14,7 +14,7 @@ namespace IceInternal
 
 namespace Ice
 {
-    class Current;
+    struct Current;
 
     /**
      * Verifies that a proxy received from the client is not null, and throws a MarshalException if it is.
