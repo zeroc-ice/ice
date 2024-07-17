@@ -25,11 +25,10 @@ extern "C"
 {
     void ICE_DECLSPEC_EXPORT Init_IceRuby()
     {
-        Ice::registerIceSSL(false);
-        Ice::registerIceDiscovery(false);
-        Ice::registerIceLocatorDiscovery(false);
         Ice::registerIceUDP(true);
         Ice::registerIceWS(true);
+        Ice::registerIceDiscovery(false);
+        Ice::registerIceLocatorDiscovery(false);
 
         iceModule = rb_define_module("Ice");
         initCommunicator(iceModule);

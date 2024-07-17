@@ -134,11 +134,10 @@ PyInit_IcePy(void)
 {
     PyObject* module;
 
-    Ice::registerIceSSL(false);
-    Ice::registerIceDiscovery(false);
-    Ice::registerIceLocatorDiscovery(false);
     Ice::registerIceUDP(true);
     Ice::registerIceWS(true);
+    Ice::registerIceDiscovery(false);
+    Ice::registerIceLocatorDiscovery(false);
 
     //
     // Create the module.
