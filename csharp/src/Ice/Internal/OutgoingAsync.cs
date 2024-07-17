@@ -617,7 +617,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
 
     public void runTimerTask() => cancel(new Ice.InvocationTimeoutException());
 
-    private int handleRetryAfterException(Exception ex)
+    private int handleRetryAfterException(Ice.Exception ex)
     {
         // Clear the request handler
         proxy_.iceGetRequestHandlerCache().clearCachedRequestHandler(handler_);

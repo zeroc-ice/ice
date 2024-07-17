@@ -257,16 +257,16 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
             throw ex;
         }
 
-        ++this._cnt.value;
-        Debug.assert(this._cnt.value > 0);
+        ++this._cnt;
+        Debug.assert(this._cnt > 0);
 
         var retryIntervals = instance._retryIntervals;
 
         let interval = 0;
-        if (this._cnt.value == retryIntervals.length + 1 && ex instanceof CloseConnectionException) {
+        if (this._cnt == retryIntervals.length + 1 && ex instanceof CloseConnectionException) {
             // A close connection exception is always retried at least once, even if the retry limit is reached.
             interval = 0;
-        } else if (this._cnt.value > retryIntervals.length) {
+        } else if (this._cnt > retryIntervals.length) {
             if (traceLevels.retry >= 1) {
                 logger.trace(
                     traceLevels.retryCat,
@@ -275,7 +275,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
             }
             throw ex;
         } else {
-            interval = retryIntervals[this._cnt.value - 1];
+            interval = retryIntervals[this._cnt - 1];
         }
 
         if (traceLevels.retry >= 1) {
