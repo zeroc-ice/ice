@@ -262,7 +262,7 @@ public final class LocatorInfo {
       //
       // The locator registry can't be located. We use ordered
       // endpoint selection in case the locator returned a proxy
-      // with some endpoints which are prefered to be tried first.
+      // with some endpoints which are preferred to be tried first.
       //
       _locatorRegistry =
           locatorRegistry
