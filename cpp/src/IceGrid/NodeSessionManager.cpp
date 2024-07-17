@@ -77,7 +77,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
                 optional<InternalRegistryPrx> newRegistry;
                 try
                 {
-                    newRegistry = uncheckedCast<InternalRegistryPrx>(result.get());
+                    newRegistry = Ice::uncheckedCast<InternalRegistryPrx>(result.get());
                     if (newRegistry && used.find(*newRegistry) == used.end())
                     {
                         session = createSessionImpl(*newRegistry, timeout);
@@ -641,7 +641,7 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
 
         for (const auto& prx : proxies)
         {
-            replicas.push_back(uncheckedCast<InternalRegistryPrx>(prx.second));
+            replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(prx.second));
         }
     }
 

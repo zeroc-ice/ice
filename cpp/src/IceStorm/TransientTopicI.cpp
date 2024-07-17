@@ -220,7 +220,7 @@ void
 TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current& current)
 {
     checkNotNull(topic, __FILE__, __LINE__, current);
-    TopicInternalPrx internal = uncheckedCast<TopicInternalPrx>(*topic);
+    TopicInternalPrx internal = Ice::uncheckedCast<TopicInternalPrx>(*topic);
     auto link = internal->getLinkProxy();
 
     auto traceLevels = _instance->traceLevels();

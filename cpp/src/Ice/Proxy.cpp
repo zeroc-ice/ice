@@ -6,8 +6,11 @@
 #include "CheckIdentity.h"
 #include "ConnectionI.h"
 #include "EndpointI.h"
+#include "Ice/Communicator.h"
 #include "Ice/Comparable.h"
+#include "Ice/Current.h"
 #include "Ice/LocalExceptions.h"
+#include "Ice/ObjectAdapter.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "Reference.h"
@@ -15,6 +18,7 @@
 #include "RequestHandlerCache.h"
 #include "RouterInfo.h"
 
+#include <sstream>
 #include <stdexcept>
 
 using namespace std;
@@ -590,6 +594,16 @@ Ice::ObjectPrx::_twoway() const
 }
 
 // TODO: move the code below to ProxyFunctions.cpp
+
+void
+IceInternal::throwNullProxyMarshalException(const char* file, int line, const Current& current)
+{
+    ostringstream os;
+    os << "null proxy passed to " << current.operation << " on object "
+       << current.adapter->getCommunicator()->identityToString(current.id);
+    throw MarshalException{file, line, os.str()};
+}
+
 namespace Ice
 {
     bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)

@@ -10,6 +10,7 @@
 #include "EndpointF.h"
 #include "Ice/Identity.h"
 #include "Ice/Proxy.h"
+#include "Ice/ProxyFunctions.h"
 #include "ObjectAdapterF.h"
 
 #include <future>

@@ -797,7 +797,7 @@ allTests(Test::TestHelper* helper)
         //
         // Also make sure that findObjectByTypeOnLeastLoadedNode still work.
         //
-        obj = uncheckedCast<TestIntfPrx>(
+        obj = Ice::uncheckedCast<TestIntfPrx>(
             query->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf", LoadSample::LoadSample1).value());
         test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
 

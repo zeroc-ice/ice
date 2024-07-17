@@ -5,15 +5,17 @@
 #ifndef ICE_PROXY_FUNCTIONS_H
 #define ICE_PROXY_FUNCTIONS_H
 
-#include "Ice/Communicator.h"
-#include "Ice/Current.h"
-#include "Ice/ObjectAdapter.h"
 #include "Ice/Proxy.h"
 
-#include <sstream>
+namespace IceInternal
+{
+    ICE_API void throwNullProxyMarshalException(const char* file, int line, const Ice::Current& current);
+}
 
 namespace Ice
 {
+    class Current;
+
     /**
      * Verifies that a proxy received from the client is not null, and throws a MarshalException if it is.
      * @param prx The proxy to check.
@@ -28,10 +30,7 @@ namespace Ice
         if (!prx)
         {
             // Will be reported back to the client as an UnknownLocalException with an error message.
-            std::ostringstream os;
-            os << "null proxy passed to " << current.operation << " on object "
-               << current.adapter->getCommunicator()->identityToString(current.id);
-            throw MarshalException{file, line, os.str()};
+            IceInternal::throwNullProxyMarshalException(file, line, current);
         }
     }
 

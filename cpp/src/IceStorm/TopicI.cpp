@@ -598,7 +598,7 @@ TopicImpl::getLinkProxy()
 void
 TopicImpl::link(const TopicPrx& topic, int cost)
 {
-    TopicInternalPrx internal = uncheckedCast<TopicInternalPrx>(topic);
+    TopicInternalPrx internal = Ice::uncheckedCast<TopicInternalPrx>(topic);
     optional<TopicLinkPrx> link = internal->getLinkProxy();
     assert(link);
 

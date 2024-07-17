@@ -405,7 +405,7 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
         {
             auto prx = result.get();
             assert(prx);
-            return uncheckedCast<InternalRegistryPrx>(*prx);
+            return Ice::uncheckedCast<InternalRegistryPrx>(*prx);
         }
         catch (const Ice::Exception&)
         {
@@ -486,7 +486,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, chrono::seco
                 optional<InternalRegistryPrx> newRegistry;
                 try
                 {
-                    newRegistry = uncheckedCast<InternalRegistryPrx>(result.get());
+                    newRegistry = Ice::uncheckedCast<InternalRegistryPrx>(result.get());
                     if (newRegistry && used.find(*newRegistry) == used.end())
                     {
                         session = createSessionImpl(*newRegistry, timeout);

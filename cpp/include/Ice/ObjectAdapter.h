@@ -10,6 +10,7 @@
 #include "FacetMap.h"
 #include "ObjectAdapterF.h"
 #include "Proxy.h"
+#include "ProxyFunctions.h"
 #include "ServantLocator.h"
 
 #ifdef __APPLE__

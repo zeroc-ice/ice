@@ -113,14 +113,14 @@ WellKnownObjectsManager::getEndpoints(const string& name)
 LocatorPrx
 WellKnownObjectsManager::getLocator()
 {
-    return uncheckedCast<LocatorPrx>(
+    return Ice::uncheckedCast<LocatorPrx>(
         getWellKnownObjectReplicatedProxy(Ice::Identity{"Locator", _database->getInstanceName()}, "Client"));
 }
 
 Ice::LocatorRegistryPrx
 WellKnownObjectsManager::getLocatorRegistry()
 {
-    return uncheckedCast<Ice::LocatorRegistryPrx>(
+    return Ice::uncheckedCast<Ice::LocatorRegistryPrx>(
         getWellKnownObjectReplicatedProxy({"LocatorRegistry", _database->getInstanceName()}, "Server"));
 }
 

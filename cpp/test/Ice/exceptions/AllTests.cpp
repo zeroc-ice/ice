@@ -664,7 +664,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        WrongOperationPrx thrower2 = uncheckedCast<WrongOperationPrx>(thrower);
+        WrongOperationPrx thrower2 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
         thrower2->noSuchOperation();
         test(false);
     }
@@ -1059,7 +1059,7 @@ allTests(Test::TestHelper* helper)
     cout << "catching operation not exist exception with new AMI mapping... " << flush;
 
     {
-        WrongOperationPrx thrower4 = uncheckedCast<WrongOperationPrx>(thrower);
+        WrongOperationPrx thrower4 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
         auto f = thrower4->noSuchOperationAsync();
         try
         {
