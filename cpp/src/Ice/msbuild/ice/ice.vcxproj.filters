@@ -429,9 +429,6 @@
     <ClCompile Include="..\..\StreamSocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\StringConverterPlugin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\SysLoggerI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -100,9 +100,6 @@ def filter_source(filename):
     if "bzip2-" in filename and os.path.basename(filename) not in bzip2sources:
         return False
 
-    if "StringConverterPlugin" in filename:
-        return False
-
     if sys.platform == 'win32':
         for exclude in ["SysLoggerI", "OpenSSL", "SecureTransport"]:
             if exclude in filename:

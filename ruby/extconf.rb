@@ -53,7 +53,7 @@ Dir["*.cpp"].each do |f|
     $srcs << f
 end
 
-$excluded = ['DLLMain.cpp', 'Main.cpp', 'StringConverterPlugin.cpp']
+$excluded = ['DLLMain.cpp', 'Main.cpp']
 
 def filter(f)
     # Filter sources for each platform.

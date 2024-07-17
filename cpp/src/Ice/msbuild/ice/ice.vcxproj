@@ -573,7 +573,6 @@
     <ClCompile Include="..\..\SHA1.cpp" />
     <ClCompile Include="..\..\SlicedData.cpp" />
     <ClCompile Include="..\..\StreamSocket.cpp" />
-    <ClCompile Include="..\..\StringConverterPlugin.cpp" />
     <ClCompile Include="..\..\SysLoggerI.cpp" />
     <ClCompile Include="..\..\SystemdJournalI.cpp" />
     <ClCompile Include="..\..\TcpAcceptor.cpp" />
