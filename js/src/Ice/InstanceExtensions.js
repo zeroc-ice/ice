@@ -345,9 +345,6 @@ Instance.prototype.finishSetup = function (communicator, promise) {
     }
 };
 
-//
-// Only for use by CommunicatorI
-//
 Instance.prototype.destroy = function () {
     const promise = new AsyncResultBase(null, "destroy", null, this, null);
 
