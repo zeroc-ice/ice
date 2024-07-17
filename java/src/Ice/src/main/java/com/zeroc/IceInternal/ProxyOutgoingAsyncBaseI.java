@@ -142,7 +142,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
       // It's important to let the retry queue do the retry even if
       // the retry interval is 0. This method can be called with the
       // connection locked so we can't just retry here.
-      _instance.retryQueue().add(this, handleException(exc));
+      _instance.retryQueue().add(this, handleRetryAfterException(exc));
       return false;
     } catch (com.zeroc.Ice.Exception ex) {
       return finished(ex); // No retries, we're done
@@ -252,7 +252,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
             _childObserver.detach();
             _childObserver = null;
           }
-          final int interval = handleException(ex);
+          final int interval = handleRetryAfterException(ex);
           if (interval > 0) {
             _instance.retryQueue().add(this, interval);
             return;
@@ -305,7 +305,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     return super.finished(ok, invoke);
   }
 
-  protected int handleException(com.zeroc.Ice.Exception ex) {
+  protected int handleRetryAfterException(com.zeroc.Ice.Exception ex) {
     // Clear the request handler
     _proxy._getRequestHandlerCache().clearCachedRequestHandler(_handler);
 

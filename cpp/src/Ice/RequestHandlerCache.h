@@ -6,7 +6,6 @@
 #define ICE_REQUEST_HANDLER_CACHE_H
 
 #include "Ice/ConnectionF.h"
-#include "Ice/OperationMode.h"
 #include "RequestHandler.h"
 #include <mutex>
 
@@ -24,13 +23,6 @@ namespace IceInternal
         Ice::ConnectionPtr getCachedConnection();
 
         void clearCachedRequestHandler(const RequestHandlerPtr& handler);
-
-        int handleException(
-            std::exception_ptr ex,
-            const RequestHandlerPtr& handler,
-            Ice::OperationMode mode,
-            bool sent,
-            int& cnt);
 
     private:
         const ReferencePtr _reference;
