@@ -146,7 +146,6 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
     }
 
     handleException(ex) {
-        // TODO: do we need to do this wrapping of `_cnt`?
         const cnt = { value: this._cnt };
         const interval = this.handleRetryAfterException(ex, cnt);
         this._cnt = cnt.value;
