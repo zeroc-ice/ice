@@ -43,8 +43,8 @@ task :generate_sources do
         end
     end
 
-    # Ensure C++ srcs  have been built
-    system('make srcs OPTIMIZE=yes -C ../cpp')
+    # Ensure C++ generated sources and the required Slice compilers have been built.
+    system('make slice2cpp slice2rb generate-srcs OPTIMIZE=yes -C ../cpp')
 
     # Define source directories for Ice C++
     ice_cpp_sources = [
@@ -116,7 +116,7 @@ task :generate_sources do
     end
 
     # Ruby sources
-    system('make srcs OPTIMIZE=yes')
+    system('make generate-srcs OPTIMIZE=yes')
     ice_ruby_sources = ["ruby", "ruby/Ice"]
     for source_dir in ice_ruby_sources do
         Dir.foreach(source_dir) do |entry|

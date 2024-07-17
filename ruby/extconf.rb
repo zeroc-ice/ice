@@ -32,7 +32,6 @@ $INCFLAGS << ' -Idist/ice/cpp/src/IceDiscovery/generated'
 $INCFLAGS << ' -Idist/ice/cpp/src/IceLocatorDiscovery/generated'
 
 $CPPFLAGS << ' -DICE_STATIC_LIBS'
-$CPPFLAGS << ' -DICE_GEM'
 $CPPFLAGS << ' -w'
 
 if RUBY_PLATFORM =~ /darwin/

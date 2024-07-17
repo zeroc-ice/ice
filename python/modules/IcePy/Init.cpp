@@ -130,7 +130,6 @@ PyMODINIT_FUNC
 #else
 PyMODINIT_FUNC ICE_DECLSPEC_EXPORT
 #endif
-
 PyInit_IcePy(void)
 {
     PyObject* module;
@@ -138,6 +137,8 @@ PyInit_IcePy(void)
     Ice::registerIceSSL(false);
     Ice::registerIceDiscovery(false);
     Ice::registerIceLocatorDiscovery(false);
+    Ice::registerIceUDP(true);
+    Ice::registerIceWS(true);
 
     //
     // Create the module.

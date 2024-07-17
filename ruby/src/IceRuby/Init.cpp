@@ -28,6 +28,8 @@ extern "C"
         Ice::registerIceSSL(false);
         Ice::registerIceDiscovery(false);
         Ice::registerIceLocatorDiscovery(false);
+        Ice::registerIceUDP(true);
+        Ice::registerIceWS(true);
 
         iceModule = rb_define_module("Ice");
         initCommunicator(iceModule);
