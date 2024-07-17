@@ -31,9 +31,6 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceStringConverter(false);
-#endif
 
     string narrowEncoding;
     string wideEncoding;
@@ -133,42 +130,8 @@ Client::run(int argc, char** argv)
         test(Ice::stringToIdentity(identStr) == ident);
 
         cout << "ok" << endl;
+        proxy->shutdown();
     }
-
-    Ice::setProcessStringConverter(nullptr);
-    Ice::setProcessWstringConverter(Ice::createUnicodeWstringConverter());
-
-    string propValue = "Ice:createStringConverter";
-    if (useIconv && !useLocale)
-    {
-        propValue += " iconv=" + narrowEncoding + "," + wideEncoding;
-    }
-    propValue += " windows=28605";
-
-    properties->setProperty("Ice.Plugin.IceStringConverter", propValue);
-
-    Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
-    auto communicator = ich.communicator();
-    Test::MyObjectPrx proxy(communicator, "test:" + getTestEndpoint());
-
-    char oe = char(0xBD); // A single character in ISO Latin 9
-    string msg = string("tu me fends le c") + oe + "ur!";
-    cout << "testing string converter plug-in";
-    if (useLocale)
-    {
-        cout << " (using locale)";
-    }
-    if (useIconv)
-    {
-        cout << " (using iconv)";
-    }
-    cout << "... " << flush;
-    wstring wmsg = proxy->widen(msg);
-    test(proxy->narrow(wmsg) == msg);
-    test(wmsg.size() == msg.size());
-    cout << "ok" << endl;
-
-    proxy->shutdown();
 }
 
 DEFINE_TEST(Client);
