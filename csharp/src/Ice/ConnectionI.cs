@@ -1421,7 +1421,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         lock (this)
         {
-            if (isActiveOrHolding())
+            if (_state == StateActive || _state == StateHolding)
             {
                 int idleTimeoutInSeconds = (int)idleTimeout.TotalSeconds;
 
@@ -1448,7 +1448,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         lock (this)
         {
-            if (isActiveOrHolding())
+            if (_state == StateActive || _state == StateHolding)
             {
                 // We check if the connection has become inactive.
                 if (
@@ -1475,7 +1475,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // a read on the peer, and resets the peer's idle check timer. When _sendStream.Count > 0, there is
                 // already an outstanding write, so we don't need to send a heartbeat. It's possible _sendStream.First
                 // was sent already but not yet removed from _sendStreams: it means the last write occurred very
-                // recently, which good enough with respect to the idle check.
+                // recently, which is good enough with respect to the idle check.
                 // As a result of this optimization, the only possible heartbeat in _sendStreams is _sendStreams.First.
                 if (_sendStreams.Count == 0)
                 {

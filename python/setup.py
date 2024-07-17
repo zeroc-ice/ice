@@ -69,7 +69,7 @@ define_macros = [
 if sys.platform == 'darwin':
     extra_compile_args = ['-w']
     cpp_extra_compile_args = ['-std=c++20']
-    libraries = ['iconv']
+    libraries = []
     extra_link_args = ['-framework', 'Security', '-framework', 'CoreFoundation']
 elif sys.platform == 'win32':
     define_macros.extend(
@@ -97,6 +97,9 @@ def filter_source(filename):
     # Bzip2lib sources
     bzip2sources = ["blocksort.c", "bzlib.c", "compress.c", "crctable.c", "decompress.c", "huffman.c", "randtable.c"]
     if "bzip2-" in filename and os.path.basename(filename) not in bzip2sources:
+        return False
+
+    if "StringConverterPlugin" in filename:
         return False
 
     if sys.platform == 'win32':

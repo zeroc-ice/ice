@@ -3,6 +3,7 @@
 //
 
 #include "Ice/Ice.h"
+#include "Ice/IconvStringConverter.h"
 #include "Test.h"
 #include "TestHelper.h"
 

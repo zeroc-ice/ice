@@ -27,11 +27,4 @@ IceInternal::RegisterPluginsInit::RegisterPluginsInit()
     Ice::registerPluginFactory("IceUDP", createIceUDP, true);
     Ice::registerPluginFactory("IceWS", createIceWS, true);
 #endif
-
-    //
-    // Also include IceStringConverter in Gem/PyPI builds.
-    //
-#if defined(ICE_GEM) || defined(ICE_PYPI)
-    Ice::registerPluginFactory("IceStringConverter", createStringConverter, false);
-#endif
 }
