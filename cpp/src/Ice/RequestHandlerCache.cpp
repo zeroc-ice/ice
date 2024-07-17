@@ -4,7 +4,6 @@
 
 #include "RequestHandlerCache.h"
 #include "ConnectionI.h"
-#include "Instance.h"
 #include "Reference.h"
 #include "RequestHandler.h"
 

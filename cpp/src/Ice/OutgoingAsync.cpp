@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/OutgoingAsync.h"
+#include "OutgoingAsync.h"
 #include "CollocatedRequestHandler.h"
 #include "ConnectionFactory.h"
 #include "ConnectionI.h"
