@@ -78,18 +78,10 @@ Ice::Communicator::isShutdown() const noexcept
     }
 }
 
-std::optional<ObjectPrx>
-Ice::Communicator::stringToProxy(const string& s) const
+ReferencePtr
+Ice::Communicator::_stringToProxy(const string& s) const
 {
-    ReferencePtr ref = _instance->referenceFactory()->create(s, "");
-    if (ref)
-    {
-        return ObjectPrx::_fromReference(std::move(ref));
-    }
-    else
-    {
-        return nullopt;
-    }
+    return _instance->referenceFactory()->create(s, "");
 }
 
 string
@@ -98,19 +90,11 @@ Ice::Communicator::proxyToString(const std::optional<ObjectPrx>& proxy) const
     return proxy ? proxy->_getReference()->toString() : "";
 }
 
-std::optional<ObjectPrx>
+ReferencePtr
 Ice::Communicator::_propertyToProxy(const string& p) const
 {
     string proxy = _instance->initializationData().properties->getProperty(p);
-    ReferencePtr ref = _instance->referenceFactory()->create(proxy, p);
-    if (ref)
-    {
-        return ObjectPrx::_fromReference(std::move(ref));
-    }
-    else
-    {
-        return nullopt;
-    }
+    return _instance->referenceFactory()->create(proxy, p);
 }
 
 PropertyDict

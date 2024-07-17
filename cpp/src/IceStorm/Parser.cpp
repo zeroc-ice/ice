@@ -241,8 +241,8 @@ Parser::replica(const list<string>& args)
 
     try
     {
-        auto manager =
-            TopicManagerInternalPrx(args.size() == 0 ? _defaultManager : findManagerByCategory(args.front()));
+        auto manager = uncheckedCast<TopicManagerInternalPrx>(
+            args.size() == 0 ? _defaultManager : findManagerByCategory(args.front()));
         auto node = manager->getReplicaNode();
         if (!node)
         {

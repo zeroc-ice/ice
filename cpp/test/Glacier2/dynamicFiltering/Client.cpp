@@ -134,7 +134,7 @@ SessionControlClient::run(int argc, char** argv)
         //
         // Shut down the test server.
         //
-        currentSession = optional<Test::TestSessionPrx>(router->createSession("userid", "abc123"));
+        currentSession = uncheckedCast<Test::TestSessionPrx>(router->createSession("userid", "abc123"));
         currentSession->shutdown();
     }
     catch (const Glacier2::CannotCreateSessionException& ex)

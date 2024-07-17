@@ -45,7 +45,7 @@ allTests(Test::TestHelper* helper)
     communicator->getProperties()->setProperty("ReplyAdapter.Endpoints", "udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ReplyAdapter");
     PingReplyIPtr replyI = std::make_shared<PingReplyI>();
-    auto reply = PingReplyPrx(adapter->addWithUUID(replyI))->ice_datagram();
+    auto reply = adapter->addWithUUID<PingReplyPrx>(replyI)->ice_datagram();
     adapter->activate();
 
     cout << "testing udp... " << flush;
@@ -69,7 +69,7 @@ allTests(Test::TestHelper* helper)
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = std::make_shared<PingReplyI>();
-        reply = PingReplyPrx(adapter->addWithUUID(replyI))->ice_datagram();
+        reply = adapter->addWithUUID<PingReplyPrx>(replyI)->ice_datagram();
     }
     test(ret);
 
@@ -160,7 +160,7 @@ allTests(Test::TestHelper* helper)
             break; // Success
         }
         replyI = std::make_shared<PingReplyI>();
-        reply = PingReplyPrx(adapter->addWithUUID(replyI))->ice_datagram();
+        reply = adapter->addWithUUID<PingReplyPrx>(replyI)->ice_datagram();
     }
     if (!ret)
     {
@@ -190,7 +190,7 @@ allTests(Test::TestHelper* helper)
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = std::make_shared<PingReplyI>();
-        reply = PingReplyPrx(adapter->addWithUUID(replyI))->ice_datagram();
+        reply = adapter->addWithUUID<PingReplyPrx>(replyI)->ice_datagram();
     }
     test(ret);
     cout << "ok" << endl;

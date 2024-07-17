@@ -85,7 +85,7 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
         {
             assert(slave.observer);
 
-            ReplicaObserverPrx observer(*slave.observer);
+            ReplicaObserverPrx observer = uncheckedCast<ReplicaObserverPrx>(*slave.observer);
 
             auto future = observer->initAsync(llu, content);
 

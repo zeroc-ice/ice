@@ -37,7 +37,7 @@ CallbackClient::run(int argc, char** argv)
     auto session = router->createSession("userid", "abc123");
     base->ice_ping();
 
-    CallbackPrx twoway(base);
+    CallbackPrx twoway = uncheckedCast<CallbackPrx>(base);
     CallbackPrx oneway = twoway->ice_oneway();
     CallbackPrx batchOneway = twoway->ice_batchOneway();
 
@@ -52,7 +52,7 @@ CallbackClient::run(int argc, char** argv)
     Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = category;
-    CallbackReceiverPrx twowayR(adapter->add(callbackReceiver, callbackReceiverIdent));
+    CallbackReceiverPrx twowayR = adapter->add<CallbackReceiverPrx>(callbackReceiver, callbackReceiverIdent);
     auto onewayR = twowayR->ice_oneway();
 
     {

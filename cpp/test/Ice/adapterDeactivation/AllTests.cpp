@@ -105,7 +105,7 @@ allTests(Test::TestHelper* helper)
     {
         Ice::Identity routerId;
         routerId.name = "router";
-        auto router = Ice::RouterPrx(obj->ice_identity(routerId)->ice_connectionId("rc"));
+        auto router = obj->ice_identity<Ice::RouterPrx>(routerId)->ice_connectionId("rc");
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("", router);
         test(adapter->getPublishedEndpoints().size() == 1);
         test(adapter->getPublishedEndpoints()[0]->toString() == "tcp -h localhost -p 23456 -t 30000");
@@ -126,7 +126,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             routerId.name = "test";
-            router = Ice::RouterPrx(obj->ice_identity(routerId));
+            router = obj->ice_identity<Ice::RouterPrx>(routerId);
             communicator->createObjectAdapterWithRouter("", router);
             test(false);
         }

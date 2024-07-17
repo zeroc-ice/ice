@@ -570,7 +570,11 @@ namespace Ice
          * @param id The identity for the new proxy.
          * @return A proxy with the new identity.
          */
-        ObjectPrx ice_identity(Ice::Identity id) const;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx ice_identity(Ice::Identity id) const
+        {
+            return Prx::_fromReference(_identity(std::move(id)));
+        }
 
         /**
          * Obtains the per-proxy context for this proxy.
@@ -589,7 +593,11 @@ namespace Ice
          * @param facet The facet for the new proxy.
          * @return A proxy with the new facet.
          */
-        Ice::ObjectPrx ice_facet(std::string facet) const;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx ice_facet(std::string facet) const
+        {
+            return Prx::_fromReference(_facet(std::move(facet)));
+        }
 
         /**
          * Obtains the adapter ID for this proxy.
@@ -772,6 +780,8 @@ namespace Ice
         IceInternal::ReferencePtr _encodingVersion(EncodingVersion) const;
         IceInternal::ReferencePtr _endpointSelection(EndpointSelectionType) const;
         IceInternal::ReferencePtr _endpoints(EndpointSeq) const;
+        IceInternal::ReferencePtr _identity(Identity) const;
+        IceInternal::ReferencePtr _facet(std::string) const;
         IceInternal::ReferencePtr _fixed(ConnectionPtr) const;
         IceInternal::ReferencePtr _invocationTimeout(int) const;
         IceInternal::ReferencePtr _locator(const std::optional<LocatorPrx>&) const;

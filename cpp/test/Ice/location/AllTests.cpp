@@ -29,9 +29,9 @@ allTests(Test::TestHelper* helper, const string& ref)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     ServerManagerPrx manager(communicator, ref);
-    TestLocatorPrx locator(communicator->getDefaultLocator().value());
+    TestLocatorPrx locator = uncheckedCast<TestLocatorPrx>(communicator->getDefaultLocator().value());
 
-    TestLocatorRegistryPrx registry(locator->getRegistry().value());
+    TestLocatorRegistryPrx registry = uncheckedCast<TestLocatorRegistryPrx>(locator->getRegistry().value());
 
     cout << "testing stringToProxy... " << flush;
     ObjectPrx base(communicator, "test @ TestAdapter");
@@ -617,11 +617,11 @@ allTests(Test::TestHelper* helper, const string& ref)
         test(!helloPrx->ice_getConnection());
 
         // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-        helloPrx = HelloPrx(adapter->createIndirectProxy(id));
+        helloPrx = adapter->createIndirectProxy<HelloPrx>(id);
         test(!helloPrx->ice_getConnection());
 
         // Ensure that calls on the direct proxy is collocated
-        helloPrx = HelloPrx(adapter->createDirectProxy(id));
+        helloPrx = adapter->createDirectProxy<HelloPrx>(id);
         test(!helloPrx->ice_getConnection());
 
         cout << "ok" << endl;

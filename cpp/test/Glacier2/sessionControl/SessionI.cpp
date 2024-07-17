@@ -23,7 +23,7 @@ SessionManagerI::create(
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-    return Glacier2::SessionPrx(current.adapter->addWithUUID(make_shared<SessionI>(sessionControl)));
+    return current.adapter->addWithUUID<Glacier2::SessionPrx>(make_shared<SessionI>(sessionControl));
 }
 
 SessionI::SessionI(optional<Glacier2::SessionControlPrx> sessionControl) : _sessionControl(std::move(sessionControl))

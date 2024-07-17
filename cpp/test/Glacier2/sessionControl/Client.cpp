@@ -39,7 +39,7 @@ SessionControlClient::run(int argc, char** argv)
     cout << "ok" << endl;
 
     cout << "creating session... " << flush;
-    optional<Test::SessionPrx> session(router->createSession("userid", "abc123"));
+    auto session = uncheckedCast<Test::SessionPrx>(router->createSession("userid", "abc123"));
     test(session);
     cout << "ok" << endl;
 
@@ -82,7 +82,7 @@ SessionControlClient::run(int argc, char** argv)
     cout << "ok" << endl;
 
     cout << "testing shutdown... " << flush;
-    session = optional<Test::SessionPrx>(router->createSession("userid", "abc123"));
+    session = uncheckedCast<Test::SessionPrx>(router->createSession("userid", "abc123"));
     session->shutdown();
     communicator->setDefaultRouter(nullopt);
     Ice::ProcessPrx process(communicator, "Glacier2/admin -f Process:" + getTestEndpoint(51));

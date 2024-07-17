@@ -45,7 +45,7 @@ namespace Ice
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
     Prx uncheckedCast(const ObjectPrx& proxy)
     {
-        return Prx(proxy);
+        return Prx::_fromReference(proxy._getReference());
     }
 
     /**
@@ -58,7 +58,14 @@ namespace Ice
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
     std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy)
     {
-        return proxy ? std::make_optional<Prx>(proxy.value()) : std::nullopt;
+        if (proxy)
+        {
+            return uncheckedCast<Prx>(proxy.value());
+        }
+        else
+        {
+            return std::nullopt;
+        }
     }
 
     /**
@@ -82,7 +89,14 @@ namespace Ice
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
     std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy, std::string facet)
     {
-        return proxy ? std::make_optional<Prx>(proxy->ice_facet(std::move(facet))) : std::nullopt;
+        if (proxy)
+        {
+            return uncheckedCast<Prx>(proxy->ice_facet(std::move(facet)));
+        }
+        else
+        {
+            return std::nullopt;
+        }
     }
 
     /**
@@ -94,7 +108,14 @@ namespace Ice
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
     std::optional<Prx> checkedCast(const ObjectPrx& proxy, const Context& context = noExplicitContext)
     {
-        return proxy->ice_isA(Prx::ice_staticId(), context) ? std::make_optional<Prx>(proxy) : std::nullopt;
+        if (proxy->ice_isA(Prx::ice_staticId(), context))
+        {
+            return uncheckedCast<Prx>(proxy);
+        }
+        else
+        {
+            return std::nullopt;
+        }
     }
 
     /**

@@ -295,7 +295,7 @@ namespace IceGrid
             //
             ++_p;
 
-            Ice::PropertiesAdminPrx propertiesAdmin(_admin->ice_facet(facet));
+            auto propertiesAdmin = _admin->ice_facet<Ice::PropertiesAdminPrx>(facet);
             propertiesAdmin->setPropertiesAsync(
                 props,
                 [self = shared_from_this()] { self->next(); },
@@ -1966,7 +1966,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
                         _node,
                         this,
                         _id,
-                        AdapterPrx(adapter->createProxy(id)),
+                        adapter->createProxy<AdapterPrx>(id),
                         adpt->id,
                         _activation != Disabled || _failureTime != nullopt);
                     adapter->add(servant, id);

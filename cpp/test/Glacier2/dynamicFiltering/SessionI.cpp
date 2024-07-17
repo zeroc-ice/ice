@@ -14,7 +14,7 @@ optional<Glacier2::SessionPrx>
 SessionManagerI::create(string, optional<Glacier2::SessionControlPrx> sessionControl, const Ice::Current& current)
 {
     auto newSession =
-        Glacier2::SessionPrx(current.adapter->addWithUUID(make_shared<SessionI>(sessionControl, _controller)));
+        current.adapter->addWithUUID<Glacier2::SessionPrx>(make_shared<SessionI>(sessionControl, _controller));
     _controller->addSession(SessionTuple(newSession, std::move(sessionControl)));
     return newSession;
 }

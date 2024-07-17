@@ -76,20 +76,6 @@ Ice::ObjectPrx::ice_getIdentity() const
     return _reference->getIdentity();
 }
 
-ObjectPrx
-Ice::ObjectPrx::ice_identity(Identity newIdentity) const
-{
-    checkIdentity(newIdentity, __FILE__, __LINE__);
-    if (newIdentity == _reference->getIdentity())
-    {
-        return *this;
-    }
-    else
-    {
-        return ObjectPrx(_reference->changeIdentity(std::move(newIdentity)));
-    }
-}
-
 Context
 Ice::ObjectPrx::ice_getContext() const
 {
@@ -100,19 +86,6 @@ const string&
 Ice::ObjectPrx::ice_getFacet() const
 {
     return _reference->getFacet();
-}
-
-ObjectPrx
-Ice::ObjectPrx::ice_facet(string newFacet) const
-{
-    if (newFacet == _reference->getFacet())
-    {
-        return *this;
-    }
-    else
-    {
-        return ObjectPrx(_reference->changeFacet(std::move(newFacet)));
-    }
 }
 
 string
@@ -445,6 +418,33 @@ Ice::ObjectPrx::_endpoints(EndpointSeq newEndpoints) const
     else
     {
         return _reference->changeEndpoints(std::move(endpoints));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_identity(Identity newIdentity) const
+{
+    checkIdentity(newIdentity, __FILE__, __LINE__);
+    if (newIdentity == _reference->getIdentity())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeIdentity(std::move(newIdentity));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_facet(string newFacet) const
+{
+    if (newFacet == _reference->getFacet())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeFacet(std::move(newFacet));
     }
 }
 
