@@ -6,8 +6,7 @@ require 'Ice'
 Ice::loadSlice('-I. --all ClientPrivate.ice')
 
 def allTests(helper, communicator)
-    obj = communicator.stringToProxy("Test:#{helper.getTestEndpoint()}")
-    t = Test::TestIntfPrx::checkedCast(obj)
+    t = Test::TestIntfPrx.new(communicator, "Test:#{helper.getTestEndpoint()}")
 
     print "base as Object... "
     STDOUT.flush
@@ -86,7 +85,7 @@ def allTests(helper, communicator)
             #
             sb = t.SBSUnknownDerivedAsSBaseCompact()
             test(false)
-        rescue Ice::NoValueFactoryException
+        rescue Ice::MarshalException
             # Expected.
         rescue
             test(false)
@@ -103,7 +102,7 @@ def allTests(helper, communicator)
         test(o.ice_id() == "::Test::SUnknown")
         test(o.ice_getSlicedData() != nil)
         t.checkSUnknown(o)
-    rescue Ice::NoValueFactoryException
+    rescue Ice::MarshalException
         test(t.ice_getEncodingVersion() == Ice::Encoding_1_0)
     rescue Ice::Exception
         test(false)

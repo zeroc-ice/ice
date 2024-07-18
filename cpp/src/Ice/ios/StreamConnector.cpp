@@ -9,7 +9,6 @@
 #    include "../Network.h"
 #    include "../NetworkProxy.h"
 #    include "../UniqueRef.h"
-#    include "Ice/Exception.h"
 #    include "Ice/Properties.h"
 #    include "StreamConnector.h"
 #    include "StreamEndpointI.h"

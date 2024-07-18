@@ -17,31 +17,22 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static EndpointObject*
-    endpointNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" EndpointObject*
+endpointNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PyErr_Format(PyExc_RuntimeError, STRCAST("An endpoint cannot be created directly"));
-    return 0;
+    PyErr_Format(PyExc_RuntimeError, "An endpoint cannot be created directly");
+    return nullptr;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    endpointDealloc(EndpointObject* self)
+extern "C" void
+endpointDealloc(EndpointObject* self)
 {
     delete self->endpoint;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointCompare(EndpointObject* p1, PyObject* other, int op)
+extern "C" PyObject*
+endpointCompare(EndpointObject* p1, PyObject* other, int op)
 {
     bool result = false;
 
@@ -84,18 +75,15 @@ extern "C"
         else
         {
             PyErr_Format(PyExc_TypeError, "can't compare %s to %s", Py_TYPE(p1)->tp_name, Py_TYPE(other)->tp_name);
-            return 0;
+            return nullptr;
         }
     }
 
-    return result ? incTrue() : incFalse();
+    return result ? Py_True : Py_False;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointToString(EndpointObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointToString(EndpointObject* self, PyObject* /*args*/)
 {
     assert(self->endpoint);
     try
@@ -106,24 +94,18 @@ extern "C"
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointRepr(EndpointObject* self)
+extern "C" PyObject*
+endpointRepr(EndpointObject* self)
 {
     return endpointToString(self, 0);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
 {
     assert(self->endpoint);
     try
@@ -134,19 +116,16 @@ extern "C"
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 }
 
 static PyMethodDef EndpointMethods[] = {
-    {STRCAST("toString"),
-     reinterpret_cast<PyCFunction>(endpointToString),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("toString() -> string"))},
-    {STRCAST("getInfo"),
+    {"toString", reinterpret_cast<PyCFunction>(endpointToString), METH_NOARGS, PyDoc_STR("toString() -> string")},
+    {"getInfo",
      reinterpret_cast<PyCFunction>(endpointGetInfo),
      METH_NOARGS,
-     PyDoc_STR(STRCAST("getInfo() -> Ice.EndpointInfo"))},
+     PyDoc_STR("getInfo() -> Ice.EndpointInfo")},
     {0, 0} /* sentinel */
 };
 
@@ -155,9 +134,9 @@ namespace IcePy
     PyTypeObject EndpointType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.Endpoint"), /* tp_name */
-        sizeof(EndpointObject),                                /* tp_basicsize */
-        0,                                                     /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Endpoint", /* tp_name */
+        sizeof(EndpointObject),                       /* tp_basicsize */
+        0,                                            /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointDealloc),  /* tp_dealloc */
         0,                                              /* tp_print */
@@ -207,7 +186,7 @@ IcePy::initEndpoint(PyObject* module)
         return false;
     }
     PyTypeObject* type = &EndpointType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("Endpoint"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "Endpoint", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -229,7 +208,7 @@ IcePy::createEndpoint(const Ice::EndpointPtr& endpoint)
     EndpointObject* obj = reinterpret_cast<EndpointObject*>(EndpointType.tp_alloc(&EndpointType, 0));
     if (!obj)
     {
-        return 0;
+        return nullptr;
     }
     obj->endpoint = new Ice::EndpointPtr(endpoint);
     return (PyObject*)obj;
@@ -245,7 +224,7 @@ IcePy::toEndpointSeq(PyObject* endpoints, Ice::EndpointSeq& seq)
         PyTypeObject* type = &EndpointType; // Necessary to prevent GCC's strict-alias warnings.
         if (!PyObject_IsInstance(p, reinterpret_cast<PyObject*>(type)))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("expected element of type Ice.Endpoint"));
+            PyErr_Format(PyExc_ValueError, "expected element of type Ice.Endpoint");
             return false;
         }
         Ice::EndpointPtr endp = getEndpoint(p);

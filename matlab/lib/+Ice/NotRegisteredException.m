@@ -11,7 +11,6 @@
 %   id - The ID (or name) of the object that could not be removed.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
 
 classdef NotRegisteredException < Ice.LocalException
     properties
@@ -22,23 +21,20 @@ classdef NotRegisteredException < Ice.LocalException
         id char
     end
     methods
-        function obj = NotRegisteredException(ice_exid, ice_exmsg, kindOfObject, id)
-            if nargin <= 2
+        % Convenience constructor without an errID or what message.
+        function obj = NotRegisteredException(kindOfObject, id)
+            if nargin == 0 % default constructor
+                superArgs = {};
                 kindOfObject = '';
                 id = '';
+            else
+                assert(nargin == 2, 'Invalid number of arguments');
+                superArgs = {'Ice:NotRegisteredException', sprintf('No %s is registered with ID ''%s''.', ...
+                    kindOfObject, id)};
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:NotRegisteredException';
-            end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.NotRegisteredException';
-            end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj@Ice.LocalException(superArgs{:});
             obj.kindOfObject = kindOfObject;
             obj.id = id;
-        end
-        function id = ice_id(~)
-            id = '::Ice::NotRegisteredException';
         end
     end
 end

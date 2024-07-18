@@ -7,7 +7,7 @@
 #include "../Instance.h"
 #include "../TraceLevels.h"
 #include "Ice/Config.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
@@ -607,7 +607,7 @@ SecureTransport::SSLEngine::initialize()
     }
     catch (const CertificateReadException& ce)
     {
-        throw InitializationException(__FILE__, __LINE__, ce.reason);
+        throw InitializationException(__FILE__, __LINE__, ce.what());
     }
 
     const string password = properties->getIceProperty("IceSSL.Password");
@@ -686,7 +686,7 @@ SecureTransport::SSLEngine::initialize()
                 //
                 if (i == files.size() - 1)
                 {
-                    throw InitializationException(__FILE__, __LINE__, ce.reason);
+                    throw InitializationException(__FILE__, __LINE__, ce.what());
                 }
             }
         }

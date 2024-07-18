@@ -41,7 +41,7 @@ class ApplicationObserverI implements ApplicationObserver {
   public synchronized void applicationInit(
       int serial, java.util.List<ApplicationInfo> applications, com.zeroc.Ice.Current current) {
     if (_trace) {
-      if (applications.size() == 0) {
+      if (applications.isEmpty()) {
         _coordinator.traceObserver("applicationInit (no application);" + "serial is " + serial);
       } else {
         String names = "";

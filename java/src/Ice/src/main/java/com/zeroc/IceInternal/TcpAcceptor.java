@@ -60,7 +60,7 @@ class TcpAcceptor implements Acceptor {
             _addr.getAddress().getHostAddress(), _instance.protocolSupport(), true);
     if (!intfs.isEmpty()) {
       s.append("\nlocal interfaces = ");
-      s.append(com.zeroc.IceUtilInternal.StringUtil.joinString(intfs, ", "));
+      s.append(String.join(", ", intfs));
     }
     return s.toString();
   }
@@ -115,8 +115,8 @@ class TcpAcceptor implements Acceptor {
   }
 
   private TcpEndpointI _endpoint;
-  private ProtocolInstance _instance;
+  private final ProtocolInstance _instance;
   private java.nio.channels.ServerSocketChannel _fd;
-  private int _backlog;
+  private final int _backlog;
   private java.net.InetSocketAddress _addr;
 }

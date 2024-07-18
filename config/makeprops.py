@@ -519,19 +519,10 @@ class JSPropertyHandler(PropertyHandler):
         self.srcFile.write(jsPreamble)
 
     def closeFiles(self):
-        self.srcFile.write("PropertyNames.validProps =\n")
-        self.srcFile.write("[\n")
+        self.srcFile.write("PropertyNames.validProps = new Map();\n")
         for s in self.sections:
             if s in self.validSections:
-                self.srcFile.write(f"    PropertyNames.{s}Props,\n")
-        self.srcFile.write("];\n\n")
-
-        self.srcFile.write("PropertyNames.clPropNames =\n")
-        self.srcFile.write("[\n")
-        for s in self.cmdLineOptions:
-            if s in self.validSections:
-                self.srcFile.write(f'    "{s}",\n')
-        self.srcFile.write("];\n")
+                self.srcFile.write(f"PropertyNames.validProps.set(\"{s}\", {s}Props);\n")
 
         self.srcFile.write(jsEpilogue)
         self.srcFile.close()
@@ -542,8 +533,8 @@ class JSPropertyHandler(PropertyHandler):
     def propertyImpl(self, propertyName, usesRegex, defaultValue, deprecated):
         if self.currentSection in self.validSections:
             name = f"{self.currentSection}.{propertyName}"
-            line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
-                pattern=f"^{self.fix(name)}" if usesRegex else name,
+            line = 'new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated})'.format(
+                pattern=f"/^{self.fix(name)}/" if usesRegex else f'"{name}"',
                 usesRegex="true" if usesRegex else "false",
                 defaultValue=f'"{defaultValue}"',
                 deprecated="true" if deprecated else "false",
@@ -553,7 +544,7 @@ class JSPropertyHandler(PropertyHandler):
     def newSection(self):
         if self.currentSection in self.validSections:
             self.skipSection = False
-            self.srcFile.write(f"PropertyNames.{self.currentSection}Props =\n")
+            self.srcFile.write(f"const {self.currentSection}Props =\n")
             self.srcFile.write("[\n")
 
     def closeSection(self):

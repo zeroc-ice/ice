@@ -281,9 +281,9 @@ public sealed class OutgoingConnectionFactory
                 {
                     if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                     {
-                        if (defaultsAndOverrides.overrideCompress)
+                        if (defaultsAndOverrides.overrideCompress is not null)
                         {
-                            compress = defaultsAndOverrides.overrideCompressValue;
+                            compress = defaultsAndOverrides.overrideCompress.Value;
                         }
                         else
                         {
@@ -322,9 +322,9 @@ public sealed class OutgoingConnectionFactory
             {
                 if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                 {
-                    if (defaultsAndOverrides.overrideCompress)
+                    if (defaultsAndOverrides.overrideCompress is not null)
                     {
-                        compress = defaultsAndOverrides.overrideCompressValue;
+                        compress = defaultsAndOverrides.overrideCompress.Value;
                     }
                     else
                     {
@@ -542,9 +542,9 @@ public sealed class OutgoingConnectionFactory
 
         bool compress;
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        if (defaultsAndOverrides.overrideCompress)
+        if (defaultsAndOverrides.overrideCompress is not null)
         {
-            compress = defaultsAndOverrides.overrideCompressValue;
+            compress = defaultsAndOverrides.overrideCompress.Value;
         }
         else
         {
@@ -1506,9 +1506,9 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
-        if (defaultsAndOverrides.overrideCompress)
+        if (defaultsAndOverrides.overrideCompress is not null)
         {
-            _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
+            _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompress.Value);
         }
 
         try

@@ -308,7 +308,7 @@ class AdapterEditor extends CommunicatorChildEditor {
     for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
       String key = p.getKey();
       String[] value = p.getValue();
-      if (!value[1].equals("")) {
+      if (!value[1].isEmpty()) {
         adapter.setProperty(value[1], key);
       }
     }
@@ -317,7 +317,7 @@ class AdapterEditor extends CommunicatorChildEditor {
     for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
       String key = p.getKey();
       String[] value = p.getValue();
-      if (!value[1].equals("")) {
+      if (!value[1].isEmpty()) {
         adapter.setProperty(value[1], key);
       }
     }
@@ -343,7 +343,7 @@ class AdapterEditor extends CommunicatorChildEditor {
   }
 
   private void setReplicaGroupId(String replicaGroupId) {
-    if (replicaGroupId.equals("")) {
+    if (replicaGroupId.isEmpty()) {
       _replicaGroupId.setSelectedItem(NOT_REPLICATED);
     } else {
       ReplicaGroups replicaGroups = getAdapter().getRoot().getReplicaGroups();
@@ -463,7 +463,7 @@ class AdapterEditor extends CommunicatorChildEditor {
 
     String endpoints = Utils.substitute(adapter.getProperty(oaPrefix + "Endpoints"), resolver);
 
-    if (adapter.isEphemeral() && (endpoints == null || endpoints.equals(""))) {
+    if (adapter.isEphemeral() && (endpoints == null || endpoints.isEmpty())) {
       _endpoints.setText("default");
     } else {
       _endpoints.setText(endpoints);
@@ -474,7 +474,7 @@ class AdapterEditor extends CommunicatorChildEditor {
     _publishedEndpoints.setEditable(true);
     String published =
         Utils.substitute(adapter.getProperty(oaPrefix + "PublishedEndpoints"), resolver);
-    if (published == null || published.equals("")) {
+    if (published == null || published.isEmpty()) {
       _publishedEndpoints.setSelectedItem(PUBLISH_ACTUAL);
     } else {
       _publishedEndpoints.setSelectedItem(published);
@@ -529,8 +529,6 @@ class AdapterEditor extends CommunicatorChildEditor {
       java.util.Map<String, String[]> map) {
     String badIdentities = "";
     java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
-    com.zeroc.Ice.Communicator communicator =
-        getAdapter().getRoot().getCoordinator().getCommunicator();
     for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
       try {
         com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity(p.getKey());
@@ -541,7 +539,7 @@ class AdapterEditor extends CommunicatorChildEditor {
       }
     }
 
-    if (!badIdentities.equals("")) {
+    if (!badIdentities.isEmpty()) {
       JOptionPane.showMessageDialog(
           _target.getCoordinator().getMainFrame(),
           "The following identities could not be parsed properly:\n" + badIdentities,

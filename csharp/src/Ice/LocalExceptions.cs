@@ -108,7 +108,7 @@ public class UnknownException : LocalException
 
 /// <summary>
 /// The dispatch failed with a <see cref="LocalException" /> that is not one of the special marshal-able local
-/// exception.
+/// exceptions.
 /// </summary>
 public sealed class UnknownLocalException : UnknownException
 {
@@ -126,6 +126,9 @@ public sealed class UnknownLocalException : UnknownException
 /// </summary>
 public sealed class UnknownUserException : UnknownException
 {
+    public static UnknownUserException fromTypeId(string typeId) =>
+        new($"The reply carries a user exception that does not conform to the exception specification of the operation: {typeId}");
+
     public UnknownUserException(string message)
         : base(message)
     {
@@ -271,6 +274,47 @@ public class SyscallException : LocalException
 }
 
 /// <summary>
+/// This exception indicates a DNS problem.
+/// </summary>
+public sealed class DNSException : SyscallException
+{
+    public DNSException(string host, System.Exception? innerException = null)
+        : base($"Cannot resolve host '{host}'", innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::DNSException";
+}
+
+/// <summary>This exception indicates a file error.</summary>
+public sealed class FileException : SyscallException
+{
+    public FileException(string message, System.Exception innerException)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::FileException";
+}
+
+//
+// Socket exceptions
+//
+
+/// <summary>
+/// This exception indicates a socket error.
+/// </summary>
+public class SocketException : SyscallException
+{
+    public SocketException(System.Exception? innerException = null)
+        : base(message: null, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::SocketException";
+}
+
+/// <summary>
 /// This exception indicates a connection failure.
 /// </summary>
 public class ConnectFailedException : SocketException
@@ -307,43 +351,6 @@ public sealed class ConnectionRefusedException : ConnectFailedException
     }
 
     public override string ice_id() => "::Ice::ConnectionRefusedException";
-}
-
-/// <summary>
-/// This exception indicates a DNS problem.
-/// </summary>
-public sealed class DNSException : SyscallException
-{
-    public DNSException(string host, System.Exception? innerException = null)
-        : base($"Cannot resolve host '{host}'", innerException)
-    {
-    }
-
-    public override string ice_id() => "::Ice::DNSException";
-}
-
-/// <summary>This exception indicates a file error.</summary>
-public sealed class FileException : SyscallException
-{
-    public FileException(string message, System.Exception innerException)
-        : base(message, innerException)
-    {
-    }
-
-    public override string ice_id() => "::Ice::FileException";
-}
-
-/// <summary>
-/// This exception indicates a socket error.
-/// </summary>
-public class SocketException : SyscallException
-{
-    public SocketException(System.Exception? innerException = null)
-        : base(message: null, innerException)
-    {
-    }
-
-    public override string ice_id() => "::Ice::SocketException";
 }
 
 //
@@ -409,19 +416,6 @@ public sealed class ConnectionClosedException : LocalException
         this.closedByApplication = closedByApplication;
 
     public override string ice_id() => "::Ice::ConnectionClosedException";
-}
-
-/// <summary>
-/// This exception indicates that a connection was aborted by the idle check.
-/// </summary>
-public sealed class ConnectionIdleException : LocalException
-{
-    public ConnectionIdleException(string message)
-        : base(message, innerException: null)
-    {
-    }
-
-    public override string ice_id() => "::Ice::ConnectionIdleException";
 }
 
 /// <summary>

@@ -49,10 +49,7 @@
 #endif
 
 #include <ruby.h>
-
-#ifdef HAVE_RUBY_ENCODING_H
-#    include <ruby/encoding.h>
-#endif
+#include <ruby/encoding.h>
 
 #if defined(__clang__)
 #    pragma clang diagnostic pop
@@ -78,40 +75,5 @@ extern "C"
 }
 
 #define CAST_METHOD(X) reinterpret_cast<ICE_RUBY_ENTRY_POINT>(X)
-
-//
-// These macros are defined in Ruby 1.9 but not in 1.8. We define them here
-// to maintain compatibility with 1.8.
-//
-#ifndef RARRAY_PTR
-#    define RARRAY_PTR(v) RARRAY(v)->ptr
-#endif
-
-#ifndef RARRAY_LEN
-#    define RARRAY_LEN(v) RARRAY(v)->len
-#endif
-
-#ifndef RSTRING_PTR
-#    define RSTRING_PTR(v) RSTRING(v)->ptr
-#endif
-
-#ifndef RSTRING_LEN
-#    define RSTRING_LEN(v) RSTRING(v)->len
-#endif
-
-#ifndef RFLOAT_VALUE
-#    define RFLOAT_VALUE(v) RFLOAT(v)->value
-#endif
-
-//
-// The RARRAY_AREF and RARRAY_ASET macros were added in Ruby 2.1.
-//
-#ifndef RARRAY_AREF
-#    define RARRAY_AREF(a, i) (RARRAY_PTR(a)[i])
-#endif
-
-#ifndef RARRAY_ASET
-#    define RARRAY_ASET(a, i, v) RARRAY_PTR(a)[i] = v
-#endif
 
 #endif

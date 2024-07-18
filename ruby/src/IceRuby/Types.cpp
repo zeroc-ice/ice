@@ -4,7 +4,7 @@
 
 #include "Types.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/OutputStream.h"
 #include "Ice/OutputUtil.h"
 #include "Ice/SlicedData.h"
@@ -599,11 +599,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
         case PrimitiveInfo::KindString:
         {
             string val = getString(p);
-#ifdef HAVE_RUBY_ENCODING_H
             os->write(val, false); // Bypass string conversion.
-#else
-            os->write(val, true);
-#endif
             break;
         }
     }
@@ -672,11 +668,7 @@ IceRuby::PrimitiveInfo::unmarshal(
         case PrimitiveInfo::KindString:
         {
             string str;
-#ifdef HAVE_RUBY_ENCODING_H
             is->read(str, false); // Bypass string conversion.
-#else
-            is->read(str, true);
-#endif
             val = createString(str);
             break;
         }
@@ -1518,11 +1510,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             }
             else
             {
-#ifdef HAVE_RUBY_ENCODING_H
                 os->write(&seq[0], &seq[0] + seq.size(), false); // Bypass string conversion.
-#else
-                os->write(&seq[0], &seq[0] + seq.size(), true);
-#endif
             }
             break;
         }
@@ -1648,11 +1636,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(
         case PrimitiveInfo::KindString:
         {
             Ice::StringSeq seq;
-#ifdef HAVE_RUBY_ENCODING_H
             is->read(seq, false); // Bypass string conversion.
-#else
-            is->read(seq, true);
-#endif
             long sz = static_cast<long>(seq.size());
             result = createArray(sz);
 
@@ -2703,11 +2687,11 @@ IceRuby::ReadValueCallback::invoke(const shared_ptr<Ice::Value>& p)
         volatile VALUE obj = reader->getObject();
         if (!_info->interface && !_info->validate(obj))
         {
-            Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
-            ex.reason = "unmarshaled object is not an instance of " + _info->id;
-            ex.type = reader->getInfo()->getId();
-            ex.expectedType = _info->id;
-            throw ex;
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                "failed to unmarshal class with type ID '" + _info->id +
+                    "': value factory returned a class with type ID '" + reader->getInfo()->id + "'"};
         }
 #ifndef NDEBUG
         // With debug builds we force a GC to ensure that all data members are correctly keep alive.
@@ -2971,26 +2955,6 @@ IceRuby_declareClass(VALUE /*self*/, VALUE id)
 }
 
 extern "C" VALUE
-IceRuby_declareLocalClass(VALUE /*self*/, VALUE id)
-{
-    ICE_RUBY_TRY
-    {
-        string idstr = getString(id);
-        ClassInfoPtr info = lookupClassInfo(idstr);
-        if (!info)
-        {
-            info = make_shared<ClassInfo>(id, true);
-            info->init();
-            addClassInfo(idstr, info);
-        }
-
-        return info->typeObj;
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
 IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE members)
 {
     ICE_RUBY_TRY
@@ -3169,7 +3133,6 @@ IceRuby::initTypes(VALUE iceModule)
     rb_define_module_function(iceModule, "__defineDictionary", CAST_METHOD(IceRuby_defineDictionary), 3);
     rb_define_module_function(iceModule, "__declareProxy", CAST_METHOD(IceRuby_declareProxy), 1);
     rb_define_module_function(iceModule, "__declareClass", CAST_METHOD(IceRuby_declareClass), 1);
-    rb_define_module_function(iceModule, "__declareLocalClass", CAST_METHOD(IceRuby_declareLocalClass), 1);
     rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 4);
 
     rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 5);

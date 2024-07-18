@@ -6,7 +6,7 @@
 #include "ArgVector.h"
 #include "CheckIdentity.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
@@ -208,33 +208,25 @@ namespace
         //
         if (ICE_INT_VERSION != version)
         {
-            throw VersionMismatchException(__FILE__, __LINE__);
+            throw InitializationException{
+                __FILE__,
+                __LINE__,
+                "version mismatch: runtime = " + to_string(ICE_INT_VERSION) +
+                    ", generated code = " + to_string(version)};
         }
 #    else
 
-        //
-        // Major and minor version numbers must match.
-        //
-        if (ICE_INT_VERSION / 100 != version / 100)
-        {
-            throw VersionMismatchException(__FILE__, __LINE__);
-        }
+        if ((ICE_INT_VERSION / 100 != version / 100) || // Major and minor version numbers must match.
+            (version % 100 > 50) ||                     // Reject beta caller
+            // The caller's patch level cannot be greater than library's patch level.
+            (version % 100 > ICE_INT_VERSION % 100))
 
-        //
-        // Reject beta caller
-        //
-        if (version % 100 > 50)
         {
-            throw VersionMismatchException(__FILE__, __LINE__);
-        }
-
-        //
-        // The caller's patch level cannot be greater than library's patch level. (Patch level changes are
-        // backward-compatible, but not forward-compatible.)
-        //
-        if (version % 100 > ICE_INT_VERSION % 100)
-        {
-            throw VersionMismatchException(__FILE__, __LINE__);
+            throw InitializationException{
+                __FILE__,
+                __LINE__,
+                "version mismatch: runtime = " + to_string(ICE_INT_VERSION) +
+                    ", generated code = " + to_string(version)};
         }
 
 #    endif
@@ -459,7 +451,7 @@ Ice::stringToIdentity(const string& s)
                 //
                 // Extra unescaped slash found.
                 //
-                throw IdentityParseException(__FILE__, __LINE__, "unescaped '/' in identity `" + s + "'");
+                throw ParseException(__FILE__, __LINE__, "unescaped '/' in identity '" + s + "'");
             }
         }
         pos++;
@@ -473,7 +465,7 @@ Ice::stringToIdentity(const string& s)
         }
         catch (const invalid_argument& ex)
         {
-            throw IdentityParseException(__FILE__, __LINE__, "invalid identity name `" + s + "': " + ex.what());
+            throw ParseException(__FILE__, __LINE__, "invalid identity name '" + s + "': " + ex.what());
         }
     }
     else
@@ -484,7 +476,7 @@ Ice::stringToIdentity(const string& s)
         }
         catch (const invalid_argument& ex)
         {
-            throw IdentityParseException(__FILE__, __LINE__, "invalid category in identity `" + s + "': " + ex.what());
+            throw ParseException(__FILE__, __LINE__, "invalid category in identity '" + s + "': " + ex.what());
         }
 
         if (slash + 1 < s.size())
@@ -495,7 +487,7 @@ Ice::stringToIdentity(const string& s)
             }
             catch (const invalid_argument& ex)
             {
-                throw IdentityParseException(__FILE__, __LINE__, "invalid name in identity `" + s + "': " + ex.what());
+                throw ParseException(__FILE__, __LINE__, "invalid name in identity '" + s + "': " + ex.what());
             }
         }
     }

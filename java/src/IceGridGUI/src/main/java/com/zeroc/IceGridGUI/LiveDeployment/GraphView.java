@@ -12,7 +12,7 @@ import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.zeroc.IceGridGUI.*;
-import com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor.FormatedNumberRenderer;
+import com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor.FormattedNumberRenderer;
 import com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsCell;
 import com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsViewInfo;
 import com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsViewTransferableData;
@@ -325,13 +325,13 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
               Map<String, Map<String, MetricsRow>> k = j.get(row.cell.getField().getMetricsName());
               Map<String, MetricsRow> l = k.get(row.cell.getId());
               l.remove(row.cell.getField().getFieldName());
-              if (l.size() == 0) {
+              if (l.isEmpty()) {
                 k.remove(row.cell.getId());
-                if (k.size() == 0) {
+                if (k.isEmpty()) {
                   j.remove(row.cell.getField().getMetricsName());
-                  if (j.size() == 0) {
+                  if (j.isEmpty()) {
                     _series.remove(row.info);
-                    if (_series.size() == 0) {
+                    if (_series.isEmpty()) {
                       stopRefresh();
                     }
                   }
@@ -418,7 +418,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     //
     // Set default renderer for numeric values.
     //
-    _legendTable.setDefaultRenderer(Double.class, new FormatedNumberRenderer("#0.000"));
+    _legendTable.setDefaultRenderer(Double.class, new FormattedNumberRenderer("#0.000"));
 
     //
     // Set a combobox to edit the scale factors.
@@ -474,7 +474,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
           _chart = new LineChart<>(_xAxis, _yAxis);
           _chart.setCreateSymbols(false);
           _xAxis.setLabel("Time (" + getDateFormat() + ")");
-          _xAxis.setTickLabelFormatter(_timeFormater);
+          _xAxis.setTickLabelFormatter(_timeFormatter);
           _xAxis.setForceZeroInRange(false);
           _chart.setAnimated(true);
           _chart.setLegendVisible(false);
@@ -660,7 +660,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                 columns.put(j.getField().getFieldName(), row);
                 j.getField().setContext(GraphView.this);
                 //
-                // When a line is clicked we select the correspoding row in the legend table.
+                // When a line is clicked we select the corresponding row in the legend table.
                 //
                 javafx.scene.Node n = _chart.lookup(".chart-series-line." + styleClass);
                 if (n != null) {
@@ -686,7 +686,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                       });
                 }
                 //
-                // Add the serie to the legend, must run in Swing thread.
+                // Add the series to the legend, must run in Swing thread.
                 //
                 enqueueSwing(() -> _legendModel.addRow(row));
               }
@@ -726,7 +726,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     // We need also a new click handler so click works in all segments
     // of the line.
     //
-    // When a line is clicked we select the correspoding row in the legend table.
+    // When a line is clicked we select the corresponding row in the legend table.
     //
     javafx.scene.Node n = _chart.lookup(".chart-series-line." + styleClass);
     if (n != null) {
@@ -796,7 +796,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                 //
                 if (metrics == null) {
                   //
-                  // If the row isn't disabled we add a new serie to represent the gap
+                  // If the row isn't disabled we add a new series to represent the gap
                   // and mark the row as disabled.
                   //
                   if (!row.disabled) {
@@ -884,7 +884,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
           // Remove empty series not longer in use, if there is only one
           // series that is keep to add new values.
           //
-          if (series.getData().size() == 0 && row.series.size() > 1) {
+          if (series.getData().isEmpty() && row.series.size() > 1) {
             row.series.remove(series);
             i--;
           }
@@ -960,7 +960,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
   synchronized void setDateFormat(String dateFormat) {
     _dateFormat = dateFormat;
-    _timeFormater.setDateFormat(dateFormat);
+    _timeFormatter.setDateFormat(dateFormat);
     //
     // Update the horizontal axis label, in JavaFx thread.
     //
@@ -1281,7 +1281,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
   //
   // Must be called in JavaFX thread.
   //
-  // Return the class used to style a serie.
+  // Return the class used to style a series.
   //
   public String getSeriesClass(XYChart.Series<Number, Number> series) {
     if (series == null || series.getNode() == null || series.getNode().getStyleClass() == null) {
@@ -1499,7 +1499,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
   private String[] _dateFormats = new String[] {"HH:mm:ss", "mm:ss"};
   private String _dateFormat = _dateFormats[0];
-  private final TimeFormatter _timeFormater = new TimeFormatter(_dateFormat);
+  private final TimeFormatter _timeFormatter = new TimeFormatter(_dateFormat);
 
   private LineChart<Number, Number> _chart;
   private NumberAxis _xAxis;

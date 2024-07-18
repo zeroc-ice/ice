@@ -56,10 +56,7 @@ namespace IceInternal
         const InstancePtr& getInstance() const { return _instance; }
         const SharedContextPtr& getContext() const { return _context; }
         int getInvocationTimeout() const { return _invocationTimeout; }
-        std::optional<bool> getCompress() const
-        {
-            return _overrideCompress ? std::optional<bool>(_compress) : std::nullopt;
-        }
+        std::optional<bool> getCompress() const { return _compress; }
 
         Ice::CommunicatorPtr getCommunicator() const;
 
@@ -103,7 +100,8 @@ namespace IceInternal
 
         virtual std::size_t hash() const noexcept;
 
-        bool getCompressOverride(bool&) const;
+        // Gets the effective compression setting, taking into account the override.
+        std::optional<bool> getCompressOverride() const;
 
         //
         // Utility methods.
@@ -149,6 +147,7 @@ namespace IceInternal
             const std::string&,
             Mode,
             bool,
+            std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             int,
@@ -156,14 +155,13 @@ namespace IceInternal
         Reference(const Reference&);
 
         const InstancePtr _instance;
-        bool _overrideCompress;
-        bool _compress; // Only used if _overrideCompress == true
 
     private:
         const Ice::CommunicatorPtr _communicator;
 
         Mode _mode;
         bool _secure;
+        std::optional<bool> _compress;
         Ice::Identity _identity;
         SharedContextPtr _context;
         std::string _facet;
@@ -182,12 +180,12 @@ namespace IceInternal
             const std::string&,
             Mode,
             bool,
+            std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             Ice::ConnectionIPtr,
             int,
-            const Ice::Context&,
-            const std::optional<bool>&);
+            const Ice::Context&);
 
         FixedReference(const FixedReference&);
 
@@ -243,6 +241,7 @@ namespace IceInternal
             const std::string&,
             Mode,
             bool,
+            std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             const std::vector<EndpointIPtr>&,

@@ -22,7 +22,15 @@ final class TcpConnector implements Connector {
 
   @Override
   public int hashCode() {
-    return _hashCode;
+    int h = 5381;
+    h = HashUtil.hashAdd(h, _addr.getAddress().getHostAddress());
+    h = HashUtil.hashAdd(h, _addr.getPort());
+    if (_sourceAddr != null) {
+      h = HashUtil.hashAdd(h, _sourceAddr.getAddress().getHostAddress());
+    }
+    h = HashUtil.hashAdd(h, _timeout);
+    h = HashUtil.hashAdd(h, _connectionId);
+    return h;
   }
 
   //
@@ -41,15 +49,6 @@ final class TcpConnector implements Connector {
     _sourceAddr = sourceAddr;
     _timeout = timeout;
     _connectionId = connectionId;
-
-    _hashCode = 5381;
-    _hashCode = HashUtil.hashAdd(_hashCode, _addr.getAddress().getHostAddress());
-    _hashCode = HashUtil.hashAdd(_hashCode, _addr.getPort());
-    if (_sourceAddr != null) {
-      _hashCode = HashUtil.hashAdd(_hashCode, _sourceAddr.getAddress().getHostAddress());
-    }
-    _hashCode = HashUtil.hashAdd(_hashCode, _timeout);
-    _hashCode = HashUtil.hashAdd(_hashCode, _connectionId);
   }
 
   @Override
@@ -71,11 +70,11 @@ final class TcpConnector implements Connector {
       return false;
     }
 
-    if (Network.compareAddress(_sourceAddr, p._sourceAddr) != 0) {
+    if (!java.util.Objects.equals(_sourceAddr, p._sourceAddr)) {
       return false;
     }
 
-    return Network.compareAddress(_addr, p._addr) == 0;
+    return java.util.Objects.equals(_addr, p._addr);
   }
 
   private ProtocolInstance _instance;
@@ -84,5 +83,4 @@ final class TcpConnector implements Connector {
   private java.net.InetSocketAddress _sourceAddr;
   private int _timeout;
   private String _connectionId = "";
-  private int _hashCode;
 }

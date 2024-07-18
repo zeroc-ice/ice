@@ -54,8 +54,8 @@ final class WSConnector implements Connector {
     return true;
   }
 
-  private ProtocolInstance _instance;
-  private Connector _delegate;
-  private String _host;
-  private String _resource;
+  private final ProtocolInstance _instance;
+  private final Connector _delegate;
+  private final String _host;
+  private final String _resource;
 }

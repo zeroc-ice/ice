@@ -124,18 +124,6 @@ namespace
         return name;
     }
 
-    string getEscapedParamName(const DataMemberList& params, const string& name)
-    {
-        for (DataMemberList::const_iterator i = params.begin(); i != params.end(); ++i)
-        {
-            if ((*i)->name() == name)
-            {
-                return name + "_";
-            }
-        }
-        return name;
-    }
-
     string resultStructReturnValueName(const ParamDeclList& outParams)
     {
         for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
@@ -740,10 +728,11 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
 void
 Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers, unsigned int baseTypes)
 {
-    // Generates "= null!" for each non-optional collection and struct-mapped-to-a-class field.
+    // Generates "= null!" for each required field. This wouldn't be necessary if we actually generated required
+    // fields and properties.
     for (const auto& q : dataMembers)
     {
-        if (!q->optional() && isNonNullableReferenceType(q->type(), false))
+        if (isMappedToRequiredField(q))
         {
             _out << nl << "this." << fixId(q->name(), baseTypes) << " = null!;";
         }
@@ -1675,9 +1664,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             string memberType = typeToString(q->type(), ns, q->optional());
             paramDecl.push_back(memberType + " " + memberName);
 
-            // Look for non-nullable fields to be initialized by the secondary constructor.
-            // false: we don't want to include strings since they are initialized to ""
-            if (!q->optional() && isNonNullableReferenceType(q->type(), false))
+            // The secondary constructor initializes the fields that would be marked "required" if we generated the
+            // required keyword.
+            if (isMappedToRequiredField(q))
             {
                 secondaryCtorParams.push_back(memberType + " " + memberName);
 
@@ -1699,8 +1688,8 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 string memberName = fixId(q->name(), DotNet::ICloneable);
                 baseParamNames.push_back(memberName);
 
-                // Look for non-nullable fields
-                if (!q->optional() && isNonNullableReferenceType(q->type(), false))
+                // Look for required fields
+                if (isMappedToRequiredField(q))
                 {
                     secondaryCtorBaseParamNames.push_back(memberName);
                 }
@@ -1711,7 +1700,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         for (const auto& q : dataMembers)
         {
             const string memberName = fixId(q->name(), DotNet::ICloneable);
-            if (!q->optional() && isNonNullableReferenceType(q->type()))
+            if (isMappedToNonNullableReference(q))
             {
                 _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << memberName << ");";
             }
@@ -1720,7 +1709,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << nl << "ice_initialize();";
         _out << eb;
 
-        // Non-primary constructor. Can be parameterless.
+        // Secondary constructor. Can be parameterless.
         if (secondaryCtorParams.size() != paramDecl.size())
         {
             _out << sp;
@@ -1756,21 +1745,11 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     _out << sp;
-    _out << nl << "private const string _id = \"" << p->scoped() << "\";";
-
-    _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static new string ice_staticId()";
-    _out << sb;
-    _out << nl << "return _id;";
-    _out << eb;
+    _out << nl << "public static new string ice_staticId() => \"" << p->scoped() << "\";";
 
     emitGeneratedCodeAttribute();
-    _out << nl << "public override string ice_id()";
-    _out << sb;
-    _out << nl << "return _id;";
-    _out << eb;
-
+    _out << nl << "public override string ice_id() => ice_staticId();";
     writeMarshaling(p);
 
     _out << eb;
@@ -1887,7 +1866,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     emitAttributes(p);
     emitComVisibleAttribute();
     //
-    // Suppress FxCop diagnostic about a missing constructor MyException(String).
+    // Suppress diagnostic about missing constructors:
+    // https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1032
     //
     _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1032\")]";
 
@@ -1917,122 +1897,105 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     DataMemberList classMembers = p->classDataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     ExceptionPtr base = p->base();
-    string exParam = getEscapedParamName(allDataMembers, "innerException");
 
-    // Primary constructor.
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public " << name << spar;
-
-    vector<string> paramDecl;
-    vector<string> secondaryCtorParams;
-    vector<string> secondaryCtorMemberNames;
-    vector<string> secondaryCtorBaseParamNames;
-    bool hideParameterlessCtor = false;
-
-    for (const auto& q : allDataMembers)
+    if (!allDataMembers.empty())
     {
-        string memberName = fixId(q->name(), DotNet::Exception);
-        string memberType = typeToString(q->type(), ns, q->optional());
-        paramDecl.push_back(memberType + " " + memberName);
-
-        // Look for non-nullable fields to be initialized by the secondary constructor.
-        if (!q->optional() && isNonNullableReferenceType(q->type(), false))
-        {
-            secondaryCtorParams.push_back(memberType + " " + memberName);
-            if (find(dataMembers.begin(), dataMembers.end(), q) != dataMembers.end())
-            {
-                secondaryCtorMemberNames.push_back(memberName);
-            }
-            hideParameterlessCtor = true;
-        }
-    }
-    // Add exception for inner exception. It's defaulted to null only if it's not the only parameter.
-    if (paramDecl.size() > 0)
-    {
-        paramDecl.push_back("global::System.Exception? " + exParam + " = null");
-    }
-    else
-    {
-        paramDecl.push_back("global::System.Exception? " + exParam);
-    }
-    if (secondaryCtorParams.size() > 0)
-    {
-        secondaryCtorParams.push_back("global::System.Exception? " + exParam + " = null");
-    }
-    else
-    {
-        secondaryCtorParams.push_back("global::System.Exception? " + exParam);
-    }
-
-    _out << paramDecl << epar;
-    _out << " : base" << spar;
-    vector<string> baseParamNames;
-    if (base)
-    {
-        DataMemberList baseDataMembers = base->allDataMembers();
-        for (const auto& q : baseDataMembers)
-        {
-            string memberName = fixId(q->name(), DotNet::Exception);
-            baseParamNames.push_back(memberName);
-
-            // Look for non-nullable fields
-            if (!q->optional() && isNonNullableReferenceType(q->type(), false))
-            {
-                secondaryCtorBaseParamNames.push_back(memberName);
-            }
-        }
-    }
-    baseParamNames.push_back(exParam);
-    secondaryCtorBaseParamNames.push_back(exParam);
-
-    _out << baseParamNames << epar;
-    _out << sb;
-    for (const auto& q : dataMembers)
-    {
-        const string memberName = fixId(q->name(), DotNet::Exception);
-        if (!q->optional() && isNonNullableReferenceType(q->type()))
-        {
-            _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << memberName << ");";
-        }
-        _out << nl << "this." << memberName << " = " << memberName << ';';
-    }
-    _out << eb;
-
-    // Non-primary constructor. If generated, it has at least one parameter without a default value.
-    if (secondaryCtorParams.size() != paramDecl.size())
-    {
+        // Primary constructor.
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << spar << secondaryCtorParams << epar;
-        _out << " : base" << spar << secondaryCtorBaseParamNames << epar;
-        _out << sb;
-        for (const auto& q : secondaryCtorMemberNames)
+        _out << nl << "public " << name << spar;
+
+        vector<string> paramDecl;
+        vector<string> secondaryCtorParams;
+        vector<string> secondaryCtorMemberNames;
+        vector<string> secondaryCtorBaseParamNames;
+
+        for (const auto& q : allDataMembers)
         {
-            _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << q << ");";
-            _out << nl << "this." << q << " = " << q << ';';
+            string memberName = fixId(q->name(), DotNet::Exception);
+            string memberType = typeToString(q->type(), ns, q->optional());
+            paramDecl.push_back(memberType + " " + memberName);
+
+            // The secondary constructor initializes the fields that would be marked "required" if we generated the
+            // required keyword.
+            if (isMappedToRequiredField(q))
+            {
+                secondaryCtorParams.push_back(memberType + " " + memberName);
+
+                if (find(dataMembers.begin(), dataMembers.end(), q) != dataMembers.end())
+                {
+                    secondaryCtorMemberNames.push_back(memberName);
+                }
+            }
+        }
+        _out << paramDecl << epar;
+
+        if (base && allDataMembers.size() != dataMembers.size())
+        {
+            _out << " : base" << spar;
+            vector<string> baseParamNames;
+            DataMemberList baseDataMembers = base->allDataMembers();
+            for (const auto& q : baseDataMembers)
+            {
+                string memberName = fixId(q->name(), DotNet::Exception);
+                baseParamNames.push_back(memberName);
+
+                // Look for required fields
+                if (isMappedToRequiredField(q))
+                {
+                    secondaryCtorBaseParamNames.push_back(memberName);
+                }
+            }
+            _out << baseParamNames << epar;
+        }
+        _out << sb;
+        for (const auto& q : dataMembers)
+        {
+            const string memberName = fixId(q->name(), DotNet::Exception);
+            if (isMappedToNonNullableReference(q))
+            {
+                _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << memberName << ");";
+            }
+            _out << nl << "this." << memberName << " = " << memberName << ';';
         }
         _out << eb;
+
+        // Secondary constructor. Can be parameterless.
+        if (secondaryCtorParams.size() != paramDecl.size())
+        {
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "public " << name << spar << secondaryCtorParams << epar;
+            if (base && secondaryCtorBaseParamNames.size() > 0)
+            {
+                _out << " : base" << spar << secondaryCtorBaseParamNames << epar;
+            }
+            _out << sb;
+            for (const auto& q : secondaryCtorMemberNames)
+            {
+                // All these parameters/fields are non-nullable and we don't tolerate null values.
+                _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << q << ");";
+                _out << nl << "this." << q << " = " << q << ';';
+            }
+            _out << eb;
+        }
+
+        // Parameterless constructor. Required for unmarshaling.
+        if (secondaryCtorParams.size() > 0)
+        {
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            emitNonBrowsableAttribute();
+            _out << nl << "public " << name << "()";
+            _out << sb;
+            writeDataMemberInitializers(dataMembers, DotNet::Exception);
+            _out << eb;
+        }
     }
 
-    // Parameterless constructor. Required for unmarshaling.
     _out << sp;
     emitGeneratedCodeAttribute();
-    if (hideParameterlessCtor)
-    {
-        emitNonBrowsableAttribute();
-    }
-    _out << nl << "public " << name << "()";
-    _out << sb;
-    writeDataMemberInitializers(dataMembers, DotNet::Exception);
-    _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public override string ice_id()";
-    _out << sb;
-    _out << nl << "return \"" << p->scoped() << "\";";
-    _out << eb;
+    _out << nl << "public override string ice_id() => \"" << p->scoped() << "\";";
 
     string scoped = p->scoped();
 
@@ -2158,15 +2121,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if (classMapping)
     {
-        // We generate a constructor that initializes all non-nullable fields (collections and structs mapped to
+        // We generate a constructor that initializes all required fields (collections and structs mapped to
         // classes). It can be parameterless.
 
         vector<string> ctorParams;
         vector<string> ctorParamNames;
         for (const auto& q : dataMembers)
         {
-            // false: we don't want to include strings since they are initialized to ""
-            if (isNonNullableReferenceType(q->type(), false))
+            if (isMappedToRequiredField(q))
             {
                 string memberName = fixId(q->name(), DotNet::ICloneable);
                 string memberType = typeToString(q->type(), ns, false);
@@ -2208,7 +2170,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     for (const auto& q : dataMembers)
     {
         string paramName = fixId(q->name(), classMapping ? DotNet::ICloneable : 0);
-        if (isNonNullableReferenceType(q->type()))
+        if (isMappedToNonNullableReference(q))
         {
             _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << paramName << ");";
         }
@@ -3168,29 +3130,18 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.dec();
 
     _out << sp << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
+         << "Prx? checkedCast(Ice.ObjectPrx? b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
             "null) =>";
     _out.inc();
     _out << nl << "b is not null && b.ice_isA(ice_staticId(), ctx) ? new " << name << "PrxHelper(b) : null;";
     _out.dec();
 
     _out << sp << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx b, string f, global::System.Collections.Generic.Dictionary<string, "
-            "string>? ctx = null)";
-    _out << sb;
-    _out << nl << "Ice.ObjectPrx? bb = b?.ice_facet(f);";
-    _out << nl << "try";
-    _out << sb;
-    _out << nl << "if (bb is not null && bb.ice_isA(ice_staticId(), ctx))";
-    _out << sb;
-    _out << nl << "return new " << name << "PrxHelper(bb);";
-    _out << eb;
-    _out << eb;
-    _out << nl << "catch (Ice.FacetNotExistException)";
-    _out << sb;
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
+         << "Prx? checkedCast(Ice.ObjectPrx? b, string f, global::System.Collections.Generic.Dictionary<string, "
+            "string>? ctx = null) =>";
+    _out.inc();
+    _out << nl << "checkedCast(b?.ice_facet(f), ctx);";
+    _out.dec();
 
     _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
     _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b) =>";
@@ -3201,7 +3152,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
     _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b, string f) =>";
     _out.inc();
-    _out << nl << "b is not null ? new " << name << "PrxHelper(b.ice_facet(f)) : null;";
+    _out << nl << "uncheckedCast(b?.ice_facet(f));";
     _out.dec();
 
     string scoped = p->scoped();

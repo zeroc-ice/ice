@@ -234,13 +234,13 @@ def allTests(helper, communicator):
     try:
         adapter.add(obj, Ice.Identity("", ""))
         test(False)
-    except Ice.IllegalIdentityException:
+    except Ice.LocalException:
         pass
 
     try:
         adapter.add(None, Ice.stringToIdentity("x"))
         test(False)
-    except Ice.IllegalServantException:
+    except Ice.LocalException:
         pass
 
     adapter.remove(Ice.stringToIdentity("x"))
@@ -287,19 +287,7 @@ def allTests(helper, communicator):
         pass
     print("ok")
 
-    sys.stdout.write("testing stringToProxy... ")
-    sys.stdout.flush()
-    ref = "thrower:{0}".format(helper.getTestEndpoint())
-    base = communicator.stringToProxy(ref)
-    test(base)
-    print("ok")
-
-    sys.stdout.write("testing checked cast... ")
-    sys.stdout.flush()
-    thrower = Test.ThrowerPrx.checkedCast(base)
-    test(thrower)
-    test(thrower == base)
-    print("ok")
+    thrower = Test.ThrowerPrx(communicator, f"thrower:{helper.getTestEndpoint()}")
 
     sys.stdout.write("catching exact types... ")
     sys.stdout.flush()
@@ -484,7 +472,7 @@ def allTests(helper, communicator):
         try:
             thrower.throwMemoryLimitException(array.array("B"))
             test(False)
-        except Ice.MemoryLimitException:
+        except Ice.MarshalException:
             pass
         except Exception:
             print(sys.exc_info())
@@ -838,15 +826,15 @@ def allTests(helper, communicator):
         try:
             thrower.throwMarshalException(context={"response": ""})
         except Ice.UnknownLocalException as ex:
-            test("::Ice::MarshalException" in str(ex))
+            test("cannot marshal result" in str(ex))
         try:
             thrower.throwMarshalException(context={"param": ""})
         except Ice.UnknownLocalException as ex:
-            test("::Ice::MarshalException" in str(ex))
+            test("cannot marshal result" in str(ex))
         try:
             thrower.throwMarshalException()
         except Ice.UnknownLocalException as ex:
-            test("::Ice::MarshalException" in str(ex))
+            test("cannot marshal result" in str(ex))
     except Ice.OperationNotExistException:
         pass
     print("ok")

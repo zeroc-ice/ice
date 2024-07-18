@@ -110,7 +110,8 @@ public final class Communicator implements AutoCloseable {
    * @see #proxyToString
    */
   public ObjectPrx stringToProxy(String str) {
-    return _instance.proxyFactory().stringToProxy(str);
+    var ref = _instance.referenceFactory().create(str, null);
+    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   /**
@@ -121,7 +122,7 @@ public final class Communicator implements AutoCloseable {
    * @see #stringToProxy
    */
   public String proxyToString(ObjectPrx proxy) {
-    return _instance.proxyFactory().proxyToString(proxy);
+    return (proxy == null) ? "" : proxy._getReference().toString();
   }
 
   /**
@@ -135,7 +136,9 @@ public final class Communicator implements AutoCloseable {
    * @return The proxy.
    */
   public ObjectPrx propertyToProxy(String prefix) {
-    return _instance.proxyFactory().propertyToProxy(prefix);
+    String proxy = _instance.initializationData().properties.getProperty(prefix);
+    var ref = _instance.referenceFactory().create(proxy, prefix);
+    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   /**
@@ -146,7 +149,7 @@ public final class Communicator implements AutoCloseable {
    * @return The property set.
    */
   public java.util.Map<String, String> proxyToProperty(ObjectPrx proxy, String prefix) {
-    return _instance.proxyFactory().proxyToProperty(proxy, prefix);
+    return (proxy == null) ? new java.util.HashMap<>() : proxy._getReference().toProperty(prefix);
   }
 
   /**
@@ -201,7 +204,7 @@ public final class Communicator implements AutoCloseable {
    * @see Properties
    */
   public ObjectAdapter createObjectAdapter(String name, SSLEngineFactory sslEngineFactory) {
-    if (name.length() == 0 && sslEngineFactory != null) {
+    if (name.isEmpty() && sslEngineFactory != null) {
       throw new IllegalArgumentException("name cannot be empty when using an SSLEngineFactory");
     }
     return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslEngineFactory);
@@ -245,7 +248,7 @@ public final class Communicator implements AutoCloseable {
    */
   public ObjectAdapter createObjectAdapterWithEndpoints(
       String name, String endpoints, SSLEngineFactory sslEngineFactory) {
-    if (name.length() == 0) {
+    if (name.isEmpty()) {
       name = java.util.UUID.randomUUID().toString();
     }
 
@@ -265,7 +268,7 @@ public final class Communicator implements AutoCloseable {
    * @see Properties
    */
   public ObjectAdapter createObjectAdapterWithRouter(String name, RouterPrx router) {
-    if (name.length() == 0) {
+    if (name.isEmpty()) {
       name = java.util.UUID.randomUUID().toString();
     }
 

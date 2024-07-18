@@ -24,9 +24,7 @@ classdef AllTests
         function allTests(helper)
             import Test.*;
 
-            controller = ControllerPrx.checkedCast(...
-                helper.communicator().stringToProxy(['controller:', helper.getTestEndpoint(1)]));
-            assert(~isempty(controller));
+            controller = ControllerPrx(helper.communicator(), ['controller:', helper.getTestEndpoint(1)]);
             try
                 AllTests.allTestsWithController(helper, controller);
             catch ex
@@ -42,15 +40,11 @@ classdef AllTests
             communicator = helper.communicator();
 
             sref = ['timeout:', helper.getTestEndpoint()];
-            obj = communicator.stringToProxy(sref);
-            assert(~isempty(obj));
-
-            timeout = TimeoutPrx.checkedCast(obj);
-            assert(~isempty(timeout));
+            timeout = TimeoutPrx(communicator, sref);
 
             fprintf('testing invocation timeout... ');
 
-            connection = obj.ice_getConnection();
+            connection = timeout.ice_getConnection();
             to = timeout.ice_invocationTimeout(100);
             assert(connection == to.ice_getConnection());
             try
@@ -59,8 +53,8 @@ classdef AllTests
             catch ex
                 assert(isa(ex, 'Ice.InvocationTimeoutException'));
             end
-            obj.ice_ping();
-            to = TimeoutPrx.checkedCast(obj.ice_invocationTimeout(500));
+            timeout.ice_ping();
+            to = timeout.ice_invocationTimeout(500);
             assert(connection == to.ice_getConnection());
             try
                 to.sleep(100);
@@ -83,7 +77,7 @@ classdef AllTests
             catch ex
                 assert(isa(ex, 'Ice.TimeoutException'));
             end
-            obj.ice_ping();
+            timeout.ice_ping();
 
             %
             % Expect success.

@@ -28,7 +28,8 @@
         "jshint": "^2.13.6",
         "prettier": "^3.3.2",
         "pump": "^3.0.0",
-        "typescript": "^5.4.5",
+        "typedoc": "^0.26.3",
+        "typescript": "^5.5.3",
         "typescript-formatter": "^7.2.2",
         "vinyl": "^3.0.0",
         "vinyl-paths": "^5.0.0"

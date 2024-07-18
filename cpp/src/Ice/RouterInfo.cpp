@@ -4,7 +4,7 @@
 
 #include "RouterInfo.h"
 #include "Ice/Connection.h" // For ice_connection()->timeout().
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
 #include "Reference.h"
@@ -156,7 +156,7 @@ IceInternal::RouterInfo::getServerEndpoints()
     optional<ObjectPrx> serverProxy = _router->getServerProxy();
     if (!serverProxy)
     {
-        throw NoEndpointException(__FILE__, __LINE__);
+        throw NoEndpointException{__FILE__, __LINE__, "Router::getServerProxy returned a null proxy"};
     }
     serverProxy = serverProxy->ice_router(nullopt); // The server proxy cannot be routed.
     return serverProxy->_getReference()->getEndpoints();

@@ -4,7 +4,7 @@
 
 #include "Ice/IncomingRequest.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 
 using namespace std;
 using namespace Ice;
@@ -31,7 +31,7 @@ IncomingRequest::IncomingRequest(
     {
         if (facetPath.size() > 1)
         {
-            throw MarshalException{__FILE__, __LINE__};
+            throw MarshalException{__FILE__, __LINE__, "received facet path with more than one element"};
         }
         _current.facet = facetPath[0];
     }

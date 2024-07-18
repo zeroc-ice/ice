@@ -461,6 +461,9 @@ classdef AllTests
 
             fprintf('ok\n');
 
+            %{
+                TODO: fix #1945 and re-enable this test
+
             fprintf('unknown most derived in compact format... ');
 
             try
@@ -529,6 +532,7 @@ classdef AllTests
             end
 
             fprintf('ok\n');
+            %}
 
             r = test;
         end

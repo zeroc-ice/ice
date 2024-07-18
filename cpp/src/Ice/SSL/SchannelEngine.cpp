@@ -6,7 +6,7 @@
 #include "../FileUtil.h"
 #include "DistinguishedName.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
@@ -813,122 +813,87 @@ Schannel::SSLEngine::initialize()
         _chainEngine = (certStoreLocation == "LocalMachine") ? HCCE_LOCAL_MACHINE : HCCE_CURRENT_USER;
     }
 
-    string certFileValue = properties->getIceProperty("IceSSL.CertFile");
+    string certFile = properties->getIceProperty("IceSSL.CertFile");
     string keyFile = properties->getIceProperty("IceSSL.KeyFile");
     string findCert = properties->getIceProperty("IceSSL.FindCert");
 
-    if (!certFileValue.empty())
+    if (!certFile.empty())
     {
-        vector<string> certFiles;
-        if (!splitString(certFileValue, IceInternal::pathsep, certFiles) || certFiles.size() > 2)
+        string resolved;
+        if (!checkPath(certFile, defaultDir, false, resolved))
         {
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "SSL transport: invalid value for IceSSL.CertFile:\n" + certFileValue);
+                "SSL transport: certificate file not found:\n" + certFile);
+        }
+        certFile = resolved;
+
+        vector<char> buffer;
+        readFile(certFile, buffer);
+        if (buffer.empty())
+        {
+            throw InitializationException(__FILE__, __LINE__, "SSL transport: certificate file is empty:\n" + certFile);
         }
 
-        vector<string> keyFiles;
-        if (!keyFile.empty())
+        CRYPT_DATA_BLOB pfxBlob;
+        pfxBlob.cbData = static_cast<DWORD>(buffer.size());
+        pfxBlob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
+
+        PCCERT_CONTEXT cert = nullptr;
+        DWORD importFlags = (certStoreLocation == "LocalMachine") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
+        HCERTSTORE store = PFXImportCertStore(
+            &pfxBlob,
+            Ice::stringToWstring(properties->getIceProperty("IceSSL.Password")).c_str(),
+            importFlags);
+        int err = store ? 0 : GetLastError();
+
+        if (store)
         {
-            if (!splitString(keyFile, IceInternal::pathsep, keyFiles) || keyFiles.size() > 2)
+            // Try to find a certificate chain.
+            CERT_CHAIN_FIND_BY_ISSUER_PARA para;
+            memset(&para, 0, sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA));
+            para.cbSize = sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA);
+
+            PCCERT_CHAIN_CONTEXT chain = nullptr;
+            while (!cert)
             {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: invalid value for IceSSL.KeyFile:\n" + keyFile);
+                chain = CertFindChainInStore(
+                    store,
+                    X509_ASN_ENCODING,
+                    CERT_CHAIN_FIND_BY_ISSUER_CACHE_ONLY_URL_FLAG, // Don't fetch anything from the Internet
+                    CERT_CHAIN_FIND_BY_ISSUER,
+                    &para,
+                    chain);
+                if (!chain)
+                {
+                    break; // No more chains found in the store.
+                }
+
+                if (chain->cChain > 0 && chain->rgpChain[0]->cElement > 0)
+                {
+                    cert = CertDuplicateCertificateContext(chain->rgpChain[0]->rgpElement[0]->pCertContext);
+                }
+                CertFreeCertificateChain(chain);
             }
 
-            if (certFiles.size() != keyFiles.size())
+            // Check if we can find a certificate if we couldn't find a chain.
+            if (!cert)
+            {
+                cert = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_ANY, 0, cert);
+            }
+            if (!cert)
             {
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "SSL transport: IceSSL.KeyFile does not agree with IceSSL.CertFile");
+                    "SSL transport: certificate error:\n" + lastErrorToString());
             }
+            _allCerts.push_back(cert);
+            _stores.push_back(store);
         }
-
-        for (size_t i = 0; i < certFiles.size(); ++i)
+        else
         {
-            string certFile = certFiles[i];
-            string resolved;
-            if (!checkPath(certFile, defaultDir, false, resolved))
-            {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: certificate file not found:\n" + certFile);
-            }
-            certFile = resolved;
-
-            vector<char> buffer;
-            readFile(certFile, buffer);
-            if (buffer.empty())
-            {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: certificate file is empty:\n" + certFile);
-            }
-
-            CRYPT_DATA_BLOB pfxBlob;
-            pfxBlob.cbData = static_cast<DWORD>(buffer.size());
-            pfxBlob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
-
-            PCCERT_CONTEXT cert = nullptr;
-            DWORD importFlags = (certStoreLocation == "LocalMachine") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
-            HCERTSTORE store = PFXImportCertStore(
-                &pfxBlob,
-                Ice::stringToWstring(properties->getIceProperty("IceSSL.Password")).c_str(),
-                importFlags);
-            int err = store ? 0 : GetLastError();
-
-            if (store)
-            {
-                // Try to find a certificate chain.
-                CERT_CHAIN_FIND_BY_ISSUER_PARA para;
-                memset(&para, 0, sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA));
-                para.cbSize = sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA);
-
-                PCCERT_CHAIN_CONTEXT chain = nullptr;
-                while (!cert)
-                {
-                    chain = CertFindChainInStore(
-                        store,
-                        X509_ASN_ENCODING,
-                        CERT_CHAIN_FIND_BY_ISSUER_CACHE_ONLY_URL_FLAG, // Don't fetch anything from the Internet
-                        CERT_CHAIN_FIND_BY_ISSUER,
-                        &para,
-                        chain);
-                    if (!chain)
-                    {
-                        break; // No more chains found in the store.
-                    }
-
-                    if (chain->cChain > 0 && chain->rgpChain[0]->cElement > 0)
-                    {
-                        cert = CertDuplicateCertificateContext(chain->rgpChain[0]->rgpElement[0]->pCertContext);
-                    }
-                    CertFreeCertificateChain(chain);
-                }
-
-                // Check if we can find a certificate if we couldn't find a chain.
-                if (!cert)
-                {
-                    cert = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_ANY, 0, cert);
-                }
-                if (!cert)
-                {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "SSL transport: certificate error:\n" + lastErrorToString());
-                }
-                _allCerts.push_back(cert);
-                _stores.push_back(store);
-                continue;
-            }
-
             assert(err);
             if (err != CRYPT_E_BAD_ENCODE)
             {
@@ -939,13 +904,7 @@ Schannel::SSLEngine::initialize()
             }
 
             // Try to load certificate & key as PEM files.
-            if (keyFiles.empty())
-            {
-                throw InitializationException(__FILE__, __LINE__, "SSL transport: no key file specified");
-            }
-
             err = 0;
-            keyFile = keyFiles[i];
             if (!checkPath(keyFile, defaultDir, false, resolved))
             {
                 throw InitializationException(__FILE__, __LINE__, "SSL transport: key file not found:\n" + keyFile);

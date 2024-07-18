@@ -8,7 +8,6 @@
 %   GracefullyWithWait - Wait for all pending invocations to complete before closing the connection.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from Connection.ice by slice2matlab version 3.7.10
 
 classdef ConnectionClose < uint8
     enumeration
@@ -20,19 +19,5 @@ classdef ConnectionClose < uint8
         Gracefully (1)
         % Wait for all pending invocations to complete before closing the connection.
         GracefullyWithWait (2)
-    end
-    methods(Static)
-        function r = ice_getValue(v)
-            switch v
-                case 0
-                    r = Ice.ConnectionClose.Forcefully;
-                case 1
-                    r = Ice.ConnectionClose.Gracefully;
-                case 2
-                    r = Ice.ConnectionClose.GracefullyWithWait;
-                otherwise
-                    throw(Ice.MarshalException('', '', sprintf('enumerator value %d is out of range', v)));
-            end
-        end
     end
 end

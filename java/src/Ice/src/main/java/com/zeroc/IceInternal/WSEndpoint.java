@@ -207,7 +207,7 @@ final class WSEndpoint extends EndpointI {
   }
 
   @Override
-  public synchronized int hashCode() {
+  public int hashCode() {
     int h = _delegate.hashCode();
     h = HashUtil.hashAdd(h, _resource);
     return h;
@@ -224,7 +224,7 @@ final class WSEndpoint extends EndpointI {
     //
     String s = _delegate.options();
 
-    if (_resource != null && _resource.length() > 0) {
+    if (_resource != null && !_resource.isEmpty()) {
       s += " -r ";
       boolean addQuote = _resource.indexOf(':') != -1;
       if (addQuote) {
@@ -240,8 +240,7 @@ final class WSEndpoint extends EndpointI {
   }
 
   @Override
-  public int compareTo(EndpointI obj) // From java.lang.Comparable
-      {
+  public int compareTo(EndpointI obj) {
     if (!(obj instanceof WSEndpoint)) {
       return type() < obj.type() ? -1 : 1;
     }

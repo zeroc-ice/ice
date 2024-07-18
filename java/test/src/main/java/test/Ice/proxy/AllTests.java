@@ -6,6 +6,7 @@ package test.Ice.proxy;
 
 import com.zeroc.Ice.EncodingVersion;
 import com.zeroc.Ice.EndpointSelectionType;
+import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
@@ -35,29 +36,29 @@ public class AllTests {
     ObjectPrx b1 = communicator.stringToProxy("test");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
-            && b1.ice_getAdapterId().length() == 0
-            && b1.ice_getFacet().length() == 0);
+            && b1.ice_getIdentity().category.isEmpty()
+            && b1.ice_getAdapterId().isEmpty()
+            && b1.ice_getFacet().isEmpty());
     b1 = communicator.stringToProxy("test ");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
-            && b1.ice_getFacet().length() == 0);
+            && b1.ice_getIdentity().category.isEmpty()
+            && b1.ice_getFacet().isEmpty());
     b1 = communicator.stringToProxy(" test ");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
-            && b1.ice_getFacet().length() == 0);
+            && b1.ice_getIdentity().category.isEmpty()
+            && b1.ice_getFacet().isEmpty());
     b1 = communicator.stringToProxy(" test");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
-            && b1.ice_getFacet().length() == 0);
+            && b1.ice_getIdentity().category.isEmpty()
+            && b1.ice_getFacet().isEmpty());
     b1 = communicator.stringToProxy("'test -f facet'");
     test(
         b1.ice_getIdentity().name.equals("test -f facet")
-            && b1.ice_getIdentity().category.length() == 0
-            && b1.ice_getFacet().length() == 0);
+            && b1.ice_getIdentity().category.isEmpty()
+            && b1.ice_getFacet().isEmpty());
     try {
       b1 = communicator.stringToProxy("\"test -f facet'");
       test(false);
@@ -66,27 +67,25 @@ public class AllTests {
     b1 = communicator.stringToProxy("\"test -f facet\"");
     test(
         b1.ice_getIdentity().name.equals("test -f facet")
-            && b1.ice_getIdentity().category.length() == 0
-            && b1.ice_getFacet().length() == 0);
+            && b1.ice_getIdentity().category.isEmpty()
+            && b1.ice_getFacet().isEmpty());
     b1 = communicator.stringToProxy("\"test -f facet@test\"");
     test(
         b1.ice_getIdentity().name.equals("test -f facet@test")
-            && b1.ice_getIdentity().category.length() == 0
-            && b1.ice_getFacet().length() == 0);
+            && b1.ice_getIdentity().category.isEmpty()
+            && b1.ice_getFacet().isEmpty());
     b1 = communicator.stringToProxy("\"test -f facet@test @test\"");
     test(
         b1.ice_getIdentity().name.equals("test -f facet@test @test")
-            && b1.ice_getIdentity().category.length() == 0
-            && b1.ice_getFacet().length() == 0);
+            && b1.ice_getIdentity().category.isEmpty()
+            && b1.ice_getFacet().isEmpty());
     try {
       b1 = communicator.stringToProxy("test test");
       test(false);
     } catch (com.zeroc.Ice.ProxyParseException ex) {
     }
     b1 = communicator.stringToProxy("test\\040test");
-    test(
-        b1.ice_getIdentity().name.equals("test test")
-            && b1.ice_getIdentity().category.length() == 0);
+    test(b1.ice_getIdentity().name.equals("test test") && b1.ice_getIdentity().category.isEmpty());
     try {
       b1 = communicator.stringToProxy("test\\777");
       test(false);
@@ -108,13 +107,13 @@ public class AllTests {
     b1 = communicator.stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
     test(
         b1.ice_getIdentity().name.equals("test\b\f\n\r\t\'\"\\test")
-            && b1.ice_getIdentity().category.length() == 0);
+            && b1.ice_getIdentity().category.isEmpty());
 
     b1 = communicator.stringToProxy("category/test");
     test(
         b1.ice_getIdentity().name.equals("test")
             && b1.ice_getIdentity().category.equals("category")
-            && b1.ice_getAdapterId().length() == 0);
+            && b1.ice_getAdapterId().isEmpty());
 
     b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"");
     test(b1.equals(communicator.stringToProxy(b1.toString())));
@@ -142,7 +141,7 @@ public class AllTests {
     b1 = communicator.stringToProxy("test@adapter");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
+            && b1.ice_getIdentity().category.isEmpty()
             && b1.ice_getAdapterId().equals("adapter"));
     try {
       b1 = communicator.stringToProxy("id@adapter test");
@@ -188,17 +187,17 @@ public class AllTests {
     b1 = communicator.stringToProxy("id -f facet");
     test(
         b1.ice_getIdentity().name.equals("id")
-            && b1.ice_getIdentity().category.length() == 0
+            && b1.ice_getIdentity().category.isEmpty()
             && b1.ice_getFacet().equals("facet"));
     b1 = communicator.stringToProxy("id -f 'facet x'");
     test(
         b1.ice_getIdentity().name.equals("id")
-            && b1.ice_getIdentity().category.length() == 0
+            && b1.ice_getIdentity().category.isEmpty()
             && b1.ice_getFacet().equals("facet x"));
     b1 = communicator.stringToProxy("id -f \"facet x\"");
     test(
         b1.ice_getIdentity().name.equals("id")
-            && b1.ice_getIdentity().category.length() == 0
+            && b1.ice_getIdentity().category.isEmpty()
             && b1.ice_getFacet().equals("facet x"));
     try {
       b1 = communicator.stringToProxy("id -f \"facet x");
@@ -213,31 +212,31 @@ public class AllTests {
     b1 = communicator.stringToProxy("test -f facet:tcp");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
+            && b1.ice_getIdentity().category.isEmpty()
             && b1.ice_getFacet().equals("facet")
-            && b1.ice_getAdapterId().length() == 0);
+            && b1.ice_getAdapterId().isEmpty());
     b1 = communicator.stringToProxy("test -f \"facet:tcp\"");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
+            && b1.ice_getIdentity().category.isEmpty()
             && b1.ice_getFacet().equals("facet:tcp")
-            && b1.ice_getAdapterId().length() == 0);
+            && b1.ice_getAdapterId().isEmpty());
     b1 = communicator.stringToProxy("test -f facet@test");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
+            && b1.ice_getIdentity().category.isEmpty()
             && b1.ice_getFacet().equals("facet")
             && b1.ice_getAdapterId().equals("test"));
     b1 = communicator.stringToProxy("test -f 'facet@test'");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
+            && b1.ice_getIdentity().category.isEmpty()
             && b1.ice_getFacet().equals("facet@test")
-            && b1.ice_getAdapterId().length() == 0);
+            && b1.ice_getAdapterId().isEmpty());
     b1 = communicator.stringToProxy("test -f 'facet@test'@test");
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
+            && b1.ice_getIdentity().category.isEmpty()
             && b1.ice_getFacet().equals("facet@test")
             && b1.ice_getAdapterId().equals("test"));
     try {
@@ -430,9 +429,9 @@ public class AllTests {
     b1 = communicator.propertyToProxy(propertyPrefix);
     test(
         b1.ice_getIdentity().name.equals("test")
-            && b1.ice_getIdentity().category.length() == 0
-            && b1.ice_getAdapterId().length() == 0
-            && b1.ice_getFacet().length() == 0);
+            && b1.ice_getIdentity().category.isEmpty()
+            && b1.ice_getAdapterId().isEmpty()
+            && b1.ice_getFacet().isEmpty());
 
     String property;
 
@@ -813,14 +812,19 @@ public class AllTests {
     test(cl.equals(base));
     test(derived.equals(base));
     test(cl.equals(derived));
-    test(MyDerivedClassPrx.checkedCast(cl, "facet") == null);
+    try {
+      MyDerivedClassPrx.checkedCast(cl, "facet");
+      test(false);
+    } catch (FacetNotExistException ex) {
+      // expected
+    }
     out.println("ok");
 
     out.print("testing checked cast with context... ");
     out.flush();
 
     java.util.Map<String, String> c = cl.getContext();
-    test(c == null || c.size() == 0);
+    test(c == null || c.isEmpty());
 
     c = new java.util.HashMap<>();
     c.put("one", "hello");
@@ -918,8 +922,9 @@ public class AllTests {
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
       // TODO: remove UnsupportedEncodingException
       test(
-          ex.unknown.indexOf("MarshalException") > 0
-              || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+          ex.unknown.contains("::Ice::MarshalException")
+              || ex.unknown.contains("Ice.MarshalException")
+              || ex.unknown.contains("UnsupportedEncodingException"));
     }
 
     try {
@@ -936,8 +941,9 @@ public class AllTests {
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
       // TODO: remove UnsupportedEncodingException
       test(
-          ex.unknown.indexOf("MarshalException") > 0
-              || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+          ex.unknown.contains("::Ice::MarshalException")
+              || ex.unknown.contains("Ice.MarshalException")
+              || ex.unknown.contains("UnsupportedEncodingException"));
     }
 
     out.println("ok");

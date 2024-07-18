@@ -6,7 +6,6 @@
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 
-#    include "Ice/Exception.h"
 #    include "Ice/LoggerUtil.h"
 #    include "Network.h"
 #    include "NetworkProxy.h"

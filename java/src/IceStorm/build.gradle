@@ -17,7 +17,7 @@ sourceSets {
 
 slice {
     java {
-        files = fileTree(dir: "$project.ext.topSrcDir/slice/IceStorm", includes:['*.ice'], excludes:["*F.ice"])
+        srcDir = "$project.ext.topSrcDir/slice/IceStorm"
     }
 }
 

@@ -11,7 +11,7 @@ public static class Ex
         // If the object is an unknown sliced object, we didn't find an value factory.
         if (v is UnknownSlicedValue usv)
         {
-            throw new MarshalException($"Cannot find value factory to unmarshal class with type ID `{usv.ice_id()}'.");
+            throw new MarshalException($"Cannot find value factory to unmarshal class with type ID '{usv.ice_id()}'.");
         }
 
         string type = v.ice_id();

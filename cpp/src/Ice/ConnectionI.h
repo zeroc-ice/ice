@@ -173,10 +173,6 @@ namespace Ice
             std::function<void(bool)> = nullptr) final;
 
         void setCloseCallback(CloseCallback) final;
-        void setHeartbeatCallback(HeartbeatCallback) final;
-
-        std::function<void()>
-            heartbeatAsync(std::function<void(std::exception_ptr)>, std::function<void(bool)> = nullptr) final;
 
         void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
@@ -222,7 +218,7 @@ namespace Ice
 
         void closeCallback(const CloseCallback&);
 
-        /// Aborts the connection with a ConnectionIdleException unless any of the following is true:
+        /// Aborts the connection with a ConnectionAbortedException unless any of the following is true:
         /// - the connection is no longer active
         /// - its transceiver is waiting to be read
         /// - the idle check timer task has been rescheduled by a concurrent read
@@ -325,7 +321,9 @@ namespace Ice
 
         ObjectAdapterIPtr _adapter;
 
+        // The application configured a custom executor or a dispatch queue executor in InitializationData
         const bool _hasExecutor;
+
         const LoggerPtr _logger;
         const IceInternal::TraceLevelsPtr _traceLevels;
         const IceInternal::ThreadPoolPtr _threadPool;
@@ -374,8 +372,7 @@ namespace Ice
         // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, ...)
         int _upcallCount;
 
-        // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
-        // callback is not null. Maintained only while state is StateActive or StateHolding.
+        // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
         int _dispatchCount = 0;
 
         State _state; // The current state.
@@ -384,7 +381,6 @@ namespace Ice
         bool _validated;
 
         CloseCallback _closeCallback;
-        HeartbeatCallback _heartbeatCallback;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _conditionVariable;

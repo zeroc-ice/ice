@@ -12,10 +12,7 @@ def test(b):
 
 
 def allTests(helper, communicator):
-    ref = "factory:{0} -t 10000".format(helper.getTestEndpoint())
-    factory = Test.RemoteCommunicatorFactoryPrx.checkedCast(
-        communicator.stringToProxy(ref)
-    )
+    factory = Test.RemoteCommunicatorFactoryPrx(communicator, f"factory:{helper.getTestEndpoint()} -t 10000")
 
     sys.stdout.write("testing thread hooks... ")
     sys.stdout.flush()

@@ -16,6 +16,7 @@ import random
 import subprocess
 import shutil
 import copy
+import uuid
 import xml.sax.saxutils
 from platform import machine as platform_machine
 from pathlib import Path
@@ -121,8 +122,6 @@ class Component(object):
             return os.path.join(
                 mapping.getPath(), "test", "src", "main", "java", "test"
             )
-        elif isinstance(mapping, TypeScriptMapping):
-            return os.path.join(mapping.getPath(), "test", "typescript")
         return os.path.join(mapping.getPath(), "test")
 
     def getScriptDir(self):
@@ -382,26 +381,6 @@ class Darwin(Platform):
         return "/usr/local"
 
 
-class AIX(Platform):
-    def hasOpenSSL(self):
-        return True
-
-    def _getLibDir(self, component, process, mapping, current):
-        installDir = component.getInstallDir(mapping, current)
-        if component.useBinDist(mapping, current):
-            return os.path.join(installDir, "lib")
-        else:
-            return os.path.join(
-                installDir, "lib32" if current.config.buildPlatform == "ppc" else "lib"
-            )
-
-    def getDefaultBuildPlatform(self):
-        return "ppc64"
-
-    def getInstallDir(self):
-        return "/opt/freeware"
-
-
 class Linux(Platform):
     def __init__(self):
         Platform.__init__(self)
@@ -492,7 +471,7 @@ class Windows(Platform):
         pass  # Nothing to do, we don't support the make build system on Windows
 
     def getDefaultBuildPlatform(self):
-        return "x64" if "X64" in os.environ.get("PLATFORM", "") else "Win32"
+        return "Win32" if "x86" in os.environ.get("PLATFORM", "") else "x64"
 
     def getDefaultBuildConfig(self):
         return "Release"
@@ -1276,7 +1255,6 @@ class Mapping(object):
 
     def getSSLProps(self, process, current):
         sslProps = {
-            "Ice.Plugin.IceSSL": "",
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": ""
             if current.config.buildPlatform == "iphoneos"
@@ -1454,9 +1432,7 @@ class Process(Runnable):
         allArgs += self.getArgs(current)
         allArgs += self.args(self, current) if callable(self.args) else self.args
         allArgs += args
-        allArgs = [
-            a.encode("utf-8") if type(a) == "unicode" else str(a) for a in allArgs
-        ]
+        allArgs = [str(a) for a in allArgs]
         return allArgs
 
     def getEffectiveProps(self, current, props):
@@ -2088,6 +2064,7 @@ class ClientAMDServerTestCase(ClientServerTestCase):
     def getServerType(self):
         return "serveramd"
 
+
 class Result:
     def getKey(self, current):
         return (
@@ -2566,7 +2543,7 @@ class RemoteProcessController(ProcessController):
 
         import Ice
 
-        comm.getProperties().setProperty("Adapter.AdapterId", Ice.generateUUID())
+        comm.getProperties().setProperty("Adapter.AdapterId", str(uuid.uuid4()))
         self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
         self.adapter.add(
             ProcessControllerRegistryI(self),
@@ -2646,7 +2623,7 @@ class RemoteProcessController(ProcessController):
                     return self.processControllerProxies[ident]
 
             # If the controller isn't up after a while, we restart it. With the iOS simulator,
-            # it's not uncommon to get Springoard crashes when starting the controller.
+            # it's not uncommon to get Springboard crashes when starting the controller.
             if nRetry == 50:
                 sys.stdout.write("controller application unreachable, restarting... ")
                 sys.stdout.flush()
@@ -2920,9 +2897,10 @@ class iOSSimulatorProcessController(RemoteProcessController):
                     self.runtimeID = m.group(1)
         except Exception:
             pass
+
         if not self.runtimeID:
             self.runtimeID = (
-                "com.apple.CoreSimulator.SimRuntime.iOS-17-4"  # Default value
+                "com.apple.CoreSimulator.SimRuntime.iOS-17-5"  # Default value
             )
 
     def __str__(self):
@@ -3141,10 +3119,7 @@ class BrowserProcessController(RemoteProcessController):
         # another testcase, the controller page will connect to the process controller registry
         # to register itself with this script.
         #
-        testsuite = ""
-        if isinstance(current.testcase.getMapping(), TypeScriptMapping):
-            testsuite += "typescript/"
-        testsuite += str(current.testsuite)
+        testsuite = str(current.testsuite)
 
         if current.config.protocol == "wss":
             protocol = "https"
@@ -3697,16 +3672,6 @@ class CppMapping(Mapping):
         #
         if not isinstance(platform, Darwin):
             libPaths.append(self.component.getLibDir(process, self, current))
-
-        # On AIX we also need to add the lib directory for the TestCommon library
-        # when testing against a binary distribution
-        if isinstance(platform, AIX) and self.component.useBinDist(self, current):
-            libPaths.append(
-                os.path.join(
-                    self.path,
-                    "lib32" if current.config.buildPlatform == "ppc" else "lib",
-                )
-            )
 
         #
         # Add the test suite library directories to the platform library path environment variable.
@@ -4286,7 +4251,7 @@ class MatlabMapping(CppBasedClientMapping):
         return Mapping.getByName("python")  # Run clients against Python mapping servers
 
     def _getDefaultSource(self, processType):
-        return {"client": "client.m"}[processType]
+        return {"client": "Client.m"}[processType]
 
     def getOptions(self, current):
         #
@@ -4329,7 +4294,8 @@ class JavaScriptMixin:
             self.getCommonDir(current),
             os.path.join(self.getTestCwd(process, current), exe),
             Path(exe).stem,
-            args)
+            args,
+        )
 
     def getSSLProps(self, process, current):
         return {}
@@ -4390,37 +4356,6 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
         return options
 
 
-class TypeScriptMapping(JavaScriptMixin, Mapping):
-    class Config(Mapping.Config):
-        @classmethod
-        def getSupportedArgs(self):
-            return ("", ["browser=", "worker"])
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("TypeScript mapping options:")
-            print("--browser=<name>      Run with the given browser.")
-            print("--worker              Run with Web workers enabled.")
-
-        def __init__(self, options=[]):
-            Mapping.Config.__init__(self, options)
-
-            if self.browser and self.protocol == "tcp":
-                self.protocol = "ws"
-
-        def canRun(self, testId, current):
-            # TODO: test TypeScript with browser, the test are currently only compiled for CommonJS (NodeJS)
-            return Mapping.Config.canRun(self, testId, current) and not self.browser
-
-    def _getDefaultSource(self, processType):
-        return {
-            "client": "Client.ts",
-            "serveramd": "ServerAMD.ts",
-            "server": "Server.ts",
-        }[processType]
-
-
 class SwiftMapping(Mapping):
     class Config(CppBasedClientMapping.Config):
         mappingName = "swift"
@@ -4429,35 +4364,21 @@ class SwiftMapping(Mapping):
         def __init__(self, options=[]):
             CppBasedClientMapping.Config.__init__(self, options)
             if self.buildConfig == platform.getDefaultBuildConfig():
-                # Check the OPTIMIZE environment variable to figure out if it's Debug/Release build
+                # Check the OPTIMIZE environment variable to figure out if it's debug/release build
                 self.buildConfig = (
-                    "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
+                    "release" if os.environ.get("OPTIMIZE", "yes") != "no" else "debug"
                 )
 
     def getCommandLine(self, current, process, exe, args):
         testdir = self.component.getTestDir(self)
         assert current.testcase.getPath(current).startswith(testdir)
         package = current.testcase.getPath(current)[len(testdir) + 1 :].replace(
-            os.sep, "."
+            os.sep, "_"
         )
 
-        cmd = "xcodebuild -project {0} -target 'TestDriver {1}' -configuration {2} -showBuildSettings".format(
-            self.getXcodeProject(current), "macOS", current.config.buildConfig
+        testDriver = "swift run -c {0} --skip-build TestDriver".format(
+            current.config.buildConfig
         )
-
-        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
-
-        testDriver = os.path.join(
-            targetBuildDir, "TestDriver.app/Contents/MacOS/TestDriver"
-        )
-        if not os.path.exists(testDriver):
-            # Fallback location, required with Xcode 14.2
-            testDriver = os.path.join(
-                current.testcase.getMapping().getPath(),
-                "build",
-                current.config.buildConfig,
-                "TestDriver.app/Contents/MacOS/TestDriver",
-            )
 
         return "{0} {1} {2} {3}".format(testDriver, package, exe, args)
 
@@ -4479,27 +4400,16 @@ class SwiftMapping(Mapping):
 
     def getIOSAppFullPath(self, current):
         cmd = "xcodebuild -project {0} \
-                          -target 'TestDriver iOS' \
+                          -target 'TestDriverApp' \
                           -configuration {1} \
                           -showBuildSettings \
                           -sdk {2}".format(
             self.getXcodeProject(current),
-            current.config.buildConfig,
+            current.config.buildConfig.capitalize(),  # SwiftPM uses lowercase. Xcode users uppercase.
             current.config.buildPlatform,
         )
         targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
-
-        testDriver = os.path.join(targetBuildDir, "TestDriver.app")
-        if not os.path.exists(testDriver):
-            # Fallback location, required with Xcode 14.2
-            testDriver = os.path.join(
-                current.testcase.getMapping().getPath(),
-                "build",
-                "{0}-{1}".format(
-                    current.config.buildConfig, current.config.buildPlatform
-                ),
-                "TestDriver.app",
-            )
+        testDriver = os.path.join(targetBuildDir, "TestDriverApp.app")
         return testDriver
 
     def getSSLProps(self, process, current):
@@ -4516,11 +4426,8 @@ class SwiftMapping(Mapping):
 
     def getXcodeProject(self, current):
         return "{0}/{1}".format(
-            current.testcase.getMapping().getPath(), "ice.xcodeproj"
+            current.testcase.getMapping().getPath(), "test/ios/TestDriverApp.xcodeproj"
         )
-
-    # TODO ice-test.xcodeproj once Carthage supports binary XCFramework projects
-    # "ice-test.xcodeproj" if self.component.useBinDist(self, current) else "ice.xcodeproj")
 
 
 #
@@ -4529,8 +4436,6 @@ class SwiftMapping(Mapping):
 platform = None
 if sys.platform == "darwin":
     platform = Darwin()
-elif sys.platform.startswith("aix"):
-    platform = AIX()
 elif sys.platform.startswith("linux") or sys.platform.startswith("gnukfreebsd"):
     platform = Linux()
 elif sys.platform == "win32" or sys.platform[:6] == "cygwin":

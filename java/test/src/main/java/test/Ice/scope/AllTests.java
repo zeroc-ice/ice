@@ -4,8 +4,6 @@
 
 package test.Ice.scope;
 
-import java.io.PrintWriter;
-
 public class AllTests {
   private static void test(boolean b) {
     if (!b) {
@@ -14,7 +12,6 @@ public class AllTests {
   }
 
   public static void allTests(test.TestHelper helper) {
-    PrintWriter out = helper.getWriter();
     com.zeroc.Ice.Communicator communicator = helper.communicator();
 
     {

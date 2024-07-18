@@ -23,36 +23,12 @@ namespace IceBox
      * during initialization, or the service manager being unable to load a service executable.
      * \headerfile IceBox/IceBox.h
      */
-    class ICEBOX_API FailureException : public Ice::LocalException
+    class ICEBOX_API FailureException final : public Ice::LocalException
     {
     public:
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        FailureException(const char* file, int line, std::string reason) noexcept
-            : Ice::LocalException(file, line),
-              reason(std::move(reason))
-        {
-        }
+        using Ice::LocalException::LocalException;
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The reason for the failure.
-         */
-        std::string reason;
+        const char* ice_id() const noexcept final;
     };
 
     /**

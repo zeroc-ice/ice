@@ -20,6 +20,8 @@ public class InputStream {
     private var minSeqSize: Int32 = 0
     private let classGraphDepthMax: Int32
 
+    private let endOfBufferMessage = "attempting to unmarshal past the end of the buffer"
+
     private var remaining: Int {
         return data.count - pos
     }
@@ -53,11 +55,11 @@ public class InputStream {
     public func readEncapsulation() throws -> (bytes: Data, encoding: EncodingVersion) {
         let sz: Int32 = try read()
         if sz < 6 {
-            throw UnmarshalOutOfBoundsException(reason: "Invalid size")
+            throw MarshalException(endOfBufferMessage)
         }
 
         if sz - 4 > remaining {
-            throw UnmarshalOutOfBoundsException(reason: "Invalid size")
+            throw MarshalException(endOfBufferMessage)
         }
 
         let encoding: EncodingVersion = try read()
@@ -85,10 +87,10 @@ public class InputStream {
         let sz: Int32 = try read()
 
         if sz < 6 {
-            throw UnmarshalOutOfBoundsException(reason: "invalid size")
+            throw MarshalException(endOfBufferMessage)
         }
         if sz - 4 > remaining {
-            throw UnmarshalOutOfBoundsException(reason: "invalid size")
+            throw MarshalException(endOfBufferMessage)
         }
 
         let encoding: EncodingVersion = try read()
@@ -105,13 +107,11 @@ public class InputStream {
         if !encaps.encoding_1_0 {
             try skipOptionals()
             if pos != encaps.start + encaps.sz {
-                throw EncapsulationException(
-                    reason: "buffer size does not match decoded encapsulation size")
+                throw MarshalException("buffer size does not match decoded encapsulation size")
             }
         } else if pos != encaps.start + encaps.sz {
             if pos + 1 != encaps.start + encaps.sz {
-                throw EncapsulationException(
-                    reason: "buffer size does not match decoded encapsulation size")
+                throw MarshalException("buffer size does not match decoded encapsulation size")
             }
 
             //
@@ -132,11 +132,11 @@ public class InputStream {
         let sz: Int32 = try read()
 
         if sz < 6 {
-            throw EncapsulationException(reason: "invalid size")
+            throw MarshalException("invalid encapsulation size")
         }
 
         if sz - 4 > remaining {
-            throw UnmarshalOutOfBoundsException(reason: "")
+            throw MarshalException(endOfBufferMessage)
         }
 
         let encoding: EncodingVersion = try read()
@@ -144,7 +144,7 @@ public class InputStream {
 
         if encoding == Encoding_1_0 {
             if sz != 6 {
-                throw EncapsulationException(reason: "")
+                throw MarshalException("invalid encapsulation size")
             }
         } else {
             //
@@ -164,7 +164,7 @@ public class InputStream {
         let sz: Int32 = try read()
 
         if sz < 6 {
-            throw EncapsulationException(reason: "invalid size")
+            throw MarshalException("invalid encapsulation size")
         }
 
         let encodingVersion: EncodingVersion = try read()
@@ -237,7 +237,7 @@ public class InputStream {
         case .FSize:
             try skip(read())
         case .Class:
-            throw MarshalException(reason: "cannot skip an optional class")
+            throw MarshalException("cannot skip an optional class")
         }
     }
 
@@ -278,7 +278,7 @@ public class InputStream {
         precondition(pos + offset >= 0, "Negative position")
 
         guard offset <= remaining else {
-            throw UnmarshalOutOfBoundsException(reason: "Attempt to move past end of buffer")
+            throw MarshalException(endOfBufferMessage)
         }
         pos += offset
     }
@@ -375,13 +375,13 @@ public class InputStream {
         // instead.
         //
         if let usv = v as? UnknownSlicedValue {
-            throw NoValueFactoryException(reason: "", type: usv.ice_id())
+            throw MarshalException(
+                "cannot find value factory to unmarshal class with type ID '\(usv.ice_id())'")
         }
 
-        throw UnexpectedObjectException(
-            reason: "expected element of type `\(expectedType)' but received `\(v)'",
-            type: v.ice_id(),
-            expectedType: expectedType.ice_staticId())
+        throw MarshalException(
+            "failed to unmarshal class with type ID '\(expectedType.ice_staticId())': value factory returned a class with type ID '\(v.ice_id())'"
+        )
     }
 }
 
@@ -392,7 +392,7 @@ extension InputStream {
     public func read<Element>() throws -> Element where Element: StreamableNumeric {
         let size = MemoryLayout<Element>.size
         guard size <= remaining else {
-            throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
+            throw MarshalException(endOfBufferMessage)
         }
 
         var value: Element = 0
@@ -466,7 +466,7 @@ extension InputStream {
     /// - returns: `UInt8` - The byte read from the stream.
     public func read() throws -> UInt8 {
         guard remaining > 0 else {
-            throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
+            throw MarshalException(endOfBufferMessage)
         }
         let value = data[pos]
         pos += 1
@@ -613,7 +613,7 @@ extension InputStream {
         // data: it's claiming having more data that what is possible to read.
         //
         if startSeq + minSeqSize > data.count {
-            throw UnmarshalOutOfBoundsException(reason: "bad sequence size")
+            throw MarshalException(endOfBufferMessage)
         }
 
         return sz
@@ -648,7 +648,7 @@ extension InputStream {
 
             // First 3 bits.
             guard let format = OptionalFormat(rawValue: v & 0x07) else {
-                throw MarshalException(reason: "invalid optional format")
+                throw MarshalException("invalid optional format")
             }
             var tag = Int32(v >> 3)
             if tag == 30 {
@@ -663,7 +663,7 @@ extension InputStream {
                 try skipOptional(format: format)  // Skip optional data members
             } else {
                 if format != expectedFormat {
-                    throw MarshalException(reason: "invalid optional data member `\(tag)': unexpected format")
+                    throw MarshalException("invalid optional data member `\(tag)': unexpected format")
                 }
                 return true
             }
@@ -682,20 +682,20 @@ extension InputStream {
             } else if enumMaxValue < 32767 {
                 let v: Int16 = try read()
                 guard v <= UInt8.max else {
-                    throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
+                    throw MarshalException("unexpected enumerator value")
                 }
                 return UInt8(v)
             } else {
                 let v: Int32 = try read()
                 guard v <= UInt8.max else {
-                    throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
+                    throw MarshalException("unexpected enumerator value")
                 }
                 return UInt8(v)
             }
         } else {
             let v = try readSize()
             guard v <= UInt8.max else {
-                throw UnmarshalOutOfBoundsException(reason: "1.1 encoded enum value is larger than UInt8")
+                throw MarshalException("unexpected enumerator value")
             }
             return UInt8(v)
         }
@@ -732,7 +732,7 @@ extension InputStream {
             try skip(size)
             let end = pos
             guard let str = String(data: data[start..<end], encoding: .utf8) else {
-                throw MarshalException(reason: "unable to read string")
+                throw MarshalException("unable to read string")
             }
             return str
         }
@@ -907,7 +907,7 @@ extension EncapsDecoder {
         if isIndex {
             let index = try stream.readSize()
             guard let typeId = typeIdMap[index] else {
-                throw UnmarshalOutOfBoundsException(reason: "invalid typeId")
+                throw MarshalException("invalid typeId")
             }
             return typeId
         } else {
@@ -977,7 +977,7 @@ extension EncapsDecoder {
         if let optObj = unmarshaledMap[index] {
             guard let obj = optObj else {
                 assert(!stream.acceptClassCycles)
-                throw MarshalException(reason: "cycle detected during Value unmarshaling")
+                throw MarshalException("cycle detected during Value unmarshaling")
             }
             try cb(obj)
             return
@@ -1092,7 +1092,7 @@ private class EncapsDecoder10: EncapsDecoder {
         //
         var index: Int32 = try stream.read()
         if index > 0 {
-            throw MarshalException(reason: "invalid object id")
+            throw MarshalException("invalid object id")
         }
         index = -index
 
@@ -1158,18 +1158,14 @@ private class EncapsDecoder10: EncapsDecoder {
             try skipSlice()
             do {
                 try startSlice()
-            } catch let ex as UnmarshalOutOfBoundsException {
+            } catch is MarshalException {
                 //
                 // An oversight in the 1.0 encoding means there is no marker to indicate
                 // the last slice of an exception. As a result, we just try to read the
-                // next type ID, which raises UnmarshalOutOfBoundsException when the
+                // next type ID, which raises MarshalException when the
                 // input buffer underflows.
-                //
-                // Set the reason member to a more helpful message.
-                //
 
-                ex.reason = "unknown exception type `\(mostDerivedId)'"
-                throw ex
+                throw MarshalException("unknown exception type '\(mostDerivedId)'")
             }
         }
     }
@@ -1187,7 +1183,7 @@ private class EncapsDecoder10: EncapsDecoder {
             try startSlice()
             let sz = try stream.readSize()  // For compatibility with the old AFM.
             if sz != 0 {
-                throw MarshalException(reason: "invalid Object slice")
+                throw MarshalException("invalid Object slice")
             }
             try endSlice()
         }
@@ -1222,7 +1218,7 @@ private class EncapsDecoder10: EncapsDecoder {
 
         sliceSize = try stream.read()
         if sliceSize < 4 {
-            throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
+            throw MarshalException("unexpected slice size")
         }
         return typeId
     }
@@ -1248,7 +1244,7 @@ private class EncapsDecoder10: EncapsDecoder {
             // If any entries remain in the patch map, the sender has sent an index for an object, but failed
             // to supply the object.
             //
-            throw MarshalException(reason: "index for class received, but no instance")
+            throw MarshalException("index for class received, but no instance")
         }
     }
 
@@ -1256,7 +1252,7 @@ private class EncapsDecoder10: EncapsDecoder {
         let index: Int32 = try stream.read()
 
         if index <= 0 {
-            throw MarshalException(reason: "invalid object id")
+            throw MarshalException("invalid object id")
         }
 
         sliceType = SliceType.ValueSlice
@@ -1275,7 +1271,7 @@ private class EncapsDecoder10: EncapsDecoder {
             // marks the last slice.
             //
             if typeId == "::Ice::Object" {
-                throw NoValueFactoryException(reason: "invalid typeId", type: mostDerivedId)
+                throw MarshalException("cannot find value factory for type ID '\(mostDerivedId)'")
             }
 
             v = try newInstance(typeId: typeId)
@@ -1306,7 +1302,7 @@ private class EncapsDecoder10: EncapsDecoder {
         }
         classGraphDepth += 1
         if classGraphDepth > classGraphDepthMax {
-            throw MarshalException(reason: "maximum class graph depth reached")
+            throw MarshalException("maximum class graph depth reached")
         }
 
         //
@@ -1379,7 +1375,7 @@ private class EncapsDecoder11: EncapsDecoder {
     func readValue(cb: @escaping Callback) throws {
         let index = try stream.readSize()
         if index < 0 {
-            throw MarshalException(reason: "invalid object id")
+            throw MarshalException("invalid object id")
         } else if index == 0 {
             try cb(nil)
         } else if current != nil, current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
@@ -1439,11 +1435,7 @@ private class EncapsDecoder11: EncapsDecoder {
             try skipSlice()
 
             if current.sliceFlags.contains(.FLAG_IS_LAST_SLICE) {
-                if let range = mostDerivedId.range(of: "::") {
-                    throw UnknownUserException(unknown: String(mostDerivedId[range.upperBound...]))
-                } else {
-                    throw UnknownUserException(unknown: mostDerivedId)
-                }
+                throw MarshalException("cannot unmarshal user exception with type ID '\(mostDerivedId)'")
             }
 
             try startSlice()
@@ -1513,7 +1505,7 @@ private class EncapsDecoder11: EncapsDecoder {
         if current.sliceFlags.contains(SliceFlags.FLAG_HAS_SLICE_SIZE) {
             current.sliceSize = try stream.read()
             if current.sliceSize < 4 {
-                throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
+                throw MarshalException("invalid slice size")
             }
         } else {
             current.sliceSize = 0
@@ -1545,12 +1537,12 @@ private class EncapsDecoder11: EncapsDecoder {
             // unknown optional data members.
             //
             if indirectionTable.isEmpty {
-                throw MarshalException(reason: "empty indirection table")
+                throw MarshalException("empty indirection table")
             }
             if current.indirectPatchList.isEmpty,
                 !current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS)
             {
-                throw MarshalException(reason: "no references to indirection table")
+                throw MarshalException("no references to indirection table")
             }
 
             //
@@ -1559,7 +1551,7 @@ private class EncapsDecoder11: EncapsDecoder {
             for e in current.indirectPatchList {
                 precondition(e.index >= 0)
                 if e.index >= indirectionTable.count {
-                    throw MarshalException(reason: "indirection out of range")
+                    throw MarshalException("indirection out of range")
                 }
                 try addPatchEntry(index: indirectionTable[Int(e.index)], cb: e.cb)
             }
@@ -1577,16 +1569,12 @@ private class EncapsDecoder11: EncapsDecoder {
             try stream.skip(current.sliceSize - 4)
         } else {
             if current.sliceType == .ValueSlice {
-                throw NoValueFactoryException(
-                    reason: "no value factory found and compact format prevents "
-                        + "slicing (the sender should use the sliced format instead)",
-                    type: current.typeId)
+                throw MarshalException(
+                    "cannot find value factory for type ID '\(current.typeId!)' and compact format prevents slicing"
+                )
             } else {
-                if let r = current.typeId.range(of: "::") {
-                    throw UnknownUserException(unknown: String(current.typeId[r.upperBound...]))
-                } else {
-                    throw UnknownUserException(unknown: current.typeId)
-                }
+                throw MarshalException(
+                    "cannot find user exception for type ID '\(current.typeId!)'")
             }
         }
 
@@ -1745,7 +1733,7 @@ private class EncapsDecoder11: EncapsDecoder {
 
         classGraphDepth += 1
         if classGraphDepth > classGraphDepthMax {
-            throw MarshalException(reason: "maximum class graph depth reached")
+            throw MarshalException("maximum class graph depth reached")
         }
 
         //
@@ -1760,7 +1748,7 @@ private class EncapsDecoder11: EncapsDecoder {
             // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
             // to supply the instance.
             //
-            throw MarshalException(reason: "index for class received, but no instance")
+            throw MarshalException("index for class received, but no instance")
         }
 
         try cb?(v)

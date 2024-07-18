@@ -401,8 +401,8 @@ export class Client extends TestHelper {
             test(p1 === Test.MyEnum.MyEnumMember);
             test(p2 === Test.MyEnum.MyEnumMember);
             [p1, p2] = await initial.opMyEnum(null); // Test null enum
-            test(p1 === Test.MyEnum.MyEnumMember);
-            test(p2 === Test.MyEnum.MyEnumMember);
+            test(p1 === undefined);
+            test(p2 === undefined);
         }
 
         {
@@ -413,8 +413,8 @@ export class Client extends TestHelper {
             test(p1.equals(new Test.SmallStruct(56)));
             test(p2.equals(new Test.SmallStruct(56)));
             [p1, p2] = await initial.opSmallStruct(null); // Test null struct
-            test(p1.equals(new Test.SmallStruct(0)));
-            test(p2.equals(new Test.SmallStruct(0)));
+            test(p1 === undefined);
+            test(p2 === undefined);
         }
 
         {

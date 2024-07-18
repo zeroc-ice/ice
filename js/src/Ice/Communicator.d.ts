@@ -14,9 +14,9 @@ declare module "ice" {
          */
         interface Communicator {
             /**
-             * Destroy the communicator. This operation calls {@link #shutdown} implicitly. Calling {@link #destroy} cleans up
+             * Destroy the communicator. This operation calls {@link Communicator#shutdown} implicitly. Calling {@link Communicator#destroy} cleans up
              * memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
-             * calls to {@link #destroy} are ignored.
+             * calls to {@link Communicator#destroy} are ignored.
              * @return The asynchronous result object for the invocation.
              * @see #shutdown
              * @see ObjectAdapter#destroy
@@ -27,7 +27,7 @@ declare module "ice" {
              * Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException. Subsequent calls to
              * shutdown are ignored.
              * After shutdown returns, no new requests are processed. However, requests that have been started before shutdown
-             * was called might still be active. You can use {@link #waitForShutdown} to wait for the completion of all
+             * was called might still be active. You can use {@link Communicator#waitForShutdown} to wait for the completion of all
              * requests.
              * @return The asynchronous result object for the invocation.
              * @see #destroy
@@ -36,12 +36,12 @@ declare module "ice" {
              */
             shutdown(): AsyncResultBase<void>;
             /**
-             * Wait until the application has called {@link #shutdown} (or {@link #destroy}). On the server side, this
+             * Wait until the application has called {@link Communicator#shutdown} (or {@link Communicator#destroy}). On the server side, this
              * operation blocks the calling thread until all currently-executing operations have completed. On the client
-             * side, the operation simply blocks until another thread has called {@link #shutdown} or {@link #destroy}.
+             * side, the operation simply blocks until another thread has called {@link Communicator#shutdown} or {@link Communicator#destroy}.
              * A typical use of this operation is to call it from the main thread, which then waits until some other thread
-             * calls {@link #shutdown}. After shut-down is complete, the main thread returns and can do some cleanup work
-             * before it finally calls {@link #destroy} to shut down the client functionality, and then exits the application.
+             * calls {@link Communicator#shutdown}. After shut-down is complete, the main thread returns and can do some cleanup work
+             * before it finally calls {@link Communicator#destroy} to shut down the client functionality, and then exits the application.
              * @return The asynchronous result object for the invocation.
              * @see #shutdown
              * @see #destroy
@@ -123,7 +123,7 @@ declare module "ice" {
             createObjectAdapter(name: string): AsyncResultBase<Ice.ObjectAdapter>;
             /**
              * Create a new object adapter with endpoints. This operation sets the property
-             * <code><em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided as a
+             * <code><em>name</em>.Endpoints</code>, and then calls {@link Communicator#createObjectAdapter}. It is provided as a
              * convenience function. Calling this operation with an empty name will result in a UUID being generated for the
              * name.
              * @param name The object adapter name.

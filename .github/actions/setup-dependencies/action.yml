@@ -42,11 +42,6 @@ runs:
       shell: bash
       if: runner.os == 'macOS'
 
-    - name: Install xcodeproj gem
-      run: gem install xcodeproj
-      shell: bash
-      if: runner.os == 'macOS'
-
     - name: Install xcodesdk dependencies
       run: |
         # We should consider removing the dependency on ice-xcode-builder
@@ -77,7 +72,7 @@ runs:
         dotnet-version: 8.x
 
     - name: Install testing dependencies from pip
-      run: python3 -m pip install passlib cryptography numpy
+      run: python3 -m pip install --break-system-packages passlib cryptography numpy
       shell: bash
       if: runner.os == 'Linux'
 

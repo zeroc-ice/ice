@@ -18,7 +18,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) throws {
     for _ in 0..<30 {
         do {
             try batch.opByteSOneway(bs1)
-        } catch is Ice.MemoryLimitException {
+        } catch is Ice.MarshalException {
             try test(false)
         }
     }

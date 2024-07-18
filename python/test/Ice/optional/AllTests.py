@@ -13,60 +13,48 @@ def test(b):
 
 
 def allTests(helper, communicator):
-    sys.stdout.write("testing stringToProxy... ")
-    sys.stdout.flush()
-    ref = "initial:{0}".format(helper.getTestEndpoint())
-    base = communicator.stringToProxy(ref)
-    test(base)
-    print("ok")
-
-    sys.stdout.write("testing checked cast... ")
-    sys.stdout.flush()
-    initial = Test.InitialPrx.checkedCast(base)
-    test(initial)
-    test(initial == base)
-    print("ok")
+    initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing optional data members... ")
     sys.stdout.flush()
 
     oo1 = Test.OneOptional()
-    test(oo1.a is Ice.Unset)
+    test(oo1.a is None)
     oo1.a = 15
 
     oo2 = Test.OneOptional(16)
     test(oo2.a == 16)
 
     mo1 = Test.MultiOptional()
-    test(mo1.a is Ice.Unset)
-    test(mo1.b is Ice.Unset)
-    test(mo1.c is Ice.Unset)
-    test(mo1.d is Ice.Unset)
-    test(mo1.e is Ice.Unset)
-    test(mo1.f is Ice.Unset)
-    test(mo1.g is Ice.Unset)
-    test(mo1.h is Ice.Unset)
-    test(mo1.i is Ice.Unset)
-    test(mo1.j is Ice.Unset)
-    test(mo1.bs is Ice.Unset)
-    test(mo1.ss is Ice.Unset)
-    test(mo1.iid is Ice.Unset)
-    test(mo1.sid is Ice.Unset)
-    test(mo1.fs is Ice.Unset)
-    test(mo1.vs is Ice.Unset)
+    test(mo1.a is None)
+    test(mo1.b is None)
+    test(mo1.c is None)
+    test(mo1.d is None)
+    test(mo1.e is None)
+    test(mo1.f is None)
+    test(mo1.g is None)
+    test(mo1.h is None)
+    test(mo1.i is None)
+    test(mo1.j is None)
+    test(mo1.bs is None)
+    test(mo1.ss is None)
+    test(mo1.iid is None)
+    test(mo1.sid is None)
+    test(mo1.fs is None)
+    test(mo1.vs is None)
 
-    test(mo1.shs is Ice.Unset)
-    test(mo1.es is Ice.Unset)
-    test(mo1.fss is Ice.Unset)
-    test(mo1.vss is Ice.Unset)
-    test(mo1.mips is Ice.Unset)
+    test(mo1.shs is None)
+    test(mo1.es is None)
+    test(mo1.fss is None)
+    test(mo1.vss is None)
+    test(mo1.mips is None)
 
-    test(mo1.ied is Ice.Unset)
-    test(mo1.ifsd is Ice.Unset)
-    test(mo1.ivsd is Ice.Unset)
-    test(mo1.imipd is Ice.Unset)
+    test(mo1.ied is None)
+    test(mo1.ifsd is None)
+    test(mo1.ivsd is None)
+    test(mo1.imipd is None)
 
-    test(mo1.bos is Ice.Unset)
+    test(mo1.bos is None)
 
     ss = Test.SmallStruct()
     fs = Test.FixedStruct(78)
@@ -81,7 +69,7 @@ def allTests(helper, communicator):
         1.0,
         "test",
         Test.MyEnum.MyEnumMember,
-        Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")),
+        Test.MyInterfacePrx(communicator, "test"),
         [5],
         ["test", "test2"],
         {4: 3},
@@ -92,11 +80,11 @@ def allTests(helper, communicator):
         [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember],
         [fs],
         [vs],
-        [Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))],
+        [Test.MyInterfacePrx(communicator, "test")],
         {4: Test.MyEnum.MyEnumMember},
         {4: fs},
         {5: vs},
-        {5: Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))},
+        {5: Test.MyInterfacePrx(communicator, "test")},
         [False, True, False],
     )
 
@@ -109,7 +97,7 @@ def allTests(helper, communicator):
     test(mo1.g == 1.0)
     test(mo1.h == "test")
     test(mo1.i == Test.MyEnum.MyEnumMember)
-    test(mo1.j == communicator.stringToProxy("test"))
+    test(mo1.j == Test.MyInterfacePrx(communicator, "test"))
     test(mo1.bs == [5])
     test(mo1.ss == ["test", "test2"])
     test(mo1.iid[4] == 3)
@@ -123,22 +111,22 @@ def allTests(helper, communicator):
     )
     test(mo1.fss[0] == Test.FixedStruct(78))
     test(mo1.vss[0] == Test.VarStruct("hello"))
-    test(mo1.mips[0] == communicator.stringToProxy("test"))
+    test(mo1.mips[0] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo1.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo1.ifsd[4] == Test.FixedStruct(78))
     test(mo1.ivsd[5] == Test.VarStruct("hello"))
-    test(mo1.imipd[5] == communicator.stringToProxy("test"))
+    test(mo1.imipd[5] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo1.bos == [False, True, False])
 
     #
-    # Test generated struct and classes compare with Ice.Unset
+    # Test generated struct and classes compare with None
     #
-    test(ss != Ice.Unset)
-    test(fs != Ice.Unset)
-    test(vs != Ice.Unset)
-    test(mo1 != Ice.Unset)
+    test(ss is not None)
+    test(fs is not None)
+    test(vs is not None)
+    test(mo1 is not None)
 
     print("ok")
 
@@ -146,41 +134,41 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     oo4 = initial.pingPong(Test.OneOptional())
-    test(oo4.a is Ice.Unset)
+    test(oo4.a is None)
 
     oo5 = initial.pingPong(oo1)
     test(oo1.a == oo5.a)
 
     mo4 = initial.pingPong(Test.MultiOptional())
-    test(mo4.a is Ice.Unset)
-    test(mo4.b is Ice.Unset)
-    test(mo4.c is Ice.Unset)
-    test(mo4.d is Ice.Unset)
-    test(mo4.e is Ice.Unset)
-    test(mo4.f is Ice.Unset)
-    test(mo4.g is Ice.Unset)
-    test(mo4.h is Ice.Unset)
-    test(mo4.i is Ice.Unset)
-    test(mo4.j is Ice.Unset)
-    test(mo4.bs is Ice.Unset)
-    test(mo4.ss is Ice.Unset)
-    test(mo4.iid is Ice.Unset)
-    test(mo4.sid is Ice.Unset)
-    test(mo4.fs is Ice.Unset)
-    test(mo4.vs is Ice.Unset)
+    test(mo4.a is None)
+    test(mo4.b is None)
+    test(mo4.c is None)
+    test(mo4.d is None)
+    test(mo4.e is None)
+    test(mo4.f is None)
+    test(mo4.g is None)
+    test(mo4.h is None)
+    test(mo4.i is None)
+    test(mo4.j is None)
+    test(mo4.bs is None)
+    test(mo4.ss is None)
+    test(mo4.iid is None)
+    test(mo4.sid is None)
+    test(mo4.fs is None)
+    test(mo4.vs is None)
 
-    test(mo4.shs is Ice.Unset)
-    test(mo4.es is Ice.Unset)
-    test(mo4.fss is Ice.Unset)
-    test(mo4.vss is Ice.Unset)
-    test(mo4.mips is Ice.Unset)
+    test(mo4.shs is None)
+    test(mo4.es is None)
+    test(mo4.fss is None)
+    test(mo4.vss is None)
+    test(mo4.mips is None)
 
-    test(mo4.ied is Ice.Unset)
-    test(mo4.ifsd is Ice.Unset)
-    test(mo4.ivsd is Ice.Unset)
-    test(mo4.imipd is Ice.Unset)
+    test(mo4.ied is None)
+    test(mo4.ifsd is None)
+    test(mo4.ivsd is None)
+    test(mo4.imipd is None)
 
-    test(mo4.bos is Ice.Unset)
+    test(mo4.bos is None)
 
     mo5 = initial.pingPong(mo1)
     test(mo5.a == mo1.a)
@@ -205,12 +193,12 @@ def allTests(helper, communicator):
     )
     test(mo5.fss[0] == Test.FixedStruct(78))
     test(mo5.vss[0] == Test.VarStruct("hello"))
-    test(mo5.mips[0] == communicator.stringToProxy("test"))
+    test(mo5.mips[0] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo5.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo5.ifsd[4] == Test.FixedStruct(78))
     test(mo5.ivsd[5] == Test.VarStruct("hello"))
-    test(mo5.imipd[5] == communicator.stringToProxy("test"))
+    test(mo5.imipd[5] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo5.bos == mo1.bos)
 
@@ -230,33 +218,33 @@ def allTests(helper, communicator):
     mo6.bos = mo5.bos
 
     mo7 = initial.pingPong(mo6)
-    test(mo7.a is Ice.Unset)
+    test(mo7.a is None)
     test(mo7.b == mo1.b)
-    test(mo7.c is Ice.Unset)
+    test(mo7.c is None)
     test(mo7.d == mo1.d)
-    test(mo7.e is Ice.Unset)
+    test(mo7.e is None)
     test(mo7.f == mo1.f)
-    test(mo7.g is Ice.Unset)
+    test(mo7.g is None)
     test(mo7.h == mo1.h)
-    test(mo7.i is Ice.Unset)
+    test(mo7.i is None)
     test(mo7.j == mo1.j)
     test(mo7.bs[0] == 5)
-    test(mo7.ss is Ice.Unset)
+    test(mo7.ss is None)
     test(mo7.iid[4] == 3)
-    test(mo7.sid is Ice.Unset)
+    test(mo7.sid is None)
     test(mo7.fs == mo1.fs)
-    test(mo7.vs is Ice.Unset)
+    test(mo7.vs is None)
 
     test(mo7.shs == mo1.shs)
-    test(mo7.es is Ice.Unset)
+    test(mo7.es is None)
     test(mo7.fss[0] == Test.FixedStruct(78))
-    test(mo7.vss is Ice.Unset)
-    test(mo7.mips is Ice.Unset)
+    test(mo7.vss is None)
+    test(mo7.mips is None)
 
-    test(mo7.ied is Ice.Unset)
+    test(mo7.ied is None)
     test(mo7.ifsd[4] == Test.FixedStruct(78))
-    test(mo7.ivsd is Ice.Unset)
-    test(mo7.imipd is Ice.Unset)
+    test(mo7.ivsd is None)
+    test(mo7.imipd is None)
 
     test(mo7.bos == [False, True, False])
 
@@ -281,36 +269,36 @@ def allTests(helper, communicator):
 
     mo9 = initial.pingPong(mo8)
     test(mo9.a == mo1.a)
-    test(mo9.b is Ice.Unset)
+    test(mo9.b is None)
     test(mo9.c == mo1.c)
-    test(mo9.d is Ice.Unset)
+    test(mo9.d is None)
     test(mo9.e == mo1.e)
-    test(mo9.f is Ice.Unset)
+    test(mo9.f is None)
     test(mo9.g == mo1.g)
-    test(mo9.h is Ice.Unset)
+    test(mo9.h is None)
     test(mo9.i == mo1.i)
-    test(mo9.j is Ice.Unset)
-    test(mo9.bs is Ice.Unset)
+    test(mo9.j is None)
+    test(mo9.bs is None)
     test(mo9.ss == mo1.ss)
-    test(mo9.iid is Ice.Unset)
+    test(mo9.iid is None)
     test(mo9.sid["test"] == 10)
-    test(mo9.fs is Ice.Unset)
+    test(mo9.fs is None)
     test(mo9.vs == mo1.vs)
 
-    test(mo9.shs is Ice.Unset)
+    test(mo9.shs is None)
     test(
         mo9.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember
     )
-    test(mo9.fss is Ice.Unset)
+    test(mo9.fss is None)
     test(mo9.vss[0] == Test.VarStruct("hello"))
-    test(mo9.mips[0] == communicator.stringToProxy("test"))
+    test(mo9.mips[0] == Test.MyInterfacePrx(communicator, "test"))
 
     test(mo9.ied[4] == Test.MyEnum.MyEnumMember)
-    test(mo9.ifsd is Ice.Unset)
+    test(mo9.ifsd is None)
     test(mo9.ivsd[5] == Test.VarStruct("hello"))
-    test(mo9.imipd[5] == communicator.stringToProxy("test"))
+    test(mo9.imipd[5] == Test.MyInterfacePrx(communicator, "test"))
 
-    test(mo9.bos is Ice.Unset)
+    test(mo9.bos is None)
 
     g = Test.G()
     g.gg1Opt = Test.G1("gg1Opt")
@@ -323,7 +311,7 @@ def allTests(helper, communicator):
     test(r.gg2Opt.a == 20)
     test(r.gg1.a == "gg1")
 
-    initial2 = Test.Initial2Prx.uncheckedCast(base)
+    initial2 = Test.Initial2Prx(communicator, f"initial:{helper.getTestEndpoint()}")
     initial2.opVoid(15, "test")
 
     print("ok")
@@ -363,9 +351,9 @@ def allTests(helper, communicator):
 
     b = Test.B()
     b2 = initial.pingPong(b)
-    test(b2.ma is Ice.Unset)
-    test(b2.mb is Ice.Unset)
-    test(b2.mc is Ice.Unset)
+    test(b2.ma is None)
+    test(b2.mb is None)
+    test(b2.mc is None)
 
     b.ma = 10
     b.mb = 11
@@ -399,11 +387,11 @@ def allTests(helper, communicator):
     wd = initial.pingPong(Test.WD())
     test(wd.a == 5)
     test(wd.s == "test")
-    wd.a = Ice.Unset
-    wd.s = Ice.Unset
+    wd.a = None
+    wd.s = None
     wd = initial.pingPong(wd)
-    test(wd.a is Ice.Unset)
-    test(wd.s is Ice.Unset)
+    test(wd.a is None)
+    test(wd.s is None)
 
     print("ok")
 
@@ -415,10 +403,10 @@ def allTests(helper, communicator):
         c.ss = "test"
         c.ms = "testms"
         c = initial.pingPong(c)
-        test(c.ma is Ice.Unset)
-        test(c.mb is Ice.Unset)
-        test(c.mc is Ice.Unset)
-        test(c.md is Ice.Unset)
+        test(c.ma is None)
+        test(c.mb is None)
+        test(c.mc is None)
+        test(c.md is None)
         test(c.ss == "test")
         test(c.ms == "testms")
 
@@ -427,7 +415,7 @@ def allTests(helper, communicator):
         sys.stdout.write("testing operations with unknown optionals... ")
         sys.stdout.flush()
 
-        initial2 = Test.Initial2Prx.uncheckedCast(base)
+        initial2 = Test.Initial2Prx(communicator, f"initial:{helper.getTestEndpoint()}")
         ovs = Test.VarStruct("test")
         initial2.opClassAndUnknownOptional(Test.A(), ovs)
 
@@ -436,91 +424,89 @@ def allTests(helper, communicator):
     sys.stdout.write("testing optional parameters... ")
     sys.stdout.flush()
 
-    (p2, p3) = initial.opByte(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opByte(None)
+    test(p2 is None and p3 is None)
     (p2, p3) = initial.opByte(56)
     test(p2 == 56 and p3 == 56)
     f = initial.opByteAsync(56)
     (p2, p3) = f.result()
     test(p2 == 56 and p3 == 56)
 
-    (p2, p3) = initial.opBool(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opBool(None)
+    test(p2 is None and p3 is None)
     (p2, p3) = initial.opBool(True)
     test(p2 is True and p3 is True)
     f = initial.opBoolAsync(True)
     (p2, p3) = f.result()
     test(p2 is True and p3 is True)
 
-    (p2, p3) = initial.opShort(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opShort(None)
+    test(p2 is None and p3 is None)
     (p2, p3) = initial.opShort(56)
     test(p2 == 56 and p3 == 56)
     f = initial.opShortAsync(56)
     (p2, p3) = f.result()
     test(p2 == 56 and p3 == 56)
 
-    (p2, p3) = initial.opInt(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opInt(None)
+    test(p2 is None and p3 is None)
     (p2, p3) = initial.opInt(56)
     test(p2 == 56 and p3 == 56)
     f = initial.opIntAsync(56)
     (p2, p3) = f.result()
     test(p2 == 56 and p3 == 56)
 
-    (p2, p3) = initial.opLong(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opLong(None)
+    test(p2 is None and p3 is None)
     (p2, p3) = initial.opLong(56)
     test(p2 == 56 and p3 == 56)
     f = initial.opLongAsync(56)
     (p2, p3) = f.result()
     test(p2 == 56 and p3 == 56)
 
-    (p2, p3) = initial.opFloat(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opFloat(None)
+    test(p2 is None and p3 is None)
     (p2, p3) = initial.opFloat(1.0)
     test(p2 == 1.0 and p3 == 1.0)
     f = initial.opFloatAsync(1.0)
     (p2, p3) = f.result()
     test(p2 == 1.0 and p3 == 1.0)
 
-    (p2, p3) = initial.opDouble(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opDouble(None)
+    test(p2 is None and p3 is None)
     (p2, p3) = initial.opDouble(1.0)
     test(p2 == 1.0 and p3 == 1.0)
     f = initial.opDoubleAsync(1.0)
     (p2, p3) = f.result()
     test(p2 == 1.0 and p3 == 1.0)
 
-    (p2, p3) = initial.opString(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opString(None)
+    test(p2 is None and p3 is None)
     (p2, p3) = initial.opString("test")
     test(p2 == "test" and p3 == "test")
     f = initial.opStringAsync("test")
     (p2, p3) = f.result()
     test(p2 == "test" and p3 == "test")
 
-    (p2, p3) = initial.opMyEnum(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opMyEnum(None)
+    test(p2 is None and p3 is None)
     (p2, p3) = initial.opMyEnum(Test.MyEnum.MyEnumMember)
     test(p2 == Test.MyEnum.MyEnumMember and p3 == Test.MyEnum.MyEnumMember)
     f = initial.opMyEnumAsync(Test.MyEnum.MyEnumMember)
     (p2, p3) = f.result()
     test(p2 == Test.MyEnum.MyEnumMember and p3 == Test.MyEnum.MyEnumMember)
 
-    (p2, p3) = initial.opSmallStruct(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opSmallStruct(None)
+    test(p2 is None and p3 is None)
     p1 = Test.SmallStruct(56)
     (p2, p3) = initial.opSmallStruct(p1)
     test(p2 == p1 and p3 == p1)
-    (p2, p3) = initial.opSmallStruct(None)  # Test null struct
-    test(p2.m == 0 and p3.m == 0)
     f = initial.opSmallStructAsync(p1)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opFixedStruct(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opFixedStruct(None)
+    test(p2 is None and p3 is None)
     p1 = Test.FixedStruct(56)
     (p2, p3) = initial.opFixedStruct(p1)
     test(p2 == p1 and p3 == p1)
@@ -528,8 +514,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opVarStruct(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opVarStruct(None)
+    test(p2 is None and p3 is None)
     p1 = Test.VarStruct("test")
     (p2, p3) = initial.opVarStruct(p1)
     test(p2 == p1 and p3 == p1)
@@ -539,7 +525,7 @@ def allTests(helper, communicator):
 
     p1 = Test.OneOptional()
     (p2, p3) = initial.opOneOptional(p1)
-    test(p2.a is Ice.Unset and p3.a is Ice.Unset)
+    test(p2.a is None and p3.a is None)
     p1 = Test.OneOptional(58)
     (p2, p3) = initial.opOneOptional(p1)
     test(p2.a == p1.a and p3.a == p1.a)
@@ -547,17 +533,17 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2.a == p1.a and p3.a == p1.a)
 
-    (p2, p3) = initial.opMyInterfaceProxy(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))
+    (p2, p3) = initial.opMyInterfaceProxy(None)
+    test(p2 is None and p3 is None)
+    p1 = Test.MyInterfacePrx.uncheckedCast(Test.MyInterfacePrx(communicator, "test"))
     (p2, p3) = initial.opMyInterfaceProxy(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opMyInterfaceProxyAsync(p1)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opByteSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opByteSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [56 for x in range(100)]
     (p2, p3) = initial.opByteSeq(p1)
     test(len(p2) == len(p1) and len(p3) == len(p1))
@@ -569,8 +555,8 @@ def allTests(helper, communicator):
     test(p2[0] == 0x38)
     test(p3[0] == 0x38)
 
-    (p2, p3) = initial.opBoolSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opBoolSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [True for x in range(100)]
     (p2, p3) = initial.opBoolSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -578,8 +564,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opShortSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opShortSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [56 for x in range(100)]
     (p2, p3) = initial.opShortSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -587,8 +573,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opIntSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opIntSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [56 for x in range(100)]
     (p2, p3) = initial.opIntSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -596,8 +582,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opLongSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opLongSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [56 for x in range(100)]
     (p2, p3) = initial.opLongSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -605,8 +591,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opFloatSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opFloatSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [1.0 for x in range(100)]
     (p2, p3) = initial.opFloatSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -614,8 +600,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opDoubleSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opDoubleSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [1.0 for x in range(100)]
     (p2, p3) = initial.opDoubleSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -623,8 +609,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opStringSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opStringSeq(None)
+    test(p2 is None and p3 is None)
     p1 = ["test1" for x in range(100)]
     (p2, p3) = initial.opStringSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -632,8 +618,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opSmallStructSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opSmallStructSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [Test.SmallStruct(1) for x in range(10)]
     (p2, p3) = initial.opSmallStructSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -641,8 +627,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opSmallStructList(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opSmallStructList(None)
+    test(p2 is None and p3 is None)
     p1 = tuple([Test.SmallStruct(1) for x in range(10)])
     (p2, p3) = initial.opSmallStructList(p1)
     test(p2 == p1 and p3 == p1)
@@ -650,8 +636,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opFixedStructSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opFixedStructSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [Test.FixedStruct(1) for x in range(10)]
     (p2, p3) = initial.opFixedStructSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -659,8 +645,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opFixedStructList(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opFixedStructList(None)
+    test(p2 is None and p3 is None)
     p1 = tuple([Test.FixedStruct(1) for x in range(10)])
     (p2, p3) = initial.opFixedStructList(p1)
     test(p2 == p1 and p3 == p1)
@@ -668,8 +654,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opVarStructSeq(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opVarStructSeq(None)
+    test(p2 is None and p3 is None)
     p1 = [Test.VarStruct("test") for x in range(10)]
     (p2, p3) = initial.opVarStructSeq(p1)
     test(p2 == p1 and p3 == p1)
@@ -677,8 +663,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opIntIntDict(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opIntIntDict(None)
+    test(p2 is None and p3 is None)
     p1 = {1: 2, 2: 3}
     (p2, p3) = initial.opIntIntDict(p1)
     test(p2 == p1 and p3 == p1)
@@ -686,8 +672,8 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opStringIntDict(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    (p2, p3) = initial.opStringIntDict(None)
+    test(p2 is None and p3 is None)
     p1 = {"1": 2, "2": 3}
     (p2, p3) = initial.opStringIntDict(p1)
     test(p2 == p1 and p3 == p1)
@@ -703,12 +689,12 @@ def allTests(helper, communicator):
 
         (p1, p2, p3) = initial.opOptionalAfterRequired(1)
         test(p1 == 1)
-        test(p2 is Ice.Unset)
-        test(p3 is Ice.Unset)
+        test(p2 is None)
+        test(p3 is None)
 
         (p1, p2, p3) = initial.opOptionalAfterRequired(1, p3=3)
         test(p1 == 1)
-        test(p2 is Ice.Unset)
+        test(p2 is None)
         test(p3 == 3)
     except Ice.OperationNotExistException:
         # Expected for language mappings that don't implement these operations when running cross tests
@@ -719,10 +705,10 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     try:
-        initial.opOptionalException(Ice.Unset, Ice.Unset)
+        initial.opOptionalException(None, None)
     except Test.OptionalException as ex:
-        test(ex.a is Ice.Unset)
-        test(ex.b is Ice.Unset)
+        test(ex.a is None)
+        test(ex.b is None)
 
     try:
         initial.opOptionalException(30, "test")
@@ -736,15 +722,15 @@ def allTests(helper, communicator):
         #
         initial.ice_encodingVersion(Ice.Encoding_1_0).opOptionalException(30, "test")
     except Test.OptionalException as ex:
-        test(ex.a is Ice.Unset)
-        test(ex.b is Ice.Unset)
+        test(ex.a is None)
+        test(ex.b is None)
 
     try:
-        initial.opDerivedException(Ice.Unset, Ice.Unset)
+        initial.opDerivedException(None, None)
     except Test.DerivedException as ex:
-        test(ex.a is Ice.Unset)
-        test(ex.b is Ice.Unset)
-        test(ex.ss is Ice.Unset)
+        test(ex.a is None)
+        test(ex.b is None)
+        test(ex.ss is None)
         test(ex.d1 == "d1")
         test(ex.d2 == "d2")
 
@@ -758,10 +744,10 @@ def allTests(helper, communicator):
         test(ex.d2 == "d2")
 
     try:
-        initial.opRequiredException(Ice.Unset, Ice.Unset)
+        initial.opRequiredException(None, None)
     except Test.RequiredException as ex:
-        test(ex.a is Ice.Unset)
-        test(ex.b is Ice.Unset)
+        test(ex.a is None)
+        test(ex.b is None)
         test(ex.ss == "test")
 
     try:
@@ -776,26 +762,26 @@ def allTests(helper, communicator):
     sys.stdout.write("testing optionals with marshaled results... ")
     sys.stdout.flush()
 
-    test(initial.opMStruct1() != Ice.Unset)
-    test(initial.opMDict1() != Ice.Unset)
-    test(initial.opMSeq1() != Ice.Unset)
+    test(initial.opMStruct1() is not None)
+    test(initial.opMDict1() is not None)
+    test(initial.opMSeq1() is not None)
 
-    (p3, p2) = initial.opMStruct2(Ice.Unset)
-    test(p2 == Ice.Unset and p3 == Ice.Unset)
+    (p3, p2) = initial.opMStruct2(None)
+    test(p2 is None and p3 is None)
 
     p1 = Test.SmallStruct()
     (p3, p2) = initial.opMStruct2(p1)
     test(p2 == p1 and p3 == p1)
 
-    (p3, p2) = initial.opMSeq2(Ice.Unset)
-    test(p2 == Ice.Unset and p3 == Ice.Unset)
+    (p3, p2) = initial.opMSeq2(None)
+    test(p2 is None and p3 is None)
 
     p1 = ["hello"]
     (p3, p2) = initial.opMSeq2(p1)
     test(p2[0] == "hello" and p3[0] == "hello")
 
-    (p3, p2) = initial.opMDict2(Ice.Unset)
-    test(p2 == Ice.Unset and p3 == Ice.Unset)
+    (p3, p2) = initial.opMDict2(None)
+    test(p2 is None and p3 is None)
 
     p1 = {"test": 54}
     (p3, p2) = initial.opMDict2(p1)

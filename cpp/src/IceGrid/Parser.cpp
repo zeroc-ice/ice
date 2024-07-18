@@ -436,7 +436,7 @@ Parser::addApplication(const list<string>& origArgs)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        error(e.reason);
+        error(e.what());
         return;
     }
 
@@ -548,7 +548,7 @@ Parser::diffApplication(const list<string>& origArgs)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        error(e.reason);
+        error(e.what());
         return;
     }
 
@@ -665,7 +665,7 @@ Parser::updateApplication(const list<string>& origArgs)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        error(e.reason);
+        error(e.what());
         return;
     }
 
@@ -2010,7 +2010,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        error(e.reason);
+        error(e.what());
         return;
     }
 

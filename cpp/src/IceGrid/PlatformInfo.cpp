@@ -6,7 +6,7 @@
 #include "Ice/StringUtil.h"
 
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 
@@ -36,7 +36,7 @@ namespace
 
     string pdhErrorToString(PDH_STATUS err)
     {
-        return IceInternal::errorToString(err, GetModuleHandle(TEXT("PDH.DLL")));
+        return IceInternal::errorToStringWithSource(err, GetModuleHandle(TEXT("PDH.DLL")));
     }
 
     static string getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
@@ -58,7 +58,7 @@ namespace
             out << pdhErrorToString(err);
             out << "\nThis usually occurs when you do not have sufficient privileges";
 
-            throw Ice::SyscallException(__FILE__, __LINE__, err);
+            throw Ice::SyscallException{__FILE__, __LINE__, "PdhLookupPerfNameByIndex failed", static_cast<DWORD>(err)};
         }
         return string(&localized[0]);
     }
@@ -403,7 +403,7 @@ PlatformInfo::getLoadInfo() const
     info.avg1 = static_cast<float>(_last1Total) / _usages1.size() / 100.0f;
     info.avg5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
     info.avg15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
-#elif defined(__sun) || defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     //
     // We use the load average divided by the number of
     // processors to figure out if the machine is busy or

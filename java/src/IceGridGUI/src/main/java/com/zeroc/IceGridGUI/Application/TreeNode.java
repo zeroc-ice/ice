@@ -104,7 +104,7 @@ public abstract class TreeNode extends TreeNodeBase {
       java.util.List<AdapterDescriptor> adapters,
       String[] logs)
       throws java.io.IOException {
-    if (id.length() == 0 && psd.references.length == 0 && psd.properties.size() == 0) {
+    if (id.isEmpty() && psd.references.length == 0 && psd.properties.isEmpty()) {
       return;
     }
 
@@ -138,10 +138,10 @@ public abstract class TreeNode extends TreeNodeBase {
     }
 
     java.util.List<String[]> attributes = new java.util.LinkedList<>();
-    if (id.length() > 0) {
+    if (!id.isEmpty()) {
       attributes.add(createAttribute(idAttrName, id));
     }
-    if (psd.references.length == 0 && psd.properties.size() == 0) {
+    if (psd.references.length == 0 && psd.properties.isEmpty()) {
       writer.writeElement("properties", attributes);
     } else {
       writer.writeStartTag("properties", attributes);
@@ -204,7 +204,7 @@ public abstract class TreeNode extends TreeNodeBase {
       java.util.List<String[]> attributes = new java.util.LinkedList<>();
       String strId = com.zeroc.Ice.Util.identityToString(p.id, com.zeroc.Ice.ToStringMode.Unicode);
       attributes.add(createAttribute("identity", strId));
-      if (p.type.length() > 0) {
+      if (!p.type.isEmpty()) {
         attributes.add(createAttribute("type", p.type));
       }
       if (properties != null) {
@@ -213,7 +213,7 @@ public abstract class TreeNode extends TreeNodeBase {
           attributes.add(createAttribute("property", prop));
         }
       }
-      if (p.proxyOptions != null && !p.proxyOptions.equals("")) {
+      if (p.proxyOptions != null && !p.proxyOptions.isEmpty()) {
         attributes.add(createAttribute("proxy-options", p.proxyOptions));
       }
       writer.writeElement(elt, attributes);

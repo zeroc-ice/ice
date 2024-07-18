@@ -18,17 +18,25 @@ def allTests(helper, communicator)
     print "testing value factory registration exception... "
     STDOUT.flush
     vf = ValueFactoryI.new
-    communicator.getValueFactoryManager().add(vf, "x")
+
+    vfm = communicator.getValueFactoryManager()
+    test(vfm.class == Ice::ValueFactoryManager) # created by the C++ code
+
+    vfm.add(vf, "x")
     begin
-        communicator.getValueFactoryManager().add(vf, "x")
+        vfm.add(vf, "x")
         test(false)
-    rescue Ice::AlreadyRegisteredException
+    rescue Ice::AlreadyRegisteredException => ex
+        test(ex.kindOfObject == "value factory")
+        test(ex.id == "x")
     end
-    communicator.getValueFactoryManager().add(vf, "")
+    vfm.add(vf, "")
     begin
-        communicator.getValueFactoryManager().add(vf, "")
+        vfm.add(vf, "")
         test(false)
-    rescue Ice::AlreadyRegisteredException
+    rescue Ice::AlreadyRegisteredException => ex
+        test(ex.kindOfObject == "value factory")
+        test(ex.id == "")
     end
     puts "ok"
 
@@ -258,7 +266,7 @@ def allTests(helper, communicator)
     begin
         thrower.throwMemoryLimitException(Array.new(1, 0x00));
         test(false)
-    rescue Ice::MemoryLimitException
+    rescue Ice::MarshalException
         # Expected
     rescue
         test(false)

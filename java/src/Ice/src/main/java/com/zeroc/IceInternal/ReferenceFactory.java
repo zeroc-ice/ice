@@ -10,7 +10,7 @@ import com.zeroc.IceUtilInternal.StringUtil;
 public final class ReferenceFactory {
   public Reference create(
       com.zeroc.Ice.Identity ident, String facet, Reference tmpl, EndpointI[] endpoints) {
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
 
@@ -19,6 +19,7 @@ public final class ReferenceFactory {
         facet,
         tmpl.getMode(),
         tmpl.getSecure(),
+        tmpl.getCompress(),
         tmpl.getProtocol(),
         tmpl.getEncoding(),
         endpoints,
@@ -28,7 +29,7 @@ public final class ReferenceFactory {
 
   public Reference create(
       com.zeroc.Ice.Identity ident, String facet, Reference tmpl, String adapterId) {
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
 
@@ -37,6 +38,7 @@ public final class ReferenceFactory {
         facet,
         tmpl.getMode(),
         tmpl.getSecure(),
+        tmpl.getCompress(),
         tmpl.getProtocol(),
         tmpl.getEncoding(),
         null,
@@ -45,7 +47,7 @@ public final class ReferenceFactory {
   }
 
   public Reference create(com.zeroc.Ice.Identity ident, com.zeroc.Ice.ConnectionI fixedConnection) {
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
 
@@ -59,24 +61,24 @@ public final class ReferenceFactory {
         "", // Facet
         fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
         fixedConnection.endpoint().secure(),
+        java.util.Optional.empty(),
         com.zeroc.Ice.Util.Protocol_1_0,
         _instance.defaultsAndOverrides().defaultEncoding,
         fixedConnection,
         -1,
-        null,
-        java.util.Optional.empty());
+        null);
   }
 
   public Reference copy(Reference r) {
     com.zeroc.Ice.Identity ident = r.getIdentity();
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
     return r.clone();
   }
 
   public Reference create(String s, String propertyPrefix) {
-    if (s == null || s.length() == 0) {
+    if (s == null || s.isEmpty()) {
       return null;
     }
 
@@ -87,9 +89,7 @@ public final class ReferenceFactory {
 
     beg = StringUtil.findFirstNotOf(s, delim, end);
     if (beg == -1) {
-      ProxyParseException e = new ProxyParseException();
-      e.str = "no non-whitespace characters found in `" + s + "'";
-      throw e;
+      throw new ProxyParseException("no non-whitespace characters found in `" + s + "'");
     }
 
     //
@@ -99,9 +99,7 @@ public final class ReferenceFactory {
     String idstr = null;
     end = StringUtil.checkQuote(s, beg);
     if (end == -1) {
-      ProxyParseException e = new ProxyParseException();
-      e.str = "mismatched quotes around identity in `" + s + "'";
-      throw e;
+      throw new ProxyParseException("mismatched quotes around identity in `" + s + "'");
     } else if (end == 0) {
       end = StringUtil.findFirstOf(s, delim + ":@", beg);
       if (end == -1) {
@@ -115,9 +113,7 @@ public final class ReferenceFactory {
     }
 
     if (beg == end) {
-      ProxyParseException e = new ProxyParseException();
-      e.str = "no identity in `" + s + "'";
-      throw e;
+      throw new ProxyParseException("no identity in `" + s + "'");
     }
 
     //
@@ -125,15 +121,13 @@ public final class ReferenceFactory {
     //
     com.zeroc.Ice.Identity ident = com.zeroc.Ice.Util.stringToIdentity(idstr);
 
-    if (ident.name.length() == 0) {
+    if (ident.name.isEmpty()) {
       //
       // An identity with an empty name and a non-empty
       // category is illegal.
       //
       if (ident.category.length() > 0) {
-        com.zeroc.Ice.IllegalIdentityException e = new com.zeroc.Ice.IllegalIdentityException();
-        e.id = ident;
-        throw e;
+        throw new com.zeroc.Ice.IllegalIdentityException(ident);
       }
       //
       // Treat a stringified proxy containing two double
@@ -142,9 +136,7 @@ public final class ReferenceFactory {
       // quotes.
       //
       else if (StringUtil.findFirstNotOf(s, delim, end) != -1) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "invalid characters after identity in `" + s + "'";
-        throw e;
+        throw new ProxyParseException("invalid characters after identity in `" + s + "'");
       } else {
         return null;
       }
@@ -178,9 +170,8 @@ public final class ReferenceFactory {
 
       String option = s.substring(beg, end);
       if (option.length() != 2 || option.charAt(0) != '-') {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "expected a proxy option but found `" + option + "' in `" + s + "'";
-        throw e;
+        throw new ProxyParseException(
+            "expected a proxy option but found `" + option + "' in `" + s + "'");
       }
 
       //
@@ -196,9 +187,8 @@ public final class ReferenceFactory {
           beg = argumentBeg;
           end = StringUtil.checkQuote(s, beg);
           if (end == -1) {
-            ProxyParseException e = new ProxyParseException();
-            e.str = "mismatched quotes around value for " + option + " option in `" + s + "'";
-            throw e;
+            throw new ProxyParseException(
+                "mismatched quotes around value for " + option + " option in `" + s + "'");
           } else if (end == 0) {
             end = StringUtil.findFirstOf(s, delim + ":@", beg);
             if (end == -1) {
@@ -221,17 +211,13 @@ public final class ReferenceFactory {
         case 'f':
           {
             if (argument == null) {
-              ProxyParseException e = new ProxyParseException();
-              e.str = "no argument provided for -f option in `" + s + "'";
-              throw e;
+              throw new ProxyParseException("no argument provided for -f option in `" + s + "'");
             }
 
             try {
               facet = StringUtil.unescapeString(argument, 0, argument.length(), "");
             } catch (IllegalArgumentException ex) {
-              ProxyParseException e = new ProxyParseException();
-              e.str = "invalid facet in `" + s + "': " + ex.getMessage();
-              throw e;
+              throw new ProxyParseException("invalid facet in `" + s + "': " + ex.getMessage());
             }
 
             break;
@@ -341,15 +327,23 @@ public final class ReferenceFactory {
 
         default:
           {
-            ProxyParseException e = new ProxyParseException();
-            e.str = "unknown option `" + option + "' in `" + s + "'";
-            throw e;
+            throw new ProxyParseException("unknown option `" + option + "' in `" + s + "'");
           }
       }
     }
 
     if (beg == -1) {
-      return create(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
+      return create(
+          ident,
+          facet,
+          mode,
+          secure,
+          java.util.Optional.empty(),
+          protocol,
+          encoding,
+          null,
+          null,
+          propertyPrefix);
     }
 
     java.util.ArrayList<EndpointI> endpoints = new java.util.ArrayList<>();
@@ -400,12 +394,12 @@ public final class ReferenceFactory {
           unknownEndpoints.add(es);
         }
       }
-      if (endpoints.size() == 0) {
+      if (endpoints.isEmpty()) {
         assert (!unknownEndpoints.isEmpty());
         com.zeroc.Ice.EndpointParseException e = new com.zeroc.Ice.EndpointParseException();
         e.str = "invalid endpoint `" + unknownEndpoints.get(0) + "' in `" + s + "'";
         throw e;
-      } else if (unknownEndpoints.size() != 0
+      } else if (!unknownEndpoints.isEmpty()
           && _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints")
               > 0) {
         StringBuffer msg = new StringBuffer("Proxy contains unknown endpoints:");
@@ -419,21 +413,27 @@ public final class ReferenceFactory {
 
       EndpointI[] endp = new EndpointI[endpoints.size()];
       endpoints.toArray(endp);
-      return create(ident, facet, mode, secure, protocol, encoding, endp, null, propertyPrefix);
+      return create(
+          ident,
+          facet,
+          mode,
+          secure,
+          java.util.Optional.empty(),
+          protocol,
+          encoding,
+          endp,
+          null,
+          propertyPrefix);
     } else if (s.charAt(beg) == '@') {
       beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
       if (beg == -1) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "missing adapter id in `" + s + "'";
-        throw e;
+        throw new ProxyParseException("missing adapter id in `" + s + "'");
       }
 
       String adapterstr = null;
       end = StringUtil.checkQuote(s, beg);
       if (end == -1) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "mismatched quotes around adapter id in `" + s + "'";
-        throw e;
+        throw new ProxyParseException("mismatched quotes around adapter id in `" + s + "'");
       } else if (end == 0) {
         end = StringUtil.findFirstOf(s, delim, beg);
         if (end == -1) {
@@ -456,21 +456,25 @@ public final class ReferenceFactory {
       try {
         adapter = StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), "");
       } catch (IllegalArgumentException ex) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "invalid adapter id in `" + s + "': " + ex.getMessage();
-        throw e;
+        throw new ProxyParseException("invalid adapter id in `" + s + "': " + ex.getMessage());
       }
-      if (adapter.length() == 0) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "empty adapter id in `" + s + "'";
-        throw e;
+      if (adapter.isEmpty()) {
+        throw new ProxyParseException("empty adapter id in `" + s + "'");
       }
-      return create(ident, facet, mode, secure, protocol, encoding, null, adapter, propertyPrefix);
+      return create(
+          ident,
+          facet,
+          mode,
+          secure,
+          java.util.Optional.empty(),
+          protocol,
+          encoding,
+          null,
+          adapter,
+          propertyPrefix);
     }
 
-    ProxyParseException ex = new ProxyParseException();
-    ex.str = "malformed proxy `" + s + "'";
-    throw ex;
+    throw new ProxyParseException("malformed proxy `" + s + "'");
   }
 
   public Reference create(com.zeroc.Ice.Identity ident, com.zeroc.Ice.InputStream s) {
@@ -479,7 +483,7 @@ public final class ReferenceFactory {
     // constructor read the identity, and pass it as a parameter.
     //
 
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
 
@@ -527,7 +531,17 @@ public final class ReferenceFactory {
       adapterId = s.readString();
     }
 
-    return create(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, null);
+    return create(
+        ident,
+        facet,
+        mode,
+        secure,
+        java.util.Optional.empty(),
+        protocol,
+        encoding,
+        endpoints,
+        adapterId,
+        null);
   }
 
   public ReferenceFactory setDefaultRouter(com.zeroc.Ice.RouterPrx defaultRouter) {
@@ -610,7 +624,7 @@ public final class ReferenceFactory {
       }
     }
 
-    if (unknownProps.size() != 0) {
+    if (!unknownProps.isEmpty()) {
       StringBuffer message = new StringBuffer("found unknown properties for proxy '");
       message.append(prefix);
       message.append("':");
@@ -627,6 +641,7 @@ public final class ReferenceFactory {
       String facet,
       int mode,
       boolean secure,
+      java.util.Optional<Boolean> compress,
       com.zeroc.Ice.ProtocolVersion protocol,
       com.zeroc.Ice.EncodingVersion encoding,
       EndpointI[] endpoints,
@@ -661,7 +676,7 @@ public final class ReferenceFactory {
     //
     // Override the defaults with the proxy properties if a property prefix is defined.
     //
-    if (propertyPrefix != null && propertyPrefix.length() > 0) {
+    if (propertyPrefix != null && !propertyPrefix.isEmpty()) {
       com.zeroc.Ice.Properties properties = _instance.initializationData().properties;
 
       //
@@ -721,7 +736,7 @@ public final class ReferenceFactory {
           endpointSelection = com.zeroc.Ice.EndpointSelectionType.Ordered;
         } else {
           throw new com.zeroc.Ice.EndpointSelectionTypeParseException(
-              "illegal value `" + type + "'; expected `Random' or `Ordered'");
+              "illegal value `" + type + "'; expected 'Random' or 'Ordered'");
         }
       }
 
@@ -777,6 +792,7 @@ public final class ReferenceFactory {
         facet,
         mode,
         secure,
+        compress,
         protocol,
         encoding,
         endpoints,

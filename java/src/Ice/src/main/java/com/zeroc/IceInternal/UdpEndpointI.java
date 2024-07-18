@@ -219,7 +219,7 @@ final class UdpEndpointI extends IPEndpointI {
     //
     String s = super.options();
 
-    if (_mcastInterface.length() != 0) {
+    if (!_mcastInterface.isEmpty()) {
       s += " --interface ";
       boolean addQuote = _mcastInterface.indexOf(':') != -1;
       if (addQuote) {
@@ -247,8 +247,7 @@ final class UdpEndpointI extends IPEndpointI {
   }
 
   @Override
-  public int compareTo(EndpointI obj) // From java.lang.Comparable
-      {
+  public int compareTo(EndpointI obj) {
     if (!(obj instanceof UdpEndpointI)) {
       return type() < obj.type() ? -1 : 1;
     }
@@ -300,8 +299,8 @@ final class UdpEndpointI extends IPEndpointI {
   }
 
   @Override
-  public int hashInit(int h) {
-    h = super.hashInit(h);
+  public int hashCode() {
+    int h = super.hashCode();
     h = HashUtil.hashAdd(h, _mcastInterface);
     h = HashUtil.hashAdd(h, _mcastTtl);
     h = HashUtil.hashAdd(h, _connect);

@@ -41,29 +41,10 @@ compareTag(const T& lhs, const T& rhs)
     return lhs->tag() < rhs->tag();
 }
 
-Slice::CompilerException::CompilerException(const char* file, int line, const string& r)
-    : Ice::LocalException(file, line),
-      _reason(r)
-{
-}
-
 const char*
 Slice::CompilerException::ice_id() const noexcept
 {
     return "::Slice::CompilerException";
-}
-
-void
-Slice::CompilerException::ice_print(ostream& out) const
-{
-    Ice::LocalException::ice_print(out);
-    out << ": " << _reason;
-}
-
-string
-Slice::CompilerException::reason() const
-{
-    return _reason;
 }
 
 // Forward declare things from Bison and Flex the parser can use.

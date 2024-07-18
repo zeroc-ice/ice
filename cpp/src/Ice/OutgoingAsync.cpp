@@ -7,15 +7,18 @@
 #include "ConnectionFactory.h"
 #include "ConnectionI.h"
 #include "Ice/ImplicitContext.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Instance.h"
+#include "LocatorInfo.h"
 #include "ObjectAdapterFactory.h"
 #include "Reference.h"
 #include "ReplyStatus.h"
 #include "RequestHandlerCache.h"
 #include "RetryQueue.h"
+#include "RouterInfo.h"
 #include "ThreadPool.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace Ice;
@@ -337,9 +340,7 @@ ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
         // the retry interval is 0. This method can be called with the
         // connection locked so we can't just retry here.
         //
-        _instance->retryQueue()->add(
-            shared_from_this(),
-            _proxy._getRequestHandlerCache()->handleException(exc, _handler, _mode, _sent, _cnt));
+        _instance->retryQueue()->add(shared_from_this(), handleRetryAfterException(exc));
 
         return false;
     }
@@ -477,8 +478,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
                     _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
                 }
-                int interval = _proxy._getRequestHandlerCache()
-                                   ->handleException(current_exception(), _handler, _mode, _sent, _cnt);
+                int interval = handleRetryAfterException(current_exception());
 
                 if (interval > 0)
                 {
@@ -549,6 +549,237 @@ ProxyOutgoingAsyncBase::runTimerTask()
     cancel(make_exception_ptr(InvocationTimeoutException(__FILE__, __LINE__)));
 }
 
+int
+ProxyOutgoingAsyncBase::handleRetryAfterException(std::exception_ptr ex)
+{
+    // Clear the request handler
+    _proxy->_getRequestHandlerCache()->clearCachedRequestHandler(_handler);
+
+    // We only retry local exceptions, system exceptions aren't retried.
+    //
+    // A CloseConnectionException indicates graceful server shutdown, and is therefore
+    // always repeatable without violating "at-most-once". That's because by sending a
+    // close connection message, the server guarantees that all outstanding requests
+    // can safely be repeated.
+    //
+    // An ObjectNotExistException can always be retried as well without violating
+    // "at-most-once".
+    //
+    // If the request didn't get sent or if it's non-mutating or idempotent it can
+    // also always be retried if the retry count isn't reached.
+    try
+    {
+        rethrow_exception(ex);
+    }
+    catch (const Ice::LocalException& localEx)
+    {
+        if (!_sent || _mode == OperationMode::Nonmutating || _mode == OperationMode::Idempotent ||
+            dynamic_cast<const CloseConnectionException*>(&localEx) ||
+            dynamic_cast<const ObjectNotExistException*>(&localEx))
+        {
+            try
+            {
+                return checkRetryAfterException(ex);
+            }
+            catch (const CommunicatorDestroyedException&)
+            {
+                rethrow_exception(ex); // The communicator is already destroyed, so we cannot retry.
+            }
+        }
+        else
+        {
+            throw; // Retry could break at-most-once semantics, don't retry.
+        }
+
+        // gcc complains without this return statement.
+        assert(false);
+        return 0;
+    }
+}
+
+int
+ProxyOutgoingAsyncBase::checkRetryAfterException(std::exception_ptr ex)
+{
+    const ReferencePtr& ref = _proxy._getReference();
+    const InstancePtr& instance = ref->getInstance();
+
+    TraceLevelsPtr traceLevels = instance->traceLevels();
+    LoggerPtr logger = instance->initializationData().logger;
+
+    // We don't retry batch requests because the exception might have
+    // caused all the requests batched with the connection to be
+    // aborted and we want the application to be notified.
+    if (ref->isBatch())
+    {
+        rethrow_exception(ex);
+    }
+
+    // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
+    // the connection and the request will fail with the exception.
+    if (dynamic_cast<const FixedReference*>(ref.get()))
+    {
+        rethrow_exception(ex);
+    }
+
+    bool isCloseConnectionException = false;
+    string errorMessage;
+    try
+    {
+        rethrow_exception(ex);
+    }
+    catch (const ObjectNotExistException& one)
+    {
+        if (ref->getRouterInfo() && one.operation() == "ice_add_proxy")
+        {
+            // If we have a router, an ObjectNotExistException with an
+            // operation name "ice_add_proxy" indicates to the client
+            // that the router isn't aware of the proxy (for example,
+            // because it was evicted by the router). In this case, we
+            // must *always* retry, so that the missing proxy is added
+            // to the router.
+
+            ref->getRouterInfo()->clearCache(ref);
+
+            if (traceLevels->retry >= 1)
+            {
+                Trace out(logger, traceLevels->retryCat);
+                out << "retrying operation call to add proxy to router\n" << one;
+            }
+
+            return 0; // We must always retry, so we don't look at the retry count.
+        }
+        else if (ref->isIndirect())
+        {
+            // We retry ObjectNotExistException if the reference is indirect.
+
+            if (ref->isWellKnown())
+            {
+                LocatorInfoPtr li = ref->getLocatorInfo();
+                if (li)
+                {
+                    li->clearCache(ref);
+                }
+            }
+        }
+        else
+        {
+            // For all other cases, we don't retry ObjectNotExistException.
+            throw;
+        }
+    }
+    catch (const RequestFailedException&)
+    {
+        // We don't retry other *NotExistException, which are all
+        // derived from RequestFailedException.
+        throw;
+    }
+    catch (const MarshalException&)
+    {
+        // There is no point in retrying an operation that resulted in a
+        // MarshalException. This must have been raised locally (because
+        // if it happened in a server it would result in an
+        // UnknownLocalException instead), which means there was a problem
+        // in this process that will not change if we try again.
+        //
+        // The most likely cause for a MarshalException is exceeding the
+        // maximum message size. For example, a client can attempt to send
+        // a message that exceeds the maximum memory size, or accumulate
+        // enough batch requests without flushing that the maximum size is
+        // reached.
+        //
+        // This latter case is especially problematic, because if we were
+        // to retry a batch request after a MarshalException, we would in
+        // fact silently discard the accumulated requests and allow new
+        // batch requests to accumulate. If the subsequent batched
+        // requests do not exceed the maximum message size, it appears to
+        // the client that all of the batched requests were accepted, when
+        // in reality only the last few are actually sent.
+        throw;
+    }
+    catch (const CommunicatorDestroyedException&)
+    {
+        throw;
+    }
+    catch (const ObjectAdapterDeactivatedException&)
+    {
+        throw;
+    }
+    catch (const ConnectionAbortedException& connectionAbortedException)
+    {
+        if (connectionAbortedException.closedByApplication())
+        {
+            throw; // do not retry
+        }
+        errorMessage = connectionAbortedException.what();
+        // and retry
+    }
+    catch (const ConnectionClosedException& connectionClosedException)
+    {
+        if (connectionClosedException.closedByApplication())
+        {
+            throw; // do not retry
+        }
+        errorMessage = connectionClosedException.what();
+        // and retry
+    }
+    catch (const InvocationTimeoutException&)
+    {
+        throw;
+    }
+    catch (const InvocationCanceledException&)
+    {
+        throw;
+    }
+    catch (const CloseConnectionException& e)
+    {
+        isCloseConnectionException = true;
+        errorMessage = e.what();
+        // and retry
+    }
+    catch (const std::exception& e)
+    {
+        errorMessage = e.what();
+        // We retry on all other exceptions!
+    }
+
+    ++_cnt;
+    assert(_cnt > 0);
+
+    const auto& retryIntervals = instance->retryIntervals();
+    int interval = -1;
+    if (_cnt == static_cast<int>(retryIntervals.size() + 1) && isCloseConnectionException)
+    {
+        // A close connection exception is always retried at least once, even if the retry
+        // limit is reached.
+        interval = 0;
+    }
+    else if (_cnt > static_cast<int>(retryIntervals.size()))
+    {
+        if (traceLevels->retry >= 1)
+        {
+            Trace out(logger, traceLevels->retryCat);
+            out << "cannot retry operation call because retry limit has been exceeded\n" << errorMessage;
+        }
+        rethrow_exception(ex);
+    }
+    else
+    {
+        interval = retryIntervals[static_cast<size_t>(_cnt - 1)];
+    }
+
+    if (traceLevels->retry >= 1)
+    {
+        Trace out(logger, traceLevels->retryCat);
+        out << "retrying operation call";
+        if (interval > 0)
+        {
+            out << " in " << interval << "ms";
+        }
+        out << " because of exception\n" << errorMessage;
+    }
+    return interval;
+}
+
 OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous)
     : ProxyOutgoingAsyncBase(std::move(proxy)),
       _encoding(_proxy->_getReference()->getEncoding()),
@@ -559,7 +790,14 @@ OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous)
 void
 OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context& context)
 {
-    checkSupportedProtocol(_proxy._getReference()->getProtocol());
+    if (_proxy._getReference()->getProtocol().major != currentProtocol.major)
+    {
+        throw FeatureNotSupportedException{
+            __FILE__,
+            __LINE__,
+            "cannot send request using protocol version " +
+                Ice::protocolVersionToString(_proxy._getReference()->getProtocol())};
+    }
 
     _mode = mode;
 
@@ -679,24 +917,20 @@ OutgoingAsync::response()
                 {
                     if (facetPath.size() > 1)
                     {
-                        throw MarshalException(__FILE__, __LINE__);
+                        throw MarshalException{__FILE__, __LINE__, "received facet path with more than one element"};
                     }
                     facet.swap(facetPath[0]);
                 }
 
                 string operation;
                 _is.read(operation, false);
-
                 switch (replyStatus)
                 {
                     case replyObjectNotExist:
                     {
-                        string message =
-                            createRequestFailedMessage("::Ice::ObjectNotExistException", ident, facet, operation);
                         throw ObjectNotExistException{
                             __FILE__,
                             __LINE__,
-                            std::move(message),
                             std::move(ident),
                             std::move(facet),
                             std::move(operation)};
@@ -705,12 +939,9 @@ OutgoingAsync::response()
 
                     case replyFacetNotExist:
                     {
-                        string message =
-                            createRequestFailedMessage("::Ice::FacetNotExistException", ident, facet, operation);
                         throw FacetNotExistException{
                             __FILE__,
                             __LINE__,
-                            std::move(message),
                             std::move(ident),
                             std::move(facet),
                             std::move(operation)};
@@ -719,12 +950,9 @@ OutgoingAsync::response()
 
                     case replyOperationNotExist:
                     {
-                        string message =
-                            createRequestFailedMessage("::Ice::OperationNotExistException", ident, facet, operation);
                         throw OperationNotExistException{
                             __FILE__,
                             __LINE__,
-                            std::move(message),
                             std::move(ident),
                             std::move(facet),
                             std::move(operation)};
@@ -778,7 +1006,10 @@ OutgoingAsync::response()
 
             default:
             {
-                throw UnknownReplyStatusException(__FILE__, __LINE__);
+                throw ProtocolException{
+                    __FILE__,
+                    __LINE__,
+                    "received unknown reply status in Reply message" + to_string(replyStatus)};
             }
         }
 
@@ -882,10 +1113,7 @@ OutgoingAsync::throwUserException()
         {
             _userException(ex);
         }
-        throw UnknownUserException{
-            __FILE__,
-            __LINE__,
-            "Received unknown user exception with type ID '" + string{ex.ice_id()} + "'"};
+        throw UnknownUserException::fromTypeId(__FILE__, __LINE__, ex.ice_id());
     }
 }
 

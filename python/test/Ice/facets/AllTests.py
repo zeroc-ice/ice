@@ -101,12 +101,7 @@ def allTests(helper, communicator):
 
     adapter.deactivate()
 
-    sys.stdout.write("testing stringToProxy... ")
-    sys.stdout.flush()
-    ref = "d:{0}".format(helper.getTestEndpoint())
-    db = communicator.stringToProxy(ref)
-    test(db)
-    print("ok")
+    db = Ice.ObjectPrx(communicator, f"d:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing unchecked cast... ")
     sys.stdout.flush()

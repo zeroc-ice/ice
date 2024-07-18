@@ -5,7 +5,7 @@
 classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods
         function obj = EncapsDecoder11(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphDepthMax)
-            obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, ...
+            obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, ...
                                                 classGraphDepthMax);
             obj.current = [];
             obj.valueIdIndex = 1;
@@ -19,7 +19,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
             index = obj.is.readSize();
             if index < 0
-                throw(Ice.MarshalException('', '', 'invalid object id'));
+                throw(Ice.MarshalException('invalid object id'));
             elseif index == 0
                 cb([]);
             elseif isobject(current) && bitand(current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
@@ -102,7 +102,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % If this is the last slice, raise an exception and stop unmarshaling.
                     %
                     if bitand(obj.current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE)
-                        throw(Ice.UnknownUserException('', '', mostDerivedId));
+                        throw(Ice.MarshalException(sprintf('unknown exception type ''%s''', mostDerivedId)));
                     end
 
                     obj.startSlice();
@@ -179,7 +179,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             if bitand(current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
                 current.sliceSize = is.readInt();
                 if current.sliceSize < 4
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('invalid slice size'));
                 end
             else
                 current.sliceSize = 0;
@@ -215,11 +215,11 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % unknown optional data members.
                 %
                 if isempty(indirectionTable)
-                    throw(Ice.MarshalException('', '', 'empty indirection table'));
+                    throw(Ice.MarshalException('empty indirection table'));
                 end
                 if isempty(current.indirectPatchList) && ...
                    bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0
-                    throw(Ice.MarshalException('', '', 'no references to indirection table'));
+                    throw(Ice.MarshalException('no references to indirection table'));
                 end
 
                 %
@@ -231,7 +231,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                         e = current.indirectPatchList(keys{i});
                         %assert(e.index > 0); % MATLAB starts indexing at 1
                         if e.index > length(indirectionTable)
-                            throw(Ice.MarshalException('', '', 'indirection out of range'));
+                            throw(Ice.MarshalException('indirection out of range'));
                         end
                         obj.addPatchEntry(indirectionTable{e.index}, e.cb);
                     end
@@ -251,11 +251,11 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 is.skip(current.sliceSize - 4);
             else
                 if current.sliceType == IceInternal.SliceType.ValueSlice
-                    reason = ['no value factory found and compact format prevents ', ...
-                              'slicing (the sender should use the sliced format instead)'];
-                    throw(Ice.NoValueFactoryException('', reason, reason, current.typeId));
+                    reason = sprintf('cannot find value factory for type ID ''%s''', current.typeId);
+                    throw(Ice.MarshalException(reason));
                 else
-                    throw(Ice.UnknownUserException('', '', current.typeId));
+                    reason = sprintf('cannot find user exception for type ID ''%s''', current.typeId);
+                    throw(Ice.MarshalException(reason));
                 end
             end
 
@@ -371,8 +371,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % If slicing is disabled, stop unmarshaling.
                 %
                 if ~obj.sliceValues
-                    reason = 'no value factory found and slicing is disabled';
-                    throw(Ice.NoValueFactoryException('', reason, reason, current.typeId));
+
+                    reason = sprintf('cannot find value factory for type ID ''%s'' and slicing is disabled', current.typeId);
+                    throw(Ice.MarshalException(reason));
                 end
 
                 %
@@ -402,7 +403,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
             obj.classGraphDepth = obj.classGraphDepth + 1;
             if obj.classGraphDepth > obj.classGraphDepthMax
-                throw(Ice.MarshalException('', '', 'maximum class graph depth reached'))
+                throw(Ice.MarshalException('maximum class graph depth reached'))
             end
 
             %
@@ -417,7 +418,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % If any entries remain in the patch map, the sender has sent an index for an instance, but failed
                 % to supply the instance.
                 %
-                throw(Ice.MarshalException('', '', 'index for class received, but no instance'));
+                throw(Ice.MarshalException('index for class received, but no instance'));
             end
 
             if ~isempty(cb)

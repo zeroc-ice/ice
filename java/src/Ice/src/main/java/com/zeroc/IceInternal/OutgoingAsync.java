@@ -70,18 +70,14 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
       }
 
       if (isBatch()) {
-        //
         // NOTE: we don't call sent/completed callbacks for batch AMI requests
-        //
         _sentSynchronously = true;
-        _proxy._getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
+        _proxy._getReference().getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
         finished(true, false);
       } else {
-        //
         // NOTE: invokeImpl doesn't throw so this can be called from the
         // try block with the catch block calling abort() in case of an
         // exception.
-        //
         invokeImpl(true); // userThread = true
       }
     } catch (com.zeroc.Ice.Exception ex) {
@@ -157,7 +153,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
       // must notify the connection about that we give up ownership
       // of the batch stream.
       //
-      _proxy._getBatchRequestQueue().abortBatchRequest(_os);
+      _proxy._getReference().getBatchRequestQueue().abortBatchRequest(_os);
     }
 
     super.abort(ex);

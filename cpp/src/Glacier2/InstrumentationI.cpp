@@ -6,7 +6,7 @@
 #include "../Ice/InstrumentationI.h"
 
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 
 using namespace std;

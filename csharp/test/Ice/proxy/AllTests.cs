@@ -749,7 +749,15 @@ namespace Ice
                 test(cl.Equals(baseProxy));
                 test(derived.Equals(baseProxy));
                 test(cl.Equals(derived));
-                test(Test.MyDerivedClassPrxHelper.checkedCast(cl, "facet") == null);
+                try
+                {
+                    Test.MyDerivedClassPrxHelper.checkedCast(cl, "facet");
+                    test(false);
+                }
+                catch (Ice.FacetNotExistException)
+                {
+                    // expected
+                }
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast with context... ");
@@ -867,7 +875,8 @@ namespace Ice
                 {
                     // TODO: remove UnsupportedEncodingException
                     test(
-                        ex.unknown.Contains("MarshalException") ||
+                        ex.unknown.Contains("::Ice::MarshalException") ||
+                        ex.unknown.Contains("Ice.MarshalException") ||
                         ex.unknown.Contains("UnsupportedEncodingException"));
                 }
 
@@ -882,15 +891,15 @@ namespace Ice
                     inEncaps[4] = version.major;
                     inEncaps[5] = version.minor;
                     byte[] outEncaps;
-                    cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps,
-                                                                  out outEncaps);
+                    cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, out outEncaps);
                     test(false);
                 }
                 catch (Ice.UnknownLocalException ex)
                 {
                     // TODO: remove UnsupportedEncodingException
                     test(
-                        ex.unknown.Contains("MarshalException") ||
+                        ex.unknown.Contains("::Ice::MarshalException") ||
+                        ex.unknown.Contains("Ice.MarshalException") ||
                         ex.unknown.Contains("UnsupportedEncodingException"));
                 }
 

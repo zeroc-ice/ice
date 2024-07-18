@@ -2,24 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-//
-// The following is required on HP-UX in order to bring in
-// the definition for the ip_mreq structure.
-//
-#if defined(__hpux)
-#    undef _XOPEN_SOURCE_EXTENDED
-#    define _XOPEN_SOURCE
-#    include <netinet/in.h>
-#endif
-
+#include "Network.h"
 #include "DisableWarnings.h"
 #include "Ice/Buffer.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
 #include "Ice/Properties.h" // For setTcpBufSize
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
-#include "Network.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
 #include "Random.h"
@@ -45,8 +35,6 @@
 
 #if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
 #    include <ifaddrs.h>
-#elif defined(__sun)
-#    include <sys/sockio.h>
 #endif
 
 #if defined(__GNUC__) && (__GNUC__ < 5)
@@ -260,11 +248,7 @@ namespace
             }
             SOCKET fd = createSocketImpl(false, i == 0 ? AF_INET : AF_INET6);
 
-#    ifdef _AIX
-            int cmd = CSIOCGIFCONF;
-#    else
             int cmd = SIOCGIFCONF;
-#    endif
             struct ifconf ifc;
             int numaddrs = 10;
             int old_ifc_len = 0;
@@ -498,7 +482,7 @@ namespace
         {
             throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
         }
-#elif !defined(__hpux)
+#else
 
         //
         // Look for an interface with a matching IP address
@@ -527,11 +511,7 @@ namespace
             }
 #    else
             SOCKET fd = createSocketImpl(false, AF_INET6);
-#        ifdef _AIX
-            int cmd = CSIOCGIFCONF;
-#        else
             int cmd = SIOCGIFCONF;
-#        endif
             struct ifconf ifc;
             int numaddrs = 10;
             int old_ifc_len = 0;
@@ -783,7 +763,7 @@ IceInternal::noMoreFds(int error)
 }
 
 string
-IceInternal::errorToStringDNS(int error)
+IceInternal::errorToStringDNS(ErrorCode error)
 {
 #if defined(_WIN32)
     return IceInternal::errorToString(error);
@@ -1839,7 +1819,7 @@ repeatConnect:
         closeSocketNoThrow(fd);
         if (connectionRefused())
         {
-            throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
+            throw ConnectionRefusedException{__FILE__, __LINE__};
         }
         else if (connectFailed())
         {
@@ -1863,7 +1843,7 @@ repeatConnect:
         fdToLocalAddress(fd, localAddr);
         if (compareAddress(addr, localAddr) == 0)
         {
-            throw ConnectionRefusedException(__FILE__, __LINE__, 0); // No appropriate errno
+            throw ConnectionRefusedException{__FILE__, __LINE__};
         }
     }
     catch (const LocalException&)
@@ -1879,7 +1859,7 @@ void
 IceInternal::doFinishConnect(SOCKET fd)
 {
     //
-    // Note: we don't close the socket if there's an exception. It's the responsability
+    // Note: we don't close the socket if there's an exception. It's the responsibility
     // of the caller to do so.
     //
 
@@ -1908,7 +1888,7 @@ IceInternal::doFinishConnect(SOCKET fd)
 #endif
         if (connectionRefused())
         {
-            throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
+            throw ConnectionRefusedException{__FILE__, __LINE__};
         }
         else if (connectFailed())
         {
@@ -1931,7 +1911,7 @@ IceInternal::doFinishConnect(SOCKET fd)
     Address remoteAddr;
     if (fdToRemoteAddress(fd, remoteAddr) && compareAddress(remoteAddr, localAddr) == 0)
     {
-        throw ConnectionRefusedException(__FILE__, __LINE__, 0); // No appropriate errno
+        throw ConnectionRefusedException{__FILE__, __LINE__};
     }
 #endif
 }
@@ -2034,7 +2014,7 @@ IceInternal::createPipe(SOCKET fds[2])
 
     if (::pipe(fds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
     }
 
     try
@@ -2123,7 +2103,7 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
         {
             if (connectionRefused())
             {
-                throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
+                throw ConnectionRefusedException{__FILE__, __LINE__};
             }
             else if (connectFailed())
             {
@@ -2150,7 +2130,7 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
         WSASetLastError(info.error);
         if (connectionRefused())
         {
-            throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
+            throw ConnectionRefusedException{__FILE__, __LINE__};
         }
         else if (connectFailed())
         {

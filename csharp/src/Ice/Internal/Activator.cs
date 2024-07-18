@@ -5,24 +5,19 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Globalization;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Ice.Internal;
 
-// Instantiates a Slice class or exception.
-internal delegate object ActivateObject();
-
 /// <summary>The default implementation of <see cref="IActivator" />, which uses a dictionary.</summary>
 internal class Activator : IActivator
 {
-    internal static Activator Empty { get; } =
-        new Activator(ImmutableDictionary<string, Lazy<ActivateObject>>.Empty);
+    internal static Activator Empty { get; } = new Activator(ImmutableDictionary<string, Type>.Empty);
 
-    private readonly IReadOnlyDictionary<string, Lazy<ActivateObject>> _dict;
+    private readonly IReadOnlyDictionary<string, Type> _dict;
 
     public object? CreateInstance(string typeId) =>
-        _dict.TryGetValue(typeId, out Lazy<ActivateObject>? factory) ? factory.Value() : null;
+        _dict.TryGetValue(typeId, out Type? type) ? System.Activator.CreateInstance(type) : null;
 
     /// <summary>Merge activators into a single activator; duplicate entries are ignored.</summary>
     internal static Activator Merge(IEnumerable<Activator> activators)
@@ -33,11 +28,11 @@ internal class Activator : IActivator
         }
         else
         {
-            var dict = new Dictionary<string, Lazy<ActivateObject>>();
+            var dict = new Dictionary<string, Type>();
 
             foreach (Activator activator in activators)
             {
-                foreach ((string typeId, Lazy<ActivateObject> factory) in activator._dict)
+                foreach ((string typeId, Type factory) in activator._dict)
                 {
                     dict[typeId] = factory;
                 }
@@ -46,7 +41,7 @@ internal class Activator : IActivator
         }
     }
 
-    internal Activator(IReadOnlyDictionary<string, Lazy<ActivateObject>> dict) => _dict = dict;
+    internal Activator(IReadOnlyDictionary<string, Type> dict) => _dict = dict;
 }
 
 /// <summary>Creates activators from assemblies by processing types in those assemblies.</summary>
@@ -68,20 +63,18 @@ internal class ActivatorFactory
                 assembly,
                 assembly =>
                 {
-                    var dict = new Dictionary<string, Lazy<ActivateObject>>();
+                    var dict = new Dictionary<string, Type>();
 
                     foreach (Type type in assembly.GetTypes())
                     {
                         // We're only interested in generated Slice classes and exceptions.
                         if (type.IsClass && type.GetSliceTypeId() is string typeId)
                         {
-                            var lazy = new Lazy<ActivateObject>(() => CreateActivateObject(type));
-
-                            dict.Add(typeId, lazy);
+                            dict.Add(typeId, type);
 
                             if (type.GetCompactSliceTypeId() is int compactTypeId)
                             {
-                                dict.Add(compactTypeId.ToString(CultureInfo.InvariantCulture), lazy);
+                                dict.Add(compactTypeId.ToString(CultureInfo.InvariantCulture), type);
                             }
                         }
                     }
@@ -97,17 +90,6 @@ internal class ActivatorFactory
         {
             // We don't cache an assembly with no Slice attribute, and don't load/process its referenced assemblies.
             return Activator.Empty;
-        }
-
-        static ActivateObject CreateActivateObject(Type type)
-        {
-            ConstructorInfo constructor = type.GetConstructor(
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                null,
-                [],
-                null) ?? throw new InvalidOperationException($"Cannot find parameterless constructor for '{type}'.");
-
-            return Expression.Lambda<ActivateObject>(Expression.New(constructor)).Compile();
         }
     }
 

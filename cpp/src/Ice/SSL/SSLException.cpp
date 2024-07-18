@@ -9,38 +9,14 @@
 using namespace std;
 using namespace Ice::SSL;
 
-CertificateReadException::CertificateReadException(const char* file, int line, string r) noexcept
-    : Exception(file, line),
-      reason(std::move(r))
-{
-}
-
 const char*
 CertificateReadException::ice_id() const noexcept
 {
     return "::Ice::SSL::CertificateReadException";
 }
 
-CertificateEncodingException::CertificateEncodingException(const char* file, int line, string r) noexcept
-    : Exception(file, line),
-      reason(std::move(r))
-{
-}
-
 const char*
 CertificateEncodingException::ice_id() const noexcept
 {
     return "::Ice::SSL::CertificateEncodingException";
-}
-
-ParseException::ParseException(const char* file, int line, string r) noexcept
-    : Exception(file, line),
-      reason(std::move(r))
-{
-}
-
-const char*
-ParseException::ice_id() const noexcept
-{
-    return "::Ice::SSL::ParseException";
 }

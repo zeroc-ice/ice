@@ -1,5 +1,6 @@
-// Copyright (c) ZeroC, Inc.
-#import "Logger.h"
+// Copyright (c) ZeroC, Inc. All rights reserved.
+
+#import "include/Logger.h"
 #import "Convert.h"
 
 @implementation ICELogger

@@ -7,12 +7,12 @@ import os
 import shutil
 import locale
 
-from Util import ClientTestCase, platform, TestSuite, SliceTranslator, AIX, Linux
+from Util import ClientTestCase, platform, TestSuite, SliceTranslator, Linux
 
 
 class SliceUnicodePathsTestCase(ClientTestCase):
     def runClientSide(self, current):
-        if isinstance(platform, Linux) or isinstance(platform, AIX):
+        if isinstance(platform, Linux):
             encoding = locale.getdefaultlocale()[1]
             if encoding != "UTF-8":
                 current.writeln(

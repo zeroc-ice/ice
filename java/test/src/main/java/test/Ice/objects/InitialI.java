@@ -94,11 +94,6 @@ public final class InitialI implements Initial {
   public void setRecursive(Recursive r, com.zeroc.Ice.Current current) {}
 
   @Override
-  public boolean supportsClassGraphDepthMax(com.zeroc.Ice.Current current) {
-    return false;
-  }
-
-  @Override
   public void setCycle(Recursive r, com.zeroc.Ice.Current current) {}
 
   @Override

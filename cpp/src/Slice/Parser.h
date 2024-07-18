@@ -5,7 +5,7 @@
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
 
-#include "Ice/Exception.h"
+#include "Ice/LocalException.h"
 #include <array>
 #include <cstdint>
 #include <list>
@@ -21,18 +21,12 @@
 
 namespace Slice
 {
-    class CompilerException : public Ice::LocalException
+    class CompilerException final : public Ice::LocalException
     {
     public:
-        CompilerException(const char*, int, const std::string&);
-        const char* ice_id() const noexcept override;
-        void ice_print(std::ostream&) const override;
+        using Ice::LocalException::LocalException;
 
-        std::string reason() const;
-
-    private:
-        static const char* _name;
-        const std::string _reason;
+        const char* ice_id() const noexcept final;
     };
 
     enum NodeType

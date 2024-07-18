@@ -14,8 +14,8 @@
 
 [["cpp:dll-export:ICEGRID_API"]]
 
-#include "../Ice/Identity.ice"
-#include "../Ice/BuiltinSequences.ice"
+#include "Ice/Identity.ice"
+#include "Ice/BuiltinSequences.ice"
 
 [["java:package:com.zeroc"]]
 

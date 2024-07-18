@@ -1,0 +1,4 @@
+{
+  "sources": ["../../../slice/IceStorm"],
+  "search_paths": ["../../../slice"]
+}

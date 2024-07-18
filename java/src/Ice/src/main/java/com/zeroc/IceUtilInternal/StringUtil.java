@@ -479,22 +479,6 @@ public final class StringUtil {
   }
 
   //
-  // Join a list of strings using the given delimiter.
-  //
-  public static String joinString(java.util.List<String> values, String delimiter) {
-    StringBuffer s = new StringBuffer();
-    boolean first = true;
-    for (String v : values) {
-      if (!first) {
-        s.append(delimiter);
-      }
-      s.append(v);
-      first = false;
-    }
-    return s.toString();
-  }
-
-  //
   // Split string helper; returns null for unmatched quotes
   //
   public static String[] splitString(String str, String delim) {
@@ -547,10 +531,6 @@ public final class StringUtil {
     return l.toArray(new String[0]);
   }
 
-  public static int checkQuote(String s) {
-    return checkQuote(s, 0);
-  }
-
   //
   // If a single or double quotation mark is found at the start position,
   // then the position of the matching closing quote is returned. If no
@@ -575,8 +555,8 @@ public final class StringUtil {
   }
 
   public static boolean match(String s, String pat, boolean emptyMatch) {
-    assert (s.length() > 0);
-    assert (pat.length() > 0);
+    assert (!s.isEmpty());
+    assert (!pat.isEmpty());
 
     //
     // If pattern does not contain a wildcard just compare strings.

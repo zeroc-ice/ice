@@ -1,11 +1,12 @@
-// Copyright (c) ZeroC, Inc.
-#import "ObjectAdapter.h"
-#import "Communicator.h"
-#import "Config.h"
-#import "Connection.h"
+// Copyright (c) ZeroC, Inc. All rights reserved.
+
+#import "include/ObjectAdapter.h"
 #import "Convert.h"
-#import "DispatchAdapter.h"
-#import "ObjectPrx.h"
+#import "include/Communicator.h"
+#import "include/Config.h"
+#import "include/Connection.h"
+#import "include/DispatchAdapter.h"
+#import "include/ObjectPrx.h"
 
 @implementation ICEObjectAdapter
 
@@ -222,6 +223,8 @@
 {
     try
     {
+        // Swift always sets InitializationData.useDispatchQueueExecutor to true
+        assert(self.objectAdapter->getDispatchQueue());
         return self.objectAdapter->getDispatchQueue();
     }
     catch (...)

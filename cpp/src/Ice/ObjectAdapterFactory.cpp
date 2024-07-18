@@ -3,7 +3,7 @@
 //
 
 #include "ObjectAdapterFactory.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Object.h"
 #include "Ice/Router.h"
 #include "Ice/UUID.h"

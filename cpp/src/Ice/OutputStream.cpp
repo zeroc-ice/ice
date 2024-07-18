@@ -5,7 +5,7 @@
 #include "Ice/OutputStream.h"
 #include "DefaultsAndOverrides.h"
 #include "Endian.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Object.h"
 #include "Ice/Proxy.h"
@@ -301,6 +301,22 @@ Ice::OutputStream::writeEmptyEncapsulation(const EncodingVersion& encoding)
     IceInternal::checkSupportedEncoding(encoding);
     write(std::int32_t(6)); // Size
     write(encoding);
+}
+
+void
+Ice::OutputStream::writeEncapsulation(const byte* v, int32_t sz)
+{
+    if (sz < 6)
+    {
+        throw MarshalException{
+            __FILE__,
+            __LINE__,
+            "the provided array does not have enough bytes for an encapsulation"};
+    }
+
+    Container::size_type position = b.size();
+    resize(position + static_cast<size_t>(sz));
+    memcpy(&b[position], &v[0], static_cast<size_t>(sz));
 }
 
 void
@@ -794,7 +810,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
     }
     catch (const Ice::IllegalConversionException& ex)
     {
-        throw StringConversionException(__FILE__, __LINE__, ex.reason());
+        throw MarshalException{__FILE__, __LINE__, string{"failed to marshal a string:\n"} + ex.what()};
     }
 }
 
@@ -889,7 +905,7 @@ Ice::OutputStream::write(wstring_view v)
     }
     catch (const Ice::IllegalConversionException& ex)
     {
-        throw StringConversionException(__FILE__, __LINE__, ex.reason());
+        throw MarshalException{__FILE__, __LINE__, string{"failed to marshal a string:\n"} + ex.what()};
     }
 }
 
@@ -993,12 +1009,6 @@ Ice::OutputStream::finished()
     {
         return pair<const byte*, const byte*>(&b[0], &b[0] + b.size());
     }
-}
-
-void
-Ice::OutputStream::throwEncapsulationException(const char* file, int line)
-{
-    throw EncapsulationException(file, line);
 }
 
 void

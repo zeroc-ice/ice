@@ -1289,7 +1289,7 @@ classdef Twoways
             assert(p.ice_getContext().Count == 0);
             assert(isequal(r, ctx));
 
-            p2 = MyClassPrx.checkedCast(p.ice_context(ctx));
+            p2 = p.ice_context(ctx);
             assert(isequal(p2.ice_getContext(), ctx));
             r = p2.opContext();
             assert(isequal(r, ctx));
@@ -1311,7 +1311,7 @@ classdef Twoways
                 ctx('two') = 'TWO';
                 ctx('three') = 'THREE';
 
-                p3 = MyClassPrx.uncheckedCast(ic.stringToProxy(['test:', helper.getTestEndpoint()]));
+                p3 = MyClassPrx(ic, ['test:', helper.getTestEndpoint()]);
 
                 ic.getImplicitContext().setContext(ctx);
                 assert(isequal(ic.getImplicitContext().getContext(), ctx));

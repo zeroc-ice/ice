@@ -4,8 +4,6 @@
 
 package test.Ice.faultTolerance;
 
-import java.io.PrintWriter;
-
 public class Client extends test.TestHelper {
   private static void usage() {
     System.err.println("Usage: Client port...");
@@ -21,7 +19,6 @@ public class Client extends test.TestHelper {
     properties.setProperty("Ice.Warn.Connections", "0");
 
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
-      PrintWriter out = getWriter();
       java.util.List<Integer> ports = new java.util.ArrayList<>(args.length);
       for (String arg : remainingArgs) {
         if (arg.charAt(0) == '-') {

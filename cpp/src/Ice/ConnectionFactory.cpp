@@ -10,7 +10,7 @@
 #include "DefaultsAndOverrides.h"
 #include "EndpointI.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Instance.h"
@@ -358,9 +358,9 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
 
         if (connection)
         {
-            if (defaultsAndOverrides->overrideCompress)
+            if (defaultsAndOverrides->overrideCompress.has_value())
             {
-                compress = defaultsAndOverrides->overrideCompressValue;
+                compress = *defaultsAndOverrides->overrideCompress;
             }
             else
             {
@@ -389,9 +389,9 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
             find(_connections, p.connector, [](const ConnectionIPtr& conn) { return conn->isActiveOrHolding(); });
         if (connection)
         {
-            if (defaultsAndOverrides->overrideCompress)
+            if (defaultsAndOverrides->overrideCompress.has_value())
             {
-                compress = defaultsAndOverrides->overrideCompressValue;
+                compress = *defaultsAndOverrides->overrideCompress;
             }
             else
             {
@@ -623,9 +623,9 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(
 
     bool compress;
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-    if (defaultsAndOverrides->overrideCompress)
+    if (defaultsAndOverrides->overrideCompress.has_value())
     {
-        compress = defaultsAndOverrides->overrideCompressValue;
+        compress = *defaultsAndOverrides->overrideCompress;
     }
     else
     {
@@ -1394,7 +1394,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         }
         catch (const SocketException& ex)
         {
-            if (noMoreFds(ex.error))
+            if (noMoreFds(ex.error()))
             {
                 Error out(_instance->initializationData().logger);
                 out << "can't accept more connections:\n" << ex << '\n' << _acceptor->toString();
@@ -1634,9 +1634,9 @@ IceInternal::IncomingConnectionFactory::stopAcceptor()
 void
 IceInternal::IncomingConnectionFactory::initialize()
 {
-    if (_instance->defaultsAndOverrides()->overrideCompress)
+    if (_instance->defaultsAndOverrides()->overrideCompress.has_value())
     {
-        _endpoint = _endpoint->compress(_instance->defaultsAndOverrides()->overrideCompressValue);
+        _endpoint = _endpoint->compress(*_instance->defaultsAndOverrides()->overrideCompress);
     }
 
     try

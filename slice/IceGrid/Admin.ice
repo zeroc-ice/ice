@@ -13,9 +13,9 @@
 
 [["python:pkgdir:IceGrid"]]
 
-#include "../Ice/Identity.ice"
-#include "../Ice/BuiltinSequences.ice"
-#include "../Glacier2/Session.ice"
+#include "Ice/Identity.ice"
+#include "Ice/BuiltinSequences.ice"
+#include "Glacier2/Session.ice"
 #include "Exception.ice"
 #include "Descriptor.ice"
 

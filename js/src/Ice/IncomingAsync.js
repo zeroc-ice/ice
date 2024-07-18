@@ -130,7 +130,7 @@ export class IncomingAsync {
         this._instance.initializationData().logger.warning(s.join(""));
     }
 
-    handleException(ex, amd) {
+    handleException(ex) {
         Debug.assert(this._connection !== null);
 
         const props = this._instance.initializationData().properties;
@@ -327,7 +327,7 @@ export class IncomingAsync {
                         this._servant = this._locator.locate(this._current, this._cookie);
                     } catch (ex) {
                         this.skipReadParams(); // Required for batch requests.
-                        this.handleException(ex, false);
+                        this.handleException(ex);
                         return;
                     }
                 }
@@ -343,7 +343,7 @@ export class IncomingAsync {
                 }
             } catch (ex) {
                 this.skipReadParams(); // Required for batch requests.
-                this.handleException(ex, false);
+                this.handleException(ex);
                 return;
             }
         }
@@ -353,16 +353,16 @@ export class IncomingAsync {
             const promise = this._servant._iceDispatch(this, this._current);
             if (promise !== null) {
                 promise.then(
-                    () => this.completed(null, true),
-                    (ex) => this.completed(ex, true),
+                    () => this.completed(null),
+                    (ex) => this.completed(ex),
                 );
                 return;
             }
 
             Debug.assert(!this._response || this._os !== null);
-            this.completed(null, false);
+            this.completed(null);
         } catch (ex) {
-            this.completed(ex, false);
+            this.completed(ex);
         }
     }
 
@@ -392,14 +392,14 @@ export class IncomingAsync {
         this._current.encoding = this._is.skipEncapsulation();
     }
 
-    completed(exc, amd) {
+    completed(exc) {
         try {
             if (this._locator !== null) {
                 Debug.assert(this._locator !== null && this._servant !== null);
                 try {
                     this._locator.finished(this._current, this._servant, this._cookie.value);
                 } catch (ex) {
-                    this.handleException(ex, amd);
+                    this.handleException(ex);
                     return;
                 }
             }
@@ -407,7 +407,7 @@ export class IncomingAsync {
             Debug.assert(this._connection !== null);
 
             if (exc !== null) {
-                this.handleException(exc, amd);
+                this.handleException(exc);
             } else if (this._response) {
                 this._connection.sendResponse(this._os);
             } else {

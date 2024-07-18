@@ -27,7 +27,7 @@ def testExceptions(obj):
         obj.unknownUserException()
         test(False)
     except Ice.UnknownUserException as ex:
-        test(ex.unknown == "reason")
+        test("reason" == str(ex))
     except Exception:
         test(False)
 
@@ -35,7 +35,7 @@ def testExceptions(obj):
         obj.unknownLocalException()
         test(False)
     except Ice.UnknownLocalException as ex:
-        test(ex.unknown == "reason")
+        test("reason" == str(ex))
     except Exception:
         test(False)
 
@@ -43,14 +43,14 @@ def testExceptions(obj):
         obj.unknownException()
         test(False)
     except Ice.UnknownException as ex:
-        test(ex.unknown == "reason")
+        test("reason" == str(ex))
         pass
 
     try:
         obj.userException()
         test(False)
     except Ice.UnknownUserException as ex:
-        test(ex.unknown.find("::Test::TestIntfUserException") >= 0)
+        test("::Test::TestIntfUserException" in str(ex))
     except Ice.OperationNotExistException:
         pass
     except AttributeError:
@@ -63,8 +63,8 @@ def testExceptions(obj):
         test(False)
     except Ice.UnknownLocalException as ex:
         test(
-            ex.unknown.find("Ice.SocketException") >= 0
-            or ex.unknown.find("Ice::SocketException") >= 0
+            "Ice.SocketException" in str(ex)
+            or "Ice::SocketException" in str(ex)
         )
     except Exception:
         test(False)
@@ -73,7 +73,7 @@ def testExceptions(obj):
         obj.pythonException()
         test(False)
     except Ice.UnknownException as ex:
-        test(ex.unknown.find("RuntimeError: message") >= 0)
+        test("RuntimeError: message" in str(ex))
     except Ice.OperationNotExistException:
         pass
     except AttributeError:
@@ -85,7 +85,7 @@ def testExceptions(obj):
         obj.unknownExceptionWithServantException()
         test(False)
     except Ice.UnknownException as ex:
-        test(ex.unknown == "reason")
+        test("reason" in str(ex))
     except Exception:
         test(False)
 
@@ -149,7 +149,7 @@ def allTests(helper, communicator):
         obj.ice_ids()
         test(False)
     except Ice.UnknownUserException as ex:
-        test(ex.unknown == "::Test::TestIntfUserException")
+        test("::Test::TestIntfUserException" in str(ex))
     except Exception:
         test(False)
 
@@ -160,7 +160,7 @@ def allTests(helper, communicator):
         obj.ice_ids()
         test(False)
     except Ice.UnknownUserException as ex:
-        test(ex.unknown == "::Test::TestIntfUserException")
+        test("::Test::TestIntfUserException" in str(ex))
     except Exception:
         test(False)
     print("ok")

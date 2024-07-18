@@ -3,6 +3,7 @@
 //
 
 #include "../../src/Ice/StackTrace.h"
+#include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "TestHelper.h"
 
@@ -51,7 +52,7 @@ namespace
         void fifth()
         {
             _idx++;
-            throw Ice::IllegalConversionException(__FILE__, __LINE__);
+            throw Ice::IllegalConversionException{__FILE__, __LINE__, "error message"};
         }
 
     private:

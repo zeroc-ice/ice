@@ -20,7 +20,7 @@ public final class OutgoingResponse {
     /// Gets the reply status of the response.
     public let replyStatus: ReplyStatus
 
-    /// Constructs an OutgoingResponse object.
+    /// Creates an OutgoingResponse object.
     /// - Parameters:
     ///   - replyStatus: The reply status.
     ///   - exceptionId: The ID of the exception, when the response carries an exception.
@@ -33,7 +33,7 @@ public final class OutgoingResponse {
         self.outputStream = outputStream
     }
 
-    /// Constructs an OutgoingResponse object with the ok status.
+    /// Creates an OutgoingResponse object with the ok status.
     /// - Parameter outputStream: The output stream that holds the response.
     public convenience init(_ outputStream: OutputStream) {
         self.init(replyStatus: .ok, exceptionId: nil, exceptionMessage: nil, outputStream: outputStream)

@@ -6,12 +6,13 @@ open class Value {
 
     public required init() {}
 
-    /// Returns the Slice type ID of the most-derived interface supported by this object.
-    ///
-    /// - returns: `String` - The Slice type ID.
-    open func ice_id() -> String {
-        return ObjectTraits.staticId
-    }
+    /// Gets the type ID of the class.
+    /// - Returns: The type ID of the class.
+    open class func ice_staticId() -> String { "::Ice::Object" }
+
+    /// Gets the type ID of this Ice value
+    /// - Returns: The type ID of this Ice value.
+    open func ice_id() -> String { type(of: self).ice_staticId() }
 
     open func _iceReadImpl(from _: InputStream) throws {}
 
@@ -44,40 +45,5 @@ open class Value {
         os.startValue(data: slicedData)
         _iceWriteImpl(to: os)
         os.endValue()
-    }
-
-    /// Returns the Slice type ID of this object.
-    ///
-    /// - returns: `String` - The Slice type ID.
-    open class func ice_staticId() -> String {
-        return ObjectTraits.staticId
-    }
-}
-
-/// Helper class used to represent an interface passed by value. Note that
-/// passing interface by values is deprecated.
-open class InterfaceByValue: Value {
-    private var id: String
-
-    public required init() {
-        fatalError("Not supported")
-    }
-
-    public init(id: String) {
-        self.id = id
-    }
-
-    override open func ice_id() -> String {
-        return id
-    }
-
-    override open func _iceReadImpl(from ostr: InputStream) throws {
-        _ = try ostr.startSlice()
-        try ostr.endSlice()
-    }
-
-    override open func _iceWriteImpl(to istr: OutputStream) {
-        istr.startSlice(typeId: ice_id(), compactId: -1, last: true)
-        istr.endSlice()
     }
 }

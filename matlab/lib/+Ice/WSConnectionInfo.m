@@ -17,7 +17,7 @@ classdef WSConnectionInfo < Ice.ConnectionInfo
                 connectionId = '';
                 headers = containers.Map('KeyType', 'char', 'ValueType', 'char');
             end
-            obj = obj@Ice.ConnectionInfo(underlying, incoming, adapterName, connectionId);
+            obj@Ice.ConnectionInfo(underlying, incoming, adapterName, connectionId);
             obj.headers = headers;
         end
     end

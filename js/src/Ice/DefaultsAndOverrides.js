@@ -30,7 +30,7 @@ export class DefaultsAndOverrides {
             this.defaultEndpointSelection = EndpointSelectionType.Ordered;
         } else {
             const ex = new EndpointSelectionTypeParseException();
-            ex.str = "illegal value `" + value + "'; expected `Random' or `Ordered'";
+            ex.str = "illegal value `" + value + "'; expected 'Random' or 'Ordered'";
             throw ex;
         }
 

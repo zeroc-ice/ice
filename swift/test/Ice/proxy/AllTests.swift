@@ -38,7 +38,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         _ = try communicator.stringToProxy("\"test -f facet'")
         try test(false)
-    } catch is Ice.ProxyParseException {}
+    } catch is Ice.ParseException {}
 
     b1 = try communicator.stringToProxy("\"test -f facet\"")!
     try test(
@@ -58,14 +58,14 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         _ = try communicator.stringToProxy("test test")
         try test(false)
-    } catch is Ice.ProxyParseException {}
+    } catch is Ice.ParseException {}
 
     b1 = try communicator.stringToProxy("test\\040test")!
     try test(b1.ice_getIdentity().name == "test test" && b1.ice_getIdentity().category.isEmpty)
     do {
         _ = try communicator.stringToProxy("test\\777")
         try test(false)
-    } catch is Ice.IdentityParseException {}
+    } catch is Ice.ParseException {}
 
     b1 = try communicator.stringToProxy("test\\40test")!
     try test(b1.ice_getIdentity().name == "test test")
@@ -103,12 +103,12 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         _ = try communicator.stringToProxy("\"\" test")  // Invalid trailing characters.
         try test(false)
-    } catch is Ice.ProxyParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         _ = try communicator.stringToProxy("test:")  // Missing endpoint.
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     b1 = try communicator.stringToProxy("test@adapter")!
     try test(
@@ -118,7 +118,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         _ = try communicator.stringToProxy("id@adapter test")
         try test(false)
-    } catch is Ice.ProxyParseException {}
+    } catch is Ice.ParseException {}
 
     b1 = try communicator.stringToProxy("category/test@adapter")!
     try test(
@@ -165,12 +165,12 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         b1 = try communicator.stringToProxy("id -f \"facet x")!
         try test(false)
-    } catch is Ice.ProxyParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         b1 = try communicator.stringToProxy("id -f \'facet x")!
         try test(false)
-    } catch is Ice.ProxyParseException {}
+    } catch is Ice.ParseException {}
 
     b1 = try communicator.stringToProxy("test -f facet:tcp")!
     try test(
@@ -196,7 +196,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         b1 = try communicator.stringToProxy("test -f facet@test @test")!
         try test(false)
-    } catch is Ice.ProxyParseException {}
+    } catch is Ice.ParseException {}
     b1 = try communicator.stringToProxy("test")!
     try test(b1.ice_isTwoway())
     b1 = try communicator.stringToProxy("test -t")!
@@ -231,12 +231,12 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         _ = try communicator.stringToProxy("test:tcp@adapterId")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         _ = try communicator.stringToProxy("test: :tcp")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     //
     // Test invalid endpoint syntax
@@ -244,17 +244,17 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         _ = try communicator.createObjectAdapterWithEndpoints(name: "BadAdapter", endpoints: " : ")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         _ = try communicator.createObjectAdapterWithEndpoints(name: "BadAdapter", endpoints: "tcp: ")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         _ = try communicator.createObjectAdapterWithEndpoints(name: "BadAdapter", endpoints: ":tcp")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     //
     // Test for bug ICE-5543: escaped escapes in stringToIdentity
@@ -281,13 +281,13 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         // Illegal character < 32
         id = try Ice.stringToIdentity("xx\u{01}FooBar")
         try test(false)
-    } catch is Ice.IdentityParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Illegal surrogate
         id = try Ice.stringToIdentity("xx\\ud911")
         try test(false)
-    } catch is Ice.IdentityParseException {}
+    } catch is Ice.ParseException {}
 
     // Testing bytes 127(\x7F, \177) and €
     id = Ice.Identity(name: "test", category: "\u{007f}€")
@@ -720,7 +720,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         try cl20.ice_ping()
         try test(false)
-    } catch is Ice.UnsupportedEncodingException {
+    } catch is Ice.MarshalException {
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
 
@@ -745,7 +745,8 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     } catch let ex as Ice.UnknownLocalException {
         // TODO: remove UnsupportedEncodingException
         try test(
-            ex.unknown.contains("MarshalException") || ex.unknown.contains("UnsupportedEncodingException"))
+            ex.message.contains("::Ice::MarshalException") || ex.message.contains("Ice.MarshalException")
+                || ex.message.contains("UnsupportedEncodingException"))
     }
 
     do {
@@ -762,7 +763,8 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     } catch let ex as Ice.UnknownLocalException {
         // TODO: remove UnsupportedEncodingException
         try test(
-            ex.unknown.contains("MarshalException") || ex.unknown.contains("UnsupportedEncodingException"))
+            ex.message.contains("::Ice::MarshalException") || ex.message.contains("Ice.MarshalException")
+                || ex.message.contains("UnsupportedEncodingException"))
     }
     writer.writeLine("ok")
 
@@ -772,7 +774,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         try cl20.ice_ping()
         try test(false)
-    } catch is Ice.UnsupportedProtocolException {
+    } catch is Ice.FeatureNotSupportedException {
         // Server 2.0 proxy doesn't support 1.0 version.
     }
 
@@ -785,67 +787,67 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         // Invalid -x option
         _ = try communicator.stringToProxy("id:opaque -t 99 -v abcd -x abc")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Missing -t and -v
         _ = try communicator.stringToProxy("id:opaque")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Repeated -t
         _ = try communicator.stringToProxy("id:opaque -t 1 -t 1 -v abcd")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Repeated -v
         _ = try communicator.stringToProxy("id:opaque -t 1 -v abcd -v abcd")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Missing -t
         _ = try communicator.stringToProxy("id:opaque -v abcd")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Missing -v
         _ = try communicator.stringToProxy("id:opaque -t 1")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Missing arg for -t
         _ = try communicator.stringToProxy("id:opaque -t -v abcd")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Missing arg for -v
         _ = try communicator.stringToProxy("id:opaque -t 1 -v")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Not a number for -t
         _ = try communicator.stringToProxy("id:opaque -t x -v abcd")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // < 0 for -t
         _ = try communicator.stringToProxy("id:opaque -t -1 -v abcd")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     do {
         // Invalid char for -v
         _ = try communicator.stringToProxy("id:opaque -t 99 -v x?c")
         try test(false)
-    } catch is Ice.EndpointParseException {}
+    } catch is Ice.ParseException {}
 
     // Legal TCP endpoint expressed as opaque endpoint
     var p1 = try communicator.stringToProxy(

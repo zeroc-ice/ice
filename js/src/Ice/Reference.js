@@ -37,7 +37,7 @@ export class Reference {
         this._mode = mode;
         this._secure = secure;
         this._identity = identity;
-        this._context = context === undefined ? _emptyContext : context;
+        this._context = context === undefined || context === null ? _emptyContext : context;
         this._facet = facet;
         this._protocol = protocol;
         this._encoding = encoding;

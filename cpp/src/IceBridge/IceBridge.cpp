@@ -190,33 +190,6 @@ BridgeConnection::outgoingSuccess(ConnectionPtr outgoing)
     _outgoing = std::move(outgoing);
 
     //
-    // Register hearbeat callbacks on both connections.
-    //
-    _incoming->setHeartbeatCallback(
-        [con = _outgoing](const auto&)
-        {
-            try
-            {
-                con->heartbeatAsync(nullptr);
-            }
-            catch (...)
-            {
-            }
-        });
-
-    _outgoing->setHeartbeatCallback(
-        [con = _incoming](const auto&)
-        {
-            try
-            {
-                con->heartbeatAsync(nullptr);
-            }
-            catch (...)
-            {
-            }
-        });
-
-    //
     // Configure the outgoing connection for bidirectional requests.
     //
     _outgoing->setAdapter(_adapter);
@@ -524,7 +497,7 @@ BridgeService::start(int argc, char* argv[], int& status)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        error(e.reason);
+        error(e.what());
         usage(argv[0]);
         return false;
     }

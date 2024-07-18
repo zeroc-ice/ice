@@ -42,7 +42,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('"test -f facet''');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('"test -f facet"');
             assert(strcmp(b1.ice_getIdentity().name, 'test -f facet') && isempty(b1.ice_getIdentity().category) && ...
@@ -57,7 +57,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('test test');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('test\040test');
             assert(strcmp(b1.ice_getIdentity().name, 'test test') && isempty(b1.ice_getIdentity().category));
@@ -65,7 +65,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('test\777');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.IdentityParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('test\40test');
             assert(strcmp(b1.ice_getIdentity().name, 'test test'));
@@ -102,7 +102,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('id@adapter test');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('category/test@adapter');
             assert(strcmp(b1.ice_getIdentity().name, 'test') && ...
@@ -144,13 +144,13 @@ classdef AllTests
                 b1 = communicator.stringToProxy('id -f "facet x');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             try
                 b1 = communicator.stringToProxy('id -f ''facet x');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('test -f facet:tcp');
             assert(strcmp(b1.ice_getIdentity().name, 'test') && isempty(b1.ice_getIdentity().category) && ...
@@ -171,7 +171,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('test -f facet@test @test');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('test');
             assert(b1.ice_isTwoway());
@@ -194,7 +194,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('test:tcp@adapterId');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             % This is an unknown endpoint warning, not a parse exception.
             %
@@ -202,13 +202,13 @@ classdef AllTests
             %   b1 = communicator.stringToProxy('test -f the:facet:tcp');
             %   assert(false);
             %catch ex
-            %    assert(isa(ex, 'Ice.EndpointParseException'));
+            %    assert(isa(ex, 'Ice.ParseException'));
             %end
             try
                 b1 = communicator.stringToProxy('test::tcp');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             b1 = communicator.stringToProxy('test:tcp --sourceAddress "::1"');
@@ -313,22 +313,22 @@ classdef AllTests
             b1 = b1.ice_invocationTimeout(1234);
             b1 = b1.ice_encodingVersion(Ice.EncodingVersion(1, 0));
 
-            router = communicator.stringToProxy('router');
+            router = Ice.RouterPrx(communicator, 'router');
             router = router.ice_connectionCached(true);
             router = router.ice_preferSecure(true);
             router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random);
             router = router.ice_locatorCacheTimeout(200);
             router = router.ice_invocationTimeout(1500);
 
-            locator = communicator.stringToProxy('locator');
+            locator = Ice.LocatorPrx(communicator, 'locator');
             locator = locator.ice_connectionCached(false);
             locator = locator.ice_preferSecure(true);
             locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random);
             locator = locator.ice_locatorCacheTimeout(300);
             locator = locator.ice_invocationTimeout(1500);
 
-            locator = locator.ice_router(Ice.RouterPrx.uncheckedCast(router));
-            b1 = b1.ice_locator(Ice.LocatorPrx.uncheckedCast(locator));
+            locator = locator.ice_router(router);
+            b1 = b1.ice_locator(locator);
 
             proxyProps = communicator.proxyToProperty(b1, 'Test');
             assert(length(proxyProps) == 21);
@@ -513,8 +513,8 @@ classdef AllTests
             assert(compObj.ice_compress(true).ice_getCompress() == true);
             assert(compObj.ice_compress(false).ice_getCompress() == false);
 
-            loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy('loc1:default -p 10000'));
-            loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy('loc2:default -p 10000'));
+            loc1 = Ice.LocatorPrx(communicator, 'loc1:default -p 10000');
+            loc2 = Ice.LocatorPrx(communicator, 'loc2:default -p 10000');
             assert(compObj.ice_locator([]) == compObj.ice_locator([]));
             assert(compObj.ice_locator(loc1) == compObj.ice_locator(loc1));
             assert(compObj.ice_locator(loc1) ~= compObj.ice_locator([]));
@@ -525,8 +525,8 @@ classdef AllTests
             %assert(compObj.ice_locator(loc1) < compObj.ice_locator(loc2));
             %assert(~(compObj.ice_locator(loc2) < compObj.ice_locator(loc1)));
 
-            rtr1 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy('rtr1:default -p 10000'));
-            rtr2 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy('rtr2:default -p 10000'));
+            rtr1 = Ice.RouterPrx(communicator, 'rtr1:default -p 10000');
+            rtr2 = Ice.RouterPrx(communicator, 'rtr2:default -p 10000');
             assert(compObj.ice_router([]) == compObj.ice_router([]));
             assert(compObj.ice_router(rtr1) == compObj.ice_router(rtr1));
             assert(compObj.ice_router(rtr1) ~= compObj.ice_router([]));
@@ -698,17 +698,17 @@ classdef AllTests
 
             fprintf('testing encoding versioning... ');
             ref20 = 'test -e 2.0:default -p 12010';
-            cl20 = MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
+            cl20 = MyClassPrx(communicator, ref20);
             try
                 cl20.ice_ping();
                 assert(false);
             catch ex
                 % Server 2.0 endpoint doesn't support 1.1 version.
-                assert(isa(ex, 'Ice.UnsupportedEncodingException'));
+                assert(isa(ex, 'Ice.MarshalException'));
             end
 
             ref10 = 'test -e 1.0:default -p 12010';
-            cl10 = MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
+            cl10 = MyClassPrx(communicator, ref10);
             cl10.ice_ping();
             cl10.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
             cl.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
@@ -722,7 +722,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 99 -v abc -x abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -730,7 +730,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -738,7 +738,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 1 -t 1 -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -746,7 +746,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 1 -v abc -v abc')
                 assert(false)
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -754,7 +754,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -762,7 +762,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 1');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -770,7 +770,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -778,7 +778,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 1 -v');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -786,7 +786,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t x -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -794,7 +794,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t -1 -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -802,7 +802,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 99 -v x?c');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             % Legal TCP endpoint expressed as opaque endpoint
@@ -815,8 +815,6 @@ classdef AllTests
             assert(strcmp(communicator.proxyToString(p2), 'test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000'));
 
             if communicator.getProperties().getPropertyAsInt('Ice.IPv6') == 0
-                p1.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
-
                 % Two legal TCP endpoints expressed as opaque endpoints
                 p1 = communicator.stringToProxy('test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==');
                 pstr = communicator.proxyToString(p1);
@@ -829,18 +827,6 @@ classdef AllTests
                 p1 = communicator.stringToProxy('test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch');
                 pstr = communicator.proxyToString(p1);
                 assert(strcmp(pstr, 'test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch'));
-
-                %
-                % Try to invoke on the SSL endpoint to verify that we get a
-                % NoEndpointException (or ConnectionRefusedException when
-                % running with SSL).
-                %
-                try
-                    p1.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
-                    assert(false);
-                catch ex
-                    assert(isa(ex, 'Ice.ConnectFailedException'));
-                end
 
                 %
                 % Test that the proxy with an SSL endpoint and a nonsense

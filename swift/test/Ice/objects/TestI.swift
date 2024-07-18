@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+import Foundation
 import Ice
 import PromiseKit
 
@@ -54,18 +55,6 @@ public class FI: F {
 
     public func checkValues() -> Bool {
         return e1 !== nil && e1 === e2
-    }
-}
-
-public class II: Ice.InterfaceByValue {
-    public required init() {
-        super.init(id: "::Test::I")
-    }
-}
-
-public class JI: Ice.InterfaceByValue {
-    public required init() {
-        super.init(id: "::Test::J")
     }
 }
 
@@ -161,10 +150,6 @@ class InitialI: Initial {
     }
 
     func setRecursive(p _: Recursive?, current _: Ice.Current) {}
-
-    func supportsClassGraphDepthMax(current _: Ice.Current) throws -> Bool {
-        return true
-    }
 
     func setCycle(r: Recursive?, current _: Ice.Current) {
         precondition(r != nil)

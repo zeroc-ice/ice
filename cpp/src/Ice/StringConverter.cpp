@@ -10,7 +10,6 @@
 #    include "DisableWarnings.h"
 #endif
 
-#include "Ice/Exception.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 
@@ -579,3 +578,9 @@ Ice::createWindowsStringConverter(unsigned int cp)
     return make_shared<WindowsStringConverter>(cp);
 }
 #endif
+
+const char*
+Ice::IllegalConversionException::ice_id() const noexcept
+{
+    return "::Ice::IllegalConversionException";
+}

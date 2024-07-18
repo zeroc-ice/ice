@@ -145,6 +145,11 @@ Instance.prototype.batchAutoFlushSize = function () {
     return this._batchAutoFlushSize;
 };
 
+Instance.prototype.classGraphDepthMax = function () {
+    // This value is immutable.
+    return this._classGraphDepthMax;
+};
+
 Instance.prototype.toStringMode = function () {
     // this value is immutable
     return this._toStringMode;
@@ -230,6 +235,13 @@ Instance.prototype.finishSetup = function (communicator, promise) {
             } else {
                 this._batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
             }
+        }
+
+        num = this._initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
+        if (num < 1 || num > 0x7fffffff) {
+            this._classGraphDepthMax = 0x7fffffff;
+        } else {
+            this._classGraphDepthMax = num;
         }
 
         const toStringModeStr = this._initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
@@ -333,9 +345,6 @@ Instance.prototype.finishSetup = function (communicator, promise) {
     }
 };
 
-//
-// Only for use by CommunicatorI
-//
 Instance.prototype.destroy = function () {
     const promise = new AsyncResultBase(null, "destroy", null, this, null);
 

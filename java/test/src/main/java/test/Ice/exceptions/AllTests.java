@@ -70,7 +70,7 @@ public class AllTests {
         adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity(""));
         test(false);
       } catch (com.zeroc.Ice.IllegalIdentityException ex) {
-        test(ex.id.name.equals(""));
+        test(ex.id.name.isEmpty());
       }
       try {
         adapter.add(null, com.zeroc.Ice.Util.stringToIdentity("x"));

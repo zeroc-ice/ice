@@ -5,7 +5,6 @@
 % registered with the communicator.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from ValueFactory.ice by slice2matlab version 3.7.10
 
 classdef (Abstract) ValueFactory < handle
     methods(Abstract)

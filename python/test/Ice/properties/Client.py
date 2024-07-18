@@ -14,16 +14,6 @@ def test(b):
         raise RuntimeError("test assertion failed")
 
 
-class App(Ice.Application):
-    def run(self, args):
-        properties = self.communicator().getProperties()
-        test(properties.getProperty("Ice.Trace.Network") == "1")
-        test(properties.getProperty("Ice.Trace.Protocol") == "1")
-        test(properties.getProperty("Config.Path") == "./config/中国_client.config")
-        test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
-        test(self.appName() == properties.getProperty("Ice.ProgramName"))
-
-
 class Client(TestHelper):
     def run(sef, args):
         sys.stdout.write("testing load properties from UTF-8 path... ")
@@ -34,14 +24,6 @@ class Client(TestHelper):
         test(properties.getProperty("Ice.Trace.Protocol") == "1")
         test(properties.getProperty("Config.Path") == "./config/中国_client.config")
         test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
-        print("ok")
-
-        sys.stdout.write(
-            "testing load properties from UTF-8 path using Ice::Application... "
-        )
-        sys.stdout.flush()
-        app = App()
-        app.main(args, "./config/中国_client.config")
         print("ok")
 
         sys.stdout.write("testing using Ice.Config with multiple config files... ")
@@ -116,6 +98,16 @@ class Client(TestHelper):
 
         print("ok")
 
+        sys.stdout.write("testing load properties exception... ")
+        sys.stdout.flush()
+        try:
+            properties = Ice.createProperties()
+            properties.load("./config/xxx_client.config")
+            test(False)
+        except Ice.LocalException as ex:
+            test("error while accessing file './config/xxx_client.config'" in str(ex))
+        print("ok")
+
         sys.stdout.write(
             "testing that getting an unknown ice property throws an exception..."
         )
@@ -124,7 +116,7 @@ class Client(TestHelper):
             properties = Ice.createProperties()
             properties.getIceProperty("Ice.UnknownProperty")
             test(False)
-        except Ice.UnknownException:
+        except Ice.LocalException:
             # We dont' have a specific exception for unknown properties
             pass
         print("ok")

@@ -10,7 +10,7 @@
 #include "ConnectionIF.h"
 #include "Ice/Timer.h"
 #include "InputStream.h"
-#include "LocalException.h"
+#include "LocalExceptions.h"
 #include "ObjectAdapterF.h"
 #include "ObserverHelper.h"
 #include "OutputStream.h"
@@ -171,6 +171,9 @@ namespace IceInternal
         Ice::OperationMode _mode;
 
     private:
+        int handleRetryAfterException(std::exception_ptr);
+        int checkRetryAfterException(std::exception_ptr);
+
         int _cnt;
         bool _sent;
     };

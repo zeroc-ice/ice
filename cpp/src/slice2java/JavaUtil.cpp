@@ -27,14 +27,6 @@ using namespace IceInternal;
 
 namespace
 {
-    void hashAdd(long& hashCode, const std::string& value)
-    {
-        for (std::string::const_iterator p = value.begin(); p != value.end(); ++p)
-        {
-            hashCode = ((hashCode << 5) + hashCode) ^ *p;
-        }
-    }
-
     string typeToBufferString(const TypePtr& type)
     {
         static const char* builtinBufferTable[] = {
@@ -573,7 +565,7 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
     return os.str();
 }
 
-long
+int64_t
 Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 {
     string name = p->scoped();
@@ -614,9 +606,13 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
     }
     os << "]";
 
+    // We use a custom hash instead of relying on `std::hash` to ensure cross-platform consistency.
     const string data = os.str();
-    long hashCode = 5381;
-    hashAdd(hashCode, data);
+    int64_t hashCode = 5381;
+    for (const auto& c : data)
+    {
+        hashCode = ((hashCode << 5) + hashCode) ^ c;
+    }
     return hashCode;
 }
 

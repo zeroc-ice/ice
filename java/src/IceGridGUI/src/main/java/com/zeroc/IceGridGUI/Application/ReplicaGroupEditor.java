@@ -372,7 +372,6 @@ class ReplicaGroupEditor extends Editor {
       java.util.Map<String, String[]> map) {
     String badIdentities = "";
     java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
-    com.zeroc.Ice.Communicator communicator = _target.getCoordinator().getCommunicator();
 
     for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
       try {
@@ -383,7 +382,7 @@ class ReplicaGroupEditor extends Editor {
         badIdentities += "- " + p.getKey() + "\n";
       }
     }
-    if (!badIdentities.equals("")) {
+    if (!badIdentities.isEmpty()) {
       JOptionPane.showMessageDialog(
           _target.getCoordinator().getMainFrame(),
           "The following identities could not be parsed properly:\n" + badIdentities,

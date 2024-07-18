@@ -4,17 +4,12 @@
 //
 
 #include "Ice/LoggerUtil.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/Plugin.h"
 #include "Instance.h"
 
 using namespace std;
-
-namespace IceInternal
-{
-    extern bool printStackTraces;
-}
 
 string
 Ice::LoggerOutputBase::str() const
@@ -38,14 +33,7 @@ Ice::operator<<(Ice::LoggerOutputBase& out, ios_base& (*val)(ios_base&))
 Ice::LoggerOutputBase&
 Ice::loggerInsert(Ice::LoggerOutputBase& out, const Ice::Exception& ex)
 {
-    if (IceInternal::printStackTraces)
-    {
-        out._stream() << ex.what() << '\n' << ex.ice_stackTrace();
-    }
-    else
-    {
-        out._stream() << ex.what();
-    }
+    out._stream() << ex;
     return out;
 }
 

@@ -12,7 +12,7 @@
 #include "FixedRequestHandler.h"
 #include "HashUtil.h"
 #include "Ice/Comparable.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/OutputStream.h"
@@ -101,27 +101,16 @@ IceInternal::Reference::changeCompress(bool newCompress) const
 {
     ReferencePtr r = clone();
     r->_compress = newCompress;
-    r->_overrideCompress = true;
     return r;
 }
 
-bool
-IceInternal::Reference::getCompressOverride(bool& compress) const
+optional<bool>
+IceInternal::Reference::getCompressOverride() const
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
-    if (defaultsAndOverrides->overrideCompress)
-    {
-        compress = defaultsAndOverrides->overrideCompressValue;
-    }
-    else if (_overrideCompress)
-    {
-        compress = _compress;
-    }
-    else
-    {
-        return false;
-    }
-    return true;
+    optional<bool> compress =
+        defaultsAndOverrides->overrideCompress.has_value() ? defaultsAndOverrides->overrideCompress : _compress;
+    return compress;
 }
 
 size_t
@@ -134,11 +123,7 @@ Reference::hash() const noexcept
     hashAdd(h, _identity.category);
     hashAdd(h, _context->getValue());
     hashAdd(h, _facet);
-    hashAdd(h, _overrideCompress);
-    if (_overrideCompress)
-    {
-        hashAdd(h, _compress);
-    }
+    hashAdd(h, _compress);
     // We don't include protocol and encoding in the hash; they are using 1.0 and 1.1, respectively.
     hashAdd(h, _invocationTimeout);
     return h;
@@ -322,7 +307,7 @@ IceInternal::Reference::operator==(const Reference& r) const
         return false;
     }
 
-    if ((_overrideCompress != r._overrideCompress) || (_overrideCompress && _compress != r._compress))
+    if (_compress != r._compress)
     {
         return false;
     }
@@ -387,24 +372,13 @@ IceInternal::Reference::operator<(const Reference& r) const
         return false;
     }
 
-    if (!_overrideCompress && r._overrideCompress)
+    if (_compress < r._compress)
     {
         return true;
     }
-    else if (r._overrideCompress < _overrideCompress)
+    else if (r._compress < _compress)
     {
         return false;
-    }
-    else if (_overrideCompress)
-    {
-        if (!_compress && r._compress)
-        {
-            return true;
-        }
-        else if (r._compress < _compress)
-        {
-            return false;
-        }
     }
 
     if (!_secure && r._secure)
@@ -453,16 +427,16 @@ IceInternal::Reference::Reference(
     const string& facet,
     Mode mode,
     bool secure,
+    std::optional<bool> compress,
     const ProtocolVersion& protocol,
     const EncodingVersion& encoding,
     int invocationTimeout,
     const Ice::Context& ctx)
     : _instance(instance),
-      _overrideCompress(false),
-      _compress(false),
       _communicator(communicator),
       _mode(mode),
       _secure(secure),
+      _compress(compress),
       _identity(id),
       _context(make_shared<SharedContext>(ctx)),
       _facet(facet),
@@ -475,11 +449,10 @@ IceInternal::Reference::Reference(
 IceInternal::Reference::Reference(const Reference& r)
     : enable_shared_from_this<Reference>(),
       _instance(r._instance),
-      _overrideCompress(r._overrideCompress),
-      _compress(r._compress),
       _communicator(r._communicator),
       _mode(r._mode),
       _secure(r._secure),
+      _compress(r._compress),
       _identity(r._identity),
       _context(r._context),
       _facet(r._facet),
@@ -496,20 +469,26 @@ IceInternal::FixedReference::FixedReference(
     const string& facet,
     Mode mode,
     bool secure,
+    std::optional<bool> compress,
     const ProtocolVersion& protocol,
     const EncodingVersion& encoding,
     ConnectionIPtr fixedConnection,
     int invocationTimeout,
-    const Ice::Context& context,
-    const optional<bool>& compress)
-    : Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, context),
+    const Ice::Context& context)
+    : Reference(
+          instance,
+          communicator,
+          id,
+          facet,
+          mode,
+          secure,
+          compress,
+          protocol,
+          encoding,
+          invocationTimeout,
+          context),
       _fixedConnection(std::move(fixedConnection))
 {
-    if (compress)
-    {
-        _overrideCompress = true;
-        _compress = *compress;
-    }
 }
 
 vector<EndpointIPtr>
@@ -688,9 +667,9 @@ IceInternal::FixedReference::getRequestHandler() const
     //
     bool secure;
     DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
-    if (defaultsAndOverrides->overrideSecure)
+    if (defaultsAndOverrides->overrideSecure.has_value())
     {
-        secure = defaultsAndOverrides->overrideSecureValue;
+        secure = *defaultsAndOverrides->overrideSecure;
     }
     else
     {
@@ -703,15 +682,8 @@ IceInternal::FixedReference::getRequestHandler() const
 
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
 
-    bool compress = false;
-    if (defaultsAndOverrides->overrideCompress)
-    {
-        compress = defaultsAndOverrides->overrideCompressValue;
-    }
-    else if (_overrideCompress)
-    {
-        compress = _compress;
-    }
+    bool compress = defaultsAndOverrides->overrideCompress.has_value() ? *defaultsAndOverrides->overrideCompress
+                                                                       : getCompress().value_or(false);
 
     ReferencePtr ref = const_cast<FixedReference*>(this)->shared_from_this();
     return make_shared<FixedRequestHandler>(ref, _fixedConnection, compress);
@@ -782,6 +754,7 @@ IceInternal::RoutableReference::RoutableReference(
     const string& facet,
     Mode mode,
     bool secure,
+    optional<bool> compress,
     const ProtocolVersion& protocol,
     const EncodingVersion& encoding,
     const vector<EndpointIPtr>& endpoints,
@@ -795,7 +768,7 @@ IceInternal::RoutableReference::RoutableReference(
     int locatorCacheTimeout,
     int invocationTimeout,
     const Ice::Context& ctx)
-    : Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, ctx),
+    : Reference(instance, communicator, id, facet, mode, secure, compress, protocol, encoding, invocationTimeout, ctx),
       _endpoints(endpoints),
       _adapterId(adapterId),
       _locatorInfo(locatorInfo),
@@ -1014,12 +987,12 @@ IceInternal::RoutableReference::changeConnection(Ice::ConnectionIPtr connection)
         getFacet(),
         getMode(),
         getSecure(),
+        getCompress(),
         getProtocol(),
         getEncoding(),
         std::move(connection),
         getInvocationTimeout(),
-        getContext()->getValue(),
-        getCompress());
+        getContext()->getValue());
 }
 
 bool
@@ -1129,6 +1102,7 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
         s << getInvocationTimeout();
         properties[prefix + ".InvocationTimeout"] = s.str();
     }
+
     if (_routerInfo)
     {
         PropertyDict routerProperties = _routerInfo->getRouter()->_getReference()->toProperty(prefix + ".Router");
@@ -1154,8 +1128,8 @@ size_t
 IceInternal::RoutableReference::hash() const noexcept
 {
     size_t h = Reference::hash();
-    hashAdd(h, _endpoints);
     hashAdd(h, _adapterId);
+    hashAdd(h, _endpoints);
     return h;
 }
 
@@ -1615,9 +1589,10 @@ IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) 
     for (vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         *p = (*p)->connectionId(_connectionId);
-        if (_overrideCompress)
+        optional<bool> compress = getCompress();
+        if (compress.has_value())
         {
-            *p = (*p)->compress(_compress);
+            *p = (*p)->compress(*compress);
         }
     }
 }
@@ -1701,11 +1676,11 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     //
     // If a secure connection is requested or secure overrides is set,
     // remove all non-secure endpoints. Otherwise if preferSecure is set
-    // make secure endpoints prefered. By default make non-secure
+    // make secure endpoints preferred. By default make non-secure
     // endpoints preferred over secure endpoints.
     //
     DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
-    if (overrides->overrideSecure ? overrides->overrideSecureValue : getSecure())
+    if (overrides->overrideSecure.has_value() ? *overrides->overrideSecure : getSecure())
     {
         endpoints.erase(
             remove_if(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return !p->secure(); }),

@@ -4,7 +4,7 @@
 
 #include "Selector.h"
 #include "EventHandler.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Instance.h"
 

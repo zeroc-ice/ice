@@ -12,8 +12,7 @@
 #include "../Ice/Network.h"
 #include "../Ice/StreamSocket.h"
 #include "Ice/Communicator.h"
-#include "Ice/Exception.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
 #include "Ice/StringUtil.h"
 
@@ -73,11 +72,7 @@ IceBT::AcceptorI::listen()
     catch (const BluetoothException& ex)
     {
         ostringstream os;
-        os << "unable to register Bluetooth profile";
-        if (!ex.reason.empty())
-        {
-            os << "\n" << ex.reason;
-        }
+        os << "unable to register Bluetooth profile: " << ex.what();
         throw InitializationException(__FILE__, __LINE__, os.str());
     }
 
@@ -202,17 +197,17 @@ IceBT::AcceptorI::AcceptorI(
     DeviceAddress da;
     if (!parseDeviceAddress(s, da))
     {
-        throw EndpointParseException(
+        throw ParseException(
             __FILE__,
             __LINE__,
-            "invalid address value `" + s + "' in endpoint " + endpoint->toString());
+            "invalid address value '" + s + "' in endpoint '" + endpoint->toString() + "'");
     }
     if (!_instance->engine()->adapterExists(s))
     {
-        throw EndpointParseException(
+        throw ParseException(
             __FILE__,
             __LINE__,
-            "no device found for `" + s + "' in endpoint " + endpoint->toString());
+            "no device found for '" + s + "' in endpoint '" + endpoint->toString() + "'");
     }
 
     const_cast<string&>(_addr) = s;

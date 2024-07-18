@@ -1,5 +1,6 @@
-// Copyright (c) ZeroC, Inc.
-#import "TraceUtil.h"
+// Copyright (c) ZeroC, Inc. All rights reserved.
+
+#import "include/TraceUtil.h"
 
 #import "Ice/TraceUtil.h"
 #import "LoggerWrapperI.h"

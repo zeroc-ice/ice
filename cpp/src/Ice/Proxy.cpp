@@ -7,7 +7,7 @@
 #include "ConnectionI.h"
 #include "EndpointI.h"
 #include "Ice/Comparable.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "Reference.h"
@@ -60,7 +60,7 @@ Ice::ObjectPrx::_checkTwowayOnly(string_view name) const
 {
     if (!ice_isTwoway())
     {
-        throw Ice::TwowayOnlyException(__FILE__, __LINE__, string(name));
+        throw Ice::TwowayOnlyException(__FILE__, __LINE__, name);
     }
 }
 
@@ -254,11 +254,10 @@ Ice::ObjectPrx::ice_getCommunicator() const
     return _reference->getCommunicator();
 }
 
-string_view
+const char*
 Ice::ObjectPrx::ice_staticId() noexcept
 {
-    static constexpr string_view typeId = "::Ice::Object";
-    return typeId;
+    return "::Ice::Object";
 }
 
 string

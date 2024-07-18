@@ -49,7 +49,7 @@ classdef Future < IceInternal.WrapperObject
             %
             persistent nextId;
 
-            obj = obj@IceInternal.WrapperObject(impl, type);
+            obj@IceInternal.WrapperObject(impl, type);
             obj.Operation = op;
             obj.NumOutputArguments = numOutArgs;
             obj.fetchFunc = fetchFunc;
@@ -105,7 +105,7 @@ classdef Future < IceInternal.WrapperObject
             %   once.
 
             if obj.Read
-                throw(MException('Ice:InvalidStateException', 'outputs already read'));
+                throw(LocalException('Ice:InvalidStateException', 'outputs already read'));
             end
             if ~isempty(obj.fetchFunc)
                 %

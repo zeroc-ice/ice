@@ -11,7 +11,7 @@
 #include "EndpointF.h"
 #include "EndpointSelectionType.h"
 #include "Ice/BuiltinSequences.h"
-#include "LocalException.h"
+#include "LocalExceptions.h"
 #include "ReferenceF.h"
 #include "RequestHandlerF.h"
 
@@ -204,10 +204,7 @@ namespace Ice
          * @param router The router for the new proxy.
          * @return A proxy with the specified router.
          */
-        Prx ice_router(const std::optional<RouterPrx>& router) const
-        {
-            return fromReference(asPrx()._router(std::move(router)));
-        }
+        Prx ice_router(const std::optional<RouterPrx>& router) const { return fromReference(asPrx()._router(router)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for how it selects endpoints.
@@ -721,7 +718,7 @@ namespace Ice
          * Returns the Slice type ID associated with this type.
          * @return The Slice type ID.
          */
-        static std::string_view ice_staticId() noexcept;
+        static const char* ice_staticId() noexcept;
 
         /**
          * Obtains the communicator that created this proxy.

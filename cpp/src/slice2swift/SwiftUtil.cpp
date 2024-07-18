@@ -1435,8 +1435,7 @@ SwiftGenerator::writeMemberwiseInitializer(
     const DataMemberList& baseMembers,
     const DataMemberList& allMembers,
     const ContainedPtr& p,
-    bool rootClass,
-    const StringPairList& extraParams)
+    bool rootClass)
 {
     if (!members.empty())
     {
@@ -1449,10 +1448,6 @@ SwiftGenerator::writeMemberwiseInitializer(
             out
                 << (fixIdent(m->name()) + ": " +
                     typeToString(m->type(), p, m->getMetaData(), m->optional(), TypeContextInParam));
-        }
-        for (StringPairList::const_iterator q = extraParams.begin(); q != extraParams.end(); ++q)
-        {
-            out << (q->first + ": " + q->second);
         }
         out << epar;
         out << sb;
@@ -1470,10 +1465,6 @@ SwiftGenerator::writeMemberwiseInitializer(
             {
                 const string name = fixIdent((*i)->name());
                 out << (name + ": " + name);
-            }
-            for (StringPairList::const_iterator q = extraParams.begin(); q != extraParams.end(); ++q)
-            {
-                out << (q->first + ": " + q->first);
             }
             out << epar;
         }

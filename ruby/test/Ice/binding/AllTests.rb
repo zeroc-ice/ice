@@ -16,7 +16,7 @@ def createTestIntfPrx(adapters)
         edpts = test.ice_getEndpoints()
         endpoints.concat(edpts)
     end
-    return Test::TestIntfPrx::uncheckedCast(test.ice_endpoints(endpoints))
+    return test.ice_endpoints(endpoints)
 end
 
 def deactivate(com, adapters)
@@ -27,7 +27,7 @@ end
 
 def allTests(helper, communicator)
     ref = "communicator:#{helper.getTestEndpoint()}"
-    com = Test::RemoteCommunicatorPrx::uncheckedCast(communicator.stringToProxy(ref))
+    com = Test::RemoteCommunicatorPrx.new(communicator, ref)
 
     print "testing binding with single endpoint... "
     STDOUT.flush
@@ -43,9 +43,7 @@ def allTests(helper, communicator)
 
     com.deactivateObjectAdapter(adapter)
 
-    test3 = Test::TestIntfPrx::uncheckedCast(test1)
-    test(test3.ice_getConnection() == test1.ice_getConnection())
-    test(test3.ice_getConnection() == test2.ice_getConnection())
+    test3 = test1
 
     begin
         test3.ice_ping()
@@ -169,7 +167,7 @@ def allTests(helper, communicator)
         t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
-    t = Test::TestIntfPrx::uncheckedCast(t.ice_endpointSelection(Ice::EndpointSelectionType::Random))
+    t = t.ice_endpointSelection(Ice::EndpointSelectionType::Random)
     test(t.ice_getEndpointSelection() == Ice::EndpointSelectionType::Random)
 
     names.push("Adapter21")
@@ -196,7 +194,7 @@ def allTests(helper, communicator)
     adapters.push(com.createObjectAdapter("Adapter33", "default"))
 
     t = createTestIntfPrx(adapters)
-    t = Test::TestIntfPrx::uncheckedCast(t.ice_endpointSelection(Ice::EndpointSelectionType::Ordered))
+    t = t.ice_endpointSelection(Ice::EndpointSelectionType::Ordered)
     test(t.ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered)
     nRetry = 5
 
@@ -269,17 +267,13 @@ def allTests(helper, communicator)
 
     adapter = com.createObjectAdapter("Adapter41", "default")
 
-    test1 = Test::TestIntfPrx::uncheckedCast(adapter.getTestIntf().ice_connectionCached(false))
-    test2 = Test::TestIntfPrx::uncheckedCast(adapter.getTestIntf().ice_connectionCached(false))
-    test(!test1.ice_isConnectionCached())
-    test(!test2.ice_isConnectionCached())
-    test(test1.ice_getConnection() == test2.ice_getConnection())
+    test1 = adapter.getTestIntf().ice_connectionCached(false)
 
     test1.ice_ping()
 
     com.deactivateObjectAdapter(adapter)
 
-    test3 = Test::TestIntfPrx::uncheckedCast(test1)
+    test3 = test1
     begin
         test(test3.ice_getConnection() == test1.ice_getConnection())
         test(false)
@@ -299,7 +293,7 @@ def allTests(helper, communicator)
     adapters.push(com.createObjectAdapter("Adapter52", "default"))
     adapters.push(com.createObjectAdapter("Adapter53", "default"))
 
-    t = Test::TestIntfPrx::uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false))
+    t = createTestIntfPrx(adapters).ice_connectionCached(false)
     test(!t.ice_isConnectionCached())
 
     names = ["Adapter51", "Adapter52", "Adapter53"]
@@ -338,9 +332,9 @@ def allTests(helper, communicator)
     adapters.push(com.createObjectAdapter("Adapter63", "default"))
 
     t = createTestIntfPrx(adapters)
-    t = Test::TestIntfPrx::uncheckedCast(t.ice_endpointSelection(Ice::EndpointSelectionType::Ordered))
+    t = t.ice_endpointSelection(Ice::EndpointSelectionType::Ordered)
     test(t.ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered)
-    t = Test::TestIntfPrx::uncheckedCast(t.ice_connectionCached(false))
+    t = t.ice_connectionCached(false)
     test(!t.ice_isConnectionCached())
     nRetry = 5
 
@@ -416,7 +410,7 @@ def allTests(helper, communicator)
     t = createTestIntfPrx(adapters)
     test(t.getAdapterName() == "Adapter71")
 
-    testUDP = Test::TestIntfPrx::uncheckedCast(t.ice_datagram())
+    testUDP = t.ice_datagram()
     test(t.ice_getConnection() != testUDP.ice_getConnection())
     begin
         testUDP.getAdapterName()
@@ -426,7 +420,7 @@ def allTests(helper, communicator)
 
     puts "ok"
 
-    if communicator.getProperties().getProperty("Ice.Plugin.IceSSL").length > 0
+    if communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"
         print "testing unsecure vs. secure endpoints... "
         STDOUT.flush
 
@@ -440,11 +434,11 @@ def allTests(helper, communicator)
             t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
         end
 
-        testSecure = Test::TestIntfPrx::uncheckedCast(t.ice_secure(true))
+        testSecure = t.ice_secure(true)
         test(testSecure.ice_isSecure())
-        testSecure = Test::TestIntfPrx::uncheckedCast(t.ice_secure(false))
+        testSecure = t.ice_secure(false)
         test(!testSecure.ice_isSecure())
-        testSecure = Test::TestIntfPrx::uncheckedCast(t.ice_secure(true))
+        testSecure = t.ice_secure(true)
         test(testSecure.ice_isSecure())
         test(t.ice_getConnection() != testSecure.ice_getConnection())
 

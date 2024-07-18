@@ -9,8 +9,7 @@ classdef AllTests
 
             communicator = helper.communicator();
             ref = ['initial:', helper.getTestEndpoint()];
-            base = communicator.stringToProxy(ref);
-            initial = InitialPrx.checkedCast(base);
+            initial = InitialPrx(communicator, ref);
 
             fprintf('getting B1... ');
             b1 = initial.getB1();
@@ -181,29 +180,26 @@ classdef AllTests
 
             fprintf('testing recursive type... ');
             top = Recursive();
-            p = top;
-            depth = 0;
+            bottom = top;
+            for depth = 1:9
+                bottom.v = Recursive();
+                bottom = bottom.v;
+            end
+            initial.setRecursive(top);
+
             try
-                for depth = 0:20000
-                    p.v = Recursive();
-                    p = p.v;
-                    os = communicator.createOutputStream();
-                    os.writeValue(top);
-                    os.writePendingValues();
-                    is = os.createInputStream();
-                    h = IceInternal.ValueHolder();
-                    is.readValue(@(v) h.set(v), 'Test.Recursive');
-                    is.readPendingValues();
-                end
+                % Adding one more level would exceed the max class graph depth
+                bottom.v = Recursive();
+                bottom = bottom.v;
+                initial.setRecursive(top);
                 assert(false);
             catch ex
-                if isa(ex, 'Ice.MarshalException')
+                if isa(ex, 'Ice.UnknownLocalException')
                     % Expected marshal exception from the server (max class graph depth reached)
                 else
                     rethrow(ex);
                 end
             end
-            initial.setRecursive(Recursive());
             fprintf('ok\n');
 
             fprintf('testing compact ID... ');
@@ -218,17 +214,14 @@ classdef AllTests
 
             fprintf('testing UnexpectedObjectException... ');
             ref = ['uoet:', helper.getTestEndpoint()];
-            base = communicator.stringToProxy(ref);
-            assert(~isempty(base));
-            uoet = UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
-            assert(~isempty(uoet));
+            uoet = UnexpectedObjectExceptionTestPrx(communicator, ref);
             try
                 uoet.op();
                 assert(false);
             catch ex
-                if isa(ex, 'Ice.UnexpectedObjectException')
-                    assert(strcmp(ex.type_, 'Test.AlsoEmpty'));
-                    assert(strcmp(ex.expectedType, 'Test.Empty'));
+                if isa(ex, 'Ice.MarshalException')
+                    assert(contains(ex.message, 'Test.AlsoEmpty'));
+                    assert(contains(ex.message, 'Test.Empty'));
                 else
                     rethrow(ex);
                 end
@@ -279,7 +272,7 @@ classdef AllTests
             assert(strcmp(f12.name, 'F12'));
 
             ref = ['F21:', helper.getTestEndpoint()];
-            [f21, f22] = initial.opF2(F2Prx.uncheckedCast(communicator.stringToProxy(ref)));
+            [f21, f22] = initial.opF2(F2Prx(communicator, ref));
             assert(strcmp(f21.ice_getIdentity().name, 'F21'));
             f21.op();
             assert(strcmp(f22.ice_getIdentity().name, 'F22'));

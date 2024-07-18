@@ -3,24 +3,18 @@
 % This exception is raised for errors during marshaling or unmarshaling data.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
 
-classdef MarshalException < Ice.ProtocolException
+classdef (Sealed) MarshalException < Ice.ProtocolException
     methods
-        function obj = MarshalException(ice_exid, ice_exmsg, reason)
-            if nargin <= 2
-                reason = '';
+        % Convenience constructor without an errID.
+        function obj = MarshalException(what)
+            if nargin == 0 % default constructor
+                superArgs = {};
+            else
+                assert(nargin == 1, 'Invalid number of arguments');
+                superArgs = {'Ice:MarshalException', what};
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:MarshalException';
-            end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.MarshalException';
-            end
-            obj = obj@Ice.ProtocolException(ice_exid, ice_exmsg, reason);
-        end
-        function id = ice_id(~)
-            id = '::Ice::MarshalException';
+            obj@Ice.ProtocolException(superArgs{:});
         end
     end
 end

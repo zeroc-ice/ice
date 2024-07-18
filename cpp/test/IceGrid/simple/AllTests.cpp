@@ -260,8 +260,8 @@ allTestsWithDeploy(Test::TestHelper* helper)
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-        test(ex.kindOfObject == "object");
-        test(ex.id == "unknown/unknown");
+        test(ex.kindOfObject() == "object");
+        test(ex.id() == "unknown/unknown");
     }
     cout << "ok" << endl;
 
@@ -273,8 +273,8 @@ allTestsWithDeploy(Test::TestHelper* helper)
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-        test(ex.kindOfObject == "object adapter");
-        test(ex.id == "TestAdapterUnknown");
+        test(ex.kindOfObject() == "object adapter");
+        test(ex.id() == "TestAdapterUnknown");
     }
     cout << "ok" << endl;
 

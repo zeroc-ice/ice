@@ -3260,9 +3260,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "int h_ = 5381;";
     out << nl << "h_ = com.zeroc.IceInternal.HashUtil.hashAdd(h_, \"" << p->scoped() << "\");";
     iter = 0;
-    for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (const auto& member : members)
     {
-        string memberName = fixKwd((*d)->name());
+        string memberName = fixKwd(member->name());
         out << nl << "h_ = com.zeroc.IceInternal.HashUtil.hashAdd(h_, " << memberName << ");";
     }
     out << nl << "return h_;";
@@ -3696,8 +3696,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
 
     out << nl << "public enum " << name;
-    out << " implements java.io.Serializable";
-
     out << sb;
 
     for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
@@ -4243,7 +4241,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << nl << "public static " << prxName
         << " createProxy(com.zeroc.Ice.Communicator communicator, String proxyString)";
     out << sb;
-    out << nl << "return uncheckedCast(communicator.stringToProxy(proxyString));";
+    out << nl << "return new " << prxIName << "(com.zeroc.Ice.ObjectPrx.createProxy(communicator, proxyString));";
     out << eb;
 
     out << sp;
@@ -4268,16 +4266,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@return A proxy for this type, or null if the object does not support this type.");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, " << contextParam << ')';
     out << sb;
-    out << nl << "if (obj != null)";
-    out << sb;
-    out << nl << "try";
-    out << sb;
-    out << nl << "boolean ok = obj.ice_isA(ice_staticId(), context);";
-    out << nl << "return ok ? new " << prxIName << "(obj) : null;";
-    out << eb;
-    out << nl << "catch (com.zeroc.Ice.FacetNotExistException ex)" << sb << eb;
-    out << eb;
-    out << nl << "return null;";
+    out << nl << "return (obj != null && obj.ice_isA(ice_staticId(), context)) ? new " << prxIName << "(obj) : null;";
     out << eb;
 
     out << sp;
@@ -4368,6 +4357,14 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << nl << "return \"" << p->scoped() << "\";";
     out << eb;
 
+    out << sp;
+    writeDocComment(out, "@hidden");
+    out << nl << "@Override";
+    out << nl << "default " << prxName << " _newInstance(com.zeroc.IceInternal.Reference ref)";
+    out << sb;
+    out << nl << "return new " << prxIName << "(ref);";
+    out << eb;
+
     out << eb;
     close();
 
@@ -4388,17 +4385,16 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     outi << " implements " << prxName;
     outi << sb;
 
-    // TODO: eventually remove this default constructor.
-    // Default constructor
+    // Constructor which directly takes a Reference.
     outi << sp;
-    outi << nl << "public " << prxIName << "()";
+    outi << nl << prxIName << "(com.zeroc.IceInternal.Reference ref)";
     outi << sb;
-    outi << nl << "super();";
+    outi << nl << "super(ref);";
     outi << eb;
 
     // Copy constructor
     outi << sp;
-    outi << nl << "public " << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
+    outi << nl << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
     outi << sb;
     outi << nl << "super(obj);";
     outi << eb;

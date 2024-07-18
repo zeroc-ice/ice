@@ -1,6 +1,6 @@
-// Copyright (c) ZeroC, Inc.
-#import "Properties.h"
+// Copyright (c) ZeroC, Inc. All rights reserved.
 
+#import "include/Properties.h"
 #import "Convert.h"
 
 @implementation ICEProperties
@@ -15,17 +15,17 @@
     return toNSString(self.properties->getProperty(fromNSString(key)));
 }
 
-- (NSString*)getIceProperty:(NSString*)key
+- (NSString*)getIceProperty:(NSString*)key error:(NSError**)error;
 {
     try
     {
-        toNSString(self.properties->getIceProperty(fromNSString(key)));
+        return toNSString(self.properties->getIceProperty(fromNSString(key)));
     }
-    catch (const std::invalid_argument&)
+    catch (...)
     {
+        *error = convertException(std::current_exception());
         return nil;
     }
-    return toNSString(self.properties->getIceProperty(fromNSString(key)));
 }
 
 - (NSString*)getPropertyWithDefault:(NSString*)key value:(NSString*)value
@@ -38,15 +38,16 @@
     return self.properties->getPropertyAsInt(fromNSString(key));
 }
 
-- (id)getIcePropertyAsInt:(NSString*)key
+- (NSNumber*)getIcePropertyAsInt:(NSString*)key error:(NSError**)error
 {
     try
     {
         int32_t value = self.properties->getIcePropertyAsInt(fromNSString(key));
         return [NSNumber numberWithInt:value];
     }
-    catch (const std::invalid_argument&)
+    catch (...)
     {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -61,9 +62,17 @@
     return toNSArray(self.properties->getPropertyAsList(fromNSString(key)));
 }
 
-- (NSArray<NSString*>*)getIcePropertyAsList:(NSString*)key
+- (NSArray<NSString*>*)getIcePropertyAsList:(NSString*)key error:(NSError**)error
 {
-    return toNSArray(self.properties->getIcePropertyAsList(fromNSString(key)));
+    try
+    {
+        return toNSArray(self.properties->getIcePropertyAsList(fromNSString(key)));
+    }
+    catch (...)
+    {
+        *error = convertException(std::current_exception());
+        return nil;
+    }
 }
 
 - (NSArray<NSString*>*)getPropertyAsListWithDefault:(NSString*)key value:(NSArray<NSString*>*)value

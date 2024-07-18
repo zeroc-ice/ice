@@ -3,6 +3,7 @@
 #
 
 import Ice
+import IcePy
 import Test
 import sys
 import threading
@@ -63,6 +64,7 @@ class ResponseCallback(CallbackBase):
 
     def connection(self, conn):
         test(conn is not None)
+        test(type(conn) is IcePy.Connection)
         self.called()
 
     def op(self):
@@ -414,15 +416,7 @@ class Thrower(CallbackBase):
 
 
 def allTests(helper, communicator, collocated):
-    sref = "test:{0}".format(helper.getTestEndpoint(num=0))
-    obj = communicator.stringToProxy(sref)
-    test(obj)
-
-    p = Test.TestIntfPrx.uncheckedCast(obj)
-
-    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
-    obj = communicator.stringToProxy(sref)
-    test(obj)
+    p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
 
     if p.ice_getConnection() and p.supportsAMD():
         sys.stdout.write("testing graceful close connection without wait... ")
@@ -431,7 +425,7 @@ def allTests(helper, communicator, collocated):
         #
         # Local case: start an operation and then close the connection gracefully on the client side
         # without waiting for the pending invocation to complete. There will be no retry and we expect the
-        # invocation to fail with ConnectionManuallyClosedException.
+        # invocation to fail with ConnectionClosedException.
         #
         p = p.ice_connectionId("CloseGracefully")  # Start with a new connection.
         con = p.ice_getConnection()
@@ -441,8 +435,8 @@ def allTests(helper, communicator, collocated):
         try:
             f.result()
             test(False)
-        except Ice.ConnectionManuallyClosedException as ex:
-            test(ex.graceful)
+        except Ice.ConnectionClosedException as ex:
+            test(ex.closedByApplication)
         p.finishDispatch()
 
         #
@@ -467,7 +461,7 @@ def allTests(helper, communicator, collocated):
 
         #
         # Local case: start an operation and then close the connection forcefully on the client side.
-        # There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
+        # There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
         #
         p.ice_ping()
         con = p.ice_getConnection()
@@ -477,8 +471,8 @@ def allTests(helper, communicator, collocated):
         try:
             f.result()
             test(False)
-        except Ice.ConnectionManuallyClosedException as ex:
-            test(not ex.graceful)
+        except Ice.ConnectionAbortedException as ex:
+            test(ex.closedByApplication)
         p.finishDispatch()
 
         #
@@ -497,17 +491,9 @@ def allTests(helper, communicator, collocated):
 
 
 def allTestsFuture(helper, communicator, collocated):
-    sref = "test:{0}".format(helper.getTestEndpoint(num=0))
-    obj = communicator.stringToProxy(sref)
-    test(obj)
 
-    p = Test.TestIntfPrx.uncheckedCast(obj)
-
-    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
-    obj = communicator.stringToProxy(sref)
-    test(obj)
-
-    testController = Test.TestIntfControllerPrx.uncheckedCast(obj)
+    p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
+    testController = Test.TestIntfControllerPrx(communicator, f"testController:{helper.getTestEndpoint(num=1)}")
 
     sys.stdout.write("testing future invocations... ")
     sys.stdout.flush()
@@ -525,9 +511,8 @@ def allTestsFuture(helper, communicator, collocated):
     test(len(p.ice_idsAsync().result()) == 2)
     test(len(p.ice_idsAsync(ctx).result()) == 2)
 
-    # TODO: test connection
-    # if not collocated:
-    #    test(p.ice_getConnectionAsync().result() is not None)
+    if not collocated:
+        test(type(p.ice_getConnectionAsync().result()) is IcePy.Connection)
 
     p.opAsync().result()
     p.opAsync(ctx).result()
@@ -574,10 +559,9 @@ def allTestsFuture(helper, communicator, collocated):
     p.ice_idsAsync(ctx).add_done_callback(cb.ids)
     cb.check()
 
-    # TODO test connection
-    # if not collocated:
-    #    p.ice_getConnectionAsync().add_done_callback(cb.connection)
-    #    cb.check()
+    if not collocated:
+        p.ice_getConnectionAsync().add_done_callback(cb.connection)
+        cb.check()
 
     p.opAsync().add_done_callback(cb.op)
     cb.check()
@@ -594,11 +578,59 @@ def allTestsFuture(helper, communicator, collocated):
     p.opWithUEAsync(ctx).add_done_callback(cb.opWithUE)
     cb.check()
 
-    #
-    # TODO: test add_done_callback_async
-    #
+    print("ok")
+
+    sys.stdout.write("testing done callback async... ")
+    sys.stdout.flush()
+
+    # Now repeat with add_done_callback_async
+    ctx = {}
+    cb = FutureDoneCallback()
+
+    p.ice_isAAsync(Test.TestIntf.ice_staticId()).add_done_callback_async(cb.isA)
+    cb.check()
+    p.ice_isAAsync(Test.TestIntf.ice_staticId(), ctx).add_done_callback_async(cb.isA)
+    cb.check()
+
+    p.ice_pingAsync().add_done_callback_async(cb.ping)
+    cb.check()
+    p.ice_pingAsync(ctx).add_done_callback_async(cb.ping)
+    cb.check()
+
+    p.ice_idAsync().add_done_callback_async(cb.id)
+    cb.check()
+    p.ice_idAsync(ctx).add_done_callback_async(cb.id)
+    cb.check()
+
+    p.ice_idsAsync().add_done_callback_async(cb.ids)
+    cb.check()
+    p.ice_idsAsync(ctx).add_done_callback_async(cb.ids)
+    cb.check()
 
     if not collocated:
+        p.ice_getConnectionAsync().add_done_callback_async(cb.connection)
+        cb.check()
+
+    p.opAsync().add_done_callback_async(cb.op)
+    cb.check()
+    p.opAsync(ctx).add_done_callback_async(cb.op)
+    cb.check()
+
+    p.opWithResultAsync().add_done_callback_async(cb.opWithResult)
+    cb.check()
+    p.opWithResultAsync(ctx).add_done_callback_async(cb.opWithResult)
+    cb.check()
+
+    p.opWithUEAsync().add_done_callback_async(cb.opWithUE)
+    cb.check()
+    p.opWithUEAsync(ctx).add_done_callback_async(cb.opWithUE)
+    cb.check()
+
+    print("ok")
+
+    if not collocated:
+        sys.stdout.write("testing bidir invocation... ")
+        sys.stdout.flush()
         adapter = communicator.createObjectAdapter("")
         replyI = PingReplyI()
         reply = Test.PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI))
@@ -609,7 +641,7 @@ def allTestsFuture(helper, communicator, collocated):
         test(replyI.checkReceived())
         adapter.destroy()
 
-    print("ok")
+        print("ok")
 
     sys.stdout.write("testing local exceptions... ")
     sys.stdout.flush()
@@ -665,10 +697,11 @@ def allTestsFuture(helper, communicator, collocated):
     i.ice_idsAsync().add_done_callback(cb.ex)
     cb.check()
 
-    # TODO
-    # if not collocated:
-    #    i.ice_getConnectionAsync().add_done_callback(cb.ex)
-    #    cb.check()
+    if not collocated:
+        try:
+            i.ice_getConnectionAsync()
+        except Ice.NoEndpointException:
+            pass
 
     i.opAsync().add_done_callback(cb.ex)
     cb.check()

@@ -205,22 +205,21 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     output.write("testing recursive type... ")
     let top = Recursive()
-    var p = top
+    var bottom = top
+    for _ in 1..<10 {
+        bottom.v = Recursive()
+        bottom = bottom.v!
+    }
+    try initial.setRecursive(top)
+
+    // Adding one more level would exceed the max class graph depth
+    bottom.v = Recursive()
+    bottom = bottom.v!
     do {
-        for depth in 0..<1000 {
-            p.v = Recursive()
-            p = p.v!
-            if (depth < 10 && (depth % 10) == 0) || (depth < 1000 && (depth % 100) == 0)
-                || (depth < 10000 && (depth % 1000) == 0) || (depth % 10000) == 0
-            {
-                try initial.setRecursive(top)
-            }
-        }
-        try test(!initial.supportsClassGraphDepthMax())
+        try initial.setRecursive(top)
+        try test(false)
     } catch is Ice.UnknownLocalException {
         // Expected marshal exception from the server(max class graph depth reached)
-    } catch is Ice.UnknownException {
-        // Expected stack overflow from the server(Java only)
     }
     try initial.setRecursive(Recursive())
     output.writeLine("ok")
@@ -247,9 +246,9 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     do {
         _ = try uoet.op()
         try test(false)
-    } catch let ex as Ice.UnexpectedObjectException {
-        try test(ex.type == "::Test::AlsoEmpty")
-        try test(ex.expectedType == "::Test::Empty")
+    } catch let ex as Ice.MarshalException {
+        try test(ex.message.contains("::Test::AlsoEmpty"))
+        try test(ex.message.contains("::Test::Empty"))
     } catch {
         output.writeLine("\(error)")
         try test(false)

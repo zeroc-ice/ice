@@ -67,12 +67,12 @@ class Callback(CallbackBase):
 
     def exception_SBSUnknownDerivedAsSBaseCompact(self, f):
         test(f.exception() is not None)
-        test(isinstance(f.exception(), Ice.NoValueFactoryException))
+        test(isinstance(f.exception(), Ice.MarshalException))
         self.called()
 
     def exception_SUnknownAsObject10(self, f):
         test(f.exception() is not None)
-        test(f.exception().ice_id() == "::Ice::NoValueFactoryException")
+        test("cannot find value factory for type ID '::Test::SUnknown'" in str(f.exception()))
         self.called()
 
     def response_SUnknownAsObject11(self, f):
@@ -407,8 +407,7 @@ def PreservedFactoryI(id):
 
 
 def allTests(helper, communicator):
-    obj = communicator.stringToProxy("Test:{0}".format(helper.getTestEndpoint()))
-    t = Test.TestIntfPrx.checkedCast(obj)
+    t = Test.TestIntfPrx(communicator, f"Test:{helper.getTestEndpoint()}")
 
     sys.stdout.write("base as Object... ")
     sys.stdout.flush()
@@ -516,7 +515,7 @@ def allTests(helper, communicator):
             test(False)
         except Ice.OperationNotExistException:
             pass
-        except Ice.NoValueFactoryException:
+        except Ice.MarshalException:
             # Expected.
             pass
         except Exception:
@@ -560,7 +559,7 @@ def allTests(helper, communicator):
         test(o.unknownTypeId == "::Test::SUnknown")
         test(o.ice_getSlicedData())
         t.checkSUnknown(o)
-    except Ice.NoValueFactoryException:
+    except Ice.MarshalException:
         test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
     except Ice.Exception:
         test(False)

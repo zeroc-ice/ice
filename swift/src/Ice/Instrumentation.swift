@@ -27,7 +27,7 @@ extension InputStream {
     public func read() throws -> InstrumentationThreadState {
         let rawValue: UInt8 = try read(enumMaxValue: 3)
         guard let val = InstrumentationThreadState(rawValue: rawValue) else {
-            throw MarshalException(reason: "invalid enum value")
+            throw MarshalException("invalid enum value")
         }
         return val
     }
@@ -94,7 +94,7 @@ extension InputStream {
     public func read() throws -> InstrumentationConnectionState {
         let rawValue: UInt8 = try read(enumMaxValue: 4)
         guard let val = InstrumentationConnectionState(rawValue: rawValue) else {
-            throw MarshalException(reason: "invalid enum value")
+            throw MarshalException("invalid enum value")
         }
         return val
     }

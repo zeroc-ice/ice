@@ -3,6 +3,7 @@
 //
 
 #include "Ice/Ice.h"
+#include "Ice/IconvStringConverter.h"
 #include "TestHelper.h"
 
 #ifdef _WIN32

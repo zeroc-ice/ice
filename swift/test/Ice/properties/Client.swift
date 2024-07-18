@@ -12,8 +12,9 @@ public class Client: TestHelperI {
             let properties = Ice.createProperties()
             try properties.load("./config/xxxx.config")
             try test(false)
-        } catch is FileException {
-            // Expected when try to load a non existing config file
+        } catch let error as LocalException {
+            // We don't map FileException to Swift - this allows us to test unmapped C++ exceptions.
+            try test(error.ice_id() == "::Ice::FileException")
         }
         output.writeLine("ok")
 
@@ -135,8 +136,9 @@ public class Client: TestHelperI {
             do {
                 _ = try properties.getIceProperty("Ice.UnknownProperty")
                 try test(false)
-            } catch let error as RuntimeError {
-                try test(error.description == "unknown Ice property: Ice.UnknownProperty")
+            } catch let error as LocalException {
+                try test(error.ice_id() == "std::invalid_argument")
+                try test(error.message == "unknown Ice property: Ice.UnknownProperty")
             }
 
             output.write("ok")

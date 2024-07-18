@@ -29,6 +29,8 @@ namespace
         }
         return name;
     }
+
+    const string tripleQuotes = "\"\"\"";
 }
 
 namespace Slice
@@ -473,7 +475,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
-    _out << nl << "_M_" << abs << " = Ice.createTempClass()";
+    _out << nl << "_M_" << abs << " = None";
     _out << nl << "class " << valueName << '(';
     if (!base)
     {
@@ -654,7 +656,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.inc();
 
     // Define the proxy class
-    _out << nl << "_M_" << prxAbs << " = Ice.createTempClass()";
+    _out << nl << "_M_" << prxAbs << " = None";
     _out << nl << "class " << prxName << '(';
 
     {
@@ -686,6 +688,27 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << "):";
     _out.inc();
 
+    _out << sp;
+    _out << nl << "def __init__(self, communicator, proxyString):";
+    _out.inc();
+    _out << nl << tripleQuotes;
+    _out << nl << "Creates a new " << prxName << " proxy";
+    _out << nl;
+    _out << nl << "Parameters";
+    _out << nl << "----------";
+    _out << nl << "communicator : Ice.Communicator";
+    _out << nl << "    The communicator of the new proxy.";
+    _out << nl << "proxyString : str";
+    _out << nl << "    The string representation of the proxy.";
+    _out << nl;
+    _out << nl << "Raises";
+    _out << nl << "------";
+    _out << nl << "ParseException";
+    _out << nl << "    Thrown when proxyString is not a valid proxy string.";
+    _out << nl << tripleQuotes;
+    _out << nl << "super().__init__(communicator, proxyString)";
+    _out.dec();
+
     OperationList ops = p->operations();
     for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
     {
@@ -700,7 +723,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         string inParamsDecl;
 
         // Find the last required parameter, all optional parameters after the last required parameter will use
-        // Ice.Unset as the default.
+        // None as the default.
         ParamDeclPtr lastRequiredParameter;
         for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
@@ -724,7 +747,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 inParams.append(param);
                 if (afterLastRequiredParameter)
                 {
-                    param += "=Ice.Unset";
+                    param += "=None";
                 }
                 inParamsDecl.append(param);
 
@@ -802,7 +825,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     registerName(prxName);
 
     // Define the servant class
-    _out << sp << nl << "_M_" << classAbs << " = Ice.createTempClass()";
+    _out << sp << nl << "_M_" << classAbs << " = None";
     _out << nl << "class " << className << '(';
     {
         vector<string> baseClasses;
@@ -1044,7 +1067,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
-    _out << nl << "_M_" << abs << " = Ice.createTempClass()";
+    _out << nl << "_M_" << abs << " = None";
     _out << nl << "class " << name << '(';
     ExceptionPtr base = p->base();
     string baseName;
@@ -1198,7 +1221,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
-    _out << nl << "_M_" << abs << " = Ice.createTempClass()";
+    _out << nl << "_M_" << abs << " = None";
     _out << nl << "class " << name << "(object):";
     _out.inc();
 
@@ -1453,44 +1476,16 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    static const string protobuf = "python:protobuf:";
-    StringList metaData = p->getMetaData();
-    bool isCustom = false;
-    string customType;
-    for (const auto& q : metaData)
-    {
-        if (q.find(protobuf) == 0)
-        {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-            if (!builtin || builtin->kind() != Builtin::KindByte)
-            {
-                continue;
-            }
-            isCustom = true;
-            customType = q.substr(protobuf.size());
-            break;
-        }
-    }
-
     // Emit the type information.
+    StringList metaData = p->getMetaData();
     string scoped = p->scoped();
     _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
     _out.inc();
-    if (isCustom)
-    {
-        string package = customType.substr(0, customType.find('.'));
-        _out << nl << "import " << package;
-        _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineCustom('" << scoped << "', " << customType
-             << ")";
-    }
-    else
-    {
-        _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
-        writeMetaData(metaData);
-        _out << ", ";
-        writeType(p->type());
-        _out << ")";
-    }
+    _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
+    writeMetaData(metaData);
+    _out << ", ";
+    writeType(p->type());
+    _out << ")";
     _out.dec();
 }
 
@@ -1522,7 +1517,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
-    _out << nl << "_M_" << abs << " = Ice.createTempClass()";
+    _out << nl << "_M_" << abs << " = None";
     _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
 
@@ -1730,19 +1725,6 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
         return;
     }
 
-    StructPtr st = dynamic_pointer_cast<Struct>(p);
-    if (st)
-    {
-        //
-        // We cannot emit a call to the struct's constructor here because Python
-        // only evaluates this expression once (see bug 3676). Instead, we emit
-        // a marker that allows us to determine whether the application has
-        // supplied a value.
-        //
-        _out << "Ice._struct_marker";
-        return;
-    }
-
     _out << "None";
 }
 
@@ -1784,7 +1766,7 @@ Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int&
         return;
     }
 
-    _out << nl << "_h = 5 * _h + Ice.getHash(" << name << ")";
+    _out << nl << "_h = 5 * _h + _builtins.hash(" << name << ")";
 }
 
 void
@@ -1823,14 +1805,8 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
     StructPtr st = dynamic_pointer_cast<Struct>(info.dataMember->type());
     if (st && !info.dataMember->optional())
     {
-        _out << nl << "if " << paramName << " is Ice._struct_marker:";
-        _out.inc();
-        _out << nl << "self." << memberName << " = " << getSymbol(st) << "()";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "self." << memberName << " = " << paramName;
-        _out.dec();
+        _out << nl << "self." << memberName << " = " << paramName << " if " << paramName << " is not None else "
+             << getSymbol(st) << "()";
     }
     else
     {
@@ -1913,7 +1889,7 @@ Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members
         }
         else if (member->optional())
         {
-            _out << "Ice.Unset";
+            _out << "None";
         }
         else
         {
@@ -2751,7 +2727,9 @@ Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& inclu
     Slice::Python::MetaDataVisitor visitor;
     un->visit(&visitor, false);
 
-    out << nl << "import Ice, IcePy";
+    out << nl << "import Ice";
+    out << nl << "import IcePy";
+    out << nl << "import builtins as _builtins";
 
     if (!all)
     {

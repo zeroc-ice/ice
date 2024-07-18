@@ -7,7 +7,7 @@
 #include "../FileUtil.h"
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/SSL/SSLException.h"
 #include "Ice/StringUtil.h"
 
@@ -992,25 +992,25 @@ Ice::SSL::SecureTransport::findCertificateChain(
 string
 Ice::SSL::getSubjectName(SecCertificateRef)
 {
-    throw FeatureNotSupportedException(__FILE__, __LINE__);
+    throw FeatureNotSupportedException{__FILE__, __LINE__, "IceSSL on iOS does not support getSubjectName"};
 }
 
 vector<pair<int, string>>
 Ice::SSL::getSubjectAltNames(SecCertificateRef)
 {
-    throw FeatureNotSupportedException(__FILE__, __LINE__);
+    throw FeatureNotSupportedException{__FILE__, __LINE__, "IceSSL on iOS does not support getSubjectAltNames"};
 }
 
 string
 Ice::SSL::encodeCertificate(SecCertificateRef)
 {
-    throw FeatureNotSupportedException(__FILE__, __LINE__);
+    throw FeatureNotSupportedException{__FILE__, __LINE__, "IceSSL on iOS does not support encodeCertificate"};
 }
 
 SecCertificateRef
 Ice::SSL::decodeCertificate(const string&)
 {
-    throw FeatureNotSupportedException(__FILE__, __LINE__);
+    throw FeatureNotSupportedException{__FILE__, __LINE__, "IceSSL on iOS does not support decodeCertificate"};
 }
 #else // macOS
 string

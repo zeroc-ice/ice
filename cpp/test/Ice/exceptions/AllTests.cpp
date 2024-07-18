@@ -47,12 +47,15 @@ allTests(Test::TestHelper* helper)
         A a;
         string aMsg = "::Test::A";
 
-        Ice::OperationNotExistException one("thisFile", 99);
-        string onePrint = "thisFile:99: ::Ice::OperationNotExistException";
+        Ice::OperationNotExistException opNotExist("thisFile", 99);
+        string opNotExistWhat = "dispatch failed with OperationNotExistException";
+        string opNotExistPrint = opNotExist.ice_id();
+        string opNotExistStream = "thisFile:99 " + opNotExistPrint + " " + opNotExistWhat;
 
-        const char* customMessage = "custom message";
+        string customMessage = "custom message";
         Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
-        string customUlePrint = "thisFile:199: custom message";
+        string customUlePrint = customUle.ice_id();
+        string customUleStream = "thisFile:199 " + customUlePrint + " " + customMessage;
 
         //
         // Test ice_print().
@@ -64,8 +67,8 @@ allTests(Test::TestHelper* helper)
         }
         {
             stringstream str;
-            one.ice_print(str);
-            test(str.str() == onePrint);
+            opNotExist.ice_print(str);
+            test(str.str() == opNotExistPrint);
         }
         {
             stringstream str;
@@ -79,24 +82,24 @@ allTests(Test::TestHelper* helper)
         {
             stringstream str;
             str << a;
-            test(str.str() == aMsg);
+            test(str.str().substr(0, aMsg.size()) == aMsg);
         }
         {
             stringstream str;
-            str << one;
-            test(str.str() == onePrint);
+            str << opNotExist;
+            test(str.str().substr(0, opNotExistStream.size()) == opNotExistStream);
         }
         {
             stringstream str;
             str << customUle;
-            test(str.str() == customUlePrint);
+            test(str.str().substr(0, customUleStream.size()) == customUleStream);
         }
 
         //
         // Test what().
         //
         test(aMsg == a.what());
-        test(string{one.ice_id()} == one.what());
+        test(opNotExistWhat == opNotExist.what());
         test(string{customMessage} == customUle.what());
 
         {
@@ -217,12 +220,12 @@ allTests(Test::TestHelper* helper)
             {
                 adapter->add(obj, Ice::stringToIdentity(""));
             }
-            catch (const Ice::IllegalIdentityException& ex)
+            catch (const std::invalid_argument& ex)
             {
                 if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
-                    printer << ex;
+                    printer << ex.what();
                 }
             }
 
@@ -231,12 +234,12 @@ allTests(Test::TestHelper* helper)
                 obj = nullptr;
                 adapter->add(obj, Ice::stringToIdentity("x"));
             }
-            catch (const Ice::IllegalServantException& ex)
+            catch (const std::invalid_argument& ex)
             {
                 if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
-                    printer << ex;
+                    printer << ex.what();
                 }
             }
 
@@ -517,7 +520,6 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::Exception& ex)
         {
             cout << ex << endl;
-            cout << ex.ice_stackTrace() << endl;
             test(false);
         }
         catch (...)
@@ -562,7 +564,7 @@ allTests(Test::TestHelper* helper)
             thrower->throwMemoryLimitException(Ice::ByteSeq());
             test(false);
         }
-        catch (const Ice::MemoryLimitException&)
+        catch (const Ice::MarshalException&)
         {
         }
         catch (...)
@@ -595,7 +597,7 @@ allTests(Test::TestHelper* helper)
             {
                 thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
             }
-            catch (const Ice::MemoryLimitException&)
+            catch (const Ice::MarshalException&)
             {
             }
 
@@ -975,7 +977,6 @@ allTests(Test::TestHelper* helper)
             catch (const Ice::Exception& ex)
             {
                 cout << ex << endl;
-                cout << ex.ice_stackTrace() << endl;
                 test(false);
             }
             catch (...)

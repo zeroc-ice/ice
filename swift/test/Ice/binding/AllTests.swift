@@ -697,7 +697,7 @@ func allTests(_ helper: TestHelper) throws {
     }
     output.writeLine("ok")
 
-    if communicator.getProperties().getProperty("Ice.Plugin.IceSSL") != "" {
+    if communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl" {
         output.write("testing unsecure vs. secure endpoints... ")
         do {
             let adapters = try [

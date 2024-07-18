@@ -119,36 +119,6 @@ class Derived extends Base
     Nested::Color nc3 = blue;
 }
 
-exception BaseEx
-{
-    bool boolFalse = false;
-    bool boolTrue = true;
-    byte b = 1;
-    short s = 2;
-    int i = 3;
-    long l = 4;
-    float f = 5.1;
-    double d = 6.2;
-    string str = "foo \\ \"bar\n \r\n\t\v\f\a\b\? \007 \x07";
-    string noDefault;
-    int zeroI = 0;
-    long zeroL = 0;
-    float zeroF = 0;
-    float zeroDotF = 0.0;
-    double zeroD = 0;
-    double zeroDotD = 0;
-}
-
-exception DerivedEx extends BaseEx
-{
-    Color c1 = ConstColor1;
-    Color c2 = ConstColor2;
-    Color c3 = ConstColor3;
-    Nested::Color nc1 = ConstNestedColor1;
-    Nested::Color nc2 = ConstNestedColor2;
-    Nested::Color nc3 = ConstNestedColor3;
-}
-
 sequence<byte> ByteSeq;
 sequence<int> IntSeq;
 dictionary<int, string> IntStringDict;
@@ -171,19 +141,6 @@ struct StructNoDefaults
     Color c1;
     ByteSeq bs;
     IntSeq is;
-    InnerStruct st;
-    IntStringDict dict;
-}
-
-exception ExceptionNoDefaultsBase
-{
-    string str;
-    Color c1;
-    ByteSeq bs;
-}
-
-exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
-{
     InnerStruct st;
     IntStringDict dict;
 }

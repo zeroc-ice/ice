@@ -1,9 +1,10 @@
-// Copyright (c) ZeroC, Inc.
-#import "IceUtil.h"
+// Copyright (c) ZeroC, Inc. All rights reserved.
+
+#import "include/IceUtil.h"
 #import "Convert.h"
-#import "Logger.h"
 #import "LoggerWrapperI.h"
-#import "Properties.h"
+#import "include/Logger.h"
+#import "include/Properties.h"
 
 #import "Ice/Instance.h"
 #import "Ice/Network.h"
@@ -20,6 +21,8 @@ namespace
             // Register plug-ins included in the Ice framework (a single binary file)
             // See also RegisterPluginsInit.cpp in cpp/src/Ice
             //
+            Ice::registerIceUDP(true);
+            Ice::registerIceWS(true);
             Ice::registerIceDiscovery(false);
             Ice::registerIceLocatorDiscovery(false);
 #if defined(__APPLE__) && TARGET_OS_IPHONE != 0
@@ -31,12 +34,12 @@ namespace
 }
 
 @implementation ICEUtil
-static Class<ICEExceptionFactory> _exceptionFactory;
+static Class<ICELocalExceptionFactory> _exceptionFactory;
 static Class<ICEConnectionInfoFactory> _connectionInfoFactory;
 static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
 static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
-+ (Class<ICEExceptionFactory>)exceptionFactory
++ (Class<ICELocalExceptionFactory>)localExceptionFactory
 {
     return _exceptionFactory;
 }
@@ -56,7 +59,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     return _adminFacetFactory;
 }
 
-+ (BOOL)registerFactories:(Class<ICEExceptionFactory>)exception
++ (BOOL)registerFactories:(Class<ICELocalExceptionFactory>)exception
            connectionInfo:(Class<ICEConnectionInfoFactory>)connectionInfo
              endpointInfo:(Class<ICEEndpointInfoFactory>)endpointInfo
                adminFacet:(Class<ICEAdminFacetFactory>)adminFacet
@@ -87,6 +90,9 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     Ice::InitializationData initData;
     initData.properties = [properties properties];
 
+    // Ice for Swift always uses the dispatch queue executor
+    initData.useDispatchQueueExecutor = true;
+
     if (logger)
     {
         initData.logger = std::make_shared<LoggerWrapperI>(logger);
@@ -104,6 +110,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         {
             communicator = Ice::initialize(initData);
         }
+
         return [ICECommunicator getHandle:communicator];
     }
     catch (...)

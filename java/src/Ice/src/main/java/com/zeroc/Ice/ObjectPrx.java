@@ -648,7 +648,11 @@ public interface ObjectPrx {
    * @throws ProxyParseException Thrown when <code>proxyString</code> is not a valid proxy string.
    */
   public static ObjectPrx createProxy(Communicator communicator, String proxyString) {
-    return communicator.stringToProxy(proxyString);
+    var ref = communicator.getInstance().referenceFactory().create(proxyString, null);
+    if (ref == null) {
+      throw new ProxyParseException("Invalid empty proxy string.");
+    }
+    return new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   /**
@@ -673,14 +677,7 @@ public interface ObjectPrx {
    * @return <code>obj</code>.
    */
   static ObjectPrx checkedCast(ObjectPrx obj, java.util.Map<String, String> context) {
-    if (obj != null) {
-      try {
-        boolean ok = obj.ice_isA(ice_staticId, context);
-        return ok ? obj : null;
-      } catch (FacetNotExistException ex) {
-      }
-    }
-    return null;
+    return (obj != null && obj.ice_isA(ice_staticId, context)) ? obj : null;
   }
 
   /**
@@ -729,7 +726,7 @@ public interface ObjectPrx {
    * @return The new proxy with the specified facet.
    */
   static ObjectPrx uncheckedCast(ObjectPrx obj, String facet) {
-    return (obj == null) ? null : new _ObjectPrxI(obj.ice_facet(facet));
+    return (obj == null) ? null : obj.ice_facet(facet);
   }
 
   /**
@@ -766,10 +763,10 @@ public interface ObjectPrx {
 
   /**
    * @hidden
-   * @param r -
-   * @return -
    */
-  ObjectPrx _newInstance(com.zeroc.IceInternal.Reference r);
+  default ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref) {
+    return new _ObjectPrxI(ref);
+  }
 
   /**
    * A special empty context that is indistinguishable from the absence of a context parameter. For

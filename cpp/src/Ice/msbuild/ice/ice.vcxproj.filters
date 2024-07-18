@@ -237,9 +237,6 @@
     <ClCompile Include="..\..\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\UtilException.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\UUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -301,9 +298,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\HttpParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IconvStringConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\IncomingRequest.cpp">
@@ -433,9 +427,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\StreamSocket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\StringConverterPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SysLoggerI.cpp">
@@ -611,6 +602,9 @@
     </ClCompile>
     <ClCompile Include="..\..\SSL\SSLException.cpp">
       <Filter>Source Files\SSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\LocalExceptions.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -859,7 +853,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\Instrumentation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h">
+    <ClInclude Include="..\..\..\..\include\Ice\LocalExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h">
@@ -1025,6 +1019,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\StackTrace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RequestFailedMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

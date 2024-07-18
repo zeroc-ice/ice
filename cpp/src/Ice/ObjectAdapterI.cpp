@@ -10,7 +10,7 @@
 #include "EndpointFactoryManager.h"
 #include "EndpointI.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
@@ -45,14 +45,6 @@ using namespace IceInternal;
 
 namespace
 {
-    inline void checkServant(const ObjectPtr& servant)
-    {
-        if (!servant)
-        {
-            throw IllegalServantException(__FILE__, __LINE__, "cannot add null servant to Object Adapter");
-        }
-    }
-
     inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
 }
 
@@ -377,7 +369,10 @@ Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, co
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkServant(object);
+    if (!object)
+    {
+        throw std::invalid_argument{"cannot add null servant to Ice object adapter"};
+    }
     checkIdentity(ident, __FILE__, __LINE__);
 
     _servantManager->addServant(object, ident, facet);
@@ -402,7 +397,10 @@ Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& fac
 void
 Ice::ObjectAdapterI::addDefaultServant(const ObjectPtr& servant, const string& category)
 {
-    checkServant(servant);
+    if (!servant)
+    {
+        throw std::invalid_argument{"cannot add null servant to Ice object adapter"};
+    }
 
     lock_guard lock(_mutex);
 
@@ -688,7 +686,7 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
     }
 }
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 dispatch_queue_t
 Ice::ObjectAdapterI::getDispatchQueue() const
 {
@@ -963,12 +961,12 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         {
             _reference = _instance->referenceFactory()->create("dummy " + proxyOptions, "");
         }
-        catch (const ProxyParseException&)
+        catch (const ParseException&)
         {
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'");
+                "invalid proxy options '" + proxyOptions + "' for object adapter '" + _name + "'");
         }
 
         {
@@ -1172,7 +1170,7 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
         {
             if (!endpoints.empty())
             {
-                throw EndpointParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
+                throw ParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
             }
             break;
         }
@@ -1222,14 +1220,14 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
 
         if (end == beg)
         {
-            throw EndpointParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
+            throw ParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
         }
 
         string s = endpts.substr(beg, end - beg);
         EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, oaEndpoints);
         if (endp == 0)
         {
-            throw EndpointParseException(__FILE__, __LINE__, "invalid object adapter endpoint `" + s + "'");
+            throw ParseException(__FILE__, __LINE__, "invalid object adapter endpoint '" + s + "'");
         }
         endpoints.push_back(endp);
 

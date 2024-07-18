@@ -6,7 +6,7 @@
 #define ICEGRID_REAPER_THREAD_H
 
 #include "Ice/Connection.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 
@@ -94,7 +94,6 @@ namespace IceGrid
         void join();
         void add(const std::shared_ptr<Reapable>&, std::chrono::seconds, const Ice::ConnectionPtr& = nullptr);
 
-        void connectionHeartbeat(const Ice::ConnectionPtr&);
         void connectionClosed(const Ice::ConnectionPtr&);
 
     private:
@@ -103,7 +102,6 @@ namespace IceGrid
         bool calcWakeInterval();
 
         Ice::CloseCallback _closeCallback;
-        Ice::HeartbeatCallback _heartbeatCallback;
         std::chrono::milliseconds _wakeInterval;
         bool _terminated;
         struct ReapableItem

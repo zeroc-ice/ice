@@ -308,7 +308,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 ///    - communicator: The communicator of the new proxy.
 ///    - proxyString: The proxy string to parse.
 ///    - type: The type of the new proxy.
-/// - Throws: `Ice.ProxyParseException` if the proxy string is invalid.
+/// - Throws: `Ice.ParseException` if the proxy string is invalid.
 /// - Returns: A new proxy with the requested type.
 public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: ObjectPrx.Protocol) throws -> ObjectPrx
 {
@@ -1145,7 +1145,7 @@ open class ObjectPrxI: ObjectPrx {
                 bytesRead: &bytesRead) as? ICEObjectPrx
 
         // Since the proxy was read in C++ we need to skip over the bytes which were read
-        // We avoid using a defer statment for this since you can not throw from one
+        // We avoid using a defer statement for this since you can not throw from one
         try istr.skip(bytesRead)
 
         guard let handle = handleOpt else {
@@ -1425,7 +1425,7 @@ open class ObjectPrxI: ObjectPrx {
             if let userException = userException {
                 try userException(error)
             }
-            throw UnknownUserException(unknown: error.ice_id())
+            throw UnknownUserException(badTypeId: error.ice_id())
         }
         fatalError("Failed to throw user exception")
     }
@@ -1436,17 +1436,13 @@ open class ObjectPrxI: ObjectPrx {
         context: Context? = nil
     ) throws -> ProxyImpl?
     where ProxyImpl: ObjectPrxI {
-        do {
-            let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
+        let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
 
-            // checkedCast always calls ice_isA - no optimization on purpose
-            guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
-                return nil
-            }
-            return ProxyImpl(from: objPrx)
-        } catch is FacetNotExistException {
+        // checkedCast always calls ice_isA - no optimization on purpose
+        guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
             return nil
         }
+        return ProxyImpl(from: objPrx)
     }
 
     public static func uncheckedCast<ProxyImpl>(

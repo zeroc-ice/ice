@@ -4,8 +4,8 @@
 
 #include "FileUtil.h"
 #include "DisableWarnings.h"
-#include "Ice/Exception.h"
 #include "Ice/StringConverter.h"
+#include "Ice/StringUtil.h"
 #include <cassert>
 #include <climits>
 #include <sstream>
@@ -288,7 +288,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDLE_VA
 
     if (_fd == INVALID_HANDLE_VALUE)
     {
-        throw Ice::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
+        throw FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
 
     OVERLAPPED overlaped;
@@ -306,7 +306,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDLE_VA
     if (::LockFileEx(_fd, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 0, 0, &overlaped) == 0)
     {
         ::CloseHandle(_fd);
-        throw Ice::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
+        throw FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
     //
     // In Windows implementation we don't write the process pid to the file, as it is
@@ -411,7 +411,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(path)
     _fd = ::open(path.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (_fd < 0)
     {
-        throw Ice::FileLockException(__FILE__, __LINE__, errno, _path);
+        throw FileLockException(__FILE__, __LINE__, errno, _path);
     }
 
     struct ::flock lock;
@@ -429,7 +429,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(path)
     {
         int err = errno;
         close(_fd);
-        throw Ice::FileLockException(__FILE__, __LINE__, err, _path);
+        throw FileLockException(__FILE__, __LINE__, err, _path);
     }
 
     //
@@ -448,7 +448,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(path)
     {
         int err = errno;
         close(_fd);
-        throw Ice::FileLockException(__FILE__, __LINE__, err, _path);
+        throw FileLockException(__FILE__, __LINE__, err, _path);
     }
 }
 
@@ -460,3 +460,28 @@ IceInternal::FileLock::~FileLock()
 }
 
 #endif
+
+namespace
+{
+    inline string createFileLockExceptionMessage(int error, const string& path)
+    {
+        ostringstream os;
+        os << "could not lock file '" << path << "'";
+        if (error != 0)
+        {
+            os << ": " << IceInternal::errorToString(error);
+        }
+        return os.str();
+    }
+}
+
+IceInternal::FileLockException::FileLockException(const char* file, int line, int error, const string& path)
+    : Ice::LocalException(file, line, createFileLockExceptionMessage(error, path))
+{
+}
+
+const char*
+IceInternal::FileLockException::ice_id() const noexcept
+{
+    return "::IceInternal::FileLockException";
+}

@@ -1,11 +1,13 @@
 // Copyright (c) ZeroC, Inc.
-#import "Connection.h"
-#import "../../cpp/src/Ice/SSL/SSLUtil.h"
+#import "include/Connection.h"
+#import "include/Endpoint.h"
+#import "include/IceUtil.h"
+#import "include/ObjectAdapter.h"
+#import "include/ObjectPrx.h"
+
 #import "Convert.h"
-#import "Endpoint.h"
-#import "IceUtil.h"
-#import "ObjectAdapter.h"
-#import "ObjectPrx.h"
+
+#import "../../cpp/src/Ice/SSL/SSLUtil.h"
 
 @implementation ICEConnection
 
@@ -133,70 +135,6 @@
     {
         *error = convertException(std::current_exception());
         return NO;
-    }
-}
-
-- (void)setHeartbeatCallback:(void (^)(ICEConnection*))callback
-{
-    if (!callback)
-    {
-        self.connection->setHeartbeatCallback(nullptr);
-    }
-    else
-    {
-        self.connection->setHeartbeatCallback(
-            [callback](auto connection)
-            {
-                ICEConnection* conn = [ICEConnection getHandle:connection];
-                assert(conn);
-                @autoreleasepool
-                {
-                    callback(conn);
-                }
-            });
-    }
-}
-
-- (BOOL)heartbeat:(NSError**)error
-{
-    try
-    {
-        self.connection->heartbeat();
-        return YES;
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return NO;
-    }
-}
-
-- (void)heartbeatAsync:(void (^)(NSError*))exception sent:(void (^_Nullable)(bool))sent
-{
-    try
-    {
-        self.connection->heartbeatAsync(
-            [exception](std::exception_ptr e)
-            {
-                @autoreleasepool
-                {
-                    exception(convertException(e));
-                }
-            },
-            [sent](bool sentSynchronously)
-            {
-                if (sent)
-                {
-                    sent(sentSynchronously);
-                }
-            });
-    }
-    catch (...)
-    {
-        // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation, which is fine since we only use it to fulfill the
-        // PromiseKit promise.
-        exception(convertException(std::current_exception()));
     }
 }
 

@@ -9,7 +9,7 @@
 #    include "../Instance.h"
 #    include "../Network.h"
 #    include "../UniqueRef.h"
-#    include "Ice/Exception.h"
+#    include "Ice/LocalException.h"
 #    include "Ice/Properties.h"
 #    include "Ice/StringUtil.h"
 #    include "StreamAcceptor.h"

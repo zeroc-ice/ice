@@ -85,7 +85,7 @@ allTests(Test::TestHelper* helper)
                 // UnknownLocalException. It eventually closes the connection when notified
                 // of the connection close.
                 string message{ex.what()};
-                test(message.find("CloseConnectionException") != string::npos);
+                test(message.find("::Ice::CloseConnectionException") != string::npos);
             }
             this_thread::sleep_for(1ms);
         }
@@ -196,8 +196,6 @@ allTests(Test::TestHelper* helper)
         p->ice_ping();
     }
     cout << "ok" << endl;
-
-    // TODO: add heartbeat test
 
     cout << "testing server shutdown... " << flush;
     cl->shutdown();

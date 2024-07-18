@@ -35,7 +35,7 @@
 #    endif
 #endif
 
-#if defined(__linux__) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)
+#if defined(__linux__) || defined(__GLIBC__)
 #    include <grp.h> // for setgroups
 #endif
 
@@ -299,13 +299,13 @@ Activator::Activator(const shared_ptr<TraceLevels>& traceLevels) : _traceLevels(
 
     if (_hIntr == nullptr)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "CreateEvent failed", GetLastError()};
     }
 #else
     int fds[2];
     if (pipe(fds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
     }
     _fdIntrRead = fds[0];
     _fdIntrWrite = fds[1];
@@ -644,7 +644,7 @@ Activator::activate(
 
     if (err != 0)
     {
-        throw SyscallException(__FILE__, __LINE__, err);
+        throw SyscallException{__FILE__, __LINE__, "getpwuid_r failed", err};
     }
     else if (pw == 0)
     {
@@ -654,47 +654,25 @@ Activator::activate(
     }
 
     vector<gid_t> groups;
-#    ifdef _AIX
-    char* grouplist = getgrset(pw->pw_name);
-    if (grouplist == 0)
-    {
-        throw SyscallException(__FILE__, __LINE__);
-    }
-    vector<string> grps;
-    if (IceInternal::splitString(grouplist, ",", grps))
-    {
-        for (vector<string>::const_iterator p = grps.begin(); p != grps.end(); ++p)
-        {
-            gid_t group;
-            istringstream is(*p);
-            if (is >> group)
-            {
-                groups.push_back(group);
-            }
-        }
-    }
-    free(grouplist);
-#    else
     groups.resize(20);
     int ngroups = static_cast<int>(groups.size());
-#        if defined(__APPLE__)
+#    if defined(__APPLE__)
     if (getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups) < 0)
-#        else
+#    else
     if (getgrouplist(pw->pw_name, gid, &groups[0], &ngroups) < 0)
-#        endif
+#    endif
     {
         groups.resize(static_cast<size_t>(ngroups));
-#        if defined(__APPLE__)
+#    if defined(__APPLE__)
         getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups);
-#        else
+#    else
         getgrouplist(pw->pw_name, gid, &groups[0], &ngroups);
-#        endif
+#    endif
     }
     else
     {
         groups.resize(static_cast<size_t>(ngroups));
     }
-#    endif
 
     if (groups.size() > NGROUPS_MAX)
     {
@@ -704,13 +682,13 @@ Activator::activate(
     int fds[2];
     if (pipe(fds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
     }
 
     int errorFds[2];
     if (pipe(errorFds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
     }
 
     //
@@ -727,7 +705,7 @@ Activator::activate(
     pid_t pid = fork();
     if (pid == -1)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "fork failed", errno};
     }
 
     if (pid == 0) // Child process.
@@ -1026,7 +1004,11 @@ Activator::sendSignal(const string& name, int signal)
         }
         else if (GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{
+                __FILE__,
+                __LINE__,
+                "GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT) failed",
+                GetLastError()};
         }
     }
     else if (signal == SIGKILL)
@@ -1034,7 +1016,7 @@ Activator::sendSignal(const string& name, int signal)
         HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
         if (hnd == nullptr)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "OpenProcess(PROCESS_TERMINATE) failed", GetLastError()};
         }
 
         TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
@@ -1053,9 +1035,9 @@ Activator::sendSignal(const string& name, int signal)
     }
 #else
     int ret = ::kill(static_cast<pid_t>(pid), signal);
-    if (ret != 0 && getSystemErrno() != ESRCH)
+    if (ret != 0 && errno != ESRCH)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "kill failed", errno};
     }
 
     if (_traceLevels->activator > 1)
@@ -1208,7 +1190,7 @@ Activator::terminationListener()
         DWORD ret = WaitForSingleObject(_hIntr, INFINITE);
         if (ret == WAIT_FAILED)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "WaitForSingleObject failed", GetLastError()};
         }
         clearInterrupt();
 
@@ -1311,7 +1293,7 @@ Activator::terminationListener()
             }
 #    endif
 
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "select failed", errno};
         }
 
         vector<Process> terminated;
@@ -1363,7 +1345,7 @@ Activator::terminationListener()
                 {
                     if (errno != EAGAIN || message.empty())
                     {
-                        throw SyscallException(__FILE__, __LINE__);
+                        throw SyscallException{__FILE__, __LINE__, "read failed", errno};
                     }
 
                     ++p;
@@ -1449,7 +1431,7 @@ Activator::setInterrupt()
     ssize_t sz = write(_fdIntrWrite, &c, 1);
     if (sz == -1)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "write failed", errno};
     }
 #endif
 }
@@ -1481,7 +1463,7 @@ Activator::waitPid(pid_t processPid)
                     ++nRetry;
                     continue;
                 }
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "waitpid failed", errno};
             }
             assert(pid == processPid);
             break;
@@ -1490,7 +1472,7 @@ Activator::waitPid(pid_t processPid)
         pid_t pid = waitpid(processPid, &status, 0);
         if (pid < 0)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "waitpid failed", errno};
         }
         assert(pid == processPid);
 #    endif

@@ -9,7 +9,7 @@
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"
 #include "Ice/Config.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/SSL/SSLException.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"

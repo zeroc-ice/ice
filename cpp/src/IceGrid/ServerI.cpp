@@ -2357,12 +2357,12 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         }
         if (!success)
         {
-            throw Ice::SyscallException(__FILE__, __LINE__);
+            throw Ice::SyscallException{__FILE__, __LINE__, "GetUserName failed", GetLastError()};
         }
         if (user != string(&buf[0]))
         {
             throw runtime_error(
-                "couldn't load server under user account `" + user + "': feature not supported on Windows");
+                "couldn't load server under user account '" + user + "': feature not supported on Windows");
         }
     }
 #else
@@ -2386,7 +2386,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
 
         if (err != 0)
         {
-            throw Ice::SyscallException(__FILE__, __LINE__, err);
+            throw Ice::SyscallException{__FILE__, __LINE__, "getpwnam_r failed", err};
         }
         else if (pw == 0)
         {

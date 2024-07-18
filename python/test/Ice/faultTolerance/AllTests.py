@@ -62,21 +62,10 @@ class Callback(CallbackBase):
 
 
 def allTests(helper, communicator, ports):
-    sys.stdout.write("testing stringToProxy... ")
-    sys.stdout.flush()
     ref = "test"
     for i in range(len(ports)):
         ref += ":{0}".format(helper.getTestEndpoint(num=i))
-    base = communicator.stringToProxy(ref)
-    test(base)
-    print("ok")
-
-    sys.stdout.write("testing checked cast... ")
-    sys.stdout.flush()
-    obj = Test.TestIntfPrx.checkedCast(base)
-    test(obj)
-    test(obj == base)
-    print("ok")
+    obj = Test.TestIntfPrx(communicator, ref)
 
     oldPid = 0
     ami = False

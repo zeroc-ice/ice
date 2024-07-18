@@ -3,7 +3,9 @@
 //
 
 #include "Ice/Identity.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
+
+#include <sstream>
 
 namespace Ice
 {
@@ -13,7 +15,9 @@ namespace Ice
     {
         if (identity.name.empty())
         {
-            throw IllegalIdentityException(file, line);
+            std::ostringstream os;
+            os << file << ':' << line << ": the name component of an Ice identity cannot be empty";
+            throw std::invalid_argument(os.str());
         }
     }
 }

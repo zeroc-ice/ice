@@ -6,6 +6,7 @@
 #define ICE_CTRL_C_HANDLER_H
 
 #include "Config.h"
+
 #include <functional>
 
 namespace Ice

@@ -7,7 +7,7 @@
 #include "Connection.h"
 #include "Endpoint.h"
 #include "Ice/DisableWarnings.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/Proxy.h"
 #include "Ice/Router.h"
@@ -921,35 +921,27 @@ checkedCastImpl(const Ice::ObjectPrx& p, const string& id, VALUE facet, VALUE ct
 {
     Ice::ObjectPrx target = (NIL_P(facet)) ? p : p->ice_facet(getString(facet));
 
-    try
+    if (NIL_P(ctx))
     {
-        if (NIL_P(ctx))
+        if (target->ice_isA(id))
         {
-            if (target->ice_isA(id))
-            {
-                return createProxy(target, type);
-            }
+            return createProxy(target, type);
         }
-        else
-        {
-            Ice::Context c;
+    }
+    else
+    {
+        Ice::Context c;
 #ifndef NDEBUG
-            bool b =
+        bool b =
 #endif
-                hashToContext(ctx, c);
-            assert(b);
+            hashToContext(ctx, c);
+        assert(b);
 
-            if (target->ice_isA(id, c))
-            {
-                return createProxy(target, type);
-            }
+        if (target->ice_isA(id, c))
+        {
+            return createProxy(target, type);
         }
     }
-    catch (const Ice::FacetNotExistException&)
-    {
-        // Ignore.
-    }
-
     return Qnil;
 }
 
@@ -1150,9 +1142,13 @@ IceRuby_ObjectPrx_ice_staticId(VALUE /*self*/)
 }
 
 extern "C" VALUE
-IceRuby_ObjectPrx_new(int /*argc*/, VALUE* /*args*/, VALUE /*self*/)
+IceRuby_ObjectPrx_new(VALUE self, VALUE communicator, VALUE proxyString)
 {
-    ICE_RUBY_TRY { throw RubyException(rb_eRuntimeError, "a proxy cannot be created via new"); }
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx proxy{getCommunicator(communicator), getString(proxyString)};
+        return createProxy(proxy, self);
+    }
     ICE_RUBY_CATCH
     return Qnil;
 }
@@ -1250,7 +1246,7 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_singleton_method(_proxyClass, "ice_checkedCast", CAST_METHOD(IceRuby_ObjectPrx_ice_checkedCast), 4);
     rb_define_singleton_method(_proxyClass, "ice_uncheckedCast", CAST_METHOD(IceRuby_ObjectPrx_ice_uncheckedCast), 2);
     rb_define_singleton_method(_proxyClass, "ice_staticId", CAST_METHOD(IceRuby_ObjectPrx_ice_staticId), 0);
-    rb_define_singleton_method(_proxyClass, "new", CAST_METHOD(IceRuby_ObjectPrx_new), -1);
+    rb_define_singleton_method(_proxyClass, "new", CAST_METHOD(IceRuby_ObjectPrx_new), 2);
 }
 
 VALUE

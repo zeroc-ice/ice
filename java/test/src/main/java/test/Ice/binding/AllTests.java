@@ -709,7 +709,7 @@ public class AllTests {
     }
     out.println("ok");
 
-    if (communicator.getProperties().getProperty("Ice.Plugin.Ice.SSL").length() > 0) {
+    if (communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl")) {
       out.print("testing unsecure vs. secure endpoints... ");
       out.flush();
       {

@@ -3,10 +3,10 @@
 //
 
 #include "Util.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "ice.h"
-#include <codecvt>
-#include <iostream>
+
+#include <array>
 #include <locale>
 #include <string>
 
@@ -49,53 +49,21 @@ namespace
 mxArray*
 IceMatlab::createStringFromUTF8(const string& s)
 {
-    if (s.empty())
-    {
-        return mxCreateString("");
-    }
-    else
-    {
-#if defined(_MSC_VER)
-        // Workaround for Visual Studio bug that causes a link error when using char16_t.
-        wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
-
-#else
-        u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
-#endif
-        mwSize dims[2] = {1, static_cast<mwSize>(utf16.size())};
-        auto r = mxCreateCharArray(2, dims);
-        auto buf = mxGetChars(r);
-        int i = 0;
-
-#if defined(_MSC_VER)
-        for (wchar_t c : utf16)
-#else
-        for (char16_t c : utf16)
-#endif
-        {
-            buf[i++] = static_cast<mxChar>(c);
-        }
-        return r;
-    }
+    // mxCreateString accepts a UTF-8 input since MATLAB 2020b.
+    return mxCreateString(s.c_str());
 }
 
 string
 IceMatlab::getStringFromUTF16(mxArray* p)
 {
-    auto s = mxArrayToUTF8String(p);
+    char* s = mxArrayToUTF8String(p);
     if (!s)
     {
         throw std::invalid_argument("value is not a char array");
     }
-    string str(s);
+    string str{s};
     mxFree(s);
     return str;
-}
-
-mxArray*
-IceMatlab::createEmpty()
-{
-    return mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
 }
 
 mxArray*
@@ -117,59 +85,11 @@ IceMatlab::createByte(uint8_t v)
 }
 
 mxArray*
-IceMatlab::createShort(short v)
-{
-    auto r = mxCreateNumericMatrix(1, 1, mxINT16_CLASS, mxREAL);
-    auto p = reinterpret_cast<short*>(mxGetPr(r));
-    *p = v;
-    return r;
-}
-
-mxArray*
 IceMatlab::createInt(int v)
 {
     auto r = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
     auto p = reinterpret_cast<int*>(mxGetPr(r));
     *p = v;
-    return r;
-}
-
-mxArray*
-IceMatlab::createLong(long long v)
-{
-    auto r = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
-    auto p = reinterpret_cast<long long*>(mxGetPr(r));
-    *p = v;
-    return r;
-}
-
-mxArray*
-IceMatlab::createFloat(float v)
-{
-    auto r = mxCreateNumericMatrix(1, 1, mxSINGLE_CLASS, mxREAL);
-    auto p = reinterpret_cast<float*>(mxGetPr(r));
-    *p = v;
-    return r;
-}
-
-mxArray*
-IceMatlab::createDouble(double v)
-{
-    auto r = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
-    auto p = reinterpret_cast<double*>(mxGetPr(r));
-    *p = v;
-    return r;
-}
-
-mxArray*
-IceMatlab::createEnumerator(const string& type, int v)
-{
-    auto func = type + ".ice_getValue";
-    auto param = createInt(v);
-    mxArray* r;
-    mexCallMATLAB(1, &r, 1, &param, func.c_str());
-    // Calling this causes MATLAB to crash:
-    // mxFree(param);
     return r;
 }
 
@@ -320,210 +240,130 @@ IceMatlab::createProtocolVersion(const Ice::ProtocolVersion& v)
     return r;
 }
 
-void
-IceMatlab::getProtocolVersion(mxArray* p, Ice::ProtocolVersion& v)
+namespace
 {
-    if (!mxIsClass(p, "Ice.ProtocolVersion"))
+    template<size_t N> mxArray* createMatlabException(const char* typeId, std::array<mxArray*, N> params)
     {
-        throw std::invalid_argument("argument is not Ice.ProtocolVersion");
+        string className = replace(string{typeId}.substr(2), "::", ".");
+        mxArray* ex;
+        mexCallMATLAB(1, &ex, static_cast<int>(N), params.data(), className.c_str()); // error is fatal
+        return ex;
     }
-    getMajorMinor(p, v.major, v.minor);
+
+    // Create a "standard" MATLAB exception for the given typeId then fallback to LocalException.
+    mxArray* createMatlabException(const char* typeId, const char* what)
+    {
+        string errID = replace(string{typeId}.substr(2), "::", ":");
+        std::array params{IceMatlab::createStringFromUTF8(errID), IceMatlab::createStringFromUTF8(what)};
+
+        string className = replace(string{typeId}.substr(2), "::", ".");
+        mxArray* ex;
+
+        // keep going on error
+        mexCallMATLABWithTrap(1, &ex, static_cast<int>(params.size()), params.data(), className.c_str());
+        if (!ex)
+        {
+            mexCallMATLAB(1, &ex, static_cast<int>(params.size()), params.data(), "Ice.LocalException");
+        }
+        return ex;
+    }
 }
 
 mxArray*
 IceMatlab::convertException(const std::exception_ptr exc)
 {
-    mxArray* ex;
+    const char* const localExceptionTypeId = "::Ice::LocalException";
+    mxArray* result;
 
     try
     {
         rethrow_exception(exc);
     }
-    catch (const Ice::LocalException& iceEx)
+    // We need to catch and convert:
+    // - local exceptions thrown from MATLAB code for which we provide a convience constructor (e.g. MarshalException)
+    // - local exceptions that define extra properties we want to expose to MATLAB users (e.g. ObjectNotExistException
+    // via its base class, RequestFailedException)
+    catch (const Ice::AlreadyRegisteredException& e)
     {
-        string typeId{iceEx.ice_id()};
-        //
-        // The exception ID uses single colon separators.
-        //
-        auto id = typeId.substr(2); // Remove leading "::" from type ID
-        id = replace(id, "::", ":");
-
-        auto cls = typeId.substr(2); // Remove leading "::" from type ID
-        cls = replace(cls, "::", ".");
-
-        mxArray* params[10];
-        params[0] = createStringFromUTF8(id);
-        int idx = 2;
-        string msg = typeId; // Use the type ID as the default exception message
-
-        try
-        {
-            rethrow_exception(exc);
-        }
-        catch (const Ice::InitializationException& e)
-        {
-            msg = e.reason;
-            params[idx++] = createStringFromUTF8(e.reason);
-        }
-        catch (const Ice::PluginInitializationException& e)
-        {
-            msg = e.reason;
-            params[idx++] = createStringFromUTF8(e.reason);
-        }
-        catch (const Ice::AlreadyRegisteredException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.kindOfObject);
-            params[idx++] = createStringFromUTF8(e.id);
-        }
-        catch (const Ice::NotRegisteredException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.kindOfObject);
-            params[idx++] = createStringFromUTF8(e.id);
-        }
-        catch (const Ice::TwowayOnlyException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.operation);
-        }
-        catch (const Ice::UnknownException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.what());
-        }
-        catch (const Ice::ObjectAdapterDeactivatedException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.name);
-        }
-        catch (const Ice::ObjectAdapterIdInUseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.id);
-        }
-        catch (const Ice::NoEndpointException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.proxy);
-        }
-        catch (const Ice::EndpointParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::EndpointSelectionTypeParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::VersionParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::IdentityParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::ProxyParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::IllegalServantException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-        }
-        catch (const Ice::RequestFailedException& e)
-        {
-            params[idx++] = createIdentity(e.id());
-            params[idx++] = createStringFromUTF8(e.facet());
-            params[idx++] = createStringFromUTF8(e.operation());
-        }
-        catch (const Ice::FileException& e)
-        {
-            params[idx++] = mxCreateDoubleScalar(e.error);
-            params[idx++] = createStringFromUTF8(e.path);
-        }
-        catch (const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
-        {
-            params[idx++] = mxCreateDoubleScalar(e.error);
-        }
-        catch (const Ice::DNSException& e)
-        {
-            params[idx++] = mxCreateDoubleScalar(e.error);
-            params[idx++] = createStringFromUTF8(e.host);
-        }
-        catch (const Ice::BadMagicException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createByteList(e.badMagic);
-        }
-        catch (const Ice::UnsupportedProtocolException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createProtocolVersion(e.bad);
-            params[idx++] = createProtocolVersion(e.supported);
-        }
-        catch (const Ice::UnsupportedEncodingException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createEncodingVersion(e.bad);
-            params[idx++] = createEncodingVersion(e.supported);
-        }
-        catch (const Ice::NoValueFactoryException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createStringFromUTF8(e.type);
-        }
-        catch (const Ice::UnexpectedObjectException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createStringFromUTF8(e.type);
-            params[idx++] = createStringFromUTF8(e.expectedType);
-        }
-        catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-        }
-        catch (const Ice::ConnectionManuallyClosedException& e)
-        {
-            params[idx++] = mxCreateLogicalScalar(e.graceful ? 1 : 0);
-        }
-        catch (const Ice::FeatureNotSupportedException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.unsupportedFeature);
-        }
-        catch (const Ice::SecurityException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-        }
-        catch (const Ice::LocalException&)
-        {
-            //
-            // Nothing to do.
-            //
-        }
-
-        //
-        // NOTE: Matlab interprets the msg argument as an sprintf format string. It will complain if it
-        // finds invalid syntax.
-        //
-        params[1] = createStringFromUTF8(msg);
-        mexCallMATLAB(1, &ex, idx, params, cls.c_str());
+        // Adapt to convenience constructor. We don't pass what() to MATLAB.
+        std::array params{createStringFromUTF8(e.kindOfObject()), createStringFromUTF8(e.id())};
+        result = createMatlabException(e.ice_id(), std::move(params));
     }
-    catch (const std::invalid_argument& e)
+    catch (const Ice::NotRegisteredException& e)
     {
-        mxArray* params[2];
-        params[0] = createStringFromUTF8("Ice:InvalidArgumentException");
-        params[1] = createStringFromUTF8(e.what());
-        mexCallMATLAB(1, &ex, 2, params, "MException");
+        // Adapt to convenience constructor. We don't pass what() to MATLAB.
+        std::array params{createStringFromUTF8(e.kindOfObject()), createStringFromUTF8(e.id())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::ConnectionAbortedException& e)
+    {
+        // ConnectionAbortedException does not have a convenience constructor since it's never thrown from MATLAB code.
+        string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
+        std::array params{
+            createBool(e.closedByApplication()),
+            createStringFromUTF8(errID),
+            createStringFromUTF8(e.what())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::ConnectionClosedException& e)
+    {
+        // ConnectionClosedException does not have a convenience constructor since it's never thrown from MATLAB code.
+        string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
+        std::array params{
+            createBool(e.closedByApplication()),
+            createStringFromUTF8(errID),
+            createStringFromUTF8(e.what())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::MarshalException& e)
+    {
+        // Adapt to convenience constructor.
+        std::array params{createStringFromUTF8(e.what())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::RequestFailedException& e)
+    {
+        // The *NotExist exceptions are thrown only from the C++ code. They don't have a convenience constructor, but
+        // they have extra properties.
+        string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
+        std::array params{
+            createIdentity(e.id()),
+            createStringFromUTF8(e.facet()),
+            createStringFromUTF8(e.operation()),
+            createStringFromUTF8(errID),
+            createStringFromUTF8(e.what())};
+
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::UnknownUserException& e)
+    {
+        // Adapt to convenience constructor. First parameter is ignored.
+        std::array params{createStringFromUTF8(""), createStringFromUTF8(e.what())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::TwowayOnlyException&)
+    {
+        // The Ice C++ client runtime does not throw this exception. We handle it here because it has a special
+        // constructor in MATLAB.
+        assert(false);
+        result = nullptr;
+    }
+    catch (const Ice::LocalException& e)
+    {
+        result = createMatlabException(e.ice_id(), e.what());
     }
     catch (const std::exception& e)
     {
-        mxArray* params[2];
-        params[0] = createStringFromUTF8("Ice:CppException");
-        params[1] = createStringFromUTF8(e.what());
-        mexCallMATLAB(1, &ex, 2, params, "MException");
+        std::array params{createStringFromUTF8("Ice:CppException"), createStringFromUTF8(e.what())};
+        result = createMatlabException(localExceptionTypeId, std::move(params));
     }
     catch (...)
     {
-        mxArray* params[2];
-        params[0] = createStringFromUTF8("Ice:CppException");
-        params[1] = createStringFromUTF8("unknown c++ exception");
-        mexCallMATLAB(1, &ex, 2, params, "MException");
+        std::array params{createStringFromUTF8("Ice:CppException"), createStringFromUTF8("unknown C++ exception")};
+        result = createMatlabException(localExceptionTypeId, std::move(params));
     }
-    return ex;
+
+    return result;
 }
 
 static const char* resultFields[] = {"exception", "result"};
@@ -598,18 +438,6 @@ IceMatlab::createByteArray(const byte* begin, const byte* end)
 {
     mxArray* r = mxCreateUninitNumericMatrix(1, end - begin, mxUINT8_CLASS, mxREAL);
     memcpy(reinterpret_cast<uint8_t*>(mxGetData(r)), begin, end - begin);
-    return r;
-}
-
-mxArray*
-IceMatlab::createByteList(const vector<byte>& bytes)
-{
-    auto r = mxCreateCellMatrix(1, static_cast<int>(bytes.size()));
-    mwIndex i = 0;
-    for (auto byte : bytes)
-    {
-        mxSetCell(r, i++, createByte(static_cast<uint8_t>(byte)));
-    }
     return r;
 }
 

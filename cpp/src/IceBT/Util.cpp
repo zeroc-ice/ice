@@ -5,7 +5,7 @@
 #include "Util.h"
 
 #include "../Ice/Network.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/StringUtil.h"
 
 using namespace std;

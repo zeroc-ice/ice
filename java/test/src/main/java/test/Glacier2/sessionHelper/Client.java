@@ -204,7 +204,7 @@ public class Client extends test.TestHelper {
         out.print("testing SessionHelper categoryForClient after connect... ");
         out.flush();
         try {
-          test(!_session.categoryForClient().equals(""));
+          test(!_session.categoryForClient().isEmpty());
         } catch (com.zeroc.Glacier2.SessionNotExistException ex) {
           test(false);
         }
@@ -254,7 +254,7 @@ public class Client extends test.TestHelper {
         out.print("testing SessionHelper categoryForClient after destroy... ");
         out.flush();
         try {
-          test(!_session.categoryForClient().equals(""));
+          test(!_session.categoryForClient().isEmpty());
           test(false);
         } catch (com.zeroc.Glacier2.SessionNotExistException ex) {
         }

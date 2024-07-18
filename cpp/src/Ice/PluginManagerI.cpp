@@ -5,7 +5,7 @@
 #include "PluginManagerI.h"
 #include "DynamicLibrary.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Instance.h"
@@ -387,7 +387,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
             throw PluginInitializationException(
                 __FILE__,
                 __LINE__,
-                "invalid arguments for plug-in `" + name + "':\n" + ex.reason);
+                "invalid arguments for plug-in '" + name + "':\n" + string{ex.what()});
         }
 
         assert(!args.empty());

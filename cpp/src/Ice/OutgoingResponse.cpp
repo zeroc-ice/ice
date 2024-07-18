@@ -3,19 +3,17 @@
 //
 
 #include "Ice/OutgoingResponse.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/UserException.h"
 #include "Protocol.h"
+#include "RequestFailedMessage.h"
+
+#include <typeinfo>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-
-namespace IceInternal
-{
-    extern bool printStackTraces;
-}
 
 namespace
 {
@@ -74,9 +72,8 @@ namespace
                 operation = current.operation;
             }
 
-            exceptionMessage = rfe.ice_hasDefaultMessage()
-                                   ? createRequestFailedMessage(rfe.ice_id(), id, facet, operation)
-                                   : rfe.what();
+            // +7 to slice-off "::Ice::".
+            exceptionMessage = createRequestFailedMessage(rfe.ice_id() + 7, id, facet, operation);
 
             if (current.requestId != 0)
             {
@@ -133,11 +130,7 @@ namespace
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownLocalException;
             ostringstream str;
-            str << ex;
-            if (IceInternal::printStackTraces)
-            {
-                str << '\n' << ex.ice_stackTrace();
-            }
+            str << ex; // this includes more details than ex.what()
             exceptionMessage = str.str();
         }
         catch (const Exception& ex)
@@ -145,19 +138,15 @@ namespace
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownException;
             ostringstream str;
-            str << ex;
-            if (IceInternal::printStackTraces)
-            {
-                str << '\n' << ex.ice_stackTrace();
-            }
+            str << ex; // this includes more details than ex.what()
             exceptionMessage = str.str();
         }
         catch (const std::exception& ex)
         {
             replyStatus = ReplyStatus::UnknownException;
-            exceptionId = ex.what();
+            exceptionId = typeid(ex).name(); // can be a mangled name with some compilers
             ostringstream str;
-            str << "c++ exception: " << exceptionId;
+            str << "c++ exception: " << ex.what();
             exceptionMessage = str.str();
         }
         catch (...)

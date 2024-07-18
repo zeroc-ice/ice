@@ -601,42 +601,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     _out << sb;
 
-    DataMemberList members = p->dataMembers();
-
-    // __construct
-    _out << nl << "public function __construct(";
-    MemberInfoList allMembers;
-    collectExceptionMembers(p, allMembers, false);
-    writeConstructorParams(allMembers);
-    _out << ")";
-    _out << sb;
-    if (base)
-    {
-        _out << nl << "parent::__construct(";
-        int count = 0;
-        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-        {
-            if (q->inherited)
-            {
-                if (count)
-                {
-                    _out << ", ";
-                }
-                _out << '$' << q->fixedName;
-                ++count;
-            }
-        }
-        _out << ");";
-    }
-    for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-    {
-        if (!q->inherited)
-        {
-            writeAssign(*q);
-        }
-    }
-    _out << eb;
-
     // ice_id
     _out << sp << nl << "public function ice_id()";
     _out << sb;
@@ -650,6 +614,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "global " << type << ';';
     _out << nl << "return IcePHP_stringifyException($this, " << type << ");";
     _out << eb;
+
+    DataMemberList members = p->dataMembers();
 
     if (!members.empty())
     {
@@ -1379,7 +1345,7 @@ compile(const vector<string>& argv)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        consoleErr << argv[0] << ": error: " << e.reason << endl;
+        consoleErr << argv[0] << ": error: " << e.what() << endl;
         if (!validate)
         {
             usage(argv[0]);
@@ -1592,7 +1558,7 @@ compile(const vector<string>& argv)
                         // If a file could not be created, then cleanup any  created files.
                         FileTracker::instance()->cleanup();
                         u->destroy();
-                        consoleErr << argv[0] << ": error: " << ex.reason() << endl;
+                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
                         return EXIT_FAILURE;
                     }
                     catch (const exception& ex)

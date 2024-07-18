@@ -5,7 +5,7 @@
 classdef EI < Test.E
     methods
         function obj = EI()
-            obj = obj@Test.E(1, 'hello');
+            obj@Test.E(1, 'hello');
         end
 
         function r = checkValues(obj)

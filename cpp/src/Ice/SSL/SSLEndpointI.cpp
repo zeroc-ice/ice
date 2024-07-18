@@ -8,7 +8,7 @@
 #include "../HashUtil.h"
 #include "Ice/Comparable.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Object.h"
 #include "Ice/OutputStream.h"
 #include "SSLAcceptorI.h"
@@ -31,14 +31,6 @@ extern "C"
         return new IceInternal::EndpointFactoryPlugin(
             communicator,
             make_shared<Ice::SSL::EndpointFactoryI>(sslInstance, TCPEndpointType));
-    }
-}
-
-namespace Ice
-{
-    ICE_API void registerIceSSL(bool loadOnInitialize)
-    {
-        Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
     }
 }
 

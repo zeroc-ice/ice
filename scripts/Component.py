@@ -152,18 +152,6 @@ class Ice(Util.Component):
                     and current.config.buildConfig.find("Debug") >= 0
                 ):
                     return False
-        elif isinstance(Util.platform, Util.AIX):
-            if current.config.buildPlatform == "ppc" and self.useBinDist(
-                mapping, current
-            ):
-                #
-                # Don't test Glacier2, IceBridge and IceGrid services on ppc with bindist. We only ship
-                # ppc64 binaries for these services
-                #
-                if parent in ["Glacier2", "IceBridge", "IceGrid"]:
-                    return False
-                if testId == "IceStorm/repgrid":
-                    return False
 
         return True
 
@@ -291,14 +279,6 @@ for m in filter(
         Util.Mapping.add(
             m, Util.JavaScriptMapping(), component, enable=Util.platform.hasNodeJS()
         )
-        # TODO Add TypeScript mapping tests
-        #Util.Mapping.add(
-        #    "typescript",
-        #    Util.TypeScriptMapping(),
-        #    component,
-        #    "js",
-        #    enable=Util.platform.hasNodeJS(),
-        #)
     elif m == "swift" or re.match("swift-.*", m):
         # Swift mapping requires Swift 5.0 or greater
         Util.Mapping.add(

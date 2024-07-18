@@ -747,15 +747,15 @@ public class Root extends ListTreeNode {
     //
     if (!_editable.isModified()
         && update.removePropertySets.length == 0
-        && update.propertySets.size() == 0
+        && update.propertySets.isEmpty()
         && update.removeReplicaGroups.length == 0
-        && update.replicaGroups.size() == 0
+        && update.replicaGroups.isEmpty()
         && update.removeServerTemplates.length == 0
-        && update.serverTemplates.size() == 0
+        && update.serverTemplates.isEmpty()
         && update.removeServiceTemplates.length == 0
-        && update.serviceTemplates.size() == 0
+        && update.serviceTemplates.isEmpty()
         && update.removeNodes.length == 0
-        && update.nodes.size() == 0) {
+        && update.nodes.isEmpty()) {
       return null;
     } else {
       return update;
@@ -767,7 +767,7 @@ public class Root extends ListTreeNode {
     _registryUpdatesEnabled = true;
     _canUseUpdateDescriptor = true;
 
-    assert _concurrentUpdates.size() == 0;
+    assert _concurrentUpdates.isEmpty();
 
     _editable.commit();
     _origVariables = _descriptor.variables;

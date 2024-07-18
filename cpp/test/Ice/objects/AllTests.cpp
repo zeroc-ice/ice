@@ -11,33 +11,6 @@ using namespace Test;
 
 namespace
 {
-    void testUOE(const Ice::CommunicatorPtr& communicator)
-    {
-        UnexpectedObjectExceptionTestPrx uoet(
-            communicator,
-            "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties()));
-
-        try
-        {
-            uoet->op();
-            test(false);
-        }
-        catch (const Ice::UnexpectedObjectException& ex)
-        {
-            test(ex.type == "::Test::AlsoEmpty");
-            test(ex.expectedType == "::Test::Empty");
-        }
-        catch (const Ice::Exception& ex)
-        {
-            cout << ex << endl;
-            test(false);
-        }
-        catch (...)
-        {
-            test(false);
-        }
-    }
-
     void clear(const CPtr&);
 
     void clear(const BPtr& b)
@@ -306,38 +279,28 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing recursive type... " << flush;
     RecursivePtr top = make_shared<Recursive>();
-    int depth = 0;
+    RecursivePtr bottom = top;
+    int maxDepth = 10;
+    for (int i = 1; i < maxDepth; i++)
+    {
+        bottom->v = make_shared<Recursive>();
+        bottom = bottom->v;
+    }
+    initial->setRecursive(top);
+
+    // Adding one more level would exceed the max class graph depth
+    bottom->v = make_shared<Recursive>();
+    bottom = bottom->v;
+
     try
     {
-        RecursivePtr p = top;
-#if defined(NDEBUG) || !defined(__APPLE__)
-        const int maxDepth = 2000;
-#else
-        // With debug, marshaling a graph of 2000 elements can cause a stack overflow on macOS
-        const int maxDepth = 1500;
-#endif
-        for (; depth <= maxDepth; ++depth)
-        {
-            p->v = make_shared<Recursive>();
-            p = p->v;
-            if ((depth < 10 && (depth % 10) == 0) || (depth < 1000 && (depth % 100) == 0) ||
-                (depth < 10000 && (depth % 1000) == 0) || (depth % 10000) == 0)
-            {
-                initial->setRecursive(top);
-            }
-        }
-        test(!initial->supportsClassGraphDepthMax());
+        initial->setRecursive(top);
+        test(false);
     }
     catch (const Ice::UnknownLocalException&)
     {
         // Expected marshal exception from the server (max class graph depth reached)
-        test(depth == 100); // The default is 100.
     }
-    catch (const Ice::UnknownException&)
-    {
-        // Expected stack overflow from the server (Java only)
-    }
-    initial->setRecursive(make_shared<Recursive>());
     cout << "ok" << endl;
 
     cout << "testing compact ID..." << flush;
@@ -360,7 +323,30 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing UnexpectedObjectException... " << flush;
-    testUOE(communicator);
+    UnexpectedObjectExceptionTestPrx uoet(
+        communicator,
+        "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties()));
+
+    try
+    {
+        uoet->op();
+        test(false);
+    }
+    catch (const Ice::MarshalException& ex)
+    {
+        string what = ex.what();
+        test(what.find("::Test::AlsoEmpty") != string::npos);
+        test(what.find("::Test::Empty") != string::npos);
+    }
+    catch (const Ice::Exception& ex)
+    {
+        cout << ex << endl;
+        test(false);
+    }
+    catch (...)
+    {
+        test(false);
+    }
     cout << "ok" << endl;
 
     try
@@ -372,7 +358,7 @@ allTests(Test::TestHelper* helper)
         {
             BasePtr basePtr = p->opDerived();
             test(basePtr);
-            test(basePtr->ice_id() == "::Test::Derived");
+            test(string{basePtr->ice_id()} == "::Test::Derived");
         }
         cout << "ok" << endl;
 

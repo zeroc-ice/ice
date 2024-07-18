@@ -1,5 +1,0 @@
-framework module IceImpl {
-  umbrella header "IceImpl.h"
-
-  export *
-}

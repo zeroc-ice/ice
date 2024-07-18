@@ -21,21 +21,15 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    dispatcherCallDealloc(DispatcherCallObject* self)
+extern "C" void
+dispatcherCallDealloc(DispatcherCallObject* self)
 {
     delete self->call;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    dispatcherCallInvoke(DispatcherCallObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" PyObject*
+dispatcherCallInvoke(DispatcherCallObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     try
     {
@@ -45,10 +39,10 @@ extern "C"
     catch (...)
     {
         setPythonException(current_exception());
-        return 0;
+        return nullptr;
     }
 
-    return incRef(Py_None);
+    return Py_None;
 }
 
 namespace IcePy
@@ -56,9 +50,9 @@ namespace IcePy
     PyTypeObject DispatcherCallType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.DispatcherCall"), /* tp_name */
-        sizeof(DispatcherCallObject),                                /* tp_basicsize */
-        0,                                                           /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.DispatcherCall", /* tp_name */
+        sizeof(DispatcherCallObject),                       /* tp_basicsize */
+        0,                                                  /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(dispatcherCallDealloc), /* tp_dealloc */
         0,                                                   /* tp_print */
@@ -107,7 +101,7 @@ IcePy::initDispatcher(PyObject* module)
         return false;
     }
     PyTypeObject* type = &DispatcherCallType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("DispatcherCall"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "DispatcherCall", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -144,7 +138,7 @@ IcePy::Dispatcher::dispatch(function<void()> call, const Ice::ConnectionPtr& con
 
     obj->call = new function<void()>(std::move(call));
     PyObjectHandle c = createConnection(con, _communicator);
-    PyObjectHandle tmp = PyObject_CallFunction(_dispatcher.get(), STRCAST("OO"), obj, c.get());
+    PyObjectHandle tmp = PyObject_CallFunction(_dispatcher.get(), "OO", obj, c.get());
     Py_DECREF(reinterpret_cast<PyObject*>(obj));
     if (!tmp.get())
     {

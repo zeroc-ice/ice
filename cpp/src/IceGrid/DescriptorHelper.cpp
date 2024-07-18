@@ -321,10 +321,10 @@ namespace
             {
                 resolver.getCommunicator()->stringToProxy("dummy " + proxyOptions);
             }
-            catch (const Ice::ProxyParseException& ex)
+            catch (const Ice::ParseException& ex)
             {
-                string reason = ex.str;
-                size_t pos = ex.str.find("dummy ");
+                string reason = ex.what();
+                size_t pos = reason.find("dummy ");
                 if (pos != string::npos)
                 {
                     reason = reason.replace(pos, 6, "");

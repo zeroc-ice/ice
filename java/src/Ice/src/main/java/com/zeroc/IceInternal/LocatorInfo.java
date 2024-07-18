@@ -262,7 +262,7 @@ public final class LocatorInfo {
       //
       // The locator registry can't be located. We use ordered
       // endpoint selection in case the locator returned a proxy
-      // with some endpoints which are prefered to be tried first.
+      // with some endpoints which are preferred to be tried first.
       //
       _locatorRegistry =
           locatorRegistry
@@ -372,7 +372,7 @@ public final class LocatorInfo {
     for (int i = 0; i < sz; i++) {
       s.append(endpoints[i].toString());
       if (i + 1 < sz) {
-        s.append(":");
+        s.append(':');
       }
     }
 
@@ -597,7 +597,7 @@ public final class LocatorInfo {
   private final LocatorTable _table;
   private final boolean _background;
 
-  private java.util.Map<String, Request> _adapterRequests = new java.util.HashMap<>();
-  private java.util.Map<com.zeroc.Ice.Identity, Request> _objectRequests =
+  private final java.util.Map<String, Request> _adapterRequests = new java.util.HashMap<>();
+  private final java.util.Map<com.zeroc.Ice.Identity, Request> _objectRequests =
       new java.util.HashMap<>();
 }

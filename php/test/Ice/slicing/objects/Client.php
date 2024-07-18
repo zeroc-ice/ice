@@ -83,7 +83,7 @@ function allTests($helper)
         }
         catch(Exception $ex)
         {
-            test(get_class($ex) == "Ice\\NoValueFactoryException");
+            test(get_class($ex) == "Ice\\MarshalException");
         }
     }
     echo "ok\n";
@@ -100,7 +100,7 @@ function allTests($helper)
             test($o->ice_getSlicedData() != null);
             $test->checkSUnknown($o);
         }
-        catch(Ice\NoValueFactoryException $b)
+        catch(Ice\MarshalException $b)
         {
             test($test->ice_getEncodingVersion() == $Ice_Encoding_1_0);
         }

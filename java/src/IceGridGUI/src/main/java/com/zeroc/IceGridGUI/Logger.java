@@ -20,9 +20,6 @@ public class Logger extends com.zeroc.Ice.LoggerI {
     //
     // Ignore spurious selector wake up warnings in solaris.
     //
-    if (OS_IS_SOLARIS && message.equals("spurious selector wake up")) {
-      return;
-    }
     SwingUtilities.invokeLater(
         () -> {
           JOptionPane.showMessageDialog(
@@ -40,6 +37,4 @@ public class Logger extends com.zeroc.Ice.LoggerI {
   }
 
   private final JFrame _mainFrame;
-
-  private static final boolean OS_IS_SOLARIS = System.getProperty("os.name").equals("SunOS");
 }

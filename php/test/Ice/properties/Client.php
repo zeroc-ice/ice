@@ -51,15 +51,23 @@ class Client extends TestHelper
 
         echo "ok\n";
 
-        echo "testing that getting an unknown ice property throws an exception...";
+        echo "testing load properties exception... ";
+        try {
+            $properties = Ice\createProperties();
+            $properties->load("./config/xxxx.config");
+            test(False);
+        } catch (\Ice\LocalException $ex) {
+            test(str_contains($ex->getMessage(), "error while accessing file './config/xxxx.config'"));
+        }
+        echo "ok\n";
 
+        echo "testing that getting an unknown ice property throws an exception...";
         try {
             $properties = Ice\createProperties();
             $properties->getIceProperty("Ice.UnknownProperty");
             test(False);
-        } catch (Ice\UnknownException $ex) {
-            // We don't have a specific exception for unknown properties
-            test($ex->unknown == "unknown Ice property: Ice.UnknownProperty");
+        } catch (\InvalidArgumentException $ex) {
+            test($ex->getMessage() == "unknown Ice property: Ice.UnknownProperty");
         }
         echo "ok\n";
     }

@@ -172,10 +172,10 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
                 connection->getInfo();
                 this_thread::sleep_for(chrono::milliseconds(10));
             }
-            catch (const Ice::ConnectionManuallyClosedException& ex)
+            catch (const Ice::ConnectionClosedException& ex)
             {
                 // Expected.
-                test(ex.graceful);
+                test(ex.closedByApplication());
                 break;
             }
         }

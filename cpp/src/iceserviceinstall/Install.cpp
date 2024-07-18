@@ -32,10 +32,7 @@ wmain(int argc, wchar_t* argv[])
     try
     {
         Ice::CtrlCHandler ctrlCHandler;
-        Ice::InitializationData id;
-        id.properties = Ice::createProperties();
-        id.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
-        Ice::CommunicatorHolder ich(argc, argv, id);
+        Ice::CommunicatorHolder ich(argc, argv);
         communicator = ich.communicator();
 
         ctrlCHandler.setCallback(&destroyCommunicator);
@@ -126,7 +123,7 @@ run(const Ice::StringSeq& args)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        consoleErr << "Error:" << e.reason << endl;
+        consoleErr << "Error:" << e.what() << endl;
         usage(args[0]);
         return 1;
     }

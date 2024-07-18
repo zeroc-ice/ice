@@ -49,12 +49,10 @@ namespace
             {
                 exception(
                     id,
-                    make_exception_ptr(Ice::UnsupportedEncodingException(
+                    make_exception_ptr(Ice::FeatureNotSupportedException{
                         __FILE__,
                         __LINE__,
-                        "server doesn't support requested encoding",
-                        _encoding,
-                        proxy->ice_getEncodingVersion())));
+                        "server doesn't support requested encoding " + Ice::encodingVersionToString(_encoding)}));
                 return;
             }
 
@@ -220,12 +218,10 @@ namespace
             {
                 exception(
                     id,
-                    make_exception_ptr(Ice::UnsupportedEncodingException(
+                    make_exception_ptr(Ice::FeatureNotSupportedException{
                         __FILE__,
                         __LINE__,
-                        "server doesn't support requested encoding",
-                        _encoding,
-                        proxy->ice_getEncodingVersion())));
+                        "server doesn't support requested encoding " + Ice::encodingVersionToString(_encoding)}));
                 return;
             }
 
@@ -367,12 +363,10 @@ namespace
             {
                 exception(
                     id,
-                    make_exception_ptr(Ice::UnsupportedEncodingException(
+                    make_exception_ptr(Ice::FeatureNotSupportedException{
                         __FILE__,
                         __LINE__,
-                        "server doesn't support requested encoding",
-                        _encoding,
-                        proxy->ice_getEncodingVersion())));
+                        "server doesn't support requested encoding " + Ice::encodingVersionToString(_encoding)}));
                 return;
             }
 

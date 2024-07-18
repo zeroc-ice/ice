@@ -6,7 +6,7 @@
 // See https://docs.python.org/3/c-api/arg.html
 #define PY_SSIZE_T_CLEAN
 #include "ValueFactoryManager.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Thread.h"
 #include "Types.h"
 
@@ -61,8 +61,10 @@ IcePy::ValueFactoryManager::~ValueFactoryManager()
 void
 IcePy::ValueFactoryManager::add(Ice::ValueFactory, string_view)
 {
-    // This means a C++ plugin cannot register a value factory with a Python application/communicator.
-    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
+    throw Ice::FeatureNotSupportedException{
+        __FILE__,
+        __LINE__,
+        "the Ice Python value factory manager does not accept C++ value factories"};
 }
 
 Ice::ValueFactory
@@ -70,8 +72,6 @@ IcePy::ValueFactoryManager::find(string_view typeId) const noexcept
 {
     ValueFactoryPtr factory;
     {
-        std::lock_guard lock(_mutex);
-
         CustomFactoryMap::const_iterator p = _customFactories.find(typeId);
         if (p != _customFactories.end())
         {
@@ -98,9 +98,7 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
 {
     try
     {
-        std::lock_guard lock(_mutex);
         auto [_, inserted] = _customFactories.try_emplace(string{id}, make_shared<CustomValueFactory>(valueFactory));
-
         if (!inserted)
         {
             throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
@@ -123,7 +121,6 @@ IcePy::ValueFactoryManager::findValueFactory(string_view id) const
         return p->second->getValueFactory();
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -138,25 +135,13 @@ void
 IcePy::ValueFactoryManager::destroy()
 {
     // Called by the Python thread during communicator destruction.
-
-    CustomFactoryMap factories;
-
+    if (_self != nullptr)
     {
-        std::lock_guard lock(_mutex); // TODO: may not be necessary.
-        if (_self == 0)
-        {
-            //
-            // Nothing to do if already destroyed (this can occur if communicator destroy is called multiple times)
-            //
-            return;
-        }
-        //
         // Break the cyclic reference.
-        //
         Py_DECREF(_self);
-        _self = 0;
+        _self = nullptr;
 
-        factories.swap(_customFactories);
+        _customFactories.clear();
     }
 }
 
@@ -180,7 +165,7 @@ IcePy::CustomValueFactory::create(string_view id)
 
     if (!info)
     {
-        return 0;
+        return nullptr;
     }
 
     PyObjectHandle obj = PyObject_CallFunction(_valueFactory, "s#", id.data(), static_cast<Py_ssize_t>(id.size()));
@@ -193,7 +178,7 @@ IcePy::CustomValueFactory::create(string_view id)
 
     if (obj.get() == Py_None)
     {
-        return 0;
+        return nullptr;
     }
 
     return make_shared<ValueReader>(obj.get(), info);
@@ -237,31 +222,22 @@ IcePy::DefaultValueFactory::create(std::string_view id)
     return make_shared<ValueReader>(obj.get(), info);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static ValueFactoryManagerObject*
-    valueFactoryManagerNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" ValueFactoryManagerObject*
+valueFactoryManagerNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PyErr_Format(PyExc_RuntimeError, STRCAST("Do not instantiate this object directly"));
-    return 0;
+    PyErr_Format(PyExc_RuntimeError, "Do not instantiate this object directly");
+    return nullptr;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    valueFactoryManagerDealloc(ValueFactoryManagerObject* self)
+extern "C" void
+valueFactoryManagerDealloc(ValueFactoryManagerObject* self)
 {
     delete self->vfm;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
+extern "C" PyObject*
+valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
 {
     assert(self->vfm);
 
@@ -270,59 +246,49 @@ extern "C"
 
     PyObject* factory;
     PyObject* idObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O!O"), factoryType, &factory, &idObj))
+    if (!PyArg_ParseTuple(args, "O!O", factoryType, &factory, &idObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string id;
     if (!getStringArg(idObj, "id", id))
     {
-        return 0;
+        return nullptr;
     }
 
     (*self->vfm)->add(factory, id);
     if (PyErr_Occurred())
     {
-        return 0;
+        return nullptr;
     }
 
-    Py_INCREF(Py_None);
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
+extern "C" PyObject*
+valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
 {
     assert(self->vfm);
 
     PyObject* idObj;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &idObj))
+    if (!PyArg_ParseTuple(args, "O", &idObj))
     {
-        return 0;
+        return nullptr;
     }
 
     string id;
     if (!getStringArg(idObj, "id", id))
     {
-        return 0;
+        return nullptr;
     }
 
     return (*self->vfm)->findValueFactory(id);
 }
 
 static PyMethodDef ValueFactoryManagerMethods[] = {
-    {STRCAST("add"),
-     reinterpret_cast<PyCFunction>(valueFactoryManagerAdd),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("add(factory, id) -> None"))},
-    {STRCAST("find"),
-     reinterpret_cast<PyCFunction>(valueFactoryManagerFind),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("find(id) -> function"))},
+    {"add", reinterpret_cast<PyCFunction>(valueFactoryManagerAdd), METH_VARARGS, PyDoc_STR("add(factory, id) -> None")},
+    {"find", reinterpret_cast<PyCFunction>(valueFactoryManagerFind), METH_VARARGS, PyDoc_STR("find(id) -> function")},
     {0, 0} /* sentinel */
 };
 
@@ -331,9 +297,9 @@ namespace IcePy
     PyTypeObject ValueFactoryManagerType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.ValueFactoryManager"), /* tp_name */
-        sizeof(ValueFactoryManagerObject),                                /* tp_basicsize */
-        0,                                                                /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.ValueFactoryManager", /* tp_name */
+        sizeof(ValueFactoryManagerObject),                       /* tp_basicsize */
+        0,                                                       /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(valueFactoryManagerDealloc), /* tp_dealloc */
         0,                                                        /* tp_print */
@@ -382,7 +348,7 @@ IcePy::initValueFactoryManager(PyObject* module)
         return false;
     }
     PyTypeObject* type = &ValueFactoryManagerType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, STRCAST("ValueFactoryManager"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, "ValueFactoryManager", reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }

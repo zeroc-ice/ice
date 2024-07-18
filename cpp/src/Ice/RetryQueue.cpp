@@ -3,7 +3,7 @@
 //
 
 #include "RetryQueue.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/OutgoingAsync.h"
 #include "Instance.h"
