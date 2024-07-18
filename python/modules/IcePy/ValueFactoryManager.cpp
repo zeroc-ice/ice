@@ -2,9 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-// PY_SSIZE_T_CLEAN is required for s#. Should we move it somewhere else, as it's always recommended to define it
-// See https://docs.python.org/3/c-api/arg.html
-#define PY_SSIZE_T_CLEAN
 #include "ValueFactoryManager.h"
 #include "Ice/LocalExceptions.h"
 #include "Thread.h"
@@ -29,7 +26,7 @@ namespace
     }
 }
 
-/* static */ ValueFactoryManagerPtr
+ValueFactoryManagerPtr
 IcePy::ValueFactoryManager::create()
 {
     // can't use make_shared because constructor is private
@@ -51,12 +48,6 @@ IcePy::ValueFactoryManager::create()
 }
 
 IcePy::ValueFactoryManager::ValueFactoryManager() : _defaultFactory{make_shared<DefaultValueFactory>()} {}
-
-IcePy::ValueFactoryManager::~ValueFactoryManager()
-{
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-    Py_XDECREF(_self);
-}
 
 void
 IcePy::ValueFactoryManager::add(Ice::ValueFactory, string_view)
@@ -127,20 +118,19 @@ IcePy::ValueFactoryManager::findValueFactory(string_view id) const
 PyObject*
 IcePy::ValueFactoryManager::getObject() const
 {
-    Py_INCREF(_self);
-    return _self;
+    PyObject* obj = _self.get();
+    Py_INCREF(obj);
+    return obj;
 }
 
 void
 IcePy::ValueFactoryManager::destroy()
 {
-    // Called by the Python thread during communicator destruction.
-    if (_self != nullptr)
+    // Called by the Python thread from communicatorDestroy.
+    if (_self)
     {
         // Break the cyclic reference.
-        Py_DECREF(_self);
         _self = nullptr;
-
         _customFactories.clear();
     }
 }

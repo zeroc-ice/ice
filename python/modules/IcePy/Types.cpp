@@ -3304,7 +3304,7 @@ IcePy::ValueWriter::ValueWriter(PyObject* object, ObjectMap* objectMap, const Va
       _map(objectMap),
       _formal(formal)
 {
-    Py_INCREF(_object);
+    Py_INCREF(object);
     if (!_formal || !_formal->interface)
     {
         PyObjectHandle iceType = getAttr(object, "_ice_type", false);
@@ -3318,14 +3318,12 @@ IcePy::ValueWriter::ValueWriter(PyObject* object, ObjectMap* objectMap, const Va
     }
 }
 
-IcePy::ValueWriter::~ValueWriter() { Py_DECREF(_object); }
-
 void
 IcePy::ValueWriter::ice_preMarshal()
 {
-    if (PyObject_HasAttrString(_object, "ice_preMarshal") == 1)
+    if (PyObject_HasAttrString(_object.get(), "ice_preMarshal") == 1)
     {
-        PyObjectHandle tmp = PyObject_CallMethod(_object, "ice_preMarshal", 0);
+        PyObjectHandle tmp = PyObject_CallMethod(_object.get(), "ice_preMarshal", 0);
         if (!tmp.get())
         {
             assert(PyErr_Occurred());
@@ -3340,13 +3338,13 @@ IcePy::ValueWriter::_iceWrite(Ice::OutputStream* os) const
     //
     // Retrieve the SlicedData object that we stored as a hidden member of the Python object.
     //
-    Ice::SlicedDataPtr slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ObjectMap*>(_map));
+    Ice::SlicedDataPtr slicedData = StreamUtil::getSlicedDataMember(_object.get(), const_cast<ObjectMap*>(_map));
 
     os->startValue(slicedData);
 
     if (_formal && _formal->interface)
     {
-        PyObjectHandle ret = PyObject_CallMethod(_object, "ice_id", 0);
+        PyObjectHandle ret = PyObject_CallMethod(_object.get(), "ice_id", 0);
         if (!ret.get())
         {
             assert(PyErr_Occurred());
@@ -3393,7 +3391,7 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
 
         char* memberName = const_cast<char*>(member->name.c_str());
 
-        PyObjectHandle val = getAttr(_object, member->name, true);
+        PyObjectHandle val = getAttr(_object.get(), member->name, true);
         if (!val.get())
         {
             if (member->optional)
@@ -3437,17 +3435,15 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
 //
 IcePy::ValueReader::ValueReader(PyObject* object, const ValueInfoPtr& info) : _object(object), _info(info)
 {
-    Py_INCREF(_object);
+    Py_INCREF(object);
 }
-
-IcePy::ValueReader::~ValueReader() { Py_DECREF(_object); }
 
 void
 IcePy::ValueReader::ice_postUnmarshal()
 {
-    if (PyObject_HasAttrString(_object, "ice_postUnmarshal") == 1)
+    if (PyObject_HasAttrString(_object.get(), "ice_postUnmarshal") == 1)
     {
-        PyObjectHandle tmp = PyObject_CallMethod(_object, "ice_postUnmarshal", 0);
+        PyObjectHandle tmp = PyObject_CallMethod(_object.get(), "ice_postUnmarshal", 0);
         if (!tmp.get())
         {
             assert(PyErr_Occurred());
@@ -3484,7 +3480,7 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
             for (p = info->members.begin(); p != info->members.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                member->type->unmarshal(is, member, _object, 0, false, &member->metaData);
+                member->type->unmarshal(is, member, _object.get(), 0, false, &member->metaData);
             }
 
             //
@@ -3495,9 +3491,9 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
                 DataMemberPtr member = *p;
                 if (is->readOptional(member->tag, member->type->optionalFormat()))
                 {
-                    member->type->unmarshal(is, member, _object, 0, true, &member->metaData);
+                    member->type->unmarshal(is, member, _object.get(), 0, true, &member->metaData);
                 }
-                else if (PyObject_SetAttrString(_object, const_cast<char*>(member->name.c_str()), Py_None) < 0)
+                else if (PyObject_SetAttrString(_object.get(), const_cast<char*>(member->name.c_str()), Py_None) < 0)
                 {
                     assert(PyErr_Occurred());
                     throw AbortMarshaling();
@@ -3526,7 +3522,7 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
             assert(!_slicedData->slices.empty());
 
             PyObjectHandle typeId = createString(_slicedData->slices[0]->typeId);
-            if (!typeId.get() || PyObject_SetAttrString(_object, "unknownTypeId", typeId.get()) < 0)
+            if (!typeId.get() || PyObject_SetAttrString(_object.get(), "unknownTypeId", typeId.get()) < 0)
             {
                 assert(PyErr_Occurred());
                 throw AbortMarshaling();
@@ -3544,7 +3540,7 @@ IcePy::ValueReader::getInfo() const
 PyObject*
 IcePy::ValueReader::getObject() const
 {
-    return _object;
+    return _object.get();
 }
 
 Ice::SlicedDataPtr
@@ -3809,11 +3805,29 @@ IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const Exceptio
     }
 }
 
-IcePy::ExceptionWriter::~ExceptionWriter()
+IcePy::ExceptionWriter::ExceptionWriter(const ExceptionWriter& other)
 {
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+    // Exception writer copy constructor can be called from a C++ thread when IcePy throws an ExceptionWriter object
+    // from the dispatch pipeline. Specifically with MSVC if the catch block calls current_exception the copy constructor
+    // would be used to move the exception from stack to heap.
 
-    _ex = 0;
+    {
+        // Ensure the current thread is able to call into Python.
+        AdoptThread adoptThread;
+        _ex = other._ex;
+    }
+    _info = other._info;
+    _objects = other._objects;
+}
+
+IcePy::ExceptionWriter::~ExceptionWriter() noexcept
+{
+    // Exception writer destructor can be called from a C++ thread when IcePy throws an ExceptionWriter object
+    // from the dispatch pipeline. The ServantLocator implementation does this.
+
+    // Ensure the current thread is able to call into Python.
+    AdoptThread adoptThread;
+    _ex = nullptr;
 }
 
 const char*
@@ -3852,13 +3866,6 @@ IcePy::ExceptionWriter::_usesClasses() const
 // ExceptionReader implementation.
 //
 IcePy::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) noexcept : _info(info) {}
-
-IcePy::ExceptionReader::~ExceptionReader()
-{
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-    _ex = 0;
-}
 
 const char*
 IcePy::ExceptionReader::ice_id() const noexcept
