@@ -3807,8 +3807,9 @@ IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const Exceptio
 
 IcePy::ExceptionWriter::ExceptionWriter(const ExceptionWriter& other)
 {
-    // Exception writer copy constructor can be called from a C++ thread when IcePy throws a ExceptionWriter object
-    // from the dispatch pipeline.
+    // Exception writer copy constructor can be called from a C++ thread when IcePy throws an ExceptionWriter object
+    // from the dispatch pipeline. Specifically with MSVC if the catch block calls current_exception the copy constructor
+    // would be used to move the exception from stack to heap.
 
     {
         // Ensure the current thread is able to call into Python.
@@ -3821,7 +3822,7 @@ IcePy::ExceptionWriter::ExceptionWriter(const ExceptionWriter& other)
 
 IcePy::ExceptionWriter::~ExceptionWriter() noexcept
 {
-    // Exception writer destructor can be called from a C++ thread when IcePy throws a ExceptionWriter object
+    // Exception writer destructor can be called from a C++ thread when IcePy throws an ExceptionWriter object
     // from the dispatch pipeline. The ServantLocator implementation does this.
 
     // Ensure the current thread is able to call into Python.
