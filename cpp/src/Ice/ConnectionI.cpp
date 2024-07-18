@@ -2319,14 +2319,13 @@ Ice::ConnectionI::sendHeartbeat() noexcept
     if (_state == StateActive || _state == StateHolding)
     {
         // We check if the connection has become inactive.
-        if (_inactivityTimerTask &&               // null when the inactivity timeout is infinite
-            !_inactivityTimerTaskScheduled &&     // we never reschedule this task
-            _state == StateActive &&              // only schedule the task if the connection is active
-            _dispatchCount == 0 &&                // no pending dispatch
-            _dispatchCount == 0 &&                // no pending dispatch
-            _asyncRequests.empty() &&             // no pending invocation
-            _readHeader &&                        // we're not waiting for the remainder of an incoming message
-            _sendStreams.size() <= 1)             // there is at most one pending outgoing message
+        if (_inactivityTimerTask &&           // null when the inactivity timeout is infinite
+            !_inactivityTimerTaskScheduled && // we never reschedule this task
+            _state == StateActive &&          // only schedule the task if the connection is active
+            _dispatchCount == 0 &&            // no pending dispatch
+            _asyncRequests.empty() &&         // no pending invocation
+            _readHeader &&                    // we're not waiting for the remainder of an incoming message
+            _sendStreams.size() <= 1)         // there is at most one pending outgoing message
         {
             // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
             // inactivity timer if there is no pending outgoing message or the pending outgoing message is a
