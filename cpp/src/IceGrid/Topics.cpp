@@ -355,7 +355,7 @@ RegistryObserverTopic::registryDown(const string& name)
 void
 RegistryObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    RegistryObserverPrx registryObserver = Ice::uncheckedCast<RegistryObserverPrx>(observer);
+    auto registryObserver = Ice::uncheckedCast<RegistryObserverPrx>(observer);
     RegistryInfoSeq registries;
     registries.reserve(_registries.size());
     for (const auto& registry : _registries)
@@ -583,7 +583,7 @@ NodeObserverTopic::nodeDown(const string& name)
 void
 NodeObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    NodeObserverPrx nodeObserver = Ice::uncheckedCast<NodeObserverPrx>(observer);
+    auto nodeObserver = Ice::uncheckedCast<NodeObserverPrx>(observer);
     NodeDynamicInfoSeq nodes;
     nodes.reserve(_nodes.size());
     for (const auto& node : _nodes)
@@ -764,7 +764,7 @@ ApplicationObserverTopic::applicationUpdated(int64_t dbSerial, const Application
 void
 ApplicationObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    ApplicationObserverPrx applicationObserver = Ice::uncheckedCast<ApplicationObserverPrx>(observer);
+    auto applicationObserver = Ice::uncheckedCast<ApplicationObserverPrx>(observer);
     ApplicationInfoSeq applications;
     for (const auto& application : _applications)
     {
@@ -894,7 +894,7 @@ AdapterObserverTopic::adapterRemoved(int64_t dbSerial, const string& id)
 void
 AdapterObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    AdapterObserverPrx adapterObserver = Ice::uncheckedCast<AdapterObserverPrx>(observer);
+    auto adapterObserver = Ice::uncheckedCast<AdapterObserverPrx>(observer);
     AdapterInfoSeq adapters;
     for (const auto& adapter : _adapters)
     {
@@ -1115,7 +1115,7 @@ ObjectObserverTopic::wellKnownObjectsRemoved(const ObjectInfoSeq& infos)
 void
 ObjectObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    ObjectObserverPrx objectObserver = Ice::uncheckedCast<ObjectObserverPrx>(observer);
+    auto objectObserver = Ice::uncheckedCast<ObjectObserverPrx>(observer);
     ObjectInfoSeq objects;
     for (const auto& object : _objects)
     {

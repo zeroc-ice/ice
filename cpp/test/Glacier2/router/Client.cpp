@@ -90,7 +90,7 @@ public:
         _condVar.notify_one();
 
         Identity ident = {"callbackReceiver", category};
-        CallbackReceiverPrx receiver = adapter->add<CallbackReceiverPrx>(_callbackReceiver, ident);
+        auto receiver = adapter->add<CallbackReceiverPrx>(_callbackReceiver, ident);
 
         CallbackPrx callback(communicator, "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()));
         callback = callback->ice_oneway();
@@ -174,7 +174,7 @@ public:
         string category = _router->getCategoryForClient();
         _callbackReceiver = make_shared<CallbackReceiverI>();
         Identity ident = {"callbackReceiver", category};
-        CallbackReceiverPrx receiver = adapter->add<CallbackReceiverPrx>(_callbackReceiver, ident);
+        auto receiver = adapter->add<CallbackReceiverPrx>(_callbackReceiver, ident);
 
         auto callback =
             CallbackPrx(communicator, "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()))
@@ -491,7 +491,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    CallbackPrx twoway = uncheckedCast<CallbackPrx>(base);
+    auto twoway = uncheckedCast<CallbackPrx>(base);
 
     ObjectAdapterPtr adapter;
 
@@ -649,7 +649,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing whether other allowed category is accepted... " << flush;
         Context context;
         context["_fwd"] = "t";
-        CallbackPrx otherCategoryTwoway = twoway->ice_identity<CallbackPrx>(stringToIdentity("c2/callback"));
+        auto otherCategoryTwoway = twoway->ice_identity<CallbackPrx>(stringToIdentity("c2/callback"));
         otherCategoryTwoway->initiateCallback(twowayR, context);
         callbackReceiver->callbackOK();
         cout << "ok" << endl;
@@ -661,7 +661,7 @@ CallbackClient::run(int argc, char** argv)
         context["_fwd"] = "t";
         try
         {
-            CallbackPrx otherCategoryTwoway = twoway->ice_identity<CallbackPrx>(stringToIdentity("c3/callback"));
+            auto otherCategoryTwoway = twoway->ice_identity<CallbackPrx>(stringToIdentity("c3/callback"));
             otherCategoryTwoway->initiateCallback(twowayR, context);
             test(false);
         }
@@ -675,7 +675,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing whether user-id as category is accepted... " << flush;
         Context context;
         context["_fwd"] = "t";
-        CallbackPrx otherCategoryTwoway = twoway->ice_identity<CallbackPrx>(stringToIdentity("_userid/callback"));
+        auto otherCategoryTwoway = twoway->ice_identity<CallbackPrx>(stringToIdentity("_userid/callback"));
         otherCategoryTwoway->initiateCallback(twowayR, context);
         callbackReceiver->callbackOK();
         cout << "ok" << endl;

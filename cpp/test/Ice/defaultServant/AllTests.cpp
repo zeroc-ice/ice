@@ -44,13 +44,13 @@ allTests(Test::TestHelper* helper)
     for (idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
-        MyObjectPrx prx = oa->createProxy<MyObjectPrx>(identity);
+        auto prx = oa->createProxy<MyObjectPrx>(identity);
         prx->ice_ping();
         test(prx->getName() == names[idx]);
     }
 
     identity.name = "ObjectNotExist";
-    MyObjectPrx prx = oa->createProxy<MyObjectPrx>(identity);
+    auto prx = oa->createProxy<MyObjectPrx>(identity);
     try
     {
         prx->ice_ping();

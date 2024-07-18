@@ -29,9 +29,9 @@ allTests(Test::TestHelper* helper, const string& ref)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     ServerManagerPrx manager(communicator, ref);
-    TestLocatorPrx locator = uncheckedCast<TestLocatorPrx>(communicator->getDefaultLocator().value());
+    auto locator = uncheckedCast<TestLocatorPrx>(communicator->getDefaultLocator().value());
 
-    TestLocatorRegistryPrx registry = uncheckedCast<TestLocatorRegistryPrx>(locator->getRegistry().value());
+    auto registry = uncheckedCast<TestLocatorRegistryPrx>(locator->getRegistry().value());
 
     cout << "testing stringToProxy... " << flush;
     ObjectPrx base(communicator, "test @ TestAdapter");

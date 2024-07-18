@@ -1062,9 +1062,9 @@ allTests(TestHelper* helper)
 
         auto adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "tcp");
         auto appObs2 = make_shared<ApplicationObserverI>("appObs2");
-        ApplicationObserverPrx app2 = adpt2->addWithUUID<ApplicationObserverPrx>(appObs2);
+        auto app2 = adpt2->addWithUUID<ApplicationObserverPrx>(appObs2);
         auto nodeObs2 = make_shared<NodeObserverI>("nodeObs1");
-        NodeObserverPrx no2 = adpt2->addWithUUID<NodeObserverPrx>(nodeObs2);
+        auto no2 = adpt2->addWithUUID<NodeObserverPrx>(nodeObs2);
         adpt2->activate();
         session2->setObservers(nullopt, no2, app2, nullopt, nullopt);
 
@@ -1706,7 +1706,7 @@ allTests(TestHelper* helper)
         auto session1 = registry->createAdminSession("admin1", "test1");
         auto adpt1 = communicator->createObjectAdapterWithEndpoints("", "tcp");
         auto nodeObs1 = make_shared<NodeObserverI>("nodeObs1");
-        NodeObserverPrx no1 = adpt1->addWithUUID<NodeObserverPrx>(nodeObs1);
+        auto no1 = adpt1->addWithUUID<NodeObserverPrx>(nodeObs1);
         adpt1->activate();
 
         session1->setObservers(nullopt, no1, nullopt, nullopt, nullopt);
@@ -1727,7 +1727,7 @@ allTests(TestHelper* helper)
         test(communicator->getDefaultLocator());
         auto nodeObs1 = make_shared<NodeObserverI>("nodeObs1");
 
-        NodeObserverPrx no1 = adpt1->addWithUUID<NodeObserverPrx>(nodeObs1);
+        auto no1 = adpt1->addWithUUID<NodeObserverPrx>(nodeObs1);
         assert(no1->ice_getAdapterId() == "adapter1");
         adpt1->activate();
 

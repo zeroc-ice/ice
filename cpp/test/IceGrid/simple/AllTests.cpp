@@ -16,7 +16,7 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
 
     TestIntfPrx obj(communicator, "test @ TestAdapter");
-    IceGrid::LocatorPrx locator = Ice::uncheckedCast<IceGrid::LocatorPrx>(obj);
+    auto locator = Ice::uncheckedCast<IceGrid::LocatorPrx>(obj);
 
     cout << "pinging server... " << flush;
     locator->ice_ping();

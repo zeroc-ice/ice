@@ -48,7 +48,7 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
     //
     // The identity is the name of the Topic.
     //
-    TopicPrx prx = _instance->topicAdapter()->add<TopicPrx>(topicImpl, id);
+    auto prx = _instance->topicAdapter()->add<TopicPrx>(topicImpl, id);
     _topics.insert({name, topicImpl});
     return prx;
 }

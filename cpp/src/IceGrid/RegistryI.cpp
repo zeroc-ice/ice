@@ -387,7 +387,7 @@ RegistryI::startImpl()
             proxy = _database->getObjectProxy(id);
             assert(proxy);
             id.name = "Query";
-            IceGrid::QueryPrx query = proxy->ice_identity<IceGrid::QueryPrx>(id);
+            auto query = proxy->ice_identity<IceGrid::QueryPrx>(id);
             id.name = "InternalRegistry-" + _initFromReplica;
             try
             {
@@ -429,7 +429,7 @@ RegistryI::startImpl()
         try
         {
             int64_t serial;
-            IceGrid::InternalRegistryPrx registry = uncheckedCast<IceGrid::InternalRegistryPrx>(*proxy);
+            auto registry = uncheckedCast<IceGrid::InternalRegistryPrx>(*proxy);
             ApplicationInfoSeq applications = registry->getApplications(serial);
             _database->syncApplications(applications, serial);
             AdapterInfoSeq adapters = registry->getAdapters(serial);
@@ -679,7 +679,7 @@ RegistryI::setupQuery()
 RegistryPrx
 RegistryI::setupRegistry()
 {
-    RegistryPrx proxy = _clientAdapter->add<RegistryPrx>(
+    auto proxy = _clientAdapter->add<RegistryPrx>(
         shared_from_this(),
         Identity{_master ? "Registry" : "Registry-" + _replicaName, _instanceName});
     _wellKnownObjects->add(proxy, string{Registry::ice_staticId()});
@@ -695,7 +695,7 @@ RegistryI::setupInternalRegistry()
 
     auto internalRegistry =
         make_shared<InternalRegistryI>(shared_from_this(), _database, _reaper, _wellKnownObjects, *_session);
-    InternalRegistryPrx registry = _registryAdapter->add<InternalRegistryPrx>(internalRegistry, internalRegistryId);
+    auto registry = _registryAdapter->add<InternalRegistryPrx>(internalRegistry, internalRegistryId);
 
     _wellKnownObjects->add(registry, string{InternalRegistry::ice_staticId()});
 
@@ -1259,7 +1259,7 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
         }
         id.name = "InternalRegistry-" + id.name.substr(prefix.size());
 
-        InternalRegistryPrx prx = p->ice_identity<InternalRegistryPrx>(id)->ice_endpoints(Ice::EndpointSeq());
+        auto prx = p->ice_identity<InternalRegistryPrx>(id)->ice_endpoints(Ice::EndpointSeq());
         id.name = "Locator";
         prx = prx->ice_locator(p->ice_identity<Ice::LocatorPrx>(id));
 

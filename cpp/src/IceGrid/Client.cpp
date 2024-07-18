@@ -468,7 +468,7 @@ run(const Ice::StringSeq& args)
             // no need to go further. Otherwise, we get the proxy of local registry
             // proxy.
             //
-            IceGrid::LocatorPrx locator = Ice::uncheckedCast<IceGrid::LocatorPrx>(*communicator->getDefaultLocator());
+            auto locator = Ice::uncheckedCast<IceGrid::LocatorPrx>(*communicator->getDefaultLocator());
             optional<IceGrid::RegistryPrx> localRegistry;
             try
             {

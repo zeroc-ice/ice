@@ -600,7 +600,7 @@ TopicManagerImpl::getLastLogUpdate() const
 void
 TopicManagerImpl::sync(const Ice::ObjectPrx& master)
 {
-    TopicManagerSyncPrx sync = Ice::uncheckedCast<TopicManagerSyncPrx>(master);
+    auto sync = Ice::uncheckedCast<TopicManagerSyncPrx>(master);
 
     LogUpdate llu;
     TopicContentSeq content;

@@ -64,7 +64,7 @@ SessionManager::findAllQueryObjects(bool cached)
     if (queryObjects.empty() && locator)
     {
         Ice::Identity id{"Query", _instanceName};
-        QueryPrx query = (*locator)->ice_identity<QueryPrx>(id);
+        auto query = (*locator)->ice_identity<QueryPrx>(id);
         auto endpoints = query->ice_getEndpoints();
         if (endpoints.empty())
         {

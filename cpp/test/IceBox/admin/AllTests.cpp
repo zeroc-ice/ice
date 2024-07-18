@@ -29,7 +29,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing properties facet... " << flush;
     {
-        Ice::PropertiesAdminPrx pa = admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.Service.TestService.Properties");
+        auto pa = admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.Service.TestService.Properties");
         //
         // Test: PropertiesAdmin::getProperty()
         //
@@ -80,8 +80,8 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing metrics admin facet... " << flush;
     {
-        IceMX::MetricsAdminPrx ma = admin->ice_facet<IceMX::MetricsAdminPrx>("IceBox.Service.TestService.Metrics");
-        Ice::PropertiesAdminPrx pa = admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.Service.TestService.Properties");
+        auto ma = admin->ice_facet<IceMX::MetricsAdminPrx>("IceBox.Service.TestService.Metrics");
+        auto pa = admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.Service.TestService.Properties");
         Ice::StringSeq views;
         Ice::StringSeq disabledViews;
         views = ma->getMetricsViewNames(disabledViews);
