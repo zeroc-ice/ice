@@ -2302,14 +2302,6 @@ Ice::ConnectionI::closeTimedOut() noexcept
     // else ignore since we're already closed.
 }
 
-namespace
-{
-    inline bool isHeartbeat(const OutputStream& stream)
-    {
-        return static_cast<uint8_t>(stream.b[8]) == IceInternal::validateConnectionMsg;
-    }
-}
-
 void
 Ice::ConnectionI::sendHeartbeat() noexcept
 {
@@ -2332,7 +2324,7 @@ Ice::ConnectionI::sendHeartbeat() noexcept
             // heartbeat.
 
             // The stream of the first _sendStreams message is in _writeStream.
-            if (_sendStreams.empty() || isHeartbeat(_writeStream))
+            if (_sendStreams.empty() || static_cast<uint8_t>(_writeStream.b[8]) == validateConnectionMsg)
             {
                 scheduleInactivityTimerTask();
             }
