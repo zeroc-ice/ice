@@ -43,8 +43,6 @@ static ExceptionInfoMap _exceptionInfoMap;
 
 namespace
 {
-    const char* emptySeq = "";
-
     //
     // This exception is raised if the factory specified in a sequence metadata
     // cannot be load or is not valid
@@ -2080,13 +2078,15 @@ IcePy::SequenceInfo::createSequenceFromMemory(
     Py_ssize_t size,
     BuiltinType type)
 {
-    char* buf = const_cast<char*>(size == 0 ? emptySeq : buffer);
-    PyObjectHandle memoryView = PyMemoryView_FromMemory(buf, size, PyBUF_READ);
-
-    if (!memoryView.get())
+    PyObjectHandle memoryView;
+    if (size > 0)
     {
-        assert(PyErr_Occurred());
-        throw AbortMarshaling();
+        memoryView = PyMemoryView_FromMemory(const_cast<char*>(buffer), size, PyBUF_READ);
+        if (!memoryView.get())
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
     }
 
     PyObjectHandle builtinType = PyLong_FromLong(static_cast<int>(type));
@@ -2098,10 +2098,9 @@ IcePy::SequenceInfo::createSequenceFromMemory(
 
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle args = PyTuple_New(3);
-    PyTuple_SET_ITEM(args.get(), 0, memoryView.release());
+    PyObjectHandle args = PyTuple_New(2);
+    PyTuple_SET_ITEM(args.get(), 0, memoryView.get() ? memoryView.release() : Py_None);
     PyTuple_SET_ITEM(args.get(), 1, builtinType.release());
-    PyTuple_SET_ITEM(args.get(), 2, Py_True);
     PyObjectHandle result = PyObject_Call(sm->factory, args.get(), 0);
 
     if (!result.get())
