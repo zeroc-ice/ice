@@ -184,7 +184,7 @@ class ExceptionCallbackWC(CallbackBase):
 class SentCallback(CallbackBase):
     def __init__(self):
         CallbackBase.__init__(self)
-        self._thread = threading.currentThread()
+        self._thread = threading.current_thread()
 
     def response(self, *args):
         pass
@@ -194,8 +194,8 @@ class SentCallback(CallbackBase):
 
     def sent(self, sentSynchronously):
         test(
-            (sentSynchronously and self._thread == threading.currentThread())
-            or (not sentSynchronously and self._thread != threading.currentThread())
+            (sentSynchronously and self._thread == threading.current_thread())
+            or (not sentSynchronously and self._thread != threading.current_thread())
         )
         self.called()
 
@@ -203,7 +203,7 @@ class SentCallback(CallbackBase):
 class SentCallbackWC(CallbackBase):
     def __init__(self, cookie):
         CallbackBase.__init__(self)
-        self._thread = threading.currentThread()
+        self._thread = threading.current_thread()
         self._cookie = cookie
 
     def response(self, *args):
@@ -215,8 +215,8 @@ class SentCallbackWC(CallbackBase):
     def sent(self, sentSynchronously, cookie):
         test(cookie == self._cookie)
         test(
-            (sentSynchronously and self._thread == threading.currentThread())
-            or (not sentSynchronously and self._thread != threading.currentThread())
+            (sentSynchronously and self._thread == threading.current_thread())
+            or (not sentSynchronously and self._thread != threading.current_thread())
         )
         self.called()
 
@@ -224,7 +224,7 @@ class SentCallbackWC(CallbackBase):
 class FlushCallback(CallbackBase):
     def __init__(self, cookie=None):
         CallbackBase.__init__(self)
-        self._thread = threading.currentThread()
+        self._thread = threading.current_thread()
         self._cookie = cookie
 
     def exception(self, ex):
@@ -235,15 +235,15 @@ class FlushCallback(CallbackBase):
 
     def sent(self, sentSynchronously):
         test(
-            (sentSynchronously and self._thread == threading.currentThread())
-            or (not sentSynchronously and self._thread != threading.currentThread())
+            (sentSynchronously and self._thread == threading.current_thread())
+            or (not sentSynchronously and self._thread != threading.current_thread())
         )
         self.called()
 
     def sentWC(self, sentSynchronously, cookie):
         test(
-            (sentSynchronously and self._thread == threading.currentThread())
-            or (not sentSynchronously and self._thread != threading.currentThread())
+            (sentSynchronously and self._thread == threading.current_thread())
+            or (not sentSynchronously and self._thread != threading.current_thread())
         )
         test(cookie == self._cookie)
         self.called()
@@ -321,27 +321,27 @@ class FutureExceptionCallback(CallbackBase):
 class FutureSentCallback(CallbackBase):
     def __init__(self):
         CallbackBase.__init__(self)
-        self._thread = threading.currentThread()
+        self._thread = threading.current_thread()
 
     def sent(self, f, sentSynchronously):
         self.called()
 
     def sentAsync(self, f, sentSynchronously):
-        test(self._thread != threading.currentThread())
+        test(self._thread != threading.current_thread())
         self.called()
 
 
 class FutureFlushCallback(CallbackBase):
     def __init__(self, cookie=None):
         CallbackBase.__init__(self)
-        self._thread = threading.currentThread()
+        self._thread = threading.current_thread()
         self._cookie = cookie
 
     def sent(self, f, sentSynchronously):
         self.called()
 
     def sentAsync(self, f, sentSynchronously):
-        test(self._thread != threading.currentThread())
+        test(self._thread != threading.current_thread())
         self.called()
 
 
