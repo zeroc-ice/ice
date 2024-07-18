@@ -155,7 +155,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         _threadIndex = 0;
         _inUse = 0;
         _serialize = properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
-        _serverIdleTime = timeout;
+        _serverIdleTime = timeout <= 0 ? Timeout.Infinite : timeout;
 
         string programName = properties.getIceProperty("Ice.ProgramName");
         if (programName.Length > 0)
@@ -214,7 +214,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         _size = size;
         _sizeMax = sizeMax;
         _sizeWarn = sizeWarn;
-        _threadIdleTime = threadIdleTime;
+        _threadIdleTime = threadIdleTime <= 0 ? Timeout.Infinite : threadIdleTime;
 
         int stackSize = properties.getPropertyAsInt(_prefix + ".StackSize");
         if (stackSize < 0)
