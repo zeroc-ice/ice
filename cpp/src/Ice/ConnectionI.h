@@ -290,16 +290,16 @@ namespace Ice
         /// (_sendStreams.First) is fully sent. Before sending the next message, this message is removed from
         /// _sendsStream. If any, its sent callback is also queued in given callback queue.
         ///
-        /// @param callback The sent callbacks to call for the messages that were sent.
+        /// @param callbacks The sent callbacks to call for the messages that were sent.
         /// @return The socket operation to register with the thread pool's selector to send the remainder of the
         /// pending message being sent (_sendStreams.First).
-        IceInternal::SocketOperation sendNextMessages(std::vector<OutgoingMessage>&);
+        IceInternal::SocketOperation sendNextMessages(std::vector<OutgoingMessage>& callbacks);
 
         /// Sends or queues the given message.
         ///
-        /// @param The message to send.
+        /// @param message The message to send.
         /// @return The send status.
-        IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
+        IceInternal::AsyncStatus sendMessage(OutgoingMessage& message);
 
 #ifdef ICE_HAS_BZIP2
         void doCompress(Ice::OutputStream&, Ice::OutputStream&);
