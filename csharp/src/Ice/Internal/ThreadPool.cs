@@ -155,7 +155,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         _threadIndex = 0;
         _inUse = 0;
         _serialize = properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
-        _serverIdleTime = timeout <= 0 ? Timeout.Infinite : timeout;
+        _serverIdleTime = timeout <= 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);
 
         string programName = properties.getIceProperty("Ice.ProgramName");
         if (programName.Length > 0)
@@ -214,7 +214,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         _size = size;
         _sizeMax = sizeMax;
         _sizeWarn = sizeWarn;
-        _threadIdleTime = threadIdleTime <= 0 ? Timeout.Infinite : threadIdleTime;
+        _threadIdleTime = threadIdleTime <= 0 ? Timeout.InfiniteTimeSpan: TimeSpan.FromSeconds(threadIdleTime);
 
         int stackSize = properties.getPropertyAsInt(_prefix + ".StackSize");
         if (stackSize < 0)
@@ -491,9 +491,9 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                         return;
                     }
 
-                    if (_threadIdleTime > 0)
+                    if (_threadIdleTime != Timeout.InfiniteTimeSpan)
                     {
-                        if (!Monitor.Wait(this, _threadIdleTime * 1000) && _workItems.Count == 0) // If timeout
+                        if (!Monitor.Wait(this, _threadIdleTime) && _workItems.Count == 0) // If timeout
                         {
                             if (_destroyed)
                             {
@@ -529,7 +529,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                             }
 
                             Debug.Assert(_threads.Count == 1);
-                            if (!Monitor.Wait(this, _serverIdleTime * 1000) && !_destroyed)
+                            if (!Monitor.Wait(this, _serverIdleTime) && !_destroyed)
                             {
                                 _workItems.Enqueue(c =>
                                     {
@@ -848,8 +848,8 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
     private readonly int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
     private readonly bool _serialize; // True if requests need to be serialized over the connection.
     private readonly ThreadPriority _priority;
-    private readonly int _serverIdleTime;
-    private readonly int _threadIdleTime;
+    private readonly TimeSpan _serverIdleTime;
+    private readonly TimeSpan _threadIdleTime;
     private readonly int _stackSize;
 
     private List<WorkerThread> _threads; // All threads, running or not.
