@@ -29,6 +29,8 @@ IcePy::ThreadHook::ThreadHook(PyObject* threadStart, PyObject* threadStop)
         throw Ice::InitializationException(__FILE__, __LINE__, "threadStop must be a callable");
     }
 
+    // Increment the reference count of the Python objects to ensure they are not garbage collected.
+    // The reference count will be decremented in the destructor of PyObjectHandle, which holds them.
     Py_XINCREF(threadStart);
     Py_XINCREF(threadStop);
 }
