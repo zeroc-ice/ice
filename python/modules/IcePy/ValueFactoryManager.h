@@ -7,6 +7,7 @@
 
 #include "Config.h"
 #include "Ice/ValueFactory.h"
+#include "Util.h"
 
 #include <map>
 #include <mutex>
@@ -53,7 +54,6 @@ namespace IcePy
     {
     public:
         static std::shared_ptr<ValueFactoryManager> create();
-        ~ValueFactoryManager();
 
         void add(Ice::ValueFactory, std::string_view) final;
         Ice::ValueFactory find(std::string_view) const noexcept final;
@@ -70,7 +70,7 @@ namespace IcePy
 
         ValueFactoryManager();
 
-        PyObject* _self;
+        PyObjectHandle _self;
         CustomFactoryMap _customFactories;
         const DefaultValueFactoryPtr _defaultFactory;
     };

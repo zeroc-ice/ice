@@ -563,8 +563,6 @@ namespace IcePy
     {
     public:
         ValueWriter(PyObject*, ObjectMap*, const ValueInfoPtr&);
-        ~ValueWriter();
-
         virtual void ice_preMarshal();
 
         virtual void _iceWrite(Ice::OutputStream*) const;
@@ -573,7 +571,7 @@ namespace IcePy
     private:
         void writeMembers(Ice::OutputStream*, const DataMemberList&) const;
 
-        PyObject* _object;
+        PyObjectHandle _object;
         ObjectMap* _map;
         ValueInfoPtr _info;
         ValueInfoPtr _formal;
@@ -586,7 +584,6 @@ namespace IcePy
     {
     public:
         ValueReader(PyObject*, const ValueInfoPtr&);
-        ~ValueReader();
 
         virtual void ice_postUnmarshal();
 
@@ -600,7 +597,7 @@ namespace IcePy
         Ice::SlicedDataPtr getSlicedData() const;
 
     private:
-        PyObject* _object;
+        PyObjectHandle _object;
         ValueInfoPtr _info;
         Ice::SlicedDataPtr _slicedData;
     };
@@ -612,9 +609,10 @@ namespace IcePy
     {
     public:
         ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = 0) noexcept;
-        ~ExceptionWriter();
+        ExceptionWriter(const ExceptionWriter&);
+        ~ExceptionWriter() noexcept;
 
-        ExceptionWriter(const ExceptionWriter&) = default;
+        ExceptionWriter& operator=(const ExceptionWriter&) = delete;
 
         const char* ice_id() const noexcept final;
         void ice_throw() const final;
@@ -641,8 +639,6 @@ namespace IcePy
     {
     public:
         ExceptionReader(const ExceptionInfoPtr&) noexcept;
-        ~ExceptionReader();
-
         ExceptionReader(const ExceptionReader&) = default;
 
         const char* ice_id() const noexcept final;
