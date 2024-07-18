@@ -3808,8 +3808,8 @@ IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const Exceptio
 IcePy::ExceptionWriter::ExceptionWriter(const ExceptionWriter& other)
 {
     // Exception writer copy constructor can be called from a C++ thread when IcePy throws an ExceptionWriter object
-    // from the dispatch pipeline. Specifically with MSVC if the catch block calls current_exception the copy constructor
-    // would be used to move the exception from stack to heap.
+    // from the dispatch pipeline. Specifically with MSVC if the catch block calls current_exception the copy
+    // constructor would be used to move the exception from stack to heap.
 
     {
         // Ensure the current thread is able to call into Python.
