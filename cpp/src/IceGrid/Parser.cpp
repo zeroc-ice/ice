@@ -1687,10 +1687,9 @@ Parser::propertiesService(const list<string>& args, bool single)
 
         const bool useSharedCommunicator =
             getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0;
-        Ice::PropertiesAdminPrx propAdmin =
-            useSharedCommunicator
-                ? admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.SharedCommunicator.Properties")
-                : admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.Service." + service + ".Properties");
+        auto propAdmin = useSharedCommunicator ?
+            admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.SharedCommunicator.Properties")
+            : admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.Service." + service + ".Properties");
 
         if (single)
         {

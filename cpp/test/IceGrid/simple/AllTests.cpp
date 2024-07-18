@@ -23,7 +23,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing locator finder... " << flush;
-    Ice::LocatorFinderPrx finder =
+    auto finder =
         communicator->getDefaultLocator()->ice_identity<Ice::LocatorFinderPrx>(Ice::Identity{"LocatorFinder", "Ice"});
     test(finder->getLocator());
     cout << "ok" << endl;

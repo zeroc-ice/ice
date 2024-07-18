@@ -98,8 +98,7 @@ run(const Ice::StringSeq& args)
         return 1;
     }
 
-    optional<IceBox::ServiceManagerPrx> manager =
-        communicator->propertyToProxy<IceBox::ServiceManagerPrx>("IceBoxAdmin.ServiceManager.Proxy");
+    auto manager = communicator->propertyToProxy<IceBox::ServiceManagerPrx>("IceBoxAdmin.ServiceManager.Proxy");
 
     if (!manager)
     {

@@ -717,10 +717,10 @@ allTests(TestHelper* helper)
     {
         cout << "testing Glacier2 username/password sessions... " << flush;
 
-        SessionPrx session1 = uncheckedCast<SessionPrx>(
+        auto session1 = uncheckedCast<SessionPrx>(
             router1->createSession("client1", "test1")->ice_connectionId("router1")->ice_router(router1));
 
-        SessionPrx session2 = uncheckedCast<SessionPrx>(
+        auto session2 = uncheckedCast<SessionPrx>(
             router2->createSession("client2", "test2")->ice_connectionId("router2")->ice_router(router2));
 
         try
@@ -788,10 +788,10 @@ allTests(TestHelper* helper)
         router1->destroySession();
         router2->destroySession();
 
-        AdminSessionPrx admSession1 = uncheckedCast<AdminSessionPrx>(
+        auto admSession1 = uncheckedCast<AdminSessionPrx>(
             adminRouter1->createSession("admin1", "test1")->ice_connectionId("admRouter1")->ice_router(adminRouter1));
 
-        AdminSessionPrx admSession2 = uncheckedCast<AdminSessionPrx>(
+        auto admSession2 = uncheckedCast<AdminSessionPrx>(
             adminRouter2->createSession("admin2", "test2")->ice_connectionId("admRouter2")->ice_router(adminRouter2));
 
         try
@@ -877,10 +877,10 @@ allTests(TestHelper* helper)
         router1 = router1->ice_connectionId("router11");
         router2 = router2->ice_connectionId("router21");
 
-        SessionPrx session1 = uncheckedCast<SessionPrx>(
+        auto session1 = uncheckedCast<SessionPrx>(
             router1->createSessionFromSecureConnection()->ice_connectionId("router11")->ice_router(router1));
 
-        SessionPrx session2 = uncheckedCast<SessionPrx>(
+        auto session2 = uncheckedCast<SessionPrx>(
             router2->createSessionFromSecureConnection()->ice_connectionId("router21")->ice_router(router2));
 
         session1->ice_ping();
@@ -944,11 +944,11 @@ allTests(TestHelper* helper)
         adminRouter1 = adminRouter->ice_connectionId("admRouter11");
         adminRouter2 = adminRouter->ice_connectionId("admRouter21");
 
-        AdminSessionPrx admSession1 = uncheckedCast<AdminSessionPrx>(adminRouter1->createSessionFromSecureConnection()
+        auto admSession1 = uncheckedCast<AdminSessionPrx>(adminRouter1->createSessionFromSecureConnection()
                                                                          ->ice_connectionId("admRouter11")
                                                                          ->ice_router(adminRouter1));
 
-        AdminSessionPrx admSession2 = uncheckedCast<AdminSessionPrx>(adminRouter2->createSessionFromSecureConnection()
+        auto admSession2 = uncheckedCast<AdminSessionPrx>(adminRouter2->createSessionFromSecureConnection()
                                                                          ->ice_connectionId("admRouter21")
                                                                          ->ice_router(adminRouter2));
 

@@ -78,17 +78,17 @@ allTests(Test::TestHelper* helper, const string& ref)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    optional<TestIntfPrx> obj = Ice::checkedCast<TestIntfPrx>(base);
+    auto obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
-    optional<TestIntfPrx> obj2 = Ice::checkedCast<TestIntfPrx>(base2);
+    auto obj2 = Ice::checkedCast<TestIntfPrx>(base2);
     test(obj2);
-    optional<TestIntfPrx> obj3 = Ice::checkedCast<TestIntfPrx>(base3);
+    auto obj3 = Ice::checkedCast<TestIntfPrx>(base3);
     test(obj3);
-    optional<ServerManagerPrx> obj4 = Ice::checkedCast<ServerManagerPrx>(base4);
+    auto obj4 = Ice::checkedCast<ServerManagerPrx>(base4);
     test(obj4);
-    optional<TestIntfPrx> obj5 = Ice::checkedCast<TestIntfPrx>(base5);
+    auto obj5 = Ice::checkedCast<TestIntfPrx>(base5);
     test(obj5);
-    optional<TestIntfPrx> obj6 = Ice::checkedCast<TestIntfPrx>(base6);
+    auto obj6 = Ice::checkedCast<TestIntfPrx>(base6);
     test(obj6);
     cout << "ok" << endl;
 
