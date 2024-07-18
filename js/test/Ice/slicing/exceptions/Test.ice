@@ -37,7 +37,6 @@ exception KnownPreservedDerived extends KnownPreserved
     string kpd;
 }
 
-["format:sliced"]
 interface TestIntf
 {
     void baseAsBase() throws Base;

@@ -74,7 +74,6 @@ module IceMX
 
     /// The metrics administrative facet interface. This interface allows remote administrative clients to access
     /// metrics of an application that enabled the Ice administrative facility and configured some metrics views.
-    ["format:sliced"]
     interface MetricsAdmin
     {
         /// Get the names of enabled and disabled metrics.
@@ -101,6 +100,7 @@ module IceMX
         /// @param timestamp The local time of the process when the metrics object were retrieved.
         /// @return The metrics view data.
         /// @throws UnknownMetricsView Raised if the metrics view cannot be found.
+        ["format:sliced"]
         MetricsView getMetricsView(string view, out long timestamp)
             throws UnknownMetricsView;
 
