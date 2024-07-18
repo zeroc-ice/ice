@@ -612,6 +612,8 @@ namespace IcePy
         ExceptionWriter(const ExceptionWriter&);
         ~ExceptionWriter() noexcept;
 
+        ExceptionWriter& operator=(const ExceptionWriter&) = delete;
+
         const char* ice_id() const noexcept final;
         void ice_throw() const final;
 
