@@ -224,22 +224,13 @@ IcePy::getFunction()
 
 IcePy::PyObjectHandle::PyObjectHandle(PyObject* p) : _p(p) {}
 
-IcePy::PyObjectHandle::PyObjectHandle(const PyObjectHandle& p) : _p(p._p)
-{
-    AdoptThread adoptThread; // Ensure that we can call Python code.
-    Py_XINCREF(_p);
-}
+IcePy::PyObjectHandle::PyObjectHandle(const PyObjectHandle& p) : _p(p._p) { Py_XINCREF(_p); }
 
 IcePy::PyObjectHandle::~PyObjectHandle()
 {
     // The destructor can be called from Py_Exit at which point is no longer safe to call Python code.
     // But this should only happen for objects that have been already released.
-
-    if (_p)
-    {
-        AdoptThread adoptThread; // Ensure that we can call Python code.
-        Py_DECREF(_p);
-    }
+    Py_XDECREF(_p);
 }
 
 IcePy::PyObjectHandle&
@@ -247,7 +238,6 @@ IcePy::PyObjectHandle::operator=(PyObject* p)
 {
     if (p != _p)
     {
-        AdoptThread adoptThread; // Ensure that we can call Python code.
         Py_XDECREF(_p);
         _p = p;
     }
@@ -259,7 +249,6 @@ IcePy::PyObjectHandle::operator=(const PyObjectHandle& p)
 {
     if (this != &p)
     {
-        AdoptThread adoptThread; // Ensure that we can call Python code.
         Py_XDECREF(_p);
         _p = p._p;
         Py_XINCREF(_p);

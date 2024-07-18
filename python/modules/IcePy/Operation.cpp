@@ -564,18 +564,25 @@ asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* ar
     public:
         CallbackWrapper(PyObject* callback) : _callback(callback) { Py_XINCREF(callback); }
 
+        ~CallbackWrapper()
+        {
+            // Adopt the Python GIL. This is called from the C++ thread pool.
+            AdoptThread adoptThread;
+            Py_XDECREF(_callback);
+        }
+
         void run()
         {
             AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
             PyObjectHandle args = PyTuple_New(0);
             assert(args.get());
-            PyObjectHandle tmp = PyObject_Call(_callback.get(), args.get(), 0);
+            PyObjectHandle tmp = PyObject_Call(_callback, args.get(), 0);
             PyErr_Clear();
         }
 
     private:
-        PyObjectHandle _callback;
+        PyObject* _callback;
     };
 
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.

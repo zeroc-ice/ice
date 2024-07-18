@@ -610,6 +610,7 @@ namespace IcePy
     public:
         ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = 0) noexcept;
         ExceptionWriter(const ExceptionWriter&) = default;
+        ~ExceptionWriter() noexcept;
 
         const char* ice_id() const noexcept final;
         void ice_throw() const final;
