@@ -638,7 +638,7 @@ public class RoutableReference extends Reference {
     //
     // If a secure connection is requested or secure overrides is
     // set, remove all non-secure endpoints. Otherwise if preferSecure is set
-    // make secure endpoints prefered. By default make non-secure
+    // make secure endpoints preferred. By default make non-secure
     // endpoints preferred over secure endpoints.
     //
     DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();

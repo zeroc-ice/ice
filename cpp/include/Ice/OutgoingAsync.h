@@ -171,6 +171,9 @@ namespace IceInternal
         Ice::OperationMode _mode;
 
     private:
+        int handleRetryAfterException(std::exception_ptr);
+        int checkRetryAfterException(std::exception_ptr);
+
         int _cnt;
         bool _sent;
     };

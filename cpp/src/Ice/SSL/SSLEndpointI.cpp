@@ -34,14 +34,6 @@ extern "C"
     }
 }
 
-namespace Ice
-{
-    ICE_API void registerIceSSL(bool loadOnInitialize)
-    {
-        Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
-    }
-}
-
 namespace
 {
     Ice::IPEndpointInfoPtr getIPEndpointInfo(const Ice::EndpointInfoPtr& info)

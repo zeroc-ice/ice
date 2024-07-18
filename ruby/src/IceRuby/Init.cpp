@@ -25,7 +25,8 @@ extern "C"
 {
     void ICE_DECLSPEC_EXPORT Init_IceRuby()
     {
-        Ice::registerIceSSL(false);
+        Ice::registerIceUDP(true);
+        Ice::registerIceWS(true);
         Ice::registerIceDiscovery(false);
         Ice::registerIceLocatorDiscovery(false);
 

@@ -234,7 +234,7 @@ public class SessionHelper {
       _session = session;
       _connected = true;
 
-      // TODO: check remoteIdleTimout
+      // TODO: check remoteIdleTimeout
 
       com.zeroc.Ice.Connection connection = _router.ice_getCachedConnection();
       assert (connection != null);

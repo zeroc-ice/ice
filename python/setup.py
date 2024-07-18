@@ -61,7 +61,6 @@ else:
 # Define macros used during the build process
 define_macros = [
     ('ICE_STATIC_LIBS', None),
-    ('ICE_PYPI', None),
     ('ICE_BUILDING_SRC', None),
     ('ICE_BUILDING_ICE', None),
     ('ICE_BUILDING_ICE_LOCATOR_DISCOVERY', None)]
@@ -70,7 +69,7 @@ define_macros = [
 if sys.platform == 'darwin':
     extra_compile_args = ['-w']
     cpp_extra_compile_args = ['-std=c++20']
-    libraries = ['iconv']
+    libraries = []
     extra_link_args = ['-framework', 'Security', '-framework', 'CoreFoundation']
 elif sys.platform == 'win32':
     define_macros.extend(
@@ -155,34 +154,26 @@ class CustomBuildExtCommand(_build_ext):
 # Customize the sdist command to ensure that the third-party sources and the generated sources are included in the
 # source distribution.
 class CustomSdistCommand(_sdist):
-    def run(self):
-        global sources  # Use the global sources list
 
-        sources = []  # Clear the sources list
-
-        def include_file(filename):
-            filename = os.path.normpath(filename)
-            # For Windows, ensure we only include generated files for the current platform
-            if pathlib.Path(filename).suffix.lower() not in ['.c', '.cpp', '.h']:
+    def include_file(self, filename):
+        filename = os.path.normpath(filename)
+        # For Windows, ensure we only include generated files for the current platform
+        if pathlib.Path(filename).suffix.lower() not in ['.c', '.cpp', '.h', '.ice', '.py']:
+            return False
+        if sys.platform == 'win32':
+            if "generated" in filename and os.path.join(platform, configuration) not in filename:
                 return False
-            if sys.platform == 'win32':
-                if "generated" in filename and os.path.join(platform, configuration) not in filename:
-                    return False
-                elif "msbuild" in filename and os.path.join(platform, configuration) not in filename:
-                    return False
-            return True
+            elif "msbuild" in filename and os.path.join(platform, configuration) not in filename:
+                return False
+        return True
 
+    def pre_build(self):
         # MCPP sources
         if not os.path.exists(mcpp_local_filename):
             with urllib.request.urlopen(mcpp_url) as response:
                 with open(mcpp_local_filename, 'wb') as f:
                     f.write(response.read())
             os.system(f"tar -xzf {mcpp_local_filename} -C dist")
-
-        for root, dirs, files in os.walk(f"dist/mcpp-{mcpp_version}"):
-            for file in files:
-                if include_file(os.path.join(root, file)):
-                    sources.append(os.path.join(root, file))
 
         # Bzip2 sources
         if not os.path.exists(bzip2_local_filename):
@@ -191,21 +182,27 @@ class CustomSdistCommand(_sdist):
                     f.write(response.read())
             os.system(f"tar -xzf {bzip2_local_filename} -C dist")
 
-        for root, dirs, files in os.walk(f"dist/bzip2-{bzip2_version}"):
-            for file in files:
-                if include_file(os.path.join(root, file)):
-                    sources.append(os.path.join(root, file))
-
         # Ice sources
         if sys.platform == 'win32':
-            os.system(f"MSBuild msbuild/ice.proj /p:Configuration={configuration} /p:Platform={platform} /t:BuildDist")
+            # Build slice2cpp and slice2py required to generate the C++ and Python sources included in the pip source dist
+            msbuild_args = f"/p:Configuration={configuration} /p:Platform={platform}"
+            solution_path = "../cpp/msbuild/ice.sln"
+            os.system(f"MSBuild /m {solution_path} {msbuild_args} /t:slice2cpp;slice2py")
+            # Build the SliceCompile target to generate the Ice, IceDiscovery, and IceLocatorDiscovery
+            # sources included in the pip source dist
+            for project in ["Ice", "IceDiscovery", "IceLocatorDiscovery"]:
+                project_path = f"../cpp/src/{project}/{project}/{project}.vcxproj"
+                os.system(f"MSBuild {project_path} {msbuild_args} /t:SliceCompile")
+
         else:
-            os.system('make srcs OPTIMIZE=yes -C ' + os.path.join(script_directory, '..', 'cpp'))
+            cpp_source_dir = os.path.join(script_directory, '..', 'cpp')
+            cpp_targets = "slice2cpp slice2py generate-srcs"
+            os.system(f"make OPTIMIZE=yes -C {cpp_source_dir} {cpp_targets} {cpp_source_dir}")
 
         for source_dir in ice_cpp_sources:
             for root, dirs, files in os.walk(source_dir):
                 for file in files:
-                    if include_file(os.path.join(root, file)):
+                    if self.include_file(os.path.join(root, file)):
                         source_file = os.path.join(root, file)
                         relative_path = os.path.relpath(source_file, '..')
                         target_file = os.path.join(script_directory, 'dist/ice', relative_path)
@@ -213,7 +210,6 @@ class CustomSdistCommand(_sdist):
                         if not os.path.exists(target_dir):
                             os.makedirs(target_dir)
                         shutil.copy(source_file, target_file)
-                        sources.append(os.path.relpath(target_file, script_directory))
 
         # IcePy sources
         for root, dirs, files in os.walk("modules/IcePy"):
@@ -226,26 +222,23 @@ class CustomSdistCommand(_sdist):
                     if not os.path.exists(target_dir):
                         os.makedirs(target_dir)
                     shutil.copy(source_file, target_file)
-                    sources.append(os.path.relpath(target_file, script_directory))
 
         # Slice sources
         for root, dirs, files in os.walk("../slice"):
             for file in files:
-                if file.endswith('.ice') and "IceDiscovery" not in root and "IceLocatorDiscovery" not in root:
-                    source_file = os.path.join(root, file)
-                    relative_path = os.path.relpath(source_file, '..')
-                    target_file = os.path.join(script_directory, 'dist/lib', relative_path)
-                    target_dir = os.path.dirname(target_file)
-                    if not os.path.exists(target_dir):
-                        os.makedirs(target_dir)
-                    shutil.copy(source_file, target_file)
-                    sources.append(os.path.relpath(target_file, script_directory))
+                source_file = os.path.join(root, file)
+                relative_path = os.path.relpath(source_file, '..')
+                target_file = os.path.join(script_directory, 'dist/lib', relative_path)
+                target_dir = os.path.dirname(target_file)
+                if not os.path.exists(target_dir):
+                    os.makedirs(target_dir)
+                shutil.copy(source_file, target_file)
 
         # Python sources
         if sys.platform == 'win32':
-            os.system(f"MSbuild msbuild/ice.proj /p:Configuration={configuration} /p:Platform={platform} /t:BuildDist")
+            os.system(f"MSBuild msbuild/ice.proj /t:SliceCompile /p:Configuration={configuration} /p:Platform={platform}")
         else:
-            os.system('make OPTIMIZE=yes')
+            os.system("make generate-srcs")
 
         for root, dirs, files in os.walk("python"):
             for file in files:
@@ -257,7 +250,18 @@ class CustomSdistCommand(_sdist):
                     if not os.path.exists(target_dir):
                         os.makedirs(target_dir)
                     shutil.copy(source_file, target_file)
-                    sources.append(os.path.relpath(target_file, script_directory))
+
+    def run(self):
+        if os.path.exists("../cpp"):
+            self.pre_build()
+
+        global sources  # Use the global sources list
+        sources = []  # Clear the sources list
+        for root, dirs, files in os.walk("dist"):
+            for file in files:
+                if self.include_file(os.path.join(root, file)):
+                    sources.append(os.path.join(root, file))
+
         self.distribution.ext_modules[0].sources = sources
         _sdist.run(self)
 

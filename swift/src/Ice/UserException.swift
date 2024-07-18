@@ -2,11 +2,11 @@
 
 /// Base class for Ice user exceptions.
 open class UserException: Exception {
+    public required init() {}
+
     /// Gets the type ID of the class.
     /// - Returns: The type ID of the class.
     open class func ice_staticId() -> String { "::Ice::UserException" }
-
-    public required init() {}
 
     open func _iceReadImpl(from _: InputStream) throws {}
     open func _iceWriteImpl(to _: OutputStream) {}

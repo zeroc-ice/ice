@@ -130,8 +130,7 @@ namespace Slice
             const DataMemberList&,
             const DataMemberList&,
             const ContainedPtr&,
-            bool rootClass = false,
-            const StringPairList& = StringPairList());
+            bool rootClass);
         void writeMembers(IceInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
 
         void writeMarshalUnmarshalCode(
