@@ -290,6 +290,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     out.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId);
 
+    // We're just about to send a request, so we are not inactive anymore.
+    cancelInactivityTimer();
+
     int status;
     try {
       status = sendMessage(new OutgoingMessage(out, os, compress, requestId));
@@ -1113,7 +1116,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     // If isTimerTaskStarted returns false, it means that while we were waiting to acquire the
     // lock, a read went through and rescheduled the read timer task. This means "this" task was
     // canceled so we don't do anything.
-    if (isActiveOrHolding() && isTimerTaskStarted.getAsBoolean()) {
+    if ((_state == StateActive || _state == StateHolding) && isTimerTaskStarted.getAsBoolean()) {
       if (_transceiver.isWaitingToBeRead()) {
         // Bytes are available for reading but the thread pool is exhausted. We don't want to abort
         // the connection in this situation.
@@ -1152,21 +1155,53 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   public synchronized void sendHeartbeat() {
     assert !_endpoint.datagram();
 
-    if (isActiveOrHolding()) {
-      OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
-      os.writeBlob(Protocol.magic);
-      Protocol.currentProtocol.ice_writeMembers(os);
-      Protocol.currentProtocolEncoding.ice_writeMembers(os);
-      os.writeByte(Protocol.validateConnectionMsg);
-      os.writeByte((byte) 0);
-      os.writeInt(Protocol.headerSize); // Message size.
+    if (_state == StateActive || _state == StateHolding) {
 
-      try {
-        sendMessage(new OutgoingMessage(os, false, false));
-      } catch (LocalException ex) {
-        setState(StateClosed, ex);
+      // We check if the connection has become inactive.
+      if (_inactivityTimerFuture == null // timer not already scheduled
+          && _inactivityTimeout > 0 // inactivity timeout is enabled
+          && _state == StateActive // only schedule the timer if the connection is active
+          && _dispatchCount == 0 // no pending dispatch
+          && _asyncRequests.isEmpty() // no pending invocation
+          && _readHeader // we're not waiting for the remainder of an incoming message
+          && _sendStreams.size() <= 1 // there is at most one pending outgoing message
+      ) {
+        // We may become inactive while the peer is back-pressuring us. In this case, we only
+        // schedule the inactivity timer if there is no pending outgoing message or the
+        // pending outgoing message is a heartbeat.
+
+        // The stream of the first _sendStreams message is in _writeStream.
+        if (_sendStreams.isEmpty()
+            || _writeStream.getBuffer().b.get(8) == Protocol.validateConnectionMsg) {
+          scheduleInactivityTimer();
+        }
+      }
+
+      // We send a heartbeat to the peer to generate a "write" on the connection. This write in
+      // turns creates a read on the peer, and resets the peer's idle check timer. When
+      // _sendStream is not empty, there is already an outstanding write, so we don't need to
+      // send a heartbeat. It's possible the first message of _sendStreams was already sent but
+      // not yet removed from _sendStreams: it means the last write occurred very recently,
+      // which is good enough with respect to the idle check.
+      // As a result of this optimization, the only possible heartbeat in _sendStreams is the
+      // first _sendStreams message.
+      if (_sendStreams.isEmpty()) {
+        OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+        os.writeBlob(Protocol.magic);
+        Protocol.currentProtocol.ice_writeMembers(os);
+        Protocol.currentProtocolEncoding.ice_writeMembers(os);
+        os.writeByte(Protocol.validateConnectionMsg);
+        os.writeByte((byte) 0);
+        os.writeInt(Protocol.headerSize); // Message size.
+
+        try {
+          sendMessage(new OutgoingMessage(os, false, false));
+        } catch (LocalException ex) {
+          setState(StateClosed, ex);
+        }
       }
     }
+    // else, nothing to do.
   }
 
   public ConnectionI(
@@ -1774,42 +1809,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private int sendMessage(OutgoingMessage message) {
     assert _state >= StateActive;
     assert _state < StateClosed;
-
-    boolean isHeartbeat = message.stream.getBuffer().b.get(8) == Protocol.validateConnectionMsg;
-
-    if (!isHeartbeat) {
-      cancelInactivityTimer();
-    } else if (
-    // timer not already scheduled
-    _inactivityTimerFuture == null
-        &&
-        // inactivity timeout is enabled
-        _inactivityTimeout > 0
-        &&
-        // only schedule the timer if the connection is active
-        _state == StateActive
-        &&
-        // no pending dispatch
-        _dispatchCount == 0
-        &&
-        // no pending invocation
-        _asyncRequests.isEmpty()
-        &&
-        // we're not waiting for the remainder of an incoming message
-        _readHeader) {
-      boolean isInactive = true;
-
-      for (OutgoingMessage queuedMessage : _sendStreams) {
-        if (queuedMessage.stream.getBuffer().b.get(8) != Protocol.validateConnectionMsg) {
-          isInactive = false;
-          break;
-        }
-      }
-
-      if (isInactive) {
-        scheduleInactivityTimer();
-      }
-    }
 
     if (!_sendStreams.isEmpty()) {
       message.adopt();
