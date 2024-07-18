@@ -5,6 +5,7 @@
 #include "Util.h"
 #include "Ice/DisableWarnings.h"
 #include "Ice/Protocol.h"
+#include "Thread.h"
 #include "slice2py/PythonUtil.h"
 
 #include <compile.h>
@@ -223,15 +224,33 @@ IcePy::getFunction()
 
 IcePy::PyObjectHandle::PyObjectHandle(PyObject* p) : _p(p) {}
 
-IcePy::PyObjectHandle::PyObjectHandle(const PyObjectHandle& p) : _p(p._p) { Py_XINCREF(_p); }
+IcePy::PyObjectHandle::PyObjectHandle(const PyObjectHandle& p) : _p(p._p)
+{
+    AdoptThread adoptThread; // Ensure that we can call Python code.
+    Py_XINCREF(_p);
+}
 
-IcePy::PyObjectHandle::~PyObjectHandle() { Py_XDECREF(_p); }
+IcePy::PyObjectHandle::~PyObjectHandle()
+{
+    // The destructor can be called from Py_Exit at which point is no longer safe to call Python code.
+    // But this should only happen for objects that have been already released.
+
+    if (_p)
+    {
+        AdoptThread adoptThread; // Ensure that we can call Python code.
+        Py_DECREF(_p);
+    }
+}
 
 IcePy::PyObjectHandle&
 IcePy::PyObjectHandle::operator=(PyObject* p)
 {
-    Py_XDECREF(_p);
-    _p = p;
+    if (p != _p)
+    {
+        AdoptThread adoptThread; // Ensure that we can call Python code.
+        Py_XDECREF(_p);
+        _p = p;
+    }
     return *this;
 }
 
@@ -240,6 +259,7 @@ IcePy::PyObjectHandle::operator=(const PyObjectHandle& p)
 {
     if (this != &p)
     {
+        AdoptThread adoptThread; // Ensure that we can call Python code.
         Py_XDECREF(_p);
         _p = p._p;
         Py_XINCREF(_p);
@@ -790,12 +810,10 @@ void
 IcePy::setPythonException(PyObject* ex)
 {
     //
-    // PyErr_Restore steals references to the type and exception.
+    // PyErr_SetRaisedException steals a reference.
     //
-    PyObject* type = PyObject_Type(ex);
-    assert(type);
     Py_INCREF(ex);
-    PyErr_Restore(type, ex, 0);
+    PyErr_SetRaisedException(ex);
 }
 
 void

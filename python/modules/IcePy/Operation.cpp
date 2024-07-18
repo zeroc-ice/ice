@@ -562,15 +562,7 @@ asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* ar
     class CallbackWrapper final
     {
     public:
-        CallbackWrapper(PyObject* callback) : _callback(callback) { Py_XINCREF(_callback); }
-
-        ~CallbackWrapper()
-        {
-            // TODO is this adopt thread necessary? Why don't we have the same in PyObjectHandle?
-            AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-            Py_DECREF(_callback);
-        }
+        CallbackWrapper(PyObject* callback) : _callback(callback) { Py_XINCREF(callback); }
 
         void run()
         {
@@ -578,12 +570,12 @@ asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* ar
 
             PyObjectHandle args = PyTuple_New(0);
             assert(args.get());
-            PyObjectHandle tmp = PyObject_Call(_callback, args.get(), 0);
+            PyObjectHandle tmp = PyObject_Call(_callback.get(), args.get(), 0);
             PyErr_Clear();
         }
 
     private:
-        PyObject* _callback;
+        PyObjectHandle _callback;
     };
 
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
@@ -1497,11 +1489,10 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, pair<const byte*, 
     {
         is.endEncapsulation();
 
-        PyObject* ex = r.getException();
+        PyObject* ex = r.getException(); // Borrowed reference.
 
         if (validateException(op, ex))
         {
-            // TODO: This looks suspicious, why do we need to INCREF the exception here?
             Py_XINCREF(ex);
             return ex;
         }
