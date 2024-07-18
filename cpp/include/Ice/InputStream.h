@@ -927,10 +927,8 @@ namespace Ice
         /// \endcond
 
     private:
-
 #ifdef ICE_UNALIGNED
-        template<typename T>
-        void unalignedRead(std::pair<const T*, const T*>& v)
+        template<typename T> void unalignedRead(std::pair<const T*, const T*>& v)
         {
             int sz = readAndCheckSeqSize(static_cast<int>(sizeof(T)));
 
