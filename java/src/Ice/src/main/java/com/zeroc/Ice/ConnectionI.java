@@ -1683,21 +1683,38 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return true;
   }
 
+  /**
+   * Sends the next queued messages. This method is called by message() once the message which is
+   * being sent (_sendStreams.First) is fully sent. Before sending the next message, this message is
+   * removed from _sendsStream. If any, its sent callback is also queued in given callback queue.
+   *
+   * @param callbacks The sent callbacks to call for the messages that were sent.
+   * @return The socket operation to register with the thread pool's selector to send the remainder
+   *     of the pending message being sent (_sendStreams.First).
+   */
   private int sendNextMessage(java.util.List<OutgoingMessage> callbacks) {
     if (_sendStreams.isEmpty()) {
+      // This can occur if no message was being written and the socket write operation
+      // was registered with the thread pool (a transceiver read method can request
+      // writing data).
       return SocketOperation.None;
     } else if (_state == StateClosingPending && _writeStream.pos() == 0) {
-      // Message wasn't sent, empty the _writeStream, we're not going to send more data.
+      // Message wasn't sent, empty the _writeStream, we're not going to send more
+      // data because the connection is being closed.
       OutgoingMessage message = _sendStreams.getFirst();
       _writeStream.swap(message.stream);
       return SocketOperation.None;
     }
 
+    // Assert that the message was fully written.
     assert (!_writeStream.isEmpty() && _writeStream.pos() == _writeStream.size());
+
     try {
       while (true) {
         //
-        // Notify the message that it was sent.
+        // The message that was being sent is sent. We can swap back the write
+        // stream buffer to the outgoing message (required for retry) and queue its
+        // sent callback (if any).
         //
         OutgoingMessage message = _sendStreams.getFirst();
         _writeStream.swap(message.stream);
@@ -1725,7 +1742,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         }
 
         //
-        // Otherwise, prepare the next message stream for writing.
+        // Otherwise, prepare the next message.
         //
         message = _sendStreams.getFirst();
         assert (!message.prepared);
@@ -1734,12 +1751,13 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         message.stream = doCompress(stream, message.compress);
         message.stream.prepareWrite();
         message.prepared = true;
+
         TraceUtil.traceSend(stream, _logger, _traceLevels);
-        _writeStream.swap(message.stream);
 
         //
         // Send the message.
         //
+        _writeStream.swap(message.stream);
         if (_observer != null) {
           observerStartWrite(_writeStream.getBuffer());
         }
@@ -1752,6 +1770,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         if (_observer != null) {
           observerFinishWrite(_writeStream.getBuffer());
         }
+
+        // If the message was sent right away, loop to send the next queued message.
       }
 
       //
@@ -1771,6 +1791,12 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return SocketOperation.None;
   }
 
+  /**
+   * Sends or queues the given message.
+   *
+   * @param message The message to send.
+   * @return The send status.
+   */
   private int sendMessage(OutgoingMessage message) {
     assert _state >= StateActive;
     assert _state < StateClosed;
@@ -1811,19 +1837,17 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       }
     }
 
+    // Some messages are queued for sending. Just adds the message to the send queue and
+    // tell the caller that the message was queued.
     if (!_sendStreams.isEmpty()) {
       message.adopt();
       _sendStreams.addLast(message);
       return AsyncStatus.Queued;
     }
 
-    //
-    // Attempt to send the message without blocking. If the send blocks, we
-    // register the connection with the selector thread.
-    //
-
     assert (!message.prepared);
 
+    // Prepare the message for sending.
     OutputStream stream = message.stream;
 
     message.stream = doCompress(stream, message.compress);
@@ -1832,14 +1856,13 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     int op;
     TraceUtil.traceSend(stream, _logger, _traceLevels);
 
-    //
     // Send the message without blocking.
-    //
     if (_observer != null) {
       observerStartWrite(message.stream.getBuffer());
     }
     op = write(message.stream.getBuffer());
     if (op == 0) {
+      // The message was sent so we're done.
       if (_observer != null) {
         observerFinishWrite(message.stream.getBuffer());
       }
@@ -1851,6 +1874,13 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
       return status;
     }
+
+    // The message couldn't be sent right away so we add it to the send stream
+    // queue (which is empty) and swap its stream with `_writeStream`. The socket
+    // operation returned by the transceiver write is registered with the thread
+    // pool. At this point the message() method will take care of sending the whole
+    // message (held by _writeStream) when the transceiver is ready to write more
+    // of the message buffer.
 
     message.adopt();
 
@@ -2515,12 +2545,18 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   private java.util.LinkedList<OutgoingMessage> _sendStreams = new java.util.LinkedList<>();
 
+  // Contains the message which is being received. If the connection is waiting to receive a
+  // message (_readHeader == true), its size is Protocol.headerSize. Otherwise, its size is
+  // the message size specified in the received message header.
   private InputStream _readStream;
 
   // When _readHeader is true, the next bytes we'll read are the header of a new message. When
   // false, we're reading
   // next the remainder of a message that was already partially received.
   private boolean _readHeader;
+
+  // Contains the message which is being sent. The write stream buffer is empty if no message
+  // is being sent.
   private OutputStream _writeStream;
 
   private com.zeroc.Ice.Instrumentation.ConnectionObserver _observer;

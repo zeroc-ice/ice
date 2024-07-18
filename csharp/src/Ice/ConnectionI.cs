@@ -1938,29 +1938,43 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return true;
     }
 
+    /// <summary>
+    /// Sends the next queued messages. This method is called by message() once the message which is being sent
+    /// (_sendStreams.First) is fully sent. Before sending the next message, this message is removed from _sendsStream
+    /// If any, its sent callback is also queued in given callback queue.
+    /// </summary>
+    /// <param name="callbacks">The sent callbacks to call for the messages that were sent.</param>
+    /// <returns>The socket operation to register with the thread pool's selector to send the remainder of the pending
+    /// message being sent (_sendStreams.First).</returns>
     private int sendNextMessage(out Queue<OutgoingMessage> callbacks)
     {
         callbacks = null;
 
         if (_sendStreams.Count == 0)
         {
+            // This can occur if no message was being written and the socket write operation was registered with the
+            // thread pool (a transceiver read method can request writing data).
             return SocketOperation.None;
         }
         else if (_state == StateClosingPending && _writeStream.pos() == 0)
         {
-            // Message wasn't sent, empty the _writeStream, we're not going to send more data.
+            // Message wasn't sent, empty the _writeStream, we're not going to send more data because the connection
+            // is being closed.
             OutgoingMessage message = _sendStreams.First.Value;
             _writeStream.swap(message.stream);
             return SocketOperation.None;
         }
 
+        // Assert that the message was fully written.
         Debug.Assert(!_writeStream.isEmpty() && _writeStream.pos() == _writeStream.size());
+
         try
         {
             while (true)
             {
                 //
-                // Notify the message that it was sent.
+                // The message that was being sent is sent. We can swap back the write stream buffer to the
+                // outgoing message (required for retry) and queue its sent callback (if any).
                 //
                 OutgoingMessage message = _sendStreams.First.Value;
                 _writeStream.swap(message.stream);
@@ -1983,11 +1997,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
 
                 //
-                // If we are in the closed state or if the close is
-                // pending, don't continue sending.
-                //
-                // This can occur if parseMessage (called before
-                // sendNextMessage by message()) closes the connection.
+                // If we are in the closed state or if the close is pending, don't continue sending. This can occur if
+                // parseMessage (called before sendNextMessage by message()) closes the connection.
                 //
                 if (_state >= StateClosingPending)
                 {
@@ -1995,7 +2006,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
 
                 //
-                // Otherwise, prepare the next message stream for writing.
+                // Otherwise, prepare the next message.
                 //
                 message = _sendStreams.First.Value;
                 Debug.Assert(!message.prepared);
@@ -2006,11 +2017,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 message.prepared = true;
 
                 TraceUtil.traceSend(stream, _logger, _traceLevels);
-                _writeStream.swap(message.stream);
 
                 //
                 // Send the message.
                 //
+                _writeStream.swap(message.stream);
                 if (_observer is not null)
                 {
                     observerStartWrite(_writeStream.getBuffer());
@@ -2027,11 +2038,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     observerFinishWrite(_writeStream.getBuffer());
                 }
+
+                // If the message was sent right away, loop to send the next queued message.
             }
 
             //
-            // If all the messages were sent and we are in the closing state, we schedule
-            // the close timeout to wait for the peer to close the connection.
+            // If all the messages were sent and we are in the closing state, we schedule the close timeout to wait for
+            // the peer to close the connection.
             //
             if (_state == StateClosing && _shutdownInitiated)
             {
@@ -2050,11 +2063,18 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return SocketOperation.None;
     }
 
+    /// <summary>
+    /// Sends or queues the given message.
+    /// </summary>
+    /// <param name="message">The message to send.</param>
+    /// <returns>The send status.</returns>
     private int sendMessage(OutgoingMessage message)
     {
         Debug.Assert(_state >= StateActive);
         Debug.Assert(_state < StateClosed);
 
+        // Some messages are queued for sending. Just adds the message to the send queue and tell the caller that
+        // the message was queued.
         if (_sendStreams.Count > 0)
         {
             message.adopt();
@@ -2062,12 +2082,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return OutgoingAsyncBase.AsyncStatusQueued;
         }
 
-        //
-        // Attempt to send the message without blocking. If the send blocks, we use
-        // asynchronous I/O or we request the caller to call finishSendMessage() outside
-        // the synchronization.
-        //
-
+        // Prepare the message for sending.
         Debug.Assert(!message.prepared);
 
         OutputStream stream = message.stream;
@@ -2078,9 +2093,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         TraceUtil.traceSend(stream, _logger, _traceLevels);
 
-        //
         // Send the message without blocking.
-        //
         if (_observer is not null)
         {
             observerStartWrite(message.stream.getBuffer());
@@ -2088,6 +2101,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         int op = write(message.stream.getBuffer());
         if (op == 0)
         {
+            // The message was sent so we're done.
+
             if (_observer is not null)
             {
                 observerFinishWrite(message.stream.getBuffer());
@@ -2096,11 +2111,17 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             int status = OutgoingAsyncBase.AsyncStatusSent;
             if (message.sent())
             {
+                // If there's a sent callback, indicate the caller that it should invoke the sent callback.
                 status = status | OutgoingAsyncBase.AsyncStatusInvokeSentCallback;
             }
 
             return status;
         }
+
+        // The message couldn't be sent right away so we add it to the send stream queue (which is empty) and swap its
+        // stream with `_writeStream`. The socket operation returned by the transceiver write is registered with the
+        // thread pool. At this point the message() method will take care of sending the whole message (held by
+        // _writeStream) when the transceiver is ready to write more of the message buffer.
 
         message.adopt();
 
@@ -2822,11 +2843,16 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 
+    // Contains the message which is being received. If the connection is waiting to receive a message (_readHeader ==
+    // true), its size is Protocol.headerSize. Otherwise, its size is the message size specified in the received message
+    // header.
     private InputStream _readStream;
 
     // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're reading
     // next the remainder of a message that was already partially received.
     private bool _readHeader;
+
+    // Contains the message which is being sent. The write stream buffer is empty if no message is being sent.
     private OutputStream _writeStream;
 
     private ConnectionObserver _observer;
