@@ -945,12 +945,12 @@ allTests(TestHelper* helper)
         adminRouter2 = adminRouter->ice_connectionId("admRouter21");
 
         auto admSession1 = uncheckedCast<AdminSessionPrx>(adminRouter1->createSessionFromSecureConnection()
-                                                                         ->ice_connectionId("admRouter11")
-                                                                         ->ice_router(adminRouter1));
+                                                              ->ice_connectionId("admRouter11")
+                                                              ->ice_router(adminRouter1));
 
         auto admSession2 = uncheckedCast<AdminSessionPrx>(adminRouter2->createSessionFromSecureConnection()
-                                                                         ->ice_connectionId("admRouter21")
-                                                                         ->ice_router(adminRouter2));
+                                                              ->ice_connectionId("admRouter21")
+                                                              ->ice_router(adminRouter2));
 
         admSession1->ice_ping();
         admSession2->ice_ping();
