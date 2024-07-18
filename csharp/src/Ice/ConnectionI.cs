@@ -1464,7 +1464,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     // inactivity timer if there is no pending outgoing message or the pending outgoing message is a
                     // heartbeat.
 
-                    // The stream of _sendStreams.First is in _writeStream.
+                    // The stream of the first _sendStreams message is in _writeStream.
                     if (_sendStreams.Count == 0 || isHeartbeat(_writeStream))
                     {
                         scheduleInactivityTimer();
@@ -1472,11 +1472,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
 
                 // We send a heartbeat to the peer to generate a "write" on the connection. This write in turns creates
-                // a read on the peer, and resets the peer's idle check timer. When _sendStream.Count > 0, there is
-                // already an outstanding write, so we don't need to send a heartbeat. It's possible _sendStream.First
-                // was sent already but not yet removed from _sendStreams: it means the last write occurred very
-                // recently, which is good enough with respect to the idle check.
-                // As a result of this optimization, the only possible heartbeat in _sendStreams is _sendStreams.First.
+                // a read on the peer, and resets the peer's idle check timer. When _sendStream is not empty, there is
+                // already an outstanding write, so we don't need to send a heartbeat. It's possible the first message
+                // of _sendStreams was already sent but not yet removed from _sendStreams: it means the last write
+                // occurred very recently, which is good enough with respect to the idle check.
+                // As a result of this optimization, the only possible heartbeat in _sendStreams is the first
+                // _sendStreams message.
                 if (_sendStreams.Count == 0)
                 {
                     OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);

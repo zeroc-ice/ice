@@ -684,6 +684,9 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
 
     out->attachRemoteObserver(initConnectionInfo(), _endpoint, requestId);
 
+    // We're just about to send a request, so we are not inactive anymore.
+    cancelInactivityTimerTask();
+
     AsyncStatus status = AsyncStatusQueued;
     try
     {
@@ -2299,6 +2302,14 @@ Ice::ConnectionI::closeTimedOut() noexcept
     // else ignore since we're already closed.
 }
 
+namespace
+{
+    inline bool isHeartbeat(const OutputStream& stream)
+    {
+        return static_cast<uint8_t>(stream.b[8]) == IceInternal::validateConnectionMsg;
+    }
+}
+
 void
 Ice::ConnectionI::sendHeartbeat() noexcept
 {
@@ -2307,25 +2318,56 @@ Ice::ConnectionI::sendHeartbeat() noexcept
     lock_guard lock(_mutex);
     if (_state == StateActive || _state == StateHolding)
     {
-        OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
-        os.write(magic[0]);
-        os.write(magic[1]);
-        os.write(magic[2]);
-        os.write(magic[3]);
-        os.write(currentProtocol);
-        os.write(currentProtocolEncoding);
-        os.write(validateConnectionMsg);
-        os.write(static_cast<uint8_t>(0)); // Compression status (always zero for validate connection).
-        os.write(headerSize);              // Message size.
-        os.i = os.b.begin();
-        try
+        // We check if the connection has become inactive.
+        if (_inactivityTimerTask &&               // null when the inactivity timeout is infinite
+            !_inactivityTimerTaskScheduled &&     // we never reschedule this task
+            _state == StateActive &&              // only schedule the task if the connection is active
+            _dispatchCount == 0 &&                // no pending dispatch
+            _dispatchCount == 0 &&                // no pending dispatch
+            _asyncRequests.empty() &&             // no pending invocation
+            _readHeader &&                        // we're not waiting for the remainder of an incoming message
+            _sendStreams.size() <= 1)             // there is at most one pending outgoing message
         {
-            OutgoingMessage message(&os, false);
-            sendMessage(message);
+            // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
+            // inactivity timer if there is no pending outgoing message or the pending outgoing message is a
+            // heartbeat.
+
+            // The stream of the first _sendStreams message is in _writeStream.
+            if (_sendStreams.empty() || isHeartbeat(_writeStream))
+            {
+                scheduleInactivityTimerTask();
+            }
         }
-        catch (...)
+
+        // We send a heartbeat to the peer to generate a "write" on the connection. This write in turns creates
+        // a read on the peer, and resets the peer's idle check timer. When _sendStream is not empty, there is
+        // already an outstanding write, so we don't need to send a heartbeat. It's possible the first message
+        // of _sendStreams was already sent but not yet removed from _sendStreams: it means the last write
+        // occurred very recently, which is good enough with respect to the idle check.
+        // As a result of this optimization, the only possible heartbeat in _sendStreams is the first
+        // _sendStreams message.
+        if (_sendStreams.empty())
         {
-            setState(StateClosed, current_exception());
+            OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
+            os.write(magic[0]);
+            os.write(magic[1]);
+            os.write(magic[2]);
+            os.write(magic[3]);
+            os.write(currentProtocol);
+            os.write(currentProtocolEncoding);
+            os.write(validateConnectionMsg);
+            os.write(static_cast<uint8_t>(0)); // Compression status (always zero for validate connection).
+            os.write(headerSize);              // Message size.
+            os.i = os.b.begin();
+            try
+            {
+                OutgoingMessage message(&os, false);
+                sendMessage(message);
+            }
+            catch (...)
+            {
+                setState(StateClosed, current_exception());
+            }
         }
     }
     // else nothing to do
@@ -2725,41 +2767,6 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 {
     assert(_state >= StateActive);
     assert(_state < StateClosed);
-
-    bool isHeartbeat = static_cast<uint8_t>(message.stream->b[8]) == IceInternal::validateConnectionMsg;
-    if (!isHeartbeat)
-    {
-        cancelInactivityTimerTask();
-    }
-    // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
-    // inactivity timer task.
-    // It's ok to do this before actually sending the heartbeat since the heartbeat does not count as an "activity".
-    else if (
-        _inactivityTimerTask &&           // null when the inactivity timeout is infinite
-        !_inactivityTimerTaskScheduled && // we never reschedule this task
-        _state == StateActive &&          // only schedule the task if the connection is active
-        _dispatchCount == 0 &&            // no pending dispatch
-        _asyncRequests.empty() &&         // no pending invocation
-        _readHeader)                      // we're not waiting for the remainder of an incoming message
-    {
-        bool isInactive = true;
-
-        // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the inactivity
-        // timer task if all outgoing messages in _sendStreams are heartbeats.
-        for (const auto& queuedMessage : _sendStreams)
-        {
-            if (static_cast<uint8_t>(queuedMessage.stream->b[8]) != IceInternal::validateConnectionMsg)
-            {
-                isInactive = false;
-                break; // for
-            }
-        }
-
-        if (isInactive)
-        {
-            scheduleInactivityTimerTask();
-        }
-    }
 
     message.stream->i = 0; // Reset the message stream iterator before starting sending the message.
 
