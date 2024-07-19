@@ -319,6 +319,9 @@ export class ConnectionI {
             ostr.writeInt(batchRequestNum);
         }
 
+        // We're just about to send a request, so we are not inactive anymore.
+        this.cancelInactivityTimer();
+
         let status;
         try {
             status = this.sendMessage(OutgoingMessage.create(out, out.getOs(), requestId));
@@ -1092,17 +1095,49 @@ export class ConnectionI {
 
     sendHeartbeat() {
         if (this._state == StateActive || this._state == StateHolding) {
-            const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
-            os.writeBlob(Protocol.magic);
-            Protocol.currentProtocol._write(os);
-            Protocol.currentProtocolEncoding._write(os);
-            os.writeByte(Protocol.validateConnectionMsg);
-            os.writeByte(0);
-            os.writeInt(Protocol.headerSize); // Message size.
-            try {
-                this.sendMessage(OutgoingMessage.createForStream(os, false));
-            } catch (ex) {
-                this.setState(StateClosed, ex);
+            // We check if the connection has become inactive.
+            if (
+                this._inactivityTimer === undefined && // timer not already scheduled
+                this._inactivityTimeout > 0 && // inactivity timeout is enabled
+                this._state == StateActive && // only schedule the timer if the connection is active
+                this._dispatchCount == 0 && // no pending dispatch
+                this._asyncRequests.size == 0 && // no pending invocation
+                this._readHeader && // we're not waiting for the remainder of an incoming message
+                this._sendStreams.length <= 1 // there is at most one pending outgoing message
+            ) {
+                // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
+                // inactivity timer if there is no pending outgoing message or the pending outgoing message is a
+                // heartbeat.
+
+                // The stream of the first _sendStreams message is in _writeStream.
+                if (
+                    this._sendStreams.length == 0 ||
+                    this._writeStream.buffer.getAt(8) == Protocol.validateConnectionMsg
+                ) {
+                    this.scheduleInactivityTimer();
+                }
+            }
+
+            // We send a heartbeat to the peer to generate a "write" on the connection. This write in turns creates
+            // a read on the peer, and resets the peer's idle check timer. When _sendStream is not empty, there is
+            // already an outstanding write, so we don't need to send a heartbeat. It's possible the first message
+            // of _sendStreams was already sent but not yet removed from _sendStreams: it means the last write
+            // occurred very recently, which is good enough with respect to the idle check.
+            // As a result of this optimization, the only possible heartbeat in _sendStreams is the first
+            // _sendStreams message.
+            if (this._sendStreams.length == 0) {
+                const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                os.writeBlob(Protocol.magic);
+                Protocol.currentProtocol._write(os);
+                Protocol.currentProtocolEncoding._write(os);
+                os.writeByte(Protocol.validateConnectionMsg);
+                os.writeByte(0);
+                os.writeInt(Protocol.headerSize); // Message size.
+                try {
+                    this.sendMessage(OutgoingMessage.createForStream(os, false));
+                } catch (ex) {
+                    this.setState(StateClosed, ex);
+                }
             }
         }
     }
@@ -1254,37 +1289,6 @@ export class ConnectionI {
     sendMessage(message) {
         Debug.assert(this._state >= StateActive);
         Debug.assert(this._state < StateClosed);
-
-        const isHeartbeat = message.stream.buffer.getAt(8) == Protocol.validateConnectionMsg;
-        if (!isHeartbeat) {
-            this.cancelInactivityTimer();
-        }
-        // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
-        // inactivity timer. It's ok to do this before actually sending the heartbeat since the heartbeat does not count
-        // as an "activity".
-        else if (
-            this._inactivityTimer === undefined && // timer not already scheduled
-            this._inactivityTimeout > 0 && // inactivity timeout is enabled
-            this._state == StateActive && // only schedule the timer if the connection is active
-            this._dispatchCount == 0 && // no pending dispatch
-            this._asyncRequests.size == 0 && // no pending invocation
-            this._readHeader // we're not waiting for the remainder of an incoming message
-        ) {
-            let isInactive = true;
-
-            // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
-            // inactivity timer if all outgoing messages in _sendStreams are heartbeats.
-            for (const queuedMessage of this._sendStreams) {
-                if (queuedMessage.stream.buffer.getAt(8) != Protocol.validateConnectionMsg) {
-                    isInactive = false;
-                    break; // for
-                }
-            }
-
-            if (isInactive) {
-                this.scheduleInactivityTimer();
-            }
-        }
 
         if (this._sendStreams.length > 0) {
             message.doAdopt();
