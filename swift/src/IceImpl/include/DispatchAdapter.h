@@ -13,19 +13,20 @@ typedef void (^ICEOutgoingResponse)(uint8_t, NSString* _Nullable, NSString* _Nul
 // The implementation must call the completion handler exactly once.
 ICEIMPL_API @protocol ICEDispatchAdapter
 - (void)dispatch:(ICEObjectAdapter*)adapter
-        inEncapsBytes:(void*)inEncapsBytes
-        inEncapsCount:(long)inEncapsCount
-                  con:(ICEConnection* _Nullable)con
-                 name:(NSString*)name
-             category:(NSString*)category
-                facet:(NSString*)facet
-            operation:(NSString*)operation
-                 mode:(uint8_t)mode
-              context:(NSDictionary<NSString*, NSString*>*)context
-            requestId:(int32_t)requestId
-        encodingMajor:(uint8_t)encodingMajor
-        encodingMinor:(uint8_t)encodingMinor
-    completionHandler:(ICEOutgoingResponse)completionHandler;
+              inEncapsBytes:(void*)inEncapsBytes
+              inEncapsCount:(long)inEncapsCount
+                        con:(ICEConnection* _Nullable)con
+                       name:(NSString*)name
+                   category:(NSString*)category
+                      facet:(NSString*)facet
+                  operation:(NSString*)operation
+                       mode:(uint8_t)mode
+                    context:(NSDictionary<NSString*, NSString*>*)context
+                  requestId:(int32_t)requestId
+              encodingMajor:(uint8_t)encodingMajor
+              encodingMinor:(uint8_t)encodingMinor
+    outgoingResponseHandler:(ICEOutgoingResponse)outgoingResponseHandler
+                 completion:(void (^)(void))completion;
 
 - (void)complete;
 @end

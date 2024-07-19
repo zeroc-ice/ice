@@ -434,23 +434,23 @@
     }
 }
 
-- (void)ice_getConnectionAsync:(void (^)(ICEConnection* _Nullable))response exception:(void (^)(NSError*))exception
+- (void)ice_getConnectionAsyncWithCompletion:(void (^)(ICEConnection* _Nullable, NSError*))completion
 {
     try
     {
         _prx->ice_getConnectionAsync(
-            [response](std::shared_ptr<Ice::Connection> cppConnection)
+            [completion](std::shared_ptr<Ice::Connection> cppConnection)
             {
                 @autoreleasepool
                 {
-                    response([ICEConnection getHandle:cppConnection]);
+                    completion([ICEConnection getHandle:cppConnection], nullptr);
                 }
             },
-            [exception](std::exception_ptr e)
+            [completion](std::exception_ptr e)
             {
                 @autoreleasepool
                 {
-                    exception(convertException(e));
+                    completion(nullptr, convertException(e));
                 }
             });
     }
@@ -459,7 +459,7 @@
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
         // PromiseKit promise.
-        exception(convertException(std::current_exception()));
+        completion(nullptr, convertException(std::current_exception()));
     }
 }
 

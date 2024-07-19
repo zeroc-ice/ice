@@ -725,8 +725,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         }
 
         out << nl << "///";
-        out << nl << "/// - returns: `PromiseKit.Promise<" << operationReturnType(p, typeCtx)
-            << ">` - The result of the operation";
+        out << nl << "/// - returns: `" << operationReturnType(p, typeCtx) << "` - The result of the operation";
     }
     else
     {
@@ -2501,7 +2500,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
     out << "sent: ((Swift.Bool) -> Swift.Void)? = nil";
 
     out << epar;
-    out << " -> PromiseKit.Promise<";
+    out << " async throws -> ";
     if (allOutParams.empty())
     {
         out << "Swift.Void";
@@ -2510,7 +2509,6 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
     {
         out << operationReturnType(op);
     }
-    out << ">";
 
     out << sb;
 
@@ -2518,7 +2516,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
     // Invoke
     //
     out << sp;
-    out << nl << "return _impl._invokeAsync(";
+    out << nl << "return try await _impl._invokeAsync(";
 
     out.useCurrentPosAsIndent();
     out << "operation: \"" << op->name() << "\",";
@@ -2570,14 +2568,14 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
 
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
+    const bool isAmd = operationIsAmd(op);
+
     out << sp;
-    out << nl << "public func _iceD_" << opName
-        << "(_ request: Ice.IncomingRequest) -> PromiseKit.Promise<Ice.OutgoingResponse>";
+    out << nl << "public func _iceD_" << opName << "(_ request: Ice.IncomingRequest)" << (isAmd ? " async" : "")
+        << " throws -> Ice.OutgoingResponse";
 
     out << sb;
-
-    out << nl << "do";
-    out << sb;
+    out << nl;
 
     // TODO: check operation mode
 
@@ -2594,30 +2592,33 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
 
     if (operationIsAmd(op))
     {
-        out << nl << "return self." << opName << "Async(";
+        out << nl;
+        if (!outParams.empty())
+        {
+            out << "let result = ";
+        }
+
+        out << "try await self." << opName << "Async(";
         out << nl << "    "; // inc/dec doesn't work for an unknown reason
         for (const auto& q : inParams)
         {
             out << q.name << ": iceP_" << q.name << ", ";
         }
-        out << "current: request.current";
-        out << nl;
-        out << ").map(on: nil)";
-        out << sb;
+        out << "current: request.current)";
+
         if (outParams.empty())
         {
-            out << nl << "request.current.makeEmptyOutgoingResponse()";
+            out << nl << "return request.current.makeEmptyOutgoingResponse()";
         }
         else
         {
-            out << " result in ";
-            out << nl << "request.current.makeOutgoingResponse(result, formatType:" << opFormatTypeToString(op) << ")";
+            out << nl << "return request.current.makeOutgoingResponse(result, formatType:" << opFormatTypeToString(op)
+                << ")";
             out << sb;
             out << " ostr, value in ";
             writeMarshalAsyncOutParams(out, op);
             out << eb;
         }
-        out << eb;
     }
     else
     {
@@ -2638,7 +2639,7 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
 
         if (outParams.empty())
         {
-            out << nl << "return PromiseKit.Promise.value(request.current.makeEmptyOutgoingResponse())";
+            out << nl << "return request.current.makeEmptyOutgoingResponse()";
         }
         else
         {
@@ -2648,14 +2649,10 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
                 << ")";
             writeMarshalOutParams(out, op);
             out << nl << "ostr.endEncapsulation()";
-            out << nl << "return PromiseKit.Promise.value(Ice.OutgoingResponse(ostr))";
+            out << nl << "return Ice.OutgoingResponse(ostr)";
         }
     }
-    out << eb;
-    out << " catch";
-    out << sb;
-    out << nl << "return PromiseKit.Promise(error: error)";
-    out << eb;
+
     out << eb;
 }
 

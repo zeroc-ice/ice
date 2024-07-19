@@ -275,15 +275,15 @@ extension Communicator {
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<Void> {
+    ) async throws {
         let impl = self as! CommunicatorI
         let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
-        return Promise<Void> { seal in
+        return try await withCheckedThrowingContinuation { continuation in
             impl.handle.flushBatchRequestsAsync(
                 compress.rawValue,
-                exception: { seal.reject($0) },
+                exception: { continuation.resume(throwing: $0) },
                 sent: {
-                    seal.fulfill(())
+                    continuation.resume(returning: ())
                     if let sentCB = sentCB {
                         sentCB($0)
                     }

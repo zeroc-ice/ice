@@ -2,7 +2,6 @@
 
 import Foundation
 import IceImpl
-import PromiseKit
 
 /// The base protocol for all Ice proxies.
 public protocol ObjectPrx: CustomStringConvertible, AnyObject {
@@ -413,16 +412,13 @@ extension ObjectPrx {
     ///   dispatch sent callback
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
-    /// - returns: `PromiseKit.Promise<Void>` - A promise object that will be resolved with
-    ///   the result of the invocation.
     public func ice_pingAsync(
         context: Context? = nil,
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<Void> {
-        return _impl._invokeAsync(
+    ) async throws {
+        return try await _impl._invokeAsync(
             operation: "ice_ping",
             mode: .Idempotent,
             context: context,
@@ -464,15 +460,14 @@ extension ObjectPrx {
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
-    /// - returns: `PromiseKit.Promise<Bool>` - A promise object that will be resolved with
-    ///   the result of the invocation.
+    /// - returns: `Bool` - The result of the invocation.
     public func ice_isAAsync(
         id: String, context: Context? = nil,
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<Bool> {
-        return _impl._invokeAsync(
+    ) async throws -> Bool {
+        return try await _impl._invokeAsync(
             operation: "ice_isA",
             mode: .Idempotent,
             write: { ostr in
@@ -510,15 +505,14 @@ extension ObjectPrx {
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
-    /// - returns: `PromiseKit.Promise<String>` A promise object that will be resolved with
-    ///   the result of the invocation.
+    /// - returns: `String` The result of the invocation.
     public func ice_idAsync(
         context: Context? = nil,
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<String> {
-        return _impl._invokeAsync(
+    ) async throws -> String {
+        return try await _impl._invokeAsync(
             operation: "ice_id",
             mode: .Idempotent,
             read: { istr in try istr.read() as String },
@@ -554,15 +548,14 @@ extension ObjectPrx {
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
-    /// - returns: `PromiseKit.Promise<Ice.StringSeq>` - A promise object that will be resolved with
-    ///   the result of the invocation.
+    /// - returns: `Ice.StringSeq` - The result of the invocation.
     public func ice_idsAsync(
         context: Context? = nil,
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<StringSeq> {
-        return _impl._invokeAsync(
+    ) async throws -> StringSeq {
+        return try await _impl._invokeAsync(
             operation: "ice_ids",
             mode: .Idempotent,
             read: { istr in try istr.read() as StringSeq },
@@ -630,8 +623,7 @@ extension ObjectPrx {
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
-    /// - returns: `PromiseKit.Promise<(ok: Bool, outEncaps: Data)>` - A promise object that will be
-    ////  resolved with the result of the invocation.
+    /// - returns: `(ok: Bool, outEncaps: Data)` - The result of the invocation.
     public func ice_invokeAsync(
         operation: String,
         mode: OperationMode,
@@ -640,9 +632,10 @@ extension ObjectPrx {
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<(ok: Bool, outEncaps: Data)> {
+    ) async throws -> (ok: Bool, outEncaps: Data) {
+
         if _impl.isTwoway {
-            return Promise<(ok: Bool, outEncaps: Data)> { seal in
+            return try await withCheckedThrowingContinuation { continuation in
                 _impl.handle.invokeAsync(
                     operation,
                     mode: mode.rawValue,
@@ -655,13 +648,13 @@ extension ObjectPrx {
                                     communicator: self._impl.communicator,
                                     encoding: self._impl.encoding,
                                     bytes: Data(bytes: bytes, count: count))  // make a copy
-                            try seal.fulfill((ok, istr.readEncapsulation().bytes))
+                            try continuation.resume(returning: (ok, istr.readEncapsulation().bytes))
                         } catch {
-                            seal.reject(error)
+                            continuation.resume(throwing: error)
                         }
                     },
                     exception: { error in
-                        seal.reject(error)
+                        continuation.resume(throwing: error)
                     },
                     sent: createSentCallback(
                         sentOn: sentOn,
@@ -670,20 +663,20 @@ extension ObjectPrx {
             }
         } else {
             let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
-            return Promise<(ok: Bool, outEncaps: Data)> { seal in
+            return try await withCheckedThrowingContinuation { continuation in
                 _impl.handle.invokeAsync(
                     operation,
                     mode: mode.rawValue,
                     inParams: inEncaps,
                     context: context,
                     response: { _, _, _ in
-                        fatalError("Unexpected response")
+                        fatalError("unexpected response")
                     },
                     exception: { error in
-                        seal.reject(error)
+                        continuation.resume(throwing: error)
                     },
                     sent: {
-                        seal.fulfill((true, Data()))
+                        continuation.resume(returning: (true, Data()))
                         if let sentCB = sentCB {
                             sentCB($0)
                         }
@@ -711,17 +704,11 @@ extension ObjectPrx {
     /// Returns the connection for this proxy. If the proxy does not yet have an established connection,
     /// it first attempts to create a connection.
     ///
-    /// - returns: `PromiseKit.Promise<Ice.Connection?>` - A promise object that will be resolved with
-    ///   the result of the invocation.
-    public func ice_getConnectionAsync() -> Promise<Connection?> {
-        return Promise<Connection?> { seal in
-            self._impl.handle.ice_getConnectionAsync(
-                { conn in
-                    seal.fulfill(
-                        conn?.getSwiftObject(ConnectionI.self) {
-                            ConnectionI(handle: conn!)
-                        })
-                }, exception: { ex in seal.reject(ex) })
+    /// - returns: `Ice.Connection?` - The result of the invocation.
+    public func ice_getConnectionAsync() async throws -> Connection? {
+        let conn = try await self._impl.handle.ice_getConnectionAsync()
+        return conn.getSwiftObject(ConnectionI.self) {
+            ConnectionI(handle: conn)
         }
     }
 
@@ -741,22 +728,19 @@ extension ObjectPrx {
     ///   dispatch the sent callback.
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
-    /// - returns: `PromiseKit.Promise<Void> - A promise object that will be resolved when
-    ///   the flush is complete.
     public func ice_flushBatchRequestsAsync(
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil.self,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<Void> {
+    ) async throws {
         let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
-        return Promise<Void> { seal in
+        return try await withCheckedThrowingContinuation { continuation in
             _impl.handle.ice_flushBatchRequestsAsync(
                 exception: {
-                    seal.reject($0)
+                    continuation.resume(throwing: $0)
                 },
                 sent: {
-                    seal.fulfill(())
+                    continuation.resume(returning: ())
                     if let sentCB = sentCB {
                         sentCB($0)
                     }
@@ -1280,9 +1264,10 @@ open class ObjectPrxI: ObjectPrx {
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<Void> {
+    ) async throws {
+
         if userException != nil, !isTwoway {
-            return Promise(error: TwowayOnlyException(operation: operation))
+            throw TwowayOnlyException(operation: operation)
         }
         let ostr = OutputStream(communicator: communicator)
         if let write = write {
@@ -1291,7 +1276,7 @@ open class ObjectPrxI: ObjectPrx {
             ostr.endEncapsulation()
         }
         if isTwoway {
-            return Promise<Void> { seal in
+            return try await withCheckedThrowingContinuation { continuation in
                 handle.invokeAsync(
                     operation,
                     mode: mode.rawValue,
@@ -1311,31 +1296,36 @@ open class ObjectPrxI: ObjectPrx {
                                     userException: userException)
                             }
                             try istr.skipEmptyEncapsulation()
-                            seal.fulfill(())
+                            continuation.resume(returning: ())
                         } catch {
-                            seal.reject(error)
+                            continuation.resume(throwing: error)
                         }
                     },
                     exception: { error in
-                        seal.reject(error)
+                        continuation.resume(throwing: error)
                     },
                     sent: createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent))
             }
         } else {
             if ice_isBatchOneway() || ice_isBatchDatagram() {
-                return Promise<Void> { seal in
-                    try autoreleasepool {
-                        try handle.onewayInvoke(
-                            operation,
-                            mode: mode.rawValue,
-                            inParams: ostr.finished(),
-                            context: context)
+                return try await withCheckedThrowingContinuation { continuation in
+                    do {
+                        try autoreleasepool {
+                            try handle.onewayInvoke(
+                                operation,
+                                mode: mode.rawValue,
+                                inParams: ostr.finished(),
+                                context: context)
 
-                        seal.fulfill(())
+                            continuation.resume(returning: ())
+                        }
+                    } catch {
+                        continuation.resume(throwing: error)
                     }
+
                 }
             } else {
-                return Promise<Void> { seal in
+                return try await withCheckedThrowingContinuation { continuation in
                     let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
                     handle.invokeAsync(
                         operation,
@@ -1343,13 +1333,13 @@ open class ObjectPrxI: ObjectPrx {
                         inParams: ostr.finished(),
                         context: context,
                         response: { _, _, _ in
-                            fatalError("Unexpected response")
+                            fatalError("unexpected response")
                         },
                         exception: { error in
-                            seal.reject(error)
+                            continuation.resume(throwing: error)
                         },
                         sent: {
-                            seal.fulfill(())
+                            continuation.resume(returning: ())
                             if let sentCB = sentCB {
                                 sentCB($0)
                             }
@@ -1370,17 +1360,19 @@ open class ObjectPrxI: ObjectPrx {
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<T> {
+    ) async throws -> T {
         if !isTwoway {
-            return Promise(error: TwowayOnlyException(operation: operation))
+            throw TwowayOnlyException(operation: operation)
         }
+
         let ostr = OutputStream(communicator: communicator)
         if let write = write {
             ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
             ostr.endEncapsulation()
         }
-        return Promise<T> { seal in
+
+        return try await withCheckedThrowingContinuation { continuation in
             handle.invokeAsync(
                 operation,
                 mode: mode.rawValue,
@@ -1402,13 +1394,13 @@ open class ObjectPrxI: ObjectPrx {
                         try istr.startEncapsulation()
                         let l = try read(istr)
                         try istr.endEncapsulation()
-                        seal.fulfill(l)
+                        continuation.resume(returning: l)
                     } catch {
-                        seal.reject(error)
+                        continuation.resume(throwing: error)
                     }
                 },
                 exception: { error in
-                    seal.reject(error)
+                    continuation.resume(throwing: error)
                 },
                 sent: createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent))
         }
@@ -1427,7 +1419,7 @@ open class ObjectPrxI: ObjectPrx {
             }
             throw UnknownUserException(badTypeId: error.ice_id())
         }
-        fatalError("Failed to throw user exception")
+        fatalError("failed to throw user exception")
     }
 
     public static func checkedCast<ProxyImpl>(

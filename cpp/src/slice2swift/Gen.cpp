@@ -133,14 +133,6 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
         }
     }
 
-    //
-    // Add PromiseKit import for interfaces and local interfaces which contain "async-oneway" metadata
-    //
-    if (p->contains<InterfaceDef>())
-    {
-        addImport("PromiseKit");
-    }
-
     return true;
 }
 
@@ -1418,45 +1410,61 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     const OperationList allOps = p->allOperations();
 
-    StringList allOpNames;
+    vector<pair<string, bool>> allOpNamesAndAmdPairs;
     transform(
         allOps.begin(),
         allOps.end(),
-        back_inserter(allOpNames),
-        [](const ContainedPtr& it) { return it->name(); });
+        back_inserter(allOpNamesAndAmdPairs),
+        [](const OperationPtr& it) { return make_tuple(it->name(), operationIsAmd(it)); });
 
-    allOpNames.push_back("ice_id");
-    allOpNames.push_back("ice_ids");
-    allOpNames.push_back("ice_isA");
-    allOpNames.push_back("ice_ping");
-    allOpNames.sort();
-    allOpNames.unique();
+    allOpNamesAndAmdPairs.emplace_back("ice_id", false);
+    allOpNamesAndAmdPairs.emplace_back("ice_ids", false);
+    allOpNamesAndAmdPairs.emplace_back("ice_isA", false);
+    allOpNamesAndAmdPairs.emplace_back("ice_ping", false);
+
+    // Sort the operations by name
+    sort(
+        allOpNamesAndAmdPairs.begin(),
+        allOpNamesAndAmdPairs.end(),
+        [](const auto& a, const auto& b) { return a.first < b.first; });
+
+    // Remove duplicates (we only need to check the name)
+    allOpNamesAndAmdPairs.erase(
+        unique(
+            allOpNamesAndAmdPairs.begin(),
+            allOpNamesAndAmdPairs.end(),
+            [](const auto& a, const auto& b) { return a.first == b.first; }),
+        allOpNamesAndAmdPairs.end());
 
     out << sp;
     out << nl;
-    out << "public func dispatch(_ request: Ice.IncomingRequest) -> PromiseKit.Promise<Ice.OutgoingResponse>";
+    out << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
     out << sb;
     out << nl;
     out << "switch request.current.operation";
     out << sb;
     out.dec(); // to align case with switch
-    for (const auto& opName : allOpNames)
+    for (const auto& [opName, isAmd] : allOpNamesAndAmdPairs)
     {
         out << nl << "case \"" << opName << "\":";
         out.inc();
         if (opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
         {
-            out << nl << "(servant as? Ice.Object ?? " << disp << ".defaultObject)._iceD_" << opName << "(request)";
+            out << nl << "try (servant as? Ice.Object ?? " << disp << ".defaultObject)._iceD_" << opName << "(request)";
+        }
+        else if (isAmd)
+        {
+            out << nl << "try await servant._iceD_" << opName << "(request)";
         }
         else
         {
-            out << nl << "servant._iceD_" << opName << "(request)";
+            out << nl << "try servant._iceD_" << opName << "(request)";
         }
         out.dec();
     }
     out << nl << "default:";
     out.inc();
-    out << nl << "PromiseKit.Promise(error: Ice.OperationNotExistException())";
+    out << nl << "throw Ice.OperationNotExistException()";
     // missing dec to compensate for the extra dec after switch sb
     out << eb;
     out << eb;
@@ -1539,7 +1547,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 
     if (isAmd)
     {
-        out << " -> PromiseKit.Promise<" << (allOutParams.size() > 0 ? operationReturnType(op) : "Swift.Void") << ">";
+        out << " async throws -> " << (allOutParams.size() > 0 ? operationReturnType(op) : "Swift.Void");
     }
     else
     {

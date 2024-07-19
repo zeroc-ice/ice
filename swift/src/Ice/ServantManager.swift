@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-import PromiseKit
-
 class ServantManager: Dispatcher {
     private let adapterName: String
     private let communicator: Communicator
@@ -178,13 +176,14 @@ class ServantManager: Dispatcher {
         }
     }
 
-    func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+    func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+
         let current = request.current
         var servant = findServant(id: current.id, facet: current.facet)
 
         if let servant = servant {
             // the simple, common path
-            return servant.dispatch(request)
+            return try await servant.dispatch(request)
         }
 
         // Else, check servant locators
@@ -195,36 +194,34 @@ class ServantManager: Dispatcher {
         }
 
         if let locator = locator {
-            do {
-                var cookie: AnyObject?
-                (servant, cookie) = try locator.locate(current)
+            var cookie: AnyObject?
+            (servant, cookie) = try locator.locate(current)
 
-                if let servant = servant {
+            if let servant = servant {
+                do {
                     // If locator returned a servant, we must execute finished once no matter what.
-                    return servant.dispatch(request).map(on: nil) { response in
-                        do {
-                            try locator.finished(curr: current, servant: servant, cookie: cookie)
-                        } catch {
-                            // Can't return a rejected promise here; otherwise recover will execute finished a second
-                            // time.
-                            return current.makeOutgoingResponse(error: error)
-                        }
-                        return response
-                    }.recover(on: nil) { error in
-                        // This can throw and return a rejected promise.
+                    let response = try await servant.dispatch(request)
+
+                    do {
                         try locator.finished(curr: current, servant: servant, cookie: cookie)
-                        return Promise<OutgoingResponse>(error: error)
+                    } catch {
+                        // Can't return a rejected promise here; otherwise recover will execute finished a second
+                        // time.
+                        return current.makeOutgoingResponse(error: error)
                     }
+
+                    return response
+                } catch {
+                    try locator.finished(curr: current, servant: servant, cookie: cookie)
+                    throw error
                 }
-            } catch {
-                return Promise(error: error)
             }
         }
 
         if hasServant(id: current.id) || isAdminId(current.id) {
-            return Promise(error: FacetNotExistException())
+            throw FacetNotExistException()
         } else {
-            return Promise(error: ObjectNotExistException())
+            throw ObjectNotExistException()
         }
     }
 }

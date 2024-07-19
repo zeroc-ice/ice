@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
-import PromiseKit
 
 /// The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
 /// instantiation is language-specific, and not specified in Slice code.
@@ -183,14 +182,12 @@ public protocol Communicator: AnyObject {
     ///   to dispatch the sent callback
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
-    /// - returns: `PromiseKit.Promise<>` - The result of the operation
     func flushBatchRequestsAsync(
         _ compress: CompressBatch,
         sentOn: Dispatch.DispatchQueue?,
         sentFlags: Dispatch.DispatchWorkItemFlags?,
         sent: ((Bool) -> Void)?
-    ) -> PromiseKit.Promise<Void>
+    ) async throws
 
     /// Add the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
     /// set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with

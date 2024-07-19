@@ -207,14 +207,12 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     ///   to dispatch the sent callback
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
-    /// - returns: `PromiseKit.Promise<>` - The result of the operation
     func flushBatchRequestsAsync(
         _ compress: CompressBatch,
         sentOn: Dispatch.DispatchQueue?,
         sentFlags: Dispatch.DispatchWorkItemFlags?,
         sent: ((Bool) -> Void)?
-    ) -> PromiseKit.Promise<Void>
+    ) async throws
 
     /// Set a close callback on the connection. The callback is called by the connection when it's closed. The callback
     /// is called from the Ice thread pool associated with the connection. If the callback needs more information about

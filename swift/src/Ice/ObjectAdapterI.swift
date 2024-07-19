@@ -238,8 +238,8 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         requestId: Int32,
         encodingMajor: UInt8,
         encodingMinor: UInt8,
-        completionHandler: @escaping ICEOutgoingResponse
-    ) {
+        outgoingResponseHandler: @escaping ICEOutgoingResponse
+    ) async {
         precondition(handle == adapter)
 
         let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) }
@@ -263,19 +263,21 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
         let request = IncomingRequest(current: current, inputStream: istr)
 
-        dispatchPipeline.dispatch(request).map { response in
+        do {
+            let response = try await dispatchPipeline.dispatch(request)
             response.outputStream.finished().withUnsafeBytes {
-                completionHandler(
+                outgoingResponseHandler(
                     response.replyStatus.rawValue,
                     response.exceptionId,
                     response.exceptionMessage,
                     $0.baseAddress!,
                     $0.count)
             }
-        }.catch { error in
+
+        } catch {
             let response = current.makeOutgoingResponse(error: error)
             response.outputStream.finished().withUnsafeBytes {
-                completionHandler(
+                outgoingResponseHandler(
                     response.replyStatus.rawValue,
                     response.exceptionId,
                     response.exceptionMessage,

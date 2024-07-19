@@ -26,9 +26,18 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
               current});
         };
 
+    // Create a new InputStream and swap it with the one from the request.
+    // When dispatch completes, the InputStream will be deleted.
+    Ice::InputStream* dispatchInputStream = new Ice::InputStream();
+    dispatchInputStream->swap(request.inputStream());
+
+    void (^completion)(void) = ^{
+        delete dispatchInputStream;
+    };
+
     int32_t sz;
     const std::byte* inEncaps;
-    request.inputStream().readEncapsulation(inEncaps, sz);
+    dispatchInputStream->readEncapsulation(inEncaps, sz);
 
     ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
     ICEConnection* con = [ICEConnection getHandle:current.con];
@@ -48,6 +57,8 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
                          requestId:current.requestId
                      encodingMajor:current.encoding.major
                      encodingMinor:current.encoding.minor
-                 completionHandler:outgoingResponse];
+                 outgoingResponseHandler:outgoingResponse
+                 completion:completion
+                 ];
     }
 }
