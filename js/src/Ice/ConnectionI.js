@@ -65,10 +65,6 @@ class MessageInfo {
     }
 }
 
-function isHeartbeat(stream) {
-    return stream.buffer.getAt(8) == Protocol.validateConnectionMsg;
-}
-
 export class ConnectionI {
     constructor(communicator, instance, transceiver, endpoint, removeFromFactory, options) {
         this._communicator = communicator;
@@ -1114,7 +1110,10 @@ export class ConnectionI {
                 // heartbeat.
 
                 // The stream of the first _sendStreams message is in _writeStream.
-                if (this._sendStreams.length == 0 || isHeartbeat(this._writeStream)) {
+                if (
+                    this._sendStreams.length == 0 ||
+                    this._writeStream.buffer.getAt(8) == Protocol.validateConnectionMsg
+                ) {
                     this.scheduleInactivityTimer();
                 }
             }
