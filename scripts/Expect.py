@@ -481,7 +481,7 @@ class Expect(object):
         # an expect script runs off the end of main without kill/wait on each
         # spawned process the script will not hang trying to join with the
         # reader thread.
-        self.r.setDaemon(True)
+        self.r.daemon = True
 
         if startReader:
             self.startReader()
