@@ -3,8 +3,8 @@
 //
 
 #include "TestAMDI.h"
-#include "TestHelper.h"
 #include "Ice/Communicator.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;
@@ -20,7 +20,7 @@ TestIntfI::opShortArrayAsync(
 #ifdef ICE_UNALIGNED
     // Verify inSeq is not aligned and holds the expected values.
     test(reinterpret_cast<size_t>(inSeq.first) % 8 != 0);
-    for(int i = 0; i < static_cast<int>(inSeq.second - inSeq.first); ++i)
+    for (int i = 0; i < static_cast<int>(inSeq.second - inSeq.first); ++i)
     {
         test(inSeq.first[i] == i + 1);
     }

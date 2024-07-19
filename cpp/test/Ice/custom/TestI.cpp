@@ -3,8 +3,8 @@
 //
 
 #include "TestI.h"
-#include "TestHelper.h"
 #include "Ice/Communicator.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;
@@ -16,7 +16,7 @@ TestIntfI::opShortArray(pair<const int16_t*, const int16_t*> inSeq, ShortSeq& ou
 #ifdef ICE_UNALIGNED
     // Verify inSeq is not aligned and holds the expected values.
     test(reinterpret_cast<size_t>(inSeq.first) % 8 != 0);
-    for(int i = 0; i < inSeq.second - inSeq.first; ++i)
+    for (int i = 0; i < inSeq.second - inSeq.first; ++i)
     {
         test(inSeq.first[i] == i + 1);
     }
