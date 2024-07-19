@@ -32,7 +32,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     dispatchInputStream->swap(request.inputStream());
 
     void (^completion)(void) = ^{
-        delete dispatchInputStream;
+      delete dispatchInputStream;
     };
 
     int32_t sz;
@@ -45,20 +45,19 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     @autoreleasepool
     {
         [_dispatchAdapter dispatch:adapter
-                     inEncapsBytes:const_cast<std::byte*>(inEncaps)
-                     inEncapsCount:static_cast<long>(sz)
-                               con:con
-                              name:toNSString(current.id.name)
-                          category:toNSString(current.id.category)
-                             facet:toNSString(current.facet)
-                         operation:toNSString(current.operation)
-                              mode:static_cast<std::uint8_t>(current.mode)
-                           context:toNSDictionary(current.ctx)
-                         requestId:current.requestId
-                     encodingMajor:current.encoding.major
-                     encodingMinor:current.encoding.minor
-                 outgoingResponseHandler:outgoingResponse
-                 completion:completion
-                 ];
+                      inEncapsBytes:const_cast<std::byte*>(inEncaps)
+                      inEncapsCount:static_cast<long>(sz)
+                                con:con
+                               name:toNSString(current.id.name)
+                           category:toNSString(current.id.category)
+                              facet:toNSString(current.facet)
+                          operation:toNSString(current.operation)
+                               mode:static_cast<std::uint8_t>(current.mode)
+                            context:toNSDictionary(current.ctx)
+                          requestId:current.requestId
+                      encodingMajor:current.encoding.major
+                      encodingMinor:current.encoding.minor
+            outgoingResponseHandler:outgoingResponse
+                         completion:completion];
     }
 }
