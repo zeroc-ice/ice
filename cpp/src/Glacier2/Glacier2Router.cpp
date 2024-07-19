@@ -350,7 +350,7 @@ RouterService::start(int argc, char* argv[], int& status)
     // The session router is used directly as a servant for the main
     // Glacier2 router Ice object.
     //
-    Glacier2::RouterPrx routerPrx(clientAdapter->add(_sessionRouter, {"router", instanceName}));
+    auto routerPrx = clientAdapter->add<Glacier2::RouterPrx>(_sessionRouter, {"router", instanceName});
 
     //
     // Add the Ice router finder object to allow retrieving the router

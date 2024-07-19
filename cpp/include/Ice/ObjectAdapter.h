@@ -9,6 +9,8 @@
 #include "Endpoint.h"
 #include "FacetMap.h"
 #include "ObjectAdapterF.h"
+#include "Proxy.h"
+#include "ProxyFunctions.h"
 #include "ServantLocator.h"
 
 #ifdef __APPLE__
@@ -21,7 +23,6 @@
 namespace Ice
 {
     class LocatorPrx;
-    class ObjectPrx;
 
     /**
      * The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects. The
@@ -145,7 +146,11 @@ namespace Ice
          * @see #remove
          * @see #find
          */
-        virtual ObjectPrx add(const ObjectPtr& servant, const Identity& id) = 0;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx add(const ObjectPtr& servant, const Identity& id)
+        {
+            return uncheckedCast<Prx>(_add(servant, id));
+        }
 
         /**
          * Like {@link #add}, but with a facet. Calling <code>add(servant, id)</code> is equivalent to calling
@@ -160,7 +165,11 @@ namespace Ice
          * @see #removeFacet
          * @see #findFacet
          */
-        virtual ObjectPrx addFacet(const ObjectPtr& servant, const Identity& id, const std::string& facet) = 0;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx addFacet(const ObjectPtr& servant, const Identity& id, const std::string& facet)
+        {
+            return uncheckedCast<Prx>(_addFacet(servant, id, facet));
+        }
 
         /**
          * Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
@@ -174,7 +183,11 @@ namespace Ice
          * @see #remove
          * @see #find
          */
-        virtual ObjectPrx addWithUUID(const ObjectPtr& servant) = 0;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx addWithUUID(const ObjectPtr& servant)
+        {
+            return uncheckedCast<Prx>(_addWithUUID(servant));
+        }
 
         /**
          * Like {@link #addWithUUID}, but with a facet. Calling <code>addWithUUID(servant)</code> is equivalent to
@@ -189,7 +202,11 @@ namespace Ice
          * @see #removeFacet
          * @see #findFacet
          */
-        virtual ObjectPrx addFacetWithUUID(const ObjectPtr& servant, const std::string& facet) = 0;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx addFacetWithUUID(const ObjectPtr& servant, const std::string& facet)
+        {
+            return uncheckedCast<Prx>(_addFacetWithUUID(servant, facet));
+        }
 
         /**
          * Add a default servant to handle requests for a specific category. Adding a default servant for a category for
@@ -376,7 +393,11 @@ namespace Ice
          * @return A proxy for the object with the given identity.
          * @see Identity
          */
-        virtual ObjectPrx createProxy(const Identity& id) const = 0;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx createProxy(const Identity& id)
+        {
+            return uncheckedCast<Prx>(_createProxy(id));
+        }
 
         /**
          * Create a direct proxy for the object with the given identity. The returned proxy contains this object
@@ -385,7 +406,11 @@ namespace Ice
          * @return A proxy for the object with the given identity.
          * @see Identity
          */
-        virtual ObjectPrx createDirectProxy(const Identity& id) const = 0;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx createDirectProxy(const Identity& id)
+        {
+            return uncheckedCast<Prx>(_createDirectProxy(id));
+        }
 
         /**
          * Create an indirect proxy for the object with the given identity. If this object adapter is configured with an
@@ -395,7 +420,11 @@ namespace Ice
          * @return A proxy for the object with the given identity.
          * @see Identity
          */
-        virtual ObjectPrx createIndirectProxy(const Identity& id) const = 0;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx createIndirectProxy(const Identity& id)
+        {
+            return uncheckedCast<Prx>(_createIndirectProxy(id));
+        }
 
         /**
          * Set an Ice locator for this object adapter. By doing so, the object adapter will register itself with the
@@ -456,6 +485,15 @@ namespace Ice
          */
         virtual dispatch_queue_t getDispatchQueue() const = 0;
 #endif
+
+    protected:
+        virtual ObjectPrx _add(const ObjectPtr& servant, const Identity& id) = 0;
+        virtual ObjectPrx _addFacet(const ObjectPtr& servant, const Identity& id, const std::string& facet) = 0;
+        virtual ObjectPrx _addWithUUID(const ObjectPtr& servant) = 0;
+        virtual ObjectPrx _addFacetWithUUID(const ObjectPtr& servant, const std::string& facet) = 0;
+        virtual ObjectPrx _createProxy(const Identity& id) const = 0;
+        virtual ObjectPrx _createDirectProxy(const Identity& id) const = 0;
+        virtual ObjectPrx _createIndirectProxy(const Identity& id) const = 0;
     };
 }
 

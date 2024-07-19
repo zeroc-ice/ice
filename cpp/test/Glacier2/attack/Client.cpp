@@ -77,7 +77,7 @@ AttackClient::run(int argc, char** argv)
             *p = static_cast<char>('a' + rd() % 26);
         }
 
-        BackendPrx newBackend(backend->ice_identity(ident));
+        auto newBackend = backend->ice_identity<BackendPrx>(ident);
 
         auto q = backends.find(newBackend);
 

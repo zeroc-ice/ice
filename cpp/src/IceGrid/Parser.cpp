@@ -1276,7 +1276,7 @@ Parser::writeMessage(const list<string>& args, int fd)
         string server = *p++;
 
         auto serverAdmin = _admin->getServerAdmin(server);
-        ProcessPrx process{serverAdmin->ice_facet("Process")};
+        auto process = serverAdmin->ice_facet<ProcessPrx>("Process");
 
         process->writeMessage(*p, fd);
     }
@@ -1432,7 +1432,7 @@ Parser::propertiesServer(const list<string>& args, bool single)
     try
     {
         auto serverAdmin = _admin->getServerAdmin(args.front());
-        Ice::PropertiesAdminPrx propAdmin{serverAdmin->ice_facet("Properties")};
+        auto propAdmin = serverAdmin->ice_facet<Ice::PropertiesAdminPrx>("Properties");
 
         if (single)
         {
@@ -1523,7 +1523,7 @@ Parser::startService(const list<string>& args)
     try
     {
         auto admin = _admin->getServerAdmin(server);
-        IceBox::ServiceManagerPrx manager{admin->ice_facet("IceBox.ServiceManager")};
+        auto manager = admin->ice_facet<IceBox::ServiceManagerPrx>("IceBox.ServiceManager");
         manager->startService(service);
     }
     catch (const IceBox::AlreadyStartedException&)
@@ -1562,7 +1562,7 @@ Parser::stopService(const list<string>& args)
     try
     {
         auto admin = _admin->getServerAdmin(server);
-        IceBox::ServiceManagerPrx manager{admin->ice_facet("IceBox.ServiceManager")};
+        auto manager = admin->ice_facet<IceBox::ServiceManagerPrx>("IceBox.ServiceManager");
         manager->stopService(service);
     }
     catch (const IceBox::AlreadyStoppedException&)
@@ -1687,9 +1687,9 @@ Parser::propertiesService(const list<string>& args, bool single)
 
         const bool useSharedCommunicator =
             getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0;
-        Ice::PropertiesAdminPrx propAdmin{
-            useSharedCommunicator ? admin->ice_facet("IceBox.SharedCommunicator.Properties")
-                                  : admin->ice_facet("IceBox.Service." + service + ".Properties")};
+        auto propAdmin = useSharedCommunicator
+                             ? admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.SharedCommunicator.Properties")
+                             : admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.Service." + service + ".Properties");
 
         if (single)
         {
@@ -2262,7 +2262,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         return;
     }
 
-    Ice::LoggerAdminPrx loggerAdmin{admin->ice_facet("Logger")};
+    auto loggerAdmin = admin->ice_facet<Ice::LoggerAdminPrx>("Logger");
     if (follow)
     {
         auto adminCallbackTemplate = _session->getAdminCallbackTemplate();
@@ -2299,7 +2299,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         Ice::Identity ident = {os.str(), adminCallbackTemplate->ice_getIdentity().category};
 
         auto servant = make_shared<RemoteLoggerI>();
-        Ice::RemoteLoggerPrx prx{adapter->add(servant, ident)};
+        auto prx = adapter->add<Ice::RemoteLoggerPrx>(servant, ident);
         adapter->activate();
 
         loggerAdmin->attachRemoteLogger(prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1);

@@ -288,7 +288,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
         optional<ObjectPrx> obj = com->getAdmin();
-        ProcessPrx proc(obj->ice_facet("Process"));
+        auto proc = obj->ice_facet<ProcessPrx>("Process");
         proc->shutdown();
         com->waitForShutdown();
         com->destroy();
@@ -305,7 +305,7 @@ allTests(Test::TestHelper* helper)
         props["Prop3"] = "3";
         optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
         optional<ObjectPrx> obj = com->getAdmin();
-        PropertiesAdminPrx pa(obj->ice_facet("Properties"));
+        auto pa = obj->ice_facet<PropertiesAdminPrx>("Properties");
         //
         // Test: PropertiesAdmin::getProperty()
         //
@@ -387,7 +387,7 @@ allTests(Test::TestHelper* helper)
         com->print("print");
 
         optional<ObjectPrx> obj = com->getAdmin();
-        LoggerAdminPrx logger(obj->ice_facet("Logger"));
+        auto logger = obj->ice_facet<LoggerAdminPrx>("Logger");
         string prefix;
 
         //
@@ -475,7 +475,7 @@ allTests(Test::TestHelper* helper)
 
         RemoteLoggerIPtr remoteLogger = std::make_shared<RemoteLoggerI>();
 
-        RemoteLoggerPrx myProxy(adapter->addWithUUID(remoteLogger));
+        auto myProxy = adapter->addWithUUID<RemoteLoggerPrx>(remoteLogger);
 
         adapter->activate();
 
@@ -555,7 +555,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
         optional<ObjectPrx> obj = com->getAdmin();
-        Test::TestFacetPrx tf(obj->ice_facet("TestFacet"));
+        auto tf = obj->ice_facet<Test::TestFacetPrx>("TestFacet");
         tf->op();
         com->destroy();
     }
@@ -668,9 +668,9 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "Properties TestFacet";
         optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
         optional<ObjectPrx> obj = com->getAdmin();
-        PropertiesAdminPrx pa(obj->ice_facet("Properties"));
+        auto pa = obj->ice_facet<PropertiesAdminPrx>("Properties");
         test(pa->getProperty("Ice.Admin.InstanceName") == "Test");
-        Test::TestFacetPrx tf(obj->ice_facet("TestFacet"));
+        auto tf = obj->ice_facet<Test::TestFacetPrx>("TestFacet");
         tf->op();
         try
         {
@@ -703,9 +703,9 @@ allTests(Test::TestHelper* helper)
         {
             // expected
         }
-        Test::TestFacetPrx tf(obj->ice_facet("TestFacet"));
+        auto tf = obj->ice_facet<Test::TestFacetPrx>("TestFacet");
         tf->op();
-        ProcessPrx proc(obj->ice_facet("Process"));
+        auto proc = obj->ice_facet<ProcessPrx>("Process");
         proc->shutdown();
         com->waitForShutdown();
         com->destroy();

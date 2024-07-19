@@ -358,13 +358,13 @@ Ice::ObjectAdapterI::use(function<ObjectPtr(ObjectPtr)> middlewareFactory)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
+Ice::ObjectAdapterI::_add(const ObjectPtr& object, const Identity& ident)
 {
-    return addFacet(object, ident, "");
+    return _addFacet(object, ident, "");
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, const string& facet)
+Ice::ObjectAdapterI::_addFacet(const ObjectPtr& object, const Identity& ident, const string& facet)
 {
     lock_guard lock(_mutex);
 
@@ -381,17 +381,17 @@ Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, co
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
+Ice::ObjectAdapterI::_addWithUUID(const ObjectPtr& object)
 {
-    return addFacetWithUUID(object, "");
+    return _addFacetWithUUID(object, "");
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& facet)
+Ice::ObjectAdapterI::_addFacetWithUUID(const ObjectPtr& object, const string& facet)
 {
     Identity ident;
     ident.name = Ice::generateUUID();
-    return addFacet(object, ident, facet);
+    return _addFacet(object, ident, facet);
 }
 
 void
@@ -542,7 +542,7 @@ Ice::ObjectAdapterI::dispatchPipeline() const noexcept
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::createProxy(const Identity& ident) const
+Ice::ObjectAdapterI::_createProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
@@ -553,7 +553,7 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident) const
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::createDirectProxy(const Identity& ident) const
+Ice::ObjectAdapterI::_createDirectProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
@@ -564,7 +564,7 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident) const
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::createIndirectProxy(const Identity& ident) const
+Ice::ObjectAdapterI::_createIndirectProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 

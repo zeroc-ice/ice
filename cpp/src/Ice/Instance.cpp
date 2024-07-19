@@ -674,7 +674,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
     const string serverId = _initData.properties->getIceProperty("Ice.Admin.ServerId");
     if (locator && serverId != "")
     {
-        ProcessPrx process{admin->ice_facet("Process")};
+        auto process = admin->ice_facet<ProcessPrx>("Process");
         try
         {
             //
@@ -1521,7 +1521,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if (!_referenceFactory->getDefaultRouter())
     {
-        optional<RouterPrx> router{communicator->propertyToProxy("Ice.Default.Router")};
+        auto router = communicator->propertyToProxy<RouterPrx>("Ice.Default.Router");
         if (router)
         {
             _referenceFactory = _referenceFactory->setDefaultRouter(router);
@@ -1530,7 +1530,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     if (!_referenceFactory->getDefaultLocator())
     {
-        optional<LocatorPrx> locator{communicator->propertyToProxy("Ice.Default.Locator")};
+        auto locator = communicator->propertyToProxy<LocatorPrx>("Ice.Default.Locator");
         if (locator)
         {
             _referenceFactory = _referenceFactory->setDefaultLocator(locator);

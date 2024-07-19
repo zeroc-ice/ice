@@ -32,6 +32,6 @@ void
 allTests(const Ice::ObjectAdapterPtr& oa)
 {
     Test::MyInterfacePtr servant = std::make_shared<TestI>();
-    Test::MyInterfacePrx proxy(oa->addWithUUID(servant));
+    auto proxy = oa->addWithUUID<Test::MyInterfacePrx>(servant);
     consume(servant, proxy);
 }

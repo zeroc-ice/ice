@@ -623,7 +623,7 @@ allTests(Test::TestHelper* helper)
     Ice::Identity id = Ice::stringToIdentity("does not exist");
     try
     {
-        ThrowerPrx thrower2(thrower->ice_identity(id));
+        auto thrower2 = thrower->ice_identity<ThrowerPrx>(id);
         thrower2->throwAasA(1);
         test(false);
     }
@@ -642,7 +642,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        ThrowerPrx thrower2(thrower->ice_facet("no such facet"));
+        auto thrower2 = thrower->ice_facet<ThrowerPrx>("no such facet");
         try
         {
             thrower2->ice_ping();
@@ -664,7 +664,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        WrongOperationPrx thrower2(thrower);
+        auto thrower2 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
         thrower2->noSuchOperation();
         test(false);
     }
@@ -1021,7 +1021,7 @@ allTests(Test::TestHelper* helper)
     cout << "catching object not exist exception with new AMI mapping... " << flush;
     {
         id = Ice::stringToIdentity("does not exist");
-        ThrowerPrx thrower2(thrower->ice_identity(id));
+        auto thrower2 = thrower->ice_identity<ThrowerPrx>(id);
         auto f = thrower2->throwAasAAsync(1);
         try
         {
@@ -1042,7 +1042,7 @@ allTests(Test::TestHelper* helper)
     cout << "catching facet not exist exception with new AMI mapping... " << flush;
 
     {
-        ThrowerPrx thrower2(thrower->ice_facet("no such facet"));
+        auto thrower2 = thrower->ice_facet<ThrowerPrx>("no such facet");
         auto f = thrower2->throwAasAAsync(1);
         try
         {
@@ -1059,7 +1059,7 @@ allTests(Test::TestHelper* helper)
     cout << "catching operation not exist exception with new AMI mapping... " << flush;
 
     {
-        WrongOperationPrx thrower4(thrower);
+        auto thrower4 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
         auto f = thrower4->noSuchOperationAsync();
         try
         {

@@ -391,10 +391,10 @@ run(const Ice::StringSeq& args)
         if (communicator->getDefaultRouter())
         {
             // Use SSL if available.
-            router = Glacier2::RouterPrx(communicator->getDefaultRouter()->ice_preferSecure(true));
+            router = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter()->ice_preferSecure(true));
             if (ssl)
             {
-                session = optional<IceGrid::AdminSessionPrx>(router->createSessionFromSecureConnection());
+                session = Ice::uncheckedCast<IceGrid::AdminSessionPrx>(router->createSessionFromSecureConnection());
                 if (!session)
                 {
                     consoleErr
@@ -428,7 +428,7 @@ run(const Ice::StringSeq& args)
 #endif
                 }
 
-                session = optional<IceGrid::AdminSessionPrx>(router->createSession(id, password));
+                session = Ice::uncheckedCast<IceGrid::AdminSessionPrx>(router->createSession(id, password));
                 fill(password.begin(), password.end(), '\0'); // Zero the password string.
 
                 if (!session)
@@ -468,7 +468,7 @@ run(const Ice::StringSeq& args)
             // no need to go further. Otherwise, we get the proxy of local registry
             // proxy.
             //
-            IceGrid::LocatorPrx locator{*communicator->getDefaultLocator()};
+            auto locator = Ice::uncheckedCast<IceGrid::LocatorPrx>(*communicator->getDefaultLocator());
             optional<IceGrid::RegistryPrx> localRegistry;
             try
             {
@@ -490,7 +490,7 @@ run(const Ice::StringSeq& args)
                 // The locator local registry isn't the registry we want to connect to.
                 try
                 {
-                    registry = optional<IceGrid::RegistryPrx>(locator->findObjectById(registryId));
+                    registry = Ice::uncheckedCast<IceGrid::RegistryPrx>(locator->findObjectById(registryId));
                     if (!registry)
                     {
                         consoleErr << args[0] << ": could not contact an IceGrid registry" << endl;
@@ -540,7 +540,7 @@ run(const Ice::StringSeq& args)
             {
                 auto colloc = communicator->createObjectAdapter(""); // colloc-only adapter
                 communicator->setDefaultRouter(
-                    Ice::RouterPrx{colloc->addWithUUID(make_shared<ReuseConnectionRouter>(locator))});
+                    colloc->addWithUUID<Ice::RouterPrx>(make_shared<ReuseConnectionRouter>(locator)));
                 registry = registry->ice_router(communicator->getDefaultRouter());
             }
 

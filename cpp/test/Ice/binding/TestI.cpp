@@ -32,7 +32,7 @@ RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Curre
             }
             com->getProperties()->setProperty(name + ".ThreadPool.Size", "1");
             ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, endpoints);
-            return RemoteObjectAdapterPrx(current.adapter->addWithUUID(make_shared<RemoteObjectAdapterI>(adapter)));
+            return current.adapter->addWithUUID<RemoteObjectAdapterPrx>(make_shared<RemoteObjectAdapterI>(adapter));
         }
         catch (const SocketException&)
         {
@@ -58,7 +58,7 @@ RemoteCommunicatorI::shutdown(const Current& current)
 
 RemoteObjectAdapterI::RemoteObjectAdapterI(const ObjectAdapterPtr& adapter)
     : _adapter(adapter),
-      _testIntf(TestIntfPrx(_adapter->add(make_shared<TestI>(), stringToIdentity("test"))))
+      _testIntf(_adapter->add<TestIntfPrx>(make_shared<TestI>(), stringToIdentity("test")))
 {
     _adapter->activate();
 }

@@ -351,7 +351,7 @@ CreateSession::authorized(bool createSession)
         if (_instance->serverObjectAdapter())
         {
             auto obj = make_shared<SessionControlI>(_sessionRouter, _current.con, _filterManager);
-            _control = SessionControlPrx(_instance->serverObjectAdapter()->addWithUUID(obj));
+            _control = _instance->serverObjectAdapter()->addWithUUID<SessionControlPrx>(obj);
         }
         this->createSession();
     }

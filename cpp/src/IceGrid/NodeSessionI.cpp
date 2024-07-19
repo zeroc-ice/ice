@@ -26,7 +26,7 @@ NodeSessionI::create(
         node,
         info,
         timeout,
-        NodeSessionPrx{database->getInternalAdapter()->createProxy(nodeSessionId)},
+        database->getInternalAdapter()->createProxy<NodeSessionPrx>(nodeSessionId),
         load));
     try
     {

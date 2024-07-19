@@ -40,7 +40,7 @@ namespace IceGrid
             std::vector<T> publishers;
             for (const auto& publisher : _basePublishers)
             {
-                publishers.push_back(T(publisher));
+                publishers.push_back(Ice::uncheckedCast<T>(publisher));
             }
             return publishers;
         }

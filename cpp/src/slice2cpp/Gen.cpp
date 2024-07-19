@@ -1551,12 +1551,6 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         H.restoreIndent();
     }
 
-    // TODO: generate doc-comments.
-    H << sp;
-    H << nl << "explicit " << prx << "(const ::Ice::ObjectPrx& other) : ::Ice::ObjectPrx(other)";
-    H << sb << eb;
-    H << sp;
-
     // We can't use "= default" for the copy/move ctor/assignment operator as it's not correct with virtual inheritance.
 
     H << nl << prx << "(const " << prx << "& other) noexcept : ::Ice::ObjectPrx(other)";

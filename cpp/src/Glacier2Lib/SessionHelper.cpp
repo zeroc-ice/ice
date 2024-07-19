@@ -411,7 +411,7 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                         Ice::Identity ident;
                         ident.category = "Glacier2";
                         ident.name = "router";
-                        communicator->setDefaultRouter(Ice::RouterPrx(finder->ice_identity(ident)));
+                        communicator->setDefaultRouter(finder->ice_identity<Ice::RouterPrx>(ident));
                     }
                 }
 
@@ -419,7 +419,8 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                     [callback, session]() { callback->createdCommunicator(session); },
                     nullptr);
 
-                Glacier2::RouterPrx routerPrx(*communicator->getDefaultRouter());
+                Glacier2::RouterPrx routerPrx{
+                    Ice::uncheckedCast<Glacier2::RouterPrx>(*communicator->getDefaultRouter())};
                 optional<Glacier2::SessionPrx> sessionPrx = factory->connect(routerPrx);
                 session->connected(routerPrx, std::move(sessionPrx));
             }

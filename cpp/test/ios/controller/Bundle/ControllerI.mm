@@ -328,7 +328,7 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     newArgs.insert(newArgs.begin(), testSuite + ' ' + exe);
     [_controller println:[NSString stringWithFormat:@"starting %s %s... ", testSuite.c_str(), exe.c_str()]];
     auto helper = make_shared<ControllerHelperI>(_controller, prefix + '/' + exe + ".bundle", newArgs);
-    return ProcessPrx(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper)));
+    return c.adapter->addWithUUID<ProcessPrx>(make_shared<ProcessI>(_controller, helper));
 }
 
 string

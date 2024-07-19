@@ -42,7 +42,7 @@ IceDiscovery::Request::invoke(const string& domainId, const vector<pair<LookupPr
 
     for (const auto& p : lookups)
     {
-        invokeWithLookup(domainId, p.first, LookupReplyPrx(p.second->ice_identity(id)));
+        invokeWithLookup(domainId, p.first, p.second->ice_identity<LookupReplyPrx>(id));
     }
 }
 

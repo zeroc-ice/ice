@@ -175,7 +175,7 @@ RemoteCommunicatorFactoryI::createCommunicator(PropertyDict props, const Current
     RemoteCommunicatorIPtr servant = make_shared<RemoteCommunicatorI>(communicator);
     servant->addUpdateCallback(emptyCurrent);
 
-    return RemoteCommunicatorPrx(current.adapter->addWithUUID(servant));
+    return current.adapter->addWithUUID<RemoteCommunicatorPrx>(servant);
 }
 
 void

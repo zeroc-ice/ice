@@ -982,7 +982,7 @@ Ice::ConnectionI::getEndpoint() const noexcept
 }
 
 ObjectPrx
-Ice::ConnectionI::createProxy(const Identity& ident) const
+Ice::ConnectionI::_createProxy(const Identity& ident) const
 {
     checkIdentity(ident, __FILE__, __LINE__);
     return ObjectPrx::_fromReference(

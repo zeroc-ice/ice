@@ -78,7 +78,7 @@ Publisher::run(int argc, char** argv)
     //
     if (opts.isSet("cycle"))
     {
-        optional<SinglePrx> prx(topic->getPublisher()->ice_twoway());
+        auto prx = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
         vector<optional<SinglePrx>> single;
         auto endpoints = prx->ice_getEndpoints();
         for (const auto& p : endpoints)
@@ -105,7 +105,7 @@ Publisher::run(int argc, char** argv)
     }
     else
     {
-        SinglePrx single(topic->getPublisher()->ice_twoway());
+        auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
         for (int i = 0; i < 1000; ++i)
         {
             single->event(i);

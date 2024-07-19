@@ -1314,7 +1314,7 @@ allTests(TestHelper* helper, bool collocated)
         cout << "testing bidir... " << flush;
         auto adapter = communicator->createObjectAdapter("");
         auto replyI = make_shared<PingReplyI>();
-        auto reply = PingReplyPrx(adapter->addWithUUID(replyI));
+        auto reply = uncheckedCast<PingReplyPrx>(adapter->addWithUUID(replyI));
         adapter->activate();
 
         p->ice_getConnection()->setAdapter(adapter);

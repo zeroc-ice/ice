@@ -203,7 +203,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing bridge shutdown... " << flush;
     Ice::ObjectPrx admin(communicator, "IceBridge/admin:" + helper->getTestEndpoint(2, "tcp"));
-    Ice::ProcessPrx process(admin->ice_facet("Process"));
+    auto process = admin->ice_facet<Ice::ProcessPrx>("Process");
     process->shutdown();
     cout << "ok" << endl;
 }

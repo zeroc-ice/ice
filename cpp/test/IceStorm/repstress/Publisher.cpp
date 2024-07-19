@@ -96,7 +96,7 @@ Publisher::run(int argc, char** argv)
     // Get a publisher object, create a twoway proxy, disable
     // connection caching and then cast to a Single object.
     //
-    SinglePrx single(topic->getPublisher()->ice_twoway()->ice_connectionCached(false));
+    auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway()->ice_connectionCached(false));
     auto adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "tcp");
     auto controller = adapter->addWithUUID(make_shared<ControllerI>());
     adapter->activate();

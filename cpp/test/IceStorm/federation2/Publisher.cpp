@@ -39,7 +39,7 @@ Publisher::run(int argc, char** argv)
     IceStorm::TopicManagerPrx manager(communicator, managerProxy);
 
     auto fed1 = manager->retrieve("fed1");
-    optional<EventPrx> eventFed1(fed1->getPublisher()->ice_oneway());
+    auto eventFed1 = uncheckedCast<EventPrx>(fed1->getPublisher()->ice_oneway());
 
     string arg = opts.optArg("count");
     int count = 1;
