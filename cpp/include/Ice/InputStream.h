@@ -24,14 +24,6 @@
 #include <string>
 #include <string_view>
 
-// ICE_UNALIGNED means the platform is little endian and supports unaligned reads.
-// It's used only in this header file.
-#ifndef ICE_UNALIGNED
-#    if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
-#        define ICE_UNALIGNED
-#    endif
-#endif
-
 namespace IceInternal::Ex
 {
     ICE_API void throwUOE(const char* file, int line, const std::string&, const Ice::ValuePtr&);

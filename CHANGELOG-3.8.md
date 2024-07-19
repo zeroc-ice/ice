@@ -119,6 +119,12 @@ Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `
 - There is now a single C++ mapping, based on the C++11 mapping provided by Ice 3.7. This new C++ mapping requires a
 C++ compiler with support for std=c++17 or higher.
 
+- When unmarshaling an array of short, int, long, float, or double, you can now choose to use unaligned unmarshaling by
+defining ICE_UNALIGNED when building your application. This optimization requires the non-default array mapping for
+Slice sequences, enabled by the `cpp:array` metadata directive, and a compatible little endian platform. In Ice 3.7 and
+earlier releases, this unaligned unmarshaling was turned on automatically on x86 and x64 CPUs, and turned off on all
+other CPUs.
+
 ## Objective-C Changes
 
 - The Objective-C mapping was removed.
