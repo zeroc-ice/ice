@@ -90,9 +90,6 @@ class CommunicatorI(Communicator):
         else:
             return LoggerI(logger)
 
-    def getStats(self):
-        raise RuntimeError("operation `getStats' not implemented")
-
     def getDefaultRouter(self):
         return self._impl.getDefaultRouter()
 
@@ -104,9 +101,6 @@ class CommunicatorI(Communicator):
 
     def setDefaultLocator(self, loc):
         self._impl.setDefaultLocator(loc)
-
-    def getPluginManager(self):
-        raise RuntimeError("operation `getPluginManager' not implemented")
 
     def flushBatchRequests(self, compress):
         self._impl.flushBatchRequests(compress)

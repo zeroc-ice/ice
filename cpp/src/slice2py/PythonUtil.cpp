@@ -408,58 +408,58 @@ Slice::Python::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 void
 Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
 {
-    OperationList ops = p->operations();
-    if (!ops.empty())
+    OperationList operations = p->operations();
+    //
+    // Emit a placeholder for each operation.
+    //
+    for (const auto& operation : operations)
     {
-        //
-        // Emit a placeholder for each operation.
-        //
-        for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+        string fixedOpName = fixIdent(operation->name());
+
+        if (operation->hasMarshaledResult())
         {
-            string fixedOpName = fixIdent((*oli)->name());
-
-            if ((*oli)->hasMarshaledResult())
-            {
-                string name = (*oli)->name();
-                name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
-                _out << sp;
-                _out << nl << "\"\"\"";
-                _out << nl << "Immediately marshals the result of an invocation of " << (*oli)->name() << nl
-                     << "and returns an object that the servant implementation must return" << nl << "as its result."
-                     << nl << "Arguments:" << nl << "result -- The result (or result tuple) of the invocation." << nl
-                     << "current -- The Current object passed to the invocation." << nl
-                     << "Returns: An object containing the marshaled result.";
-                _out << nl << "\"\"\"";
-                _out << nl << "@staticmethod";
-                _out << nl << "def " << name << "MarshaledResult(result, current):";
-                _out.inc();
-                _out << nl << "return IcePy.MarshaledResult(result, _M_" << getAbsolute(p) << "._op_" << (*oli)->name()
-                     << ", current.adapter.getCommunicator().getImpl(), current.encoding)";
-                _out.dec();
-            }
-
-            _out << sp << nl << "def " << fixedOpName << "(self";
-
-            ParamDeclList params = (*oli)->parameters();
-
-            for (ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
-            {
-                if (!(*pli)->isOutParam())
-                {
-                    _out << ", " << fixIdent((*pli)->name());
-                }
-            }
-
-            const string currentParamName = getEscapedParamName(*oli, "current");
-            _out << ", " << currentParamName << "=None";
-            _out << "):";
+            string name = operation->name();
+            name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
+            _out << sp;
+            _out << nl << "@staticmethod";
+            _out << nl << "def " << name << "MarshaledResult(result, current):";
             _out.inc();
-
-            writeDocstring(*oli, DocAsyncDispatch);
-
-            _out << nl << "raise NotImplementedError(\"servant method '" << fixedOpName << "' not implemented\")";
+            _out << nl << tripleQuotes;
+            _out << nl << "Immediately marshals the result of an invocation of " << name;
+            _out << nl << "and returns an object that the servant implementation must return";
+            _out << nl << "as its result.";
+            _out << nl;
+            _out << nl << "Args:";
+            _out << nl << "  result: The result (or result tuple) of the invocation.";
+            _out << nl << "  current: The Current object passed to the invocation.";
+            _out << nl;
+            _out << nl << "Returns";
+            _out << nl << "  An object containing the marshaled result.";
+            _out << nl << tripleQuotes;
+            _out << nl << "return IcePy.MarshaledResult(result, _M_" << getAbsolute(p) << "._op_" << fixedOpName
+                    << ", current.adapter.getCommunicator().getImpl(), current.encoding)";
             _out.dec();
         }
+
+        _out << sp << nl << "def " << fixedOpName << "(self";
+
+        for (const auto& param : operation->parameters())
+        {
+            if (!param->isOutParam())
+            {
+                _out << ", " << fixIdent(param->name());
+            }
+        }
+
+        const string currentParamName = getEscapedParamName(operation, "current");
+        _out << ", " << currentParamName << "=None";
+        _out << "):";
+        _out.inc();
+
+        writeDocstring(operation, DocAsyncDispatch);
+
+        _out << nl << "raise NotImplementedError(\"servant method '" << fixedOpName << "' not implemented\")";
+        _out.dec();
     }
 }
 
@@ -704,16 +704,16 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "super().__init__(communicator, proxyString)";
     _out.dec();
 
-    OperationList ops = p->operations();
-    for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+    OperationList operations = p->operations();
+    for (const auto& operation : operations)
     {
-        string fixedOpName = fixIdent((*oli)->name());
+        string fixedOpName = fixIdent(operation->name());
         if (fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
         {
             fixedOpName.insert(0, "_");
         }
-        TypePtr ret = (*oli)->returnType();
-        ParamDeclList paramList = (*oli)->parameters();
+        TypePtr ret = operation->returnType();
+        ParamDeclList paramList = operation->parameters();
         string inParams;
         string inParamsDecl;
 
@@ -754,16 +754,16 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         _out << sp;
-        writeDocstring(*oli, DocSync);
         _out << nl << "def " << fixedOpName << "(self";
         if (!inParamsDecl.empty())
         {
             _out << ", " << inParamsDecl;
         }
-        const string contextParamName = getEscapedParamName(*oli, "context");
+        const string contextParamName = getEscapedParamName(operation, "context");
         _out << ", " << contextParamName << "=None):";
         _out.inc();
-        _out << nl << "return _M_" << classAbs << "._op_" << (*oli)->name() << ".invoke(self, ((" << inParams;
+        writeDocstring(operation, DocSync);
+        _out << nl << "return _M_" << classAbs << "._op_" << operation->name() << ".invoke(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
             _out << ", ";
@@ -775,15 +775,15 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Async operations.
         //
         _out << sp;
-        writeDocstring(*oli, DocAsync);
-        _out << nl << "def " << (*oli)->name() << "Async(self";
+        _out << nl << "def " << operation->name() << "Async(self";
         if (!inParams.empty())
         {
             _out << ", " << inParams;
         }
         _out << ", " << contextParamName << "=None):";
         _out.inc();
-        _out << nl << "return _M_" << classAbs << "._op_" << (*oli)->name() << ".invokeAsync(self, ((" << inParams;
+        writeDocstring(operation, DocAsync);
+        _out << nl << "return _M_" << classAbs << "._op_" << operation->name() << ".invokeAsync(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
             _out << ", ";
@@ -929,17 +929,17 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // where InParams and OutParams are tuples of type descriptions, and Exceptions
     // is a tuple of exception type ids.
     //
-    if (!ops.empty())
+    if (!operations.empty())
     {
         _out << sp;
     }
-    for (OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
+    for (const auto& operation : operations)
     {
-        ParamDeclList params = (*s)->parameters();
+        ParamDeclList params = operation->parameters();
         ParamDeclList::iterator t;
         int count;
         string format;
-        switch ((*s)->format())
+        switch (operation->format())
         {
             case DefaultFormat:
                 format = "None";
@@ -952,10 +952,10 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 break;
         }
 
-        _out << nl << className << "._op_" << (*s)->name() << " = IcePy.Operation('" << (*s)->name() << "', "
-             << getOperationMode((*s)->mode()) << ", "
-             << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", " << format << ", ";
-        writeMetaData((*s)->getMetaData());
+        _out << nl << className << "._op_" << operation->name() << " = IcePy.Operation('" << operation->name() << "', "
+             << getOperationMode(operation->mode()) << ", "
+             << ((p->hasMetaData("amd") || operation->hasMetaData("amd")) ? "True" : "False") << ", " << format << ", ";
+        writeMetaData(operation->getMetaData());
         _out << ", (";
         for (t = params.begin(), count = 0; t != params.end(); ++t)
         {
@@ -1001,7 +1001,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << ',';
         }
         _out << "), ";
-        TypePtr returnType = (*s)->returnType();
+        TypePtr returnType = operation->returnType();
         if (returnType)
         {
             //
@@ -1011,15 +1011,15 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             _out << "((), ";
             writeType(returnType);
-            _out << ", " << ((*s)->returnIsOptional() ? "True" : "False") << ", "
-                 << ((*s)->returnIsOptional() ? (*s)->returnTag() : 0) << ')';
+            _out << ", " << (operation->returnIsOptional() ? "True" : "False") << ", "
+                 << (operation->returnIsOptional() ? operation->returnTag() : 0) << ')';
         }
         else
         {
             _out << "None";
         }
         _out << ", (";
-        ExceptionList exceptions = (*s)->throws();
+        ExceptionList exceptions = operation->throws();
         for (ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
         {
             if (u != exceptions.begin())
@@ -1034,11 +1034,11 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << "))";
 
-        if ((*s)->isDeprecated(true))
+        if (operation->isDeprecated(true))
         {
             // Get the deprecation reason if present, or default to an empty string.
-            string reason = (*s)->getDeprecationReason(true).value_or("");
-            _out << nl << className << "._op_" << (*s)->name() << ".deprecate(\"" << reason << "\")";
+            string reason = operation->getDeprecationReason(true).value_or("");
+            _out << nl << className << "._op_" << operation->name() << ".deprecate(\"" << reason << "\")";
         }
     }
 
@@ -2142,14 +2142,14 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& 
         return;
     }
 
-    _out << nl << prefix << "\"\"\"";
+    _out << nl << prefix << tripleQuotes;
 
     for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
 
-    _out << nl << "\"\"\"";
+    _out << nl << tripleQuotes;
 }
 
 void
@@ -2161,7 +2161,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
         return;
     }
 
-    _out << nl << "\"\"\"";
+    _out << nl << tripleQuotes;
 
     for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
@@ -2207,7 +2207,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
         }
     }
 
-    _out << nl << "\"\"\"";
+    _out << nl << tripleQuotes;
 }
 
 void
@@ -2219,7 +2219,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
         return;
     }
 
-    _out << nl << "\"\"\"";
+    _out << nl << tripleQuotes;
 
     for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
@@ -2265,7 +2265,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
         }
     }
 
-    _out << nl << "\"\"\"";
+    _out << nl << tripleQuotes;
 }
 
 bool

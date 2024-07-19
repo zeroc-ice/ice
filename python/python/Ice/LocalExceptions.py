@@ -16,10 +16,15 @@ class RequestFailedException(LocalException):
     This exception is raised if a request failed. This exception, and all exceptions derived from
     RequestFailedException, are transmitted by the Ice protocol, even though they are declared
     local.
-    Members:
-    id --  The identity of the Ice Object to which the request was sent.
-    facet --  The facet to which the request was sent.
-    operation --  The operation name of the request.
+
+    Attributes
+    ----------
+    id: Ice.Identity
+        The identity of the Ice Object to which the request was sent.
+    facet: str
+        The facet to which the request was sent.
+    operation: str
+        The operation name of the request.
     """
 
     def __init__(self, id=None, facet= "", operation="", msg=""):
@@ -196,13 +201,18 @@ class ConnectionRefusedException(ConnectFailedException):
 @final
 class AlreadyRegisteredException(LocalException):
     """
-        An attempt was made to register something more than once with the Ice run time. This exception is raised if an
-        attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
-        user exception factory more than once for the same ID.
-    Members:
-    kindOfObject --  The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-        "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica group".
-    id --  The ID (or name) of the object that is registered already.
+    An attempt was made to register something more than once with the Ice run time. This exception is raised if an
+    attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
+    user exception factory more than once for the same ID.
+
+    Attributes
+    ----------
+    kindOfObject: str
+        The kind of object that could not be removed: "servant", "facet", "object", "default servant",
+        "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
+        "replica group".
+    id: Ice.Identity
+        The ID (or name) of the object that is registered already.
     """
 
     def __init__(self, kindOfObject, id, msg):
@@ -255,7 +265,7 @@ class ConnectionClosedException(LocalException):
 @final
 class FeatureNotSupportedException(LocalException):
     """
-        This exception is raised if an unsupported feature is used.
+    This exception is raised if an unsupported feature is used.
     """
 
 @final
@@ -267,9 +277,12 @@ class FixedProxyException(LocalException):
 @final
 class InitializationException(LocalException):
     """
-        This exception is raised when a failure occurs during initialization.
-    Members:
-    reason --  The reason for the failure.
+    This exception is raised when a failure occurs during initialization.
+
+    Attributes
+    ----------
+    reason: str
+        The reason for the failure.
     """
 
 class InvocationCanceledException(LocalException):
@@ -286,15 +299,19 @@ class NoEndpointException(LocalException):
 @final
 class NotRegisteredException(LocalException):
     """
-        An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
-        This exception is raised if an attempt is made to remove a servant, servant locator, facet, value factory, plug-in,
-        object adapter, object, or user exception factory that is not currently registered. It's also raised if the Ice
-        locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter is
-        activated.
-    Members:
-    kindOfObject --  The kind of object that could not be removed: "servant", "facet", "object", "default servant",
+    An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
+    This exception is raised if an attempt is made to remove a servant, servant locator, facet, value factory, plug-in,
+    object adapter, object, or user exception factory that is not currently registered. It's also raised if the Ice
+    locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter is
+    activated.
+
+    Attributes
+    ----------
+    kindOfObject: str
+        The kind of object that could not be removed: "servant", "facet", "object", "default servant",
         "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica group".
-    id --  The ID (or name) of the object that could not be removed.
+    id: str
+        The ID (or name) of the object that could not be removed.
     """
 
     def __init__(self, kindOfObject, id, msg):
@@ -313,32 +330,32 @@ class NotRegisteredException(LocalException):
 @final
 class ObjectAdapterDeactivatedException(LocalException):
     """
-        This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
+    This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
     """
 
 @final
 class ObjectAdapterIdInUseException(LocalException):
     """
-        This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator
-        detects another active ObjectAdapter with the same adapter id.
+    This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator detects another
+    active ObjectAdapter with the same adapter id.
     """
 
 @final
 class ParseException(LocalException):
     """
-        This exception is raised if there was an error while parsing a string.
+    This exception is raised if there was an error while parsing a string.
     """
 
 @final
 class SecurityException(LocalException):
     """
-        This exception indicates a failure in a security subsystem, such as the SSL transport.
+    This exception indicates a failure in a security subsystem, such as the SSL transport.
     """
 
 @final
 class TwowayOnlyException(LocalException):
     """
-        The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to invoke
-        an operation with ice_oneway, ice_batchOneway, ice_datagram, or
-        ice_batchDatagram and the operation has a return value, out-parameters, or an exception specification.
+    The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to invoke
+    an operation with ice_oneway, ice_batchOneway, ice_datagram, or ice_batchDatagram and the operation has a return
+    value, out-parameters, or an exception specification.
     """

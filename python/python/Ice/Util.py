@@ -10,17 +10,33 @@ __name__ = "Ice"
 
 
 def initialize(args=None, data=None):
-    """Initializes a new communicator. The optional arguments represent
+    """
+    Initializes a new communicator.
+
+    This method initializes a new Ice communicator. The optional arguments represent
     an argument list (such as sys.argv) and an instance of InitializationData.
     You can invoke this function as follows:
 
-    Ice.initialize()
-    Ice.initialize(args)
-    Ice.initialize(data)
-    Ice.initialize(args, data)
+    - `Ice.initialize()`
+    - `Ice.initialize(args)`
+    - `Ice.initialize(data)`
+    - `Ice.initialize(args, data)`
 
-    If you supply an argument list, the function removes those arguments from
-    the list that were recognized by the Ice run time."""
+    If you supply an argument list, the function removes those arguments from the list that were
+    recognized by the Ice run time.
+
+    Parameters
+    ----------
+    args : list, optional
+        An argument list, such as sys.argv.
+    data : InitializationData, optional
+        An instance of InitializationData.
+
+    Returns
+    -------
+    Communicator
+        A new communicator instance.
+    """
     communicator = IcePy.Communicator(args, data)
     return CommunicatorI(communicator)
 
@@ -33,18 +49,33 @@ def stringToIdentity(str):
 
 
 def createProperties(args=None, defaults=None):
-    """Creates a new property set. The optional arguments represent
-    an argument list (such as sys.argv) and a property set that supplies
-    default values. You can invoke this function as follows:
+    """
+    Creates a new property set.
 
-    Ice.createProperties()
-    Ice.createProperties(args)
-    Ice.createProperties(defaults)
-    Ice.createProperties(args, defaults)
+    This method creates a new set of properties. The optional arguments represent
+    an argument list (such as sys.argv) and a property set that supplies default values.
+    You can invoke this function as follows:
 
-    If you supply an argument list, the function removes those arguments
-    from the list that were recognized by the Ice run time."""
+    - Ice.createProperties()
+    - Ice.createProperties(args)
+    - Ice.createProperties(defaults)
+    - Ice.createProperties(args, defaults)
 
+    If you supply an argument list, the function removes those arguments from the list that were
+    recognized by the Ice runtime.
+
+    Parameters
+    ----------
+    args : list, optional
+        An argument list, such as sys.argv.
+    defaults : dict, optional
+        A property set that supplies default values.
+
+    Returns
+    -------
+    Properties
+        A new property set instance.
+    """
     properties = IcePy.createProperties(args, defaults)
     return PropertiesI(properties)
 
