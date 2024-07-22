@@ -281,7 +281,7 @@ class Communicator:
         All newly created proxies will use this default router. To disable the default router, pass `None`.
         Note that this operation has no effect on existing proxies.
 
-        You can also set a router for an individual proxy by calling the method `IcePy.ObjectPrx.ice_router` on the
+        You can also set a router for an individual proxy by calling the method `Ice.ObjectPrx.ice_router` on the
         proxy.
 
         Parameters
@@ -309,7 +309,7 @@ class Communicator:
         All newly created proxies and object adapters will use this default locator. To disable the default locator,
         pass `None`. Note that this operation has no effect on existing proxies or object adapters.
 
-        You can also set a locator for an individual proxy by calling the method :any:`IcePy.ObjectPrx.ice_locator` on the
+        You can also set a locator for an individual proxy by calling the method :any:`Ice.ObjectPrx.ice_locator` on the
         proxy, or for an object adapter by calling :any:`ObjectAdapter.setLocator` on the object adapter.
 
         Parameters
@@ -325,7 +325,7 @@ class Communicator:
 
         Returns
         -------
-        IcePy.ValueFactoryManager
+        Ice.ValueFactoryManager
             The value factory manager associated with this communicator.
         """
         raise NotImplementedError("method 'getValueFactoryManager' not implemented")

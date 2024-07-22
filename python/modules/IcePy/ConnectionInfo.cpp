@@ -227,9 +227,9 @@ namespace IcePy
     PyTypeObject ConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.ConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                       /* tp_basicsize */
-        0,                                                  /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.ConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                     /* tp_basicsize */
+        0,                                                /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -272,9 +272,9 @@ namespace IcePy
     PyTypeObject IPConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.IPConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                         /* tp_basicsize */
-        0,                                                    /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.IPConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                       /* tp_basicsize */
+        0,                                                  /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -317,9 +317,9 @@ namespace IcePy
     PyTypeObject TCPConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.TCPConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                          /* tp_basicsize */
-        0,                                                     /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.TCPConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                        /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -362,9 +362,9 @@ namespace IcePy
     PyTypeObject UDPConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.UDPConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                          /* tp_basicsize */
-        0,                                                     /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.UDPConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                        /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -407,9 +407,9 @@ namespace IcePy
     PyTypeObject WSConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.WSConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                         /* tp_basicsize */
-        0,                                                    /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.WSConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                       /* tp_basicsize */
+        0,                                                  /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */
@@ -452,9 +452,9 @@ namespace IcePy
     PyTypeObject SSLConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.SSLConnectionInfo", /* tp_name */
-        sizeof(ConnectionInfoObject),                          /* tp_basicsize */
-        0,                                                     /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.SSLConnectionInfo", /* tp_name */
+        sizeof(ConnectionInfoObject),                        /* tp_basicsize */
+        0,                                                   /* tp_itemsize */
         /* methods */
         (destructor)connectionInfoDealloc,        /* tp_dealloc */
         0,                                        /* tp_print */

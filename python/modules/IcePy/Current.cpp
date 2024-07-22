@@ -245,9 +245,9 @@ namespace IcePy
     PyTypeObject CurrentType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.Current", /* tp_name */
-        sizeof(CurrentObject),                       /* tp_basicsize */
-        0,                                           /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.Current", /* tp_name */
+        sizeof(CurrentObject),                     /* tp_basicsize */
+        0,                                         /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(currentDealloc), /* tp_dealloc */
         0,                                            /* tp_print */

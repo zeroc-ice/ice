@@ -21,8 +21,12 @@ release = '3.8.0a'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'sphinx_autodoc_typehints',
 ]
+
+# Ensure that type hints from .pyi files are included in the documentation
+autodoc_typehints = 'both'
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

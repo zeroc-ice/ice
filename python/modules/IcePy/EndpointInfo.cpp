@@ -233,9 +233,9 @@ namespace IcePy
     PyTypeObject EndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.EndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                       /* tp_basicsize */
-        0,                                                /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.EndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                     /* tp_basicsize */
+        0,                                              /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -278,9 +278,9 @@ namespace IcePy
     PyTypeObject IPEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) ".IPEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                    /* tp_basicsize */
-        0,                                             /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.IPEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                       /* tp_basicsize */
+        0,                                                /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -323,9 +323,9 @@ namespace IcePy
     PyTypeObject TCPEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.TCPEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                          /* tp_basicsize */
-        0,                                                   /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.TCPEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                        /* tp_basicsize */
+        0,                                                 /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -368,9 +368,9 @@ namespace IcePy
     PyTypeObject UDPEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.UDPEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                          /* tp_basicsize */
-        0,                                                   /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.UDPEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                        /* tp_basicsize */
+        0,                                                 /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -413,9 +413,9 @@ namespace IcePy
     PyTypeObject WSEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.WSEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                         /* tp_basicsize */
-        0,                                                  /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.WSEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                       /* tp_basicsize */
+        0,                                                /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -458,9 +458,9 @@ namespace IcePy
     PyTypeObject SSLEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.SSLEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                          /* tp_basicsize */
-        0,                                                   /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.SSLEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                        /* tp_basicsize */
+        0,                                                 /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */
@@ -503,9 +503,9 @@ namespace IcePy
     PyTypeObject OpaqueEndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.OpaqueEndpointInfo", /* tp_name */
-        sizeof(EndpointInfoObject),                             /* tp_basicsize */
-        0,                                                      /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "Ice.OpaqueEndpointInfo", /* tp_name */
+        sizeof(EndpointInfoObject),                           /* tp_basicsize */
+        0,                                                    /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
         0,                                                 /* tp_print */

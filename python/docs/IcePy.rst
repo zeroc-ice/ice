@@ -1,5 +1,8 @@
-IcePy module
-============
+IcePy package
+===========
+
+Module contents
+---------------
 
 .. automodule:: IcePy
    :members:

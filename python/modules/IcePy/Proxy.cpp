@@ -2186,8 +2186,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.ObjectPrx", /* tp_name */
-        sizeof(ProxyObject),                           /* tp_basicsize */
-        0,                                             /* tp_itemsize */
+        sizeof(ProxyObject),                         /* tp_basicsize */
+        0,                                           /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(proxyDealloc),  /* tp_dealloc */
         0,                                           /* tp_print */
