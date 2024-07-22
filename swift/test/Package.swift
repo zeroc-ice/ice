@@ -114,13 +114,13 @@ let testDirectories: [String: TestConfig] = [
     // ),
     // "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
     // "Ice/timeout": TestConfig(collocated: false),
-    // "Ice/udp": TestConfig(collocated: false),
-    // "IceSSL/configuration": TestConfig(
-    //     collocated: false,
-    //     resources: [
-    //         .copy("certs")
-    //     ]
-    // ),
+    "Ice/udp": TestConfig(collocated: false),
+    "IceSSL/configuration": TestConfig(
+        collocated: false,
+        resources: [
+            .copy("certs")
+        ]
+    ),
     "Slice/escape": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: ["Clash.ice", "Key.ice"]),
 ]
 
