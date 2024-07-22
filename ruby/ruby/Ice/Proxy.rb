@@ -10,10 +10,6 @@ module Ice
     # Provide some common functionality for proxy classes
     module Proxy_mixin
         module ClassMethods
-            def inspect
-                ::Ice::__stringify(self, self.class::ICE_TYPE)
-            end
-
             def ice_staticId()
                 self::ICE_ID
             end

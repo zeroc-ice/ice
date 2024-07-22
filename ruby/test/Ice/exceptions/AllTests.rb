@@ -49,7 +49,7 @@ def allTests(helper, communicator)
 
     print "testing checked cast... "
     STDOUT.flush
-    thrower = Test::ThrowerPrx::checkedCast(base)
+    thrower = Test::ThrowerPrx.checkedCast(base)
     test(thrower)
     test(thrower == base)
     puts "ok"

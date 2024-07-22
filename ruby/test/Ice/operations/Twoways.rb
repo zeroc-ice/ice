@@ -1159,7 +1159,7 @@ def twoways(helper, communicator, p)
     test(p.ice_getContext().length == 0)
     test(r == ctx)
 
-    p2 = Test::MyClassPrx::checkedCast(p.ice_context(ctx))
+    p2 = p.ice_context(ctx)
     test(p2.ice_getContext() == ctx)
     r = p2.opContext()
     test(r == ctx)
@@ -1183,7 +1183,9 @@ def twoways(helper, communicator, p)
     test(p.opStringS2(nil).length == 0)
     test(p.opByteBoolD2(nil).length == 0)
 
-    d = Test::MyDerivedClassPrx::uncheckedCast(p)
+    d = Test::MyDerivedClassPrx.uncheckedCast(p)
+    test(d.class == Test::MyDerivedClassPrx)
+
     s = Test::MyStruct1.new
     s.tesT = "Test.MyStruct1.s"
     s.myClass = nil

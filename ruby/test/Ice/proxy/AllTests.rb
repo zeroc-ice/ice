@@ -586,28 +586,28 @@ def allTests(helper, communicator)
 
     print "testing checked cast... "
     STDOUT.flush
-    cl = Test::MyClassPrx::checkedCast(base)
+    cl = Test::MyClassPrx.checkedCast(base)
     test(cl)
 
-    derived = Test::MyDerivedClassPrx::checkedCast(cl)
+    derived = Test::MyDerivedClassPrx.checkedCast(cl)
     test(derived)
     test(cl == base)
     test(derived == base)
     test(cl == derived)
     begin
-        Test::MyDerivedClassPrx::checkedCast(cl, "facet")
+        Test::MyDerivedClassPrx.checkedCast(cl, "facet")
         test(false)
     rescue Ice::FacetNotExistException
     end
 
-    loc = Ice::LocatorPrx::checkedCast(base)
+    loc = Ice::LocatorPrx.checkedCast(base)
     test(loc == nil)
 
     #
     # Upcasting
     #
-    cl2 = Test::MyClassPrx::checkedCast(derived)
-    obj = Ice::ObjectPrx::checkedCast(derived)
+    cl2 = Test::MyClassPrx.checkedCast(derived)
+    obj = Ice::ObjectPrx.checkedCast(derived)
     test(cl2)
     test(obj)
     test(cl2 == obj)
@@ -617,14 +617,14 @@ def allTests(helper, communicator)
 
     print "testing checked cast with context... "
     STDOUT.flush
-    tccp = Test::MyClassPrx::checkedCast(base)
+    tccp = Test::MyClassPrx.checkedCast(base)
     c = tccp.getContext()
     test(c == nil || c.length == 0)
 
     c = { }
     c["one"] = "hello"
     c["two"] =  "world"
-    tccp = Test::MyClassPrx::checkedCast(base, c)
+    tccp = Test::MyClassPrx.checkedCast(base, c)
     c2 = tccp.getContext()
     test(c == c2)
     puts "ok"
