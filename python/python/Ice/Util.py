@@ -11,7 +11,7 @@ __name__ = "Ice"
 
 def initialize(args=None, data=None):
     """
-    Initializes a new communicator.
+    Initialize a new Ice communicator.
 
     This method initializes a new Ice communicator. The optional arguments represent
     an argument list (such as sys.argv) and an instance of InitializationData.
@@ -23,11 +23,11 @@ def initialize(args=None, data=None):
     - `Ice.initialize(args, data)`
 
     If you supply an argument list, the function removes those arguments from the list that were
-    recognized by the Ice run time.
+    recognized by the Ice runtime.
 
     Parameters
     ----------
-    args : list, optional
+    args : list of str, optional
         An argument list, such as sys.argv.
     data : InitializationData, optional
         An instance of InitializationData.
