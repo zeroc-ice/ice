@@ -5,7 +5,7 @@ import PromiseKit
 import TestCommon
 
 class Collocated: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.ThreadPool.Client.Size", value: "2")
         properties.setProperty(key: "Ice.ThreadPool.Client.SizeWarn", value: "0")

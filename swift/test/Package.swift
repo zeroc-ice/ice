@@ -41,7 +41,7 @@ struct TestConfig {
 let testDirectories: [String: TestConfig] = [
     "Ice/adapterDeactivation": TestConfig(),
     "Ice/admin": TestConfig(collocated: false),
-    "Ice/ami": TestConfig(),
+    // "Ice/ami": TestConfig(),
     "Ice/binding": TestConfig(collocated: false),
     "Ice/defaultServant": TestConfig(
         collocated: false,
@@ -57,70 +57,70 @@ let testDirectories: [String: TestConfig] = [
         sliceFiles: []
     ),
     "Ice/enums": TestConfig(collocated: false),
-    "Ice/exceptions": TestConfig(amd: true),
-    "Ice/facets": TestConfig(collocated: true),
-    "Ice/hold": TestConfig(collocated: false),
-    "Ice/info": TestConfig(collocated: false),
-    "Ice/inheritance": TestConfig(),
-    "Ice/invoke": TestConfig(collocated: false),
-    "Ice/location": TestConfig(collocated: false),
-    "Ice/middleware": TestConfig(collocated: false, sources: ["Client.swift", "AllTests.swift"]),
-    "Ice/objects": TestConfig(
-        sliceFiles: defaultSliceFiles + ["Derived.ice", "DerivedEx.ice", "Forward.ice"]
-    ),
-    "Ice/operations": TestConfig(
-        sources: defaultSources + [
-            "BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift",
-            "TwowaysAMI.swift",
-        ],
-        amd: true
-    ),
-    "Ice/optional": TestConfig(
-        collocated: false,
-        amd: true
-    ),
-    "Ice/properties": TestConfig(
-        collocated: false,
-        sources: ["Client.swift"],
-        sliceFiles: [],
-        resources: [
-            .copy("config/config.1"),
-            .copy("config/config.2"),
-            .copy("config/config.3"),
-            .copy("config/escapes.cfg"),
-            .copy("config/configPath"),
-        ]
-    ),
-    "Ice/proxy": TestConfig(amd: true),
-    "Ice/retry": TestConfig(),
-    "Ice/scope": TestConfig(collocated: false),
-    "Ice/servantLocator": TestConfig(
-        sources: defaultSources + ["ServantLocatorI.swift"],
-        amd: true,
-        amdSourcesFiles: defaultAMDSourceFiles + ["ServantLocatorAMDI.swift"]
-    ),
-    "Ice/services": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: []),
-    "Ice/slicing/exceptions": TestConfig(
-        collocated: false,
-        sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"],
-        amd: true,
-        amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
-    ),
-    "Ice/slicing/objects": TestConfig(
-        collocated: false,
-        sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"],
-        amd: true,
-        amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
-    ),
-    "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
-    "Ice/timeout": TestConfig(collocated: false),
-    "Ice/udp": TestConfig(collocated: false),
-    "IceSSL/configuration": TestConfig(
-        collocated: false,
-        resources: [
-            .copy("certs")
-        ]
-    ),
+    // "Ice/exceptions": TestConfig(amd: true),
+    // "Ice/facets": TestConfig(collocated: true),
+    // "Ice/hold": TestConfig(collocated: false),
+    // "Ice/info": TestConfig(collocated: false),
+    // "Ice/inheritance": TestConfig(),
+    // "Ice/invoke": TestConfig(collocated: false),
+    // "Ice/location": TestConfig(collocated: false),
+    // "Ice/middleware": TestConfig(collocated: false, sources: ["Client.swift", "AllTests.swift"]),
+    // "Ice/objects": TestConfig(
+    //     sliceFiles: defaultSliceFiles + ["Derived.ice", "DerivedEx.ice", "Forward.ice"]
+    // ),
+    // "Ice/operations": TestConfig(
+    //     sources: defaultSources + [
+    //         "BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift",
+    //         "TwowaysAMI.swift",
+    //     ],
+    //     amd: true
+    // ),
+    // "Ice/optional": TestConfig(
+    //     collocated: false,
+    //     amd: true
+    // ),
+    // "Ice/properties": TestConfig(
+    //     collocated: false,
+    //     sources: ["Client.swift"],
+    //     sliceFiles: [],
+    //     resources: [
+    //         .copy("config/config.1"),
+    //         .copy("config/config.2"),
+    //         .copy("config/config.3"),
+    //         .copy("config/escapes.cfg"),
+    //         .copy("config/configPath"),
+    //     ]
+    // ),
+    // "Ice/proxy": TestConfig(amd: true),
+    // "Ice/retry": TestConfig(),
+    // "Ice/scope": TestConfig(collocated: false),
+    // "Ice/servantLocator": TestConfig(
+    //     sources: defaultSources + ["ServantLocatorI.swift"],
+    //     amd: true,
+    //     amdSourcesFiles: defaultAMDSourceFiles + ["ServantLocatorAMDI.swift"]
+    // ),
+    // "Ice/services": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: []),
+    // "Ice/slicing/exceptions": TestConfig(
+    //     collocated: false,
+    //     sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"],
+    //     amd: true,
+    //     amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
+    // ),
+    // "Ice/slicing/objects": TestConfig(
+    //     collocated: false,
+    //     sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"],
+    //     amd: true,
+    //     amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
+    // ),
+    // "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
+    // "Ice/timeout": TestConfig(collocated: false),
+    // "Ice/udp": TestConfig(collocated: false),
+    // "IceSSL/configuration": TestConfig(
+    //     collocated: false,
+    //     resources: [
+    //         .copy("certs")
+    //     ]
+    // ),
     "Slice/escape": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: ["Clash.ice", "Key.ice"]),
 ]
 

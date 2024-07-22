@@ -5,7 +5,7 @@ import PromiseKit
 import TestCommon
 
 class ServerAMD: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         //
         // We don't want connection warnings because of the timeout test.

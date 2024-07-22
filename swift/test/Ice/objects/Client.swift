@@ -5,7 +5,7 @@ import PromiseKit
 import TestCommon
 
 public class Client: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
         var initData = InitializationData()

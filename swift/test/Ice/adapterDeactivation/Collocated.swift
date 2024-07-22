@@ -5,7 +5,7 @@ import PromiseKit
 import TestCommon
 
 class Collocated: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let communicator = try initialize(args)
         defer {
             communicator.destroy()
@@ -19,6 +19,6 @@ class Collocated: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.addServantLocator(locator: ServantLocatorI(helper: self), category: "")
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
-        try allTests(self)
+        try await allTests(self)
     }
 }

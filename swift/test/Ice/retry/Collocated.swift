@@ -5,7 +5,7 @@ import PromiseKit
 import TestCommon
 
 class Collocated: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         var properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10 1")
 

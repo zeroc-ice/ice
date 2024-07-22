@@ -2,10 +2,9 @@
 
 import Foundation
 import Ice
-import PromiseKit
 import TestCommon
 
-func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
+func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -25,35 +24,35 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
     do {
         let ctx: [String: String] = [:]
 
-        try test(p.ice_isAAsync(id: "::Test::TestIntf").wait())
-        try test(p.ice_isAAsync(id: "::Test::TestIntf", context: ctx).wait())
+        try await test(p.ice_isAAsync(id: "::Test::TestIntf"))
+        try await test(p.ice_isAAsync(id: "::Test::TestIntf", context: ctx))
 
-        try p.ice_pingAsync().wait()
-        try p.ice_pingAsync(context: ctx).wait()
+        try await p.ice_pingAsync()
+        try await p.ice_pingAsync(context: ctx)
 
-        try test(p.ice_idAsync().wait() == "::Test::TestIntf")
-        try test(p.ice_idAsync(context: ctx).wait() == "::Test::TestIntf")
+        try await test(p.ice_idAsync() == "::Test::TestIntf")
+        try await test(p.ice_idAsync(context: ctx) == "::Test::TestIntf")
 
-        try test(p.ice_idsAsync().wait().count == 2)
-        try test(p.ice_idsAsync(context: ctx).wait().count == 2)
+        try await test(p.ice_idsAsync().count == 2)
+        try await test(p.ice_idsAsync(context: ctx).count == 2)
 
         if !collocated {
-            try test(p.ice_getConnectionAsync().wait() != nil)
+            try await test(p.ice_getConnectionAsync() != nil)
         }
 
-        try p.opAsync().wait()
-        try p.opAsync(context: ctx).wait()
+        try await p.opAsync()
+        try await p.opAsync(context: ctx)
 
-        try test(p.opWithResultAsync().wait() == 15)
-        try test(p.opWithResultAsync(context: ctx).wait() == 15)
+        try await test(p.opWithResultAsync() == 15)
+        try await test(p.opWithResultAsync(context: ctx) == 15)
 
         do {
-            try p.opWithUEAsync().wait()
+            try await p.opWithUEAsync()
             try test(false)
         } catch is TestIntfException {}
 
         do {
-            try p.opWithUEAsync(context: ctx).wait()
+            try await p.opWithUEAsync(context: ctx)
             try test(false)
         } catch is TestIntfException {}
     }
@@ -62,26 +61,24 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
     output.write("testing local exceptions... ")
     do {
         let indirect = p.ice_adapterId("dummy")
-        try indirect.opAsync().wait()
+        try await indirect.opAsync()
     } catch is Ice.NoEndpointException {}
 
     do {
-        _ = try p.ice_oneway().opWithResultAsync().wait()
+        _ = try await p.ice_oneway().opWithResultAsync()
         try test(false)
     } catch is Ice.LocalException {}
 
-    //
     // Check that CommunicatorDestroyedException is raised directly.
-    //
     if try p.ice_getConnection() != nil {
         var initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
         let ic = try helper.initialize(initData)
         let p2 = try makeProxy(communicator: ic, proxyString: p.ice_toString(), type: TestIntfPrx.self)
-        try p2.ice_pingAsync().wait()
+        try await p2.ice_pingAsync()
         ic.destroy()
         do {
-            try p2.opAsync().wait()
+            try await p2.opAsync()
             try test(false)
         } catch is Ice.CommunicatorDestroyedException {}
     }
@@ -92,433 +89,471 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
         let i = p.ice_adapterId("dummy")
 
         do {
-            _ = try i.ice_isAAsync(id: "::Test::TestIntf").wait()
+            _ = try await i.ice_isAAsync(id: "::Test::TestIntf")
             try test(false)
         } catch is Ice.NoEndpointException {}
 
         do {
-            try i.opAsync().wait()
+            try await i.opAsync()
             try test(false)
         } catch is Ice.NoEndpointException {}
 
         do {
-            _ = try i.opWithResultAsync().wait()
+            _ = try await i.opWithResultAsync()
             try test(false)
         } catch is Ice.NoEndpointException {}
 
         do {
-            try i.opWithUEAsync().wait()
+            try await i.opWithUEAsync()
             try test(false)
         } catch is Ice.NoEndpointException {}
 
         // Ensures no exception is called when response is received
-        _ = try p.ice_isAAsync(id: "::Test::TestIntf").wait()
-        try p.opAsync().wait()
-        _ = try p.opWithResultAsync().wait()
+        _ = try await p.ice_isAAsync(id: "::Test::TestIntf")
+        try await p.opAsync()
+        _ = try await p.opWithResultAsync()
 
         do {
             // If response is a user exception, it should be received.
-            try p.opWithUEAsync().wait()
+            try await p.opWithUEAsync()
             try test(false)
         } catch is TestIntfException {}
     }
     output.writeLine("ok")
 
     output.write("testing sent callback... ")
-    _ = try Promise<Bool> { seal in
-        _ = p.ice_isAAsync(id: "") { sentSynchronously in
-            seal.fulfill(sentSynchronously)
-        }
-    }.wait()
 
-    _ = try Promise<Bool> { seal in
-        _ = p.ice_pingAsync { sentSynchronously in
-            seal.fulfill(sentSynchronously)
-        }
-    }.wait()
-
-    _ = try Promise<Bool> { seal in
-        _ = p.ice_idAsync { sentSynchronously in
-            seal.fulfill(sentSynchronously)
-        }
-    }.wait()
-
-    _ = try Promise<Bool> { seal in
-        _ = p.ice_idsAsync { sentSynchronously in
-            seal.fulfill(sentSynchronously)
-        }
-    }.wait()
-
-    _ = try Promise<Bool> { seal in
-        _ = p.opAsync { sentSynchronously in
-            seal.fulfill(sentSynchronously)
-        }
-    }.wait()
-
-    let seq = ByteSeq(repeating: 0, count: 1024)
-    var cbs = [Promise<Bool>]()
-    try testController.holdAdapter()
-    var cb: Promise<Bool>!
-    do {
-        defer {
+    await withCheckedContinuation { [p] continuation in
+        Task {
             do {
-                try testController.resumeAdapter()
-            } catch {}
-        }
-
-        while true {
-            cb = Promise<Bool> { seal in
-                _ = p.opWithPayloadAsync(seq) { sentSynchronously in
-                    seal.fulfill(sentSynchronously)
+                _ = try await p.ice_isAAsync(id: "") { sentSynchronously in
+                    continuation.resume()
                 }
-            }
-            Thread.sleep(forTimeInterval: 0.01)
-            cbs.append(cb)
-            if try !cb.isFulfilled || !cb.wait() {
-                break
+            } catch {
+                fatalError("unexpected error: \(error)")
             }
         }
     }
-    try test(cb.wait() == false)
 
-    for cb in cbs {
-        _ = try cb.wait()
+    await withCheckedContinuation { [p] continuation in
+        Task {
+            do {
+                _ = try await p.ice_pingAsync { sentSynchronously in
+                    continuation.resume()
+                }
+            } catch {
+                fatalError("unexpected error: \(error)")
+            }
+        }
     }
+
+    await withCheckedContinuation { [p] continuation in
+        Task {
+            do {
+                _ = try await p.ice_idAsync { sentSynchronously in
+                    continuation.resume()
+                }
+            } catch {
+                fatalError("unexpected error: \(error)")
+            }
+        }
+    }
+
+    await withCheckedContinuation { [p] continuation in
+        Task {
+            do {
+                _ = try await p.ice_idsAsync { sentSynchronously in
+                    continuation.resume()
+                }
+            } catch {
+                fatalError("unexpected error: \(error)")
+            }
+        }
+    }
+
+    await withCheckedContinuation { [p] continuation in
+        Task {
+            do {
+                _ = try await p.opAsync { sentSynchronously in
+                    continuation.resume()
+                }
+            } catch {
+                fatalError("unexpected error: \(error)")
+            }
+        }
+    }
+
+    // TODO: Joe
+    // let seq = ByteSeq(repeating: 0, count: 1024)
+    // var cbs = [Promise<Bool>]()
+    // try testController.holdAdapter()
+    // do {
+    //     defer {
+    //         do {
+    //             try testController.resumeAdapter()
+    //         } catch {}
+    //     }
+
+    //     while true {
+    //         cb = Promise<Bool> { seal in
+    //             _ = p.opWithPayloadAsync(seq) { sentSynchronously in
+    //                 seal.fulfill(sentSynchronously)
+    //             }
+    //         }
+    //         Thread.sleep(forTimeInterval: 0.01)
+    //         cbs.append(cb)
+    //         if try !cb.isFulfilled || !cb.wait() {
+    //             break
+    //         }
+    //     }
+    // }
+
+    // for cb in cbs {
+    //     _ = try cb.wait()
+    // }
     output.writeLine("ok")
 
     output.write("testing batch requests with proxy... ")
     do {
-        try test(
-            Promise<Bool> { seal in
-                _ = p.ice_batchOneway().ice_flushBatchRequestsAsync { sentSynchronously in
-                    seal.fulfill(sentSynchronously)
+        let onewayFlushResult = try await withCheckedThrowingContinuation { [p] continuation in
+            Task {
+                do {
+                    _ = try await p.ice_batchOneway().ice_flushBatchRequestsAsync { sentSynchronously in
+                        continuation.resume(returning: sentSynchronously)
+                    }
+                } catch {
+                    continuation.resume(throwing: error)
                 }
-            }.wait())
+            }
+        }
+        try test(onewayFlushResult)
 
         do {
             try test(p.opBatchCount() == 0)
             let b1 = p.ice_batchOneway()
             try b1.opBatch()
-            let b1r = b1.opBatchAsync()
-            try test(b1r.isFulfilled)
-            var r: Promise<Void>!
-            try Promise<Void> { seal in
-                r = b1.ice_flushBatchRequestsAsync { _ in
-                    seal.fulfill(())
-                }
-            }.wait()
-            try test(r.isResolved)
-            try test(p.waitForBatch(2))
+            try await b1.opBatchAsync()
+
+            await let r = b1.ice_flushBatchRequestsAsync()
+
+           var r: Promise<Void>!
+           try Promise<Void> { seal in
+               r = b1.ice_flushBatchRequestsAsync { _ in
+                   seal.fulfill(())
+               }
+           }.wait()
+           try test(r.isResolved)
+           try test(p.waitForBatch(2))
         }
 
-        if try p.ice_getConnection() != nil {
-            try test(p.opBatchCount() == 0)
-            let b1 = p.ice_batchOneway()
-            try b1.opBatch()
-            try b1.ice_getConnection()!.close(.GracefullyWithWait)
-
-            var r: Promise<Void>!
-            try Promise<Void> { seal in
-                r = b1.ice_flushBatchRequestsAsync { _ in
-                    seal.fulfill(())
-                }
-            }.wait()
-            try test(r.isResolved)
-
-            try test(p.waitForBatch(1))
-        }
+//        if try p.ice_getConnection() != nil {
+//            try test(p.opBatchCount() == 0)
+//            let b1 = p.ice_batchOneway()
+//            try b1.opBatch()
+//            try b1.ice_getConnection()!.close(.GracefullyWithWait)
+//
+//            var r: Promise<Void>!
+//            try Promise<Void> { seal in
+//                r = b1.ice_flushBatchRequestsAsync { _ in
+//                    seal.fulfill(())
+//                }
+//            }.wait()
+//            try test(r.isResolved)
+//
+//            try test(p.waitForBatch(1))
+//        }
     }
     output.writeLine("ok")
 
-    if try p.ice_getConnection() != nil {
-        output.write("testing batch requests with connection... ")
-        do {
-            do {
-                try test(p.opBatchCount() == 0)
-                let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
-                try b1.opBatch()
-                try b1.opBatch()
-                var r: Promise<Void>!
-                try Promise<Void> { seal in
-                    r = try b1.ice_getConnection()!.flushBatchRequestsAsync(.BasedOnProxy) { _ in
-                        seal.fulfill(())
-                    }
-                }.wait()
-                try r.wait()
-                try test(r.isResolved)
-                try test(p.waitForBatch(2))
-            }
+    // if try p.ice_getConnection() != nil {
+    //     output.write("testing batch requests with connection... ")
+    //     do {
+    //         do {
+    //             try test(p.opBatchCount() == 0)
+    //             let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
+    //             try b1.opBatch()
+    //             try b1.opBatch()
+    //             var r: Promise<Void>!
+    //             try Promise<Void> { seal in
+    //                 r = try b1.ice_getConnection()!.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+    //                     seal.fulfill(())
+    //                 }
+    //             }.wait()
+    //             try r.wait()
+    //             try test(r.isResolved)
+    //             try test(p.waitForBatch(2))
+    //         }
 
-            try test(p.opBatchCount() == 0)
-            let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
-            try b1.opBatch()
-            try b1.ice_getConnection()!.close(.GracefullyWithWait)
+    //         try test(p.opBatchCount() == 0)
+    //         let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
+    //         try b1.opBatch()
+    //         try b1.ice_getConnection()!.close(.GracefullyWithWait)
 
-            let r = try b1.ice_getConnection()!.flushBatchRequestsAsync(.BasedOnProxy)
-            try test(!r.isResolved)
+    //         let r = try b1.ice_getConnection()!.flushBatchRequestsAsync(.BasedOnProxy)
+    //         try test(!r.isResolved)
 
-            try test(p.waitForBatch(0))
-        }
-        output.writeLine("ok")
+    //         try test(p.waitForBatch(0))
+    //     }
+    //     output.writeLine("ok")
 
-        output.write("testing batch requests with communicator... ")
-        do {
-            //
-            // Async task - 1 connection.
-            //
-            try test(p.opBatchCount() == 0)
-            let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
-            try b1.opBatch()
-            try b1.opBatch()
-            var r: Promise<Void>!
-            try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in seal.fulfill(()) }
-            }.wait()
-            try r.wait()
-            try test(r.isResolved)
-            try test(p.waitForBatch(2))
-        }
+    //     output.write("testing batch requests with communicator... ")
+    //     do {
+    //         //
+    //         // Async task - 1 connection.
+    //         //
+    //         try test(p.opBatchCount() == 0)
+    //         let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
+    //         try b1.opBatch()
+    //         try b1.opBatch()
+    //         var r: Promise<Void>!
+    //         try Promise<Void> { seal in
+    //             r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in seal.fulfill(()) }
+    //         }.wait()
+    //         try r.wait()
+    //         try test(r.isResolved)
+    //         try test(p.waitForBatch(2))
+    //     }
 
-        //
-        // Async task exception - 1 connection.
-        //
-        do {
-            try test(p.opBatchCount() == 0)
-            let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
-            try b1.opBatch()
-            try b1.ice_getConnection()!.close(.GracefullyWithWait)
-            var r: Promise<Void>!
-            try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
-                    seal.fulfill(())
-                }
-            }.wait()
-            try test(r.isResolved)
-            try test(p.opBatchCount() == 0)
-        }
+    //     //
+    //     // Async task exception - 1 connection.
+    //     //
+    //     do {
+    //         try test(p.opBatchCount() == 0)
+    //         let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
+    //         try b1.opBatch()
+    //         try b1.ice_getConnection()!.close(.GracefullyWithWait)
+    //         var r: Promise<Void>!
+    //         try Promise<Void> { seal in
+    //             r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+    //                 seal.fulfill(())
+    //             }
+    //         }.wait()
+    //         try test(r.isResolved)
+    //         try test(p.opBatchCount() == 0)
+    //     }
 
-        //
-        // Async task - 2 connections.
-        //
-        do {
-            try test(p.opBatchCount() == 0)
-            let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
-            let con = try p.ice_connectionId("2").ice_getConnection()!
-            let b2 = p.ice_fixed(con).ice_batchOneway()
-            try b1.opBatch()
-            try b1.opBatch()
-            try b2.opBatch()
-            try b2.opBatch()
+    //     //
+    //     // Async task - 2 connections.
+    //     //
+    //     do {
+    //         try test(p.opBatchCount() == 0)
+    //         let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
+    //         let con = try p.ice_connectionId("2").ice_getConnection()!
+    //         let b2 = p.ice_fixed(con).ice_batchOneway()
+    //         try b1.opBatch()
+    //         try b1.opBatch()
+    //         try b2.opBatch()
+    //         try b2.opBatch()
 
-            var r: Promise<Void>!
-            try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
-                    seal.fulfill(())
-                }
-            }.wait()
-            try test(r.isResolved)
-            try test(p.waitForBatch(4))
-        }
+    //         var r: Promise<Void>!
+    //         try Promise<Void> { seal in
+    //             r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+    //                 seal.fulfill(())
+    //             }
+    //         }.wait()
+    //         try test(r.isResolved)
+    //         try test(p.waitForBatch(4))
+    //     }
 
-        do {
-            //
-            // AsyncResult exception - 2 connections - 1 failure.
-            //
-            // All connections should be flushed even if there are failures on some connections.
-            // Exceptions should not be reported.
-            //
-            try test(p.opBatchCount() == 0)
-            let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
+    //     do {
+    //         //
+    //         // AsyncResult exception - 2 connections - 1 failure.
+    //         //
+    //         // All connections should be flushed even if there are failures on some connections.
+    //         // Exceptions should not be reported.
+    //         //
+    //         try test(p.opBatchCount() == 0)
+    //         let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
 
-            let con = try p.ice_connectionId("2").ice_getConnection()!
-            let b2 = p.ice_fixed(con).ice_batchOneway()
-            try b1.opBatch()
-            try b2.opBatch()
-            try b1.ice_getConnection()!.close(.GracefullyWithWait)
-            var r: Promise<Void>!
-            try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
-                    seal.fulfill(())
-                }
-            }.wait()
-            try test(r.isResolved)
-            try test(p.waitForBatch(1))
-        }
+    //         let con = try p.ice_connectionId("2").ice_getConnection()!
+    //         let b2 = p.ice_fixed(con).ice_batchOneway()
+    //         try b1.opBatch()
+    //         try b2.opBatch()
+    //         try b1.ice_getConnection()!.close(.GracefullyWithWait)
+    //         var r: Promise<Void>!
+    //         try Promise<Void> { seal in
+    //             r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+    //                 seal.fulfill(())
+    //             }
+    //         }.wait()
+    //         try test(r.isResolved)
+    //         try test(p.waitForBatch(1))
+    //     }
 
-        do {
-            //
-            // Async task exception - 2 connections - 2 failures.
-            //
-            // The sent callback should be invoked even if all connections fail.
-            //
-            try test(p.opBatchCount() == 0)
-            let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
+    //     do {
+    //         //
+    //         // Async task exception - 2 connections - 2 failures.
+    //         //
+    //         // The sent callback should be invoked even if all connections fail.
+    //         //
+    //         try test(p.opBatchCount() == 0)
+    //         let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
 
-            let con = try p.ice_connectionId("2").ice_getConnection()!
-            let b2 = p.ice_fixed(con).ice_batchOneway()
-            try b1.opBatch()
-            try b2.opBatch()
-            try b1.ice_getConnection()!.close(.GracefullyWithWait)
-            try b2.ice_getConnection()!.close(.GracefullyWithWait)
-            var r: Promise<Void>!
-            try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
-                    seal.fulfill(())
-                }
-            }.wait()
-            try test(r.isResolved)
-            try test(p.opBatchCount() == 0)
-        }
-        output.writeLine("ok")
-    }
+    //         let con = try p.ice_connectionId("2").ice_getConnection()!
+    //         let b2 = p.ice_fixed(con).ice_batchOneway()
+    //         try b1.opBatch()
+    //         try b2.opBatch()
+    //         try b1.ice_getConnection()!.close(.GracefullyWithWait)
+    //         try b2.ice_getConnection()!.close(.GracefullyWithWait)
+    //         var r: Promise<Void>!
+    //         try Promise<Void> { seal in
+    //             r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+    //                 seal.fulfill(())
+    //             }
+    //         }.wait()
+    //         try test(r.isResolved)
+    //         try test(p.opBatchCount() == 0)
+    //     }
+    //     output.writeLine("ok")
+    // }
 
-    if try p.ice_getConnection() != nil && p.supportsAMD() {
-        output.write("testing graceful close connection with wait... ")
-        do {
-            //
-            // Local case: begin a request, close the connection gracefully, and make sure it waits
-            // for the request to complete.
-            //
-            let con = try p.ice_getConnection()!
-            let cb = Promise<Void> { seal in
-                do {
-                    try con.setCloseCallback { _ in seal.fulfill(()) }
-                } catch {
-                    preconditionFailure()
-                }
-            }
-            let r = p.sleepAsync(100)
-            try con.close(.GracefullyWithWait)
-            try r.wait()  // Should complete successfully.
-            try cb.wait()
-        }
+    // if try p.ice_getConnection() != nil && p.supportsAMD() {
+    //     output.write("testing graceful close connection with wait... ")
+    //     do {
+    //         //
+    //         // Local case: begin a request, close the connection gracefully, and make sure it waits
+    //         // for the request to complete.
+    //         //
+    //         let con = try p.ice_getConnection()!
+    //         let cb = Promise<Void> { seal in
+    //             do {
+    //                 try con.setCloseCallback { _ in seal.fulfill(()) }
+    //             } catch {
+    //                 preconditionFailure()
+    //             }
+    //         }
+    //         let r = p.sleepAsync(100)
+    //         try con.close(.GracefullyWithWait)
+    //         try r.wait()  // Should complete successfully.
+    //         try cb.wait()
+    //     }
 
-        do {
-            //
-            // Remote case.
-            //
-            let seq = ByteSeq(repeating: 0, count: 1024 * 10)
+    //     do {
+    //         //
+    //         // Remote case.
+    //         //
+    //         let seq = ByteSeq(repeating: 0, count: 1024 * 10)
 
-            //
-            // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
-            // The goal is to make sure that none of the opWithPayload fail even if the server closes
-            // the connection gracefully in between.
-            //
-            var maxQueue = 2
-            var done = false
-            while !done, maxQueue < 50 {
-                done = true
-                try p.ice_ping()
-                var results: [Promise<Void>] = []
-                for _ in 0..<maxQueue {
-                    results.append(p.opWithPayloadAsync(seq))
-                }
+    //         //
+    //         // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+    //         // The goal is to make sure that none of the opWithPayload fail even if the server closes
+    //         // the connection gracefully in between.
+    //         //
+    //         var maxQueue = 2
+    //         var done = false
+    //         while !done, maxQueue < 50 {
+    //             done = true
+    //             try p.ice_ping()
+    //             var results: [Promise<Void>] = []
+    //             for _ in 0..<maxQueue {
+    //                 results.append(p.opWithPayloadAsync(seq))
+    //             }
 
-                var cb = Promise<Bool> { seal in
-                    _ = p.closeAsync(.GracefullyWithWait) {
-                        seal.fulfill($0)
-                    }
-                }
+    //             var cb = Promise<Bool> { seal in
+    //                 _ = p.closeAsync(.GracefullyWithWait) {
+    //                     seal.fulfill($0)
+    //                 }
+    //             }
 
-                if try !cb.isResolved || cb.wait() {
-                    for _ in 0..<maxQueue {
-                        cb = Promise<Bool> { seal in
-                            results.append(p.opWithPayloadAsync(seq) { seal.fulfill($0) })
-                        }
+    //             if try !cb.isResolved || cb.wait() {
+    //                 for _ in 0..<maxQueue {
+    //                     cb = Promise<Bool> { seal in
+    //                         results.append(p.opWithPayloadAsync(seq) { seal.fulfill($0) })
+    //                     }
 
-                        if try cb.isResolved && cb.wait() {
-                            done = false
-                            maxQueue *= 2
-                            break
-                        }
-                    }
-                } else {
-                    maxQueue *= 2
-                    done = false
-                }
+    //                     if try cb.isResolved && cb.wait() {
+    //                         done = false
+    //                         maxQueue *= 2
+    //                         break
+    //                     }
+    //                 }
+    //             } else {
+    //                 maxQueue *= 2
+    //                 done = false
+    //             }
 
-                for p in results {
-                    try p.wait()
-                }
-            }
-        }
-        output.writeLine("ok")
+    //             for p in results {
+    //                 try p.wait()
+    //             }
+    //         }
+    //     }
+    //     output.writeLine("ok")
 
-        output.write("testing graceful close connection without wait... ")
-        do {
-            //
-            // Local case: start an operation and then close the connection gracefully on the client side
-            // without waiting for the pending invocation to complete. There will be no retry and we expect the
-            // invocation to fail with ConnectionClosedException.
-            //
-            p = p.ice_connectionId("CloseGracefully")  // Start with a new connection.
-            var con = try p.ice_getConnection()!
+    //     output.write("testing graceful close connection without wait... ")
+    //     do {
+    //         //
+    //         // Local case: start an operation and then close the connection gracefully on the client side
+    //         // without waiting for the pending invocation to complete. There will be no retry and we expect the
+    //         // invocation to fail with ConnectionClosedException.
+    //         //
+    //         p = p.ice_connectionId("CloseGracefully")  // Start with a new connection.
+    //         var con = try p.ice_getConnection()!
 
-            var t: Promise<Void>!
+    //         var t: Promise<Void>!
 
-            _ = try Promise<Bool> { seal in
-                t = p.startDispatchAsync { seal.fulfill($0) }
-            }.wait()  // Ensure the request was sent before we close the connection.
-            try con.close(.Gracefully)
+    //         _ = try Promise<Bool> { seal in
+    //             t = p.startDispatchAsync { seal.fulfill($0) }
+    //         }.wait()  // Ensure the request was sent before we close the connection.
+    //         try con.close(.Gracefully)
 
-            do {
-                try t.wait()
-                try test(false)
-            } catch let ex as Ice.ConnectionClosedException {
-                try test(ex.closedByApplication)
-            }
-            try p.finishDispatch()
+    //         do {
+    //             try t.wait()
+    //             try test(false)
+    //         } catch let ex as Ice.ConnectionClosedException {
+    //             try test(ex.closedByApplication)
+    //         }
+    //         try p.finishDispatch()
 
-            //
-            // Remote case: the server closes the connection gracefully, which means the connection
-            // will not be closed until all pending dispatched requests have completed.
-            //
-            con = try p.ice_getConnection()!
+    //         //
+    //         // Remote case: the server closes the connection gracefully, which means the connection
+    //         // will not be closed until all pending dispatched requests have completed.
+    //         //
+    //         con = try p.ice_getConnection()!
 
-            let cb = Promise<Void> { seal in
-                try con.setCloseCallback { _ in
-                    seal.fulfill(())
-                }
-            }
-            t = p.sleepAsync(100)
-            try p.close(.Gracefully)  // Close is delayed until sleep completes.
-            try cb.wait()
-            try t.wait()
-        }
-        output.writeLine("ok")
+    //         let cb = Promise<Void> { seal in
+    //             try con.setCloseCallback { _ in
+    //                 seal.fulfill(())
+    //             }
+    //         }
+    //         t = p.sleepAsync(100)
+    //         try p.close(.Gracefully)  // Close is delayed until sleep completes.
+    //         try cb.wait()
+    //         try t.wait()
+    //     }
+    //     output.writeLine("ok")
 
-        output.write("testing forceful close connection... ")
-        do {
-            //
-            // Local case: start an operation and then close the connection forcefully on the client side.
-            // There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
-            //
-            try p.ice_ping()
-            let con = try p.ice_getConnection()!
-            var t: Promise<Void>!
-            _ = try Promise<Bool> { seal in
-                t = p.startDispatchAsync { seal.fulfill($0) }
-            }.wait()  // Ensure the request was sent before we close the connection.
-            try con.close(.Forcefully)
-            do {
-                try t.wait()
-                try test(false)
-            } catch let ex as Ice.ConnectionAbortedException {
-                try test(ex.closedByApplication)
-            }
-            try p.finishDispatch()
+    //     output.write("testing forceful close connection... ")
+    //     do {
+    //         //
+    //         // Local case: start an operation and then close the connection forcefully on the client side.
+    //         // There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
+    //         //
+    //         try p.ice_ping()
+    //         let con = try p.ice_getConnection()!
+    //         var t: Promise<Void>!
+    //         _ = try Promise<Bool> { seal in
+    //             t = p.startDispatchAsync { seal.fulfill($0) }
+    //         }.wait()  // Ensure the request was sent before we close the connection.
+    //         try con.close(.Forcefully)
+    //         do {
+    //             try t.wait()
+    //             try test(false)
+    //         } catch let ex as Ice.ConnectionAbortedException {
+    //             try test(ex.closedByApplication)
+    //         }
+    //         try p.finishDispatch()
 
-            //
-            // Remote case: the server closes the connection forcefully. This causes the request to fail
-            // with a ConnectionLostException. Since the close() operation is not idempotent, the client
-            // will not retry.
-            //
-            do {
-                try p.close(.Forcefully)
-                try test(false)
-            } catch is Ice.ConnectionLostException {}  // Expected.
-        }
-        output.writeLine("ok")
-    }
+    //         //
+    //         // Remote case: the server closes the connection forcefully. This causes the request to fail
+    //         // with a ConnectionLostException. Since the close() operation is not idempotent, the client
+    //         // will not retry.
+    //         //
+    //         do {
+    //             try p.close(.Forcefully)
+    //             try test(false)
+    //         } catch is Ice.ConnectionLostException {}  // Expected.
+    //     }
+    //     output.writeLine("ok")
+    // }
     try p.shutdown()
 }

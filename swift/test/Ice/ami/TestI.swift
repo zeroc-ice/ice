@@ -2,7 +2,6 @@
 
 import Foundation
 import Ice
-import PromiseKit
 import TestCommon
 
 class TestI: TestIntf {
@@ -10,7 +9,7 @@ class TestI: TestIntf {
     var _shutdown: Bool
     var _lock = os_unfair_lock()
     var _semaphore = DispatchSemaphore(value: 0)
-    var _pending: Resolver<Void>?
+    var _pending: CheckedContinuation<Void, Never>?
     var _helper: TestHelper
 
     init(helper: TestHelper) {
@@ -51,22 +50,22 @@ class TestI: TestIntf {
         return (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
     }
 
-    func startDispatchAsync(current _: Current) -> Promise<Void> {
-        return withLock(&_lock) {
-            if _shutdown {
-                return Promise.value(())
-            } else if let pending = _pending {
-                pending.fulfill(())
-            }
-            return Promise<Void> { seal in
-                _pending = seal
+    func startDispatchAsync(current _: Current) async throws {
+        return await withCheckedContinuation { continuation in
+            return withLock(&_lock) {
+                if _shutdown {
+                    continuation.resume(returning: ())
+                } else if let pending = _pending {
+                    pending.resume(returning: ())
+                }
+                _pending = continuation
             }
         }
     }
 
     func pingBiDir(reply: PingReplyPrx?, current: Current) throws {
         if let reply = reply {
-            try reply.ice_fixed(current.con!).replyAsync().wait()
+            try reply.ice_fixed(current.con!).reply()
         }
     }
 
@@ -114,7 +113,7 @@ class TestI: TestIntf {
                 return
             } else if let pending = _pending {
                 // Pending might not be set yet if startDispatch is dispatch out-of-order
-                pending.fulfill(())
+                pending.resume(returning: ())
                 _pending = nil
             }
         }
@@ -125,7 +124,7 @@ class TestI: TestIntf {
             _shutdown = true
             if let pending = _pending {
                 // Pending might not be set yet if startDispatch is dispatch out-of-order
-                pending.fulfill(())
+                pending.resume(returning: ())
                 _pending = nil
             }
         }
