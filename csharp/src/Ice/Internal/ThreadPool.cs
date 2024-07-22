@@ -214,7 +214,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         _size = size;
         _sizeMax = sizeMax;
         _sizeWarn = sizeWarn;
-        _threadIdleTime = threadIdleTime <= 0 ? Timeout.InfiniteTimeSpan: TimeSpan.FromSeconds(threadIdleTime);
+        _threadIdleTime = threadIdleTime <= 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(threadIdleTime);
 
         int stackSize = properties.getPropertyAsInt(_prefix + ".StackSize");
         if (stackSize < 0)
