@@ -18,7 +18,7 @@ void
 MyClassI::callCallbackAsync(function<void()> response, function<void(exception_ptr)> error, const Ice::Current& current)
 {
     checkConnection(current.con);
-    CallbackPrx prx(current.con->createProxy(callbackId));
+    auto prx = current.con->createProxy<CallbackPrx>(callbackId);
 
     prx->pingAsync(
         [response = std::move(response)]() { response(); },
@@ -32,7 +32,7 @@ MyClassI::getCallbackCountAsync(
     const Ice::Current& current)
 {
     checkConnection(current.con);
-    CallbackPrx prx(current.con->createProxy(callbackId));
+    auto prx = current.con->createProxy<CallbackPrx>(callbackId);
 
     prx->getCountAsync(
         [response = std::move(response)](int count) { response(count); },
@@ -113,7 +113,7 @@ MyClassI::callDatagramCallback(const Ice::Current& current)
 {
     checkConnection(current.con);
     test(current.con->getEndpoint()->getInfo()->datagram());
-    CallbackPrx(current.con->createProxy(callbackId))->datagram();
+    current.con->createProxy<CallbackPrx>(callbackId)->datagram();
 }
 
 void
@@ -123,7 +123,7 @@ MyClassI::getCallbackDatagramCountAsync(
     const Ice::Current& current)
 {
     checkConnection(current.con);
-    CallbackPrx prx(current.con->createProxy(callbackId));
+    auto prx = current.con->createProxy<CallbackPrx>(callbackId);
 
     prx->getDatagramCountAsync(
         [response = std::move(response)](int count) { response(count); },

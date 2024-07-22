@@ -37,9 +37,9 @@ CallbackClient::run(int argc, char** argv)
     auto session = router->createSession("userid", "abc123");
     base->ice_ping();
 
-    CallbackPrx twoway(base);
-    CallbackPrx oneway = twoway->ice_oneway();
-    CallbackPrx batchOneway = twoway->ice_batchOneway();
+    auto twoway = uncheckedCast<CallbackPrx>(base);
+    auto oneway = twoway->ice_oneway();
+    auto batchOneway = twoway->ice_batchOneway();
 
     communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
     auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
@@ -52,7 +52,7 @@ CallbackClient::run(int argc, char** argv)
     Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = category;
-    CallbackReceiverPrx twowayR(adapter->add(callbackReceiver, callbackReceiverIdent));
+    auto twowayR = adapter->add<CallbackReceiverPrx>(callbackReceiver, callbackReceiverIdent);
     auto onewayR = twowayR->ice_oneway();
 
     {

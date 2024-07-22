@@ -562,14 +562,13 @@ asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* ar
     class CallbackWrapper final
     {
     public:
-        CallbackWrapper(PyObject* callback) : _callback(callback) { Py_XINCREF(_callback); }
+        CallbackWrapper(PyObject* callback) : _callback(callback) { Py_XINCREF(callback); }
 
         ~CallbackWrapper()
         {
-            // TODO is this adopt thread necessary? Why don't we have the same in PyObjectHandle?
-            AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-            Py_DECREF(_callback);
+            // Adopt the Python GIL. This is called from the C++ thread pool.
+            AdoptThread adoptThread;
+            Py_XDECREF(_callback);
         }
 
         void run()
@@ -1497,11 +1496,10 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, pair<const byte*, 
     {
         is.endEncapsulation();
 
-        PyObject* ex = r.getException();
+        PyObject* ex = r.getException(); // Borrowed reference.
 
         if (validateException(op, ex))
         {
-            // TODO: This looks suspicious, why do we need to INCREF the exception here?
             Py_XINCREF(ex);
             return ex;
         }

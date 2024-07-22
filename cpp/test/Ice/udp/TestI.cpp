@@ -50,7 +50,7 @@ TestIntfI::pingBiDir(Identity id, const Current& current)
         {
             ByteSeq seq;
             seq.resize(32 * 1024);
-            TestIntfPrx(current.con->createProxy(id))->sendByteSeq(seq, nullopt);
+            current.con->createProxy<TestIntfPrx>(id)->sendByteSeq(seq, nullopt);
         }
         catch (const DatagramLimitException&)
         {
@@ -60,7 +60,7 @@ TestIntfI::pingBiDir(Identity id, const Current& current)
         //
         // Send the reply through the incoming connection.
         //
-        PingReplyPrx(current.con->createProxy(id))->replyAsync();
+        current.con->createProxy<PingReplyPrx>(id)->replyAsync();
     }
     catch (const Exception& ex)
     {

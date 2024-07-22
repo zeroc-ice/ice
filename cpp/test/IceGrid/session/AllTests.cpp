@@ -717,10 +717,10 @@ allTests(TestHelper* helper)
     {
         cout << "testing Glacier2 username/password sessions... " << flush;
 
-        SessionPrx session1(
+        auto session1 = uncheckedCast<SessionPrx>(
             router1->createSession("client1", "test1")->ice_connectionId("router1")->ice_router(router1));
 
-        SessionPrx session2(
+        auto session2 = uncheckedCast<SessionPrx>(
             router2->createSession("client2", "test2")->ice_connectionId("router2")->ice_router(router2));
 
         try
@@ -788,10 +788,10 @@ allTests(TestHelper* helper)
         router1->destroySession();
         router2->destroySession();
 
-        AdminSessionPrx admSession1(
+        auto admSession1 = uncheckedCast<AdminSessionPrx>(
             adminRouter1->createSession("admin1", "test1")->ice_connectionId("admRouter1")->ice_router(adminRouter1));
 
-        AdminSessionPrx admSession2(
+        auto admSession2 = uncheckedCast<AdminSessionPrx>(
             adminRouter2->createSession("admin2", "test2")->ice_connectionId("admRouter2")->ice_router(adminRouter2));
 
         try
@@ -877,10 +877,10 @@ allTests(TestHelper* helper)
         router1 = router1->ice_connectionId("router11");
         router2 = router2->ice_connectionId("router21");
 
-        SessionPrx session1(
+        auto session1 = uncheckedCast<SessionPrx>(
             router1->createSessionFromSecureConnection()->ice_connectionId("router11")->ice_router(router1));
 
-        SessionPrx session2(
+        auto session2 = uncheckedCast<SessionPrx>(
             router2->createSessionFromSecureConnection()->ice_connectionId("router21")->ice_router(router2));
 
         session1->ice_ping();
@@ -944,13 +944,13 @@ allTests(TestHelper* helper)
         adminRouter1 = adminRouter->ice_connectionId("admRouter11");
         adminRouter2 = adminRouter->ice_connectionId("admRouter21");
 
-        AdminSessionPrx admSession1(adminRouter1->createSessionFromSecureConnection()
-                                        ->ice_connectionId("admRouter11")
-                                        ->ice_router(adminRouter1));
+        auto admSession1 = uncheckedCast<AdminSessionPrx>(adminRouter1->createSessionFromSecureConnection()
+                                                              ->ice_connectionId("admRouter11")
+                                                              ->ice_router(adminRouter1));
 
-        AdminSessionPrx admSession2(adminRouter2->createSessionFromSecureConnection()
-                                        ->ice_connectionId("admRouter21")
-                                        ->ice_router(adminRouter2));
+        auto admSession2 = uncheckedCast<AdminSessionPrx>(adminRouter2->createSessionFromSecureConnection()
+                                                              ->ice_connectionId("admRouter21")
+                                                              ->ice_router(adminRouter2));
 
         admSession1->ice_ping();
         admSession2->ice_ping();
@@ -1062,9 +1062,9 @@ allTests(TestHelper* helper)
 
         auto adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "tcp");
         auto appObs2 = make_shared<ApplicationObserverI>("appObs2");
-        ApplicationObserverPrx app2(adpt2->addWithUUID(appObs2));
+        auto app2 = adpt2->addWithUUID<ApplicationObserverPrx>(appObs2);
         auto nodeObs2 = make_shared<NodeObserverI>("nodeObs1");
-        NodeObserverPrx no2(adpt2->addWithUUID(nodeObs2));
+        auto no2 = adpt2->addWithUUID<NodeObserverPrx>(nodeObs2);
         adpt2->activate();
         session2->setObservers(nullopt, no2, app2, nullopt, nullopt);
 
@@ -1706,7 +1706,7 @@ allTests(TestHelper* helper)
         auto session1 = registry->createAdminSession("admin1", "test1");
         auto adpt1 = communicator->createObjectAdapterWithEndpoints("", "tcp");
         auto nodeObs1 = make_shared<NodeObserverI>("nodeObs1");
-        NodeObserverPrx no1(adpt1->addWithUUID(nodeObs1));
+        auto no1 = adpt1->addWithUUID<NodeObserverPrx>(nodeObs1);
         adpt1->activate();
 
         session1->setObservers(nullopt, no1, nullopt, nullopt, nullopt);
@@ -1727,7 +1727,7 @@ allTests(TestHelper* helper)
         test(communicator->getDefaultLocator());
         auto nodeObs1 = make_shared<NodeObserverI>("nodeObs1");
 
-        NodeObserverPrx no1(adpt1->addWithUUID(nodeObs1));
+        auto no1 = adpt1->addWithUUID<NodeObserverPrx>(nodeObs1);
         assert(no1->ice_getAdapterId() == "adapter1");
         adpt1->activate();
 

@@ -117,7 +117,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
         try
         {
             auto manager = make_shared<TransientTopicManagerImpl>(_instance);
-            _managerProxy = TopicManagerPrx{topicAdapter->add(manager, topicManagerId)};
+            _managerProxy = topicAdapter->add<TopicManagerPrx>(manager, topicManagerId);
         }
         catch (const Ice::Exception& ex)
         {
@@ -141,7 +141,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
                 make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter, topicAdapter);
             _manager = TopicManagerImpl::create(instance);
             _instance = std::move(instance);
-            _managerProxy = TopicManagerPrx{topicAdapter->add(_manager->getServant(), topicManagerId)};
+            _managerProxy = topicAdapter->add<TopicManagerPrx>(_manager->getServant(), topicManagerId);
         }
         catch (const Ice::Exception& ex)
         {
@@ -209,7 +209,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             // replica.
             //
             // We work out the node id by removing the instance name. The node id must follow.
-            IceGrid::LocatorPrx locator(communicator->getDefaultLocator().value());
+            auto locator = uncheckedCast<IceGrid::LocatorPrx>(communicator->getDefaultLocator().value());
             auto query = locator->getLocalQuery();
             auto replicas = query->findAllReplicas(communicator->stringToProxy(instanceName + "/TopicManager"));
 
@@ -255,7 +255,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
                 Ice::Identity ident;
                 ident.category = instanceName;
                 ident.name = os.str();
-                nodes.insert({nodeid, NodePrx{replica->ice_adapterId(adapterid)->ice_identity(ident)}});
+                nodes.insert({nodeid, replica->ice_adapterId(adapterid)->ice_identity<NodePrx>(ident)});
             }
         }
 
@@ -313,13 +313,13 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
                 // We're not using an IceGrid deployment. Here we need
                 // a proxy which is used to create proxies to the
                 // replicas later.
-                _managerProxy = TopicManagerPrx{topicAdapter->createProxy(topicManagerId)};
+                _managerProxy = topicAdapter->createProxy<TopicManagerPrx>(topicManagerId);
             }
             else
             {
                 // If we're using IceGrid deployment we need to create
                 // indirect proxies.
-                _managerProxy = TopicManagerPrx{topicAdapter->createIndirectProxy(topicManagerId)};
+                _managerProxy = topicAdapter->createIndirectProxy<TopicManagerPrx>(topicManagerId);
             }
 
             _manager = TopicManagerImpl::create(instance);
@@ -352,7 +352,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
     }
 
     topicAdapter->add(
-        make_shared<FinderI>(TopicManagerPrx(topicAdapter->createProxy(topicManagerId))),
+        make_shared<FinderI>(topicAdapter->createProxy<TopicManagerPrx>(topicManagerId)),
         stringToIdentity("IceStorm/Finder"));
 
     topicAdapter->activate();
@@ -379,7 +379,7 @@ ServiceI::start(
     try
     {
         auto manager = make_shared<TransientTopicManagerImpl>(_instance);
-        _managerProxy = TopicManagerPrx(topicAdapter->add(manager, id));
+        _managerProxy = topicAdapter->add<TopicManagerPrx>(manager, id);
     }
     catch (const Ice::Exception& ex)
     {

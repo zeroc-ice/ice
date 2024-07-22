@@ -387,7 +387,7 @@ RegistryI::startImpl()
             proxy = _database->getObjectProxy(id);
             assert(proxy);
             id.name = "Query";
-            IceGrid::QueryPrx query{proxy->ice_identity(id)};
+            auto query = proxy->ice_identity<IceGrid::QueryPrx>(id);
             id.name = "InternalRegistry-" + _initFromReplica;
             try
             {
@@ -429,7 +429,7 @@ RegistryI::startImpl()
         try
         {
             int64_t serial;
-            IceGrid::InternalRegistryPrx registry{*proxy};
+            auto registry = uncheckedCast<IceGrid::InternalRegistryPrx>(*proxy);
             ApplicationInfoSeq applications = registry->getApplications(serial);
             _database->syncApplications(applications, serial);
             AdapterInfoSeq adapters = registry->getAdapters(serial);
@@ -461,7 +461,7 @@ RegistryI::startImpl()
     for (const auto& proxy : _database->getInternalObjectsByType(string{Node::ice_staticId()}))
     {
         assert(proxy);
-        nodes.push_back(optional<NodePrx>(std::move(proxy)));
+        nodes.push_back(uncheckedCast<NodePrx>(proxy));
     }
 
     //
@@ -665,22 +665,23 @@ RegistryI::setupLocator(RegistryPrx registry, QueryPrx query)
     _clientAdapter->add(locator, Identity{"Locator", _instanceName});
     _clientAdapter->add(locator, Identity{"Locator-" + _replicaName, _instanceName});
 
-    return LocatorPrx{_registryAdapter->addWithUUID(locator)};
+    return _registryAdapter->addWithUUID<LocatorPrx>(locator);
 }
 
 QueryPrx
 RegistryI::setupQuery()
 {
-    return QueryPrx{
-        _clientAdapter->add(make_shared<QueryI>(_communicator, _database), Identity{"Query", _instanceName})};
+    return _clientAdapter->add<QueryPrx>(
+        make_shared<QueryI>(_communicator, _database),
+        Identity{"Query", _instanceName});
 }
 
 RegistryPrx
 RegistryI::setupRegistry()
 {
-    RegistryPrx proxy(_clientAdapter->add(
+    auto proxy = _clientAdapter->add<RegistryPrx>(
         shared_from_this(),
-        Identity{_master ? "Registry" : "Registry-" + _replicaName, _instanceName}));
+        Identity{_master ? "Registry" : "Registry-" + _replicaName, _instanceName});
     _wellKnownObjects->add(proxy, string{Registry::ice_staticId()});
     return proxy;
 }
@@ -694,7 +695,7 @@ RegistryI::setupInternalRegistry()
 
     auto internalRegistry =
         make_shared<InternalRegistryI>(shared_from_this(), _database, _reaper, _wellKnownObjects, *_session);
-    InternalRegistryPrx registry{_registryAdapter->add(internalRegistry, internalRegistryId)};
+    auto registry = _registryAdapter->add<InternalRegistryPrx>(internalRegistry, internalRegistryId);
 
     _wellKnownObjects->add(registry, string{InternalRegistry::ice_staticId()});
 
@@ -923,7 +924,7 @@ RegistryI::createSession(string user, string password, const Current& current)
         make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session),
         _sessionTimeout,
         current.con);
-    return SessionPrx(proxy);
+    return uncheckedCast<SessionPrx>(proxy);
 }
 
 optional<AdminSessionPrx>
@@ -972,7 +973,7 @@ RegistryI::createAdminSession(string user, string password, const Current& curre
         make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session),
         _sessionTimeout,
         current.con);
-    return AdminSessionPrx(proxy);
+    return uncheckedCast<AdminSessionPrx>(proxy);
 }
 
 optional<SessionPrx>
@@ -1028,7 +1029,7 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
         make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session),
         _sessionTimeout,
         current.con);
-    return SessionPrx(proxy);
+    return uncheckedCast<SessionPrx>(proxy);
 }
 
 optional<AdminSessionPrx>
@@ -1077,7 +1078,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
         make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session),
         _sessionTimeout,
         current.con);
-    return AdminSessionPrx(proxy);
+    return uncheckedCast<AdminSessionPrx>(proxy);
 }
 
 int
@@ -1243,7 +1244,7 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
     for (const auto& p : _database->getObjectsByType(string{InternalRegistry::ice_staticId()}))
     {
         assert(p);
-        replicas[InternalRegistryPrx{*p}] = nullopt;
+        replicas[uncheckedCast<InternalRegistryPrx>(*p)] = nullopt;
     }
 
     for (const auto& p : _database->getObjectsByType(string{Registry::ice_staticId()}))
@@ -1258,9 +1259,9 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
         }
         id.name = "InternalRegistry-" + id.name.substr(prefix.size());
 
-        InternalRegistryPrx prx{p->ice_identity(id)->ice_endpoints(Ice::EndpointSeq())};
+        auto prx = p->ice_identity<InternalRegistryPrx>(id)->ice_endpoints(Ice::EndpointSeq());
         id.name = "Locator";
-        prx = prx->ice_locator(Ice::LocatorPrx{p->ice_identity(id)});
+        prx = prx->ice_locator(p->ice_identity<Ice::LocatorPrx>(id));
 
         for (auto q = replicas.begin(); q != replicas.end(); ++q)
         {
@@ -1270,7 +1271,7 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
                 break;
             }
         }
-        replicas[prx] = optional<RegistryPrx>{std::move(p)};
+        replicas[prx] = uncheckedCast<RegistryPrx>(p);
     }
 
     set<optional<NodePrx>> nodes;

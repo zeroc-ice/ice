@@ -99,7 +99,7 @@ public:
         testContext(userId == "ssl", current.adapter->getCommunicator(), current.ctx);
 
         auto session = make_shared<SessionI>(false, userId == "ssl");
-        return Glacier2::SessionPrx(current.adapter->addWithUUID(session));
+        return current.adapter->addWithUUID<Glacier2::SessionPrx>(session);
     }
 };
 
@@ -135,7 +135,7 @@ public:
         }
 
         auto session = make_shared<SessionI>(true, true);
-        return Glacier2::SessionPrx(current.adapter->addWithUUID(session));
+        return current.adapter->addWithUUID<Glacier2::SessionPrx>(session);
     }
 };
 

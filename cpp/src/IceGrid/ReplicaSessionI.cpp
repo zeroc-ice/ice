@@ -35,7 +35,7 @@ ReplicaSessionI::create(
         info,
         std::move(proxy),
         timeout,
-        ReplicaSessionPrx{database->getInternalAdapter()->createDirectProxy(replicaSessionId)}));
+        database->getInternalAdapter()->createDirectProxy<ReplicaSessionPrx>(replicaSessionId)));
 
     try
     {

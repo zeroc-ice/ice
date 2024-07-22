@@ -98,9 +98,9 @@ run(const Ice::StringSeq& args)
         return 1;
     }
 
-    optional<Ice::ObjectPrx> base = communicator->propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
+    auto manager = communicator->propertyToProxy<IceBox::ServiceManagerPrx>("IceBoxAdmin.ServiceManager.Proxy");
 
-    if (!base)
+    if (!manager)
     {
         //
         // The old deprecated way to retrieve the service manager proxy
@@ -136,11 +136,9 @@ run(const Ice::StringSeq& args)
             managerProxy = "\"" + communicator->identityToString(managerIdentity) + "\" @" + managerAdapterId;
         }
 
-        base = Ice::ObjectPrx(communicator, managerProxy);
+        manager = IceBox::ServiceManagerPrx{communicator, managerProxy};
     }
-    assert(base);
-
-    IceBox::ServiceManagerPrx manager{*base};
+    assert(manager);
 
     for (vector<string>::const_iterator r = commands.begin(); r != commands.end(); ++r)
     {

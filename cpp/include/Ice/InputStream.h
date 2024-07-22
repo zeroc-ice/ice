@@ -24,6 +24,14 @@
 #include <string>
 #include <string_view>
 
+// ICE_UNALIGNED means the platform is little endian and supports unaligned reads.
+// It's used only in this header file.
+#ifndef ICE_UNALIGNED
+#    if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
+#        define ICE_UNALIGNED
+#    endif
+#endif
+
 namespace IceInternal::Ex
 {
     ICE_API void throwUOE(const char* file, int line, const std::string&, const Ice::ValuePtr&);
@@ -583,6 +591,14 @@ namespace Ice
             }
         }
 
+#ifdef ICE_UNALIGNED // Optimization with unaligned reads
+        void read(std::pair<const std::int16_t*, const std::int16_t*>& v) { unalignedRead(v); }
+        void read(std::pair<const std::int32_t*, const std::int32_t*>& v) { unalignedRead(v); }
+        void read(std::pair<const std::int64_t*, const std::int64_t*>& v) { unalignedRead(v); }
+        void read(std::pair<const float*, const float*>& v) { unalignedRead(v); }
+        void read(std::pair<const double*, const double*>& v) { unalignedRead(v); }
+#endif
+
         /**
          * Reads a list of mandatory data values.
          */
@@ -714,13 +730,6 @@ namespace Ice
         void read(std::vector<std::int16_t>& v);
 
         /**
-         * Unmarshals a sequence of Slice shorts into a pair of int16_t pointers representing the start and end of the
-         * sequence elements.
-         * @param v A pair of pointers representing the start and end of the sequence elements.
-         */
-        void read(std::pair<const short*, const short*>& v);
-
-        /**
          * Reads an int from the stream.
          * @param v The extracted int.
          */
@@ -731,12 +740,6 @@ namespace Ice
          * @param v A vector to hold a copy of the int values.
          */
         void read(std::vector<std::int32_t>& v);
-
-        /**
-         * Reads a sequence of ints from the stream.
-         * @param v A pair of pointers representing the start and end of the sequence elements.
-         */
-        void read(std::pair<const int*, const int*>& v);
 
         /**
          * Reads a long from the stream.
@@ -751,12 +754,6 @@ namespace Ice
         void read(std::vector<std::int64_t>& v);
 
         /**
-         * Reads a sequence of longs from the stream.
-         * @param v A pair of pointers representing the start and end of the sequence elements.
-         */
-        void read(std::pair<const std::int64_t*, const std::int64_t*>& v);
-
-        /**
          * Unmarshals a Slice float into a float.
          * @param v The extracted float.
          */
@@ -769,13 +766,6 @@ namespace Ice
         void read(std::vector<float>& v);
 
         /**
-         * Unmarshals a sequence of Slice floats into a pair of float pointers representing the start and end of the
-         * sequence elements.
-         * @param v A pair of pointers representing the start and end of the sequence elements.
-         */
-        void read(std::pair<const float*, const float*>& v);
-
-        /**
          * Unmarshals a Slice double into a double.
          * @param v The extracted double.
          */
@@ -786,13 +776,6 @@ namespace Ice
          * @param v An output vector filled by this function.
          */
         void read(std::vector<double>& v);
-
-        /**
-         * Unmarshals a sequence of Slice doubles into a pair of double pointers representing the start and end of the
-         * sequence elements.
-         * @param v A pair of pointers representing the start and end of the sequence elements.
-         */
-        void read(std::pair<const double*, const double*>& v);
 
         /**
          * Reads a string from the stream.
@@ -944,6 +927,24 @@ namespace Ice
         /// \endcond
 
     private:
+#ifdef ICE_UNALIGNED
+        template<typename T> void unalignedRead(std::pair<const T*, const T*>& v)
+        {
+            int sz = readAndCheckSeqSize(static_cast<int>(sizeof(T)));
+
+            if (sz > 0)
+            {
+                v.first = reinterpret_cast<T*>(i);
+                i += sz * static_cast<int>(sizeof(T));
+                v.second = reinterpret_cast<T*>(i);
+            }
+            else
+            {
+                v.first = v.second = nullptr;
+            }
+        }
+#endif
+
         void initialize(const EncodingVersion&);
 
         // Reads a reference from the stream; the return value can be null.

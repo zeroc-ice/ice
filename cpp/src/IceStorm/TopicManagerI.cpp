@@ -90,7 +90,7 @@ namespace
         optional<TopicManagerPrx> getMaster(int64_t& generation, const char* file, int line) const
         {
             auto node = _instance->node();
-            return optional<TopicManagerPrx>(node ? node->startUpdate(generation, file, line) : nullopt);
+            return Ice::uncheckedCast<TopicManagerPrx>(node ? node->startUpdate(generation, file, line) : nullopt);
         }
 
         const shared_ptr<PersistentInstance> _instance;
@@ -600,7 +600,7 @@ TopicManagerImpl::getLastLogUpdate() const
 void
 TopicManagerImpl::sync(const Ice::ObjectPrx& master)
 {
-    TopicManagerSyncPrx sync(master);
+    auto sync = Ice::uncheckedCast<TopicManagerSyncPrx>(master);
 
     LogUpdate llu;
     TopicContentSeq content;

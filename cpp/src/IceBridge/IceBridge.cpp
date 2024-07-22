@@ -557,7 +557,7 @@ BridgeService::start(int argc, char* argv[], int& status)
     }
 
     string instanceName = properties->getIceProperty("IceBridge.InstanceName");
-    RouterPrx router(adapter->add(make_shared<RouterI>(), stringToIdentity(instanceName + "/router")));
+    auto router = adapter->add<RouterPrx>(make_shared<RouterI>(), stringToIdentity(instanceName + "/router"));
     adapter->add(make_shared<FinderI>(router), stringToIdentity("Ice/RouterFinder"));
 
     try

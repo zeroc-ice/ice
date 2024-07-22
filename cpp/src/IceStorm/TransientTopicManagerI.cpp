@@ -48,7 +48,7 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
     //
     // The identity is the name of the Topic.
     //
-    TopicPrx prx(_instance->topicAdapter()->add(topicImpl, id));
+    auto prx = _instance->topicAdapter()->add<TopicPrx>(topicImpl, id);
     _topics.insert({name, topicImpl});
     return prx;
 }
@@ -69,7 +69,7 @@ TransientTopicManagerImpl::retrieve(string name, const Ice::Current&)
     // Here we cannot just reconstruct the identity since the
     // identity could be either instanceName/topic name, or if
     // created with pre-3.2 IceStorm / topic name.
-    return TopicPrx(_instance->topicAdapter()->createProxy(p->second->id()));
+    return _instance->topicAdapter()->createProxy<TopicPrx>(p->second->id());
 }
 
 TopicDict
@@ -87,7 +87,7 @@ TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
         // identity could be either "<instanceName>/topic.<topicname>"
         // name, or if created with pre-3.2 IceStorm "/<topicname>".
         //
-        all.insert({topic.first, TopicPrx(_instance->topicAdapter()->createProxy(topic.second->id()))});
+        all.insert({topic.first, _instance->topicAdapter()->createProxy<TopicPrx>(topic.second->id())});
     }
 
     return all;

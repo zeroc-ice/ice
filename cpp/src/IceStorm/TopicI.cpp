@@ -317,7 +317,7 @@ namespace
 
             if (master)
             {
-                return TopicPrx(master->ice_identity(current.id));
+                return master->ice_identity<TopicPrx>(current.id);
             }
             else
             {
@@ -370,7 +370,7 @@ TopicImpl::create(
     auto publisher = make_shared<PublisherI>(topicImpl, instance);
     topicImpl->_publisherPrx = instance->publishAdapter()->add(publisher, pubid);
     auto topicLink = make_shared<TopicLinkI>(topicImpl, instance);
-    topicImpl->_linkPrx = TopicLinkPrx(instance->publishAdapter()->add(topicLink, linkid));
+    topicImpl->_linkPrx = instance->publishAdapter()->add<TopicLinkPrx>(topicLink, linkid);
 
     return topicImpl;
 }
@@ -590,7 +590,7 @@ TopicImpl::getLinkProxy()
     optional<Ice::ObjectPrx> replica = _instance->publisherReplicaProxy();
     if (replica)
     {
-        return TopicLinkPrx(replica->ice_identity(_linkPrx->ice_getIdentity()));
+        return replica->ice_identity<TopicLinkPrx>(_linkPrx->ice_getIdentity());
     }
     return *_linkPrx;
 }
@@ -598,7 +598,7 @@ TopicImpl::getLinkProxy()
 void
 TopicImpl::link(const TopicPrx& topic, int cost)
 {
-    TopicInternalPrx internal(topic);
+    auto internal = Ice::uncheckedCast<TopicInternalPrx>(topic);
     optional<TopicLinkPrx> link = internal->getLinkProxy();
     assert(link);
 
@@ -891,11 +891,11 @@ TopicImpl::proxy() const
     optional<Ice::ObjectPrx> prx = _instance->topicReplicaProxy();
     if (prx)
     {
-        return TopicPrx(prx->ice_identity(_id));
+        return prx->ice_identity<TopicPrx>(_id);
     }
     else
     {
-        return TopicPrx(_instance->topicAdapter()->createProxy(_id));
+        return _instance->topicAdapter()->createProxy<TopicPrx>(_id);
     }
 }
 
@@ -954,7 +954,7 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
             removeSubscribers(reap);
             return;
         }
-        masterInternal = TopicInternalPrx(unlock.getMaster()->ice_identity(_id));
+        masterInternal = unlock.getMaster()->ice_identity<TopicInternalPrx>(_id);
         generation = unlock.generation();
     }
 

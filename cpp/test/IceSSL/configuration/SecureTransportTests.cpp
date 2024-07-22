@@ -61,7 +61,7 @@ createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper
         "ServerAdapter",
         helper->getTestEndpoint(10, "ssl"),
         serverAuthenticationOptions);
-    ServerPrx obj(adapter->add(make_shared<ServerI>(communicator), Identity{.name = "server"}));
+    auto obj = adapter->add<ServerPrx>(make_shared<ServerI>(communicator), Identity{.name = "server"});
     adapter->activate();
     return communicator;
 }

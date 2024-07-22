@@ -35,10 +35,10 @@ ICI::icop(optional<MA::ICPrx> p, const Current&)
 
 InitialI::InitialI(const ObjectAdapterPtr& adapter)
 {
-    _ia = MA::IAPrx(adapter->addWithUUID(std::make_shared<IAI>()));
-    _ib1 = MB::IB1Prx(adapter->addWithUUID(std::make_shared<IB1I>()));
-    _ib2 = MB::IB2Prx(adapter->addWithUUID(std::make_shared<IB2I>()));
-    _ic = MA::ICPrx(adapter->addWithUUID(std::make_shared<ICI>()));
+    _ia = adapter->addWithUUID<MA::IAPrx>(std::make_shared<IAI>());
+    _ib1 = adapter->addWithUUID<MB::IB1Prx>(std::make_shared<IB1I>());
+    _ib2 = adapter->addWithUUID<MB::IB2Prx>(std::make_shared<IB2I>());
+    _ic = adapter->addWithUUID<MA::ICPrx>(std::make_shared<ICI>());
 }
 
 void

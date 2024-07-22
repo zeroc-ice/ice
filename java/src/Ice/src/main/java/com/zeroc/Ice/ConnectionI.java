@@ -290,6 +290,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     out.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId);
 
+    // We're just about to send a request, so we are not inactive anymore.
+    cancelInactivityTimer();
+
     int status;
     try {
       status = sendMessage(new OutgoingMessage(out, os, compress, requestId));
@@ -1113,7 +1116,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     // If isTimerTaskStarted returns false, it means that while we were waiting to acquire the
     // lock, a read went through and rescheduled the read timer task. This means "this" task was
     // canceled so we don't do anything.
-    if (isActiveOrHolding() && isTimerTaskStarted.getAsBoolean()) {
+    if ((_state == StateActive || _state == StateHolding) && isTimerTaskStarted.getAsBoolean()) {
       if (_transceiver.isWaitingToBeRead()) {
         // Bytes are available for reading but the thread pool is exhausted. We don't want to abort
         // the connection in this situation.
@@ -1152,21 +1155,53 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   public synchronized void sendHeartbeat() {
     assert !_endpoint.datagram();
 
-    if (isActiveOrHolding()) {
-      OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
-      os.writeBlob(Protocol.magic);
-      Protocol.currentProtocol.ice_writeMembers(os);
-      Protocol.currentProtocolEncoding.ice_writeMembers(os);
-      os.writeByte(Protocol.validateConnectionMsg);
-      os.writeByte((byte) 0);
-      os.writeInt(Protocol.headerSize); // Message size.
+    if (_state == StateActive || _state == StateHolding) {
 
-      try {
-        sendMessage(new OutgoingMessage(os, false, false));
-      } catch (LocalException ex) {
-        setState(StateClosed, ex);
+      // We check if the connection has become inactive.
+      if (_inactivityTimerFuture == null // timer not already scheduled
+          && _inactivityTimeout > 0 // inactivity timeout is enabled
+          && _state == StateActive // only schedule the timer if the connection is active
+          && _dispatchCount == 0 // no pending dispatch
+          && _asyncRequests.isEmpty() // no pending invocation
+          && _readHeader // we're not waiting for the remainder of an incoming message
+          && _sendStreams.size() <= 1 // there is at most one pending outgoing message
+      ) {
+        // We may become inactive while the peer is back-pressuring us. In this case, we only
+        // schedule the inactivity timer if there is no pending outgoing message or the
+        // pending outgoing message is a heartbeat.
+
+        // The stream of the first _sendStreams message is in _writeStream.
+        if (_sendStreams.isEmpty()
+            || _writeStream.getBuffer().b.get(8) == Protocol.validateConnectionMsg) {
+          scheduleInactivityTimer();
+        }
+      }
+
+      // We send a heartbeat to the peer to generate a "write" on the connection. This write in
+      // turns creates a read on the peer, and resets the peer's idle check timer. When
+      // _sendStream is not empty, there is already an outstanding write, so we don't need to
+      // send a heartbeat. It's possible the first message of _sendStreams was already sent but
+      // not yet removed from _sendStreams: it means the last write occurred very recently,
+      // which is good enough with respect to the idle check.
+      // As a result of this optimization, the only possible heartbeat in _sendStreams is the
+      // first _sendStreams message.
+      if (_sendStreams.isEmpty()) {
+        OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+        os.writeBlob(Protocol.magic);
+        Protocol.currentProtocol.ice_writeMembers(os);
+        Protocol.currentProtocolEncoding.ice_writeMembers(os);
+        os.writeByte(Protocol.validateConnectionMsg);
+        os.writeByte((byte) 0);
+        os.writeInt(Protocol.headerSize); // Message size.
+
+        try {
+          sendMessage(new OutgoingMessage(os, false, false));
+        } catch (LocalException ex) {
+          setState(StateClosed, ex);
+        }
       }
     }
+    // else, nothing to do.
   }
 
   public ConnectionI(
@@ -1683,21 +1718,38 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return true;
   }
 
+  /**
+   * Sends the next queued messages. This method is called by message() once the message which is
+   * being sent (_sendStreams.First) is fully sent. Before sending the next message, this message is
+   * removed from _sendsStream. If any, its sent callback is also queued in given callback queue.
+   *
+   * @param callbacks The sent callbacks to call for the messages that were sent.
+   * @return The socket operation to register with the thread pool's selector to send the remainder
+   *     of the pending message being sent (_sendStreams.First).
+   */
   private int sendNextMessage(java.util.List<OutgoingMessage> callbacks) {
     if (_sendStreams.isEmpty()) {
+      // This can occur if no message was being written and the socket write operation
+      // was registered with the thread pool (a transceiver read method can request
+      // writing data).
       return SocketOperation.None;
     } else if (_state == StateClosingPending && _writeStream.pos() == 0) {
-      // Message wasn't sent, empty the _writeStream, we're not going to send more data.
+      // Message wasn't sent, empty the _writeStream, we're not going to send more
+      // data because the connection is being closed.
       OutgoingMessage message = _sendStreams.getFirst();
       _writeStream.swap(message.stream);
       return SocketOperation.None;
     }
 
+    // Assert that the message was fully written.
     assert (!_writeStream.isEmpty() && _writeStream.pos() == _writeStream.size());
+
     try {
       while (true) {
         //
-        // Notify the message that it was sent.
+        // The message that was being sent is sent. We can swap back the write
+        // stream buffer to the outgoing message (required for retry) and queue its
+        // sent callback (if any).
         //
         OutgoingMessage message = _sendStreams.getFirst();
         _writeStream.swap(message.stream);
@@ -1725,7 +1777,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         }
 
         //
-        // Otherwise, prepare the next message stream for writing.
+        // Otherwise, prepare the next message.
         //
         message = _sendStreams.getFirst();
         assert (!message.prepared);
@@ -1734,12 +1786,13 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         message.stream = doCompress(stream, message.compress);
         message.stream.prepareWrite();
         message.prepared = true;
+
         TraceUtil.traceSend(stream, _logger, _traceLevels);
-        _writeStream.swap(message.stream);
 
         //
         // Send the message.
         //
+        _writeStream.swap(message.stream);
         if (_observer != null) {
           observerStartWrite(_writeStream.getBuffer());
         }
@@ -1752,6 +1805,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         if (_observer != null) {
           observerFinishWrite(_writeStream.getBuffer());
         }
+
+        // If the message was sent right away, loop to send the next queued message.
       }
 
       //
@@ -1771,59 +1826,27 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return SocketOperation.None;
   }
 
+  /**
+   * Sends or queues the given message.
+   *
+   * @param message The message to send.
+   * @return The send status.
+   */
   private int sendMessage(OutgoingMessage message) {
     assert _state >= StateActive;
     assert _state < StateClosed;
 
-    boolean isHeartbeat = message.stream.getBuffer().b.get(8) == Protocol.validateConnectionMsg;
-
-    if (!isHeartbeat) {
-      cancelInactivityTimer();
-    } else if (
-    // timer not already scheduled
-    _inactivityTimerFuture == null
-        &&
-        // inactivity timeout is enabled
-        _inactivityTimeout > 0
-        &&
-        // only schedule the timer if the connection is active
-        _state == StateActive
-        &&
-        // no pending dispatch
-        _dispatchCount == 0
-        &&
-        // no pending invocation
-        _asyncRequests.isEmpty()
-        &&
-        // we're not waiting for the remainder of an incoming message
-        _readHeader) {
-      boolean isInactive = true;
-
-      for (OutgoingMessage queuedMessage : _sendStreams) {
-        if (queuedMessage.stream.getBuffer().b.get(8) != Protocol.validateConnectionMsg) {
-          isInactive = false;
-          break;
-        }
-      }
-
-      if (isInactive) {
-        scheduleInactivityTimer();
-      }
-    }
-
+    // Some messages are queued for sending. Just adds the message to the send queue and
+    // tell the caller that the message was queued.
     if (!_sendStreams.isEmpty()) {
       message.adopt();
       _sendStreams.addLast(message);
       return AsyncStatus.Queued;
     }
 
-    //
-    // Attempt to send the message without blocking. If the send blocks, we
-    // register the connection with the selector thread.
-    //
-
     assert (!message.prepared);
 
+    // Prepare the message for sending.
     OutputStream stream = message.stream;
 
     message.stream = doCompress(stream, message.compress);
@@ -1832,14 +1855,13 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     int op;
     TraceUtil.traceSend(stream, _logger, _traceLevels);
 
-    //
     // Send the message without blocking.
-    //
     if (_observer != null) {
       observerStartWrite(message.stream.getBuffer());
     }
     op = write(message.stream.getBuffer());
     if (op == 0) {
+      // The message was sent so we're done.
       if (_observer != null) {
         observerFinishWrite(message.stream.getBuffer());
       }
@@ -1851,6 +1873,13 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
       return status;
     }
+
+    // The message couldn't be sent right away so we add it to the send stream
+    // queue (which is empty) and swap its stream with `_writeStream`. The socket
+    // operation returned by the transceiver write is registered with the thread
+    // pool. At this point the message() method will take care of sending the whole
+    // message (held by _writeStream) when the transceiver is ready to write more
+    // of the message buffer.
 
     message.adopt();
 
@@ -2515,12 +2544,18 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   private java.util.LinkedList<OutgoingMessage> _sendStreams = new java.util.LinkedList<>();
 
+  // Contains the message which is being received. If the connection is waiting to receive a
+  // message (_readHeader == true), its size is Protocol.headerSize. Otherwise, its size is
+  // the message size specified in the received message header.
   private InputStream _readStream;
 
   // When _readHeader is true, the next bytes we'll read are the header of a new message. When
   // false, we're reading
   // next the remainder of a message that was already partially received.
   private boolean _readHeader;
+
+  // Contains the message which is being sent. The write stream buffer is empty if no message
+  // is being sent.
   private OutputStream _writeStream;
 
   private com.zeroc.Ice.Instrumentation.ConnectionObserver _observer;

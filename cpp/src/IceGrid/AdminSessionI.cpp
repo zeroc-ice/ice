@@ -112,7 +112,7 @@ AdminSessionI::_register(
 
     Ice::ObjectPrx session = _servantManager->addSession(self, con, category);
 
-    _admin = AdminPrx(_servantManager->add(
+    _admin = Ice::uncheckedCast<AdminPrx>(_servantManager->add(
         make_shared<AdminI>(_database, _registry, static_pointer_cast<AdminSessionI>(self)),
         self));
 
@@ -399,10 +399,9 @@ AdminSessionI::addFileIterator(FileReaderPrx reader, const string& filename, int
     int messageSizeMax = properties->getIcePropertyAsInt("Ice.MessageSizeMax") * 1024;
 
     auto self = static_pointer_cast<AdminSessionI>(shared_from_this());
-    auto obj = _servantManager->add(
+    return Ice::uncheckedCast<FileIteratorPrx>(_servantManager->add(
         make_shared<FileIteratorI>(self, std::move(reader), filename, offset, messageSizeMax),
-        self);
-    return FileIteratorPrx{obj};
+        self));
 }
 
 void
@@ -491,7 +490,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const option
     }
 
     _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_database->getTraceLevels()->logger, session), timeout);
-    return Glacier2::SessionPrx{std::move(proxy)};
+    return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }
 
 shared_ptr<AdminSessionI>

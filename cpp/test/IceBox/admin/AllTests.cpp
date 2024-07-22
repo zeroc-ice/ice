@@ -22,14 +22,14 @@ allTests(Test::TestHelper* helper)
         //
         // Test: Verify that the custom facet is present.
         //
-        facet = Test::TestFacetPrx(admin->ice_facet("TestFacet"));
+        facet = admin->ice_facet<Test::TestFacetPrx>("TestFacet");
         facet->ice_ping();
     }
     cout << "ok" << endl;
 
     cout << "testing properties facet... " << flush;
     {
-        Ice::PropertiesAdminPrx pa(admin->ice_facet("IceBox.Service.TestService.Properties"));
+        auto pa = admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.Service.TestService.Properties");
         //
         // Test: PropertiesAdmin::getProperty()
         //
@@ -80,8 +80,8 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing metrics admin facet... " << flush;
     {
-        IceMX::MetricsAdminPrx ma(admin->ice_facet("IceBox.Service.TestService.Metrics"));
-        Ice::PropertiesAdminPrx pa(admin->ice_facet("IceBox.Service.TestService.Properties"));
+        auto ma = admin->ice_facet<IceMX::MetricsAdminPrx>("IceBox.Service.TestService.Metrics");
+        auto pa = admin->ice_facet<Ice::PropertiesAdminPrx>("IceBox.Service.TestService.Properties");
         Ice::StringSeq views;
         Ice::StringSeq disabledViews;
         views = ma->getMetricsViewNames(disabledViews);
@@ -98,7 +98,7 @@ allTests(Test::TestHelper* helper)
         test(views.size() == 3);
 
         // Make sure that the IceBox communicator metrics admin is a separate instance.
-        test(IceMX::MetricsAdminPrx(admin->ice_facet("Metrics"))->getMetricsViewNames(disabledViews).empty());
+        test(admin->ice_facet<IceMX::MetricsAdminPrx>("Metrics")->getMetricsViewNames(disabledViews).empty());
     }
     cout << "ok" << endl;
 }

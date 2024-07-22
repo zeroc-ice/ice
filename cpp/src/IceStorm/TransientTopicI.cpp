@@ -96,7 +96,7 @@ TransientTopicImpl::create(const shared_ptr<Instance>& instance, const std::stri
     auto publisher = make_shared<TransientPublisherI>(topicImpl);
     topicImpl->_publisherPrx = instance->publishAdapter()->add(publisher, pubid);
     auto topicLink = make_shared<TransientTopicLinkI>(topicImpl);
-    topicImpl->_linkPrx = TopicLinkPrx(instance->publishAdapter()->add(topicLink, linkid));
+    topicImpl->_linkPrx = instance->publishAdapter()->add<TopicLinkPrx>(topicLink, linkid);
 
     return topicImpl;
 }
@@ -220,7 +220,7 @@ void
 TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current& current)
 {
     checkNotNull(topic, __FILE__, __LINE__, current);
-    TopicInternalPrx internal(*topic);
+    TopicInternalPrx internal = Ice::uncheckedCast<TopicInternalPrx>(*topic);
     auto link = internal->getLinkProxy();
 
     auto traceLevels = _instance->traceLevels();

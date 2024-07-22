@@ -403,8 +403,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             try
             {
-                mapper = UserAccountMapperPrx{
-                    _adapter->addWithUUID(make_shared<FileUserAccountMapperI>(userAccountFileProperty))};
+                mapper = _adapter->addWithUUID<UserAccountMapperPrx>(
+                    make_shared<FileUserAccountMapperI>(userAccountFileProperty));
             }
             catch (const exception& ex)
             {
@@ -440,7 +440,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
     // Create the server factory. The server factory creates persistent objects for the server and server adapter. It
     // also takes care of installing the evictors and object factories necessary to store these objects.
-    NodePrx nodeProxy{_adapter->createProxy(stringToIdentity(instanceName + "/Node-" + name))};
+    auto nodeProxy = _adapter->createProxy<NodePrx>(stringToIdentity(instanceName + "/Node-" + name));
     _node = make_shared<
         NodeI>(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper, instanceName);
     _adapter->add(_node, nodeProxy->ice_getIdentity());

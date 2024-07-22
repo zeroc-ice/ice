@@ -36,9 +36,9 @@ Publisher::run(int argc, char** argv)
     auto fed2 = manager->retrieve("fed2");
     auto fed3 = manager->retrieve("fed3");
 
-    optional<EventPrx> eventFed1(fed1->getPublisher()->ice_oneway());
-    optional<EventPrx> eventFed2(fed2->getPublisher()->ice_oneway());
-    optional<EventPrx> eventFed3(fed3->getPublisher()->ice_oneway());
+    auto eventFed1 = uncheckedCast<EventPrx>(fed1->getPublisher()->ice_oneway());
+    auto eventFed2 = uncheckedCast<EventPrx>(fed2->getPublisher()->ice_oneway());
+    auto eventFed3 = uncheckedCast<EventPrx>(fed3->getPublisher()->ice_oneway());
 
     Ice::Context context;
 

@@ -308,7 +308,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const optio
     }
 
     _reaper->add(make_shared<SessionReapable<SessionI>>(_database->getTraceLevels()->logger, session), timeout);
-    return Glacier2::SessionPrx(proxy);
+    return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }
 
 shared_ptr<SessionI>

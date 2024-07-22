@@ -851,7 +851,7 @@ NodeI::loadServer(
                 {
                     server = make_shared<ServerI>(
                         shared_from_this(),
-                        ServerPrx(_adapter->createProxy(id)),
+                        _adapter->createProxy<ServerPrx>(id),
                         _serversDir,
                         descriptor->id,
                         _waitTime);

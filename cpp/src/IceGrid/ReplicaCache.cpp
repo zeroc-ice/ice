@@ -35,7 +35,8 @@ ReplicaCache::ReplicaCache(
     const IceStorm::TopicManagerPrx& topicManager)
     : _communicator(communicator),
       _topic(createOrRetrieveReplicaObserverTopic(topicManager)),
-      _observers(_topic->getPublisher().value()->ice_endpoints(Ice::EndpointSeq()))
+      _observers(
+          Ice::uncheckedCast<ReplicaObserverPrx>(_topic->getPublisher().value()->ice_endpoints(Ice::EndpointSeq())))
 {
 }
 
@@ -187,7 +188,7 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
             os << "topic: `" << _topic->ice_toString() << "' returned null publisher proxy";
             throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
         }
-        ReplicaObserverPrx(*publisher)->replicaInit(replicas);
+        Ice::uncheckedCast<ReplicaObserverPrx>(*publisher)->replicaInit(replicas);
     }
     catch (const Ice::NoEndpointException&)
     {

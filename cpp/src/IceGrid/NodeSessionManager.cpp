@@ -77,7 +77,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
                 optional<InternalRegistryPrx> newRegistry;
                 try
                 {
-                    newRegistry = optional<InternalRegistryPrx>(result.get());
+                    newRegistry = Ice::uncheckedCast<InternalRegistryPrx>(result.get());
                     if (newRegistry && used.find(*newRegistry) == used.end())
                     {
                         session = createSessionImpl(*newRegistry, timeout);
@@ -628,7 +628,7 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
                     prx = prx->ice_identity(id)->ice_endpoints(Ice::EndpointSeq());
 
                     id.name = "Locator";
-                    prx = prx->ice_locator(optional<Ice::LocatorPrx>(prx->ice_identity(id)));
+                    prx = prx->ice_locator(prx->ice_identity<Ice::LocatorPrx>(id));
 
                     proxies.insert({id, std::move(*prx)});
                 }
@@ -641,7 +641,7 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
 
         for (const auto& prx : proxies)
         {
-            replicas.push_back(InternalRegistryPrx(prx.second));
+            replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(prx.second));
         }
     }
 

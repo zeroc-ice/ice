@@ -116,7 +116,6 @@ module Glacier2
         /// are not configured.
         /// @return A proxy to the newly created session.
         /// @throws CannotCreateSessionException Raised if the session cannot be created.
-        ["format:sliced"]
         Session* create(string userId, SessionControl* control)
             throws CannotCreateSessionException;
     }
@@ -133,7 +132,6 @@ module Glacier2
         /// @param control A proxy to the session control object.
         /// @return A proxy to the newly created session.
         /// @throws CannotCreateSessionException Raised if the session cannot be created.
-        ["format:sliced"]
         Session* create(SSLInfo info, SessionControl* control)
             throws CannotCreateSessionException;
     }

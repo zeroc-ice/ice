@@ -2119,7 +2119,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     }
 
     {
-        MyDerivedClassPrx derived(p);
+        auto derived = uncheckedCast<MyDerivedClassPrx>(p);
         CallbackPtr cb = make_shared<Callback>();
         derived->opDerivedAsync([&]() { cb->opDerived(); }, makeExceptionClosure(cb));
         cb->check();
@@ -3287,7 +3287,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     }
 
     {
-        MyDerivedClassPrx derived(p);
+        auto derived = uncheckedCast<MyDerivedClassPrx>(p);
         CallbackPtr cb = make_shared<Callback>();
         auto f = derived->opDerivedAsync();
         try

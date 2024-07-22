@@ -154,7 +154,7 @@ Client::run(int argc, char** argv)
     adapter->activate();
 
     cout << "Testing operation name... " << flush;
-    _cpp_and::charPrx p(adapter->createProxy(Ice::stringToIdentity("test")));
+    auto p = adapter->createProxy<_cpp_and::charPrx>(Ice::stringToIdentity("test"));
     p->_cpp_explicit();
     cout << "ok" << endl;
 }

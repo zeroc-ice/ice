@@ -17,8 +17,9 @@ SessionManager::SessionManager(const shared_ptr<Ice::Communicator>& communicator
     optional<Ice::LocatorPrx> defaultLocator = communicator->getDefaultLocator();
     if (defaultLocator)
     {
-        _master = InternalRegistryPrx{
-            defaultLocator->ice_identity(Ice::Identity{"InternalRegistry-Master", instanceName})->ice_endpoints({})};
+        _master =
+            defaultLocator->ice_identity<InternalRegistryPrx>(Ice::Identity{"InternalRegistry-Master", instanceName})
+                ->ice_endpoints({});
     }
 }
 
@@ -63,7 +64,7 @@ SessionManager::findAllQueryObjects(bool cached)
     if (queryObjects.empty() && locator)
     {
         Ice::Identity id{"Query", _instanceName};
-        QueryPrx query((*locator)->ice_identity(id));
+        auto query = (*locator)->ice_identity<QueryPrx>(id);
         auto endpoints = query->ice_getEndpoints();
         if (endpoints.empty())
         {
@@ -121,7 +122,7 @@ SessionManager::findAllQueryObjects(bool cached)
                         // of the registry since it's based on the registry interface proxy.
                         proxies.insert(
                             {prx->ice_getIdentity(),
-                             QueryPrx((*prx)->ice_identity(Ice::Identity{"Query", prx->ice_getIdentity().category}))});
+                             (*prx)->ice_identity<QueryPrx>(Ice::Identity{"Query", prx->ice_getIdentity().category})});
                     }
                 }
             }

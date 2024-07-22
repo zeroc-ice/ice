@@ -9,6 +9,8 @@
 #include "ConnectionF.h"
 #include "EndpointF.h"
 #include "Ice/Identity.h"
+#include "Ice/Proxy.h"
+#include "Ice/ProxyFunctions.h"
 #include "ObjectAdapterF.h"
 
 #include <future>
@@ -25,8 +27,6 @@
 
 namespace Ice
 {
-    class ObjectPrx;
-
     /**
      * The batch compression option when flushing queued batch requests.
      */
@@ -158,7 +158,11 @@ namespace Ice
          * @return A proxy that matches the given identity and uses this connection.
          * @see #setAdapter
          */
-        virtual ObjectPrx createProxy(const Identity& id) const = 0;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        Prx createProxy(const Identity& id) const
+        {
+            return uncheckedCast<Prx>(_createProxy(id));
+        }
 
         /**
          * Explicitly set an object adapter that dispatches requests that are received over this connection. A client
@@ -257,6 +261,9 @@ namespace Ice
          * manually closed by the application. This operation does nothing if the connection is not yet closed.
          */
         virtual void throwException() const = 0;
+
+    protected:
+        virtual ObjectPrx _createProxy(const Identity& id) const = 0;
     };
 
     /**

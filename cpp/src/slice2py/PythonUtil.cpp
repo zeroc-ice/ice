@@ -647,11 +647,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string prxType = getAbsolute(p, "_t_", "Prx");
     InterfaceList bases = p->bases();
 
-    // TODO: remove this interface-by-value.
-    _out << sp << nl << "_M_" << type << " = IcePy.defineValue('" << scoped << "', Ice.Value, -1, ";
-    writeMetaData(p->getMetaData());
-    _out << ", True, None, ())";
-
     _out << sp << nl << "if " << getDictLookup(p, "", "Prx") << ':';
     _out.inc();
 

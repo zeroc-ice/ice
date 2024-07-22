@@ -54,12 +54,14 @@ namespace IcePy
     class PyObjectHandle
     {
     public:
-        PyObjectHandle(PyObject* = 0);
+        PyObjectHandle(PyObject* = nullptr);
         PyObjectHandle(const PyObjectHandle&);
         ~PyObjectHandle();
 
         PyObjectHandle& operator=(PyObject*);
         PyObjectHandle& operator=(const PyObjectHandle&);
+
+        operator bool() const { return _p != nullptr; }
 
         PyObject* get() const;
         PyObject* release();

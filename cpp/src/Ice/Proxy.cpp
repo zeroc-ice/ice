@@ -6,8 +6,11 @@
 #include "CheckIdentity.h"
 #include "ConnectionI.h"
 #include "EndpointI.h"
+#include "Ice/Communicator.h"
 #include "Ice/Comparable.h"
+#include "Ice/Current.h"
 #include "Ice/LocalExceptions.h"
+#include "Ice/ObjectAdapter.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "Reference.h"
@@ -15,6 +18,7 @@
 #include "RequestHandlerCache.h"
 #include "RouterInfo.h"
 
+#include <sstream>
 #include <stdexcept>
 
 using namespace std;
@@ -76,20 +80,6 @@ Ice::ObjectPrx::ice_getIdentity() const
     return _reference->getIdentity();
 }
 
-ObjectPrx
-Ice::ObjectPrx::ice_identity(Identity newIdentity) const
-{
-    checkIdentity(newIdentity, __FILE__, __LINE__);
-    if (newIdentity == _reference->getIdentity())
-    {
-        return *this;
-    }
-    else
-    {
-        return ObjectPrx(_reference->changeIdentity(std::move(newIdentity)));
-    }
-}
-
 Context
 Ice::ObjectPrx::ice_getContext() const
 {
@@ -100,19 +90,6 @@ const string&
 Ice::ObjectPrx::ice_getFacet() const
 {
     return _reference->getFacet();
-}
-
-ObjectPrx
-Ice::ObjectPrx::ice_facet(string newFacet) const
-{
-    if (newFacet == _reference->getFacet())
-    {
-        return *this;
-    }
-    else
-    {
-        return ObjectPrx(_reference->changeFacet(std::move(newFacet)));
-    }
 }
 
 string
@@ -449,6 +426,33 @@ Ice::ObjectPrx::_endpoints(EndpointSeq newEndpoints) const
 }
 
 ReferencePtr
+Ice::ObjectPrx::_identity(Identity newIdentity) const
+{
+    checkIdentity(newIdentity, __FILE__, __LINE__);
+    if (newIdentity == _reference->getIdentity())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeIdentity(std::move(newIdentity));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_facet(string newFacet) const
+{
+    if (newFacet == _reference->getFacet())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeFacet(std::move(newFacet));
+    }
+}
+
+ReferencePtr
 Ice::ObjectPrx::_fixed(ConnectionPtr connection) const
 {
     if (!connection)
@@ -590,6 +594,16 @@ Ice::ObjectPrx::_twoway() const
 }
 
 // TODO: move the code below to ProxyFunctions.cpp
+
+void
+IceInternal::throwNullProxyMarshalException(const char* file, int line, const Current& current)
+{
+    ostringstream os;
+    os << "null proxy passed to " << current.operation << " on object "
+       << current.adapter->getCommunicator()->identityToString(current.id);
+    throw MarshalException{file, line, os.str()};
+}
+
 namespace Ice
 {
     bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)

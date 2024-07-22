@@ -187,7 +187,7 @@ batchOneways(const MyClassPrx& p)
 
         MyClassPrx batch1 = prx->ice_compress(false);
         MyClassPrx batch2 = prx->ice_compress(true);
-        MyClassPrx batch3(prx->ice_identity(identity));
+        auto batch3 = prx->ice_identity<MyClassPrx>(identity);
 
         batch1->opByteSOneway(bs1);
         batch1->opByteSOneway(bs1);

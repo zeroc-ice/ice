@@ -129,13 +129,13 @@ TestI::shutdown(const Current&)
 optional<HelloPrx>
 TestI::getHello(const Current&)
 {
-    return HelloPrx(_adapter1->createIndirectProxy(stringToIdentity("hello")));
+    return _adapter1->createIndirectProxy<HelloPrx>(stringToIdentity("hello"));
 }
 
 optional<HelloPrx>
 TestI::getReplicatedHello(const Current&)
 {
-    return HelloPrx(_adapter1->createProxy(stringToIdentity("hello")));
+    return _adapter1->createProxy<HelloPrx>(stringToIdentity("hello"));
 }
 
 void

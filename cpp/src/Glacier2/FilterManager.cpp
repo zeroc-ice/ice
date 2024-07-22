@@ -153,9 +153,9 @@ Glacier2::FilterManager::FilterManager(
         auto adapter = _instance->serverObjectAdapter();
         if (adapter)
         {
-            _categoriesPrx = Glacier2::StringSetPrx(adapter->addWithUUID(_categories));
-            _adapterIdsPrx = Glacier2::StringSetPrx(adapter->addWithUUID(_adapters));
-            _identitiesPrx = Glacier2::IdentitySetPrx(adapter->addWithUUID(_identities));
+            _categoriesPrx = adapter->addWithUUID<Glacier2::StringSetPrx>(_categories);
+            _adapterIdsPrx = adapter->addWithUUID<Glacier2::StringSetPrx>(_adapters);
+            _identitiesPrx = adapter->addWithUUID<Glacier2::IdentitySetPrx>(_identities);
         }
     }
     catch (...)

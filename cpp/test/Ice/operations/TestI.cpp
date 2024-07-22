@@ -92,8 +92,8 @@ MyDerivedClassI::opMyClass(
     const Ice::Current& current)
 {
     p2 = p1;
-    p3 = Test::MyClassPrx(current.adapter->createProxy(stringToIdentity("noSuchIdentity")));
-    return Test::MyClassPrx(current.adapter->createProxy(current.id));
+    p3 = current.adapter->createProxy<Test::MyClassPrx>(stringToIdentity("noSuchIdentity"));
+    return current.adapter->createProxy<Test::MyClassPrx>(current.id);
 }
 
 Test::Structure

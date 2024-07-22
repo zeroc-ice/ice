@@ -405,7 +405,7 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
         {
             auto prx = result.get();
             assert(prx);
-            return InternalRegistryPrx{*prx};
+            return Ice::uncheckedCast<InternalRegistryPrx>(*prx);
         }
         catch (const Ice::Exception&)
         {
@@ -486,7 +486,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, chrono::seco
                 optional<InternalRegistryPrx> newRegistry;
                 try
                 {
-                    newRegistry = optional<InternalRegistryPrx>(result.get());
+                    newRegistry = Ice::uncheckedCast<InternalRegistryPrx>(result.get());
                     if (newRegistry && used.find(*newRegistry) == used.end())
                     {
                         session = createSessionImpl(*newRegistry, timeout);
@@ -587,7 +587,7 @@ ReplicaSessionManager::createSessionImpl(InternalRegistryPrx registry, chrono::s
         // returns once the observer is subscribed and initialized.
         //
         auto servant = make_shared<MasterDatabaseObserverI>(_thread, _database, *session);
-        _observer = DatabaseObserverPrx(_database->getInternalAdapter()->addWithUUID(servant));
+        _observer = _database->getInternalAdapter()->addWithUUID<DatabaseObserverPrx>(servant);
         StringLongDict serials = _database->getSerials();
         optional<StringLongDict> serialsOpt;
         if (!serials.empty())

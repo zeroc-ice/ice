@@ -93,7 +93,19 @@ namespace Ice
          * @return The proxy, or nullopt if <code>str</code> is an empty string.
          * @see #proxyToString
          */
-        std::optional<ObjectPrx> stringToProxy(const std::string& str) const;
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        std::optional<Prx> stringToProxy(const std::string& str) const
+        {
+            auto reference = _stringToProxy(str);
+            if (reference)
+            {
+                return Prx::_fromReference(reference);
+            }
+            else
+            {
+                return std::nullopt;
+            }
+        }
 
         /**
          * Convert a proxy into a string.
@@ -116,7 +128,15 @@ namespace Ice
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
         std::optional<Prx> propertyToProxy(const std::string& property) const
         {
-            return std::optional<Prx>{_propertyToProxy(property)};
+            auto reference = _propertyToProxy(property);
+            if (reference)
+            {
+                return Prx::_fromReference(reference);
+            }
+            else
+            {
+                return std::nullopt;
+            }
         }
 
         /**
@@ -391,7 +411,8 @@ namespace Ice
         //
         void finishSetup(int&, const char*[]);
 
-        std::optional<ObjectPrx> _propertyToProxy(const std::string& property) const;
+        IceInternal::ReferencePtr _stringToProxy(const std::string& str) const;
+        IceInternal::ReferencePtr _propertyToProxy(const std::string& property) const;
 
         friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, std::int32_t);
         friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);
