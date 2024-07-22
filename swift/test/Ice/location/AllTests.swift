@@ -5,10 +5,13 @@ import Ice
 import PromiseKit
 import TestCommon
 
-func allTests(_ helper: TestHelper) throws {
+func allTests(_ helper: TestHelper) async throws {
+    // This function must be sendable as it can be concurrently executed by a TaskGroup.
+    @Sendable
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
+
     let output = helper.getWriter()
 
     let communicator = helper.communicator()
@@ -193,7 +196,7 @@ func allTests(_ helper: TestHelper) throws {
     try test(count == locator.getRequestCount())
     try basencc.ice_locatorCacheTimeout(2).ice_ping()  // 2s timeout.
     try test(count == locator.getRequestCount())
-    Thread.sleep(forTimeInterval: 1.3)  // 1300ms
+    try await Task.sleep(for: .milliseconds(1300))
     try basencc.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
     count += 1
     try test(count == locator.getRequestCount())
@@ -204,7 +207,7 @@ func allTests(_ helper: TestHelper) throws {
     try test(count == locator.getRequestCount())
     try communicator.stringToProxy("test")!.ice_locatorCacheTimeout(2).ice_ping()  // 2s timeout
     try test(count == locator.getRequestCount())
-    Thread.sleep(forTimeInterval: 1.3)  // 1300ms
+    try await Task.sleep(for: .milliseconds(1300))
     try communicator.stringToProxy("test")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout
     count += 2
     try test(count == locator.getRequestCount())
@@ -241,11 +244,17 @@ func allTests(_ helper: TestHelper) throws {
     count += 1
     try test(count == locator.getRequestCount())
 
-    var results = [Promise<Void>](repeating: hello.sayHelloAsync(), count: 1000)
-    for r in results {
-        try r.wait()
+    try await withThrowingTaskGroup(of: Void.self) { [hello] taskGroup in
+        for _ in 0..<1000 {
+            taskGroup.addTask {
+                try await hello.sayHelloAsync()
+            }
+        }
+
+        // wait for all tasks
+        try await taskGroup.waitForAll()
     }
-    results.removeAll()
+
     try test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999)
 
     if try locator.getRequestCount() > count + 800 {
@@ -255,16 +264,21 @@ func allTests(_ helper: TestHelper) throws {
     count = try locator.getRequestCount()
     hello = hello.ice_adapterId("unknown")
 
-    results = [Promise<Void>](repeating: hello.sayHelloAsync(), count: 1000)
-    for r in results {
-        do {
-            try r.wait()
-            try test(false)
-        } catch is Ice.NotRegisteredException {}
+    try await withThrowingTaskGroup(of: Void.self) { [hello] taskGroup in
+        for _ in 0..<1000 {
+            taskGroup.addTask {
+                do {
+                    try await hello.sayHelloAsync()
+                    try test(false)
+                } catch is Ice.NotRegisteredException {}
+            }
+        }
+
+        // wait for all tasks
+        try await taskGroup.waitForAll()
     }
-    results.removeAll()
-    // XXX:
-    // Take into account the retries.
+
+    // TODO: Take into account the retries.
     try test(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999)
 
     if try locator.getRequestCount() > count + 800 {
@@ -406,7 +420,7 @@ func allTests(_ helper: TestHelper) throws {
         try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(10).ice_ping()
         try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(10).ice_ping()  // 10s timeout.
         try test(count == locator.getRequestCount())
-        Thread.sleep(forTimeInterval: 1.2)
+        try await Task.sleep(for: .milliseconds(1200))
 
         // The following request should trigger the background
         // updates but still use the cached endpoints and
@@ -420,7 +434,7 @@ func allTests(_ helper: TestHelper) throws {
             while true {
                 // 1s timeout.
                 try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()
-                Thread.sleep(forTimeInterval: 0.1)
+                try await Task.sleep(for: .milliseconds(100))
             }
         } catch is Ice.LocalException {
             // Expected to fail once they endpoints have been updated in the background.
@@ -429,7 +443,7 @@ func allTests(_ helper: TestHelper) throws {
         do {
             while true {
                 try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
-                Thread.sleep(forTimeInterval: 0.1)
+                try await Task.sleep(for: .milliseconds(100))
             }
         } catch is Ice.LocalException {
             // Expected to fail once they endpoints have been updated in the background.
