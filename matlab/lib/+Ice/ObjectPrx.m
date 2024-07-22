@@ -1134,45 +1134,37 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
     methods(Static,Access=protected)
         function r = iceCheckedCast(p, id, cls, varargin)
-            try
-                hasFacet = false;
-                facet = [];
-                context = {};
-                if length(varargin) == 1
-                    if isa(varargin{1}, 'containers.Map')
-                        context = { varargin{1} };
-                    elseif isempty(varargin{1}) || isa(varargin{1}, 'char')
-                        hasFacet = true;
-                        facet = varargin{1};
-                    else
-                        throw(LocalException('Ice:ArgumentException', 'expecting string or containers.Map'));
-                    end
-                elseif length(varargin) == 2
+            hasFacet = false;
+            facet = [];
+            context = {};
+            if length(varargin) == 1
+                if isa(varargin{1}, 'containers.Map')
+                    context = { varargin{1} };
+                elseif isempty(varargin{1}) || isa(varargin{1}, 'char')
                     hasFacet = true;
                     facet = varargin{1};
-                    context = { varargin{2} };
-                elseif length(varargin) > 2
-                    throw(LocalException('Ice:ArgumentException', 'too many arguments to checkedCast'));
-                end
-                if ~isempty(p)
-                    if hasFacet
-                        p = p.ice_facet(facet);
-                    end
-                    if p.ice_isA(id, context{:})
-                        constructor = str2func(cls);
-                        r = constructor(p.communicator, '',  p.clone_(), p.encoding);
-                    else
-                        r = [];
-                    end
                 else
-                    r = p;
+                    throw(LocalException('Ice:ArgumentException', 'expecting string or containers.Map'));
                 end
-            catch ex
-                if isa(ex, 'Ice.FacetNotExistException')
+            elseif length(varargin) == 2
+                hasFacet = true;
+                facet = varargin{1};
+                context = { varargin{2} };
+            elseif length(varargin) > 2
+                throw(LocalException('Ice:ArgumentException', 'too many arguments to checkedCast'));
+            end
+            if ~isempty(p)
+                if hasFacet
+                    p = p.ice_facet(facet);
+                end
+                if p.ice_isA(id, context{:})
+                    constructor = str2func(cls);
+                    r = constructor(p.communicator, '',  p.clone_(), p.encoding);
+                else
                     r = [];
-                else
-                    ex.throwAsCaller();
                 end
+            else
+                r = p;
             end
         end
 
