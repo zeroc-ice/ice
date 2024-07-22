@@ -25,7 +25,7 @@ namespace Ice
                     var locator = new ServantLocatorI();
                     adapter.addServantLocator(locator, "");
 
-                    AllTests.allTests(this);
+                    AllTests.allTests(this).Wait();
 
                     adapter.waitForDeactivate();
                 }

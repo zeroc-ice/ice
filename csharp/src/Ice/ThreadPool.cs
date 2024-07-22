@@ -163,7 +163,7 @@ namespace IceInternal
             _threadIndex = 0;
             _inUse = 0;
             _serialize = properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
-            _serverIdleTime = timeout;
+            _serverIdleTime = timeout <= 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);
 
             string programName = properties.getProperty("Ice.ProgramName");
             if(programName.Length > 0)
@@ -222,7 +222,7 @@ namespace IceInternal
             _size = size;
             _sizeMax = sizeMax;
             _sizeWarn = sizeWarn;
-            _threadIdleTime = threadIdleTime;
+            _threadIdleTime = threadIdleTime <= 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(threadIdleTime);
 
             int stackSize = properties.getPropertyAsInt(_prefix + ".StackSize");
             if(stackSize < 0)
@@ -500,9 +500,9 @@ namespace IceInternal
                             return;
                         }
 
-                        if(_threadIdleTime > 0)
+                        if(_threadIdleTime != Timeout.InfiniteTimeSpan)
                         {
-                            if(!Monitor.Wait(this, _threadIdleTime * 1000) && _workItems.Count == 0) // If timeout
+                            if(!Monitor.Wait(this, _threadIdleTime) && _workItems.Count == 0) // If timeout
                             {
                                 if(_destroyed)
                                 {
@@ -538,7 +538,7 @@ namespace IceInternal
                                 }
 
                                 Debug.Assert(_threads.Count == 1);
-                                if(!Monitor.Wait(this, _serverIdleTime * 1000) && !_destroyed)
+                                if(!Monitor.Wait(this, _serverIdleTime) && !_destroyed)
                                 {
                                     _workItems.Enqueue(c =>
                                         {
@@ -856,8 +856,8 @@ namespace IceInternal
         private readonly int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
         private readonly bool _serialize; // True if requests need to be serialized over the connection.
         private readonly ThreadPriority _priority;
-        private readonly int _serverIdleTime;
-        private readonly int _threadIdleTime;
+        private readonly TimeSpan _serverIdleTime;
+        private readonly TimeSpan _threadIdleTime;
         private readonly int _stackSize;
 
         private List<WorkerThread> _threads; // All threads, running or not.

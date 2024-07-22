@@ -14,7 +14,7 @@ namespace Ice
             {
                 using(var communicator = initialize(ref args))
                 {
-                    AllTests.allTests(this);
+                    AllTests.allTests(this).Wait();
                 }
             }
 
