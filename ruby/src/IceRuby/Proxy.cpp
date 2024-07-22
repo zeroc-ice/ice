@@ -187,13 +187,24 @@ IceRuby_ObjectPrx_ice_getIdentity(VALUE self)
 }
 
 extern "C" VALUE
-IceRuby_ObjectPrx_ice_identity(VALUE self, VALUE id)
+IceRuby_ObjectPrx_ice_identity(VALUE self, VALUE args)
 {
+    VALUE cls = Qnil;
+    long len = RARRAY_LEN(args);
+    if (len > 2 || len == 0)
+    {
+        rb_raise(rb_eArgError, "wrong number of arguments");
+    }
+    if (len == 2)
+    {
+        cls = rb_ary_entry(args, 1);
+    }
+
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        Ice::Identity ident = getIdentity(id);
-        return createProxy(p->ice_identity(ident));
+        Ice::Identity ident = getIdentity(rb_ary_entry(args, 0));
+        return createProxy(p->ice_identity(ident), cls);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -243,13 +254,24 @@ IceRuby_ObjectPrx_ice_getFacet(VALUE self)
 }
 
 extern "C" VALUE
-IceRuby_ObjectPrx_ice_facet(VALUE self, VALUE facet)
+IceRuby_ObjectPrx_ice_facet(VALUE self, VALUE args)
 {
+    VALUE cls = Qnil;
+    long len = RARRAY_LEN(args);
+    if (len > 2 || len == 0)
+    {
+        rb_raise(rb_eArgError, "wrong number of arguments");
+    }
+    if (len == 2)
+    {
+        cls = rb_ary_entry(args, 1);
+    }
+
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        string f = getString(facet);
-        return createProxy(p->ice_facet(f));
+        string f = getString(rb_ary_entry(args, 0));
+        return createProxy(p->ice_facet(f), cls);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1172,11 +1194,11 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_ids", CAST_METHOD(IceRuby_ObjectPrx_ice_ids), -1);
     rb_define_method(_proxyClass, "ice_id", CAST_METHOD(IceRuby_ObjectPrx_ice_id), -1);
     rb_define_method(_proxyClass, "ice_getIdentity", CAST_METHOD(IceRuby_ObjectPrx_ice_getIdentity), 0);
-    rb_define_method(_proxyClass, "ice_identity", CAST_METHOD(IceRuby_ObjectPrx_ice_identity), 1);
+    rb_define_method(_proxyClass, "ice_identity", CAST_METHOD(IceRuby_ObjectPrx_ice_identity), -2);
     rb_define_method(_proxyClass, "ice_getContext", CAST_METHOD(IceRuby_ObjectPrx_ice_getContext), 0);
     rb_define_method(_proxyClass, "ice_context", CAST_METHOD(IceRuby_ObjectPrx_ice_context), 1);
     rb_define_method(_proxyClass, "ice_getFacet", CAST_METHOD(IceRuby_ObjectPrx_ice_getFacet), 0);
-    rb_define_method(_proxyClass, "ice_facet", CAST_METHOD(IceRuby_ObjectPrx_ice_facet), 1);
+    rb_define_method(_proxyClass, "ice_facet", CAST_METHOD(IceRuby_ObjectPrx_ice_facet), -2);
     rb_define_method(_proxyClass, "ice_getAdapterId", CAST_METHOD(IceRuby_ObjectPrx_ice_getAdapterId), 0);
     rb_define_method(_proxyClass, "ice_adapterId", CAST_METHOD(IceRuby_ObjectPrx_ice_adapterId), 1);
     rb_define_method(_proxyClass, "ice_getEndpoints", CAST_METHOD(IceRuby_ObjectPrx_ice_getEndpoints), 0);
