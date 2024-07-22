@@ -219,7 +219,7 @@ class InitialI: Initial {
         throw InnerSubEx(reason: "Inner::Sub::Ex")
     }
 
-    func getAMDMBAsync(current _: Ice.Current) ->B? {
+    func getAMDMBAsync(current _: Ice.Current) -> B? {
         return _b1
     }
 

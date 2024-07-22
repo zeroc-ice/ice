@@ -93,12 +93,10 @@ let testDirectories: [String: TestConfig] = [
     ),
     // "Ice/proxy": TestConfig(amd: true),
     // "Ice/retry": TestConfig(),
-    // "Ice/scope": TestConfig(collocated: false),
-    // "Ice/servantLocator": TestConfig(
-    //     sources: defaultSources + ["ServantLocatorI.swift"],
-    //     amd: true,
-    //     amdSourcesFiles: defaultAMDSourceFiles + ["ServantLocatorAMDI.swift"]
-    // ),
+    "Ice/scope": TestConfig(collocated: false),
+    "Ice/servantLocator": TestConfig(
+        sources: defaultSources + ["ServantLocatorI.swift"]
+    ),
     // "Ice/services": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: []),
     // "Ice/slicing/exceptions": TestConfig(
     //     collocated: false,
@@ -106,14 +104,12 @@ let testDirectories: [String: TestConfig] = [
     //     amd: true,
     //     amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
     // ),
-    // "Ice/slicing/objects": TestConfig(
-    //     collocated: false,
-    //     sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"],
-    //     amd: true,
-    //     amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
-    // ),
-    // "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
-    // "Ice/timeout": TestConfig(collocated: false),
+    "Ice/slicing/objects": TestConfig(
+        collocated: false,
+        sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"]
+    ),
+    "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
+    "Ice/timeout": TestConfig(collocated: false),
     "Ice/udp": TestConfig(collocated: false),
     "IceSSL/configuration": TestConfig(
         collocated: false,

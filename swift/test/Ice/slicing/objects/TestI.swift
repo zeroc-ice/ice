@@ -2,7 +2,6 @@
 
 import Foundation
 import Ice
-import PromiseKit
 import TestCommon
 
 class TestI: TestIntf {
@@ -335,29 +334,36 @@ class TestI: TestIntf {
             try _helper.test(pu.cl != nil && pu.cl!.i == 15)
         }
     }
+
     // TODO: Doesn't seem to be called
-    func PBSUnknownAsPreservedWithGraphAsync(current: Current) -> Promise<Preserved?> {
+    func PBSUnknownAsPreservedWithGraphAsync(current: Current) async throws -> Preserved? {
         // This code requires a regular, non-colloc dispatch
         if let dq = try? current.adapter.getDispatchQueue() {
             dispatchPrecondition(condition: .onQueue(dq))
         }
 
-        return Promise<Preserved?> { seal in
-            // .barrier to ensure we execute this code after Ice has called "done" on the promise
-            // Otherwise the cycle breaking can occur before the result is marshaled by the
-            // closure given to done.
-            try current.adapter.getDispatchQueue().async(flags: .barrier) {
-                let r = PSUnknown()
-                r.pi = 5
-                r.ps = "preserved"
-                r.psu = "unknown"
-                r.graph = PNode()
-                r.graph!.next = PNode()
-                r.graph!.next!.next = PNode()
-                r.graph!.next!.next!.next = r.graph
-                seal.fulfill(r)  // Ice marshals r now
-                r.graph!.next!.next!.next = nil  // break the cycle
+        // TODO: update this comment and make sure this is all true
+        // .barrier to ensure we execute this code after Ice has called "done" on the promise
+        // Otherwise the cycle breaking can occur before the result is marshaled by the
+        // closure given to done.
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try current.adapter.getDispatchQueue().async(flags: .barrier) {
+                    let r = PSUnknown()
+                    r.pi = 5
+                    r.ps = "preserved"
+                    r.psu = "unknown"
+                    r.graph = PNode()
+                    r.graph!.next = PNode()
+                    r.graph!.next!.next = PNode()
+                    r.graph!.next!.next!.next = r.graph
+                    continuation.resume(returning: r)  // Ice marshals r now
+                    r.graph!.next!.next!.next = nil  // break the cycle
+                }
+            } catch {
+                continuation.resume(throwing: error)
             }
+
         }
     }
 
@@ -386,15 +392,20 @@ class TestI: TestIntf {
         }
     }
 
-    func PBSUnknown2AsPreservedWithGraphAsync(current: Current) -> Promise<Preserved?> {
-        return Promise<Preserved?> { seal in
-            try current.adapter.getDispatchQueue().async(flags: .barrier) {
-                let r = PSUnknown2()
-                r.pi = 5
-                r.ps = "preserved"
-                r.pb = r
-                seal.fulfill(r)  // Ice marshals r immediately
-                r.pb = nil  // break the cycle
+    func PBSUnknown2AsPreservedWithGraphAsync(current: Current) async throws -> Preserved? {
+        // TODO: verify this is correct
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try current.adapter.getDispatchQueue().async(flags: .barrier) {
+                    let r = PSUnknown2()
+                    r.pi = 5
+                    r.ps = "preserved"
+                    r.pb = r
+                    continuation.resume(returning: r)  // Ice marshals r immediately
+                    r.pb = nil  // break the cycle
+                }
+            } catch {
+                continuation.resume(throwing: error)
             }
         }
     }
