@@ -2,7 +2,6 @@
 
 import Foundation
 import Ice
-import PromiseKit
 
 public class BI: B {
     override public func ice_preMarshal() {
@@ -220,10 +219,8 @@ class InitialI: Initial {
         throw InnerSubEx(reason: "Inner::Sub::Ex")
     }
 
-    func getAMDMBAsync(current _: Ice.Current) -> Promise<B?> {
-        return Promise<B?> { seal in
-            seal.fulfill(_b1)
-        }
+    func getAMDMBAsync(current _: Ice.Current) ->B? {
+        return _b1
     }
 
     func opM(v1: M?, current _: Ice.Current) throws -> (returnValue: M?, v2: M?) {

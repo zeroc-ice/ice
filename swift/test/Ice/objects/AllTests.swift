@@ -36,7 +36,7 @@ func breakRetainCycleD(_ d: D?) {
     }
 }
 
-func allTests(_ helper: TestHelper) throws -> InitialPrx {
+func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -234,7 +234,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     b1 = try initial.getMB()!
     try test(b1.theB === b1)
     breakRetainCycleB(b1)
-    b1 = try initial.getAMDMBAsync().wait()!
+    b1 = try await initial.getAMDMBAsync()!
     try test(b1.theB === b1)
     breakRetainCycleB(b1)
     output.writeLine("ok")

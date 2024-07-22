@@ -21,7 +21,7 @@ public class Client: TestHelperI {
         try communicator.getValueFactoryManager().add(factory: { _ in EI() }, id: "::Test::E")
         try communicator.getValueFactoryManager().add(factory: { _ in FI() }, id: "::Test::F")
 
-        let initial = try allTests(self)
+        let initial = try await allTests(self)
         try initial.shutdown()
     }
 }

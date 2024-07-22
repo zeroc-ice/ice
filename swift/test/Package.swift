@@ -64,10 +64,10 @@ let testDirectories: [String: TestConfig] = [
     "Ice/inheritance": TestConfig(),
     // "Ice/invoke": TestConfig(collocated: false),
     "Ice/location": TestConfig(collocated: false),
-    // "Ice/middleware": TestConfig(collocated: false, sources: ["Client.swift", "AllTests.swift"]),
-    // "Ice/objects": TestConfig(
-    //     sliceFiles: defaultSliceFiles + ["Derived.ice", "DerivedEx.ice", "Forward.ice"]
-    // ),
+    "Ice/middleware": TestConfig(collocated: false, sources: ["Client.swift", "AllTests.swift"]),
+    "Ice/objects": TestConfig(
+        sliceFiles: defaultSliceFiles + ["Derived.ice", "DerivedEx.ice", "Forward.ice"]
+    ),
     // "Ice/operations": TestConfig(
     //     sources: defaultSources + [
     //         "BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift",
@@ -79,18 +79,18 @@ let testDirectories: [String: TestConfig] = [
     //     collocated: false,
     //     amd: true
     // ),
-    // "Ice/properties": TestConfig(
-    //     collocated: false,
-    //     sources: ["Client.swift"],
-    //     sliceFiles: [],
-    //     resources: [
-    //         .copy("config/config.1"),
-    //         .copy("config/config.2"),
-    //         .copy("config/config.3"),
-    //         .copy("config/escapes.cfg"),
-    //         .copy("config/configPath"),
-    //     ]
-    // ),
+    "Ice/properties": TestConfig(
+        collocated: false,
+        sources: ["Client.swift"],
+        sliceFiles: [],
+        resources: [
+            .copy("config/config.1"),
+            .copy("config/config.2"),
+            .copy("config/config.3"),
+            .copy("config/escapes.cfg"),
+            .copy("config/configPath"),
+        ]
+    ),
     // "Ice/proxy": TestConfig(amd: true),
     // "Ice/retry": TestConfig(),
     // "Ice/scope": TestConfig(collocated: false),
