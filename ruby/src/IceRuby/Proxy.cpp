@@ -191,7 +191,7 @@ IceRuby_ObjectPrx_ice_identity(VALUE self, VALUE args)
 {
     ICE_RUBY_TRY
     {
-         VALUE cls = Qnil;
+        VALUE cls = Qnil;
         long len = RARRAY_LEN(args);
         if (len > 2 || len == 0)
         {
