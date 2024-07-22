@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -10,7 +11,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
+            public static async Task<Test.TestIntfPrx> allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -203,22 +204,42 @@ namespace Ice
 
                 output.Write("testing server idle time...");
                 output.Flush();
-                {
-                    Ice.InitializationData initData = new Ice.InitializationData()
+                Task task1 = Task.Run(() =>
                     {
-                        properties = communicator.getProperties().ice_clone_(),
-                    };
-                    initData.properties.setProperty("Ice.ServerIdleTime", "1");
-                    // The thread pool threads have to be idle first before server idle time is checked.
-                    initData.properties.setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
-                    using(Ice.Communicator idleCommunicator = Ice.Util.initialize(initData))
+                        Ice.InitializationData initData = new Ice.InitializationData()
+                        {
+                            properties = Ice.Util.createProperties(),
+                        };
+                        initData.properties.setProperty("Ice.ServerIdleTime", "1");
+                        // The thread pool threads have to be idle first before server idle time is checked.
+                        initData.properties.setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
+                        using(Ice.Communicator idleCommunicator = Ice.Util.initialize(initData))
+                        {
+                            ObjectAdapter idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
+                            idleOA.activate();
+                            idleCommunicator.waitForShutdown();
+                        }
+                    });
+                Task task2 = Task.Run(async () =>
                     {
-                        ObjectAdapter idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1 ");
-                        idleOA.activate();
-                        idleCommunicator.waitForShutdown();
-                    }
-                 }
-                 output.WriteLine("ok");
+                        Ice.InitializationData initData = new Ice.InitializationData()
+                        {
+                            properties = Ice.Util.createProperties(),
+                        };
+                        initData.properties.setProperty("Ice.ServerIdleTime", "0");
+                        // The thread pool threads have to be idle first before server idle time is checked.
+                        initData.properties.setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
+                        using(Ice.Communicator idleCommunicator = Ice.Util.initialize(initData))
+                        {
+                            ObjectAdapter idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
+                            idleOA.activate();
+                            await Task.Delay(1100);
+                            test(!idleCommunicator.isShutdown());
+                        }
+                    });
+                await task1;
+                await task2;
+                output.WriteLine("ok");
 
                 return obj;
             }
