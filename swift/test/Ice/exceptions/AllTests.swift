@@ -14,7 +14,7 @@ class ServantLocatorI: Ice.ServantLocator {
     func deactivate(_: String) {}
 }
 
-func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
+func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -338,7 +338,8 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     do {
         try thrower.throwLocalExceptionIdempotent()
         try test(false)
-    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {} catch {
+    } catch is Ice.UnknownLocalException {
+    } catch is Ice.OperationNotExistException {} catch {
         try test(false)
     }
     output.writeLine("ok")
@@ -368,506 +369,227 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     output.writeLine("ok")
 
     output.write("catching exact types with AMI mapping... ")
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwAasAAsync(1)
-        }.map {
-            try test(false)
-        }.catch { e in
-            do {
-                if let exc = e as? A {
-                    try test(exc.aMem == 1)
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
-
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwModAAsync(a: 1, a2: 2)
-        }.map {
-            try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? ModA {
-                    try test(ex.aMem == 1)
-                    try test(ex.a2Mem == 2)
-                } else if e is Ice.OperationNotExistException {
-                    //
-                    // This operation is not supported in Java.
-                    //
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
-
-    for i in [1, -1] {
-        try Promise<Void> { seal in
-            firstly {
-                thrower.throwAorDasAorDAsync(Int32(i))
-            }.map {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let ex = e as? A {
-                        try test(ex.aMem == 1)
-                    } else if let ex = e as? D {
-                        try test(ex.dMem == -1)
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
-                }
-            }
-        }.wait()
+    do {
+        try await thrower.throwAasAAsync(1)
+        try test(false)
+    } catch let ex as A {
+        try test(ex.aMem == 1)
     }
 
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwBasBAsync(a: 1, b: 2)
-        }.map {
-            try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? B {
-                    try test(ex.aMem == 1)
-                    try test(ex.bMem == 2)
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+    do {
+        try await thrower.throwModAAsync(a: 1, a2: 2)
+        try test(false)
+    } catch let ex as ModA {
+        try test(ex.aMem == 1)
+        try test(ex.a2Mem == 2)
+    } catch is Ice.OperationNotExistException {
+        // This operation is not supported in some languages (like Java).
+    }
 
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwCasCAsync(a: 1, b: 2, c: 3)
-        }.map {
+    for i in [1, -1] {
+        do {
+            try await thrower.throwAorDasAorDAsync(Int32(i))
             try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? C {
-                    try test(ex.aMem == 1)
-                    try test(ex.bMem == 2)
-                    try test(ex.cMem == 3)
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
+        } catch let ex as A {
+            try test(ex.aMem == 1)
+        } catch let ex as D {
+            try test(ex.dMem == -1)
         }
-    }.wait()
+    }
 
+    do {
+        try await thrower.throwBasBAsync(a: 1, b: 2)
+        try test(false)
+    } catch let ex as B {
+        try test(ex.aMem == 1)
+        try test(ex.bMem == 2)
+    }
+
+    do {
+        try await thrower.throwCasCAsync(a: 1, b: 2, c: 3)
+        try test(false)
+    } catch let ex as C {
+        try test(ex.aMem == 1)
+        try test(ex.bMem == 2)
+        try test(ex.cMem == 3)
+    }
     output.writeLine("ok")
 
     output.write("catching derived types with new AMI mapping... ")
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwBasAAsync(a: 1, b: 2)
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? B {
-                    try test(ex.aMem == 1)
-                    try test(ex.bMem == 2)
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+    do {
+        try await thrower.throwBasAAsync(a: 1, b: 2)
+        try test(false)
+    } catch let ex as B {
+        try test(ex.aMem == 1)
+        try test(ex.bMem == 2)
+    }
 
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwCasAAsync(a: 1, b: 2, c: 3)
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? C {
-                    try test(ex.aMem == 1)
-                    try test(ex.bMem == 2)
-                    try test(ex.cMem == 3)
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+    do {
+        try await thrower.throwCasAAsync(a: 1, b: 2, c: 3)
+        try test(false)
+    } catch let ex as C {
+        try test(ex.aMem == 1)
+        try test(ex.bMem == 2)
+        try test(ex.cMem == 3)
+    }
 
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwCasBAsync(a: 1, b: 2, c: 3)
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? C {
-                    try test(ex.aMem == 1)
-                    try test(ex.bMem == 2)
-                    try test(ex.cMem == 3)
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+    do {
+        try await thrower.throwCasBAsync(a: 1, b: 2, c: 3)
+        try test(false)
+    } catch let ex as C {
+        try test(ex.aMem == 1)
+        try test(ex.bMem == 2)
+        try test(ex.cMem == 3)
+    }
+
     output.writeLine("ok")
 
     if supportsUndeclaredExceptions {
         output.write("catching unknown user exception with new AMI mapping... ")
 
-        try Promise<Void> { seal in
-            firstly {
-                thrower.throwUndeclaredAAsync(1)
-            }.done {
-                try test(false)
-            }.catch { e in
-                if e is Ice.UnknownUserException {
-                    seal.fulfill(())
-                } else {
-                    seal.reject(e)
-                }
-            }
-        }.wait()
+        do {
+            try await thrower.throwUndeclaredAAsync(1)
+            try test(false)
+        } catch is Ice.UnknownUserException {}
 
-        try Promise<Void> { seal in
-            firstly {
-                thrower.throwUndeclaredBAsync(a: 1, b: 2)
-            }.done {
-                try test(false)
-            }.catch { e in
-                if e is Ice.UnknownUserException {
-                    seal.fulfill(())
-                } else {
-                    seal.reject(e)
-                }
-            }
-        }.wait()
+        do {
+            try await thrower.throwUndeclaredBAsync(a: 1, b: 2)
+            try test(false)
+        } catch is Ice.UnknownUserException {}
 
-        try Promise<Void> { seal in
-            firstly {
-                thrower.throwUndeclaredCAsync(a: 1, b: 2, c: 3)
-            }.done {
-                try test(false)
-            }.catch { e in
-                if e is Ice.UnknownUserException {
-                    seal.fulfill(())
-                } else {
-                    seal.reject(e)
-                }
-            }
-        }.wait()
+        do {
+            try await thrower.throwUndeclaredCAsync(a: 1, b: 2, c: 3)
+            try test(false)
+        } catch is Ice.UnknownUserException {}
 
         output.writeLine("ok")
     }
 
     output.write("catching object not exist exception with new AMI mapping... ")
-    try Promise<Void> { seal in
+    do {
         let id = try Ice.stringToIdentity("does not exist")
         let thrower2 = uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
-        firstly {
-            thrower2.throwAasAAsync(1)
-        }.done {
+        do {
+            try await thrower2.throwAasAAsync(1)
             try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? Ice.ObjectNotExistException {
-                    try test(ex.id == id)
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
+        } catch let ex as Ice.ObjectNotExistException {
+            try test(ex.id == id)
         }
-    }.wait()
+    }
     output.writeLine("ok")
 
     output.write("catching facet not exist exception with new AMI mapping... ")
-    try Promise<Void> { seal in
+    do {
         let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")
-        firstly {
-            thrower2.throwAasAAsync(1)
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? Ice.FacetNotExistException {
-                    try test(ex.facet == "no such facet")
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+        try await thrower2.throwAasAAsync(1)
+        try test(false)
+    } catch let ex as Ice.FacetNotExistException {
+        try test(ex.facet == "no such facet")
+    }
     output.writeLine("ok")
 
     output.write("catching operation not exist exception with new AMI mapping... ")
-    try Promise<Void> { seal in
+    do {
         let thrower4 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)
-        firstly {
-            thrower4.noSuchOperationAsync()
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? Ice.OperationNotExistException {
-                    try test(ex.operation == "noSuchOperation")
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+        try await thrower4.noSuchOperationAsync()
+        try test(false)
+    } catch let ex as Ice.OperationNotExistException {
+        try test(ex.operation == "noSuchOperation")
+    }
     output.writeLine("ok")
 
     output.write("catching unknown local exception with new AMI mapping... ")
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwLocalExceptionAsync()
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                try test(e is Ice.UnknownLocalException || e is Ice.OperationNotExistException)
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+    do {
+        try await thrower.throwLocalExceptionAsync()
+        try test(false)
+    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {}
 
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwLocalExceptionIdempotentAsync()
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                try test(e is Ice.UnknownLocalException || e is Ice.OperationNotExistException)
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+    do {
+        try await thrower.throwLocalExceptionIdempotentAsync()
+        try test(false)
+    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {}
     output.writeLine("ok")
 
     output.write("catching unknown non-Ice exception with new AMI mapping... ")
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwNonIceExceptionAsync()
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                try test(e is Ice.UnknownException)
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+
+    do {
+        try await thrower.throwNonIceExceptionAsync()
+        try test(false)
+    } catch is Ice.UnknownException {}
     output.writeLine("ok")
 
     if supportsUndeclaredExceptions {
         output.write("catching unknown user exception with new AMI mapping... ")
-        try Promise<Void> { seal in
-            firstly {
-                thrower.throwUndeclaredAAsync(1)
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    try test(e is Ice.UnknownUserException)
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
-                }
-            }
-        }.wait()
+        do {
+            try await thrower.throwUndeclaredAAsync(1)
+            try test(false)
+        } catch is Ice.UnknownUserException {}
 
-        try Promise<Void> { seal in
-            firstly {
-                thrower.throwUndeclaredBAsync(a: 1, b: 2)
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    try test(e is Ice.UnknownUserException)
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
-                }
-            }
-        }.wait()
+        do {
+            try await thrower.throwUndeclaredBAsync(a: 1, b: 2)
+            try test(false)
+        } catch is Ice.UnknownUserException {}
 
-        try Promise<Void> { seal in
-            firstly {
-                thrower.throwUndeclaredCAsync(a: 1, b: 2, c: 3)
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    try test(e is Ice.UnknownUserException)
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
-                }
-            }
-        }.wait()
+        do {
+            try await thrower.throwUndeclaredCAsync(a: 1, b: 2, c: 3)
+            try test(false)
+        } catch is Ice.UnknownUserException {}
         output.writeLine("ok")
     }
 
     output.write("catching object not exist exception with new AMI mapping... ")
-    try Promise<Void> { seal in
+    do {
         let id = try Ice.stringToIdentity("does not exist")
         let thrower2 = uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
-        firstly {
-            thrower2.throwAasAAsync(1)
-        }.done {
+        do {
+            try await thrower2.throwAasAAsync(1)
             try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? Ice.ObjectNotExistException {
-                    try test(ex.id == id)
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
+        } catch let ex as Ice.ObjectNotExistException {
+            try test(ex.id == id)
         }
-    }.wait()
+    }
     output.writeLine("ok")
 
     output.write("catching facet not exist exception with new AMI mapping... ")
-    try Promise<Void> { seal in
+    do {
         let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")
-        firstly {
-            thrower2.throwAasAAsync(1)
-        }.done {
+        do {
+            try await thrower2.throwAasAAsync(1)
             try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? Ice.FacetNotExistException {
-                    try test(ex.facet == "no such facet")
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
+        } catch let ex as Ice.FacetNotExistException {
+            try test(ex.facet == "no such facet")
         }
-    }.wait()
+    }
     output.writeLine("ok")
 
     output.write("catching operation not exist exception with new AMI mapping... ")
-    try Promise<Void> { seal in
+    do {
         let thrower4 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)
-        firstly {
-            thrower4.noSuchOperationAsync()
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                if let ex = e as? Ice.OperationNotExistException {
-                    try test(ex.operation == "noSuchOperation")
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+        try await thrower4.noSuchOperationAsync()
+        try test(false)
+    } catch let ex as Ice.OperationNotExistException {
+        try test(ex.operation == "noSuchOperation")
+    }
     output.writeLine("ok")
 
     output.write("catching unknown local exception with new AMI mapping... ")
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwLocalExceptionAsync()
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                try test(e is Ice.UnknownLocalException || e is Ice.OperationNotExistException)
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+    do {
+        try await thrower.throwLocalExceptionAsync()
+        try test(false)
+    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {}
 
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwLocalExceptionIdempotentAsync()
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                try test(e is Ice.UnknownLocalException || e is Ice.OperationNotExistException)
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+    do {
+        try await thrower.throwLocalExceptionIdempotentAsync()
+        try test(false)
+    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {}
     output.writeLine("ok")
 
     output.write("catching unknown non-Ice exception with new AMI mapping... ")
-    try Promise<Void> { seal in
-        firstly {
-            thrower.throwNonIceExceptionAsync()
-        }.done {
-            try test(false)
-        }.catch { e in
-            do {
-                try test(e is Ice.UnknownException)
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
-            }
-        }
-    }.wait()
+    do {
+        try await thrower.throwNonIceExceptionAsync()
+        try test(false)
+    } catch is Ice.UnknownException {}
     output.writeLine("ok")
+
     return thrower
 }

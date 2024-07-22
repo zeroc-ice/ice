@@ -57,7 +57,7 @@ let testDirectories: [String: TestConfig] = [
         sliceFiles: []
     ),
     "Ice/enums": TestConfig(collocated: false),
-    // "Ice/exceptions": TestConfig(amd: true),
+    "Ice/exceptions": TestConfig(),
     // "Ice/facets": TestConfig(collocated: true),
     // "Ice/hold": TestConfig(collocated: false),
     // "Ice/info": TestConfig(collocated: false),

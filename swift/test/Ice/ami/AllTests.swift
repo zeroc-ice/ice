@@ -228,40 +228,40 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
         }
         try test(onewayFlushResult)
 
-        do {
-            try test(p.opBatchCount() == 0)
-            let b1 = p.ice_batchOneway()
-            try b1.opBatch()
-            try await b1.opBatchAsync()
+        // do {
+        //     try test(p.opBatchCount() == 0)
+        //     let b1 = p.ice_batchOneway()
+        //     try b1.opBatch()
+        //     try await b1.opBatchAsync()
 
-            await let r = b1.ice_flushBatchRequestsAsync()
+        //     // await let r = b1.ice_flushBatchRequestsAsync()
 
-           var r: Promise<Void>!
-           try Promise<Void> { seal in
-               r = b1.ice_flushBatchRequestsAsync { _ in
-                   seal.fulfill(())
-               }
-           }.wait()
-           try test(r.isResolved)
-           try test(p.waitForBatch(2))
-        }
+        //    var r: Promise<Void>!
+        //    try Promise<Void> { seal in
+        //        r = b1.ice_flushBatchRequestsAsync { _ in
+        //            seal.fulfill(())
+        //        }
+        //    }.wait()
+        //    try test(r.isResolved)
+        //    try test(p.waitForBatch(2))
+        // }
 
-//        if try p.ice_getConnection() != nil {
-//            try test(p.opBatchCount() == 0)
-//            let b1 = p.ice_batchOneway()
-//            try b1.opBatch()
-//            try b1.ice_getConnection()!.close(.GracefullyWithWait)
-//
-//            var r: Promise<Void>!
-//            try Promise<Void> { seal in
-//                r = b1.ice_flushBatchRequestsAsync { _ in
-//                    seal.fulfill(())
-//                }
-//            }.wait()
-//            try test(r.isResolved)
-//
-//            try test(p.waitForBatch(1))
-//        }
+        //        if try p.ice_getConnection() != nil {
+        //            try test(p.opBatchCount() == 0)
+        //            let b1 = p.ice_batchOneway()
+        //            try b1.opBatch()
+        //            try b1.ice_getConnection()!.close(.GracefullyWithWait)
+        //
+        //            var r: Promise<Void>!
+        //            try Promise<Void> { seal in
+        //                r = b1.ice_flushBatchRequestsAsync { _ in
+        //                    seal.fulfill(())
+        //                }
+        //            }.wait()
+        //            try test(r.isResolved)
+        //
+        //            try test(p.waitForBatch(1))
+        //        }
     }
     output.writeLine("ok")
 

@@ -35,6 +35,6 @@ class Collocated: TestHelperI {
 
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
 
-        _ = try allTests(self)
+        _ = try await allTests(self)
     }
 }
