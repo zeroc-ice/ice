@@ -21,10 +21,6 @@ module Ice
             def checkedCast(proxy, facetOrContext=nil, context=nil)
                 ice_checkedCast(proxy, self::ICE_ID, facetOrContext, context)
             end
-
-            def uncheckedCast(proxy, facet=nil)
-                ice_uncheckedCast(proxy, facet)
-            end
         end
 
       def self.included(base)

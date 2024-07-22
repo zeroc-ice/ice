@@ -189,19 +189,19 @@ IceRuby_ObjectPrx_ice_getIdentity(VALUE self)
 extern "C" VALUE
 IceRuby_ObjectPrx_ice_identity(VALUE self, VALUE args)
 {
-    VALUE cls = Qnil;
-    long len = RARRAY_LEN(args);
-    if (len > 2 || len == 0)
-    {
-        rb_raise(rb_eArgError, "wrong number of arguments");
-    }
-    if (len == 2)
-    {
-        cls = rb_ary_entry(args, 1);
-    }
-
     ICE_RUBY_TRY
     {
+         VALUE cls = Qnil;
+        long len = RARRAY_LEN(args);
+        if (len > 2 || len == 0)
+        {
+            throw RubyException(rb_eArgError, "ice_identity requires one or two arguments");
+        }
+        if (len == 2)
+        {
+            cls = rb_ary_entry(args, 1);
+        }
+
         Ice::ObjectPrx p = getProxy(self);
         Ice::Identity ident = getIdentity(rb_ary_entry(args, 0));
         return createProxy(p->ice_identity(ident), cls);
@@ -256,19 +256,19 @@ IceRuby_ObjectPrx_ice_getFacet(VALUE self)
 extern "C" VALUE
 IceRuby_ObjectPrx_ice_facet(VALUE self, VALUE args)
 {
-    VALUE cls = Qnil;
-    long len = RARRAY_LEN(args);
-    if (len > 2 || len == 0)
-    {
-        rb_raise(rb_eArgError, "wrong number of arguments");
-    }
-    if (len == 2)
-    {
-        cls = rb_ary_entry(args, 1);
-    }
-
     ICE_RUBY_TRY
     {
+        VALUE cls = Qnil;
+        long len = RARRAY_LEN(args);
+        if (len > 2 || len == 0)
+        {
+            throw RubyException(rb_eArgError, "ice_facet requires one or two arguments");
+        }
+        if (len == 2)
+        {
+            cls = rb_ary_entry(args, 1);
+        }
+
         Ice::ObjectPrx p = getProxy(self);
         string f = getString(rb_ary_entry(args, 0));
         return createProxy(p->ice_facet(f), cls);
@@ -1033,47 +1033,6 @@ IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE /*self*/)
 }
 
 extern "C" VALUE
-IceRuby_ObjectPrx_uncheckedCast(int argc, VALUE* args, VALUE /*self*/)
-{
-    ICE_RUBY_TRY
-    {
-        if (argc < 1 || argc > 2)
-        {
-            throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument and an optional facet");
-        }
-
-        if (NIL_P(args[0]))
-        {
-            return Qnil;
-        }
-
-        if (!checkProxy(args[0]))
-        {
-            throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument");
-        }
-
-        volatile VALUE facet = Qnil;
-        if (argc == 2)
-        {
-            facet = args[1];
-        }
-
-        Ice::ObjectPrx p = getProxy(args[0]);
-
-        if (!NIL_P(facet))
-        {
-            return createProxy(p->ice_facet(getString(facet)));
-        }
-        else
-        {
-            return createProxy(p);
-        }
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
 IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOrContext, VALUE ctx)
 {
     //
@@ -1126,10 +1085,23 @@ IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOr
 }
 
 extern "C" VALUE
-IceRuby_ObjectPrx_ice_uncheckedCast(VALUE self, VALUE obj, VALUE facet)
+IceRuby_ObjectPrx_uncheckedCast(VALUE self, VALUE args)
 {
     ICE_RUBY_TRY
     {
+        VALUE facet = Qnil;
+        long len = RARRAY_LEN(args);
+        if (len > 2 || len == 0)
+        {
+            throw RubyException(rb_eArgError, "uncheckedCast requires one or two arguments");
+        }
+
+        VALUE obj = rb_ary_entry(args, 0);
+        if (len == 2)
+        {
+            facet = rb_ary_entry(args, 1);
+        }
+
         if (NIL_P(obj))
         {
             return Qnil;
@@ -1264,9 +1236,8 @@ IceRuby::initProxy(VALUE iceModule)
     // Static methods.
     //
     rb_define_singleton_method(_proxyClass, "checkedCast", CAST_METHOD(IceRuby_ObjectPrx_checkedCast), -1);
-    rb_define_singleton_method(_proxyClass, "uncheckedCast", CAST_METHOD(IceRuby_ObjectPrx_uncheckedCast), -1);
+    rb_define_singleton_method(_proxyClass, "uncheckedCast", CAST_METHOD(IceRuby_ObjectPrx_uncheckedCast), -2);
     rb_define_singleton_method(_proxyClass, "ice_checkedCast", CAST_METHOD(IceRuby_ObjectPrx_ice_checkedCast), 4);
-    rb_define_singleton_method(_proxyClass, "ice_uncheckedCast", CAST_METHOD(IceRuby_ObjectPrx_ice_uncheckedCast), 2);
     rb_define_singleton_method(_proxyClass, "ice_staticId", CAST_METHOD(IceRuby_ObjectPrx_ice_staticId), 0);
     rb_define_singleton_method(_proxyClass, "new", CAST_METHOD(IceRuby_ObjectPrx_new), 2);
 }
