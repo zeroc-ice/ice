@@ -4,6 +4,8 @@ import IcePy
 from .Logger import Logger
 from .LoggerI import LoggerI
 
+__name__ = "Ice"
+
 def getProcessLogger():
     """Returns the default logger object."""
     logger = IcePy.getProcessLogger()

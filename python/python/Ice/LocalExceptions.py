@@ -211,7 +211,7 @@ class AlreadyRegisteredException(LocalException):
         The kind of object that could not be removed: "servant", "facet", "object", "default servant",
         "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
         "replica group".
-    id: Ice.Identity
+    id: str
         The ID (or name) of the object that is registered already.
     """
 

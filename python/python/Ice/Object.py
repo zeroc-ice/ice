@@ -8,38 +8,77 @@ import Ice.BuiltinSequences_ice
 from .Future import Future
 
 class Object(object):
-    def ice_isA(self, id, current=None):
-        """Determines whether the target object supports the interface denoted
-        by the given Slice type id.
-        Arguments:
-            id The Slice type id
-        Returns:
-            True if the target object supports the interface, or False otherwise."""
+    def ice_isA(self, id, current):
+        """
+        Determine whether the target object supports the interface denoted by the given Slice type ID.
+
+        Parameters
+        ----------
+        id : str
+            The Slice type ID.
+        current : Ice.Current
+            The current context.
+
+        Returns
+        -------
+        bool
+            True if the target object supports the interface, False otherwise.
+        """
         return id in self.ice_ids(current)
 
-    def ice_ping(self, current=None):
-        """A reachability test for the target object."""
+    def ice_ping(self, current):
+        """
+        A reachability test for the target object.
+
+        Parameters
+        ----------
+        current : Ice.Current
+            The current context.
+        """
         pass
 
     def ice_ids(self, current=None):
-        """Obtains the type ids corresponding to the Slice interface
-        that are supported by the target object.
-        Returns:
-            A list of type ids."""
+        """
+        Obtain the type IDs corresponding to the Slice interfaces that are supported by the target object.
+
+        Parameters
+        ----------
+        current : Ice.Current
+            The current context.
+
+        Returns
+        -------
+        list of str
+            A list of type IDs.
+        """
         return [self.ice_id(current)]
 
     def ice_id(self, current=None):
-        """Obtains the type id corresponding to the most-derived Slice
-        interface supported by the target object.
-        Returns:
-            The type id."""
+        """
+        Obtain the type ID corresponding to the most-derived Slice interface supported by the target object.
+
+        Parameters
+        ----------
+        current : Ice.Current
+            The current context.
+
+        Returns
+        -------
+        str
+            The type ID.
+        """
         return "::Ice::Object"
 
     @staticmethod
     def ice_staticId():
-        """Obtains the type id of this Slice class or interface.
-        Returns:
-            The type id."""
+        """
+        Obtain the type ID of this Slice class or interface.
+
+        Returns
+        -------
+        str
+            The type ID.
+        """
         return "::Ice::Object"
 
     def _iceDispatch(self, cb, method, args):

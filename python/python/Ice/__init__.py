@@ -56,10 +56,10 @@ from .EndpointSelectionType import *
 from .ObjectAdapter import *
 from .ValueFactory import *
 from .ConnectionClose import *
-from .CompressBatch import *
+from .CompressBatch import CompressBatch
 from .ServantLocator import *
 from .InitializationData import *
-from .Properties import *
+from .Properties import Properties
 from .Logger import *
 from .BatchRequestInterceptor import *
 from .LocalExceptions import *

@@ -40,11 +40,44 @@ def initialize(args=None, data=None):
     communicator = IcePy.Communicator(args, data)
     return CommunicatorI(communicator)
 
-def identityToString(id, toStringMode=None):
-    return IcePy.identityToString(id, toStringMode)
+def identityToString(identity, toStringMode=None):
+    """
+    Convert an object identity to a string.
+
+    Parameters
+    ----------
+    identity : Ice.Identity
+        The object identity to convert.
+    toStringMode : Ice.ToStringMode, optional
+        Specifies if and how non-printable ASCII characters are escaped in the result.
+
+    Returns
+    -------
+    str
+        The string representation of the object identity.
+    """
+    return IcePy.identityToString(identity, toStringMode)
 
 
 def stringToIdentity(str):
+    """
+    Convert a string to an object identity.
+
+    Parameters
+    ----------
+    str : str
+        The string to convert.
+
+    Returns
+    -------
+    Ice.Identity
+        The converted object identity.
+
+    Raises
+    ------
+    ParseException
+        If the string cannot be converted to an object identity.
+    """
     return IcePy.stringToIdentity(str)
 
 
