@@ -97,7 +97,7 @@ let testDirectories: [String: TestConfig] = [
     "Ice/servantLocator": TestConfig(
         sources: defaultSources + ["ServantLocatorI.swift"]
     ),
-    // "Ice/services": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: []),
+    "Ice/services": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: []),
     // "Ice/slicing/exceptions": TestConfig(
     //     collocated: false,
     //     sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"],
