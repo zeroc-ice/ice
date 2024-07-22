@@ -623,7 +623,12 @@ classdef AllTests
             loc = Ice.LocatorPrx.checkedCast(base);
             assert(isempty(loc));
 
-            assert(isempty(MyClassPrx.checkedCast(cl, 'facet')));
+            try
+                MyClassPrx.checkedCast(cl, 'facet');
+                assert(false);
+            catch ex
+                assert(isa(ex, 'Ice.FacetNotExistException'));
+            end
 
             %
             % Upcasting
