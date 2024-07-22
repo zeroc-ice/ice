@@ -56,7 +56,8 @@ module Glacier2
         /// @see Session
         /// @see SessionManager
         /// @see PermissionsVerifier
-        ["amd", "format:sliced"] Session* createSession(string userId, string password)
+        ["amd"]
+        Session* createSession(string userId, string password)
             throws PermissionDeniedException, CannotCreateSessionException;
 
         /// Create a per-client session with the router. The user is authenticated through the SSL certificates that
@@ -73,7 +74,8 @@ module Glacier2
         /// @throws PermissionDeniedException Raised if the user cannot be authenticated or if the user is not allowed
         /// access.
         /// @throws CannotCreateSessionException Raised if the session cannot be created.
-        ["amd", "format:sliced"] Session* createSessionFromSecureConnection()
+        ["amd"]
+        Session* createSessionFromSecureConnection()
             throws PermissionDeniedException, CannotCreateSessionException;
 
         /// Keep the session with this router alive. This operation is provided for backward compatibility with Ice 3.7
