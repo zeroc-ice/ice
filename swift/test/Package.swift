@@ -92,7 +92,7 @@ let testDirectories: [String: TestConfig] = [
         ]
     ),
     // "Ice/proxy": TestConfig(amd: true),
-    // "Ice/retry": TestConfig(),
+    "Ice/retry": TestConfig(),
     "Ice/scope": TestConfig(collocated: false),
     "Ice/servantLocator": TestConfig(
         sources: defaultSources + ["ServantLocatorI.swift"]

@@ -30,7 +30,7 @@ class Client: TestHelperI {
                 communicator2.destroy()
             }
 
-            let r = try allTests(
+            let r = try await allTests(
                 helper: self,
                 communicator2: communicator2,
                 ref: "retry:\(getTestEndpoint(num: 0))")

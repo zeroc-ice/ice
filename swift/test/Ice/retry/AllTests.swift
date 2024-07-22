@@ -4,7 +4,7 @@ import Ice
 import PromiseKit
 import TestCommon
 
-public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: String) throws
+public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: String) async throws
     -> RetryPrx
 {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
@@ -44,22 +44,22 @@ public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: S
     output.writeLine("ok")
 
     output.write("calling regular AMI operation with first proxy... ")
-    try retry1.opAsync(false).wait()
+    try await retry1.opAsync(false)
     output.writeLine("ok")
 
     output.write("calling AMI operation to kill connection with second proxy... ")
     do {
-        try retry2.opAsync(true).wait()
+        try await retry2.opAsync(true)
     } catch is Ice.ConnectionLostException {} catch is Ice.UnknownLocalException {}
     output.writeLine("ok")
 
     output.write("calling regular AMI operation with first proxy again... ")
-    try retry1.opAsync(false).wait()
+    try await retry1.opAsync(false)
     output.writeLine("ok")
 
     output.write("testing idempotent operation... ")
     try test(retry1.opIdempotent(4) == 4)
-    try test(retry1.opIdempotentAsync(4).wait() == 4)
+    try await test(retry1.opIdempotentAsync(4) == 4)
     output.writeLine("ok")
 
     output.write("testing non-idempotent operation... ")
@@ -69,7 +69,7 @@ public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: S
     } catch is Ice.LocalException {}
 
     do {
-        try retry1.opNotIdempotentAsync().wait()
+        try await retry1.opNotIdempotentAsync()
         try test(false)
     } catch is Ice.LocalException {}
     output.writeLine("ok")
@@ -89,7 +89,7 @@ public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: S
 
     do {
         // No more than 2 retries before timeout kicks-in
-        _ = try retry2.ice_invocationTimeout(500).opIdempotentAsync(4).wait()
+        _ = try await retry2.ice_invocationTimeout(500).opIdempotentAsync(4)
         try test(false)
     } catch is Ice.InvocationTimeoutException {
         _ = try retry2.opIdempotent(-1)  // Reset the counter
