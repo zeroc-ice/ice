@@ -15,7 +15,7 @@ TestIntfI::opShortArray(pair<const int16_t*, const int16_t*> inSeq, ShortSeq& ou
 {
 #ifdef ICE_UNALIGNED
     // Verify inSeq is not aligned and holds the expected values.
-    test(reinterpret_cast<size_t>(inSeq.first) % 8 != 0);
+    test(reinterpret_cast<size_t>(inSeq.first) % sizeof(int16_t) != 0);
     for (int i = 0; i < inSeq.second - inSeq.first; ++i)
     {
         test(inSeq.first[i] == i + 1);
@@ -31,7 +31,7 @@ TestIntfI::opDoubleArray(bool, pair<const double*, const double*> inSeq, DoubleS
 {
 #ifdef ICE_UNALIGNED
     // Verify inSeq is not aligned.
-    test(reinterpret_cast<size_t>(inSeq.first) % 8 != 0);
+    test(reinterpret_cast<size_t>(inSeq.first) % sizeof(double) != 0);
     test(*(inSeq.first) == 3.14);
 #endif
 
