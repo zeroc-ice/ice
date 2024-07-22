@@ -19,7 +19,7 @@ TestIntfI::opShortArrayAsync(
 {
 #ifdef ICE_UNALIGNED
     // Verify inSeq is not aligned and holds the expected values.
-    test(reinterpret_cast<size_t>(inSeq.first) % 8 != 0);
+    test(reinterpret_cast<size_t>(inSeq.first) % sizeof(int16_t) != 0);
     for (int i = 0; i < static_cast<int>(inSeq.second - inSeq.first); ++i)
     {
         test(inSeq.first[i] == i + 1);
@@ -38,7 +38,7 @@ TestIntfI::opDoubleArrayAsync(
 {
 #ifdef ICE_UNALIGNED
     // Verify inSeq is not aligned.
-    test(reinterpret_cast<size_t>(in.first) % 8 != 0);
+    test(reinterpret_cast<size_t>(in.first) % sizeof(double) != 0);
     test(*(in.first) == 3.14);
 #endif
 
