@@ -382,9 +382,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "return  $communicator->stringToProxy($proxyString, '" << scoped << "');";
     _out << eb;
 
-    _out << sp << nl << "public static function checkedCast($proxy, $facetOrContext=null, $context=null)";
+    _out << sp << nl << "public static function checkedCast($proxy, ...$args)";
     _out << sb;
-    _out << nl << "return $proxy->ice_checkedCast('" << scoped << "', $facetOrContext, $context);";
+    _out << nl << "return $proxy->ice_checkedCast('" << scoped << "', ...$args);";
     _out << eb;
 
     _out << sp << nl << "public static function uncheckedCast($proxy, $facet=null)";
