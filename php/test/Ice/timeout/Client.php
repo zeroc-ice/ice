@@ -35,9 +35,11 @@ function connect($prx)
 
 function allTests($helper)
 {
-    $controller = $helper->communicator()->stringToProxy(sprintf("controller:%s", $helper->getTestEndpoint(1)));
-    $controller = $controller->ice_checkedCast("::Test::Controller");
-    test($controller);
+    $communicator = $helper->communicator();
+    $controller = Test\ControllerPrxHelper::createProxy(
+        $communicator,
+        sprintf("controller:%s", $helper->getTestEndpoint(1)));
+
     try
     {
         allTestsWithController($helper, $controller);
@@ -55,11 +57,7 @@ function allTestsWithController($helper, $controller)
 {
     $communicator = $helper->communicator();
     $sref = sprintf("timeout:%s", $helper->getTestEndpoint());
-    $timeout = $communicator->stringToProxy($sref);
-    test($timeout);
-
-    $timeout = $timeout->ice_checkedCast("::Test::Timeout");
-    test($timeout);
+    $timeout = Test\TimeoutPrxHelper::createProxy($communicator, $sref);
 
     echo("testing invocation timeout... ");
     flush();
@@ -77,7 +75,7 @@ function allTestsWithController($helper, $controller)
         }
 
         $timeout->ice_ping();
-        $to = $timeout->ice_invocationTimeout(1000)->ice_checkedCast("::Test::Timeout");
+        $to = $timeout->ice_invocationTimeout(1000);
         test($connection == $to->ice_getConnection());
         $to->sleep(100);
         test($connection == $to->ice_getConnection());
