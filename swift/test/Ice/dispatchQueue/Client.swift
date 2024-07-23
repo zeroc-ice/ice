@@ -37,8 +37,7 @@ public class Client: TestHelperI {
                 try communicator.getServerDispatchQueue().async {
                     continuation.resume()
                 }
-            }
-            catch {
+            } catch {
                 continuation.resume(throwing: error)
             }
 
@@ -49,8 +48,7 @@ public class Client: TestHelperI {
                 try adapter.getDispatchQueue().async {
                     continuation.resume()
                 }
-            }
-            catch {
+            } catch {
                 continuation.resume(throwing: error)
             }
         }

@@ -37,6 +37,6 @@ class Collocated: TestHelperI {
             servant: MyDerivedClassDisp(MyDerivedClassI(self)),
             id: Ice.stringToIdentity("test"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
-        _ = try allTests(helper: self)
+        _ = try await allTests(helper: self)
     }
 }

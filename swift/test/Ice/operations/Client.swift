@@ -16,7 +16,7 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        let cl = try allTests(helper: self)
+        let cl = try await allTests(helper: self)
         try cl.shutdown()
     }
 }

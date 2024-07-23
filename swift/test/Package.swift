@@ -68,13 +68,12 @@ let testDirectories: [String: TestConfig] = [
     "Ice/objects": TestConfig(
         sliceFiles: defaultSliceFiles + ["Derived.ice", "DerivedEx.ice", "Forward.ice"]
     ),
-    // "Ice/operations": TestConfig(
-    //     sources: defaultSources + [
-    //         "BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift",
-    //         "TwowaysAMI.swift",
-    //     ],
-    //     amd: true
-    // ),
+    "Ice/operations": TestConfig(
+        sources: defaultSources + [
+            "BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift",
+            "TwowaysAMI.swift",
+        ]
+    ),
     // "Ice/optional": TestConfig(
     //     collocated: false
     // ),
