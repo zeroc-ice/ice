@@ -23,18 +23,6 @@ extensions = [
     'sphinx.ext.napoleon',
 ]
 
-autoapi_dirs = ['../python']
-autoapi_options = [
-#    'members',
-    'inherited-members',
-#    'undoc-members',
-#    'private-members',
-#    'special-members',
-    'show-inheritance',
-    'show-module-summary',
-    'imported-members',
-]
-
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
