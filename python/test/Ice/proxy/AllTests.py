@@ -777,7 +777,12 @@ def allTests(helper, communicator, collocated):
     test(cl == base)
     test(derived == base)
     test(cl == derived)
-    test(Test.MyDerivedClassPrx.checkedCast(cl, "facet") is None)
+
+    try:
+        Test.MyDerivedClassPrx.checkedCast(cl, "facet")
+        test(False)
+    except Ice.FacetNotExistException:
+        pass
 
     loc = Ice.LocatorPrx.checkedCast(base)
     test(loc is None)
