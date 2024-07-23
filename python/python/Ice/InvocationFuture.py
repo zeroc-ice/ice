@@ -109,3 +109,5 @@ class InvocationFuture(Future):
                 )
         else:
             logging.getLogger("Ice.Future").exception(msg)
+
+__all__ = ["InvocationFuture"]

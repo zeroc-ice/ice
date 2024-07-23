@@ -4,3 +4,5 @@ class LocalException(Exception):
     """The base class for all Ice run-time exceptions."""
 
     __module__ = "Ice"
+
+__all__ = ["LocalException"]

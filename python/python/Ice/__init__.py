@@ -39,9 +39,9 @@ IcePy._t_ObjectPrx = IcePy.declareProxy("::Ice::Object")
 from .Future import *
 from .InvocationFuture import *
 from .Value import *
-from .Object import *
-from .Blobject import *
-from .BlobjectAsync import *
+from .Object import Object
+from .Blobject import Blobject
+from .BlobjectAsync import BlobjectAsync
 from .FormatType import *
 from .PropertiesAdminUpdateCallback import *
 from .Util import *

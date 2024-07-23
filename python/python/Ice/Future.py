@@ -183,3 +183,5 @@ class Future(FutureBase):
     StateRunning = "running"
     StateCancelled = "cancelled"
     StateDone = "done"
+
+__all__ = ["Future", "wrap_future", "BaseFuture"]

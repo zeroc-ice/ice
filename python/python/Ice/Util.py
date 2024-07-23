@@ -3,8 +3,8 @@
 import os
 import sys
 import IcePy
-from .PropertiesI import PropertiesI
-from .CommunicatorI import CommunicatorI
+from ._PropertiesI import PropertiesI
+from ._CommunicatorI import CommunicatorI
 
 __name__ = "Ice"
 
@@ -163,3 +163,5 @@ def getSliceDir():
             return dir
 
     return None
+
+__all__ = [ "initialize", "identityToString", "stringToIdentity", "createProperties", "getSliceDir" ]

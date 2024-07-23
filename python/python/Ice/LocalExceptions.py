@@ -359,3 +359,42 @@ class TwowayOnlyException(LocalException):
     an operation with ice_oneway, ice_batchOneway, ice_datagram, or ice_batchDatagram and the operation has a return
     value, out-parameters, or an exception specification.
     """
+
+__all__ = [
+    'RequestFailedException',
+    'ObjectNotExistException',
+    'FacetNotExistException',
+    'OperationNotExistException',
+    'UnknownException',
+    'UnknownLocalException',
+    'UnknownUserException',
+    'ProtocolException',
+    'CloseConnectionException',
+    'DatagramLimitException',
+    'MarshalException',
+    'TimeoutException',
+    'ConnectTimeoutException',
+    'CloseTimeoutException',
+    'InvocationTimeoutException',
+    'SyscallException',
+    'DNSException',
+    'SocketException',
+    'ConnectFailedException',
+    'ConnectionLostException',
+    'ConnectionRefusedException',
+    'AlreadyRegisteredException',
+    'CommunicatorDestroyedException',
+    'ConnectionAbortedException',
+    'ConnectionClosedException',
+    'FeatureNotSupportedException',
+    'FixedProxyException',
+    'InitializationException',
+    'InvocationCanceledException',
+    'NoEndpointException',
+    'NotRegisteredException',
+    'ObjectAdapterDeactivatedException',
+    'ObjectAdapterIdInUseException',
+    'ParseException',
+    'SecurityException',
+    'TwowayOnlyException'
+]

@@ -8,6 +8,9 @@ import Ice.BuiltinSequences_ice
 from .Future import Future
 
 class Object(object):
+    """
+    The base class for servants.
+    """
     def ice_isA(self, id, current):
         """
         Determine whether the target object supports the interface denoted by the given Slice type ID.

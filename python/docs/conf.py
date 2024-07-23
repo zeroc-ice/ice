@@ -19,14 +19,20 @@ release = '3.8.0a'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
-    'sphinx_autodoc_typehints',
+    'autoapi.extension',
 ]
 
-# Ensure that type hints from .pyi files are included in the documentation
-autodoc_typehints = 'both'
+autoapi_dirs = ['../python']
+autoapi_options = [ 
+#    'members',
+    'inherited-members',
+#    'undoc-members',
+#    'private-members',
+#    'special-members', 
+    'show-inheritance', 
+    'show-module-summary', 
+    'imported-members', 
+]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

@@ -1,10 +1,10 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
 from .Communicator import Communicator
-from .PropertiesI import PropertiesI
-from .ObjectAdapterI import ObjectAdapterI
-from .ImplicitContextI import ImplicitContextI
-from .LoggerI import LoggerI
+from ._PropertiesI import PropertiesI
+from ._ObjectAdapterI import ObjectAdapterI
+from ._ImplicitContextI import ImplicitContextI
+from ._LoggerI import LoggerI
 from .Logger import Logger
 
 class CommunicatorI(Communicator):
