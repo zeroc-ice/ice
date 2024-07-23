@@ -25,8 +25,10 @@ $(test)_serveramd_sources       = ServerAMD.cpp \
                                   MyByteSeq.cpp \
                                   StringConverterI.cpp
 
-# For the include <MyByteSeq.h> in the generated code.
-$(test)_cppflags        := -I$(project)
+# Extra -I because we include <MyByteSeq.h> in the generated code.
+# ICE_UNALIGNED means enable unaligned decoding for integral types such as int32_t. It requires a little endian CPU.
+# TODO: should be turn on ICE_UNALIGNED only on some platforms?
+$(test)_cppflags        := -I$(project) -DICE_UNALIGNED
 
 #
 # Disable var tracking assignments for Linux with this test

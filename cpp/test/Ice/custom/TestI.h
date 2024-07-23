@@ -10,7 +10,11 @@
 class TestIntfI final : public Test::TestIntf
 {
 public:
-    Test::DoubleSeq opDoubleArray(std::pair<const double*, const double*>, Test::DoubleSeq&, const Ice::Current&) final;
+    Test::ShortSeq
+    opShortArray(std::pair<const std::int16_t*, const std::int16_t*>, Test::ShortSeq&, const Ice::Current&) final;
+
+    Test::DoubleSeq
+    opDoubleArray(bool, std::pair<const double*, const double*>, Test::DoubleSeq&, const Ice::Current&) final;
 
     Test::BoolSeq opBoolArray(std::pair<const bool*, const bool*>, Test::BoolSeq&, const Ice::Current&) final;
 

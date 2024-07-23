@@ -24,14 +24,6 @@
 #include <string>
 #include <string_view>
 
-// ICE_UNALIGNED means the platform is little endian and supports unaligned reads.
-// It's used only in this header file.
-#ifndef ICE_UNALIGNED
-#    if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
-#        define ICE_UNALIGNED
-#    endif
-#endif
-
 namespace IceInternal::Ex
 {
     ICE_API void throwUOE(const char* file, int line, const std::string&, const Ice::ValuePtr&);
@@ -591,7 +583,8 @@ namespace Ice
             }
         }
 
-#ifdef ICE_UNALIGNED // Optimization with unaligned reads
+#if defined(ICE_UNALIGNED) || (defined(_WIN32) && defined(ICE_API_EXPORTS))
+        // Optimization with unaligned reads
         void read(std::pair<const std::int16_t*, const std::int16_t*>& v) { unalignedRead(v); }
         void read(std::pair<const std::int32_t*, const std::int32_t*>& v) { unalignedRead(v); }
         void read(std::pair<const std::int64_t*, const std::int64_t*>& v) { unalignedRead(v); }
@@ -927,7 +920,7 @@ namespace Ice
         /// \endcond
 
     private:
-#ifdef ICE_UNALIGNED
+#if defined(ICE_UNALIGNED) || (defined(_WIN32) && defined(ICE_API_EXPORTS))
         template<typename T> void unalignedRead(std::pair<const T*, const T*>& v)
         {
             int sz = readAndCheckSeqSize(static_cast<int>(sizeof(T)));
