@@ -7,20 +7,9 @@ require_once('Test.php');
 
 function allTests($helper)
 {
-    echo "testing stringToProxy... ";
-    flush();
     $ref = sprintf("initial:%s", $helper->getTestEndpoint());
     $communicator = $helper->communicator();
-    $base = $communicator->stringToProxy($ref);
-    test($base != null);
-    echo "ok\n";
-
-    echo "testing checked cast... ";
-    flush();
-    $initial = $base->ice_checkedCast("::Test::Initial");
-    test($initial != null);
-    test($initial == $base);
-    echo "ok\n";
+    $initial = Test\InitialPrxHelper::createProxy($communicator, $ref);
 
     echo "getting proxies for interface hierarchy... ";
     flush();

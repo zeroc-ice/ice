@@ -29,11 +29,10 @@ function allTests($helper)
     test($b->_use == 0);
     test($b->_var == 0);
     $communicator = $helper->communicator();
-    $p = $communicator->stringToProxy("test:tcp -p 10000");
-    $c = _and\functionPrxHelper::uncheckedCast($p);
-    $d = _and\diePrxHelper::uncheckedCast($p);
+    $c = _and\functionPrxHelper::createProxy($communicator, "test:tcp -p 10000");
+    $d = _and\diePrxHelper::uncheckedCast($c);
     $e1 = new echoI();
-    $f = _and\enddeclarePrxHelper::uncheckedCast($p);
+    $f = _and\enddeclarePrxHelper::uncheckedCast($c);
     $g = new _and\_endif();
     $h = new _and\_endwhile();
     echo "ok\n";
