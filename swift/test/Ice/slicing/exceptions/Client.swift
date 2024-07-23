@@ -13,7 +13,7 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        let testIntf = try allTests(self)
+        let testIntf = try await allTests(self)
         try testIntf.shutdown()
     }
 }

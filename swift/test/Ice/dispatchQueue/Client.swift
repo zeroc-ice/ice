@@ -21,22 +21,40 @@ public class Client: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.activate()
 
-        let semaphore = DispatchSemaphore(value: 0)
-        try communicator.getClientDispatchQueue().async {
-            semaphore.signal()
+        try await withCheckedThrowingContinuation { continuation in
+            do {
+                try communicator.getClientDispatchQueue().async {
+                    continuation.resume()
+                }
+            } catch {
+                continuation.resume(throwing: error)
+            }
+
         }
 
-        semaphore.wait()
-        try communicator.getServerDispatchQueue().async {
-            semaphore.signal()
+        try await withCheckedThrowingContinuation { continuation in
+            do {
+                try communicator.getServerDispatchQueue().async {
+                    continuation.resume()
+                }
+            }
+            catch {
+                continuation.resume(throwing: error)
+            }
+
         }
 
-        semaphore.wait()
-        try adapter.getDispatchQueue().async {
-            semaphore.signal()
+        try await withCheckedThrowingContinuation { continuation in
+            do {
+                try adapter.getDispatchQueue().async {
+                    continuation.resume()
+                }
+            }
+            catch {
+                continuation.resume(throwing: error)
+            }
         }
 
-        semaphore.wait()
         output.writeLine("ok")
     }
 }

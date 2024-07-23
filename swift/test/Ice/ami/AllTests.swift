@@ -208,6 +208,15 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     //     }
     // }
 
+    let t = Task {
+        do {
+            try await p.ice_pingAsync()
+        } catch {
+            fatalError("unexpected error: \(error)")
+        }
+    }
+    print(t.status)
+
     // for cb in cbs {
     //     _ = try cb.wait()
     // }

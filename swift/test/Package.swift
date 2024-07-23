@@ -76,8 +76,7 @@ let testDirectories: [String: TestConfig] = [
     //     amd: true
     // ),
     // "Ice/optional": TestConfig(
-    //     collocated: false,
-    //     amd: true
+    //     collocated: false
     // ),
     "Ice/properties": TestConfig(
         collocated: false,
@@ -98,12 +97,10 @@ let testDirectories: [String: TestConfig] = [
         sources: defaultSources + ["ServantLocatorI.swift"]
     ),
     "Ice/services": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: []),
-    // "Ice/slicing/exceptions": TestConfig(
-    //     collocated: false,
-    //     sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"],
-    //     amd: true,
-    //     amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
-    // ),
+    "Ice/slicing/exceptions": TestConfig(
+        collocated: false,
+        sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"]
+    ),
     "Ice/slicing/objects": TestConfig(
         collocated: false,
         sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"]

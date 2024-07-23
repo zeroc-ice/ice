@@ -1654,8 +1654,7 @@ public func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
         }
         breakCycles(r!)
         breakCycles(pd)
-    }
-    catch is Ice.OperationNotExistException {}
+    } catch is Ice.OperationNotExistException {}
 
     do {
         //
