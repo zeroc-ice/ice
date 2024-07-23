@@ -7,7 +7,7 @@ def allTests(helper, communicator)
     print "test using same type name in different Slice modules... "
     STDOUT.flush
 
-    i1 = Test::IPrx::checkedCast(communicator.stringToProxy("i1:#{helper.getTestEndpoint()}"))
+    i1 = Test::IPrx.new(communicator, "i1:#{helper.getTestEndpoint()}")
 
     s1 = Test::S.new(0)
     s2, s3 = i1.opS(s1)
@@ -50,7 +50,7 @@ def allTests(helper, communicator)
     c = i1.opC1(Test::C1.new("C1"))
     test(c.s == "C1")
 
-    i2 = Test::Inner::Inner2::IPrx::checkedCast(Ice::ObjectPrx.new(communicator, "i2:#{helper.getTestEndpoint()}"))
+    i2 = Test::Inner::Inner2::IPrx.new(communicator, "i2:#{helper.getTestEndpoint()}")
 
     s1 = Test::Inner::Inner2::S.new(0)
     s2, s3 = i2.opS(s1)
@@ -84,7 +84,7 @@ def allTests(helper, communicator)
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i3 = Test::Inner::IPrx::checkedCast(communicator.stringToProxy("i3:#{helper.getTestEndpoint()}"))
+    i3 = Test::Inner::IPrx.new(communicator, "i3:#{helper.getTestEndpoint()}")
 
     s1 = Test::Inner::Inner2::S.new(0)
     s2, s3 = i3.opS(s1)
@@ -118,7 +118,7 @@ def allTests(helper, communicator)
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i4 = Inner::Test::Inner2::IPrx::checkedCast(communicator.stringToProxy("i4:#{helper.getTestEndpoint()}"))
+    i4 = Inner::Test::Inner2::IPrx.new(communicator, "i4:#{helper.getTestEndpoint()}")
 
     s1 = Test::S.new(0)
     s2, s3 = i4.opS(s1)

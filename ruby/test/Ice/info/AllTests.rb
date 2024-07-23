@@ -69,13 +69,12 @@ def allTests(helper, communicator)
     defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
     tcpEndpoint = helper.getTestEndpoint()
     udpEndpoint = helper.getTestEndpoint(protocol:"udp")
-    base = communicator.stringToProxy("test:#{tcpEndpoint}:#{udpEndpoint}")
-    testIntf = Test::TestIntfPrx::checkedCast(base)
+    testIntf = Test::TestIntfPrx.new(communicator, "test:#{tcpEndpoint}:#{udpEndpoint}")
 
     print "test connection endpoint information..."
     STDOUT.flush
     port = helper.getTestPort()
-    tcpinfo = getTCPEndpointInfo(base.ice_getConnection().getEndpoint().getInfo())
+    tcpinfo = getTCPEndpointInfo(testIntf.ice_getConnection().getEndpoint().getInfo())
     test(tcpinfo.port == port)
     test(!tcpinfo.compress)
     test(tcpinfo.host == defaultHost)
@@ -86,7 +85,7 @@ def allTests(helper, communicator)
     port = Integer(ctx["port"])
     test(port > 0)
 
-    udp = base.ice_datagram().ice_getConnection().getEndpoint().getInfo()
+    udp = testIntf.ice_datagram().ice_getConnection().getEndpoint().getInfo()
     test(udp.port == port)
     test(udp.host == defaultHost)
 
@@ -95,7 +94,7 @@ def allTests(helper, communicator)
     print "testing connection information..."
     STDOUT.flush
 
-    connection = base.ice_getConnection()
+    connection = testIntf.ice_getConnection()
     connection.setBufferSize(1024, 2048)
 
     info = connection.getInfo()
@@ -119,7 +118,7 @@ def allTests(helper, communicator)
     test(ctx["remotePort"] == tcpinfo.localPort.to_s())
     test(ctx["localPort"] == tcpinfo.remotePort.to_s())
 
-    if base.ice_getConnection().type() == "ws" || base.ice_getConnection().type() == "wss"
+    if testIntf.ice_getConnection().type() == "ws" || testIntf.ice_getConnection().type() == "wss"
         test(info.is_a?(Ice::WSConnectionInfo))
 
         test(info.headers["Upgrade"] == "websocket")

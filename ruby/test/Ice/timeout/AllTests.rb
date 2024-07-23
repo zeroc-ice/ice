@@ -17,9 +17,7 @@ def connect(prx)
 end
 
 def allTests(helper, communicator)
-    controller = Test::ControllerPrx::checkedCast(
-        Ice::ObjectPrx.new(communicator,"controller:#{helper.getTestEndpoint(num:1)}"))
-    test(controller)
+    controller = Test::ControllerPrx.new(communicator, "controller:#{helper.getTestEndpoint(num:1)}")
     begin
         allTestsWithController(helper, communicator, controller)
     rescue

@@ -60,21 +60,21 @@ def allTests(helper, communicator)
 
     print "testing checked cast... "
     STDOUT.flush
-    obj = Ice::ObjectPrx::checkedCast(db)
+    obj = Ice::ObjectPrx.checkedCast(db)
     test(obj.ice_getFacet() == "")
-    obj = Ice::ObjectPrx::checkedCast(db, "facetABCD")
+    obj = Ice::ObjectPrx.checkedCast(db, "facetABCD")
     test(obj.ice_getFacet() == "facetABCD")
-    obj2 = Ice::ObjectPrx::checkedCast(obj)
+    obj2 = Ice::ObjectPrx.checkedCast(obj)
     test(obj2.ice_getFacet() == "facetABCD")
-    obj3 = Ice::ObjectPrx::checkedCast(obj, "")
+    obj3 = Ice::ObjectPrx.checkedCast(obj, "")
     test(obj3.ice_getFacet() == "")
-    d = Test::DPrx::checkedCast(db)
+    d = Test::DPrx.checkedCast(db)
     test(d.ice_getFacet() == "")
-    df = Test::DPrx::checkedCast(db, "facetABCD")
+    df = Test::DPrx.checkedCast(db, "facetABCD")
     test(df.ice_getFacet() == "facetABCD")
-    df2 = Test::DPrx::checkedCast(df)
+    df2 = Test::DPrx.checkedCast(df)
     test(df2.ice_getFacet() == "facetABCD")
-    df3 = Test::DPrx::checkedCast(df, "")
+    df3 = Test::DPrx.checkedCast(df, "")
     test(df3.ice_getFacet() == "")
     puts "ok"
 
@@ -88,7 +88,7 @@ def allTests(helper, communicator)
 
     print "testing facets A, B, C, and D... "
     STDOUT.flush
-    df = Test::DPrx::checkedCast(d, "facetABCD")
+    df = Test::DPrx.checkedCast(d, "facetABCD")
     test(df)
     test(df.callA() == "A")
     test(df.callB() == "B")
@@ -98,7 +98,7 @@ def allTests(helper, communicator)
 
     print "testing facets E and F... "
     STDOUT.flush
-    ff = Test::FPrx::checkedCast(d, "facetEF")
+    ff = Test::FPrx.checkedCast(d, "facetEF")
     test(ff)
     test(ff.callE() == "E")
     test(ff.callF() == "F")
@@ -106,14 +106,14 @@ def allTests(helper, communicator)
 
     print "testing facet G... "
     STDOUT.flush
-    gf = Test::GPrx::checkedCast(ff, "facetGH")
+    gf = Test::GPrx.checkedCast(ff, "facetGH")
     test(gf)
     test(gf.callG() == "G")
     puts "ok"
 
     print "testing whether casting preserves the facet... "
     STDOUT.flush
-    hf = Test::HPrx::checkedCast(gf)
+    hf = Test::HPrx.checkedCast(gf)
     test(hf)
     test(hf.callG() == "G")
     test(hf.callH() == "H")
