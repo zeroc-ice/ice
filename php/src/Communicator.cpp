@@ -324,7 +324,7 @@ ZEND_METHOD(Ice_Communicator, stringToProxy)
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
-    // The second argument (the proxy type) is optional
+    // The second argument (the Slice type ID) is optional.
     if (ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 2)
     {
         WRONG_PARAM_COUNT;
