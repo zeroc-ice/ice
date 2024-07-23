@@ -36,6 +36,7 @@ IcePy._t_ObjectPrx = IcePy.declareProxy("::Ice::Object")
 #
 # Import local definitions that are part of the Ice module public API.
 #
+from .Current import *
 from .Future import *
 from .InvocationFuture import *
 from .Value import *
