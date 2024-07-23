@@ -62,7 +62,7 @@ let testDirectories: [String: TestConfig] = [
     // "Ice/hold": TestConfig(collocated: false),
     "Ice/info": TestConfig(collocated: false),
     "Ice/inheritance": TestConfig(),
-    // "Ice/invoke": TestConfig(collocated: false),
+    "Ice/invoke": TestConfig(collocated: false),
     "Ice/location": TestConfig(collocated: false),
     "Ice/middleware": TestConfig(collocated: false, sources: ["Client.swift", "AllTests.swift"]),
     "Ice/objects": TestConfig(
