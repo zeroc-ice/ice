@@ -501,11 +501,7 @@ ObjectPrx.checkedCast = function (prx, facet, ctx) {
                 r.resolve(ret ? new this(prx) : null);
             })
             .catch((ex) => {
-                if (ex instanceof FacetNotExistException) {
-                    r.resolve(null);
-                } else {
-                    r.reject(ex);
-                }
+                r.reject(ex);
             });
     }
 
