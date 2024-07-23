@@ -266,16 +266,6 @@ namespace Ice
         void setCompactIdResolver(std::function<std::string(int)> r);
 
         /**
-         * Indicates whether to slice instances of Slice classes to a known Slice type when a more
-         * derived type is unknown. An instance is "sliced" when no static information is available
-         * for a Slice type ID and no factory can be found for that type, resulting in the creation
-         * of an instance of a less-derived type. If slicing is disabled in this situation, the
-         * stream raises the exception MarshalException. The default behavior is to allow slicing.
-         * @param b True to enable slicing, false otherwise.
-         */
-        void setSliceValues(bool b);
-
-        /**
          * Indicates whether to log messages when instances of Slice classes are sliced. If the stream
          * is initialized with a communicator, this setting defaults to the value of the Ice.Trace.Slicing
          * property, otherwise the setting defaults to false.
@@ -994,12 +984,10 @@ namespace Ice
             EncapsDecoder(
                 InputStream* stream,
                 Encaps* encaps,
-                bool sliceValues,
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
                 : _stream(stream),
                   _encaps(encaps),
-                  _sliceValues(sliceValues),
                   _classGraphDepthMax(classGraphDepthMax),
                   _classGraphDepth(0),
                   _valueFactoryManager(f),
@@ -1027,7 +1015,6 @@ namespace Ice
 
             InputStream* _stream;
             Encaps* _encaps;
-            const bool _sliceValues;
             const size_t _classGraphDepthMax;
             size_t _classGraphDepth;
             Ice::ValueFactoryManagerPtr _valueFactoryManager;
@@ -1049,10 +1036,9 @@ namespace Ice
             EncapsDecoder10(
                 InputStream* stream,
                 Encaps* encaps,
-                bool sliceValues,
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
-                : EncapsDecoder(stream, encaps, sliceValues, classGraphDepthMax, f),
+                : EncapsDecoder(stream, encaps, classGraphDepthMax, f),
                   _sliceType(NoSlice)
             {
             }
@@ -1086,10 +1072,9 @@ namespace Ice
             EncapsDecoder11(
                 InputStream* stream,
                 Encaps* encaps,
-                bool sliceValues,
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
-                : EncapsDecoder(stream, encaps, sliceValues, classGraphDepthMax, f),
+                : EncapsDecoder(stream, encaps, classGraphDepthMax, f),
                   _preAllocatedInstanceData(0),
                   _current(0),
                   _valueIdIndex(1)
@@ -1233,8 +1218,6 @@ namespace Ice
         size_t _classGraphDepthMax;
 
         void* _closure;
-
-        bool _sliceValues;
 
         int _startSeq;
         int _minSeqSize;
