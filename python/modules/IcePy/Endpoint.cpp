@@ -134,9 +134,9 @@ namespace IcePy
     PyTypeObject EndpointType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "Ice.Endpoint", /* tp_name */
-        sizeof(EndpointObject),                     /* tp_basicsize */
-        0,                                          /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Endpoint", /* tp_name */
+        sizeof(EndpointObject),                       /* tp_basicsize */
+        0,                                            /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(endpointDealloc),  /* tp_dealloc */
         0,                                              /* tp_print */

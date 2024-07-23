@@ -516,7 +516,7 @@ class ObjectAdapter(object):
 
         Parameters
         ----------
-        locator : Ice.Locator
+        locator : Ice.LocatorPrx
             The locator used by this object adapter.
         """
         raise NotImplementedError("method 'setLocator' not implemented")
@@ -527,7 +527,7 @@ class ObjectAdapter(object):
 
         Returns
         -------
-        Ice.Locator or None
+        Ice.LocatorPrx or None
             The locator used by this object adapter, or None if no locator is used by this object adapter.
         """
         raise NotImplementedError("method 'getLocator' not implemented")

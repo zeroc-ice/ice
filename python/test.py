@@ -1,2 +1,0 @@
-import Ice
-Ice.createProperties()

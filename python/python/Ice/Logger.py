@@ -22,7 +22,7 @@ class Logger(object):
         message : str
             The message to log.
         """
-        raise NotImplementedError("method 'print' not implemented")
+        raise NotImplementedError("method '_print' not implemented")
 
     def trace(self, category, message):
         """
