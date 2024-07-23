@@ -245,7 +245,7 @@ namespace IcePy
     PyTypeObject CurrentType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "Ice.Current", /* tp_name */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.Current", /* tp_name */
         sizeof(CurrentObject),                     /* tp_basicsize */
         0,                                         /* tp_itemsize */
         /* methods */
@@ -308,12 +308,20 @@ PyObject*
 IcePy::createCurrent(const Ice::Current& current)
 {
     //
-    // Return an instance of IcePy.Current to hold the current information.
+    // Return an instance of Ice.Current to hold the current information.
     //
     CurrentObject* obj = currentNew(&CurrentType, 0, 0);
     if (obj)
     {
         *obj->current = current;
     }
-    return reinterpret_cast<PyObject*>(obj);
+
+    PyObject* currentType = lookupType("Ice._CurrentI.CurrentI");
+    assert(currentType);
+    PyObjectHandle args = PyTuple_New(1);
+    Py_INCREF(reinterpret_cast<PyObject*>(obj)); // PyTuple_SetItem steals the reference
+    PyTuple_SetItem(args.get(), 0, reinterpret_cast<PyObject*>(obj));
+    PyObject* currentWrapper = PyObject_CallObject(currentType, args.get());
+
+    return currentWrapper;
 }

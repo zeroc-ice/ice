@@ -13,7 +13,7 @@ from .EnumBase import EnumBase
 #
 # Add some symbols to the Ice module.
 #
-ObjectPrx = IcePy.ObjectPrx
+from .ObjectPrx import ObjectPrx
 stringVersion = IcePy.stringVersion
 intVersion = IcePy.intVersion
 currentProtocol = IcePy.currentProtocol
@@ -64,6 +64,7 @@ from .Logger import *
 from .BatchRequestInterceptor import *
 from .LocalExceptions import *
 from .Proxy import *
+from .Current import Current
 
 #
 # Import the generated code for the Ice module.

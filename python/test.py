@@ -1,0 +1,2 @@
+import Ice
+Ice.createProperties()

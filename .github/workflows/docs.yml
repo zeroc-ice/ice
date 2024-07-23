@@ -28,6 +28,9 @@ jobs:
       - name: Install doxygen and graphviz (a dependency of Doxygen for generating diagrams)
         run: brew install doxygen graphviz || true
 
+      - name: Install virtualenv for Python docs
+        run: pipx install virtualenv
+
       - name: Build C++
         working-directory: ./cpp
         run: make V=1 srcs
@@ -47,6 +50,17 @@ jobs:
         working-directory: ./js
         run: |
           make doc
+
+      - name: Generate Python Documentation
+        working-directory: ./python/docs
+        run: |
+          make -C ../cpp slice2py Ice IceDiscovery IceLocatorDiscovery
+          make -C ../
+          virtualenv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          make html
+          deactivate
 
       - name: Generate Documentation for Swift
         run: |

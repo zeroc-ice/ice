@@ -16,15 +16,6 @@ class RequestFailedException(LocalException):
     This exception is raised if a request failed. This exception, and all exceptions derived from
     RequestFailedException, are transmitted by the Ice protocol, even though they are declared
     local.
-
-    Attributes
-    ----------
-    id: Ice.Identity
-        The identity of the Ice Object to which the request was sent.
-    facet: str
-        The facet to which the request was sent.
-    operation: str
-        The operation name of the request.
     """
 
     def __init__(self, id=None, facet= "", operation="", msg=""):
@@ -35,14 +26,38 @@ class RequestFailedException(LocalException):
 
     @property
     def id(self):
+        """
+        The identity of the Ice Object to which the request was sent.
+
+        Returns
+        -------
+        Ice.Identity
+            The identity of the Ice Object to which the request was sent.
+        """
         return self.__id
 
     @property
     def facet(self):
+        """
+        The facet to which the request was sent.
+
+        Returns
+        -------
+        str
+            The facet to which the request was sent.
+        """
         return self.__facet
 
     @property
     def operation(self):
+        """
+        The operation name of the request.
+
+        Returns
+        -------
+        str
+            The operation name of the request.
+        """
         return self.__operation
 
 @final
@@ -204,15 +219,6 @@ class AlreadyRegisteredException(LocalException):
     An attempt was made to register something more than once with the Ice run time. This exception is raised if an
     attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
     user exception factory more than once for the same ID.
-
-    Attributes
-    ----------
-    kindOfObject: str
-        The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-        "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
-        "replica group".
-    id: str
-        The ID (or name) of the object that is registered already.
     """
 
     def __init__(self, kindOfObject, id, msg):
@@ -222,10 +228,39 @@ class AlreadyRegisteredException(LocalException):
 
     @property
     def kindOfObject(self):
+        """
+        The kind of object that could not be removed.
+
+        This property can have one of the following values:
+
+        - "servant"
+        - "facet"
+        - "object"
+        - "default servant"
+        - "servant locator"
+        - "value factory"
+        - "plugin"
+        - "object adapter"
+        - "object adapter with router"
+        - "replica group"
+
+        Returns
+        -------
+        str
+            The kind of object that could not be removed.
+        """
         return self.__kindOfObject
 
     @property
     def id(self):
+        """
+        The ID (or name) of the object that is already registered.
+
+        Returns
+        -------
+        str
+            The ID of the registered object.
+        """
         return self.__id
 
 @final
@@ -304,14 +339,6 @@ class NotRegisteredException(LocalException):
     object adapter, object, or user exception factory that is not currently registered. It's also raised if the Ice
     locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter is
     activated.
-
-    Attributes
-    ----------
-    kindOfObject: str
-        The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-        "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica group".
-    id: str
-        The ID (or name) of the object that could not be removed.
     """
 
     def __init__(self, kindOfObject, id, msg):
@@ -321,10 +348,39 @@ class NotRegisteredException(LocalException):
 
     @property
     def kindOfObject(self):
+        """
+        The kind of object that could not be removed.
+
+        This property can have one of the following values:
+
+        - "servant"
+        - "facet"
+        - "object"
+        - "default servant"
+        - "servant locator"
+        - "value factory"
+        - "plugin"
+        - "object adapter"
+        - "object adapter with router"
+        - "replica group"
+
+        Returns
+        -------
+        str
+            The kind of object that could not be removed.
+        """
         return self.__kindOfObject
 
     @property
     def id(self):
+        """
+        The ID (or name) of the object that could not be removed.
+
+        Returns
+        -------
+        str
+            The ID of the object that could not be removed.
+        """
         return self.__id
 
 @final

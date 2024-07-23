@@ -19,19 +19,20 @@ release = '3.8.0a'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'autoapi.extension',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
 ]
 
 autoapi_dirs = ['../python']
-autoapi_options = [ 
+autoapi_options = [
 #    'members',
     'inherited-members',
 #    'undoc-members',
 #    'private-members',
-#    'special-members', 
-    'show-inheritance', 
-    'show-module-summary', 
-    'imported-members', 
+#    'special-members',
+    'show-inheritance',
+    'show-module-summary',
+    'imported-members',
 ]
 
 templates_path = ['_templates']

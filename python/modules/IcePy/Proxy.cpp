@@ -2249,8 +2249,7 @@ IcePy::createProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& comm
 {
     if (!type)
     {
-        PyTypeObject* proxyType = &ProxyType; // Necessary to prevent GCC's strict-alias warnings.
-        type = reinterpret_cast<PyObject*>(proxyType);
+        type = lookupType("Ice.ObjectPrx");
     }
     return reinterpret_cast<PyObject*>(allocateProxy(proxy, communicator, type));
 }
