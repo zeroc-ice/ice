@@ -56,8 +56,8 @@ jobs:
         run: |
           make -C ../cpp slice2py Ice IceDiscovery IceLocatorDiscovery
           make -C ../
-          virtualenv venv
-          source venv/bin/activate
+          virtualenv .venv
+          source .venv/bin/activate
           pip install -r requirements.txt
           make html
           deactivate
@@ -85,6 +85,8 @@ jobs:
           aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_DOC_BUCKET}/api/ice/main/icecpp.tag
 
           aws s3 sync ./js/docs s3://${AWS_S3_DOC_BUCKET}/api/ice/main/js --delete
+
+          aws s3 sync ./python/docs/_build/html s3://${AWS_S3_DOC_BUCKET}/api/ice/main/python --delete
 
           for target in Ice Glacier2 IceGrid IceStorm; do
             aws s3 sync ./swift/docs/$target s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/$target --delete
