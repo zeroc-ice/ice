@@ -437,7 +437,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
             _out << nl << "  An object containing the marshaled result.";
             _out << nl << tripleQuotes;
             _out << nl << "return IcePy.MarshaledResult(result, _M_" << getAbsolute(p) << "._op_" << fixedOpName
-                 << ", current.adapter.getCommunicator().getImpl(), current.encoding)";
+                 << ", current.adapter.getCommunicator()._getImpl(), current.encoding)";
             _out.dec();
         }
 
