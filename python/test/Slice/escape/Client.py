@@ -12,23 +12,23 @@ import _and
 
 
 class delI(_and._del):
-    def _elifAsync(self, _else, current=None):
+    def _elifAsync(self, _else, current):
         pass
 
 
 class execI(_and._exec):
-    def _finally(self, current=None):
+    def _finally(self, current):
         assert current.operation == "finally"
 
 
 class ifI(_and._if):
-    def _elifAsync(self, _else, current=None):
+    def _elifAsync(self, _else, current):
         pass
 
-    def _finally(self, current=None):
+    def _finally(self, current):
         pass
 
-    def foo(self, _from, current=None):
+    def foo(self, _from, current):
         pass
 
 

@@ -108,17 +108,6 @@ declare module "ice" {
             compactIdResolver: (compactID: number) => string;
 
             //
-            // Determines the behavior of the stream when extracting instances of Slice classes.
-            // A instance is "sliced" when a factory cannot be found for a Slice type ID.
-            // The stream's default behavior is to slice instances.
-            //
-            // If slicing is disabled and the stream encounters a Slice type ID
-            // during decoding for which no value factory is installed, it raises
-            // NoValueFactoryException.
-            //
-            sliceValues: boolean;
-
-            //
             // Determines whether the stream logs messages about slicing instances of Slice values.
             //
             traceSlicing: boolean;

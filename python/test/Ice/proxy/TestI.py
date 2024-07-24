@@ -9,7 +9,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
         self.ctx = None
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
     def getContext(self, current):

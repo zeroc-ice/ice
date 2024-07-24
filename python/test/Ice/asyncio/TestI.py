@@ -64,7 +64,7 @@ class TestIntfI(Test.TestIntf):
         await Ice.wrap_future(proxy.sleepAsync(10))
         return await Ice.wrap_future(proxy.opAsync())
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         # make sure this is called from an asyncio event loop
         asyncio.get_running_loop()
 

@@ -262,10 +262,18 @@ def allTests(helper, communicator):
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
 
-    proc = Ice.ProcessPrx.checkedCast(obj, "Process")
-    test(proc is None)
-    tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
-    test(tf is None)
+    try:
+        Ice.ProcessPrx.checkedCast(obj, "Process")
+        test(False)
+    except Ice.FacetNotExistException:
+        pass
+
+    try:
+        Test.TestFacetPrx.checkedCast(obj, "TestFacet")
+        test(False)
+    except Ice.FacetNotExistException:
+        pass
+
     com.destroy()
 
     #
@@ -279,10 +287,17 @@ def allTests(helper, communicator):
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
 
-    pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
-    test(pa is None)
-    tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
-    test(tf is None)
+    try:
+        Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
+        test(False)
+    except Ice.FacetNotExistException:
+        pass
+
+    try:
+        Test.TestFacetPrx.checkedCast(obj, "TestFacet")
+        test(False)
+    except Ice.FacetNotExistException:
+        pass
 
     com.destroy()
 
@@ -297,11 +312,17 @@ def allTests(helper, communicator):
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
 
-    pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
-    test(pa is None)
+    try:
+        Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
+        test(False)
+    except Ice.FacetNotExistException:
+        pass
 
-    proc = Ice.ProcessPrx.checkedCast(obj, "Process")
-    test(proc is None)
+    try:
+        Ice.ProcessPrx.checkedCast(obj, "Process")
+        test(False)
+    except Ice.FacetNotExistException:
+        pass
 
     com.destroy()
 
@@ -320,8 +341,12 @@ def allTests(helper, communicator):
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
     tf.op()
 
-    proc = Ice.ProcessPrx.checkedCast(obj, "Process")
-    test(proc is None)
+    try:
+        Ice.ProcessPrx.checkedCast(obj, "Process")
+        test(False)
+    except Ice.FacetNotExistException:
+        pass
+
     com.destroy()
 
     #
@@ -335,8 +360,11 @@ def allTests(helper, communicator):
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
 
-    pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
-    test(pa is None)
+    try:
+        Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
+        test(False)
+    except Ice.FacetNotExistException:
+        pass
 
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
     tf.op()

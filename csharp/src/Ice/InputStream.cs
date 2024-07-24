@@ -251,7 +251,6 @@ public class InputStream
         _traceSlicing = false;
         _classGraphDepthMax = 0x7fffffff;
         _closure = null;
-        _sliceValues = true;
         _startSeq = -1;
         _minSeqSize = 0;
     }
@@ -281,7 +280,6 @@ public class InputStream
         }
 
         _startSeq = -1;
-        _sliceValues = true;
     }
 
     /// <summary>
@@ -304,20 +302,6 @@ public class InputStream
     public void setLogger(Logger logger)
     {
         _logger = logger;
-    }
-
-    /// <summary>
-    /// Determines the behavior of the stream when extracting instances of Slice classes.
-    /// An instance is "sliced" when a factory cannot be found for a Slice type ID.
-    /// The stream's default behavior is to slice instances.
-    /// </summary>
-    /// <param name="b">If true (the default), slicing is enabled; if false,
-    /// slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
-    /// during decoding for which no value factory is installed, it raises MarshalException.
-    /// </param>
-    public void setSliceValues(bool b)
-    {
-        _sliceValues = b;
     }
 
     /// <summary>
@@ -391,10 +375,6 @@ public class InputStream
         object? tmpClosure = other._closure;
         other._closure = _closure;
         _closure = tmpClosure;
-
-        bool tmpSliceValues = other._sliceValues;
-        other._sliceValues = _sliceValues;
-        _sliceValues = tmpSliceValues;
 
         int tmpClassGraphDepthMax = other._classGraphDepthMax;
         other._classGraphDepthMax = _classGraphDepthMax;
@@ -2660,12 +2640,10 @@ public class InputStream
             public int classGraphDepth;
         };
 
-        internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues,
-                               int classGraphDepthMax, ValueFactoryManager? f)
+        internal EncapsDecoder(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
         {
             _stream = stream;
             _encaps = encaps;
-            _sliceValues = sliceValues;
             _classGraphDepthMax = classGraphDepthMax;
             _classGraphDepth = 0;
             _valueFactoryManager = f;
@@ -2883,7 +2861,6 @@ public class InputStream
 
         protected readonly InputStream _stream;
         protected readonly Encaps _encaps;
-        protected readonly bool _sliceValues;
         protected readonly int _classGraphDepthMax;
         protected int _classGraphDepth;
 
@@ -2902,9 +2879,8 @@ public class InputStream
 
     private sealed class EncapsDecoder10 : EncapsDecoder
     {
-        internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                 ValueFactoryManager? f)
-            : base(stream, encaps, sliceValues, classGraphDepthMax, f)
+        internal EncapsDecoder10(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
+            : base(stream, encaps, classGraphDepthMax, f)
         {
             _sliceType = SliceType.NoSlice;
         }
@@ -3162,15 +3138,6 @@ public class InputStream
                 }
 
                 //
-                // If slicing is disabled, stop unmarshaling.
-                //
-                if (!_sliceValues)
-                {
-                    throw new MarshalException(
-                        $"Cannot find value factory for type ID '{_typeId}' and slicing is disabled.");
-                }
-
-                //
                 // Slice off what we don't understand.
                 //
                 skipSlice();
@@ -3217,9 +3184,8 @@ public class InputStream
 
     private sealed class EncapsDecoder11 : EncapsDecoder
     {
-        internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                 ValueFactoryManager? f)
-            : base(stream, encaps, sliceValues, classGraphDepthMax, f)
+        internal EncapsDecoder11(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
+            : base(stream, encaps, classGraphDepthMax, f)
         {
             _current = null;
             _valueIdIndex = 1;
@@ -3621,15 +3587,6 @@ public class InputStream
                 }
 
                 //
-                // If slicing is disabled, stop unmarshaling.
-                //
-                if (!_sliceValues)
-                {
-                    throw new MarshalException(
-                        $"Cannot find value factory for type ID '{typeId}' and slicing is disabled.");
-                }
-
-                //
                 // Slice off what we don't understand.
                 //
                 skipSlice();
@@ -3825,18 +3782,17 @@ public class InputStream
         {
             if (_encapsStack.encoding_1_0)
             {
-                _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceValues, _classGraphDepthMax,
-                                                           _valueFactoryManager);
+                _encapsStack.decoder =
+                    new EncapsDecoder10(this, _encapsStack, _classGraphDepthMax, _valueFactoryManager);
             }
             else
             {
-                _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceValues, _classGraphDepthMax,
-                                                           _valueFactoryManager);
+                _encapsStack.decoder =
+                    new EncapsDecoder11(this, _encapsStack, _classGraphDepthMax, _valueFactoryManager);
             }
         }
     }
 
-    private bool _sliceValues;
     private bool _traceSlicing;
     private int _classGraphDepthMax;
 

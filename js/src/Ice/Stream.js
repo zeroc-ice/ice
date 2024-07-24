@@ -49,10 +49,9 @@ class IndirectPatchEntry {
 }
 
 class EncapsDecoder {
-    constructor(stream, encaps, sliceValues, classGraphDepth, f) {
+    constructor(stream, encaps, classGraphDepth, f) {
         this._stream = stream;
         this._encaps = encaps;
-        this._sliceValues = sliceValues;
         this._classGraphDepthMax = classGraphDepth;
         this._classGraphDepth = 0;
         this._valueFactoryManager = f;
@@ -232,8 +231,8 @@ class EncapsDecoder {
 }
 
 class EncapsDecoder10 extends EncapsDecoder {
-    constructor(stream, encaps, sliceValues, classGraphDepth, f) {
-        super(stream, encaps, sliceValues, classGraphDepth, f);
+    constructor(stream, encaps, classGraphDepth, f) {
+        super(stream, encaps, classGraphDepth, f);
         this._sliceType = SliceType.NoSlice;
     }
 
@@ -428,13 +427,6 @@ class EncapsDecoder10 extends EncapsDecoder {
             }
 
             //
-            // If slicing is disabled, stop unmarshaling.
-            //
-            if (!this._sliceValues) {
-                throw new NoValueFactoryException("no value factory found and slicing is disabled", this._typeId);
-            }
-
-            //
             // Slice off what we don't understand.
             //
             this.skipSlice();
@@ -469,8 +461,8 @@ class EncapsDecoder10 extends EncapsDecoder {
 }
 
 class EncapsDecoder11 extends EncapsDecoder {
-    constructor(stream, encaps, sliceValues, classGraphDepth, f, r) {
-        super(stream, encaps, sliceValues, classGraphDepth, f);
+    constructor(stream, encaps, classGraphDepth, f, r) {
+        super(stream, encaps, classGraphDepth, f);
         this._compactIdResolver = r;
         this._current = null;
         this._valueIdIndex = 1;
@@ -803,16 +795,6 @@ class EncapsDecoder11 extends EncapsDecoder {
             }
 
             //
-            // If slicing is disabled, stop unmarshaling.
-            //
-            if (!this._sliceValues) {
-                throw new NoValueFactoryException(
-                    "no value factory found and slicing is disabled",
-                    this._current.typeId,
-                );
-            }
-
-            //
             // Slice off what we don't understand.
             //
             this.skipSlice();
@@ -1030,7 +1012,6 @@ export class InputStream {
         this._encapsStack = null;
         this._encapsCache = null;
         this._closure = null;
-        this._sliceValues = true;
         this._startSeq = -1;
         this._sizePos = -1;
         this._compactIdResolver = null;
@@ -1080,7 +1061,6 @@ export class InputStream {
         }
 
         this._startSeq = -1;
-        this._sliceValues = true;
     }
 
     swap(other) {
@@ -1090,7 +1070,6 @@ export class InputStream {
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
         [other._traceSlicing, this._traceSlicing] = [this._traceSlicing, other._traceSlicing];
         [other._closure, this._closure] = [this._closure, other.closure];
-        [other._sliceValues, this._sliceValues] = [this._sliceValues, other._sliceValues];
         [other._classGraphDepthMax, this._classGraphDepthMax] = [this._classGraphDepthMax, other._classGraphDepthMax];
 
         //
@@ -1726,7 +1705,6 @@ export class InputStream {
                 this._encapsStack.decoder = new EncapsDecoder10(
                     this,
                     this._encapsStack,
-                    this._sliceValues,
                     this._classGraphDepthMax,
                     this._valueFactoryManager,
                 );
@@ -1734,7 +1712,6 @@ export class InputStream {
                 this._encapsStack.decoder = new EncapsDecoder11(
                     this,
                     this._encapsStack,
-                    this._sliceValues,
                     this._classGraphDepthMax,
                     this._valueFactoryManager,
                     this._compactIdResolver,
@@ -1791,23 +1768,6 @@ export class InputStream {
 
     set compactIdResolver(value) {
         this._compactIdResolver = value !== undefined ? value : null;
-    }
-
-    //
-    // Determines the behavior of the stream when extracting instances of Slice classes.
-    // A instance is "sliced" when a factory cannot be found for a Slice type ID.
-    // The stream's default behavior is to slice instances.
-    //
-    // If slicing is disabled and the stream encounters a Slice type ID
-    // during decoding for which no value factory is installed, it raises
-    // NoValueFactoryException.
-    //
-    get sliceValues() {
-        return this._sliceValues;
-    }
-
-    set sliceValues(value) {
-        this._sliceValues = value;
     }
 
     //
