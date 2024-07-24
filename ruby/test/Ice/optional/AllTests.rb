@@ -672,8 +672,7 @@ def allTests(helper, communicator)
     print "testing optionals with marshaled results... "
     STDOUT.flush
 
-    # TODO: Fix bug ICE-7276
-    #test(initial.opMStruct1() != nil)
+    test(initial.opMStruct1() != nil)
     test(initial.opMDict1() != nil)
     test(initial.opMSeq1() != nil)
 
