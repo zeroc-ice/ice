@@ -31,12 +31,12 @@ internal sealed class LoggerMiddleware : Object
                 case ReplyStatus.OperationNotExist:
                     if (_warningLevel > 1)
                     {
-                        warning(response.exceptionMessage, request.current);
+                        warning(response.exceptionDetails, request.current);
                     }
                     break;
 
                 default:
-                    warning(response.exceptionMessage, request.current);
+                    warning(response.exceptionDetails, request.current);
                     break;
             }
             return response;
@@ -69,7 +69,7 @@ internal sealed class LoggerMiddleware : Object
         _toStringMode = toStringMode;
     }
 
-    private void warning(string? exceptionMessage, Current current)
+    private void warning(string? exceptionDetails, Current current)
     {
         using var sw = new StringWriter(CultureInfo.CurrentCulture);
         var output = new Ice.UtilInternal.OutputBase(sw);
@@ -94,10 +94,10 @@ internal sealed class LoggerMiddleware : Object
             catch (Ice.LocalException)
             {
             }
-            if (exceptionMessage is not null)
+            if (exceptionDetails is not null)
             {
                 output.print("\n");
-                output.print(exceptionMessage);
+                output.print(exceptionDetails);
             }
             _logger.warning(sw.ToString());
         }
