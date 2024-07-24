@@ -130,7 +130,7 @@ class TestI(Test.TestIntf):
         return (d1, d2)
 
     def paramTest2(self, current):
-        p1, p2 = self.paramTest1()
+        p1, p2 = self.paramTest1(current)
         return (p2, p1)
 
     def paramTest3(self, current):
@@ -173,11 +173,11 @@ class TestI(Test.TestIntf):
         return (d4.p2, d4)
 
     def returnTest1(self, current):
-        p1, p2 = self.paramTest1(None)
+        p1, p2 = self.paramTest1(current)
         return (p1, p1, p2)
 
     def returnTest2(self, current):
-        p2, p1 = self.paramTest1()
+        p2, p1 = self.paramTest1(current)
         return (p1, p1, p2)
 
     def returnTest3(self, p1, p2, current):

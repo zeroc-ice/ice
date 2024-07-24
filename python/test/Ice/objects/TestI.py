@@ -46,7 +46,7 @@ class EI(Test.E):
     def __init__(self):
         Test.E.__init__(self, 1, "hello")
 
-    def checkValues(self, current):
+    def checkValues(self):
         return self._i == 1 and self._s == "hello"
 
 
@@ -54,7 +54,7 @@ class FI(Test.F):
     def __init__(self, e=None):
         Test.F.__init__(self, e, e)
 
-    def checkValues(self, current):
+    def checkValues(self):
         return self._e1 is not None and self._e1 == self.e2
 
 
@@ -83,6 +83,9 @@ class InitialI(Test.Initial):
         self._d.theC = None  # Reference to a C.
 
     def shutdown(self, current):
+        self._shutdown()
+
+    def _shutdown(self):
         self._adapter.getCommunicator().shutdown()
 
     def getB1(self, current):

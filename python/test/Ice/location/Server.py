@@ -35,6 +35,9 @@ class ServerLocatorRegistry(Test.TestLocatorRegistry):
         return None
 
     def addObject(self, obj, current):
+        self._addObject(obj)
+
+    def _addObject(self, obj):
         self._objects[obj.ice_getIdentity()] = obj
 
     def getAdapter(self, adapter):
@@ -120,10 +123,10 @@ class ServerManagerI(Test.ServerManager):
                 adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
                 object = TestI(adapter, adapter2, self._registry)
-                self._registry.addObject(
+                self._registry._addObject(
                     adapter.add(object, Ice.stringToIdentity("test"))
                 )
-                self._registry.addObject(
+                self._registry._addObject(
                     adapter.add(object, Ice.stringToIdentity("test2"))
                 )
                 adapter.add(object, Ice.stringToIdentity("test3"))
@@ -158,7 +161,7 @@ class TestI(Test.TestIntf):
         self._adapter1 = adapter
         self._adapter2 = adapter2
         self._registry = registry
-        self._registry.addObject(
+        self._registry._addObject(
             self._adapter1.add(HelloI(), Ice.stringToIdentity("hello"))
         )
 
@@ -178,9 +181,9 @@ class TestI(Test.TestIntf):
     def migrateHello(self, current):
         id = Ice.stringToIdentity("hello")
         try:
-            self._registry.addObject(self._adapter2.add(self._adapter1.remove(id), id))
+            self._registry._addObject(self._adapter2.add(self._adapter1.remove(id), id))
         except Ice.NotRegisteredException:
-            self._registry.addObject(self._adapter1.add(self._adapter2.remove(id), id))
+            self._registry._addObject(self._adapter1.add(self._adapter2.remove(id), id))
 
 
 class Server(TestHelper):
@@ -207,7 +210,7 @@ class Server(TestHelper):
             # 'servers' created with the server manager interface.
             #
             registry = ServerLocatorRegistry()
-            registry.addObject(
+            registry._addObject(
                 adapter.createProxy(Ice.stringToIdentity("ServerManager"))
             )
             adapter.add(
