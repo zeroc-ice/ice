@@ -316,6 +316,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_stringToProxy_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
 ZEND_ARG_INFO(0, str)
+ZEND_ARG_INFO(0, id)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Communicator, stringToProxy)
@@ -323,20 +324,47 @@ ZEND_METHOD(Ice_Communicator, stringToProxy)
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
+    // The second argument (the Slice type ID) is optional.
+    if (ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 2)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
     char* str;
     size_t strLen;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &str, &strLen) != SUCCESS)
+    char* id = nullptr; // the Slice type ID
+    size_t idLen = 0;
+
+    if (ZEND_NUM_ARGS() == 2)
+    {
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s|s"), &str, &strLen, &id, &idLen) != SUCCESS)
+        {
+            RETURN_NULL();
+        }
+    }
+    else if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &str, &strLen) != SUCCESS)
     {
         RETURN_NULL();
     }
-    string s(str, strLen);
+
+    string s{str, strLen};
+    ProxyInfoPtr proxyInfo;
+    if (id)
+    {
+        proxyInfo = getProxyInfo(id);
+        if (!proxyInfo)
+        {
+            invalidArgument(("unknown Slice interface type: " + string{id, idLen}).c_str());
+            RETURN_NULL();
+        }
+    }
 
     try
     {
         auto prx = _this->getCommunicator()->stringToProxy(s);
         if (prx)
         {
-            if (!createProxy(return_value, prx.value(), _this))
+            if (!createProxy(return_value, prx.value(), std::move(proxyInfo), _this))
             {
                 RETURN_NULL();
             }

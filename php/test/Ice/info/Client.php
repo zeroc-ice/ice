@@ -80,14 +80,13 @@ function allTests($helper)
     echo "ok\n";
 
     $defaultHost = $communicator->getProperties()->getProperty("Ice.Default.Host");
-    $base = $communicator->stringToProxy(
+    $testIntf = Test\TestIntfPrxHelper::createProxy($communicator,
         sprintf("test:%s:%s", $helper->getTestEndpoint(), $helper->getTestEndpoint("udp")));
-    $testIntf = $base->ice_checkedCast("::Test::TestIntf");
     $testPort = $helper->getTestPort();
     echo "test connection endpoint information... ";
     flush();
     {
-        $tcpinfo = getTCPEndpointInfo($base->ice_getConnection()->getEndpoint()->getInfo());
+        $tcpinfo = getTCPEndpointInfo($testIntf->ice_getConnection()->getEndpoint()->getInfo());
         test($tcpinfo instanceof Ice\TCPEndpointInfo);
         test($tcpinfo->port == $testPort);
         test(!$tcpinfo->compress);
@@ -98,7 +97,7 @@ function allTests($helper)
         test($ctx["compress"] == "false");
         test($ctx["port"] > 0);
 
-        $udpinfo = $base->ice_datagram()->ice_getConnection()->getEndpoint()->getInfo();
+        $udpinfo = $testIntf->ice_datagram()->ice_getConnection()->getEndpoint()->getInfo();
         test($udpinfo instanceof Ice\UDPEndpointInfo);
         test($udpinfo->port == $testPort);
         test($udpinfo->host == $defaultHost);
@@ -110,7 +109,7 @@ function allTests($helper)
     {
         $port = $helper->getTestPort();
 
-        $connection = $base->ice_getConnection();
+        $connection = $testIntf->ice_getConnection();
         $connection->setBufferSize(1024, 2048);
 
         $info = $connection->getInfo();
@@ -135,7 +134,7 @@ function allTests($helper)
         test($ctx["remotePort"] == $tcpinfo->localPort);
         test($ctx["localPort"] == $tcpinfo->remotePort);
 
-        if($base->ice_getConnection()->type() == "ws" || $base->ice_getConnection()->type() == "wss")
+        if($testIntf->ice_getConnection()->type() == "ws" || $testIntf->ice_getConnection()->type() == "wss")
         {
             test($info instanceof Ice\WSConnectionInfo);
 

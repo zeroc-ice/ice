@@ -1,7 +1,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
-__name__ = "Ice"
+from typing import final
 
+@final
 class ImplicitContext(object):
     """
     An interface to associate implicit contexts with communicators.
@@ -24,9 +25,10 @@ class ImplicitContext(object):
     context without first retrieving a copy of the entire context.
     """
 
-    def __init__(self):
-        if type(self) is ImplicitContext:
-            raise RuntimeError("Ice.ImplicitContext is an abstract class")
+    __module__ = "Ice"
+
+    def __init__(self, impl):
+        self._impl = impl
 
     def getContext(self):
         """
@@ -37,7 +39,7 @@ class ImplicitContext(object):
         dict
             A copy of the underlying context.
         """
-        raise NotImplementedError("method 'getContext' not implemented")
+        return self._impl.getContext()
 
     def setContext(self, newContext):
         """
@@ -48,7 +50,7 @@ class ImplicitContext(object):
         newContext : dict
             The new context to set.
         """
-        raise NotImplementedError("method 'setContext' not implemented")
+        self._impl.setContext(newContext)
 
     def containsKey(self, key):
         """
@@ -64,7 +66,7 @@ class ImplicitContext(object):
         bool
             True if the key has an associated value, False otherwise.
         """
-        raise NotImplementedError("method 'containsKey' not implemented")
+        return self._impl.containsKey(key)
 
     def get(self, key):
         """
@@ -83,7 +85,7 @@ class ImplicitContext(object):
         str
             The value associated with the key, or an empty string if no value is associated with the key.
         """
-        raise NotImplementedError("method 'get' not implemented")
+        return self._impl.get(key)
 
     def put(self, key, value):
         """
@@ -101,7 +103,7 @@ class ImplicitContext(object):
         str or None
             The previous value associated with the key, if any, otherwise None.
         """
-        raise NotImplementedError("method 'put' not implemented")
+        return self._impl.put(key, value)
 
     def remove(self, key):
         """
@@ -117,4 +119,4 @@ class ImplicitContext(object):
         str or None
             The value associated with the key, if any, otherwise None.
         """
-        raise NotImplementedError("method 'remove' not implemented")
+        return self._impl.remove(key)

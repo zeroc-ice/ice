@@ -12,17 +12,17 @@ import time
 
 
 class TestI(Test.Hello):
-    def sayHello(self, delay, current=None):
+    def sayHello(self, delay, current):
         if delay != 0:
             time.sleep(delay / 1000.0)
 
-    def raiseUE(self, current=None):
+    def raiseUE(self, current):
         raise Test.UE()
 
-    def add(self, s1, s2, current=None):
+    def add(self, s1, s2, current):
         return s1 + s2
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
 

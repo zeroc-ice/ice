@@ -1,5 +1,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
+from typing import final
+
+@final
 class ObjectAdapter(object):
     """
     The object adapter provides an up-call interface from the Ice runtime to the implementation of Ice objects.
@@ -8,9 +11,10 @@ class ObjectAdapter(object):
     identities, and proxies.
     """
 
-    def __init__(self):
-        if type(self) is ObjectAdapter:
-            raise RuntimeError("Ice.ObjectAdapter is an abstract class")
+    __module__ = "Ice"
+
+    def __init__(self, impl):
+        self._impl = impl
 
     def getName(self):
         """
@@ -21,7 +25,7 @@ class ObjectAdapter(object):
         str
             The name of this object adapter.
         """
-        raise NotImplementedError("method 'getName' not implemented")
+        return self._impl.getName()
 
     def getCommunicator(self):
         """
@@ -32,7 +36,8 @@ class ObjectAdapter(object):
         Ice.Communicator
             The communicator this object adapter belongs to.
         """
-        raise NotImplementedError("method 'getCommunicator' not implemented")
+        communicator = self._impl.getCommunicator()
+        return communicator._getWrapper()
 
     def activate(self):
         """
@@ -40,7 +45,7 @@ class ObjectAdapter(object):
 
         After activation, the object adapter can dispatch requests received through its endpoints.
         """
-        raise NotImplementedError("method 'activate' not implemented")
+        self._impl.activate()
 
     def hold(self):
         """
@@ -50,7 +55,7 @@ class ObjectAdapter(object):
         i.e., after `hold` returns, the object adapter might still be active for some time.
         You can use `waitForHold` to wait until holding is complete.
         """
-        raise NotImplementedError("method 'hold' not implemented")
+        self._impl.hold()
 
     def waitForHold(self):
         """
@@ -58,7 +63,15 @@ class ObjectAdapter(object):
 
         Calling `hold` initiates holding of requests, and `waitForHold` only returns when holding of requests has been completed.
         """
-        raise NotImplementedError("method 'waitForHold' not implemented")
+        #
+        # TODO should be part of the documented behavior above. Should we add a timeout parameter with a default value?
+        #
+        # If invoked by the main thread, waitForHold only blocks for
+        # the specified timeout in order to give us a chance to handle
+        # signals.
+        #
+        while not self._impl.waitForHold(1000):
+            pass
 
     def deactivate(self):
         """
@@ -74,7 +87,7 @@ class ObjectAdapter(object):
         have been started before `deactivate` was called might still be active. You can use `waitForDeactivate`
         to wait for the completion of all requests for this object adapter.
         """
-        raise NotImplementedError("method 'deactivate' not implemented")
+        self._impl.deactivate()
 
     def waitForDeactivate(self):
         """
@@ -83,7 +96,15 @@ class ObjectAdapter(object):
         Calling `deactivate` initiates object adapter deactivation, and `waitForDeactivate` only returns when deactivation
         has been completed.
         """
-        raise NotImplementedError("method 'waitForDeactivate' not implemented")
+        #
+        # TODO should be part of the documented behavior above. Should we add a timeout parameter with a default value?
+        #
+        # If invoked by the main thread, waitForDeactivate only blocks for
+        # the specified timeout in order to give us a chance to handle
+        # signals.
+        #
+        while not self._impl.waitForDeactivate(1000):
+            pass
 
     def isDeactivated(self):
         """
@@ -94,7 +115,7 @@ class ObjectAdapter(object):
         bool
             True if the object adapter has been deactivated, False otherwise.
         """
-        raise NotImplementedError("method 'isDeactivated' not implemented")
+        self._impl.isDeactivated()
 
     def destroy(self):
         """
@@ -104,7 +125,7 @@ class ObjectAdapter(object):
         it to finish. Subsequent calls to `destroy` are ignored. Once `destroy` has returned, it is possible to create
         another object adapter with the same name.
         """
-        raise NotImplementedError("method 'destroy' not implemented")
+        self._impl.destroy()
 
     def add(self, servant, id):
         """
@@ -125,7 +146,7 @@ class ObjectAdapter(object):
         Ice.ObjectPrx
             A proxy that matches the given identity and this object adapter.
         """
-        raise NotImplementedError("method 'add' not implemented")
+        return self._impl.add(servant, id)
 
     def addFacet(self, servant, id, facet):
         """
@@ -147,7 +168,7 @@ class ObjectAdapter(object):
         Ice.ObjectPrx
             A proxy that matches the given identity, facet, and this object adapter.
         """
-        raise NotImplementedError("method 'addFacet' not implemented")
+        return self._impl.addFacet(servant, id, facet)
 
     def addWithUUID(self, servant):
         """
@@ -165,7 +186,7 @@ class ObjectAdapter(object):
         Ice.ObjectPrx
             A proxy that matches the generated UUID identity and this object adapter.
         """
-        raise NotImplementedError("method 'addWithUUID' not implemented")
+        return self._impl.addWithUUID(servant)
 
     def addFacetWithUUID(self, servant, facet):
         """
@@ -185,7 +206,7 @@ class ObjectAdapter(object):
         Ice.ObjectPrx
             A proxy that matches the generated UUID identity, facet, and this object adapter.
         """
-        raise NotImplementedError("method 'addFacetWithUUID' not implemented")
+        return self._impl.addFacetWIthUUID(servant, facet)
 
     def addDefaultServant(self, servant, category):
         """
@@ -210,7 +231,7 @@ class ObjectAdapter(object):
         category : str
             The category for which the default servant is registered. An empty category means it will handle all categories.
         """
-        raise NotImplementedError("method 'addDefaultServant' not implemented")
+        self._impl.addDefaultServant(servant, category)
 
     def remove(self, id):
         """
@@ -229,7 +250,7 @@ class ObjectAdapter(object):
         Ice.Object
             The removed servant.
         """
-        raise NotImplementedError("method 'remove' not implemented")
+        return self._impl.remove(id)
 
     def removeFacet(self, id, facet):
         """
@@ -249,7 +270,7 @@ class ObjectAdapter(object):
         Ice.Object
             The removed servant.
         """
-        raise NotImplementedError("method 'removeFacet' not implemented")
+        return self._impl.removeFacet(id, facet)
 
     def removeAllFacets(self, id):
         """
@@ -268,7 +289,7 @@ class ObjectAdapter(object):
         dict of str : Ice.Object
             A collection containing all the facet names and servants of the removed Ice object.
         """
-        raise NotImplementedError("method 'removeAllFacets' not implemented")
+        return self._impl.removeAllFacets(id)
 
     def removeDefaultServant(self, category):
         """
@@ -286,7 +307,7 @@ class ObjectAdapter(object):
         Ice.Object
             The default servant.
         """
-        raise NotImplementedError("method 'removeDefaultServant' not implemented")
+        return self._impl.removeDefaultServant(category)
 
     def find(self, id):
         """
@@ -305,7 +326,7 @@ class ObjectAdapter(object):
         Ice.Object or None
             The servant that implements the Ice object with the given identity, or None if no such servant has been found.
         """
-        raise NotImplementedError("method 'find' not implemented")
+        return self._impl.find(id)
 
     def findFacet(self, id, facet):
         """
@@ -325,7 +346,7 @@ class ObjectAdapter(object):
         Ice.Object or None
             The servant that implements the Ice object with the given identity and facet, or None if no such servant has been found.
         """
-        raise NotImplementedError("method 'findFacet' not implemented")
+        return self._impl.findFacet(id, facet)
 
     def findAllFacets(self, id):
         """
@@ -342,7 +363,7 @@ class ObjectAdapter(object):
             A dictionary containing all the facet names and servants that have been found, or an empty dictionary if
             there is no facet for the given identity.
         """
-        raise NotImplementedError("method 'findAllFacets' not implemented")
+        return self._impl.findAllFacets(id)
 
     def findByProxy(self, proxy):
         """
@@ -361,7 +382,7 @@ class ObjectAdapter(object):
         Ice.Object or None
             The servant that matches the proxy, or None if no such servant has been found.
         """
-        raise NotImplementedError("method 'findByProxy' not implemented")
+        return self._impl.findByProxy(proxy)
 
     def addServantLocator(self, locator, category):
         """
@@ -391,7 +412,7 @@ class ObjectAdapter(object):
             The category for which the Servant Locator can locate servants, or an empty string if the Servant Locator
             does not belong to any specific category.
         """
-        raise NotImplementedError("method 'addServantLocator' not implemented")
+        self._impl.addServantLocator(locator, category)
 
     def removeServantLocator(self, category):
         """
@@ -413,7 +434,7 @@ class ObjectAdapter(object):
         NotRegisteredException
             If no Servant Locator was found for the given category.
         """
-        raise NotImplementedError("method 'removeServantLocator' not implemented")
+        return self._impl.removeServantLocator(category)
 
     def findServantLocator(self, category):
         """
@@ -430,7 +451,7 @@ class ObjectAdapter(object):
         Ice.ServantLocator or None
             The Servant Locator, or None if no Servant Locator was found for the given category.
         """
-        raise NotImplementedError("method 'findServantLocator' not implemented")
+        return self._impl.findServantLocator(category)
 
     def findDefaultServant(self, category):
         """
@@ -446,7 +467,7 @@ class ObjectAdapter(object):
         Ice.Object or None
             The default servant, or None if no default servant was registered for the category.
         """
-        raise NotImplementedError("method 'findDefaultServant' not implemented")
+        return self._impl.findDefaultServant(category)
 
     def createProxy(self, id):
         """
@@ -467,7 +488,7 @@ class ObjectAdapter(object):
         Ice.ObjectPrx
             A proxy for the object with the given identity.
         """
-        raise NotImplementedError("method 'createProxy' not implemented")
+        return self._impl.createProxy(id)
 
     def createDirectProxy(self, id):
         """
@@ -485,7 +506,7 @@ class ObjectAdapter(object):
         Ice.ObjectPrx
             A proxy for the object with the given identity.
         """
-        raise NotImplementedError("method 'createDirectProxy' not implemented")
+        return self._impl.createDirectProxy(id)
 
     def createIndirectProxy(self, id):
         """
@@ -504,7 +525,7 @@ class ObjectAdapter(object):
         Ice.ObjectPrx
             A proxy for the object with the given identity.
         """
-        raise NotImplementedError("method 'createIndirectProxy' not implemented")
+        return self._impl.createIndirectProxy(id)
 
     def setLocator(self, locator):
         """
@@ -519,7 +540,7 @@ class ObjectAdapter(object):
         locator : Ice.LocatorPrx
             The locator used by this object adapter.
         """
-        raise NotImplementedError("method 'setLocator' not implemented")
+        self._impl.setLocator(locator)
 
     def getLocator(self):
         """
@@ -530,7 +551,7 @@ class ObjectAdapter(object):
         Ice.LocatorPrx or None
             The locator used by this object adapter, or None if no locator is used by this object adapter.
         """
-        raise NotImplementedError("method 'getLocator' not implemented")
+        return self._impl.getLocator()
 
     def getEndpoints(self):
         """
@@ -541,7 +562,7 @@ class ObjectAdapter(object):
         tuple of Ice.Endpoint
             The set of endpoints.
         """
-        raise NotImplementedError("method 'getEndpoints' not implemented")
+        return self._impl.getEndpoints()
 
     def refreshPublishedEndpoints(self):
         """
@@ -551,7 +572,7 @@ class ObjectAdapter(object):
         if the adapter is configured to listen on all endpoints. This operation is useful to refresh the endpoint information
         that is published in the proxies that are created by an object adapter if the network interfaces used by a host change.
         """
-        raise NotImplementedError("method 'refreshPublishedEndpoints' not implemented")
+        self._impl.refreshPublishedEndpoints()
 
     def getPublishedEndpoints(self):
         """
@@ -562,7 +583,7 @@ class ObjectAdapter(object):
         tuple of Ice.Endpoint
             The set of published endpoints.
         """
-        raise NotImplementedError("method 'getPublishedEndpoints' not implemented")
+        return self._impl.getPublishedEndpoints()
 
     def setPublishedEndpoints(self, newEndpoints):
         """
@@ -573,6 +594,4 @@ class ObjectAdapter(object):
         newEndpoints : tuple of Ice.Endpoint
             The new set of endpoints that the object adapter will embed in proxies.
         """
-        raise NotImplementedError("method 'setPublishedEndpoints' not implemented")
-
-    __module__ = "Ice"
+        self._impl.setPublishedEndpoints(newEndpoints)

@@ -1,7 +1,13 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
-__name__ = "Ice"
+from .ObjectAdapter import ObjectAdapter
+from .ImplicitContext import ImplicitContext
+from .Properties import Properties
+from .LoggerI import LoggerI
+from .Logger import Logger
+from typing import final
 
+@final
 class Communicator:
     """
     The main entry point to the Ice runtime, represented by the `Ice.Communicator` class.
@@ -22,9 +28,20 @@ class Communicator:
             hello.sayHello()
     """
 
-    def __init__(self):
-        if type(self) is Communicator:
-            raise RuntimeError("Ice.Communicator is an abstract class")
+    __module__ = "Ice"
+
+    def __init__(self, impl):
+        self._impl = impl
+        impl._setWrapper(self)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self._impl.destroy()
+
+    def _getImpl(self):
+        return self._impl
 
     def destroy(self):
         """
@@ -32,7 +49,7 @@ class Communicator:
         memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
         calls to destroy are ignored.
         """
-        raise NotImplementedError("method 'destroy' not implemented")
+        self._impl.destroy()
 
     def shutdown(self):
         """
@@ -43,7 +60,7 @@ class Communicator:
         was called might still be active. You can use waitForShutdown to wait for the completion of all
         requests.
         """
-        raise NotImplementedError("method 'shutdown' not implemented")
+        self._impl.shutdown()
 
     def waitForShutdown(self):
         """
@@ -54,7 +71,10 @@ class Communicator:
         calls shutdown. After shut-down is complete, the main thread returns and can do some cleanup work
         before it finally calls destroy to shut down the client functionality, and then exits the application.
         """
-        raise NotImplementedError("method 'waitForShutdown' not implemented")
+        # If invoked by the main thread, waitForShutdown only blocks for the specified timeout in order to give us a
+        # chance to handle signals.
+        while not self._impl.waitForShutdown(500):
+            pass
 
     def isShutdown(self):
         """
@@ -65,7 +85,7 @@ class Communicator:
         bool
             True if the communicator has been shut down; False otherwise.
         """
-        raise NotImplementedError("method 'isShutdown' not implemented")
+        return self._impl.isShutdown()
 
     def stringToProxy(self, str):
         """
@@ -91,7 +111,7 @@ class Communicator:
         ParseException
             If the proxy string representation does not parse correctly.
         """
-        raise NotImplementedError("method 'stringToProxy' not implemented")
+        return self._impl.stringToProxy(str)
 
     def proxyToString(self, proxy):
         """
@@ -107,7 +127,7 @@ class Communicator:
         str
             The proxy string representation, or an empty string if the proxy is None.
         """
-        raise NotImplementedError("method 'proxyToString' not implemented")
+        return self._impl.proxyToString(proxy)
 
     def propertyToProxy(self, property):
         """
@@ -128,7 +148,7 @@ class Communicator:
         Ice.ObjectPrx
             The proxy.
         """
-        raise NotImplementedError("method 'propertyToProxy' not implemented")
+        return self._impl.propertyToProxy(property)
 
     def proxyToProperty(self, proxy, property):
         """
@@ -144,9 +164,9 @@ class Communicator:
         Returns
         -------
         dict
-            The property set. TODO: Review returned type
+            The property set.
         """
-        raise NotImplementedError("method 'proxyToProperty' not implemented")
+        return self._impl.proxyToProperty(proxy, property)
 
     def identityToString(self, identity):
         """
@@ -162,7 +182,7 @@ class Communicator:
         str
             The string representation of the identity.
         """
-        raise NotImplementedError("method 'identityToString' not implemented")
+        return self._impl.identityToString(identity)
 
     def createObjectAdapter(self, name):
         """
@@ -183,7 +203,8 @@ class Communicator:
         Ice.ObjectAdapter
             The new object adapter.
         """
-        raise NotImplementedError("method 'createObjectAdapter' not implemented")
+        adapter = self._impl.createObjectAdapter(name)
+        return ObjectAdapter(adapter)
 
     def createObjectAdapterWithEndpoints(self, name, endpoints):
         """
@@ -204,9 +225,8 @@ class Communicator:
         Ice.ObjectAdapter
             The new object adapter.
         """
-        raise NotImplementedError(
-            "method 'createObjectAdapterWithEndpoints' not implemented"
-        )
+        adapter = self._impl.createObjectAdapterWithEndpoints(name, endpoints)
+        return ObjectAdapter(adapter)
 
     def createObjectAdapterWithRouter(self, name, router):
         """
@@ -226,9 +246,8 @@ class Communicator:
         Ice.ObjectAdapter
             The new object adapter.
         """
-        raise NotImplementedError(
-            "method 'createObjectAdapterWithRouter' not implemented"
-        )
+        adapter = self._impl.createObjectAdapterWithRouter(name, router)
+        return ObjectAdapter(adapter)
 
     def getImplicitContext(self):
         """
@@ -239,7 +258,11 @@ class Communicator:
         Ice.ImplicitContext or None
             The implicit context associated with this communicator, or None if the property Ice.ImplicitContext is not set or is set to None.
         """
-        raise NotImplementedError("method 'getImplicitContext' not implemented")
+        context = self._impl.getImplicitContext()
+        if context is None:
+            return None
+        else:
+            return ImplicitContext(context)
 
     def getProperties(self):
         """
@@ -250,7 +273,8 @@ class Communicator:
         Ice.Properties
             The properties associated with this communicator.
         """
-        raise NotImplementedError("method 'getProperties' not implemented")
+        properties = self._impl.getProperties()
+        return Properties(properties)
 
     def getLogger(self):
         """
@@ -261,7 +285,11 @@ class Communicator:
         Ice.Logger
             The logger associated with this communicator.
         """
-        raise NotImplementedError("method 'getLogger' not implemented")
+        logger = self._impl.getLogger()
+        if isinstance(logger, Logger):
+            return logger
+        else:
+            return LoggerI(logger)
 
     def getDefaultRouter(self):
         """
@@ -272,7 +300,7 @@ class Communicator:
         Ice.RouterPrx or None
             The default router for this communicator, or None if no default router has been set.
         """
-        raise NotImplementedError("method 'getDefaultRouter' not implemented")
+        return self._impl.getDefaultRouter()
 
     def setDefaultRouter(self, router):
         """
@@ -289,7 +317,7 @@ class Communicator:
         router : Ice.RouterPrx or None
             The default router to use for this communicator.
         """
-        raise NotImplementedError("method 'setDefaultRouter' not implemented")
+        self._impl.setDefaultRouter(router)
 
     def getDefaultLocator(self):
         """
@@ -300,7 +328,7 @@ class Communicator:
         Ice.LocatorPrx or None
             The default locator for this communicator, or None if no default locator has been set.
         """
-        raise NotImplementedError("method 'getDefaultLocator' not implemented")
+        return self._impl.getDefaultLocator()
 
     def setDefaultLocator(self, locator):
         """
@@ -317,7 +345,7 @@ class Communicator:
         locator : Ice.LocatorPrx or None
             The default locator to use for this communicator.
         """
-        raise NotImplementedError("method 'setDefaultLocator' not implemented")
+        self._impl.setDefaultLocator(locator)
 
     def getValueFactoryManager(self):
         """
@@ -328,7 +356,7 @@ class Communicator:
         Ice.ValueFactoryManager
             The value factory manager associated with this communicator.
         """
-        raise NotImplementedError("method 'getValueFactoryManager' not implemented")
+        return self._impl.getValueFactoryManager()
 
     def flushBatchRequests(self, compress):
         """
@@ -341,7 +369,21 @@ class Communicator:
         compress : bool
             Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
         """
-        raise NotImplementedError("method 'flushBatchRequests' not implemented")
+        self._impl.flushBatchRequests(compress)
+
+    def flushBatchRequestsAsync(self, compress):
+        """
+        TODO fix async description
+        Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
+        for all connections associated with the communicator. Any errors that occur while flushing a connection are
+        ignored.
+
+        Parameters
+        ----------
+        compress : bool
+            Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
+        """
+        return self._impl.flushBatchRequestsAsync(compress)
 
     def createAdmin(self, adminAdapter, adminId):
         """
@@ -369,7 +411,7 @@ class Communicator:
         InitializationException
             If the method is called more than once.
         """
-        raise NotImplementedError("method 'createAdmin' not implemented")
+        return self._impl.createAdmin(adminAdapter, adminId)
 
     def getAdmin(self):
         """
@@ -386,7 +428,7 @@ class Communicator:
         Ice.ObjectPrx or None
             A proxy to the main ("") facet of the Admin object, or None if no Admin object is configured.
         """
-        raise NotImplementedError("method 'getAdmin' not implemented")
+        return self._impl.getAdmin()
 
     def addAdminFacet(self, servant, facet):
         """
@@ -407,7 +449,7 @@ class Communicator:
         AlreadyRegisteredException
             If the facet is already registered.
         """
-        raise NotImplementedError("method 'addAdminFacet' not implemented")
+        self._impl.addAdminFacet(servant, facet)
 
     def removeAdminFacet(self, facet):
         """
@@ -430,6 +472,7 @@ class Communicator:
         NotRegisteredException
             If the facet is not registered.
         """
+        return self._impl.removeAdminFacet(facet)
 
     def findAdminFacet(self, facet):
         """
@@ -445,7 +488,7 @@ class Communicator:
         Ice.Object or None
             The servant associated with the specified Admin facet, or None if no facet is registered with the given name.
         """
-        raise NotImplementedError("method 'findAdminFacet' not implemented")
+        return self._impl.findAdminFacet(facet)
 
     def findAllAdminFacets(self):
         """
@@ -456,4 +499,4 @@ class Communicator:
         dict
             A dictionary where the keys are facet names (str) and the values are the associated servants (Ice.Object).
         """
-        raise NotImplementedError("method 'findAllAdminFacets' not implemented")
+        return self._impl.findAllAdminFacets()

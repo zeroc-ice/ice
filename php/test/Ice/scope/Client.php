@@ -9,8 +9,7 @@ function allTests($helper)
 {
     $communicator = $helper->communicator();
     {
-        $base = $communicator->stringToProxy(sprintf("i1:%s", $helper->getTestEndpoint()));
-        $i = $base->ice_checkedCast("::Test::I");
+        $i = Test\IPrxHelper::createProxy($communicator, sprintf("i1:%s", $helper->getTestEndpoint()));
 
         $s1 = new Test\S(0);
         $s2 = null;
@@ -42,8 +41,7 @@ function allTests($helper)
     }
 
     {
-        $base = $communicator->stringToProxy(sprintf("i2:%s", $helper->getTestEndpoint()));
-        $i = $base->ice_checkedCast("::Test::Inner::Inner2::I");
+        $i = Test\Inner\Inner2\IPrxHelper::createProxy($communicator, sprintf("i2:%s", $helper->getTestEndpoint()));
 
         $s1 = new Test\Inner\Inner2\S(0);
         $s2 = null;
@@ -65,8 +63,7 @@ function allTests($helper)
     }
 
     {
-        $base = $communicator->stringToProxy(sprintf("i3:%s", $helper->getTestEndpoint()));
-        $i = $base->ice_checkedCast("::Test::Inner::I");
+        $i = Test\Inner\IPrxHelper::createProxy($communicator, sprintf("i3:%s", $helper->getTestEndpoint()));
 
         $s1 = new Test\Inner\Inner2\S(0);
         $s2 = null;
@@ -88,8 +85,7 @@ function allTests($helper)
     }
 
     {
-        $base = $communicator->stringToProxy(sprintf("i4:%s", $helper->getTestEndpoint()));
-        $i = $base->ice_checkedCast("::Inner::Test::Inner2::I");
+        $i = Inner\Test\Inner2\IPrxHelper::createProxy($communicator, sprintf("i4:%s", $helper->getTestEndpoint()));
 
         $s1 = new Test\S(0);
         $s2 = null;
@@ -111,8 +107,7 @@ function allTests($helper)
     }
 
     {
-        $base = $communicator->stringToProxy(sprintf("i1:%s", $helper->getTestEndpoint()));
-        $i = $base->ice_checkedCast("::Test::I");
+        $i = Test\IPrxHelper::createProxy($communicator, sprintf("i1:%s", $helper->getTestEndpoint()));
         $i->shutdown();
     }
 }

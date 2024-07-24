@@ -74,7 +74,7 @@ export class ConnectRequestHandler {
             ri.addProxy(this._reference).then(
                 // The proxy was added to the router info, we're now ready to send the queued requests.
                 () => this.flushRequests(),
-                (ex) => this.setException(ex),
+                ex => this.setException(ex),
             );
             return; // The request handler will be initialized once addProxy completes.
         }

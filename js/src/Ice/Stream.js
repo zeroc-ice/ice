@@ -49,10 +49,9 @@ class IndirectPatchEntry {
 }
 
 class EncapsDecoder {
-    constructor(stream, encaps, sliceValues, classGraphDepth, f) {
+    constructor(stream, encaps, classGraphDepth, f) {
         this._stream = stream;
         this._encaps = encaps;
-        this._sliceValues = sliceValues;
         this._classGraphDepthMax = classGraphDepth;
         this._classGraphDepth = 0;
         this._valueFactoryManager = f;
@@ -232,8 +231,8 @@ class EncapsDecoder {
 }
 
 class EncapsDecoder10 extends EncapsDecoder {
-    constructor(stream, encaps, sliceValues, classGraphDepth, f) {
-        super(stream, encaps, sliceValues, classGraphDepth, f);
+    constructor(stream, encaps, classGraphDepth, f) {
+        super(stream, encaps, classGraphDepth, f);
         this._sliceType = SliceType.NoSlice;
     }
 
@@ -428,13 +427,6 @@ class EncapsDecoder10 extends EncapsDecoder {
             }
 
             //
-            // If slicing is disabled, stop unmarshaling.
-            //
-            if (!this._sliceValues) {
-                throw new NoValueFactoryException("no value factory found and slicing is disabled", this._typeId);
-            }
-
-            //
             // Slice off what we don't understand.
             //
             this.skipSlice();
@@ -469,8 +461,8 @@ class EncapsDecoder10 extends EncapsDecoder {
 }
 
 class EncapsDecoder11 extends EncapsDecoder {
-    constructor(stream, encaps, sliceValues, classGraphDepth, f, r) {
-        super(stream, encaps, sliceValues, classGraphDepth, f);
+    constructor(stream, encaps, classGraphDepth, f, r) {
+        super(stream, encaps, classGraphDepth, f);
         this._compactIdResolver = r;
         this._current = null;
         this._valueIdIndex = 1;
@@ -651,7 +643,7 @@ class EncapsDecoder11 extends EncapsDecoder {
             // Convert indirect references into direct references.
             //
             if (this._current.indirectPatchList !== null) {
-                this._current.indirectPatchList.forEach((e) => {
+                this._current.indirectPatchList.forEach(e => {
                     Debug.assert(e.index >= 0);
                     if (e.index >= indirectionTable.length) {
                         throw new MarshalException("indirection out of range");
@@ -803,16 +795,6 @@ class EncapsDecoder11 extends EncapsDecoder {
             }
 
             //
-            // If slicing is disabled, stop unmarshaling.
-            //
-            if (!this._sliceValues) {
-                throw new NoValueFactoryException(
-                    "no value factory found and slicing is disabled",
-                    this._current.typeId,
-                );
-            }
-
-            //
             // Slice off what we don't understand.
             //
             this.skipSlice();
@@ -920,7 +902,7 @@ EncapsDecoder11.InstanceData = class {
 };
 
 const sequencePatcher = function (seq, index, T) {
-    return (v) => {
+    return v => {
         if (v !== null && !(v instanceof T)) {
             throwUOE(T.ice_staticId(), v);
         }
@@ -1000,7 +982,7 @@ export class InputStream {
         // (encoding, buffer)
         // (encoding, buffer)
         //
-        arr.forEach((arg) => {
+        arr.forEach(arg => {
             if (arg !== null && arg !== undefined) {
                 if (arg.constructor === Communicator) {
                     args.instance = arg.instance;
@@ -1030,7 +1012,6 @@ export class InputStream {
         this._encapsStack = null;
         this._encapsCache = null;
         this._closure = null;
-        this._sliceValues = true;
         this._startSeq = -1;
         this._sizePos = -1;
         this._compactIdResolver = null;
@@ -1080,7 +1061,6 @@ export class InputStream {
         }
 
         this._startSeq = -1;
-        this._sliceValues = true;
     }
 
     swap(other) {
@@ -1090,7 +1070,6 @@ export class InputStream {
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
         [other._traceSlicing, this._traceSlicing] = [this._traceSlicing, other._traceSlicing];
         [other._closure, this._closure] = [this._closure, other.closure];
-        [other._sliceValues, this._sliceValues] = [this._sliceValues, other._sliceValues];
         [other._classGraphDepthMax, this._classGraphDepthMax] = [this._classGraphDepthMax, other._classGraphDepthMax];
 
         //
@@ -1533,7 +1512,7 @@ export class InputStream {
 
     readValue(cb, T) {
         this.initEncaps();
-        this._encapsStack.decoder.readValue((obj) => {
+        this._encapsStack.decoder.readValue(obj => {
             if (obj !== null && !(obj instanceof T)) {
                 throwUOE(T.ice_staticId(), obj);
             }
@@ -1726,7 +1705,6 @@ export class InputStream {
                 this._encapsStack.decoder = new EncapsDecoder10(
                     this,
                     this._encapsStack,
-                    this._sliceValues,
                     this._classGraphDepthMax,
                     this._valueFactoryManager,
                 );
@@ -1734,7 +1712,6 @@ export class InputStream {
                 this._encapsStack.decoder = new EncapsDecoder11(
                     this,
                     this._encapsStack,
-                    this._sliceValues,
                     this._classGraphDepthMax,
                     this._valueFactoryManager,
                     this._compactIdResolver,
@@ -1791,23 +1768,6 @@ export class InputStream {
 
     set compactIdResolver(value) {
         this._compactIdResolver = value !== undefined ? value : null;
-    }
-
-    //
-    // Determines the behavior of the stream when extracting instances of Slice classes.
-    // A instance is "sliced" when a factory cannot be found for a Slice type ID.
-    // The stream's default behavior is to slice instances.
-    //
-    // If slicing is disabled and the stream encounters a Slice type ID
-    // during decoding for which no value factory is installed, it raises
-    // NoValueFactoryException.
-    //
-    get sliceValues() {
-        return this._sliceValues;
-    }
-
-    set sliceValues(value) {
-        this._sliceValues = value;
     }
 
     //
@@ -2189,7 +2149,7 @@ class EncapsEncoder11 extends EncapsEncoder {
             // Write the indirection instance table.
             //
             this._stream.writeSize(this._current.indirectionTable.length);
-            this._current.indirectionTable.forEach((o) => this.writeInstance(o));
+            this._current.indirectionTable.forEach(o => this.writeInstance(o));
             this._current.indirectionTable.length = 0; // Faster way to clean array in JavaScript
             this._current.indirectionMap.clear();
         }
@@ -2226,7 +2186,7 @@ class EncapsEncoder11 extends EncapsEncoder {
             return;
         }
 
-        slicedData.slices.forEach((info) => {
+        slicedData.slices.forEach(info => {
             this.startSlice(info.typeId, info.compactId, info.isLastSlice);
 
             //
@@ -2248,7 +2208,7 @@ class EncapsEncoder11 extends EncapsEncoder {
                     this._current.indirectionMap = new Map(); // Map<Value, int>
                 }
 
-                info.instances.forEach((instance) => this._current.indirectionTable.push(instance));
+                info.instances.forEach(instance => this._current.indirectionTable.push(instance));
             }
 
             this.endSlice();
@@ -2940,7 +2900,7 @@ export const ObjectHelper = class {
 
     static read(is) {
         let o;
-        is.readValue((v) => {
+        is.readValue(v => {
             o = v;
         }, Value);
         return o;

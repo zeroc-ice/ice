@@ -49,7 +49,6 @@ class BaseClass
     string bc;
 }
 
-["format:sliced"]
 interface Relay
 {
     void knownPreservedAsBase() throws Base;
@@ -59,7 +58,6 @@ interface Relay
     void unknownPreservedAsKnownPreserved() throws KnownPreserved;
 }
 
-["format:sliced"]
 interface TestIntf
 {
     void baseAsBase() throws Base;

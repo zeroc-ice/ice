@@ -42,7 +42,7 @@ export class Value {
 
     static read(is) {
         const v = { value: null };
-        is.readValue((o) => {
+        is.readValue(o => {
             v.value = o;
         }, this);
         return v;

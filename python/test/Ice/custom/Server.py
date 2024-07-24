@@ -36,39 +36,39 @@ def test(b):
 
 
 class CustomI(Test.Custom):
-    def opByteString1(self, b1, current=None):
+    def opByteString1(self, b1, current):
         test(isinstance(b1, bytes))
         return (b1, b1)
 
-    def opByteString2(self, b1, current=None):
+    def opByteString2(self, b1, current):
         test(isinstance(b1, list))
         return (b1, b1)
 
-    def opByteList1(self, b1, current=None):
+    def opByteList1(self, b1, current):
         test(isinstance(b1, list))
         return (b1, b1)
 
-    def opByteList2(self, b1, current=None):
+    def opByteList2(self, b1, current):
         test(isinstance(b1, tuple))
         return (b1, b1)
 
-    def opStringList1(self, s1, current=None):
+    def opStringList1(self, s1, current):
         test(isinstance(s1, list))
         return (s1, s1)
 
-    def opStringList2(self, s1, current=None):
+    def opStringList2(self, s1, current):
         test(isinstance(s1, tuple))
         return (s1, s1)
 
-    def opStringTuple1(self, s1, current=None):
+    def opStringTuple1(self, s1, current):
         test(isinstance(s1, tuple))
         return (s1, s1)
 
-    def opStringTuple2(self, s1, current=None):
+    def opStringTuple2(self, s1, current):
         test(isinstance(s1, list))
         return (s1, s1)
 
-    def sendS(self, val, current=None):
+    def sendS(self, val, current):
         test(isinstance(val.b1, bytes))
         test(isinstance(val.b2, list))
         test(isinstance(val.b3, bytes))
@@ -78,7 +78,7 @@ class CustomI(Test.Custom):
         test(isinstance(val.s3, tuple))
         test(isinstance(val.s4, list))
 
-    def sendC(self, val, current=None):
+    def sendC(self, val, current):
         test(isinstance(val.b1, bytes))
         test(isinstance(val.b2, list))
         test(isinstance(val.b3, bytes))
@@ -137,7 +137,7 @@ class CustomI(Test.Custom):
     def opD(self, d, current):
         return d
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
 
@@ -210,7 +210,7 @@ if hasNumPy:
         def opD(self, d, current):
             return d
 
-        def shutdown(self, current=None):
+        def shutdown(self, current):
             current.adapter.getCommunicator().shutdown()
 
 

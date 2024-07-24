@@ -1,7 +1,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
-__name__ = "Ice"
+from typing import final
 
+@final
 class Properties(object):
     """
     A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
@@ -9,9 +10,10 @@ class Properties(object):
     application-name[.category[.sub-category]].name.
     """
 
-    def __init__(self):
-        if type(self) is Properties:
-            raise RuntimeError("Ice.Properties is an abstract class")
+    __module__ = "Ice"
+
+    def __init__(self, impl):
+        self._impl = impl
 
     def getProperty(self, key):
         """
@@ -29,7 +31,7 @@ class Properties(object):
         str
             The property value, or an empty string if the property is not set.
         """
-        raise NotImplementedError("method 'getProperty' not implemented")
+        return self._impl.getProperty(key)
 
     def getIceProperty(self, key):
         """
@@ -47,7 +49,7 @@ class Properties(object):
         str
             The property value, or the default value if the property is not set.
         """
-        raise NotImplementedError("method 'getIceProperty' not implemented")
+        return self._impl.getIceProperty(key)
 
     def getPropertyWithDefault(self, key, value):
         """
@@ -67,7 +69,7 @@ class Properties(object):
         str
             The property value, or the default value if the property does not exist.
         """
-        raise NotImplementedError("method 'getPropertyWithDefault' not implemented")
+        return self._impl.getPropertyWithDefault(key, value)
 
     def getPropertyAsInt(self, key):
         """
@@ -85,7 +87,7 @@ class Properties(object):
         int
             The property value interpreted as an integer, or 0 if the property is not set.
         """
-        raise NotImplementedError("method 'getPropertyAsInt' not implemented")
+        return self._impl.getPropertyAsInt(key)
 
     def getIcePropertyAsInt(self, key):
         """
@@ -103,7 +105,7 @@ class Properties(object):
         int
             The property value interpreted as an integer, or the default value if the property is not set.
         """
-        raise NotImplementedError("method 'getIcePropertyAsInt' not implemented")
+        return self._impl.getIcePropertyAsInt(key)
 
     def getPropertyAsIntWithDefault(self, key, value):
         """
@@ -123,9 +125,7 @@ class Properties(object):
         int
             The property value interpreted as an integer, or the default value if the property does not exist.
         """
-        raise NotImplementedError(
-            "method 'getPropertyAsIntWithDefault' not implemented"
-        )
+        return self._impl.getPropertyAsIntWithDefault(key, value)
 
     def getPropertyAsList(self, key):
         """
@@ -146,7 +146,7 @@ class Properties(object):
         list of str
             The property value interpreted as a list of strings.
         """
-        raise NotImplementedError("method 'getPropertyAsList' not implemented")
+        return self._impl.getPropertyAsList(key)
 
     def getIcePropertyAsList(self, key):
         """
@@ -167,6 +167,7 @@ class Properties(object):
         list of str
             The property value interpreted as a list of strings, or the default value if the property is not set.
         """
+        return self._impl.getIcePropertyAsList(key)
 
     def getPropertyAsListWithDefault(self, key, value):
         """
@@ -189,9 +190,7 @@ class Properties(object):
         list of str
             The property value interpreted as a list of strings, or the default value if the property is not set.
         """
-        raise NotImplementedError(
-            "method 'getPropertyAsListWithDefault' not implemented"
-        )
+        return self._impl.getPropertyAsListWithDefault(key, value)
 
     def getPropertiesForPrefix(self, prefix):
         """
@@ -209,7 +208,7 @@ class Properties(object):
         dict of str : str
             The matching property set with keys and values as strings.
         """
-        raise NotImplementedError("method 'getPropertiesForPrefix' not implemented")
+        return self._impl.getPropertiesForPrefix(prefix)
 
     def setProperty(self, key, value):
         """
@@ -224,7 +223,7 @@ class Properties(object):
         value : str
             The property value.
         """
-        raise NotImplementedError("method 'setProperty' not implemented")
+        self._impl.setProperty(key, value)
 
     def getCommandLineOptions(self):
         """
@@ -237,7 +236,7 @@ class Properties(object):
         list of str
             The command line options for this property set.
         """
-        raise NotImplementedError("method 'getCommandLineOptions' not implemented")
+        return self._impl.getCommandLineOptions()
 
     def parseCommandLineOptions(self, prefix, options):
         """
@@ -258,9 +257,7 @@ class Properties(object):
         list of str
             The command-line options that do not start with the specified prefix, in their original order.
         """
-        raise NotImplementedError(
-            "method 'parseCommandLineOptions' not implemented"
-        )
+        return self._impl.parseCommandLineOptions(prefix, options)
 
     def parseIceCommandLineOptions(self, options):
         """
@@ -279,9 +276,7 @@ class Properties(object):
         list of str
             The command-line options that do not start with one of the listed prefixes, in their original order.
         """
-        raise NotImplementedError(
-            "method 'parseIceCommandLineOptions' not implemented"
-        )
+        return self._impl.parseIceCommandLineOptions(options)
 
     def load(self, file):
         """
@@ -292,7 +287,7 @@ class Properties(object):
         file : str
             The property file.
         """
-        raise NotImplementedError("method 'load' not implemented")
+        self._impl.load(file)
 
     def clone(self):
         """
@@ -303,4 +298,11 @@ class Properties(object):
         Properties
             A copy of this property set.
         """
-        raise NotImplementedError("method 'clone' not implemented")
+        return Properties(self._impl.clone())
+
+    def __iter__(self):
+        dict = self._impl.getPropertiesForPrefix("")
+        return iter(dict)
+
+    def __str__(self):
+        return str(self._impl)

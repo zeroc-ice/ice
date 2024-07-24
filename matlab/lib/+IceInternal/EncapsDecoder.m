@@ -4,10 +4,9 @@
 
 classdef (Abstract) EncapsDecoder < handle
     methods
-        function obj = EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphDepthMax)
+        function obj = EncapsDecoder(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax)
             obj.is = is;
             obj.encaps = encaps;
-            obj.sliceValues = sliceValues;
             obj.valueFactoryManager = valueFactoryManager;
             obj.classResolver = classResolver;
             obj.classGraphDepthMax = classGraphDepthMax;
@@ -235,7 +234,6 @@ classdef (Abstract) EncapsDecoder < handle
     properties(Access=protected)
         is
         encaps
-        sliceValues
         valueFactoryManager
         classResolver
         classGraphDepth

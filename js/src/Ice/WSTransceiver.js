@@ -60,9 +60,9 @@ if (typeof WebSocket !== "undefined") {
                     this._state = StateConnectPending;
                     this._fd = new WebSocket(this._url, "ice.zeroc.com");
                     this._fd.binaryType = "arraybuffer";
-                    this._fd.onopen = (e) => this.socketConnected(e);
-                    this._fd.onmessage = (e) => this.socketBytesAvailable(e.data);
-                    this._fd.onclose = (e) => this.socketClosed(e);
+                    this._fd.onopen = e => this.socketConnected(e);
+                    this._fd.onmessage = e => this.socketBytesAvailable(e.data);
+                    this._fd.onclose = e => this.socketClosed(e);
                     return SocketOperation.Connect; // Waiting for connect to complete.
                 } else if (this._state === StateConnectPending) {
                     //

@@ -322,22 +322,22 @@ function allTests($helper)
     $b1 = $b1->ice_locatorCacheTimeout(100);
     $b1 = $b1->ice_encodingVersion(new Ice\EncodingVersion(1, 0));
 
-    $router = $communicator->stringToProxy("router");
+    $router = Ice\RouterPrxHelper::createProxy($communicator, "router");
     //$router = $router->ice_collocationOptimized(false);
     $router = $router->ice_connectionCached(true);
     $router = $router->ice_preferSecure(true);
     $router = $router->ice_endpointSelection(Ice\EndpointSelectionType::Random);
     $router = $router->ice_locatorCacheTimeout(200);
 
-    $locator = $communicator->stringToProxy("locator");
+    $locator = Ice\LocatorPrxHelper::createProxy($communicator, "locator");
     //$locator = $locator->ice_collocationOptimized(true);
     $locator = $locator->ice_connectionCached(false);
     $locator = $locator->ice_preferSecure(true);
     $locator = $locator->ice_endpointSelection(Ice\EndpointSelectionType::Random);
     $locator = $locator->ice_locatorCacheTimeout(300);
 
-    $locator = $locator->ice_router($router->ice_uncheckedCast("::Ice::Router"));
-    $b1 = $b1->ice_locator($locator->ice_uncheckedCast("::Ice::Locator"));
+    $locator = $locator->ice_router($router);
+    $b1 = $b1->ice_locator($locator);
 
     $proxyProps = $communicator->proxyToProperty($b1, "Test");
     test(count($proxyProps) == 21);
@@ -422,9 +422,9 @@ function allTests($helper)
 
     echo "testing checked cast... ";
     flush();
-    $cl = $base->ice_checkedCast("::Test::MyClass");
+    $cl = Test\MyClassPrxHelper::checkedCast($base);
     test($cl != null);
-    $derived = $cl->ice_checkedCast("::Test::MyDerivedClass");
+    $derived = Test\MyDerivedClassPrxHelper::checkedCast($cl);
     test($derived != null);
     test($cl == $base);
     test($derived == $base);
@@ -432,7 +432,7 @@ function allTests($helper)
 
     try
     {
-        $base->ice_checkedCast("::Test::MyClass", "facet");
+        Test\MyClassPrxHelper::checkedCast($base, "facet");
         test(false);
     }
     catch(Ice\FacetNotExistException $ex)
@@ -448,7 +448,7 @@ function allTests($helper)
 
     $c["one"] = "hello";
     $c["two"] = "world";
-    $clc = $base->ice_checkedCast("::Test::MyClass", $c);
+    $clc = Test\MyClassPrxHelper::checkedCast($base, $c);
     $c2 = $clc->getContext();
     test($c == $c2);
 
@@ -508,7 +508,7 @@ function allTests($helper)
     echo "testing encoding versioning... ";
     flush();
     $ref20 = sprintf("test -e 2.0:%s", $helper->getTestEndpoint());
-    $cl20 = $communicator->stringToProxy($ref20)->ice_uncheckedCast("::Test::MyClass");
+    $cl20 = Test\MyClassPrxHelper::createProxy($communicator, $ref20);
     try
     {
         $cl20->ice_ping();
@@ -519,7 +519,7 @@ function allTests($helper)
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
     $ref10 = sprintf("test -e 1.0:%s", $helper->getTestEndpoint());
-    $cl10 = $communicator->stringToProxy($ref10)->ice_uncheckedCast("::Test::MyClass");
+    $cl10 = Test\MyClassPrxHelper::createProxy($communicator, $ref10);
     $cl10->ice_ping();
     $cl10->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
     $cl->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();

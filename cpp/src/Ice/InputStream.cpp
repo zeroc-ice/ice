@@ -22,12 +22,6 @@
 
 #include <iterator>
 
-#ifndef ICE_UNALIGNED
-#    if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
-#        define ICE_UNALIGNED
-#    endif
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -176,7 +170,6 @@ Ice::InputStream::InputStream(InputStream&& other) noexcept
       _traceSlicing(other._traceSlicing),
       _classGraphDepthMax(other._classGraphDepthMax),
       _closure(other._closure),
-      _sliceValues(other._sliceValues),
       _startSeq(other._startSeq),
       _minSeqSize(other._minSeqSize),
       _valueFactoryManager(std::move(other._valueFactoryManager)),
@@ -201,7 +194,6 @@ Ice::InputStream::operator=(InputStream&& other) noexcept
         _traceSlicing = other._traceSlicing;
         _classGraphDepthMax = other._classGraphDepthMax;
         _closure = other._closure;
-        _sliceValues = other._sliceValues;
         _startSeq = other._startSeq;
         _minSeqSize = other._minSeqSize;
         _valueFactoryManager = std::move(other._valueFactoryManager);
@@ -249,7 +241,6 @@ Ice::InputStream::initialize(const EncodingVersion& encoding)
     _traceSlicing = false;
     _classGraphDepthMax = 0x7fffffff;
     _closure = nullptr;
-    _sliceValues = true;
     _startSeq = -1;
     _minSeqSize = 0;
 }
@@ -265,7 +256,6 @@ Ice::InputStream::clear()
     }
 
     _startSeq = -1;
-    _sliceValues = true;
 }
 
 void
@@ -284,12 +274,6 @@ void
 Ice::InputStream::setCompactIdResolver(std::function<std::string(int)> r)
 {
     _compactIdResolver = r;
-}
-
-void
-Ice::InputStream::setSliceValues(bool on)
-{
-    _sliceValues = on;
 }
 
 void
@@ -335,7 +319,6 @@ Ice::InputStream::swap(InputStream& other)
     std::swap(_traceSlicing, other._traceSlicing);
     std::swap(_classGraphDepthMax, other._classGraphDepthMax);
     std::swap(_closure, other._closure);
-    std::swap(_sliceValues, other._sliceValues);
 
     //
     // Swap is never called for streams that have encapsulations being read. However,
@@ -770,48 +753,6 @@ Ice::InputStream::read(vector<int16_t>& v)
 }
 
 void
-Ice::InputStream::read(pair<const short*, const short*>& v)
-{
-    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(int16_t)));
-    if (sz > 0)
-    {
-#ifdef ICE_UNALIGNED
-        v.first = reinterpret_cast<int16_t*>(i);
-        i += sz * static_cast<int>(sizeof(int16_t));
-        v.second = reinterpret_cast<int16_t*>(i);
-#else
-
-        auto result = new short[static_cast<size_t>(sz)];
-        _deleters.push_back([result] { delete[] result; });
-        v.first = result;
-        v.second = result + sz;
-
-        Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(int16_t));
-        if constexpr (endian::native == endian::big)
-        {
-            const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(int16_t) - 1;
-            for (int j = 0; j < sz; ++j)
-            {
-                *dest-- = *src++;
-                *dest-- = *src++;
-                dest += 2 * sizeof(int16_t);
-            }
-        }
-        else
-        {
-            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
-        }
-#endif
-    }
-    else
-    {
-        v.first = v.second = 0;
-    }
-}
-
-void
 Ice::InputStream::read(int32_t& v)
 {
     if (b.end() - i < static_cast<int>(sizeof(int32_t)))
@@ -868,49 +809,6 @@ Ice::InputStream::read(vector<int32_t>& v)
     else
     {
         v.clear();
-    }
-}
-
-void
-Ice::InputStream::read(pair<const int32_t*, const int32_t*>& v)
-{
-    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(int32_t)));
-    if (sz > 0)
-    {
-#ifdef ICE_UNALIGNED
-        v.first = reinterpret_cast<int32_t*>(i);
-        i += sz * static_cast<int>(sizeof(int32_t));
-        v.second = reinterpret_cast<int32_t*>(i);
-#else
-        auto result = new int[static_cast<size_t>(sz)];
-        _deleters.push_back([result] { delete[] result; });
-        v.first = result;
-        v.second = result + sz;
-
-        Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(int32_t));
-        if constexpr (endian::native == endian::big)
-        {
-            const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(int32_t) - 1;
-            for (int j = 0; j < sz; ++j)
-            {
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                dest += 2 * sizeof(int32_t);
-            }
-        }
-        else
-        {
-            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
-        }
-#endif
-    }
-    else
-    {
-        v.first = v.second = 0;
     }
 }
 
@@ -987,54 +885,6 @@ Ice::InputStream::read(vector<int64_t>& v)
 }
 
 void
-Ice::InputStream::read(pair<const int64_t*, const int64_t*>& v)
-{
-    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(int64_t)));
-    if (sz > 0)
-    {
-#ifdef ICE_UNALIGNED
-        v.first = reinterpret_cast<int64_t*>(i);
-        i += sz * static_cast<int>(sizeof(int64_t));
-        v.second = reinterpret_cast<int64_t*>(i);
-#else
-
-        auto result = new int64_t[static_cast<size_t>(sz)];
-        _deleters.push_back([result] { delete[] result; });
-        v.first = result;
-        v.second = result + sz;
-
-        Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(int64_t));
-        if constexpr (endian::native == endian::big)
-        {
-            const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(int64_t) - 1;
-            for (int j = 0; j < sz; ++j)
-            {
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                dest += 2 * sizeof(int64_t);
-            }
-        }
-        else
-        {
-            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
-        }
-#endif
-    }
-    else
-    {
-        v.first = v.second = 0;
-    }
-}
-
-void
 Ice::InputStream::read(float& v)
 {
     if (b.end() - i < static_cast<int>(sizeof(float)))
@@ -1091,50 +941,6 @@ Ice::InputStream::read(vector<float>& v)
     else
     {
         v.clear();
-    }
-}
-
-void
-Ice::InputStream::read(pair<const float*, const float*>& v)
-{
-    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(float)));
-    if (sz > 0)
-    {
-#ifdef ICE_UNALIGNED
-        v.first = reinterpret_cast<float*>(i);
-        i += sz * static_cast<int>(sizeof(float));
-        v.second = reinterpret_cast<float*>(i);
-#else
-
-        auto result = new float[static_cast<size_t>(sz)];
-        _deleters.push_back([result] { delete[] result; });
-        v.first = result;
-        v.second = result + sz;
-
-        Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(float));
-        if constexpr (endian::native == endian::big)
-        {
-            const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(float) - 1;
-            for (int j = 0; j < sz; ++j)
-            {
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                dest += 2 * sizeof(float);
-            }
-        }
-        else
-        {
-            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
-        }
-#endif
-    }
-    else
-    {
-        v.first = v.second = 0;
     }
 }
 
@@ -1207,53 +1013,6 @@ Ice::InputStream::read(vector<double>& v)
     else
     {
         v.clear();
-    }
-}
-
-void
-Ice::InputStream::read(pair<const double*, const double*>& v)
-{
-    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(double)));
-    if (sz > 0)
-    {
-#ifdef ICE_UNALIGNED
-        v.first = reinterpret_cast<double*>(i);
-        i += sz * static_cast<int>(sizeof(double));
-        v.second = reinterpret_cast<double*>(i);
-#else
-        auto result = new double[static_cast<size_t>(sz)];
-        _deleters.push_back([result] { delete[] result; });
-        v.first = result;
-        v.second = result + sz;
-
-        Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(double));
-        if constexpr (endian::native == endian::big)
-        {
-            const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(double) - 1;
-            for (int j = 0; j < sz; ++j)
-            {
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                *dest-- = *src++;
-                dest += 2 * sizeof(double);
-            }
-        }
-        else
-        {
-            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
-        }
-#endif
-    }
-    else
-    {
-        v.first = v.second = 0;
     }
 }
 
@@ -1777,11 +1536,11 @@ Ice::InputStream::initEncaps()
         ValueFactoryManagerPtr vfm = valueFactoryManager();
         if (_currentEncaps->encoding == Encoding_1_0)
         {
-            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _sliceValues, _classGraphDepthMax, vfm);
+            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax, vfm);
         }
         else
         {
-            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _sliceValues, _classGraphDepthMax, vfm);
+            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax, vfm);
         }
     }
 }
@@ -2234,17 +1993,6 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         }
 
         //
-        // If value slicing is disabled, stop unmarshaling.
-        //
-        if (!_sliceValues)
-        {
-            throw MarshalException{
-                __FILE__,
-                __LINE__,
-                "cannot find value factory for type ID '" + mostDerivedId + "' and slicing is disabled"};
-        }
-
-        //
         // Slice off what we don't understand.
         //
         skipSlice();
@@ -2664,17 +2412,6 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFu
             {
                 break;
             }
-        }
-
-        //
-        // If value slicing is disabled, stop unmarshaling.
-        //
-        if (!_sliceValues)
-        {
-            throw MarshalException{
-                __FILE__,
-                __LINE__,
-                "cannot find value factory for type ID '" + _current->typeId + "' and slicing is disabled"};
         }
 
         //

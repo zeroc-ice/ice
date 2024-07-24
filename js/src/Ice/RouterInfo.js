@@ -54,16 +54,14 @@ export class RouterInfo {
         } else {
             this._router
                 .getClientProxy()
-                .then((result) =>
-                    this.setClientEndpoints(result[0], result[1] !== undefined ? result[1] : true, promise),
-                )
+                .then(result => this.setClientEndpoints(result[0], result[1] !== undefined ? result[1] : true, promise))
                 .catch(promise.reject);
         }
         return promise;
     }
 
     getServerEndpoints() {
-        return this._router.getServerProxy().then((serverProxy) => {
+        return this._router.getServerProxy().then(serverProxy => {
             if (serverProxy === null) {
                 throw new NoEndpointException();
             }
@@ -81,7 +79,7 @@ export class RouterInfo {
             // Only add the proxy to the router if it's not already in our local map.
             return Promise.resolve();
         } else {
-            return this._router.addProxies([new ObjectPrx(reference)]).then((evictedProxies) => {
+            return this._router.addProxies([new ObjectPrx(reference)]).then(evictedProxies => {
                 this.addAndEvictProxies(identity, evictedProxies);
             });
         }
@@ -116,7 +114,7 @@ export class RouterInfo {
         // concurrent addProxies call. If it's the case, don't
         // add it to our local map.
         //
-        const index = this._evictedIdentities.findIndex((e) => e.equals(identity));
+        const index = this._evictedIdentities.findIndex(e => e.equals(identity));
         if (index >= 0) {
             this._evictedIdentities.splice(index, 1);
         } else {
@@ -130,7 +128,7 @@ export class RouterInfo {
         //
         // We also must remove whatever proxies the router evicted.
         //
-        evictedProxies.forEach((proxy) => {
+        evictedProxies.forEach(proxy => {
             this._identities.delete(proxy.ice_getIdentity());
         });
     }

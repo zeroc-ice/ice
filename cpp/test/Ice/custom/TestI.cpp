@@ -4,14 +4,37 @@
 
 #include "TestI.h"
 #include "Ice/Communicator.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-DoubleSeq
-TestIntfI::opDoubleArray(pair<const double*, const double*> inSeq, DoubleSeq& outSeq, const Current&)
+ShortSeq
+TestIntfI::opShortArray(pair<const int16_t*, const int16_t*> inSeq, ShortSeq& outSeq, const Current&)
 {
+#ifdef ICE_UNALIGNED
+    // Verify inSeq is not aligned and holds the expected values.
+    test(reinterpret_cast<size_t>(inSeq.first) % sizeof(int16_t) != 0);
+    for (int i = 0; i < inSeq.second - inSeq.first; ++i)
+    {
+        test(inSeq.first[i] == i + 1);
+    }
+#endif
+
+    ShortSeq(inSeq.first, inSeq.second).swap(outSeq);
+    return outSeq;
+}
+
+DoubleSeq
+TestIntfI::opDoubleArray(bool, pair<const double*, const double*> inSeq, DoubleSeq& outSeq, const Current&)
+{
+#ifdef ICE_UNALIGNED
+    // Verify inSeq is not aligned.
+    test(reinterpret_cast<size_t>(inSeq.first) % sizeof(double) != 0);
+    test(*(inSeq.first) == 3.14);
+#endif
+
     DoubleSeq(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
 }

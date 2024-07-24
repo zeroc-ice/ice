@@ -871,7 +871,7 @@ export class RoutableReference extends Reference {
     changeConnectionId(id) {
         const r = this.getInstance().referenceFactory().copy(this);
         r._connectionId = id;
-        r._endpoints = this._endpoints.map((endpoint) => endpoint.changeConnectionId(id));
+        r._endpoints = this._endpoints.map(endpoint => endpoint.changeConnectionId(id));
         return r;
     }
 
@@ -905,7 +905,7 @@ export class RoutableReference extends Reference {
         s.writeSize(this._endpoints.length);
         if (this._endpoints.length > 0) {
             Debug.assert(this._adapterId.length === 0);
-            this._endpoints.forEach((endpoint) => {
+            this._endpoints.forEach(endpoint => {
                 s.writeShort(endpoint.type());
                 endpoint.streamWrite(s);
             });
@@ -925,7 +925,7 @@ export class RoutableReference extends Reference {
         const s = [];
         s.push(super.toString());
         if (this._endpoints.length > 0) {
-            this._endpoints.forEach((endpoint) => {
+            this._endpoints.forEach(endpoint => {
                 const endp = endpoint.toString();
                 if (endp !== null && endp.length > 0) {
                     s.push(":");
@@ -1063,7 +1063,7 @@ export class RoutableReference extends Reference {
             //
             this._routerInfo
                 .getClientEndpoints()
-                .then((endpoints) => {
+                .then(endpoints => {
                     if (endpoints.length > 0) {
                         this.applyOverrides(endpoints);
                         this.createConnection(endpoints).then(p.resolve, p.reject);
@@ -1076,7 +1076,7 @@ export class RoutableReference extends Reference {
             this.getConnectionNoRouterInfo(p);
         }
 
-        p.then((connection) => handler.setConnection(connection)).catch((ex) => handler.setException(ex));
+        p.then(connection => handler.setConnection(connection)).catch(ex => handler.setException(ex));
         return p;
     }
 
@@ -1089,7 +1089,7 @@ export class RoutableReference extends Reference {
         if (this._locatorInfo !== null) {
             this._locatorInfo
                 .getEndpoints(this, null, this._locatorCacheTimeout)
-                .then((values) => {
+                .then(values => {
                     const [endpoints, cached] = values;
                     if (endpoints.length === 0) {
                         p.reject(new NoEndpointException(this.toString()));
@@ -1097,7 +1097,7 @@ export class RoutableReference extends Reference {
                     }
 
                     this.applyOverrides(endpoints);
-                    this.createConnection(endpoints).then(p.resolve, (ex) => {
+                    this.createConnection(endpoints).then(p.resolve, ex => {
                         if (ex instanceof NoEndpointException) {
                             //
                             // No need to retry if there's no endpoints.
@@ -1176,7 +1176,7 @@ export class RoutableReference extends Reference {
         //
         // Filter out opaque endpoints or endpoints which can't connect.
         //
-        let endpoints = allEndpoints.filter((e) => !(e instanceof OpaqueEndpointI) && e.connectable());
+        let endpoints = allEndpoints.filter(e => !(e instanceof OpaqueEndpointI) && e.connectable());
 
         //
         // Filter out endpoints according to the mode of the reference.
@@ -1188,7 +1188,7 @@ export class RoutableReference extends Reference {
                 //
                 // Filter out datagram endpoints.
                 //
-                endpoints = endpoints.filter((e) => !e.datagram());
+                endpoints = endpoints.filter(e => !e.datagram());
                 break;
             }
 
@@ -1197,7 +1197,7 @@ export class RoutableReference extends Reference {
                 //
                 // Filter out non-datagram endpoints.
                 //
-                endpoints = endpoints.filter((e) => e.datagram());
+                endpoints = endpoints.filter(e => e.datagram());
                 break;
             }
 
@@ -1236,7 +1236,7 @@ export class RoutableReference extends Reference {
         //
         const overrides = this.getInstance().defaultsAndOverrides();
         if (overrides.overrideSecure ? overrides.overrideSecureValue : this.getSecure()) {
-            endpoints = endpoints.filter((e) => e.secure());
+            endpoints = endpoints.filter(e => e.secure());
         } else {
             const preferSecure = this.getPreferSecure();
             const compare = (e1, e2) => {
@@ -1274,8 +1274,8 @@ export class RoutableReference extends Reference {
             const cb = new CreateConnectionCallback(this, null, promise);
             factory
                 .create(endpoints, false, this.getEndpointSelection())
-                .then((connection) => cb.setConnection(connection))
-                .catch((ex) => cb.setException(ex));
+                .then(connection => cb.setConnection(connection))
+                .catch(ex => cb.setException(ex));
         } else {
             //
             // Go through the list of endpoints and try to create the
@@ -1287,8 +1287,8 @@ export class RoutableReference extends Reference {
             const cb = new CreateConnectionCallback(this, endpoints, promise);
             factory
                 .create([endpoints[0]], true, this.getEndpointSelection())
-                .then((connection) => cb.setConnection(connection))
-                .catch((ex) => cb.setException(ex));
+                .then(connection => cb.setConnection(connection))
+                .catch(ex => cb.setException(ex));
         }
         return promise;
     }
@@ -1329,7 +1329,7 @@ class CreateConnectionCallback {
             .getInstance()
             .outgoingConnectionFactory()
             .create([this.endpoints[this.i]], this.i != this.endpoints.length - 1, this.ref.getEndpointSelection())
-            .then((connection) => this.setConnection(connection))
-            .catch((ex) => this.setException(ex));
+            .then(connection => this.setConnection(connection))
+            .catch(ex => this.setException(ex));
     }
 }

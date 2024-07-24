@@ -10,10 +10,7 @@ function allTests($helper)
 {
     $ref = sprintf("test:%s", $helper->getTestEndpoint());
     $communicator = $helper->communicator();
-    $obj = $communicator->stringToProxy($ref);
-    test($obj != null);
-    $proxy = $obj->ice_checkedCast("::Test::TestIntf");
-    test($proxy != null);
+    $proxy = Test\TestIntfPrxHelper::createProxy($communicator, $ref);
 
     echo "testing enum values... ";
     flush();

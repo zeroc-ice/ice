@@ -13,7 +13,7 @@ def test(b):
 
 
 class TestFacetI(Test.TestFacet):
-    def op(self, current=None):
+    def op(self, current):
         return
 
 
@@ -23,10 +23,10 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
         self.called = False
         self.m = threading.Condition()
 
-    def getAdmin(self, current=None):
+    def getAdmin(self, current):
         return self.communicator.getAdmin()
 
-    def getChanges(self, current=None):
+    def getChanges(self, current):
         with self.m:
             #
             # The client calls PropertiesAdmin::setProperties() and then invokes
@@ -42,17 +42,17 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
 
             return self.changes
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         self.communicator.shutdown()
 
-    def waitForShutdown(self, current=None):
+    def waitForShutdown(self, current):
         #
         # Note that we are executing in a thread of the *main* communicator,
         # not the one that is being shut down.
         #
         self.communicator.waitForShutdown()
 
-    def destroy(self, current=None):
+    def destroy(self, current):
         self.communicator.destroy()
 
     def updated(self, changes):
@@ -63,7 +63,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
 
 
 class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
-    def createCommunicator(self, props, current=None):
+    def createCommunicator(self, props, current):
         #
         # Prepare the property set using the given properties.
         #
@@ -94,5 +94,5 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         proxy = current.adapter.addWithUUID(servant)
         return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()

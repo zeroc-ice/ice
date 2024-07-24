@@ -6,7 +6,6 @@
 #include "Communicator.h"
 #include "Connection.h"
 #include "ConnectionInfo.h"
-#include "Current.h"
 #include "Dispatcher.h"
 #include "Endpoint.h"
 #include "EndpointInfo.h"
@@ -172,10 +171,6 @@ PyInit_IcePy(void)
         return nullptr;
     }
     if (!initCommunicator(module))
-    {
-        return nullptr;
-    }
-    if (!initCurrent(module))
     {
         return nullptr;
     }

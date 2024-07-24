@@ -9,17 +9,9 @@ function allTests($helper)
 {
     global $Ice_Encoding_1_0;
 
-    echo "testing stringToProxy... ";
-    flush();
     $ref = sprintf("initial:%s", $helper->getTestEndpoint());
     $communicator = $helper->communicator();
-    $base = $communicator->stringToProxy($ref);
-    echo "ok\n";
-
-    echo "testing checked cast... ";
-    flush();
-    $initial = $base->ice_checkedCast("::Test::Initial");
-    echo "ok\n";
+    $initial = Test\InitialPrxHelper::createProxy($communicator, $ref);
 
     echo "testing optional data members... ";
     flush();
@@ -65,7 +57,7 @@ function allTests($helper)
     $ss = new Test\SmallStruct();
     $fs = new Test\FixedStruct(78);
     $vs = new Test\VarStruct("hello");
-    $prx = $communicator->stringToProxy("test")->ice_uncheckedCast("::Test::MyInterface");
+    $prx = Test\MyInterfacePrxHelper::createProxy($communicator, "test");
     $mo1 = new Test\MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', Test\MyEnum::MyEnumMember,
                       $prx, array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
                       $fs, $vs, array(1), array(Test\MyEnum::MyEnumMember, Test\MyEnum::MyEnumMember), array($fs), array($vs),
@@ -289,7 +281,7 @@ function allTests($helper)
     test($r->gg2Opt->a == 20);
     test($r->gg1->a == "gg1");
 
-    $initial2 = Test\Initial2PrxHelper::uncheckedCast($base);
+    $initial2 = Test\Initial2PrxHelper::uncheckedCast($initial);
     $initial2->opVoid(15, "test");
 
     echo "ok\n";
@@ -397,7 +389,7 @@ function allTests($helper)
         echo "testing operations with unknown optionals... ";
         flush();
 
-        $initial2 = Test\Initial2PrxHelper::uncheckedCast($base);
+        $initial2 = Test\Initial2PrxHelper::uncheckedCast($initial);
         $ovs = new Test\VarStruct("test");
         $initial2->opClassAndUnknownOptional(new Test\A, $ovs);
 

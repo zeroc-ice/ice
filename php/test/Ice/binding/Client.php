@@ -36,7 +36,7 @@ function allTests($helper)
     $communicator = $helper->communicator();
 
     $ref = sprintf("communicator:%s", $helper->getTestEndpoint());
-    $com = $communicator->stringToProxy($ref)->ice_uncheckedCast("::Test::RemoteCommunicator");
+    $com = $communicator->stringToProxy($ref, "::Test::RemoteCommunicator");
 
     echo "testing binding with single endpoint... ";
     flush();

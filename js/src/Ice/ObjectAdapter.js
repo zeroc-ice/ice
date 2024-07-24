@@ -104,7 +104,7 @@ export class ObjectAdapter {
         //
         if (unknownProps.length !== 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0) {
             const message = ["found unknown properties for object adapter `" + name + "':"];
-            unknownProps.forEach((unknownProp) => message.push("\n    " + unknownProp));
+            unknownProps.forEach(unknownProp => message.push("\n    " + unknownProp));
             this._instance.initializationData().logger.warning(message.join(""));
         }
 
@@ -183,11 +183,11 @@ export class ObjectAdapter {
             }
 
             p.then(() => this.computePublishedEndpoints()).then(
-                (endpoints) => {
+                endpoints => {
                     this._publishedEndpoints = endpoints;
                     promise.resolve(this);
                 },
-                (ex) => {
+                ex => {
                     this.destroy();
                     promise.reject(ex);
                 },
@@ -389,7 +389,7 @@ export class ObjectAdapter {
 
     refreshPublishedEndpoints() {
         this.checkForDeactivation();
-        return this.computePublishedEndpoints().then((endpoints) => {
+        return this.computePublishedEndpoints().then(endpoints => {
             this._publishedEndpoints = endpoints;
         });
     }
@@ -464,13 +464,13 @@ export class ObjectAdapter {
     computePublishedEndpoints() {
         let p;
         if (this._routerInfo !== null) {
-            p = this._routerInfo.getServerEndpoints().then((endpts) => {
+            p = this._routerInfo.getServerEndpoints().then(endpts => {
                 //
                 // Remove duplicate endpoints, so we have a list of unique endpoints.
                 //
                 const endpoints = [];
-                endpts.forEach((endpoint) => {
-                    if (endpoints.findIndex((value) => endpoint.equals(value)) === -1) {
+                endpts.forEach(endpoint => {
+                    if (endpoints.findIndex(value => endpoint.equals(value)) === -1) {
                         endpoints.push(endpoint);
                     }
                 });
@@ -538,14 +538,14 @@ export class ObjectAdapter {
             p = Promise.resolve(endpoints);
         }
 
-        return p.then((endpoints) => {
+        return p.then(endpoints => {
             if (this._instance.traceLevels().network >= 1 && endpoints.length > 0) {
                 const s = [];
                 s.push("published endpoints for object adapter `");
                 s.push(this._name);
                 s.push("':\n");
                 let first = true;
-                endpoints.forEach((endpoint) => {
+                endpoints.forEach(endpoint => {
                     if (!first) {
                         s.push(":");
                     }
@@ -598,14 +598,14 @@ export class ObjectAdapter {
         this._state = state;
 
         let promises = [];
-        (state < StateDeactivated ? [state] : [StateHeld, StateDeactivated]).forEach((s) => {
+        (state < StateDeactivated ? [state] : [StateHeld, StateDeactivated]).forEach(s => {
             if (this._statePromises[s]) {
                 promises = promises.concat(this._statePromises[s]);
                 delete this._statePromises[s];
             }
         });
         if (promises.length > 0) {
-            Timer.setImmediate(() => promises.forEach((p) => p.resolve()));
+            Timer.setImmediate(() => promises.forEach(p => p.resolve()));
         }
     }
 

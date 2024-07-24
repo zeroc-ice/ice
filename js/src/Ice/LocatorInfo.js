@@ -54,7 +54,7 @@ export class LocatorInfo {
             return Promise.resolve(this._locatorRegistry);
         }
 
-        return this._locator.getRegistry().then((reg) => {
+        return this._locator.getRegistry().then(reg => {
             //
             // The locator registry can't be located. We use ordered
             // endpoint selection in case the locator returned a proxy
@@ -157,7 +157,7 @@ export class LocatorInfo {
         }
 
         s.push("endpoints = ");
-        s.push(endpoints.map((e) => e.toString()).join(":"));
+        s.push(endpoints.map(e => e.toString()).join(":"));
         ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.join(""));
     }
 
@@ -378,12 +378,12 @@ class RequestCallback {
                     );
                 }
                 locatorInfo.getEndpoints(r, this._ref, this._ttl).then(
-                    (values) => {
+                    values => {
                         if (this._promise !== null) {
                             this._promise.resolve(values);
                         }
                     },
-                    (ex) => {
+                    ex => {
                         if (this._promise !== null) {
                             this._promise.reject(ex);
                         }
@@ -475,8 +475,8 @@ class ObjectRequest extends Request {
                 .getLocator()
                 .findObjectById(this._ref.getIdentity())
                 .then(
-                    (proxy) => this.response(proxy),
-                    (ex) => this.exception(ex),
+                    proxy => this.response(proxy),
+                    ex => this.exception(ex),
                 );
         } catch (ex) {
             this.exception(ex);
@@ -496,8 +496,8 @@ class AdapterRequest extends Request {
                 .getLocator()
                 .findAdapterById(this._ref.getAdapterId())
                 .then(
-                    (proxy) => this.response(proxy),
-                    (ex) => this.exception(ex),
+                    proxy => this.response(proxy),
+                    ex => this.exception(ex),
                 );
         } catch (ex) {
             this.exception(ex);

@@ -10,8 +10,7 @@ function allTests($helper)
     global $Ice_Encoding_1_0;
 
     $communicator = $helper->communicator();
-    $obj = $communicator->stringToProxy(sprintf("Test:%s", $helper->getTestEndpoint()));
-    $test = $obj->ice_checkedCast("::Test::TestIntf");
+    $test = Test\TestIntfPrxHelper::createProxy($communicator, sprintf("Test:%s", $helper->getTestEndpoint()));
 
     echo "base... ";
     flush();
