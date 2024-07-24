@@ -32,7 +32,7 @@ export class OutgoingConnectionFactory {
             return;
         }
 
-        this._connectionsByEndpoint.forEach((connection) => connection.destroy(ConnectionI.CommunicatorDestroyed));
+        this._connectionsByEndpoint.forEach(connection => connection.destroy(ConnectionI.CommunicatorDestroyed));
 
         this._destroyed = true;
         this._communicator = null;
@@ -72,7 +72,7 @@ export class OutgoingConnectionFactory {
                 throw new CommunicatorDestroyedException();
             }
             return routerInfo.getClientEndpoints();
-        }).then((endpoints) => {
+        }).then(endpoints => {
             //
             // Search for connections to the router's client proxy
             // endpoints, and update the object adapter for such
@@ -80,7 +80,7 @@ export class OutgoingConnectionFactory {
             // received over such connections.
             //
             const adapter = routerInfo.getAdapter();
-            endpoints.forEach((endpoint) => {
+            endpoints.forEach(endpoint => {
                 //
                 // The Connection object does not take the compression flag of
                 // endpoints into account, but instead gets the information
@@ -92,7 +92,7 @@ export class OutgoingConnectionFactory {
                 //
                 endpoint = endpoint.changeCompress(false);
 
-                this._connectionsByEndpoint.forEach((connection) => {
+                this._connectionsByEndpoint.forEach(connection => {
                     if (connection.endpoint().equals(endpoint)) {
                         connection.setAdapter(adapter);
                     }
@@ -105,7 +105,7 @@ export class OutgoingConnectionFactory {
         if (this._destroyed) {
             return;
         }
-        this._connectionsByEndpoint.forEach((connection) => {
+        this._connectionsByEndpoint.forEach(connection => {
             if (connection.getAdapter() === adapter) {
                 connection.setAdapter(null);
             }
@@ -120,9 +120,9 @@ export class OutgoingConnectionFactory {
         }
 
         Promise.all(
-            this._connectionsByEndpoint.map((connection) => {
+            this._connectionsByEndpoint.map(connection => {
                 if (connection.isActiveOrHolding()) {
-                    return connection.flushBatchRequests().catch((ex) => {
+                    return connection.flushBatchRequests().catch(ex => {
                         if (ex instanceof LocalException) {
                             // Ignore
                         } else {
@@ -254,7 +254,7 @@ export class OutgoingConnectionFactory {
                 this._instance,
                 transceiver,
                 endpoint.changeCompress(false).changeTimeout(-1),
-                (connection) => this.removeConnection(connection),
+                connection => this.removeConnection(connection),
                 this._connectionOptions,
             );
         } catch (ex) {
@@ -287,11 +287,11 @@ export class OutgoingConnectionFactory {
         }
 
         const callbacks = [];
-        endpoints.forEach((endpt) => {
+        endpoints.forEach(endpt => {
             const cbs = this._pending.get(endpt);
             if (cbs !== undefined) {
                 this._pending.delete(endpt);
-                cbs.forEach((cc) => {
+                cbs.forEach(cc => {
                     if (cc.hasEndpoint(endpoint)) {
                         if (connectionCallbacks.indexOf(cc) === -1) {
                             connectionCallbacks.push(cc);
@@ -303,7 +303,7 @@ export class OutgoingConnectionFactory {
             }
         });
 
-        connectionCallbacks.forEach((cc) => {
+        connectionCallbacks.forEach(cc => {
             cc.removeFromPending();
             const idx = callbacks.indexOf(cc);
             if (idx !== -1) {
@@ -311,10 +311,10 @@ export class OutgoingConnectionFactory {
             }
         });
 
-        callbacks.forEach((cc) => cc.removeFromPending());
+        callbacks.forEach(cc => cc.removeFromPending());
 
-        callbacks.forEach((cc) => cc.getConnection());
-        connectionCallbacks.forEach((cc) => cc.setConnection(connection));
+        callbacks.forEach(cc => cc.getConnection());
+        connectionCallbacks.forEach(cc => cc.setConnection(connection));
 
         this.checkFinished();
     }
@@ -328,11 +328,11 @@ export class OutgoingConnectionFactory {
         }
 
         const callbacks = [];
-        endpoints.forEach((endpt) => {
+        endpoints.forEach(endpt => {
             const cbs = this._pending.get(endpt);
             if (cbs !== undefined) {
                 this._pending.delete(endpt);
-                cbs.forEach((cc) => {
+                cbs.forEach(cc => {
                     if (cc.removeEndpoints(endpoints)) {
                         if (failedCallbacks.indexOf(cc) === -1) {
                             failedCallbacks.push(cc);
@@ -344,13 +344,13 @@ export class OutgoingConnectionFactory {
             }
         });
 
-        callbacks.forEach((cc) => {
+        callbacks.forEach(cc => {
             Debug.assert(failedCallbacks.indexOf(cc) === -1);
             cc.removeFromPending();
         });
         this.checkFinished();
-        callbacks.forEach((cc) => cc.getConnection());
-        failedCallbacks.forEach((cc) => cc.setException(ex));
+        callbacks.forEach(cc => cc.getConnection());
+        failedCallbacks.forEach(cc => cc.setException(ex));
     }
 
     addToPending(cb, endpoints) {
@@ -361,7 +361,7 @@ export class OutgoingConnectionFactory {
         //
         let found = false;
         if (cb !== null) {
-            endpoints.forEach((p) => {
+            endpoints.forEach(p => {
                 const cbs = this._pending.get(p);
                 if (cbs !== undefined) {
                     found = true;
@@ -381,7 +381,7 @@ export class OutgoingConnectionFactory {
         // responsible for its establishment. We add empty pending lists,
         // other callbacks to the same endpoints will be queued.
         //
-        endpoints.forEach((p) => {
+        endpoints.forEach(p => {
             if (!this._pending.has(p)) {
                 this._pending.set(p, []);
             }
@@ -392,7 +392,7 @@ export class OutgoingConnectionFactory {
 
     removeFromPending(cb, endpoints) {
         // cb is-a ConnectCallback
-        endpoints.forEach((p) => {
+        endpoints.forEach(p => {
             const cbs = this._pending.get(p);
             if (cbs !== undefined) {
                 const idx = cbs.indexOf(cb);
@@ -446,7 +446,7 @@ export class OutgoingConnectionFactory {
         }
 
         await Promise.all(
-            this._connectionsByEndpoint.map(async (connection) => {
+            this._connectionsByEndpoint.map(async connection => {
                 try {
                     await connection.waitUntilFinished();
                 } catch (ex) {
@@ -492,7 +492,7 @@ class ConnectionListMap extends HashMap {
 
     map(fn) {
         const arr = [];
-        this.forEach((c) => arr.push(fn(c)));
+        this.forEach(c => arr.push(fn(c)));
         return arr;
     }
 
@@ -551,11 +551,11 @@ class ConnectCallback {
     }
 
     findEndpoint(endpoint) {
-        return this._endpoints.findIndex((value) => endpoint.equals(value));
+        return this._endpoints.findIndex(value => endpoint.equals(value));
     }
 
     removeEndpoints(endpoints) {
-        endpoints.forEach((endpoint) => {
+        endpoints.forEach(endpoint => {
             const idx = this.findEndpoint(endpoint);
             if (idx !== -1) {
                 this._endpoints.splice(idx, 1);
@@ -611,12 +611,12 @@ class ConnectCallback {
     }
 
     nextEndpoint() {
-        const start = (connection) => {
+        const start = connection => {
             connection.start().then(
                 () => {
                     this.connectionStartCompleted(connection);
                 },
-                (ex) => {
+                ex => {
                     this.connectionStartFailed(connection, ex);
                 },
             );

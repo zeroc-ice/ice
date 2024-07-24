@@ -30,13 +30,13 @@ export class ObjectAdapterFactory {
 
         this._instance = null;
         this._communicator = null;
-        Promise.all(this._adapters.map((adapter) => adapter.deactivate())).then(() => this._shutdownPromise.resolve());
+        Promise.all(this._adapters.map(adapter => adapter.deactivate())).then(() => this._shutdownPromise.resolve());
         return this._shutdownPromise;
     }
 
     waitForShutdown() {
         return this._shutdownPromise.then(() =>
-            Promise.all(this._adapters.map((adapter) => adapter.waitForDeactivate())),
+            Promise.all(this._adapters.map(adapter => adapter.waitForDeactivate())),
         );
     }
 
@@ -45,7 +45,7 @@ export class ObjectAdapterFactory {
     }
 
     destroy() {
-        return this.waitForShutdown().then(() => Promise.all(this._adapters.map((adapter) => adapter.destroy())));
+        return this.waitForShutdown().then(() => Promise.all(this._adapters.map(adapter => adapter.destroy())));
     }
 
     createObjectAdapter(name, router, promise) {

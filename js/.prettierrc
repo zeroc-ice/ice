@@ -2,3 +2,6 @@ overrides:
     - files: [".eslintrc.js", "*.json"]
       options:
           quoteProps: preserve
+    - files: ["*.js"]
+      options:
+          arrowParens: avoid

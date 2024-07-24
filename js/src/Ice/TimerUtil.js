@@ -51,7 +51,7 @@ if (typeof process != "undefined") {
 
         // Only called for workers
         const channel = new MessageChannel();
-        channel.port1.onmessage = (event) => {
+        channel.port1.onmessage = event => {
             const id = event.data;
             const cb = _timers.get(id);
             if (cb !== undefined) {
@@ -135,7 +135,7 @@ if (typeof process != "undefined") {
 
                 const timers = {};
 
-                self.onmessage = (e) => {
+                self.onmessage = e => {
                     if (e.data.type == _wSetTimeoutType) {
                         timers[e.data.id] = setTimeout(() => self.postMessage(e.data), e.data.ms);
                     } else if (e.data.type == _wSetIntervalType) {

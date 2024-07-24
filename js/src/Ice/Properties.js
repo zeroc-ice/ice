@@ -177,7 +177,7 @@ export class Properties {
 
         const result = [];
 
-        options.forEach((opt) => {
+        options.forEach(opt => {
             if (opt.indexOf(pfx) === 0) {
                 if (opt.indexOf("=") === -1) {
                     opt += "=1";
@@ -200,7 +200,7 @@ export class Properties {
     }
 
     parse(data) {
-        data.match(/[^\r\n]+/g).forEach((line) => this.parseLine(line));
+        data.match(/[^\r\n]+/g).forEach(line => this.parseLine(line));
     }
 
     parseLine(line) {

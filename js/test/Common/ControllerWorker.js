@@ -16,7 +16,7 @@ class Output {
     }
 }
 
-self.onmessage = async (e) => {
+self.onmessage = async e => {
     try {
         const helper = new ControllerHelper(e.data.exe, Output);
 

@@ -121,7 +121,7 @@ class SequenceHelper {
 // Specialization optimized for ByteSeq
 const byteSeqHelper = new SequenceHelper();
 byteSeqHelper.write = (os, v) => os.writeByteSeq(v);
-byteSeqHelper.read = (is) => is.readByteSeq();
+byteSeqHelper.read = is => is.readByteSeq();
 
 defineProperty(byteSeqHelper, "elementHelper", { get: () => ByteHelper });
 StreamHelpers.VSizeContainer1OptHelper.call(byteSeqHelper);
@@ -133,7 +133,7 @@ const valueSequenceHelperRead = function (is) {
     v.length = sz;
     const elementType = this.elementType;
     const readValueAtIndex = function (idx) {
-        is.readValue((obj) => {
+        is.readValue(obj => {
             v[idx] = obj;
         }, elementType);
     };
@@ -219,7 +219,7 @@ function valueDictionaryHelperRead(is) {
     const valueType = this.valueType;
 
     const readValueForKey = function (key) {
-        is.readValue((obj) => v.set(key, obj), valueType);
+        is.readValue(obj => v.set(key, obj), valueType);
     };
 
     const keyHelper = this.keyHelper;

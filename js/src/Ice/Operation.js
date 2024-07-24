@@ -166,7 +166,7 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
                 params[p.pos + offset] = p.type.readOptional(is, p.tag);
             }
         } else if (p.isObject) {
-            is.readValue((obj) => {
+            is.readValue(obj => {
                 params[p.pos + offset] = obj;
             }, p.type);
         } else {

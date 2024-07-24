@@ -421,7 +421,7 @@ export class ReferenceFactory {
             ) {
                 const msg = [];
                 msg.push("Proxy contains unknown endpoints:");
-                unknownEndpoints.forEach((unknownEndpoint) => {
+                unknownEndpoints.forEach(unknownEndpoint => {
                     msg.push(" `");
                     msg.push(unknownEndpoint);
                     msg.push("'");
@@ -593,7 +593,7 @@ export class ReferenceFactory {
             message.push("found unknown properties for proxy '");
             message.push(prefix);
             message.push("':");
-            unknownProps.forEach((unknownProp) => message.push("\n    ", unknownProp));
+            unknownProps.forEach(unknownProp => message.push("\n    ", unknownProp));
             this._instance.initializationData().logger.warning(message.join(""));
         }
     }
