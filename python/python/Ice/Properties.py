@@ -296,7 +296,7 @@ class Properties(object):
             A copy of this property set.
         """
         return Properties(self._impl.clone())
-    
+
     def __iter__(self):
         dict = self._impl.getPropertiesForPrefix("")
         return iter(dict)
