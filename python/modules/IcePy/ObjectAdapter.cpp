@@ -1783,7 +1783,7 @@ Ice::ObjectAdapterPtr
 IcePy::unwrapObjectAdapter(PyObject* obj)
 {
 #ifndef NDEBUG
-    PyObject* wrapperType = lookupType("Ice.ObjectAdapterI.ObjectAdapterI");
+    PyObject* wrapperType = lookupType("Ice.ObjectAdapter");
 #endif
     assert(wrapperType);
     assert(PyObject_IsInstance(obj, wrapperType));
