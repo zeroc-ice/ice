@@ -11,16 +11,15 @@ import { OptionalFormat } from "./OptionalFormat.js";
 import { Encoding_1_0, Protocol } from "./Protocol.js";
 import { SlicedData, SliceInfo, UnknownSlicedValue } from "./UnknownSlicedValue.js";
 import { TraceUtil } from "./TraceUtil.js";
-import { LocalException } from "./Exception.js";
+import { LocalException } from "./LocalException.js";
 import { Value } from "./Value.js";
 import {
     EncapsulationException,
     InitializationException,
     MarshalException,
     UnmarshalOutOfBoundsException,
-    UnknownUserException,
     NoValueFactoryException,
-} from "./LocalException.js";
+} from "./LocalExceptions.js";
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
 import { Ice as Ice_Version } from "./Version.js";

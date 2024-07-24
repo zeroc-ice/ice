@@ -3,7 +3,7 @@
 //
 
 import { Base64 } from "./Base64.js";
-import { EndpointParseException } from "./LocalException.js";
+import { EndpointParseException } from "./LocalExceptions.js";
 import { HashUtil } from "./HashUtil.js";
 import { StringUtil } from "./StringUtil.js";
 import { EndpointI } from "./EndpointI.js";

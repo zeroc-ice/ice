@@ -11,7 +11,8 @@ import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
 import { identityToString } from "./IdentityUtil.js";
 import { FormatType } from "./FormatType.js";
-import { LocalException, UserException } from "./Exception.js";
+import { LocalException } from "./LocalException.js";
+import { UserException } from "./UserException.js";
 import {
     FacetNotExistException,
     MarshalException,
@@ -21,7 +22,7 @@ import {
     UnknownException,
     UnknownLocalException,
     UnknownUserException,
-} from "./LocalException.js";
+} from "./LocalExceptions.js";
 
 import { Protocol } from "./Protocol.js";
 import { OutputStream } from "./Stream.js";

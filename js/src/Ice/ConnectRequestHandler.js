@@ -3,7 +3,7 @@
 //
 
 import { AsyncStatus } from "./AsyncStatus.js";
-import { LocalException } from "./Exception.js";
+import { LocalException } from "./LocalException.js";
 import { RetryException } from "./RetryException.js";
 import { Debug } from "./Debug.js";
 

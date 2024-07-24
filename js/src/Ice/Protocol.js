@@ -3,7 +3,11 @@
 //
 
 import { StringUtil } from "./StringUtil.js";
-import { UnsupportedEncodingException, UnsupportedProtocolException, VersionParseException } from "./LocalException.js";
+import {
+    UnsupportedEncodingException,
+    UnsupportedProtocolException,
+    VersionParseException,
+} from "./LocalExceptions.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { EncodingVersion, ProtocolVersion } = Ice_Version;
 

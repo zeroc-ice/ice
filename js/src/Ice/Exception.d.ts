@@ -24,21 +24,5 @@ declare module "ice" {
 
             ice_cause: string | Error;
         }
-
-        /**
-         * Base class for all Ice run-time exceptions.
-         */
-        abstract class LocalException extends Exception {}
-
-        /**
-         * Base class for all Ice user exceptions.
-         */
-        abstract class UserException extends Exception {
-            /**
-             * Obtains the Slice type ID of this exception.
-             * @return The fully-scoped type ID.
-             */
-            static ice_staticId(): string;
-        }
     }
 }

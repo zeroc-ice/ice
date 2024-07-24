@@ -3,7 +3,7 @@
 //
 
 import { TimerUtil } from "./TimerUtil.js";
-import { CommunicatorDestroyedException } from "./LocalException.js";
+import { CommunicatorDestroyedException } from "./LocalExceptions.js";
 
 export class Timer {
     constructor(logger) {

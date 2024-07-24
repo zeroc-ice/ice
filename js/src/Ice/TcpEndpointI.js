@@ -5,7 +5,7 @@
 import { HashUtil } from "./HashUtil.js";
 import { StringUtil } from "./StringUtil.js";
 import { TCPEndpointInfo } from "./Endpoint.js";
-import { EndpointParseException } from "./LocalException.js";
+import { EndpointParseException } from "./LocalExceptions.js";
 import { IPEndpointI } from "./IPEndpointI.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 import { Debug } from "./Debug.js";

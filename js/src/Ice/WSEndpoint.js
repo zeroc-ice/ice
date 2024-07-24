@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { EndpointParseException } from "./LocalException.js";
+import { EndpointParseException } from "./LocalExceptions.js";
 import { HashUtil } from "./HashUtil.js";
 import { WSEndpointInfo } from "./Endpoint.js";
 import { EndpointI } from "./EndpointI.js";

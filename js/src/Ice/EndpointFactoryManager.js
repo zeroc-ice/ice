@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { EndpointParseException } from "./LocalException.js";
+import { EndpointParseException } from "./LocalExceptions.js";
 import { StringUtil } from "./StringUtil.js";
 import { OpaqueEndpointI } from "./OpaqueEndpoint.js";
 import { Protocol } from "./Protocol.js";

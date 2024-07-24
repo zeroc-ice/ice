@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { IdentityParseException } from "./LocalException.js";
+import { IdentityParseException } from "./LocalExceptions.js";
 import { StringUtil } from "./StringUtil.js";
 import { Ice as Ice_Identity } from "./Identity.js";
 import { ToStringMode } from "./ToStringMode.js";

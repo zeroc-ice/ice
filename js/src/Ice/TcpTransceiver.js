@@ -10,7 +10,7 @@ import {
     ConnectionRefusedException,
     ConnectFailedException,
     SocketException,
-} from "./LocalException.js";
+} from "./LocalExceptions.js";
 import { Debug } from "./Debug.js";
 import net from "net";
 

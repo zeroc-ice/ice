@@ -4,7 +4,7 @@
 
 import { ObjectAdapter } from "./ObjectAdapter.js";
 import { Promise } from "./Promise.js";
-import { ObjectAdapterDeactivatedException, AlreadyRegisteredException } from "./LocalException.js";
+import { ObjectAdapterDeactivatedException, AlreadyRegisteredException } from "./LocalExceptions.js";
 import { generateUUID } from "./UUID.js";
 
 //

@@ -19,7 +19,7 @@ import {
     IllegalIdentityException,
     ProxyParseException,
     ProxyUnmarshalException,
-} from "./LocalException.js";
+} from "./LocalExceptions.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { ProtocolVersion, EncodingVersion } = Ice_Version;
 import { Debug } from "./Debug.js";

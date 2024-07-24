@@ -15,7 +15,7 @@ import {
     IllegalIdentityException,
     ObjectAdapterDeactivatedException,
     ProxyParseException,
-} from "./LocalException.js";
+} from "./LocalExceptions.js";
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;
 import { Promise } from "./Promise.js";
