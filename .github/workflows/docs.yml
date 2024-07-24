@@ -54,7 +54,7 @@ jobs:
       - name: Generate Python Documentation
         working-directory: ./python/docs
         run: |
-          make -C ../cpp slice2py Ice IceDiscovery IceLocatorDiscovery
+          make -C ../../cpp slice2py Ice IceDiscovery IceLocatorDiscovery
           make -C ../
           virtualenv .venv
           source .venv/bin/activate
