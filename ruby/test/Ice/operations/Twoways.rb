@@ -301,9 +301,9 @@ def twoways(helper, communicator, p)
     test(so.s.s == "a new string")
     so.p.opVoid()
 
-    # Test marshaling of null structs and structs with null members.
+    # Test marshaling of structs with null members.
     si1 = Test::Structure.new
-    si2 = nil
+    si2 = Test::Structure.new
 
     rso, so = p.opStruct(si1, si2)
     test(!rso.p)

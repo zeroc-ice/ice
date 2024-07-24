@@ -489,7 +489,7 @@ def allTests(helper, communicator)
     #test(compObj.ice_compress(false) < compObj.ice_compress(true))
     #test(!(compObj.ice_compress(true) < compObj.ice_compress(false)))
 
-    test(compObj.ice_getCompress() == Ice::Unset);
+    test(compObj.ice_getCompress() == nil);
     test(compObj.ice_compress(true).ice_getCompress() == true);
     test(compObj.ice_compress(false).ice_getCompress() == false);
 

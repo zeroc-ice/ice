@@ -403,7 +403,7 @@ IceRuby::OperationI::prepareRequest(
         {
             ParamInfoPtr info = *p;
             volatile VALUE arg = RARRAY_AREF(args, info->pos);
-            if ((!info->optional || arg != Unset) && !info->type->validate(arg))
+            if ((!info->optional || arg != Qnil) && !info->type->validate(arg))
             {
                 string opName = fixIdent(_name, IdentNormal);
                 throw RubyException(
@@ -434,7 +434,7 @@ IceRuby::OperationI::prepareRequest(
         {
             ParamInfoPtr info = *p;
             volatile VALUE arg = RARRAY_AREF(args, info->pos);
-            if (arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
+            if (arg != Qnil && os->writeOptional(info->tag, info->type->optionalFormat()))
             {
                 info->type->marshal(arg, os, &valueMap, true);
             }
@@ -516,7 +516,7 @@ IceRuby::OperationI::unmarshalResults(const vector<byte>& bytes, const Ice::Comm
         }
         else
         {
-            RARRAY_ASET(results, info->pos, Unset);
+            RARRAY_ASET(results, info->pos, Qnil);
         }
     }
 
