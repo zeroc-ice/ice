@@ -53,7 +53,7 @@ export class RetryQueue {
     }
 
     destroy() {
-        this._requests.forEach((request) => {
+        this._requests.forEach(request => {
             this._instance.timer().cancel(request.token);
             request.destroy();
         });

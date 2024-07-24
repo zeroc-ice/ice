@@ -643,7 +643,7 @@ class EncapsDecoder11 extends EncapsDecoder {
             // Convert indirect references into direct references.
             //
             if (this._current.indirectPatchList !== null) {
-                this._current.indirectPatchList.forEach((e) => {
+                this._current.indirectPatchList.forEach(e => {
                     Debug.assert(e.index >= 0);
                     if (e.index >= indirectionTable.length) {
                         throw new MarshalException("indirection out of range");
@@ -902,7 +902,7 @@ EncapsDecoder11.InstanceData = class {
 };
 
 const sequencePatcher = function (seq, index, T) {
-    return (v) => {
+    return v => {
         if (v !== null && !(v instanceof T)) {
             throwUOE(T.ice_staticId(), v);
         }
@@ -982,7 +982,7 @@ export class InputStream {
         // (encoding, buffer)
         // (encoding, buffer)
         //
-        arr.forEach((arg) => {
+        arr.forEach(arg => {
             if (arg !== null && arg !== undefined) {
                 if (arg.constructor === Communicator) {
                     args.instance = arg.instance;
@@ -1512,7 +1512,7 @@ export class InputStream {
 
     readValue(cb, T) {
         this.initEncaps();
-        this._encapsStack.decoder.readValue((obj) => {
+        this._encapsStack.decoder.readValue(obj => {
             if (obj !== null && !(obj instanceof T)) {
                 throwUOE(T.ice_staticId(), obj);
             }
@@ -2149,7 +2149,7 @@ class EncapsEncoder11 extends EncapsEncoder {
             // Write the indirection instance table.
             //
             this._stream.writeSize(this._current.indirectionTable.length);
-            this._current.indirectionTable.forEach((o) => this.writeInstance(o));
+            this._current.indirectionTable.forEach(o => this.writeInstance(o));
             this._current.indirectionTable.length = 0; // Faster way to clean array in JavaScript
             this._current.indirectionMap.clear();
         }
@@ -2186,7 +2186,7 @@ class EncapsEncoder11 extends EncapsEncoder {
             return;
         }
 
-        slicedData.slices.forEach((info) => {
+        slicedData.slices.forEach(info => {
             this.startSlice(info.typeId, info.compactId, info.isLastSlice);
 
             //
@@ -2208,7 +2208,7 @@ class EncapsEncoder11 extends EncapsEncoder {
                     this._current.indirectionMap = new Map(); // Map<Value, int>
                 }
 
-                info.instances.forEach((instance) => this._current.indirectionTable.push(instance));
+                info.instances.forEach(instance => this._current.indirectionTable.push(instance));
             }
 
             this.endSlice();
@@ -2900,7 +2900,7 @@ export const ObjectHelper = class {
 
     static read(is) {
         let o;
-        is.readValue((v) => {
+        is.readValue(v => {
             o = v;
         }, Value);
         return o;

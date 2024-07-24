@@ -16,12 +16,12 @@ export class EndpointFactoryManager {
     }
 
     add(factory) {
-        Debug.assert(this._factories.find((f) => factory.type() == f.type()) === undefined);
+        Debug.assert(this._factories.find(f => factory.type() == f.type()) === undefined);
         this._factories.push(factory);
     }
 
     get(type) {
-        return this._factories.find((f) => type == f.type()) || null;
+        return this._factories.find(f => type == f.type()) || null;
     }
 
     create(str, oaEndpoint) {
@@ -113,7 +113,7 @@ export class EndpointFactoryManager {
     }
 
     destroy() {
-        this._factories.forEach((factory) => factory.destroy());
+        this._factories.forEach(factory => factory.destroy());
         this._factories = [];
     }
 }

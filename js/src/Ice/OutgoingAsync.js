@@ -576,7 +576,7 @@ export class ProxyFlushBatch extends ProxyOutgoingAsyncBase {
 
 export class ProxyGetConnection extends ProxyOutgoingAsyncBase {
     invokeRemote(connection, response) {
-        this.markFinished(true, (r) => r.resolve(connection));
+        this.markFinished(true, r => r.resolve(connection));
         return AsyncStatus.Sent;
     }
 

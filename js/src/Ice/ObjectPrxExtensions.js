@@ -410,7 +410,7 @@ ObjectPrx._invoke = function (p, name, mode, fmt, ctx, marshalFn, unmarshalFn, u
         p._checkAsyncTwowayOnly(name);
     }
 
-    const r = new OutgoingAsync(p, name, (res) => {
+    const r = new OutgoingAsync(p, name, res => {
         this._completed(res, unmarshalFn, userEx);
     });
 

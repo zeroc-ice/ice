@@ -354,7 +354,7 @@ export class IncomingAsync {
             if (promise !== null) {
                 promise.then(
                     () => this.completed(null),
-                    (ex) => this.completed(ex),
+                    ex => this.completed(ex),
                 );
                 return;
             }

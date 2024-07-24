@@ -23,8 +23,8 @@ class P extends Promise {
 
     delay(ms) {
         return this.then(
-            (value) => new P((resolve, reject) => Timer.setTimeout(() => resolve(value), ms)),
-            (reason) => new P((resolve, reject) => Timer.setTimeout(() => reject(reason), ms)),
+            value => new P((resolve, reject) => Timer.setTimeout(() => resolve(value), ms)),
+            reason => new P((resolve, reject) => Timer.setTimeout(() => reject(reason), ms)),
         );
     }
 
@@ -33,7 +33,7 @@ class P extends Promise {
     }
 
     static delay(ms, value) {
-        return new P((resolve) => Timer.setTimeout(() => resolve(value), ms));
+        return new P(resolve => Timer.setTimeout(() => resolve(value), ms));
     }
 
     static try(cb) {

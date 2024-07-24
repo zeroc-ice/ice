@@ -55,7 +55,7 @@ if (typeof net.createConnection === "function") {
                     });
 
                     this._fd.on("connect", () => this.socketConnected());
-                    this._fd.on("data", (buf) => this.socketBytesAvailable(buf));
+                    this._fd.on("data", buf => this.socketBytesAvailable(buf));
 
                     //
                     // The error callback can be triggered from the socket
@@ -64,8 +64,8 @@ if (typeof net.createConnection === "function") {
                     // setImmediate. We do the same for close as a
                     // precaution. See also issue #6226.
                     //
-                    this._fd.on("close", (err) => Timer.setImmediate(() => this.socketClosed(err)));
-                    this._fd.on("error", (err) => Timer.setImmediate(() => this.socketError(err)));
+                    this._fd.on("close", err => Timer.setImmediate(() => this.socketClosed(err)));
+                    this._fd.on("error", err => Timer.setImmediate(() => this.socketError(err)));
 
                     return SocketOperation.Connect; // Waiting for connect to complete.
                 } else if (this._state === StateConnectPending) {
