@@ -9,7 +9,7 @@ import uuid
 
 
 class HelloI(Test.Hello):
-    def sayHello(self, current=None):
+    def sayHello(self, current):
         pass
 
 

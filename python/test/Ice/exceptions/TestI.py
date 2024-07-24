@@ -7,21 +7,21 @@ import Test
 
 
 class ThrowerI(Test.Thrower):
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
-    def supportsUndeclaredExceptions(self, current=None):
+    def supportsUndeclaredExceptions(self, current):
         return True
 
-    def supportsAssertException(self, current=None):
+    def supportsAssertException(self, current):
         return False
 
-    def throwAasA(self, a, current=None):
+    def throwAasA(self, a, current):
         ex = Test.A()
         ex.aMem = a
         raise ex
 
-    def throwAorDasAorD(self, a, current=None):
+    def throwAorDasAorD(self, a, current):
         if a > 0:
             ex = Test.A()
             ex.aMem = a
@@ -31,74 +31,74 @@ class ThrowerI(Test.Thrower):
             ex.dMem = a
             raise ex
 
-    def throwBasA(self, a, b, current=None):
+    def throwBasA(self, a, b, current):
         self.throwBasB(a, b, current)
 
-    def throwCasA(self, a, b, c, current=None):
+    def throwCasA(self, a, b, c, current):
         self.throwCasC(a, b, c, current)
 
-    def throwBasB(self, a, b, current=None):
+    def throwBasB(self, a, b, current):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
 
-    def throwCasB(self, a, b, c, current=None):
+    def throwCasB(self, a, b, c, current):
         self.throwCasC(a, b, c, current)
 
-    def throwCasC(self, a, b, c, current=None):
+    def throwCasC(self, a, b, c, current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c
         raise ex
 
-    def throwModA(self, a, a2, current=None):
+    def throwModA(self, a, a2, current):
         ex = Test.Mod.A()
         ex.aMem = a
         ex.a2Mem = a2
         raise ex
 
-    def throwUndeclaredA(self, a, current=None):
+    def throwUndeclaredA(self, a, current):
         ex = Test.A()
         ex.aMem = a
         raise ex
 
-    def throwUndeclaredB(self, a, b, current=None):
+    def throwUndeclaredB(self, a, b, current):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
 
-    def throwUndeclaredC(self, a, b, c, current=None):
+    def throwUndeclaredC(self, a, b, c, current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c
         raise ex
 
-    def throwLocalException(self, current=None):
+    def throwLocalException(self, current):
         raise Ice.TimeoutException()
 
-    def throwNonIceException(self, current=None):
+    def throwNonIceException(self, current):
         raise RuntimeError("12345")
 
-    def throwAssertException(self, current=None):
+    def throwAssertException(self, current):
         raise RuntimeError("operation 'throwAssertException' not supported")
 
-    def throwMemoryLimitException(self, seq, current=None):
+    def throwMemoryLimitException(self, seq, current):
         return bytearray(20 * 1024)
 
-    def throwLocalExceptionIdempotent(self, current=None):
+    def throwLocalExceptionIdempotent(self, current):
         raise Ice.TimeoutException()
 
-    def throwAfterResponse(self, current=None):
+    def throwAfterResponse(self, current):
         #
         # Only relevant for AMD.
         #
         pass
 
-    def throwAfterException(self, current=None):
+    def throwAfterException(self, current):
         #
         # Only relevant for AMD.
         #

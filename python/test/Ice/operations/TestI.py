@@ -17,34 +17,34 @@ class MyDerivedClassI(Test.MyDerivedClass):
         self.lock = threading.Lock()
         self.opByteSOnewayCount = 0
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
-    def supportsCompress(self, current=None):
+    def supportsCompress(self, current):
         return True
 
-    def opVoid(self, current=None):
+    def opVoid(self, current):
         test(current.mode == Ice.OperationMode.Normal)
 
-    def opByte(self, p1, p2, current=None):
+    def opByte(self, p1, p2, current):
         return (p1, p1 ^ p2)
 
-    def opBool(self, p1, p2, current=None):
+    def opBool(self, p1, p2, current):
         return (p2, p1)
 
-    def opShortIntLong(self, p1, p2, p3, current=None):
+    def opShortIntLong(self, p1, p2, p3, current):
         return (p3, p1, p2, p3)
 
-    def opFloatDouble(self, p1, p2, current=None):
+    def opFloatDouble(self, p1, p2, current):
         return (p2, p1, p2)
 
-    def opString(self, p1, p2, current=None):
+    def opString(self, p1, p2, current):
         return (p1 + " " + p2, p2 + " " + p1)
 
-    def opMyEnum(self, p1, current=None):
+    def opMyEnum(self, p1, current):
         return (Test.MyEnum.enum3, p1)
 
-    def opMyClass(self, p1, current=None):
+    def opMyClass(self, p1, current):
         return (
             Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)),
             p1,
@@ -53,23 +53,23 @@ class MyDerivedClassI(Test.MyDerivedClass):
             ),
         )
 
-    def opStruct(self, p1, p2, current=None):
+    def opStruct(self, p1, p2, current):
         p1.s.s = "a new string"
         return (p2, p1)
 
-    def opByteS(self, p1, p2, current=None):
+    def opByteS(self, p1, p2, current):
         p3 = bytes(reversed(p1))
         r = p1 + p2
         return (r, p3)
 
-    def opBoolS(self, p1, p2, current=None):
+    def opBoolS(self, p1, p2, current):
         p3 = p1[0:]
         p3.extend(p2)
         r = p1[0:]
         r.reverse()
         return (r, p3)
 
-    def opShortIntLongS(self, p1, p2, p3, current=None):
+    def opShortIntLongS(self, p1, p2, p3, current):
         p4 = p1[0:]
         p5 = p2[0:]
         p5.reverse()
@@ -77,7 +77,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         p6.extend(p3)
         return (p3, p4, p5, p6)
 
-    def opFloatDoubleS(self, p1, p2, current=None):
+    def opFloatDoubleS(self, p1, p2, current):
         p3 = p1[0:]
         p4 = p2[0:]
         p4.reverse()
@@ -85,28 +85,28 @@ class MyDerivedClassI(Test.MyDerivedClass):
         r.extend(p1)
         return (r, p3, p4)
 
-    def opStringS(self, p1, p2, current=None):
+    def opStringS(self, p1, p2, current):
         p3 = p1[0:]
         p3.extend(p2)
         r = p1[0:]
         r.reverse()
         return (r, p3)
 
-    def opByteSS(self, p1, p2, current=None):
+    def opByteSS(self, p1, p2, current):
         p3 = p1[0:]
         p3.reverse()
         r = p1[0:]
         r.extend(p2)
         return (r, p3)
 
-    def opBoolSS(self, p1, p2, current=None):
+    def opBoolSS(self, p1, p2, current):
         p3 = p1[0:]
         p3.extend(p2)
         r = p1[0:]
         r.reverse()
         return (r, p3)
 
-    def opShortIntLongSS(self, p1, p2, p3, current=None):
+    def opShortIntLongSS(self, p1, p2, p3, current):
         p4 = p1[0:]
         p5 = p2[0:]
         p5.reverse()
@@ -114,7 +114,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         p6.extend(p3)
         return (p3, p4, p5, p6)
 
-    def opFloatDoubleSS(self, p1, p2, current=None):
+    def opFloatDoubleSS(self, p1, p2, current):
         p3 = p1[0:]
         p4 = p2[0:]
         p4.reverse()
@@ -122,226 +122,226 @@ class MyDerivedClassI(Test.MyDerivedClass):
         r.extend(p2)
         return (r, p3, p4)
 
-    def opStringSS(self, p1, p2, current=None):
+    def opStringSS(self, p1, p2, current):
         p3 = p1[0:]
         p3.extend(p2)
         r = p2[0:]
         r.reverse()
         return (r, p3)
 
-    def opStringSSS(self, p1, p2, current=None):
+    def opStringSSS(self, p1, p2, current):
         p3 = p1[0:]
         p3.extend(p2)
         r = p2[0:]
         r.reverse()
         return (r, p3)
 
-    def opByteBoolD(self, p1, p2, current=None):
+    def opByteBoolD(self, p1, p2, current):
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opShortIntD(self, p1, p2, current=None):
+    def opShortIntD(self, p1, p2, current):
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opLongFloatD(self, p1, p2, current=None):
+    def opLongFloatD(self, p1, p2, current):
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opStringStringD(self, p1, p2, current=None):
+    def opStringStringD(self, p1, p2, current):
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opStringMyEnumD(self, p1, p2, current=None):
+    def opStringMyEnumD(self, p1, p2, current):
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opMyEnumStringD(self, p1, p2, current=None):
+    def opMyEnumStringD(self, p1, p2, current):
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opMyStructMyEnumD(self, p1, p2, current=None):
+    def opMyStructMyEnumD(self, p1, p2, current):
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opByteBoolDS(self, p1, p2, current=None):
+    def opByteBoolDS(self, p1, p2, current):
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return (r, p3)
 
-    def opShortIntDS(self, p1, p2, current=None):
+    def opShortIntDS(self, p1, p2, current):
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return (r, p3)
 
-    def opLongFloatDS(self, p1, p2, current=None):
+    def opLongFloatDS(self, p1, p2, current):
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return (r, p3)
 
-    def opStringStringDS(self, p1, p2, current=None):
+    def opStringStringDS(self, p1, p2, current):
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return (r, p3)
 
-    def opStringMyEnumDS(self, p1, p2, current=None):
+    def opStringMyEnumDS(self, p1, p2, current):
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return (r, p3)
 
-    def opMyEnumStringDS(self, p1, p2, current=None):
+    def opMyEnumStringDS(self, p1, p2, current):
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return (r, p3)
 
-    def opMyStructMyEnumDS(self, p1, p2, current=None):
+    def opMyStructMyEnumDS(self, p1, p2, current):
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return (r, p3)
 
-    def opByteByteSD(self, p1, p2, current=None):
+    def opByteByteSD(self, p1, p2, current):
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opBoolBoolSD(self, p1, p2, current=None):
+    def opBoolBoolSD(self, p1, p2, current):
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opShortShortSD(self, p1, p2, current=None):
+    def opShortShortSD(self, p1, p2, current):
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opIntIntSD(self, p1, p2, current=None):
+    def opIntIntSD(self, p1, p2, current):
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opLongLongSD(self, p1, p2, current=None):
+    def opLongLongSD(self, p1, p2, current):
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opStringFloatSD(self, p1, p2, current=None):
+    def opStringFloatSD(self, p1, p2, current):
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opStringDoubleSD(self, p1, p2, current=None):
+    def opStringDoubleSD(self, p1, p2, current):
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opStringStringSD(self, p1, p2, current=None):
+    def opStringStringSD(self, p1, p2, current):
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opMyEnumMyEnumSD(self, p1, p2, current=None):
+    def opMyEnumMyEnumSD(self, p1, p2, current):
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return (r, p3)
 
-    def opIntS(self, s, current=None):
+    def opIntS(self, s, current):
         return [-x for x in s]
 
-    def opByteSOneway(self, s, current=None):
+    def opByteSOneway(self, s, current):
         with self.lock:
             self.opByteSOnewayCount += 1
 
-    def opByteSOnewayCallCount(self, current=None):
+    def opByteSOnewayCallCount(self, current):
         with self.lock:
             count = self.opByteSOnewayCount
             self.opByteSOnewayCount = 0
         return count
 
-    def opContext(self, current=None):
+    def opContext(self, current):
         return current.ctx
 
-    def opDoubleMarshaling(self, p1, p2, current=None):
+    def opDoubleMarshaling(self, p1, p2, current):
         d = 1278312346.0 / 13.0
         test(p1 == d)
         for i in p2:
             test(i == d)
 
-    def opIdempotent(self, current=None):
+    def opIdempotent(self, current):
         test(current.mode == Ice.OperationMode.Idempotent)
 
-    def opDerived(self, current=None):
+    def opDerived(self, current):
         pass
 
-    def opByte1(self, value, current=None):
+    def opByte1(self, value, current):
         return value
 
-    def opShort1(self, value, current=None):
+    def opShort1(self, value, current):
         return value
 
-    def opInt1(self, value, current=None):
+    def opInt1(self, value, current):
         return value
 
-    def opLong1(self, value, current=None):
+    def opLong1(self, value, current):
         return value
 
-    def opFloat1(self, value, current=None):
+    def opFloat1(self, value, current):
         return value
 
-    def opDouble1(self, value, current=None):
+    def opDouble1(self, value, current):
         return value
 
-    def opString1(self, value, current=None):
+    def opString1(self, value, current):
         return value
 
-    def opStringS1(self, value, current=None):
+    def opStringS1(self, value, current):
         return value
 
-    def opByteBoolD1(self, value, current=None):
+    def opByteBoolD1(self, value, current):
         return value
 
-    def opStringS2(self, value, current=None):
+    def opStringS2(self, value, current):
         return value
 
-    def opByteBoolD2(self, value, current=None):
+    def opByteBoolD2(self, value, current):
         return value
 
-    def opMyClass1(self, value, current=None):
+    def opMyClass1(self, value, current):
         return value
 
-    def opMyStruct1(self, value, current=None):
+    def opMyStruct1(self, value, current):
         return value
 
-    def opStringLiterals(self, current=None):
+    def opStringLiterals(self, current):
         return [
             Test.s0,
             Test.s1,
@@ -376,7 +376,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
             Test.su2,
         ]
 
-    def opWStringLiterals(self, current=None):
+    def opWStringLiterals(self, current):
         return self.opStringLiterals(current)
 
     def opMStruct1(self, current):

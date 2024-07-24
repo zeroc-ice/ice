@@ -12,9 +12,9 @@ class ObjectPrxHelper
         return $communicator->stringToProxy($proxyString, '::Ice::Object');
     }
 
-    public static function checkedCast($proxy, $facetOrContext=null, $context=null)
+    public static function checkedCast($proxy, ...$args)
     {
-        return $proxy->ice_checkedCast('::Ice::Object', $facetOrContext, $context);
+        return $proxy->ice_checkedCast('::Ice::Object', ...$args);
     }
 
     public static function uncheckedCast($proxy, $facet=null)

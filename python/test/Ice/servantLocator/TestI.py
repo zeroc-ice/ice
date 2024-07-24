@@ -12,31 +12,31 @@ def test(b):
 
 
 class TestI(Test.TestIntf):
-    def requestFailedException(self, current=None):
+    def requestFailedException(self, current):
         pass
 
-    def unknownUserException(self, current=None):
+    def unknownUserException(self, current):
         pass
 
-    def unknownLocalException(self, current=None):
+    def unknownLocalException(self, current):
         pass
 
-    def unknownException(self, current=None):
+    def unknownException(self, current):
         pass
 
-    def localException(self, current=None):
+    def localException(self, current):
         pass
 
-    def userException(self, current=None):
+    def userException(self, current):
         pass
 
-    def pythonException(self, current=None):
+    def pythonException(self, current):
         pass
 
-    def unknownExceptionWithServantException(self, current=None):
+    def unknownExceptionWithServantException(self, current):
         raise Ice.ObjectNotExistException()
 
-    def impossibleException(self, throw, current=None):
+    def impossibleException(self, throw, current):
         if throw:
             raise Test.TestImpossibleException()
         #
@@ -45,7 +45,7 @@ class TestI(Test.TestIntf):
         #
         return "Hello"
 
-    def intfUserException(self, throw, current=None):
+    def intfUserException(self, throw, current):
         if throw:
             raise Test.TestIntfUserException()
         #
@@ -54,19 +54,19 @@ class TestI(Test.TestIntf):
         #
         return "Hello"
 
-    def asyncResponse(self, current=None):
+    def asyncResponse(self, current):
         #
         # Only relevant for AMD.
         #
         pass
 
-    def asyncException(self, current=None):
+    def asyncException(self, current):
         #
         # Only relevant for AMD.
         #
         pass
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.deactivate()
 
 

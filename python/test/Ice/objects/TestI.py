@@ -46,7 +46,7 @@ class EI(Test.E):
     def __init__(self):
         Test.E.__init__(self, 1, "hello")
 
-    def checkValues(self, current=None):
+    def checkValues(self):
         return self._i == 1 and self._s == "hello"
 
 
@@ -54,7 +54,7 @@ class FI(Test.F):
     def __init__(self, e=None):
         Test.F.__init__(self, e, e)
 
-    def checkValues(self, current=None):
+    def checkValues(self):
         return self._e1 is not None and self._e1 == self.e2
 
 
@@ -82,38 +82,41 @@ class InitialI(Test.Initial):
         self._d.theB = self._b2  # Reference to a B.
         self._d.theC = None  # Reference to a C.
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
+        self._shutdown()
+
+    def _shutdown(self):
         self._adapter.getCommunicator().shutdown()
 
-    def getB1(self, current=None):
+    def getB1(self, current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         return self._b1
 
-    def getB2(self, current=None):
+    def getB2(self, current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         return self._b2
 
-    def getC(self, current=None):
+    def getC(self, current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         return self._c
 
-    def getD(self, current=None):
+    def getD(self, current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         self._d.preMarshalInvoked = False
         return self._d
 
-    def getE(self, current=None):
+    def getE(self, current):
         return self._e
 
-    def getF(self, current=None):
+    def getF(self, current):
         return self._f
 
     def setRecursive(self, r, current):
@@ -133,59 +136,59 @@ class InitialI(Test.Initial):
             Test.Initial.GetAMDMBMarshaledResult(self._b1, current)
         )
 
-    def getAll(self, current=None):
+    def getAll(self, current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         self._d.preMarshalInvoked = False
         return (self._b1, self._b2, self._c, self._d)
 
-    def getK(self, current=None):
+    def getK(self, current):
         return Test.K(Test.L("l"))
 
-    def opValue(self, v1, current=None):
+    def opValue(self, v1, current):
         return v1, v1
 
-    def opValueSeq(self, v1, current=None):
+    def opValueSeq(self, v1, current):
         return v1, v1
 
-    def opValueMap(self, v1, current=None):
+    def opValueMap(self, v1, current):
         return v1, v1
 
-    def getD1(self, d1, current=None):
+    def getD1(self, d1, current):
         return d1
 
-    def throwEDerived(self, current=None):
+    def throwEDerived(self, current):
         raise Test.EDerived(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4"))
 
-    def setG(self, g, current=None):
+    def setG(self, g, current):
         pass
 
-    def opBaseSeq(self, inSeq, current=None):
+    def opBaseSeq(self, inSeq, current):
         return (inSeq, inSeq)
 
-    def getCompact(self, current=None):
+    def getCompact(self, current):
         return Test.CompactExt()
 
-    def getInnerA(self, current=None):
+    def getInnerA(self, current):
         return Test.Inner.A(self._b1)
 
-    def getInnerSubA(self, current=None):
+    def getInnerSubA(self, current):
         return Test.Inner.Sub.A(Test.Inner.A(self._b1))
 
-    def throwInnerEx(self, current=None):
+    def throwInnerEx(self, current):
         raise Test.Inner.Ex("Inner::Ex")
 
-    def throwInnerSubEx(self, current=None):
+    def throwInnerSubEx(self, current):
         raise Test.Inner.Sub.Ex("Inner::Sub::Ex")
 
-    def opM(self, m, current=None):
+    def opM(self, m, current):
         return (m, m)
 
-    def opF1(self, f11, current=None):
+    def opF1(self, f11, current):
         return (f11, Test.F1("F12"))
 
-    def opF2(self, f21, current=None):
+    def opF2(self, f21, current):
         return (
             f21,
             Test.F2Prx.uncheckedCast(
@@ -209,10 +212,10 @@ class InitialI(Test.Initial):
 
 
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
-    def op(self, current=None):
+    def op(self, current):
         return Test.AlsoEmpty()
 
 
 class F2I(Test.F2):
-    def op(self, current=None):
+    def op(self, current):
         pass

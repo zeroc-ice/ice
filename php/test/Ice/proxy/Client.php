@@ -448,9 +448,7 @@ function allTests($helper)
 
     $c["one"] = "hello";
     $c["two"] = "world";
-    $clc = $base->ice_checkedCast("::Test::MyClass", $c);
-    // TODO: the following doesn't work:
-    // $clc = Test\MyClassPrxHelper::checkedCast($base, $c);
+    $clc = Test\MyClassPrxHelper::checkedCast($base, $c);
     $c2 = $clc->getContext();
     test($c == $c2);
 

@@ -10,7 +10,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
     def __init__(self):
         self._nextPort = 10001
 
-    def createObjectAdapter(self, name, endpoints, current=None):
+    def createObjectAdapter(self, name, endpoints, current):
         self._nextPort += 1
         if endpoints.find("-p") < 0:
             endpoints += ' -h "{0}" -p {1}'.format(
@@ -27,10 +27,10 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
             current.adapter.addWithUUID(RemoteObjectAdapterI(adapter))
         )
 
-    def deactivateObjectAdapter(self, adapter, current=None):
+    def deactivateObjectAdapter(self, adapter, current):
         adapter.deactivate()
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
 
@@ -42,10 +42,10 @@ class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
         )
         self._adapter.activate()
 
-    def getTestIntf(self, current=None):
+    def getTestIntf(self, current):
         return self._testIntf
 
-    def deactivate(self, current=None):
+    def deactivate(self, current):
         try:
             self._adapter.destroy()
         except Ice.ObjectAdapterDeactivatedException:
@@ -53,5 +53,5 @@ class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
 
 
 class TestI(Test.TestIntf):
-    def getAdapterName(self, current=None):
+    def getAdapterName(self, current):
         return current.adapter.getName()

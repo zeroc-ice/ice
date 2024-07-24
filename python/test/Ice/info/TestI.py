@@ -24,7 +24,7 @@ class MyDerivedClassI(Test.TestIntf):
     def __init__(self):
         self.ctx = None
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
     def getEndpointInfoAsContext(self, current):
