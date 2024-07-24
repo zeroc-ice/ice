@@ -496,17 +496,10 @@ ObjectPrx.checkedCast = function (prx, facet, ctx) {
         }
 
         r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
-        prx.ice_isA(this.ice_staticId(), ctx)
-            .then((ret) => {
-                r.resolve(ret ? new this(prx) : null);
-            })
-            .catch((ex) => {
-                if (ex instanceof FacetNotExistException) {
-                    r.resolve(null);
-                } else {
-                    r.reject(ex);
-                }
-            });
+        prx.ice_isA(this.ice_staticId(), ctx).then(
+            ret => r.resolve(ret ? new this(prx) : null),
+            ex => r.reject(ex),
+        );
     }
 
     return r;

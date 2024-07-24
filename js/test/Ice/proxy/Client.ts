@@ -730,8 +730,14 @@ export class Client extends TestHelper {
         test(cl.equals(base));
         test(derived.equals(base));
         test(cl.equals(derived));
-        let f = await Test.MyDerivedClassPrx.checkedCast(cl, "facet");
-        test(f === null);
+
+        try {
+            await Test.MyDerivedClassPrx.checkedCast(cl, "facet");
+            test(false);
+        } catch (ex) {
+            test(ex instanceof Ice.FacetNotExistException);
+        }
+
         out.writeLine("ok");
 
         out.write("testing checked cast with context... ");
