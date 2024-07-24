@@ -442,8 +442,9 @@ def allTests(helper, communicator)
     p1 = Test::SmallStruct.new(56)
     p2, p3 = initial.opSmallStruct(p1)
     test(p2 == p1 && p3 == p1)
-    p2, p3 = initial.opSmallStruct(nil) # Test null struct
-    test(p2 == nil && p3 == nil)
+    test(Ice::Unset == nil)
+    p2, p3 = initial.opSmallStruct(Ice::Unset) # Test backwards compat syntax
+    test(p2 == Ice::Unset && p3 == Ice::Unset)
 
     p2, p3 = initial.opFixedStruct(nil)
     test(p2 == nil && p3 == nil)
