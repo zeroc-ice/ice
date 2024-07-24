@@ -143,6 +143,7 @@ public static class CurrentExtensions
             ReplyStatus replyStatus;
             string exceptionId;
             string? exceptionDetails = null;
+            string? unknownExceptionMessage = null;
 
             switch (exc)
             {
@@ -202,16 +203,19 @@ public static class CurrentExtensions
                 case UnknownLocalException ex:
                     exceptionId = ex.ice_id();
                     replyStatus = ReplyStatus.UnknownLocalException;
+                    unknownExceptionMessage = ex.Message;
                     break;
 
                 case UnknownUserException ex:
                     exceptionId = ex.ice_id();
                     replyStatus = ReplyStatus.UnknownUserException;
+                    unknownExceptionMessage = ex.Message;
                     break;
 
                 case UnknownException ex:
                     exceptionId = ex.ice_id();
                     replyStatus = ReplyStatus.UnknownException;
+                    unknownExceptionMessage = ex.Message;
                     break;
 
                 case LocalException ex:
@@ -237,7 +241,10 @@ public static class CurrentExtensions
                     ReplyStatus.UnknownException))
             {
                 ostr.writeByte((byte)replyStatus);
-                ostr.writeString(exc.Message);
+                // If the exception is an UnknownXxxException, we keep its message as-is; otherwise, we create a custom
+                // message. This message doesn't include the stack trace.
+                unknownExceptionMessage ??= $"Dispatch failed with {exceptionId}: {exc.Message}";
+                ostr.writeString(unknownExceptionMessage);
             }
 
             return new OutgoingResponse(replyStatus, exceptionId, exceptionDetails ?? exc.ToString(), ostr);
