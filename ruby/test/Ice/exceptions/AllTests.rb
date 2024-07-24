@@ -49,7 +49,7 @@ def allTests(helper, communicator)
 
     print "testing checked cast... "
     STDOUT.flush
-    thrower = Test::ThrowerPrx::checkedCast(base)
+    thrower = Test::ThrowerPrx.checkedCast(base)
     test(thrower)
     test(thrower == base)
     puts "ok"
@@ -291,7 +291,7 @@ def allTests(helper, communicator)
 
     id = Ice::stringToIdentity("does not exist")
     begin
-        thrower2 = Test::ThrowerPrx::uncheckedCast(thrower.ice_identity(id))
+        thrower2 = thrower.ice_identity(id, Test::ThrowerPrx)
         thrower2.throwAasA(1)
 #       thrower2.ice_ping()
         test(false)
@@ -306,11 +306,10 @@ def allTests(helper, communicator)
 
     print "catching facet not exist exception... "
     STDOUT.flush
-
     begin
-        thrower2 = Test::ThrowerPrx::uncheckedCast(thrower, "no such facet")
+        thrower2 = thrower.ice_facet("no such facet", Test::ThrowerPrx)
         begin
-            thrower2.ice_ping()
+            thrower2.throwAasA(1)
             test(false)
         rescue Ice::FacetNotExistException => ex
             test(ex.facet == "no such facet")

@@ -248,7 +248,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     if (_classHistory.count(scoped) == 0)
     {
         string name = "T_" + fixIdent(p->name(), IdentToUpper);
-        _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
+        _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << "Prx)";
         _out.inc();
         _out << nl << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
         _out.dec();
@@ -260,15 +260,8 @@ Slice::Ruby::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "_Mixin)";
+    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
-
-    //
-    // Marker to avoid redefinitions, we don't use the actual class names at those might
-    // be defined by IceRuby for some internal classes
-    //
-    _out << sp << nl << "module " << getAbsolute(p, IdentToUpper) << "_Mixin";
-    _out << nl << "end";
 
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
@@ -442,15 +435,8 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "_Mixin)";
+    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "Prx)";
     _out.inc();
-
-    //
-    // Marker to avoid redefinitions, we don't use the actual class names at those might
-    // be defined by IceRuby for some internal classes
-    //
-    _out << sp << nl << "module " << getAbsolute(p, IdentToUpper) << "_Mixin";
-    _out << nl << "end";
 
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
@@ -522,7 +508,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << "Prx";
     _out << ')';
     _out.inc();
-    _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
     _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
     _out.dec();
     _out << nl << "end";

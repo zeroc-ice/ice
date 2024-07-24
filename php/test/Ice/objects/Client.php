@@ -103,20 +103,9 @@ class MyValueFactory implements Ice\ValueFactory
 
 function allTests($helper)
 {
-    echo "testing stringToProxy... ";
-    flush();
     $ref = sprintf("initial:%s", $helper->getTestEndpoint());
     $communicator = $helper->communicator();
-    $base = $communicator->stringToProxy($ref);
-    test($base != null);
-    echo "ok\n";
-
-    echo "testing checked cast... ";
-    flush();
-    $initial = $base->ice_checkedCast("::Test::Initial");
-    test($initial != null);
-    test($initial == $base);
-    echo "ok\n";
+    $initial = Test\InitialPrxHelper::createProxy($communicator, $ref);
 
     echo "getting B1... ";
     flush();
@@ -416,10 +405,7 @@ function allTests($helper)
     echo "testing UnexpectedObjectException... ";
     flush();
     $ref = sprintf("uoet:%s", $helper->getTestEndpoint());
-    $base = $communicator->stringToProxy($ref);
-    test($base != null);
-    $uoet = $base->ice_uncheckedCast("::Test::UnexpectedObjectExceptionTest");
-    test($uoet != null);
+    $uoet = Test\UnexpectedObjectExceptionTestPrxHelper::createProxy($communicator, $ref);
     try
     {
         $uoet->op();
@@ -453,7 +439,7 @@ function allTests($helper)
 
     $f22 = null;
     $ref = sprintf("F21:%s", $helper->getTestEndpoint());
-    $f21 = $initial->opF2($communicator->stringToProxy($ref)->ice_uncheckedCast("::Test::F2"), $f22);
+    $f21 = $initial->opF2(Test\F2PrxHelper::createProxy($communicator, $ref), $f22);
     test($f21->ice_getIdentity()->name == "F21");
     $f21->op();
     test($f22->ice_getIdentity()->name == "F22");

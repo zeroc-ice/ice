@@ -10,7 +10,16 @@
 class TestIntfI : public virtual Test::TestIntf
 {
 public:
+    void opShortArrayAsync(
+        std::pair<const std::int16_t*, const std::int16_t*>,
+        std::function<void(
+            std::pair<const std::int16_t*, const std::int16_t*>,
+            std::pair<const std::int16_t*, const std::int16_t*>)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) override;
+
     void opDoubleArrayAsync(
+        bool,
         std::pair<const double*, const double*>,
         std::function<void(const Test::DoubleSeq&, const Test::DoubleSeq&)>,
         std::function<void(std::exception_ptr)>,

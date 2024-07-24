@@ -54,6 +54,20 @@ allTests(TestHelper* helper)
     cout << "testing alternate sequences... " << flush;
 
     {
+        ShortSeq in(50);
+        for (size_t i = 0; i < in.size(); ++i)
+        {
+            in[i] = static_cast<int16_t>(i + 1);
+        }
+        pair<const int16_t*, const int16_t*> inPair(in.data(), in.data() + in.size());
+
+        ShortSeq out;
+        ShortSeq ret = t->opShortArray(inPair, out);
+        test(out == in);
+        test(ret == in);
+    }
+
+    {
         DoubleSeq in(5);
         in[0] = 3.14;
         in[1] = 1 / 3;
@@ -68,7 +82,7 @@ allTests(TestHelper* helper)
         pair<const double*, const double*> inPair(inArray, inArray + 5);
 
         DoubleSeq out;
-        DoubleSeq ret = t->opDoubleArray(inPair, out);
+        DoubleSeq ret = t->opDoubleArray(false, inPair, out);
         test(out == in);
         test(ret == in);
     }
@@ -529,6 +543,19 @@ allTests(TestHelper* helper)
     cout << "testing alternate sequences with AMI... " << flush;
     {
         {
+            ShortSeq in(50);
+            for (size_t i = 0; i < in.size(); ++i)
+            {
+                in[i] = static_cast<int16_t>(i + 1);
+            }
+            pair<const int16_t*, const int16_t*> inPair(in.data(), in.data() + in.size());
+
+            auto r = t->opShortArrayAsync(inPair).get();
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
+        }
+
+        {
             DoubleSeq in(5);
             in[0] = 3.14;
             in[1] = 1 / 3;
@@ -541,7 +568,7 @@ allTests(TestHelper* helper)
                 inArray[i] = in[i];
             }
             pair<const double*, const double*> inPair(inArray, inArray + 5);
-            auto r = t->opDoubleArrayAsync(inPair).get();
+            auto r = t->opDoubleArrayAsync(false, inPair).get();
             test(std::get<1>(r) == in);
             test(std::get<0>(r) == in);
         }
@@ -925,6 +952,7 @@ allTests(TestHelper* helper)
         promise<bool> done;
 
         t->opDoubleArrayAsync(
+            false,
             inPair,
             [&](pair<const double*, const double*> ret, pair<const double*, const double*> out)
             {
