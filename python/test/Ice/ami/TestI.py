@@ -15,28 +15,28 @@ class TestIntfI(Test.TestIntf):
         self._pending = None
         self._shutdown = False
 
-    def op(self, current=None):
+    def op(self, current):
         pass
 
-    def opWithResult(self, current=None):
+    def opWithResult(self, current):
         return 15
 
-    def opWithUE(self, current=None):
+    def opWithUE(self, current):
         raise Test.TestIntfException()
 
-    def opWithPayload(self, bytes, current=None):
+    def opWithPayload(self, bytes, current):
         pass
 
-    def opBatch(self, current=None):
+    def opBatch(self, current):
         with self._cond:
             self._batchCount += 1
             self._cond.notify()
 
-    def opBatchCount(self, current=None):
+    def opBatchCount(self, current):
         with self._cond:
             return self._batchCount
 
-    def waitForBatch(self, count, current=None):
+    def waitForBatch(self, count, current):
         with self._cond:
             while self._batchCount < count:
                 self._cond.wait(5)
@@ -44,13 +44,13 @@ class TestIntfI(Test.TestIntf):
             self._batchCount = 0
             return result
 
-    def close(self, mode, current=None):
+    def close(self, mode, current):
         current.con.close(Ice.ConnectionClose.valueOf(mode.value))
 
-    def sleep(self, ms, current=None):
+    def sleep(self, ms, current):
         time.sleep(ms / 1000.0)
 
-    def startDispatch(self, current=None):
+    def startDispatch(self, current):
         with self._cond:
             if self._shutdown:
                 # Ignore, this can occur with the forceful connection close test, shutdown can be dispatch
@@ -63,7 +63,7 @@ class TestIntfI(Test.TestIntf):
             self._pending = Ice.Future()
             return self._pending
 
-    def finishDispatch(self, current=None):
+    def finishDispatch(self, current):
         with self._cond:
             if self._shutdown:
                 return
@@ -73,7 +73,7 @@ class TestIntfI(Test.TestIntf):
                 self._pending.set_result(None)
                 self._pending = None
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         with self._cond:
             self._shutdown = True
             if self._pending:
@@ -81,13 +81,13 @@ class TestIntfI(Test.TestIntf):
                 self._pending = None
             current.adapter.getCommunicator().shutdown()
 
-    def supportsAMD(self, current=None):
+    def supportsAMD(self, current):
         return True
 
-    def supportsFunctionalTests(self, current=None):
+    def supportsFunctionalTests(self, current):
         return False
 
-    def pingBiDir(self, reply, current=None):
+    def pingBiDir(self, reply, current):
         # TODO: verify correct thread with add_done_callback_async
         reply.ice_fixed(current.con).replyAsync().result()
 
@@ -101,8 +101,8 @@ class TestIntfControllerI(Test.TestIntfController):
     def __init__(self, adapter):
         self._adapter = adapter
 
-    def holdAdapter(self, current=None):
+    def holdAdapter(self, current):
         self._adapter.hold()
 
-    def resumeAdapter(self, current=None):
+    def resumeAdapter(self, current):
         self._adapter.activate()

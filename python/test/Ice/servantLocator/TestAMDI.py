@@ -12,33 +12,33 @@ def test(b):
 
 
 class TestI(Test.TestIntf):
-    def requestFailedException(self, current=None):
+    def requestFailedException(self, current):
         return None
 
-    def unknownUserException(self, current=None):
+    def unknownUserException(self, current):
         return None
 
-    def unknownLocalException(self, current=None):
+    def unknownLocalException(self, current):
         return None
 
-    def unknownException(self, current=None):
+    def unknownException(self, current):
         return None
 
-    def localException(self, current=None):
+    def localException(self, current):
         return None
 
-    def userException(self, current=None):
+    def userException(self, current):
         return None
 
-    def pythonException(self, current=None):
+    def pythonException(self, current):
         return None
 
-    def unknownExceptionWithServantException(self, current=None):
+    def unknownExceptionWithServantException(self, current):
         f = Ice.Future()
         f.set_exception(Ice.ObjectNotExistException())
         return f
 
-    def impossibleException(self, throw, current=None):
+    def impossibleException(self, throw, current):
         f = Ice.Future()
         if throw:
             f.set_exception(Test.TestImpossibleException())
@@ -50,7 +50,7 @@ class TestI(Test.TestIntf):
             f.set_result("Hello")
         return f
 
-    def intfUserException(self, throw, current=None):
+    def intfUserException(self, throw, current):
         f = Ice.Future()
         if throw:
             f.set_exception(Test.TestIntfUserException())
@@ -62,14 +62,14 @@ class TestI(Test.TestIntf):
             f.set_result("Hello")
         return f
 
-    def asyncResponse(self, current=None):
+    def asyncResponse(self, current):
         #
         # We can't do this with futures.
         #
         # return Ice.Future.completed(None)
         raise Ice.ObjectNotExistException()
 
-    def asyncException(self, current=None):
+    def asyncException(self, current):
         #
         # We can't do this with futures.
         #
@@ -78,7 +78,7 @@ class TestI(Test.TestIntf):
         # return f
         raise Ice.ObjectNotExistException()
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.deactivate()
 
 

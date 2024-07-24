@@ -13,7 +13,7 @@ def test(b):
 
 
 class TestI(Test.TestIntf):
-    def transient(self, current=None):
+    def transient(self, current):
         communicator = current.adapter.getCommunicator()
         adapter = communicator.createObjectAdapterWithEndpoints(
             "TransientTestAdapter", "default"
@@ -21,7 +21,7 @@ class TestI(Test.TestIntf):
         adapter.activate()
         adapter.destroy()
 
-    def deactivate(self, current=None):
+    def deactivate(self, current):
         current.adapter.deactivate()
         time.sleep(0.1)
 
