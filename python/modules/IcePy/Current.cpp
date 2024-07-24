@@ -11,7 +11,8 @@
 using namespace std;
 using namespace IcePy;
 
-PyObject* IcePy::createCurrent(const Ice::Current& current)
+PyObject*
+IcePy::createCurrent(const Ice::Current& current)
 {
     PyObject* currentType = lookupType("Ice.Current");
 
@@ -61,7 +62,7 @@ PyObject* IcePy::createCurrent(const Ice::Current& current)
 
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     assert(operationModeType);
-    const char * enumerator = nullptr;
+    const char* enumerator = nullptr;
     switch (current.mode)
     {
         case Ice::OperationMode::Normal:

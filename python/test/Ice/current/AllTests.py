@@ -22,8 +22,10 @@ def allTests(helper, communicator, collocated):
 
     sys.stdout.write("testing current.con... ")
     sys.stdout.flush()
-    # TODO why is there a IcePy.Connection for collocated tests?
-    test("IcePy.Connection" in proxy.getConnection())
+    if collocated:
+        test(proxy.getConnection() == "")
+    else:
+        test("IcePy.Connection" in proxy.getConnection())
     print("ok")
 
     sys.stdout.write("testing current.id... ")
