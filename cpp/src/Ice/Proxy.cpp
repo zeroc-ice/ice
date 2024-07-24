@@ -86,7 +86,7 @@ Ice::ObjectPrx::ice_getContext() const
     return _reference->getContext()->getValue();
 }
 
-const string&
+string
 Ice::ObjectPrx::ice_getFacet() const
 {
     return _reference->getFacet();
@@ -110,99 +110,99 @@ Ice::ObjectPrx::ice_getEndpoints() const
 }
 
 int32_t
-Ice::ObjectPrx::ice_getLocatorCacheTimeout() const
+Ice::ObjectPrx::ice_getLocatorCacheTimeout() const noexcept
 {
     return _reference->getLocatorCacheTimeout();
 }
 
 bool
-Ice::ObjectPrx::ice_isConnectionCached() const
+Ice::ObjectPrx::ice_isConnectionCached() const noexcept
 {
     return _reference->getCacheConnection();
 }
 
 EndpointSelectionType
-Ice::ObjectPrx::ice_getEndpointSelection() const
+Ice::ObjectPrx::ice_getEndpointSelection() const noexcept
 {
     return _reference->getEndpointSelection();
 }
 
 bool
-Ice::ObjectPrx::ice_isSecure() const
+Ice::ObjectPrx::ice_isSecure() const noexcept
 {
     return _reference->getSecure();
 }
 
 ::Ice::EncodingVersion
-Ice::ObjectPrx::ice_getEncodingVersion() const
+Ice::ObjectPrx::ice_getEncodingVersion() const noexcept
 {
     return _reference->getEncoding();
 }
 
 bool
-Ice::ObjectPrx::ice_isPreferSecure() const
+Ice::ObjectPrx::ice_isPreferSecure() const noexcept
 {
     return _reference->getPreferSecure();
 }
 
 optional<RouterPrx>
-Ice::ObjectPrx::ice_getRouter() const
+Ice::ObjectPrx::ice_getRouter() const noexcept
 {
     RouterInfoPtr routerInfo = _reference->getRouterInfo();
     return routerInfo ? make_optional(routerInfo->getRouter()) : nullopt;
 }
 
 optional<LocatorPrx>
-Ice::ObjectPrx::ice_getLocator() const
+Ice::ObjectPrx::ice_getLocator() const noexcept
 {
     LocatorInfoPtr locatorInfo = _reference->getLocatorInfo();
     return locatorInfo ? make_optional(locatorInfo->getLocator()) : nullopt;
 }
 
 bool
-Ice::ObjectPrx::ice_isCollocationOptimized() const
+Ice::ObjectPrx::ice_isCollocationOptimized() const noexcept
 {
     return _reference->getCollocationOptimized();
 }
 
 int32_t
-Ice::ObjectPrx::ice_getInvocationTimeout() const
+Ice::ObjectPrx::ice_getInvocationTimeout() const noexcept
 {
     return _reference->getInvocationTimeout();
 }
 
 bool
-Ice::ObjectPrx::ice_isTwoway() const
+Ice::ObjectPrx::ice_isTwoway() const noexcept
 {
     return _reference->getMode() == Reference::ModeTwoway;
 }
 
 bool
-Ice::ObjectPrx::ice_isOneway() const
+Ice::ObjectPrx::ice_isOneway() const noexcept
 {
     return _reference->getMode() == Reference::ModeOneway;
 }
 
 bool
-Ice::ObjectPrx::ice_isBatchOneway() const
+Ice::ObjectPrx::ice_isBatchOneway() const noexcept
 {
     return _reference->getMode() == Reference::ModeBatchOneway;
 }
 
 bool
-Ice::ObjectPrx::ice_isDatagram() const
+Ice::ObjectPrx::ice_isDatagram() const noexcept
 {
     return _reference->getMode() == Reference::ModeDatagram;
 }
 
 bool
-Ice::ObjectPrx::ice_isBatchDatagram() const
+Ice::ObjectPrx::ice_isBatchDatagram() const noexcept
 {
     return _reference->getMode() == Reference::ModeBatchDatagram;
 }
 
 optional<bool>
-Ice::ObjectPrx::ice_getCompress() const
+Ice::ObjectPrx::ice_getCompress() const noexcept
 {
     return _reference->getCompress();
 }
@@ -214,19 +214,19 @@ Ice::ObjectPrx::ice_getConnectionId() const
 }
 
 bool
-Ice::ObjectPrx::ice_isFixed() const
+Ice::ObjectPrx::ice_isFixed() const noexcept
 {
     return dynamic_pointer_cast<FixedReference>(_reference) != nullptr;
 }
 
 ConnectionPtr
-Ice::ObjectPrx::ice_getCachedConnection() const
+Ice::ObjectPrx::ice_getCachedConnection() const noexcept
 {
     return _requestHandlerCache->getCachedConnection();
 }
 
 CommunicatorPtr
-Ice::ObjectPrx::ice_getCommunicator() const
+Ice::ObjectPrx::ice_getCommunicator() const noexcept
 {
     return _reference->getCommunicator();
 }
@@ -606,33 +606,33 @@ IceInternal::throwNullProxyMarshalException(const char* file, int line, const Cu
 
 namespace Ice
 {
-    bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
+    bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept
     {
         return targetLess(lhs._getReference(), rhs._getReference());
     }
 
-    bool operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
+    bool operator==(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept
     {
         return targetEqualTo(lhs._getReference(), rhs._getReference());
     }
 }
 
 bool
-Ice::proxyIdentityLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
+Ice::proxyIdentityLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs) noexcept
 {
     return lhs && rhs ? lhs->ice_getIdentity() < rhs->ice_getIdentity()
                       : std::less<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
 }
 
 bool
-Ice::proxyIdentityEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
+Ice::proxyIdentityEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs) noexcept
 {
     return lhs && rhs ? lhs->ice_getIdentity() == rhs->ice_getIdentity()
                       : std::equal_to<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
 }
 
 bool
-Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
+Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs) noexcept
 {
     if (lhs && rhs)
     {
@@ -669,7 +669,7 @@ Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<Ob
 }
 
 bool
-Ice::proxyIdentityAndFacetEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
+Ice::proxyIdentityAndFacetEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs) noexcept
 {
     if (lhs && rhs)
     {

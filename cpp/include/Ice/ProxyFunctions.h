@@ -160,13 +160,13 @@ namespace Ice
         return proxy ? checkedCast<Prx>(proxy->ice_facet(std::move(facet)), context) : std::nullopt;
     }
 
-    ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
-    ICE_API bool operator==(const ObjectPrx&, const ObjectPrx&);
+    ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&) noexcept;
+    ICE_API bool operator==(const ObjectPrx&, const ObjectPrx&) noexcept;
 
-    inline bool operator>(const ObjectPrx& lhs, const ObjectPrx& rhs) { return rhs < lhs; }
-    inline bool operator<=(const ObjectPrx& lhs, const ObjectPrx& rhs) { return !(lhs > rhs); }
-    inline bool operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs) { return !(lhs < rhs); }
-    inline bool operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs) { return !(lhs == rhs); }
+    inline bool operator>(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return rhs < lhs; }
+    inline bool operator<=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs > rhs); }
+    inline bool operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs < rhs); }
+    inline bool operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs == rhs); }
 
     ICE_API std::ostream& operator<<(std::ostream&, const ObjectPrx&);
 
@@ -190,7 +190,7 @@ namespace Ice
      * @param rhs A proxy.
      * @return True if the identity in lhs compares less than the identity in rhs, false otherwise.
      */
-    ICE_API bool proxyIdentityLess(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs);
+    ICE_API bool proxyIdentityLess(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) noexcept;
 
     /**
      * Compares the object identities of two proxies.
@@ -198,7 +198,7 @@ namespace Ice
      * @param rhs A proxy.
      * @return True if the identity in lhs compares equal to the identity in rhs, false otherwise.
      */
-    ICE_API bool proxyIdentityEqual(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs);
+    ICE_API bool proxyIdentityEqual(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) noexcept;
 
     /**
      * Compares the object identities and facets of two proxies.
@@ -207,7 +207,8 @@ namespace Ice
      * @return True if the identity and facet in lhs compare less than the identity and facet
      * in rhs, false otherwise.
      */
-    ICE_API bool proxyIdentityAndFacetLess(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs);
+    ICE_API bool
+    proxyIdentityAndFacetLess(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) noexcept;
 
     /**
      * Compares the object identities and facets of two proxies.
@@ -216,7 +217,8 @@ namespace Ice
      * @return True if the identity and facet in lhs compare equal to the identity and facet
      * in rhs, false otherwise.
      */
-    ICE_API bool proxyIdentityAndFacetEqual(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs);
+    ICE_API bool
+    proxyIdentityAndFacetEqual(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) noexcept;
 
     /**
      * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
@@ -226,7 +228,7 @@ namespace Ice
 
     struct ProxyIdentityLess
     {
-        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const
+        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const noexcept
         {
             return proxyIdentityLess(lhs, rhs);
         }
@@ -239,7 +241,7 @@ namespace Ice
      */
     struct ProxyIdentityEqual
     {
-        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const
+        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const noexcept
         {
             return proxyIdentityEqual(lhs, rhs);
         }
@@ -252,7 +254,7 @@ namespace Ice
      */
     struct ProxyIdentityAndFacetLess
     {
-        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const
+        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const noexcept
         {
             return proxyIdentityAndFacetLess(lhs, rhs);
         }
@@ -265,7 +267,7 @@ namespace Ice
      */
     struct ProxyIdentityAndFacetEqual
     {
-        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const
+        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const noexcept
         {
             return proxyIdentityAndFacetEqual(lhs, rhs);
         }
