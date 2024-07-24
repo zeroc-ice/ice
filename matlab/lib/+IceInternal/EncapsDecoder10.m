@@ -4,9 +4,8 @@
 
 classdef EncapsDecoder10 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder10(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphDepthMax)
-            obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, ...
-                                                classGraphDepthMax);
+        function obj = EncapsDecoder10(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax)
+            obj@IceInternal.EncapsDecoder(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax);
             obj.sliceType = IceInternal.SliceType.NoSlice;
         end
 
@@ -223,14 +222,6 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 %
                 if ~isempty(v)
                     break;
-                end
-
-                %
-                % If slicing is disabled, stop unmarshaling.
-                %
-                if ~obj.sliceValues
-                    reason = sprintf('cannot find a value factory for ''%s'' and slicing is disabled', obj.typeId);
-                    throw(Ice.MarshalException(reason));
                 end
 
                 %

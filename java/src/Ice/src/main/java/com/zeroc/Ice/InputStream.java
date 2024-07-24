@@ -253,7 +253,6 @@ public class InputStream {
     _traceSlicing = false;
     _classGraphDepthMax = 0x7fffffff;
     _closure = null;
-    _sliceValues = true;
     _startSeq = -1;
     _minSeqSize = 0;
   }
@@ -281,7 +280,6 @@ public class InputStream {
     }
 
     _startSeq = -1;
-    _sliceValues = true;
   }
 
   /**
@@ -325,20 +323,6 @@ public class InputStream {
    */
   public void setClassResolver(java.util.function.Function<String, Class<?>> r) {
     _classResolver = r;
-  }
-
-  /**
-   * Determines the behavior of the stream when extracting instances of Slice classes. An instance
-   * is "sliced" when a factory cannot be found for a Slice type ID. The stream's default behavior
-   * is to slice instances.
-   *
-   * @param b If <code>true</code> (the default), slicing is enabled; if <code>false</code>, slicing
-   *     is disabled. If slicing is disabled and the stream encounters a Slice type ID during
-   *     decoding for which no value factory is installed, it raises {@link
-   *     NoValueFactoryException}.
-   */
-  public void setSliceValues(boolean b) {
-    _sliceValues = b;
   }
 
   /**
@@ -411,10 +395,6 @@ public class InputStream {
     Object tmpClosure = other._closure;
     other._closure = _closure;
     _closure = tmpClosure;
-
-    boolean tmpSliceValues = other._sliceValues;
-    other._sliceValues = _sliceValues;
-    _sliceValues = tmpSliceValues;
 
     int tmpClassGraphDepthMax = other._classGraphDepthMax;
     other._classGraphDepthMax = _classGraphDepthMax;
@@ -1865,12 +1845,10 @@ public class InputStream {
 
     EncapsDecoder(
         InputStream stream,
-        boolean sliceValues,
         int classGraphDepthMax,
         ValueFactoryManager f,
         java.util.function.Function<String, Class<?>> cr) {
       _stream = stream;
-      _sliceValues = sliceValues;
       _classGraphDepthMax = classGraphDepthMax;
       _classGraphDepth = 0;
       _valueFactoryManager = f;
@@ -2095,7 +2073,6 @@ public class InputStream {
     }
 
     protected final InputStream _stream;
-    protected final boolean _sliceValues;
     protected final int _classGraphDepthMax;
     protected int _classGraphDepth;
     protected ValueFactoryManager _valueFactoryManager;
@@ -2115,11 +2092,10 @@ public class InputStream {
   private static final class EncapsDecoder10 extends EncapsDecoder {
     EncapsDecoder10(
         InputStream stream,
-        boolean sliceValues,
         int classGraphDepthMax,
         ValueFactoryManager f,
         java.util.function.Function<String, Class<?>> cr) {
-      super(stream, sliceValues, classGraphDepthMax, f, cr);
+      super(stream, classGraphDepthMax, f, cr);
       _sliceType = SliceType.NoSlice;
     }
 
@@ -2337,14 +2313,6 @@ public class InputStream {
         }
 
         //
-        // If slicing is disabled, stop unmarshaling.
-        //
-        if (!_sliceValues) {
-          throw new NoValueFactoryException(
-              "no value factory found and slicing is disabled", _typeId);
-        }
-
-        //
         // Slice off what we don't understand.
         //
         skipSlice();
@@ -2389,12 +2357,11 @@ public class InputStream {
   private static class EncapsDecoder11 extends EncapsDecoder {
     EncapsDecoder11(
         InputStream stream,
-        boolean sliceValues,
         int classGraphDepthMax,
         ValueFactoryManager f,
         java.util.function.Function<String, Class<?>> cr,
         java.util.function.IntFunction<String> r) {
-      super(stream, sliceValues, classGraphDepthMax, f, cr);
+      super(stream, classGraphDepthMax, f, cr);
       _compactIdResolver = r;
       _current = null;
       _valueIdIndex = 1;
@@ -2786,14 +2753,6 @@ public class InputStream {
         }
 
         //
-        // If slicing is disabled, stop unmarshaling.
-        //
-        if (!_sliceValues) {
-          throw new NoValueFactoryException(
-              "no value factory found and slicing is disabled", _current.typeId);
-        }
-
-        //
         // Slice off what we don't understand.
         //
         skipSlice();
@@ -2975,13 +2934,11 @@ public class InputStream {
     {
       if (_encapsStack.encoding_1_0) {
         _encapsStack.decoder =
-            new EncapsDecoder10(
-                this, _sliceValues, _classGraphDepthMax, _valueFactoryManager, _classResolver);
+            new EncapsDecoder10(this, _classGraphDepthMax, _valueFactoryManager, _classResolver);
       } else {
         _encapsStack.decoder =
             new EncapsDecoder11(
                 this,
-                _sliceValues,
                 _classGraphDepthMax,
                 _valueFactoryManager,
                 _classResolver,
@@ -3008,7 +2965,6 @@ public class InputStream {
     void unmarshal(InputStream istr);
   }
 
-  private boolean _sliceValues;
   private int _classGraphDepthMax;
   private boolean _traceSlicing;
 
