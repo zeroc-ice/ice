@@ -159,7 +159,6 @@ namespace Slice
             std::string _dllExport;
             std::string _dllClassExport;
             std::string _dllMemberExport;
-            bool _doneStaticSymbol;
             TypeContext _useWstring;
             std::list<TypeContext> _useWstringHist;
         };
