@@ -2274,11 +2274,7 @@ IceRuby::ProxyInfo::getId() const
 bool
 IceRuby::ProxyInfo::validate(VALUE val)
 {
-    if (!NIL_P(val))
-    {
-        return checkProxy(val);
-    }
-    return true;
+    return NIL_P(val) || checkProxy(val);
 }
 
 bool
