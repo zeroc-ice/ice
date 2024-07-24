@@ -91,8 +91,7 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         if admin is not None:
             admin.addUpdateCallback(servant)
 
-        proxy = current.adapter.addWithUUID(servant)
-        return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)
+        return current.adapter.addWithUUID(servant)
 
     def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()

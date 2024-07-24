@@ -2274,20 +2274,7 @@ IceRuby::ProxyInfo::getId() const
 bool
 IceRuby::ProxyInfo::validate(VALUE val)
 {
-    if (!NIL_P(val))
-    {
-        if (!checkProxy(val))
-        {
-            return false;
-        }
-        volatile VALUE cls = CLASS_OF(val);
-        volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
-        assert(!NIL_P(type));
-        ProxyInfoPtr info = dynamic_pointer_cast<ProxyInfo>(getType(type));
-        assert(info);
-        return info->isA(shared_from_this());
-    }
-    return true;
+    return NIL_P(val) || checkProxy(val);
 }
 
 bool
