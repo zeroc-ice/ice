@@ -24,13 +24,13 @@ class ActivateAdapterThread(threading.Thread):
 
 
 class TimeoutI(Test.Timeout):
-    def op(self, current=None):
+    def op(self, current):
         pass
 
-    def sendData(self, data, current=None):
+    def sendData(self, data, current):
         pass
 
-    def sleep(self, timeout, current=None):
+    def sleep(self, timeout, current):
         if timeout != 0:
             time.sleep(timeout / 1000.0)
 
@@ -39,16 +39,16 @@ class ControllerI(Test.Controller):
     def __init__(self, adapter):
         self.adapter = adapter
 
-    def holdAdapter(self, to, current=None):
+    def holdAdapter(self, to, current):
         self.adapter.hold()
         if to >= 0:
             t = ActivateAdapterThread(self.adapter, to)
             t.start()
 
-    def resumeAdapter(self, current=None):
+    def resumeAdapter(self, current):
         self.adapter.activate()
 
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
 

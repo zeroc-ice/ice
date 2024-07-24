@@ -11,23 +11,23 @@ import Test
 
 
 class ThrowerI(Test.Thrower):
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
-    def supportsUndeclaredExceptions(self, current=None):
+    def supportsUndeclaredExceptions(self, current):
         return True
 
-    def supportsAssertException(self, current=None):
+    def supportsAssertException(self, current):
         return False
 
-    def throwAasA(self, a, current=None):
+    def throwAasA(self, a, current):
         ex = Test.A()
         ex.aMem = a
         f = Ice.Future()
         f.set_exception(ex)
         return f
 
-    def throwAorDasAorD(self, a, current=None):
+    def throwAorDasAorD(self, a, current):
         f = Ice.Future()
         if a > 0:
             ex = Test.A()
@@ -39,13 +39,13 @@ class ThrowerI(Test.Thrower):
             f.set_exception(ex)
         return f
 
-    def throwBasA(self, a, b, current=None):
+    def throwBasA(self, a, b, current):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
 
-    def throwCasA(self, a, b, c, current=None):
+    def throwCasA(self, a, b, c, current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
@@ -54,13 +54,13 @@ class ThrowerI(Test.Thrower):
         f.set_exception(ex)
         return f
 
-    def throwBasB(self, a, b, current=None):
+    def throwBasB(self, a, b, current):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
 
-    def throwCasB(self, a, b, c, current=None):
+    def throwCasB(self, a, b, c, current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
@@ -69,7 +69,7 @@ class ThrowerI(Test.Thrower):
         f.set_exception(ex)
         return f
 
-    def throwCasC(self, a, b, c, current=None):
+    def throwCasC(self, a, b, c, current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
@@ -78,26 +78,26 @@ class ThrowerI(Test.Thrower):
         f.set_exception(ex)
         return f
 
-    def throwModA(self, a, a2, current=None):
+    def throwModA(self, a, a2, current):
         ex = Test.Mod.A()
         ex.aMem = a
         ex.a2Mem = a2
         raise ex
 
-    def throwUndeclaredA(self, a, current=None):
+    def throwUndeclaredA(self, a, current):
         ex = Test.A()
         ex.aMem = a
         f = Ice.Future()
         f.set_exception(ex)
         return f
 
-    def throwUndeclaredB(self, a, b, current=None):
+    def throwUndeclaredB(self, a, b, current):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
 
-    def throwUndeclaredC(self, a, b, c, current=None):
+    def throwUndeclaredC(self, a, b, c, current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
@@ -106,32 +106,32 @@ class ThrowerI(Test.Thrower):
         f.set_exception(ex)
         return f
 
-    def throwLocalException(self, current=None):
+    def throwLocalException(self, current):
         f = Ice.Future()
         f.set_exception(Ice.TimeoutException())
         return f
 
-    def throwNonIceException(self, current=None):
+    def throwNonIceException(self, current):
         f = Ice.Future()
         f.set_exception(RuntimeError("12345"))
         return f
 
-    def throwAssertException(self, current=None):
+    def throwAssertException(self, current):
         raise RuntimeError("operation `throwAssertException' not supported")
 
-    def throwMemoryLimitException(self, seq, current=None):
+    def throwMemoryLimitException(self, seq, current):
         return Ice.Future.completed(bytearray(20 * 1024))
 
-    def throwLocalExceptionIdempotent(self, current=None):
+    def throwLocalExceptionIdempotent(self, current):
         f = Ice.Future()
         f.set_exception(Ice.TimeoutException())
         return f
 
-    def throwAfterResponse(self, current=None):
+    def throwAfterResponse(self, current):
         # Cannot be implemented with Futures
         return None
 
-    def throwAfterException(self, current=None):
+    def throwAfterException(self, current):
         # Cannot be implemented with Futures
         f = Ice.Future()
         f.set_exception(Test.A())

@@ -19,7 +19,7 @@ class PingReplyI(Test.PingReply):
     def __init__(self):
         self._received = False
 
-    def reply(self, current=None):
+    def reply(self, current):
         self._received = True
 
     def checkReceived(self):
