@@ -122,8 +122,8 @@ namespace IcePy
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
         PyVarObject_HEAD_INIT(0, 0) "IcePy.NativePropertiesAdmin", /* tp_name */
-        sizeof(NativePropertiesAdminObject),                     /* tp_basicsize */
-        0,                                                       /* tp_itemsize */
+        sizeof(NativePropertiesAdminObject),                       /* tp_basicsize */
+        0,                                                         /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(nativePropertiesAdminDealloc), /* tp_dealloc */
         0,                                                          /* tp_print */

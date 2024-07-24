@@ -589,50 +589,6 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isDatagram()
 
-    def ice_batchOneway(self):
-        """
-        Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
-
-        Returns
-        -------
-        ObjectPrx
-            A new proxy that uses batch oneway invocations.
-        """
-        return super().ice_batchOneway()
-
-    def ice_isBatchOneway(self):
-        """
-        Returns whether this proxy uses batch oneway invocations.
-
-        Returns
-        -------
-        bool
-            True if this proxy uses batch oneway invocations; False otherwise.
-        """
-        return super().ice_isBatchOneway()
-
-    def ice_datagram(self):
-        """
-        Creates a new proxy that is identical to this proxy, but uses datagram invocations.
-
-        Returns
-        -------
-        ObjectPrx
-            A new proxy that uses datagram invocations.
-        """
-        return super().ice_datagram()
-
-    def ice_isDatagram(self):
-        """
-        Returns whether this proxy uses datagram invocations.
-
-        Returns
-        -------
-        bool
-            True if this proxy uses datagram invocations; False otherwise.
-        """
-        return super().ice_isDatagram()
-
     def ice_batchDatagram(self):
         """
         Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
