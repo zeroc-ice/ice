@@ -3140,7 +3140,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             writeAllocateCode(C, outParams, nullptr, interfaceScope, _useWstring);
             if (ret)
             {
-                C << nl << retS << " ret = ";
+                C << nl << "const " << retS << " ret = ";
             }
             else
             {
