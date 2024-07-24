@@ -3,8 +3,8 @@
 import os
 import sys
 import IcePy
-from .PropertiesI import PropertiesI
-from .CommunicatorI import CommunicatorI
+from .Properties import Properties
+from .Communicator import Communicator
 
 __name__ = "Ice"
 
@@ -22,7 +22,7 @@ def initialize(args=None, data=None):
     If you supply an argument list, the function removes those arguments from
     the list that were recognized by the Ice run time."""
     communicator = IcePy.Communicator(args, data)
-    return CommunicatorI(communicator)
+    return Communicator(communicator)
 
 def identityToString(id, toStringMode=None):
     return IcePy.identityToString(id, toStringMode)
@@ -46,7 +46,7 @@ def createProperties(args=None, defaults=None):
     from the list that were recognized by the Ice run time."""
 
     properties = IcePy.createProperties(args, defaults)
-    return PropertiesI(properties)
+    return Properties(properties)
 
 
 def getSliceDir():

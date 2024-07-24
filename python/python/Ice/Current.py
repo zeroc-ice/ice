@@ -1,5 +1,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
+from typing import final
+
+@final
 class Current:
     """
     Provides information about an incoming request being dispatched.
