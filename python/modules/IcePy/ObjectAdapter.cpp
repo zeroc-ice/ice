@@ -1768,7 +1768,7 @@ IcePy::wrapObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
     {
         return nullptr;
     }
-    PyObject* wrapperType = lookupType("Ice.ObjectAdapterI.ObjectAdapterI");
+    PyObject* wrapperType = lookupType("Ice.ObjectAdapter");
     assert(wrapperType);
     PyObjectHandle args = PyTuple_New(1);
     if (!args.get())

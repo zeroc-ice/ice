@@ -62,7 +62,7 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::PropertiesPtr defaults;
     if (defaultsObj)
     {
-        PyObject* propType = lookupType("Ice.PropertiesI");
+        PyObject* propType = lookupType("Ice.Properties");
         assert(propType);
         if (PyObject_IsInstance(defaultsObj, propType))
         {
