@@ -3187,7 +3187,8 @@ IcePy::ProxyInfo::getId() const
 bool
 IcePy::ProxyInfo::validate(PyObject* val)
 {
-    return val == Py_None || PyObject_IsInstance(val, pythonType) == 1;
+    PyTypeObject* proxyType = &ProxyType;
+    return val == Py_None || PyObject_IsInstance(val, reinterpret_cast<PyObject*>(proxyType)) == 1;
 }
 
 bool
