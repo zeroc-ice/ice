@@ -184,7 +184,7 @@ C++ compiler with support for std=c++17 or higher.
   desired proxy type explicitly. For example:
 
   ```cpp
-  // creates a WidgetPrx
+  // widget is a std::optional<WidgetPrx>
   auto widget = communicator->propertyToProxy<WidgetPrx>("MyWidget");
   ```
 
