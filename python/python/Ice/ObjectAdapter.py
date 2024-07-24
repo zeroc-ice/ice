@@ -1,5 +1,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
+from typing import final
+
+@final
 class ObjectAdapter(object):
     """
     The object adapter provides an up-call interface from the Ice runtime to the implementation of Ice objects.

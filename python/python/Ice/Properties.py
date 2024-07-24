@@ -1,13 +1,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
-__name__ = "Ice"
+from typing import final
 
+@final
 class Properties(object):
     """
     A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
     values being strings. By convention, property keys should have the form
     application-name[.category[.sub-category]].name.
     """
+
+    __module__ = "Ice"
 
     def __init__(self, impl):
         self._impl = impl

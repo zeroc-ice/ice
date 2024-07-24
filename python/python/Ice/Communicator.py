@@ -5,7 +5,9 @@ from .ImplicitContext import ImplicitContext
 from .Properties import Properties
 from .LoggerI import LoggerI
 from .Logger import Logger
+from typing import final
 
+@final
 class Communicator:
     """
     The main entry point to the Ice runtime, represented by the `Ice.Communicator` class.
