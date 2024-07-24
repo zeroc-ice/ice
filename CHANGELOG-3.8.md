@@ -76,6 +76,11 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   var greeter = GreeterPrx.createProxy(communicator, "greeter:tcp -h localhost -p 4061");
   ```
 
+   ```js
+  // JavaScript
+  const greeter = new GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061");
+  ```
+
   ```matlab
   % MATLAB
   greeter = GreeterPrx(communicator, 'greeter:tcp -h localhost -p 4061');
