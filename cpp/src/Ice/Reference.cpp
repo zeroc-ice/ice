@@ -35,7 +35,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 CommunicatorPtr
-IceInternal::Reference::getCommunicator() const
+IceInternal::Reference::getCommunicator() const noexcept
 {
     return _communicator;
 }
@@ -105,7 +105,7 @@ IceInternal::Reference::changeCompress(bool newCompress) const
 }
 
 optional<bool>
-IceInternal::Reference::getCompressOverride() const
+IceInternal::Reference::getCompressOverride() const noexcept
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
     optional<bool> compress =
@@ -276,7 +276,7 @@ IceInternal::Reference::toString() const
 }
 
 bool
-IceInternal::Reference::operator==(const Reference& r) const
+IceInternal::Reference::operator==(const Reference& r) const noexcept
 {
     //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
@@ -330,7 +330,7 @@ IceInternal::Reference::operator==(const Reference& r) const
 }
 
 bool
-IceInternal::Reference::operator<(const Reference& r) const
+IceInternal::Reference::operator<(const Reference& r) const noexcept
 {
     //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
@@ -504,31 +504,31 @@ IceInternal::FixedReference::getAdapterId() const
 }
 
 bool
-IceInternal::FixedReference::getCollocationOptimized() const
+IceInternal::FixedReference::getCollocationOptimized() const noexcept
 {
     return false;
 }
 
 bool
-IceInternal::FixedReference::getCacheConnection() const
+IceInternal::FixedReference::getCacheConnection() const noexcept
 {
     return true;
 }
 
 bool
-IceInternal::FixedReference::getPreferSecure() const
+IceInternal::FixedReference::getPreferSecure() const noexcept
 {
     return false;
 }
 
 Ice::EndpointSelectionType
-IceInternal::FixedReference::getEndpointSelection() const
+IceInternal::FixedReference::getEndpointSelection() const noexcept
 {
     return EndpointSelectionType::Random;
 }
 
 int
-IceInternal::FixedReference::getLocatorCacheTimeout() const
+IceInternal::FixedReference::getLocatorCacheTimeout() const noexcept
 {
     return 0;
 }
@@ -608,13 +608,13 @@ IceInternal::FixedReference::changeConnection(Ice::ConnectionIPtr newConnection)
 }
 
 bool
-IceInternal::FixedReference::isIndirect() const
+IceInternal::FixedReference::isIndirect() const noexcept
 {
     return false;
 }
 
 bool
-IceInternal::FixedReference::isWellKnown() const
+IceInternal::FixedReference::isWellKnown() const noexcept
 {
     return false;
 }
@@ -690,13 +690,13 @@ IceInternal::FixedReference::getRequestHandler() const
 }
 
 const BatchRequestQueuePtr&
-IceInternal::FixedReference::getBatchRequestQueue() const
+IceInternal::FixedReference::getBatchRequestQueue() const noexcept
 {
     return _fixedConnection->getBatchRequestQueue();
 }
 
 bool
-IceInternal::FixedReference::operator==(const Reference& r) const
+IceInternal::FixedReference::operator==(const Reference& r) const noexcept
 {
     if (this == &r)
     {
@@ -711,7 +711,7 @@ IceInternal::FixedReference::operator==(const Reference& r) const
 }
 
 bool
-IceInternal::FixedReference::operator<(const Reference& r) const
+IceInternal::FixedReference::operator<(const Reference& r) const noexcept
 {
     if (this == &r)
     {
@@ -796,43 +796,43 @@ IceInternal::RoutableReference::getAdapterId() const
 }
 
 LocatorInfoPtr
-IceInternal::RoutableReference::getLocatorInfo() const
+IceInternal::RoutableReference::getLocatorInfo() const noexcept
 {
     return _locatorInfo;
 }
 
 RouterInfoPtr
-IceInternal::RoutableReference::getRouterInfo() const
+IceInternal::RoutableReference::getRouterInfo() const noexcept
 {
     return _routerInfo;
 }
 
 bool
-IceInternal::RoutableReference::getCollocationOptimized() const
+IceInternal::RoutableReference::getCollocationOptimized() const noexcept
 {
     return _collocationOptimized;
 }
 
 bool
-IceInternal::RoutableReference::getCacheConnection() const
+IceInternal::RoutableReference::getCacheConnection() const noexcept
 {
     return _cacheConnection;
 }
 
 bool
-IceInternal::RoutableReference::getPreferSecure() const
+IceInternal::RoutableReference::getPreferSecure() const noexcept
 {
     return _preferSecure;
 }
 
 Ice::EndpointSelectionType
-IceInternal::RoutableReference::getEndpointSelection() const
+IceInternal::RoutableReference::getEndpointSelection() const noexcept
 {
     return _endpointSelection;
 }
 
 int
-IceInternal::RoutableReference::getLocatorCacheTimeout() const
+IceInternal::RoutableReference::getLocatorCacheTimeout() const noexcept
 {
     return _locatorCacheTimeout;
 }
@@ -996,13 +996,13 @@ IceInternal::RoutableReference::changeConnection(Ice::ConnectionIPtr connection)
 }
 
 bool
-IceInternal::RoutableReference::isIndirect() const
+IceInternal::RoutableReference::isIndirect() const noexcept
 {
     return _endpoints.empty();
 }
 
 bool
-IceInternal::RoutableReference::isWellKnown() const
+IceInternal::RoutableReference::isWellKnown() const noexcept
 {
     return _endpoints.empty() && _adapterId.empty();
 }
@@ -1134,7 +1134,7 @@ IceInternal::RoutableReference::hash() const noexcept
 }
 
 bool
-IceInternal::RoutableReference::operator==(const Reference& r) const
+IceInternal::RoutableReference::operator==(const Reference& r) const noexcept
 {
     //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
@@ -1202,7 +1202,7 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
 }
 
 bool
-IceInternal::RoutableReference::operator<(const Reference& r) const
+IceInternal::RoutableReference::operator<(const Reference& r) const noexcept
 {
     if (this == &r)
     {
@@ -1342,7 +1342,7 @@ IceInternal::RoutableReference::getRequestHandler() const
 }
 
 const BatchRequestQueuePtr&
-IceInternal::RoutableReference::getBatchRequestQueue() const
+IceInternal::RoutableReference::getBatchRequestQueue() const noexcept
 {
     return _batchRequestQueue;
 }

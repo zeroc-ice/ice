@@ -55,7 +55,7 @@ namespace Ice
          * It's also aesthetically pleasing when making invocations: the proxy appears like a pointer to the remote
          * object.
          */
-        const Prx* operator->() const { return &asPrx(); }
+        const Prx* operator->() const noexcept { return &asPrx(); }
 
         // We don't provide the non-const operator-> because only the assignment operators can modify the proxy.
 
@@ -237,7 +237,7 @@ namespace Ice
             return ref == self._reference ? self : Prx::_fromReference(std::move(ref));
         }
 
-        const Prx& asPrx() const { return *static_cast<const Prx*>(this); }
+        const Prx& asPrx() const noexcept { return *static_cast<const Prx*>(this); }
     };
 
     /**
@@ -536,7 +536,7 @@ namespace Ice
          * @return The cached connection for this proxy, or nil if the proxy does not have
          * an established connection.
          */
-        Ice::ConnectionPtr ice_getCachedConnection() const;
+        Ice::ConnectionPtr ice_getCachedConnection() const noexcept;
 
         /**
          * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
@@ -586,7 +586,7 @@ namespace Ice
          * Obtains the facet for this proxy.
          * @return The facet for this proxy. If the proxy uses the default facet, the return value is the empty string.
          */
-        const std::string& ice_getFacet() const;
+        std::string ice_getFacet() const;
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the facet.
@@ -615,100 +615,100 @@ namespace Ice
          * Obtains the locator cache timeout of this proxy.
          * @return The locator cache timeout value (in seconds).
          */
-        std::int32_t ice_getLocatorCacheTimeout() const;
+        std::int32_t ice_getLocatorCacheTimeout() const noexcept;
 
         /**
          * Determines whether this proxy caches connections.
          * @return True if this proxy caches connections, false otherwise.
          */
-        bool ice_isConnectionCached() const;
+        bool ice_isConnectionCached() const noexcept;
 
         /**
          * Obtains the endpoint selection policy for this proxy (randomly or ordered).
          * @return The endpoint selection policy.
          */
-        Ice::EndpointSelectionType ice_getEndpointSelection() const;
+        Ice::EndpointSelectionType ice_getEndpointSelection() const noexcept;
 
         /**
          * Determines whether this proxy uses only secure endpoints.
          * @return True if this proxy communicates only via secure endpoints, false otherwise.
          */
-        bool ice_isSecure() const;
+        bool ice_isSecure() const noexcept;
 
         /**
          * Obtains the encoding version used to marshal request parameters.
          * @return The encoding version.
          */
-        Ice::EncodingVersion ice_getEncodingVersion() const;
+        Ice::EncodingVersion ice_getEncodingVersion() const noexcept;
 
         /**
          * Determines whether this proxy prefers secure endpoints.
          * @return True if the proxy always attempts to invoke via secure endpoints before it
          * attempts to use insecure endpoints, false otherwise.
          */
-        bool ice_isPreferSecure() const;
+        bool ice_isPreferSecure() const noexcept;
 
         /**
          * Obtains the router for this proxy.
          * @return The router for the proxy. If no router is configured for the proxy, the return value
          * is nullopt.
          */
-        std::optional<RouterPrx> ice_getRouter() const;
+        std::optional<RouterPrx> ice_getRouter() const noexcept;
 
         /**
          * Obtains the locator for this proxy.
          * @return The locator for this proxy. If no locator is configured, the return value is nullopt.
          */
-        std::optional<LocatorPrx> ice_getLocator() const;
+        std::optional<LocatorPrx> ice_getLocator() const noexcept;
 
         /**
          * Determines whether this proxy uses collocation optimization.
          * @return True if the proxy uses collocation optimization, false otherwise.
          */
-        bool ice_isCollocationOptimized() const;
+        bool ice_isCollocationOptimized() const noexcept;
 
         /**
          * Obtains the invocation timeout of this proxy.
          * @return The invocation timeout value (in milliseconds).
          */
-        std::int32_t ice_getInvocationTimeout() const;
+        std::int32_t ice_getInvocationTimeout() const noexcept;
 
         /**
          * Determines whether this proxy uses twoway invocations.
          * @return True if this proxy uses twoway invocations, false otherwise.
          */
-        bool ice_isTwoway() const;
+        bool ice_isTwoway() const noexcept;
 
         /**
          * Determines whether this proxy uses oneway invocations.
          * @return True if this proxy uses oneway invocations, false otherwise.
          */
-        bool ice_isOneway() const;
+        bool ice_isOneway() const noexcept;
 
         /**
          * Determines whether this proxy uses batch oneway invocations.
          * @return True if this proxy uses batch oneway invocations, false otherwise.
          */
-        bool ice_isBatchOneway() const;
+        bool ice_isBatchOneway() const noexcept;
 
         /**
          * Determines whether this proxy uses datagram invocations.
          * @return True if this proxy uses datagram invocations, false otherwise.
          */
-        bool ice_isDatagram() const;
+        bool ice_isDatagram() const noexcept;
 
         /**
          * Determines whether this proxy uses batch datagram invocations.
          * @return True if this proxy uses batch datagram invocations, false otherwise.
          */
-        bool ice_isBatchDatagram() const;
+        bool ice_isBatchDatagram() const noexcept;
 
         /**
          * Obtains the compression override setting of this proxy.
          * @return The compression override setting. If nullopt is returned, no override is set. Otherwise, true
          * if compression is enabled, false otherwise.
          */
-        std::optional<bool> ice_getCompress() const;
+        std::optional<bool> ice_getCompress() const noexcept;
 
         /**
          * Obtains the connection ID of this proxy.
@@ -720,7 +720,7 @@ namespace Ice
          * Determines whether this proxy is a fixed proxy.
          * @return True if this proxy is a fixed proxy, false otherwise.
          */
-        bool ice_isFixed() const;
+        bool ice_isFixed() const noexcept;
 
         /**
          * Returns the Slice type ID associated with this type.
@@ -732,7 +732,7 @@ namespace Ice
          * Obtains the communicator that created this proxy.
          * @return The communicator that created this proxy.
          */
-        Ice::CommunicatorPtr ice_getCommunicator() const;
+        Ice::CommunicatorPtr ice_getCommunicator() const noexcept;
 
         /**
          * Obtains a stringified version of this proxy.
@@ -745,8 +745,11 @@ namespace Ice
 
         static ObjectPrx _fromReference(IceInternal::ReferencePtr ref) { return ObjectPrx(std::move(ref)); }
 
-        const IceInternal::ReferencePtr& _getReference() const { return _reference; }
-        const IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
+        const IceInternal::ReferencePtr& _getReference() const noexcept { return _reference; }
+        const IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const noexcept
+        {
+            return _requestHandlerCache;
+        }
 
         void _checkTwowayOnly(std::string_view) const;
 
