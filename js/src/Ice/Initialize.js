@@ -4,7 +4,7 @@
 
 import { Communicator } from "./Communicator.js";
 import { Protocol } from "./Protocol.js";
-import { InitializationException } from "./LocalException.js";
+import { InitializationException } from "./LocalExceptions.js";
 import { Properties } from "./Properties.js";
 
 export class InitializationData {

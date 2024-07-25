@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { CommunicatorDestroyedException } from "./LocalException.js";
+import { CommunicatorDestroyedException } from "./LocalExceptions.js";
 import { generateUUID } from "./UUID.js";
 import { identityToString } from "./IdentityUtil.js";
 import { Promise } from "./Promise.js";

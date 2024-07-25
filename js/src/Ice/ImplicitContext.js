@@ -5,7 +5,7 @@
 import { Ice as Ice_Context } from "./Context.js";
 const { Context, ContextHelper } = Ice_Context;
 
-import { InitializationException } from "./LocalException.js";
+import { InitializationException } from "./LocalExceptions.js";
 
 //
 // The base class for all ImplicitContext implementations

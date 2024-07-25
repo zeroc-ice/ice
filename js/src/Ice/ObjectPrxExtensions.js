@@ -8,13 +8,8 @@ import { ArrayUtil } from "./ArrayUtil.js";
 import { AsyncResultBase } from "./AsyncResultBase.js";
 import { OutgoingAsync, ProxyFlushBatch, ProxyGetConnection } from "./OutgoingAsync.js";
 import { ReferenceMode } from "./ReferenceMode.js";
-import { UserException } from "./Exception.js";
-import {
-    FacetNotExistException,
-    IllegalIdentityException,
-    TwowayOnlyException,
-    UnknownUserException,
-} from "./LocalException.js";
+import { UserException } from "./UserException.js";
+import { IllegalIdentityException, TwowayOnlyException, UnknownUserException } from "./LocalExceptions.js";
 import { ConnectionI } from "./ConnectionI.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 import { Debug } from "./Debug.js";

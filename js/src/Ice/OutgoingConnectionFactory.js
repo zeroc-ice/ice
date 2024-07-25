@@ -6,8 +6,8 @@ import { ConnectionI } from "./ConnectionI.js";
 import { HashMap } from "./HashMap.js";
 import { AsyncResultBase } from "./AsyncResultBase.js";
 import { Promise } from "./Promise.js";
-import { LocalException } from "./Exception.js";
-import { CommunicatorDestroyedException } from "./LocalException.js";
+import { LocalException } from "./LocalException.js";
+import { CommunicatorDestroyedException } from "./LocalExceptions.js";
 import { Debug } from "./Debug.js";
 
 //

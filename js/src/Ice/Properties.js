@@ -5,7 +5,7 @@
 import { StringUtil } from "./StringUtil.js";
 import { PropertyNames } from "./PropertyNames.js";
 import { getProcessLogger } from "./ProcessLogger.js";
-import { InitializationException } from "./LocalException.js";
+import { InitializationException } from "./LocalExceptions.js";
 import { Debug } from "./Debug.js";
 
 const ParseStateKey = 0;

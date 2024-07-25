@@ -5,8 +5,8 @@
 import { AsyncResultBase } from "./AsyncResultBase.js";
 import { OutputStream } from "./Stream.js";
 import { Protocol } from "./Protocol.js";
-import { UserException } from "./Exception.js";
-import { InvocationCanceledException } from "./LocalException.js";
+import { UserException } from "./UserException.js";
+import { InvocationCanceledException } from "./LocalExceptions.js";
 import { Debug } from "./Debug.js";
 
 export class AsyncResult extends AsyncResultBase {

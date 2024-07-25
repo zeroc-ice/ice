@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { LocalException } from "./Exception.js";
+import { LocalException } from "./LocalException.js";
 import {
     IllegalMessageSizeException,
     ObjectAdapterDeactivatedException,
@@ -21,7 +21,7 @@ import {
     ConnectionNotValidatedException,
     UnknownMessageException,
     UnknownException,
-} from "./LocalException.js";
+} from "./LocalExceptions.js";
 
 import { ConnectionClose } from "./Connection.js";
 

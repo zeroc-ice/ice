@@ -4,7 +4,7 @@
 
 import { HashMap } from "./HashMap.js";
 import { Promise } from "./Promise.js";
-import { NoEndpointException } from "./LocalException.js";
+import { NoEndpointException } from "./LocalExceptions.js";
 import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 
