@@ -336,23 +336,23 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
             {
                 volatile VALUE s = RARRAY_AREF(sl, i);
 
-                Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
-
                 volatile VALUE typeId = callRuby(rb_iv_get, s, "@typeId");
-                info->typeId = getString(typeId);
-
                 volatile VALUE compactId = callRuby(rb_iv_get, s, "@compactId");
-                info->compactId = static_cast<int32_t>(getInteger(compactId));
 
                 volatile VALUE bytes = callRuby(rb_iv_get, s, "@bytes");
                 assert(TYPE(bytes) == T_STRING);
                 const char* str = RSTRING_PTR(bytes);
                 const long len = RSTRING_LEN(bytes);
-                if (str != 0 && len != 0)
-                {
-                    vector<byte> vtmp(reinterpret_cast<const byte*>(str), reinterpret_cast<const byte*>(str + len));
-                    info->bytes.swap(vtmp);
-                }
+                vector<byte> vtmp(reinterpret_cast<const byte*>(str), reinterpret_cast<const byte*>(str + len));
+                volatile VALUE hasOptionalMembers = callRuby(rb_iv_get, s, "@hasOptionalMembers");
+                volatile VALUE isLastSlice = callRuby(rb_iv_get, s, "@isLastSlice");
+
+                auto info = std::make_shared<Ice::SliceInfo>(
+                    getString(typeId),
+                    static_cast<int32_t>(getInteger(compactId)),
+                    std::move(vtmp),
+                    hasOptionalMembers == Qtrue,
+                    isLastSlice == Qtrue);
 
                 volatile VALUE instances = callRuby(rb_iv_get, s, "@instances");
                 assert(TYPE(instances) == T_ARRAY);
@@ -376,12 +376,6 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
 
                     info->instances.push_back(writer);
                 }
-
-                volatile VALUE hasOptionalMembers = callRuby(rb_iv_get, s, "@hasOptionalMembers");
-                info->hasOptionalMembers = hasOptionalMembers == Qtrue;
-
-                volatile VALUE isLastSlice = callRuby(rb_iv_get, s, "@isLastSlice");
-                info->isLastSlice = isLastSlice == Qtrue;
 
                 slices.push_back(info);
             }
