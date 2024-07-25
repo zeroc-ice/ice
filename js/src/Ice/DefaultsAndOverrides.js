@@ -5,7 +5,7 @@
 import { FormatType } from "./FormatType.js";
 import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { Protocol, stringToEncodingVersion, encodingVersionToString } from "./Protocol.js";
-import { EndpointSelectionTypeParseException } from "./LocalExceptions.js";
+import { ParseException } from "./LocalExceptions.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 
 export class DefaultsAndOverrides {
@@ -29,9 +29,7 @@ export class DefaultsAndOverrides {
         } else if (value === "Ordered") {
             this.defaultEndpointSelection = EndpointSelectionType.Ordered;
         } else {
-            const ex = new EndpointSelectionTypeParseException();
-            ex.str = "illegal value `" + value + "'; expected 'Random' or 'Ordered'";
-            throw ex;
+            throw new ParseException(`illegal value '${value}'; expected 'Random' or 'Ordered'`);
         }
 
         this.defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);

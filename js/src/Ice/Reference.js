@@ -9,7 +9,7 @@ import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { HashUtil } from "./HashUtil.js";
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
-import { identityToString } from "./IdentityUtil.js";
+import { identityToString } from "./IdentityToString.js";
 import { MapUtil } from "./MapUtil.js";
 import { OpaqueEndpointI } from "./OpaqueEndpoint.js";
 import { ReferenceMode } from "./ReferenceMode.js";

@@ -5,11 +5,6 @@
 import { Exception } from "./Exception.js";
 
 export class UserException extends Exception {
-    constructor() {
-        super();
-        Exception.captureStackTrace(this);
-    }
-
     static get _id() {
         return "::Ice::UserException";
     }

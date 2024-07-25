@@ -8,7 +8,7 @@ const { LocatorRegistryPrx, AdapterNotFoundException, ObjectNotFoundException } 
 import { Protocol } from "./Protocol.js";
 import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { Promise } from "./Promise.js";
-import { identityToString } from "./IdentityUtil.js";
+import { identityToString } from "./IdentityToString.js";
 import { LocalException } from "./LocalException.js";
 import { UserException } from "./UserException.js";
 import { NotRegisteredException } from "./LocalExceptions.js";

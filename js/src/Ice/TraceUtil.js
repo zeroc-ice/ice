@@ -8,26 +8,35 @@ import { StringUtil } from "./StringUtil.js";
 import { Protocol } from "./Protocol.js";
 import { Ice as Ice_OperationMode } from "./OperationMode.js";
 import { Debug } from "./Debug.js";
+import { identityToString } from "./IdentityToString.js";
+import { ToStringMode } from "./ToStringMode.js";
+
+import { Encoding_1_0, encodingVersionToString } from "./Protocol.js";
+
+// TODO Circular dependency
+// import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
+// const { StringSeqHelper } = Ice_BuiltinSequences;
 
 const OperationMode = Ice_OperationMode.OperationMode;
 
 const slicingIds = new Map();
 
 function printIdentityFacetOperation(s, stream) {
-    let toStringMode = Ice.ToStringMode.Unicode;
+    let toStringMode = ToStringMode.Unicode;
     if (stream.instance !== null) {
         toStringMode = stream.instance.toStringMode();
     }
 
     const identity = new Identity();
     identity._read(stream);
-    s.push("\nidentity = " + Ice.identityToString(identity, toStringMode));
+    s.push("\nidentity = " + identityToString(identity, toStringMode));
 
-    const facet = Ice.StringSeqHelper.read(stream);
-    s.push("\nfacet = ");
-    if (facet.length > 0) {
-        s.push(StringUtil.escapeString(facet[0], "", toStringMode));
-    }
+    // TODO Circular dependency see import comments
+    // const facet = StringSeqHelper.read(stream);
+    // s.push("\nfacet = ");
+    // if (facet.length > 0) {
+    //    s.push(StringUtil.escapeString(facet[0], "", toStringMode));
+    // }
 
     const operation = stream.readString();
     s.push("\noperation = " + operation);
@@ -138,9 +147,9 @@ function printReply(s, stream) {
 
     if (replyStatus === Protocol.replyOK || replyStatus === Protocol.replyUserException) {
         const ver = stream.skipEncapsulation();
-        if (!ver.equals(Ice.Encoding_1_0)) {
+        if (!ver.equals(Encoding_1_0)) {
             s.push("\nencoding = ");
-            s.push(Ice.encodingVersionToString(ver));
+            s.push(encodingVersionToString(ver));
         }
     }
 }
@@ -184,9 +193,9 @@ function printRequestHeader(s, stream) {
     }
 
     const ver = stream.skipEncapsulation();
-    if (!ver.equals(Ice.Encoding_1_0)) {
+    if (!ver.equals(Encoding_1_0)) {
         s.push("\nencoding = ");
-        s.push(Ice.encodingVersionToString(ver));
+        s.push(encodingVersionToString(ver));
     }
 }
 

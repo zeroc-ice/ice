@@ -56,7 +56,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("\"test -f facet'");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ProxyParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         b1 = communicator.stringToProxy('"test -f facet"');
@@ -82,7 +82,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("test test");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ProxyParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         b1 = communicator.stringToProxy("test\\040test");
@@ -92,7 +92,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("test\\777");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.IdentityParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         b1 = communicator.stringToProxy("test\\40test");
@@ -129,14 +129,14 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy('"" test'); // Invalid trailing characters.
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ProxyParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
             b1 = communicator.stringToProxy("test:"); // Missing endpoint.
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         b1 = communicator.stringToProxy("test@adapter");
@@ -149,7 +149,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("id@adapter test");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ProxyParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         b1 = communicator.stringToProxy("category/test@adapter");
@@ -218,14 +218,14 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy('id -f "facet x');
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ProxyParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
             b1 = communicator.stringToProxy("id -f 'facet x");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ProxyParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         b1 = communicator.stringToProxy("test -f facet:" + defaultProtocol);
@@ -268,7 +268,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("test -f facet@test @test");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ProxyParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
         b1 = communicator.stringToProxy("test");
         test(b1.ice_isTwoway());
@@ -305,14 +305,14 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("test:" + defaultProtocol + "@adapterId");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
             b1 = communicator.stringToProxy("test::" + defaultProtocol);
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         //
@@ -342,7 +342,7 @@ export class Client extends TestHelper {
             id = Ice.stringToIdentity("xx\x01FooBar");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.IdentityParseException);
+            test(ex instanceof Ice.ParseException);
         }
 
         try {
@@ -350,7 +350,7 @@ export class Client extends TestHelper {
             id = Ice.stringToIdentity("xx\\ud911");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.IdentityParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         // Testing bytes 127 (\x7F) and €
@@ -803,7 +803,7 @@ export class Client extends TestHelper {
             await cl20.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.UnsupportedEncodingException, ex);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         let ref10 = "test -e 1.0:" + this.getTestEndpoint();
@@ -830,7 +830,7 @@ export class Client extends TestHelper {
             test(false);
         } catch (ex) {
             // Server 2.0 proxy doesn't support 1.0 version.
-            test(ex instanceof Ice.UnsupportedProtocolException, ex);
+            test(ex instanceof Ice.FeatureNotSupportedException, ex);
         }
 
         ref10 = "test -p 1.0:" + this.getTestEndpoint();
@@ -851,7 +851,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -859,7 +859,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -867,7 +867,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -875,7 +875,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -883,7 +883,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -891,7 +891,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 1");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -899,7 +899,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -907,7 +907,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 1 -v");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -915,7 +915,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t x -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -923,7 +923,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t -1 -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         try {
@@ -931,7 +931,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 99 -v x?c");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.EndpointParseException, ex);
+            test(ex instanceof Ice.ParseException, ex);
         }
 
         // Legal TCP endpoint expressed as opaque endpoint

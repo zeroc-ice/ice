@@ -13,13 +13,7 @@ import { SlicedData, SliceInfo, UnknownSlicedValue } from "./UnknownSlicedValue.
 import { TraceUtil } from "./TraceUtil.js";
 import { LocalException } from "./LocalException.js";
 import { Value } from "./Value.js";
-import {
-    EncapsulationException,
-    InitializationException,
-    MarshalException,
-    UnmarshalOutOfBoundsException,
-    NoValueFactoryException,
-} from "./LocalExceptions.js";
+import { InitializationException, MarshalException } from "./LocalExceptions.js";
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
 import { Ice as Ice_Version } from "./Version.js";
@@ -35,6 +29,8 @@ const SliceType = {
     ValueSlice: 1,
     ExceptionSlice: 2,
 };
+
+const endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
 
 //
 // InputStream
@@ -77,7 +73,7 @@ class EncapsDecoder {
         if (isIndex) {
             typeId = this._typeIdMap.get(this._stream.readSize());
             if (typeId === undefined) {
-                throw new UnmarshalOutOfBoundsException();
+                throw new MarshalException(endOfBufferMessage);
             }
         } else {
             typeId = this._stream.readString();
@@ -300,11 +296,8 @@ class EncapsDecoder10 extends EncapsDecoder {
                 // the last slice of an exception. As a result, we just try to read the
                 // next type ID, which raises UnmarshalOutOfBoundsException when the
                 // input buffer underflow.
-                //
-                // Set the reason member to a more helpful message.
-                //
-                if (ex instanceof UnmarshalOutOfBoundsException) {
-                    ex.reason = "unknown exception type `" + mostDerivedId + "'";
+                if (ex instanceof MarshalException) {
+                    throw new MarshalException(`unknown exception type '${mostDerivedId}'`);
                 }
                 throw ex;
             }
@@ -359,7 +352,7 @@ class EncapsDecoder10 extends EncapsDecoder {
 
         this._sliceSize = this._stream.readInt();
         if (this._sliceSize < 4) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         return this._typeId;
@@ -413,7 +406,7 @@ class EncapsDecoder10 extends EncapsDecoder {
             // marks the last slice.
             //
             if (this._typeId == Value.ice_staticId()) {
-                throw new NoValueFactoryException("", mostDerivedId);
+                throw new MarshalException(`Cannot find value factory for type ID '${mostDerivedId}'.`);
             }
 
             v = this.newInstance(this._typeId);
@@ -595,7 +588,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         if ((this._current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) !== 0) {
             this._current.sliceSize = this._stream.readInt();
             if (this._current.sliceSize < 4) {
-                throw new UnmarshalOutOfBoundsException();
+                throw new MarshalException(endOfBufferMessage);
             }
         } else {
             this._current.sliceSize = 0;
@@ -903,7 +896,7 @@ EncapsDecoder11.InstanceData = class {
 const sequencePatcher = function (seq, index, T) {
     return v => {
         if (v !== null && !(v instanceof T)) {
-            throwUOE(T.ice_staticId(), v);
+            throwUOE(T, v);
         }
         seq[index] = v;
     };
@@ -1139,10 +1132,10 @@ export class InputStream {
         //
         const sz = this.readInt();
         if (sz < 6) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         if (sz - 4 > this._buf.remaining) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         this._encapsStack.sz = sz;
 
@@ -1160,11 +1153,11 @@ export class InputStream {
         if (!this._encapsStack.encoding_1_0) {
             this.skipOptionals();
             if (this._buf.position !== this._encapsStack.start + this._encapsStack.sz) {
-                throw new EncapsulationException();
+                throw new MarshalException("Failed to unmarshal encapsulation.");
             }
         } else if (this._buf.position !== this._encapsStack.start + this._encapsStack.sz) {
             if (this._buf.position + 1 !== this._encapsStack.start + this._encapsStack.sz) {
-                throw new EncapsulationException();
+                throw new MarshalException("Failed to unmarshal encapsulation.");
             }
 
             //
@@ -1177,7 +1170,7 @@ export class InputStream {
             try {
                 this._buf.get();
             } catch (ex) {
-                throw new UnmarshalOutOfBoundsException();
+                throw new MarshalException(endOfBufferMessage);
             }
         }
 
@@ -1191,10 +1184,10 @@ export class InputStream {
     skipEmptyEncapsulation() {
         const sz = this.readInt();
         if (sz < 6) {
-            throw new EncapsulationException();
+            throw new MarshalException(`${sz} is not a valid encapsulation size.`);
         }
         if (sz - 4 > this._buf.remaining) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         const encoding = new EncodingVersion();
@@ -1203,7 +1196,7 @@ export class InputStream {
 
         if (encoding.equals(Encoding_1_0)) {
             if (sz != 6) {
-                throw new EncapsulationException();
+                throw new MarshalException(`${sz} is not a valid encapsulation size for a 1.0 empty encapsulation.`);
             }
         } else {
             // Skip the optional content of the encapsulation if we are expecting an
@@ -1217,11 +1210,11 @@ export class InputStream {
         Debug.assert(encoding !== undefined);
         const sz = this.readInt();
         if (sz < 6) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         if (sz - 4 > this._buf.remaining) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         if (encoding !== null) {
@@ -1234,7 +1227,7 @@ export class InputStream {
         try {
             return this._buf.getArray(sz);
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1250,14 +1243,14 @@ export class InputStream {
     skipEncapsulation() {
         const sz = this.readInt();
         if (sz < 6) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         const encoding = new EncodingVersion();
         encoding._read(this);
         try {
             this._buf.position = this._buf.position + sz - 6;
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         return encoding;
     }
@@ -1304,13 +1297,13 @@ export class InputStream {
             if (b === 255) {
                 const v = this._buf.getInt();
                 if (v < 0) {
-                    throw new UnmarshalOutOfBoundsException();
+                    throw new MarshalException(endOfBufferMessage);
                 }
                 return v;
             }
             return b;
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1351,7 +1344,7 @@ export class InputStream {
         // data: it's claiming having more data that what is possible to read.
         //
         if (this._startSeq + this._minSeqSize > this._buf.limit) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         return sz;
@@ -1359,12 +1352,12 @@ export class InputStream {
 
     readBlob(sz) {
         if (this._buf.remaining < sz) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         try {
             return this._buf.getArray(sz);
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1388,7 +1381,7 @@ export class InputStream {
         try {
             return this._buf.get();
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1400,7 +1393,7 @@ export class InputStream {
         try {
             return this._buf.get() === 1;
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1408,7 +1401,7 @@ export class InputStream {
         try {
             return this._buf.getShort();
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1416,7 +1409,7 @@ export class InputStream {
         try {
             return this._buf.getInt();
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1424,7 +1417,7 @@ export class InputStream {
         try {
             return this._buf.getLong();
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1432,7 +1425,7 @@ export class InputStream {
         try {
             return this._buf.getFloat();
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1440,7 +1433,7 @@ export class InputStream {
         try {
             return this._buf.getDouble();
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1453,13 +1446,13 @@ export class InputStream {
         // Check the buffer has enough bytes to read.
         //
         if (this._buf.remaining < len) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         try {
             return this._buf.getString(len);
         } catch (ex) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
     }
 
@@ -1513,7 +1506,7 @@ export class InputStream {
         this.initEncaps();
         this._encapsStack.decoder.readValue(obj => {
             if (obj !== null && !(obj instanceof T)) {
-                throwUOE(T.ice_staticId(), obj);
+                throwUOE(T, obj);
             }
             cb(obj);
         });
@@ -1627,7 +1620,7 @@ export class InputStream {
 
     skip(size) {
         if (size > this._buf.remaining) {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         this._buf.position += size;
     }
@@ -1649,14 +1642,14 @@ export class InputStream {
 
     createInstance(id) {
         let obj = null;
+        const typeId = id.length > 2 ? id.substr(2).replace(/::/g, ".") : "";
         try {
-            const typeId = id.length > 2 ? id.substr(2).replace(/::/g, ".") : "";
             const Class = TypeRegistry.getValueType(typeId);
             if (Class !== undefined) {
                 obj = new Class();
             }
         } catch (ex) {
-            throw new NoValueFactoryException("no value factory", id, ex);
+            throw new MarshalException(`Failed to create a class with type ID '${typeId}'.`, ex);
         }
 
         return obj;
@@ -1671,7 +1664,7 @@ export class InputStream {
                 userEx = new Class();
             }
         } catch (ex) {
-            throw new MarshalException(ex);
+            throw new MarshalException(`Failed to create user exception with type ID '${id}'.`, ex);
         }
         return userEx;
     }
@@ -2464,7 +2457,7 @@ export class OutputStream {
 
     writeEncapsulation(v) {
         if (v.length < 6) {
-            throw new EncapsulationException();
+            throw new MarshalException(`A byte sequence with ${v.length} bytes is not a valid encapsulation.`);
         }
         this.expand(v.length);
         this._buf.putArray(v);

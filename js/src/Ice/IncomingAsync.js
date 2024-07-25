@@ -9,7 +9,7 @@ import { Ice as Ice_OperationMode } from "./OperationMode.js";
 const { OperationMode } = Ice_OperationMode;
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
-import { identityToString } from "./IdentityUtil.js";
+import { identityToString } from "./IdentityToString.js";
 import { FormatType } from "./FormatType.js";
 import { LocalException } from "./LocalException.js";
 import { UserException } from "./UserException.js";

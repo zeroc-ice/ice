@@ -12,9 +12,11 @@ import { Ice as Ice_OperationMode } from "./OperationMode.js";
 const { OperationMode } = Ice_OperationMode;
 import {
     CloseConnectionException,
+    ConnectionClosedException,
     CommunicatorDestroyedException,
-    ConnectionManuallyClosedException,
+    ConnectionAbortedException,
     FacetNotExistException,
+    FeatureNotSupportedException,
     InvocationCanceledException,
     InvocationTimeoutException,
     MarshalException,
@@ -25,7 +27,6 @@ import {
     UnknownException,
     UnknownLocalException,
     UnknownUserException,
-    UnknownReplyStatusException,
 } from "./LocalExceptions.js";
 import { LocalException } from "./LocalException.js";
 import { Ice as Ice_Context } from "./Context.js";
@@ -257,7 +258,8 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
         if (
             ex instanceof CommunicatorDestroyedException ||
             ex instanceof ObjectAdapterDeactivatedException ||
-            ex instanceof ConnectionManuallyClosedException
+            (ex instanceof ConnectionAbortedException && ex.closedByApplication) ||
+            (ex instanceof ConnectionClosedException && ex.closedByApplication)
         ) {
             throw ex;
         }
@@ -311,7 +313,12 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     }
 
     prepare(op, mode, ctx) {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(this._proxy._getReference().getProtocol()));
+        const protocol = this._proxy._getReference().getProtocol();
+        if (protocol.major != Protocol.currentProtocol.major) {
+            throw new FeatureNotSupportedException(
+                `Cannot send request using protocol version ${protocol.major}.${protocol.minor}`,
+            );
+        }
 
         this._mode = mode;
         if (ctx === null) {
@@ -474,17 +481,17 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                     let ue = null;
                     switch (replyStatus) {
                         case Protocol.replyUnknownException: {
-                            ue = new UnknownException();
+                            ue = new UnknownException(unknown);
                             break;
                         }
 
                         case Protocol.replyUnknownLocalException: {
-                            ue = new UnknownLocalException();
+                            ue = new UnknownLocalException(unknown);
                             break;
                         }
 
                         case Protocol.replyUnknownUserException: {
-                            ue = new UnknownUserException();
+                            ue = new UnknownUserException(unknown);
                             break;
                         }
 
@@ -493,13 +500,11 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                             break;
                         }
                     }
-
-                    ue.unknown = unknown;
                     throw ue;
                 }
 
                 default: {
-                    throw new UnknownReplyStatusException();
+                    throw new MarshalException(`Received reply message with unknown reply status ${replyStatus}.`);
                 }
             }
 
@@ -569,7 +574,12 @@ export class ProxyFlushBatch extends ProxyOutgoingAsyncBase {
     }
 
     invoke() {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(this._proxy._getReference().getProtocol()));
+        const protocol = this._proxy._getReference().getProtocol();
+        if (protocol.major != Protocol.currentProtocol.major) {
+            throw new FeatureNotSupportedException(
+                `Cannot send request using protocol version ${protocol.major}.${protocol.minor}`,
+            );
+        }
         this.invokeImpl(true); // userThread = true
     }
 }

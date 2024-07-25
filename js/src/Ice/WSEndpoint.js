@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { EndpointParseException } from "./LocalExceptions.js";
+import { ParseException } from "./LocalExceptions.js";
 import { HashUtil } from "./HashUtil.js";
 import { WSEndpointInfo } from "./Endpoint.js";
 import { EndpointI } from "./EndpointI.js";
@@ -154,7 +154,7 @@ export class WSEndpoint extends EndpointI {
     checkOption(option, argument, endpoint) {
         if (option === "-r") {
             if (argument === null) {
-                throw new EndpointParseException("no argument provided for -r option in endpoint " + endpoint);
+                throw new ParseException(`no argument provided for -r option in endpoint ${endpoint}`);
             }
             this._resource = argument;
         } else {

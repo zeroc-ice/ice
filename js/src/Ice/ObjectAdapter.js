@@ -9,12 +9,10 @@ const { Identity } = Ice_Identity;
 import { generateUUID } from "./UUID.js";
 import {
     AlreadyRegisteredException,
-    IllegalServantException,
     FeatureNotSupportedException,
     InitializationException,
-    IllegalIdentityException,
     ObjectAdapterDeactivatedException,
-    ProxyParseException,
+    ParseException,
 } from "./LocalExceptions.js";
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;
@@ -23,9 +21,10 @@ import { PropertyNames } from "./PropertyNames.js";
 import { ServantManager } from "./ServantManager.js";
 import { StringUtil } from "./StringUtil.js";
 import { Timer } from "./Timer.js";
-import { identityToString } from "./IdentityUtil.js";
+import { identityToString } from "./IdentityToString.js";
 import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
+import { LocalException } from "./LocalException.js";
 
 const _suffixes = [
     "ACM",
@@ -112,7 +111,7 @@ export class ObjectAdapter {
         // Make sure named adapter has some configuration.
         //
         if (router === null && noProps) {
-            throw new InitializationException(`object adapter \`${this._name}' requires configuration`);
+            throw new InitializationException(`object adapter '${this._name}' requires configuration`);
         }
 
         //
@@ -123,9 +122,10 @@ export class ObjectAdapter {
         try {
             this._reference = this._instance.referenceFactory().createFromString("dummy " + proxyOptions, "");
         } catch (e) {
-            if (e instanceof ProxyParseException) {
+            if (e instanceof ParseException) {
                 throw new InitializationException(
-                    `invalid proxy options \`${proxyOptions}' for object adapter \`${name}'`,
+                    `invalid proxy options '${proxyOptions}' for object adapter '${name}'`,
+                    e,
                 );
             } else {
                 throw e;
@@ -447,7 +447,7 @@ export class ObjectAdapter {
 
     static checkIdentity(ident) {
         if (ident.name === undefined || ident.name === null || ident.name.length === 0) {
-            throw new IllegalIdentityException();
+            throw new LocalException("The name of an Ice object identity cannot be empty.");
         }
 
         if (ident.category === undefined || ident.category === null) {
@@ -457,7 +457,7 @@ export class ObjectAdapter {
 
     static checkServant(servant) {
         if (servant === undefined || servant === null) {
-            throw new IllegalServantException("cannot add null servant to Object Adapter");
+            throw new LocalException("cannot add null servant to Object Adapter");
         }
     }
 
@@ -491,7 +491,7 @@ export class ObjectAdapter {
                 beg = StringUtil.findFirstNotOf(s, delim, end);
                 if (beg === -1) {
                     if (s != "") {
-                        throw new EndpointParseException("invalid empty object adapter endpoint");
+                        throw new ParseException("invalid empty object adapter endpoint");
                     }
                     break;
                 }
@@ -530,7 +530,7 @@ export class ObjectAdapter {
                 const es = s.substring(beg, end);
                 const endp = this._instance.endpointFactoryManager().create(es, false);
                 if (endp === null) {
-                    throw new EndpointParseException("invalid object adapter endpoint `" + s + "'");
+                    throw new ParseException(`invalid object adapter endpoint '${s}'`);
                 }
                 endpoints.push(endp);
             }

@@ -55,14 +55,14 @@ export class Client extends TestHelper {
                 adapter.add(new EmptyI(), Ice.stringToIdentity(""));
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.IllegalIdentityException, ex);
+                test(ex instanceof Ice.LocalException, ex);
             }
 
             try {
                 adapter.add(null!, Ice.stringToIdentity("x"));
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.IllegalServantException, ex);
+                test(ex instanceof Ice.LocalException, ex);
             }
 
             adapter.remove(Ice.stringToIdentity("x"));
@@ -238,7 +238,7 @@ export class Client extends TestHelper {
             await thrower.throwMemoryLimitException(null);
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.MemoryLimitException, ex);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         try {
