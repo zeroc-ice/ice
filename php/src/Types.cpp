@@ -368,19 +368,15 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
             {
                 assert(Z_OBJCE_P(s) == _sliceInfoType);
 
-                Ice::SliceInfoPtr info = make_shared<Ice::SliceInfo>();
-
                 zval* typeId = zend_hash_str_find(Z_OBJPROP_P(s), "typeId", sizeof("typeId") - 1);
                 assert(Z_TYPE_P(typeId) == IS_INDIRECT);
                 typeId = Z_INDIRECT_P(typeId);
                 assert(typeId && Z_TYPE_P(typeId) == IS_STRING);
-                info->typeId = string(Z_STRVAL_P(typeId), Z_STRLEN_P(typeId));
 
                 zval* compactId = zend_hash_str_find(Z_OBJPROP_P(s), "compactId", sizeof("compactId") - 1);
                 assert(Z_TYPE_P(compactId) == IS_INDIRECT);
                 compactId = Z_INDIRECT_P(compactId);
                 assert(compactId && Z_TYPE_P(compactId) == IS_LONG);
-                info->compactId = static_cast<long>(Z_LVAL_P(compactId));
 
                 zval* bytes = zend_hash_str_find(Z_OBJPROP_P(s), "bytes", sizeof("bytes") - 1);
                 assert(Z_TYPE_P(bytes) == IS_INDIRECT);
@@ -388,7 +384,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 assert(bytes && Z_TYPE_P(bytes) == IS_ARRAY);
                 HashTable* barr = Z_ARRVAL_P(bytes);
                 zval* e;
-                info->bytes.resize(zend_hash_num_elements(barr));
+                vector<byte> byteVector(zend_hash_num_elements(barr));
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
@@ -399,12 +395,32 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 {
                     long l = static_cast<long>(Z_LVAL_P(e));
                     assert(l >= 0 && l <= 255);
-                    info->bytes[i++] = static_cast<byte>(l);
+                    byteVector[i++] = static_cast<byte>(l);
                 }
                 ZEND_HASH_FOREACH_END();
 #if defined(__clang__)
 #    pragma clang diagnostic pop
 #endif
+
+                zval* hasOptionalMembers =
+                    zend_hash_str_find(Z_OBJPROP_P(s), "hasOptionalMembers", sizeof("hasOptionalMembers") - 1);
+                assert(Z_TYPE_P(hasOptionalMembers) == IS_INDIRECT);
+                hasOptionalMembers = Z_INDIRECT_P(hasOptionalMembers);
+                assert(
+                    hasOptionalMembers &&
+                    (Z_TYPE_P(hasOptionalMembers) == IS_TRUE || Z_TYPE_P(hasOptionalMembers) == IS_FALSE));
+
+                zval* isLastSlice = zend_hash_str_find(Z_OBJPROP_P(s), "isLastSlice", sizeof("isLastSlice") - 1);
+                assert(Z_TYPE_P(isLastSlice) == IS_INDIRECT);
+                isLastSlice = Z_INDIRECT_P(isLastSlice);
+                assert(isLastSlice && (Z_TYPE_P(isLastSlice) == IS_TRUE || Z_TYPE_P(isLastSlice) == IS_FALSE));
+
+                auto info = make_shared<Ice::SliceInfo>(
+                    string(Z_STRVAL_P(typeId), Z_STRLEN_P(typeId)),
+                    static_cast<long>(Z_LVAL_P(compactId)),
+                    std::move(byteVector),
+                    Z_TYPE_P(hasOptionalMembers) == IS_TRUE,
+                    Z_TYPE_P(isLastSlice) == IS_TRUE);
 
                 zval* instances = zend_hash_str_find(Z_OBJPROP_P(s), "instances", sizeof("instances") - 1);
                 assert(Z_TYPE_P(instances) == IS_INDIRECT);
@@ -440,22 +456,6 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
 #if defined(__clang__)
 #    pragma clang diagnostic pop
 #endif
-
-                zval* hasOptionalMembers =
-                    zend_hash_str_find(Z_OBJPROP_P(s), "hasOptionalMembers", sizeof("hasOptionalMembers") - 1);
-                assert(Z_TYPE_P(hasOptionalMembers) == IS_INDIRECT);
-                hasOptionalMembers = Z_INDIRECT_P(hasOptionalMembers);
-                assert(
-                    hasOptionalMembers &&
-                    (Z_TYPE_P(hasOptionalMembers) == IS_TRUE || Z_TYPE_P(hasOptionalMembers) == IS_FALSE));
-                info->hasOptionalMembers = Z_TYPE_P(hasOptionalMembers) == IS_TRUE;
-
-                zval* isLastSlice = zend_hash_str_find(Z_OBJPROP_P(s), "isLastSlice", sizeof("isLastSlice") - 1);
-                assert(Z_TYPE_P(isLastSlice) == IS_INDIRECT);
-                isLastSlice = Z_INDIRECT_P(isLastSlice);
-                assert(isLastSlice && (Z_TYPE_P(isLastSlice) == IS_TRUE || Z_TYPE_P(isLastSlice) == IS_FALSE));
-                info->isLastSlice = Z_TYPE_P(isLastSlice) == IS_TRUE;
-
                 slices.push_back(info);
             }
             ZEND_HASH_FOREACH_END();
