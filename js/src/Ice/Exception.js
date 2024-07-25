@@ -3,6 +3,11 @@
 //
 
 export class Exception extends Error {
+    constructor(...params) {
+        super(...params);
+        this.name = this.constructor._id.substr(2).replace(/::/g, ".");
+    }
+
     ice_id() {
         return this.constructor._id;
     }
