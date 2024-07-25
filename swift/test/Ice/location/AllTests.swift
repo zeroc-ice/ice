@@ -2,7 +2,6 @@
 
 import Foundation
 import Ice
-import PromiseKit
 import TestCommon
 
 func allTests(_ helper: TestHelper) async throws {

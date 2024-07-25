@@ -2,7 +2,6 @@
 
 import Foundation
 import Ice
-import PromiseKit
 import TestCommon
 
 func onewaysAMI(_ helper: TestHelper, _ proxy: MyClassPrx) async throws {

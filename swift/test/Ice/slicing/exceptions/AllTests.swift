@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Ice
-import PromiseKit
 import TestCommon
 
 public func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {

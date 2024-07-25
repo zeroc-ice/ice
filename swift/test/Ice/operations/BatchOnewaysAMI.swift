@@ -2,7 +2,6 @@
 
 import Darwin
 import Ice
-import PromiseKit
 import TestCommon
 
 func batchOnewaysAMI(_ helper: TestHelper, _ p: MyClassPrx) async throws {

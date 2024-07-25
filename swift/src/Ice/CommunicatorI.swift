@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import IceImpl
-import PromiseKit
 
 class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     private let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()

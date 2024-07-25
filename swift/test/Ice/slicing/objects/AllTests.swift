@@ -3,7 +3,6 @@
 import Dispatch
 import Foundation
 import Ice
-import PromiseKit
 import TestCommon
 
 private func breakCycles(_ value: Value) {

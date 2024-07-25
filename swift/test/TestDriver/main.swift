@@ -3,12 +3,7 @@
 //
 
 import Foundation
-import PromiseKit
 import TestBundle
-
-PromiseKit.conf.Q.map = .global()
-PromiseKit.conf.Q.return = .global()
-PromiseKit.conf.logHandler = { _ in }
 
 var args = CommandLine.arguments
 if args.count < 3 {

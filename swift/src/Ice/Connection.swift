@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
-import PromiseKit
 
 /// The batch compression option when flushing queued batch requests.
 public enum CompressBatch: UInt8 {

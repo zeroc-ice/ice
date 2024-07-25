@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Ice
-import PromiseKit
 import TestCommon
 
 public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: String) async throws

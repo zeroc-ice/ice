@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Ice
-import PromiseKit
 import TestCommon
 
 public class Client: TestHelperI {

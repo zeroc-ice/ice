@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import IceImpl
-import PromiseKit
 
 extension Connection {
     public func flushBatchRequestsAsync(

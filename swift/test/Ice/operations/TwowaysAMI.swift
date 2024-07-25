@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Ice
-import PromiseKit
 import TestCommon
 
 func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) async throws {
@@ -15,7 +14,7 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) async throws {
 
     do {
         let ret = try await p.ice_isAAsync(id: ice_staticId(MyClassPrx.self))
-        try await test(ret)
+        try test(ret)
     }
 
     do {

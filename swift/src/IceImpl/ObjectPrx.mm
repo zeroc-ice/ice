@@ -457,8 +457,7 @@
     catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation, which is fine since we only use it to fulfill the
-        // PromiseKit promise.
+        // thread making the invocation.
         completion(nullptr, convertException(std::current_exception()));
     }
 }
@@ -506,8 +505,7 @@
     catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation, which is fine since we only use it to fulfill the
-        // PromiseKit promise.
+        // thread making the invocation.
         exception(convertException(std::current_exception()));
     }
 }
@@ -603,9 +601,7 @@
         }
         std::vector<std::byte> outParams;
 
-        // We use a std::promise and invokeAsync to avoid making an extra copy of the outParam buffer
-        // and to avoid calling PromiseKit wait. PromiseKit issues a warning if wait() is called on the main thread.
-        // This is particularly an issue in command line applications which may make sync calls on the main thread.
+        // We use a std::promise and invokeAsync to avoid making an extra copy of the outParam buffer.
         std::promise<void> p;
 
         _prx->ice_invokeAsync(
@@ -730,8 +726,7 @@
     catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation, which is fine since we only use it to fulfill the
-        // PromiseKit promise.
+        // thread making the invocation.
         exception(convertException(std::current_exception()));
     }
 }

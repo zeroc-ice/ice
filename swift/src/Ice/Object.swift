@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import IceImpl
-import PromiseKit
 
 /// A SliceTraits struct describes a Slice interface.
 public protocol SliceTraits {
