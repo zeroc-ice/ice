@@ -142,7 +142,8 @@ public static class CurrentExtensions
 
             ReplyStatus replyStatus;
             string exceptionId;
-            string exceptionMessage;
+            string? exceptionDetails = null;
+            string? unknownExceptionMessage = null;
 
             switch (exc)
             {
@@ -154,7 +155,7 @@ public static class CurrentExtensions
                         ObjectNotExistException _ => ReplyStatus.ObjectNotExist,
                         FacetNotExistException _ => ReplyStatus.FacetNotExist,
                         OperationNotExistException _ => ReplyStatus.OperationNotExist,
-                        _ => throw new Ice.MarshalException("Unexpected exception type")
+                        _ => throw new MarshalException("Unexpected exception type")
                     };
 
                     Identity id = rfe.id;
@@ -166,7 +167,7 @@ public static class CurrentExtensions
                     }
                     string operation = rfe.operation.Length == 0 ? current.operation : rfe.operation;
 
-                    exceptionMessage = RequestFailedException.createMessage(rfe.GetType().Name, id, facet, operation);
+                    exceptionDetails = RequestFailedException.createMessage(rfe.GetType().Name, id, facet, operation);
 
                     if (current.requestId != 0)
                     {
@@ -188,8 +189,6 @@ public static class CurrentExtensions
 
                 case UserException ex:
                     exceptionId = ex.ice_id();
-                    exceptionMessage = ex.ToString();
-
                     replyStatus = ReplyStatus.UserException;
 
                     if (current.requestId != 0)
@@ -204,37 +203,34 @@ public static class CurrentExtensions
                 case UnknownLocalException ex:
                     exceptionId = ex.ice_id();
                     replyStatus = ReplyStatus.UnknownLocalException;
-                    exceptionMessage = ex.unknown;
+                    unknownExceptionMessage = ex.Message;
                     break;
 
                 case UnknownUserException ex:
                     exceptionId = ex.ice_id();
                     replyStatus = ReplyStatus.UnknownUserException;
-                    exceptionMessage = ex.unknown;
+                    unknownExceptionMessage = ex.Message;
                     break;
 
                 case UnknownException ex:
                     exceptionId = ex.ice_id();
                     replyStatus = ReplyStatus.UnknownException;
-                    exceptionMessage = ex.unknown;
+                    unknownExceptionMessage = ex.Message;
                     break;
 
                 case LocalException ex:
                     exceptionId = ex.ice_id();
                     replyStatus = ReplyStatus.UnknownLocalException;
-                    exceptionMessage = ex.ToString();
                     break;
 
                 case Ice.Exception ex:
                     exceptionId = ex.ice_id();
                     replyStatus = ReplyStatus.UnknownException;
-                    exceptionMessage = ex.ToString();
                     break;
 
                 default:
                     replyStatus = ReplyStatus.UnknownException;
                     exceptionId = exc.GetType().FullName ?? "System.Exception";
-                    exceptionMessage = exc.ToString();
                     break;
             }
 
@@ -245,14 +241,13 @@ public static class CurrentExtensions
                     ReplyStatus.UnknownException))
             {
                 ostr.writeByte((byte)replyStatus);
-                ostr.writeString(exceptionMessage);
+                // If the exception is an UnknownXxxException, we keep its message as-is; otherwise, we create a custom
+                // message. This message doesn't include the stack trace.
+                unknownExceptionMessage ??= $"Dispatch failed with {exceptionId}: {exc.Message}";
+                ostr.writeString(unknownExceptionMessage);
             }
 
-            return new OutgoingResponse(
-                replyStatus,
-                exceptionId,
-                exceptionMessage,
-                ostr);
+            return new OutgoingResponse(replyStatus, exceptionId, exceptionDetails ?? exc.ToString(), ostr);
         }
     }
 
