@@ -138,7 +138,7 @@ extension Current {
         case let ex as LocalException:
             exceptionId = ex.ice_id()
             replyStatus = .unknownLocalException
-            unknownExceptionMessage = "dispatch failed with \(exceptionId) at \(ex.file):\(ex.line): \(ex.message)"
+            unknownExceptionMessage = "dispatch failed with \(exceptionId): \(ex.message)"
 
         default:
             replyStatus = .unknownException
