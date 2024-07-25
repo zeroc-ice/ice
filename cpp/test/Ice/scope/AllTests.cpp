@@ -73,7 +73,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++ 11 Future-Based Async Function
+    // Future-Based Async Function
     //
     {
         Test::IPrx i(communicator, "i1:" + helper->getTestEndpoint());
@@ -422,7 +422,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++ 11 Future-Based Async Function
+    // Future-Based Async Function
     //
     {
         Test::Inner::Inner2::IPrx i(communicator, "i2:" + helper->getTestEndpoint());
@@ -683,7 +683,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++ 11 Future-Based Async Function
+    // Future-Based Async Function
     //
     {
         Test::Inner::IPrx i(communicator, "i3:" + helper->getTestEndpoint());
@@ -944,7 +944,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++ 11 Future-Based Async Function
+    // Future-Based Async Function
     //
     {
         Inner::Test::Inner2::IPrx i(communicator, "i4:" + helper->getTestEndpoint());
