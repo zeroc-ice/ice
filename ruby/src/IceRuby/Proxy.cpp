@@ -805,7 +805,7 @@ IceRuby_ObjectPrx_ice_getCompress(VALUE self)
         }
         else
         {
-            return Unset;
+            return Qnil;
         }
     }
     ICE_RUBY_CATCH
