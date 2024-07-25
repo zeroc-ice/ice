@@ -11,6 +11,14 @@
 
 #include <string>
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 namespace Ice
 {
     /**
@@ -22,17 +30,17 @@ namespace Ice
         /**
          * The Slice type ID for this slice.
          */
-        std::string typeId;
+        const std::string typeId;
 
         /**
          * The Slice compact type ID for this slice.
          */
-        int compactId;
+        const int compactId;
 
         /**
          * The encoded bytes for this slice, including the leading size integer.
          */
-        std::vector<std::byte> bytes;
+        const std::vector<std::byte> bytes;
 
         /**
          * The class instances referenced by this slice.
@@ -42,22 +50,39 @@ namespace Ice
         /**
          * Whether or not the slice contains optional members.
          */
-        bool hasOptionalMembers;
+        const bool hasOptionalMembers;
 
         /**
          * Whether or not this is the last slice.
          */
-        bool isLastSlice;
+        const bool isLastSlice;
+
+        /**
+         * Constructs a new SliceInfo instance.
+         * @param typeId The Slice type ID for this slice.
+         * @param compactId The Slice compact type ID for this slice.
+         * @param bytes The encoded bytes for this slice.
+         * @param hasOptionalMembers Whether or not the slice contains optional members.
+         * @param isLastSlice Whether or not this is the last slice.
+         */
+        SliceInfo(std::string typeId, int compactId, std::vector<std::byte> bytes, bool hasOptionalMembers, bool isLastSlice) noexcept :
+            typeId(std::move(typeId)),
+            compactId(compactId),
+            bytes(std::move(bytes)),
+            hasOptionalMembers(hasOptionalMembers),
+            isLastSlice(isLastSlice)
+        {
+        }
     };
 
     /**
      * Holds the slices of unknown types.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API SlicedData
+    class ICE_API SlicedData final
     {
     public:
-        SlicedData(const SliceInfoSeq&);
+        SlicedData(SliceInfoSeq slices) noexcept;
 
         /** The slices of unknown types. */
         const SliceInfoSeq slices;
@@ -72,20 +97,20 @@ namespace Ice
      * Represents an instance of an unknown type.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API UnknownSlicedValue : public Value
+    class ICE_API UnknownSlicedValue final : public Value
     {
     public:
         /**
          * Constructs the placeholder instance.
          * @param unknownTypeId The Slice type ID of the unknown value.
          */
-        UnknownSlicedValue(const std::string& unknownTypeId);
+        UnknownSlicedValue(std::string unknownTypeId) noexcept;
 
         /**
          * Determine the Slice type ID associated with this instance.
          * @return The type ID supplied to the constructor.
          */
-        const char* ice_id() const noexcept override;
+        const char* ice_id() const noexcept final;
 
         /**
          * Clones this object.
@@ -98,11 +123,11 @@ namespace Ice
 
     protected:
         /// \cond INTERNAL
-        ValuePtr _iceCloneImpl() const override;
+        ValuePtr _iceCloneImpl() const final;
         /// \endcond
 
     private:
-        const std::string _unknownTypeId;
+        std::string _unknownTypeId;
     };
 }
 

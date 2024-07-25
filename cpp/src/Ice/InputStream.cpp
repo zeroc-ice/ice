@@ -2306,23 +2306,28 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     //
     if (_current->sliceType == ValueSlice)
     {
-        SliceInfoPtr info = make_shared<SliceInfo>();
-        info->typeId = _current->typeId;
-        info->compactId = _current->compactId;
-        info->hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
-        info->isLastSlice = _current->sliceFlags & FLAG_IS_LAST_SLICE;
-        if (info->hasOptionalMembers)
+        bool hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
+        vector<byte> bytes;
+        if (hasOptionalMembers)
         {
             //
             // Don't include the optional member end marker. It will be re-written by
             // endSlice when the sliced data is re-written.
             //
-            vector<byte>(start, _stream->i - 1).swap(info->bytes);
+            bytes = vector<byte>(start, _stream->i - 1);
         }
         else
         {
-            vector<byte>(start, _stream->i).swap(info->bytes);
+            bytes = vector<byte>(start, _stream->i);
         }
+
+        SliceInfoPtr info = make_shared<SliceInfo>(
+            _current->typeId,
+            _current->compactId,
+            std::move(bytes),
+            hasOptionalMembers,
+            _current->sliceFlags & FLAG_IS_LAST_SLICE);
+
         _current->slices.push_back(info);
     }
 

@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Ice;
 
-Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) : slices(seq) {}
+Ice::SlicedData::SlicedData(SliceInfoSeq seq) noexcept : slices(std::move(seq)) {}
 
 void
 Ice::SlicedData::clear()
@@ -29,7 +29,7 @@ Ice::SlicedData::clear()
     }
 }
 
-Ice::UnknownSlicedValue::UnknownSlicedValue(const string& unknownTypeId) : _unknownTypeId(unknownTypeId) {}
+Ice::UnknownSlicedValue::UnknownSlicedValue(string unknownTypeId) noexcept : _unknownTypeId(std::move(unknownTypeId)) {}
 
 const char*
 Ice::UnknownSlicedValue::ice_id() const noexcept
