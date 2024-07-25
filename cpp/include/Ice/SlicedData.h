@@ -65,12 +65,17 @@ namespace Ice
          * @param hasOptionalMembers Whether or not the slice contains optional members.
          * @param isLastSlice Whether or not this is the last slice.
          */
-        SliceInfo(std::string typeId, int compactId, std::vector<std::byte> bytes, bool hasOptionalMembers, bool isLastSlice) noexcept :
-            typeId(std::move(typeId)),
-            compactId(compactId),
-            bytes(std::move(bytes)),
-            hasOptionalMembers(hasOptionalMembers),
-            isLastSlice(isLastSlice)
+        SliceInfo(
+            std::string typeId,
+            int compactId,
+            std::vector<std::byte> bytes,
+            bool hasOptionalMembers,
+            bool isLastSlice) noexcept
+            : typeId(std::move(typeId)),
+              compactId(compactId),
+              bytes(std::move(bytes)),
+              hasOptionalMembers(hasOptionalMembers),
+              isLastSlice(isLastSlice)
         {
         }
     };
