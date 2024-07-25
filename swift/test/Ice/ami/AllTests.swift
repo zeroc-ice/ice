@@ -183,7 +183,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
         }
     }
 
-    // TODO: Joe
+    // TODO: Update to use async/await
     // let seq = ByteSeq(repeating: 0, count: 1024)
     // var tasks = [Task<Bool, Never>]()
     // try testController.holdAdapter()
@@ -413,7 +413,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             await cb.value
         }
 
-        // TODO: Joe
+        // TODO: Update to use async/await
         //     do {
         //         //
         //         // Remote case.

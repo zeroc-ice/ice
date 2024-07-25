@@ -108,7 +108,7 @@ func allTests(_ helper: TestHelper) async throws {
     }
     output.writeLine("ok")
 
-    // TODO: Update this test
+    // TODO: Update to use async/await
     // output.write("testing with serialize mode... ")
     // do {
     //     let cond = Condition(true)

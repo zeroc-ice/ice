@@ -198,23 +198,18 @@ class ServantManager: Dispatcher {
             (servant, cookie) = try locator.locate(current)
 
             if let servant = servant {
+
+                var response: OutgoingResponse
                 do {
-                    // If locator returned a servant, we must execute finished once no matter what.
-                    let response = try await servant.dispatch(request)
-
-                    do {
-                        try locator.finished(curr: current, servant: servant, cookie: cookie)
-                    } catch {
-                        // Can't return a rejected promise here; otherwise recover will execute finished a second
-                        // time.
-                        return current.makeOutgoingResponse(error: error)
-                    }
-
-                    return response
+                    response = try await servant.dispatch(request)
                 } catch {
-                    try locator.finished(curr: current, servant: servant, cookie: cookie)
-                    throw error
+                    response = current.makeOutgoingResponse(error: error)
                 }
+
+                // If the locator returned a servant, we must execute finished once no matter what.
+                try locator.finished(curr: current, servant: servant, cookie: cookie)
+
+                return response
             }
         }
 
