@@ -62,9 +62,9 @@ let testDirectories: [String: TestConfig] = [
             "TwowaysAMI.swift",
         ]
     ),
-    // "Ice/optional": TestConfig(
-    //     collocated: false
-    // ),
+    "Ice/optional": TestConfig(
+        collocated: false
+    ),
     "Ice/properties": TestConfig(
         collocated: false,
         sources: ["Client.swift"],

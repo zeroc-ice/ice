@@ -751,15 +751,11 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opByte()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opByteAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opByteAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opByteAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opByteAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = 56
         (p2, p3) = try initial.opByte(p1)
@@ -820,18 +816,14 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opBool(p1)
         try test(p2 == true && p3 == true)
 
-        do {
-            let (p2, p3) = try await initial.opBoolAsync(p1)
-            try test(p2 == true && p3 == true)
-        }
+        (p2, p3) = try await initial.opBoolAsync(p1)
+        try test(p2 == true && p3 == true)
 
         (p2, p3) = try initial.opBool(true)
         try test(p2 == true && p3 == true)
 
-        do {
-            let (p2, p3) = try await initial.opBoolAsync(true)
-            try test(p2 == true && p3 == true)
-        }
+        (p2, p3) = try await initial.opBoolAsync(true)
+        try test(p2 == true && p3 == true)
 
         (p2, p3) = try initial.opBool(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -869,32 +861,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opShort()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opShortAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opShortAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opShortAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opShortAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = 56
         (p2, p3) = try initial.opShort(p1)
         try test(p2 == 56 && p3 == 56)
 
-        do {
-            let (p2, p3) = try await initial.opShortAsync(p1)
-            try test(p2 == 56 && p3 == 56)
-        }
+        (p2, p3) = try await initial.opShortAsync(p1)
+        try test(p2 == 56 && p3 == 56)
 
         (p2, p3) = try initial.opShort(p1)
         try test(p2 == 56 && p3 == 56)
 
-        do {
-            let (p2, p3) = try await initial.opShortAsync(p1)
-            try test(p2 == 56 && p3 == 56)
-        }
+        (p2, p3) = try await initial.opShortAsync(p1)
+        try test(p2 == 56 && p3 == 56)
 
         (p2, p3) = try initial.opShort(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -932,32 +916,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opInt()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opIntAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opIntAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opIntAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opIntAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = 56
         (p2, p3) = try initial.opInt(p1)
         try test(p2 == 56 && p3 == 56)
 
-        do {
-            let (p2, p3) = try await initial.opIntAsync(p1)
-            try test(p2 == 56 && p3 == 56)
-        }
+        (p2, p3) = try await initial.opIntAsync(p1)
+        try test(p2 == 56 && p3 == 56)
 
         (p2, p3) = try initial.opInt(56)
         try test(p2 == 56 && p3 == 56)
 
-        do {
-            let (p2, p3) = try await initial.opIntAsync(56)
-            try test(p2 == 56 && p3 == 56)
-        }
+        (p2, p3) = try await initial.opIntAsync(56)
+        try test(p2 == 56 && p3 == 56)
 
         (p2, p3) = try initial.opInt(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -996,32 +972,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opLong()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opLongAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opLongAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opLongAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opLongAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = 56
         (p2, p3) = try initial.opLong(p1)
         try test(p2 == 56 && p3 == 56)
 
-        do {
-            let (p2, p3) = try await initial.opLongAsync(p1)
-            try test(p2 == 56 && p3 == 56)
-        }
+        (p2, p3) = try await initial.opLongAsync(p1)
+        try test(p2 == 56 && p3 == 56)
 
         (p2, p3) = try initial.opLong(56)
         try test(p2 == 56 && p3 == 56)
 
-        do {
-            let (p2, p3) = try await initial.opLongAsync(56)
-            try test(p2 == 56 && p3 == 56)
-        }
+        (p2, p3) = try await initial.opLongAsync(56)
+        try test(p2 == 56 && p3 == 56)
 
         (p2, p3) = try initial.opLong(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1059,32 +1027,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opFloat()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opFloatAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opFloatAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opFloatAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opFloatAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = 1.0
         (p2, p3) = try initial.opFloat(p1)
         try test(p2 == 1.0 && p3 == 1.0)
 
-        do {
-            let (p2, p3) = try await initial.opFloatAsync(p1)
-            try test(p2 == 1.0 && p3 == 1.0)
-        }
+        (p2, p3) = try await initial.opFloatAsync(p1)
+        try test(p2 == 1.0 && p3 == 1.0)
 
         (p2, p3) = try initial.opFloat(1.0)
         try test(p2 == 1.0 && p3 == 1.0)
 
-        do {
-            let (p2, p3) = try await initial.opFloatAsync(1.0)
-            try test(p2 == 1.0 && p3 == 1.0)
-        }
+        (p2, p3) = try await initial.opFloatAsync(1.0)
+        try test(p2 == 1.0 && p3 == 1.0)
 
         (p2, p3) = try initial.opFloat(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1121,32 +1081,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opDouble()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opDoubleAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opDoubleAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opDoubleAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opDoubleAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = 1.0
         (p2, p3) = try initial.opDouble(p1)
         try test(p2 == 1.0 && p3 == 1.0)
 
-        do {
-            let (p2, p3) = try await initial.opDoubleAsync(p1)
-            try test(p2 == 1.0 && p3 == 1.0)
-        }
+        (p2, p3) = try await initial.opDoubleAsync(p1)
+        try test(p2 == 1.0 && p3 == 1.0)
 
         (p2, p3) = try initial.opDouble(1.0)
         try test(p2 == 1.0 && p3 == 1.0)
 
-        do {
-            let (p2, p3) = try await initial.opDoubleAsync(1.0)
-            try test(p2 == 1.0 && p3 == 1.0)
-        }
+        (p2, p3) = try await initial.opDoubleAsync(1.0)
+        try test(p2 == 1.0 && p3 == 1.0)
 
         (p2, p3) = try initial.opDouble(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1183,32 +1135,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opString()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opStringAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opStringAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opStringAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opStringAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = "test"
         (p2, p3) = try initial.opString(p1)
         try test(p2 == "test" && p3 == "test")
 
-        do {
-            let (p2, p3) = try await initial.opStringAsync(p1)
-            try test(p2 == "test" && p3 == "test")
-        }
+        (p2, p3) = try await initial.opStringAsync(p1)
+        try test(p2 == "test" && p3 == "test")
 
         (p2, p3) = try initial.opString(p1)
         try test(p2 == "test" && p3 == "test")
 
-        do {
-            let (p2, p3) = try await initial.opStringAsync(p1)
-            try test(p2 == "test" && p3 == "test")
-        }
+        (p2, p3) = try await initial.opStringAsync(p1)
+        try test(p2 == "test" && p3 == "test")
 
         (p2, p3) = try initial.opString(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1249,32 +1193,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opMyEnum()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opMyEnumAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opMyEnumAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opMyEnumAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opMyEnumAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = .MyEnumMember
         (p2, p3) = try initial.opMyEnum(p1)
         try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
 
-        do {
-            let (p2, p3) = try await initial.opMyEnumAsync(p1)
-            try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
-        }
+        (p2, p3) = try await initial.opMyEnumAsync(p1)
+        try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
 
         (p2, p3) = try initial.opMyEnum(p1)
         try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
 
-        do {
-            let (p2, p3) = try await initial.opMyEnumAsync(.MyEnumMember)
-            try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
-        }
+        (p2, p3) = try await initial.opMyEnumAsync(.MyEnumMember)
+        try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
 
         (p2, p3) = try initial.opMyEnum(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1311,31 +1247,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opSmallStruct()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opSmallStructAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opSmallStructAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opSmallStructAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opSmallStructAsync()
+        try test(p2 == nil && p3 == nil)
         p1 = SmallStruct(m: 56)
         (p2, p3) = try initial.opSmallStruct(p1)
         try test(p2!.m == 56 && p3!.m == 56)
 
-        do {
-            let (p2, p3) = try await initial.opSmallStructAsync(p1)
-            try test(p2!.m == 56 && p3!.m == 56)
-        }
+        (p2, p3) = try await initial.opSmallStructAsync(p1)
+        try test(p2!.m == 56 && p3!.m == 56)
 
         (p2, p3) = try initial.opSmallStruct(SmallStruct(m: 56))
         try test(p2!.m == 56 && p3!.m == 56)
 
-        do {
-            let (p2, p3) = try await initial.opSmallStructAsync(SmallStruct(m: 56))
-            try test(p2!.m == 56 && p3!.m == 56)
-        }
+        (p2, p3) = try await initial.opSmallStructAsync(SmallStruct(m: 56))
+        try test(p2!.m == 56 && p3!.m == 56)
 
         (p2, p3) = try initial.opSmallStruct(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1374,32 +1302,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opFixedStruct()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opFixedStructAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opFixedStructAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opFixedStructAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opFixedStructAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = FixedStruct(m: 56)
         (p2, p3) = try initial.opFixedStruct(p1)
         try test(p2!.m == 56 && p3!.m == 56)
 
-        do {
-            let (p2, p3) = try await initial.opFixedStructAsync(p1)
-            try test(p2!.m == 56 && p3!.m == 56)
-        }
+        (p2, p3) = try await initial.opFixedStructAsync(p1)
+        try test(p2!.m == 56 && p3!.m == 56)
 
         (p2, p3) = try initial.opFixedStruct(FixedStruct(m: 56))
         try test(p2!.m == 56 && p3!.m == 56)
 
-        do {
-            let (p2, p3) = try await initial.opFixedStructAsync(FixedStruct(m: 56))
-            try test(p2!.m == 56 && p3!.m == 56)
-        }
+        (p2, p3) = try await initial.opFixedStructAsync(FixedStruct(m: 56))
+        try test(p2!.m == 56 && p3!.m == 56)
 
         (p2, p3) = try initial.opFixedStruct(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1438,15 +1358,11 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opVarStruct()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opVarStructAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opVarStructAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opVarStructAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opVarStructAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = VarStruct(m: "test")
         (p2, p3) = try initial.opVarStruct(p1)
@@ -1456,18 +1372,14 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opVarStruct(nil)
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opVarStructAsync(p1)
-            try test(p2!.m == "test" && p3!.m == "test")
-        }
+        (p2, p3) = try await initial.opVarStructAsync(p1)
+        try test(p2!.m == "test" && p3!.m == "test")
 
         (p2, p3) = try initial.opVarStruct(VarStruct(m: "test"))
         try test(p2!.m == "test" && p3!.m == "test")
 
-        do {
-            let (p2, p3) = try await initial.opVarStructAsync(VarStruct(m: "test"))
-            try test(p2!.m == "test" && p3!.m == "test")
-        }
+        (p2, p3) = try await initial.opVarStructAsync(VarStruct(m: "test"))
+        try test(p2!.m == "test" && p3!.m == "test")
 
         (p2, p3) = try initial.opVarStruct(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1500,19 +1412,15 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opOneOptional(p1)
         try test(p2!.a == nil && p3!.a == nil)
 
-        do {
-            let (p2, p3) = try await initial.opOneOptionalAsync(p1)
-            try test(p2!.a == nil && p3!.a == nil)
-        }
+        (p2, p3) = try await initial.opOneOptionalAsync(p1)
+        try test(p2!.a == nil && p3!.a == nil)
 
         p1 = OneOptional(a: 58)
         (p2, p3) = try initial.opOneOptional(p1)
         try test(p2!.a! == 58 && p3!.a! == 58)
 
-        do {
-            let (p2, p3) = try await initial.opOneOptionalAsync(p1)
-            try test(p2!.a! == 58 && p3!.a! == 58)
-        }
+        (p2, p3) = try await initial.opOneOptionalAsync(p1)
+        try test(p2!.a! == 58 && p3!.a! == 58)
 
         (p2, p3) = try initial.opOneOptional(OneOptional())
         try test(p2!.a == nil && p3!.a == nil)  // Ensure out parameter is cleared.
@@ -1547,24 +1455,18 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opMyInterfaceProxy()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opMyInterfaceProxyAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opMyInterfaceProxyAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opMyInterfaceProxyAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opMyInterfaceProxyAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = try uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
         (p2, p3) = try initial.opMyInterfaceProxy(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opMyInterfaceProxyAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opMyInterfaceProxyAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opMyInterfaceProxy(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1603,32 +1505,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opByteSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opByteSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opByteSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opByteSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opByteSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = ByteSeq(repeating: 56, count: 100)
         (p2, p3) = try initial.opByteSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opByteSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opByteSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opByteSeq(ByteSeq(repeating: 56, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opByteSeqAsync(ByteSeq(repeating: 56, count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opByteSeqAsync(ByteSeq(repeating: 56, count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opByteSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1664,32 +1558,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opBoolSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opBoolSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opBoolSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opBoolSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opBoolSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = [Bool](repeating: true, count: 100)
         (p2, p3) = try initial.opBoolSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opBoolSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opBoolSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opBoolSeq([Bool](repeating: true, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opBoolSeqAsync([Bool](repeating: true, count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opBoolSeqAsync([Bool](repeating: true, count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opBoolSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1725,32 +1611,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opShortSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opShortSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opShortSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opShortSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opShortSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = [Int16](repeating: 56, count: 100)
         (p2, p3) = try initial.opShortSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opShortSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opShortSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opShortSeq([Int16](repeating: 56, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opShortSeqAsync([Int16](repeating: 56, count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opShortSeqAsync([Int16](repeating: 56, count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opShortSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1786,32 +1664,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opIntSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opIntSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opIntSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opIntSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opIntSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = [Int32](repeating: 56, count: 100)
         (p2, p3) = try initial.opIntSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opIntSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opIntSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opIntSeq([Int32](repeating: 56, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opIntSeqAsync([Int32](repeating: 56, count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opIntSeqAsync([Int32](repeating: 56, count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opIntSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1847,32 +1717,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opLongSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opLongSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opLongSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opLongSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opLongSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = [Int64](repeating: 56, count: 100)
         (p2, p3) = try initial.opLongSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opLongSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opLongSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opLongSeq([Int64](repeating: 56, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opLongSeqAsync([Int64](repeating: 56, count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opLongSeqAsync([Int64](repeating: 56, count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opLongSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1908,32 +1770,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opFloatSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opFloatSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opFloatSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opFloatSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opFloatSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = [Float](repeating: 1.0, count: 100)
         (p2, p3) = try initial.opFloatSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opFloatSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opFloatSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opFloatSeq([Float](repeating: 1.0, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opFloatSeqAsync([Float](repeating: 1.0, count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opFloatSeqAsync([Float](repeating: 1.0, count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opFloatSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -1969,32 +1823,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opDoubleSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opDoubleSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opDoubleSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opDoubleSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opDoubleSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = [Double](repeating: 1.0, count: 100)
         (p2, p3) = try initial.opDoubleSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opDoubleSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opDoubleSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opDoubleSeq([Double](repeating: 1.0, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opDoubleSeqAsync([Double](repeating: 1.0, count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opDoubleSeqAsync([Double](repeating: 1.0, count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opDoubleSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -2030,32 +1876,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opStringSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opStringSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opStringSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opStringSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opStringSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = [String](repeating: "test", count: 100)
         (p2, p3) = try initial.opStringSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opStringSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opStringSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opStringSeq([String](repeating: "test", count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opStringSeqAsync([String](repeating: "test", count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opStringSeqAsync([String](repeating: "test", count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opStringSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -2091,32 +1929,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opSmallStructSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opSmallStructSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opSmallStructSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opSmallStructSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opSmallStructSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = SmallStructSeq(repeating: SmallStruct(), count: 100)
         (p2, p3) = try initial.opSmallStructSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opSmallStructSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opSmallStructSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opSmallStructSeq(SmallStructSeq(repeating: SmallStruct(), count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opSmallStructSeqAsync(SmallStructSeq(repeating: SmallStruct(), count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opSmallStructSeqAsync(SmallStructSeq(repeating: SmallStruct(), count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opSmallStructSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -2153,27 +1983,21 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opFixedStructSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opFixedStructSeqAsync(p1)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opFixedStructSeqAsync(p1)
+        try test(p2 == nil && p3 == nil)
 
         p1 = FixedStructSeq(repeating: FixedStruct(), count: 100)
         (p2, p3) = try initial.opFixedStructSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opFixedStructSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opFixedStructSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opFixedStructSeq(FixedStructSeq(repeating: FixedStruct(), count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opFixedStructSeqAsync(FixedStructSeq(repeating: FixedStruct(), count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opFixedStructSeqAsync(FixedStructSeq(repeating: FixedStruct(), count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opFixedStructSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -2210,32 +2034,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opVarStructSeq()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opVarStructSeqAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opVarStructSeqAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opVarStructSeqAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opVarStructSeqAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = VarStructSeq(repeating: VarStruct(), count: 100)
         (p2, p3) = try initial.opVarStructSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opVarStructSeqAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opVarStructSeqAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opVarStructSeq(VarStructSeq(repeating: VarStruct(), count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opVarStructSeqAsync(VarStructSeq(repeating: VarStruct(), count: 100))
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opVarStructSeqAsync(VarStructSeq(repeating: VarStruct(), count: 100))
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opVarStructSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -2272,32 +2088,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opIntIntDict()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opIntIntDictAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opIntIntDictAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opIntIntDictAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opIntIntDictAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = [1: 2, 2: 3]
         (p2, p3) = try initial.opIntIntDict(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opIntIntDictAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opIntIntDictAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opIntIntDict([1: 2, 2: 3])
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opIntIntDictAsync([1: 2, 2: 3])
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opIntIntDictAsync([1: 2, 2: 3])
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opIntIntDict(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
@@ -2334,32 +2142,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         (p2, p3) = try initial.opStringIntDict()
         try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opStringIntDictAsync(nil)
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opStringIntDictAsync(nil)
+        try test(p2 == nil && p3 == nil)
 
-        do {
-            let (p2, p3) = try await initial.opStringIntDictAsync()
-            try test(p2 == nil && p3 == nil)
-        }
+        (p2, p3) = try await initial.opStringIntDictAsync()
+        try test(p2 == nil && p3 == nil)
 
         p1 = ["1": 1, "2": 2]
         (p2, p3) = try initial.opStringIntDict(p1)
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opStringIntDictAsync(p1)
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opStringIntDictAsync(p1)
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opStringIntDict(["1": 1, "2": 2])
         try test(p2 == p1 && p3 == p1)
 
-        do {
-            let (p2, p3) = try await initial.opStringIntDictAsync(["1": 1, "2": 2])
-            try test(p2 == p1 && p3 == p1)
-        }
+        (p2, p3) = try await initial.opStringIntDictAsync(["1": 1, "2": 2])
+        try test(p2 == p1 && p3 == p1)
 
         (p2, p3) = try initial.opStringIntDict(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.

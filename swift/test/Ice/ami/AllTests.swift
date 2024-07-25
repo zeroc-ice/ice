@@ -462,83 +462,83 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
         //             }
         //         }
         //     }
-            output.writeLine("ok")
+        output.writeLine("ok")
 
-            output.write("testing graceful close connection without wait... ")
+        output.write("testing graceful close connection without wait... ")
+        do {
+            //
+            // Local case: start an operation and then close the connection gracefully on the client side
+            // without waiting for the pending invocation to complete. There will be no retry and we expect the
+            // invocation to fail with ConnectionClosedException.
+            //
+            let p = p.ice_connectionId("CloseGracefully")  // Start with a new connection.
+            let con = try p.ice_getConnection()!
+
             do {
-                //
-                // Local case: start an operation and then close the connection gracefully on the client side
-                // without waiting for the pending invocation to complete. There will be no retry and we expect the
-                // invocation to fail with ConnectionClosedException.
-                //
-                let p = p.ice_connectionId("CloseGracefully")  // Start with a new connection.
-                let con = try p.ice_getConnection()!
-
-                do {
-                    try await p.startDispatchAsync { _ in
-                        // Ensure the request was sent before we close the connection.
-                        try! con.close(.Gracefully)
-                    }
-                } catch let ex as Ice.ConnectionClosedException {
-                    try test(ex.closedByApplication)
+                try await p.startDispatchAsync { _ in
+                    // Ensure the request was sent before we close the connection.
+                    try! con.close(.Gracefully)
                 }
-                try p.finishDispatch()
+            } catch let ex as Ice.ConnectionClosedException {
+                try test(ex.closedByApplication)
             }
+            try p.finishDispatch()
+        }
+        do {
+            //
+            // Remote case: the server closes the connection gracefully, which means the connection
+            // will not be closed until all pending dispatched requests have completed.
+            //
+            let con = try p.ice_getConnection()!
+
+            async let cb = Task {
+                await withCheckedContinuation { continuation in
+                    do {
+                        try con.setCloseCallback { _ in continuation.resume() }
+                    } catch {
+                        fatalError("unexpected error: \(error)")
+                    }
+                }
+            }
+
+            async let t = Task { try await p.sleepAsync(100) }
+            try p.close(.Gracefully)  // Close is delayed until sleep completes.
+            await cb.value
+            try await t.value
+        }
+        output.writeLine("ok")
+
+        output.write("testing forceful close connection... ")
+        do {
+            //
+            // Local case: start an operation and then close the connection forcefully on the client side.
+            // There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
+            //
+            try p.ice_ping()
+            let con = try p.ice_getConnection()!
+
             do {
-                //
-                // Remote case: the server closes the connection gracefully, which means the connection
-                // will not be closed until all pending dispatched requests have completed.
-                //
-                let con = try p.ice_getConnection()!
-
-                async let cb = Task {
-                    await withCheckedContinuation { continuation in
-                        do {
-                            try con.setCloseCallback { _ in continuation.resume() }
-                        } catch {
-                            fatalError("unexpected error: \(error)")
-                        }
-                    }
+                try await p.startDispatchAsync { _ in
+                    // Ensure the request was sent before we close the connection.
+                    try! con.close(.Forcefully)
                 }
-
-                async let t = Task { try await p.sleepAsync(100) }
-                try p.close(.Gracefully)  // Close is delayed until sleep completes.
-                await cb.value
-                try await t.value
+                try test(false)
+            } catch let ex as Ice.ConnectionAbortedException {
+                try test(ex.closedByApplication)
             }
-            output.writeLine("ok")
+            try p.finishDispatch()
 
-            output.write("testing forceful close connection... ")
+            //
+            // Remote case: the server closes the connection forcefully. This causes the request to fail
+            // with a ConnectionLostException. Since the close() operation is not idempotent, the client
+            // will not retry.
+            //
             do {
-                //
-                // Local case: start an operation and then close the connection forcefully on the client side.
-                // There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
-                //
-                try p.ice_ping()
-                let con = try p.ice_getConnection()!
-
-                do {
-                    try await p.startDispatchAsync { _ in
-                        // Ensure the request was sent before we close the connection.
-                        try! con.close(.Forcefully)
-                    }
-                    try test(false)
-                } catch let ex as Ice.ConnectionAbortedException {
-                    try test(ex.closedByApplication)
-                }
-                try p.finishDispatch()
-
-                //
-                // Remote case: the server closes the connection forcefully. This causes the request to fail
-                // with a ConnectionLostException. Since the close() operation is not idempotent, the client
-                // will not retry.
-                //
-                do {
-                    try p.close(.Forcefully)
-                    try test(false)
-                } catch is Ice.ConnectionLostException {}  // Expected.
-            }
-            output.writeLine("ok")
+                try p.close(.Forcefully)
+                try test(false)
+            } catch is Ice.ConnectionLostException {}  // Expected.
+        }
+        output.writeLine("ok")
     }
     try p.shutdown()
 }
