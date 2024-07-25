@@ -6,9 +6,6 @@ import PackageDescription
 let defaultSliceFiles = ["Test.ice"]
 let defaultSources = ["Client.swift", "AllTests.swift", "Server.swift", "TestI.swift"]
 
-let defaultAMDSliceFiles = ["TestAMD.ice"]
-let defaultAMDSourceFiles = ["ServerAMD.swift", "TestAMDI.swift"]
-
 struct TestConfig {
     var dependencies: [Target.Dependency] = []
 
@@ -20,28 +17,19 @@ struct TestConfig {
 
     var resources: [Resource] = []
 
-    var amd: Bool = false
-    var amdSliceFiles = defaultAMDSliceFiles
-    var amdSourcesFiles = defaultAMDSourceFiles
-
     var sourceFiles: [String] {
         sources + (collocated ? ["Collocated.swift"] : [])
     }
 
     var exclude: [String] {
-        return sliceFiles + (amd ? (amdSourcesFiles + amdSliceFiles + ["amd"]) : [])
+        return sliceFiles
     }
-
-    var amdExclude: [String] {
-        return amdSliceFiles + sourceFiles + sliceFiles + ["slice-plugin.json"]
-    }
-
 }
 
 let testDirectories: [String: TestConfig] = [
     "Ice/adapterDeactivation": TestConfig(),
     "Ice/admin": TestConfig(collocated: false),
-    // "Ice/ami": TestConfig(),
+    "Ice/ami": TestConfig(),
     "Ice/binding": TestConfig(collocated: false),
     "Ice/defaultServant": TestConfig(
         collocated: false,
@@ -59,7 +47,7 @@ let testDirectories: [String: TestConfig] = [
     "Ice/enums": TestConfig(collocated: false),
     "Ice/exceptions": TestConfig(),
     "Ice/facets": TestConfig(),
-    // "Ice/hold": TestConfig(collocated: false),
+    "Ice/hold": TestConfig(collocated: false),
     "Ice/info": TestConfig(collocated: false),
     "Ice/inheritance": TestConfig(),
     "Ice/invoke": TestConfig(collocated: false),
@@ -153,20 +141,6 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
             plugins: plugins
         ))
     testDriverDependencies.append(Target.Dependency(stringLiteral: name))
-
-    if testConfig.amd {
-        let amdName = name + "AMD"
-        targets.append(
-            Target.target(
-                name: amdName,
-                dependencies: dependencies,
-                path: testPath,
-                exclude: testConfig.amdExclude,
-                resources: [.copy("amd/slice-plugin.json")],
-                plugins: plugins
-            ))
-        testDriverDependencies.append(Target.Dependency(stringLiteral: amdName))
-    }
 
     return targets
 }

@@ -26,18 +26,45 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
               current});
         };
 
-    // Create a new InputStream and swap it with the one from the request.
-    // When dispatch completes, the InputStream will be deleted.
-    Ice::InputStream* dispatchInputStream = new Ice::InputStream();
-    dispatchInputStream->swap(request.inputStream());
-
-    void (^completion)(void) = ^{
-      delete dispatchInputStream;
-    };
+    Ice::InputStream& inputStream = request.inputStream();
 
     int32_t sz;
     const std::byte* inEncaps;
-    dispatchInputStream->readEncapsulation(inEncaps, sz);
+    void (^completion)(void);
+
+    // An InputSteam can contain one or more requsts when a batch request is being processed. In this case we can't
+    // take the memory from the InputSteam as its memory is needed for subsequent requests.
+    // Since batch requests are always oneway and there is no way to tell if a request is batched or not
+    // we create a copy of the encapsulation for all oneway requests.
+    //
+    // TODO: a future improvement would be to only copy the memory if the buffer position is not at the end of the buffer
+    // once we read the encapsulation.
+    if (request.current().requestId == 0)
+    {
+        Ice::InputStream& inputStream = request.inputStream();
+        inputStream.readEncapsulation(inEncaps, sz);
+
+        // Copy the contents to a heap allocated vector.
+        auto encapsulation = new std::vector<std::byte>(inEncaps, inEncaps + sz);
+        inEncaps = encapsulation->data();
+
+        completion = ^{
+            delete encapsulation;
+        };
+    }
+    else
+    {
+        // In the case of a twoway request we can just take the memory as its no longer needed after this request.
+        // Create a new InputStream and swap it with the one from the request.
+        // When dispatch completes, the InputStream will be deleted.
+        auto dispatchInputStream = new Ice::InputStream(std::move(request.inputStream()));
+
+        completion = ^{
+            delete dispatchInputStream;
+        };
+
+        dispatchInputStream->readEncapsulation(inEncaps, sz);
+    };
 
     ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
     ICEConnection* con = [ICEConnection getHandle:current.con];

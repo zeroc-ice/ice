@@ -48,7 +48,7 @@ class BlobjectI: Ice.Blobject {
 }
 
 class BlobjectAsyncI: Ice.BlobjectAsync {
-    func ice_invokeAsync(inEncaps: Data, current: Current) async throws ->(ok: Bool, outParams: Data) {
+    func ice_invokeAsync(inEncaps: Data, current: Current) async throws -> (ok: Bool, outParams: Data) {
         let communicator = current.adapter.getCommunicator()
         let inS = Ice.InputStream(communicator: communicator, bytes: inEncaps)
         _ = try inS.startEncapsulation()
