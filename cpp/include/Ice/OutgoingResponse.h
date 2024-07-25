@@ -44,14 +44,14 @@ namespace Ice
          * Construct an OutgoingResponse object.
          * @param replyStatus The status of the response.
          * @param exceptionId The ID of the exception, when the response carries an exception.
-         * @param exceptionMessage The exception message, when the response carries an exception.
+         * @param exceptionDetails The full details of the exception, when the response carries an exception.
          * @param outputStream The output stream that holds the response.
          * @param current A reference to the current object of the request.
          */
         OutgoingResponse(
             ReplyStatus replyStatus,
             std::string exceptionId,
-            std::string exceptionMessage,
+            std::string exceptionDetails,
             OutputStream outputStream,
             const Current& current) noexcept;
 
@@ -98,10 +98,11 @@ namespace Ice
         const std::string& exceptionId() const noexcept { return _exceptionId; }
 
         /**
-         * Get the exception message of the response.
-         * @return The exception message. It's empty when replyStatus() is ReplyStatus::Ok.
+         * Get the full details of the exception marshaled into the response.
+         * @return The exception details. For Ice exceptions, it's usually produced by streaming the exception into
+         * a std::ostringstream with operator<<. It's empty when replyStatus() is ReplyStatus::Ok.
          */
-        const std::string& exceptionMessage() const noexcept { return _exceptionMessage; }
+        const std::string& exceptionDetails() const noexcept { return _exceptionDetails; }
 
         /**
          * Get the reply status of the response.
@@ -124,7 +125,7 @@ namespace Ice
     private:
         std::reference_wrapper<const Current> _current;
         std::string _exceptionId;
-        std::string _exceptionMessage;
+        std::string _exceptionDetails;
         OutputStream _outputStream;
         ReplyStatus _replyStatus;
     };

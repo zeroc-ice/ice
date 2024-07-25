@@ -114,7 +114,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownException& ex)
     {
-        test(string{ex.what()} == "c++ exception: Hello");
+        test(string{ex.what()} == "dispatch failed with std::runtime_error: Hello");
     }
     catch (...)
     {
@@ -128,7 +128,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownException& ex)
     {
-        test(string{ex.what()} == "c++ exception: unknown");
+        test(string{ex.what()} == "dispatch failed with unknown: c++ exception");
     }
     catch (const OperationNotExistException&)
     {
