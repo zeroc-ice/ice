@@ -13,7 +13,7 @@ from .EnumBase import EnumBase
 #
 # Add some symbols to the Ice module.
 #
-ObjectPrx = IcePy.ObjectPrx
+from .ObjectPrx import ObjectPrx
 stringVersion = IcePy.stringVersion
 intVersion = IcePy.intVersion
 currentProtocol = IcePy.currentProtocol
@@ -40,9 +40,9 @@ from .Current import *
 from .Future import *
 from .InvocationFuture import *
 from .Value import *
-from .Object import *
-from .Blobject import *
-from .BlobjectAsync import *
+from .Object import Object
+from .Blobject import Blobject
+from .BlobjectAsync import BlobjectAsync
 from .FormatType import *
 from .PropertiesAdminUpdateCallback import *
 from .Util import *
@@ -57,14 +57,15 @@ from .EndpointSelectionType import *
 from .ObjectAdapter import *
 from .ValueFactory import *
 from .ConnectionClose import *
-from .CompressBatch import *
+from .CompressBatch import CompressBatch
 from .ServantLocator import *
 from .InitializationData import *
-from .Properties import *
+from .Properties import Properties
 from .Logger import *
 from .BatchRequestInterceptor import *
 from .LocalExceptions import *
 from .Proxy import *
+from .Current import Current
 
 #
 # Import the generated code for the Ice module.

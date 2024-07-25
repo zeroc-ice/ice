@@ -3,7 +3,7 @@
 from .ObjectAdapter import ObjectAdapter
 from .ImplicitContext import ImplicitContext
 from .Properties import Properties
-from .LoggerI import LoggerI
+from ._LoggerI import LoggerI
 from .Logger import Logger
 from typing import final
 

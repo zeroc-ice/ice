@@ -6,3 +6,5 @@ class UserException(Exception):
     """The base class for all user-defined exceptions."""
 
     __module__ = "Ice"
+
+__all__ = ["UserException"]

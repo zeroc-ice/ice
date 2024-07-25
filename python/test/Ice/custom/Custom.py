@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-from Ice.ArrayUtil import createArray
+from ArrayUtil import createArray
 
 from importlib.util import find_spec
 
@@ -39,7 +39,7 @@ def myDoubleSeq(buffer, type):
 
 if hasNumPy:
 
-    from Ice.ArrayUtil import createNumPyArray
+    from ArrayUtil import createNumPyArray
 
     def myNumPyBoolSeq(buffer, type):
         return createNumPyArray(buffer, type)
