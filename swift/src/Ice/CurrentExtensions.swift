@@ -60,8 +60,9 @@ extension Current {
         }
 
         var replyStatus: ReplyStatus
-        var exceptionId: String?
-        var exceptionMessage: String?
+        var exceptionId: String
+        var exceptionDetails: String? = nil
+        var unknownExceptionMessage: String? = nil
 
         switch error {
         case let rfe as RequestFailedException:
@@ -93,8 +94,8 @@ extension Current {
             }
 
             // [7..] to slice-off the "::Ice::" prefix
-            let typeName = String(exceptionId!.dropFirst(7))
-            exceptionMessage = RequestFailedException.makeMessage(
+            let typeName = String(exceptionId.dropFirst(7))
+            exceptionDetails = RequestFailedException.makeMessage(
                 typeName: typeName, id: id, facet: facet, operation: operation)
 
             if requestId != 0 {
@@ -110,7 +111,6 @@ extension Current {
 
         case let ex as UserException:
             exceptionId = ex.ice_id()
-            exceptionMessage = "\(ex)"
             replyStatus = .userException
 
             if requestId != 0 {
@@ -123,27 +123,27 @@ extension Current {
         case let ex as UnknownLocalException:
             exceptionId = ex.ice_id()
             replyStatus = .unknownLocalException
-            exceptionMessage = ex.message
+            unknownExceptionMessage = ex.message
 
         case let ex as UnknownUserException:
             exceptionId = ex.ice_id()
             replyStatus = .unknownUserException
-            exceptionMessage = ex.message
+            unknownExceptionMessage = ex.message
 
         case let ex as UnknownException:
             exceptionId = ex.ice_id()
             replyStatus = .unknownException
-            exceptionMessage = ex.message
+            unknownExceptionMessage = ex.message
 
         case let ex as LocalException:
             exceptionId = ex.ice_id()
             replyStatus = .unknownLocalException
-            exceptionMessage = "\(ex)"
+            unknownExceptionMessage = "dispatch failed with \(exceptionId) at \(ex.file):\(ex.line): \(ex.message)"
 
         default:
             replyStatus = .unknownException
             exceptionId = "\(type(of: error))"
-            exceptionMessage = "\(error)"
+            unknownExceptionMessage = "dispatch failed with \(exceptionId)"
         }
 
         if requestId != 0,
@@ -151,11 +151,12 @@ extension Current {
                 || replyStatus == .unknownException
         {
             ostr.write(replyStatus.rawValue)
-            ostr.write(exceptionMessage!)
+            ostr.write(unknownExceptionMessage!)
         }
 
         return OutgoingResponse(
-            replyStatus: replyStatus, exceptionId: exceptionId, exceptionMessage: exceptionMessage, outputStream: ostr)
+            replyStatus: replyStatus, exceptionId: exceptionId, exceptionDetails: exceptionDetails ?? "\(error)",
+            outputStream: ostr)
     }
 
     /// Starts the output stream for a reply, with everything up to and including the reply status. When the request ID
