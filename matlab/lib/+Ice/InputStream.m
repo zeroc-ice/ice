@@ -657,12 +657,16 @@ classdef InputStream < handle
                 r = Ice.ObjectPrx(obj.communicator, '', impl);
             end
         end
-        function r = readProxyOpt(obj, tag)
+        function r = readProxyOpt(obj, tag, cls)
             if obj.readOptional(tag, Ice.OptionalFormat.FSize)
                 obj.skip(4);
-                r = obj.readProxy();
+                if nargin == 1
+                    r = obj.readProxy();
+                else
+                    r = obj.readProxy(cls);
+                end
             else
-                r = IceInternal.UnsetI.Instance;
+                r = [];
             end
         end
         function r = readEnum(obj, maxValue)

@@ -300,7 +300,7 @@ classdef OutputStream < handle
             end
         end
         function writeProxyOpt(obj, tag, v)
-            if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.FSize)
+            if ~isempty(v) && obj.writeOptional(tag, Ice.OptionalFormat.FSize)
                 pos = obj.startSize();
                 obj.writeProxy(v);
                 obj.endSize(pos);
