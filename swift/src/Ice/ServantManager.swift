@@ -198,8 +198,7 @@ class ServantManager: Dispatcher {
             (servant, cookie) = try locator.locate(current)
 
             if let servant = servant {
-
-                var response: OutgoingResponse
+                let response: OutgoingResponse
                 do {
                     response = try await servant.dispatch(request)
                 } catch {
