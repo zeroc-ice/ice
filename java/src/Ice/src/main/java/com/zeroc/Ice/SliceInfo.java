@@ -4,8 +4,8 @@
 
 package com.zeroc.Ice;
 
-/** SliceInfo encapsulates the details of a slice for an unknown class or exception type. */
-public class SliceInfo {
+/** Encapsulates the details of a slice with an unknown type. */
+public final class SliceInfo {
   /** The Slice type ID for this slice. */
   public final String typeId;
 

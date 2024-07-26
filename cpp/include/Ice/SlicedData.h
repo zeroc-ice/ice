@@ -22,7 +22,7 @@
 namespace Ice
 {
     /**
-     * Encapsulates the details of a slice for an unknown class or exception type.
+     * Encapsulates the details of a slice with an unknown type.
      * \headerfile Ice/Ice.h
      */
     struct SliceInfo
@@ -81,7 +81,7 @@ namespace Ice
     };
 
     /**
-     * Holds the slices of unknown types.
+     * Holds class slices that cannot be unmarshaled because their types are not known locally.
      * \headerfile Ice/Ice.h
      */
     class ICE_API SlicedData final
@@ -89,7 +89,7 @@ namespace Ice
     public:
         SlicedData(SliceInfoSeq slices) noexcept;
 
-        /** The slices of unknown types. */
+        /** The slices of the unknown class. */
         const SliceInfoSeq slices;
 
         /**
@@ -99,7 +99,7 @@ namespace Ice
     };
 
     /**
-     * Represents an instance of an unknown type.
+     * Represents an instance of an unknown class.
      * \headerfile Ice/Ice.h
      */
     class ICE_API UnknownSlicedValue final : public Value

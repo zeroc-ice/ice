@@ -21,19 +21,19 @@ class UnknownSlicedValue(Value):
 
 class SlicedData(object):
     """
-    Holds the slices of an unknown class instance.
+    Holds class slices that cannot be unmarshaled because their types are not known locally.
 
     Attributes
     ----------
     slices : tuple of SliceInfo
-        The slices of the unknown class instance.
+        The details of each slice, in order of most-derived to least-derived.
     """
     pass
 
 
 class SliceInfo(object):
     """
-    Encapsulate the details of a slice for an unknown class or exception type.
+    Encapsulates the details of a slice with an unknown type.
 
     Attributes
     ----------

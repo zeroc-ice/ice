@@ -5,7 +5,7 @@
 declare module "ice" {
     namespace Ice {
         /**
-         * Encapsulates the details of a slice for an unknown class or exception type.
+         * Encapsulates the details of a slice with an unknown type.
          */
         class SliceInfo {
             /**
@@ -40,11 +40,11 @@ declare module "ice" {
         }
 
         /**
-         * Holds the slices of unknown types.
+         * Holds class slices that cannot be unmarshaled because their types are not known locally.
          */
         class SlicedData {
             /**
-             * The slices of unknown types.
+             * The details of each slice, in order of most-derived to least-derived.
              */
             slices: SliceInfo[];
         }

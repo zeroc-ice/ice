@@ -4,8 +4,8 @@
 
 package com.zeroc.Ice;
 
-/** SlicedData holds the slices of unknown class or exception types. */
-public class SlicedData {
+/** Holds class slices that cannot be unmarshaled because their types are not known locally. */
+public final class SlicedData {
   public SlicedData(SliceInfo[] slices) {
     this.slices = slices;
   }

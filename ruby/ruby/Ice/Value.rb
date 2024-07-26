@@ -22,7 +22,7 @@ module Ice
           return _ice_slicedData
       end
 
-      attr_accessor :_ice_slicedData  # Only used for instances of preserved classes.
+      attr_accessor :_ice_slicedData
     end
 
     T_Value = Ice.__declareClass('::Ice::Object')
