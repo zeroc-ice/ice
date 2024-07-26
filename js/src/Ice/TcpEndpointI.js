@@ -5,7 +5,7 @@
 import { HashUtil } from "./HashUtil.js";
 import { StringUtil } from "./StringUtil.js";
 import { TCPEndpointInfo } from "./Endpoint.js";
-import { EndpointParseException } from "./LocalExceptions.js";
+import { ParseException } from "./LocalExceptions.js";
 import { IPEndpointI } from "./IPEndpointI.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 import { Debug } from "./Debug.js";
@@ -208,7 +208,7 @@ export class TcpEndpointI extends IPEndpointI {
 
         if (option === "-t") {
             if (argument === null) {
-                throw new EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
+                throw new ParseException(`no argument provided for -t option in endpoint ${endpoint}`);
             }
 
             if (argument == "infinite") {
@@ -221,16 +221,12 @@ export class TcpEndpointI extends IPEndpointI {
                     invalid = true;
                 }
                 if (invalid || this._timeout < 1) {
-                    throw new EndpointParseException(
-                        "invalid timeout value `" + argument + "' in endpoint " + endpoint,
-                    );
+                    throw new ParseException(`invalid timeout value '${argument}' in endpoint ${endpoint}`);
                 }
             }
         } else if (option === "-z") {
             if (argument !== null) {
-                throw new EndpointParseException(
-                    "unexpected argument `" + argument + "' provided for -z option in " + endpoint,
-                );
+                throw new ParseException(`unexpected argument ${argument}' provided for -z option in ${endpoint}`);
             }
 
             this._compress = true;

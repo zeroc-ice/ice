@@ -96,8 +96,8 @@ export class Client extends TestHelper {
                         connection.getInfo();
                         await Ice.Promise.delay(10);
                     } catch (ex) {
-                        test(ex instanceof Ice.ConnectionManuallyClosedException, ex); // Expected
-                        test(ex.graceful);
+                        test(ex instanceof Ice.ConnectionClosedException, ex); // Expected
+                        test(ex.closedByApplication);
                         break;
                     }
                 }

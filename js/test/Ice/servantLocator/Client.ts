@@ -51,7 +51,8 @@ export class Client extends TestHelper {
             } catch (ex) {
                 test(
                     ex instanceof Ice.OperationNotExistException ||
-                        (ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException"),
+                        (ex instanceof Ice.UnknownUserException &&
+                            ex.message.includes("::Test::TestIntfUserException")),
                     ex,
                 );
             }
@@ -61,7 +62,7 @@ export class Client extends TestHelper {
                 test(false);
             } catch (ex) {
                 test(ex instanceof Ice.UnknownLocalException, ex);
-                test(ex.unknown.indexOf("Ice::SocketException") >= 0 || ex.unknown.indexOf("Ice.SocketException") >= 0);
+                test(ex.message.includes("Ice::SocketException") || ex.message.includes("Ice.SocketException"));
             }
 
             try {

@@ -2,19 +2,22 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { UnexpectedObjectException, MemoryLimitException } from "./LocalExceptions.js";
+import { MarshalException } from "./LocalExceptions.js";
+import { UnknownSlicedValue } from "./UnknownSlicedValue.js";
 
 export function throwUOE(expectedType, v) {
-    const type = v.ice_id();
-    throw new UnexpectedObjectException(
-        "expected element of type `" + expectedType + "' but received `" + type + "'",
-        type,
-        expectedType,
+    // If the object is an unknown sliced object, we didn't find a value factory.
+    if (v instanceof UnknownSlicedValue) {
+        throw new MarshalException(`Cannot find value factory to unmarshal class with type ID '${v.ice_id()}'.`);
+    }
+
+    throw new MarshalException(
+        `Failed to unmarshal class with type ID '${expectedType}': value factory returned class with type ID '${v.ice_id()}'.`,
     );
 }
 
 export function throwMemoryLimitException(requested, maximum) {
-    throw new MemoryLimitException(
-        "requested " + requested + " bytes, maximum allowed is " + maximum + " bytes (see Ice.MessageSizeMax)",
+    throw new MarshalException(
+        `Cannot unmarshal Ice message: the message size of ${requested} bytes exceeds the maximum allowed of ${maximum} bytes (see Ice.MessageSizeMax).`,
     );
 }

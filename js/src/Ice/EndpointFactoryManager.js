@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { EndpointParseException } from "./LocalExceptions.js";
+import { ParseException } from "./LocalExceptions.js";
 import { StringUtil } from "./StringUtil.js";
 import { OpaqueEndpointI } from "./OpaqueEndpoint.js";
 import { Protocol } from "./Protocol.js";
@@ -27,12 +27,12 @@ export class EndpointFactoryManager {
     create(str, oaEndpoint) {
         const s = str.trim();
         if (s.length === 0) {
-            throw new EndpointParseException("value has no non-whitespace characters");
+            throw new ParseException("value has no non-whitespace characters");
         }
 
         const arr = StringUtil.splitString(s, " \t\n\r");
         if (arr.length === 0) {
-            throw new EndpointParseException("value has no non-whitespace characters");
+            throw new ParseException("value has no non-whitespace characters");
         }
 
         let protocol = arr[0];
@@ -45,9 +45,7 @@ export class EndpointFactoryManager {
             if (this._factories[i].protocol() === protocol) {
                 const e = this._factories[i].create(arr, oaEndpoint);
                 if (arr.length > 0) {
-                    throw new EndpointParseException(
-                        "unrecognized argument `" + arr[0] + "' in endpoint `" + str + "'",
-                    );
+                    throw new ParseException(`unrecognized argument '${arr[0]}' in endpoint '${str}'`);
                 }
                 return e;
             }
@@ -61,7 +59,7 @@ export class EndpointFactoryManager {
             const ue = new OpaqueEndpointI();
             ue.initWithOptions(arr);
             if (arr.length > 0) {
-                throw new EndpointParseException("unrecognized argument `" + arr[0] + "' in endpoint `" + str + "'");
+                throw new ParseException(`unrecognized argument '${arr[0]}' in endpoint '${str}'`);
             }
 
             for (let i = 0, length = this._factories.length; i < length; ++i) {

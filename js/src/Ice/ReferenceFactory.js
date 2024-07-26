@@ -13,13 +13,7 @@ import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
 const { StringSeqHelper } = Ice_BuiltinSequences;
 import { StringUtil } from "./StringUtil.js";
 import { Encoding_1_0, Protocol_1_0, stringToEncodingVersion, stringToProtocolVersion } from "./Protocol.js";
-import {
-    EndpointSelectionTypeParseException,
-    EndpointParseException,
-    IllegalIdentityException,
-    ProxyParseException,
-    ProxyUnmarshalException,
-} from "./LocalExceptions.js";
+import { ParseException, MarshalException } from "./LocalExceptions.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { ProtocolVersion, EncodingVersion } = Ice_Version;
 import { Debug } from "./Debug.js";
@@ -127,7 +121,7 @@ export class ReferenceFactory {
         let end = 0;
         let beg = StringUtil.findFirstNotOf(s, delim, end);
         if (beg == -1) {
-            throw new ProxyParseException("no non-whitespace characters found in `" + s + "'");
+            throw new ParseException(`no non-whitespace characters found in '${s}'`);
         }
 
         //
@@ -137,7 +131,7 @@ export class ReferenceFactory {
         let idstr = null;
         end = StringUtil.checkQuote(s, beg);
         if (end === -1) {
-            throw new ProxyParseException("mismatched quotes around identity in `" + s + "'");
+            throw new ParseException(`mismatched quotes around identity in '${s}'`);
         } else if (end === 0) {
             end = StringUtil.findFirstOf(s, delim + ":@", beg);
             if (end === -1) {
@@ -151,7 +145,7 @@ export class ReferenceFactory {
         }
 
         if (beg === end) {
-            throw new ProxyParseException("no identity in `" + s + "'");
+            throw new ParseException(`no identity in '${s}'`);
         }
 
         //
@@ -165,7 +159,7 @@ export class ReferenceFactory {
             // category is illegal.
             //
             if (ident.category.length > 0) {
-                throw new IllegalIdentityException();
+                throw new ParseException("The category of a null Ice object identity must be empty.");
             }
             //
             // Treat a stringified proxy containing two double
@@ -174,7 +168,7 @@ export class ReferenceFactory {
             // quotes.
             //
             else if (StringUtil.findFirstNotOf(s, delim, end) != -1) {
-                throw new ProxyParseException("invalid characters after identity in `" + s + "'");
+                throw new ParseException(`invalid characters after identity in '${s}'`);
             } else {
                 return null;
             }
@@ -208,7 +202,7 @@ export class ReferenceFactory {
 
             const option = s.substring(beg, end);
             if (option.length != 2 || option.charAt(0) != "-") {
-                throw new ProxyParseException("expected a proxy option but found `" + option + "' in `" + s + "'");
+                throw new ParseException(`expected a proxy option but found '${option}' in '${s}'`);
             }
 
             //
@@ -224,9 +218,7 @@ export class ReferenceFactory {
                     beg = argumentBeg;
                     end = StringUtil.checkQuote(s, beg);
                     if (end == -1) {
-                        throw new ProxyParseException(
-                            "mismatched quotes around value for " + option + " option in `" + s + "'",
-                        );
+                        throw new ParseException(`mismatched quotes around value for ${option} option in '${s}'`);
                     } else if (end === 0) {
                         end = StringUtil.findFirstOf(s, delim + ":@", beg);
                         if (end === -1) {
@@ -248,13 +240,13 @@ export class ReferenceFactory {
             switch (option.charAt(1)) {
                 case "f": {
                     if (argument === null) {
-                        throw new ProxyParseException("no argument provided for -f option in `" + s + "'");
+                        throw new ParseException(`no argument provided for -f option in '${s}'`);
                     }
 
                     try {
                         facet = StringUtil.unescapeString(argument, 0, argument.length);
                     } catch (ex) {
-                        throw new ProxyParseException("invalid facet in `" + s + "': " + ex.message);
+                        throw new ParseException(`invalid facet in ${s}': `, ex);
                     }
 
                     break;
@@ -262,9 +254,7 @@ export class ReferenceFactory {
 
                 case "t": {
                     if (argument !== null) {
-                        throw new ProxyParseException(
-                            "unexpected argument `" + argument + "' provided for -t option in `" + s + "'",
-                        );
+                        throw new ParseException(`unexpected argument '${argument}' provided for -t option in '${s}'`);
                     }
                     mode = ReferenceMode.ModeTwoway;
                     break;
@@ -272,9 +262,7 @@ export class ReferenceFactory {
 
                 case "o": {
                     if (argument !== null) {
-                        throw new ProxyParseException(
-                            "unexpected argument `" + argument + "' provided for -o option in `" + s + "'",
-                        );
+                        throw new ParseException(`unexpected argument '${argument}' provided for -o option in '${s}'`);
                     }
                     mode = ReferenceMode.ModeOneway;
                     break;
@@ -282,9 +270,7 @@ export class ReferenceFactory {
 
                 case "O": {
                     if (argument !== null) {
-                        throw new ProxyParseException(
-                            "unexpected argument `" + argument + "' provided for -O option in `" + s + "'",
-                        );
+                        throw new ParseException(`unexpected argument '${argument}' provided for -O option in '${s}'`);
                     }
                     mode = ReferenceMode.ModeBatchOneway;
                     break;
@@ -292,9 +278,7 @@ export class ReferenceFactory {
 
                 case "d": {
                     if (argument !== null) {
-                        throw new ProxyParseException(
-                            "unexpected argument `" + argument + "' provided for -d option in `" + s + "'",
-                        );
+                        throw new ParseException(`unexpected argument '${argument}' provided for -d option in '${s}'`);
                     }
                     mode = ReferenceMode.ModeDatagram;
                     break;
@@ -302,9 +286,7 @@ export class ReferenceFactory {
 
                 case "D": {
                     if (argument !== null) {
-                        throw new ProxyParseException(
-                            "unexpected argument `" + argument + "' provided for -D option in `" + s + "'",
-                        );
+                        throw new ParseException(`unexpected argument '${argument}' provided for -D option in '${s}'`);
                     }
                     mode = ReferenceMode.ModeBatchDatagram;
                     break;
@@ -312,9 +294,7 @@ export class ReferenceFactory {
 
                 case "s": {
                     if (argument !== null) {
-                        throw new ProxyParseException(
-                            "unexpected argument `" + argument + "' provided for -s option in `" + s + "'",
-                        );
+                        throw new ParseException(`unexpected argument '${argument}' provided for -s option in '${s}'`);
                     }
                     secure = true;
                     break;
@@ -322,24 +302,20 @@ export class ReferenceFactory {
 
                 case "e": {
                     if (argument === null) {
-                        throw new ProxyParseException("no argument provided for -e option in `" + s + "'");
+                        throw new ParseException(`no argument provided for -e option in '${s}'`);
                     }
 
                     try {
                         encoding = stringToEncodingVersion(argument);
-                    } catch (
-                        e // VersionParseException
-                    ) {
-                        throw new ProxyParseException(
-                            "invalid encoding version `" + argument + "' in `" + s + "':\n" + e.str,
-                        );
+                    } catch (e) {
+                        throw new ParseException(`invalid encoding version '${argument}' in '${s}'`, e);
                     }
                     break;
                 }
 
                 case "p": {
                     if (argument === null) {
-                        throw new ProxyParseException("no argument provided for -p option in `" + s + "'");
+                        throw new ParseException(`no argument provided for -p option in '${s}'`);
                     }
 
                     try {
@@ -347,15 +323,13 @@ export class ReferenceFactory {
                     } catch (
                         e // VersionParseException
                     ) {
-                        throw new ProxyParseException(
-                            "invalid protocol version `" + argument + "' in `" + s + "':\n" + e.str,
-                        );
+                        throw new ParseException(`invalid protocol version '${argument}' in '${s}'`, e);
                     }
                     break;
                 }
 
                 default: {
-                    throw new ProxyParseException("unknown option `" + option + "' in `" + s + "'");
+                    throw new ParseException(`unknown option '${option}' in '${s}'`);
                 }
             }
         }
@@ -414,7 +388,7 @@ export class ReferenceFactory {
             }
             if (endpoints.length === 0) {
                 Debug.assert(unknownEndpoints.length > 0);
-                throw new EndpointParseException("invalid endpoint `" + unknownEndpoints[0] + "' in `" + s + "'");
+                throw new ParseException(`invalid endpoint '${unknownEndpoints[0]}' in '${s}'`);
             } else if (
                 unknownEndpoints.length !== 0 &&
                 this._instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0
@@ -433,13 +407,13 @@ export class ReferenceFactory {
         } else if (s.charAt(beg) == "@") {
             beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
             if (beg == -1) {
-                throw new ProxyParseException("missing adapter id in `" + s + "'");
+                throw new ParseException(`missing adapter id in '${s}'`);
             }
 
             let adapterstr = null;
             end = StringUtil.checkQuote(s, beg);
             if (end === -1) {
-                throw new ProxyParseException("mismatched quotes around adapter id in `" + s + "'");
+                throw new ParseException(`mismatched quotes around adapter id in '${s}'`);
             } else if (end === 0) {
                 end = StringUtil.findFirstOf(s, delim, beg);
                 if (end === -1) {
@@ -453,23 +427,21 @@ export class ReferenceFactory {
             }
 
             if (end !== s.length && StringUtil.findFirstNotOf(s, delim, end) !== -1) {
-                throw new ProxyParseException(
-                    "invalid trailing characters after `" + s.substring(0, end + 1) + "' in `" + s + "'",
-                );
+                throw new ParseException(`invalid trailing characters after ${s.substring(0, end + 1)}' in '${s}'`);
             }
 
             try {
                 adapter = StringUtil.unescapeString(adapterstr, 0, adapterstr.length);
             } catch (ex) {
-                throw new ProxyParseException("invalid adapter id in `" + s + "': " + ex.message);
+                throw new ParseException(`invalid adapter id in '${s}'`, ex);
             }
             if (adapter.length === 0) {
-                throw new ProxyParseException("empty adapter id in `" + s + "'");
+                throw new ParseException(`empty adapter id in '${s}'`);
             }
             return this.createImpl(ident, facet, mode, secure, protocol, encoding, null, adapter, propertyPrefix);
         }
 
-        throw new ProxyParseException("malformed proxy `" + s + "'");
+        throw new ParseException(`malformed proxy '${s}'`);
     }
 
     createFromStream(ident, s) {
@@ -489,7 +461,7 @@ export class ReferenceFactory {
         let facet;
         if (facetPath.length > 0) {
             if (facetPath.length > 1) {
-                throw new ProxyUnmarshalException();
+                throw new MarshalException(`Received invalid facet path with ${facetPath.length} elements.`);
             }
             facet = facetPath[0];
         } else {
@@ -498,7 +470,7 @@ export class ReferenceFactory {
 
         const mode = s.readByte();
         if (mode < 0 || mode > ReferenceMode.ModeLast) {
-            throw new ProxyUnmarshalException();
+            throw new MarshalException(`Received invalid proxy mode ${mode}`);
         }
 
         const secure = s.readBool();
@@ -675,9 +647,7 @@ export class ReferenceFactory {
                 } else if (type == "Ordered") {
                     endpointSelection = EndpointSelectionType.Ordered;
                 } else {
-                    throw new EndpointSelectionTypeParseException(
-                        "illegal value `" + type + "'; expected `Random' or `Ordered'",
-                    );
+                    throw new ParseException(`illegal value '${type}'; expected 'Random' or 'Ordered'`);
                 }
             }
 

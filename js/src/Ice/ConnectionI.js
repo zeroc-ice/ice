@@ -4,22 +4,16 @@
 
 import { LocalException } from "./LocalException.js";
 import {
-    IllegalMessageSizeException,
     ObjectAdapterDeactivatedException,
     CommunicatorDestroyedException,
     CloseConnectionException,
-    ConnectionManuallyClosedException,
+    ConnectionAbortedException,
     ConnectionClosedException,
     ConnectTimeoutException,
-    ConnectionIdleException,
     ConnectionLostException,
     CloseTimeoutException,
     SocketException,
     FeatureNotSupportedException,
-    UnmarshalOutOfBoundsException,
-    BadMagicException,
-    ConnectionNotValidatedException,
-    UnknownMessageException,
     UnknownException,
 } from "./LocalExceptions.js";
 
@@ -116,9 +110,6 @@ export class ConnectionI {
         this._initialized = false;
         this._validated = false;
 
-        this._readProtocol = new ProtocolVersion();
-        this._readProtocolEncoding = new EncodingVersion();
-
         this._asyncRequests = new HashMap(); // Map<int, OutgoingAsync>
 
         this._exception = null;
@@ -212,10 +203,16 @@ export class ConnectionI {
         const r = new AsyncResultBase(this._communicator, "close", this, null, null);
 
         if (mode == ConnectionClose.Forcefully) {
-            this.setState(StateClosed, new ConnectionManuallyClosedException(false));
+            this.setState(
+                StateClosed,
+                new ConnectionAbortedException("The connection was aborted by the application.", true),
+            );
             r.resolve();
         } else if (mode == ConnectionClose.Gracefully) {
-            this.setState(StateClosing, new ConnectionManuallyClosedException(true));
+            this.setState(
+                StateClosing,
+                new ConnectionClosedException("The connection was closed gracefully by the application.", true),
+            );
             r.resolve();
         } else {
             Debug.assert(mode == ConnectionClose.GracefullyWithWait);
@@ -243,7 +240,10 @@ export class ConnectionI {
             // as well.
             //
             Timer.setImmediate(() => {
-                this.setState(StateClosing, new ConnectionManuallyClosedException(true));
+                this.setState(
+                    StateClosing,
+                    new ConnectionClosedException("Connection close gracefully by the application.", true),
+                );
                 this._closePromises.forEach(p => p.resolve());
                 this._closePromises = [];
             });
@@ -555,20 +555,38 @@ export class ConnectionI {
                         magic2 !== Protocol.magic[2] ||
                         magic3 !== Protocol.magic[3]
                     ) {
-                        throw new BadMagicException("", new Uint8Array([magic0, magic1, magic2, magic3]));
+                        throw new ProtocolException(
+                            `Bad magic in message header: ${magic0.toString(16)} ${magic1.toString(16)} ${magic2.toString(16)} ${magic3.toString(16)}`,
+                        );
                     }
 
-                    this._readProtocol._read(this._readStream);
-                    Protocol.checkSupportedProtocol(this._readProtocol);
+                    const protocolVersion = new ProtocolVersion();
+                    protocolVersion._read(this._readStream);
+                    if (
+                        protocolVersion.major != Protocol.currentProtocol.major ||
+                        protocolVersion.minor != Protocol.currentProtocol.minor
+                    ) {
+                        throw new MarshalException(
+                            `Invalid protocol version in message header: ${protocolVersion.major}.${protocolVersion.minor}`,
+                        );
+                    }
 
-                    this._readProtocolEncoding._read(this._readStream);
-                    Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
+                    const encodingVersion = new EncodingVersion();
+                    encodingVersion._read(this._readStream);
+                    if (
+                        encodingVersion.major != Protocol.currentProtocolEncoding.major ||
+                        protocolVersion.minor != Protocol.currentProtocolEncoding.minor
+                    ) {
+                        throw new MarshalException(
+                            `Invalid protocol encoding version in message header: ${encodingVersion.major}.${encodingVersion.minor}`,
+                        );
+                    }
 
                     this._readStream.readByte(); // messageType
                     this._readStream.readByte(); // compress
                     const size = this._readStream.readInt();
                     if (size < Protocol.headerSize) {
-                        throw new IllegalMessageSizeException();
+                        throw new MarshalException(`Received Ice message with unexpected size ${size}.`);
                     }
 
                     if (size > this._messageSizeMax) {
@@ -731,9 +749,8 @@ export class ConnectionI {
             if (
                 !(
                     this._exception instanceof CloseConnectionException ||
-                    this._exception instanceof ConnectionManuallyClosedException ||
+                    this._exception instanceof ConnectionAbortedException ||
                     this._exception instanceof ConnectionClosedException ||
-                    this._exception instanceof ConnectionIdleException ||
                     this._exception instanceof CommunicatorDestroyedException ||
                     this._exception instanceof ObjectAdapterDeactivatedException
                 )
@@ -906,9 +923,8 @@ export class ConnectionI {
                     if (
                         !(
                             this._exception instanceof CloseConnectionException ||
-                            this._exception instanceof ConnectionManuallyClosedException ||
+                            this._exception instanceof ConnectionAbortedException ||
                             this._exception instanceof ConnectionClosedException ||
-                            this._exception instanceof ConnectionIdleException ||
                             this._exception instanceof CommunicatorDestroyedException ||
                             this._exception instanceof ObjectAdapterDeactivatedException ||
                             (this._exception instanceof ConnectionLostException && this._state === StateClosing)
@@ -1088,7 +1104,13 @@ export class ConnectionI {
                     `connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s\n${this._transceiver.toString()}`,
                 );
             }
-            this.setState(StateClosed, new ConnectionIdleException());
+            this.setState(
+                StateClosed,
+                new ConnectionAbortedException(
+                    `Connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s.`,
+                    false,
+                ),
+            );
         }
         // else nothing to do
     }
@@ -1178,22 +1200,42 @@ export class ConnectionI {
             m[2] !== Protocol.magic[2] ||
             m[3] !== Protocol.magic[3]
         ) {
-            throw new BadMagicException("", m);
+            throw new ProtocolException(
+                `Bad magic in message header: ${m[0].toString(16)} ${m[1].toString(16)} ${m[2].toString(16)} ${m[3].toString(16)}`,
+            );
         }
 
-        this._readProtocol._read(this._readStream);
-        Protocol.checkSupportedProtocol(this._readProtocol);
+        const protocolVersion = new ProtocolVersion();
+        protocolVersion._read(this._readStream);
+        if (
+            protocolVersion.major != Protocol.currentProtocol.major ||
+            protocolVersion.minor != Protocol.currentProtocol.minor
+        ) {
+            throw new MarshalException(
+                `Invalid protocol version in message header: ${protocolVersion.major}.${protocolVersion.minor}`,
+            );
+        }
 
-        this._readProtocolEncoding._read(this._readStream);
-        Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
+        const encodingVersion = new EncodingVersion();
+        encodingVersion._read(this._readStream);
+        if (
+            encodingVersion.major != Protocol.currentProtocolEncoding.major ||
+            protocolVersion.minor != Protocol.currentProtocolEncoding.minor
+        ) {
+            throw new MarshalException(
+                `Invalid protocol encoding version in message header: ${encodingVersion.major}.${encodingVersion.minor}`,
+            );
+        }
 
         const messageType = this._readStream.readByte();
         if (messageType !== Protocol.validateConnectionMsg) {
-            throw new ConnectionNotValidatedException();
+            throw new ProtocolException(
+                `Received message of type ${messageType} over a connection that is not yet validated.`,
+            );
         }
         this._readStream.readByte(); // Ignore compression status for validate connection.
         if (this._readStream.readInt() !== Protocol.headerSize) {
-            throw new IllegalMessageSizeException();
+            throw new MarshalException(`Received ValidateConnection message with unexpected size ${size}.`);
         }
         TraceUtil.traceRecv(this._readStream, this._logger, this._traceLevels);
 
@@ -1386,11 +1428,11 @@ export class ConnectionI {
                         );
                     } else {
                         TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
-                        info.invokeNum = info.stream.readInt();
+                        const requestCount = info.stream.readInt();
                         if (info.invokeNum < 0) {
-                            info.invokeNum = 0;
-                            throw new UnmarshalOutOfBoundsException();
+                            throw new MarshalException(`Received batch request with ${requestCount} batches.`);
                         }
+                        info.invokeNum = requestCount;
                         info.servantManager = this._servantManager;
                         info.adapter = this._adapter;
                         this._upcallCount += info.invokeNum;
@@ -1427,7 +1469,7 @@ export class ConnectionI {
                         this._logger,
                         this._traceLevels,
                     );
-                    throw new UnknownMessageException();
+                    throw new ProtocolException(`Received Ice protocol message with unknown type: ${messageType}`);
                 }
             }
         } catch (ex) {
@@ -1472,8 +1514,11 @@ export class ConnectionI {
                 // An Error was raised outside of servant code (i.e., by Ice code).
                 // Attempt to log the error and clean up.
                 //
-                this._logger.error("unexpected exception:\n" + ex.toString());
-                this.dispatchException(new UnknownException(ex), invokeNum);
+                this._logger.error(`unexpected exception:\n ${ex}`);
+                this.dispatchException(
+                    new UnknownException("unexpected exception dispatching request", { cause: ex }),
+                    invokeNum,
+                );
             }
         }
     }

@@ -50,7 +50,7 @@ export class Client extends TestHelper {
                 inS.readBool();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnmarshalOutOfBoundsException);
+                test(ex instanceof Ice.MarshalException);
             }
         }
 

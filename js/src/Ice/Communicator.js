@@ -4,7 +4,7 @@
 
 import { CommunicatorDestroyedException } from "./LocalExceptions.js";
 import { generateUUID } from "./UUID.js";
-import { identityToString } from "./IdentityUtil.js";
+import { identityToString } from "./IdentityToString.js";
 import { Promise } from "./Promise.js";
 import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";

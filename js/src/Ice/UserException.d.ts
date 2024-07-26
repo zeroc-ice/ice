@@ -8,6 +8,8 @@ declare module "ice" {
          * Base class for all Ice user exceptions.
          */
         abstract class UserException extends Exception {
+            constructor();
+
             /**
              * Obtains the Slice type ID of this exception.
              * @return The fully-scoped type ID.

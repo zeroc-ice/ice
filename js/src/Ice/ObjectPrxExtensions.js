@@ -9,7 +9,7 @@ import { AsyncResultBase } from "./AsyncResultBase.js";
 import { OutgoingAsync, ProxyFlushBatch, ProxyGetConnection } from "./OutgoingAsync.js";
 import { ReferenceMode } from "./ReferenceMode.js";
 import { UserException } from "./UserException.js";
-import { IllegalIdentityException, TwowayOnlyException, UnknownUserException } from "./LocalExceptions.js";
+import { ParseException, TwowayOnlyException, UnknownUserException } from "./LocalExceptions.js";
 import { ConnectionI } from "./ConnectionI.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 import { Debug } from "./Debug.js";
@@ -35,7 +35,7 @@ ObjectPrx.prototype.ice_getIdentity = function () {
 
 ObjectPrx.prototype.ice_identity = function (newIdentity) {
     if (newIdentity === undefined || newIdentity === null || newIdentity.name.length === 0) {
-        throw new IllegalIdentityException();
+        throw new TypeError("The name of an Ice object identity cannot be empty.");
     }
     if (newIdentity.equals(this._reference.getIdentity())) {
         return this;
@@ -369,7 +369,7 @@ ObjectPrx.prototype._setup = function (arg0, proxyString = "") {
     if (arg0 instanceof Communicator) {
         this._reference = arg0.instance.referenceFactory().createFromString(proxyString, "");
         if (this._reference === null) {
-            throw new ProxyParseException("Invalid empty proxy string.");
+            throw new ParseException("Invalid empty proxy string.");
         }
         this._requestHandlerCache = new RequestHandlerCache(this._reference);
     } else if (arg0 instanceof Reference) {

@@ -24,6 +24,7 @@ import * as Ice_Identity from "./Identity.js";
 // Must be imported after Identity.js for the prototype extensions.
 import "./IdentityExtensions.js";
 import * as Ice_IdentityUtil from "./IdentityUtil.js";
+import * as Ice_IdentityToString from "./IdentityToString.js";
 import * as Ice_ImplicitContext from "./ImplicitContext.js";
 import * as Ice_IncomingAsync from "./IncomingAsync.js";
 import * as Ice_Initialize from "./Initialize.js";
@@ -100,6 +101,7 @@ export const Ice = {
     ...Ice_HashMap,
     ...Ice_HashUtil,
     ...Ice_IdentityUtil,
+    ...Ice_IdentityToString,
     ...Ice_ImplicitContext,
     ...Ice_IncomingAsync,
     ...Ice_Initialize,

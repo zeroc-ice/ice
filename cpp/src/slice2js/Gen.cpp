@@ -1748,7 +1748,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "static get _id()";
+    _out << nl << "static get _ice_id()";
     _out << sb;
     _out << nl << "return \"" << p->scoped() << "\";";
     _out << eb;

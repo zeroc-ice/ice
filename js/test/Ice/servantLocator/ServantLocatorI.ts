@@ -92,7 +92,7 @@ export class ServantLocatorI implements Ice.ServantLocator {
         } else if (current.operation == "userException") {
             throw new Test.TestIntfUserException();
         } else if (current.operation == "localException") {
-            throw new Ice.SocketException(0);
+            throw new Ice.SocketException();
         } else if (current.operation == "jsException") {
             throw new MyError();
         } else if (current.operation == "unknownExceptionWithServantException") {

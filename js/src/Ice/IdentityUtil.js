@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { IdentityParseException } from "./LocalExceptions.js";
+import { ParseException } from "./LocalExceptions.js";
 import { StringUtil } from "./StringUtil.js";
 import { Ice as Ice_Identity } from "./Identity.js";
-import { ToStringMode } from "./ToStringMode.js";
 const { Identity } = Ice_Identity;
 
 /**
@@ -40,7 +39,7 @@ export function stringToIdentity(s) {
                 //
                 // Extra unescaped slash found.
                 //
-                throw new IdentityParseException(`unescaped backslash in identity \`${s}'`);
+                throw new ParseException(`unescaped backslash in identity '${s}'`);
             }
         }
         pos++;
@@ -51,19 +50,19 @@ export function stringToIdentity(s) {
         try {
             ident.name = StringUtil.unescapeString(s, 0, s.length, "/");
         } catch (e) {
-            throw new IdentityParseException(`invalid identity name \`${s}': ${e.toString()}`);
+            throw new ParseException(`invalid identity name '${s}': ${e.toString()}`);
         }
     } else {
         try {
             ident.category = StringUtil.unescapeString(s, 0, slash, "/");
         } catch (e) {
-            throw new IdentityParseException(`invalid category in identity \`${s}': ${e.toString()}`);
+            throw new ParseException(`invalid category in identity '${s}': ${e.toString()}`);
         }
         if (slash + 1 < s.length) {
             try {
                 ident.name = StringUtil.unescapeString(s, slash + 1, s.length, "/");
             } catch (e) {
-                throw new IdentityParseException(`invalid name in identity \`${s}': ${e.toString()}`);
+                throw new ParseException(`invalid name in identity '${s}': ${e.toString()}`);
             }
         } else {
             ident.name = "";
@@ -71,27 +70,6 @@ export function stringToIdentity(s) {
     }
 
     return ident;
-}
-
-/**
- * Converts an object identity to a string.
- *
- * @param ident The object identity to convert.
- *
- * @param toStringMode Specifies if and how non-printable ASCII characters are escaped in the result.
- *
- * @return The string representation of the object identity.
- **/
-export function identityToString(ident, toStringMode = ToStringMode.Unicode) {
-    if (ident.category === null || ident.category.length === 0) {
-        return StringUtil.escapeString(ident.name, "/", toStringMode);
-    } else {
-        return (
-            StringUtil.escapeString(ident.category, "/", toStringMode) +
-            "/" +
-            StringUtil.escapeString(ident.name, "/", toStringMode)
-        );
-    }
 }
 
 /**

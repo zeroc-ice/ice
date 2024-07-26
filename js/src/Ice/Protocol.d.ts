@@ -72,8 +72,6 @@ declare module "ice" {
 
             static currentEncoding: EncodingVersion;
 
-            static checkSupportedProtocol(v: ProtocolVersion): void;
-            static checkSupportedProtocolEncoding(v: EncodingVersion): void;
             static checkSupportedEncoding(version: EncodingVersion): void;
 
             //

@@ -7,11 +7,6 @@ import { Exception } from "./Exception.js";
 export class UserException extends Exception {
     constructor() {
         super();
-        Exception.captureStackTrace(this);
-    }
-
-    static get _id() {
-        return "::Ice::UserException";
     }
 
     _write(os) {
@@ -50,7 +45,7 @@ const writeImpl = function (obj, os, type) {
         return; // Don't marshal anything for Ice.UserException
     }
 
-    os.startSlice(type._id, -1, type._parent === UserException);
+    os.startSlice(type._ice_id, -1, type._parent === UserException);
     if (type.prototype.hasOwnProperty("_writeMemberImpl")) {
         type.prototype._writeMemberImpl.call(obj, os);
     }
