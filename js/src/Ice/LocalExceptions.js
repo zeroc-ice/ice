@@ -19,14 +19,21 @@ export class RequestFailedException extends LocalException {
     }
 
     constructor(typeName, id, facet, operation) {
-        super(
-            `Dispatch failed with ${typeName} { id = '${identityToString(id)}', facet = '${facet}', operation = '${operation}' }`,
-        );
+        super(RequestFailedException.createMessage(typeName, id, facet, operation));
         this.id = id;
         this.facet = facet;
         this.operation = operation;
     }
+
+    static createMessage(typeName, id, facet, operation) {
+        if (id !== undefined) {
+            return `Dispatch failed with ${typeName} { id = '${identityToString(id)}', facet = '${facet}', operation = '${operation}' }`;
+        } else {
+            return undefined;
+        }
+    }
 }
+
 export class ObjectNotExistException extends RequestFailedException {
     static get _ice_id() {
         return "::Ice::ObjectNotExistException";

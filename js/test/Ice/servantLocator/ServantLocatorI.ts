@@ -82,7 +82,7 @@ export class ServantLocatorI implements Ice.ServantLocator {
         if (current.operation == "ice_ids") {
             throw new Test.TestIntfUserException();
         } else if (current.operation == "requestFailedException") {
-            throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
+            throw new Ice.ObjectNotExistException();
         } else if (current.operation == "unknownUserException") {
             throw new Ice.UnknownUserException("reason");
         } else if (current.operation == "unknownLocalException") {

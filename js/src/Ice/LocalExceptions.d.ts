@@ -8,7 +8,7 @@ declare module "ice" {
          * The base exception for the 3 NotExist exceptions.
          */
         class RequestFailedException extends LocalException {
-            constructor(typeName: string, id: Identity, facet: string, operation: string);
+            constructor(typeName: string, id?: Identity, facet?: string, operation?: string);
             id: Identity;
             facet: string;
             operation: string;
@@ -25,7 +25,7 @@ declare module "ice" {
          * The dispatch could not find a servant for the identity + facet carried by the request.
          */
         class FacetNotExistException extends RequestFailedException {
-            constructor(id: Identity, facet: string, operation: string);
+            constructor(id?: Identity, facet?: string, operation?: string);
         }
 
         /**
@@ -33,7 +33,7 @@ declare module "ice" {
          * to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
          */
         class OperationNotExistException extends RequestFailedException {
-            constructor(id: Identity, facet: string, operation: string);
+            constructor(id?: Identity, facet?: string, operation?: string);
         }
 
         /**
