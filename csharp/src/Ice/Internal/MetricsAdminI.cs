@@ -357,12 +357,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
     {
         lock (this)
         {
-            Entry e;
-            if (_objects.TryGetValue(id, out e))
-            {
-                return e.getFailures();
-            }
-            return new(failures: []);
+            return _objects.TryGetValue(id, out Entry e) ? e.getFailures() : new(failures: []);
         }
     }
 
