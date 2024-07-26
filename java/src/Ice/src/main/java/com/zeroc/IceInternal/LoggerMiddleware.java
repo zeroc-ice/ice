@@ -51,12 +51,12 @@ public final class LoggerMiddleware implements Object {
                   case FacetNotExist:
                   case OperationNotExist:
                     if (_warningLevel > 1) {
-                      warning(response.exceptionMessage, request.current);
+                      warning(response.exceptionDetails, request.current);
                     }
                     break;
 
                   default:
-                    warning(response.exceptionMessage, request.current);
+                    warning(response.exceptionDetails, request.current);
                     break;
                 }
                 return response;
@@ -75,7 +75,7 @@ public final class LoggerMiddleware implements Object {
     }
   }
 
-  private void warning(String exceptionMessage, Current current) {
+  private void warning(String exceptionDetails, Current current) {
     java.io.StringWriter sw = new java.io.StringWriter();
     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
     com.zeroc.IceUtilInternal.OutputBase out = new com.zeroc.IceUtilInternal.OutputBase(pw);
@@ -101,9 +101,9 @@ public final class LoggerMiddleware implements Object {
       } catch (LocalException exc) {
         // Ignore.
       }
-      if (exceptionMessage != null) {
+      if (exceptionDetails != null) {
         out.print("\n");
-        out.print(exceptionMessage);
+        out.print(exceptionDetails);
       }
       _logger.warning(sw.toString());
     }

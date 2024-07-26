@@ -13,7 +13,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     Ice::Current current{request.current()};
 
     ICEOutgoingResponse outgoingResponse =
-        ^(uint8_t replyStatus, NSString* exceptionId, NSString* exceptionMessage, const void* message, long count) {
+        ^(uint8_t replyStatus, NSString* exceptionId, NSString* exceptionDetails, const void* message, long count) {
           // We need to copy the message here as we don't own the memory and it can be sent asynchronously.
           Ice::OutputStream ostr(current.adapter->getCommunicator());
           ostr.writeBlob(static_cast<const std::byte*>(message), static_cast<size_t>(count));
@@ -21,7 +21,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
           sendResponse(Ice::OutgoingResponse{
               static_cast<Ice::ReplyStatus>(replyStatus),
               fromNSString(exceptionId),
-              fromNSString(exceptionMessage),
+              fromNSString(exceptionDetails),
               std::move(ostr),
               current});
         };

@@ -56,7 +56,7 @@ public class RequestFailedException: LocalException {
     }
 
     internal class func makeMessage(typeName: String, id: Identity, facet: String, operation: String) -> String {
-        "dispatch failed for \(typeName) { id = '\(identityToString(id: id))', facet = '\(facet)', operation = '\(operation)' }"
+        "dispatch failed with \(typeName) { id = '\(identityToString(id: id))', facet = '\(facet)', operation = '\(operation)' }"
     }
 }
 
