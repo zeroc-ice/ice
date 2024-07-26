@@ -90,6 +90,7 @@ sequence<DPrxList> DPrxListSeq;
 ["cpp:type:std::list<::Test::DPrxSeq>"] sequence<DPrxSeq> DPrxSeqList;
 
 sequence<double> DoubleSeq;
+sequence<short> ShortSeq;
 
 ["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
 dictionary<long, long> LongLongDict;
@@ -120,7 +121,9 @@ struct BufferStruct
 
 ["amd"] interface TestIntf
 {
-    DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out DoubleSeq outSeq);
+    ["cpp:array"] ShortSeq opShortArray(["cpp:array"] ShortSeq inSeq, out ["cpp:array"] ShortSeq outSeq);
+
+    DoubleSeq opDoubleArray(bool padding, ["cpp:array"] DoubleSeq inSeq, out DoubleSeq outSeq);
 
     BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, out BoolSeq outSeq);
 

@@ -10,42 +10,42 @@ def allTests(helper, communicator)
     STDOUT.flush
 
     oo1 = Test::OneOptional.new
-    test(oo1.a == Ice::Unset)
+    test(oo1.a == nil)
     oo1.a = 15
 
     oo2 = Test::OneOptional.new(16)
     test(oo2.a == 16)
 
     mo1 = Test::MultiOptional.new()
-    test(mo1.a == Ice::Unset)
-    test(mo1.b == Ice::Unset)
-    test(mo1.c == Ice::Unset)
-    test(mo1.d == Ice::Unset)
-    test(mo1.e == Ice::Unset)
-    test(mo1.f == Ice::Unset)
-    test(mo1.g == Ice::Unset)
-    test(mo1.h == Ice::Unset)
-    test(mo1.i == Ice::Unset)
-    test(mo1.j == Ice::Unset)
-    test(mo1.bs == Ice::Unset)
-    test(mo1.ss == Ice::Unset)
-    test(mo1.iid == Ice::Unset)
-    test(mo1.sid == Ice::Unset)
-    test(mo1.fs == Ice::Unset)
-    test(mo1.vs == Ice::Unset)
+    test(mo1.a == nil)
+    test(mo1.b == nil)
+    test(mo1.c == nil)
+    test(mo1.d == nil)
+    test(mo1.e == nil)
+    test(mo1.f == nil)
+    test(mo1.g == nil)
+    test(mo1.h == nil)
+    test(mo1.i == nil)
+    test(mo1.j == nil)
+    test(mo1.bs == nil)
+    test(mo1.ss == nil)
+    test(mo1.iid == nil)
+    test(mo1.sid == nil)
+    test(mo1.fs == nil)
+    test(mo1.vs == nil)
 
-    test(mo1.shs == Ice::Unset)
-    test(mo1.es == Ice::Unset)
-    test(mo1.fss == Ice::Unset)
-    test(mo1.vss == Ice::Unset)
-    test(mo1.mips == Ice::Unset)
+    test(mo1.shs == nil)
+    test(mo1.es == nil)
+    test(mo1.fss == nil)
+    test(mo1.vss == nil)
+    test(mo1.mips == nil)
 
-    test(mo1.ied == Ice::Unset)
-    test(mo1.ifsd == Ice::Unset)
-    test(mo1.ivsd == Ice::Unset)
-    test(mo1.imipd == Ice::Unset)
+    test(mo1.ied == nil)
+    test(mo1.ifsd == nil)
+    test(mo1.ivsd == nil)
+    test(mo1.imipd == nil)
 
-    test(mo1.bos == Ice::Unset)
+    test(mo1.bos == nil)
 
     ss = Test::SmallStruct.new()
     fs = Test::FixedStruct.new(78)
@@ -90,12 +90,12 @@ def allTests(helper, communicator)
     test(mo1.bos == [false, true, false])
 
     #
-    # Test generated struct and classes compare with Ice::Unset
+    # Test generated struct and classes compare with nil
     #
-    test(ss != Ice::Unset)
-    test(fs != Ice::Unset)
-    test(vs != Ice::Unset)
-    test(mo1 != Ice::Unset)
+    test(ss != nil)
+    test(fs != nil)
+    test(vs != nil)
+    test(mo1 != nil)
 
     puts "ok"
 
@@ -103,41 +103,41 @@ def allTests(helper, communicator)
     STDOUT.flush
 
     oo4 = initial.pingPong(Test::OneOptional.new)
-    test(oo4.a == Ice::Unset)
+    test(oo4.a == nil)
 
     oo5 = initial.pingPong(oo1)
     test(oo1.a == oo5.a)
 
     mo4 = initial.pingPong(Test::MultiOptional.new)
-    test(mo4.a == Ice::Unset)
-    test(mo4.b == Ice::Unset)
-    test(mo4.c == Ice::Unset)
-    test(mo4.d == Ice::Unset)
-    test(mo4.e == Ice::Unset)
-    test(mo4.f == Ice::Unset)
-    test(mo4.g == Ice::Unset)
-    test(mo4.h == Ice::Unset)
-    test(mo4.i == Ice::Unset)
-    test(mo4.j == Ice::Unset)
-    test(mo4.bs == Ice::Unset)
-    test(mo4.ss == Ice::Unset)
-    test(mo4.iid == Ice::Unset)
-    test(mo4.sid == Ice::Unset)
-    test(mo4.fs == Ice::Unset)
-    test(mo4.vs == Ice::Unset)
+    test(mo4.a == nil)
+    test(mo4.b == nil)
+    test(mo4.c == nil)
+    test(mo4.d == nil)
+    test(mo4.e == nil)
+    test(mo4.f == nil)
+    test(mo4.g == nil)
+    test(mo4.h == nil)
+    test(mo4.i == nil)
+    test(mo4.j == nil)
+    test(mo4.bs == nil)
+    test(mo4.ss == nil)
+    test(mo4.iid == nil)
+    test(mo4.sid == nil)
+    test(mo4.fs == nil)
+    test(mo4.vs == nil)
 
-    test(mo4.shs == Ice::Unset)
-    test(mo4.es == Ice::Unset)
-    test(mo4.fss == Ice::Unset)
-    test(mo4.vss == Ice::Unset)
-    test(mo4.mips == Ice::Unset)
+    test(mo4.shs == nil)
+    test(mo4.es == nil)
+    test(mo4.fss == nil)
+    test(mo4.vss == nil)
+    test(mo4.mips == nil)
 
-    test(mo4.ied == Ice::Unset)
-    test(mo4.ifsd == Ice::Unset)
-    test(mo4.ivsd == Ice::Unset)
-    test(mo4.imipd == Ice::Unset)
+    test(mo4.ied == nil)
+    test(mo4.ifsd == nil)
+    test(mo4.ivsd == nil)
+    test(mo4.imipd == nil)
 
-    test(mo4.bos == Ice::Unset)
+    test(mo4.bos == nil)
 
     mo5 = initial.pingPong(mo1)
     test(mo5.a == mo1.a)
@@ -185,33 +185,33 @@ def allTests(helper, communicator)
     mo6.bos = mo5.bos
 
     mo7 = initial.pingPong(mo6)
-    test(mo7.a == Ice::Unset)
+    test(mo7.a == nil)
     test(mo7.b == mo1.b)
-    test(mo7.c == Ice::Unset)
+    test(mo7.c == nil)
     test(mo7.d == mo1.d)
-    test(mo7.e == Ice::Unset)
+    test(mo7.e == nil)
     test(mo7.f == mo1.f)
-    test(mo7.g == Ice::Unset)
+    test(mo7.g == nil)
     test(mo7.h == mo1.h)
-    test(mo7.i == Ice::Unset)
+    test(mo7.i == nil)
     test(mo7.j == mo1.j)
     test(mo7.bs.unpack("C*") == [0x05])
-    test(mo7.ss == Ice::Unset)
+    test(mo7.ss == nil)
     test(mo7.iid[4] == 3)
-    test(mo7.sid == Ice::Unset)
+    test(mo7.sid == nil)
     test(mo7.fs == mo1.fs)
-    test(mo7.vs == Ice::Unset)
+    test(mo7.vs == nil)
 
     test(mo7.shs == mo1.shs)
-    test(mo7.es == Ice::Unset)
+    test(mo7.es == nil)
     test(mo7.fss[0] == Test::FixedStruct.new(78))
-    test(mo7.vss == Ice::Unset)
-    test(mo7.mips == Ice::Unset)
+    test(mo7.vss == nil)
+    test(mo7.mips == nil)
 
-    test(mo7.ied == Ice::Unset)
+    test(mo7.ied == nil)
     test(mo7.ifsd[4] == Test::FixedStruct.new(78))
-    test(mo7.ivsd == Ice::Unset)
-    test(mo7.imipd == Ice::Unset)
+    test(mo7.ivsd == nil)
+    test(mo7.imipd == nil)
 
     test(mo7.bos == [false, true, false])
 
@@ -236,34 +236,34 @@ def allTests(helper, communicator)
 
     mo9 = initial.pingPong(mo8)
     test(mo9.a == mo1.a)
-    test(mo9.b == Ice::Unset)
+    test(mo9.b == nil)
     test(mo9.c == mo1.c)
-    test(mo9.d == Ice::Unset)
+    test(mo9.d == nil)
     test(mo9.e == mo1.e)
-    test(mo9.f == Ice::Unset)
+    test(mo9.f == nil)
     test(mo9.g == mo1.g)
-    test(mo9.h == Ice::Unset)
+    test(mo9.h == nil)
     test(mo9.i == mo1.i)
-    test(mo9.j == Ice::Unset)
-    test(mo9.bs == Ice::Unset)
+    test(mo9.j == nil)
+    test(mo9.bs == nil)
     test(mo9.ss == mo1.ss)
-    test(mo9.iid == Ice::Unset)
+    test(mo9.iid == nil)
     test(mo9.sid["test"] == 10)
-    test(mo9.fs == Ice::Unset)
+    test(mo9.fs == nil)
     test(mo9.vs == mo1.vs)
 
-    test(mo9.shs == Ice::Unset)
+    test(mo9.shs == nil)
     test(mo9.es[0] == Test::MyEnum::MyEnumMember && mo1.es[1] == Test::MyEnum::MyEnumMember)
-    test(mo9.fss == Ice::Unset)
+    test(mo9.fss == nil)
     test(mo9.vss[0] == Test::VarStruct.new("hello"))
     test(mo9.mips[0] == communicator.stringToProxy("test"))
 
     test(mo9.ied[4] == Test::MyEnum::MyEnumMember)
-    test(mo9.ifsd == Ice::Unset)
+    test(mo9.ifsd == nil)
     test(mo9.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo9.imipd[5] == communicator.stringToProxy("test"))
 
-    test(mo9.bos == Ice::Unset)
+    test(mo9.bos == nil)
 
     g = Test::G.new
     g.gg1Opt = Test::G1.new("gg1Opt")
@@ -318,9 +318,9 @@ def allTests(helper, communicator)
 
     b = Test::B.new
     b2 = initial.pingPong(b)
-    test(b2.ma == Ice::Unset)
-    test(b2.mb == Ice::Unset)
-    test(b2.mc == Ice::Unset)
+    test(b2.ma == nil)
+    test(b2.mb == nil)
+    test(b2.mc == nil)
 
     b.ma = 10
     b.mb = 11
@@ -354,11 +354,11 @@ def allTests(helper, communicator)
     wd = initial.pingPong(Test::WD.new)
     test(wd.a == 5)
     test(wd.s == "test")
-    wd.a = Ice::Unset
-    wd.s = Ice::Unset
+    wd.a = nil
+    wd.s = nil
     wd = initial.pingPong(wd)
-    test(wd.a == Ice::Unset)
-    test(wd.s == Ice::Unset)
+    test(wd.a == nil)
+    test(wd.s == nil)
 
     puts "ok"
 
@@ -370,10 +370,10 @@ def allTests(helper, communicator)
         c.ss = "test"
         c.ms = "testms"
         c = initial.pingPong(c)
-        test(c.ma == Ice::Unset)
-        test(c.mb == Ice::Unset)
-        test(c.mc == Ice::Unset)
-        test(c.md == Ice::Unset)
+        test(c.ma == nil)
+        test(c.mb == nil)
+        test(c.mc == nil)
+        test(c.md == nil)
         test(c.ss == "test")
         test(c.ms == "testms")
 
@@ -392,86 +392,87 @@ def allTests(helper, communicator)
     print "testing optional parameters... "
     STDOUT.flush
 
-    p2, p3 = initial.opByte(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opByte(nil)
+    test(p2 == nil && p3 == nil)
     p2, p3 = initial.opByte(56)
     test(p2 == 56 && p3 == 56)
 
-    p2, p3 = initial.opBool(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opBool(nil)
+    test(p2 == nil && p3 == nil)
     p2, p3 = initial.opBool(true)
     test(p2 == true && p3 == true)
 
-    p2, p3 = initial.opShort(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opShort(nil)
+    test(p2 == nil && p3 == nil)
     p2, p3 = initial.opShort(56)
     test(p2 == 56 && p3 == 56)
 
-    p2, p3 = initial.opInt(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opInt(nil)
+    test(p2 == nil && p3 == nil)
     p2, p3 = initial.opInt(56)
     test(p2 == 56 && p3 == 56)
 
-    p2, p3 = initial.opLong(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opLong(nil)
+    test(p2 == nil && p3 == nil)
     p2, p3 = initial.opLong(56)
     test(p2 == 56 && p3 == 56)
 
-    p2, p3 = initial.opFloat(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opFloat(nil)
+    test(p2 == nil && p3 == nil)
     p2, p3 = initial.opFloat(1.0)
     test(p2 == 1.0 && p3 == 1.0)
 
-    p2, p3 = initial.opDouble(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opDouble(nil)
+    test(p2 == nil && p3 == nil)
     p2, p3 = initial.opDouble(1.0)
     test(p2 == 1.0 && p3 == 1.0)
 
-    p2, p3 = initial.opString(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opString(nil)
+    test(p2 == nil && p3 == nil)
     p2, p3 = initial.opString("test")
     test(p2 == "test" && p3 == "test")
 
-    p2, p3 = initial.opMyEnum(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opMyEnum(nil)
+    test(p2 == nil && p3 == nil)
     p2, p3 = initial.opMyEnum(Test::MyEnum::MyEnumMember)
     test(p2 == Test::MyEnum::MyEnumMember && p3 == Test::MyEnum::MyEnumMember)
 
-    p2, p3 = initial.opSmallStruct(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opSmallStruct(nil)
+    test(p2 == nil && p3 == nil)
     p1 = Test::SmallStruct.new(56)
     p2, p3 = initial.opSmallStruct(p1)
     test(p2 == p1 && p3 == p1)
-    p2, p3 = initial.opSmallStruct(nil) # Test null struct
-    test(p2.m == 0 && p3.m == 0)
-
-    p2, p3 = initial.opFixedStruct(Ice::Unset)
+    test(Ice::Unset == nil)
+    p2, p3 = initial.opSmallStruct(Ice::Unset) # Test backwards compat syntax
     test(p2 == Ice::Unset && p3 == Ice::Unset)
+
+    p2, p3 = initial.opFixedStruct(nil)
+    test(p2 == nil && p3 == nil)
     p1 = Test::FixedStruct.new(56)
     p2, p3 = initial.opFixedStruct(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opVarStruct(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opVarStruct(nil)
+    test(p2 == nil && p3 == nil)
     p1 = Test::VarStruct.new("test")
     p2, p3 = initial.opVarStruct(p1)
     test(p2 == p1 && p3 == p1)
 
     p1 = Test::OneOptional.new()
     p2, p3 = initial.opOneOptional(p1)
-    test(p2.a == Ice::Unset && p3.a == Ice::Unset)
+    test(p2.a == nil && p3.a == nil)
     p1 = Test::OneOptional.new(58)
     p2, p3 = initial.opOneOptional(p1)
     test(p2.a == p1.a && p3.a == p1.a)
 
-    p2, p3 = initial.opMyInterfaceProxy(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opMyInterfaceProxy(nil)
+    test(p2 == nil && p3 == nil)
     p1 = Test::MyInterfacePrx.new(communicator, "test")
     p2, p3 = initial.opMyInterfaceProxy(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opByteSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opByteSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...100)
         p1.push(56)
@@ -481,8 +482,8 @@ def allTests(helper, communicator)
     test(p2[0] == "\x38" || p2[0] == 0x38)
     test(p3[0] == "\x38" || p3[0] == 0x38)
 
-    p2, p3 = initial.opBoolSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opBoolSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...100)
         p1.push(true)
@@ -490,8 +491,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opBoolSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opShortSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opShortSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...100)
         p1.push(56)
@@ -499,8 +500,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opShortSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opIntSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opIntSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...100)
         p1.push(56)
@@ -508,8 +509,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opIntSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opLongSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opLongSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...100)
         p1.push(56)
@@ -517,8 +518,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opLongSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opFloatSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opFloatSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...100)
         p1.push(1.0)
@@ -526,8 +527,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opFloatSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opDoubleSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opDoubleSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...100)
         p1.push(1.0)
@@ -535,8 +536,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opDoubleSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opStringSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opStringSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...100)
         p1.push("test1")
@@ -544,8 +545,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opStringSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opSmallStructSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opSmallStructSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...10)
         p1.push(Test::SmallStruct.new(1))
@@ -553,8 +554,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opSmallStructSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opSmallStructList(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opSmallStructList(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...10)
         p1.push(Test::SmallStruct.new(1))
@@ -562,8 +563,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opSmallStructList(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opFixedStructSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opFixedStructSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...10)
         p1.push(Test::FixedStruct.new(1))
@@ -571,8 +572,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opFixedStructSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opFixedStructList(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opFixedStructList(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...10)
         p1.push(Test::FixedStruct.new(1))
@@ -580,8 +581,8 @@ def allTests(helper, communicator)
     p2, p3 = initial.opFixedStructList(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opVarStructSeq(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opVarStructSeq(nil)
+    test(p2 == nil && p3 == nil)
     p1 = []
     for x in (0...10)
         p1.push(Test::VarStruct.new("test"))
@@ -589,14 +590,14 @@ def allTests(helper, communicator)
     p2, p3 = initial.opVarStructSeq(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opIntIntDict(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opIntIntDict(nil)
+    test(p2 == nil && p3 == nil)
     p1 = {1=>2, 2=>3}
     p2, p3 = initial.opIntIntDict(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opStringIntDict(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p2, p3 = initial.opStringIntDict(nil)
+    test(p2 == nil && p3 == nil)
     p1 = {"1"=>2, "2"=>3}
     p2, p3 = initial.opStringIntDict(p1)
     test(p2 == p1 && p3 == p1)
@@ -607,10 +608,10 @@ def allTests(helper, communicator)
     STDOUT.flush
 
     begin
-        initial.opOptionalException(Ice::Unset, Ice::Unset)
+        initial.opOptionalException(nil, nil)
     rescue Test::OptionalException => ex
-        test(ex.a == Ice::Unset)
-        test(ex.b == Ice::Unset)
+        test(ex.a == nil)
+        test(ex.b == nil)
     end
 
     begin
@@ -626,16 +627,16 @@ def allTests(helper, communicator)
         #
         initial.ice_encodingVersion(Ice::Encoding_1_0).opOptionalException(30, "test")
     rescue Test::OptionalException => ex
-        test(ex.a == Ice::Unset)
-        test(ex.b == Ice::Unset)
+        test(ex.a == nil)
+        test(ex.b == nil)
     end
 
     begin
-        initial.opDerivedException(Ice::Unset, Ice::Unset)
+        initial.opDerivedException(nil, nil)
     rescue Test::DerivedException => ex
-        test(ex.a == Ice::Unset)
-        test(ex.b == Ice::Unset)
-        test(ex.ss == Ice::Unset)
+        test(ex.a == nil)
+        test(ex.b == nil)
+        test(ex.ss == nil)
         test(ex.d1 == "d1")
         test(ex.d2 == "d2")
     end
@@ -651,11 +652,11 @@ def allTests(helper, communicator)
     end
 
     begin
-        initial.opRequiredException(Ice::Unset, Ice::Unset)
+        initial.opRequiredException(nil, nil)
     rescue Test::RequiredException => ex
-        test(ex.a == Ice::Unset)
-        test(ex.b == Ice::Unset)
-        test(ex.ss != Ice::Unset)
+        test(ex.a == nil)
+        test(ex.b == nil)
+        test(ex.ss != nil)
     end
 
     begin
@@ -671,27 +672,26 @@ def allTests(helper, communicator)
     print "testing optionals with marshaled results... "
     STDOUT.flush
 
-    # TODO: Fix bug ICE-7276
-    #test(initial.opMStruct1() != Ice::Unset)
-    test(initial.opMDict1() != Ice::Unset)
-    test(initial.opMSeq1() != Ice::Unset)
+    test(initial.opMStruct1() != nil)
+    test(initial.opMDict1() != nil)
+    test(initial.opMSeq1() != nil)
 
-    (p3, p2) = initial.opMStruct2(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    (p3, p2) = initial.opMStruct2(nil)
+    test(p2 == nil && p3 == nil)
 
     p1 = Test::SmallStruct.new()
     (p3, p2) = initial.opMStruct2(p1)
     test(p2 == p1 && p3 == p1)
 
-    (p3, p2) = initial.opMSeq2(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    (p3, p2) = initial.opMSeq2(nil)
+    test(p2 == nil && p3 == nil)
 
     p1 = ["hello"]
     (p3, p2) = initial.opMSeq2(p1)
     test(p2[0] == "hello" && p3[0] == "hello")
 
-    (p3, p2) = initial.opMDict2(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    (p3, p2) = initial.opMDict2(nil)
+    test(p2 == nil && p3 == nil)
 
     p1 = {"test" => 54}
     (p3, p2) = initial.opMDict2(p1)

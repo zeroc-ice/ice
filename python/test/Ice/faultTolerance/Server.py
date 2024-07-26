@@ -12,17 +12,17 @@ import Test
 
 
 class TestI(Test.TestIntf):
-    def shutdown(self, current=None):
+    def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
-    def abort(self, current=None):
+    def abort(self, current):
         print("aborting...")
         os._exit(0)
 
-    def idempotentAbort(self, current=None):
+    def idempotentAbort(self, current):
         os._exit(0)
 
-    def pid(self, current=None):
+    def pid(self, current):
         return os.getpid()
 
 

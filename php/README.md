@@ -27,8 +27,7 @@ require_once 'Ice.php';
 require_once 'Hello.php';
 
 $communicator = Ice\initialize();
-$hello = Demo\HelloPrxHelper::uncheckedCast(
-    $communicator->stringToProxy("hello:default -h localhost -p 10000"));
+$hello = Demo\HelloPrxHelper::createProxy($communicator,"hello:default -h localhost -p 10000");
 $hello->sayHello();
 ```
 

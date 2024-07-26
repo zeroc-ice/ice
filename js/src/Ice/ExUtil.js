@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { UnexpectedObjectException, MemoryLimitException } from "./LocalException.js";
+import { UnexpectedObjectException, MemoryLimitException } from "./LocalExceptions.js";
 
 export function throwUOE(expectedType, v) {
     const type = v.ice_id();

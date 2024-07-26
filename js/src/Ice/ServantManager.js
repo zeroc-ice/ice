@@ -4,7 +4,7 @@
 
 import { HashMap } from "./HashMap.js";
 import { StringUtil } from "./StringUtil.js";
-import { AlreadyRegisteredException, NotRegisteredException } from "./LocalException.js";
+import { AlreadyRegisteredException, NotRegisteredException } from "./LocalExceptions.js";
 import { identityToString } from "./IdentityUtil.js";
 import { Debug } from "./Debug.js";
 

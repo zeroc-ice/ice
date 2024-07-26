@@ -17,8 +17,8 @@ import { RouterManager } from "./RouterManager.js";
 import { Timer } from "./Timer.js";
 import { TraceLevels } from "./TraceLevels.js";
 import { ValueFactoryManager } from "./ValueFactoryManager.js";
-import { LocalException } from "./Exception.js";
-import { CommunicatorDestroyedException, InitializationException } from "./LocalException.js";
+import { LocalException } from "./LocalException.js";
+import { CommunicatorDestroyedException, InitializationException } from "./LocalExceptions.js";
 import { getProcessLogger } from "./ProcessLogger.js";
 import { ToStringMode } from "./ToStringMode.js";
 import { ProtocolInstance } from "./ProtocolInstance.js";
@@ -394,7 +394,7 @@ Instance.prototype.destroy = function () {
             }
 
             if (this._objectFactoryMap !== null) {
-                this._objectFactoryMap.forEach((factory) => factory.destroy());
+                this._objectFactoryMap.forEach(factory => factory.destroy());
                 this._objectFactoryMap.clear();
             }
 
@@ -413,7 +413,7 @@ Instance.prototype.destroy = function () {
                 if (unusedProperties.length > 0) {
                     const message = [];
                     message.push("The following properties were set but never read:");
-                    unusedProperties.forEach((p) => message.push("\n    ", p));
+                    unusedProperties.forEach(p => message.push("\n    ", p));
                     this._initData.logger.warning(message.join(""));
                 }
             }
@@ -431,13 +431,13 @@ Instance.prototype.destroy = function () {
             this._state = StateDestroyed;
 
             if (this._destroyPromises) {
-                this._destroyPromises.forEach((p) => p.resolve());
+                this._destroyPromises.forEach(p => p.resolve());
             }
             promise.resolve();
         })
-        .catch((ex) => {
+        .catch(ex => {
             if (this._destroyPromises) {
-                this._destroyPromises.forEach((p) => p.reject(ex));
+                this._destroyPromises.forEach(p => p.reject(ex));
             }
             promise.reject(ex);
         });

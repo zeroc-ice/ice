@@ -463,15 +463,11 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 PyObjectHandle s = PyTuple_GET_ITEM(sl.get(), i);
                 Py_INCREF(s.get());
 
-                Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
-
                 PyObjectHandle typeId = getAttr(s.get(), "typeId", false);
                 assert(typeId.get());
-                info->typeId = getString(typeId.get());
 
                 PyObjectHandle compactId = getAttr(s.get(), "compactId", false);
                 assert(compactId.get());
-                info->compactId = static_cast<int>(PyLong_AsLong(compactId.get()));
 
                 PyObjectHandle bytes = getAttr(s.get(), "bytes", false);
                 assert(bytes.get());
@@ -480,7 +476,19 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 assert(PyBytes_Check(bytes.get()));
                 PyBytes_AsStringAndSize(bytes.get(), &str, &strsz);
                 vector<byte> vtmp(reinterpret_cast<byte*>(str), reinterpret_cast<byte*>(str + strsz));
-                info->bytes.swap(vtmp);
+
+                PyObjectHandle hasOptionalMembers = getAttr(s.get(), "hasOptionalMembers", false);
+                assert(hasOptionalMembers.get());
+
+                PyObjectHandle isLastSlice = getAttr(s.get(), "isLastSlice", false);
+                assert(isLastSlice.get());
+
+                auto info = std::make_shared<Ice::SliceInfo>(
+                    getString(typeId.get()),
+                    static_cast<int>(PyLong_AsLong(compactId.get())),
+                    std::move(vtmp),
+                    PyObject_IsTrue(hasOptionalMembers.get()) ? true : false,
+                    PyObject_IsTrue(isLastSlice.get()) ? true : false);
 
                 PyObjectHandle instances = getAttr(s.get(), "instances", false);
                 assert(instances.get());
@@ -505,14 +513,6 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
 
                     info->instances.push_back(writer);
                 }
-
-                PyObjectHandle hasOptionalMembers = getAttr(s.get(), "hasOptionalMembers", false);
-                assert(hasOptionalMembers.get());
-                info->hasOptionalMembers = PyObject_IsTrue(hasOptionalMembers.get()) ? true : false;
-
-                PyObjectHandle isLastSlice = getAttr(s.get(), "isLastSlice", false);
-                assert(isLastSlice.get());
-                info->isLastSlice = PyObject_IsTrue(isLastSlice.get()) ? true : false;
 
                 slices.push_back(info);
             }
@@ -2436,19 +2436,19 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
 {
     if (type == SEQ_ARRAY)
     {
-        factory = lookupType("Ice.ArrayUtil.createArray");
+        factory = lookupType("Ice._ArrayUtil.createArray");
         if (!factory)
         {
-            PyErr_Format(PyExc_ImportError, "factory type not found 'Ice.ArrayUtil.createArray'");
+            PyErr_Format(PyExc_ImportError, "factory type not found 'Ice._ArrayUtil.createArray'");
             throw InvalidSequenceFactoryException();
         }
     }
     else if (type == SEQ_NUMPYARRAY)
     {
-        factory = lookupType("Ice.ArrayUtil.createNumPyArray");
+        factory = lookupType("Ice._ArrayUtil.createNumPyArray");
         if (!factory)
         {
-            PyErr_Format(PyExc_ImportError, "factory type not found 'Ice.ArrayUtil.createNumPyArray'");
+            PyErr_Format(PyExc_ImportError, "factory type not found 'Ice._ArrayUtil.createNumPyArray'");
             throw InvalidSequenceFactoryException();
         }
     }
@@ -3187,7 +3187,7 @@ IcePy::ProxyInfo::getId() const
 bool
 IcePy::ProxyInfo::validate(PyObject* val)
 {
-    return val == Py_None || PyObject_IsInstance(val, pythonType) == 1;
+    return val == Py_None || checkProxy(val);
 }
 
 bool

@@ -66,7 +66,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
                     outgoingResponseHandler(
                         response.replyStatus.rawValue,
                         response.exceptionId,
-                        response.exceptionMessage,
+                        response.exceptionDetails,
                         $0.baseAddress!,
                         $0.count)
                 }
@@ -76,7 +76,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
                     outgoingResponseHandler(
                         response.replyStatus.rawValue,
                         response.exceptionId,
-                        response.exceptionMessage,
+                        response.exceptionDetails,
                         $0.baseAddress!,
                         $0.count)
                 }

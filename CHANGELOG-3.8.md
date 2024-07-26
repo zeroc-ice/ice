@@ -58,6 +58,65 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   (the unit is seconds). You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.CloseTimeout`.
 
+- Simplify proxy creation.
+  You can now create a typed proxy directly from a communicator and a string in all languages. For example:
+
+  ```cpp
+  // C++
+  GreeterPrx greeter{communicator, "greeter:tcp -h localhost -p 4061"};
+  ```
+
+  ```csharp
+  // C#
+  var greeter = GreeterPrxHelper.createProxy(communicator, "greeter:tcp -h localhost -p 4061");
+  ```
+
+  ```java
+  // Java
+  var greeter = GreeterPrx.createProxy(communicator, "greeter:tcp -h localhost -p 4061");
+  ```
+
+   ```js
+  // JavaScript
+  const greeter = new GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061");
+  ```
+
+  ```matlab
+  % MATLAB
+  greeter = GreeterPrx(communicator, 'greeter:tcp -h localhost -p 4061');
+  ```
+
+  ```php
+  // PHP
+  $greeter = GreeterPrx::createProxy($communicator, 'greeter:tcp -h localhost -p 4061');
+  ```
+
+  ```python
+  # Python
+  greeter = GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
+  ```
+
+  ```ruby
+  # Ruby
+  greeter = GreeterPrx.new(communicator, "greeter:tcp -h localhost -p 4061")
+  ```
+
+  ```swift
+  // Swift
+  let greeter = try makeProxy(
+    communicator: communicator,
+    proxyString: "greeter:tcp -h localhost -p 4061",
+    type: GreeterPrx.self)
+  ```
+
+  ```ts
+  // TypeScript
+  const greeter = new GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061");
+  ```
+
+  The existing `stringToProxy` operation on `Communicator` remains available. However, the new
+  syntax is now the preferred way to create a proxy from a string.
+
 - Consolidate and refactor the exceptions derived from LocalException.
   | Local exception in Ice 3.7          | Replacement                | Notes    |
   |-------------------------------------|----------------------------| ---------|
@@ -95,12 +154,12 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 
 ## Slice Language Changes
 
+- Removed local Slice. `local` is no longer a Slice keyword.
+
 - Removed support for the `["preserve-slice"]` metadata. Slice classes encoded in the Sliced-format are now always
   full-preserved.
 
-- Exceptions are now always encoded in the Sliced-format and no longer support preservation of unknown type slices.
-
-- Removed local Slice. `local` is no longer a Slice keyword.
+- Exceptions are now always encoded in the sliced format and no longer support preservation of unknown type slices.
 
 - Slice classes can no longer define operations or implement interfaces, and `implements` is no longer a Slice keyword.
 This feature has been deprecated since Ice 3.7.
@@ -118,6 +177,22 @@ Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `
 
 - There is now a single C++ mapping, based on the C++11 mapping provided by Ice 3.7. This new C++ mapping requires a
 C++ compiler with support for std=c++17 or higher.
+
+- All functions that create proxies, including `Communicator::stringToProxy`, `ObjectAdapter::add`,
+  `Connection::createProxy` and more, are now template functions that allow you to choose the type of the returned
+  proxy. The default proxy type is `Ice::ObjectPrx` for backwards compatibility. We recommend you always specify the
+  desired proxy type explicitly. For example:
+
+  ```cpp
+  // widget is a std::optional<WidgetPrx>
+  auto widget = communicator->propertyToProxy<WidgetPrx>("MyWidget");
+  ```
+
+- When unmarshaling an array of short, int, long, float, or double, you can now choose to use unaligned unmarshaling by
+defining ICE_UNALIGNED when building your application. This optimization requires the non-default array mapping for
+Slice sequences, enabled by the `cpp:array` metadata directive, and a compatible little endian platform. In Ice 3.7 and
+earlier releases, this unaligned unmarshaling was turned on automatically on x86 and x64 CPUs, and turned off on all
+other CPUs.
 
 ## Objective-C Changes
 

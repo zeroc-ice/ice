@@ -1,1 +1,3 @@
 dist
+docs/_build
+docs/.venv

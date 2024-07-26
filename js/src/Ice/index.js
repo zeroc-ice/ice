@@ -31,6 +31,7 @@ import * as Ice_Instance from "./Instance.js";
 // Must be imported after Instance.js for the prototype extensions.
 import "./InstanceExtensions.js";
 import * as Ice_LocalException from "./LocalException.js";
+import * as Ice_LocalExceptions from "./LocalExceptions.js";
 import * as Ice_Locator from "./Locator.js";
 import * as Ice_LocatorInfo from "./LocatorInfo.js";
 import * as Ice_Logger from "./Logger.js";
@@ -70,6 +71,7 @@ import * as Ice_ToStringMode from "./ToStringMode.js";
 import * as Ice_TraceLevels from "./TraceLevels.js";
 import * as Ice_TraceUtil from "./TraceUtil.js";
 import * as Ice_UnknownSlicedValue from "./UnknownSlicedValue.js";
+import * as Ice_UserException from "./UserException.js";
 import * as Ice_Value from "./Value.js";
 import * as Ice_ValueFactoryManager from "./ValueFactoryManager.js";
 import * as Ice_Version from "./Version.js";
@@ -103,6 +105,7 @@ export const Ice = {
     ...Ice_Initialize,
     ...Ice_Instance,
     ...Ice_LocalException,
+    ...Ice_LocalExceptions,
     ...Ice_LocatorInfo,
     ...Ice_Logger,
     ...Ice_Long,
@@ -131,6 +134,7 @@ export const Ice = {
     ...Ice_TraceLevels,
     ...Ice_TraceUtil,
     ...Ice_UnknownSlicedValue,
+    ...Ice_UserException,
     ...Ice_Value,
     ...Ice_ValueFactoryManager,
 

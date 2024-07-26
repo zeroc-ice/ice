@@ -31,7 +31,7 @@ using namespace IceRuby;
 using namespace Ice;
 using namespace IceInternal;
 
-static VALUE _typeInfoClass, _exceptionInfoClass, _unsetTypeClass;
+static VALUE _typeInfoClass, _exceptionInfoClass;
 
 typedef map<string, ClassInfoPtr, std::less<>> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
@@ -54,8 +54,6 @@ IceRuby::resolveCompactId(int id)
 
 namespace IceRuby
 {
-    VALUE Unset;
-
     class InfoMapDestroyer
     {
     public:
@@ -338,23 +336,23 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
             {
                 volatile VALUE s = RARRAY_AREF(sl, i);
 
-                Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
-
                 volatile VALUE typeId = callRuby(rb_iv_get, s, "@typeId");
-                info->typeId = getString(typeId);
-
                 volatile VALUE compactId = callRuby(rb_iv_get, s, "@compactId");
-                info->compactId = static_cast<int32_t>(getInteger(compactId));
 
                 volatile VALUE bytes = callRuby(rb_iv_get, s, "@bytes");
                 assert(TYPE(bytes) == T_STRING);
                 const char* str = RSTRING_PTR(bytes);
                 const long len = RSTRING_LEN(bytes);
-                if (str != 0 && len != 0)
-                {
-                    vector<byte> vtmp(reinterpret_cast<const byte*>(str), reinterpret_cast<const byte*>(str + len));
-                    info->bytes.swap(vtmp);
-                }
+                vector<byte> vtmp(reinterpret_cast<const byte*>(str), reinterpret_cast<const byte*>(str + len));
+                volatile VALUE hasOptionalMembers = callRuby(rb_iv_get, s, "@hasOptionalMembers");
+                volatile VALUE isLastSlice = callRuby(rb_iv_get, s, "@isLastSlice");
+
+                auto info = std::make_shared<Ice::SliceInfo>(
+                    getString(typeId),
+                    static_cast<int32_t>(getInteger(compactId)),
+                    std::move(vtmp),
+                    hasOptionalMembers == Qtrue,
+                    isLastSlice == Qtrue);
 
                 volatile VALUE instances = callRuby(rb_iv_get, s, "@instances");
                 assert(TYPE(instances) == T_ARRAY);
@@ -378,12 +376,6 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
 
                     info->instances.push_back(writer);
                 }
-
-                volatile VALUE hasOptionalMembers = callRuby(rb_iv_get, s, "@hasOptionalMembers");
-                info->hasOptionalMembers = hasOptionalMembers == Qtrue;
-
-                volatile VALUE isLastSlice = callRuby(rb_iv_get, s, "@isLastSlice");
-                info->isLastSlice = isLastSlice == Qtrue;
 
                 slices.push_back(info);
             }
@@ -906,7 +898,7 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
 //
 // StructInfo implementation.
 //
-IceRuby::StructInfo::StructInfo(VALUE ident, VALUE t, VALUE m) : rubyClass(t), _nullMarshalValue(Qnil)
+IceRuby::StructInfo::StructInfo(VALUE ident, VALUE t, VALUE m) : rubyClass(t)
 {
     const_cast<string&>(id) = getString(ident);
 
@@ -935,7 +927,7 @@ IceRuby::StructInfo::getId() const
 bool
 IceRuby::StructInfo::validate(VALUE val)
 {
-    return NIL_P(val) || callRuby(rb_obj_is_kind_of, val, rubyClass) == Qtrue;
+    return !NIL_P(val) && callRuby(rb_obj_is_kind_of, val, rubyClass) == Qtrue;
 }
 
 bool
@@ -973,17 +965,7 @@ IceRuby::StructInfo::usesClasses() const
 void
 IceRuby::StructInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, bool optional)
 {
-    assert(NIL_P(p) || callRuby(rb_obj_is_kind_of, p, rubyClass) == Qtrue); // validate() should have caught this.
-
-    if (NIL_P(p))
-    {
-        if (NIL_P(_nullMarshalValue))
-        {
-            _nullMarshalValue = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
-            rb_gc_register_address(&_nullMarshalValue); // Prevent garbage collection
-        }
-        p = _nullMarshalValue;
-    }
+    assert(!NIL_P(p) && callRuby(rb_obj_is_kind_of, p, rubyClass) == Qtrue); // validate() should have caught this.
 
     Ice::OutputStream::size_type sizePos = 0;
     if (optional)
@@ -1059,29 +1041,22 @@ IceRuby::StructInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHis
         return;
     }
 
-    if (NIL_P(value))
+    out.sb();
+    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
-        out << "<nil>";
-    }
-    else
-    {
-        out.sb();
-        for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        DataMemberPtr member = *q;
+        out << nl << member->name << " = ";
+        if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {
-            DataMemberPtr member = *q;
-            out << nl << member->name << " = ";
-            if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
-            {
-                out << "<not defined>";
-            }
-            else
-            {
-                volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
-                member->type->print(val, out, history);
-            }
+            out << "<not defined>";
         }
-        out.eb();
+        else
+        {
+            volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
+            member->type->print(val, out, history);
+        }
     }
+    out.eb();
 }
 
 void
@@ -1092,11 +1067,6 @@ IceRuby::StructInfo::destroy()
         (*p)->type->destroy();
     }
     const_cast<DataMemberList&>(members).clear();
-    if (!NIL_P(_nullMarshalValue))
-    {
-        rb_gc_unregister_address(&_nullMarshalValue); // Prevent garbage collection
-        _nullMarshalValue = Qnil;
-    }
 }
 
 //
@@ -2199,9 +2169,9 @@ IceRuby::ClassInfo::printMembers(VALUE value, IceInternal::Output& out, PrintObj
         else
         {
             volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
-            if (val == Unset)
+            if (val == Qnil)
             {
-                out << "<unset>";
+                out << "<nil>";
             }
             else
             {
@@ -2274,20 +2244,7 @@ IceRuby::ProxyInfo::getId() const
 bool
 IceRuby::ProxyInfo::validate(VALUE val)
 {
-    if (!NIL_P(val))
-    {
-        if (!checkProxy(val))
-        {
-            return false;
-        }
-        volatile VALUE cls = CLASS_OF(val);
-        volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
-        assert(!NIL_P(type));
-        ProxyInfoPtr info = dynamic_pointer_cast<ProxyInfo>(getType(type));
-        assert(info);
-        return info->isA(shared_from_this());
-    }
-    return true;
+    return NIL_P(val) || checkProxy(val);
 }
 
 bool
@@ -2507,7 +2464,7 @@ IceRuby::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& 
 
         volatile VALUE val = callRuby(rb_ivar_get, _object, member->rubyID);
 
-        if (member->optional && (val == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
+        if (member->optional && (val == Qnil || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -2591,7 +2548,7 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
                 }
                 else
                 {
-                    callRuby(rb_ivar_set, _object, member->rubyID, Unset);
+                    callRuby(rb_ivar_set, _object, member->rubyID, Qnil);
                 }
             }
 
@@ -2738,7 +2695,7 @@ IceRuby::ExceptionInfo::unmarshal(Ice::InputStream* is)
             }
             else
             {
-                callRuby(rb_ivar_set, obj, member->rubyID, Unset);
+                callRuby(rb_ivar_set, obj, member->rubyID, Qnil);
             }
         }
 
@@ -2804,9 +2761,9 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceInternal::Output& out, Prin
         else
         {
             volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
-            if (val == Unset)
+            if (val == Qnil)
             {
-                out << "<unset>";
+                out << "<nil>";
             }
             else
             {
@@ -3141,10 +3098,8 @@ IceRuby::initTypes(VALUE iceModule)
     rb_define_module_function(iceModule, "__stringify", CAST_METHOD(IceRuby_stringify), 2);
     rb_define_module_function(iceModule, "__stringifyException", CAST_METHOD(IceRuby_stringifyException), 1);
 
-    _unsetTypeClass = rb_define_class_under(iceModule, "Internal_UnsetType", rb_cObject);
-    Unset = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), _unsetTypeClass);
-    rb_undef_alloc_func(_unsetTypeClass);
-    rb_define_const(iceModule, "Unset", Unset);
+    // Keep Ice::Unset as an alias for nil, for backwards compatibility.
+    rb_define_const(iceModule, "Unset", Qnil);
 
     return true;
 }

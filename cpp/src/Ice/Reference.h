@@ -45,30 +45,30 @@ namespace IceInternal
             ModeLast = ModeBatchDatagram
         };
 
-        Mode getMode() const { return _mode; }
-        bool isBatch() const { return _mode == ModeBatchOneway || _mode == ModeBatchDatagram; }
-        bool isTwoway() const { return _mode == ModeTwoway; }
-        bool getSecure() const { return _secure; }
-        const Ice::ProtocolVersion& getProtocol() const { return _protocol; }
-        const Ice::EncodingVersion& getEncoding() const { return _encoding; }
-        const Ice::Identity& getIdentity() const { return _identity; }
-        const std::string& getFacet() const { return _facet; }
-        const InstancePtr& getInstance() const { return _instance; }
-        const SharedContextPtr& getContext() const { return _context; }
-        int getInvocationTimeout() const { return _invocationTimeout; }
-        std::optional<bool> getCompress() const { return _compress; }
+        Mode getMode() const noexcept { return _mode; }
+        bool isBatch() const noexcept { return _mode == ModeBatchOneway || _mode == ModeBatchDatagram; }
+        bool isTwoway() const noexcept { return _mode == ModeTwoway; }
+        bool getSecure() const noexcept { return _secure; }
+        const Ice::ProtocolVersion& getProtocol() const noexcept { return _protocol; }
+        const Ice::EncodingVersion& getEncoding() const noexcept { return _encoding; }
+        const Ice::Identity& getIdentity() const noexcept { return _identity; }
+        const std::string& getFacet() const noexcept { return _facet; }
+        const InstancePtr& getInstance() const noexcept { return _instance; }
+        const SharedContextPtr& getContext() const noexcept { return _context; }
+        int getInvocationTimeout() const noexcept { return _invocationTimeout; }
+        std::optional<bool> getCompress() const noexcept { return _compress; }
 
-        Ice::CommunicatorPtr getCommunicator() const;
+        Ice::CommunicatorPtr getCommunicator() const noexcept;
 
         virtual std::vector<EndpointIPtr> getEndpoints() const = 0;
         virtual std::string getAdapterId() const = 0;
-        virtual LocatorInfoPtr getLocatorInfo() const { return 0; }
-        virtual RouterInfoPtr getRouterInfo() const { return 0; }
-        virtual bool getCollocationOptimized() const = 0;
-        virtual bool getCacheConnection() const = 0;
-        virtual bool getPreferSecure() const = 0;
-        virtual Ice::EndpointSelectionType getEndpointSelection() const = 0;
-        virtual int getLocatorCacheTimeout() const = 0;
+        virtual LocatorInfoPtr getLocatorInfo() const noexcept { return nullptr; }
+        virtual RouterInfoPtr getRouterInfo() const noexcept { return nullptr; }
+        virtual bool getCollocationOptimized() const noexcept = 0;
+        virtual bool getCacheConnection() const noexcept = 0;
+        virtual bool getPreferSecure() const noexcept = 0;
+        virtual Ice::EndpointSelectionType getEndpointSelection() const noexcept = 0;
+        virtual int getLocatorCacheTimeout() const noexcept = 0;
         virtual std::string getConnectionId() const = 0;
 
         //
@@ -101,13 +101,13 @@ namespace IceInternal
         virtual std::size_t hash() const noexcept;
 
         // Gets the effective compression setting, taking into account the override.
-        std::optional<bool> getCompressOverride() const;
+        std::optional<bool> getCompressOverride() const noexcept;
 
         //
         // Utility methods.
         //
-        virtual bool isIndirect() const = 0;
-        virtual bool isWellKnown() const = 0;
+        virtual bool isIndirect() const noexcept = 0;
+        virtual bool isWellKnown() const noexcept = 0;
 
         //
         // Marshal the reference.
@@ -132,10 +132,10 @@ namespace IceInternal
         //
         // Get batch request queue.
         //
-        virtual const BatchRequestQueuePtr& getBatchRequestQueue() const = 0;
+        virtual const BatchRequestQueuePtr& getBatchRequestQueue() const noexcept = 0;
 
-        virtual bool operator==(const Reference&) const;
-        virtual bool operator<(const Reference&) const;
+        virtual bool operator==(const Reference&) const noexcept;
+        virtual bool operator<(const Reference&) const noexcept;
 
         virtual ReferencePtr clone() const = 0;
 
@@ -191,11 +191,11 @@ namespace IceInternal
 
         std::vector<EndpointIPtr> getEndpoints() const final;
         std::string getAdapterId() const final;
-        bool getCollocationOptimized() const final;
-        bool getCacheConnection() const final;
-        bool getPreferSecure() const final;
-        Ice::EndpointSelectionType getEndpointSelection() const final;
-        int getLocatorCacheTimeout() const final;
+        bool getCollocationOptimized() const noexcept final;
+        bool getCacheConnection() const noexcept final;
+        bool getPreferSecure() const noexcept final;
+        Ice::EndpointSelectionType getEndpointSelection() const noexcept final;
+        int getLocatorCacheTimeout() const noexcept final;
         std::string getConnectionId() const final;
 
         ReferencePtr changeEndpoints(std::vector<EndpointIPtr>) const final;
@@ -211,17 +211,17 @@ namespace IceInternal
         ReferencePtr changeConnectionId(std::string) const final;
         ReferencePtr changeConnection(Ice::ConnectionIPtr) const final;
 
-        bool isIndirect() const final;
-        bool isWellKnown() const final;
+        bool isIndirect() const noexcept final;
+        bool isWellKnown() const noexcept final;
 
         void streamWrite(Ice::OutputStream*) const final;
         Ice::PropertyDict toProperty(const std::string&) const final;
 
         RequestHandlerPtr getRequestHandler() const final;
-        const BatchRequestQueuePtr& getBatchRequestQueue() const final;
+        const BatchRequestQueuePtr& getBatchRequestQueue() const noexcept final;
 
-        bool operator==(const Reference&) const final;
-        bool operator<(const Reference&) const final;
+        bool operator==(const Reference&) const noexcept final;
+        bool operator<(const Reference&) const noexcept final;
 
         ReferencePtr clone() const final;
 
@@ -260,13 +260,13 @@ namespace IceInternal
 
         std::vector<EndpointIPtr> getEndpoints() const final;
         std::string getAdapterId() const final;
-        LocatorInfoPtr getLocatorInfo() const final;
-        RouterInfoPtr getRouterInfo() const final;
-        bool getCollocationOptimized() const final;
-        bool getCacheConnection() const final;
-        bool getPreferSecure() const final;
-        Ice::EndpointSelectionType getEndpointSelection() const final;
-        int getLocatorCacheTimeout() const final;
+        LocatorInfoPtr getLocatorInfo() const noexcept final;
+        RouterInfoPtr getRouterInfo() const noexcept final;
+        bool getCollocationOptimized() const noexcept final;
+        bool getCacheConnection() const noexcept final;
+        bool getPreferSecure() const noexcept final;
+        Ice::EndpointSelectionType getEndpointSelection() const noexcept final;
+        int getLocatorCacheTimeout() const noexcept final;
         std::string getConnectionId() const final;
 
         ReferencePtr changeEncoding(Ice::EncodingVersion) const final;
@@ -285,22 +285,22 @@ namespace IceInternal
         ReferencePtr changeConnectionId(std::string) const final;
         ReferencePtr changeConnection(Ice::ConnectionIPtr) const final;
 
-        bool isIndirect() const final;
-        bool isWellKnown() const final;
+        bool isIndirect() const noexcept final;
+        bool isWellKnown() const noexcept final;
 
         void streamWrite(Ice::OutputStream*) const final;
         std::string toString() const final;
         Ice::PropertyDict toProperty(const std::string&) const final;
 
-        bool operator==(const Reference&) const final;
-        bool operator<(const Reference&) const final;
+        bool operator==(const Reference&) const noexcept final;
+        bool operator<(const Reference&) const noexcept final;
 
         std::size_t hash() const noexcept final;
 
         ReferencePtr clone() const final;
 
         RequestHandlerPtr getRequestHandler() const final;
-        const BatchRequestQueuePtr& getBatchRequestQueue() const final;
+        const BatchRequestQueuePtr& getBatchRequestQueue() const noexcept final;
 
         void getConnectionAsync(
             std::function<void(Ice::ConnectionIPtr, bool)> response,

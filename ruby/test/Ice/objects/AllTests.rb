@@ -50,19 +50,7 @@ def allTests(helper, communicator)
     valueFactoryManager.add(factory, '::Test::I')
     valueFactoryManager.add(factory, '::Test::J')
 
-    print "testing stringToProxy... "
-    STDOUT.flush
-    ref = "initial:#{helper.getTestEndpoint()}"
-    base = communicator.stringToProxy(ref)
-    test(base)
-    puts "ok"
-
-    print "testing checked cast... "
-    STDOUT.flush
-    initial = Test::InitialPrx::checkedCast(base)
-    test(initial)
-    test(initial == base)
-    puts "ok"
+    initial = Test::InitialPrx.new(communicator, "initial:#{helper.getTestEndpoint()}")
 
     print "getting B1... "
     STDOUT.flush

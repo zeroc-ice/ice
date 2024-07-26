@@ -265,7 +265,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
                     outgoingResponseHandler(
                         response.replyStatus.rawValue,
                         response.exceptionId,
-                        response.exceptionMessage,
+                        response.exceptionDetails,
                         $0.baseAddress!,
                         $0.count)
                 }
@@ -276,7 +276,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
                     outgoingResponseHandler(
                         response.replyStatus.rawValue,
                         response.exceptionId,
-                        response.exceptionMessage,
+                        response.exceptionDetails,
                         $0.baseAddress!,
                         $0.count)
                 }

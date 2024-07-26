@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { CommunicatorDestroyedException } from "./LocalException.js";
+import { CommunicatorDestroyedException } from "./LocalExceptions.js";
 
 class RetryTask {
     constructor(instance, queue, outAsync) {
@@ -53,7 +53,7 @@ export class RetryQueue {
     }
 
     destroy() {
-        this._requests.forEach((request) => {
+        this._requests.forEach(request => {
             this._instance.timer().cancel(request.token);
             request.destroy();
         });

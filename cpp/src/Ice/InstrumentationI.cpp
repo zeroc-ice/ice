@@ -10,7 +10,6 @@
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObjectAdapter.h"
-
 #include "Ice/VersionFunctions.h"
 
 using namespace std;
@@ -18,8 +17,6 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace Ice::Instrumentation;
 using namespace IceMX;
-
-#define ICE_OBJECT_PRX Ice::ObjectPrx
 
 namespace
 {
@@ -294,11 +291,10 @@ namespace
             {
                 add("parent", &InvocationHelper::getParent);
                 add("id", &InvocationHelper::getId);
-
                 add("operation", &InvocationHelper::getOperation);
                 add("identity", &InvocationHelper::getIdentity);
-                add("facet", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getFacet);
-                add("encoding", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getEncodingVersion);
+                add("facet", &InvocationHelper::getProxy, &Ice::ObjectPrx::ice_getFacet);
+                add("encoding", &InvocationHelper::getProxy, &Ice::ObjectPrx::ice_getEncodingVersion);
                 add("mode", &InvocationHelper::getMode);
                 add("proxy", &InvocationHelper::getProxy);
 

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { LocalException } from "./Exception.js";
+import { LocalException } from "./LocalException.js";
 import {
     IllegalMessageSizeException,
     ObjectAdapterDeactivatedException,
@@ -21,7 +21,7 @@ import {
     ConnectionNotValidatedException,
     UnknownMessageException,
     UnknownException,
-} from "./LocalException.js";
+} from "./LocalExceptions.js";
 
 import { ConnectionClose } from "./Connection.js";
 
@@ -244,7 +244,7 @@ export class ConnectionI {
             //
             Timer.setImmediate(() => {
                 this.setState(StateClosing, new ConnectionManuallyClosedException(true));
-                this._closePromises.forEach((p) => p.resolve());
+                this._closePromises.forEach(p => p.resolve());
                 this._closePromises = [];
             });
         }
@@ -1512,7 +1512,7 @@ export class ConnectionI {
             // Clear the OA. See bug 1673 for the details of why this is necessary.
             //
             this._adapter = null;
-            this._finishedPromises.forEach((p) => p.resolve());
+            this._finishedPromises.forEach(p => p.resolve());
             this._finishedPromises = [];
         }
     }

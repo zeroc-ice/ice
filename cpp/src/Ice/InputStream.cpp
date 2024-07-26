@@ -170,7 +170,6 @@ Ice::InputStream::InputStream(InputStream&& other) noexcept
       _traceSlicing(other._traceSlicing),
       _classGraphDepthMax(other._classGraphDepthMax),
       _closure(other._closure),
-      _sliceValues(other._sliceValues),
       _startSeq(other._startSeq),
       _minSeqSize(other._minSeqSize),
       _valueFactoryManager(std::move(other._valueFactoryManager)),
@@ -195,7 +194,6 @@ Ice::InputStream::operator=(InputStream&& other) noexcept
         _traceSlicing = other._traceSlicing;
         _classGraphDepthMax = other._classGraphDepthMax;
         _closure = other._closure;
-        _sliceValues = other._sliceValues;
         _startSeq = other._startSeq;
         _minSeqSize = other._minSeqSize;
         _valueFactoryManager = std::move(other._valueFactoryManager);
@@ -243,7 +241,6 @@ Ice::InputStream::initialize(const EncodingVersion& encoding)
     _traceSlicing = false;
     _classGraphDepthMax = 0x7fffffff;
     _closure = nullptr;
-    _sliceValues = true;
     _startSeq = -1;
     _minSeqSize = 0;
 }
@@ -259,7 +256,6 @@ Ice::InputStream::clear()
     }
 
     _startSeq = -1;
-    _sliceValues = true;
 }
 
 void
@@ -278,12 +274,6 @@ void
 Ice::InputStream::setCompactIdResolver(std::function<std::string(int)> r)
 {
     _compactIdResolver = r;
-}
-
-void
-Ice::InputStream::setSliceValues(bool on)
-{
-    _sliceValues = on;
 }
 
 void
@@ -329,7 +319,6 @@ Ice::InputStream::swap(InputStream& other)
     std::swap(_traceSlicing, other._traceSlicing);
     std::swap(_classGraphDepthMax, other._classGraphDepthMax);
     std::swap(_closure, other._closure);
-    std::swap(_sliceValues, other._sliceValues);
 
     //
     // Swap is never called for streams that have encapsulations being read. However,
@@ -1547,11 +1536,11 @@ Ice::InputStream::initEncaps()
         ValueFactoryManagerPtr vfm = valueFactoryManager();
         if (_currentEncaps->encoding == Encoding_1_0)
         {
-            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _sliceValues, _classGraphDepthMax, vfm);
+            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax, vfm);
         }
         else
         {
-            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _sliceValues, _classGraphDepthMax, vfm);
+            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax, vfm);
         }
     }
 }
@@ -2004,17 +1993,6 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         }
 
         //
-        // If value slicing is disabled, stop unmarshaling.
-        //
-        if (!_sliceValues)
-        {
-            throw MarshalException{
-                __FILE__,
-                __LINE__,
-                "cannot find value factory for type ID '" + mostDerivedId + "' and slicing is disabled"};
-        }
-
-        //
         // Slice off what we don't understand.
         //
         skipSlice();
@@ -2328,23 +2306,28 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     //
     if (_current->sliceType == ValueSlice)
     {
-        SliceInfoPtr info = make_shared<SliceInfo>();
-        info->typeId = _current->typeId;
-        info->compactId = _current->compactId;
-        info->hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
-        info->isLastSlice = _current->sliceFlags & FLAG_IS_LAST_SLICE;
-        if (info->hasOptionalMembers)
+        bool hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
+        vector<byte> bytes;
+        if (hasOptionalMembers)
         {
             //
             // Don't include the optional member end marker. It will be re-written by
             // endSlice when the sliced data is re-written.
             //
-            vector<byte>(start, _stream->i - 1).swap(info->bytes);
+            bytes = vector<byte>(start, _stream->i - 1);
         }
         else
         {
-            vector<byte>(start, _stream->i).swap(info->bytes);
+            bytes = vector<byte>(start, _stream->i);
         }
+
+        SliceInfoPtr info = make_shared<SliceInfo>(
+            _current->typeId,
+            _current->compactId,
+            std::move(bytes),
+            hasOptionalMembers,
+            _current->sliceFlags & FLAG_IS_LAST_SLICE);
+
         _current->slices.push_back(info);
     }
 
@@ -2434,17 +2417,6 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFu
             {
                 break;
             }
-        }
-
-        //
-        // If value slicing is disabled, stop unmarshaling.
-        //
-        if (!_sliceValues)
-        {
-            throw MarshalException{
-                __FILE__,
-                __LINE__,
-                "cannot find value factory for type ID '" + _current->typeId + "' and slicing is disabled"};
         }
 
         //

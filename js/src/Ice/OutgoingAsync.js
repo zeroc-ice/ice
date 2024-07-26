@@ -5,7 +5,7 @@
 import { OutputStream } from "./Stream.js";
 import { AsyncResult } from "./AsyncResult.js";
 import { AsyncStatus } from "./AsyncStatus.js";
-import { UserException } from "./Exception.js";
+import { UserException } from "./UserException.js";
 import { RetryException } from "./RetryException.js";
 import { ReferenceMode } from "./ReferenceMode.js";
 import { Ice as Ice_OperationMode } from "./OperationMode.js";
@@ -26,8 +26,8 @@ import {
     UnknownLocalException,
     UnknownUserException,
     UnknownReplyStatusException,
-} from "./LocalException.js";
-import { LocalException } from "./Exception.js";
+} from "./LocalExceptions.js";
+import { LocalException } from "./LocalException.js";
 import { Ice as Ice_Context } from "./Context.js";
 const { ContextHelper } = Ice_Context;
 import { Protocol } from "./Protocol.js";
@@ -576,7 +576,7 @@ export class ProxyFlushBatch extends ProxyOutgoingAsyncBase {
 
 export class ProxyGetConnection extends ProxyOutgoingAsyncBase {
     invokeRemote(connection, response) {
-        this.markFinished(true, (r) => r.resolve(connection));
+        this.markFinished(true, r => r.resolve(connection));
         return AsyncStatus.Sent;
     }
 

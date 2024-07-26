@@ -948,7 +948,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 
         if (_seenUserException)
         {
-            jsIceImports.insert("Exception");
+            jsIceImports.insert("UserException");
             jsIceImports.insert("TypeRegistry");
         }
 

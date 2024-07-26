@@ -9,3 +9,5 @@ class Exception(Exception):  # Derives from built-in base 'Exception' class.
     def ice_id(self):
         """Returns the type id of this exception."""
         return self._ice_id
+
+    __module__ = "Ice"

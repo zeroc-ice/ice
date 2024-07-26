@@ -266,7 +266,6 @@ namespace IceRuby
     private:
         bool _variableLength;
         int _wireSize;
-        VALUE _nullMarshalValue;
     };
     using StructInfoPtr = std::shared_ptr<StructInfo>;
 
@@ -523,8 +522,6 @@ namespace IceRuby
 
     ClassInfoPtr lookupClassInfo(std::string_view);
     ExceptionInfoPtr lookupExceptionInfo(std::string_view);
-
-    extern VALUE Unset;
 
     bool initTypes(VALUE);
 

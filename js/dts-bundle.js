@@ -27,20 +27,20 @@ function collectReferences(filePath) {
     const fileContent = fs.readFileSync(filePath, "utf-8");
     const sourceFile = ts.createSourceFile(filePath, fileContent, ts.ScriptTarget.Latest, true);
 
-    sourceFile.referencedFiles.forEach((reference) => {
+    sourceFile.referencedFiles.forEach(reference => {
         const referencePath = path.resolve(path.dirname(filePath), reference.fileName);
         collectReferences(referencePath);
     });
 
-    sourceFile.forEachChild((node) => {
+    sourceFile.forEachChild(node => {
         if (ts.isModuleDeclaration(node)) {
             const moduleName = node.name.getText();
             const moduleBody = node.body;
 
             if (moduleBody && ts.isModuleBlock(moduleBody)) {
                 const moduleContent = moduleBody.statements
-                    .filter((stmt) => !ts.isImportEqualsDeclaration(stmt))
-                    .map((stmt) => stmt.getText())
+                    .filter(stmt => !ts.isImportEqualsDeclaration(stmt))
+                    .map(stmt => stmt.getText())
                     .join("\n");
 
                 if (!moduleDeclarations.has(moduleName)) {

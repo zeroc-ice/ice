@@ -5,7 +5,7 @@
 import { FormatType } from "./FormatType.js";
 import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { Protocol, stringToEncodingVersion, encodingVersionToString } from "./Protocol.js";
-import { EndpointSelectionTypeParseException } from "./LocalException.js";
+import { EndpointSelectionTypeParseException } from "./LocalExceptions.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 
 export class DefaultsAndOverrides {

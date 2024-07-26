@@ -8,13 +8,8 @@ import { ArrayUtil } from "./ArrayUtil.js";
 import { AsyncResultBase } from "./AsyncResultBase.js";
 import { OutgoingAsync, ProxyFlushBatch, ProxyGetConnection } from "./OutgoingAsync.js";
 import { ReferenceMode } from "./ReferenceMode.js";
-import { UserException } from "./Exception.js";
-import {
-    FacetNotExistException,
-    IllegalIdentityException,
-    TwowayOnlyException,
-    UnknownUserException,
-} from "./LocalException.js";
+import { UserException } from "./UserException.js";
+import { IllegalIdentityException, TwowayOnlyException, UnknownUserException } from "./LocalExceptions.js";
 import { ConnectionI } from "./ConnectionI.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 import { Debug } from "./Debug.js";
@@ -410,7 +405,7 @@ ObjectPrx._invoke = function (p, name, mode, fmt, ctx, marshalFn, unmarshalFn, u
         p._checkAsyncTwowayOnly(name);
     }
 
-    const r = new OutgoingAsync(p, name, (res) => {
+    const r = new OutgoingAsync(p, name, res => {
         this._completed(res, unmarshalFn, userEx);
     });
 
@@ -496,17 +491,10 @@ ObjectPrx.checkedCast = function (prx, facet, ctx) {
         }
 
         r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
-        prx.ice_isA(this.ice_staticId(), ctx)
-            .then((ret) => {
-                r.resolve(ret ? new this(prx) : null);
-            })
-            .catch((ex) => {
-                if (ex instanceof FacetNotExistException) {
-                    r.resolve(null);
-                } else {
-                    r.reject(ex);
-                }
-            });
+        prx.ice_isA(this.ice_staticId(), ctx).then(
+            ret => r.resolve(ret ? new this(prx) : null),
+            ex => r.reject(ex),
+        );
     }
 
     return r;

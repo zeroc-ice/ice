@@ -1,12 +1,20 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
 class BatchRequestInterceptor(object):
-    """Base class for batch request interceptor. A subclass must
-    define the enqueue method."""
+    """
+    Base class for batch request interceptor.
 
-    def __init__(self):
-        pass
+    A subclass must define the `enqueue` method.
+    """
 
     def enqueue(self, request, queueCount, queueSize):
-        """Invoked when a request is batched."""
+        """
+        Invoked when a request is batched.
+
+        Parameters
+        ----------
+        request : BatchRequest
+        queueCount : int
+        queueSize : int
+        """
         pass

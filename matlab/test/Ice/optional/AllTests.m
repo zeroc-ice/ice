@@ -31,7 +31,7 @@ classdef AllTests
             assert(mo1.g == Ice.Unset);
             assert(mo1.h == Ice.Unset);
             assert(mo1.i == Ice.Unset);
-            assert(mo1.j == Ice.Unset);
+            assert(isempty(mo1.j));
             assert(mo1.bs == Ice.Unset);
             assert(mo1.ss == Ice.Unset);
             assert(mo1.iid == Ice.Unset);
@@ -132,7 +132,7 @@ classdef AllTests
             assert(mo4.g == Ice.Unset);
             assert(mo4.h == Ice.Unset);
             assert(mo4.i == Ice.Unset);
-            % assert(mo4.j == Ice.Unset);
+            assert(isempty(mo4.j)); % we don't use Unset for optional proxies
             assert(mo4.bs == Ice.Unset);
             assert(mo4.ss == Ice.Unset);
             assert(mo4.iid == Ice.Unset);
@@ -258,12 +258,12 @@ classdef AllTests
             assert(mo9.g == mo1.g);
             assert(mo9.h == Ice.Unset);
             assert(mo9.i == mo1.i);
-            % assert(mo9.j == Ice.Unset);
+            assert(isempty(mo9.j)); % optional proxy
             assert(mo9.bs == Ice.Unset);
             assert(isequal(mo9.ss, mo1.ss));
             assert(mo9.iid == Ice.Unset);
             assert(mo9.sid('test') == 10);
-            % assert(mo9.fs == Ice.Unset);
+            assert(isempty(mo9.j)); % optional proxy
             assert(mo9.vs == mo1.vs);
 
             assert(mo9.shs == Ice.Unset);
@@ -504,14 +504,14 @@ classdef AllTests
             [p2, p3] = f.fetchOutputs();
             assert(p2.a == p1.a && p3.a == p1.a);
 
-            % [p2, p3] = initial.opMyInterfaceProxy(Ice.Unset);
-            % assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            % p1 = communicator.stringToProxy('test');
-            % [p2, p3] = initial.opMyInterfaceProxy(p1);
-            % assert(p2 == p1 && p3 == p1);
-            % f = initial.opMyInterfaceProxyAsync(p1);
-            % [p2, p3] = f.fetchOutputs();
-            % assert(p2 == p1 && p3 == p1);
+            [p2, p3] = initial.opMyInterfaceProxy([]);
+            assert(isempty(p2) && isempty(p3));
+            p1 = MyInterfacePrx(communicator, 'test');
+            [p2, p3] = initial.opMyInterfaceProxy(p1);
+            assert(p2 == p1 && p3 == p1);
+            f = initial.opMyInterfaceProxyAsync(p1);
+            [p2, p3] = f.fetchOutputs();
+            assert(p2 == p1 && p3 == p1);
 
             [p2, p3] = initial.opByteSeq(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);

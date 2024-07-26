@@ -24,14 +24,6 @@
 #include <string>
 #include <string_view>
 
-// ICE_UNALIGNED means the platform is little endian and supports unaligned reads.
-// It's used only in this header file.
-#ifndef ICE_UNALIGNED
-#    if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
-#        define ICE_UNALIGNED
-#    endif
-#endif
-
 namespace IceInternal::Ex
 {
     ICE_API void throwUOE(const char* file, int line, const std::string&, const Ice::ValuePtr&);
@@ -272,16 +264,6 @@ namespace Ice
          * @param r The compact ID resolver.
          */
         void setCompactIdResolver(std::function<std::string(int)> r);
-
-        /**
-         * Indicates whether to slice instances of Slice classes to a known Slice type when a more
-         * derived type is unknown. An instance is "sliced" when no static information is available
-         * for a Slice type ID and no factory can be found for that type, resulting in the creation
-         * of an instance of a less-derived type. If slicing is disabled in this situation, the
-         * stream raises the exception MarshalException. The default behavior is to allow slicing.
-         * @param b True to enable slicing, false otherwise.
-         */
-        void setSliceValues(bool b);
 
         /**
          * Indicates whether to log messages when instances of Slice classes are sliced. If the stream
@@ -591,7 +573,8 @@ namespace Ice
             }
         }
 
-#ifdef ICE_UNALIGNED // Optimization with unaligned reads
+#if defined(ICE_UNALIGNED) || (defined(_WIN32) && defined(ICE_API_EXPORTS))
+        // Optimization with unaligned reads
         void read(std::pair<const std::int16_t*, const std::int16_t*>& v) { unalignedRead(v); }
         void read(std::pair<const std::int32_t*, const std::int32_t*>& v) { unalignedRead(v); }
         void read(std::pair<const std::int64_t*, const std::int64_t*>& v) { unalignedRead(v); }
@@ -927,7 +910,7 @@ namespace Ice
         /// \endcond
 
     private:
-#ifdef ICE_UNALIGNED
+#if defined(ICE_UNALIGNED) || (defined(_WIN32) && defined(ICE_API_EXPORTS))
         template<typename T> void unalignedRead(std::pair<const T*, const T*>& v)
         {
             int sz = readAndCheckSeqSize(static_cast<int>(sizeof(T)));
@@ -1001,12 +984,10 @@ namespace Ice
             EncapsDecoder(
                 InputStream* stream,
                 Encaps* encaps,
-                bool sliceValues,
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
                 : _stream(stream),
                   _encaps(encaps),
-                  _sliceValues(sliceValues),
                   _classGraphDepthMax(classGraphDepthMax),
                   _classGraphDepth(0),
                   _valueFactoryManager(f),
@@ -1034,7 +1015,6 @@ namespace Ice
 
             InputStream* _stream;
             Encaps* _encaps;
-            const bool _sliceValues;
             const size_t _classGraphDepthMax;
             size_t _classGraphDepth;
             Ice::ValueFactoryManagerPtr _valueFactoryManager;
@@ -1056,10 +1036,9 @@ namespace Ice
             EncapsDecoder10(
                 InputStream* stream,
                 Encaps* encaps,
-                bool sliceValues,
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
-                : EncapsDecoder(stream, encaps, sliceValues, classGraphDepthMax, f),
+                : EncapsDecoder(stream, encaps, classGraphDepthMax, f),
                   _sliceType(NoSlice)
             {
             }
@@ -1093,10 +1072,9 @@ namespace Ice
             EncapsDecoder11(
                 InputStream* stream,
                 Encaps* encaps,
-                bool sliceValues,
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
-                : EncapsDecoder(stream, encaps, sliceValues, classGraphDepthMax, f),
+                : EncapsDecoder(stream, encaps, classGraphDepthMax, f),
                   _preAllocatedInstanceData(0),
                   _current(0),
                   _valueIdIndex(1)
@@ -1240,8 +1218,6 @@ namespace Ice
         size_t _classGraphDepthMax;
 
         void* _closure;
-
-        bool _sliceValues;
 
         int _startSeq;
         int _minSeqSize;

@@ -1982,7 +1982,6 @@ Slice::Gen::DataDefVisitor::DataDefVisitor(IceInternal::Output& h, IceInternal::
       _dllExport(dllExport),
       _dllClassExport(toDllClassExport(dllExport)),
       _dllMemberExport(toDllMemberExport(dllExport)),
-      _doneStaticSymbol(false),
       _useWstring(TypeContext::None)
 {
 }
@@ -2302,20 +2301,6 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     H << eb << ';';
 
-    //
-    // We need an instance here to trigger initialization if the implementation is in a shared library.
-    // But we do this only once per source file, because a single instance is sufficient to initialize
-    // all of the globals in a shared library.
-    //
-    if (!_doneStaticSymbol)
-    {
-        _doneStaticSymbol = true;
-        H << sp;
-        H << nl << "/// \\cond INTERNAL";
-        H << nl << "static " << name << " _iceS_" << p->name() << "_init;";
-        H << nl << "/// \\endcond";
-    }
-
     _useWstring = resetUseWstring(_useWstringHist);
 }
 
@@ -2527,20 +2512,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << eb;
 
     H << eb << ';';
-
-    if (!_doneStaticSymbol)
-    {
-        //
-        // We need an instance here to trigger initialization if the implementation is in a static library.
-        // But we do this only once per source file, because a single instance is sufficient to initialize
-        // all of the globals in a compilation unit.
-        //
-        _doneStaticSymbol = true;
-        H << sp;
-        H << nl << "/// \\cond INTERNAL";
-        H << nl << "static " << fixKwd(p->name()) << " _iceS_" << p->name() << "_init;";
-        H << nl << "/// \\endcond";
-    }
 
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -3169,7 +3140,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             writeAllocateCode(C, outParams, nullptr, interfaceScope, _useWstring);
             if (ret)
             {
-                C << nl << retS << " ret = ";
+                C << nl << "const " << retS << " ret = ";
             }
             else
             {

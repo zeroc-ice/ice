@@ -10,10 +10,6 @@
 
 namespace IcePy
 {
-    extern PyTypeObject CurrentType;
-
-    bool initCurrent(PyObject*);
-
     PyObject* createCurrent(const Ice::Current&);
 }
 

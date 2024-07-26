@@ -21,10 +21,11 @@ public sealed class OutgoingResponse
     public string? exceptionId { get; }
 
     /// <summary>
-    /// Gets the exception message of the response.
+    /// Gets the full details of the exception marshaled into the response.
     /// </summary>
-    /// <value>The exception message. It's null when replyStatus is <see cref="ReplyStatus.Ok" />.</value>
-    public string? exceptionMessage { get; }
+    /// <value>The exception details, usually produced by calling <see cref="object.ToString" /> on the exception. It's
+    /// null when replyStatus is <see cref="ReplyStatus.Ok" />.</value>
+    public string? exceptionDetails { get; }
 
     /// <summary>
     /// Gets the output stream buffer of the response. This output stream should not be written to after construction.
@@ -46,17 +47,17 @@ public sealed class OutgoingResponse
     /// </summary>
     /// <param name="replyStatus">The reply status.</param>
     /// <param name="exceptionId">The ID of the exception, when the response carries an exception.</param>
-    /// <param name="exceptionMessage">The message of the exception, when the response carries an exception.</param>
+    /// <param name="exceptionDetails">The full details of the exception, when the response carries an exception.</param>
     /// <param name="outputStream">The output stream that holds the response.</param>
     public OutgoingResponse(
         ReplyStatus replyStatus,
         string? exceptionId,
-        string? exceptionMessage,
+        string? exceptionDetails,
         OutputStream outputStream)
     {
         this.replyStatus = replyStatus;
         this.exceptionId = exceptionId;
-        this.exceptionMessage = exceptionMessage;
+        this.exceptionDetails = exceptionDetails;
         this.outputStream = outputStream;
     }
 
@@ -65,7 +66,7 @@ public sealed class OutgoingResponse
     /// </summary>
     /// <param name="outputStream">The output stream that holds the response.</param>
     public OutgoingResponse(OutputStream outputStream) :
-        this(ReplyStatus.Ok, exceptionId: null, exceptionMessage: null, outputStream)
+        this(ReplyStatus.Ok, exceptionId: null, exceptionDetails: null, outputStream)
     {
     }
 }

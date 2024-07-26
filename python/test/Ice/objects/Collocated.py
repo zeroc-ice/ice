@@ -29,4 +29,4 @@ class Collocated(TestHelper):
             # adapter.activate() // Don't activate OA to ensure collocation is used.
             AllTests.allTests(self, communicator)
             # We must call shutdown even in the collocated case for cyclic dependency cleanup
-            initial.shutdown()
+            initial._shutdown()

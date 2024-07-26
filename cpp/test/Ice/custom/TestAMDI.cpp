@@ -4,18 +4,44 @@
 
 #include "TestAMDI.h"
 #include "Ice/Communicator.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
 void
+TestIntfI::opShortArrayAsync(
+    pair<const int16_t*, const int16_t*> inSeq,
+    function<void(pair<const int16_t*, const int16_t*>, pair<const int16_t*, const int16_t*>)> response,
+    function<void(exception_ptr)>,
+    const Current&)
+{
+#ifdef ICE_UNALIGNED
+    // Verify inSeq is not aligned and holds the expected values.
+    test(reinterpret_cast<size_t>(inSeq.first) % sizeof(int16_t) != 0);
+    for (int i = 0; i < static_cast<int>(inSeq.second - inSeq.first); ++i)
+    {
+        test(inSeq.first[i] == i + 1);
+    }
+#endif
+    response(inSeq, inSeq);
+}
+
+void
 TestIntfI::opDoubleArrayAsync(
+    bool,
     pair<const double*, const double*> in,
     function<void(const DoubleSeq&, const DoubleSeq&)> response,
     function<void(exception_ptr)>,
     const Current&)
 {
+#ifdef ICE_UNALIGNED
+    // Verify inSeq is not aligned.
+    test(reinterpret_cast<size_t>(in.first) % sizeof(double) != 0);
+    test(*(in.first) == 3.14);
+#endif
+
     DoubleSeq out(in.first, in.second);
     response(out, out);
 }

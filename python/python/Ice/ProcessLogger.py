@@ -2,7 +2,9 @@
 
 import IcePy
 from .Logger import Logger
-from .LoggerI import LoggerI
+from ._LoggerI import LoggerI
+
+__name__ = "Ice"
 
 def getProcessLogger():
     """Returns the default logger object."""
@@ -15,3 +17,5 @@ def getProcessLogger():
 def setProcessLogger(logger):
     """Sets the default logger object."""
     IcePy.setProcessLogger(logger)
+
+__all__ = ["getProcessLogger", "setProcessLogger"]

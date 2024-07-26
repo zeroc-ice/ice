@@ -55,7 +55,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     };
 
     ICEOutgoingResponse outgoingResponse =
-        ^(uint8_t replyStatus, NSString* exceptionId, NSString* exceptionMessage, const void* message, long count) {
+        ^(uint8_t replyStatus, NSString* exceptionId, NSString* exceptionDetails, const void* message, long count) {
           cleanup();
 
           // We need to copy the message here as we don't own the memory and it can be sent asynchronously.
@@ -65,7 +65,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
           sendResponse(Ice::OutgoingResponse{
               static_cast<Ice::ReplyStatus>(replyStatus),
               fromNSString(exceptionId),
-              fromNSString(exceptionMessage),
+              fromNSString(exceptionDetails),
               std::move(ostr),
               current});
         };

@@ -1697,10 +1697,6 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
         b = target->ice_isA(id, (ctx == 0 || ctx == Py_None) ? Ice::noExplicitContext : c);
     }
-    catch (const Ice::FacetNotExistException&)
-    {
-        // Ignore.
-    }
     catch (...)
     {
         setPythonException(current_exception());
@@ -2249,8 +2245,7 @@ IcePy::createProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& comm
 {
     if (!type)
     {
-        PyTypeObject* proxyType = &ProxyType; // Necessary to prevent GCC's strict-alias warnings.
-        type = reinterpret_cast<PyObject*>(proxyType);
+        type = lookupType("Ice.ObjectPrx");
     }
     return reinterpret_cast<PyObject*>(allocateProxy(proxy, communicator, type));
 }

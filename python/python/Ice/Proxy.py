@@ -4,6 +4,8 @@ import IcePy
 
 IcePy._t_ObjectPrx = IcePy.defineProxy("::Ice::Object", IcePy.ObjectPrx)
 
+__name__ = "Ice"
+
 #
 # Proxy comparison functions.
 #
@@ -32,8 +34,7 @@ def proxyIdentityCompare(lhs, rhs):
 
 
 def proxyIdentityAndFacetEqual(lhs, rhs):
-    """Determines whether the identities and facets of two
-    proxies are equal."""
+    """Determines whether the identities and facets of two proxies are equal."""
     return proxyIdentityAndFacetCompare(lhs, rhs) == 0
 
 

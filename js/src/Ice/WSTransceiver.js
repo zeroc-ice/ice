@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { ConnectFailedException, ConnectionLostException, SocketException } from "./LocalException.js";
+import { ConnectFailedException, ConnectionLostException, SocketException } from "./LocalExceptions.js";
 import { WSConnectionInfo, TCPConnectionInfo } from "./Connection.js";
 import { ConnectionInfo as SSLConnectionInfo } from "./SSL/ConnectionInfo.js";
 import { SocketOperation } from "./SocketOperation.js";
@@ -60,9 +60,9 @@ if (typeof WebSocket !== "undefined") {
                     this._state = StateConnectPending;
                     this._fd = new WebSocket(this._url, "ice.zeroc.com");
                     this._fd.binaryType = "arraybuffer";
-                    this._fd.onopen = (e) => this.socketConnected(e);
-                    this._fd.onmessage = (e) => this.socketBytesAvailable(e.data);
-                    this._fd.onclose = (e) => this.socketClosed(e);
+                    this._fd.onopen = e => this.socketConnected(e);
+                    this._fd.onmessage = e => this.socketBytesAvailable(e.data);
+                    this._fd.onclose = e => this.socketClosed(e);
                     return SocketOperation.Connect; // Waiting for connect to complete.
                 } else if (this._state === StateConnectPending) {
                     //
