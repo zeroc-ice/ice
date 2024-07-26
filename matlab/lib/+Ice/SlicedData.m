@@ -1,7 +1,7 @@
 classdef SlicedData < handle
     % SlicedData   Summary of SlicedData
     %
-    % SlicedData holds the slices of unknown types.
+    % Holds class slices that cannot be unmarshaled because their types are not known locally.
     %
     % SlicedData Properties:
     %   slices - The details of each slice, in order of most-derived to
@@ -9,7 +9,7 @@ classdef SlicedData < handle
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
-    properties(SetAccess=private)
+    properties(SetAccess=immutable)
         % The details of each slice, in order of most-derived to least-derived.
         slices
     end

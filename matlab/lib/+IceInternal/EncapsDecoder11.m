@@ -261,20 +261,18 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             %
             % Preserve this slice.
             %
-            info = Ice.SliceInfo();
-            info.typeId = current.typeId;
-            info.compactId = current.compactId;
-            info.hasOptionalMembers = bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) > 0;
-            info.isLastSlice = bitand(current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE) > 0;
-            if info.hasOptionalMembers
+            hasOptionalMembers = bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) > 0;
+            if hasOptionalMembers
                 %
                 % Don't include the optional member end marker. It will be re-written by
                 % endSlice when the sliced data is re-written.
                 %
-                info.bytes = is.getBytes(start, is.getPos() - 2);
+                bytes = is.getBytes(start, is.getPos() - 2);
             else
-                info.bytes = is.getBytes(start, is.getPos() - 1);
+                bytes = is.getBytes(start, is.getPos() - 1);
             end
+            info = Ice.SliceInfo(current.typeId, current.compactId, bytes, hasOptionalMembers,...
+                bitand(current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE) > 0);
 
             %
             % Read the indirect instance table. We read the instances or their
