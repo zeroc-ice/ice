@@ -18,7 +18,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
 
     int32_t sz;
     const std::byte* inEncaps;
-    void (^cleanup)(void);
+    std::function<void()> cleanup;
 
     // An InputSteam can contain one or more requsts when a batch request is being processed. In this case we can't
     // take the memory from the InputSteam as its memory is needed for subsequent requests.
@@ -36,7 +36,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
         auto encapsulation = new std::vector<std::byte>(inEncaps, inEncaps + sz);
         inEncaps = encapsulation->data();
 
-        cleanup = ^{
+        cleanup = [encapsulation] {
           delete encapsulation;
         };
     }
@@ -47,7 +47,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
         // When dispatch completes, the InputStream will be deleted.
         auto dispatchInputStream = new Ice::InputStream(std::move(request.inputStream()));
 
-        cleanup = ^{
+        cleanup = [dispatchInputStream] {
           delete dispatchInputStream;
         };
 
@@ -56,6 +56,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
 
     ICEOutgoingResponse outgoingResponse =
         ^(uint8_t replyStatus, NSString* exceptionId, NSString* exceptionDetails, const void* message, long count) {
+
           cleanup();
 
           // We need to copy the message here as we don't own the memory and it can be sent asynchronously.
