@@ -1410,31 +1410,19 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     const OperationList allOps = p->allOperations();
 
-    vector<pair<string, bool>> allOpNamesAndAmdPairs;
+    StringList allOpNames;
     transform(
         allOps.begin(),
         allOps.end(),
-        back_inserter(allOpNamesAndAmdPairs),
-        [](const OperationPtr& it) { return make_tuple(it->name(), operationIsAmd(it)); });
+        back_inserter(allOpNames),
+        [](const ContainedPtr& it) { return it->name(); });
 
-    allOpNamesAndAmdPairs.emplace_back("ice_id", false);
-    allOpNamesAndAmdPairs.emplace_back("ice_ids", false);
-    allOpNamesAndAmdPairs.emplace_back("ice_isA", false);
-    allOpNamesAndAmdPairs.emplace_back("ice_ping", false);
-
-    // Sort the operations by name
-    sort(
-        allOpNamesAndAmdPairs.begin(),
-        allOpNamesAndAmdPairs.end(),
-        [](const auto& a, const auto& b) { return a.first < b.first; });
-
-    // Remove duplicates (we only need to check the name)
-    allOpNamesAndAmdPairs.erase(
-        unique(
-            allOpNamesAndAmdPairs.begin(),
-            allOpNamesAndAmdPairs.end(),
-            [](const auto& a, const auto& b) { return a.first == b.first; }),
-        allOpNamesAndAmdPairs.end());
+    allOpNames.push_back("ice_id");
+    allOpNames.push_back("ice_ids");
+    allOpNames.push_back("ice_isA");
+    allOpNames.push_back("ice_ping");
+    allOpNames.sort();
+    allOpNames.unique();
 
     out << sp;
     out << nl;
@@ -1444,7 +1432,7 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << "switch request.current.operation";
     out << sb;
     out.dec(); // to align case with switch
-    for (const auto& [opName, isAmd] : allOpNamesAndAmdPairs)
+    for (const auto& opName : allOpNames)
     {
         out << nl << "case \"" << opName << "\":";
         out.inc();
@@ -1452,14 +1440,11 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << nl << "try (servant as? Ice.Object ?? " << disp << ".defaultObject)._iceD_" << opName << "(request)";
         }
-        else if (isAmd)
+        else
         {
             out << nl << "try await servant._iceD_" << opName << "(request)";
         }
-        else
-        {
-            out << nl << "try servant._iceD_" << opName << "(request)";
-        }
+
         out.dec();
     }
     out << nl << "default:";

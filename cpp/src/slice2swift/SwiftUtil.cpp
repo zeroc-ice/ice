@@ -2568,11 +2568,9 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
 
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
-    const bool isAmd = operationIsAmd(op);
-
     out << sp;
-    out << nl << "public func _iceD_" << opName << "(_ request: Ice.IncomingRequest)" << (isAmd ? " async" : "")
-        << " throws -> Ice.OutgoingResponse";
+    out << nl << "public func _iceD_" << opName
+        << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
 
     out << sb;
     out << nl;

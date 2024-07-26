@@ -36,9 +36,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
         auto encapsulation = new std::vector<std::byte>(inEncaps, inEncaps + sz);
         inEncaps = encapsulation->data();
 
-        cleanup = [encapsulation] {
-          delete encapsulation;
-        };
+        cleanup = [encapsulation] { delete encapsulation; };
     }
     else
     {
@@ -47,16 +45,13 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
         // When dispatch completes, the InputStream will be deleted.
         auto dispatchInputStream = new Ice::InputStream(std::move(request.inputStream()));
 
-        cleanup = [dispatchInputStream] {
-          delete dispatchInputStream;
-        };
+        cleanup = [dispatchInputStream] { delete dispatchInputStream; };
 
         dispatchInputStream->readEncapsulation(inEncaps, sz);
     };
 
     ICEOutgoingResponse outgoingResponse =
         ^(uint8_t replyStatus, NSString* exceptionId, NSString* exceptionDetails, const void* message, long count) {
-
           cleanup();
 
           // We need to copy the message here as we don't own the memory and it can be sent asynchronously.

@@ -83,7 +83,7 @@ namespace Slice
         std::string operationReturnDeclaration(const OperationPtr&);
         std::string operationInParamsDeclaration(const OperationPtr&);
 
-        static bool operationIsAmd(const OperationPtr&);
+        bool operationIsAmd(const OperationPtr&);
 
         ParamInfoList getAllInParams(const OperationPtr&, int = 0);
         void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
