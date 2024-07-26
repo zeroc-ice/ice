@@ -577,7 +577,7 @@ namespace
         }
         else if (m->optional())
         {
-            return "IceInternal.UnsetI.Instance";
+            return isProxyType(m->type()) ? "[]" : "IceInternal.UnsetI.Instance";
         }
         else
         {
@@ -1948,14 +1948,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     for (const auto& dm : optionalMembers)
     {
-        if (dm->type()->isClassType())
-        {
-            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent(dm->name()), dm->type(), true, dm->tag());
-        }
-        else
-        {
-            unmarshal(out, "is", "obj." + fixIdent(dm->name()), dm->type(), true, dm->tag());
-        }
+        assert(!dm->type()->isClassType());
+        unmarshal(out, "is", "obj." + fixIdent(dm->name()), dm->type(), true, dm->tag());
     }
     out << nl << "is.endSlice();";
     if (base)
@@ -4244,12 +4238,7 @@ CodeVisitor::unmarshal(
         const string typeS = getAbsolute(prx, "", "Prx");
         if (optional)
         {
-            out << nl << "if " << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << ")";
-            out.inc();
-            out << nl << stream << ".skip(4);";
-            out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
-            out.dec();
-            out << nl << "end";
+            out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ", '" << typeS << "');";
         }
         else
         {
