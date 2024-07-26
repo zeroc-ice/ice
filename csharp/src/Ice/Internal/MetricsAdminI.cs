@@ -182,9 +182,9 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         {
             if (_failures == null)
             {
-                return null;
+                return new(failures: []);
             }
-            return new IceMX.MetricsFailures(_object.id, new Dictionary<string, int>(_failures));
+            return new(_object.id, new Dictionary<string, int>(_failures));
         }
 
         internal void attach(IceMX.MetricsHelper<T> helper)
@@ -340,7 +340,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
     {
         lock (this)
         {
-            List<IceMX.MetricsFailures> failures = new List<IceMX.MetricsFailures>();
+            var failures = new List<IceMX.MetricsFailures>();
             foreach (Entry e in _objects.Values)
             {
                 IceMX.MetricsFailures f = e.getFailures();
@@ -357,12 +357,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
     {
         lock (this)
         {
-            Entry e;
-            if (_objects.TryGetValue(id, out e))
-            {
-                return e.getFailures();
-            }
-            return null;
+            return _objects.TryGetValue(id, out Entry e) ? e.getFailures() : new(failures: []);
         }
     }
 
@@ -620,7 +615,7 @@ internal class MetricsViewI
         {
             return m.getFailures();
         }
-        return null;
+        return [];
     }
 
     internal IceMX.MetricsFailures getFailures(string mapName, string id)
@@ -630,7 +625,7 @@ internal class MetricsViewI
         {
             return m.getFailures(id);
         }
-        return null;
+        return new(failures: []);
     }
 
     internal ICollection<string> getMaps()
@@ -880,7 +875,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
             {
                 return view.getFailures(mapName, id);
             }
-            return new IceMX.MetricsFailures("", null); // null == dictionary
+            return new(failures: []);
         }
     }
 
