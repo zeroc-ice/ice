@@ -38,11 +38,11 @@ module Ice
     T_UnknownSlicedValue.defineClass(UnknownSlicedValue, -1, false, T_Value, [])
 
     class SlicedData
-      attr_accessor :slices   # array of SliceInfo
+      attr_reader :slices   # array of SliceInfo
     end
 
     class SliceInfo
-      attr_accessor :typeId, :compactId, :bytes, :instances, :hasOptionalMembers, :isLastSlice
+      attr_reader :typeId, :compactId, :bytes, :instances, :hasOptionalMembers, :isLastSlice
     end
 
     # The marshaling format for class instances.
