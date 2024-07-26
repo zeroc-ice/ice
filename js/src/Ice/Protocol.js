@@ -3,11 +3,7 @@
 //
 
 import { StringUtil } from "./StringUtil.js";
-import {
-    UnsupportedEncodingException,
-    UnsupportedProtocolException,
-    VersionParseException,
-} from "./LocalExceptions.js";
+import { MarshalException, ParseException } from "./LocalExceptions.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { EncodingVersion, ProtocolVersion } = Ice_Version;
 
@@ -133,21 +129,9 @@ Protocol.currentProtocolEncoding = new EncodingVersion(Protocol.protocolEncoding
 
 Protocol.currentEncoding = new EncodingVersion(Protocol.encodingMajor, Protocol.encodingMinor);
 
-Protocol.checkSupportedProtocol = function (v) {
-    if (v.major !== Protocol.currentProtocol.major || v.minor > Protocol.currentProtocol.minor) {
-        throw new UnsupportedProtocolException("", v, Protocol.currentProtocol);
-    }
-};
-
-Protocol.checkSupportedProtocolEncoding = function (v) {
-    if (v.major !== Protocol.currentProtocolEncoding.major || v.minor > Protocol.currentProtocolEncoding.minor) {
-        throw new UnsupportedEncodingException("", v, Protocol.currentProtocolEncoding);
-    }
-};
-
 Protocol.checkSupportedEncoding = function (v) {
     if (v.major !== Protocol.currentEncoding.major || v.minor > Protocol.currentEncoding.minor) {
-        throw new UnsupportedEncodingException("", v, Protocol.currentEncoding);
+        throw new MarshalException(`This Ice runtime does not support encoding version ${v.major}.${v.minor}`);
     }
 };
 
@@ -247,34 +231,34 @@ Protocol.FLAG_IS_LAST_SLICE = 1 << 5;
 function stringToMajor(str) {
     const pos = str.indexOf(".");
     if (pos === -1) {
-        throw new VersionParseException("malformed version value `" + str + "'");
+        throw new ParseException(`malformed version value '${str}'`);
     }
 
     try {
         const majVersion = StringUtil.toInt(str.substring(0, pos));
         if (majVersion < 1 || majVersion > 255) {
-            throw new VersionParseException("range error in version `" + str + "'");
+            throw new ParseException(`range error in version ${str}'`);
         }
         return majVersion;
     } catch (ex) {
-        throw new VersionParseException("invalid version value `" + str + "'");
+        throw new ParseException(`invalid version value ${str}'`);
     }
 }
 
 function stringToMinor(str) {
     const pos = str.indexOf(".");
     if (pos === -1) {
-        throw new VersionParseException("malformed version value `" + str + "'");
+        throw new ParseException(`malformed version value '${str}'`);
     }
 
     try {
         const minVersion = StringUtil.toInt(str.substring(pos + 1));
         if (minVersion < 0 || minVersion > 255) {
-            throw new VersionParseException("range error in version `" + str + "'");
+            throw new ParseException(`range error in version '${str}'`);
         }
         return minVersion;
     } catch (ex) {
-        throw new VersionParseException("invalid version value `" + str + "'");
+        throw new ParseException(`invalid version value '${str}'`);
     }
 }
 

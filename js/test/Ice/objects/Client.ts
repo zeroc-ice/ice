@@ -286,9 +286,9 @@ export class Client extends TestHelper {
             await uoet.op();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.UnexpectedObjectException, ex);
-            test(ex.type == "::Test::AlsoEmpty");
-            test(ex.expectedType == "::Test::Empty");
+            test(ex instanceof Ice.MarshalException, ex);
+            test(ex.message.includes("'::Test::AlsoEmpty'"));
+            test(ex.message.includes("'::Test::Empty'"));
         }
         out.writeLine("ok");
 

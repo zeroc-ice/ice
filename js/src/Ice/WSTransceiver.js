@@ -324,13 +324,13 @@ if (typeof WebSocket !== "undefined") {
 
     function translateError(state, err) {
         if (state < StateConnected) {
-            return new ConnectFailedException(err.code, err);
+            return new ConnectFailedException("connect failed", { cause: err });
         } else {
             if (err.code === 1000 || err.code === 1006) {
                 // CLOSE_NORMAL | CLOSE_ABNORMAL
                 return new ConnectionLostException();
             }
-            return new SocketException(err.code, err);
+            return new SocketException("socket exception", { cause: err });
         }
     }
 } else {

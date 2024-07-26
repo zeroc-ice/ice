@@ -5,7 +5,7 @@
 import { HashMap } from "./HashMap.js";
 import { StringUtil } from "./StringUtil.js";
 import { AlreadyRegisteredException, NotRegisteredException } from "./LocalExceptions.js";
-import { identityToString } from "./IdentityUtil.js";
+import { identityToString } from "./IdentityToString.js";
 import { Debug } from "./Debug.js";
 
 //
@@ -35,13 +35,11 @@ export class ServantManager {
             m = new Map();
             this._servantMapMap.set(ident, m);
         } else if (m.has(facet)) {
-            const ex = new AlreadyRegisteredException();
-            ex.id = identityToString(ident, this._instance.toStringMode());
-            ex.kindOfObject = "servant";
+            let id = identityToString(ident, this._instance.toStringMode());
             if (facet.length > 0) {
-                ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
+                id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
             }
-            throw ex;
+            throw new AlreadyRegisteredException("servant", id);
         }
 
         m.set(facet, servant);
@@ -51,10 +49,7 @@ export class ServantManager {
         Debug.assert(this._instance !== null); // Must not be called after destruction
 
         if (this._defaultServantMap.has(category)) {
-            const ex = new AlreadyRegisteredException();
-            ex.kindOfObject = "default servant";
-            ex.id = category;
-            throw ex;
+            throw new AlreadyRegisteredException("default servant", category);
         }
 
         this._defaultServantMap.set(category, servant);
@@ -69,13 +64,11 @@ export class ServantManager {
 
         const m = this._servantMapMap.get(ident);
         if (m === undefined || !m.has(facet)) {
-            const ex = new NotRegisteredException();
-            ex.id = identityToString(ident, this._instance.toStringMode());
-            ex.kindOfObject = "servant";
+            let id = identityToString(ident, this._instance.toStringMode());
             if (facet.length > 0) {
-                ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
+                id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
             }
-            throw ex;
+            throw new NotRegisteredException("servant", id);
         }
 
         const obj = m.get(facet);
@@ -93,10 +86,7 @@ export class ServantManager {
 
         const obj = this._defaultServantMap.get(category);
         if (obj === undefined) {
-            const ex = new NotRegisteredException();
-            ex.kindOfObject = "default servant";
-            ex.id = category;
-            throw ex;
+            throw new NotRegisteredException("default servant", category);
         }
 
         this._defaultServantMap.delete(category);
@@ -108,10 +98,7 @@ export class ServantManager {
 
         const m = this._servantMapMap.get(ident);
         if (m === undefined) {
-            const ex = new NotRegisteredException();
-            ex.id = identityToString(ident, this._instance.toStringMode());
-            ex.kindOfObject = "servant";
-            throw ex;
+            throw new NotRegisteredException("servant", identityToString(ident, this._instance.toStringMode()));
         }
 
         this._servantMapMap.delete(ident);
@@ -170,10 +157,10 @@ export class ServantManager {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
 
         if (this._locatorMap.has(category)) {
-            const ex = new AlreadyRegisteredException();
-            ex.id = StringUtil.escapeString(category, "", this._instance.toStringMode());
-            ex.kindOfObject = "servant locator";
-            throw ex;
+            throw new AlreadyRegisteredException(
+                "servant locator",
+                StringUtil.escapeString(category, "", this._instance.toStringMode()),
+            );
         }
 
         this._locatorMap.set(category, locator);
@@ -184,10 +171,10 @@ export class ServantManager {
 
         const l = this._locatorMap.get(category);
         if (l === undefined) {
-            const ex = new NotRegisteredException();
-            ex.id = StringUtil.escapeString(category, "", this._instance.toStringMode());
-            ex.kindOfObject = "servant locator";
-            throw ex;
+            throw new NotRegisteredException(
+                "servant locator",
+                StringUtil.escapeString(category, "", this._instance.toStringMode()),
+            );
         }
         this._locatorMap.delete(category);
         return l;

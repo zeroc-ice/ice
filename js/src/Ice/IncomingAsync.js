@@ -9,7 +9,7 @@ import { Ice as Ice_OperationMode } from "./OperationMode.js";
 const { OperationMode } = Ice_OperationMode;
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
-import { identityToString } from "./IdentityUtil.js";
+import { identityToString } from "./IdentityToString.js";
 import { FormatType } from "./FormatType.js";
 import { LocalException } from "./LocalException.js";
 import { UserException } from "./UserException.js";
@@ -136,15 +136,15 @@ export class IncomingAsync {
 
         const props = this._instance.initializationData().properties;
         if (ex instanceof RequestFailedException) {
-            if (ex.id === null) {
+            if (ex.id === undefined) {
                 ex.id = this._current.id;
             }
 
-            if (ex.facet === null) {
+            if (ex.facet === undefined) {
                 ex.facet = this._current.facet;
             }
 
-            if (ex.operation === null || ex.operation.length === 0) {
+            if (ex.operation === undefined || ex.operation.length === 0) {
                 ex.operation = this._current.operation;
             }
 
@@ -295,7 +295,7 @@ export class IncomingAsync {
         const facetPath = StringSeqHelper.read(this._is);
         if (facetPath.length > 0) {
             if (facetPath.length > 1) {
-                throw new MarshalException();
+                throw new MarshalException(`Received invalid facet path with ${facetPath.length} elements.`);
             }
             this._current.facet = facetPath[0];
         } else {

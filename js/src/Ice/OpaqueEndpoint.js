@@ -3,7 +3,7 @@
 //
 
 import { Base64 } from "./Base64.js";
-import { EndpointParseException } from "./LocalExceptions.js";
+import { ParseException } from "./LocalExceptions.js";
 import { HashUtil } from "./HashUtil.js";
 import { StringUtil } from "./StringUtil.js";
 import { EndpointI } from "./EndpointI.js";
@@ -239,10 +239,10 @@ export class OpaqueEndpointI extends EndpointI {
         switch (option.charAt(1)) {
             case "t": {
                 if (this._type > -1) {
-                    throw new EndpointParseException("multiple -t options in endpoint " + endpoint);
+                    throw new ParseException(`multiple -t options in endpoint ${endpoint}`);
                 }
                 if (argument === null) {
-                    throw new EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
+                    throw new ParseException(`no argument provided for -t option in endpoint ${endpoint}`);
                 }
 
                 let type;
@@ -250,13 +250,11 @@ export class OpaqueEndpointI extends EndpointI {
                 try {
                     type = StringUtil.toInt(argument);
                 } catch (ex) {
-                    throw new EndpointParseException("invalid type value `" + argument + "' in endpoint " + endpoint);
+                    throw new ParseException(`invalid type value '${argument}' in endpoint ${endpoint}`);
                 }
 
                 if (type < 0 || type > 65535) {
-                    throw new EndpointParseException(
-                        "type value `" + argument + "' out of range in endpoint " + endpoint,
-                    );
+                    throw new ParseException(`type value '${argument}' out of range in endpoint ${endpoint}`);
                 }
 
                 this._type = type;
@@ -265,20 +263,15 @@ export class OpaqueEndpointI extends EndpointI {
 
             case "v": {
                 if (this._rawBytes) {
-                    throw new EndpointParseException("multiple -v options in endpoint " + endpoint);
+                    throw new ParseException(`multiple -v options in endpoint ${endpoint}`);
                 }
                 if (argument === null || argument.length === 0) {
-                    throw new EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
+                    throw new ParseException(`no argument provided for -v option in endpoint ${endpoint}`);
                 }
                 for (let i = 0; i < argument.length; ++i) {
                     if (!Base64.isBase64(argument.charAt(i))) {
-                        throw new EndpointParseException(
-                            "invalid base64 character `" +
-                                argument.charAt(i) +
-                                "' (ordinal " +
-                                argument.charCodeAt(i) +
-                                ") in endpoint " +
-                                endpoint,
+                        throw new ParseException(
+                            `invalid base64 character '${argument.charAt(i)}' (ordinal ${argument.charCodeAt(i)}) in endpoint ${endpoint}`,
                         );
                     }
                 }
@@ -288,14 +281,14 @@ export class OpaqueEndpointI extends EndpointI {
 
             case "e": {
                 if (argument === null) {
-                    throw new EndpointParseException("no argument provided for -e option in endpoint " + endpoint);
+                    throw new ParseException(`no argument provided for -e option in endpoint ${endpoint}`);
                 }
                 try {
                     this._rawEncoding = stringToEncodingVersion(argument);
-                } catch (e) {
-                    throw new EndpointParseException(
-                        "invalid encoding version `" + argument + "' in endpoint " + endpoint + ":\n" + e.str,
-                    );
+                } catch (ex) {
+                    throw new ParseException(`invalid encoding version ${argument}' in endpoint ${endpoint}`, {
+                        cause: ex,
+                    });
                 }
                 return true;
             }
@@ -311,10 +304,10 @@ export class OpaqueEndpointI extends EndpointI {
         Debug.assert(this._rawEncoding);
 
         if (this._type < 0) {
-            throw new EndpointParseException("no -t option in endpoint `" + this + "'");
+            throw new ParseException(`no -t option in endpoint '${this}'`);
         }
         if (this._rawBytes === null || this._rawBytes.length === 0) {
-            throw new EndpointParseException("no -v option in endpoint `" + this + "'");
+            throw new ParseException(`no -v option in endpoint '${this}'`);
         }
     }
 

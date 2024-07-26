@@ -3,7 +3,7 @@
 //
 
 import { Address } from "./Address.js";
-import { EndpointParseException } from "./LocalExceptions.js";
+import { ParseException } from "./LocalExceptions.js";
 import { HashUtil } from "./HashUtil.js";
 import { StringUtil } from "./StringUtil.js";
 import { EndpointI } from "./EndpointI.js";
@@ -194,7 +194,7 @@ export class IPEndpointI extends EndpointI {
             if (oaEndpoint) {
                 this._host = "";
             } else {
-                throw new EndpointParseException("`-h *' not valid for proxy endpoint `" + this + "'");
+                throw new ParseException(`'-h *' not valid for proxy endpoint '${this}'`);
             }
         }
 
@@ -207,7 +207,7 @@ export class IPEndpointI extends EndpointI {
                 this._sourceAddr = this._instance.defaultSourceAddress();
             }
         } else if (oaEndpoint) {
-            throw new EndpointParseException("`--sourceAddress not valid for object adapter endpoint `" + this + "'");
+            throw new ParseException(`--sourceAddress not valid for object adapter endpoint '${this}'`);
         }
     }
 
@@ -219,27 +219,27 @@ export class IPEndpointI extends EndpointI {
     checkOption(option, argument, str) {
         if (option === "-h") {
             if (argument === null) {
-                throw new EndpointParseException("no argument provided for -h option in endpoint " + str);
+                throw new ParseException(`no argument provided for -h option in endpoint ${str}`);
             }
 
             this._host = argument;
         } else if (option === "-p") {
             if (argument === null) {
-                throw new EndpointParseException("no argument provided for -p option in endpoint " + str);
+                throw new ParseException(`no argument provided for -p option in endpoint ${str}`);
             }
 
             try {
                 this._port = StringUtil.toInt(argument);
             } catch (ex) {
-                throw new EndpointParseException("invalid port value `" + argument + "' in endpoint " + str);
+                throw new ParseException(`invalid port value '${argument}' in endpoint ${str}`);
             }
 
             if (this._port < 0 || this._port > 65535) {
-                throw new EndpointParseException("port value `" + argument + "' out of range in endpoint " + str);
+                throw new ParseException(`port value '${argument}' out of range in endpoint ${str}`);
             }
         } else if (option === "--sourceAddress") {
             if (argument === null) {
-                throw new EndpointParseException("no argument provided for --sourceAddress option in endpoint " + str);
+                throw new ParseException(`no argument provided for --sourceAddress option in endpoint ${str}`);
             }
 
             this._sourceAddr = argument;
