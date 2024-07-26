@@ -2603,25 +2603,31 @@ public class InputStream {
       // preserved.
       //
       if (_current.sliceType == SliceType.ValueSlice) {
-        SliceInfo info = new SliceInfo();
-        info.typeId = _current.typeId;
-        info.compactId = _current.compactId;
-        info.hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-        info.isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
+        boolean hasOptionalMembers =
+            (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+
         Buffer buffer = _stream.getBuffer();
         final int end = buffer.b.position();
         int dataEnd = end;
-        if (info.hasOptionalMembers) {
+        if (hasOptionalMembers) {
           //
           // Don't include the optional member end marker. It will be re-written by
           // endSlice when the sliced data is re-written.
           //
           --dataEnd;
         }
-        info.bytes = new byte[dataEnd - start];
+        var bytes = new byte[dataEnd - start];
         buffer.position(start);
-        buffer.b.get(info.bytes);
+        buffer.b.get(bytes);
         buffer.position(end);
+
+        var info =
+            new SliceInfo(
+                _current.typeId,
+                _current.compactId,
+                bytes,
+                hasOptionalMembers,
+                (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
 
         if (_current.slices == null) // Lazy initialization
         {

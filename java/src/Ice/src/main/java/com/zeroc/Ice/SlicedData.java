@@ -11,5 +11,5 @@ public class SlicedData {
   }
 
   /** The details of each slice, in order of most-derived to least-derived. */
-  public SliceInfo[] slices;
+  public final SliceInfo[] slices;
 }
