@@ -239,18 +239,6 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func getClientDispatchQueue() throws -> DispatchQueue {
-        return try autoreleasepool {
-            try handle.getClientDispatchQueue()
-        }
-    }
-
-    func getServerDispatchQueue() throws -> DispatchQueue {
-        return try autoreleasepool {
-            try handle.getServerDispatchQueue()
-        }
-    }
-
     func makeProxyImpl<ProxyImpl>(_ proxyString: String) throws -> ProxyImpl where ProxyImpl: ObjectPrxI {
         guard let proxy: ProxyImpl = try stringToProxyImpl(proxyString) else {
             throw ParseException("invalid empty proxy string")

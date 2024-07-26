@@ -338,33 +338,36 @@ class TestI: TestIntf {
     // TODO: Doesn't seem to be called
     func PBSUnknownAsPreservedWithGraphAsync(current: Current) async throws -> Preserved? {
         // This code requires a regular, non-colloc dispatch
-        if let dq = try? current.adapter.getDispatchQueue() {
-            dispatchPrecondition(condition: .onQueue(dq))
-        }
+        //TODO: there are not more dispatch queues
+        // if let dq = try? current.adapter.getDispatchQueue() {
+        //     dispatchPrecondition(condition: .onQueue(dq))
+        // }
 
         // TODO: update this comment and make sure this is all true
         // .barrier to ensure we execute this code after Ice has called "done" on the promise
         // Otherwise the cycle breaking can occur before the result is marshaled by the
         // closure given to done.
-        return try await withCheckedThrowingContinuation { continuation in
-            do {
-                try current.adapter.getDispatchQueue().async(flags: .barrier) {
-                    let r = PSUnknown()
-                    r.pi = 5
-                    r.ps = "preserved"
-                    r.psu = "unknown"
-                    r.graph = PNode()
-                    r.graph!.next = PNode()
-                    r.graph!.next!.next = PNode()
-                    r.graph!.next!.next!.next = r.graph
-                    continuation.resume(returning: r)  // Ice marshals r now
-                    r.graph!.next!.next!.next = nil  // break the cycle
-                }
-            } catch {
-                continuation.resume(throwing: error)
-            }
+        // return try await withCheckedThrowingContinuation { continuation in
+        //     do {
+        //         try current.adapter.getDispatchQueue().async(flags: .barrier) {
+        //             let r = PSUnknown()
+        //             r.pi = 5
+        //             r.ps = "preserved"
+        //             r.psu = "unknown"
+        //             r.graph = PNode()
+        //             r.graph!.next = PNode()
+        //             r.graph!.next!.next = PNode()
+        //             r.graph!.next!.next!.next = r.graph
+        //             continuation.resume(returning: r)  // Ice marshals r now
+        //             r.graph!.next!.next!.next = nil  // break the cycle
+        //         }
+        //     } catch {
+        //         continuation.resume(throwing: error)
+        //     }
 
-        }
+        // }
+
+        fatalError("not implemented")
     }
 
     func checkPBSUnknownWithGraph(p: Preserved?, current: Current) throws {
@@ -380,9 +383,6 @@ class TestI: TestIntf {
             try _helper.test(pu.graph !== pu.graph!.next)
             try _helper.test(pu.graph!.next !== pu.graph!.next!.next)
             if pu.graph!.next!.next!.next == nil {
-                print(
-                    "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-                )
                 try _helper.test(false)
 
             } else {
@@ -393,21 +393,22 @@ class TestI: TestIntf {
     }
 
     func PBSUnknown2AsPreservedWithGraphAsync(current: Current) async throws -> Preserved? {
+        fatalError("not implemented")
         // TODO: verify this is correct
-        return try await withCheckedThrowingContinuation { continuation in
-            do {
-                try current.adapter.getDispatchQueue().async(flags: .barrier) {
-                    let r = PSUnknown2()
-                    r.pi = 5
-                    r.ps = "preserved"
-                    r.pb = r
-                    continuation.resume(returning: r)  // Ice marshals r immediately
-                    r.pb = nil  // break the cycle
-                }
-            } catch {
-                continuation.resume(throwing: error)
-            }
-        }
+        // return try await withCheckedThrowingContinuation { continuation in
+        //     do {
+        //         try current.adapter.getDispatchQueue().async(flags: .barrier) {
+        //             let r = PSUnknown2()
+        //             r.pi = 5
+        //             r.ps = "preserved"
+        //             r.pb = r
+        //             continuation.resume(returning: r)  // Ice marshals r immediately
+        //             r.pb = nil  // break the cycle
+        //         }
+        //     } catch {
+        //         continuation.resume(throwing: error)
+        //     }
+        // }
     }
 
     func checkPBSUnknown2WithGraph(p: Preserved?, current: Current) throws {

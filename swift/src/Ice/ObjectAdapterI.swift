@@ -218,12 +218,6 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         }
     }
 
-    func getDispatchQueue() throws -> DispatchQueue {
-        return try autoreleasepool {
-            try handle.getDispatchQueue()
-        }
-    }
-
     func dispatch(
         _ adapter: ICEObjectAdapter,
         inEncapsBytes: UnsafeMutableRawPointer,
@@ -239,7 +233,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         encodingMajor: UInt8,
         encodingMinor: UInt8,
         outgoingResponseHandler: @escaping ICEOutgoingResponse
-    ) async {
+    ) {
         precondition(handle == adapter)
 
         let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) }
@@ -263,26 +257,29 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
         let request = IncomingRequest(current: current, inputStream: istr)
 
-        do {
-            let response = try await dispatchPipeline.dispatch(request)
-            response.outputStream.finished().withUnsafeBytes {
-                outgoingResponseHandler(
-                    response.replyStatus.rawValue,
-                    response.exceptionId,
-                    response.exceptionMessage,
-                    $0.baseAddress!,
-                    $0.count)
-            }
+        Task {
+            do {
+                let response = try await dispatchPipeline.dispatch(request)
 
-        } catch {
-            let response = current.makeOutgoingResponse(error: error)
-            response.outputStream.finished().withUnsafeBytes {
-                outgoingResponseHandler(
-                    response.replyStatus.rawValue,
-                    response.exceptionId,
-                    response.exceptionMessage,
-                    $0.baseAddress!,
-                    $0.count)
+                response.outputStream.finished().withUnsafeBytes {
+                    outgoingResponseHandler(
+                        response.replyStatus.rawValue,
+                        response.exceptionId,
+                        response.exceptionMessage,
+                        $0.baseAddress!,
+                        $0.count)
+                }
+
+            } catch {
+                let response = current.makeOutgoingResponse(error: error)
+                response.outputStream.finished().withUnsafeBytes {
+                    outgoingResponseHandler(
+                        response.replyStatus.rawValue,
+                        response.exceptionId,
+                        response.exceptionMessage,
+                        $0.baseAddress!,
+                        $0.count)
+                }
             }
         }
     }

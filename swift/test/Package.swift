@@ -39,11 +39,6 @@ let testDirectories: [String: TestConfig] = [
         collocated: false,
         sources: ["Client.swift", "AllTests.swift"]
     ),
-    "Ice/dispatchQueue": TestConfig(
-        collocated: false,
-        sources: ["Client.swift"],
-        sliceFiles: []
-    ),
     "Ice/enums": TestConfig(collocated: false),
     "Ice/exceptions": TestConfig(),
     "Ice/facets": TestConfig(),

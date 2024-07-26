@@ -374,36 +374,6 @@
     return [ICEProperties getHandle:props];
 }
 
-- (nullable dispatch_queue_t)getClientDispatchQueue:(NSError* _Nullable* _Nullable)error
-{
-    try
-    {
-        // Swift always sets InitializationData.useDispatchQueueExecutor to true
-        assert(self.communicator->getClientDispatchQueue());
-        return self.communicator->getClientDispatchQueue();
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
-}
-
-- (nullable dispatch_queue_t)getServerDispatchQueue:(NSError* _Nullable* _Nullable)error
-{
-    try
-    {
-        // Swift always sets InitializationData.useDispatchQueueExecutor to true
-        assert(self.communicator->getServerDispatchQueue());
-        return self.communicator->getServerDispatchQueue();
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
-}
-
 - (void)getDefaultEncoding:(std::uint8_t*)major minor:(std::uint8_t*)minor
 {
     auto defaultEncoding = IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultEncoding;

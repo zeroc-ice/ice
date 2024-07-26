@@ -26,7 +26,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
         encodingMajor: UInt8,
         encodingMinor: UInt8,
         outgoingResponseHandler: @escaping ICEOutgoingResponse
-    ) async {
+    ) {
         let objectAdapter = adapter.getSwiftObject(ObjectAdapterI.self) {
             let oa = ObjectAdapterI(handle: adapter, communicator: communicator)
 
@@ -58,26 +58,28 @@ class AdminFacetFacade: ICEDispatchAdapter {
 
         let request = IncomingRequest(current: current, inputStream: istr)
 
-        do {
-            // Dispatch directly to the servant.
-            let response = try await dispatcher.dispatch(request)
-            response.outputStream.finished().withUnsafeBytes {
-                outgoingResponseHandler(
-                    response.replyStatus.rawValue,
-                    response.exceptionId,
-                    response.exceptionMessage,
-                    $0.baseAddress!,
-                    $0.count)
-            }
-        } catch {
-            let response = current.makeOutgoingResponse(error: error)
-            response.outputStream.finished().withUnsafeBytes {
-                outgoingResponseHandler(
-                    response.replyStatus.rawValue,
-                    response.exceptionId,
-                    response.exceptionMessage,
-                    $0.baseAddress!,
-                    $0.count)
+        Task {
+            do {
+                // Dispatch directly to the servant.
+                let response = try await dispatcher.dispatch(request)
+                response.outputStream.finished().withUnsafeBytes {
+                    outgoingResponseHandler(
+                        response.replyStatus.rawValue,
+                        response.exceptionId,
+                        response.exceptionMessage,
+                        $0.baseAddress!,
+                        $0.count)
+                }
+            } catch {
+                let response = current.makeOutgoingResponse(error: error)
+                response.outputStream.finished().withUnsafeBytes {
+                    outgoingResponseHandler(
+                        response.replyStatus.rawValue,
+                        response.exceptionId,
+                        response.exceptionMessage,
+                        $0.baseAddress!,
+                        $0.count)
+                }
             }
         }
     }

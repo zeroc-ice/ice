@@ -242,16 +242,6 @@ public protocol Communicator: AnyObject {
     /// - returns: `FacetMap` - A collection containing all the facet names and servants of the Admin object.
     func findAllAdminFacets() -> FacetMap
 
-    /// Returns the client dispatch queue.
-    ///
-    /// - returns: `Dispatch.DispatchQueue` - The dispatch queue associated wih this Communicator's client thread pool.
-    func getClientDispatchQueue() throws -> Dispatch.DispatchQueue
-
-    /// Returns the server dispatch queue.
-    ///
-    /// - returns: `Dispatch.DispatchQueue` - The dispatch queue associated wih the Communicator's server thread pool.
-    func getServerDispatchQueue() throws -> Dispatch.DispatchQueue
-
     /// Makes a new proxy. This is an internal operation used by the generated code.
     ///
     /// - Parameter proxyString: The stringified proxy.

@@ -25,8 +25,7 @@ ICEIMPL_API @protocol ICEDispatchAdapter
                   requestId:(int32_t)requestId
               encodingMajor:(uint8_t)encodingMajor
               encodingMinor:(uint8_t)encodingMinor
-    outgoingResponseHandler:(ICEOutgoingResponse)outgoingResponseHandler
-                 completion:(void (^)(void))completion;
+    outgoingResponseHandler:(ICEOutgoingResponse)outgoingResponseHandler;
 
 - (void)complete;
 @end
