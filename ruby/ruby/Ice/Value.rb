@@ -22,7 +22,7 @@ module Ice
           return _ice_slicedData
       end
 
-      attr_accessor :_ice_slicedData  # Only used for instances of preserved classes.
+      attr_accessor :_ice_slicedData
     end
 
     T_Value = Ice.__declareClass('::Ice::Object')
@@ -38,11 +38,11 @@ module Ice
     T_UnknownSlicedValue.defineClass(UnknownSlicedValue, -1, false, T_Value, [])
 
     class SlicedData
-      attr_accessor :slices   # array of SliceInfo
+      attr_reader :slices   # array of SliceInfo
     end
 
     class SliceInfo
-      attr_accessor :typeId, :compactId, :bytes, :instances, :hasOptionalMembers, :isLastSlice
+      attr_reader :typeId, :compactId, :bytes, :instances, :hasOptionalMembers, :isLastSlice
     end
 
     # The marshaling format for class instances.

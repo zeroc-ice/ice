@@ -3486,17 +3486,17 @@ public class InputStream
                     //
                     --dataEnd;
                 }
+                var bytes = new byte[dataEnd - start];
+                b.position(start);
+                b.get(bytes);
+                b.position(end);
 
                 var info = new SliceInfo(
                     typeId: _current.typeId!,
                     compactId: _current.compactId,
-                    bytes: new byte[dataEnd - start],
+                    bytes: bytes,
                     hasOptionalMembers: hasOptionalMembers,
                     isLastSlice: (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
-
-                b.position(start);
-                b.get(info.bytes);
-                b.position(end);
 
                 if (_current.slices is null)
                 {

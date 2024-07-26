@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-/// SlicedData holds the slices of unknown class or exception types.
+/// Holds class slices that cannot be unmarshaled because their types are not known locally.
 public final class SlicedData {
     /// The details of each slice, in order of most-derived to least-derived.
     public private(set) var slices: [SliceInfo]

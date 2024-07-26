@@ -5,13 +5,13 @@
 namespace Ice;
 
 /// <summary>
-/// Holds the slices of an unknown class instance.
+/// Holds class slices that cannot be unmarshaled because their types are not known locally.
 /// </summary>
 /// <param name="slices">The details of each slice, in order of most-derived to least-derived.</param>
 public sealed record class SlicedData(SliceInfo[] slices);
 
 /// <summary>
-/// Encapsulates the details of a slice for an unknown class or exception type.
+/// Encapsulates the details of a slice with an unknown type.
 /// </summary>
 /// <param name="typeId">The Slice type ID for this slice.</param>
 /// <param name="compactId">The Slice compact type ID for this slice.</param>
