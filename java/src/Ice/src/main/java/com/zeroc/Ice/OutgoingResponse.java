@@ -18,11 +18,11 @@ public final class OutgoingResponse {
   public final String exceptionId;
 
   /**
-   * Gets the exception message of the response.
+   * Gets the full details of the exception marshaled into the response.
    *
-   * <p>The exception message. It's null when replyStatus is {@link ReplyStatus#Ok}.
+   * <p>The exception details. It's null when replyStatus is {@link ReplyStatus#Ok}.
    */
-  public final String exceptionMessage;
+  public final String exceptionDetails;
 
   /**
    * Gets the output stream buffer of the response. This output stream should not be written to
@@ -41,17 +41,18 @@ public final class OutgoingResponse {
    *
    * @param replyStatus The reply status.
    * @param exceptionId The ID of the exception, when the response carries an exception.
-   * @param exceptionMessage The message of the exception, when the response carries an exception.
+   * @param exceptionDetails The full details of the exception, when the response carries an
+   *     exception.
    * @param outputStream The output stream that holds the response.
    */
   public OutgoingResponse(
       ReplyStatus replyStatus,
       String exceptionId,
-      String exceptionMessage,
+      String exceptionDetails,
       OutputStream outputStream) {
     this.replyStatus = replyStatus;
     this.exceptionId = exceptionId;
-    this.exceptionMessage = exceptionMessage;
+    this.exceptionDetails = exceptionDetails;
     this.outputStream = outputStream;
     this.size =
         outputStream.isEmpty()

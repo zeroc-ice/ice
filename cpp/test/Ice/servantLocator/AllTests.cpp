@@ -1,3 +1,4 @@
+
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
@@ -114,7 +115,10 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownException& ex)
     {
-        test(string{ex.what()} == "c++ exception: Hello");
+        string message{ex.what()};
+        test(
+            message == "dispatch failed with std::runtime_error: Hello" ||
+            message == "dispatch failed with class std::runtime_error: Hello");
     }
     catch (...)
     {
@@ -128,7 +132,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownException& ex)
     {
-        test(string{ex.what()} == "c++ exception: unknown");
+        test(string{ex.what()} == "dispatch failed with unknown: c++ exception");
     }
     catch (const OperationNotExistException&)
     {
