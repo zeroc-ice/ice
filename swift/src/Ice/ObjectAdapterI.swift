@@ -258,28 +258,20 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         let request = IncomingRequest(current: current, inputStream: istr)
 
         Task {
+            let response: OutgoingResponse
             do {
-                let response = try await dispatchPipeline.dispatch(request)
-
-                response.outputStream.finished().withUnsafeBytes {
-                    outgoingResponseHandler(
-                        response.replyStatus.rawValue,
-                        response.exceptionId,
-                        response.exceptionDetails,
-                        $0.baseAddress!,
-                        $0.count)
-                }
-
+                response = try await dispatchPipeline.dispatch(request)
             } catch {
-                let response = current.makeOutgoingResponse(error: error)
-                response.outputStream.finished().withUnsafeBytes {
-                    outgoingResponseHandler(
-                        response.replyStatus.rawValue,
-                        response.exceptionId,
-                        response.exceptionDetails,
-                        $0.baseAddress!,
-                        $0.count)
-                }
+                response = current.makeOutgoingResponse(error: error)
+            }
+
+            response.outputStream.finished().withUnsafeBytes {
+                outgoingResponseHandler(
+                    response.replyStatus.rawValue,
+                    response.exceptionId,
+                    response.exceptionDetails,
+                    $0.baseAddress!,
+                    $0.count)
             }
         }
     }

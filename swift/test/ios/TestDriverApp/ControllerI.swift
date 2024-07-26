@@ -202,7 +202,7 @@ class ControllerHelperI: ControllerHelper, TextWriter {
                 let testHelper = TestBundle.getTestHelper(name: className)
                 testHelper.setControllerHelper(controllerHelper: self)
                 testHelper.setWriter(writer: self)
-                try testHelper.run(args: self._args)
+                try await testHelper.run(args: self._args)
                 self.completed(status: 0)
             } catch {
                 self.writeLine("Error: \(error)")
