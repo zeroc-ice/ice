@@ -136,15 +136,15 @@ export class IncomingAsync {
 
         const props = this._instance.initializationData().properties;
         if (ex instanceof RequestFailedException) {
-            if (ex.id === null) {
+            if (ex.id === undefined) {
                 ex.id = this._current.id;
             }
 
-            if (ex.facet === null) {
+            if (ex.facet === undefined) {
                 ex.facet = this._current.facet;
             }
 
-            if (ex.operation === null || ex.operation.length === 0) {
+            if (ex.operation === undefined || ex.operation.length === 0) {
                 ex.operation = this._current.operation;
             }
 
