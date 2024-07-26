@@ -429,13 +429,15 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                     id._read(this._is);
 
                     //
-                    // For compatibility with the old FacetPath.
+                    // For compatibility with the old facet path.
                     //
                     const facetPath = StringSeqHelper.read(this._is);
                     let facet;
                     if (facetPath.length > 0) {
                         if (facetPath.length > 1) {
-                            throw new MarshalException();
+                            throw new MarshalException(
+                                `Received invalid facet path with ${facetPath.length} elements.`,
+                            );
                         }
                         facet = facetPath[0];
                     } else {
@@ -444,33 +446,19 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
 
                     const operation = this._is.readString();
 
-                    let rfe = null;
                     switch (replyStatus) {
                         case Protocol.replyObjectNotExist: {
-                            rfe = new ObjectNotExistException();
-                            break;
+                            throw new ObjectNotExistException(id, facet, operation);
                         }
 
                         case Protocol.replyFacetNotExist: {
-                            rfe = new FacetNotExistException();
-                            break;
+                            throw new FacetNotExistException(id, facet, operation);
                         }
 
                         case Protocol.replyOperationNotExist: {
-                            rfe = new OperationNotExistException();
-                            break;
-                        }
-
-                        default: {
-                            Debug.assert(false);
-                            break;
+                            throw new OperationNotExistException(id, facet, operation);
                         }
                     }
-
-                    rfe.id = id;
-                    rfe.facet = facet;
-                    rfe.operation = operation;
-                    throw rfe;
                 }
 
                 case Protocol.replyUnknownException:

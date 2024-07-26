@@ -3,15 +3,8 @@
 //
 
 import { LocalException } from "./LocalException.js";
-import { Ice as Ice_Identity } from "./Identity.js";
 import { identityToString } from "./IdentityToString.js";
-import { Ice as Ice_Version } from "./Version.js";
 import { ObjectPrx } from "./ObjectPrx.js";
-
-const Ice = {
-    ...Ice_Identity,
-    ...Ice_Version,
-};
 
 // This file contains all the exception classes derived from LocalException defined in the Ice assembly.
 
@@ -21,53 +14,51 @@ const Ice = {
 //
 
 export class RequestFailedException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::RequestFailedException";
     }
 
-    constructor(typeName = "", id = new Ice.Identity(), facet = "", operation = "") {
-        super(RequestFailedException.createMessage(typeName, id, facet, operation));
+    constructor(typeName, id, facet, operation) {
+        super(
+            `Dispatch failed with ${typeName} { id = '${identityToString(id)}', facet = '${facet}', operation = '${operation}' }`,
+        );
         this.id = id;
         this.facet = facet;
         this.operation = operation;
     }
-
-    static createMessage(typeName, id, facet, operation) {
-        return `Dispatch failed with ${typeName} { id = '${identityToString(id)}', facet = '${facet}', operation = '${operation}' }`;
-    }
 }
 export class ObjectNotExistException extends RequestFailedException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ObjectNotExistException";
     }
 
-    constructor(id = new Ice.Identity(), facet = "", operation = "") {
+    constructor(id, facet, operation) {
         super("ObjectNotExistException", id, facet, operation);
     }
 }
 
 export class FacetNotExistException extends RequestFailedException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::FacetNotExistException";
     }
 
-    constructor(id = new Ice.Identity(), facet = "", operation = "") {
+    constructor(id, facet, operation) {
         super("FacetNotExistException", id, facet, operation);
     }
 }
 
 export class OperationNotExistException extends RequestFailedException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::OperationNotExistException";
     }
 
-    constructor(id = new Ice.Identity(), facet = "", operation = "") {
+    constructor(id, facet, operation) {
         super("OperationNotExistException", id, facet, operation);
     }
 }
 
 export class UnknownException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::UnknownException";
     }
 
@@ -81,22 +72,14 @@ export class UnknownException extends LocalException {
 }
 
 export class UnknownLocalException extends UnknownException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::UnknownLocalException";
-    }
-
-    constructor(message) {
-        super(message);
     }
 }
 
 export class UnknownUserException extends UnknownException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::UnknownUserException";
-    }
-
-    constructor(message) {
-        super(message);
     }
 }
 
@@ -105,13 +88,13 @@ export class UnknownUserException extends UnknownException {
 //
 
 export class ProtocolException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ProtocolException";
     }
 }
 
 export class CloseConnectionException extends ProtocolException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::CloseConnectionException";
     }
 
@@ -121,7 +104,7 @@ export class CloseConnectionException extends ProtocolException {
 }
 
 export class MarshalException extends ProtocolException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::MarshalException";
     }
 }
@@ -131,17 +114,17 @@ export class MarshalException extends ProtocolException {
 //
 
 export class TimeoutException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::TimeoutException";
     }
 
-    constructor(message = undefined, cause = undefined) {
-        super(message || "operation timed out", cause);
+    constructor(message = undefined, ...params) {
+        super(message || "operation timed out", ...params);
     }
 }
 
 export class CloseTimeoutException extends TimeoutException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::CloseTimeoutException";
     }
 
@@ -151,7 +134,7 @@ export class CloseTimeoutException extends TimeoutException {
 }
 
 export class ConnectTimeoutException extends TimeoutException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ConnectTimeoutException";
     }
 
@@ -161,7 +144,7 @@ export class ConnectTimeoutException extends TimeoutException {
 }
 
 export class InvocationTimeoutException extends TimeoutException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::InvocationTimeoutException";
     }
 
@@ -175,7 +158,7 @@ export class InvocationTimeoutException extends TimeoutException {
 //
 
 export class SyscallException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::SyscallException";
     }
 }
@@ -185,25 +168,25 @@ export class SyscallException extends LocalException {
 //
 
 export class SocketException extends SyscallException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::SocketException";
     }
 }
 
 export class ConnectFailedException extends SocketException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ConnectFailedException";
     }
 }
 
 export class ConnectionLostException extends SocketException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ConnectionLostException";
     }
 }
 
 export class ConnectionRefusedException extends ConnectFailedException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ConnectionRefusedException";
     }
 }
@@ -213,19 +196,27 @@ export class ConnectionRefusedException extends ConnectFailedException {
 //
 
 export class AlreadyRegisteredException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::AlreadyRegisteredException";
     }
 
     constructor(kindOfObject, id) {
         super(`Another ${kindOfObject} is already registered with ID '${id}'.`);
-        this.kindOfObject = kindOfObject;
-        this.id = id;
+        this._kindOfObject = kindOfObject;
+        this._id = id;
+    }
+
+    get kindOfObject() {
+        return this._kindOfObject;
+    }
+
+    get id() {
+        return this._id;
     }
 }
 
 export class CommunicatorDestroyedException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::CommunicatorDestroyedException";
     }
 
@@ -235,7 +226,7 @@ export class CommunicatorDestroyedException extends LocalException {
 }
 
 export class ConnectionAbortedException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ConnectionAbortedException";
     }
 
@@ -246,7 +237,7 @@ export class ConnectionAbortedException extends LocalException {
 }
 
 export class ConnectionClosedException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ConnectionClosedException";
     }
 
@@ -257,7 +248,7 @@ export class ConnectionClosedException extends LocalException {
 }
 
 export class FeatureNotSupportedException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::FeatureNotSupportedException";
     }
 
@@ -267,7 +258,7 @@ export class FeatureNotSupportedException extends LocalException {
 }
 
 export class FixedProxyException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::FixedProxyException";
     }
 
@@ -277,13 +268,13 @@ export class FixedProxyException extends LocalException {
 }
 
 export class InitializationException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::InitializationException";
     }
 }
 
 export class InvocationCanceledException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::InvocationCanceledException";
     }
 
@@ -293,12 +284,12 @@ export class InvocationCanceledException extends LocalException {
 }
 
 export class NoEndpointException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::NoEndpointException";
     }
 
-    constructor(strOrProxy) {
-        super(NoEndpointException.createMessage(strOrProxy));
+    constructor(messageOrProxy) {
+        super(NoEndpointException.createMessage(messageOrProxy));
     }
 
     static createMessage(arg) {
@@ -307,19 +298,27 @@ export class NoEndpointException extends LocalException {
 }
 
 export class NotRegisteredException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::NotRegisteredException";
     }
 
     constructor(kindOfObject, id) {
         super(`No ${kindOfObject} is registered with ID '${id}'.`);
-        this.kindOfObject = kindOfObject;
-        this.id = id;
+        this._kindOfObject = kindOfObject;
+        this._id = id;
+    }
+
+    get kindOfObject() {
+        return this._kindOfObject;
+    }
+
+    get id() {
+        return this._id;
     }
 }
 
 export class ObjectAdapterDeactivatedException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ObjectAdapterDeactivatedException";
     }
 
@@ -329,7 +328,7 @@ export class ObjectAdapterDeactivatedException extends LocalException {
 }
 
 export class ObjectAdapterIdInUseException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ObjectAdapterIdInUseException";
     }
 
@@ -339,13 +338,13 @@ export class ObjectAdapterIdInUseException extends LocalException {
 }
 
 export class ParseException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::ParseException";
     }
 }
 
 export class TwowayOnlyException extends LocalException {
-    static get _id() {
+    static get _ice_id() {
         return "::Ice::TwowayOnlyException";
     }
 

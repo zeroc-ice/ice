@@ -1514,8 +1514,11 @@ export class ConnectionI {
                 // An Error was raised outside of servant code (i.e., by Ice code).
                 // Attempt to log the error and clean up.
                 //
-                this._logger.error("unexpected exception:\n" + ex.toString());
-                this.dispatchException(new UnknownException(ex), invokeNum);
+                this._logger.error(`unexpected exception:\n ${ex}`);
+                this.dispatchException(
+                    new UnknownException("unexpected exception dispatching request", { cause: ex }),
+                    invokeNum,
+                );
             }
         }
     }

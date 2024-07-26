@@ -285,8 +285,10 @@ export class OpaqueEndpointI extends EndpointI {
                 }
                 try {
                     this._rawEncoding = stringToEncodingVersion(argument);
-                } catch (e) {
-                    throw new ParseException(`invalid encoding version ${argument}' in endpoint ${endpoint}`, e);
+                } catch (ex) {
+                    throw new ParseException(`invalid encoding version ${argument}' in endpoint ${endpoint}`, {
+                        cause: ex,
+                    });
                 }
                 return true;
             }

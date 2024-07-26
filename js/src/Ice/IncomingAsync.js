@@ -295,7 +295,7 @@ export class IncomingAsync {
         const facetPath = StringSeqHelper.read(this._is);
         if (facetPath.length > 0) {
             if (facetPath.length > 1) {
-                throw new MarshalException();
+                throw new MarshalException(`Received invalid facet path with ${facetPath.length} elements.`);
             }
             this._current.facet = facetPath[0];
         } else {

@@ -193,10 +193,7 @@ export class LocatorInfo {
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
                 }
 
-                const e = new NotRegisteredException();
-                e.kindOfObject = "object adapter";
-                e.id = ref.getAdapterId();
-                throw e;
+                throw new NotRegisteredException("object adapter", ref.getAdapterId());
             } else if (ex instanceof ObjectNotFoundException) {
                 if (instance.traceLevels().location >= 1) {
                     const s = [];
@@ -205,11 +202,10 @@ export class LocatorInfo {
                     s.push(identityToString(ref.getIdentity(), instance.toStringMode()));
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
                 }
-
-                const e = new NotRegisteredException();
-                e.kindOfObject = "object";
-                e.id = identityToString(ref.getIdentity(), instance.toStringMode());
-                throw e;
+                throw new NotRegisteredException(
+                    "object",
+                    identityToString(ref.getIdentity(), instance.toStringMode()),
+                );
             } else if (ex instanceof NotRegisteredException) {
                 throw ex;
             } else if (ex instanceof LocalException) {

@@ -44,7 +44,7 @@ declare module "ice" {
              */
             add(factory: Ice.ValueFactory, id: string): void;
             /**
-             * Find an value factory registered with this communicator.
+             * Find a value factory registered with this communicator.
              * @param id The type id for which the factory can create instances, or an empty string for the default factory.
              * @return The value factory, or null if no value factory was found for the given id.
              */

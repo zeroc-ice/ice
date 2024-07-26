@@ -6,16 +6,13 @@ import { MarshalException } from "./LocalExceptions.js";
 import { UnknownSlicedValue } from "./UnknownSlicedValue.js";
 
 export function throwUOE(expectedType, v) {
-    // If the object is an unknown sliced object, we didn't find an value factory.
+    // If the object is an unknown sliced object, we didn't find a value factory.
     if (v instanceof UnknownSlicedValue) {
-        throw new MarshalException(`Cannot find value factory to unmarshal class with type ID '{v.ice_id()}'.`);
+        throw new MarshalException(`Cannot find value factory to unmarshal class with type ID '${v.ice_id()}'.`);
     }
 
-    const type = v.ice_id();
-    let expected = expectedType.ice_staticId(); // TODO add ice_staticId
-
     throw new MarshalException(
-        `Failed to unmarshal class with type ID '${expected}': value factory returned class with type ID '${type}'.`,
+        `Failed to unmarshal class with type ID '${expectedType}': value factory returned class with type ID '${v.ice_id()}'.`,
     );
 }
 

@@ -16,7 +16,6 @@ import { Debug } from "./Debug.js";
 import { Communicator } from "./Communicator.js";
 import { Reference } from "./Reference.js";
 import { RequestHandlerCache } from "./RequestHandlerCache.js";
-import { LocalException } from "./LocalException.js";
 
 ObjectPrx.prototype.hashCode = function (r) {
     return this._reference.hashCode();
@@ -36,7 +35,7 @@ ObjectPrx.prototype.ice_getIdentity = function () {
 
 ObjectPrx.prototype.ice_identity = function (newIdentity) {
     if (newIdentity === undefined || newIdentity === null || newIdentity.name.length === 0) {
-        throw new LocalException("The name of an Ice object identity cannot be empty.");
+        throw new TypeError("The name of an Ice object identity cannot be empty.");
     }
     if (newIdentity.equals(this._reference.getIdentity())) {
         return this;

@@ -103,7 +103,7 @@ export class ImplicitContext {
         } else if (kind === "Shared") {
             return new ImplicitContext();
         } else {
-            throw new InitializationException("'" + kind + "' is not a valid value for Ice.ImplicitContext");
+            throw new InitializationException(`'${kind}' is not a valid value for Ice.ImplicitContext`);
         }
     }
 }

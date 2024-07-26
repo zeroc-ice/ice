@@ -763,7 +763,7 @@ class EncapsDecoder11 extends EncapsDecoder {
                         if (!(ex instanceof LocalException)) {
                             throw new MarshalException(
                                 "exception in CompactIdResolver for ID " + this._current.compactId,
-                                ex,
+                                { cause: ex },
                             );
                         }
                         throw ex;
@@ -896,7 +896,7 @@ EncapsDecoder11.InstanceData = class {
 const sequencePatcher = function (seq, index, T) {
     return v => {
         if (v !== null && !(v instanceof T)) {
-            throwUOE(T, v);
+            throwUOE(T.ice_staticId(), v);
         }
         seq[index] = v;
     };
@@ -1489,7 +1489,7 @@ export class InputStream {
 
         const e = T.valueOf(v);
         if (e === undefined) {
-            throw new MarshalException("enumerator value " + v + " is out of range");
+            throw new MarshalException(`enumerator value '${v}' is out of range`);
         }
         return e;
     }
@@ -1506,7 +1506,7 @@ export class InputStream {
         this.initEncaps();
         this._encapsStack.decoder.readValue(obj => {
             if (obj !== null && !(obj instanceof T)) {
-                throwUOE(T, obj);
+                throwUOE(T.ice_staticId(), obj);
             }
             cb(obj);
         });
@@ -1548,7 +1548,7 @@ export class InputStream {
                 this.skipOptional(format); // Skip optional data members
             } else {
                 if (format !== expectedFormat) {
-                    throw new MarshalException("invalid optional data member `" + tag + "': unexpected format");
+                    throw new MarshalException(`invalid optional data member '${tag}': unexpected format`);
                 }
                 return true;
             }
@@ -1586,7 +1586,7 @@ export class InputStream {
                 break;
             }
             case OptionalFormat.Class: {
-                throw new Ice.MarshalException("cannot skip an optional class");
+                throw new MarshalException("cannot skip an optional class");
             }
             default: {
                 Debug.assert(false);
@@ -1649,7 +1649,7 @@ export class InputStream {
                 obj = new Class();
             }
         } catch (ex) {
-            throw new MarshalException(`Failed to create a class with type ID '${typeId}'.`, ex);
+            throw new MarshalException(`Failed to create a class with type ID '${typeId}'.`, { cause: ex });
         }
 
         return obj;
@@ -1664,7 +1664,7 @@ export class InputStream {
                 userEx = new Class();
             }
         } catch (ex) {
-            throw new MarshalException(`Failed to create user exception with type ID '${id}'.`, ex);
+            throw new MarshalException(`Failed to create user exception with type ID '${id}'.`, { cause: ex });
         }
         return userEx;
     }

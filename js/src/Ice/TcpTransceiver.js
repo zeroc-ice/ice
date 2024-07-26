@@ -319,14 +319,14 @@ if (typeof net.createConnection === "function") {
             return new ConnectionLostException();
         } else if (state < StateConnected) {
             if (connectionRefused(err.code)) {
-                return new ConnectionRefusedException(err.code, err);
+                return new ConnectionRefusedException("connection refused", { cause: err });
             } else if (connectionFailed(err.code)) {
-                return new ConnectFailedException(err.code, err);
+                return new ConnectFailedException("connect failed", { cause: err });
             }
         } else if (connectionLost(err.code)) {
-            return new ConnectionLostException(err.code, err);
+            return new ConnectionLostException("connection lost", { cause: err });
         }
-        return new SocketException(err.code, err);
+        return new SocketException("socket exception", { cause: err });
     }
 
     function addressesToString(localHost, localPort, remoteHost, remotePort, targetAddr) {

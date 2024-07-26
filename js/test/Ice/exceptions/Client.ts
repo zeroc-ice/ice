@@ -55,14 +55,14 @@ export class Client extends TestHelper {
                 adapter.add(new EmptyI(), Ice.stringToIdentity(""));
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.LocalException, ex);
+                test(ex instanceof TypeError, ex);
             }
 
             try {
                 adapter.add(null!, Ice.stringToIdentity("x"));
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.LocalException, ex);
+                test(ex instanceof TypeError, ex);
             }
 
             adapter.remove(Ice.stringToIdentity("x"));

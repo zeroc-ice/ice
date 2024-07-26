@@ -24,7 +24,6 @@ import { Timer } from "./Timer.js";
 import { identityToString } from "./IdentityToString.js";
 import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
-import { LocalException } from "./LocalException.js";
 
 const _suffixes = [
     "ACM",
@@ -121,14 +120,14 @@ export class ObjectAdapter {
         const proxyOptions = properties.getPropertyWithDefault(this._name + ".ProxyOptions", "-t");
         try {
             this._reference = this._instance.referenceFactory().createFromString("dummy " + proxyOptions, "");
-        } catch (e) {
-            if (e instanceof ParseException) {
+        } catch (ex) {
+            if (ex instanceof ParseException) {
                 throw new InitializationException(
                     `invalid proxy options '${proxyOptions}' for object adapter '${name}'`,
-                    e,
+                    { cause: ex },
                 );
             } else {
-                throw e;
+                throw ex;
             }
         }
 
@@ -439,15 +438,13 @@ export class ObjectAdapter {
 
     checkForDeactivation() {
         if (this._state >= StateDeactivated) {
-            const ex = new ObjectAdapterDeactivatedException();
-            ex.name = this.getName();
-            throw ex;
+            throw new ObjectAdapterDeactivatedException(this.getName());
         }
     }
 
     static checkIdentity(ident) {
         if (ident.name === undefined || ident.name === null || ident.name.length === 0) {
-            throw new LocalException("The name of an Ice object identity cannot be empty.");
+            throw new TypeError("The name of an Ice object identity cannot be empty.");
         }
 
         if (ident.category === undefined || ident.category === null) {
@@ -457,7 +454,7 @@ export class ObjectAdapter {
 
     static checkServant(servant) {
         if (servant === undefined || servant === null) {
-            throw new LocalException("cannot add null servant to Object Adapter");
+            throw new TypeError("cannot add null servant to Object Adapter");
         }
     }
 

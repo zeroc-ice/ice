@@ -5,14 +5,10 @@
 export class Exception extends Error {
     constructor(...params) {
         super(...params);
-        this.name = this.constructor._id.substr(2).replace(/::/g, ".");
+        this.name = this.constructor._ice_id.substr(2).replace(/::/g, ".");
     }
 
     ice_id() {
-        return this.constructor._id;
-    }
-
-    static get _id() {
-        return "::Ice::Exception";
+        return this.constructor._ice_id;
     }
 }
