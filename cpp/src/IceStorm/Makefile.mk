@@ -15,7 +15,6 @@ IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
                                                              NodeI.cpp \
                                                              Observers.cpp \
                                                              Service.cpp \
-                                                             SendQueueSizeMaxReached.cpp \
                                                              Subscriber.cpp \
                                                              TopicI.cpp \
                                                              TopicManagerI.cpp \

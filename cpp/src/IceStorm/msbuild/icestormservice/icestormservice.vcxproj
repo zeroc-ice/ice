@@ -103,7 +103,6 @@
     <ClCompile Include="..\..\InstrumentationI.cpp" />
     <ClCompile Include="..\..\NodeI.cpp" />
     <ClCompile Include="..\..\Observers.cpp" />
-    <ClCompile Include="..\..\SendQueueSizeMaxReached.cpp" />
     <ClCompile Include="..\..\Service.cpp" />
     <ClCompile Include="..\..\Subscriber.cpp" />
     <ClCompile Include="..\..\TopicI.cpp" />
