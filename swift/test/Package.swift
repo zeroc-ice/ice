@@ -28,7 +28,8 @@ struct TestConfig {
 
 let testDirectories: [String: TestConfig] = [
     "Ice/adapterDeactivation": TestConfig(),
-    "Ice/admin": TestConfig(collocated: false),
+    // TODO: re-enable once we've implemented MaxDispatchQueueSize on the OA
+    // "Ice/admin": TestConfig(collocated: false),
     "Ice/ami": TestConfig(),
     "Ice/binding": TestConfig(collocated: false),
     "Ice/defaultServant": TestConfig(

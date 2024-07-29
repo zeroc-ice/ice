@@ -14,6 +14,7 @@ class Collocated: TestHelperI {
         //
         // 2 threads are necessary to dispatch the collocated transient() call with AMI
         //
+        //TODO: this is likely no longer necessary
         communicator.getProperties().setProperty(key: "TestAdapter.ThreadPool.Size", value: "2")
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.addServantLocator(locator: ServantLocatorI(helper: self), category: "")

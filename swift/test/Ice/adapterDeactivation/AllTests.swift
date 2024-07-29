@@ -52,10 +52,15 @@ func allTests(_ helper: TestHelper) async throws {
             var initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
             let comm = try Ice.initialize(initData)
+
+            // stringToProxy must be called before the communicator is destroyed
+            let prx = try comm.stringToProxy(ref)!
+
             Task {
-                try await comm.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!.ice_pingAsync()
+                try await prx.ice_pingAsync()
             }
             comm.destroy()
+
         }
         output.writeLine("ok")
     }
