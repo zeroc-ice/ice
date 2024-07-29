@@ -195,25 +195,6 @@ public sealed class Instance
         }
     }
 
-    public AsyncIOThread
-    asyncIOThread()
-    {
-        lock (this)
-        {
-            if (_state == StateDestroyed)
-            {
-                throw new Ice.CommunicatorDestroyedException();
-            }
-
-            if (_asyncIOThread == null) // Lazy initialization.
-            {
-                _asyncIOThread = new AsyncIOThread(this);
-            }
-
-            return _asyncIOThread;
-        }
-    }
-
     public EndpointHostResolver endpointHostResolver()
     {
         lock (this)
@@ -1178,10 +1159,6 @@ public sealed class Instance
         {
             _clientThreadPool.destroy();
         }
-        if (_asyncIOThread != null)
-        {
-            _asyncIOThread.destroy();
-        }
         if (_endpointHostResolver != null)
         {
             _endpointHostResolver.destroy();
@@ -1201,10 +1178,6 @@ public sealed class Instance
         if (_serverThreadPool != null)
         {
             _serverThreadPool.joinWithAllThreads();
-        }
-        if (_asyncIOThread != null)
-        {
-            _asyncIOThread.joinWithThread();
         }
         if (_endpointHostResolver != null)
         {
@@ -1257,7 +1230,6 @@ public sealed class Instance
 
             _serverThreadPool = null;
             _clientThreadPool = null;
-            _asyncIOThread = null;
             _endpointHostResolver = null;
             _timer = null;
 
@@ -1358,10 +1330,6 @@ public sealed class Instance
             if (_endpointHostResolver != null)
             {
                 _endpointHostResolver.updateObserver();
-            }
-            if (_asyncIOThread != null)
-            {
-                _asyncIOThread.updateObserver();
             }
             if (_timer != null)
             {
@@ -1535,7 +1503,6 @@ public sealed class Instance
     private NetworkProxy _networkProxy;
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;
-    private AsyncIOThread _asyncIOThread;
     private EndpointHostResolver _endpointHostResolver;
     private Timer _timer;
     private RetryQueue _retryQueue;
