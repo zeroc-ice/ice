@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { defineStruct } from "./Struct.js";
 import { Ice as Ice_OperationMode } from "./OperationMode.js";
 const { OperationMode } = Ice_OperationMode;
 import { Ice as Ice_Identity } from "./Identity.js";
@@ -37,5 +36,3 @@ export class Current {
         this.encoding = encoding;
     }
 }
-
-defineStruct(Current, false, true);

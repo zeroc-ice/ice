@@ -34,6 +34,10 @@ declare module "ice" {
             encoding: EncodingVersion;
             static write(outs: OutputStream, value: Current): void;
             static read(ins: InputStream): Current;
+
+            createOutgoingResponseWithResult(marshal: (ostr: OutputStream) => void, formatType?: FormatType): OutgoingResponse;
+            createEmptyOutgoingResponse(): OutgoingResponse;
+            createOutgoingResponseWithException(exception: Exception): OutgoingResponse;
         }
     }
 }
