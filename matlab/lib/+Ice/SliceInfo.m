@@ -1,8 +1,7 @@
 classdef SliceInfo < handle
     % SliceInfo   Summary of SliceInfo
     %
-    % SliceInfo encapsulates the details of a slice for an unknown class or
-    % exception type.
+    % Encapsulates the details of a slice with an unknown type.
     %
     % SliceInfo Properties:
     %   typeId - The Slice type ID for this slice.
@@ -15,7 +14,7 @@ classdef SliceInfo < handle
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
-    properties
+    properties(SetAccess=immutable)
         %
         % The Slice type ID for this slice.
         %
@@ -29,10 +28,6 @@ classdef SliceInfo < handle
         %
         bytes
         %
-        % The class instances referenced by this slice.
-        %
-        instances
-        %
         % Whether or not the slice contains optional members.
         %
         hasOptionalMembers
@@ -40,5 +35,21 @@ classdef SliceInfo < handle
         % Whether or not this is the last slice.
         %
         isLastSlice
+    end
+    properties
+        %
+        % The class instances referenced by this slice.
+        %
+        instances
+    end
+    methods
+        function obj = SliceInfo(typeId, compactId, bytes, hasOptionalMembers, isLastSlice)
+            obj.typeId = typeId;
+            obj.compactId = compactId;
+            obj.bytes = bytes;
+            obj.hasOptionalMembers = hasOptionalMembers;
+            obj.isLastSlice = isLastSlice;
+            obj.instances = [];
+        end
     end
 end

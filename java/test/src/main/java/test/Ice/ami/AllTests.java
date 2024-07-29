@@ -12,6 +12,8 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.PingReplyPrx;
 import test.Ice.ami.Test.TestIntfControllerPrx;
@@ -1080,6 +1082,39 @@ public class AllTests {
               });
     }
     out.println("ok");
+
+    if (p.ice_getConnection() != null) {
+      out.print("testing back pressure... ");
+      out.flush();
+      try {
+        // Keep the 3 server thread pool threads busy.
+        CompletableFuture<Void> sleep1Future = p.sleepAsync(1000);
+        CompletableFuture<Void> sleep2Future = p.sleepAsync(1000);
+        CompletableFuture<Void> sleep3Future = p.sleepAsync(1000);
+        TestIntfPrx onewayProxy = p.ice_oneway();
+
+        // Sending should block because the TCP send/receive buffer
+        // size on the server is set to 50KB.
+        CompletableFuture<Void> future = onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
+        boolean timeout = false;
+        try {
+          future.get(200, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException ex) {
+          timeout = true;
+        }
+        test(timeout);
+        test(!sleep1Future.isDone());
+
+        sleep1Future.get();
+
+        sleep2Future.get();
+        sleep3Future.get();
+      } catch (Exception ex) {
+        out.println(ex.toString());
+        test(false);
+      }
+      out.println("ok");
+    }
 
     executor.shutdown();
 
