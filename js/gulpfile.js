@@ -157,6 +157,7 @@ const tests = [
     "test/Ice/info",
     "test/Ice/inheritance",
     "test/Ice/location",
+    "test/Ice/middleware",
     "test/Ice/objects",
     "test/Ice/operations",
     "test/Ice/optional",

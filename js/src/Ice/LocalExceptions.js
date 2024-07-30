@@ -5,6 +5,8 @@
 import { LocalException } from "./LocalException.js";
 import { identityToString } from "./IdentityToString.js";
 import { ObjectPrx } from "./ObjectPrx.js";
+import { Ice as Ice_Identity } from "./Identity.js";
+const { Identity } = Ice_Identity;
 
 // This file contains all the exception classes derived from LocalException defined in the Ice assembly.
 
@@ -18,7 +20,7 @@ export class RequestFailedException extends LocalException {
         return "::Ice::RequestFailedException";
     }
 
-    constructor(typeName, id, facet, operation) {
+    constructor(typeName, id = new Identity(), facet = "", operation = "") {
         super(RequestFailedException.createMessage(typeName, id, facet, operation));
         this.id = id;
         this.facet = facet;

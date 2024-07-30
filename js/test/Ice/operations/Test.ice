@@ -282,8 +282,7 @@ interface Echo
     void startBatch();
     void flushBatch();
     void shutdown();
-
-bool supportsCompress();
+    bool supportsCompress();
 }
 
 //

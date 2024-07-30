@@ -5,9 +5,10 @@
 import { Ice as Ice_OperationMode } from "./OperationMode.js";
 const { OperationMode } = Ice_OperationMode;
 import { FormatType } from "./FormatType.js";
-import { UnknownException, MarshalException, OperationNotExistException } from "./LocalExceptions.js";
+import { MarshalException, OperationNotExistException } from "./LocalExceptions.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 import { TypeRegistry } from "./TypeRegistry.js";
+import { Debug } from "./Debug.js";
 
 import {
     ByteHelper,
@@ -157,20 +158,20 @@ class OpTable {
     }
 }
 
-function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses, params, offset) {
+function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses, params) {
     const readParam = (p, optional) => {
         if (optional) {
             if (p.isObject) {
                 throw new MarshalException("cannot unmarshal an optional class");
             } else {
-                params[p.pos + offset] = p.type.readOptional(is, p.tag);
+                params[p.pos] = p.type.readOptional(is, p.tag);
             }
         } else if (p.isObject) {
             is.readValue(obj => {
-                params[p.pos + offset] = obj;
+                params[p.pos] = obj;
             }, p.type);
         } else {
-            params[p.pos + offset] = p.type.read(is);
+            params[p.pos] = p.type.read(is);
         }
     };
 
@@ -233,36 +234,26 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
     }
 }
 
-function dispatchImpl(servant, op, incomingAsync, current) {
+function dispatchImpl(servant, op, request) {
     //
     // Check to make sure the servant implements the operation.
     //
     const method = servant[op.servantMethod];
-    if (method === undefined || typeof method !== "function") {
-        throw new UnknownException(
-            "servant for identity " +
-                current.adapter.getCommunicator().identityToString(current.id) +
-                " does not define operation `" +
-                op.servantMethod +
-                "'",
-        );
-    }
+    Debug.assert(typeof method === "function");
 
     //
     // Unmarshal the in params (if any).
     //
     const params = [];
     if (op.inParams.length === 0) {
-        incomingAsync.readEmptyParams();
+        request.inputStream.skipEmptyEncapsulation();
     } else {
-        const is = incomingAsync.startReadParams();
-        unmarshalParams(is, undefined, op.inParams, op.inParamsOpt, op.sendsClasses, params, 0);
-        incomingAsync.endReadParams();
+        request.inputStream.startEncapsulation();
+        unmarshalParams(request.inputStream, undefined, op.inParams, op.inParamsOpt, op.sendsClasses, params);
+        request.inputStream.endEncapsulation();
     }
 
-    params.push(current);
-
-    incomingAsync.setFormat(op.format);
+    params.push(request.current);
 
     const marshalFn = function (params) {
         const numExpectedResults = op.outParams.length + (op.returns ? 1 : 0);
@@ -276,7 +267,7 @@ function dispatchImpl(servant, op, incomingAsync, current) {
             if (params && params.length > 0) {
                 throw new MarshalException(`operation '${op.servantMethod}' shouldn't return any value`);
             } else {
-                incomingAsync.writeEmptyParams();
+                return request.current.createEmptyOutgoingResponse();
             }
         } else {
             let retvalInfo;
@@ -284,9 +275,10 @@ function dispatchImpl(servant, op, incomingAsync, current) {
                 retvalInfo = op.returns;
             }
 
-            const os = incomingAsync.startWriteParams();
-            marshalParams(os, params, retvalInfo, op.outParams, op.outParamsOpt, op.returnsClasses);
-            incomingAsync.endWriteParams();
+            return request.current.createOutgoingResponseWithResult(
+                ostr => marshalParams(ostr, params, retvalInfo, op.outParams, op.outParamsOpt, op.returnsClasses),
+                op.format,
+            );
         }
     };
 
@@ -294,8 +286,7 @@ function dispatchImpl(servant, op, incomingAsync, current) {
     if (results instanceof Promise) {
         return results.then(marshalFn);
     } else {
-        marshalFn(results);
-        return null;
+        return marshalFn(results);
     }
 }
 
@@ -391,8 +382,18 @@ function getServantMethod(servantType, name) {
         }
 
         if (op !== undefined) {
-            method = function (servant, incomingAsync, current) {
-                return dispatchImpl(servant, op, incomingAsync, current);
+            method = async function (servant, request) {
+                try {
+                    const result = dispatchImpl(servant, op, request);
+                    if (result instanceof Promise) {
+                        return await result;
+                    }
+                    return result;
+                } catch (ex) {
+                    const communicator = request.current.adapter.getCommunicator();
+                    Debug.assert(communicator !== null);
+                    return request.current.createOutgoingResponseWithException(ex, communicator);
+                }
             };
 
             //
@@ -466,7 +467,7 @@ function addProxyOperation(proxyType, name, data) {
                 if (op.returns && !op.returns.tag) {
                     retvalInfo = op.returns;
                 }
-                unmarshalParams(is, retvalInfo, op.outParams, op.outParamsOpt, op.returnsClasses, results, 0);
+                unmarshalParams(is, retvalInfo, op.outParams, op.outParamsOpt, op.returnsClasses, results);
                 asyncResult.endReadParams();
                 return results.length == 1 ? results[0] : results;
             };
@@ -490,17 +491,17 @@ export function defineOperations(classType, proxyType, ids, id, ops) {
         classType._iceOps = new OpTable(ops);
     }
 
-    classType.prototype._iceDispatch = function (incomingAsync, current) {
+    classType.prototype.dispatch = function (request) {
         //
         // Retrieve the dispatch method for this operation.
         //
-        const method = getServantMethod(classType, current.operation);
+        const method = getServantMethod(classType, request.current.operation);
 
         if (method === undefined || typeof method !== "function") {
-            throw new OperationNotExistException(current.id, current.facet, current.operation);
+            throw new OperationNotExistException(request.current.id, request.current.facet, request.current.operation);
         }
 
-        return method.call(method, this, incomingAsync, current);
+        return method.call(method, this, request);
     };
 
     classType.prototype._iceMostDerivedType = function () {
