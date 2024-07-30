@@ -4,6 +4,7 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.ProtocolException;
 import com.zeroc.IceUtilInternal.Base64;
 import java.security.*;
 
@@ -117,7 +118,7 @@ final class WSTransceiver implements Transceiver {
             //
             final int oldSize = _readBuffer.b.position();
             if (oldSize + 1024 > _instance.messageSizeMax()) {
-              throw new com.zeroc.Ice.MemoryLimitException();
+              Ex.throwMemoryLimitException(oldSize + 1024, _instance.messageSizeMax());
             }
             _readBuffer.resize(oldSize + 1024, true);
             _readBuffer.position(oldSize);
@@ -145,7 +146,7 @@ final class WSTransceiver implements Transceiver {
             handleRequest(_writeBuffer);
             _state = StateUpgradeResponsePending;
           } else {
-            throw new com.zeroc.Ice.ProtocolException("incomplete request message");
+            throw new ProtocolException("incomplete request message");
           }
         }
 
@@ -164,12 +165,12 @@ final class WSTransceiver implements Transceiver {
             if (_parser.parse(_readBuffer.b, 0, _readBufferPos)) {
               handleResponse();
             } else {
-              throw new com.zeroc.Ice.ProtocolException("incomplete response message");
+              throw new ProtocolException("incomplete response message");
             }
           }
         }
       } catch (WebSocketException ex) {
-        throw new com.zeroc.Ice.ProtocolException(ex.getMessage(), ex);
+        throw new ProtocolException(ex.getMessage(), ex);
       }
 
       _state = StateOpened;
@@ -242,10 +243,8 @@ final class WSTransceiver implements Transceiver {
     } else if (reason instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException
         || reason instanceof com.zeroc.Ice.CommunicatorDestroyedException) {
       _closingReason = CLOSURE_SHUTDOWN;
-    } else if (reason instanceof com.zeroc.Ice.ProtocolException) {
+    } else if (reason instanceof ProtocolException) {
       _closingReason = CLOSURE_PROTOCOL_ERROR;
-    } else if (reason instanceof com.zeroc.Ice.MemoryLimitException) {
-      _closingReason = CLOSURE_TOO_BIG;
     }
 
     if (_state == StateOpened) {
@@ -725,13 +724,13 @@ final class WSTransceiver implements Transceiver {
         //
         if (_readOpCode == OP_DATA) {
           if (!_readLastFrame) {
-            throw new com.zeroc.Ice.ProtocolException(
+            throw new ProtocolException(
                 "invalid data frame, no FIN on previous frame");
           }
           _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
         } else if (_readOpCode == OP_CONT) {
           if (_readLastFrame) {
-            throw new com.zeroc.Ice.ProtocolException(
+            throw new ProtocolException(
                 "invalid continuation frame, previous frame FIN set");
           }
           _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
@@ -748,7 +747,7 @@ final class WSTransceiver implements Transceiver {
         //
         final boolean masked = (ch & FLAG_MASKED) == FLAG_MASKED;
         if (masked != _incoming) {
-          throw new com.zeroc.Ice.ProtocolException("invalid masking");
+          throw new ProtocolException("invalid masking");
         }
 
         //
@@ -791,7 +790,7 @@ final class WSTransceiver implements Transceiver {
           long l = _readBuffer.b.getLong(_readBufferPos); // Uses network byte order.
           _readBufferPos += 8;
           if (l < 0 || l > Integer.MAX_VALUE) {
-            throw new com.zeroc.Ice.ProtocolException("invalid WebSocket payload length: " + l);
+            throw new ProtocolException("invalid WebSocket payload length: " + l);
           }
           _readPayloadLength = (int) l;
         }
@@ -810,7 +809,7 @@ final class WSTransceiver implements Transceiver {
         switch (_readOpCode) {
           case OP_TEXT: // Text frame
             {
-              throw new com.zeroc.Ice.ProtocolException("text frames not supported");
+              throw new ProtocolException("text frames not supported");
             }
           case OP_CONT: // Continuation frame
           case OP_DATA: // Data frame
@@ -830,7 +829,7 @@ final class WSTransceiver implements Transceiver {
               }
 
               if (_readPayloadLength <= 0) {
-                throw new com.zeroc.Ice.ProtocolException("payload length is 0");
+                throw new ProtocolException("payload length is 0");
               }
               _readState = ReadStatePayload;
               assert (buf.b.hasRemaining());
@@ -893,7 +892,7 @@ final class WSTransceiver implements Transceiver {
             }
           default:
             {
-              throw new com.zeroc.Ice.ProtocolException("unsupported opcode: " + _readOpCode);
+              throw new ProtocolException("unsupported opcode: " + _readOpCode);
             }
         }
       }
@@ -1391,7 +1390,6 @@ final class WSTransceiver implements Transceiver {
   private static final int CLOSURE_NORMAL = 1000;
   private static final int CLOSURE_SHUTDOWN = 1001;
   private static final int CLOSURE_PROTOCOL_ERROR = 1002;
-  private static final int CLOSURE_TOO_BIG = 1009;
 
   private static final String _iceProtocol = "ice.zeroc.com";
   private static final String _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";

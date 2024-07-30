@@ -149,7 +149,7 @@ export class ReferenceFactory {
         }
 
         //
-        // Parsing the identity may raise IdentityParseException.
+        // Parsing the identity may raise ParseException.
         //
         const ident = stringToIdentity(idstr);
 
@@ -321,7 +321,7 @@ export class ReferenceFactory {
                     try {
                         protocol = stringToProtocolVersion(argument);
                     } catch (
-                        e // VersionParseException
+                        e // ParseException
                     ) {
                         throw new ParseException(`invalid protocol version '${argument}' in '${s}'`, e);
                     }

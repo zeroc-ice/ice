@@ -388,7 +388,7 @@ public class OutputStream {
    */
   public void writeEncapsulation(byte[] v) {
     if (v.length < 6) {
-      throw new EncapsulationException();
+      throw new MarshalException("A byte sequence with " + v.length + " bytes is not a valid encapsulation.");
     }
     expand(v.length);
     _buf.b.put(v);

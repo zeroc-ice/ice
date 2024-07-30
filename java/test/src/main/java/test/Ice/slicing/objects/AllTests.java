@@ -253,7 +253,7 @@ public class AllTests {
         //
         test.SBSUnknownDerivedAsSBaseCompact();
         test(false);
-      } catch (com.zeroc.Ice.NoValueFactoryException ex) {
+      } catch (com.zeroc.Ice.MarshalException ex) {
         // Expected.
       } catch (com.zeroc.Ice.OperationNotExistException ex) {
       } catch (Exception ex) {
@@ -303,7 +303,7 @@ public class AllTests {
                 test(ex != null);
                 test(
                     ex instanceof com.zeroc.Ice.OperationNotExistException
-                        || ex instanceof com.zeroc.Ice.NoValueFactoryException);
+                        || ex instanceof com.zeroc.Ice.MarshalException);
                 cb.called();
               });
       cb.check();
@@ -321,7 +321,7 @@ public class AllTests {
         test(((com.zeroc.Ice.UnknownSlicedValue) o).ice_id().equals("::Test::SUnknown"));
         test(((com.zeroc.Ice.UnknownSlicedValue) o).ice_getSlicedData() != null);
         test.checkSUnknown(o);
-      } catch (com.zeroc.Ice.NoValueFactoryException ex) {
+      } catch (com.zeroc.Ice.MarshalException ex) {
         test(test.ice_getEncodingVersion().equals(Util.Encoding_1_0));
       } catch (Exception ex) {
         test(false);
@@ -338,10 +338,7 @@ public class AllTests {
             .whenComplete(
                 (result, ex) -> {
                   test(ex != null);
-                  test(
-                      ((com.zeroc.Ice.LocalException) ex)
-                          .ice_id()
-                          .equals("::Ice::NoValueFactoryException"));
+                  test(ex.cause instanceof com.zeroc.Ice.MarshalException);
                   cb.called();
                 });
         cb.check();

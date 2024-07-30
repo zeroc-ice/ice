@@ -957,10 +957,8 @@ public class AllTests {
       {
         //
         // Local case: start an operation and then close the connection gracefully on the client
-        // side
-        // without waiting for the pending invocation to complete. There will be no retry and we
-        // expect the
-        // invocation to fail with ConnectionManuallyClosedException.
+        // side without waiting for the pending invocation to complete. There will be no retry and we
+        // expect the invocation to fail with ConnectionClosedException.
         //
         p = p.ice_connectionId("CloseGracefully"); // Start with a new connection.
         com.zeroc.Ice.Connection con = p.ice_getConnection();
@@ -972,8 +970,8 @@ public class AllTests {
           f.join();
           test(false);
         } catch (CompletionException ex) {
-          test(ex.getCause() instanceof com.zeroc.Ice.ConnectionManuallyClosedException);
-          test(((com.zeroc.Ice.ConnectionManuallyClosedException) ex.getCause()).graceful);
+          test(ex.getCause() instanceof com.zeroc.Ice.ConnectionClosedException);
+          test(((com.zeroc.Ice.ConnectionClosedException) ex.getCause()).closedByApplication);
         } catch (Throwable ex) {
           test(false);
         }
@@ -999,8 +997,7 @@ public class AllTests {
         //
         // Local case: start an operation and then close the connection forcefully on the client
         // side.
-        // There will be no retry and we expect the invocation to fail with
-        // ConnectionManuallyClosedException.
+        // There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
         //
         p.ice_ping();
         com.zeroc.Ice.Connection con = p.ice_getConnection();
@@ -1012,8 +1009,8 @@ public class AllTests {
           f.join();
           test(false);
         } catch (CompletionException ex) {
-          test(ex.getCause() instanceof com.zeroc.Ice.ConnectionManuallyClosedException);
-          test(!((com.zeroc.Ice.ConnectionManuallyClosedException) ex.getCause()).graceful);
+          test(ex.getCause() instanceof com.zeroc.Ice.ConnectionAbortedException);
+          test(!((com.zeroc.Ice.ConnectionAbortedException) ex.getCause()).closedByApplication);
         } catch (Throwable ex) {
           test(false);
         }

@@ -8,8 +8,16 @@ package com.zeroc.Ice;
 public abstract class LocalException extends Exception {
   public LocalException() {}
 
+  public LocalException(String message) {
+    super(message);
+  }
+
   public LocalException(Throwable cause) {
     super(cause);
+  }
+
+  public LocalException(String message, Throwable cause) {
+    super(message, cause);
   }
 
   private static final long serialVersionUID = 0L;

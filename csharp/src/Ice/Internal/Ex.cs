@@ -8,7 +8,7 @@ public static class Ex
 {
     public static void throwUOE(Type expectedType, Ice.Value v)
     {
-        // If the object is an unknown sliced object, we didn't find an value factory.
+        // If the object is an unknown sliced object, we didn't find a value factory.
         if (v is UnknownSlicedValue usv)
         {
             throw new MarshalException($"Cannot find value factory to unmarshal class with type ID '{usv.ice_id()}'.");

@@ -508,10 +508,10 @@ public class InputStream {
     //
     int sz = readInt();
     if (sz < 6) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE);
     }
     if (sz - 4 > _buf.b.remaining()) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE);
     }
     _encapsStack.sz = sz;
 
@@ -529,11 +529,11 @@ public class InputStream {
     if (!_encapsStack.encoding_1_0) {
       skipOptionals();
       if (_buf.b.position() != _encapsStack.start + _encapsStack.sz) {
-        throw new EncapsulationException();
+        throw new MarshalException("Failed to unmarshal encapsulation.");
       }
     } else if (_buf.b.position() != _encapsStack.start + _encapsStack.sz) {
       if (_buf.b.position() + 1 != _encapsStack.start + _encapsStack.sz) {
-        throw new EncapsulationException();
+        throw new MarshalException("Failed to unmarshal encapsulation.");
       }
 
       //
@@ -545,7 +545,7 @@ public class InputStream {
       try {
         _buf.b.get();
       } catch (java.nio.BufferUnderflowException ex) {
-        throw new UnmarshalOutOfBoundsException();
+        throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
       }
     }
 
@@ -564,10 +564,10 @@ public class InputStream {
   public EncodingVersion skipEmptyEncapsulation() {
     int sz = readInt();
     if (sz < 6) {
-      throw new EncapsulationException();
+      throw new MarshalException(sz + " is not a valid encapsulation size.");
     }
     if (sz - 4 > _buf.b.remaining()) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE);
     }
 
     EncodingVersion encoding = EncodingVersion.ice_read(this);
@@ -575,7 +575,7 @@ public class InputStream {
 
     if (encoding.equals(Util.Encoding_1_0)) {
       if (sz != 6) {
-        throw new EncapsulationException();
+        throw new MarshalException(sz + "is not a valid encapsulation size for a 1.0 empty encapsulation.");
       }
     } else {
       //
@@ -597,11 +597,11 @@ public class InputStream {
   public byte[] readEncapsulation(EncodingVersion encoding) {
     int sz = readInt();
     if (sz < 6) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE);
     }
 
     if (sz - 4 > _buf.b.remaining()) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE);
     }
 
     if (encoding != null) {
@@ -616,7 +616,7 @@ public class InputStream {
       _buf.b.get(v);
       return v;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -647,13 +647,13 @@ public class InputStream {
   public EncodingVersion skipEncapsulation() {
     int sz = readInt();
     if (sz < 6) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE);
     }
     EncodingVersion encoding = EncodingVersion.ice_read(this);
     try {
       _buf.position(_buf.b.position() + sz - 6);
     } catch (IllegalArgumentException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
     return encoding;
   }
@@ -717,14 +717,14 @@ public class InputStream {
       if (b == -1) {
         int v = _buf.b.getInt();
         if (v < 0) {
-          throw new UnmarshalOutOfBoundsException();
+          throw new MarshalException(END_OF_BUFFER_MESSAGE);
         }
         return v;
       } else {
         return b < 0 ? b + 256 : b;
       }
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -771,7 +771,7 @@ public class InputStream {
     // data: it's claiming having more data that what is possible to read.
     //
     if (_startSeq + _minSeqSize > _buf.size()) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE);
     }
 
     return sz;
@@ -785,14 +785,14 @@ public class InputStream {
    */
   public byte[] readBlob(int sz) {
     if (_buf.b.remaining() < sz) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE);
     }
     byte[] v = new byte[sz];
     try {
       _buf.b.get(v);
       return v;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -821,7 +821,7 @@ public class InputStream {
     try {
       return _buf.b.get();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -851,7 +851,7 @@ public class InputStream {
       _buf.b.get(v);
       return v;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -884,7 +884,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz);
       return v.asReadOnlyBuffer();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -947,7 +947,7 @@ public class InputStream {
     try {
       return _buf.b.get() == 1;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -979,7 +979,7 @@ public class InputStream {
       }
       return v;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1006,7 +1006,7 @@ public class InputStream {
     try {
       return _buf.b.getShort();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1038,7 +1038,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 2);
       return v;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1073,7 +1073,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 2);
       return v.asReadOnlyBuffer();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1086,7 +1086,7 @@ public class InputStream {
     try {
       return _buf.b.getInt();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1118,7 +1118,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 4);
       return v;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1153,7 +1153,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 4);
       return v.asReadOnlyBuffer();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1166,7 +1166,7 @@ public class InputStream {
     try {
       return _buf.b.getLong();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1198,7 +1198,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 8);
       return v;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1233,7 +1233,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 8);
       return v.asReadOnlyBuffer();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1246,7 +1246,7 @@ public class InputStream {
     try {
       return _buf.b.getFloat();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1278,7 +1278,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 4);
       return v;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1313,7 +1313,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 4);
       return v.asReadOnlyBuffer();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1326,7 +1326,7 @@ public class InputStream {
     try {
       return _buf.b.getDouble();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1358,7 +1358,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 8);
       return v;
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1393,7 +1393,7 @@ public class InputStream {
       _buf.position(_buf.b.position() + sz * 8);
       return v.asReadOnlyBuffer();
     } catch (java.nio.BufferUnderflowException ex) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
     }
   }
 
@@ -1414,7 +1414,7 @@ public class InputStream {
       // Check the buffer has enough bytes to read.
       //
       if (_buf.b.remaining() < len) {
-        throw new UnmarshalOutOfBoundsException();
+        throw new MarshalException(END_OF_BUFFER_MESSAGE);
       }
 
       try {
@@ -1460,7 +1460,7 @@ public class InputStream {
         assert (false);
         return "";
       } catch (java.nio.BufferUnderflowException ex) {
-        throw new UnmarshalOutOfBoundsException();
+        throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
       }
     }
   }
@@ -1753,7 +1753,7 @@ public class InputStream {
    */
   public void skip(int size) {
     if (size < 0 || size > _buf.b.remaining()) {
-      throw new UnmarshalOutOfBoundsException();
+      throw new MarshalException(END_OF_BUFFER_MESSAGE);
     }
     _buf.position(_buf.b.position() + size);
   }
@@ -1887,7 +1887,7 @@ public class InputStream {
         int index = _stream.readSize();
         String typeId = _typeIdMap.get(index);
         if (typeId == null) {
-          throw new UnmarshalOutOfBoundsException();
+          throw new MarshalException(END_OF_BUFFER_MESSAGE);
         }
         return typeId;
       } else {
@@ -1915,7 +1915,7 @@ public class InputStream {
             _typeIdCache.put(typeId, cls != null ? cls : EncapsDecoder.class);
           }
         } catch (java.lang.Exception ex) {
-          throw new NoValueFactoryException("no value factory", typeId, ex);
+          throw new MarshalException("Failed to create a class with type ID '" + typeId + "'.", ex);
         }
       }
 
@@ -1953,7 +1953,7 @@ public class InputStream {
           try {
             v = (Value) cls.getDeclaredConstructor().newInstance();
           } catch (java.lang.Exception ex) {
-            throw new NoValueFactoryException("no value factory", typeId, ex);
+            throw new MarshalException("Failed to create a class with type ID '" + typeId + "'.", ex);
           }
         }
       }
@@ -2175,17 +2175,12 @@ public class InputStream {
         skipSlice();
         try {
           startSlice();
-        } catch (UnmarshalOutOfBoundsException ex) {
+        } catch (MarshalException ex) {
           //
           // An oversight in the 1.0 encoding means there is no marker to indicate
           // the last slice of an exception. As a result, we just try to read the
-          // next type ID, which raises UnmarshalOutOfBoundsException when the
-          // input buffer underflows.
-          //
-          // Set the reason member to a more helpful message.
-          //
-          ex.reason = "unknown exception type `" + mostDerivedId + "'";
-          throw ex;
+          // next type ID, which raises MarshalException when the input buffer underflows.
+          throw new MarshalException("unknown exception type '" + mostDerivedId + "'");
         }
       }
     }
@@ -2242,7 +2237,7 @@ public class InputStream {
 
       _sliceSize = _stream.readInt();
       if (_sliceSize < 4) {
-        throw new UnmarshalOutOfBoundsException();
+        throw new MarshalException(END_OF_BUFFER_MESSAGE);
       }
 
       return _typeId;
@@ -2300,7 +2295,7 @@ public class InputStream {
         // marks the last slice.
         //
         if (_typeId.equals(Value.ice_staticId())) {
-          throw new NoValueFactoryException("", mostDerivedId);
+          throw new MarshalException("Cannot find value factory for type ID '" + mostDerivedId + "'.");
         }
 
         v = newInstance(_typeId);
@@ -2520,7 +2515,7 @@ public class InputStream {
       if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0) {
         _current.sliceSize = _stream.readInt();
         if (_current.sliceSize < 4) {
-          throw new UnmarshalOutOfBoundsException();
+          throw new MarshalException(END_OF_BUFFER_MESSAGE);
         }
       } else {
         _current.sliceSize = 0;
@@ -2588,10 +2583,7 @@ public class InputStream {
         _stream.skip(_current.sliceSize - 4);
       } else {
         if (_current.sliceType == SliceType.ValueSlice) {
-          throw new NoValueFactoryException(
-              "no value factory found and compact format prevents "
-                  + "slicing (the sender should use the sliced format instead)",
-              _current.typeId);
+          throw new MarshalException("Cannot find value factory for type ID '" + _current.typeId + "' and compact format prevents slicing.");
         } else {
           throw new MarshalException(
               "cannot find user exception for type ID '" + _current.typeId + "'");
@@ -2713,8 +2705,7 @@ public class InputStream {
                 v = (Value) cls.getDeclaredConstructor().newInstance();
                 updateCache = false;
               } catch (java.lang.Exception ex) {
-                throw new NoValueFactoryException(
-                    "no value factory", "compact ID " + _current.compactId, ex);
+                throw new MarshalException("Cannot find value factory for type ID '" + _current.compactID + "' and compact format prevents slicing.");
               }
             }
           }
@@ -2981,4 +2972,6 @@ public class InputStream {
   private Logger _logger;
   private java.util.function.IntFunction<String> _compactIdResolver;
   private java.util.function.Function<String, Class<?>> _classResolver;
+
+  private static final END_OF_BUFFER_MESSAGE = "Attempting to unmarshal past the end of the buffer.";
 }

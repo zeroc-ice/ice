@@ -116,19 +116,19 @@ public final class Protocol {
 
   public static void checkSupportedProtocol(ProtocolVersion v) {
     if (v.major != currentProtocol.major || v.minor > currentProtocol.minor) {
-      throw new com.zeroc.Ice.UnsupportedProtocolException("", v, currentProtocol);
+      throw new com.zeroc.Ice.MarshalException("This Ice runtime does not support protocol version " + v.major + "." + v.minor);
     }
   }
 
   public static void checkSupportedProtocolEncoding(EncodingVersion v) {
     if (v.major != currentProtocolEncoding.major || v.minor > currentProtocolEncoding.minor) {
-      throw new com.zeroc.Ice.UnsupportedEncodingException("", v, currentProtocolEncoding);
+      throw new com.zeroc.Ice.MarshalException("This Ice runtime does not support encoding version " + v.major + "." + v.minor);
     }
   }
 
   public static void checkSupportedEncoding(EncodingVersion v) {
     if (v.major != currentEncoding.major || v.minor > currentEncoding.minor) {
-      throw new com.zeroc.Ice.UnsupportedEncodingException("", v, currentEncoding);
+      throw new com.zeroc.Ice.MarshalException("This Ice runtime does not support encoding version " + v.major + "." + v.minor);
     }
   }
 

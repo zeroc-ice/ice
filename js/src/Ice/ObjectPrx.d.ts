@@ -10,7 +10,7 @@ declare module "ice" {
              * @param communicator - The communicator for the new proxy.
              * @param proxyString - The string representation of the proxy.
              * @returns The new proxy.
-             * @throws ProxyParseException - Thrown if the proxyString is not a valid proxy string.
+             * @throws ParseException - Thrown if the proxyString is not a valid proxy string.
              */
             constructor(communicator: Communicator, proxyString: string);
 

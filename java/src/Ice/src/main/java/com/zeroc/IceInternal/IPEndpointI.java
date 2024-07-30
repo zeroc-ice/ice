@@ -5,6 +5,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.EndpointSelectionType;
+import com.zeroc.Ice.ParseException;
 
 public abstract class IPEndpointI extends EndpointI {
   protected IPEndpointI(
@@ -279,8 +280,7 @@ public abstract class IPEndpointI extends EndpointI {
       if (oaEndpoint) {
         _host = "";
       } else {
-        throw new com.zeroc.Ice.EndpointParseException(
-            "`-h *' not valid for proxy endpoint `" + toString() + "'");
+        throw new ParseException("'-h *' not valid for proxy endpoint '" + toString() + "'");
       }
     }
 
@@ -293,8 +293,7 @@ public abstract class IPEndpointI extends EndpointI {
         _sourceAddr = _instance.defaultSourceAddress();
       }
     } else if (oaEndpoint) {
-      throw new com.zeroc.Ice.EndpointParseException(
-          "`--sourceAddress' not valid for object adapter endpoint `" + toString() + "'");
+      throw new ParseException("'--sourceAddress' not valid for object adapter endpoint '" + toString() + "'");
     }
   }
 
@@ -302,36 +301,30 @@ public abstract class IPEndpointI extends EndpointI {
   protected boolean checkOption(String option, String argument, String endpoint) {
     if (option.equals("-h")) {
       if (argument == null) {
-        throw new com.zeroc.Ice.EndpointParseException(
-            "no argument provided for -h option in endpoint " + endpoint);
+        throw new ParseException("no argument provided for -h option in endpoint '" + endpoint + "'");
       }
       _host = argument;
     } else if (option.equals("-p")) {
       if (argument == null) {
-        throw new com.zeroc.Ice.EndpointParseException(
-            "no argument provided for -p option in endpoint " + endpoint);
+        throw new ParseException("no argument provided for -p option in endpoint '" + endpoint + "'");
       }
 
       try {
         _port = Integer.parseInt(argument);
       } catch (NumberFormatException ex) {
-        throw new com.zeroc.Ice.EndpointParseException(
-            "invalid port value `" + argument + "' in endpoint " + endpoint);
+        throw new ParseException("invalid port value '" + argument + "' in endpoint '" + endpoint + "'", ex);
       }
 
       if (_port < 0 || _port > 65535) {
-        throw new com.zeroc.Ice.EndpointParseException(
-            "port value `" + argument + "' out of range in endpoint " + endpoint);
+        throw new ParseException("port value '" + argument + "' out of range in endpoint '" + endpoint + "'");
       }
     } else if (option.equals("--sourceAddress")) {
       if (argument == null) {
-        throw new com.zeroc.Ice.EndpointParseException(
-            "no argument provided for --sourceAddress option in endpoint " + endpoint);
+        throw new ParseException("no argument provided for --sourceAddress option in endpoint '" + endpoint + "'");
       }
       _sourceAddr = Network.getNumericAddress(argument);
       if (_sourceAddr == null) {
-        throw new com.zeroc.Ice.EndpointParseException(
-            "invalid IP address provided for --sourceAddress option in endpoint " + endpoint);
+        throw new ParseException("invalid IP address provided for --sourceAddress option in endpoint " + endpoint);
       }
     } else {
       return false;

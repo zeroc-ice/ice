@@ -242,9 +242,9 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
         // locally (because if it happened in a server it would result in an UnknownLocalException  instead), which
         // means there was a problem in this process that will not change if we try again.
         //
-        // The most likely cause for a MarshalException is exceeding the maximum message size, which is represented by
-        // the subclass MemoryLimitException. For example, a client can attempt to send a message that exceeds the
-        // maximum memory size, or accumulate enough batch requests without flushing before the maximum size is reached.
+        // The most likely cause for a MarshalException is exceeding the maximum message size. For example, a client
+        // can attempt to send a message that exceeds the maximum memory size, or accumulate enough batch requests
+        // without flushing before the maximum size is reached.
         //
         // This latter case is especially problematic, because if we were to retry a batch request after a
         // MarshalException, we would in fact silently discard the accumulated requests and allow new batch requests to

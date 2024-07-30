@@ -4,12 +4,12 @@ package com.zeroc.Ice;
 
 /** This exception indicates that a connection was aborted by the idle check. */
 public class ConnectionIdleException extends LocalException {
-  public ConnectionIdleException() {
-    super();
+  public ConnectionIdleException(String message) {
+    super(message);
   }
 
-  public ConnectionIdleException(Throwable cause) {
-    super(cause);
+  public ConnectionIdleException(String message, Throwable cause) {
+    super(message, cause);
   }
 
   public String ice_id() {

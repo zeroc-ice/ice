@@ -405,8 +405,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     // in this process that will not change if we try again.
     //
     // The most likely cause for a MarshalException is exceeding the
-    // maximum message size, which is represented by the subclass
-    // MemoryLimitException. For example, a client can attempt to send
+    // maximum message size. For example, a client can attempt to send
     // a message that exceeds the maximum memory size, or accumulate
     // enough batch requests without flushing that the maximum size is
     // reached.
@@ -422,12 +421,23 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
       throw ex;
     }
 
-    // Don't retry if the communicator is destroyed, object adapter is deactivated,
-    // or connection is manually closed.
-    if (ex instanceof CommunicatorDestroyedException
-        || ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException
-        || ex instanceof com.zeroc.Ice.ConnectionManuallyClosedException) {
+    // Don't retry if the communicator is destroyed or object adapter is deactivated.
+    if (ex instanceof CommunicatorDestroyedException || ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException) {
       throw ex;
+    }
+
+    // Don't retry is the connection was closed by the application.
+    if (ex instanceof com.zeroc.Ice.ConnectionAbortedException) {
+      var e = (com.zeroc.Ice.ConnectionAbortedException)ex;
+      if (e.closedByApplication) {
+        throw ex;
+      }
+    }
+    if (ex instanceof com.zeroc.Ice.ConnectionClosedException) {
+      var e = (com.zeroc.Ice.ConnectionClosedException)ex;
+      if (e.closedByApplication) {
+        throw ex;
+      }
     }
 
     // Don't retry invocation timeouts.

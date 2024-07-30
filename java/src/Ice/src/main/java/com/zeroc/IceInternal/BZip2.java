@@ -44,7 +44,7 @@ public class BZip2 {
       os.close();
       compressedLen = bos.pos();
     } catch (Exception ex) {
-      throw new com.zeroc.Ice.CompressionException("bzip2 compression failure", ex);
+      throw new com.zeroc.Ice.ProtocolException("bzip2 compression failure", ex);
     }
 
     //
@@ -83,7 +83,7 @@ public class BZip2 {
     buf.position(headerSize);
     int uncompressedSize = buf.b.getInt();
     if (uncompressedSize <= headerSize) {
-      throw new com.zeroc.Ice.IllegalMessageSizeException();
+      throw new com.zeroc.Ice.MarshalException("Unexpected message size after uncompress: " + uncompressedSize);
     }
     if (uncompressedSize > messageSizeMax) {
       Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
@@ -132,7 +132,7 @@ public class BZip2 {
       }
       is.close();
     } catch (Exception ex) {
-      throw new com.zeroc.Ice.CompressionException("bzip2 uncompression failure", ex);
+      throw new com.zeroc.Ice.ProtocolException("bzip2 uncompression failure", ex);
     }
 
     //

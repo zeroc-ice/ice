@@ -329,7 +329,7 @@ public final class Instance implements java.util.function.Function<String, Class
       }
 
       if (adminIdentity == null || adminIdentity.name == null || adminIdentity.name.isEmpty()) {
-        throw new com.zeroc.Ice.IllegalIdentityException(adminIdentity);
+        throw new IllegalArgumentException("The admin identity '" + adminIdentity + "' is not valid");
       }
 
       if (_adminAdapter != null) {

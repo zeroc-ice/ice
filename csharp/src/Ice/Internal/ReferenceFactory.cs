@@ -203,7 +203,7 @@ public class ReferenceFactory
                     end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
                     if (end == -1)
                     {
-                        throw new ParseException($"mismatched quotes around value for '{option}' option in proxy string '{s}'");
+                        throw new ParseException($"mismatched quotes around value for {option} option in proxy string '{s}'");
                     }
                     else if (end == 0)
                     {

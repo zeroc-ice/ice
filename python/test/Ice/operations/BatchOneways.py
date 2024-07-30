@@ -54,6 +54,7 @@ def batchOneways(p):
 
     try:
         p.opByteSOneway(bs1)
+    # TODO: Should this `MarshalException` now that we refactored all the exceptions?
     except Ice.MemoryLimitException:
         test(False)
 

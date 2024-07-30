@@ -8,6 +8,7 @@ import com.zeroc.Ice.EncodingVersion;
 import com.zeroc.Ice.EndpointSelectionType;
 import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.ObjectPrx;
+import ParseException;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
 import test.Ice.proxy.Test.DiamondClassPrx;
@@ -62,7 +63,7 @@ public class AllTests {
     try {
       b1 = communicator.stringToProxy("\"test -f facet'");
       test(false);
-    } catch (com.zeroc.Ice.ProxyParseException ex) {
+    } catch (ParseException ex) {
     }
     b1 = communicator.stringToProxy("\"test -f facet\"");
     test(
@@ -82,14 +83,14 @@ public class AllTests {
     try {
       b1 = communicator.stringToProxy("test test");
       test(false);
-    } catch (com.zeroc.Ice.ProxyParseException ex) {
+    } catch (ParseException ex) {
     }
     b1 = communicator.stringToProxy("test\\040test");
     test(b1.ice_getIdentity().name.equals("test test") && b1.ice_getIdentity().category.isEmpty());
     try {
       b1 = communicator.stringToProxy("test\\777");
       test(false);
-    } catch (com.zeroc.Ice.IdentityParseException ex) {
+    } catch (ParseException ex) {
     }
     b1 = communicator.stringToProxy("test\\40test");
     test(b1.ice_getIdentity().name.equals("test test"));
@@ -130,12 +131,12 @@ public class AllTests {
     try {
       b1 = communicator.stringToProxy("\"\" test"); // Invalid trailing characters.
       test(false);
-    } catch (com.zeroc.Ice.ProxyParseException ex) {
+    } catch (ParseException ex) {
     }
     try {
       b1 = communicator.stringToProxy("test:"); // Missing endpoint.
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     b1 = communicator.stringToProxy("test@adapter");
@@ -146,7 +147,7 @@ public class AllTests {
     try {
       b1 = communicator.stringToProxy("id@adapter test");
       test(false);
-    } catch (com.zeroc.Ice.ProxyParseException ex) {
+    } catch (ParseException ex) {
     }
     b1 = communicator.stringToProxy("category/test@adapter");
     test(
@@ -202,12 +203,12 @@ public class AllTests {
     try {
       b1 = communicator.stringToProxy("id -f \"facet x");
       test(false);
-    } catch (com.zeroc.Ice.ProxyParseException ex) {
+    } catch (ParseException ex) {
     }
     try {
       b1 = communicator.stringToProxy("id -f \'facet x");
       test(false);
-    } catch (com.zeroc.Ice.ProxyParseException ex) {
+    } catch (ParseException ex) {
     }
     b1 = communicator.stringToProxy("test -f facet:tcp");
     test(
@@ -242,7 +243,7 @@ public class AllTests {
     try {
       b1 = communicator.stringToProxy("test -f facet@test @test");
       test(false);
-    } catch (com.zeroc.Ice.ProxyParseException ex) {
+    } catch (ParseException ex) {
     }
     b1 = communicator.stringToProxy("test");
     test(b1.ice_isTwoway());
@@ -278,7 +279,7 @@ public class AllTests {
     try {
       communicator.stringToProxy("test:tcp@adapterId");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
     // This is an unknown endpoint warning, not a parse exception.
     //
@@ -287,13 +288,13 @@ public class AllTests {
     //   b1 = communicator.stringToProxy("test -f the:facet:tcp");
     //   test(false);
     // }
-    // catch(com.zeroc.Ice.EndpointParseException ex)
+    // catch(ParseException ex)
     // {
     // }
     try {
       communicator.stringToProxy("test: :tcp");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     //
@@ -302,19 +303,19 @@ public class AllTests {
     try {
       communicator.createObjectAdapterWithEndpoints("BadAdapter", " : ");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       communicator.createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       communicator.createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     //
@@ -344,14 +345,14 @@ public class AllTests {
       // Illegal character < 32
       id = com.zeroc.Ice.Util.stringToIdentity("xx\01FooBar");
       test(false);
-    } catch (com.zeroc.Ice.IdentityParseException e) {
+    } catch (ParseException e) {
     }
 
     try {
       // Illegal surrogate
       id = com.zeroc.Ice.Util.stringToIdentity("xx\\ud911");
       test(false);
-    } catch (com.zeroc.Ice.IdentityParseException e) {
+    } catch (ParseException e) {
     }
 
     // Testing bytes 127 (\x7F, \177) and €
@@ -891,8 +892,8 @@ public class AllTests {
     try {
       cl20.ice_ping();
       test(false);
-    } catch (com.zeroc.Ice.UnsupportedEncodingException ex) {
-      // Server 2.0 endpoint doesn't support 1.1 version.
+    } catch (com.zeroc.Ice.MarshalException ex) {
+      // Cannot marshal with the 2.0 encoding version.
     }
 
     String ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
@@ -920,11 +921,9 @@ public class AllTests {
       cl.ice_invoke("ice_ping", com.zeroc.Ice.OperationMode.Normal, inEncaps);
       test(false);
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
-      // TODO: remove UnsupportedEncodingException
       test(
           ex.unknown.contains("::Ice::MarshalException")
-              || ex.unknown.contains("Ice.MarshalException")
-              || ex.unknown.contains("UnsupportedEncodingException"));
+              || ex.unknown.contains("Ice.MarshalException"));
     }
 
     try {
@@ -939,11 +938,9 @@ public class AllTests {
       cl.ice_invoke("ice_ping", com.zeroc.Ice.OperationMode.Normal, inEncaps);
       test(false);
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
-      // TODO: remove UnsupportedEncodingException
       test(
           ex.unknown.contains("::Ice::MarshalException")
-              || ex.unknown.contains("Ice.MarshalException")
-              || ex.unknown.contains("UnsupportedEncodingException"));
+              || ex.unknown.contains("Ice.MarshalException"));
     }
 
     out.println("ok");
@@ -955,7 +952,7 @@ public class AllTests {
     try {
       cl20.ice_ping();
       test(false);
-    } catch (com.zeroc.Ice.UnsupportedProtocolException ex) {
+    } catch (com.zeroc.Ice.FeatureNotSupportedException ex) {
       // Server 2.0 proxy doesn't support 1.0 version.
     }
 
@@ -978,77 +975,77 @@ public class AllTests {
       // Invalid -x option
       communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // Missing -t and -v
       communicator.stringToProxy("id:opaque");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // Repeated -t
       communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // Repeated -v
       communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // Missing -t
       communicator.stringToProxy("id:opaque -v abc");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // Missing -v
       communicator.stringToProxy("id:opaque -t 1");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // Missing arg for -t
       communicator.stringToProxy("id:opaque -t -v abc");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // Missing arg for -v
       communicator.stringToProxy("id:opaque -t 1 -v");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // Not a number for -t
       communicator.stringToProxy("id:opaque -t x -v abc");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // < 0 for -t
       communicator.stringToProxy("id:opaque -t -1 -v abc");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     try {
       // Invalid char for -v
       communicator.stringToProxy("id:opaque -t 99 -v x?c");
       test(false);
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
+    } catch (ParseException ex) {
     }
 
     // Legal TCP endpoint expressed as opaque endpoint

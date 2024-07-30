@@ -475,7 +475,9 @@ public final class ObjectAdapter {
   public synchronized ObjectPrx addFacet(Object servant, Identity identity, String facet) {
     checkForDeactivation();
     checkIdentity(identity);
-    checkServant(servant);
+    if (servant == null) {
+      throw new IllegalArgumentException("cannot add null servant to Object Adapter");
+    }
 
     //
     // Create a copy of the Identity argument, in case the caller
@@ -551,8 +553,10 @@ public final class ObjectAdapter {
    * @see #findDefaultServant
    */
   public synchronized void addDefaultServant(Object servant, String category) {
-    checkServant(servant);
     checkForDeactivation();
+    if (servant == null) {
+      throw new IllegalArgumentException("cannot add null servant to Object Adapter");
+    }
 
     _servantManager.addDefaultServant(servant, category);
   }
@@ -1193,10 +1197,8 @@ public final class ObjectAdapter {
     String proxyOptions = properties.getPropertyWithDefault(_name + ".ProxyOptions", "-t");
     try {
       _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
-    } catch (ProxyParseException e) {
-      InitializationException ex = new InitializationException();
-      ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
-      throw ex;
+    } catch (ParseException ex) {
+      throw new InitializationException("invalid proxy options '" + proxyOptions + "' for object adapter '" + _name + "'.", ex);
     }
 
     {
@@ -1356,17 +1358,11 @@ public final class ObjectAdapter {
 
   private static void checkIdentity(Identity ident) {
     if (ident.name == null || ident.name.isEmpty()) {
-      throw new IllegalIdentityException(ident);
+      throw new IllegalArgumentException("The name of an Ice object identity cannot be empty.");
     }
 
     if (ident.category == null) {
       ident.category = "";
-    }
-  }
-
-  private static void checkServant(Object servant) {
-    if (servant == null) {
-      throw new IllegalServantException("cannot add null servant to Object Adapter");
     }
   }
 
@@ -1381,7 +1377,7 @@ public final class ObjectAdapter {
       beg = com.zeroc.IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
       if (beg == -1) {
         if (!endpoints.isEmpty()) {
-          throw new EndpointParseException("invalid empty object adapter endpoint");
+          throw new ParseException("invalid empty object adapter endpoint");
         }
         break;
       }
@@ -1418,14 +1414,14 @@ public final class ObjectAdapter {
       }
 
       if (end == beg) {
-        throw new EndpointParseException("invalid empty object adapter endpoint");
+        throw new ParseException("invalid empty object adapter endpoint");
       }
 
       String s = endpts.substring(beg, end);
       com.zeroc.IceInternal.EndpointI endp =
           _instance.endpointFactoryManager().create(s, oaEndpoints);
       if (endp == null) {
-        throw new EndpointParseException("invalid object adapter endpoint `" + s + "'");
+        throw new ParseException("invalid object adapter endpoint '" + s + "'");
       }
       endpoints.add(endp);
 

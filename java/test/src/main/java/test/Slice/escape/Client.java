@@ -122,7 +122,7 @@ public class Client extends test.TestHelper {
     //
     // We must set MessageSizeMax to an explicit values,
     // because we run tests to check whether
-    // Ice.MemoryLimitException is raised as expected.
+    // Ice.MarshalException is raised as expected.
     //
     properties.setProperty("Ice.MessageSizeMax", "100");
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {

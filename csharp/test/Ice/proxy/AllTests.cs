@@ -873,11 +873,9 @@ namespace Ice
                 }
                 catch (Ice.UnknownLocalException ex)
                 {
-                    // TODO: remove UnsupportedEncodingException
                     test(
                         ex.unknown.Contains("::Ice::MarshalException") ||
-                        ex.unknown.Contains("Ice.MarshalException") ||
-                        ex.unknown.Contains("UnsupportedEncodingException"));
+                        ex.unknown.Contains("Ice.MarshalException"));
                 }
 
                 try
@@ -896,11 +894,9 @@ namespace Ice
                 }
                 catch (Ice.UnknownLocalException ex)
                 {
-                    // TODO: remove UnsupportedEncodingException
                     test(
                         ex.unknown.Contains("::Ice::MarshalException") ||
-                        ex.unknown.Contains("Ice.MarshalException") ||
-                        ex.unknown.Contains("UnsupportedEncodingException"));
+                        ex.unknown.Contains("Ice.MarshalException"));
                 }
 
                 output.WriteLine("ok");

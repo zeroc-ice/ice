@@ -4,6 +4,7 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 final class TcpEndpointI extends IPEndpointI {
@@ -222,8 +223,7 @@ final class TcpEndpointI extends IPEndpointI {
       case 't':
         {
           if (argument == null) {
-            throw new com.zeroc.Ice.EndpointParseException(
-                "no argument provided for -t option in endpoint " + endpoint);
+            throw new ParseException("no argument provided for -t option in endpoint '" + endpoint + "'");
           }
 
           if (argument.equals("infinite")) {
@@ -232,12 +232,10 @@ final class TcpEndpointI extends IPEndpointI {
             try {
               _timeout = Integer.parseInt(argument);
               if (_timeout < 1) {
-                throw new com.zeroc.Ice.EndpointParseException(
-                    "invalid timeout value `" + argument + "' in endpoint " + endpoint);
+                throw new ParseException("invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'");
               }
             } catch (NumberFormatException ex) {
-              throw new com.zeroc.Ice.EndpointParseException(
-                  "invalid timeout value `" + argument + "' in endpoint " + endpoint);
+              throw new ParseException("invalid timeout value `" + argument + "' in endpoint '" + endpoint + "'", ex);
             }
           }
 
@@ -247,8 +245,7 @@ final class TcpEndpointI extends IPEndpointI {
       case 'z':
         {
           if (argument != null) {
-            throw new com.zeroc.Ice.EndpointParseException(
-                "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
+            throw new ParseException("unexpected argument '" + argument + "' provided for -z option in '" + endpoint + "'");
           }
 
           _compress = true;

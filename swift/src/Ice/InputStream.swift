@@ -369,11 +369,7 @@ public class InputStream {
     }
 
     static func throwUOE(expectedType: Value.Type, v: Value) throws {
-        //
-        // If the object is an unknown sliced object, we didn't find an
-        // value factory, in this case raise a NoValueFactoryException
-        // instead.
-        //
+        // If the object is an unknown sliced object, we didn't find a value factory.
         if let usv = v as? UnknownSlicedValue {
             throw MarshalException(
                 "cannot find value factory to unmarshal class with type ID '\(usv.ice_id())'")
