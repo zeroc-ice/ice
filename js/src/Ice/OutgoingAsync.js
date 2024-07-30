@@ -493,7 +493,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                 }
 
                 default: {
-                    throw new MarshalException(`Received reply message with unknown reply status ${replyStatus} ${replyStatus.value}.`);
+                    throw new MarshalException(`Received reply message with unknown reply status ${replyStatus}.`);
                 }
             }
 
