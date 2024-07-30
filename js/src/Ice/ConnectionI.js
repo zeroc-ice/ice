@@ -1467,7 +1467,10 @@ export class ConnectionI {
                 } else {
                     // Received request on a connection without an object adapter.
                     this.sendResponse(
-                        request.current.createOutgoingResponseWithException(new ObjectNotExistException(), this._communicator),
+                        request.current.createOutgoingResponseWithException(
+                            new ObjectNotExistException(),
+                            this._communicator,
+                        ),
                         !this._endpoint.datagram() && requestId != 0,
                     );
                 }

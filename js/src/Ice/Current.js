@@ -14,17 +14,7 @@ const { EncodingVersion } = Ice_Version;
  *  applications ignore this parameter.
  **/
 export class Current {
-    constructor(
-        adapter,
-        con,
-        id,
-        facet,
-        operation,
-        mode,
-        ctx,
-        requestId,
-        encoding,
-    ) {
+    constructor(adapter, con, id, facet, operation, mode, ctx, requestId, encoding) {
         this.adapter = adapter;
         this.con = con;
         this.id = id;
