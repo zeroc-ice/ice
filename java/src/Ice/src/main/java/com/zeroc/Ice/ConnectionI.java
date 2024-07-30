@@ -1695,7 +1695,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         // validate connection.
         int size = _readStream.readInt();
         if (size != Protocol.headerSize) {
-          throw new MarshalException("Received ValidateConnection message with unexpected size " + size ".");
+          throw new MarshalException("Received ValidateConnection message with unexpected size " + size + ".");
         }
         TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
       }

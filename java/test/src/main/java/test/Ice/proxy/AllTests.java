@@ -8,7 +8,7 @@ import com.zeroc.Ice.EncodingVersion;
 import com.zeroc.Ice.EndpointSelectionType;
 import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.ObjectPrx;
-import ParseException;
+import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
 import test.Ice.proxy.Test.DiamondClassPrx;

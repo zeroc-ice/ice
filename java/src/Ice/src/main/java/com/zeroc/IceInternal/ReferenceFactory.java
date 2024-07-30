@@ -233,7 +233,7 @@ public final class ReferenceFactory {
         case 'o':
           {
             if (argument != null) {
-              throw new ParseException("unexpected argument '" + argument + "' provided for -o option in proxy string '" + s + "'")
+              throw new ParseException("unexpected argument '" + argument + "' provided for -o option in proxy string '" + s + "'");
             }
             mode = Reference.ModeOneway;
             break;

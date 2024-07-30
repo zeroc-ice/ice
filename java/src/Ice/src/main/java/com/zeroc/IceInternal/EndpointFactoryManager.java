@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.ParseException;
+
 public final class EndpointFactoryManager {
   EndpointFactoryManager(Instance instance) {
     _instance = instance;

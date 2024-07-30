@@ -258,13 +258,13 @@ public final class Util {
     } else {
       try {
         ident.category = StringUtil.unescapeString(s, 0, slash, "/");
-      } catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException ex) {
         throw new ParseException("invalid category in identity string '" + s + "'", ex);
       }
       if (slash + 1 < s.length()) {
         try {
           ident.name = StringUtil.unescapeString(s, slash + 1, s.length(), "/");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ex) {
           throw new ParseException("invalid name in identity string '" + s + "'", ex);
         }
       } else {

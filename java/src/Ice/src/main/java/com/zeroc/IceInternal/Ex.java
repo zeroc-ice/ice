@@ -23,7 +23,7 @@ public class Ex {
       expected = "";
       assert (false);
     }
-    throw new MarshalException("Failed to unmarshal class with type ID '" + expected + "': value factory returned class with type ID '" + type + "'."
+    throw new MarshalException("Failed to unmarshal class with type ID '" + expected + "': value factory returned class with type ID '" + type + "'.");
   }
 
   public static void throwUOE(String expectedType, com.zeroc.Ice.Value v) {
@@ -34,7 +34,7 @@ public class Ex {
     }
 
     String type = v.ice_id();
-    throw new MarshalException("Failed to unmarshal class with type ID '" + expectedType + "': value factory returned class with type ID '" + type + "'."
+    throw new MarshalException("Failed to unmarshal class with type ID '" + expectedType + "': value factory returned class with type ID '" + type + "'.");
   }
 
   public static void throwMemoryLimitException(int requested, int maximum) {

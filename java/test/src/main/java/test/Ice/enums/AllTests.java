@@ -5,7 +5,7 @@
 package test.Ice.enums;
 
 import java.io.PrintWriter;
-import MarshalException;
+import com.zeroc.Ice.MarshalException;
 import test.Ice.enums.Test.*;
 
 public class AllTests {

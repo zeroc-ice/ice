@@ -2705,7 +2705,7 @@ public class InputStream {
                 v = (Value) cls.getDeclaredConstructor().newInstance();
                 updateCache = false;
               } catch (java.lang.Exception ex) {
-                throw new MarshalException("Cannot find value factory for type ID '" + _current.compactID + "' and compact format prevents slicing.");
+                throw new MarshalException("Cannot find value factory for type ID '" + _current.compactId + "' and compact format prevents slicing.");
               }
             }
           }
@@ -2973,5 +2973,5 @@ public class InputStream {
   private java.util.function.IntFunction<String> _compactIdResolver;
   private java.util.function.Function<String, Class<?>> _classResolver;
 
-  private static final END_OF_BUFFER_MESSAGE = "Attempting to unmarshal past the end of the buffer.";
+  private static final String END_OF_BUFFER_MESSAGE = "Attempting to unmarshal past the end of the buffer.";
 }

@@ -12,7 +12,6 @@ public class ParseException extends LocalException {
         super(message, cause);
     }
 
-    // TODO, do we really need these `ice_id` methods on local exceptions?
     public String ice_id() {
         return "::Ice::ParseException";
     }
