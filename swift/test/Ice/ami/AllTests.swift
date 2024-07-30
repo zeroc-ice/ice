@@ -84,7 +84,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     }
     output.writeLine("ok")
 
-    output.write("testing exception callback... ")
+    output.write("testing exceptions with async/await... ")
     do {
         let i = p.ice_adapterId("dummy")
 
@@ -108,7 +108,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             try test(false)
         } catch is Ice.NoEndpointException {}
 
-        // Ensures no exception is called when response is received
+        // Ensure no exception is thrown when response is received
         _ = try await p.ice_isAAsync(id: "::Test::TestIntf")
         try await p.opAsync()
         _ = try await p.opWithResultAsync()

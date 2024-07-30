@@ -14,8 +14,6 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     // Captured as a const copy by the block according to https://clang.llvm.org/docs/BlockLanguageSpec.html
     Ice::Current current{request.current()};
 
-    Ice::InputStream& inputStream = request.inputStream();
-
     int32_t sz;
     const std::byte* inEncaps;
     std::function<void()> cleanup;
@@ -41,8 +39,8 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     else
     {
         // In the case of a twoway request we can just take the memory as its no longer needed after this request.
-        // Create a new InputStream and swap it with the one from the request.
-        // When dispatch completes, the InputStream will be deleted.
+        // Move the request's InputStream into a new stack allocated InputStream.
+        // When dispatch completes, the new InputStream will be deleted.
         auto dispatchInputStream = new Ice::InputStream(std::move(request.inputStream()));
 
         cleanup = [dispatchInputStream] { delete dispatchInputStream; };
