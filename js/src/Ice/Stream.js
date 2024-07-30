@@ -10,7 +10,6 @@ import { FormatType } from "./FormatType.js";
 import { OptionalFormat } from "./OptionalFormat.js";
 import { Encoding_1_0, Protocol } from "./Protocol.js";
 import { SlicedData, SliceInfo, UnknownSlicedValue } from "./UnknownSlicedValue.js";
-import { TraceUtil } from "./TraceUtil.js";
 import { LocalException } from "./LocalException.js";
 import { Value } from "./Value.js";
 import { InitializationException, MarshalException } from "./LocalExceptions.js";
@@ -31,6 +30,14 @@ const SliceType = {
 };
 
 const endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
+
+const slicingIds = new Map();
+function traceSlicing(kind, typeId, slicingCat, logger) {
+    if (!slicingIds.has(typeId)) {
+        logger.trace(slicingCat, `unknown ${kind} type \`${typeId}'`);
+        slicingIds.set(typeId, 1);
+    }
+}
 
 //
 // InputStream
@@ -1714,7 +1721,7 @@ export class InputStream {
 
     traceSkipSlice(typeId, sliceType) {
         if (this._traceSlicing && this._logger !== null) {
-            TraceUtil.traceSlicing(
+            traceSlicing(
                 sliceType === SliceType.ExceptionSlice ? "exception" : "object",
                 typeId,
                 "Slicing",
