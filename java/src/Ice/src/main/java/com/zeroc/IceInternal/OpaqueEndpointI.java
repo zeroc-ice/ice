@@ -288,18 +288,21 @@ final class OpaqueEndpointI extends EndpointI {
             throw new ParseException("multiple -t options in endpoint '" + endpoint + "'");
           }
           if (argument == null) {
-            throw new ParseException("no argument provided for -t option in endpoint '" + endpoint + "'");
+            throw new ParseException(
+                "no argument provided for -t option in endpoint '" + endpoint + "'");
           }
 
           int t;
           try {
             t = Integer.parseInt(argument);
           } catch (NumberFormatException ex) {
-            throw new ParseException("invalid type value '" + argument + "' in endpoint '" + endpoint + "'", ex);
+            throw new ParseException(
+                "invalid type value '" + argument + "' in endpoint '" + endpoint + "'", ex);
           }
 
           if (t < 0 || t > 65535) {
-            throw new ParseException("type value '" + argument + "' out of range in endpoint '" + endpoint + "'");
+            throw new ParseException(
+                "type value '" + argument + "' out of range in endpoint '" + endpoint + "'");
           }
 
           _type = (short) t;
@@ -312,7 +315,8 @@ final class OpaqueEndpointI extends EndpointI {
             throw new ParseException("multiple -v options in endpoint '" + endpoint + "'");
           }
           if (argument == null) {
-            throw new ParseException("no argument provided for -v option in endpoint '" + endpoint + "'");
+            throw new ParseException(
+                "no argument provided for -v option in endpoint '" + endpoint + "'");
           }
 
           try {
@@ -326,13 +330,15 @@ final class OpaqueEndpointI extends EndpointI {
       case 'e':
         {
           if (argument == null) {
-            throw new ParseException("no argument provided for -e option in endpoint '" + endpoint + "'");
+            throw new ParseException(
+                "no argument provided for -e option in endpoint '" + endpoint + "'");
           }
 
           try {
             _rawEncoding = com.zeroc.Ice.Util.stringToEncodingVersion(argument);
           } catch (ParseException ex) {
-            throw new ParseException("invalid encoding version '" + argument + "' in endpoint '" + endpoint + "'", ex);
+            throw new ParseException(
+                "invalid encoding version '" + argument + "' in endpoint '" + endpoint + "'", ex);
           }
           return true;
         }

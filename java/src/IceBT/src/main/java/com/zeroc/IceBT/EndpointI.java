@@ -370,17 +370,20 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
 
     if (option.equals("-a")) {
       if (argument == null) {
-        throw new ParseException("no argument provided for -a option in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "no argument provided for -a option in endpoint '" + endpoint + "'");
       }
       if (!argument.equals("*")
           && !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase())) {
-        throw new ParseException("invalid address provided for -a option in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "invalid address provided for -a option in endpoint '" + endpoint + "'");
       }
       _addr =
           argument.toUpperCase(); // Android requires a hardware address to use upper case letters.
     } else if (option.equals("-u")) {
       if (argument == null) {
-        throw new ParseException("no argument provided for -u option in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "no argument provided for -u option in endpoint '" + endpoint + "'");
       }
       try {
         UUID.fromString(argument);
@@ -390,22 +393,26 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
       _uuid = argument;
     } else if (option.equals("-c")) {
       if (argument == null) {
-        throw new ParseException("no argument provided for -c option in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "no argument provided for -c option in endpoint '" + endpoint + "'");
       }
 
       try {
         _channel = Integer.parseInt(argument);
       } catch (NumberFormatException ex) {
-        throw new ParseException("invalid channel value '" + argument + "' in endpoint '" + endpoint + "'", ex);
+        throw new ParseException(
+            "invalid channel value '" + argument + "' in endpoint '" + endpoint + "'", ex);
       }
 
       if (_channel < 0 || _channel > 30) // RFCOMM channel limit is 30
       {
-        throw new ParseException("channel value '" + argument + "' out of range in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "channel value '" + argument + "' out of range in endpoint '" + endpoint + "'");
       }
     } else if (option.equals("-t")) {
       if (argument == null) {
-        throw new ParseException("no argument provided for -t option in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "no argument provided for -t option in endpoint '" + endpoint + "'");
       }
 
       if (argument.equals("infinite")) {
@@ -414,21 +421,25 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
         try {
           _timeout = Integer.parseInt(argument);
           if (_timeout < 1) {
-            throw new ParseException("invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'");
+            throw new ParseException(
+                "invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'");
           }
         } catch (NumberFormatException ex) {
-          throw new ParseException("invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'", ex);
+          throw new ParseException(
+              "invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'", ex);
         }
       }
     } else if (option.equals("-z")) {
       if (argument != null) {
-        throw new ParseException("unexpected argument '" + argument + "' provided for -z option in '" + endpoint + "'");
+        throw new ParseException(
+            "unexpected argument '" + argument + "' provided for -z option in '" + endpoint + "'");
       }
 
       _compress = true;
     } else if (option.equals("--name")) {
       if (argument == null) {
-        throw new ParseException("no argument provided for --name option in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "no argument provided for --name option in endpoint '" + endpoint + "'");
       }
 
       _name = argument;

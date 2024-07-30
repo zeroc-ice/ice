@@ -724,14 +724,12 @@ final class WSTransceiver implements Transceiver {
         //
         if (_readOpCode == OP_DATA) {
           if (!_readLastFrame) {
-            throw new ProtocolException(
-                "invalid data frame, no FIN on previous frame");
+            throw new ProtocolException("invalid data frame, no FIN on previous frame");
           }
           _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
         } else if (_readOpCode == OP_CONT) {
           if (_readLastFrame) {
-            throw new ProtocolException(
-                "invalid continuation frame, previous frame FIN set");
+            throw new ProtocolException("invalid continuation frame, previous frame FIN set");
           }
           _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
         }

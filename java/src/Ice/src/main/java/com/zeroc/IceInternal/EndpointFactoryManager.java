@@ -42,7 +42,8 @@ public final class EndpointFactoryManager {
     }
 
     if (arr.length == 0) {
-      throw new ParseException("Failed to parse endpoint '" + str + "': value has no non-whitespace characters");
+      throw new ParseException(
+          "Failed to parse endpoint '" + str + "': value has no non-whitespace characters");
     }
 
     java.util.ArrayList<String> v = new java.util.ArrayList<>(java.util.Arrays.asList(arr));
@@ -64,7 +65,8 @@ public final class EndpointFactoryManager {
     if (factory != null) {
       EndpointI e = factory.create(v, oaEndpoint);
       if (!v.isEmpty()) {
-        throw new ParseException("Failed to parse endpoint '" + str + "': unrecognized argument '" + v.get(0) + "'");
+        throw new ParseException(
+            "Failed to parse endpoint '" + str + "': unrecognized argument '" + v.get(0) + "'");
       }
       return e;
 
@@ -91,7 +93,8 @@ public final class EndpointFactoryManager {
     if (protocol.equals("opaque")) {
       EndpointI ue = new OpaqueEndpointI(v);
       if (!v.isEmpty()) {
-        throw new ParseException("Failed to parse endpoint '" + str + "': unrecognized argument '" + v.get(0) + "'");
+        throw new ParseException(
+            "Failed to parse endpoint '" + str + "': unrecognized argument '" + v.get(0) + "'");
       }
       factory = get(ue.type());
       if (factory != null) {

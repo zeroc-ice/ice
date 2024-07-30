@@ -422,19 +422,20 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     }
 
     // Don't retry if the communicator is destroyed or object adapter is deactivated.
-    if (ex instanceof CommunicatorDestroyedException || ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException) {
+    if (ex instanceof CommunicatorDestroyedException
+        || ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException) {
       throw ex;
     }
 
     // Don't retry is the connection was closed by the application.
     if (ex instanceof com.zeroc.Ice.ConnectionAbortedException) {
-      var e = (com.zeroc.Ice.ConnectionAbortedException)ex;
+      var e = (com.zeroc.Ice.ConnectionAbortedException) ex;
       if (e.closedByApplication) {
         throw ex;
       }
     }
     if (ex instanceof com.zeroc.Ice.ConnectionClosedException) {
-      var e = (com.zeroc.Ice.ConnectionClosedException)ex;
+      var e = (com.zeroc.Ice.ConnectionClosedException) ex;
       if (e.closedByApplication) {
         throw ex;
       }

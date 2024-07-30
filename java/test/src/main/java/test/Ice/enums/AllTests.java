@@ -4,8 +4,8 @@
 
 package test.Ice.enums;
 
-import java.io.PrintWriter;
 import com.zeroc.Ice.MarshalException;
+import java.io.PrintWriter;
 import test.Ice.enums.Test.*;
 
 public class AllTests {

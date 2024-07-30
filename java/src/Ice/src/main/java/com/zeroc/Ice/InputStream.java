@@ -575,7 +575,8 @@ public class InputStream {
 
     if (encoding.equals(Util.Encoding_1_0)) {
       if (sz != 6) {
-        throw new MarshalException(sz + "is not a valid encapsulation size for a 1.0 empty encapsulation.");
+        throw new MarshalException(
+            sz + "is not a valid encapsulation size for a 1.0 empty encapsulation.");
       }
     } else {
       //
@@ -1953,7 +1954,8 @@ public class InputStream {
           try {
             v = (Value) cls.getDeclaredConstructor().newInstance();
           } catch (java.lang.Exception ex) {
-            throw new MarshalException("Failed to create a class with type ID '" + typeId + "'.", ex);
+            throw new MarshalException(
+                "Failed to create a class with type ID '" + typeId + "'.", ex);
           }
         }
       }
@@ -2295,7 +2297,8 @@ public class InputStream {
         // marks the last slice.
         //
         if (_typeId.equals(Value.ice_staticId())) {
-          throw new MarshalException("Cannot find value factory for type ID '" + mostDerivedId + "'.");
+          throw new MarshalException(
+              "Cannot find value factory for type ID '" + mostDerivedId + "'.");
         }
 
         v = newInstance(_typeId);
@@ -2583,7 +2586,10 @@ public class InputStream {
         _stream.skip(_current.sliceSize - 4);
       } else {
         if (_current.sliceType == SliceType.ValueSlice) {
-          throw new MarshalException("Cannot find value factory for type ID '" + _current.typeId + "' and compact format prevents slicing.");
+          throw new MarshalException(
+              "Cannot find value factory for type ID '"
+                  + _current.typeId
+                  + "' and compact format prevents slicing.");
         } else {
           throw new MarshalException(
               "cannot find user exception for type ID '" + _current.typeId + "'");
@@ -2705,7 +2711,10 @@ public class InputStream {
                 v = (Value) cls.getDeclaredConstructor().newInstance();
                 updateCache = false;
               } catch (java.lang.Exception ex) {
-                throw new MarshalException("Cannot find value factory for type ID '" + _current.compactId + "' and compact format prevents slicing.");
+                throw new MarshalException(
+                    "Cannot find value factory for type ID '"
+                        + _current.compactId
+                        + "' and compact format prevents slicing.");
               }
             }
           }
@@ -2973,5 +2982,6 @@ public class InputStream {
   private java.util.function.IntFunction<String> _compactIdResolver;
   private java.util.function.Function<String, Class<?>> _classResolver;
 
-  private static final String END_OF_BUFFER_MESSAGE = "Attempting to unmarshal past the end of the buffer.";
+  private static final String END_OF_BUFFER_MESSAGE =
+      "Attempting to unmarshal past the end of the buffer.";
 }

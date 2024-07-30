@@ -151,9 +151,13 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   private synchronized void closeImpl(ConnectionClose mode) {
     if (mode == ConnectionClose.Forcefully) {
-      setState(StateClosed, new ConnectionAbortedException("Connection closed forcefully by the application.", true));
+      setState(
+          StateClosed,
+          new ConnectionAbortedException("Connection closed forcefully by the application.", true));
     } else if (mode == ConnectionClose.Gracefully) {
-      setState(StateClosing, new ConnectionClosedException("Connection closed gracefully by the application.", true));
+      setState(
+          StateClosing,
+          new ConnectionClosedException("Connection closed gracefully by the application.", true));
     } else {
       assert (mode == ConnectionClose.GracefullyWithWait);
 
@@ -168,7 +172,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         }
       }
 
-      setState(StateClosing, new ConnectionClosedException("Connection closed gracefully by the application.", true));
+      setState(
+          StateClosing,
+          new ConnectionClosedException("Connection closed gracefully by the application.", true));
     }
   }
 
@@ -594,7 +600,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               _readStream.readByte(); // compress
               int size = _readStream.readInt();
               if (size < Protocol.headerSize) {
-                throw new MarshalException("Received Ice message with unexpected size " + size + ".");
+                throw new MarshalException(
+                    "Received Ice message with unexpected size " + size + ".");
               }
 
               // Resize the read buffer to the message size.
@@ -1152,7 +1159,12 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                       + _transceiver.toDetailedString());
         }
 
-        setState(StateClosed, new ConnectionIdleException("Connection aborted by the idle check because it did not receive any bytes for " + idleTimeout + "s."));
+        setState(
+            StateClosed,
+            new ConnectionIdleException(
+                "Connection aborted by the idle check because it did not receive any bytes for "
+                    + idleTimeout
+                    + "s."));
       }
     }
     // else nothing to do
@@ -1689,13 +1701,17 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
         byte messageType = _readStream.readByte();
         if (messageType != Protocol.validateConnectionMsg) {
-          throw new ProtocolException("Received message of type " + messageType + " on connection that is not yet validated.");
+          throw new ProtocolException(
+              "Received message of type "
+                  + messageType
+                  + " on connection that is not yet validated.");
         }
         _readStream.readByte(); // Ignore compression status for
         // validate connection.
         int size = _readStream.readInt();
         if (size != Protocol.headerSize) {
-          throw new MarshalException("Received ValidateConnection message with unexpected size " + size + ".");
+          throw new MarshalException(
+              "Received ValidateConnection message with unexpected size " + size + ".");
         }
         TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
       }
@@ -2072,7 +2088,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               info.invokeNum = info.stream.readInt();
               if (info.invokeNum < 0) {
                 info.invokeNum = 0;
-                throw new MarshalException("Received batch request with " + info.invokeNum + "batches.");
+                throw new MarshalException(
+                    "Received batch request with " + info.invokeNum + "batches.");
               }
               info.servantManager = _servantManager;
               info.adapter = _adapter;
@@ -2111,7 +2128,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                 info.stream,
                 _logger,
                 _traceLevels);
-            throw new ProtocolException("Received Ice protocol message with unknown type: " + messageType);
+            throw new ProtocolException(
+                "Received Ice protocol message with unknown type: " + messageType);
           }
       }
     } catch (LocalException ex) {
@@ -2402,7 +2420,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       _inactivityTimerFuture = null;
 
       if (_state == StateActive) {
-        setState(StateClosing, new ConnectionClosedException("Connection closed because it remained inactive for longer than the inactivity timeout.", false));
+        setState(
+            StateClosing,
+            new ConnectionClosedException(
+                "Connection closed because it remained inactive for longer than the inactivity timeout.",
+                false));
       }
     }
     // Else this timer was already canceled and disposed. Nothing to do.

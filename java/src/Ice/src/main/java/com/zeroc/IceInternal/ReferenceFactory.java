@@ -170,7 +170,8 @@ public final class ReferenceFactory {
 
       String option = s.substring(beg, end);
       if (option.length() != 2 || option.charAt(0) != '-') {
-        throw new ParseException("expected a proxy option but found '" + option + "' in proxy string '" + s + "'");
+        throw new ParseException(
+            "expected a proxy option but found '" + option + "' in proxy string '" + s + "'");
       }
 
       //
@@ -186,7 +187,12 @@ public final class ReferenceFactory {
           beg = argumentBeg;
           end = StringUtil.checkQuote(s, beg);
           if (end == -1) {
-            throw new ParseException("mismatched quotes around value for " + option + " option in proxy string '" + s + "'");
+            throw new ParseException(
+                "mismatched quotes around value for "
+                    + option
+                    + " option in proxy string '"
+                    + s
+                    + "'");
           } else if (end == 0) {
             end = StringUtil.findFirstOf(s, delim + ":@", beg);
             if (end == -1) {
@@ -209,7 +215,8 @@ public final class ReferenceFactory {
         case 'f':
           {
             if (argument == null) {
-              throw new ParseException("no argument provided for -f option in proxy string '" + s + "'");
+              throw new ParseException(
+                  "no argument provided for -f option in proxy string '" + s + "'");
             }
 
             try {
@@ -224,7 +231,12 @@ public final class ReferenceFactory {
         case 't':
           {
             if (argument != null) {
-              throw new ParseException("unexpected argument '" + argument + "' provided for -t option in proxy string '" + s + "'");
+              throw new ParseException(
+                  "unexpected argument '"
+                      + argument
+                      + "' provided for -t option in proxy string '"
+                      + s
+                      + "'");
             }
             mode = Reference.ModeTwoway;
             break;
@@ -233,7 +245,12 @@ public final class ReferenceFactory {
         case 'o':
           {
             if (argument != null) {
-              throw new ParseException("unexpected argument '" + argument + "' provided for -o option in proxy string '" + s + "'");
+              throw new ParseException(
+                  "unexpected argument '"
+                      + argument
+                      + "' provided for -o option in proxy string '"
+                      + s
+                      + "'");
             }
             mode = Reference.ModeOneway;
             break;
@@ -242,7 +259,12 @@ public final class ReferenceFactory {
         case 'O':
           {
             if (argument != null) {
-              throw new ParseException("unexpected argument '" + argument + "' provided for -O option in proxy string '" + s + "'");
+              throw new ParseException(
+                  "unexpected argument '"
+                      + argument
+                      + "' provided for -O option in proxy string '"
+                      + s
+                      + "'");
             }
             mode = Reference.ModeBatchOneway;
             break;
@@ -251,7 +273,12 @@ public final class ReferenceFactory {
         case 'd':
           {
             if (argument != null) {
-              throw new ParseException("unexpected argument '" + argument + "' provided for -d option in proxy string '" + s + "'");
+              throw new ParseException(
+                  "unexpected argument '"
+                      + argument
+                      + "' provided for -d option in proxy string '"
+                      + s
+                      + "'");
             }
             mode = Reference.ModeDatagram;
             break;
@@ -260,7 +287,12 @@ public final class ReferenceFactory {
         case 'D':
           {
             if (argument != null) {
-              throw new ParseException("unexpected argument '" + argument + "' provided for -D option in proxy string '" + s + "'");
+              throw new ParseException(
+                  "unexpected argument '"
+                      + argument
+                      + "' provided for -D option in proxy string '"
+                      + s
+                      + "'");
             }
             mode = Reference.ModeBatchDatagram;
             break;
@@ -269,7 +301,12 @@ public final class ReferenceFactory {
         case 's':
           {
             if (argument != null) {
-              throw new ParseException("unexpected argument '" + argument + "' provided for -s option in proxy string '" + s + "'");
+              throw new ParseException(
+                  "unexpected argument '"
+                      + argument
+                      + "' provided for -s option in proxy string '"
+                      + s
+                      + "'");
             }
             secure = true;
             break;
@@ -278,13 +315,15 @@ public final class ReferenceFactory {
         case 'e':
           {
             if (argument == null) {
-              throw new ParseException("no argument provided for -e option in in proxy string '" + s + "'");
+              throw new ParseException(
+                  "no argument provided for -e option in in proxy string '" + s + "'");
             }
 
             try {
               encoding = com.zeroc.Ice.Util.stringToEncodingVersion(argument);
             } catch (ParseException ex) {
-              throw new ParseException("invalid encoding version '" + argument + "' in proxy string '" + s + "'", ex);
+              throw new ParseException(
+                  "invalid encoding version '" + argument + "' in proxy string '" + s + "'", ex);
             }
             break;
           }
@@ -292,13 +331,15 @@ public final class ReferenceFactory {
         case 'p':
           {
             if (argument == null) {
-              throw new ParseException("no argument provided for -p option in proxy string '" + s + "'");
+              throw new ParseException(
+                  "no argument provided for -p option in proxy string '" + s + "'");
             }
 
             try {
               protocol = com.zeroc.Ice.Util.stringToProtocolVersion(argument);
             } catch (ParseException ex) {
-              throw new ParseException("invalid protocol version '" + argument + "' in proxy string '" + s + "'", ex);
+              throw new ParseException(
+                  "invalid protocol version '" + argument + "' in proxy string '" + s + "'", ex);
             }
             break;
           }
@@ -374,7 +415,8 @@ public final class ReferenceFactory {
       }
       if (endpoints.isEmpty()) {
         assert (!unknownEndpoints.isEmpty());
-        throw new ParseException("invalid endpoint '" + unknownEndpoints.get(0) + "' in '" + s + "'");
+        throw new ParseException(
+            "invalid endpoint '" + unknownEndpoints.get(0) + "' in '" + s + "'");
       } else if (!unknownEndpoints.isEmpty()
           && _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints")
               > 0) {
@@ -467,7 +509,8 @@ public final class ReferenceFactory {
     String facet;
     if (facetPath.length > 0) {
       if (facetPath.length > 1) {
-        throw new com.zeroc.Ice.MarshalException("Received invalid facet path with " + facetPath.length + " elements.");
+        throw new com.zeroc.Ice.MarshalException(
+            "Received invalid facet path with " + facetPath.length + " elements.");
       }
       facet = facetPath[0];
     } else {
@@ -708,7 +751,12 @@ public final class ReferenceFactory {
         } else if (type.equals("Ordered")) {
           endpointSelection = com.zeroc.Ice.EndpointSelectionType.Ordered;
         } else {
-          throw new ParseException("illegal value '" + type + "' in property '" + property + "'; expected 'Random' or 'Ordered'");
+          throw new ParseException(
+              "illegal value '"
+                  + type
+                  + "' in property '"
+                  + property
+                  + "'; expected 'Random' or 'Ordered'");
         }
       }
 

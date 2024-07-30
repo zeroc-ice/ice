@@ -58,7 +58,10 @@ public final class DefaultsAndOverrides {
     } else if (value.equals("Ordered")) {
       defaultEndpointSelection = com.zeroc.Ice.EndpointSelectionType.Ordered;
     } else {
-      throw new com.zeroc.Ice.ParseException("illegal value '" + value + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
+      throw new com.zeroc.Ice.ParseException(
+          "illegal value '"
+              + value
+              + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
     }
 
     intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");

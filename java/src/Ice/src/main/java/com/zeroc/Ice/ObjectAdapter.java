@@ -1198,7 +1198,8 @@ public final class ObjectAdapter {
     try {
       _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
     } catch (ParseException ex) {
-      throw new InitializationException("invalid proxy options '" + proxyOptions + "' for object adapter '" + _name + "'.", ex);
+      throw new InitializationException(
+          "invalid proxy options '" + proxyOptions + "' for object adapter '" + _name + "'.", ex);
     }
 
     {

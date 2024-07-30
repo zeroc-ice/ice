@@ -199,7 +199,8 @@ final class UdpEndpointI extends IPEndpointI {
       if (oaEndpoint) {
         _mcastInterface = "";
       } else {
-        throw new ParseException("'--interface *' not valid for proxy endpoint '" + toString() + "'");
+        throw new ParseException(
+            "'--interface *' not valid for proxy endpoint '" + toString() + "'");
       }
     }
   }
@@ -325,19 +326,22 @@ final class UdpEndpointI extends IPEndpointI {
 
     if (option.equals("-c")) {
       if (argument != null) {
-        throw new ParseException("unexpected argument '" + argument + "' provided for -c option in '" + endpoint + "'");
+        throw new ParseException(
+            "unexpected argument '" + argument + "' provided for -c option in '" + endpoint + "'");
       }
 
       _connect = true;
     } else if (option.equals("-z")) {
       if (argument != null) {
-        throw new ParseException("unexpected argument '" + argument + "' provided for -z option in '" + endpoint + "'");
+        throw new ParseException(
+            "unexpected argument '" + argument + "' provided for -z option in '" + endpoint + "'");
       }
 
       _compress = true;
     } else if (option.equals("-v") || option.equals("-e")) {
       if (argument == null) {
-        throw new ParseException("no argument provided for " + option + " option in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "no argument provided for " + option + " option in endpoint '" + endpoint + "'");
       }
 
       try {
@@ -346,25 +350,30 @@ final class UdpEndpointI extends IPEndpointI {
           _instance.logger().warning("deprecated udp endpoint option: " + option);
         }
       } catch (ParseException ex) {
-        throw new ParseException("invalid version '" + argument + "' in endpoint '" + endpoint + "'", ex);
+        throw new ParseException(
+            "invalid version '" + argument + "' in endpoint '" + endpoint + "'", ex);
       }
     } else if (option.equals("--ttl")) {
       if (argument == null) {
-        throw new ParseException("no argument provided for --ttl option in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "no argument provided for --ttl option in endpoint '" + endpoint + "'");
       }
 
       try {
         _mcastTtl = Integer.parseInt(argument);
       } catch (NumberFormatException ex) {
-        throw new ParseException("invalid TTL value '" + argument + "' in endpoint '" + endpoint + "'", ex);
+        throw new ParseException(
+            "invalid TTL value '" + argument + "' in endpoint '" + endpoint + "'", ex);
       }
 
       if (_mcastTtl < 0) {
-        throw new ParseException("TTL value '" + argument + "' out of range in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "TTL value '" + argument + "' out of range in endpoint '" + endpoint + "'");
       }
     } else if (option.equals("--interface")) {
       if (argument == null) {
-        throw new ParseException("no argument provided for --interface option in endpoint '" + endpoint + "'");
+        throw new ParseException(
+            "no argument provided for --interface option in endpoint '" + endpoint + "'");
       }
       _mcastInterface = argument;
     } else {
