@@ -390,7 +390,9 @@ function getServantMethod(servantType, name) {
                     }
                     return result;
                 } catch (ex) {
-                    return request.current.createOutgoingResponseWithException(ex);
+                    const communicator = request.current.adapter.getCommunicator();
+                    Debug.assert(communicator !== null);
+                    return request.current.createOutgoingResponseWithException(ex, communicator);
                 }
             };
 

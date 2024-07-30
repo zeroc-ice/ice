@@ -33,7 +33,9 @@ Current.prototype.createOutgoingResponseWithResult = function (marshal, formatTy
             ostr.endEncapsulation();
             return new OutgoingResponse(ostr);
         } catch (ex) {
-            return this.createOutgoingResponseWithException(ex);
+            const communicator = this.adapter.getCommunicator();
+            Debug.assert(communicator !== null);
+            return this.createOutgoingResponseWithException(ex, communicator);
         }
     } else {
         Debug.assert("A one-way request cannot return a response");
@@ -53,12 +55,12 @@ Current.prototype.createEmptyOutgoingResponse = function () {
     return new OutgoingResponse(ostr);
 };
 
-Current.prototype.createOutgoingResponseWithException = function (exception) {
+Current.prototype.createOutgoingResponseWithException = function (exception, communicator) {
     try {
-        return createOutgoingResponseCore(this, exception);
+        return createOutgoingResponseCore(this, exception, communicator);
     } catch (ex) {
         // Try a second time with the marshal exception. This should not fail.
-        return createOutgoingResponseCore(this, exception);
+        return createOutgoingResponseCore(this, exception, communicator);
     }
 };
 
@@ -74,11 +76,11 @@ function startReplyStream(current, replyStatus = ReplyStatus.Ok) {
     }
 }
 
-function createOutgoingResponseCore(current, exception) {
+function createOutgoingResponseCore(current, exception, communicator) {
     let ostr;
 
     if (current.requestId != 0) {
-        ostr = new OutputStream(current.adapter.getCommunicator(), Protocol.currentProtocolEncoding);
+        ostr = new OutputStream(communicator, Protocol.currentProtocolEncoding);
         ostr.writeBlob(Protocol.replyHdr);
         ostr.writeInt(current.requestId);
     } else {
@@ -111,7 +113,7 @@ function createOutgoingResponseCore(current, exception) {
         }
         const operation = exception.operation.length == 0 ? current.operation : exception.operation;
 
-        exceptionDetails = ""; // TODO
+        exceptionDetails = RequestFailedException.createMessage(exception.name, id, facet, operation);
 
         if (current.requestId != 0) {
             ostr.writeByte(replyStatus.value);

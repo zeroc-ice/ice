@@ -15,15 +15,15 @@ const { EncodingVersion } = Ice_Version;
  **/
 export class Current {
     constructor(
-        adapter = null,
-        con = null,
-        id = new Identity(),
-        facet = "",
-        operation = "",
-        mode = OperationMode.Normal,
-        ctx = null,
-        requestId = 0,
-        encoding = new EncodingVersion(),
+        adapter,
+        con,
+        id,
+        facet,
+        operation,
+        mode,
+        ctx,
+        requestId,
+        encoding,
     ) {
         this.adapter = adapter;
         this.con = con;

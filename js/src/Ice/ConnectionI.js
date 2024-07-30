@@ -15,6 +15,7 @@ import {
     SocketException,
     FeatureNotSupportedException,
     UnknownException,
+    ObjectNotExistException,
 } from "./LocalExceptions.js";
 
 import { ConnectionClose } from "./Connection.js";
@@ -1456,8 +1457,7 @@ export class ConnectionI {
         try {
             while (requestCount > 0) {
                 // adapter can be null here, however the adapter set in current can't be null, and we never pass
-                // a null current.adapter to the application code. Once this file enables nullable, adapter should be
-                // adapter! below.
+                // a null current.adapter to the application code.
                 var request = new IncomingRequest(requestId, this, adapter, stream);
 
                 if (dispatcher !== null) {
@@ -1467,8 +1467,8 @@ export class ConnectionI {
                 } else {
                     // Received request on a connection without an object adapter.
                     this.sendResponse(
-                        request.current.createOutgoingResponseWithException(new ObjectNotExistException()),
-                        !_endpoint.datagram() && requestId != 0,
+                        request.current.createOutgoingResponseWithException(new ObjectNotExistException(), this._communicator),
+                        !this._endpoint.datagram() && requestId != 0,
                     );
                 }
                 --requestCount;
@@ -1497,7 +1497,9 @@ export class ConnectionI {
                 try {
                     response = await dispatcher.dispatch(request);
                 } catch (ex) {
-                    response = request.current.createOutgoingResponseWithException(ex);
+                    const communicator = request.current.adapter.getCommunicator();
+                    Debug.assert(communicator !== null);
+                    response = request.current.createOutgoingResponseWithException(ex, communicator);
                 }
                 connection.sendResponse(response, !connection._endpoint.datagram() && requestId != 0);
             } catch (ex) {
