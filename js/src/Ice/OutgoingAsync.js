@@ -39,6 +39,7 @@ import { InputStream } from "./Stream.js";
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
 import { Debug } from "./Debug.js";
+import { ReplyStatus } from "./ReplyStatus.js";
 
 export class OutgoingAsyncBase extends AsyncResult {
     constructor(communicator, operation, connection, proxy, adapter) {
@@ -414,17 +415,17 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                 this._is = new InputStream(this._instance, Protocol.currentProtocolEncoding);
             }
             this._is.swap(istr);
-            replyStatus = this._is.readByte();
+            replyStatus = ReplyStatus.valueOf(this._is.readByte());
 
             switch (replyStatus) {
-                case Protocol.replyOK:
-                case Protocol.replyUserException: {
+                case ReplyStatus.Ok:
+                case ReplyStatus.UserException: {
                     break;
                 }
 
-                case Protocol.replyObjectNotExist:
-                case Protocol.replyFacetNotExist:
-                case Protocol.replyOperationNotExist: {
+                case ReplyStatus.ObjectNotExist:
+                case ReplyStatus.FacetNotExist:
+                case ReplyStatus.OperationNotExist: {
                     const id = new Identity();
                     id._read(this._is);
 
@@ -447,38 +448,38 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                     const operation = this._is.readString();
 
                     switch (replyStatus) {
-                        case Protocol.replyObjectNotExist: {
+                        case ReplyStatus.ObjectNotExist: {
                             throw new ObjectNotExistException(id, facet, operation);
                         }
 
-                        case Protocol.replyFacetNotExist: {
+                        case ReplyStatus.FacetNotExist: {
                             throw new FacetNotExistException(id, facet, operation);
                         }
 
-                        case Protocol.replyOperationNotExist: {
+                        case ReplyStatus.OperationNotExist: {
                             throw new OperationNotExistException(id, facet, operation);
                         }
                     }
                 }
 
-                case Protocol.replyUnknownException:
-                case Protocol.replyUnknownLocalException:
-                case Protocol.replyUnknownUserException: {
+                case ReplyStatus.UnknownException:
+                case ReplyStatus.UnknownLocalException:
+                case ReplyStatus.UnknownUserException: {
                     const unknown = this._is.readString();
 
                     let ue = null;
                     switch (replyStatus) {
-                        case Protocol.replyUnknownException: {
+                        case ReplyStatus.UnknownException: {
                             ue = new UnknownException(unknown);
                             break;
                         }
 
-                        case Protocol.replyUnknownLocalException: {
+                        case ReplyStatus.UnknownLocalException: {
                             ue = new UnknownLocalException(unknown);
                             break;
                         }
 
-                        case Protocol.replyUnknownUserException: {
+                        case ReplyStatus.UnknownUserException: {
                             ue = new UnknownUserException(unknown);
                             break;
                         }
@@ -492,11 +493,11 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                 }
 
                 default: {
-                    throw new MarshalException(`Received reply message with unknown reply status ${replyStatus}.`);
+                    throw new MarshalException(`Received reply message with unknown reply status ${replyStatus} ${replyStatus.value}.`);
                 }
             }
 
-            this.markFinished(replyStatus == Protocol.replyOK, this._completed);
+            this.markFinished(replyStatus == ReplyStatus.Ok, this._completed);
         } catch (ex) {
             this.completedEx(ex);
         }
