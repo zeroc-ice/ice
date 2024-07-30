@@ -424,7 +424,6 @@
     {
         auto cppConnection = _prx->ice_getConnection();
         ICEConnection* connection = [ICEConnection getHandle:cppConnection];
-
         return connection ? connection : [NSNull null];
     }
     catch (...)
@@ -434,23 +433,23 @@
     }
 }
 
-- (void)ice_getConnectionAsyncWithCompletion:(void (^)(ICEConnection* _Nullable, NSError*))completion
+- (void)ice_getConnectionAsync:(void (^)(ICEConnection* _Nullable))response exception:(void (^)(NSError*))exception
 {
     try
     {
         _prx->ice_getConnectionAsync(
-            [completion](std::shared_ptr<Ice::Connection> cppConnection)
+            [response](std::shared_ptr<Ice::Connection> cppConnection)
             {
                 @autoreleasepool
                 {
-                    completion([ICEConnection getHandle:cppConnection], nullptr);
+                    response([ICEConnection getHandle:cppConnection]);
                 }
             },
-            [completion](std::exception_ptr e)
+            [exception](std::exception_ptr e)
             {
                 @autoreleasepool
                 {
-                    completion(nullptr, convertException(e));
+                    exception(convertException(e));
                 }
             });
     }
@@ -458,7 +457,7 @@
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation.
-        completion(nullptr, convertException(std::current_exception()));
+        exception(convertException(std::current_exception()));
     }
 }
 

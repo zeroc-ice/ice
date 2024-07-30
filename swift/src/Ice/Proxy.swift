@@ -706,9 +706,15 @@ extension ObjectPrx {
     ///
     /// - returns: `Ice.Connection?` - The result of the invocation.
     public func ice_getConnectionAsync() async throws -> Connection? {
-        let conn = try await self._impl.handle.ice_getConnectionAsync()
-        return conn.getSwiftObject(ConnectionI.self) {
-            ConnectionI(handle: conn)
+        return try await withCheckedThrowingContinuation { continuation in
+            self._impl.handle.ice_getConnectionAsync(
+                { connection in
+                    continuation.resume(
+                        returning:
+                            connection?.getSwiftObject(ConnectionI.self) {
+                                ConnectionI(handle: connection!)
+                            })
+                }, exception: { ex in continuation.resume(throwing: ex) })
         }
     }
 
