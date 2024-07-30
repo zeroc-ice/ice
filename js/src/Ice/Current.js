@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { defineStruct } from "./Struct.js";
 import { Ice as Ice_OperationMode } from "./OperationMode.js";
 const { OperationMode } = Ice_OperationMode;
 import { Ice as Ice_Identity } from "./Identity.js";
@@ -15,17 +14,7 @@ const { EncodingVersion } = Ice_Version;
  *  applications ignore this parameter.
  **/
 export class Current {
-    constructor(
-        adapter = null,
-        con = null,
-        id = new Identity(),
-        facet = "",
-        operation = "",
-        mode = OperationMode.Normal,
-        ctx = null,
-        requestId = 0,
-        encoding = new EncodingVersion(),
-    ) {
+    constructor(adapter, con, id, facet, operation, mode, ctx, requestId, encoding) {
         this.adapter = adapter;
         this.con = con;
         this.id = id;
@@ -37,5 +26,3 @@ export class Current {
         this.encoding = encoding;
     }
 }
-
-defineStruct(Current, false, true);

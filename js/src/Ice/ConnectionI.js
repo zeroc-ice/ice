@@ -15,6 +15,7 @@ import {
     SocketException,
     FeatureNotSupportedException,
     UnknownException,
+    ObjectNotExistException,
 } from "./LocalExceptions.js";
 
 import { ConnectionClose } from "./Connection.js";
@@ -34,11 +35,12 @@ import { AsyncStatus } from "./AsyncStatus.js";
 import { AsyncResultBase } from "./AsyncResultBase.js";
 import { RetryException } from "./RetryException.js";
 import { ConnectionFlushBatch, OutgoingAsync } from "./OutgoingAsync.js";
-import { IncomingAsync } from "./IncomingAsync.js";
 import { Debug } from "./Debug.js";
 import { IdleTimeoutTransceiverDecorator } from "./IdleTimeoutTransceiverDecorator.js";
 import { ObjectAdapter } from "./ObjectAdapter.js";
 import { ObjectPrx } from "./ObjectPrx.js";
+import { IncomingRequest } from "./IncomingRequest.js";
+import "./CurrentExtensions.js";
 
 const StateNotInitialized = 0;
 const StateNotValidated = 1;
@@ -51,11 +53,11 @@ const StateFinished = 6;
 class MessageInfo {
     constructor(instance) {
         this.stream = new InputStream(instance, Protocol.currentProtocolEncoding);
-        this.invokeNum = 0;
+        this.requestCount = 0;
         this.requestId = 0;
-        this.servantManager = null;
         this.adapter = null;
         this.outAsync = null;
+        this.upcallCount = 0;
     }
 }
 
@@ -129,7 +131,6 @@ export class ConnectionI {
         }
         this._transceiver = transceiver;
 
-        this._servantManager = null;
         this._closeCallback = null;
     }
 
@@ -405,7 +406,7 @@ export class ConnectionI {
         }
     }
 
-    sendResponse(os) {
+    sendResponse(response, isTwoWay) {
         Debug.assert(this._state > StateNotValidated);
 
         try {
@@ -421,37 +422,9 @@ export class ConnectionI {
                 throw this._exception;
             }
 
-            this.sendMessage(OutgoingMessage.createForStream(os, true));
-
-            --this._dispatchCount;
-
-            if (this._state === StateClosing && this._upcallCount === 0) {
-                this.initiateShutdown();
+            if (isTwoWay) {
+                this.sendMessage(OutgoingMessage.createForStream(response.outputStream, true));
             }
-        } catch (ex) {
-            if (ex instanceof LocalException) {
-                this.setState(StateClosed, ex);
-            } else {
-                throw ex;
-            }
-        }
-    }
-
-    sendNoResponse() {
-        Debug.assert(this._state > StateNotValidated);
-        try {
-            if (--this._upcallCount === 0) {
-                if (this._state === StateFinished) {
-                    this._removeFromFactory(this);
-                }
-                this.checkState();
-            }
-
-            if (this._state >= StateClosed) {
-                Debug.assert(this._exception !== null);
-                throw this._exception;
-            }
-
             --this._dispatchCount;
 
             if (this._state === StateClosing && this._upcallCount === 0) {
@@ -477,13 +450,11 @@ export class ConnectionI {
                 return;
             }
             this._adapter = adapter;
-            this._servantManager = adapter.getServantManager(); // The ObjectAdapter's servant manager is immutable.
         } else {
             if (this._state <= StateNotValidated || this._state >= StateClosing) {
                 return;
             }
             this._adapter = null;
-            this._servantManager = null;
         }
     }
 
@@ -652,14 +623,14 @@ export class ConnectionI {
             }
         }
 
-        this.dispatch(info);
+        this.upcall(info);
 
         if (this._hasMoreData.value) {
             Timer.setImmediate(() => this.message(SocketOperation.Read)); // Don't tie up the thread.
         }
     }
 
-    dispatch(info) {
+    upcall(info) {
         let count = 0;
         //
         // Notify the factory that the connection establishment and
@@ -678,8 +649,8 @@ export class ConnectionI {
                 ++count;
             }
 
-            if (info.invokeNum > 0) {
-                this.invokeAll(info.stream, info.invokeNum, info.requestId, info.servantManager, info.adapter);
+            if (info.requestCount > 0) {
+                this.dispatchAll(info.stream, info.requestCount, info.requestId, info.adapter);
 
                 //
                 // Don't increase count, the dispatch count is
@@ -856,17 +827,17 @@ export class ConnectionI {
         this.setState(StateClosed, ex);
     }
 
-    dispatchException(ex, invokeNum) {
+    dispatchException(ex, requestCount) {
         //
-        // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
+        // Fatal exception while invoking a request. Since sendResponse isn't
         // called in case of a fatal exception we decrement this._upcallCount here.
         //
 
         this.setState(StateClosed, ex);
 
-        if (invokeNum > 0) {
-            Debug.assert(this._upcallCount > 0);
-            this._upcallCount -= invokeNum;
+        if (requestCount > 0) {
+            Debug.assert(this._upcallCount > requestCount);
+            this._upcallCount -= requestCount;
             Debug.assert(this._upcallCount >= 0);
             if (this._upcallCount === 0) {
                 if (this._state === StateFinished) {
@@ -1407,8 +1378,7 @@ export class ConnectionI {
                     } else {
                         TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
                         info.requestId = info.stream.readInt();
-                        info.invokeNum = 1;
-                        info.servantManager = this._servantManager;
+                        info.requestCount = 1;
                         info.adapter = this._adapter;
                         ++this._upcallCount;
 
@@ -1429,13 +1399,12 @@ export class ConnectionI {
                     } else {
                         TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
                         const requestCount = info.stream.readInt();
-                        if (info.invokeNum < 0) {
+                        if (info.requestCount < 0) {
                             throw new MarshalException(`Received batch request with ${requestCount} batches.`);
                         }
-                        info.invokeNum = requestCount;
-                        info.servantManager = this._servantManager;
+                        info.requestCount = requestCount;
                         info.adapter = this._adapter;
-                        this._upcallCount += info.invokeNum;
+                        this._upcallCount += info.requestCount;
 
                         this.cancelInactivityTimer();
                         ++this._dispatchCount;
@@ -1483,32 +1452,35 @@ export class ConnectionI {
         return info;
     }
 
-    invokeAll(stream, invokeNum, requestId, servantManager, adapter) {
+    dispatchAll(stream, requestCount, requestId, adapter) {
+        const dispatcher = adapter !== null ? adapter.dispatchPipeline : null;
         try {
-            while (invokeNum > 0) {
-                //
-                // Prepare the invocation.
-                //
-                const inc = new IncomingAsync(
-                    this._instance,
-                    this,
-                    adapter,
-                    requestId !== 0, // response
-                    requestId,
-                );
+            while (requestCount > 0) {
+                // adapter can be null here, however the adapter set in current can't be null, and we never pass
+                // a null current.adapter to the application code.
+                var request = new IncomingRequest(requestId, this, adapter, stream);
 
-                //
-                // Dispatch the invocation.
-                //
-                inc.invoke(servantManager, stream);
-
-                --invokeNum;
+                if (dispatcher !== null) {
+                    // We don't and can't await the dispatchAsync: with batch requests, we want all the dispatches to
+                    // execute synchronously. If we awaited the dispatchAsync, we could switch to another event loop task.
+                    dispatchAsync(this, request);
+                } else {
+                    // Received request on a connection without an object adapter.
+                    this.sendResponse(
+                        request.current.createOutgoingResponseWithException(
+                            new ObjectNotExistException(),
+                            this._communicator,
+                        ),
+                        !this._endpoint.datagram() && requestId != 0,
+                    );
+                }
+                --requestCount;
             }
 
             stream.clear();
         } catch (ex) {
             if (ex instanceof LocalException) {
-                this.dispatchException(ex, invokeNum);
+                this.dispatchException(ex, requestCount);
             } else {
                 //
                 // An Error was raised outside of servant code (i.e., by Ice code).
@@ -1517,8 +1489,24 @@ export class ConnectionI {
                 this._logger.error(`unexpected exception:\n ${ex}`);
                 this.dispatchException(
                     new UnknownException("unexpected exception dispatching request", { cause: ex }),
-                    invokeNum,
+                    requestCount,
                 );
+            }
+        }
+
+        async function dispatchAsync(connection, request) {
+            try {
+                let response;
+                try {
+                    response = await dispatcher.dispatch(request);
+                } catch (ex) {
+                    const communicator = request.current.adapter.getCommunicator();
+                    Debug.assert(communicator !== null);
+                    response = request.current.createOutgoingResponseWithException(ex, communicator);
+                }
+                connection.sendResponse(response, !connection._endpoint.datagram() && requestId != 0);
+            } catch (ex) {
+                connection.dispatchException(ex, 1);
             }
         }
     }

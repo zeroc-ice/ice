@@ -11,15 +11,15 @@ declare module "ice" {
          */
         class Current {
             constructor(
-                adapter?: Ice.ObjectAdapter,
-                con?: Ice.Connection,
-                id?: Identity,
-                facet?: string,
-                operation?: string,
-                mode?: OperationMode,
-                ctx?: Context,
-                requestId?: number,
-                encoding?: EncodingVersion,
+                adapter: Ice.ObjectAdapter,
+                con: Ice.Connection,
+                id: Identity,
+                facet: string,
+                operation: string,
+                mode: OperationMode,
+                ctx: Context,
+                requestId: number,
+                encoding: EncodingVersion,
             );
             clone(): Current;
             equals(rhs: any): boolean;
@@ -34,6 +34,13 @@ declare module "ice" {
             encoding: EncodingVersion;
             static write(outs: OutputStream, value: Current): void;
             static read(ins: InputStream): Current;
+
+            createOutgoingResponseWithResult(
+                marshal: (ostr: OutputStream) => void,
+                formatType?: FormatType,
+            ): OutgoingResponse;
+            createEmptyOutgoingResponse(): OutgoingResponse;
+            createOutgoingResponseWithException(exception: Exception, communicator: Communicator): OutgoingResponse;
         }
     }
 }

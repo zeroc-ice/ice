@@ -35,6 +35,14 @@ declare module "ice" {
             ice_id(current: Current): string | PromiseLike<string>;
 
             /**
+             * Dispatches an incoming request and returns the corresponding outgoing response.
+             * @param request The incoming request.
+             * @return A value task that holds the outgoing response.
+             * @remarks Ice marshals any exception thrown by this method into the response.
+             */
+            dispatch(request: IncomingRequest): OutgoingResponse | PromiseLike<OutgoingResponse>;
+
+            /**
              * Obtains the Slice type ID of this type.
              * @return The return value is always "::Ice::Object".
              */
