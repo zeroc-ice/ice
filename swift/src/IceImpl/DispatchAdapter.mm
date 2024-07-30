@@ -20,7 +20,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     const std::byte* inEncaps;
     std::function<void()> cleanup;
 
-    // An InputSteam can contain one or more requsts when a batch request is being processed. In this case we can't
+    // An InputSteam can contain one or more requests when a batch request is being processed. In this case we can't
     // take the memory from the InputSteam as its memory is needed for subsequent requests.
     // Since batch requests are always oneway and there is no way to tell if a request is batched or not
     // we create a copy of the encapsulation for all oneway requests.
