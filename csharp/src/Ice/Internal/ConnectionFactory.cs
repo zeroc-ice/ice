@@ -466,6 +466,7 @@ public sealed class OutgoingConnectionFactory
                 }
 
                 connection = new Ice.ConnectionI(
+                    _communicator,
                     _instance,
                     transceiver,
                     ci.connector,
@@ -924,7 +925,7 @@ public sealed class OutgoingConnectionFactory
                 {
                     //
                     // A null return value from getConnection indicates that the connection
-                    // is being established and that everthing has been done to ensure that
+                    // is being established and that everything has been done to ensure that
                     // the callback will be notified when the connection establishment is
                     // done.
                     //
@@ -1392,6 +1393,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 try
                 {
                     connection = new Ice.ConnectionI(
+                        _adapter.getCommunicator(),
                         _instance,
                         transceiver,
                         null,
@@ -1529,6 +1531,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 _endpoint = _transceiver.bind();
 
                 Ice.ConnectionI connection = new Ice.ConnectionI(
+                    adapter.getCommunicator(),
                     _instance,
                     _transceiver,
                     connector: null,
