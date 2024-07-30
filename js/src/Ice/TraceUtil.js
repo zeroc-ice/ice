@@ -12,6 +12,7 @@ import { identityToString } from "./IdentityToString.js";
 import { ToStringMode } from "./ToStringMode.js";
 
 import { Encoding_1_0, encodingVersionToString } from "./Protocol.js";
+import { ReplyStatus } from "./ReplyStatus.js";
 
 // TODO Circular dependency
 // import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
@@ -66,35 +67,35 @@ function printReply(s, stream) {
     const requestId = stream.readInt();
     s.push("\nrequest id = " + requestId);
 
-    const replyStatus = stream.readByte();
-    s.push("\nreply status = " + replyStatus + " ");
+    const replyStatus = ReplyStatus.valueOf(stream.readByte());
+    s.push("\nreply status = " + replyStatus.value + " ");
 
     switch (replyStatus) {
-        case Protocol.replyOK: {
+        case ReplyStatus.Ok: {
             s.push("(ok)");
             break;
         }
 
-        case Protocol.replyUserException: {
+        case ReplyStatus.UserException: {
             s.push("(user exception)");
             break;
         }
 
-        case Protocol.replyObjectNotExist:
-        case Protocol.replyFacetNotExist:
-        case Protocol.replyOperationNotExist: {
+        case ReplyStatus.ObjectNotExist:
+        case ReplyStatus.FacetNotExist:
+        case ReplyStatus.OperationNotExist: {
             switch (replyStatus) {
-                case Protocol.replyObjectNotExist: {
+                case ReplyStatus.ObjectNotExist: {
                     s.push("(object not exist)");
                     break;
                 }
 
-                case Protocol.replyFacetNotExist: {
+                case ReplyStatus.FacetNotExist: {
                     s.push("(facet not exist)");
                     break;
                 }
 
-                case Protocol.replyOperationNotExist: {
+                case ReplyStatus.OperationNotExist: {
                     s.push("(operation not exist)");
                     break;
                 }
@@ -109,21 +110,21 @@ function printReply(s, stream) {
             break;
         }
 
-        case Protocol.replyUnknownException:
-        case Protocol.replyUnknownLocalException:
-        case Protocol.replyUnknownUserException: {
+        case ReplyStatus.UnknownException:
+        case ReplyStatus.UnknownLocalException:
+        case ReplyStatus.UnknownUserException: {
             switch (replyStatus) {
-                case Protocol.replyUnknownException: {
+                case ReplyStatus.UnknownException: {
                     s.push("(unknown exception)");
                     break;
                 }
 
-                case Protocol.replyUnknownLocalException: {
+                case ReplyStatus.UnknownLocalException: {
                     s.push("(unknown local exception)");
                     break;
                 }
 
-                case Protocol.replyUnknownUserException: {
+                case ReplyStatus.UnknownUserException: {
                     s.push("(unknown user exception)");
                     break;
                 }
@@ -145,7 +146,7 @@ function printReply(s, stream) {
         }
     }
 
-    if (replyStatus === Protocol.replyOK || replyStatus === Protocol.replyUserException) {
+    if (replyStatus === ReplyStatus.Ok || replyStatus === ReplyStatus.UserException) {
         const ver = stream.skipEncapsulation();
         if (!ver.equals(Encoding_1_0)) {
             s.push("\nencoding = ");

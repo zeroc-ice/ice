@@ -49,18 +49,6 @@ declare module "ice" {
             static readonly validateConnectionMsg: number;
             static readonly closeConnectionMsg: number;
 
-            //
-            // Reply status
-            //
-            static readonly replyOK: number;
-            static readonly replyUserException: number;
-            static readonly replyObjectNotExist: number;
-            static readonly replyFacetNotExist: number;
-            static readonly replyOperationNotExist: number;
-            static readonly replyUnknownLocalException: number;
-            static readonly replyUnknownUserException: number;
-            static readonly replyUnknownException: number;
-
             static readonly requestHdr: Uint8Array;
 
             static readonly requestBatchHdr: Uint8Array;
