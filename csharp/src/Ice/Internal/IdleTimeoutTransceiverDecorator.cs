@@ -9,6 +9,8 @@ namespace Ice.Internal;
 
 internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 {
+    public bool isWaitingToBeRead => _decoratee.isWaitingToBeRead;
+
     private readonly Transceiver _decoratee;
     private readonly TimeSpan _idleTimeout;
     private readonly System.Threading.Timer? _readTimer;
@@ -106,7 +108,7 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
         if (enableIdleCheck)
         {
-            _readTimer = new System.Threading.Timer(_ => connection.idleCheck(_idleTimeout));
+            _readTimer = new System.Threading.Timer(_ => connection.idleCheck(_idleTimeout, rescheduleReadTimer));
         }
 
         _writeTimer = new System.Threading.Timer(_ => connection.sendHeartbeat());
