@@ -196,8 +196,7 @@ IcePy::getAttr(PyObject* obj, const string& attrib, bool allowNone)
     {
         if (!allowNone)
         {
-            Py_DECREF(v);
-            v = 0;
+            v = nullptr;
         }
     }
     else if (!v)
@@ -272,22 +271,24 @@ IcePy::PyObjectHandle::release()
 
 IcePy::PyException::PyException()
 {
-    PyObject* type;
-    PyObject* e;
-    PyObject* tb;
-
-    PyErr_Fetch(&type, &e, &tb); // PyErr_Fetch clears the exception.
-    PyErr_NormalizeException(&type, &e, &tb);
-
-    _type = type;
-    ex = e;
-    _tb = tb;
+    ex = PyErr_GetRaisedException();
+    if (ex)
+    {
+        PyObject* type = reinterpret_cast<PyObject*>(Py_TYPE(ex.get()));
+        Py_INCREF(type);
+        _type = type;
+        _tb = PyException_GetTraceback(ex.get());
+    }
 }
 
-IcePy::PyException::PyException(PyObject* p)
+IcePy::PyException::PyException(PyObject* raisedException)
 {
-    ex = p;
-    Py_XINCREF(p);
+    Py_XINCREF(raisedException);
+    ex = raisedException;
+    PyObject* type = reinterpret_cast<PyObject*>(Py_TYPE(raisedException));
+    Py_INCREF(type);
+    _type = type;
+    _tb = PyException_GetTraceback(raisedException);
 }
 
 void
@@ -367,17 +368,33 @@ IcePy::PyException::raiseLocalException()
 {
     string typeName = getTypeName();
 
-    if (typeName == "Ice.ObjectNotExistException")
+    PyObject* requestFailedExceptionType = lookupType("Ice.RequestFailedException");
+
+    if (PyObject_IsInstance(ex.get(), requestFailedExceptionType))
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-    }
-    else if (typeName == "Ice.OperationNotExistException")
-    {
-        throw Ice::OperationNotExistException(__FILE__, __LINE__);
-    }
-    else if (typeName == "Ice.FacetNotExistException")
-    {
-        throw Ice::FacetNotExistException(__FILE__, __LINE__);
+        PyObjectHandle idAttr = getAttr(ex.get(), "id", false);
+        Ice::Identity id;
+        if (idAttr.get())
+        {
+            IcePy::getIdentity(idAttr.get(), id);
+        }
+        PyObjectHandle facetAttr = getAttr(ex.get(), "facet", false);
+        string  facet = getString(facetAttr.get());
+        PyObjectHandle operationAttr = getAttr(ex.get(), "operation", false);
+        string operation = getString(operationAttr.get());
+
+        if (typeName == "Ice.ObjectNotExistException")
+        {
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__, std::move(id), std::move(facet), std::move(operation));
+        }
+        else if (typeName == "Ice.OperationNotExistException")
+        {
+            throw Ice::OperationNotExistException(__FILE__, __LINE__, std::move(id), std::move(facet), std::move(operation));
+        }
+        else if (typeName == "Ice.FacetNotExistException")
+        {
+            throw Ice::FacetNotExistException(__FILE__, __LINE__, std::move(id), std::move(facet), std::move(operation));
+        }
     }
 
     IcePy::PyObjectHandle exStr = PyObject_Str(ex.get());
