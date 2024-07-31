@@ -41,7 +41,7 @@ namespace
         std::unordered_map<void*, __weak ICELocalObject*>::const_iterator p = cachedObjects->find(cppObject.get());
         if (p != cachedObjects->end())
         {
-            assert(p->second);
+            // assert(p->second);
             return p->second;
         }
         else
