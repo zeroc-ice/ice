@@ -50,12 +50,12 @@ module Ice
       include Comparable
 
       def initialize(val)
-          fail("invalid value #{val} for FormatType") unless(val >= 0 and val < 3)
+          fail("invalid value #{val} for FormatType") unless(val >= 0 and val < 2)
           @val = val
       end
 
       def FormatType.from_int(val)
-          raise IndexError, "#{val} is out of range 0..2" if(val < 0 || val > 2)
+          raise IndexError, "#{val} is out of range 0..1" if(val < 0 || val > 1)
           @@_values[val]
       end
 
@@ -84,12 +84,11 @@ module Ice
           @@_values.each(&block)
       end
 
-      @@_names = ['DefaultFormat', 'CompactFormat', 'SlicedFormat']
-      @@_values = [FormatType.new(0), FormatType.new(1), FormatType.new(2)]
+      @@_names = ['CompactFormat', 'SlicedFormat']
+      @@_values = [FormatType.new(0), FormatType.new(1)]
 
-      DefaultFormat = @@_values[0]
-      CompactFormat = @@_values[1]
-      SlicedFormat = @@_values[2]
+      CompactFormat = @@_values[0]
+      SlicedFormat = @@_values[1]
 
       private_class_method :new
     end

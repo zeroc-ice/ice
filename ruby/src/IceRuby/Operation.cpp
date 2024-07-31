@@ -49,7 +49,7 @@ namespace IceRuby
         string _name;
         Ice::OperationMode _mode;
         bool _amd;
-        Ice::FormatType _format;
+        std::optional<Ice::FormatType> _format;
         ParamInfoList _inParams;
         ParamInfoList _optionalInParams;
         ParamInfoList _outParams;
@@ -181,7 +181,7 @@ IceRuby::OperationI::OperationI(
     //
     if (format == Qnil)
     {
-        _format = Ice::FormatType::DefaultFormat;
+        _format = std::nullopt;
     }
     else
     {
