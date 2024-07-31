@@ -131,8 +131,7 @@ public static class CurrentExtensions
 
             if (current.requestId != 0)
             {
-                // The default class format doesn't matter since we always encode user exception
-                // in Sliced format.
+                // The default class format doesn't matter since we always encode user exceptions in Sliced format.
                 ostr = new OutputStream(Util.currentProtocolEncoding);
                 ostr.writeBlob(Protocol.replyHdr);
                 ostr.writeInt(current.requestId);
