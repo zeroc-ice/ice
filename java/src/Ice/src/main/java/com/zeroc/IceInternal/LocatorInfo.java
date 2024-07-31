@@ -418,10 +418,7 @@ public final class LocatorInfo {
             .trace(instance.traceLevels().locationCat, s.toString());
       }
 
-      com.zeroc.Ice.NotRegisteredException e = new com.zeroc.Ice.NotRegisteredException();
-      e.kindOfObject = "object adapter";
-      e.id = ref.getAdapterId();
-      throw e;
+      throw new com.zeroc.Ice.NotRegisteredException("object adapter", ref.getAdapterId());
     } catch (com.zeroc.Ice.ObjectNotFoundException ex) {
       final Instance instance = ref.getInstance();
       if (instance.traceLevels().location >= 1) {
@@ -435,10 +432,8 @@ public final class LocatorInfo {
             .trace(instance.traceLevels().locationCat, s.toString());
       }
 
-      com.zeroc.Ice.NotRegisteredException e = new com.zeroc.Ice.NotRegisteredException();
-      e.kindOfObject = "object";
-      e.id = com.zeroc.Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode());
-      throw e;
+      final String id = com.zeroc.Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode());
+      throw new com.zeroc.Ice.NotRegisteredException("object", id);
     } catch (com.zeroc.Ice.NotRegisteredException ex) {
       throw ex;
     } catch (com.zeroc.Ice.LocalException ex) {

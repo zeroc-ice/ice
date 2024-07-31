@@ -1182,9 +1182,7 @@ public final class ObjectAdapter {
       _instance = null;
       _incomingConnectionFactories = null;
 
-      InitializationException ex = new InitializationException();
-      ex.reason = "object adapter `" + _name + "' requires configuration";
-      throw ex;
+      throw new InitializationException("Object adapter '" + _name + "' requires configuration.");
     }
 
     _id = properties.getProperty(_name + ".AdapterId");
@@ -1351,9 +1349,7 @@ public final class ObjectAdapter {
 
   private void checkForDeactivation() {
     if (_state >= StateDeactivating) {
-      ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
-      ex.name = getName();
-      throw ex;
+      throw new ObjectAdapterDeactivatedException(getName());
     }
   }
 
@@ -1524,10 +1520,7 @@ public final class ObjectAdapter {
             .trace(_instance.traceLevels().locationCat, s.toString());
       }
 
-      NotRegisteredException ex1 = new NotRegisteredException();
-      ex1.kindOfObject = "object adapter";
-      ex1.id = _id;
-      throw ex1;
+      throw new NotRegisteredException("object adapter", _id);
     } catch (InvalidReplicaGroupIdException ex) {
       if (_instance.traceLevels().location >= 1) {
         StringBuilder s = new StringBuilder(128);
@@ -1543,10 +1536,7 @@ public final class ObjectAdapter {
             .trace(_instance.traceLevels().locationCat, s.toString());
       }
 
-      NotRegisteredException ex1 = new NotRegisteredException();
-      ex1.kindOfObject = "replica group";
-      ex1.id = _replicaGroupId;
-      throw ex1;
+      throw new NotRegisteredException("replica group", _replicaGroupId);
     } catch (AdapterAlreadyActiveException ex) {
       if (_instance.traceLevels().location >= 1) {
         StringBuilder s = new StringBuilder(128);
@@ -1560,9 +1550,7 @@ public final class ObjectAdapter {
             .trace(_instance.traceLevels().locationCat, s.toString());
       }
 
-      ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-      ex1.id = _id;
-      throw ex1;
+      throw new ObjectAdapterIdInUseException(_id);
     } catch (ObjectAdapterDeactivatedException e) {
       // Expected if collocated call and OA is deactivated, ignore.
     } catch (CommunicatorDestroyedException e) {

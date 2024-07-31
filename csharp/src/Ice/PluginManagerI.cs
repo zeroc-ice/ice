@@ -44,7 +44,7 @@ internal sealed class PluginManagerI : PluginManager
     {
         if (_initialized)
         {
-            throw new InitializationException("Plug-ins already initialized.");
+            throw new InitializationException("plug-ins already initialized");
         }
 
         //

@@ -404,7 +404,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     // UnknownLocalException instead), which means there was a problem
     // in this process that will not change if we try again.
     //
-    // The most likely cause for a MarshalException is exceeding the
+    // A likely cause for a MarshalException is exceeding the
     // maximum message size. For example, a client can attempt to send
     // a message that exceeds the maximum memory size, or accumulate
     // enough batch requests without flushing that the maximum size is
@@ -427,16 +427,14 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
       throw ex;
     }
 
-    // Don't retry is the connection was closed by the application.
+    // Don't retry if the connection was closed by the application.
     if (ex instanceof com.zeroc.Ice.ConnectionAbortedException) {
-      var e = (com.zeroc.Ice.ConnectionAbortedException) ex;
-      if (e.closedByApplication) {
+      if (((com.zeroc.Ice.ConnectionAbortedException) ex).closedByApplication) {
         throw ex;
       }
     }
     if (ex instanceof com.zeroc.Ice.ConnectionClosedException) {
-      var e = (com.zeroc.Ice.ConnectionClosedException) ex;
-      if (e.closedByApplication) {
+      if (((com.zeroc.Ice.ConnectionClosedException) ex).closedByApplication) {
         throw ex;
       }
     }

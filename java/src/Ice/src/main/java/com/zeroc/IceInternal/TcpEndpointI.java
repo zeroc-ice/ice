@@ -238,7 +238,7 @@ final class TcpEndpointI extends IPEndpointI {
               }
             } catch (NumberFormatException ex) {
               throw new ParseException(
-                  "invalid timeout value `" + argument + "' in endpoint '" + endpoint + "'", ex);
+                  "invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'", ex);
             }
           }
 

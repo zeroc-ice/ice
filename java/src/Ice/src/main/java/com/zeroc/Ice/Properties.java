@@ -453,9 +453,7 @@ public final class Properties {
         java.lang.Process process = Runtime.getRuntime().exec(new String[] {"reg", "query", file});
         process.waitFor();
         if (process.exitValue() != 0) {
-          InitializationException ie = new InitializationException();
-          ie.reason = "Could not read Windows registry key `" + file + "'";
-          throw ie;
+          throw new InitializationException("Could not read Windows registry key '" + file + "'");
         }
 
         java.io.InputStream is = process.getInputStream();

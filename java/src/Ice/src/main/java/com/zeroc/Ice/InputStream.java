@@ -1814,7 +1814,7 @@ public class InputStream {
         }
       }
     } catch (java.lang.Exception ex) {
-      throw new MarshalException(ex);
+      throw new MarshalException("Failed to create user exception with type ID '" + id + "'.", ex);
     }
 
     return userEx;

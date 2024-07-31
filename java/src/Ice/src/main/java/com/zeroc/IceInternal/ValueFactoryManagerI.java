@@ -10,10 +10,7 @@ final class ValueFactoryManagerI implements com.zeroc.Ice.ValueFactoryManager {
   public synchronized void add(ValueFactory factory, String id) {
     Object o = _factoryMap.get(id);
     if (o != null) {
-      com.zeroc.Ice.AlreadyRegisteredException ex = new com.zeroc.Ice.AlreadyRegisteredException();
-      ex.id = id;
-      ex.kindOfObject = "value factory";
-      throw ex;
+      throw new com.zeroc.Ice.AlreadyRegisteredException("value factory", id);
     }
     _factoryMap.put(id, factory);
   }

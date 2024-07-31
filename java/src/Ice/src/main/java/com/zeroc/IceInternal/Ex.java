@@ -13,7 +13,7 @@ public class Ex {
     if (v instanceof com.zeroc.Ice.UnknownSlicedValue) {
       var usv = (com.zeroc.Ice.UnknownSlicedValue) v;
       throw new MarshalException(
-          "Cannot find value factory to unmarshal class with type ID '" + usv.ice_id() + "'");
+          "Cannot find value factory to unmarshal class with type ID '" + usv.ice_id() + "'.");
     }
 
     String type = v.ice_id();
@@ -37,7 +37,7 @@ public class Ex {
     if (v instanceof com.zeroc.Ice.UnknownSlicedValue) {
       var usv = (com.zeroc.Ice.UnknownSlicedValue) v;
       throw new MarshalException(
-          "Cannot find value factory to unmarshal class with type ID '" + usv.ice_id() + "'");
+          "Cannot find value factory to unmarshal class with type ID '" + usv.ice_id() + "'.");
     }
 
     String type = v.ice_id();

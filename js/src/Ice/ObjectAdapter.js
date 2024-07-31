@@ -110,7 +110,7 @@ export class ObjectAdapter {
         // Make sure named adapter has some configuration.
         //
         if (router === null && noProps) {
-            throw new InitializationException(`object adapter '${this._name}' requires configuration`);
+            throw new InitializationException(`Object adapter '${this._name}' requires configuration.`);
         }
 
         //

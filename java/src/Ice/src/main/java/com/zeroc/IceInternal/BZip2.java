@@ -44,7 +44,7 @@ public class BZip2 {
       os.close();
       compressedLen = bos.pos();
     } catch (Exception ex) {
-      throw new com.zeroc.Ice.ProtocolException("bzip2 compression failure", ex);
+      throw new com.zeroc.Ice.ProtocolException("bzip2 compression failed", ex);
     }
 
     //
@@ -133,7 +133,7 @@ public class BZip2 {
       }
       is.close();
     } catch (Exception ex) {
-      throw new com.zeroc.Ice.ProtocolException("bzip2 uncompression failure", ex);
+      throw new com.zeroc.Ice.ProtocolException("bzip2 uncompression failed", ex);
     }
 
     //

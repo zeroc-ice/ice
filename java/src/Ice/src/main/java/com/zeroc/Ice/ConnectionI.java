@@ -115,7 +115,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     switch (reason) {
       case ObjectAdapterDeactivated:
         {
-          setState(StateClosing, new ObjectAdapterDeactivatedException());
+          setState(StateClosing, new ObjectAdapterDeactivatedException(_adapter != null ? _adapter.getName() : ""));
           break;
         }
 
