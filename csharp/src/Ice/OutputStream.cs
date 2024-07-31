@@ -13,7 +13,7 @@ namespace Ice;
 /// Interface for output streams used to write Slice types to a sequence
 /// of bytes.
 /// </summary>
-public class OutputStream
+public sealed class OutputStream
 {
     /// <summary>
     /// Constructs an empty output stream.
@@ -24,7 +24,7 @@ public class OutputStream
     {
         Debug.Assert(format != FormatType.DefaultFormat); // TODO: remove default format from enum
 
-        _buf = new Ice.Internal.Buffer();
+        _buf = new Internal.Buffer();
         _encoding = encoding ?? Util.currentEncoding;
         _format = format;
     }
