@@ -1355,7 +1355,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     }
 
     internal ConnectionI(
-        Communicator communicator,
         Instance instance,
         Transceiver transceiver,
         Connector connector,
@@ -1364,7 +1363,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         Action<ConnectionI> removeFromFactory, // can be null
         ConnectionOptions options)
     {
-        _communicator = communicator;
         _instance = instance;
         _desc = transceiver.ToString();
         _type = transceiver.protocol();
@@ -2433,7 +2431,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     // Received request on a connection without an object adapter.
                     sendResponse(
-                        request.current.createOutgoingResponse(new ObjectNotExistException(), _communicator),
+                        request.current.createOutgoingResponse(new ObjectNotExistException()),
                         isTwoWay: !_endpoint.datagram() && requestId != 0,
                         compress: 0);
                 }
@@ -2823,7 +2821,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         internal bool receivedReply;
     }
 
-    private Communicator _communicator;
     private Instance _instance;
     private readonly Transceiver _transceiver;
     private string _desc;

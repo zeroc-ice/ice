@@ -113,12 +113,8 @@ public static class CurrentExtensions
     /// <param name="current">The current object of the corresponding incoming request.</param>
     /// <param name="exception">The exception to marshal into the response payload.</param>
     /// <returns>A new outgoing response.</returns>
-    public static OutgoingResponse createOutgoingResponse(
-        this Current current,
-        System.Exception exception,
-        Communicator? communicator = null)
+    public static OutgoingResponse createOutgoingResponse(this Current current, System.Exception exception)
     {
-        communicator ??= current.adapter.getCommunicator() ?? throw new ArgumentNullException(nameof(communicator));
         try
         {
             return createOutgoingResponseCore(exception, communicator);
@@ -129,13 +125,13 @@ public static class CurrentExtensions
             return createOutgoingResponseCore(ex, communicator);
         }
 
-        OutgoingResponse createOutgoingResponseCore(System.Exception exc, Communicator communicator)
+        OutgoingResponse createOutgoingResponseCore(System.Exception exc)
         {
             OutputStream ostr;
 
             if (current.requestId != 0)
             {
-                ostr = new OutputStream(communicator, Util.currentProtocolEncoding);
+                ostr = new OutputStream(Util.currentProtocolEncoding);
                 ostr.writeBlob(Protocol.replyHdr);
                 ostr.writeInt(current.requestId);
             }

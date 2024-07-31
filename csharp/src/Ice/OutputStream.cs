@@ -27,6 +27,15 @@ public class OutputStream
         _format = FormatType.CompactFormat;
     }
 
+    public OutputStream(EncodingVersion encoding)
+    {
+        _buf = new Ice.Internal.Buffer();
+        _instance = null;
+        _closure = null;
+        _encoding = encoding;
+        _format = FormatType.CompactFormat;
+    }
+
     /// <summary>
     /// This constructor uses the communicator's default encoding version.
     /// </summary>

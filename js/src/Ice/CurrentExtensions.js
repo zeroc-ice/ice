@@ -76,11 +76,11 @@ function startReplyStream(current, replyStatus = ReplyStatus.Ok) {
     }
 }
 
-function createOutgoingResponseCore(current, exception, communicator) {
+function createOutgoingResponseCore(current, exception) {
     let ostr;
 
     if (current.requestId != 0) {
-        ostr = new OutputStream(communicator, Protocol.currentProtocolEncoding);
+        ostr = new OutputStream(Protocol.currentProtocolEncoding);
         ostr.writeBlob(Protocol.replyHdr);
         ostr.writeInt(current.requestId);
     } else {
