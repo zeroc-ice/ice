@@ -839,4 +839,44 @@ def allTests(helper, communicator):
         pass
     print("ok")
 
+    sys.stdout.write("testing exceptions in request failed exception... ")
+    sys.stdout.flush()
+    try:
+        thrower.throwRequestFailedException(
+            "Ice.ObjectNotExistException",
+            Ice.Identity("name", "category"),
+            "facet",
+            "operation")
+        test(False)
+    except Ice.ObjectNotExistException as ex:
+        test(ex.id == Ice.Identity("name", "category"))
+        test(ex.facet == "facet")
+        test(ex.operation == "operation")
+
+    try:
+        thrower.throwRequestFailedException(
+            "Ice.OperationNotExistException",
+            Ice.Identity("name", "category"),
+            "facet",
+            "operation")
+        test(False)
+    except Ice.OperationNotExistException as ex:
+        test(ex.id == Ice.Identity("name", "category"))
+        test(ex.facet == "facet")
+        test(ex.operation == "operation")
+
+    try:
+        thrower.throwRequestFailedException(
+            "Ice.FacetNotExistException",
+            Ice.Identity("name", "category"),
+            "facet",
+            "operation")
+        test(False)
+    except Ice.FacetNotExistException as ex:
+        test(ex.id == Ice.Identity("name", "category"))
+        test(ex.facet == "facet")
+        test(ex.operation == "operation")
+
+
+    print("ok")
     return thrower
