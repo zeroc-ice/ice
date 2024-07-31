@@ -1862,14 +1862,14 @@ public class SessionKeeper {
                     } catch (com.zeroc.Ice.ParseException ex) {
                       JOptionPane.showMessageDialog(
                           ConnectionWizardDialog.this,
-                          ex.str,
+                          ex.getMessage(),
                           "Error parsing endpoint",
                           JOptionPane.ERROR_MESSAGE);
                       return;
                     } catch (com.zeroc.Ice.Exception ex) {
                       JOptionPane.showMessageDialog(
                           ConnectionWizardDialog.this,
-                          ex.str,
+                          ex.getMessage(),
                           "Error parsing endpoint",
                           JOptionPane.ERROR_MESSAGE);
                       return;
@@ -1908,14 +1908,7 @@ public class SessionKeeper {
                     } catch (com.zeroc.Ice.ParseException ex) {
                       JOptionPane.showMessageDialog(
                           ConnectionWizardDialog.this,
-                          ex.str,
-                          "Error parsing endpoint",
-                          JOptionPane.ERROR_MESSAGE);
-                      return;
-                    } catch (com.zeroc.Ice.ParseException ex) {
-                      JOptionPane.showMessageDialog(
-                          ConnectionWizardDialog.this,
-                          ex.str,
+                          ex.getMessage(),
                           "Error parsing endpoint",
                           JOptionPane.ERROR_MESSAGE);
                       return;

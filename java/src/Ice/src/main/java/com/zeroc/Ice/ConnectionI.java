@@ -2016,11 +2016,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           info.stream =
               new InputStream(info.stream.instance(), info.stream.getEncoding(), ubuf, true);
         } else {
-          FeatureNotSupportedException ex = new FeatureNotSupportedException();
-          ex.unsupportedFeature =
-              "Cannot uncompress compressed message: "
-                  + "org.apache.tools.bzip2.CBZip2OutputStream was not found";
-          throw ex;
+          throw new FeatureNotSupportedException(
+              "Cannot uncompress compressed message: org.apache.tools.bzip2.CBZip2OutputStream was not found");
         }
       }
       info.stream.pos(Protocol.headerSize);

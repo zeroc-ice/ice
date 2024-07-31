@@ -116,8 +116,8 @@ public final class Protocol {
 
   public static void checkSupportedProtocol(ProtocolVersion v) {
     if (v.major != currentProtocol.major || v.minor > currentProtocol.minor) {
-      throw new com.zeroc.Ice.MarshalException(
-          "This Ice runtime does not support protocol version " + v.major + "." + v.minor);
+      throw new com.zeroc.Ice.FeatureNotSupportedException(
+          "Cannot send request using protocol version " + v.major + "." + v.minor);
     }
   }
 

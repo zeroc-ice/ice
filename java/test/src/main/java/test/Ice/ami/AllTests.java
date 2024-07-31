@@ -1011,7 +1011,7 @@ public class AllTests {
           test(false);
         } catch (CompletionException ex) {
           test(ex.getCause() instanceof com.zeroc.Ice.ConnectionAbortedException);
-          test(!((com.zeroc.Ice.ConnectionAbortedException) ex.getCause()).closedByApplication);
+          test(((com.zeroc.Ice.ConnectionAbortedException) ex.getCause()).closedByApplication);
         } catch (Throwable ex) {
           test(false);
         }

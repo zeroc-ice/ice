@@ -338,7 +338,7 @@ public class AllTests {
             .whenComplete(
                 (result, ex) -> {
                   test(ex != null);
-                  test(ex.cause instanceof com.zeroc.Ice.MarshalException);
+                  test(ex instanceof com.zeroc.Ice.MarshalException);
                   cb.called();
                 });
         cb.check();
