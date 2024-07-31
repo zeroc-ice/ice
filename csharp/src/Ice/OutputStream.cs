@@ -21,7 +21,6 @@ public class OutputStream
     public OutputStream()
     {
         _buf = new Ice.Internal.Buffer();
-        _instance = null;
         _closure = null;
         _encoding = Util.currentEncoding;
         _format = FormatType.CompactFormat;
@@ -58,16 +57,18 @@ public class OutputStream
         initialize(instance, encoding);
     }
 
-    public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
+    // Temporary, called by ConnectionI
+    internal OutputStream(EncodingVersion encoding)
     {
-        _buf = null!; // set by initialize
-        initialize(instance, encoding, new Ice.Internal.Buffer(buf, adopt));
+        _buf = new Internal.Buffer();
+        _encoding = encoding;
     }
 
-    public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding, byte[] data)
+    // Temporary, called by ConnectionI
+    internal OutputStream(EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
     {
-        initialize(instance, encoding);
-        _buf = new Ice.Internal.Buffer(data);
+        _buf = new Internal.Buffer(buf, adopt);
+        _encoding = encoding;
     }
 
     /// <summary>
@@ -104,12 +105,11 @@ public class OutputStream
     {
         Debug.Assert(instance != null);
 
-        _instance = instance;
         _buf = buf;
         _closure = null;
         _encoding = encoding;
 
-        _format = _instance.defaultsAndOverrides().defaultFormat;
+        _format = instance.defaultsAndOverrides().defaultFormat;
 
         _encapsStack = null;
         _encapsCache = null;
@@ -138,11 +138,6 @@ public class OutputStream
             _encapsStack = null;
             _encapsCache.reset();
         }
-    }
-
-    public Ice.Internal.Instance? instance()
-    {
-        return _instance;
     }
 
     /// <summary>
@@ -193,8 +188,6 @@ public class OutputStream
     /// <param name="other">The other stream.</param>
     public void swap(OutputStream other)
     {
-        Debug.Assert(_instance == other._instance);
-
         Ice.Internal.Buffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
@@ -1848,7 +1841,6 @@ public class OutputStream
         _buf.expand(n);
     }
 
-    private Ice.Internal.Instance? _instance;
     private Ice.Internal.Buffer _buf;
     private object? _closure;
     private FormatType _format;
@@ -2041,16 +2033,7 @@ public class OutputStream
                     //
                     _stream.writeInt(p.Value);
 
-                    try
-                    {
-                        p.Key.ice_preMarshal();
-                    }
-                    catch (System.Exception ex)
-                    {
-                        string s = "exception raised by ice_preMarshal:\n" + ex;
-                        _stream.instance()!.initializationData().logger!.warning(s);
-                    }
-
+                    p.Key.ice_preMarshal();
                     p.Key.iceWrite(_stream);
                 }
             }
@@ -2377,16 +2360,7 @@ public class OutputStream
             //
             _marshaledMap.Add(v, ++_valueIdIndex);
 
-            try
-            {
-                v.ice_preMarshal();
-            }
-            catch (System.Exception ex)
-            {
-                string s = "exception raised by ice_preMarshal:\n" + ex;
-                _stream.instance()!.initializationData().logger!.warning(s);
-            }
-
+            v.ice_preMarshal();
             _stream.writeSize(1); // Object instance marker.
             v.iceWrite(_stream);
         }
