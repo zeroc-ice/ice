@@ -340,7 +340,11 @@ CollocatedRequestHandler::sendResponse(OutgoingResponse response)
                     fillInValue(os, 10, static_cast<int32_t>(os->b.size()));
                 }
 
-                InputStream is(_reference->getInstance().get(), os->getEncoding(), *os, true); // Adopting the OutputStream's buffer.
+                InputStream is(
+                    _reference->getInstance().get(),
+                    os->getEncoding(),
+                    *os,
+                    true); // Adopting the OutputStream's buffer.
                 is.pos(sizeof(replyHdr) + 4);
 
                 if (_traceLevels->protocol >= 1)

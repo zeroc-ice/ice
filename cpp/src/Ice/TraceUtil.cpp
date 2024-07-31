@@ -392,7 +392,11 @@ IceInternal::traceSlicing(const char* kind, string_view typeId, const char* slic
 }
 
 void
-IceInternal::traceSend(const OutputStream& str, const InstancePtr& instance, const LoggerPtr& logger, const TraceLevelsPtr& tl)
+IceInternal::traceSend(
+    const OutputStream& str,
+    const InstancePtr& instance,
+    const LoggerPtr& logger,
+    const TraceLevelsPtr& tl)
 {
     if (tl->protocol >= 1)
     {
