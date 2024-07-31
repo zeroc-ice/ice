@@ -144,6 +144,14 @@ class ThrowerI(Test.Thrower):
             return Ice.Future.completed((0, ""))
         return Ice.Future.completed(None)
 
+    def throwRequestFailedException(self, typeName, id, facet, operation, current):
+        if typeName == "Ice.ObjectNotExistException":
+            raise Ice.ObjectNotExistException(id, facet, operation)
+        elif typeName == "Ice.FacetNotExistException":
+            raise Ice.FacetNotExistException(id, facet, operation)
+        elif typeName == "Ice.OperationNotExistException":
+            raise Ice.OperationNotExistException(id, facet, operation)
+
 
 class ServerAMD(TestHelper):
     def run(self, args):

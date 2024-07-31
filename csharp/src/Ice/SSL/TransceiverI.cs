@@ -10,6 +10,8 @@ namespace Ice.SSL;
 
 internal sealed class TransceiverI : Ice.Internal.Transceiver
 {
+    public bool isWaitingToBeRead => _pendingRead.IsSet || _delegate.isWaitingToBeRead;
+
     public Socket fd() => _delegate.fd();
 
     public int initialize(Ice.Internal.Buffer readBuffer, Ice.Internal.Buffer writeBuffer, ref bool hasMoreData)
@@ -86,7 +88,11 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         return null;
     }
 
-    public void destroy() => _delegate.destroy();
+    public void destroy()
+    {
+        _delegate.destroy();
+        _pendingRead.Dispose();
+    }
 
     public int write(Ice.Internal.Buffer buf) =>
         // Force caller to use async write.
@@ -109,7 +115,13 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         try
         {
             _readResult = _sslStream.ReadAsync(buf.b.rawBytes(), buf.b.position(), packetSz);
-            _readResult.ContinueWith(task => callback(state), TaskScheduler.Default);
+            _readResult.ContinueWith(
+                task =>
+                {
+                    _pendingRead.Set();
+                    callback(state);
+                },
+                TaskScheduler.Default);
             return false;
         }
         catch (IOException ex)
@@ -150,6 +162,8 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         Debug.Assert(_readResult != null);
         try
         {
+            _pendingRead.Reset();
+
             int ret;
             try
             {
@@ -493,6 +507,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     private bool _authenticated;
     private Task _writeResult;
     private Task<int> _readResult;
+    private readonly ManualResetEventSlim _pendingRead = new ManualResetEventSlim(false);
     private int _maxSendPacketSize;
     private int _maxRecvPacketSize;
     private string _cipher;

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Ice/BuiltinSequences.ice"
+#include "Ice/Identity.ice"
 
 module Test
 {
@@ -73,6 +74,8 @@ interface Thrower
     void throwAfterException() throws A;
 
     int throwMarshalException(out int p);
+
+    void throwRequestFailedException(string type, Ice::Identity id, string facet, string operation);
 }
 
 interface WrongOperation

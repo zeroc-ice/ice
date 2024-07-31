@@ -13,10 +13,10 @@ import { ToStringMode } from "./ToStringMode.js";
 
 import { Encoding_1_0, encodingVersionToString } from "./Protocol.js";
 import { ReplyStatus } from "./ReplyStatus.js";
+import { InputStream } from "./Stream.js";
 
-// TODO Circular dependency
-// import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
-// const { StringSeqHelper } = Ice_BuiltinSequences;
+import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
+const { StringSeqHelper } = Ice_BuiltinSequences;
 
 const OperationMode = Ice_OperationMode.OperationMode;
 
@@ -32,12 +32,11 @@ function printIdentityFacetOperation(s, stream) {
     identity._read(stream);
     s.push("\nidentity = " + identityToString(identity, toStringMode));
 
-    // TODO Circular dependency see import comments
-    // const facet = StringSeqHelper.read(stream);
-    // s.push("\nfacet = ");
-    // if (facet.length > 0) {
-    //    s.push(StringUtil.escapeString(facet[0], "", toStringMode));
-    // }
+    const facet = StringSeqHelper.read(stream);
+    s.push("\nfacet = ");
+    if (facet.length > 0) {
+        s.push(StringUtil.escapeString(facet[0], "", toStringMode));
+    }
 
     const operation = stream.readString();
     s.push("\noperation = " + operation);
@@ -301,13 +300,6 @@ function getMessageTypeAsString(type) {
 }
 
 export class TraceUtil {
-    static traceSlicing(kind, typeId, slicingCat, logger) {
-        if (!slicingIds.has(typeId)) {
-            logger.trace(slicingCat, `unknown ${kind} type \`${typeId}'`);
-            slicingIds.set(typeId, 1);
-        }
-    }
-
     static traceSend(stream, logger, traceLevels) {
         if (traceLevels.protocol >= 1) {
             const p = stream.pos;
