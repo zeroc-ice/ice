@@ -121,108 +121,6 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     }
     output.writeLine("ok")
 
-    output.write("testing sent callback... ")
-
-    await withCheckedContinuation { continuation in
-        Task {
-            do {
-                _ = try await p.ice_isAAsync(id: "") { sentSynchronously in
-                    continuation.resume()
-                }
-            } catch {
-                fatalError("unexpected error: \(error)")
-            }
-        }
-    }
-
-    await withCheckedContinuation { continuation in
-        Task {
-            do {
-                _ = try await p.ice_pingAsync { sentSynchronously in
-                    continuation.resume()
-                }
-            } catch {
-                fatalError("unexpected error: \(error)")
-            }
-        }
-    }
-
-    await withCheckedContinuation { continuation in
-        Task {
-            do {
-                _ = try await p.ice_idAsync { sentSynchronously in
-                    continuation.resume()
-                }
-            } catch {
-                fatalError("unexpected error: \(error)")
-            }
-        }
-    }
-
-    await withCheckedContinuation { continuation in
-        Task {
-            do {
-                _ = try await p.ice_idsAsync { sentSynchronously in
-                    continuation.resume()
-                }
-            } catch {
-                fatalError("unexpected error: \(error)")
-            }
-        }
-    }
-
-    await withCheckedContinuation { continuation in
-        Task {
-            do {
-                _ = try await p.opAsync { sentSynchronously in
-                    continuation.resume()
-                }
-            } catch {
-                fatalError("unexpected error: \(error)")
-            }
-        }
-    }
-
-    // TODO: Update to use async/await
-    // let seq = ByteSeq(repeating: 0, count: 1024)
-    // var tasks = [Task<Bool, Never>]()
-    // try testController.holdAdapter()
-    // var task: Task<Bool, Never>!
-    // do {
-
-    //     defer {
-    //         do {
-    //             try testController.resumeAdapter()
-    //         } catch {}
-    //     }
-
-    //     while true {
-    //         task = Task { [p] in await withCheckedContinuation { continuation in
-    //             Task {
-    //                 try? await p.opWithPayloadAsync(seq) {
-
-    //                         output.writeLine("sentSync: \($0)   ")
-
-    //                     continuation.resume(returning: $0)
-    //                 }
-    //             }
-    //         }}
-    //         try await Task.sleep(for: .milliseconds(1))
-    //         tasks.append(task)
-    //         // if await !task.value {
-    //         //     break
-    //         // }
-    //     }
-    // }
-
-    // try await test(task.value == false)
-
-    // for task in tasks {
-    //     try await test(task.value == false)
-    // }
-
-    output.writeLine("ok")
-
     output.write("testing batch requests with proxy... ")
     do {
         let onewayFlushResult = try await withCheckedThrowingContinuation { continuation in
@@ -243,17 +141,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             let b1 = p.ice_batchOneway()
             try b1.opBatch()
             try await b1.opBatchAsync()
-            try await withCheckedThrowingContinuation { continuation in
-                Task {
-                    do {
-                        _ = try await b1.ice_flushBatchRequestsAsync { _ in
-                            continuation.resume()
-                        }
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            }
+            try await b1.ice_flushBatchRequestsAsync()
             try test(p.waitForBatch(2))
         }
 
@@ -263,17 +151,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             try b1.opBatch()
             try b1.ice_getConnection()!.close(.GracefullyWithWait)
 
-            try await withCheckedThrowingContinuation { continuation in
-                Task {
-                    do {
-                        _ = try await b1.ice_flushBatchRequestsAsync { _ in
-                            continuation.resume()
-                        }
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            }
+            try await b1.ice_flushBatchRequestsAsync()
             try test(p.waitForBatch(1))
         }
     }
