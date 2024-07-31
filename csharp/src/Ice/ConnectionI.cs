@@ -1385,7 +1385,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _readStream = new InputStream(instance, Util.currentProtocolEncoding);
         _readHeader = false;
         _readStreamPos = -1;
-        _writeStream = new OutputStream(instance, Util.currentProtocolEncoding);
+        _writeStream = new OutputStream(Util.currentProtocolEncoding);
         _writeStreamPos = -1;
         _upcallCount = 0;
         _state = StateNotInitialized;
@@ -1511,7 +1511,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // _sendStreams message.
                 if (_sendStreams.Count == 0)
                 {
-                    OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
+                    OutputStream os = new OutputStream(Util.currentProtocolEncoding);
                     os.writeBlob(Protocol.magic);
                     Util.currentProtocol.ice_writeMembers(os);
                     Util.currentProtocolEncoding.ice_writeMembers(os);
@@ -1779,7 +1779,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             //
             // Before we shut down, we send a close connection message.
             //
-            OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
+            OutputStream os = new OutputStream(Util.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
             Util.currentProtocol.ice_writeMembers(os);
             Util.currentProtocolEncoding.ice_writeMembers(os);
@@ -2176,7 +2176,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                                          _compressionLevel);
                 if (cbuf is not null)
                 {
-                    OutputStream cstream = new OutputStream(uncompressed.getEncoding(), cbuf, true);
+                    OutputStream cstream = new OutputStream(uncompressed.getEncoding(), new Internal.Buffer(cbuf, true));
 
                     //
                     // Set compression status.

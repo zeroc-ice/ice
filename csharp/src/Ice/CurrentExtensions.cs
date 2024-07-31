@@ -131,7 +131,7 @@ public static class CurrentExtensions
 
             if (current.requestId != 0)
             {
-                ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+                ostr = new OutputStream(Util.currentProtocolEncoding);
                 ostr.writeBlob(Protocol.replyHdr);
                 ostr.writeInt(current.requestId);
             }
@@ -267,7 +267,10 @@ public static class CurrentExtensions
         }
         else
         {
-            var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+            var ostr = new OutputStream(
+                Util.currentProtocolEncoding,
+                current.adapter.getCommunicator().instance.defaultsAndOverrides().defaultFormat);
+
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(current.requestId);
             ostr.writeByte((byte)replyStatus);

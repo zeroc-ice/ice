@@ -3,6 +3,8 @@
 #nullable enable
 
 using System.Diagnostics;
+using System.Net.Http.Headers;
+using System.Text;
 using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
@@ -14,106 +16,32 @@ namespace Ice;
 public class OutputStream
 {
     /// <summary>
-    /// Constructing an OutputStream without providing a communicator means the stream will
-    /// use the default encoding version and the default format for class encoding.
-    /// You can supply a communicator later by calling initialize().
+    /// Constructs an empty output stream.
     /// </summary>
-    public OutputStream()
+    /// <param name="encoding">The encoding version. null is equivalent to encoding 1.1.</param>
+    /// <param name="format">The class format.</param>
+    public OutputStream(EncodingVersion? encoding = null, FormatType format = FormatType.CompactFormat)
     {
+        Debug.Assert(format != FormatType.DefaultFormat); // TODO: remove default format from enum
+
         _buf = new Ice.Internal.Buffer();
-        _closure = null;
-        _encoding = Util.currentEncoding;
-        _format = FormatType.CompactFormat;
+        _encoding = encoding ?? Util.currentEncoding;
+        _format = format;
     }
 
     /// <summary>
-    /// This constructor uses the communicator's default encoding version.
+    /// Constructs an empty output stream that uses the communicator's default encoding version and default class
+    /// format.
     /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
+    /// <param name="communicator">The communicator that provides the encoding version and class format.</param>
     public OutputStream(Communicator communicator)
+        : this(communicator.instance.defaultsAndOverrides().defaultEncoding,
+            communicator.instance.defaultsAndOverrides().defaultFormat)
     {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        _buf = null!; // set by initialize
-        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
 
-    /// <summary>
-    /// This constructor uses the given communicator and encoding version.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    /// <param name="encoding">The desired encoding version.</param>
-    public OutputStream(Communicator communicator, EncodingVersion encoding)
-    {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        _buf = null!; // set by initialize
-        initialize(instance, encoding);
-    }
-
-    public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding)
-    {
-        _buf = null!; // set by initialize
-        initialize(instance, encoding);
-    }
-
-    // Temporary, called by ConnectionI
-    internal OutputStream(EncodingVersion encoding)
-    {
-        _buf = new Internal.Buffer();
-        _encoding = encoding;
-    }
-
-    // Temporary, called by ConnectionI
-    internal OutputStream(EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
-    {
-        _buf = new Internal.Buffer(buf, adopt);
-        _encoding = encoding;
-    }
-
-    /// <summary>
-    /// Initializes the stream to use the communicator's default encoding version and class
-    /// encoding format.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    public void initialize(Communicator communicator)
-    {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
-    }
-
-    /// <summary>
-    /// Initializes the stream to use the given encoding version and the communicator's
-    /// default class encoding format.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    /// <param name="encoding">The desired encoding version.</param>
-    public void initialize(Communicator communicator, EncodingVersion encoding)
-    {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        initialize(instance, encoding);
-    }
-
-    private void initialize(Ice.Internal.Instance instance, EncodingVersion encoding)
-    {
-        initialize(instance, encoding, new Ice.Internal.Buffer());
-    }
-
-    private void initialize(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf)
-    {
-        Debug.Assert(instance != null);
-
-        _buf = buf;
-        _closure = null;
-        _encoding = encoding;
-
-        _format = instance.defaultsAndOverrides().defaultFormat;
-
-        _encapsStack = null;
-        _encapsCache = null;
-    }
+    internal OutputStream(EncodingVersion encoding, Internal.Buffer buf)
+        : this(encoding) => _buf = buf;
 
     /// <summary>
     /// Resets this output stream. This method allows the stream to be reused, to avoid creating
