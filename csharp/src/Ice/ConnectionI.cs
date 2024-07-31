@@ -1446,7 +1446,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     rescheduleTimer();
 
-                    if (_instance.traceLevels().network >=3)
+                    if (_instance.traceLevels().network >= 3)
                     {
                         _instance.initializationData().logger.trace(
                             _instance.traceLevels().networkCat,
