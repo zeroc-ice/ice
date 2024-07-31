@@ -235,7 +235,7 @@ OutgoingResponse
 Ice::makeOutgoingResponse(
     std::function<void(OutputStream*)> marshal,
     const Current& current,
-    FormatType format) noexcept
+    std::optional<FormatType> format) noexcept
 {
     assert(marshal);
     OutputStream ostr(current.adapter->getCommunicator(), Ice::currentProtocolEncoding);

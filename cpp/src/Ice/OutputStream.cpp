@@ -180,12 +180,6 @@ Ice::OutputStream::clear()
     }
 }
 
-void
-Ice::OutputStream::setFormat(FormatType fmt)
-{
-    _format = fmt;
-}
-
 void*
 Ice::OutputStream::getClosure() const
 {
@@ -247,12 +241,12 @@ Ice::OutputStream::startEncapsulation()
     }
     else
     {
-        startEncapsulation(_encoding, Ice::FormatType::DefaultFormat);
+        startEncapsulation(_encoding, nullopt);
     }
 }
 
 void
-Ice::OutputStream::startEncapsulation(const EncodingVersion& encoding, FormatType format)
+Ice::OutputStream::startEncapsulation(const EncodingVersion& encoding, std::optional<FormatType> format)
 {
     IceInternal::checkSupportedEncoding(encoding);
 
@@ -266,7 +260,7 @@ Ice::OutputStream::startEncapsulation(const EncodingVersion& encoding, FormatTyp
         _currentEncaps = new Encaps();
         _currentEncaps->previous = oldEncaps;
     }
-    _currentEncaps->format = format;
+    _currentEncaps->format = format.value_or(_format);
     _currentEncaps->encoding = encoding;
     _currentEncaps->start = b.size();
 
@@ -1019,11 +1013,6 @@ Ice::OutputStream::initEncaps()
         _currentEncaps = &_preAllocatedEncaps;
         _currentEncaps->start = b.size();
         _currentEncaps->encoding = _encoding;
-    }
-
-    if (_currentEncaps->format == Ice::FormatType::DefaultFormat)
-    {
-        _currentEncaps->format = _format;
     }
 
     if (!_currentEncaps->encoder) // Lazy initialization.

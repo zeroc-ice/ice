@@ -120,12 +120,6 @@ namespace Ice
         /// \endcond
 
         /**
-         * Sets the class encoding format.
-         * @param format The encoding format.
-         */
-        void setFormat(FormatType format);
-
-        /**
          * Obtains the closure data associated with this stream.
          * @return The data as a void pointer.
          */
@@ -204,9 +198,10 @@ namespace Ice
          * Writes the start of an encapsulation using the given encoding version and
          * class encoding format.
          * @param encoding The encoding version to use for the encapsulation.
-         * @param format The class format to use for the encapsulation.
+         * @param format The class format to use for the encapsulation. nullopt is equivalent to the OutputStream's
+         * class format.
          */
-        void startEncapsulation(const EncodingVersion& encoding, FormatType format);
+        void startEncapsulation(const EncodingVersion& encoding, std::optional<FormatType> format);
 
         /**
          * Ends the current encapsulation.
@@ -966,7 +961,7 @@ namespace Ice
         class Encaps
         {
         public:
-            Encaps() : format(FormatType::DefaultFormat), encoder(0), previous(0)
+            Encaps() : format(FormatType::CompactFormat), encoder(0), previous(0)
             {
                 // Inlined for performance reasons.
             }
@@ -1005,7 +1000,7 @@ namespace Ice
         //
         EncodingVersion _encoding;
 
-        FormatType _format;
+        FormatType _format; // TODO: make it const
 
         Encaps* _currentEncaps;
 
