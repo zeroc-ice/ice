@@ -379,21 +379,36 @@ IcePy::PyException::raiseLocalException()
             IcePy::getIdentity(idAttr.get(), id);
         }
         PyObjectHandle facetAttr = getAttr(ex.get(), "facet", false);
-        string  facet = getString(facetAttr.get());
+        string facet = getString(facetAttr.get());
         PyObjectHandle operationAttr = getAttr(ex.get(), "operation", false);
         string operation = getString(operationAttr.get());
 
         if (typeName == "Ice.ObjectNotExistException")
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__, std::move(id), std::move(facet), std::move(operation));
+            throw Ice::ObjectNotExistException(
+                __FILE__,
+                __LINE__,
+                std::move(id),
+                std::move(facet),
+                std::move(operation));
         }
         else if (typeName == "Ice.OperationNotExistException")
         {
-            throw Ice::OperationNotExistException(__FILE__, __LINE__, std::move(id), std::move(facet), std::move(operation));
+            throw Ice::OperationNotExistException(
+                __FILE__,
+                __LINE__,
+                std::move(id),
+                std::move(facet),
+                std::move(operation));
         }
         else if (typeName == "Ice.FacetNotExistException")
         {
-            throw Ice::FacetNotExistException(__FILE__, __LINE__, std::move(id), std::move(facet), std::move(operation));
+            throw Ice::FacetNotExistException(
+                __FILE__,
+                __LINE__,
+                std::move(id),
+                std::move(facet),
+                std::move(operation));
         }
     }
 
