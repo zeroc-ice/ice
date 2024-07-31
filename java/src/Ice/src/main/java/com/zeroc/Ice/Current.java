@@ -216,30 +216,29 @@ public final class Current implements Cloneable {
         throw new MarshalException("Unexpected exception type");
       }
 
-      // TODO: RequestFailedException's id, facet and operation should be read-only.
-      if (rfe.id.name.isEmpty()) {
-        rfe.id = id;
-        rfe.facet = facet;
+      Identity id = rfe.id;
+      String facet = rfe.facet;
+      if (id.name.isEmpty()) {
+        id = this.id;
+        facet = this.facet;
       }
 
-      if (rfe.operation.isEmpty()) {
-        rfe.operation = operation;
-      }
+      String operation = rfe.operation.isEmpty() ? this.operation : rfe.operation;
 
-      // Called after fixing id, facet and operation.
-      exceptionDetails = rfe.toString();
+      exceptionDetails =
+          RequestFailedException.createMessage(rfe.getClass().getName(), id, facet, operation);
 
       if (requestId != 0) {
         ostr.writeByte(replyStatus.value());
-        Identity.ice_write(ostr, rfe.id);
+        Identity.ice_write(ostr, id);
 
-        if (rfe.facet.isEmpty()) {
+        if (facet.isEmpty()) {
           ostr.writeStringSeq(new String[] {});
         } else {
-          ostr.writeStringSeq(new String[] {rfe.facet});
+          ostr.writeStringSeq(new String[] {facet});
         }
 
-        ostr.writeString(rfe.operation);
+        ostr.writeString(operation);
       }
     } else if (exc instanceof UserException ex) {
       exceptionId = ex.ice_id();

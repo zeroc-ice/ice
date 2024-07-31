@@ -6,10 +6,12 @@ package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.CloseConnectionException;
 import com.zeroc.Ice.CommunicatorDestroyedException;
+import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.InvocationTimeoutException;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.OperationMode;
+import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.ReplyStatus;
 import com.zeroc.Ice.RequestFailedException;
 
@@ -73,7 +75,8 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
             String facet;
             if (facetPath.length > 0) {
               if (facetPath.length > 1) {
-                throw new com.zeroc.Ice.MarshalException();
+                throw new com.zeroc.Ice.MarshalException(
+                    "Received invalid facet path with '" + facetPath.length + "' elements.");
               }
               facet = facetPath[0];
             } else {
@@ -82,34 +85,26 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
 
             String operation = is.readString();
 
-            RequestFailedException ex =
-                switch (replyStatus) {
-                  case ObjectNotExist -> new ObjectNotExistException();
-                  case FacetNotExist -> new com.zeroc.Ice.FacetNotExistException();
-                  default -> new com.zeroc.Ice.OperationNotExistException();
-                };
-
-            ex.id = id;
-            ex.facet = facet;
-            ex.operation = operation;
-            throw ex;
+            switch (replyStatus) {
+              case ObjectNotExist -> throw new ObjectNotExistException(id, facet, operation);
+              case FacetNotExist -> throw new FacetNotExistException(id, facet, operation);
+              case OperationNotExist -> throw new OperationNotExistException(id, facet, operation);
+              default -> throw new IllegalStateException();
+            }
           }
 
         case UnknownException:
         case UnknownLocalException:
         case UnknownUserException:
           {
-            String unknown = is.readString();
+            String message = is.readString();
 
-            com.zeroc.Ice.UnknownException ex =
-                switch (replyStatus) {
-                  case UnknownException -> new com.zeroc.Ice.UnknownException();
-                  case UnknownLocalException -> new com.zeroc.Ice.UnknownLocalException();
-                  default -> new com.zeroc.Ice.UnknownUserException();
-                };
-
-            ex.unknown = unknown;
-            throw ex;
+            switch (replyStatus) {
+              case UnknownException -> throw new com.zeroc.Ice.UnknownException(message);
+              case UnknownLocalException -> throw new com.zeroc.Ice.UnknownLocalException(message);
+              case UnknownUserException -> throw new com.zeroc.Ice.UnknownUserException(message);
+              default -> throw new IllegalStateException();
+            }
           }
 
         default:

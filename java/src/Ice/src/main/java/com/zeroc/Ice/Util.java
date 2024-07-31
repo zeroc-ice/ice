@@ -611,7 +611,7 @@ public final class Util {
   private static byte stringToMajor(String str) {
     int pos = str.indexOf('.');
     if (pos == -1) {
-      throw new ParseException("malformed version value '" + str + "'");
+      throw new ParseException("malformed version value in '" + str + "'");
     }
 
     String majStr = str.substring(0, pos);
@@ -619,7 +619,7 @@ public final class Util {
     try {
       majVersion = Integer.parseInt(majStr);
     } catch (NumberFormatException ex) {
-      throw new ParseException("invalid version value '" + str + "'", ex);
+      throw new ParseException("invalid version value in '" + str + "'", ex);
     }
 
     if (majVersion < 1 || majVersion > 255) {
@@ -632,7 +632,7 @@ public final class Util {
   private static byte stringToMinor(String str) {
     int pos = str.indexOf('.');
     if (pos == -1) {
-      throw new ParseException("malformed version value '" + str + "'");
+      throw new ParseException("malformed version value in '" + str + "'");
     }
 
     String minStr = str.substring(pos + 1, str.length());
@@ -640,7 +640,7 @@ public final class Util {
     try {
       minVersion = Integer.parseInt(minStr);
     } catch (NumberFormatException ex) {
-      throw new ParseException("invalid version value '" + str + "'", ex);
+      throw new ParseException("invalid version value in '" + str + "'", ex);
     }
 
     if (minVersion < 0 || minVersion > 255) {

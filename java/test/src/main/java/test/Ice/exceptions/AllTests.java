@@ -4,6 +4,7 @@
 
 package test.Ice.exceptions;
 
+import com.zeroc.Ice.ConnectionLostException;
 import java.io.PrintWriter;
 import java.util.concurrent.CompletionException;
 import test.Ice.exceptions.Test.A;
@@ -294,7 +295,7 @@ public class AllTests {
       try {
         thrower.throwAssertException();
         test(false);
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
+      } catch (ConnectionLostException ex) {
       } catch (com.zeroc.Ice.UnknownException ex) {
       } catch (Throwable ex) {
         ex.printStackTrace();
@@ -320,7 +321,7 @@ public class AllTests {
       try {
         thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
         test(false);
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
+      } catch (ConnectionLostException ex) {
       } catch (com.zeroc.Ice.UnknownLocalException ex) {
         // Expected with JS bidir server
       } catch (com.zeroc.Ice.SocketException ex) {
@@ -341,7 +342,7 @@ public class AllTests {
         try {
           thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
           test(false);
-        } catch (com.zeroc.Ice.ConnectionLostException ex) {
+        } catch (ConnectionLostException ex) {
         }
       } catch (com.zeroc.Ice.ConnectionRefusedException ex) {
         // Expected with JS bidir server
@@ -585,7 +586,7 @@ public class AllTests {
         test(false);
       } catch (CompletionException ex) {
         test(
-            ex.getCause() instanceof com.zeroc.Ice.ConnectionLostException
+            ex.getCause() instanceof ConnectionLostException
                 || ex.getCause() instanceof com.zeroc.Ice.UnknownException);
       }
 

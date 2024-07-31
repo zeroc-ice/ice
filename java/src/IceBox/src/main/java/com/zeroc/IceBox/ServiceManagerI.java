@@ -782,7 +782,7 @@ public class ServiceManagerI implements ServiceManager {
 
       try {
         args = com.zeroc.IceUtilInternal.Options.split(value);
-      } catch (com.zeroc.IceUtilInternal.Options.BadQuote ex) {
+      } catch (com.zeroc.Ice.ParseException ex) {
         throw new FailureException(
             "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.getMessage());
       }

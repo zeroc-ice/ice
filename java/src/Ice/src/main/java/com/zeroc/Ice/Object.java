@@ -193,13 +193,11 @@ public interface Object {
       if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating) {
         // Fine: typically an old client still using the deprecated nonmutating keyword
       } else {
-        MarshalException ex = new MarshalException();
-        ex.reason =
-            "unexpected operation mode. expected = "
+        throw new MarshalException(
+            "unexpected operation mode: expected = "
                 + _iceOperationModeToString(expected)
                 + " received = "
-                + _iceOperationModeToString(received);
-        throw ex;
+                + _iceOperationModeToString(received));
       }
     }
   }

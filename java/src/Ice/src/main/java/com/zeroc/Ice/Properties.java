@@ -513,9 +513,7 @@ public final class Properties {
         java.io.InputStream f =
             com.zeroc.IceInternal.Util.openResource(getClass().getClassLoader(), file);
         if (f == null) {
-          FileException fe = new FileException();
-          fe.path = file;
-          throw fe;
+          throw new FileException(file);
         }
         //
         // Skip UTF-8 BOM if present.
@@ -533,7 +531,7 @@ public final class Properties {
         java.io.BufferedReader br = new java.io.BufferedReader(isr);
         parse(br);
       } catch (java.io.IOException ex) {
-        throw new FileException(0, file, ex);
+        throw new FileException(file, ex);
       } finally {
         if (is != null) {
           try {

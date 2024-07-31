@@ -4,7 +4,7 @@
 
 package com.zeroc.Ice;
 
-/** Base class for Slice user exceptions. */
+/** Base class for exceptions defined in Slice. */
 public abstract class UserException extends java.lang.Exception implements Cloneable {
   public UserException() {}
 
@@ -56,7 +56,6 @@ public abstract class UserException extends java.lang.Exception implements Clone
 
   /**
    * @hidden
-   * @param os -
    */
   public void _write(OutputStream os) {
     os.startException();
@@ -66,7 +65,6 @@ public abstract class UserException extends java.lang.Exception implements Clone
 
   /**
    * @hidden
-   * @param is -
    */
   public void _read(InputStream is) {
     is.startException();
@@ -76,7 +74,6 @@ public abstract class UserException extends java.lang.Exception implements Clone
 
   /**
    * @hidden
-   * @return -
    */
   public boolean _usesClasses() {
     return false;
@@ -84,13 +81,11 @@ public abstract class UserException extends java.lang.Exception implements Clone
 
   /**
    * @hidden
-   * @param os -
    */
   protected abstract void _writeImpl(OutputStream os);
 
   /**
    * @hidden
-   * @param is -
    */
   protected abstract void _readImpl(InputStream is);
 

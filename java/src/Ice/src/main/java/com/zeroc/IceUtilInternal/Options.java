@@ -4,16 +4,10 @@
 
 package com.zeroc.IceUtilInternal;
 
+import com.zeroc.Ice.ParseException;
+
 public final class Options {
-  public static final class BadQuote extends Exception {
-    BadQuote(String message) {
-      super(message);
-    }
-
-    private static final long serialVersionUID = 6480189184773557516L;
-  }
-
-  public static String[] split(String line) throws BadQuote {
+  public static String[] split(String line) throws ParseException {
     final String IFS = " \t\n";
     final int NormalState = 1;
     final int DoubleQuoteState = 2;
@@ -314,15 +308,15 @@ public final class Options {
         }
       case SingleQuoteState:
         {
-          throw new BadQuote("missing closing single quote");
+          throw new ParseException("missing closing single quote");
         }
       case DoubleQuoteState:
         {
-          throw new BadQuote("missing closing double quote");
+          throw new ParseException("missing closing double quote");
         }
       case ANSIQuoteState:
         {
-          throw new BadQuote("unterminated $' quote");
+          throw new ParseException("unterminated $' quote");
         }
       default:
         {

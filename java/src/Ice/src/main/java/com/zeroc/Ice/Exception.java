@@ -42,9 +42,9 @@ public abstract class Exception extends RuntimeException implements Cloneable {
   }
 
   /**
-   * Returns the type id of this exception.
+   * Returns the type ID of this exception.
    *
-   * @return The type id of this exception.
+   * @return The type ID of this exception.
    */
   public abstract String ice_id();
 

@@ -51,14 +51,26 @@ public class RequestFailedException extends LocalException {
     return "::Ice::RequestFailedException";
   }
 
+  static String createMessage(String typeName, Identity id, String facet, String operation) {
+    return "Dispatch failed with "
+        + typeName
+        + " { id = '"
+        + Util.identityToString(id)
+        + "', facet = '"
+        + facet
+        + "', operation = '"
+        + operation
+        + "' }";
+  }
+
   /** The identity of the Ice Object to which the request was sent. */
-  public Identity id;
+  public final Identity id;
 
   /** The facet to which the request was sent. */
-  public String facet;
+  public final String facet;
 
   /** The operation name of the request. */
-  public String operation;
+  public final String operation;
 
   private static final long serialVersionUID = 4181164754424262091L;
 }

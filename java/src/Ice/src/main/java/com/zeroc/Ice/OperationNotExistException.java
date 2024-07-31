@@ -25,16 +25,8 @@ public class OperationNotExistException extends RequestFailedException {
     super();
   }
 
-  public OperationNotExistException(Throwable cause) {
-    super(cause);
-  }
-
   public OperationNotExistException(Identity id, String facet, String operation) {
     super(id, facet, operation);
-  }
-
-  public OperationNotExistException(Identity id, String facet, String operation, Throwable cause) {
-    super(id, facet, operation, cause);
   }
 
   public String ice_id() {

@@ -4,6 +4,7 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.InvocationFuture;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
@@ -290,7 +291,7 @@ public class AllTests {
 
     for (int i = 0; i < 4; ++i) {
       if (i == 0 || i == 2) {
-        configuration.connectorsException(new com.zeroc.Ice.DNSException());
+        configuration.connectorsException(new com.zeroc.Ice.DNSException(0, "Dummy"));
       } else {
         configuration.connectException(new com.zeroc.Ice.SocketException());
       }
@@ -433,7 +434,7 @@ public class AllTests {
       ctl.initializeException(true);
       background.op();
       test(false);
-    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+    } catch (ConnectionLostException ex) {
       ctl.initializeException(false);
     } catch (com.zeroc.Ice.SecurityException ex) {
       ctl.initializeException(false);
@@ -453,7 +454,7 @@ public class AllTests {
       ctl.initializeException(true);
       background.op();
       test(false);
-    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+    } catch (ConnectionLostException ex) {
       ctl.initializeException(false);
       ctl.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
     } catch (com.zeroc.Ice.SecurityException ex) {
@@ -638,7 +639,7 @@ public class AllTests {
       ctl.writeException(true);
       background.op();
       test(false);
-    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+    } catch (ConnectionLostException ex) {
       ctl.writeException(false);
     }
 
@@ -659,7 +660,7 @@ public class AllTests {
       ctl.writeException(true);
       background.op();
       test(false);
-    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+    } catch (ConnectionLostException ex) {
       ctl.writeException(false);
       ctl.writeReady(true);
     }
@@ -956,7 +957,7 @@ public class AllTests {
       ctl.writeException(true);
       background.op();
       test(false);
-    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+    } catch (ConnectionLostException ex) {
       ctl.writeException(false);
     }
 
@@ -965,7 +966,7 @@ public class AllTests {
       ctl.readException(true);
       background.op();
       test(false);
-    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+    } catch (ConnectionLostException ex) {
       ctl.readException(false);
     }
 
@@ -995,7 +996,7 @@ public class AllTests {
       ctl.writeException(true);
       background.op();
       test(false);
-    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+    } catch (ConnectionLostException ex) {
       ctl.writeException(false);
       ctl.writeReady(true);
     }
@@ -1006,7 +1007,7 @@ public class AllTests {
       ctl.readException(true);
       background.op();
       test(false);
-    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+    } catch (ConnectionLostException ex) {
       ctl.readException(false);
       ctl.readReady(true);
     }

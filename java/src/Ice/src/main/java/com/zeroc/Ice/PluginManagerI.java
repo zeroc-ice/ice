@@ -26,7 +26,8 @@ public final class PluginManagerI implements PluginManager {
         } catch (PluginInitializationException ex) {
           throw ex;
         } catch (RuntimeException ex) {
-          throw new PluginInitializationException("plugin '" + p.name + "' initialization failed", ex);
+          throw new PluginInitializationException(
+              "plugin '" + p.name + "' initialization failed", ex);
         }
         initializedPlugins.add(p.plugin);
       }
@@ -236,9 +237,8 @@ public final class PluginManagerI implements PluginManager {
     String[] args;
     try {
       args = com.zeroc.IceUtilInternal.Options.split(pluginSpec);
-    } catch (com.zeroc.IceUtilInternal.Options.BadQuote ex) {
-      throw new PluginInitializationException(
-          "invalid arguments for plug-in `" + name + "':\n" + ex.getMessage());
+    } catch (ParseException ex) {
+      throw new PluginInitializationException("invalid arguments for plug-in `" + name + "'", ex);
     }
 
     assert (args.length > 0);

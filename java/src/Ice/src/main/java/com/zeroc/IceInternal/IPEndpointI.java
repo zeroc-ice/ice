@@ -331,7 +331,9 @@ public abstract class IPEndpointI extends EndpointI {
       _sourceAddr = Network.getNumericAddress(argument);
       if (_sourceAddr == null) {
         throw new ParseException(
-            "invalid IP address provided for --sourceAddress option in endpoint '" + endpoint + "'");
+            "invalid IP address provided for --sourceAddress option in endpoint '"
+                + endpoint
+                + "'");
       }
     } else {
       return false;

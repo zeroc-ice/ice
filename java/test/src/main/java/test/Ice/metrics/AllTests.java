@@ -4,6 +4,7 @@
 
 package test.Ice.metrics;
 
+import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.IceMX.*;
 import java.io.PrintWriter;
 import java.util.Map;
@@ -777,7 +778,7 @@ public class AllTests {
       try {
         metrics.fail();
         test(false);
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
+      } catch (ConnectionLostException ex) {
       }
     }
     map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Dispatch"));
@@ -976,21 +977,21 @@ public class AllTests {
       try {
         metrics.fail();
         test(false);
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
+      } catch (ConnectionLostException ex) {
       }
 
       try {
         metrics.failAsync().join();
         test(false);
       } catch (CompletionException ex) {
-        test(ex.getCause() instanceof com.zeroc.Ice.ConnectionLostException);
+        test(ex.getCause() instanceof ConnectionLostException);
       }
 
       metrics
           .failAsync()
           .whenComplete(
               (result, ex) -> {
-                test(ex instanceof com.zeroc.Ice.ConnectionLostException);
+                test(ex instanceof ConnectionLostException);
                 cb.completed();
               });
       cb.waitForResponse();

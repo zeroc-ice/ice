@@ -432,7 +432,8 @@ public final class LocatorInfo {
             .trace(instance.traceLevels().locationCat, s.toString());
       }
 
-      final String id = com.zeroc.Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode());
+      final String id =
+          com.zeroc.Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode());
       throw new com.zeroc.Ice.NotRegisteredException("object", id);
     } catch (com.zeroc.Ice.NotRegisteredException ex) {
       throw ex;

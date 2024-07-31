@@ -35,9 +35,8 @@ class TrustManager {
           _acceptServer.put(name, accept);
         }
       }
-    } catch (RFC2253.ParseException e) {
-      throw new com.zeroc.Ice.InitializationException(
-          "Ice.SSL: invalid property " + key + ":\n" + e.reason);
+    } catch (com.zeroc.Ice.ParseException ex) {
+      throw new com.zeroc.Ice.InitializationException("Ice.SSL: invalid property " + key, ex);
     }
   }
 
@@ -158,14 +157,14 @@ class TrustManager {
             return true;
           }
         }
-      } catch (RFC2253.ParseException e) {
+      } catch (com.zeroc.Ice.ParseException ex) {
         _communicator
             .getLogger()
             .warning(
                 "Ice.SSL: unable to parse certificate DN `"
                     + subjectName
                     + "'\nreason: "
-                    + e.reason);
+                    + ex.getMessage());
       }
 
       //
@@ -211,7 +210,7 @@ class TrustManager {
       String value,
       java.util.List<java.util.List<RFC2253.RDNPair>> reject,
       java.util.List<java.util.List<RFC2253.RDNPair>> accept)
-      throws RFC2253.ParseException {
+      throws com.zeroc.Ice.ParseException {
     //
     // Java X500Principal.getName says:
     //

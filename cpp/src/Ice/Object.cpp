@@ -179,7 +179,7 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
         else
         {
             std::ostringstream reason;
-            reason << "unexpected operation mode. expected = " << operationModeToString(expected)
+            reason << "unexpected operation mode: expected = " << operationModeToString(expected)
                    << " received = " << operationModeToString(received);
             throw Ice::MarshalException(__FILE__, __LINE__, reason.str());
         }

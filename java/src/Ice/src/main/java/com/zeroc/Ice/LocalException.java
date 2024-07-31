@@ -4,8 +4,8 @@
 
 package com.zeroc.Ice;
 
-/** Base class for all Ice run-time exceptions. */
-public abstract class LocalException extends Exception {
+/** Base class for Ice run-time exceptions. */
+public class LocalException extends Exception {
   public LocalException() {}
 
   public LocalException(String message) {
@@ -18,6 +18,11 @@ public abstract class LocalException extends Exception {
 
   public LocalException(String message, Throwable cause) {
     super(message, cause);
+  }
+
+  @Override
+  public String ice_id() {
+    return "::Ice::LocalException";
   }
 
   private static final long serialVersionUID = 0L;

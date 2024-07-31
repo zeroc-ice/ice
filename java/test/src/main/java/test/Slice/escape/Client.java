@@ -120,7 +120,7 @@ public class Client extends test.TestHelper {
     properties.setProperty("TestAdapter.Endpoints", "default");
 
     //
-    // We must set MessageSizeMax to an explicit values,
+    // We must set MessageSizeMax to an explicit value,
     // because we run tests to check whether
     // Ice.MarshalException is raised as expected.
     //
