@@ -8,6 +8,21 @@ namespace Ice.Internal;
 
 public sealed class StreamSocket
 {
+    internal bool isWaitingToBeRead
+    {
+        get
+        {
+            try
+            {
+                return _pendingRead.IsSet || _fd.Available > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+
     public StreamSocket(ProtocolInstance instance, NetworkProxy proxy, EndPoint addr, EndPoint sourceAddr)
     {
         _instance = instance;
@@ -193,6 +208,8 @@ public sealed class StreamSocket
         Debug.Assert(_fd != null && _readEventArgs != null);
         try
         {
+            _pendingRead.Reset();
+
             if (_readEventArgs.SocketError != SocketError.Success)
             {
                 throw new System.Net.Sockets.SocketException((int)_readEventArgs.SocketError);
@@ -347,6 +364,7 @@ public sealed class StreamSocket
         Debug.Assert(_readEventArgs != null && _writeEventArgs != null);
         _readEventArgs.Dispose();
         _writeEventArgs.Dispose();
+        _pendingRead.Dispose();
     }
 
     public override string ToString()
@@ -443,6 +461,7 @@ public sealed class StreamSocket
         switch (e.LastOperation)
         {
             case SocketAsyncOperation.Receive:
+                _pendingRead.Set();
                 _readCallback(e.UserToken);
                 break;
             case SocketAsyncOperation.Send:
@@ -504,6 +523,8 @@ public sealed class StreamSocket
     private SocketAsyncEventArgs _readEventArgs;
     private AsyncCallback _writeCallback;
     private AsyncCallback _readCallback;
+
+    private readonly ManualResetEventSlim _pendingRead = new ManualResetEventSlim(false);
 
     private const int StateNeedConnect = 0;
     private const int StateConnectPending = 1;

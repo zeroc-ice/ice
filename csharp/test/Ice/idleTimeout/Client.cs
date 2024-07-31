@@ -8,6 +8,9 @@ public class Client : global::Test.TestHelper
     {
         var properties = createTestProperties(ref args);
         properties.setProperty("Ice.Connection.IdleTimeout", "1");
+
+        // TODO: temporary work-around for IceSSL always sending messages asynchronously.
+        properties.setProperty("Ice.Connection.EnableIdleCheck", "0");
         using var communicator = initialize(properties);
         await AllTests.allTests(this);
     }

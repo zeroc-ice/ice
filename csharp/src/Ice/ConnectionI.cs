@@ -1434,7 +1434,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     /// <summary>Aborts the connection with a <see cref="ConnectionAbortedException" /> if the connection is active or
     /// holding.</summary>
-    internal void idleCheck(TimeSpan idleTimeout)
+    internal void idleCheck(TimeSpan idleTimeout, Action rescheduleTimer)
     {
         lock (this)
         {
@@ -1442,18 +1442,32 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 int idleTimeoutInSeconds = (int)idleTimeout.TotalSeconds;
 
-                if (_instance.traceLevels().network >= 1)
+                if (_transceiver.isWaitingToBeRead)
                 {
-                    _instance.initializationData().logger.trace(
-                        _instance.traceLevels().networkCat,
-                        $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
-                }
+                    rescheduleTimer();
 
-                setState(
-                    StateClosed,
-                    new ConnectionAbortedException(
-                        $"Connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s.",
-                        closedByApplication: false));
+                    if (_instance.traceLevels().network >=3)
+                    {
+                        _instance.initializationData().logger.trace(
+                            _instance.traceLevels().networkCat,
+                            $"the idle check scheduled a new idle check in {idleTimeoutInSeconds}s because the connection is waiting to be read\n{_transceiver.toDetailedString()}");
+                    }
+                }
+                else
+                {
+                    if (_instance.traceLevels().network >= 1)
+                    {
+                        _instance.initializationData().logger.trace(
+                            _instance.traceLevels().networkCat,
+                            $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
+                    }
+
+                    setState(
+                        StateClosed,
+                        new ConnectionAbortedException(
+                            $"Connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s.",
+                            closedByApplication: false));
+                }
             }
             // else nothing to do
         }
