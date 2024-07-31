@@ -129,7 +129,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
     c->current = createCurrent(current);
     if (!c->current)
     {
-        throwPythonException();
+        throwPythonException(false);
     }
 
     //
@@ -156,7 +156,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
             throw ExceptionWriter(ex.ex);
         }
 
-        ex.raise();
+        ex.raise(false);
     }
 
     if (res.get() == Py_None)
@@ -241,7 +241,7 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr
             throw ExceptionWriter(ex.ex);
         }
 
-        ex.raise();
+        ex.raise(false);
     }
 }
 
@@ -263,7 +263,7 @@ IcePy::ServantLocatorWrapper::deactivate(const string& category)
         //
         ex.checkSystemExit();
 
-        ex.raise();
+        ex.raise(false);
     }
 }
 

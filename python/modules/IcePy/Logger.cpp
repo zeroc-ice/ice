@@ -32,7 +32,7 @@ IcePy::LoggerWrapper::print(const string& message)
     PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "_print", "s", message.c_str());
     if (!tmp.get())
     {
-        throwPythonException();
+        throwPythonException(false);
     }
 }
 
@@ -44,7 +44,7 @@ IcePy::LoggerWrapper::trace(const string& category, const string& message)
     PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "trace", "ss", category.c_str(), message.c_str());
     if (!tmp.get())
     {
-        throwPythonException();
+        throwPythonException(false);
     }
 }
 
@@ -56,7 +56,7 @@ IcePy::LoggerWrapper::warning(const string& message)
     PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "warning", "s", message.c_str());
     if (!tmp.get())
     {
-        throwPythonException();
+        throwPythonException(false);
     }
 }
 
@@ -68,7 +68,7 @@ IcePy::LoggerWrapper::error(const string& message)
     PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "error", "s", message.c_str());
     if (!tmp.get())
     {
-        throwPythonException();
+        throwPythonException(false);
     }
 }
 
@@ -80,7 +80,7 @@ IcePy::LoggerWrapper::getPrefix()
     PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "getPrefix", 0);
     if (!tmp.get())
     {
-        throwPythonException();
+        throwPythonException(false);
     }
     return getString(tmp.get());
 }
@@ -93,7 +93,7 @@ IcePy::LoggerWrapper::cloneWithPrefix(const string& prefix)
     PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "cloneWithPrefix", "s", prefix.c_str());
     if (!tmp.get())
     {
-        throwPythonException();
+        throwPythonException(false);
     }
 
     return make_shared<LoggerWrapper>(tmp.get());
