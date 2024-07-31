@@ -117,12 +117,12 @@ public static class CurrentExtensions
     {
         try
         {
-            return createOutgoingResponseCore(exception, communicator);
+            return createOutgoingResponseCore(exception);
         }
         catch (System.Exception ex)
         {
             // Try a second time with the marshal exception. This should not fail.
-            return createOutgoingResponseCore(ex, communicator);
+            return createOutgoingResponseCore(ex);
         }
 
         OutgoingResponse createOutgoingResponseCore(System.Exception exc)

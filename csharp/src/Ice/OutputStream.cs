@@ -27,6 +27,10 @@ public class OutputStream
         _format = FormatType.CompactFormat;
     }
 
+    /// <summary>
+    /// Construct a new OutputStream with the given encoding version and the default format for class encoding.
+    /// </summary>
+    /// <param name="encoding">The encoding version for the output stream.</param>
     public OutputStream(EncodingVersion encoding)
     {
         _buf = new Ice.Internal.Buffer();
