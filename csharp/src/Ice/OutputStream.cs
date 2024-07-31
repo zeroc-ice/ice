@@ -3,8 +3,7 @@
 #nullable enable
 
 using System.Diagnostics;
-using System.Net.Http.Headers;
-using System.Text;
+
 using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
@@ -22,8 +21,6 @@ public sealed class OutputStream
     /// <param name="format">The class format.</param>
     public OutputStream(EncodingVersion? encoding = null, FormatType format = FormatType.CompactFormat)
     {
-        Debug.Assert(format != FormatType.DefaultFormat); // TODO: remove default format from enum
-
         _buf = new Internal.Buffer();
         _encoding = encoding ?? Util.currentEncoding;
         _format = format;
@@ -66,15 +63,6 @@ public sealed class OutputStream
             _encapsStack = null;
             _encapsCache.reset();
         }
-    }
-
-    /// <summary>
-    /// Sets the encoding format for class and exception instances.
-    /// </summary>
-    /// <param name="fmt">The encoding format.</param>
-    public void setFormat(FormatType fmt)
-    {
-        _format = fmt;
     }
 
     /// <summary>
@@ -225,7 +213,7 @@ public sealed class OutputStream
         }
         else
         {
-            startEncapsulation(_encoding, FormatType.DefaultFormat);
+            startEncapsulation(_encoding, format: null);
         }
     }
 
@@ -233,8 +221,9 @@ public sealed class OutputStream
     /// Writes the start of an encapsulation to the stream.
     /// </summary>
     /// <param name="encoding">The encoding version of the encapsulation.</param>
-    /// <param name="format">Specify the compact or sliced format.</param>
-    public void startEncapsulation(EncodingVersion encoding, FormatType format)
+    /// <param name="format">Specify the compact or sliced format. When null, use the OutputStream's class format.
+    /// </param>
+    public void startEncapsulation(EncodingVersion encoding, FormatType? format = null)
     {
         Protocol.checkSupportedEncoding(encoding);
 
@@ -251,7 +240,7 @@ public sealed class OutputStream
         curr.next = _encapsStack;
         _encapsStack = curr;
 
-        _encapsStack.format = format;
+        _encapsStack.format = format ?? _format;
         _encapsStack.setEncoding(encoding);
         _encapsStack.start = _buf.b.position();
 
@@ -1771,7 +1760,7 @@ public sealed class OutputStream
 
     private Ice.Internal.Buffer _buf;
     private object? _closure;
-    private FormatType _format;
+    private readonly FormatType _format;
 
     private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
 
@@ -2341,7 +2330,7 @@ public sealed class OutputStream
         internal int start;
         internal EncodingVersion encoding;
         internal bool encoding_1_0;
-        internal FormatType format = FormatType.DefaultFormat;
+        internal FormatType format;
 
         internal EncapsEncoder? encoder;
 
@@ -2378,11 +2367,6 @@ public sealed class OutputStream
                 _encapsStack = new Encaps();
             }
             _encapsStack.setEncoding(_encoding);
-        }
-
-        if (_encapsStack.format == FormatType.DefaultFormat)
-        {
-            _encapsStack.format = _format;
         }
 
         if (_encapsStack.encoder == null) // Lazy initialization.

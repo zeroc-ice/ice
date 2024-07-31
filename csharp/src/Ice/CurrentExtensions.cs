@@ -25,7 +25,7 @@ public static class CurrentExtensions
         this Current current,
         TResult result,
         Action<OutputStream, TResult> marshal,
-        FormatType formatType = FormatType.DefaultFormat)
+        FormatType? formatType = null)
     {
         OutputStream ostr = current.startReplyStream();
         if (current.requestId != 0)

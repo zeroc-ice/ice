@@ -10,7 +10,7 @@ namespace Ice
             {
                 var communicator = current.adapter.getCommunicator();
                 var @out = new Ice.OutputStream(communicator);
-                @out.startEncapsulation(current.encoding, Ice.FormatType.DefaultFormat);
+                @out.startEncapsulation(current.encoding, FormatType.SlicedFormat);
                 var ae = new Test.AlsoEmpty();
                 @out.writeValue(ae);
                 @out.writePendingValues();
