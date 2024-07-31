@@ -2468,7 +2468,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                     static_cast<uint8_t>(0));   // Compression status (always zero for validate connection).
                 _writeStream.write(headerSize); // Message size.
                 _writeStream.i = _writeStream.b.begin();
-                traceSend(_writeStream, _logger, _traceLevels);
+                traceSend(_writeStream, _instance, _logger, _traceLevels);
             }
 
             if (_observer)
@@ -2676,7 +2676,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                 OutputStream stream(_instance.get(), Ice::currentProtocolEncoding);
                 doCompress(*message->stream, stream);
 
-                traceSend(*message->stream, _logger, _traceLevels);
+                traceSend(*message->stream, _instance, _logger, _traceLevels);
 
                 message->adopt(&stream); // Adopt the compressed stream.
                 message->stream->i = message->stream->b.begin();
@@ -2706,7 +2706,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                     copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
                 }
                 message->stream->i = message->stream->b.begin();
-                traceSend(*message->stream, _logger, _traceLevels);
+                traceSend(*message->stream, _instance, _logger, _traceLevels);
 
 #ifdef ICE_HAS_BZIP2
             }
@@ -2793,7 +2793,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         doCompress(*message.stream, stream);
         stream.i = stream.b.begin();
 
-        traceSend(*message.stream, _logger, _traceLevels);
+        traceSend(*message.stream, _instance, _logger, _traceLevels);
 
         if (_observer)
         {
@@ -2844,7 +2844,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         }
         message.stream->i = message.stream->b.begin();
 
-        traceSend(*message.stream, _logger, _traceLevels);
+        traceSend(*message.stream, _instance, _logger, _traceLevels);
 
         if (_observer)
         {

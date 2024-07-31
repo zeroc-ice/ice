@@ -143,12 +143,12 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         {
             fillInValue(os, headerSize, batchRequestCount);
         }
-        traceSend(*os, _logger, _traceLevels);
+        traceSend(*os, _reference->getInstance(), _logger, _traceLevels);
     }
 
     outAsync->attachCollocatedObserver(_adapter, requestId);
 
-    InputStream is(os->instance(), os->getEncoding(), *os);
+    InputStream is(_reference->getInstance().get(), os->getEncoding(), *os);
 
     if (batchRequestCount > 0)
     {
@@ -340,7 +340,7 @@ CollocatedRequestHandler::sendResponse(OutgoingResponse response)
                     fillInValue(os, 10, static_cast<int32_t>(os->b.size()));
                 }
 
-                InputStream is(os->instance(), os->getEncoding(), *os, true); // Adopting the OutputStream's buffer.
+                InputStream is(_reference->getInstance().get(), os->getEncoding(), *os, true); // Adopting the OutputStream's buffer.
                 is.pos(sizeof(replyHdr) + 4);
 
                 if (_traceLevels->protocol >= 1)

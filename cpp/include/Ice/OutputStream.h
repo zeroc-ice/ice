@@ -8,6 +8,7 @@
 #include "Buffer.h"
 #include "CommunicatorF.h"
 #include "Ice/Format.h"
+#include "Ice/StringConverter.h"
 #include "Ice/Version.h"
 #include "InstanceF.h"
 #include "SlicedDataF.h"
@@ -36,9 +37,8 @@ namespace Ice
         typedef size_t size_type;
 
         /**
-         * Constructs an OutputStream using the latest encoding version, the default format for
-         * class encoding, and the process string converters. You can supply a communicator later
-         * by calling initialize().
+         * Constructs an OutputStream using the latest encoding version, the compact format for
+         * class encoding, and the process string converters.
          */
         OutputStream();
 
@@ -110,14 +110,6 @@ namespace Ice
          * Releases any data retained by encapsulations.
          */
         void clear();
-
-        /// \cond INTERNAL
-        //
-        // Must return Instance*, because we don't hold an InstancePtr for
-        // optimization reasons (see comments below).
-        //
-        IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
-        /// \endcond
 
         /**
          * Obtains the closure data associated with this stream.
@@ -800,11 +792,8 @@ namespace Ice
         //
         void writeConverted(const char*, size_t);
 
-        //
-        // Optimization. The instance may not be deleted while a
-        // stack-allocated stream still holds it.
-        //
-        IceInternal::Instance* _instance;
+        StringConverterPtr _stringConverter;
+        WstringConverterPtr _wstringConverter;
 
         //
         // The public stream API needs to attach data to a stream.
