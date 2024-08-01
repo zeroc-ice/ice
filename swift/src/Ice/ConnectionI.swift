@@ -4,22 +4,15 @@ import IceImpl
 
 extension Connection {
     public func flushBatchRequestsAsync(
-        _ compress: CompressBatch,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
+        _ compress: CompressBatch
     ) async throws {
         let impl = self as! ConnectionI
-        let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
         return try await withCheckedThrowingContinuation { continuation in
             impl.handle.flushBatchRequestsAsync(
                 compress.rawValue,
                 exception: { error in continuation.resume(throwing: error) },
                 sent: {
                     continuation.resume(returning: ())
-                    if let sentCB = sentCB {
-                        sentCB($0)
-                    }
                 })
         }
     }
