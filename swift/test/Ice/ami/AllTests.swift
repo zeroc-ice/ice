@@ -18,11 +18,6 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     let p = try makeProxy(
         communicator: communicator, proxyString: "test:\(helper.getTestEndpoint(num: 0))", type: TestIntfPrx.self)
 
-    let testController = try makeProxy(
-        communicator: communicator,
-        proxyString: "testController:\(helper.getTestEndpoint(num: 1))",
-        type: TestIntfControllerPrx.self)
-
     output.write("testing async invocation...")
     do {
         let ctx: [String: String] = [:]
