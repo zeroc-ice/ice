@@ -552,7 +552,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         ParamDeclList::iterator t;
         int count;
         string format;
-        std::optional<FormatType> opFormat = (*s)->format();
+        optional<FormatType> opFormat = (*s)->format();
         if (opFormat)
         {
             switch (*opFormat)

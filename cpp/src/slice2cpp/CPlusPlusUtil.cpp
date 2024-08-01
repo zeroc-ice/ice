@@ -604,7 +604,7 @@ Slice::operationModeToString(Operation::Mode mode)
 string
 Slice::opFormatTypeToString(const OperationPtr& op)
 {
-    std::optional<FormatType> opFormat = op->format();
+    optional<FormatType> opFormat = op->format();
     if (opFormat)
     {
         switch (*opFormat)
