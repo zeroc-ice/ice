@@ -342,7 +342,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
                 // Ensure the request was sent before we close the connection. Oneway invocations are
                 // completed when the request is sent.
                 async let startDispatch: Void = p.startDispatchAsync()
-                try await Task.sleep(for: .milliseconds(100)) // Wait for the request to be sent.
+                try await Task.sleep(for: .milliseconds(100))  // Wait for the request to be sent.
                 try con.close(.Gracefully)
                 try await startDispatch
                 try test(false)
@@ -391,7 +391,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             do {
                 try await startDispatch
                 try test(false)
-            }  catch let ex as Ice.ConnectionAbortedException {
+            } catch let ex as Ice.ConnectionAbortedException {
                 try test(ex.closedByApplication)
             }
             try p.finishDispatch()
