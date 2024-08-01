@@ -121,19 +121,6 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
 
     output.write("testing batch requests with proxy... ")
     do {
-        let onewayFlushResult = try await withCheckedThrowingContinuation { continuation in
-            Task {
-                do {
-                    _ = try await p.ice_batchOneway().ice_flushBatchRequestsAsync { sentSynchronously in
-                        continuation.resume(returning: sentSynchronously)
-                    }
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
-        }
-        try test(onewayFlushResult)
-
         do {
             try test(p.opBatchCount() == 0)
             let b1 = p.ice_batchOneway()
@@ -352,10 +339,14 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             let con = try p.ice_getConnection()!
 
             do {
-                try await p.startDispatchAsync { _ in
-                    // Ensure the request was sent before we close the connection.
-                    try! con.close(.Gracefully)
-                }
+                // Ensure the request was sent before we close the connection. Oneway invocations are
+                // completed when the request is sent.
+                async let startDispatch: Void = p.startDispatchAsync()
+                try await Task.sleep(for: .milliseconds(100))  // Wait for the request to be sent.
+                try con.close(.Gracefully)
+                try await startDispatch
+                try test(false)
+
             } catch let ex as Ice.ConnectionClosedException {
                 try test(ex.closedByApplication)
             }
@@ -394,11 +385,11 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             try p.ice_ping()
             let con = try p.ice_getConnection()!
 
+            async let startDispatch: Void = p.startDispatchAsync()
+            try await Task.sleep(for: .milliseconds(100))  // Wait for the request to be sent.
+            try con.close(.Forcefully)
             do {
-                try await p.startDispatchAsync { _ in
-                    // Ensure the request was sent before we close the connection.
-                    try! con.close(.Forcefully)
-                }
+                try await startDispatch
                 try test(false)
             } catch let ex as Ice.ConnectionAbortedException {
                 try test(ex.closedByApplication)

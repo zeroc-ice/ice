@@ -198,19 +198,8 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     ///
     /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
     /// being sent over the wire.
-    ///
-    /// - parameter sentOn: `Dispatch.DispatchQueue?` - Optional dispatch queue used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags?` - Optional dispatch flags used
-    ///   to dispatch the sent callback
-    ///
-    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     func flushBatchRequestsAsync(
-        _ compress: CompressBatch,
-        sentOn: Dispatch.DispatchQueue?,
-        sentFlags: Dispatch.DispatchWorkItemFlags?,
-        sent: ((Bool) -> Void)?
+        _ compress: CompressBatch
     ) async throws
 
     /// Set a close callback on the connection. The callback is called by the connection when it's closed. The callback

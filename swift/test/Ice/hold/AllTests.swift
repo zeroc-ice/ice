@@ -66,48 +66,6 @@ func allTests(_ helper: TestHelper) async throws {
     }
     output.writeLine("ok")
 
-    output.write("testing without serialize mode... ")
-    do {
-        let cond = Condition(true)
-        var value: Int32 = 0
-
-        var sentTask: Task<Bool, Never>!
-
-        while cond.value() {
-            let expected = value
-            // The continuation will not always be resumed in the case of a local exception before sending the response.
-            // Therefor we use withUnsafeContinuation.
-            sentTask = Task {
-                await withUnsafeContinuation { continuation in
-                    Task {
-                        let v = try await hold.setAsync(value: expected + 1, delay: Int32.random(in: 0..<5)) {
-                            continuation.resume(returning: $0)
-                        }
-                        if v != expected {
-                            cond.set(false)
-                        }
-                        return v
-                    }
-                }
-            }
-
-            value += 1
-            if value % 100 == 0 {
-                _ = await sentTask.value
-            }
-
-            if value > 100_000 {
-                // Don't continue, it's possible that out-of-order dispatch doesn't occur
-                // after 100000 iterations and we don't want the test to last for too long
-                // when this occurs.
-                break
-            }
-        }
-        try test(value > 100_000 || !cond.value())
-        _ = await sentTask.value
-    }
-    output.writeLine("ok")
-
     // TODO: Update to use async/await
     // output.write("testing with serialize mode... ")
     // do {
