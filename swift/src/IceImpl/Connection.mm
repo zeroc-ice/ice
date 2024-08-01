@@ -102,8 +102,7 @@
     catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation, which is fine since we only use it to fulfill the
-        // PromiseKit promise.
+        // thread making the invocation.
         exception(convertException(std::current_exception()));
     }
 }

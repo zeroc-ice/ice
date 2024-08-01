@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
-import PromiseKit
 
 /// Base protocol for dynamic dispatch servants.
 public protocol Blobject {
@@ -31,14 +30,9 @@ public struct BlobjectDisp: Dispatcher {
         self.servant = servant
     }
 
-    public func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
-        do {
-            let (inEncaps, _) = try request.inputStream.readEncapsulation()
-            let result = try servant.ice_invoke(inEncaps: inEncaps, current: request.current)
-            return Promise.value(
-                request.current.makeOutgoingResponse(ok: result.ok, encapsulation: result.outParams))
-        } catch {
-            return Promise(error: error)
-        }
+    public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        let (inEncaps, _) = try request.inputStream.readEncapsulation()
+        let result = try servant.ice_invoke(inEncaps: inEncaps, current: request.current)
+        return request.current.makeOutgoingResponse(ok: result.ok, encapsulation: result.outParams)
     }
 }

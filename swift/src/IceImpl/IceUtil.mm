@@ -90,9 +90,6 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     Ice::InitializationData initData;
     initData.properties = [properties properties];
 
-    // Ice for Swift always uses the dispatch queue executor
-    initData.useDispatchQueueExecutor = true;
-
     if (logger)
     {
         initData.logger = std::make_shared<LoggerWrapperI>(logger);

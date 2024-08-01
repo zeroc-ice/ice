@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-func allTests(helper: TestHelper) throws -> MyClassPrx {
+func allTests(helper: TestHelper) async throws -> MyClassPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -27,14 +27,14 @@ func allTests(helper: TestHelper) throws -> MyClassPrx {
     output.writeLine("ok")
 
     output.write("testing twoway operations with AMI... ")
-    try twowaysAMI(helper, cl)
-    try twowaysAMI(helper, derivedProxy)
+    try await twowaysAMI(helper, cl)
+    try await twowaysAMI(helper, derivedProxy)
     try derivedProxy.opDerived()
     output.writeLine("ok")
 
     output.write("testing oneway operations with AMI... ")
-    try onewaysAMI(helper, cl)
-    try onewaysAMI(helper, derivedProxy)
+    try await onewaysAMI(helper, cl)
+    try await onewaysAMI(helper, derivedProxy)
     output.writeLine("ok")
 
     output.write("testing batch oneway operations... ")

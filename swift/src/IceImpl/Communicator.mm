@@ -260,8 +260,7 @@
     catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation, which is fine since we only use it to fulfill the
-        // PromiseKit promise.
+        // thread making the invocation.
         exception(convertException(std::current_exception()));
     }
 }
@@ -373,36 +372,6 @@
 {
     auto props = self.communicator->getProperties();
     return [ICEProperties getHandle:props];
-}
-
-- (nullable dispatch_queue_t)getClientDispatchQueue:(NSError* _Nullable* _Nullable)error
-{
-    try
-    {
-        // Swift always sets InitializationData.useDispatchQueueExecutor to true
-        assert(self.communicator->getClientDispatchQueue());
-        return self.communicator->getClientDispatchQueue();
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
-}
-
-- (nullable dispatch_queue_t)getServerDispatchQueue:(NSError* _Nullable* _Nullable)error
-{
-    try
-    {
-        // Swift always sets InitializationData.useDispatchQueueExecutor to true
-        assert(self.communicator->getServerDispatchQueue());
-        return self.communicator->getServerDispatchQueue();
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
 }
 
 - (void)getDefaultEncoding:(std::uint8_t*)major minor:(std::uint8_t*)minor

@@ -1,11 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 import Ice
-import PromiseKit
 import TestCommon
 
 public class Client: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
         initData.classResolverPrefix = ["IceSlicingExceptions", "IceSlicingExceptionsClient"]
@@ -13,7 +12,7 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        let testIntf = try allTests(self)
+        let testIntf = try await allTests(self)
         try testIntf.shutdown()
     }
 }

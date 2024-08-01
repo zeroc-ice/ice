@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
-import PromiseKit
 
 /// Base protocol for dynamic asynchronous dispatch servants.
 public protocol BlobjectAsync {
@@ -11,7 +10,7 @@ public protocol BlobjectAsync {
     ///
     /// - parameter current: `Ice.Current` - The Current object to pass to the operation.
     ///
-    /// - returns: `PromiseKit.Promise<(ok: Bool, outParams: Data)>` - The result of the operation.
+    /// - returns: `(ok: Bool, outParams: Data)` - The result of the operation.
     ///
     ///   - ok: `Bool` - True if the operation completed successfully, false if
     ///     the operation raised a user exception (in this case, outParams
@@ -20,7 +19,7 @@ public protocol BlobjectAsync {
     ///
     ///   - outParams: `Data` - The encoded out-parameters and return value
     ///     for the operation. The return value follows any out-parameters.
-    func ice_invokeAsync(inEncaps: Data, current: Current) -> Promise<(ok: Bool, outParams: Data)>
+    func ice_invokeAsync(inEncaps: Data, current: Current) async throws -> (ok: Bool, outParams: Data)
 }
 
 /// Request dispatcher for BlobjectAsync servants.
@@ -31,14 +30,9 @@ public struct BlobjectAsyncDisp: Dispatcher {
         self.servant = servant
     }
 
-    public func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
-        do {
-            let (inEncaps, _) = try request.inputStream.readEncapsulation()
-            return servant.ice_invokeAsync(inEncaps: inEncaps, current: request.current).map(on: nil) { result in
-                request.current.makeOutgoingResponse(ok: result.ok, encapsulation: result.outParams)
-            }
-        } catch {
-            return Promise(error: error)
-        }
+    public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        let (inEncaps, _) = try request.inputStream.readEncapsulation()
+        let result = try await servant.ice_invokeAsync(inEncaps: inEncaps, current: request.current)
+        return request.current.makeOutgoingResponse(ok: result.ok, encapsulation: result.outParams)
     }
 }

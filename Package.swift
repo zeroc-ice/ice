@@ -40,35 +40,34 @@ let package = Package(
         .plugin(name: "CompileSlice", targets: ["CompileSlice"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/mxcl/PromiseKit.git", from: "8.1.2"),
         .package(url: "https://github.com/zeroc-ice/mcpp.git", branch: "master"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.1.0"),
     ],
     targets: [
         .target(
             name: "Ice",
-            dependencies: ["IceImpl", "PromiseKit"],
+            dependencies: ["IceImpl"],
             path: "swift/src/Ice",
             resources: [.process("slice-plugin.json")],
             plugins: [.plugin(name: "CompileSlice")]
         ),
         .target(
             name: "Glacier2",
-            dependencies: ["Ice", "PromiseKit"],
+            dependencies: ["Ice"],
             path: "swift/src/Glacier2",
             resources: [.process("slice-plugin.json")],
             plugins: [.plugin(name: "CompileSlice")]
         ),
         .target(
             name: "IceGrid",
-            dependencies: ["Ice", "Glacier2", "PromiseKit"],
+            dependencies: ["Ice", "Glacier2"],
             path: "swift/src/IceGrid",
             resources: [.process("slice-plugin.json")],
             plugins: [.plugin(name: "CompileSlice")]
         ),
         .target(
             name: "IceStorm",
-            dependencies: ["Ice", "PromiseKit"],
+            dependencies: ["Ice"],
             path: "swift/src/IceStorm",
             resources: [.process("slice-plugin.json")],
             plugins: [.plugin(name: "CompileSlice")]

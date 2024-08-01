@@ -325,9 +325,4 @@ public protocol ObjectAdapter: AnyObject {
     ///
     /// - parameter _: `EndpointSeq` The new set of endpoints that the object adapter will embed in proxies.
     func setPublishedEndpoints(_ newEndpoints: EndpointSeq) throws
-
-    /// Returns the dispatch queue.
-    ///
-    /// - returns: `Dispatch.DispatchQueue` - The dispatch queue associated wih this Object Adapter.
-    func getDispatchQueue() throws -> Dispatch.DispatchQueue
 }

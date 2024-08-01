@@ -17,10 +17,6 @@
 #include "Proxy.h"
 #include "SSL/ServerAuthenticationOptions.h"
 
-#ifdef __APPLE__
-#    include <dispatch/dispatch.h>
-#endif
-
 namespace Ice
 {
     class LocatorPrx;
@@ -381,24 +377,6 @@ namespace Ice
          * @see #findAdminFacet
          */
         FacetMap findAllAdminFacets();
-
-#ifdef __APPLE__
-        /**
-         * Returns the client dispatch queue, if any.
-         * @return The dispatch queue associated wih this Communicator's
-         * client thread pool, or nullptr if none is configured.
-         * @remarks This operation is only available on Apple platforms.
-         */
-        dispatch_queue_t getClientDispatchQueue() const;
-
-        /**
-         * Returns the server dispatch queue
-         * @return The dispatch queue associated wih the Communicator's
-         * server thread pool, or nullptr if none is configured.
-         * @remarks This operation is only available on Apple platforms.
-         */
-        dispatch_queue_t getServerDispatchQueue() const;
-#endif
 
         void postToClientThreadPool(std::function<void()> call);
 

@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 class Client: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         do {
             var properties = try createTestProperties(args)
             properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10 1")
@@ -30,7 +30,7 @@ class Client: TestHelperI {
                 communicator2.destroy()
             }
 
-            let r = try allTests(
+            let r = try await allTests(
                 helper: self,
                 communicator2: communicator2,
                 ref: "retry:\(getTestEndpoint(num: 0))")

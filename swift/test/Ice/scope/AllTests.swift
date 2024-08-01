@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-func allTests(helper: TestHelper) throws {
+func allTests(helper: TestHelper) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -66,32 +66,32 @@ func allTests(helper: TestHelper) throws {
         let i = try checkedCast(prx: obj, type: IPrx.self)!
 
         let s1 = S(v: 0)
-        let (s3, s2) = try i.opSAsync(s1).wait()
+        let (s3, s2) = try await i.opSAsync(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try i.opSSeqAsync(sseq1).wait()
+        let (sseq3, sseq2) = try await i.opSSeqAsync(sseq1)
         try test(sseq2 == sseq1)
         try test(sseq3 == sseq1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try i.opSMapAsync(smap1).wait()
+        let (smap3, smap2) = try await i.opSMapAsync(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
         let c1 = C(s: s1)
-        let (c3, c2) = try i.opCAsync(c1).wait()
+        let (c3, c2) = try await i.opCAsync(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try i.opCSeqAsync(cseq1).wait()
+        let (cseq3, cseq2) = try await i.opCSeqAsync(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try i.opCMapAsync(cmap1).wait()
+        let (cmap3, cmap2) = try await i.opCMapAsync(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
@@ -136,32 +136,32 @@ func allTests(helper: TestHelper) throws {
         let i = try checkedCast(prx: obj, type: InnerIPrx.self)!
 
         let s1 = InnerInner2S(v: 0)
-        let (s3, s2) = try i.opSAsync(s1).wait()
+        let (s3, s2) = try await i.opSAsync(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try i.opSSeqAsync(sseq1).wait()
+        let (sseq3, sseq2) = try await i.opSSeqAsync(sseq1)
         try test(sseq2 == sseq1)
         try test(sseq3 == sseq1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try i.opSMapAsync(smap1).wait()
+        let (smap3, smap2) = try await i.opSMapAsync(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
         let c1 = InnerInner2C(s: s1)
-        let (c3, c2) = try i.opCAsync(c1).wait()
+        let (c3, c2) = try await i.opCAsync(c1)
         try test(c2!.s == c1.s)
         try test(c3!.s == c1.s)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try i.opCSeqAsync(cseq1).wait()
+        let (cseq3, cseq2) = try await i.opCSeqAsync(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try i.opCMapAsync(cmap1).wait()
+        let (cmap3, cmap2) = try await i.opCMapAsync(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
@@ -206,32 +206,32 @@ func allTests(helper: TestHelper) throws {
         let i = try checkedCast(prx: obj, type: InnerInner2IPrx.self)!
 
         let s1 = InnerInner2S(v: 0)
-        let (s3, s2) = try i.opSAsync(s1).wait()
+        let (s3, s2) = try await i.opSAsync(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try i.opSSeqAsync(sseq1).wait()
+        let (sseq3, sseq2) = try await i.opSSeqAsync(sseq1)
         try test(sseq2[0] == s1)
         try test(sseq3[0] == s1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try i.opSMapAsync(smap1).wait()
+        let (smap3, smap2) = try await i.opSMapAsync(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
         let c1 = InnerInner2C(s: s1)
-        let (c3, c2) = try i.opCAsync(c1).wait()
+        let (c3, c2) = try await i.opCAsync(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try i.opCSeqAsync(cseq1).wait()
+        let (cseq3, cseq2) = try await i.opCSeqAsync(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try i.opCMapAsync(cmap1).wait()
+        let (cmap3, cmap2) = try await i.opCMapAsync(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
@@ -276,17 +276,17 @@ func allTests(helper: TestHelper) throws {
         let i = try checkedCast(prx: obj, type: InnerTestInner2IPrx.self)!
 
         let s1 = S(v: 0)
-        let (s3, s2) = try i.opSAsync(s1).wait()
+        let (s3, s2) = try await i.opSAsync(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try i.opSSeqAsync(sseq1).wait()
+        let (sseq3, sseq2) = try await i.opSSeqAsync(sseq1)
         try test(sseq2[0] == s1)
         try test(sseq3[0] == s1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try i.opSMapAsync(smap1).wait()
+        let (smap3, smap2) = try await i.opSMapAsync(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
@@ -296,12 +296,12 @@ func allTests(helper: TestHelper) throws {
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try i.opCSeqAsync(cseq1).wait()
+        let (cseq3, cseq2) = try await i.opCSeqAsync(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try i.opCMapAsync(cmap1).wait()
+        let (cmap3, cmap2) = try await i.opCMapAsync(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }

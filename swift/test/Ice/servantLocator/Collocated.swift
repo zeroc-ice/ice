@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 class Collocated: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
         initData.classResolverPrefix = ["IceServantLocator"]

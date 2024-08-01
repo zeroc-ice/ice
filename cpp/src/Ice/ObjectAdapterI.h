@@ -21,10 +21,6 @@
 #include "ServantManagerF.h"
 #include "ThreadPoolF.h"
 
-#ifdef __APPLE__
-#    include <dispatch/dispatch.h>
-#endif
-
 #include <list>
 #include <mutex>
 #include <optional>
@@ -86,10 +82,6 @@ namespace Ice
         void refreshPublishedEndpoints() final;
         EndpointSeq getPublishedEndpoints() const noexcept;
         void setPublishedEndpoints(const EndpointSeq&) final;
-
-#ifdef __APPLE__
-        dispatch_queue_t getDispatchQueue() const final;
-#endif
 
         bool isLocal(const IceInternal::ReferencePtr&) const;
 

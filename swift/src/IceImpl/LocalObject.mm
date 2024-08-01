@@ -5,7 +5,8 @@
 
 namespace
 {
-    std::unordered_map<void*, __weak ICELocalObject*> cachedObjects;
+    // We "leak" this map to avoid the destructor being called when the application is terminated.
+    auto* cachedObjects = new std::unordered_map<void*, __weak ICELocalObject*>();
 }
 
 @implementation ICELocalObject
@@ -23,8 +24,8 @@ namespace
 
     @synchronized([ICELocalObject class])
     {
-        assert(cachedObjects.find(_cppObject.get()) == cachedObjects.end());
-        cachedObjects.insert(std::make_pair(_cppObject.get(), self));
+        assert(cachedObjects->find(_cppObject.get()) == cachedObjects->end());
+        cachedObjects->insert(std::make_pair(_cppObject.get(), self));
     }
     return self;
 }
@@ -37,9 +38,10 @@ namespace
     }
     @synchronized([ICELocalObject class])
     {
-        std::unordered_map<void*, __weak ICELocalObject*>::const_iterator p = cachedObjects.find(cppObject.get());
-        if (p != cachedObjects.end())
+        std::unordered_map<void*, __weak ICELocalObject*>::const_iterator p = cachedObjects->find(cppObject.get());
+        if (p != cachedObjects->end())
         {
+            // assert(p->second);
             return p->second;
         }
         else
@@ -51,10 +53,10 @@ namespace
 
 - (void)dealloc
 {
-    assert(_cppObject != nullptr);
     @synchronized([ICELocalObject class])
     {
-        cachedObjects.erase(_cppObject.get());
+        assert(_cppObject != nullptr);
+        cachedObjects->erase(_cppObject.get());
         _cppObject = nullptr;
     }
 }
