@@ -277,6 +277,7 @@ IcePy::PyException::PyException()
 IcePy::PyException::PyException(PyObject* raisedException)
 {
     Py_XINCREF(raisedException);
+    ex = raisedException;
 }
 
 namespace IcePy
