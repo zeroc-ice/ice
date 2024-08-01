@@ -939,7 +939,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         ParamDeclList::iterator t;
         int count;
         string format;
-         std::optional<FormatType> opFormat = operation->format();
+        std::optional<FormatType> opFormat = operation->format();
         if (opFormat)
         {
             switch (*opFormat)
