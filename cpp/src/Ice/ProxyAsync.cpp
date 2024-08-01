@@ -342,7 +342,7 @@ Ice::ObjectPrx::_iceI_isA(const shared_ptr<OutgoingAsyncT<bool>>& outAsync, stri
     outAsync->invoke(
         operationName,
         OperationMode::Idempotent,
-        FormatType::DefaultFormat,
+        nullopt,
         ctx,
         [&](Ice::OutputStream* os) { os->write(typeId, false); },
         nullptr);
@@ -380,7 +380,7 @@ void
 Ice::ObjectPrx::_iceI_ping(const shared_ptr<OutgoingAsyncT<void>>& outAsync, const Context& ctx) const
 {
     static constexpr string_view operationName = "ice_ping";
-    outAsync->invoke(operationName, OperationMode::Idempotent, FormatType::DefaultFormat, ctx, nullptr, nullptr);
+    outAsync->invoke(operationName, OperationMode::Idempotent, FormatType::CompactFormat, ctx, nullptr, nullptr);
 }
 
 vector<string>
@@ -419,7 +419,7 @@ Ice::ObjectPrx::_iceI_ids(const shared_ptr<OutgoingAsyncT<vector<string>>>& outA
     outAsync->invoke(
         operationName,
         OperationMode::Idempotent,
-        FormatType::DefaultFormat,
+        FormatType::CompactFormat,
         ctx,
         nullptr,
         nullptr,
@@ -467,7 +467,7 @@ Ice::ObjectPrx::_iceI_id(const shared_ptr<OutgoingAsyncT<string>>& outAsync, con
     outAsync->invoke(
         operationName,
         OperationMode::Idempotent,
-        FormatType::DefaultFormat,
+        FormatType::CompactFormat,
         ctx,
         nullptr,
         nullptr,

@@ -607,7 +607,7 @@ Slice::opFormatTypeToString(const OperationPtr& op)
     switch (op->format())
     {
         case DefaultFormat:
-            return "::Ice::FormatType::DefaultFormat";
+            return "::std::nullopt";
         case CompactFormat:
             return "::Ice::FormatType::CompactFormat";
         case SlicedFormat:

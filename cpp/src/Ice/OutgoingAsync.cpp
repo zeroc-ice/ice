@@ -1073,7 +1073,7 @@ void
 OutgoingAsync::invoke(
     string_view operation,
     OperationMode mode,
-    FormatType format,
+    optional<FormatType> format,
     const Context& context,
     function<void(OutputStream*)> write)
 {

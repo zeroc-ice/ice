@@ -51,14 +51,14 @@ namespace IcePHP
     class OperationI final : public Operation
     {
     public:
-        OperationI(const char*, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*);
+        OperationI(const char*, Ice::OperationMode, std::optional<Ice::FormatType>, zval*, zval*, zval*, zval*);
         ~OperationI();
 
         zend_function* function() final;
 
         string name; // On-the-wire name.
         Ice::OperationMode mode;
-        Ice::FormatType format;
+        std::optional<Ice::FormatType> format;
         ParamInfoList inParams;
         ParamInfoList optionalInParams;
         ParamInfoList outParams;
@@ -151,7 +151,7 @@ IcePHP::ResultCallback::unset(void)
 IcePHP::OperationI::OperationI(
     const char* n,
     Ice::OperationMode m,
-    Ice::FormatType f,
+    std::optional<Ice::FormatType> f,
     zval* in,
     zval* out,
     zval* ret,
@@ -726,11 +726,17 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     TypeInfoPtr type = Wrapper<TypeInfoPtr>::value(cls);
     auto c = dynamic_pointer_cast<ProxyInfo>(type);
     assert(c);
+    // format is a Slice metadata format, where 0 = default, 1 = compact, 2 = sliced
+    std::optional<Ice::FormatType> cppFormat;
+    if (format != 0)
+    {
+        cppFormat = static_cast<Ice::FormatType>(format - 1);
+    }
 
     auto op = make_shared<OperationI>(
         name,
         static_cast<Ice::OperationMode>(mode),
-        static_cast<Ice::FormatType>(format),
+        cppFormat,
         inParams,
         outParams,
         returnType,
