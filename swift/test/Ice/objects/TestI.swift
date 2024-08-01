@@ -254,7 +254,7 @@ class UnexpectedObjectExceptionTestI: Ice.Blobject {
     func ice_invoke(inEncaps _: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
         let communicator = current.adapter.getCommunicator()
         let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation(encoding: current.encoding, format: .DefaultFormat)
+        ostr.startEncapsulation(encoding: current.encoding, format: nil)
         let ae = AlsoEmpty()
         ostr.write(ae)
         ostr.writePendingValues()

@@ -130,7 +130,6 @@ namespace
 
     string opFormatTypeToString(const OperationPtr& op)
     {
-        // TODO: remove DefaultFormat.
         std::optional<FormatType> opFormat = op->format();
         if (opFormat)
         {
@@ -147,7 +146,7 @@ namespace
         }
         else
         {
-            return ".DefaultFormat";
+            return "nil";
         }
     }
 }
@@ -2609,7 +2608,7 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
         }
         else
         {
-            out << nl << "return request.current.makeOutgoingResponse(result, formatType:" << opFormatTypeToString(op)
+            out << nl << "return request.current.makeOutgoingResponse(result, formatType: " << opFormatTypeToString(op)
                 << ")";
             out << sb;
             out << " ostr, value in ";

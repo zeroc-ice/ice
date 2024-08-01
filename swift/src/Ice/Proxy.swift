@@ -1148,7 +1148,7 @@ open class ObjectPrxI: ObjectPrx {
     public func _invoke(
         operation: String,
         mode: OperationMode,
-        format: FormatType = FormatType.DefaultFormat,
+        format: FormatType? = nil,
         write: ((OutputStream) -> Void)? = nil,
         userException: ((UserException) throws -> Void)? = nil,
         context: Context? = nil
@@ -1207,7 +1207,7 @@ open class ObjectPrxI: ObjectPrx {
     public func _invoke<T>(
         operation: String,
         mode: OperationMode,
-        format: FormatType = FormatType.DefaultFormat,
+        format: FormatType? = nil,
         write: ((OutputStream) -> Void)? = nil,
         read: @escaping (InputStream) throws -> T,
         userException: ((UserException) throws -> Void)? = nil,
@@ -1263,7 +1263,7 @@ open class ObjectPrxI: ObjectPrx {
     public func _invokeAsync(
         operation: String,
         mode: OperationMode,
-        format: FormatType = FormatType.DefaultFormat,
+        format: FormatType? = nil,
         write: ((OutputStream) -> Void)? = nil,
         userException: ((UserException) throws -> Void)? = nil,
         context: Context? = nil,
@@ -1358,7 +1358,7 @@ open class ObjectPrxI: ObjectPrx {
     public func _invokeAsync<T>(
         operation: String,
         mode: OperationMode,
-        format: FormatType = FormatType.DefaultFormat,
+        format: FormatType? = nil,
         write: ((OutputStream) -> Void)? = nil,
         read: @escaping (InputStream) throws -> T,
         userException: ((UserException) throws -> Void)? = nil,
