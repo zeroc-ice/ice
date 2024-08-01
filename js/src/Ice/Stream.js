@@ -2270,7 +2270,7 @@ EncapsEncoder11.InstanceData = class {
 class WriteEncaps {
     constructor() {
         this.start = 0;
-        this.format = FormatType.DefaultFormat;
+        this.format = null;
         this.encoding = null;
         this.encoding_1_0 = false;
         this.encoder = null;
@@ -2417,7 +2417,7 @@ export class OutputStream {
                 format = this._encapsStack.format;
             } else {
                 encoding = this._encoding;
-                format = FormatType.DefaultFormat;
+                format = null;
             }
         }
 
@@ -2709,7 +2709,7 @@ export class OutputStream {
             this._encapsStack.setEncoding(this._encoding);
         }
 
-        if (this._encapsStack.format === FormatType.DefaultFormat) {
+        if (this._encapsStack.format === null) {
             this._encapsStack.format = this._instance.defaultsAndOverrides().defaultFormat;
         }
 

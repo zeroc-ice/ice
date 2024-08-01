@@ -70,26 +70,17 @@ namespace
         return "???";
     }
 
-    string opFormatTypeToString(const OperationPtr& op)
+    string opFormatTypeToString(FormatType opFormat)
     {
-        // TODO: update JS format type and rework this code.
-        std::optional<FormatType> opFormat = op->format();
-        if (opFormat)
+        switch (opFormat)
         {
-            switch (*opFormat)
-            {
-                case CompactFormat:
-                    return "1";
-                case SlicedFormat:
-                    return "2";
-                default:
-                    assert(false);
-                    return "???";
-            }
-        }
-        else
-        {
-            return "0";
+            case CompactFormat:
+                return "0";
+            case SlicedFormat:
+                return "1";
+            default:
+                assert(false);
+                return "???";
         }
     }
 
@@ -1495,7 +1486,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if (op->format())
             {
-                _out << opFormatTypeToString(op); // Format.
+                _out << opFormatTypeToString(*op->format()); // Format.
             }
             _out << ", ";
 
