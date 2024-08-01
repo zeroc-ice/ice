@@ -24,6 +24,13 @@ public class Server : global::Test.TestHelper
         adapter3s.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
         adapter3s.activate();
 
+        communicator.getProperties().setProperty("TestAdapterMaxDispatches.Endpoints", getTestEndpoint(2));
+        communicator.getProperties().setProperty("TestAdapterMaxDispatches.ThreadPool.Size", "10");
+        communicator.getProperties().setProperty("TestAdapterMaxDispatches.Connection.MaxDispatches", "1");
+        var adapterMaxDispatches = communicator.createObjectAdapter("TestAdapterMaxDispatches");
+        adapterMaxDispatches.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
+        adapterMaxDispatches.activate();
+
         serverReady();
         communicator.waitForShutdown();
     }

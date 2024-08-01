@@ -706,11 +706,10 @@ public sealed class Instance
                 closeTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")),
                 idleTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout")),
                 enableIdleCheck: properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
-                inactivityTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout")));
-
+                inactivityTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout")),
+                maxDispatches: properties.getIcePropertyAsInt("Ice.Connection.MaxDispatches"));
             {
-                int num =
-                    _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
+                int num = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
                 if (num < 1 || num > 0x7fffffff / 1024)
                 {
                     _messageSizeMax = 0x7fffffff;
@@ -1436,7 +1435,11 @@ public sealed class Instance
 
                 inactivityTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
                     $"{adapterName}.Connection.InactivityTimeout",
-                    (int)clientConnectionOptions.inactivityTimeout.TotalSeconds)));
+                    (int)clientConnectionOptions.inactivityTimeout.TotalSeconds)),
+
+                maxDispatches: properties.getPropertyAsIntWithDefault(
+                    $"{adapterName}.Connection.MaxDispatches",
+                    (int)clientConnectionOptions.maxDispatches));
         }
         else
         {

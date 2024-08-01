@@ -14,10 +14,14 @@ internal class AllTests : global::Test.AllTests
 
         string proxyString3s = $"test: {helper.getTestEndpoint(1)}";
 
+        string proxyStringMaxDispatches = $"test: {helper.getTestEndpoint(2)}";
+        Test.TestIntfPrx pMaxDispatches = Test.TestIntfPrxHelper.createProxy(communicator, proxyStringMaxDispatches);
+
         await testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(p, helper.getWriter());
         await testConnectionAbortedByIdleCheck(proxyString, communicator.getProperties(), helper.getWriter());
         await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
         await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
+        await testMaxDispatches(pMaxDispatches, helper.getWriter());
 
         await p.shutdownAsync();
     }
@@ -113,6 +117,21 @@ internal class AllTests : global::Test.AllTests
         {
             test(enabled);
         }
+        output.WriteLine("ok");
+    }
+
+    private static async Task testMaxDispatches(Test.TestIntfPrx p, TextWriter output)
+    {
+        output.Write("testing max dispatches... ");
+        output.Flush();
+
+        var sleepTask = p.sleepAsync(2000);
+        var sleepTask2 = p.sleepAsync(1000);
+        await Task.Delay(1500);
+        test(sleepTask2.IsCompleted == false);
+        await sleepTask;
+        await sleepTask2;
+
         output.WriteLine("ok");
     }
 }
