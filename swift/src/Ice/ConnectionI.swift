@@ -11,7 +11,7 @@ extension Connection {
             impl.handle.flushBatchRequestsAsync(
                 compress.rawValue,
                 exception: { error in continuation.resume(throwing: error) },
-                sent: {
+                sent: { _ in
                     continuation.resume(returning: ())
                 })
         }
