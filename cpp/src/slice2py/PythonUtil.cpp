@@ -2536,7 +2536,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
     //
     for (const string& line : lines)
     {
-        auto pos = line.find_first_not_of(" \t\n\r");
+        auto pos = line.find_first_not_of(" \t");
         if (pos != string::npos)
         {
             c.description.push_back(line.substr(pos));
