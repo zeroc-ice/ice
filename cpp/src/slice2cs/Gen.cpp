@@ -59,7 +59,7 @@ namespace
         {
             case DefaultFormat:
             {
-                return "Ice.FormatType.DefaultFormat";
+                return "null";
             }
             case CompactFormat:
             {

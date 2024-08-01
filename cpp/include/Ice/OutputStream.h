@@ -8,6 +8,7 @@
 #include "Buffer.h"
 #include "CommunicatorF.h"
 #include "Ice/Format.h"
+#include "Ice/StringConverter.h"
 #include "Ice/Version.h"
 #include "InstanceF.h"
 #include "SlicedDataF.h"
@@ -36,9 +37,8 @@ namespace Ice
         typedef size_t size_type;
 
         /**
-         * Constructs an OutputStream using the latest encoding version, the default format for
-         * class encoding, and the process string converters. You can supply a communicator later
-         * by calling initialize().
+         * Constructs an OutputStream using the latest encoding version, the compact format for
+         * class encoding, and the process string converters.
          */
         OutputStream();
 
@@ -110,20 +110,6 @@ namespace Ice
          * Releases any data retained by encapsulations.
          */
         void clear();
-
-        /// \cond INTERNAL
-        //
-        // Must return Instance*, because we don't hold an InstancePtr for
-        // optimization reasons (see comments below).
-        //
-        IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
-        /// \endcond
-
-        /**
-         * Sets the class encoding format.
-         * @param format The encoding format.
-         */
-        void setFormat(FormatType format);
 
         /**
          * Obtains the closure data associated with this stream.
@@ -204,9 +190,10 @@ namespace Ice
          * Writes the start of an encapsulation using the given encoding version and
          * class encoding format.
          * @param encoding The encoding version to use for the encapsulation.
-         * @param format The class format to use for the encapsulation.
+         * @param format The class format to use for the encapsulation. nullopt is equivalent to the OutputStream's
+         * class format.
          */
-        void startEncapsulation(const EncodingVersion& encoding, FormatType format);
+        void startEncapsulation(const EncodingVersion& encoding, std::optional<FormatType> format);
 
         /**
          * Ends the current encapsulation.
@@ -805,11 +792,8 @@ namespace Ice
         //
         void writeConverted(const char*, size_t);
 
-        //
-        // Optimization. The instance may not be deleted while a
-        // stack-allocated stream still holds it.
-        //
-        IceInternal::Instance* _instance;
+        StringConverterPtr _stringConverter;
+        WstringConverterPtr _wstringConverter;
 
         //
         // The public stream API needs to attach data to a stream.
@@ -966,7 +950,7 @@ namespace Ice
         class Encaps
         {
         public:
-            Encaps() : format(FormatType::DefaultFormat), encoder(0), previous(0)
+            Encaps() : format(FormatType::CompactFormat), encoder(0), previous(0)
             {
                 // Inlined for performance reasons.
             }
@@ -1005,7 +989,7 @@ namespace Ice
         //
         EncodingVersion _encoding;
 
-        FormatType _format;
+        FormatType _format; // TODO: make it const
 
         Encaps* _currentEncaps;
 

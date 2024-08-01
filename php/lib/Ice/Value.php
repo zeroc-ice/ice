@@ -66,11 +66,4 @@ class SliceInfo
     public $isLastSlice;
 }
 
-class FormatType
-{
-    const DefaultFormat = 0;
-    const CompactFormat = 1;
-    const SlicedFormat = 2;
-}
-
 ?>

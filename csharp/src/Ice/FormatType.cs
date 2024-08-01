@@ -9,7 +9,6 @@ namespace Ice;
 /// </summary>
 public enum FormatType
 {
-    DefaultFormat,
     CompactFormat,
     SlicedFormat
 }

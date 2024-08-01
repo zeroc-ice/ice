@@ -392,12 +392,16 @@ IceInternal::traceSlicing(const char* kind, string_view typeId, const char* slic
 }
 
 void
-IceInternal::traceSend(const OutputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
+IceInternal::traceSend(
+    const OutputStream& str,
+    const InstancePtr& instance,
+    const LoggerPtr& logger,
+    const TraceLevelsPtr& tl)
 {
     if (tl->protocol >= 1)
     {
         OutputStream& stream = const_cast<OutputStream&>(str);
-        InputStream is(stream.instance(), stream.getEncoding(), stream);
+        InputStream is(instance.get(), stream.getEncoding(), stream);
         is.i = is.b.begin();
 
         ostringstream s;
@@ -421,23 +425,6 @@ IceInternal::traceRecv(const InputStream& str, const LoggerPtr& logger, const Tr
 
         logger->trace(tl->protocolCat, "received " + getMessageTypeAsString(type) + " " + s.str());
         stream.i = p;
-    }
-}
-
-void
-IceInternal::trace(const char* heading, const OutputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
-{
-    if (tl->protocol >= 1)
-    {
-        OutputStream& stream = const_cast<OutputStream&>(str);
-        InputStream is(stream.instance(), stream.getEncoding(), stream);
-        is.i = is.b.begin();
-
-        ostringstream s;
-        s << heading;
-        printMessage(s, is);
-
-        logger->trace(tl->protocolCat, s.str());
     }
 }
 
