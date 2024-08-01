@@ -306,7 +306,7 @@ namespace
         return *obj->op;
     }
 
-    void handleException(bool includeStackTrace)
+    void handleException()
     {
         assert(PyErr_Occurred());
 
@@ -320,7 +320,7 @@ namespace
         //
         ex.checkSystemExit();
 
-        ex.raise(includeStackTrace);
+        ex.raise();
     }
 }
 
@@ -859,7 +859,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         {
             try
             {
-                throwPythonException(false);
+                throwPythonException();
             }
             catch (const Ice::UnknownException& ex)
             {
@@ -879,7 +879,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         {
             try
             {
-                throwPythonException(false);
+                throwPythonException();
             }
             catch (const Ice::UnknownException& ex)
             {
@@ -1857,7 +1857,7 @@ IcePy::AsyncInvocation::response(bool ok, pair<const byte*, const byte*> results
     handleResponse(future.get(), ok, results);
     if (PyErr_Occurred())
     {
-        handleException(true);
+        handleException();
     }
 }
 
@@ -1886,7 +1886,7 @@ IcePy::AsyncInvocation::exception(std::exception_ptr ex)
     PyObjectHandle tmp = callMethod(future.get(), "set_exception", exh.get());
     if (PyErr_Occurred())
     {
-        handleException(true);
+        handleException();
     }
 }
 
@@ -1924,7 +1924,7 @@ IcePy::AsyncInvocation::sent(bool sentSynchronously)
     PyObjectHandle tmp = callMethod(future.get(), "set_sent", sentSynchronously ? Py_True : Py_False);
     if (PyErr_Occurred())
     {
-        handleException(true);
+        handleException();
     }
 
     if (!_twoway)
@@ -1935,7 +1935,7 @@ IcePy::AsyncInvocation::sent(bool sentSynchronously)
         tmp = callMethod(future.get(), "set_result", Py_None);
         if (PyErr_Occurred())
         {
-            handleException(true);
+            handleException();
         }
     }
 }
@@ -2117,7 +2117,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         PyObjectHandle result = PyTuple_New(2);
         if (!result.get())
         {
-            throwPythonException(true);
+            throwPythonException();
         }
 
         PyTuple_SET_ITEM(result.get(), 0, ok ? Py_True : Py_False);
@@ -2133,7 +2133,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         }
         if (!op.get())
         {
-            throwPythonException(true);
+            throwPythonException();
         }
 
         PyTuple_SET_ITEM(result.get(), 1, op.release()); // PyTuple_SET_ITEM steals a reference.
@@ -2271,13 +2271,13 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     PyObjectHandle dispatchArgs = PyTuple_New(3);
     if (!dispatchArgs.get())
     {
-        throwPythonException(false);
+        throwPythonException();
     }
 
     DispatchCallbackObject* callback = dispatchCallbackNew(&DispatchCallbackType, 0, 0);
     if (!callback)
     {
-        throwPythonException(false);
+        throwPythonException();
     }
     callback->upcall = new UpcallPtr(shared_from_this());
     PyTuple_SET_ITEM(dispatchArgs.get(), 0, reinterpret_cast<PyObject*>(callback)); // Steals a reference.
@@ -2329,7 +2329,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
     PyObjectHandle args = PyTuple_New(count);
     if (!args.get())
     {
-        throwPythonException(false);
+        throwPythonException();
     }
 
     if (!_op->inParams.empty())
@@ -2391,7 +2391,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
         }
         catch (const AbortMarshaling&)
         {
-            throwPythonException(false);
+            throwPythonException();
         }
     }
 
@@ -2431,7 +2431,7 @@ IcePy::TypedUpcall::response(PyObject* result)
             {
                 try
                 {
-                    throwPythonException(false);
+                    throwPythonException();
                 }
                 catch (...)
                 {
@@ -2483,12 +2483,12 @@ IcePy::TypedUpcall::exception(PyException& ex)
             }
             else
             {
-                ex.raise(false);
+                ex.raise();
             }
         }
         catch (const AbortMarshaling&)
         {
-            throwPythonException(false);
+            throwPythonException();
         }
     }
     catch (...)
@@ -2520,7 +2520,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*
     PyObjectHandle args = PyTuple_New(count);
     if (!args.get())
     {
-        throwPythonException(false);
+        throwPythonException();
     }
 
     PyObjectHandle ip;
@@ -2584,7 +2584,7 @@ IcePy::BlobjectUpcall::response(PyObject* result)
     {
         try
         {
-            throwPythonException(false);
+            throwPythonException();
         }
         catch (...)
         {
@@ -2610,7 +2610,7 @@ IcePy::BlobjectUpcall::exception(PyException& ex)
         //
         ex.checkSystemExit();
 
-        ex.raise(false);
+        ex.raise();
     }
     catch (...)
     {

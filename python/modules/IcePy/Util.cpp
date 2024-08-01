@@ -272,23 +272,11 @@ IcePy::PyObjectHandle::release()
 IcePy::PyException::PyException()
 {
     ex = PyErr_GetRaisedException();
-    if (ex)
-    {
-        PyObject* type = reinterpret_cast<PyObject*>(Py_TYPE(ex.get()));
-        Py_INCREF(type);
-        _type = type;
-        _tb = PyException_GetTraceback(ex.get());
-    }
 }
 
 IcePy::PyException::PyException(PyObject* raisedException)
 {
     Py_XINCREF(raisedException);
-    ex = raisedException;
-    PyObject* type = reinterpret_cast<PyObject*>(Py_TYPE(raisedException));
-    Py_INCREF(type);
-    _type = type;
-    _tb = PyException_GetTraceback(raisedException);
 }
 
 namespace IcePy
@@ -305,66 +293,25 @@ namespace IcePy
         result += getString(name.get());
         return result;
     }
-
-    string getTraceback(PyObject* type, PyObject* ex, PyObject* tb)
+    string createUnknownExceptionMessage(PyObject* ex)
     {
-        ostringstream os;
-        assert(tb);
-        //
-        // We need the equivalent of the following Python code:
-        //
-        // import traceback
-        // list = traceback.format_exception(type, ex, tb)
-        //
-        PyObjectHandle str = createString("traceback");
-        PyObjectHandle mod = PyImport_Import(str.get());
-        assert(mod.get()); // Unable to import traceback module - Python installation error?
-        PyObject* func = PyDict_GetItemString(PyModule_GetDict(mod.get()), "format_exception");
-        assert(func); // traceback.format_exception must be present.
-        PyObjectHandle args = Py_BuildValue("(OOO)", type, ex, tb);
-        assert(args.get());
-        PyObjectHandle list = PyObject_CallObject(func, args.get());
-        assert(list.get());
-
-        for (Py_ssize_t i = 0; i < PyList_GET_SIZE(list.get()); ++i)
+        ostringstream ostr;
+        ostr << getTypeName(ex);
+        IcePy::PyObjectHandle exStr = PyObject_Str(ex);
+        if (exStr.get() && IcePy::checkString(exStr.get()))
         {
-            os << getString(PyList_GetItem(list.get(), i));
-        }
-        return os.str();
-    }
-
-    string createUnknownExceptionMessage(PyObject* ex, PyObject* type, PyObject* tb, bool includeStackTrace)
-    {
-        string traceback;
-        if (includeStackTrace)
-        {
-            traceback = getTraceback(type, ex, tb);
-        }
-
-        if (traceback.empty())
-        {
-            ostringstream ostr;
-            ostr << getTypeName(ex);
-            IcePy::PyObjectHandle exStr = PyObject_Str(ex);
-            if (exStr.get() && IcePy::checkString(exStr.get()))
+            string message = IcePy::getString(exStr.get());
+            if (!message.empty())
             {
-                string message = IcePy::getString(exStr.get());
-                if (!message.empty())
-                {
-                    ostr << ": " << message;
-                }
+                ostr << ": " << message;
             }
-            return ostr.str();
         }
-        else
-        {
-            return traceback;
-        }
+        return ostr.str();
     }
 }
 
 void
-IcePy::PyException::raise(bool includeStackTrace)
+IcePy::PyException::raise()
 {
     assert(ex.get());
     PyObject* localExceptionType = lookupType("Ice.LocalException");
@@ -438,14 +385,14 @@ IcePy::PyException::raise(bool includeStackTrace)
         throw Ice::UnknownLocalException{
             __FILE__,
             __LINE__,
-            createUnknownExceptionMessage(ex.get(), _type.get(), _tb.get(), includeStackTrace)};
+            createUnknownExceptionMessage(ex.get())};
     }
     else
     {
         throw Ice::UnknownException{
             __FILE__,
             __LINE__,
-            createUnknownExceptionMessage(ex.get(), _type.get(), _tb.get(), includeStackTrace)};
+            createUnknownExceptionMessage(ex.get())};
     }
 }
 
@@ -802,10 +749,10 @@ IcePy::setPythonException(PyObject* ex)
 }
 
 void
-IcePy::throwPythonException(bool includeStackTrace)
+IcePy::throwPythonException()
 {
     PyException ex;
-    ex.raise(includeStackTrace);
+    ex.raise();
 }
 
 void

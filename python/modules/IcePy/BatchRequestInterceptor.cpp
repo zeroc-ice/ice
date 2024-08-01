@@ -242,6 +242,6 @@ IcePy::BatchRequestInterceptorWrapper::enqueue(const Ice::BatchRequest& request,
     Py_DECREF(reinterpret_cast<PyObject*>(obj));
     if (!tmp.get())
     {
-        throwPythonException(true);
+        throwPythonException();
     }
 }

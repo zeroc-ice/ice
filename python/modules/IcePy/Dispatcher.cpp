@@ -142,6 +142,6 @@ IcePy::Dispatcher::dispatch(function<void()> call, const Ice::ConnectionPtr& con
     Py_DECREF(reinterpret_cast<PyObject*>(obj));
     if (!tmp.get())
     {
-        throwPythonException(false);
+        throwPythonException();
     }
 }

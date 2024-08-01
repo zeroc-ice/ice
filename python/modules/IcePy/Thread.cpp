@@ -45,7 +45,7 @@ IcePy::ThreadHook::start()
         PyObjectHandle tmp = PyObject_Call(_threadStart.get(), args.get(), 0);
         if (!tmp.get())
         {
-            throwPythonException(true);
+            throwPythonException();
         }
     }
 }
@@ -60,7 +60,7 @@ IcePy::ThreadHook::stop()
         PyObjectHandle tmp = PyObject_Call(_threadStop.get(), args.get(), 0);
         if (!tmp.get())
         {
-            throwPythonException(true);
+            throwPythonException();
         }
     }
 }

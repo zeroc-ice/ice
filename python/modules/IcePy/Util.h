@@ -89,7 +89,7 @@ namespace IcePy
         //
         // Convert the Python exception to its C++ equivalent.
         //
-        void raise(bool includeStackTrace);
+        void raise();
 
         //
         // If the Python exception is SystemExit, act on it. May not return.
@@ -97,11 +97,6 @@ namespace IcePy
         void checkSystemExit();
 
         PyObjectHandle ex;
-
-    private:
-
-        PyObjectHandle _type;
-        PyObjectHandle _tb;
     };
 
     //
@@ -156,7 +151,7 @@ namespace IcePy
     // Converts the interpreter's current exception into an Ice exception
     // and throws it.
     //
-    void throwPythonException(bool includeStackTrace);
+    void throwPythonException();
 
     //
     // Handle the SystemExit exception.

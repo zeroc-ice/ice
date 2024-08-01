@@ -102,7 +102,7 @@ namespace IcePy
                 //
                 ex.checkSystemExit();
 
-                ex.raise(true);
+                ex.raise();
             }
         }
 
