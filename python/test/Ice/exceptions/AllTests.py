@@ -839,7 +839,7 @@ def allTests(helper, communicator):
         pass
     print("ok")
 
-    sys.stdout.write("testing request failed exceptions from Python... ")
+    sys.stdout.write("testing setting RFE exception fields from Python... ")
     sys.stdout.flush()
     try:
         try:
