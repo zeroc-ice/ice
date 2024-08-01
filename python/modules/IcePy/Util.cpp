@@ -269,10 +269,7 @@ IcePy::PyObjectHandle::release()
     return result;
 }
 
-IcePy::PyException::PyException()
-{
-    ex = PyErr_GetRaisedException();
-}
+IcePy::PyException::PyException() { ex = PyErr_GetRaisedException(); }
 
 IcePy::PyException::PyException(PyObject* raisedException)
 {
@@ -383,17 +380,11 @@ IcePy::PyException::raise()
         {
             throw Ice::UnknownException{__FILE__, __LINE__, std::move(message)};
         }
-        throw Ice::UnknownLocalException{
-            __FILE__,
-            __LINE__,
-            createUnknownExceptionMessage(ex.get())};
+        throw Ice::UnknownLocalException{__FILE__, __LINE__, createUnknownExceptionMessage(ex.get())};
     }
     else
     {
-        throw Ice::UnknownException{
-            __FILE__,
-            __LINE__,
-            createUnknownExceptionMessage(ex.get())};
+        throw Ice::UnknownException{__FILE__, __LINE__, createUnknownExceptionMessage(ex.get())};
     }
 }
 
