@@ -5,6 +5,7 @@
 #include "PythonUtil.h"
 #include "../Slice/Util.h"
 #include "Ice/StringUtil.h"
+
 #include <algorithm>
 #include <cassert>
 #include <climits>
@@ -31,6 +32,97 @@ namespace
     }
 
     const string tripleQuotes = "\"\"\"";
+
+    string typeToDocstring(const TypePtr& type, bool optional)
+    {
+        assert(type);
+
+        if (optional)
+        {
+            if (isProxyType(type))
+            {
+                // We map optional proxies like regular proxies, as XxxPrx or None.
+                return typeToDocstring(type, false);
+            }
+            else
+            {
+                ostringstream os;
+                os << typeToDocstring(type, false);
+                os << " or None";
+                return os.str();
+            }
+        }
+
+        static constexpr string_view builtinTable[] = {
+            "int",
+            "bool",
+            "int",
+            "int",
+            "int",
+            "float",
+            "float",
+            "str",
+            "Ice.Value",
+            "Ice.ObjectPrx or None",
+            "Ice.Value"};
+
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+        if (builtin)
+        {
+            if (builtin->kind() == Builtin::KindObject)
+            {
+                return string{builtinTable[Builtin::KindValue]};
+            }
+            else
+            {
+                return string{builtinTable[builtin->kind()]};
+            }
+        }
+
+        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
+        if (cl)
+        {
+            return Slice::Python::scopedToName(cl->scoped());
+        }
+
+        StructPtr st = dynamic_pointer_cast<Struct>(type);
+        if (st)
+        {
+            return Slice::Python::scopedToName(st->scoped());
+        }
+
+        InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
+        if (proxy)
+        {
+            ostringstream os;
+            os << Slice::Python::scopedToName(proxy->scoped() + "Prx");
+            os << " or None";
+            return os.str();
+        }
+
+        EnumPtr en = dynamic_pointer_cast<Enum>(type);
+        if (en)
+        {
+            return Slice::Python::scopedToName(en->scoped());
+        }
+
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
+        if (seq)
+        {
+            return typeToDocstring(seq->type(), false) + "[]";
+        }
+
+        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
+        if (dict)
+        {
+            ostringstream os;
+            os << "dict where keys are " << typeToDocstring(dict->keyType(), false) << " and values are "
+               << typeToDocstring(dict->valueType(), false);
+            return os.str();
+        }
+
+        return "???";
+    }
 }
 
 namespace Slice
@@ -200,8 +292,6 @@ namespace Slice
             {
                 DocSync,
                 DocAsync,
-                DocAsyncBegin,
-                DocAsyncEnd,
                 DocDispatch,
                 DocAsyncDispatch
             };
@@ -2444,11 +2534,12 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
     //
     // All remaining lines become the general description.
     //
-    for (vector<string>::iterator p = lines.begin(); p != lines.end(); ++p)
+    for (const string& line : lines)
     {
-        if (p->find_first_not_of(" \t\n\r") != string::npos)
+        auto pos = line.find_first_not_of(" \t\n\r");
+        if (pos != string::npos)
         {
-            c.description.push_back(*p);
+            c.description.push_back(line.substr(pos));
         }
     }
 
@@ -2466,16 +2557,16 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
     TypePtr ret = op->returnType();
     ParamDeclList params = op->parameters();
-    vector<string> inParams, outParams;
-    for (ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
+    ParamDeclList inParams, outParams;
+    for (const auto& param : params)
     {
-        if ((*p)->isOutParam())
+        if (param->isOutParam())
         {
-            outParams.push_back((*p)->name());
+            outParams.push_back(param);
         }
         else
         {
-            inParams.push_back((*p)->name());
+            inParams.push_back(param);
         }
     }
 
@@ -2486,11 +2577,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         {
             return;
         }
-        else if ((mode == DocAsync || mode == DocAsyncBegin) && inParams.empty())
-        {
-            return;
-        }
-        else if (mode == DocAsyncEnd && outParams.empty() && comment.returns.empty())
+        else if (mode == DocAsync && inParams.empty())
         {
             return;
         }
@@ -2504,12 +2591,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     // Emit the general description.
     //
     _out << nl << "\"\"\"";
-    if (!comment.description.empty())
+    for (const string& line : comment.description)
     {
-        for (StringVec::const_iterator q = comment.description.begin(); q != comment.description.end(); ++q)
-        {
-            _out << nl << *q;
-        }
+        _out << nl << line;
     }
 
     //
@@ -2520,11 +2604,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     {
         case DocSync:
         case DocAsync:
-        case DocAsyncBegin:
         case DocDispatch:
             needArgs = true;
             break;
-        case DocAsyncEnd:
         case DocAsyncDispatch:
             needArgs = true;
             break;
@@ -2532,110 +2614,129 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
     if (needArgs)
     {
-        _out << nl << "Arguments:";
-        for (vector<string>::iterator q = inParams.begin(); q != inParams.end(); ++q)
+        if (!comment.description.empty())
         {
-            string fixed = fixIdent(*q);
-            _out << nl << fixed << " -- ";
-            StringMap::const_iterator r = comment.params.find(*q);
+            _out << nl;
+        }
+
+        _out << nl << "Parameters";
+        _out << nl << "----------";
+        for (const auto& param : inParams)
+        {
+            string fixed = fixIdent(param->name());
+            _out << nl << fixed << " : " << typeToDocstring(param->type(), param->optional());
+            StringMap::const_iterator r = comment.params.find(param->name());
             if (r == comment.params.end())
             {
                 r = comment.params.find(fixed); // Just in case.
             }
             if (r != comment.params.end())
             {
-                _out << r->second;
+                _out << nl << "    " << r->second;
             }
         }
-        if (mode == DocAsyncBegin)
-        {
-            _out << nl << "_response -- The asynchronous response callback." << nl
-                 << "_ex -- The asynchronous exception callback." << nl << "_sent -- The asynchronous sent callback.";
-        }
-        if (mode == DocSync || mode == DocAsync || mode == DocAsyncBegin)
+        if (mode == DocSync || mode == DocAsync)
         {
             const string contextParamName = getEscapedParamName(op, "context");
-            _out << nl << contextParamName << " -- The request context for the invocation.";
+            _out << nl << contextParamName << " : Ice.Context";
+            _out << nl << "    The request context for the invocation.";
         }
         if (mode == DocDispatch || mode == DocAsyncDispatch)
         {
             const string currentParamName = getEscapedParamName(op, "current");
-            _out << nl << currentParamName << " -- The Current object for the invocation.";
+            _out << nl << currentParamName << " : Ice.Current";
+            _out << nl << "    The Current object for the invocation.";
         }
-    }
-    else if (mode == DocAsyncEnd)
-    {
-        _out << nl << "Arguments:" << nl << "_r - The asynchronous result object for the invocation.";
     }
 
     //
     // Emit return value(s).
     //
+    bool hasReturnValue = false;
     if (mode == DocAsync || mode == DocAsyncDispatch)
     {
-        _out << nl << "Returns: A future object for the invocation.";
-    }
-    if (mode == DocAsyncBegin)
-    {
-        _out << nl << "Returns: An asynchronous result object for the invocation.";
+        hasReturnValue = true;
+        if (!comment.description.empty() || needArgs)
+        {
+            _out << nl;
+        }
+        _out << nl << "Returns";
+        _out << nl << "-------";
+        _out << nl << "Ice.Future";
+        _out << nl << "    A future object that is completed with the result of "
+             << (mode == DocAsync ? "the invocation." : "the dispatch.");
     }
 
-    if ((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch) && (ret || !outParams.empty()))
+    if ((mode == DocSync || mode == DocDispatch) && (ret || !outParams.empty()))
     {
+        hasReturnValue = true;
+        if (!comment.description.empty() || needArgs)
+        {
+            _out << nl;
+        }
+        _out << nl << "Returns";
+        _out << nl << "-------";
         if ((outParams.size() + (ret ? 1 : 0)) > 1)
         {
-            _out << nl << "Returns a tuple containing the following:";
+            _out << nl << "Returns a tuple of (";
             if (ret)
             {
-                _out << nl << "_retval -- " << comment.returns;
+                _out << typeToDocstring(ret, op->returnIsOptional());
+                _out << ", ";
             }
-            for (vector<string>::iterator q = outParams.begin(); q != outParams.end(); ++q)
+
+            for (const auto& param : outParams)
             {
-                string fixed = fixIdent(*q);
-                _out << nl << fixed << " -- ";
-                StringMap::const_iterator r = comment.params.find(*q);
-                if (r == comment.params.end())
+                _out << typeToDocstring(param->type(), param->optional());
+                if (param != outParams.back())
                 {
-                    r = comment.params.find(fixed); // Just in case.
+                    _out << ", ";
                 }
+            }
+            _out << ")";
+            _out << nl << "    A tuple containing:";
+            if (ret)
+            {
+                _out << nl << "    - " << typeToDocstring(ret, op->returnIsOptional());
+                _out << nl << "        " << comment.returns;
+            }
+            for (const auto& param : outParams)
+            {
+                _out << nl << "    - " << typeToDocstring(param->type(), param->optional());
+                StringMap::const_iterator r = comment.params.find(param->name());
                 if (r != comment.params.end())
                 {
-                    _out << r->second;
+                    _out << nl << "        " << r->second;
                 }
             }
         }
         else if (ret && !comment.returns.empty())
         {
-            _out << nl << "Returns: " << comment.returns;
+            _out << nl << typeToDocstring(ret, op->returnIsOptional());
+            _out << nl << "    " << comment.returns;
         }
         else if (!outParams.empty())
         {
             assert(outParams.size() == 1);
-            _out << nl << "Returns:";
-            string fixed = fixIdent(outParams[0]);
-            _out << nl << fixed << " -- ";
-            StringMap::const_iterator r = comment.params.find(outParams[0]);
-            if (r == comment.params.end())
-            {
-                r = comment.params.find(fixed); // Just in case.
-            }
-            if (r != comment.params.end())
-            {
-                _out << r->second;
-            }
+            _out << nl << typeToDocstring(outParams.front()->type(), outParams.front()->optional());
         }
     }
 
     //
     // Emit exceptions.
     //
-    if ((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch || mode == DocAsyncDispatch) &&
-        !comment.exceptions.empty())
+    if ((mode == DocSync || mode == DocDispatch || mode == DocAsyncDispatch) && !comment.exceptions.empty())
     {
-        _out << nl << "Throws:";
-        for (StringMap::const_iterator r = comment.exceptions.begin(); r != comment.exceptions.end(); ++r)
+        if (!comment.description.empty() || needArgs || hasReturnValue)
         {
-            _out << nl << r->first << " -- " << r->second;
+            _out << nl;
+        }
+        _out << nl << "Raises";
+        _out << nl << "------";
+        for (const auto& [exception, exceptionDescription] : comment.exceptions)
+        {
+            _out << nl << exception;
+            _out << nl << "    " << exceptionDescription;
         }
     }
     _out << nl << "\"\"\"";
