@@ -939,17 +939,24 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         ParamDeclList::iterator t;
         int count;
         string format;
-        switch (operation->format())
+         std::optional<FormatType> opFormat = operation->format();
+        if (opFormat)
         {
-            case DefaultFormat:
-                format = "None";
-                break;
-            case CompactFormat:
-                format = "Ice.FormatType.CompactFormat";
-                break;
-            case SlicedFormat:
-                format = "Ice.FormatType.SlicedFormat";
-                break;
+            switch (*opFormat)
+            {
+                case CompactFormat:
+                    format = "Ice.FormatType.CompactFormat";
+                    break;
+                case SlicedFormat:
+                    format = "Ice.FormatType.SlicedFormat";
+                    break;
+                default:
+                    assert(false);
+            }
+        }
+        else
+        {
+            format = "None";
         }
 
         _out << nl << className << "._op_" << operation->name() << " = IcePy.Operation('" << operation->name() << "', "

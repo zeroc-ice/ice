@@ -130,26 +130,25 @@ namespace
 
     string opFormatTypeToString(const OperationPtr& op)
     {
-        switch (op->format())
+        // TODO: remove DefaultFormat.
+        std::optional<FormatType> opFormat = op->format();
+        if (opFormat)
         {
-            case DefaultFormat:
+            switch (*opFormat)
             {
-                return ".DefaultFormat";
-            }
-            case CompactFormat:
-            {
-                return ".CompactFormat";
-            }
-            case SlicedFormat:
-            {
-                return ".SlicedFormat";
-            }
-            default:
-            {
-                assert(false);
+                case CompactFormat:
+                    return ".CompactFormat";
+                case SlicedFormat:
+                    return ".SlicedFormat";
+                default:
+                    assert(false);
+                    return "???";
             }
         }
-        return "???";
+        else
+        {
+            return ".DefaultFormat";
+        }
     }
 }
 
@@ -2435,7 +2434,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->mode()) << ",";
 
-    if (op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "format: " << opFormatTypeToString(op);
         out << ",";
@@ -2522,7 +2521,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->mode()) << ",";
 
-    if (op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "format: " << opFormatTypeToString(op);
         out << ",";

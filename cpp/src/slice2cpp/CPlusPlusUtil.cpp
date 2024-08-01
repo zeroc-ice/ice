@@ -604,20 +604,25 @@ Slice::operationModeToString(Operation::Mode mode)
 string
 Slice::opFormatTypeToString(const OperationPtr& op)
 {
-    switch (op->format())
+    std::optional<FormatType> opFormat = op->format();
+    if (opFormat)
     {
-        case DefaultFormat:
-            return "::std::nullopt";
-        case CompactFormat:
-            return "::Ice::FormatType::CompactFormat";
-        case SlicedFormat:
-            return "::Ice::FormatType::SlicedFormat";
+        switch (*opFormat)
+        {
+            case CompactFormat:
+                return "::Ice::FormatType::CompactFormat";
+            case SlicedFormat:
+                return "::Ice::FormatType::SlicedFormat";
 
-        default:
-            assert(false);
+            default:
+                assert(false);
+                return "???";
+        }
     }
-
-    return "???";
+    else
+    {
+        return "::std::nullopt";
+    }
 }
 
 //

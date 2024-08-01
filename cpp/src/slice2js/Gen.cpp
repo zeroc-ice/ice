@@ -72,19 +72,25 @@ namespace
 
     string opFormatTypeToString(const OperationPtr& op)
     {
-        switch (op->format())
+        // TODO: update JS format type and rework this code.
+        std::optional<FormatType> opFormat = op->format();
+        if (opFormat)
         {
-            case DefaultFormat:
-                return "0";
-            case CompactFormat:
-                return "1";
-            case SlicedFormat:
-                return "2";
-            default:
-                assert(false);
+            switch (*opFormat)
+            {
+                case CompactFormat:
+                    return "1";
+                case SlicedFormat:
+                    return "2";
+                default:
+                    assert(false);
+                    return "???";
+            }
         }
-
-        return "???";
+        else
+        {
+            return "0";
+        }
     }
 
     void printHeader(IceInternal::Output& out)
@@ -1487,7 +1493,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out << ", ";
 
-            if (op->format() != DefaultFormat)
+            if (op->format())
             {
                 _out << opFormatTypeToString(op); // Format.
             }

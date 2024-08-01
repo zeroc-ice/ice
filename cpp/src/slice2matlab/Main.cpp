@@ -2152,13 +2152,13 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         if (!allInParams.empty())
         {
-            if (op->format() == DefaultFormat)
+            if (op->format())
             {
-                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
+                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
             }
             else
             {
-                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
+                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
             for (ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
             {
@@ -2315,13 +2315,13 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         if (!allInParams.empty())
         {
-            if (op->format() == DefaultFormat)
+            if (op->format())
             {
-                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
+                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
             }
             else
             {
-                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
+                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
             for (ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
             {
@@ -3851,17 +3851,14 @@ CodeVisitor::getFormatType(FormatType type)
 {
     switch (type)
     {
-        case DefaultFormat:
-            return "Ice.FormatType.DefaultFormat";
         case CompactFormat:
             return "Ice.FormatType.CompactFormat";
         case SlicedFormat:
             return "Ice.FormatType.SlicedFormat";
         default:
             assert(false);
+            return "???";
     }
-
-    return "???";
 }
 
 void
