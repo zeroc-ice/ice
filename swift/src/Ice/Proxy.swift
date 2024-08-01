@@ -650,8 +650,7 @@ extension ObjectPrx {
     }
 
     /// Asynchronously flushes any pending batched requests for this proxy.
-    public func ice_flushBatchRequestsAsync(
-    ) async throws {
+    public func ice_flushBatchRequestsAsync() async throws {
         return try await withCheckedThrowingContinuation { continuation in
             _impl.handle.ice_flushBatchRequestsAsync(
                 exception: {
