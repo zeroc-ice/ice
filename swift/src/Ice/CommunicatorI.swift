@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import IceImpl
-import PromiseKit
 
 class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     private let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
@@ -240,18 +239,6 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func getClientDispatchQueue() throws -> DispatchQueue {
-        return try autoreleasepool {
-            try handle.getClientDispatchQueue()
-        }
-    }
-
-    func getServerDispatchQueue() throws -> DispatchQueue {
-        return try autoreleasepool {
-            try handle.getServerDispatchQueue()
-        }
-    }
-
     func makeProxyImpl<ProxyImpl>(_ proxyString: String) throws -> ProxyImpl where ProxyImpl: ObjectPrxI {
         guard let proxy: ProxyImpl = try stringToProxyImpl(proxyString) else {
             throw ParseException("invalid empty proxy string")
@@ -275,15 +262,15 @@ extension Communicator {
         sentOn: DispatchQueue? = nil,
         sentFlags: DispatchWorkItemFlags? = nil,
         sent: ((Bool) -> Void)? = nil
-    ) -> Promise<Void> {
+    ) async throws {
         let impl = self as! CommunicatorI
         let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
-        return Promise<Void> { seal in
+        return try await withCheckedThrowingContinuation { continuation in
             impl.handle.flushBatchRequestsAsync(
                 compress.rawValue,
-                exception: { seal.reject($0) },
+                exception: { continuation.resume(throwing: $0) },
                 sent: {
-                    seal.fulfill(())
+                    continuation.resume(returning: ())
                     if let sentCB = sentCB {
                         sentCB($0)
                     }

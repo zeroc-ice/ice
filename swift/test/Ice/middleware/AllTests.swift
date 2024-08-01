@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Ice
-import PromiseKit
 import TestCommon
 
 func allTests(_ helper: TestHelper) throws {
@@ -51,13 +50,11 @@ func allTests(_ helper: TestHelper) throws {
         private let name: String
         private var log: MiddlewareLog
 
-        func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
             log.inLog.append(name)
-
-            return next.dispatch(request).map { response in
-                self.log.outLog.append(self.name)
-                return response
-            }
+            let response = try await next.dispatch(request)
+            log.outLog.append(name)
+            return response
         }
 
         init(_ next: Dispatcher, _ name: String, _ log: MiddlewareLog) {

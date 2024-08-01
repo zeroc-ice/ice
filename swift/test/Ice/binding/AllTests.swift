@@ -21,7 +21,7 @@ func deactivate(communicator: RemoteCommunicatorPrx, adapters: [RemoteObjectAdap
     }
 }
 
-func allTests(_ helper: TestHelper) throws {
+func allTests(_ helper: TestHelper) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -183,7 +183,9 @@ func allTests(_ helper: TestHelper) throws {
             }
 
             for prx in proxies {
-                _ = prx.getAdapterNameAsync()
+                Task {
+                    _ = try await prx.getAdapterNameAsync()
+                }
             }
 
             for prx in proxies {
@@ -251,10 +253,10 @@ func allTests(_ helper: TestHelper) throws {
             }
 
             let t = try createTestIntfPrx(adapters)
-            let name = try t.getAdapterNameAsync().wait()
+            let name = try await t.getAdapterNameAsync()
             let nRetry = 10
             var i = 0
-            while try i < nRetry && t.getAdapterNameAsync().wait() == name {
+            while i < nRetry, try await t.getAdapterNameAsync() == name {
                 i += 1
             }
             try test(i == nRetry)
@@ -293,7 +295,7 @@ func allTests(_ helper: TestHelper) throws {
         //
         try com.deactivateObjectAdapter(adapters[2])
         let obj = try createTestIntfPrx(adapters)
-        try test(obj.getAdapterNameAsync().wait() == "AdapterAMI12")
+        try await test(obj.getAdapterNameAsync() == "AdapterAMI12")
 
         try deactivate(communicator: com, adapters: adapters)
     }
@@ -491,7 +493,7 @@ func allTests(_ helper: TestHelper) throws {
 
         var names = ["AdapterAMI51", "AdapterAMI52", "AdapterAMI53"]
         while names.count > 0 {
-            let adapterName = try obj.getAdapterNameAsync().wait()
+            let adapterName = try await obj.getAdapterNameAsync()
             names.removeAll(where: { adapterName == $0 })
         }
 
@@ -500,13 +502,13 @@ func allTests(_ helper: TestHelper) throws {
         names.append("AdapterAMI52")
         names.append("AdapterAMI53")
         while names.count > 0 {
-            let adapterName = try obj.getAdapterNameAsync().wait()
+            let adapterName = try await obj.getAdapterNameAsync()
             names.removeAll(where: { adapterName == $0 })
         }
 
         try com.deactivateObjectAdapter(adapters[2])
 
-        try test(obj.getAdapterNameAsync().wait() == "AdapterAMI52")
+        try await test(obj.getAdapterNameAsync() == "AdapterAMI52")
 
         try deactivate(communicator: com, adapters: adapters)
     }
@@ -616,20 +618,20 @@ func allTests(_ helper: TestHelper) throws {
         // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
-        while try i < nRetry && obj.getAdapterNameAsync().wait() == "AdapterAMI61" {
+        while i < nRetry, try await obj.getAdapterNameAsync() == "AdapterAMI61" {
             i += 1
         }
         try test(i == nRetry)
         try com.deactivateObjectAdapter(adapters[0])
 
-        while try i < nRetry && obj.getAdapterNameAsync().wait() == "AdapterAMI62" {
+        while i < nRetry, try await obj.getAdapterNameAsync() == "AdapterAMI62" {
             i += 1
         }
         try test(i == nRetry)
         try com.deactivateObjectAdapter(adapters[1])
 
         i = 0
-        while try i < nRetry && obj.getAdapterNameAsync().wait() == "AdapterAMI63" {
+        while i < nRetry, try await obj.getAdapterNameAsync() == "AdapterAMI63" {
             i += 1
         }
         try test(i == nRetry)
@@ -654,7 +656,7 @@ func allTests(_ helper: TestHelper) throws {
         try adapters.append(
             com.createObjectAdapter(name: "AdapterAMI66", endpoints: endpoints[2].toString())!)
         i = 0
-        while try i < nRetry && obj.getAdapterNameAsync().wait() == "AdapterAMI66" {
+        while i < nRetry, try await obj.getAdapterNameAsync() == "AdapterAMI66" {
             i += 1
         }
         try test(i == nRetry)
@@ -662,7 +664,7 @@ func allTests(_ helper: TestHelper) throws {
         try adapters.append(
             com.createObjectAdapter(name: "AdapterAMI65", endpoints: endpoints[1].toString())!)
         i = 0
-        while try i < nRetry && obj.getAdapterNameAsync().wait() == "AdapterAMI65" {
+        while i < nRetry, try await obj.getAdapterNameAsync() == "AdapterAMI65" {
             i += 1
         }
         try test(i == nRetry)
@@ -670,7 +672,7 @@ func allTests(_ helper: TestHelper) throws {
         try adapters.append(
             com.createObjectAdapter(name: "AdapterAMI64", endpoints: endpoints[0].toString())!)
         i = 0
-        while try i < nRetry && obj.getAdapterNameAsync().wait() == "AdapterAMI64" {
+        while i < nRetry, try await obj.getAdapterNameAsync() == "AdapterAMI64" {
             i += 1
         }
         try test(i == nRetry)

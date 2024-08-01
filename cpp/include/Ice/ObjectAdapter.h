@@ -13,10 +13,6 @@
 #include "ProxyFunctions.h"
 #include "ServantLocator.h"
 
-#ifdef __APPLE__
-#    include <dispatch/dispatch.h>
-#endif
-
 #include <memory>
 #include <optional>
 
@@ -476,15 +472,6 @@ namespace Ice
          * @see Endpoint
          */
         virtual void setPublishedEndpoints(const EndpointSeq& newEndpoints) = 0;
-
-#ifdef __APPLE__
-        /**
-         * Get the dispatch queue used by this object adapter's thread pool, if any.
-         * @return The dispatch queue, or nullptr if none is configured.
-         * @remarks This operation is only available on Apple platforms.
-         */
-        virtual dispatch_queue_t getDispatchQueue() const = 0;
-#endif
 
     protected:
         virtual ObjectPrx _add(const ObjectPtr& servant, const Identity& id) = 0;

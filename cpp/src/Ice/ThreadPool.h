@@ -15,10 +15,6 @@
 #include "Selector.h"
 #include "ThreadPoolF.h"
 
-#ifdef __APPLE__
-#    include <dispatch/dispatch.h>
-#endif
-
 #include <list>
 #include <set>
 #include <thread>
@@ -81,10 +77,6 @@ namespace IceInternal
 
         std::string prefix() const;
 
-#ifdef __APPLE__
-        dispatch_queue_t getDispatchQueue() const noexcept;
-#endif
-
     private:
         ThreadPool(const InstancePtr&, const std::string&, int);
         void initialize();
@@ -107,10 +99,6 @@ namespace IceInternal
         static void shutdown(const ThreadPoolCurrent&, const InstancePtr&);
 
         const InstancePtr _instance;
-
-#ifdef __APPLE__
-        const dispatch_queue_t _dispatchQueue;
-#endif
 
         std::function<void(std::function<void()>, const Ice::ConnectionPtr&)> _executor;
 

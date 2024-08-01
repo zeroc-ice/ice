@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 class Collocated: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
 
         properties.setProperty(key: "Ice.ThreadPool.Client.Size", value: "2")
@@ -37,6 +37,6 @@ class Collocated: TestHelperI {
             servant: MyDerivedClassDisp(MyDerivedClassI(self)),
             id: Ice.stringToIdentity("test"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
-        _ = try allTests(helper: self)
+        _ = try await allTests(helper: self)
     }
 }

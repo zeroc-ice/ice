@@ -1,11 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 import Ice
-import PromiseKit
 import TestCommon
 
 public class Client: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
         var initData = InitializationData()
@@ -21,7 +20,7 @@ public class Client: TestHelperI {
         try communicator.getValueFactoryManager().add(factory: { _ in EI() }, id: "::Test::E")
         try communicator.getValueFactoryManager().add(factory: { _ in FI() }, id: "::Test::F")
 
-        let initial = try allTests(self)
+        let initial = try await allTests(self)
         try initial.shutdown()
     }
 }

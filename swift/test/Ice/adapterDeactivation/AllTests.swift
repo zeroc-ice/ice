@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-func allTests(_ helper: TestHelper) throws {
+func allTests(_ helper: TestHelper) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -43,7 +43,7 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("creating/activating/deactivating object adapter in one operation... ")
     try obj.transient()
-    try obj.transientAsync().wait()
+    try await obj.transientAsync()
     output.writeLine("ok")
 
     do {
@@ -52,8 +52,15 @@ func allTests(_ helper: TestHelper) throws {
             var initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
             let comm = try Ice.initialize(initData)
-            _ = try comm.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!.ice_pingAsync()
+
+            // stringToProxy must be called before the communicator is destroyed
+            let prx = try comm.stringToProxy(ref)!
+
+            Task {
+                try await prx.ice_pingAsync()
+            }
             comm.destroy()
+
         }
         output.writeLine("ok")
     }

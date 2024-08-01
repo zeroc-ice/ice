@@ -126,17 +126,6 @@ namespace
         }
         return os.str();
     }
-
-    bool initHasExecutor(const InitializationData& initData)
-    {
-#ifdef __APPLE__
-        if (initData.useDispatchQueueExecutor)
-        {
-            return true;
-        }
-#endif
-        return initData.executor != nullptr;
-    }
 }
 
 ConnectionFlushBatchAsync::ConnectionFlushBatchAsync(const ConnectionIPtr& connection, const InstancePtr& instance)
@@ -1792,10 +1781,10 @@ Ice::ConnectionI::ConnectionI(
       _connector(connector),
       _endpoint(endpoint),
       _adapter(adapter),
-      _hasExecutor(initHasExecutor(_instance->initializationData())), // Cached for better performance.
-      _logger(_instance->initializationData().logger),                // Cached for better performance.
-      _traceLevels(_instance->traceLevels()),                         // Cached for better performance.
-      _timer(_instance->timer()),                                     // Cached for better performance.
+      _hasExecutor(_instance->initializationData().executor != nullptr), // Cached for better performance.
+      _logger(_instance->initializationData().logger),                   // Cached for better performance.
+      _traceLevels(_instance->traceLevels()),                            // Cached for better performance.
+      _timer(_instance->timer()),                                        // Cached for better performance.
       _connectTimeout(options.connectTimeout),
       _closeTimeout(options.closeTimeout), // not used for datagram connections
       // suppress inactivity timeout for datagram connections

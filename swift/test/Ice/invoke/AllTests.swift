@@ -12,7 +12,7 @@ class Cookie {
     }
 }
 
-func allTests(_ helper: TestHelper) throws -> MyClassPrx {
+func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -75,8 +75,7 @@ func allTests(_ helper: TestHelper) throws -> MyClassPrx {
 
     output.write("testing asynchronous ice_invoke... ")
     do {
-        var result = try oneway.ice_invokeAsync(operation: "opOneway", mode: .Normal, inEncaps: Data())
-            .wait()
+        var result = try await oneway.ice_invokeAsync(operation: "opOneway", mode: .Normal, inEncaps: Data())
         try test(result.ok)
 
         let outS = Ice.OutputStream(communicator: communicator)
@@ -85,7 +84,7 @@ func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         outS.endEncapsulation()
         let inEncaps = outS.finished()
 
-        result = try cl.ice_invokeAsync(operation: "opString", mode: .Normal, inEncaps: inEncaps).wait()
+        result = try await cl.ice_invokeAsync(operation: "opString", mode: .Normal, inEncaps: inEncaps)
         try test(result.ok)
         let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try inS.startEncapsulation()
@@ -97,8 +96,7 @@ func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     }
 
     do {
-        let result = try cl.ice_invokeAsync(operation: "opException", mode: .Normal, inEncaps: Data())
-            .wait()
+        let result = try await cl.ice_invokeAsync(operation: "opException", mode: .Normal, inEncaps: Data())
         try test(!result.ok)
         let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try inS.startEncapsulation()

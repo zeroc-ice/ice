@@ -133,14 +133,6 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
         }
     }
 
-    //
-    // Add PromiseKit import for interfaces and local interfaces which contain "async-oneway" metadata
-    //
-    if (p->contains<InterfaceDef>())
-    {
-        addImport("PromiseKit");
-    }
-
     return true;
 }
 
@@ -1434,7 +1426,7 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     out << nl;
-    out << "public func dispatch(_ request: Ice.IncomingRequest) -> PromiseKit.Promise<Ice.OutgoingResponse>";
+    out << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
     out << sb;
     out << nl;
     out << "switch request.current.operation";
@@ -1446,17 +1438,18 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out.inc();
         if (opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
         {
-            out << nl << "(servant as? Ice.Object ?? " << disp << ".defaultObject)._iceD_" << opName << "(request)";
+            out << nl << "try (servant as? Ice.Object ?? " << disp << ".defaultObject)._iceD_" << opName << "(request)";
         }
         else
         {
-            out << nl << "servant._iceD_" << opName << "(request)";
+            out << nl << "try await servant._iceD_" << opName << "(request)";
         }
+
         out.dec();
     }
     out << nl << "default:";
     out.inc();
-    out << nl << "PromiseKit.Promise(error: Ice.OperationNotExistException())";
+    out << nl << "throw Ice.OperationNotExistException()";
     // missing dec to compensate for the extra dec after switch sb
     out << eb;
     out << eb;
@@ -1539,7 +1532,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 
     if (isAmd)
     {
-        out << " -> PromiseKit.Promise<" << (allOutParams.size() > 0 ? operationReturnType(op) : "Swift.Void") << ">";
+        out << " async throws -> " << (allOutParams.size() > 0 ? operationReturnType(op) : "Swift.Void");
     }
     else
     {

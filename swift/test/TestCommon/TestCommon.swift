@@ -40,7 +40,7 @@ public enum TestFailed: Error {
 
 public protocol TestHelper {
     init()
-    func run(args: [String]) throws
+    func run(args: [String]) async throws
     func getTestEndpoint(num: Int32, prot: String) -> String
     func getTestEndpoint(properties: Ice.Properties, num: Int32, prot: String) -> String
     func getTestHost() -> String
@@ -88,7 +88,7 @@ open class TestHelperI: TestHelper {
 
     public required init() {}
 
-    open func run(args _: [String]) throws {
+    open func run(args _: [String]) async throws {
         print("Subclass has not implemented abstract method `run`!")
         abort()
     }

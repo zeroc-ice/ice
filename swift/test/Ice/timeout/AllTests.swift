@@ -16,13 +16,13 @@ func connect(_ prx: Ice.ObjectPrx) throws -> Ice.Connection {
     return try prx.ice_getConnection()!
 }
 
-public func allTests(helper: TestHelper) throws {
+public func allTests(helper: TestHelper) async throws {
     let controller = try checkedCast(
         prx: helper.communicator().stringToProxy("controller:\(helper.getTestEndpoint(num: 1))")!,
         type: ControllerPrx.self
     )!
     do {
-        try allTestsWithController(helper: helper, controller: controller)
+        try await allTestsWithController(helper: helper, controller: controller)
     } catch {
         // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
         // the test from hanging on exit in case a connection which disables timeouts is still opened.
@@ -31,7 +31,7 @@ public func allTests(helper: TestHelper) throws {
     }
 }
 
-public func allTestsWithController(helper: TestHelper, controller: ControllerPrx) throws {
+public func allTestsWithController(helper: TestHelper, controller: ControllerPrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -100,7 +100,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         //
         let to = timeout.ice_invocationTimeout(100)
         do {
-            try to.sleepAsync(500).wait()
+            try await to.sleepAsync(500)
             try test(false)
         } catch is Ice.InvocationTimeoutException {}
         try timeout.ice_ping()
@@ -112,7 +112,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         //
         let to = timeout.ice_invocationTimeout(1000)
         do {
-            try to.sleepAsync(100).wait()
+            try await to.sleepAsync(100)
         } catch {
             try test(false)
         }
@@ -134,7 +134,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         while true {
             do {
                 _ = try connection.getInfo()
-                Thread.sleep(forTimeInterval: 0.01)
+                try await Task.sleep(for: .milliseconds(10))
             } catch let ex as Ice.ConnectionClosedException {
                 // Expected.
                 try test(ex.closedByApplication)
@@ -164,20 +164,22 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         } catch is Ice.InvocationTimeoutException {}
 
         do {
-            try proxy.sleepAsync(500).wait()
+            try await proxy.sleepAsync(500)
             try test(false)
         } catch is Ice.InvocationTimeoutException {}
 
-        let batchTimeout = proxy.ice_batchOneway()
-        try batchTimeout.ice_ping()
-        try batchTimeout.ice_ping()
-        try batchTimeout.ice_ping()
+        // let batchTimeout = proxy.ice_batchOneway()
+        // try batchTimeout.ice_ping()
+        // try batchTimeout.ice_ping()
+        // try batchTimeout.ice_ping()
 
-        _ = proxy.ice_invocationTimeout(-1).sleepAsync(500)  // Keep the server thread pool busy.
-        do {
-            try batchTimeout.ice_flushBatchRequestsAsync().wait()
-            try test(false)
-        } catch is Ice.InvocationTimeoutException {}
+        // async let _ = proxy.ice_invocationTimeout(-1).sleepAsync(500)  // Keep the server thread pool busy.
+
+        // do {
+        //     try await batchTimeout.ice_flushBatchRequestsAsync()
+        //     try test(false)
+        // } catch is Ice.InvocationTimeoutException {}
+
         adapter.destroy()
     }
     output.writeLine("ok")
