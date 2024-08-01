@@ -258,23 +258,17 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
 extension Communicator {
     public func flushBatchRequestsAsync(
-        _ compress: CompressBatch,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
+        _ compress: CompressBatch
     ) async throws {
         let impl = self as! CommunicatorI
-        let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
         return try await withCheckedThrowingContinuation { continuation in
             impl.handle.flushBatchRequestsAsync(
                 compress.rawValue,
                 exception: { continuation.resume(throwing: $0) },
-                sent: {
+                sent: { _ in
                     continuation.resume(returning: ())
-                    if let sentCB = sentCB {
-                        sentCB($0)
-                    }
-                })
+                }
+            )
         }
     }
 

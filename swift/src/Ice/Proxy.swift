@@ -404,27 +404,13 @@ extension ObjectPrx {
     /// Sends ping request to the target object asynchronously.
     ///
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
-    ///
-    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
-    ///   dispatch sent callback
-    ///
-    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     public func ice_pingAsync(
-        context: Context? = nil,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
+        context: Context? = nil
     ) async throws {
         return try await _impl._invokeAsync(
             operation: "ice_ping",
             mode: .Idempotent,
-            context: context,
-            sentOn: sentOn,
-            sentFlags: sentFlags,
-            sent: sent)
+            context: context)
     }
 
     /// Tests whether this object supports a specific Slice interface.
@@ -452,20 +438,9 @@ extension ObjectPrx {
     ///
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
     ///
-    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
-    ///   dispatch sent callback
-    ///
-    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
     /// - returns: `Bool` - The result of the invocation.
     public func ice_isAAsync(
-        id: String, context: Context? = nil,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
+        id: String, context: Context? = nil
     ) async throws -> Bool {
         return try await _impl._invokeAsync(
             operation: "ice_isA",
@@ -474,10 +449,7 @@ extension ObjectPrx {
                 ostr.write(id)
             },
             read: { istr in try istr.read() as Bool },
-            context: context,
-            sentOn: sentOn,
-            sentFlags: sentFlags,
-            sent: sent)
+            context: context)
     }
 
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -497,29 +469,15 @@ extension ObjectPrx {
     ///
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
-    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
-    ///   dispatch sent callback
-    ///
-    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
     /// - returns: `String` The result of the invocation.
     public func ice_idAsync(
-        context: Context? = nil,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
+        context: Context? = nil
     ) async throws -> String {
         return try await _impl._invokeAsync(
             operation: "ice_id",
             mode: .Idempotent,
             read: { istr in try istr.read() as String },
-            context: context,
-            sentOn: sentOn,
-            sentFlags: sentFlags,
-            sent: sent)
+            context: context)
     }
 
     /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -540,29 +498,15 @@ extension ObjectPrx {
     ///
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
-    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
-    ///   dispatch sent callback
-    ///
-    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
     /// - returns: `Ice.StringSeq` - The result of the invocation.
     public func ice_idsAsync(
-        context: Context? = nil,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
+        context: Context? = nil
     ) async throws -> StringSeq {
         return try await _impl._invokeAsync(
             operation: "ice_ids",
             mode: .Idempotent,
             read: { istr in try istr.read() as StringSeq },
-            context: context,
-            sentOn: sentOn,
-            sentFlags: sentFlags,
-            sent: sent)
+            context: context)
     }
 
     /// Invokes an operation dynamically.
@@ -615,25 +559,13 @@ extension ObjectPrx {
     ///
     /// - parameter context: `Ice.Context` - The context dictionary for the invocation.
     ///
-    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
     /// - returns: `(ok: Bool, outEncaps: Data)` - The result of the invocation.
     public func ice_invokeAsync(
         operation: String,
         mode: OperationMode,
         inEncaps: Data,
-        context: Context? = nil,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
+        context: Context? = nil
     ) async throws -> (ok: Bool, outEncaps: Data) {
-
         if _impl.isTwoway {
             return try await withCheckedThrowingContinuation { continuation in
                 _impl.handle.invokeAsync(
@@ -655,14 +587,9 @@ extension ObjectPrx {
                     },
                     exception: { error in
                         continuation.resume(throwing: error)
-                    },
-                    sent: createSentCallback(
-                        sentOn: sentOn,
-                        sentFlags: sentFlags,
-                        sent: sent))
+                    })
             }
         } else {
-            let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
             return try await withCheckedThrowingContinuation { continuation in
                 _impl.handle.invokeAsync(
                     operation,
@@ -675,11 +602,8 @@ extension ObjectPrx {
                     exception: { error in
                         continuation.resume(throwing: error)
                     },
-                    sent: {
+                    sent: { _ in
                         continuation.resume(returning: (true, Data()))
-                        if let sentCB = sentCB {
-                            sentCB($0)
-                        }
                     })
             }
         }
@@ -726,30 +650,15 @@ extension ObjectPrx {
     }
 
     /// Asynchronously flushes any pending batched requests for this proxy.
-    ///
-    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` Optional dispatch flags used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     public func ice_flushBatchRequestsAsync(
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil.self,
-        sent: ((Bool) -> Void)? = nil
     ) async throws {
-        let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
         return try await withCheckedThrowingContinuation { continuation in
             _impl.handle.ice_flushBatchRequestsAsync(
                 exception: {
                     continuation.resume(throwing: $0)
                 },
-                sent: {
+                sent: { _ in
                     continuation.resume(returning: ())
-                    if let sentCB = sentCB {
-                        sentCB($0)
-                    }
                 }
             )
         }
@@ -1266,10 +1175,7 @@ open class ObjectPrxI: ObjectPrx {
         format: FormatType = FormatType.DefaultFormat,
         write: ((OutputStream) -> Void)? = nil,
         userException: ((UserException) throws -> Void)? = nil,
-        context: Context? = nil,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
+        context: Context? = nil
     ) async throws {
 
         if userException != nil, !isTwoway {
@@ -1309,8 +1215,7 @@ open class ObjectPrxI: ObjectPrx {
                     },
                     exception: { error in
                         continuation.resume(throwing: error)
-                    },
-                    sent: createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent))
+                    })
             }
         } else {
             if ice_isBatchOneway() || ice_isBatchDatagram() {
@@ -1332,7 +1237,6 @@ open class ObjectPrxI: ObjectPrx {
                 }
             } else {
                 return try await withCheckedThrowingContinuation { continuation in
-                    let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
                     handle.invokeAsync(
                         operation,
                         mode: mode.rawValue,
@@ -1344,11 +1248,8 @@ open class ObjectPrxI: ObjectPrx {
                         exception: { error in
                             continuation.resume(throwing: error)
                         },
-                        sent: {
+                        sent: { _ in
                             continuation.resume(returning: ())
-                            if let sentCB = sentCB {
-                                sentCB($0)
-                            }
                         })
                 }
             }
@@ -1362,10 +1263,7 @@ open class ObjectPrxI: ObjectPrx {
         write: ((OutputStream) -> Void)? = nil,
         read: @escaping (InputStream) throws -> T,
         userException: ((UserException) throws -> Void)? = nil,
-        context: Context? = nil,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
+        context: Context? = nil
     ) async throws -> T {
         if !isTwoway {
             throw TwowayOnlyException(operation: operation)
@@ -1407,8 +1305,7 @@ open class ObjectPrxI: ObjectPrx {
                 },
                 exception: { error in
                     continuation.resume(throwing: error)
-                },
-                sent: createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent))
+                })
         }
     }
 
