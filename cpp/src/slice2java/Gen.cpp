@@ -37,7 +37,6 @@ namespace
 
     string opFormatTypeToString(const OperationPtr& op)
     {
-        // TODO: remove DefaultFormat.
         std::optional<FormatType> opFormat = op->format();
         if (opFormat)
         {
@@ -54,7 +53,7 @@ namespace
         }
         else
         {
-            return "com.zeroc.Ice.FormatType.DefaultFormat";
+            return "null";
         }
     }
 
