@@ -416,7 +416,8 @@
 {
     // TODO: sychronize Swift and C++ FormatType.
     return static_cast<std::uint8_t>(
-        IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultFormat) + 1;
+               IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultFormat) +
+           1;
 }
 
 - (id<ICEDispatchAdapter>)facetToDispatchAdapter:(const Ice::ObjectPtr&)servant
