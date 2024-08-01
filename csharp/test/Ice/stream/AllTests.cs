@@ -301,7 +301,7 @@ namespace Ice
                 }
 
                 {
-                    outS = new Ice.OutputStream(communicator, Ice.Util.Encoding_1_0);
+                    outS = new Ice.OutputStream(Ice.Util.Encoding_1_0);
                     var o = new Test.OptionalClass();
                     o.bo = true;
                     o.by = 5;

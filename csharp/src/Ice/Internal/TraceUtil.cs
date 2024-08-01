@@ -6,12 +6,12 @@ using System.Globalization;
 namespace Ice.Internal;
 internal sealed class TraceUtil
 {
-    internal static void traceSend(Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
+    internal static void traceSend(Ice.OutputStream str, Instance instance, Ice.Logger logger, TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
             int p = str.pos();
-            Ice.InputStream iss = new Ice.InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
+            Ice.InputStream iss = new Ice.InputStream(instance, str.getEncoding(), str.getBuffer(), false);
             iss.pos(0);
 
             using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
@@ -36,25 +36,6 @@ internal sealed class TraceUtil
                 byte type = printMessage(s, str);
 
                 logger.trace(tl.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.ToString());
-            }
-            str.pos(p);
-        }
-    }
-
-    internal static void trace(string heading, Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
-    {
-        if (tl.protocol >= 1)
-        {
-            int p = str.pos();
-            Ice.InputStream iss = new Ice.InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
-            iss.pos(0);
-
-            using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
-            {
-                s.Write(heading);
-                printMessage(s, iss);
-
-                logger.trace(tl.protocolCat, s.ToString());
             }
             str.pos(p);
         }
@@ -92,73 +73,6 @@ internal sealed class TraceUtil
                     logger.trace(slicingCat, s.ToString());
                 }
             }
-        }
-    }
-
-    public static void dumpStream(Ice.InputStream stream)
-    {
-        int pos = stream.pos();
-        stream.pos(0);
-
-        byte[] data = new byte[stream.size()];
-        stream.readBlob(data);
-        dumpOctets(data);
-
-        stream.pos(pos);
-    }
-
-    public static void dumpOctets(byte[] data)
-    {
-        const int inc = 8;
-
-        for (int i = 0; i < data.Length; i += inc)
-        {
-            for (int j = i; j - i < inc; j++)
-            {
-                if (j < data.Length)
-                {
-                    int n = data[j];
-                    if (n < 0)
-                    {
-                        n += 256;
-                    }
-                    string s;
-                    if (n < 10)
-                    {
-                        s = "  " + n;
-                    }
-                    else if (n < 100)
-                    {
-                        s = " " + n;
-                    }
-                    else
-                    {
-                        s = "" + n;
-                    }
-                    Console.Out.Write(s + " ");
-                }
-                else
-                {
-                    Console.Out.Write("    ");
-                }
-            }
-
-            Console.Out.Write('"');
-
-            for (int j = i; j < data.Length && j - i < inc; j++)
-            {
-                // TODO: this needs fixing
-                if (data[j] >= 32 && data[j] < 127)
-                {
-                    Console.Out.Write((char)data[j]);
-                }
-                else
-                {
-                    Console.Out.Write('.');
-                }
-            }
-
-            System.Console.Out.WriteLine('"');
         }
     }
 
@@ -490,24 +404,6 @@ internal sealed class TraceUtil
         }
 
         return type;
-    }
-
-    internal static void traceHeader(string heading, Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
-    {
-        if (tl.protocol >= 1)
-        {
-            int p = str.pos();
-            str.pos(0);
-
-            using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
-            {
-                s.Write(heading);
-                printHeader(s, str);
-
-                logger.trace(tl.protocolCat, s.ToString());
-            }
-            str.pos(p);
-        }
     }
 
     private static string getMessageTypeAsString(byte type)

@@ -233,7 +233,7 @@ public abstract class OutgoingAsyncBase
         _doneInSent = false;
         _alreadySent = false;
         state_ = 0;
-        os_ = os ?? new Ice.OutputStream(instance, Ice.Util.currentProtocolEncoding);
+        os_ = os ?? new OutputStream(Ice.Util.currentProtocolEncoding, instance.defaultsAndOverrides().defaultFormat);
         is_ = iss ?? new Ice.InputStream(instance, Ice.Util.currentProtocolEncoding);
         _completionCallback = completionCallback;
         if (_completionCallback != null)
@@ -1058,7 +1058,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
     public void invoke(string operation,
                        Ice.OperationMode mode,
-                       Ice.FormatType format,
+                       Ice.FormatType? format,
                        Dictionary<string, string> context,
                        bool synchronous,
                        System.Action<Ice.OutputStream> write)
@@ -1144,7 +1144,7 @@ public class OutgoingAsyncT<T> : OutgoingAsync
 
     public void invoke(string operation,
                        Ice.OperationMode mode,
-                       Ice.FormatType format,
+                       Ice.FormatType? format,
                        Dictionary<string, string> context,
                        bool synchronous,
                        System.Action<Ice.OutputStream> write = null,

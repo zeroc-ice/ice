@@ -3,6 +3,7 @@
 #nullable enable
 
 using System.Diagnostics;
+
 using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
@@ -11,109 +12,33 @@ namespace Ice;
 /// Interface for output streams used to write Slice types to a sequence
 /// of bytes.
 /// </summary>
-public class OutputStream
+public sealed class OutputStream
 {
     /// <summary>
-    /// Constructing an OutputStream without providing a communicator means the stream will
-    /// use the default encoding version and the default format for class encoding.
-    /// You can supply a communicator later by calling initialize().
+    /// Constructs an empty output stream.
     /// </summary>
-    public OutputStream()
+    /// <param name="encoding">The encoding version. null is equivalent to encoding 1.1.</param>
+    /// <param name="format">The class format.</param>
+    public OutputStream(EncodingVersion? encoding = null, FormatType format = FormatType.CompactFormat)
     {
-        _buf = new Ice.Internal.Buffer();
-        _instance = null;
-        _closure = null;
-        _encoding = Util.currentEncoding;
-        _format = FormatType.CompactFormat;
+        _buf = new Internal.Buffer();
+        _encoding = encoding ?? Util.currentEncoding;
+        _format = format;
     }
 
     /// <summary>
-    /// This constructor uses the communicator's default encoding version.
+    /// Constructs an empty output stream that uses the communicator's default encoding version and default class
+    /// format.
     /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
+    /// <param name="communicator">The communicator that provides the encoding version and class format.</param>
     public OutputStream(Communicator communicator)
+        : this(communicator.instance.defaultsAndOverrides().defaultEncoding,
+            communicator.instance.defaultsAndOverrides().defaultFormat)
     {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        _buf = null!; // set by initialize
-        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
 
-    /// <summary>
-    /// This constructor uses the given communicator and encoding version.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    /// <param name="encoding">The desired encoding version.</param>
-    public OutputStream(Communicator communicator, EncodingVersion encoding)
-    {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        _buf = null!; // set by initialize
-        initialize(instance, encoding);
-    }
-
-    public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding)
-    {
-        _buf = null!; // set by initialize
-        initialize(instance, encoding);
-    }
-
-    public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
-    {
-        _buf = null!; // set by initialize
-        initialize(instance, encoding, new Ice.Internal.Buffer(buf, adopt));
-    }
-
-    public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding, byte[] data)
-    {
-        initialize(instance, encoding);
-        _buf = new Ice.Internal.Buffer(data);
-    }
-
-    /// <summary>
-    /// Initializes the stream to use the communicator's default encoding version and class
-    /// encoding format.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    public void initialize(Communicator communicator)
-    {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
-    }
-
-    /// <summary>
-    /// Initializes the stream to use the given encoding version and the communicator's
-    /// default class encoding format.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    /// <param name="encoding">The desired encoding version.</param>
-    public void initialize(Communicator communicator, EncodingVersion encoding)
-    {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        initialize(instance, encoding);
-    }
-
-    private void initialize(Ice.Internal.Instance instance, EncodingVersion encoding)
-    {
-        initialize(instance, encoding, new Ice.Internal.Buffer());
-    }
-
-    private void initialize(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf)
-    {
-        Debug.Assert(instance != null);
-
-        _instance = instance;
-        _buf = buf;
-        _closure = null;
-        _encoding = encoding;
-
-        _format = _instance.defaultsAndOverrides().defaultFormat;
-
-        _encapsStack = null;
-        _encapsCache = null;
-    }
+    internal OutputStream(EncodingVersion encoding, Internal.Buffer buf)
+        : this(encoding) => _buf = buf;
 
     /// <summary>
     /// Resets this output stream. This method allows the stream to be reused, to avoid creating
@@ -138,20 +63,6 @@ public class OutputStream
             _encapsStack = null;
             _encapsCache.reset();
         }
-    }
-
-    public Ice.Internal.Instance? instance()
-    {
-        return _instance;
-    }
-
-    /// <summary>
-    /// Sets the encoding format for class and exception instances.
-    /// </summary>
-    /// <param name="fmt">The encoding format.</param>
-    public void setFormat(FormatType fmt)
-    {
-        _format = fmt;
     }
 
     /// <summary>
@@ -193,8 +104,6 @@ public class OutputStream
     /// <param name="other">The other stream.</param>
     public void swap(OutputStream other)
     {
-        Debug.Assert(_instance == other._instance);
-
         Ice.Internal.Buffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
@@ -304,7 +213,7 @@ public class OutputStream
         }
         else
         {
-            startEncapsulation(_encoding, FormatType.DefaultFormat);
+            startEncapsulation(_encoding, format: null);
         }
     }
 
@@ -312,8 +221,9 @@ public class OutputStream
     /// Writes the start of an encapsulation to the stream.
     /// </summary>
     /// <param name="encoding">The encoding version of the encapsulation.</param>
-    /// <param name="format">Specify the compact or sliced format.</param>
-    public void startEncapsulation(EncodingVersion encoding, FormatType format)
+    /// <param name="format">Specify the compact or sliced format. When null, use the OutputStream's class format.
+    /// </param>
+    public void startEncapsulation(EncodingVersion encoding, FormatType? format = null)
     {
         Protocol.checkSupportedEncoding(encoding);
 
@@ -330,7 +240,7 @@ public class OutputStream
         curr.next = _encapsStack;
         _encapsStack = curr;
 
-        _encapsStack.format = format;
+        _encapsStack.format = format ?? _format;
         _encapsStack.setEncoding(encoding);
         _encapsStack.start = _buf.b.position();
 
@@ -1848,10 +1758,9 @@ public class OutputStream
         _buf.expand(n);
     }
 
-    private Ice.Internal.Instance? _instance;
     private Ice.Internal.Buffer _buf;
     private object? _closure;
-    private FormatType _format;
+    private readonly FormatType _format;
 
     private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
 
@@ -2041,16 +1950,7 @@ public class OutputStream
                     //
                     _stream.writeInt(p.Value);
 
-                    try
-                    {
-                        p.Key.ice_preMarshal();
-                    }
-                    catch (System.Exception ex)
-                    {
-                        string s = "exception raised by ice_preMarshal:\n" + ex;
-                        _stream.instance()!.initializationData().logger!.warning(s);
-                    }
-
+                    p.Key.ice_preMarshal();
                     p.Key.iceWrite(_stream);
                 }
             }
@@ -2377,16 +2277,7 @@ public class OutputStream
             //
             _marshaledMap.Add(v, ++_valueIdIndex);
 
-            try
-            {
-                v.ice_preMarshal();
-            }
-            catch (System.Exception ex)
-            {
-                string s = "exception raised by ice_preMarshal:\n" + ex;
-                _stream.instance()!.initializationData().logger!.warning(s);
-            }
-
+            v.ice_preMarshal();
             _stream.writeSize(1); // Object instance marker.
             v.iceWrite(_stream);
         }
@@ -2439,7 +2330,7 @@ public class OutputStream
         internal int start;
         internal EncodingVersion encoding;
         internal bool encoding_1_0;
-        internal FormatType format = FormatType.DefaultFormat;
+        internal FormatType format;
 
         internal EncapsEncoder? encoder;
 
@@ -2476,11 +2367,6 @@ public class OutputStream
                 _encapsStack = new Encaps();
             }
             _encapsStack.setEncoding(_encoding);
-        }
-
-        if (_encapsStack.format == FormatType.DefaultFormat)
-        {
-            _encapsStack.format = _format;
         }
 
         if (_encapsStack.encoder == null) // Lazy initialization.
