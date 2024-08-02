@@ -13,35 +13,35 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         _helper = helper
     }
 
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current: Ice.Current) async throws {
         current.adapter.getCommunicator().shutdown()
     }
 
-    func supportsCompress(current _: Ice.Current) throws -> Bool {
+    func supportsCompress(current _: Ice.Current) async throws -> Bool {
         return true
     }
 
-    func opVoid(current: Ice.Current) throws {
+    func opVoid(current: Ice.Current) async throws {
         try _helper.test(current.mode == .Normal)
     }
 
-    func opBool(p1: Bool, p2: Bool, current _: Ice.Current) throws -> (returnValue: Bool, p3: Bool) {
+    func opBool(p1: Bool, p2: Bool, current _: Ice.Current) async throws -> (returnValue: Bool, p3: Bool) {
         return (p2, p1)
     }
 
-    func opBoolS(p1: [Bool], p2: [Bool], current _: Ice.Current) throws -> (
+    func opBoolS(p1: [Bool], p2: [Bool], current _: Ice.Current) async throws -> (
         returnValue: [Bool], p3: [Bool]
     ) {
         return (p1.reversed(), p1 + p2)
     }
 
-    func opBoolSS(p1: [[Bool]], p2: [[Bool]], current _: Ice.Current) throws -> (
+    func opBoolSS(p1: [[Bool]], p2: [[Bool]], current _: Ice.Current) async throws -> (
         returnValue: [[Bool]], p3: [[Bool]]
     ) {
         return (p1.reversed(), p1 + p2)
     }
 
-    func opByte(p1: UInt8, p2: UInt8, current _: Ice.Current) throws -> (
+    func opByte(p1: UInt8, p2: UInt8, current _: Ice.Current) async throws -> (
         returnValue: UInt8, p3: UInt8
     ) {
         return (p1, p1 ^ p2)
@@ -115,7 +115,7 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         )
     }
 
-    func opMyEnum(p1: MyEnum, current _: Ice.Current) throws -> (returnValue: MyEnum, p2: MyEnum) {
+    func opMyEnum(p1: MyEnum, current _: Ice.Current) async throws -> (returnValue: MyEnum, p2: MyEnum) {
         return (MyEnum.enum3, p1)
     }
 
@@ -164,7 +164,7 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         return (p3, p1, p2.reversed(), p3 + p3)
     }
 
-    func opString(p1: String, p2: String, current _: Ice.Current) throws -> (
+    func opString(p1: String, p2: String, current _: Ice.Current) async throws -> (
         returnValue: String, p3: String
     ) {
         return ("\(p1) \(p2)", "\(p2) \(p1)")
@@ -325,17 +325,17 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         return (p1.merging(p2) { _, new in new }, p2)
     }
 
-    func opIntS(s: [Int32], current _: Ice.Current) throws -> [Int32] {
+    func opIntS(s: [Int32], current _: Ice.Current) async throws -> [Int32] {
         return s.map { -$0 }
     }
 
-    func opByteSOneway(s _: ByteSeq, current _: Ice.Current) throws {
+    func opByteSOneway(s _: ByteSeq, current _: Ice.Current) async throws {
         withLock(&_lock) {
             _opByteSOnewayCallCount += 1
         }
     }
 
-    func opByteSOnewayCallCount(current _: Ice.Current) throws -> Int32 {
+    func opByteSOnewayCallCount(current _: Ice.Current) async throws -> Int32 {
         return withLock(&_lock) {
             let count = _opByteSOnewayCallCount
             _opByteSOnewayCallCount = 0
@@ -343,11 +343,11 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         }
     }
 
-    func opContext(current: Ice.Current) throws -> Ice.Context {
+    func opContext(current: Ice.Current) async throws -> Ice.Context {
         return current.ctx
     }
 
-    func opDoubleMarshaling(p1: Double, p2: [Double], current _: Ice.Current) throws {
+    func opDoubleMarshaling(p1: Double, p2: [Double], current _: Ice.Current) async throws {
         let d = Double(1_278_312_346.0 / 13.0)
         try _helper.test(p1 == d)
         for p in p2 {
@@ -355,7 +355,7 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         }
     }
 
-    func opStringS(p1: [String], p2: [String], current _: Ice.Current) throws -> (
+    func opStringS(p1: [String], p2: [String], current _: Ice.Current) async throws -> (
         returnValue: [String], p3: [String]
     ) {
         return (p1.reversed(), p1 + p2)
@@ -395,65 +395,65 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         return (p2, p3)
     }
 
-    func opIdempotent(current: Ice.Current) throws {
+    func opIdempotent(current: Ice.Current) async throws {
         try _helper.test(current.mode == .Idempotent)
     }
 
-    func opDerived(current _: Ice.Current) throws {}
+    func opDerived(current _: Ice.Current) async throws {}
 
-    func opByte1(opByte1: UInt8, current _: Ice.Current) throws -> UInt8 {
+    func opByte1(opByte1: UInt8, current _: Ice.Current) async throws -> UInt8 {
         return opByte1
     }
 
-    func opShort1(opShort1: Int16, current _: Ice.Current) throws -> Int16 {
+    func opShort1(opShort1: Int16, current _: Ice.Current) async throws -> Int16 {
         return opShort1
     }
 
-    func opInt1(opInt1: Int32, current _: Ice.Current) throws -> Int32 {
+    func opInt1(opInt1: Int32, current _: Ice.Current) async throws -> Int32 {
         return opInt1
     }
 
-    func opLong1(opLong1: Int64, current _: Ice.Current) throws -> Int64 {
+    func opLong1(opLong1: Int64, current _: Ice.Current) async throws -> Int64 {
         return opLong1
     }
 
-    func opFloat1(opFloat1: Float, current _: Ice.Current) throws -> Float {
+    func opFloat1(opFloat1: Float, current _: Ice.Current) async throws -> Float {
         return opFloat1
     }
 
-    func opDouble1(opDouble1: Double, current _: Ice.Current) throws -> Double {
+    func opDouble1(opDouble1: Double, current _: Ice.Current) async throws -> Double {
         return opDouble1
     }
 
-    func opString1(opString1: String, current _: Ice.Current) throws -> String {
+    func opString1(opString1: String, current _: Ice.Current) async throws -> String {
         return opString1
     }
 
-    func opStringS1(opStringS1: [String], current _: Ice.Current) throws -> [String] {
+    func opStringS1(opStringS1: [String], current _: Ice.Current) async throws -> [String] {
         return opStringS1
     }
 
-    func opByteBoolD1(opByteBoolD1: [UInt8: Bool], current _: Ice.Current) throws -> [UInt8: Bool] {
+    func opByteBoolD1(opByteBoolD1: [UInt8: Bool], current _: Ice.Current) async throws -> [UInt8: Bool] {
         return opByteBoolD1
     }
 
-    func opStringS2(stringS: [String], current _: Ice.Current) throws -> [String] {
+    func opStringS2(stringS: [String], current _: Ice.Current) async throws -> [String] {
         return stringS
     }
 
-    func opByteBoolD2(byteBoolD: [UInt8: Bool], current _: Ice.Current) throws -> [UInt8: Bool] {
+    func opByteBoolD2(byteBoolD: [UInt8: Bool], current _: Ice.Current) async throws -> [UInt8: Bool] {
         return byteBoolD
     }
 
-    func opMyClass1(opMyClass1: MyClass1?, current _: Ice.Current) throws -> MyClass1? {
+    func opMyClass1(opMyClass1: MyClass1?, current _: Ice.Current) async throws -> MyClass1? {
         return opMyClass1
     }
 
-    func opMyStruct1(opMyStruct1: MyStruct1, current _: Ice.Current) throws -> MyStruct1 {
+    func opMyStruct1(opMyStruct1: MyStruct1, current _: Ice.Current) async throws -> MyStruct1 {
         return opMyStruct1
     }
 
-    func opStringLiterals(current _: Ice.Current) throws -> [String] {
+    func opStringLiterals(current _: Ice.Current) async throws -> [String] {
         return [
             s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10,
             sw0, sw1, sw2, sw3, sw4, sw5, sw6, sw7, sw8, sw9, sw10,
@@ -462,35 +462,35 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         ]
     }
 
-    func opWStringLiterals(current: Ice.Current) throws -> [String] {
-        return try opStringLiterals(current: current)
+    func opWStringLiterals(current: Ice.Current) async throws -> [String] {
+        return try await opStringLiterals(current: current)
     }
 
-    func opMStruct1(current _: Current) throws -> Structure {
+    func opMStruct1(current _: Current) async throws -> Structure {
         var s = Structure()
         s.e = .enum1
         return s
     }
 
-    func opMStruct2(p1: Structure, current _: Current) throws -> (
+    func opMStruct2(p1: Structure, current _: Current) async throws -> (
         returnValue: Structure, p2: Structure
     ) {
         return (p1, p1)
     }
 
-    func opMSeq1(current _: Current) throws -> StringS {
+    func opMSeq1(current _: Current) async throws -> StringS {
         return []
     }
 
-    func opMSeq2(p1: StringS, current _: Current) throws -> (returnValue: StringS, p2: StringS) {
+    func opMSeq2(p1: StringS, current _: Current) async throws -> (returnValue: StringS, p2: StringS) {
         return (p1, p1)
     }
 
-    func opMDict1(current _: Current) throws -> StringStringD {
+    func opMDict1(current _: Current) async throws -> StringStringD {
         return [:]
     }
 
-    func opMDict2(p1: StringStringD, current _: Current) throws -> (
+    func opMDict2(p1: StringStringD, current _: Current) async throws -> (
         returnValue: StringStringD, p2: StringStringD
     ) {
         return (p1, p1)

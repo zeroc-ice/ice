@@ -16,7 +16,7 @@ class PingReplyI: PingReply {
         }
     }
 
-    func reply(current _: Current) throws {
+    func reply(current _: Current) async throws {
         withLock(&_lock) {
             _replies += 1
             _semaphore.signal()

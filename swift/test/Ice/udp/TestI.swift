@@ -3,7 +3,7 @@
 import Ice
 
 class TestIntfI: TestIntf {
-    func ping(reply: PingReplyPrx?, current _: Current) throws {
+    func ping(reply: PingReplyPrx?, current _: Current) async throws {
         do {
             try reply!.reply()
         } catch {
@@ -11,7 +11,7 @@ class TestIntfI: TestIntf {
         }
     }
 
-    func sendByteSeq(seq _: ByteSeq, reply: PingReplyPrx?, current _: Current) throws {
+    func sendByteSeq(seq _: ByteSeq, reply: PingReplyPrx?, current _: Current) async throws {
         do {
             try reply!.reply()
         } catch {
@@ -19,7 +19,7 @@ class TestIntfI: TestIntf {
         }
     }
 
-    func pingBiDir(reply: Identity, current: Current) throws {
+    func pingBiDir(reply: Identity, current: Current) async throws {
         do {
             //
             // Ensure sending too much data doesn't cause the UDP connection
@@ -41,7 +41,7 @@ class TestIntfI: TestIntf {
         }
     }
 
-    func shutdown(current: Current) throws {
+    func shutdown(current: Current) async throws {
         current.adapter.getCommunicator().shutdown()
     }
 }

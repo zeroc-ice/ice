@@ -141,7 +141,7 @@ public class Client: TestHelperI {
                 try test(error.message == "unknown Ice property: Ice.UnknownProperty")
             }
 
-            output.write("ok")
+            output.writeLine("ok")
         }
     }
 }

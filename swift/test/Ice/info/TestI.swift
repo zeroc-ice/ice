@@ -25,11 +25,11 @@ func getIPConnectionInfo(_ info: Ice.ConnectionInfo) -> Ice.IPConnectionInfo? {
 }
 
 class TestI: TestIntf {
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current: Ice.Current) async throws {
         current.adapter.getCommunicator().shutdown()
     }
 
-    func getEndpointInfoAsContext(current: Ice.Current) throws -> Ice.Context {
+    func getEndpointInfoAsContext(current: Ice.Current) async throws -> Ice.Context {
         var ctx = Ice.Context()
         let info = current.con!.getEndpoint().getInfo()!
         ctx["timeout"] = "\(info.timeout)"
@@ -49,7 +49,7 @@ class TestI: TestIntf {
         return ctx
     }
 
-    func getConnectionInfoAsContext(current: Ice.Current) throws -> Ice.Context {
+    func getConnectionInfoAsContext(current: Ice.Current) async throws -> Ice.Context {
         var ctx = Ice.Context()
         let info = try current.con!.getInfo()
         ctx["adapterName"] = info.adapterName

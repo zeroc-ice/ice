@@ -16,7 +16,7 @@ class RemoteLoggerI: Ice.RemoteLogger {
         _helper = helper
     }
 
-    func `init`(prefix: String, logMessages: [Ice.LogMessage], current _: Ice.Current) throws {
+    func `init`(prefix: String, logMessages: [Ice.LogMessage], current _: Ice.Current) async throws {
         withLock(&_lock) {
             _prefix = prefix
             _initMessages += logMessages
@@ -24,7 +24,7 @@ class RemoteLoggerI: Ice.RemoteLogger {
         _semaphore.signal()
     }
 
-    func log(message: Ice.LogMessage, current _: Ice.Current) throws {
+    func log(message: Ice.LogMessage, current _: Ice.Current) async throws {
         withLock(&_lock) {
             _logMessages.append(message)
         }
