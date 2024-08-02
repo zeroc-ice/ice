@@ -5,7 +5,7 @@ import Ice
 import TestCommon
 
 class Collocated: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
 
         //
@@ -53,6 +53,6 @@ class Collocated: TestHelperI {
             servant: TestIntfControllerDisp(TestControllerI(adapter: adapter)),
             id: Ice.stringToIdentity("testController"))
         // try adapter2.activate() // Don't activate OA to ensure collocation is used.
-        try allTests(self, collocated: true)
+        try await allTests(self, collocated: true)
     }
 }

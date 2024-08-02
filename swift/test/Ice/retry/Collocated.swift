@@ -1,11 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 import Ice
-import PromiseKit
 import TestCommon
 
 class Collocated: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         var properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10 1")
 
@@ -42,6 +41,6 @@ class Collocated: TestHelperI {
             id: Ice.stringToIdentity("retry"))
 
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
-        _ = try allTests(helper: self, communicator2: communicator2, ref: "retry@RetryAdapter")
+        _ = try await allTests(helper: self, communicator2: communicator2, ref: "retry@RetryAdapter")
     }
 }

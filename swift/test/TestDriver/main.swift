@@ -3,12 +3,7 @@
 //
 
 import Foundation
-import PromiseKit
 import TestBundle
-
-PromiseKit.conf.Q.map = .global()
-PromiseKit.conf.Q.return = .global()
-PromiseKit.conf.logHandler = { _ in }
 
 var args = CommandLine.arguments
 if args.count < 3 {
@@ -26,7 +21,7 @@ do {
     let testName = "\(testPath).\(exe)"
 
     let testHelper = TestBundle.getTestHelper(name: testName)
-    try testHelper.run(args: args)
+    try await testHelper.run(args: args)
 
 } catch {
     for s in Thread.callStackSymbols {

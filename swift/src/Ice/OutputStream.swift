@@ -30,7 +30,7 @@ public class OutputStream {
 
     /// Writes the start of an encapsulation to the stream.
     public func startEncapsulation() {
-        startEncapsulation(encoding: encoding, format: FormatType.DefaultFormat)
+        startEncapsulation(encoding: encoding, format: nil)
     }
 
     /// Writes the start of an encapsulation to the stream.
@@ -38,7 +38,7 @@ public class OutputStream {
     /// - parameter encoding: `Ice.EncodingVersion` - The encoding version of the encapsulation.
     ///
     /// - parameter format: `Ice.FormatType` - Specify the compact or sliced format.
-    public func startEncapsulation(encoding: EncodingVersion, format: FormatType) {
+    public func startEncapsulation(encoding: EncodingVersion, format: FormatType?) {
         precondition(encaps == nil, "Nested or sequential encapsulations are not supported")
         encaps = Encaps(encoding: encoding, format: format, start: data.count)
         write(Int32(0))  // Placeholder for the encapsulation length.
@@ -112,7 +112,7 @@ public class OutputStream {
     private func initEncaps() {
         if encaps == nil {
             encaps = Encaps(encoding: encoding, format: format, start: 0)
-        } else if encaps.format == .DefaultFormat {
+        } else if encaps.format == nil {
             encaps.format = format
         }
 
@@ -569,13 +569,13 @@ extension OutputStream: ICEOutputStreamHelper {
 
 private class Encaps {
     let start: Int
-    var format: FormatType
+    var format: FormatType?
     let encoding: EncodingVersion
     let encoding_1_0: Bool
 
     var encoder: EncapsEncoder!
 
-    init(encoding: EncodingVersion, format: FormatType, start: Int) {
+    init(encoding: EncodingVersion, format: FormatType?, start: Int) {
         self.start = start
         self.format = format
         self.encoding = encoding

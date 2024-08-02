@@ -51,7 +51,6 @@ namespace IceInternal
         void dispatchException(std::int32_t, std::exception_ptr);
 
         const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
-        // The application configured a custom executor or a dispatch queue executor in InitializationData
         const bool _hasExecutor;
         const Ice::LoggerPtr _logger;
         const TraceLevelsPtr _traceLevels;

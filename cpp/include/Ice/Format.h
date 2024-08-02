@@ -15,10 +15,6 @@ namespace Ice
     enum class FormatType : std::uint8_t
     {
         /**
-         * Indicates that no preference was specified.
-         */
-        DefaultFormat,
-        /**
          * A minimal format that eliminates the possibility for slicing unrecognized types.
          */
         CompactFormat,

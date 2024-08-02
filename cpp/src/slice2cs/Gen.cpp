@@ -55,27 +55,24 @@ namespace
 
     string opFormatTypeToString(const OperationPtr& op)
     {
-        switch (op->format())
+        optional<FormatType> opFormat = op->format();
+        if (opFormat)
         {
-            case DefaultFormat:
+            switch (*opFormat)
             {
-                return "Ice.FormatType.DefaultFormat";
-            }
-            case CompactFormat:
-            {
-                return "Ice.FormatType.CompactFormat";
-            }
-            case SlicedFormat:
-            {
-                return "Ice.FormatType.SlicedFormat";
-            }
-            default:
-            {
-                assert(false);
+                case CompactFormat:
+                    return "Ice.FormatType.CompactFormat";
+                case SlicedFormat:
+                    return "Ice.FormatType.SlicedFormat";
+                default:
+                    assert(false);
+                    return "???";
             }
         }
-
-        return "???";
+        else
+        {
+            return "null";
+        }
     }
 
     string getDeprecationMessageForComment(const ContainedPtr& p1, const string& type)
@@ -2753,7 +2750,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
                 _out << nl << "ostr.writePendingValues();";
             }
             _out << eb;
-            if (op->format() != DefaultFormat)
+            if (op->format())
             {
                 _out << "," << nl << opFormatTypeToString(op);
             }

@@ -6,9 +6,6 @@ import PackageDescription
 let defaultSliceFiles = ["Test.ice"]
 let defaultSources = ["Client.swift", "AllTests.swift", "Server.swift", "TestI.swift"]
 
-let defaultAMDSliceFiles = ["TestAMD.ice"]
-let defaultAMDSourceFiles = ["ServerAMD.swift", "TestAMDI.swift"]
-
 struct TestConfig {
     var dependencies: [Target.Dependency] = []
 
@@ -20,22 +17,13 @@ struct TestConfig {
 
     var resources: [Resource] = []
 
-    var amd: Bool = false
-    var amdSliceFiles = defaultAMDSliceFiles
-    var amdSourcesFiles = defaultAMDSourceFiles
-
     var sourceFiles: [String] {
         sources + (collocated ? ["Collocated.swift"] : [])
     }
 
     var exclude: [String] {
-        return sliceFiles + (amd ? (amdSourcesFiles + amdSliceFiles + ["amd"]) : [])
+        return sliceFiles
     }
-
-    var amdExclude: [String] {
-        return amdSliceFiles + sourceFiles + sliceFiles + ["slice-plugin.json"]
-    }
-
 }
 
 let testDirectories: [String: TestConfig] = [
@@ -51,14 +39,9 @@ let testDirectories: [String: TestConfig] = [
         collocated: false,
         sources: ["Client.swift", "AllTests.swift"]
     ),
-    "Ice/dispatchQueue": TestConfig(
-        collocated: false,
-        sources: ["Client.swift"],
-        sliceFiles: []
-    ),
     "Ice/enums": TestConfig(collocated: false),
-    "Ice/exceptions": TestConfig(amd: true),
-    "Ice/facets": TestConfig(collocated: true),
+    "Ice/exceptions": TestConfig(),
+    "Ice/facets": TestConfig(),
     "Ice/hold": TestConfig(collocated: false),
     "Ice/info": TestConfig(collocated: false),
     "Ice/inheritance": TestConfig(),
@@ -72,12 +55,10 @@ let testDirectories: [String: TestConfig] = [
         sources: defaultSources + [
             "BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift",
             "TwowaysAMI.swift",
-        ],
-        amd: true
+        ]
     ),
     "Ice/optional": TestConfig(
-        collocated: false,
-        amd: true
+        collocated: false
     ),
     "Ice/properties": TestConfig(
         collocated: false,
@@ -91,26 +72,20 @@ let testDirectories: [String: TestConfig] = [
             .copy("config/configPath"),
         ]
     ),
-    "Ice/proxy": TestConfig(amd: true),
+    "Ice/proxy": TestConfig(),
     "Ice/retry": TestConfig(),
     "Ice/scope": TestConfig(collocated: false),
     "Ice/servantLocator": TestConfig(
-        sources: defaultSources + ["ServantLocatorI.swift"],
-        amd: true,
-        amdSourcesFiles: defaultAMDSourceFiles + ["ServantLocatorAMDI.swift"]
+        sources: defaultSources + ["ServantLocatorI.swift"]
     ),
     "Ice/services": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: []),
     "Ice/slicing/exceptions": TestConfig(
         collocated: false,
-        sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"],
-        amd: true,
-        amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
+        sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"]
     ),
     "Ice/slicing/objects": TestConfig(
         collocated: false,
-        sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"],
-        amd: true,
-        amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
+        sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"]
     ),
     "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
     "Ice/timeout": TestConfig(collocated: false),
@@ -161,20 +136,6 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
             plugins: plugins
         ))
     testDriverDependencies.append(Target.Dependency(stringLiteral: name))
-
-    if testConfig.amd {
-        let amdName = name + "AMD"
-        targets.append(
-            Target.target(
-                name: amdName,
-                dependencies: dependencies,
-                path: testPath,
-                exclude: testConfig.amdExclude,
-                resources: [.copy("amd/slice-plugin.json")],
-                plugins: plugins
-            ))
-        testDriverDependencies.append(Target.Dependency(stringLiteral: amdName))
-    }
 
     return targets
 }

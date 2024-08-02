@@ -219,21 +219,6 @@
     }
 }
 
-- (dispatch_queue_t)getDispatchQueue:(NSError* _Nullable* _Nullable)error
-{
-    try
-    {
-        // Swift always sets InitializationData.useDispatchQueueExecutor to true
-        assert(self.objectAdapter->getDispatchQueue());
-        return self.objectAdapter->getDispatchQueue();
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
-}
-
 - (void)registerDispatchAdapter:(id<ICEDispatchAdapter>)dispatchAdapter
 {
     auto cppDispatcher = std::make_shared<CppDispatcher>(dispatchAdapter);

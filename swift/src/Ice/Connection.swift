@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
-import PromiseKit
 
 /// The batch compression option when flushing queued batch requests.
 public enum CompressBatch: UInt8 {
@@ -132,7 +131,7 @@ public typealias HeaderDict = [String: String]
 
 /// Base class providing access to the connection details.
 public protocol ConnectionInfo: AnyObject {
-    /// The information of the underyling transport or null if there's no underlying transport.
+    /// The information of the underlying transport or null if there's no underlying transport.
     var underlying: ConnectionInfo? { get set }
     /// Whether or not the connection is an incoming or outgoing connection.
     var incoming: Bool { get set }
@@ -199,22 +198,9 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     ///
     /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
     /// being sent over the wire.
-    ///
-    /// - parameter sentOn: `Dispatch.DispatchQueue?` - Optional dispatch queue used to
-    ///   dispatch the sent callback.
-    ///
-    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags?` - Optional dispatch flags used
-    ///   to dispatch the sent callback
-    ///
-    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
-    ///
-    /// - returns: `PromiseKit.Promise<>` - The result of the operation
     func flushBatchRequestsAsync(
-        _ compress: CompressBatch,
-        sentOn: Dispatch.DispatchQueue?,
-        sentFlags: Dispatch.DispatchWorkItemFlags?,
-        sent: ((Bool) -> Void)?
-    ) -> PromiseKit.Promise<Void>
+        _ compress: CompressBatch
+    ) async throws
 
     /// Set a close callback on the connection. The callback is called by the connection when it's closed. The callback
     /// is called from the Ice thread pool associated with the connection. If the callback needs more information about

@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 public class Client: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
@@ -13,7 +13,7 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        let initial = try allTests(self)
+        let initial = try await allTests(self)
         try initial.shutdown()
     }
 }

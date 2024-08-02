@@ -1,26 +1,18 @@
 // Copyright (c) ZeroC, Inc.
 
 import IceImpl
-import PromiseKit
 
 extension Connection {
     public func flushBatchRequestsAsync(
-        _ compress: CompressBatch,
-        sentOn: DispatchQueue? = nil,
-        sentFlags: DispatchWorkItemFlags? = nil,
-        sent: ((Bool) -> Void)? = nil
-    ) -> Promise<Void> {
+        _ compress: CompressBatch
+    ) async throws {
         let impl = self as! ConnectionI
-        let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
-        return Promise<Void> { seal in
+        return try await withCheckedThrowingContinuation { continuation in
             impl.handle.flushBatchRequestsAsync(
                 compress.rawValue,
-                exception: { error in seal.reject(error) },
-                sent: {
-                    seal.fulfill(())
-                    if let sentCB = sentCB {
-                        sentCB($0)
-                    }
+                exception: { error in continuation.resume(throwing: error) },
+                sent: { _ in
+                    continuation.resume(returning: ())
                 })
         }
     }

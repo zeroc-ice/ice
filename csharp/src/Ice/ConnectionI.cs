@@ -1386,7 +1386,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _readStream = new InputStream(instance, Util.currentProtocolEncoding);
         _readHeader = false;
         _readStreamPos = -1;
-        _writeStream = new OutputStream(instance, Util.currentProtocolEncoding);
+        _writeStream = new OutputStream(); // temporary stream
         _writeStreamPos = -1;
         _upcallCount = 0;
         _state = StateNotInitialized;
@@ -1512,7 +1512,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // _sendStreams message.
                 if (_sendStreams.Count == 0)
                 {
-                    OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
+                    var os = new OutputStream(Util.currentProtocolEncoding);
                     os.writeBlob(Protocol.magic);
                     Util.currentProtocol.ice_writeMembers(os);
                     Util.currentProtocolEncoding.ice_writeMembers(os);
@@ -1789,7 +1789,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             //
             // Before we shut down, we send a close connection message.
             //
-            OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
+            var os = new OutputStream(Util.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
             Util.currentProtocol.ice_writeMembers(os);
             Util.currentProtocolEncoding.ice_writeMembers(os);
@@ -1854,7 +1854,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     _writeStream.writeByte(Protocol.validateConnectionMsg);
                     _writeStream.writeByte(0); // Compression status (always zero for validate connection).
                     _writeStream.writeInt(Protocol.headerSize); // Message size.
-                    TraceUtil.traceSend(_writeStream, _logger, _traceLevels);
+                    TraceUtil.traceSend(_writeStream, _instance, _logger, _traceLevels);
                     _writeStream.prepareWrite();
                 }
 
@@ -2058,7 +2058,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 message.stream.prepareWrite();
                 message.prepared = true;
 
-                TraceUtil.traceSend(stream, _logger, _traceLevels);
+                TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
 
                 //
                 // Send the message.
@@ -2133,7 +2133,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         message.stream.prepareWrite();
         message.prepared = true;
 
-        TraceUtil.traceSend(stream, _logger, _traceLevels);
+        TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
 
         // Send the message without blocking.
         if (_observer is not null)
@@ -2186,8 +2186,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                                          _compressionLevel);
                 if (cbuf is not null)
                 {
-                    OutputStream cstream =
-                        new OutputStream(uncompressed.instance(), uncompressed.getEncoding(), cbuf, true);
+                    OutputStream cstream = new OutputStream(uncompressed.getEncoding(), new Internal.Buffer(cbuf, true));
 
                     //
                     // Set compression status.
@@ -2819,7 +2818,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (_adopt)
             {
-                OutputStream stream = new OutputStream(this.stream.instance(), Util.currentProtocolEncoding);
+                var stream = new OutputStream(Util.currentProtocolEncoding);
                 stream.swap(this.stream);
                 this.stream = stream;
                 _adopt = false;

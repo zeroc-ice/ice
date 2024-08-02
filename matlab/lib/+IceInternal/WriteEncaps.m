@@ -5,7 +5,7 @@
 classdef WriteEncaps < handle
     properties
         start
-        format = Ice.FormatType.DefaultFormat
+        format
         encoding
         encoder
         next

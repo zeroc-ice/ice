@@ -130,26 +130,24 @@ namespace
 
     string opFormatTypeToString(const OperationPtr& op)
     {
-        switch (op->format())
+        optional<FormatType> opFormat = op->format();
+        if (opFormat)
         {
-            case DefaultFormat:
+            switch (*opFormat)
             {
-                return ".DefaultFormat";
-            }
-            case CompactFormat:
-            {
-                return ".CompactFormat";
-            }
-            case SlicedFormat:
-            {
-                return ".SlicedFormat";
-            }
-            default:
-            {
-                assert(false);
+                case CompactFormat:
+                    return ".CompactFormat";
+                case SlicedFormat:
+                    return ".SlicedFormat";
+                default:
+                    assert(false);
+                    return "???";
             }
         }
-        return "???";
+        else
+        {
+            return "nil";
+        }
     }
 }
 
@@ -712,21 +710,8 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 
     if (async)
     {
-        if (!dispatch)
-        {
-            out << nl << "///";
-            out << nl << "/// - parameter sentOn: `Dispatch.DispatchQueue?` - Optional dispatch queue used to";
-            out << nl << "///   dispatch the sent callback.";
-            out << nl << "///";
-            out << nl << "/// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags?` - Optional dispatch flags used";
-            out << nl << "///   to dispatch the sent callback";
-            out << nl << "///";
-            out << nl << "/// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.";
-        }
-
         out << nl << "///";
-        out << nl << "/// - returns: `PromiseKit.Promise<" << operationReturnType(p, typeCtx)
-            << ">` - The result of the operation";
+        out << nl << "/// - returns: `" << operationReturnType(p, typeCtx) << "` - The result of the operation";
     }
     else
     {
@@ -2436,7 +2421,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->mode()) << ",";
 
-    if (op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "format: " << opFormatTypeToString(op);
         out << ",";
@@ -2496,12 +2481,8 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
         }
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
-    out << "sentOn: Dispatch.DispatchQueue? = nil";
-    out << "sentFlags: Dispatch.DispatchWorkItemFlags? = nil";
-    out << "sent: ((Swift.Bool) -> Swift.Void)? = nil";
-
     out << epar;
-    out << " -> PromiseKit.Promise<";
+    out << " async throws -> ";
     if (allOutParams.empty())
     {
         out << "Swift.Void";
@@ -2510,7 +2491,6 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
     {
         out << operationReturnType(op);
     }
-    out << ">";
 
     out << sb;
 
@@ -2518,13 +2498,13 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
     // Invoke
     //
     out << sp;
-    out << nl << "return _impl._invokeAsync(";
+    out << nl << "return try await _impl._invokeAsync(";
 
     out.useCurrentPosAsIndent();
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->mode()) << ",";
 
-    if (op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "format: " << opFormatTypeToString(op);
         out << ",";
@@ -2551,10 +2531,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
         out << ",";
     }
 
-    out << nl << "context: context,";
-    out << nl << "sentOn: sentOn,";
-    out << nl << "sentFlags: sentFlags,";
-    out << nl << "sent: sent)";
+    out << nl << "context: context)";
     out.restoreIndent();
 
     out << eb;
@@ -2572,12 +2549,10 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
 
     out << sp;
     out << nl << "public func _iceD_" << opName
-        << "(_ request: Ice.IncomingRequest) -> PromiseKit.Promise<Ice.OutgoingResponse>";
+        << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
 
     out << sb;
-
-    out << nl << "do";
-    out << sb;
+    out << nl;
 
     // TODO: check operation mode
 
@@ -2594,30 +2569,33 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
 
     if (operationIsAmd(op))
     {
-        out << nl << "return self." << opName << "Async(";
+        out << nl;
+        if (!outParams.empty())
+        {
+            out << "let result = ";
+        }
+
+        out << "try await self." << opName << "Async(";
         out << nl << "    "; // inc/dec doesn't work for an unknown reason
         for (const auto& q : inParams)
         {
             out << q.name << ": iceP_" << q.name << ", ";
         }
-        out << "current: request.current";
-        out << nl;
-        out << ").map(on: nil)";
-        out << sb;
+        out << "current: request.current)";
+
         if (outParams.empty())
         {
-            out << nl << "request.current.makeEmptyOutgoingResponse()";
+            out << nl << "return request.current.makeEmptyOutgoingResponse()";
         }
         else
         {
-            out << " result in ";
-            out << nl << "request.current.makeOutgoingResponse(result, formatType:" << opFormatTypeToString(op) << ")";
+            out << nl << "return request.current.makeOutgoingResponse(result, formatType: " << opFormatTypeToString(op)
+                << ")";
             out << sb;
             out << " ostr, value in ";
             writeMarshalAsyncOutParams(out, op);
             out << eb;
         }
-        out << eb;
     }
     else
     {
@@ -2638,7 +2616,7 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
 
         if (outParams.empty())
         {
-            out << nl << "return PromiseKit.Promise.value(request.current.makeEmptyOutgoingResponse())";
+            out << nl << "return request.current.makeEmptyOutgoingResponse()";
         }
         else
         {
@@ -2648,14 +2626,10 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
                 << ")";
             writeMarshalOutParams(out, op);
             out << nl << "ostr.endEncapsulation()";
-            out << nl << "return PromiseKit.Promise.value(Ice.OutgoingResponse(ostr))";
+            out << nl << "return Ice.OutgoingResponse(ostr)";
         }
     }
-    out << eb;
-    out << " catch";
-    out << sb;
-    out << nl << "return PromiseKit.Promise(error: error)";
-    out << eb;
+
     out << eb;
 }
 

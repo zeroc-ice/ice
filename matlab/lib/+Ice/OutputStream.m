@@ -353,9 +353,6 @@ classdef OutputStream < handle
                 end
             else
                 encoding = obj.encoding;
-                if isempty(format)
-                    format = Ice.FormatType.DefaultFormat;
-                end
             end
 
             curr = obj.encapsCache;
@@ -502,7 +499,7 @@ classdef OutputStream < handle
                 obj.encapsStack.encoding = obj.encoding;
             end
 
-            if obj.encapsStack.format == Ice.FormatType.DefaultFormat
+            if isempty(obj.encapsStack.format)
                 obj.encapsStack.format = obj.format;
             end
 

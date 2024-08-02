@@ -211,21 +211,6 @@ Ice::Communicator::getValueFactoryManager() const noexcept
     return _instance->initializationData().valueFactoryManager;
 }
 
-#ifdef __APPLE__
-dispatch_queue_t
-Ice::Communicator::getClientDispatchQueue() const
-{
-    return _instance->clientThreadPool()->getDispatchQueue();
-}
-
-dispatch_queue_t
-Ice::Communicator::getServerDispatchQueue() const
-{
-    return _instance->serverThreadPool()->getDispatchQueue();
-}
-
-#endif
-
 void
 Ice::Communicator::postToClientThreadPool(function<void()> call)
 {

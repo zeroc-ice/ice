@@ -36,7 +36,6 @@ ICEIMPL_API @interface ICEObjectAdapter : ICELocalObject
 - (BOOL)refreshPublishedEndpoints:(NSError* _Nullable* _Nullable)error;
 - (NSArray<ICEEndpoint*>*)getPublishedEndpoints;
 - (BOOL)setPublishedEndpoints:(NSArray<ICEEndpoint*>*)newEndpoints error:(NSError* _Nullable* _Nullable)error;
-- (nullable dispatch_queue_t)getDispatchQueue:(NSError* _Nullable* _Nullable)error;
 - (void)registerDispatchAdapter:(id<ICEDispatchAdapter>)dispatchAdapter NS_SWIFT_NAME(registerDispatchAdapter(_:));
 @end
 

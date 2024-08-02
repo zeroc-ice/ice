@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 public class Client: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         var initData = Ice.InitializationData()
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.ThreadPool.Client.Size", value: "2")
@@ -16,7 +16,7 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        let cl = try allTests(helper: self)
+        let cl = try await allTests(helper: self)
         try cl.shutdown()
     }
 }

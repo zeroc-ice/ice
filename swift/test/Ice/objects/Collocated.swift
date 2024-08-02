@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 class Collocated: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
@@ -33,7 +33,7 @@ class Collocated: TestHelperI {
             id: Ice.stringToIdentity("uoet"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
 
-        let initial = try allTests(self)
+        let initial = try await allTests(self)
         // We must call shutdown even in the collocated case for cyclic dependency cleanup
         try initial.shutdown()
     }
