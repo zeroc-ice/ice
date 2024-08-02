@@ -2001,12 +2001,6 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
     return os.str();
 }
 
-bool
-SwiftGenerator::operationIsAmd(const OperationPtr& op)
-{
-    return op->hasMetaData("amd") || op->interface()->hasMetaData("amd");
-}
-
 ParamInfoList
 SwiftGenerator::getAllInParams(const OperationPtr& op, int typeCtx)
 {

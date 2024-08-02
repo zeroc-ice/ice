@@ -1511,7 +1511,6 @@ Gen::ObjectVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 {
-    const bool isAmd = operationIsAmd(op);
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
     const string opName = fixIdent(op->name());
     const ParamInfoList allInParams = getAllInParams(op);
@@ -1519,7 +1518,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     const ExceptionList allExceptions = op->throws();
 
     out << sp;
-    writeOpDocSummary(out, op, isAmd, true);
+    writeOpDocSummary(out, op, true, true);
     out << nl << "func " << opName;
     out << spar;
     for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
