@@ -380,6 +380,7 @@ namespace Slice
         std::string file() const;
         std::string line() const;
         std::string comment() const;
+        CommentPtr parseComment(const std::string&, bool) const;
         CommentPtr parseComment(bool) const;
 
         int includeLevel() const;

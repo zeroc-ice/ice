@@ -22,6 +22,36 @@ using namespace IceInternal;
 
 namespace
 {
+    CommentPtr parseComment(const ContainedPtr& p)
+    {
+        string text = p->comment();
+        const string linkBegin = "{@link ";
+        const string linkEnd = "}";
+
+        string::size_type pos = text.find(linkBegin);
+        while (pos != string::npos)
+        {
+            string::size_type endPos = text.find(linkEnd, pos);
+            if (endPos == string::npos)
+            {
+                // Invalid link, ignore it
+                break;
+            }
+
+            string link = text.substr(pos + linkBegin.size(), endPos - pos - linkBegin.size());
+            if (link.find("#") == 0)
+            {
+                link = link.substr(1);
+            }
+            const string replacement = "{@ link " + link + "}";
+
+            text.replace(pos, endPos - pos + linkEnd.size(), replacement);
+            pos = text.find(linkBegin, pos + replacement.size());
+        }
+
+        return p->parseComment(text, false);
+    }
+
     // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
     string pathToModule(const string& path)
     {
@@ -206,7 +236,7 @@ namespace
             return;
         }
 
-        CommentPtr doc = p->parseComment(false);
+        CommentPtr doc = parseComment(p);
 
         out << nl << "/**";
 
@@ -2519,7 +2549,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << " * One-shot constructor to initialize all data members.";
     for (const auto& dataMember : allDataMembers)
     {
-        CommentPtr comment = dataMember->parseComment(false);
+        CommentPtr comment = parseComment(dataMember);
         if (comment)
         {
             _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
@@ -2612,7 +2642,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         const string contextParam = escapeParam(paramList, "context");
-        CommentPtr comment = op->parseComment(false);
+        CommentPtr comment = parseComment(op);
         const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
         const string asyncDoc = "The asynchronous result object for the invocation.";
 
@@ -2715,7 +2745,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         const string currentParam = escapeParam(inParams, "current");
-        CommentPtr comment = p->parseComment(false);
+        CommentPtr comment = parseComment(p);
         const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
         const string resultDoc = "The result or a promise like object that will "
                                  "be resolved with the result of the invocation.";
