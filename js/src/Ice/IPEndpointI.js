@@ -73,10 +73,13 @@ export class IPEndpointI extends EndpointI {
     // Return the endpoint information.
     //
     hashCode() {
-        if (this._hashCode === undefined) {
-            this._hashCode = this.hashInit(5381);
-        }
-        return this._hashCode;
+        let h = 5381;
+        h = HashUtil.addNumber(h, this.type());
+        h = HashUtil.addString(h, this._host);
+        h = HashUtil.addNumber(h, this._port);
+        h = HashUtil.addString(h, this._sourceAddr);
+        h = HashUtil.addString(h, this._connectionId);
+        return h;
     }
 
     options() {
@@ -165,15 +168,6 @@ export class IPEndpointI extends EndpointI {
     streamWriteImpl(s) {
         s.writeString(this._host);
         s.writeInt(this._port);
-    }
-
-    hashInit(h) {
-        h = HashUtil.addNumber(h, this.type());
-        h = HashUtil.addString(h, this._host);
-        h = HashUtil.addNumber(h, this._port);
-        h = HashUtil.addString(h, this._sourceAddr);
-        h = HashUtil.addString(h, this._connectionId);
-        return h;
     }
 
     fillEndpointInfo(info) {

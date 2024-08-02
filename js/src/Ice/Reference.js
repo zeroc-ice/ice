@@ -42,7 +42,6 @@ export class Reference {
         this._protocol = protocol;
         this._encoding = encoding;
         this._invocationTimeout = invocationTimeout;
-        this._hashInitialized = false;
     }
 
     getMode() {
@@ -262,10 +261,6 @@ export class Reference {
     }
 
     hashCode() {
-        if (this._hashInitialized) {
-            return this._hashValue;
-        }
-
         let h = 5381;
         h = HashUtil.addNumber(h, this._mode);
         h = HashUtil.addBoolean(h, this._secure);
@@ -281,10 +276,7 @@ export class Reference {
         h = HashUtil.addHashable(h, this._encoding);
         h = HashUtil.addNumber(h, this._invocationTimeout);
 
-        this._hashValue = h;
-        this._hashInitialized = true;
-
-        return this._hashValue;
+        return h;
     }
 
     //
@@ -987,11 +979,9 @@ export class RoutableReference extends Reference {
     }
 
     hashCode() {
-        if (!this._hashInitialized) {
-            super.hashCode(); // Initializes _hashValue.
-            this._hashValue = HashUtil.addString(this._hashValue, this._adapterId);
-        }
-        return this._hashValue;
+        let h = super.hashCode();
+        h = HashUtil.addString(h, this._adapterId);
+        return h;
     }
 
     equals(rhs) {
