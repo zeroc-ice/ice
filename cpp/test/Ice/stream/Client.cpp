@@ -1053,7 +1053,7 @@ allTests(Test::TestHelper* helper)
     {
         byte buf[128];
         pair<byte*, byte*> p(&buf[0], &buf[0] + sizeof(buf));
-        Ice::OutputStream out(communicator, Ice::currentEncoding, p);
+        Ice::OutputStream out(p);
         vector<byte> v;
         v.resize(127);
         out.write(v);
@@ -1063,7 +1063,7 @@ allTests(Test::TestHelper* helper)
     {
         byte buf[128];
         pair<byte*, byte*> p(&buf[0], &buf[0] + sizeof(buf));
-        Ice::OutputStream out(communicator, Ice::currentEncoding, p);
+        Ice::OutputStream out(p);
         vector<byte> v;
         v.resize(127);
         ::memset(&v[0], 0xFF, v.size());

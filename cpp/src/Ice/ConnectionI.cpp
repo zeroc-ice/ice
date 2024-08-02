@@ -1800,7 +1800,6 @@ Ice::ConnectionI::ConnectionI(
       _batchRequestQueue(new BatchRequestQueue(instance, endpoint->datagram())),
       _readStream(_instance.get(), Ice::currentProtocolEncoding),
       _readHeader(false),
-      _writeStream(_instance.get(), Ice::currentProtocolEncoding),
       _upcallCount(0),
       _state(StateNotInitialized),
       _shutdownInitiated(false),
@@ -2167,7 +2166,7 @@ Ice::ConnectionI::initiateShutdown()
         //
         // Before we shut down, we send a close connection message.
         //
-        OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
+        OutputStream os{Ice::currentProtocolEncoding};
         os.write(magic[0]);
         os.write(magic[1]);
         os.write(magic[2]);
@@ -2328,7 +2327,7 @@ Ice::ConnectionI::sendHeartbeat() noexcept
         // _sendStreams message.
         if (_sendStreams.empty())
         {
-            OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
+            OutputStream os{Ice::currentProtocolEncoding};
             os.write(magic[0]);
             os.write(magic[1]);
             os.write(magic[2]);
@@ -2662,7 +2661,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                 //
                 // Do compression.
                 //
-                OutputStream stream(_instance.get(), Ice::currentProtocolEncoding);
+                OutputStream stream{currentProtocolEncoding};
                 doCompress(*message->stream, stream);
 
                 traceSend(*message->stream, _instance, _logger, _traceLevels);
@@ -2778,7 +2777,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         // Do compression.
         //
-        OutputStream stream(_instance.get(), Ice::currentProtocolEncoding);
+        OutputStream stream{currentProtocolEncoding};
         doCompress(*message.stream, stream);
         stream.i = stream.b.begin();
 

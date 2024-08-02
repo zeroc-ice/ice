@@ -59,51 +59,54 @@ namespace
     };
 }
 
-Ice::OutputStream::OutputStream()
-    : _closure(nullptr),
-      _encoding(currentEncoding),
-      _format(FormatType::CompactFormat),
-      _currentEncaps(0)
+Ice::OutputStream::OutputStream(
+    EncodingVersion encoding,
+    FormatType format,
+    StringConverterPtr stringConverter,
+    WstringConverterPtr wstringConverter)
+    : _stringConverter(std::move(stringConverter)),
+      _wstringConverter(std::move(wstringConverter)),
+      _closure(nullptr),
+      _encoding(std::move(encoding)),
+      _format(format),
+      _currentEncaps(nullptr)
 {
-}
-
-Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator) : _closure(0), _currentEncaps(0)
-{
-    initialize(communicator);
-}
-
-Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, const EncodingVersion& encoding)
-    : _closure(0),
-      _currentEncaps(0)
-{
-    initialize(communicator, encoding);
 }
 
 Ice::OutputStream::OutputStream(
-    const CommunicatorPtr& communicator,
-    const EncodingVersion& encoding,
-    pair<const byte*, const byte*> buf)
+    pair<const byte*, const byte*> buf,
+    EncodingVersion encoding,
+    FormatType format,
+    StringConverterPtr stringConverter,
+    WstringConverterPtr wstringConverter)
     : Buffer(buf.first, buf.second),
-      _closure(0),
-      _currentEncaps(0)
-{
-    initialize(communicator, encoding);
-    b.reset();
-}
-
-Ice::OutputStream::OutputStream(pair<const byte*, const byte*> buf, const EncodingVersion& encoding, FormatType format)
-    : Buffer(buf.first, buf.second),
+      _stringConverter(std::move(stringConverter)),
+      _wstringConverter(std::move(wstringConverter)),
       _closure(nullptr),
+      _encoding(std::move(encoding)),
+      _format(format),
       _currentEncaps(nullptr)
 {
-    _encoding = encoding;
-    _format = format;
     b.reset();
 }
 
-Ice::OutputStream::OutputStream(Instance* instance, const EncodingVersion& encoding) : _closure(0), _currentEncaps(0)
+Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, EncodingVersion encoding)
+    : OutputStream(getInstance(communicator).get(), std::move(encoding))
 {
-    initialize(instance, encoding);
+}
+
+Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator)
+    : OutputStream(communicator, getInstance(communicator)->defaultsAndOverrides()->defaultEncoding)
+{
+}
+
+Ice::OutputStream::OutputStream(Instance* instance, EncodingVersion encoding)
+    : OutputStream(
+          std::move(encoding),
+          instance->defaultsAndOverrides()->defaultFormat,
+          instance->getStringConverter(),
+          instance->getWstringConverter())
+{
 }
 
 Ice::OutputStream::OutputStream(OutputStream&& other) noexcept
@@ -150,32 +153,6 @@ Ice::OutputStream::operator=(OutputStream&& other) noexcept
         resetEncapsulation();
     }
     return *this;
-}
-
-void
-Ice::OutputStream::initialize(const CommunicatorPtr& communicator)
-{
-    assert(communicator);
-    Instance* instance = getInstance(communicator).get();
-    initialize(instance, instance->defaultsAndOverrides()->defaultEncoding);
-}
-
-void
-Ice::OutputStream::initialize(const CommunicatorPtr& communicator, const EncodingVersion& encoding)
-{
-    assert(communicator);
-    initialize(getInstance(communicator).get(), encoding);
-}
-
-void
-Ice::OutputStream::initialize(Instance* instance, const EncodingVersion& encoding)
-{
-    assert(instance);
-    _encoding = encoding;
-
-    _format = instance->defaultsAndOverrides()->defaultFormat;
-    _stringConverter = instance->getStringConverter();
-    _wstringConverter = instance->getWstringConverter();
 }
 
 void

@@ -38,40 +38,48 @@ namespace Ice
         typedef size_t size_type;
 
         /**
-         * Constructs an OutputStream using the latest encoding version, the compact format for
-         * class encoding, and the process string converters.
+         * Constructs an OutputStream.
+         * @param encoding The encoding version to use.
+         * @param format The class format to use.
+         * @param stringConverter The narrow string converter to use.
+         * @param wstringConverter The wide string converter to use.
          */
-        OutputStream();
+        OutputStream(
+            EncodingVersion encoding = currentEncoding,
+            FormatType format = FormatType::CompactFormat,
+            StringConverterPtr stringConverter = nullptr,
+            WstringConverterPtr wstringConverter = nullptr);
 
         /**
-         * Constructs a stream using the communicator's default encoding version.
-         * @param communicator The communicator to use for marshaling tasks.
+         * Constructs an OutputStream using the format, string converter and wstring converter provided by the
+         * communicator, and the specified encoding.
+         * @param communicator The communicator.
+         * @param encoding The encoding version to use.
+         */
+        OutputStream(const CommunicatorPtr& communicator, EncodingVersion encoding);
+
+        /**
+         * Constructs an OutputStream using the encoding, format, string converter and wstring converter provided by
+         * the communicator.
+         * @param communicator The communicator.
          */
         OutputStream(const CommunicatorPtr& communicator);
 
         /**
-         * Constructs a stream using the given communicator and encoding version.
-         * @param communicator The communicator to use for marshaling tasks.
-         * @param version The encoding version used to encode the data.
-         */
-        OutputStream(const CommunicatorPtr& communicator, const EncodingVersion& version);
-
-        /**
-         * Constructs a stream using the given communicator and encoding version.
-         * @param communicator The communicator to use for marshaling tasks.
-         * @param version The encoding version used to encode the data.
-         * @param bytes Application-supplied memory that the stream uses as its initial marshaling buffer. The
+         * Constructs an OutputStream over an application-supplied buffer.
+         * @param bytes Application-supplied memory that the OutputStream uses as its initial marshaling buffer. The
          * stream will reallocate if the size of the marshaled data exceeds the application's buffer.
+         * @param encoding The encoding version to use.
+         * @param format The class format to use.
+         * @param stringConverter The narrow string converter to use.
+         * @param wstringConverter The wide string converter to use.
          */
-        OutputStream(
-            const CommunicatorPtr& communicator,
-            const EncodingVersion& version,
-            std::pair<const std::byte*, const std::byte*> bytes);
-
         OutputStream(
             std::pair<const std::byte*, const std::byte*> bytes,
-            const EncodingVersion& version = currentEncoding,
-            FormatType format = FormatType::CompactFormat);
+            EncodingVersion encoding = currentEncoding,
+            FormatType format = FormatType::CompactFormat,
+            StringConverterPtr stringConverter = nullptr,
+            WstringConverterPtr wstringConverter = nullptr);
 
         /**
          * Move constructor.
@@ -94,23 +102,6 @@ namespace Ice
                 clear(); // Not inlined.
             }
         }
-
-        /**
-         * Initializes the stream to use the communicator's default encoding version, class
-         * encoding format and string converters. Use this method if you originally constructed
-         * the stream without a communicator.
-         * @param communicator The communicator to use for marshaling tasks.
-         */
-        void initialize(const CommunicatorPtr& communicator);
-
-        /**
-         * Initializes the stream to use the given encoding version and the communicator's
-         * default class encoding format and string converters. Use this method if you
-         * originally constructed the stream without a communicator.
-         * @param communicator The communicator to use for marshaling tasks.
-         * @param version The encoding version used to encode the data.
-         */
-        void initialize(const CommunicatorPtr& communicator, const EncodingVersion& version);
 
         /**
          * Releases any data retained by encapsulations.
@@ -785,14 +776,13 @@ namespace Ice
         std::pair<const std::byte*, const std::byte*> finished();
 
         /// \cond INTERNAL
-        OutputStream(IceInternal::Instance*, const EncodingVersion&);
-        void initialize(IceInternal::Instance*, const EncodingVersion&);
-
-        // Optionals
-        bool writeOptImpl(std::int32_t, OptionalFormat);
+        OutputStream(IceInternal::Instance*, EncodingVersion encoding);
         /// \endcond
 
     private:
+        // Optionals
+        bool writeOptImpl(std::int32_t, OptionalFormat);
+
         //
         // String
         //
