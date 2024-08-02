@@ -726,11 +726,11 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     TypeInfoPtr type = Wrapper<TypeInfoPtr>::value(cls);
     auto c = dynamic_pointer_cast<ProxyInfo>(type);
     assert(c);
-    // format is a Slice metadata format, where 0 = default, 1 = compact, 2 = sliced
+    // we encode nullopt as -1.
     std::optional<Ice::FormatType> cppFormat;
-    if (format != 0)
+    if (format != -1)
     {
-        cppFormat = static_cast<Ice::FormatType>(format - 1);
+        cppFormat = static_cast<Ice::FormatType>(format);
     }
 
     auto op = make_shared<OperationI>(

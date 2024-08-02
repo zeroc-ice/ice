@@ -3168,7 +3168,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                 }
                 C << eb << ",";
                 C << nl << "request.current()";
-                if (p->format() != DefaultFormat)
+                if (p->format())
                 {
                     C << ",";
                     C << nl << opFormatTypeToString(p);
@@ -3201,7 +3201,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "ostr->writePendingValues();";
             }
             C << eb;
-            if (p->format() != DefaultFormat)
+            if (p->format())
             {
                 C << ",";
                 C << nl << opFormatTypeToString(p);

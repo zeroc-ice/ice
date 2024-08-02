@@ -24,7 +24,7 @@ export class OpaqueEndpointI extends EndpointI {
     // Marshal the endpoint
     //
     streamWrite(s) {
-        s.startEncapsulation(this._rawEncoding, FormatType.DefaultFormat);
+        s.startEncapsulation(this._rawEncoding, null);
         s.writeBlob(this._rawBytes);
         s.endEncapsulation();
     }

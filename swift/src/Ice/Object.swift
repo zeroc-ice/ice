@@ -47,7 +47,7 @@ extension Object {
     public func _iceD_ice_id(_ request: IncomingRequest) throws -> OutgoingResponse {
         _ = try request.inputStream.skipEmptyEncapsulation()
         let returnValue = try ice_id(current: request.current)
-        return request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+        return request.current.makeOutgoingResponse(returnValue, formatType: .CompactFormat) { ostr, value in
             ostr.write(value)
         }
     }
@@ -55,7 +55,7 @@ extension Object {
     public func _iceD_ice_ids(_ request: IncomingRequest) throws -> OutgoingResponse {
         _ = try request.inputStream.skipEmptyEncapsulation()
         let returnValue = try ice_ids(current: request.current)
-        return request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+        return request.current.makeOutgoingResponse(returnValue, formatType: .CompactFormat) { ostr, value in
             ostr.write(value)
         }
     }
@@ -65,7 +65,7 @@ extension Object {
         _ = try istr.startEncapsulation()
         let identity: String = try istr.read()
         let returnValue = try ice_isA(id: identity, current: request.current)
-        return request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+        return request.current.makeOutgoingResponse(returnValue, formatType: .CompactFormat) { ostr, value in
             ostr.write(value)
         }
     }

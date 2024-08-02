@@ -70,21 +70,18 @@ namespace
         return "???";
     }
 
-    string opFormatTypeToString(const OperationPtr& op)
+    string opFormatTypeToString(FormatType opFormat)
     {
-        switch (op->format())
+        switch (opFormat)
         {
-            case DefaultFormat:
-                return "0";
             case CompactFormat:
-                return "1";
+                return "0";
             case SlicedFormat:
-                return "2";
+                return "1";
             default:
                 assert(false);
+                return "???";
         }
-
-        return "???";
     }
 
     void printHeader(IceInternal::Output& out)
@@ -1487,9 +1484,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out << ", ";
 
-            if (op->format() != DefaultFormat)
+            if (op->format())
             {
-                _out << opFormatTypeToString(op); // Format.
+                _out << opFormatTypeToString(*op->format()); // Format.
             }
             _out << ", ";
 

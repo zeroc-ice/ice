@@ -124,7 +124,7 @@ public interface Object {
     boolean ret = obj.ice_isA(iceP_id, request.current);
     return CompletableFuture.completedFuture(
         request.current.createOutgoingResponse(
-            ret, (ostr, value) -> ostr.writeBool(value), FormatType.DefaultFormat));
+            ret, (ostr, value) -> ostr.writeBool(value), FormatType.CompactFormat));
   }
 
   /**
@@ -144,7 +144,7 @@ public interface Object {
     String[] ret = obj.ice_ids(request.current);
     return CompletableFuture.completedFuture(
         request.current.createOutgoingResponse(
-            ret, (ostr, value) -> ostr.writeStringSeq(value), FormatType.DefaultFormat));
+            ret, (ostr, value) -> ostr.writeStringSeq(value), FormatType.CompactFormat));
   }
 
   /**
@@ -155,7 +155,7 @@ public interface Object {
     String ret = obj.ice_id(request.current);
     return CompletableFuture.completedFuture(
         request.current.createOutgoingResponse(
-            ret, (ostr, value) -> ostr.writeString(value), FormatType.DefaultFormat));
+            ret, (ostr, value) -> ostr.writeString(value), FormatType.CompactFormat));
   }
 
   /**

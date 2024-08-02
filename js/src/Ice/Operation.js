@@ -77,7 +77,7 @@ function parseOperation(name, arr) {
     r.name = name;
     r.servantMethod = arr[0] ? arr[0] : name;
     r.mode = arr[1] ? OperationMode.valueOf(arr[1]) : OperationMode.Normal;
-    r.format = arr[2] ? FormatType.valueOf(arr[2]) : FormatType.DefaultFormat;
+    r.format = arr[2] ? FormatType.valueOf(arr[2]) : null;
 
     let ret;
     if (arr[3]) {

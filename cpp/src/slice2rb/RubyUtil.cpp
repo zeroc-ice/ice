@@ -552,17 +552,24 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         ParamDeclList::iterator t;
         int count;
         string format;
-        switch ((*s)->format())
+        optional<FormatType> opFormat = (*s)->format();
+        if (opFormat)
         {
-            case DefaultFormat:
-                format = "nil";
-                break;
-            case CompactFormat:
-                format = "::Ice::FormatType::CompactFormat";
-                break;
-            case SlicedFormat:
-                format = "::Ice::FormatType::SlicedFormat";
-                break;
+            switch (*opFormat)
+            {
+                case CompactFormat:
+                    format = "::Ice::FormatType::CompactFormat";
+                    break;
+                case SlicedFormat:
+                    format = "::Ice::FormatType::SlicedFormat";
+                    break;
+                default:
+                    assert(false);
+            }
+        }
+        else
+        {
+            format = "nil";
         }
 
         _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('" << (*s)->name()

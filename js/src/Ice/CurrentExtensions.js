@@ -24,7 +24,7 @@ import { Protocol } from "./Protocol.js";
 import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
 const { StringSeqHelper } = Ice_BuiltinSequences;
 
-Current.prototype.createOutgoingResponseWithResult = function (marshal, formatType = FormatType.DefaultFormat) {
+Current.prototype.createOutgoingResponseWithResult = function (marshal, formatType = null) {
     const ostr = startReplyStream(this);
     if (this.requestId != 0) {
         try {
