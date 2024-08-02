@@ -97,7 +97,7 @@ declare module "ice" {
             /**
              *  Install a middleware in this object adapter.
              *
-             * @param The middleware to install.
+             * @param middleware The middleware to install.
              * @return This object adapter.
              * @throws Error Thrown if the object adapter's dispatch pipeline has already been
              * created. This creation typically occurs the first time the object adapter dispatches an incoming request.

@@ -733,6 +733,12 @@ namespace
 CommentPtr
 Slice::Contained::parseComment(bool stripMarkup) const
 {
+    return parseComment(_comment, stripMarkup);
+}
+
+CommentPtr
+Slice::Contained::parseComment(const string& text, bool stripMarkup) const
+{
     CommentPtr comment = make_shared<Comment>();
 
     comment->_isDeprecated = isDeprecated(false);
@@ -745,7 +751,7 @@ Slice::Contained::parseComment(bool stripMarkup) const
         comment->_deprecated.push_back(IceInternal::trim(*reason));
     }
 
-    if (!comment->_isDeprecated && _comment.empty())
+    if (!comment->_isDeprecated && text.empty())
     {
         return nullptr;
     }
@@ -753,7 +759,7 @@ Slice::Contained::parseComment(bool stripMarkup) const
     //
     // Split up the comment into lines.
     //
-    StringList lines = splitComment(_comment, stripMarkup);
+    StringList lines = splitComment(text, stripMarkup);
 
     StringList::const_iterator i;
     for (i = lines.begin(); i != lines.end(); ++i)
