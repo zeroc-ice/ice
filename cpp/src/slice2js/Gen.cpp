@@ -22,6 +22,38 @@ using namespace IceInternal;
 
 namespace
 {
+    CommentPtr parseComment(const ContainedPtr& p)
+    {
+        // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link
+        // so we need to remove it.
+        string text = p->comment();
+        const string linkBegin = "{@link ";
+        const string linkEnd = "}";
+
+        string::size_type pos = text.find(linkBegin);
+        while (pos != string::npos)
+        {
+            string::size_type endPos = text.find(linkEnd, pos);
+            if (endPos == string::npos)
+            {
+                // Invalid link, ignore it
+                break;
+            }
+
+            string link = text.substr(pos + linkBegin.size(), endPos - pos - linkBegin.size());
+            if (link.find("#") == 0)
+            {
+                link = link.substr(1);
+            }
+            const string replacement = "{@link " + link + "}";
+
+            text.replace(pos, endPos - pos + linkEnd.size(), replacement);
+            pos = text.find(linkBegin, pos + replacement.size());
+        }
+
+        return p->parseComment(text, false);
+    }
+
     // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
     string pathToModule(const string& path)
     {
@@ -203,7 +235,7 @@ namespace
             return;
         }
 
-        CommentPtr doc = p->parseComment(false);
+        CommentPtr doc = parseComment(p);
 
         out << nl << "/**";
 
@@ -249,7 +281,6 @@ namespace
         const OperationPtr& op,
         const CommentPtr& doc,
         OpDocParamType type,
-        const StringList& preParams = StringList(),
         const StringList& postParams = StringList())
     {
         ParamDeclList params;
@@ -264,11 +295,6 @@ namespace
             case OpDocAllParams:
                 params = op->parameters();
                 break;
-        }
-
-        if (!preParams.empty())
-        {
-            writeDocLines(out, preParams, true);
         }
 
         map<string, StringList> paramDoc = doc->parameters();
@@ -300,9 +326,10 @@ namespace
             ExceptionPtr ex = op->container()->lookupException(name, false);
             if (ex)
             {
-                name = ex->scoped().substr(2);
+                name = ex->scoped();
             }
-            out << nl << " * @throws " << name << " ";
+            name = JsGenerator::fixId(name);
+            out << nl << " * @throws {@link " << name << "} ";
             writeDocLines(out, p->second, false);
         }
     }
@@ -312,8 +339,6 @@ namespace
         const OperationPtr& op,
         const CommentPtr& doc,
         OpDocParamType type,
-        bool showExceptions,
-        const StringList& preParams = StringList(),
         const StringList& postParams = StringList(),
         const StringList& returns = StringList())
     {
@@ -324,7 +349,7 @@ namespace
             writeDocLines(out, doc->overview(), true);
         }
 
-        writeOpDocParams(out, op, doc, type, preParams, postParams);
+        writeOpDocParams(out, op, doc, type, postParams);
 
         if (!returns.empty())
         {
@@ -332,10 +357,7 @@ namespace
             writeDocLines(out, returns, false);
         }
 
-        if (showExceptions)
-        {
-            writeOpDocExceptions(out, op, doc);
-        }
+        writeOpDocExceptions(out, op, doc);
 
         if (!doc->misc().empty())
         {
@@ -2516,7 +2538,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << " * One-shot constructor to initialize all data members.";
     for (const auto& dataMember : allDataMembers)
     {
-        CommentPtr comment = dataMember->parseComment(false);
+        CommentPtr comment = parseComment(dataMember);
         if (comment)
         {
             _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
@@ -2609,7 +2631,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         const string contextParam = escapeParam(paramList, "context");
-        CommentPtr comment = op->parseComment(false);
+        CommentPtr comment = parseComment(op);
         const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
         const string asyncDoc = "The asynchronous result object for the invocation.";
 
@@ -2619,7 +2641,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             StringList postParams, returns;
             postParams.push_back(contextDoc);
             returns.push_back(asyncDoc);
-            writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
+            writeOpDocSummary(_out, op, comment, OpDocInParams, postParams, returns);
         }
         _out << nl << fixId(op->name()) << spar;
         for (const auto& param : inParams)
@@ -2712,7 +2734,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         const string currentParam = escapeParam(inParams, "current");
-        CommentPtr comment = p->parseComment(false);
+        CommentPtr comment = parseComment(op);
         const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
         const string resultDoc = "The result or a promise like object that will "
                                  "be resolved with the result of the invocation.";
@@ -2721,7 +2743,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             StringList postParams, returns;
             postParams.push_back(currentDoc);
             returns.push_back(resultDoc);
-            writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
+            writeOpDocSummary(_out, op, comment, OpDocInParams, postParams, returns);
         }
         _out << nl << "abstract " << fixId(op->name()) << spar;
         for (const auto& param : inParams)
