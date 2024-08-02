@@ -3,6 +3,9 @@
 class Exception(Exception):  # Derives from built-in base 'Exception' class.
     """The base class for all Ice exceptions."""
 
+    def __init__(self):
+        super().__init__()
+
     def __str__(self):
         return self.__class__.__name__
 
