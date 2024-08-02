@@ -24,6 +24,8 @@ namespace
 {
     CommentPtr parseComment(const ContainedPtr& p)
     {
+        // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link
+        // so we need to remove it.
         string text = p->comment();
         const string linkBegin = "{@link ";
         const string linkEnd = "}";
@@ -43,7 +45,7 @@ namespace
             {
                 link = link.substr(1);
             }
-            const string replacement = "{@ link " + link + "}";
+            const string replacement = "{@link " + link + "}";
 
             text.replace(pos, endPos - pos + linkEnd.size(), replacement);
             pos = text.find(linkBegin, pos + replacement.size());
@@ -282,7 +284,6 @@ namespace
         const OperationPtr& op,
         const CommentPtr& doc,
         OpDocParamType type,
-        const StringList& preParams = StringList(),
         const StringList& postParams = StringList())
     {
         ParamDeclList params;
@@ -297,11 +298,6 @@ namespace
             case OpDocAllParams:
                 params = op->parameters();
                 break;
-        }
-
-        if (!preParams.empty())
-        {
-            writeDocLines(out, preParams, true);
         }
 
         map<string, StringList> paramDoc = doc->parameters();
@@ -333,9 +329,10 @@ namespace
             ExceptionPtr ex = op->container()->lookupException(name, false);
             if (ex)
             {
-                name = ex->scoped().substr(2);
+                name = ex->scoped();
             }
-            out << nl << " * @throws " << name << " ";
+            name = JsGenerator::fixId(name);
+            out << nl << " * @throws {@link " << name << "} ";
             writeDocLines(out, p->second, false);
         }
     }
@@ -345,8 +342,6 @@ namespace
         const OperationPtr& op,
         const CommentPtr& doc,
         OpDocParamType type,
-        bool showExceptions,
-        const StringList& preParams = StringList(),
         const StringList& postParams = StringList(),
         const StringList& returns = StringList())
     {
@@ -357,7 +352,7 @@ namespace
             writeDocLines(out, doc->overview(), true);
         }
 
-        writeOpDocParams(out, op, doc, type, preParams, postParams);
+        writeOpDocParams(out, op, doc, type, postParams);
 
         if (!returns.empty())
         {
@@ -365,10 +360,7 @@ namespace
             writeDocLines(out, returns, false);
         }
 
-        if (showExceptions)
-        {
-            writeOpDocExceptions(out, op, doc);
-        }
+        writeOpDocExceptions(out, op, doc);
 
         if (!doc->misc().empty())
         {
@@ -2652,7 +2644,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             StringList postParams, returns;
             postParams.push_back(contextDoc);
             returns.push_back(asyncDoc);
-            writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
+            writeOpDocSummary(_out, op, comment, OpDocInParams, postParams, returns);
         }
         _out << nl << fixId(op->name()) << spar;
         for (const auto& param : inParams)
@@ -2745,7 +2737,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         const string currentParam = escapeParam(inParams, "current");
-        CommentPtr comment = parseComment(p);
+        CommentPtr comment = parseComment(op);
         const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
         const string resultDoc = "The result or a promise like object that will "
                                  "be resolved with the result of the invocation.";
@@ -2754,7 +2746,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             StringList postParams, returns;
             postParams.push_back(currentDoc);
             returns.push_back(resultDoc);
-            writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
+            writeOpDocSummary(_out, op, comment, OpDocInParams, postParams, returns);
         }
         _out << nl << "abstract " << fixId(op->name()) << spar;
         for (const auto& param : inParams)

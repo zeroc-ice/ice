@@ -18,7 +18,7 @@
     "types": "src/index.d.ts",
     "browserslist": "> 0.25%, not dead",
     "devDependencies": {
-        "@types/node": "^20.14.2",
+        "@types/node": "^22.1.0",
         "del": "^7.1.0",
         "gulp": "^5.0.0",
         "gulp-ext-replace": "^0.3.0",
@@ -26,10 +26,10 @@
         "gulp-typescript": "^5.0.1",
         "http-server": "^14.1.1",
         "jshint": "^2.13.6",
-        "prettier": "^3.3.2",
+        "prettier": "^3.3.3",
         "pump": "^3.0.0",
-        "typedoc": "^0.26.3",
-        "typescript": "^5.5.3",
+        "typedoc": "^0.26.5",
+        "typescript": "^5.5.4",
         "typescript-formatter": "^7.2.2",
         "vinyl": "^3.0.0",
         "vinyl-paths": "^5.0.0"
