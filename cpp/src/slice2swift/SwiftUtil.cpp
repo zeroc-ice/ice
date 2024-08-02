@@ -130,26 +130,24 @@ namespace
 
     string opFormatTypeToString(const OperationPtr& op)
     {
-        switch (op->format())
+        optional<FormatType> opFormat = op->format();
+        if (opFormat)
         {
-            case DefaultFormat:
+            switch (*opFormat)
             {
-                return ".DefaultFormat";
-            }
-            case CompactFormat:
-            {
-                return ".CompactFormat";
-            }
-            case SlicedFormat:
-            {
-                return ".SlicedFormat";
-            }
-            default:
-            {
-                assert(false);
+                case CompactFormat:
+                    return ".CompactFormat";
+                case SlicedFormat:
+                    return ".SlicedFormat";
+                default:
+                    assert(false);
+                    return "???";
             }
         }
-        return "???";
+        else
+        {
+            return "nil";
+        }
     }
 }
 
@@ -712,18 +710,6 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 
     if (async)
     {
-        if (!dispatch)
-        {
-            out << nl << "///";
-            out << nl << "/// - parameter sentOn: `Dispatch.DispatchQueue?` - Optional dispatch queue used to";
-            out << nl << "///   dispatch the sent callback.";
-            out << nl << "///";
-            out << nl << "/// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags?` - Optional dispatch flags used";
-            out << nl << "///   to dispatch the sent callback";
-            out << nl << "///";
-            out << nl << "/// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.";
-        }
-
         out << nl << "///";
         out << nl << "/// - returns: `" << operationReturnType(p, typeCtx) << "` - The result of the operation";
     }
@@ -2435,7 +2421,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->mode()) << ",";
 
-    if (op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "format: " << opFormatTypeToString(op);
         out << ",";
@@ -2495,10 +2481,6 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
         }
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
-    out << "sentOn: Dispatch.DispatchQueue? = nil";
-    out << "sentFlags: Dispatch.DispatchWorkItemFlags? = nil";
-    out << "sent: ((Swift.Bool) -> Swift.Void)? = nil";
-
     out << epar;
     out << " async throws -> ";
     if (allOutParams.empty())
@@ -2522,7 +2504,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->mode()) << ",";
 
-    if (op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "format: " << opFormatTypeToString(op);
         out << ",";
@@ -2549,10 +2531,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
         out << ",";
     }
 
-    out << nl << "context: context,";
-    out << nl << "sentOn: sentOn,";
-    out << nl << "sentFlags: sentFlags,";
-    out << nl << "sent: sent)";
+    out << nl << "context: context)";
     out.restoreIndent();
 
     out << eb;
@@ -2610,7 +2589,7 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
         }
         else
         {
-            out << nl << "return request.current.makeOutgoingResponse(result, formatType:" << opFormatTypeToString(op)
+            out << nl << "return request.current.makeOutgoingResponse(result, formatType: " << opFormatTypeToString(op)
                 << ")";
             out << sb;
             out << " ostr, value in ";

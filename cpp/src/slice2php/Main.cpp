@@ -432,6 +432,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception type ids.
+
     if (!ops.empty())
     {
         _out << sp;
@@ -466,8 +467,16 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             ParamDeclList::iterator t;
             int count;
 
+            // We encode nullopt as -1.
+            optional<FormatType> opFormat = (*oli)->format();
+            int phpFormat = -1;
+            if (opFormat)
+            {
+                phpFormat = static_cast<int>(*opFormat);
+            }
+
             _out << nl << "IcePHP_defineOperation(" << prxType << ", '" << (*oli)->name() << "', "
-                 << getOperationMode((*oli)->mode()) << ", " << static_cast<int>((*oli)->format()) << ", ";
+                 << getOperationMode((*oli)->mode()) << ", " << phpFormat << ", ";
             for (t = params.begin(), count = 0; t != params.end(); ++t)
             {
                 if (!(*t)->isOutParam())

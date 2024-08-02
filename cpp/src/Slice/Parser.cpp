@@ -949,10 +949,10 @@ Slice::Contained::setMetaData(const list<string>& metaData)
     _metaData = metaData;
 }
 
-FormatType
+std::optional<FormatType>
 Slice::Contained::parseFormatMetaData(const list<string>& metaData)
 {
-    FormatType result = DefaultFormat;
+    std::optional<FormatType> result;
 
     string tag;
     string prefix = "format:";
@@ -4670,11 +4670,11 @@ Slice::Operation::sendsOptionals() const
     return false;
 }
 
-FormatType
+std::optional<FormatType>
 Slice::Operation::format() const
 {
-    FormatType format = parseFormatMetaData(getMetaData());
-    if (format == DefaultFormat)
+    std::optional<FormatType> format = parseFormatMetaData(getMetaData());
+    if (!format)
     {
         ContainedPtr cont = dynamic_pointer_cast<Contained>(container());
         assert(cont);

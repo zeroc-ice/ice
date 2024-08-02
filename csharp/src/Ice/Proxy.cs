@@ -594,7 +594,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         iceCheckAsyncTwowayOnly(_ice_isA_name);
         getOutgoingAsync<bool>(completed).invoke(_ice_isA_name,
                                                  OperationMode.Idempotent,
-                                                 FormatType.DefaultFormat,
+                                                 FormatType.CompactFormat,
                                                  context,
                                                  synchronous,
                                                  (OutputStream os) => { os.writeString(id); },
@@ -647,7 +647,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         getOutgoingAsync<object>(completed).invoke(_ice_ping_name,
                                                    OperationMode.Idempotent,
-                                                   FormatType.DefaultFormat,
+                                                   FormatType.CompactFormat,
                                                    context,
                                                    synchronous);
     }
@@ -702,7 +702,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         iceCheckAsyncTwowayOnly(_ice_ids_name);
         getOutgoingAsync<string[]>(completed).invoke(_ice_ids_name,
                                                      OperationMode.Idempotent,
-                                                     FormatType.DefaultFormat,
+                                                     FormatType.CompactFormat,
                                                      context,
                                                      synchronous,
                                                      read: (InputStream iss) => { return iss.readStringSeq(); });
@@ -755,7 +755,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         getOutgoingAsync<string>(completed).invoke(_ice_id_name,
                                                    OperationMode.Idempotent,
-                                                   FormatType.DefaultFormat,
+                                                   FormatType.CompactFormat,
                                                    context,
                                                    synchronous,
                                                    read: (InputStream iss) => { return iss.readString(); });

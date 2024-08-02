@@ -7,13 +7,10 @@ import TestCommon
 func onewaysAMI(_ helper: TestHelper, _ proxy: MyClassPrx) async throws {
     let p = uncheckedCast(prx: proxy.ice_oneway(), type: MyClassPrx.self)
 
-    try await withCheckedThrowingContinuation { continuation in
-        Task {
-            try! await p.opVoidAsync { _ in
-                continuation.resume(returning: ())
-            }
-        }
-    }
+    //
+    // NOTE: Oneway operations are completed when the request is sent
+    //
+    try await p.opVoidAsync()
 
     do {
         let _ = try await p.ice_isAAsync(id: ice_staticId(MyClassPrx.self))
@@ -25,22 +22,9 @@ func onewaysAMI(_ helper: TestHelper, _ proxy: MyClassPrx) async throws {
         try helper.test(false)
     } catch is Ice.TwowayOnlyException {}
 
-    try await withCheckedThrowingContinuation { continuation in
-        Task {
-            try! await p.opVoidAsync { _ in
-                continuation.resume(returning: ())
-            }
-        }
-    }
+    try await p.opVoidAsync()
 
-    try await withCheckedThrowingContinuation { continuation in
-        Task {
-            try! await p.opIdempotentAsync { _ in
-                continuation.resume(returning: ())
-            }
-        }
-
-    }
+    try await p.opIdempotentAsync()
 
     do {
         let _ = try await p.opByteAsync(p1: 0xFF, p2: 0x0F)

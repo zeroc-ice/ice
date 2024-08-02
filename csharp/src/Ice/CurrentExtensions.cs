@@ -25,7 +25,7 @@ public static class CurrentExtensions
         this Current current,
         TResult result,
         Action<OutputStream, TResult> marshal,
-        FormatType formatType = FormatType.DefaultFormat)
+        FormatType? formatType = null)
     {
         OutputStream ostr = current.startReplyStream();
         if (current.requestId != 0)
@@ -131,7 +131,8 @@ public static class CurrentExtensions
 
             if (current.requestId != 0)
             {
-                ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+                // The default class format doesn't matter since we always encode user exceptions in Sliced format.
+                ostr = new OutputStream(Util.currentProtocolEncoding);
                 ostr.writeBlob(Protocol.replyHdr);
                 ostr.writeInt(current.requestId);
             }
@@ -267,7 +268,10 @@ public static class CurrentExtensions
         }
         else
         {
-            var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+            var ostr = new OutputStream(
+                Util.currentProtocolEncoding,
+                current.adapter.getCommunicator().instance.defaultsAndOverrides().defaultFormat);
+
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(current.requestId);
             ostr.writeByte((byte)replyStatus);

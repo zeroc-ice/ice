@@ -26,43 +26,6 @@ func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
     return (major, minor)
 }
 
-func createSentCallback(
-    sentOn: DispatchQueue?,
-    sentFlags: DispatchWorkItemFlags?,
-    sent: ((Bool) -> Void)?
-) -> ((Bool) -> Void)? {
-    guard let s = sent else {
-        // If sent is nil, we keep it as-is
-        return sent
-    }
-
-    guard let q = sentOn else {
-        // If sentOn is nil, we just wrap sent in an autorelease pool
-        return { sentSynchronously in
-            autoreleasepool {
-                s(sentSynchronously)
-            }
-        }
-    }
-
-    //
-    // Create a closure to dispatch the sent callback in the specified queue
-    //
-    if let flags = sentFlags {
-        return { sentSynchronously in
-            q.async(flags: flags) {
-                s(sentSynchronously)
-            }
-        }
-    } else {
-        return { sentSynchronously in
-            q.async {
-                s(sentSynchronously)
-            }
-        }
-    }
-}
-
 func escapeString(string: String, special: String, communicator: Communicator) throws -> String {
     guard factoriesRegistered else {
         fatalError("Unable to initialize Ice")

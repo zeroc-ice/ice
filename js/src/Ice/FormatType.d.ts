@@ -5,7 +5,6 @@
 declare module "ice" {
     namespace Ice {
         class FormatType {
-            static readonly DefaultFormat: FormatType;
             static readonly CompactFormat: FormatType;
             static readonly SlicedFormat: FormatType;
 
