@@ -2645,7 +2645,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         {
             const string currentParamName = getEscapedParamName(op, "current");
             _out << nl << currentParamName << " : Ice.Current";
-            _out << nl << "    The Current object for the invocation.";
+            _out << nl << "    The Current object for the dispatch.";
         }
     }
 
