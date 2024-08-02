@@ -969,12 +969,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                             }
                         }
 
-                        if (_maxDispatches > 0 && _dispatchCount == _maxDispatches)
-                        {
-                            // Only read from the connection if max dispatches isn't reached.
-                            newOp &= ~SocketOperation.Read;
-                        }
-
                         // If the connection is not closed yet, we can update the thread pool selector to wait for
                         // readiness of read, write or both operations.
                         if (_state < StateClosed)
@@ -1661,9 +1655,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         return;
                     }
 
-                    if (_maxDispatches > 0 && _dispatchCount == _maxDispatches)
+                    if (_maxDispatches > 0 && _dispatchCount >= _maxDispatches)
                     {
-                        // Don't resume reading if maxDispatches is reached.
+                        // Don't resume reads if the max dispatch count is reached.
                         return;
                     }
 
@@ -1681,9 +1675,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         return;
                     }
 
-                    if (_maxDispatches > 0 && _dispatchCount == _maxDispatches)
+                    if (_maxDispatches > 0 && _dispatchCount >= _maxDispatches)
                     {
-                        // Reads are already disabled if maxDispatches is reached.
+                        // Reads are already disabled if the max dispatch count is reached.
                         return;
                     }
 
@@ -2426,7 +2420,15 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
         }
 
-        return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
+        if (_state == StateHolding || (_maxDispatches > 0 && _dispatchCount >= _maxDispatches))
+        {
+            // Don't re-enable reads if the connection is in the holding state or if the max dispatch count is reached.
+            return SocketOperation.None;
+        }
+        else
+        {
+            return SocketOperation.Read;
+        }
     }
 
     private void dispatchAll(
@@ -2532,9 +2534,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
                     }
 
-                    if (_maxDispatches > 0 && _state != StateHolding && _dispatchCount == _maxDispatches)
+                    if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches)
                     {
-                        // Resume reads for this connection.
+                        // Resume reads if the connection is active and the dispatch count is (about to be) bellow the
+                        // max dispatch count.
                         _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
                     }
 
