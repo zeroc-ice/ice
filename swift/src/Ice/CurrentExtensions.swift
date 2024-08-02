@@ -9,7 +9,7 @@ extension Current {
     ///   - formatType: The class format.
     ///   - marshal: The action that marshals result into an output stream.
     /// - Returns: The outgoing response.
-    public func makeOutgoingResponse<T>(_ result: T, formatType: FormatType, marshal: (OutputStream, T) -> Void)
+    public func makeOutgoingResponse<T>(_ result: T, formatType: FormatType?, marshal: (OutputStream, T) -> Void)
         -> OutgoingResponse
     {
         precondition(requestId != 0, "A one-way request cannot return a response")

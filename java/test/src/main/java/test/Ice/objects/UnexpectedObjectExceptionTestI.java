@@ -13,7 +13,7 @@ public final class UnexpectedObjectExceptionTestI implements com.zeroc.Ice.Blobj
     com.zeroc.Ice.Object.Ice_invokeResult r = new com.zeroc.Ice.Object.Ice_invokeResult();
     com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
     com.zeroc.Ice.OutputStream out = new com.zeroc.Ice.OutputStream(communicator);
-    out.startEncapsulation(current.encoding, com.zeroc.Ice.FormatType.DefaultFormat);
+    out.startEncapsulation(current.encoding, com.zeroc.Ice.FormatType.SlicedFormat);
     out.writeValue(new AlsoEmpty());
     out.writePendingValues();
     out.endEncapsulation();

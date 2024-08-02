@@ -212,6 +212,7 @@ generated from the section label.
         <suffix name="EnableIdleCheck" default="1" />
         <suffix name="IdleTimeout" default="60" />
         <suffix name="InactivityTimeout" default="300" />
+        <suffix name="MaxDispatches" default="100" />
     </class>
 
     <class name="threadpool" prefix-only="true">
