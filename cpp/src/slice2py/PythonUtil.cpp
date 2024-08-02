@@ -47,8 +47,9 @@ namespace
             else
             {
                 ostringstream os;
+                os << "(";
                 os << typeToDocstring(type, false);
-                os << " or None";
+                os << " or None)";
                 return os.str();
             }
         }
@@ -63,7 +64,7 @@ namespace
             "float",
             "str",
             "Ice.Value",
-            "Ice.ObjectPrx or None",
+            "(Ice.ObjectPrx or None)",
             "Ice.Value"};
 
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -95,8 +96,9 @@ namespace
         if (proxy)
         {
             ostringstream os;
+            os << "(";
             os << Slice::Python::scopedToName(proxy->scoped() + "Prx");
-            os << " or None";
+            os << " or None)";
             return os.str();
         }
 
@@ -270,9 +272,7 @@ namespace Slice
             void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
             void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
-            typedef vector<string> StringVec;
-
-            StringVec stripMarkup(const string&);
+            vector<string> stripMarkup(const string&);
 
             void writeDocstring(const string&, const string& = "");
             void writeDocstring(const string&, const DataMemberList&);
@@ -281,10 +281,10 @@ namespace Slice
             typedef map<string, string> StringMap;
             struct OpComment
             {
-                StringVec description;
-                StringMap params;
-                string returns;
-                StringMap exceptions;
+                vector<string> description;
+                map<string, vector<string>> params;
+                vector<string> returns;
+                map<string, vector<string>> exceptions;
             };
             bool parseOpComment(const string&, OpComment&);
 
@@ -2048,7 +2048,7 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
     }
 }
 
-Slice::Python::CodeVisitor::StringVec
+vector<string>
 Slice::Python::CodeVisitor::stripMarkup(const string& comment)
 {
     //
@@ -2186,7 +2186,7 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
     //
     // Split text into lines.
     //
-    StringVec lines;
+    vector<string> lines;
     if (!text.empty())
     {
         string::size_type start = 0;
@@ -2213,6 +2213,11 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
             {
                 line.erase(pos + 1, line.size() - pos - 1);
             }
+            pos = line.find_first_not_of(" \t");
+            if (pos != string::npos)
+            {
+                line = line.substr(pos);
+            }
 
             lines.push_back(line);
 
@@ -2226,7 +2231,7 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
 void
 Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& prefix)
 {
-    StringVec lines = stripMarkup(comment);
+    vector<string> lines = stripMarkup(comment);
     if (lines.empty())
     {
         return;
@@ -2234,7 +2239,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& 
 
     _out << nl << prefix << tripleQuotes;
 
-    for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (vector<string>::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
@@ -2245,7 +2250,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& 
 void
 Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemberList& members)
 {
-    StringVec lines = stripMarkup(comment);
+    vector<string> lines = stripMarkup(comment);
     if (lines.empty())
     {
         return;
@@ -2253,9 +2258,9 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
 
     _out << nl << tripleQuotes;
 
-    for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (const auto& line : lines)
     {
-        _out << nl << *q;
+        _out << nl << line;
     }
 
     if (!members.empty())
@@ -2263,13 +2268,13 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
         //
         // Collect docstrings (if any) for the members.
         //
-        map<string, StringVec> docs;
-        for (DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
+        map<string, vector<string>> docs;
+        for (const auto& member : members)
         {
-            StringVec doc = stripMarkup((*m)->comment());
+            vector<string> doc = stripMarkup(member->comment());
             if (!doc.empty())
             {
-                docs[(*m)->name()] = doc;
+                docs[member->name()] = doc;
             }
         }
         //
@@ -2277,20 +2282,18 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
         //
         if (!docs.empty())
         {
-            _out << nl << "Members:";
-            for (DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
+            _out << nl;
+            _out << nl << "Attributes";
+            _out << nl << "----------";
+            for (const auto& member : members)
             {
-                _out << nl << fixIdent((*m)->name()) << " -- ";
-                map<string, StringVec>::iterator p = docs.find((*m)->name());
+                _out << nl << fixIdent(member->name()) << " : " << typeToDocstring(member->type(), member->optional());
+                map<string, vector<string>>::iterator p = docs.find(member->name());
                 if (p != docs.end())
                 {
-                    for (StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    for (const auto& line : p->second)
                     {
-                        if (q != p->second.begin())
-                        {
-                            _out << nl;
-                        }
-                        _out << *q;
+                        _out << nl << "    " << line;
                     }
                 }
             }
@@ -2303,7 +2306,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
 void
 Slice::Python::CodeVisitor::writeDocstring(const string& comment, const EnumeratorList& enums)
 {
-    StringVec lines = stripMarkup(comment);
+    vector<string> lines = stripMarkup(comment);
     if (lines.empty())
     {
         return;
@@ -2311,7 +2314,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
 
     _out << nl << tripleQuotes;
 
-    for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (vector<string>::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
@@ -2321,10 +2324,10 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
         //
         // Collect docstrings (if any) for the enumerators.
         //
-        map<string, StringVec> docs;
+        map<string, vector<string>> docs;
         for (EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
         {
-            StringVec doc = stripMarkup((*e)->comment());
+            vector<string> doc = stripMarkup((*e)->comment());
             if (!doc.empty())
             {
                 docs[(*e)->name()] = doc;
@@ -2339,10 +2342,10 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
             for (EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
             {
                 _out << nl << fixIdent((*e)->name()) << " -- ";
-                map<string, StringVec>::iterator p = docs.find((*e)->name());
+                map<string, vector<string>>::iterator p = docs.find((*e)->name());
                 if (p != docs.end())
                 {
-                    for (StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    for (vector<string>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
                     {
                         if (q != p->second.begin())
                         {
@@ -2364,7 +2367,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
     //
     // Remove most javadoc & HTML markup.
     //
-    StringVec lines = stripMarkup(comment);
+    vector<string> lines = stripMarkup(comment);
     if (lines.empty())
     {
         return false;
@@ -2406,7 +2409,6 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     // Description of foo...
                     //
                     name = l.substr(namePos);
-                    c.params[name] = "";
                 }
                 else
                 {
@@ -2414,11 +2416,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     pos = l.find_first_not_of(" \t", pos);
                     if (pos != string::npos)
                     {
-                        c.params[name] = l.substr(pos);
-                    }
-                    else
-                    {
-                        c.params[name] = "";
+                        c.params[name].push_back(l.substr(pos));
                     }
                 }
             }
@@ -2448,7 +2446,6 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     // Description of foo...
                     //
                     name = l.substr(namePos);
-                    c.exceptions[name] = "";
                 }
                 else
                 {
@@ -2456,11 +2453,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     pos = l.find_first_not_of(" \t", pos);
                     if (pos != string::npos)
                     {
-                        c.exceptions[name] = l.substr(pos);
-                    }
-                    else
-                    {
-                        c.exceptions[name] = "";
+                        c.exceptions[name].push_back(l.substr(pos));
                     }
                 }
             }
@@ -2479,7 +2472,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                 inReturn = true;
                 inException = false;
                 inParam = false;
-                c.returns = l.substr(pos);
+                c.returns.push_back(l.substr(pos));
             }
             i = lines.erase(i);
             continue;
@@ -2496,32 +2489,20 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                 if (inParam)
                 {
                     assert(!name.empty());
-                    if (!c.params[name].empty())
-                    {
-                        c.params[name] += " ";
-                    }
-                    c.params[name] += l.substr(pos);
+                    c.params[name].push_back(l.substr(pos));
                     i = lines.erase(i);
                     continue;
                 }
                 else if (inException)
                 {
                     assert(!name.empty());
-                    if (!c.exceptions[name].empty())
-                    {
-                        c.exceptions[name] += " ";
-                    }
-                    c.exceptions[name] += l.substr(pos);
+                    c.exceptions[name].push_back(l.substr(pos));
                     i = lines.erase(i);
                     continue;
                 }
                 else if (inReturn)
                 {
-                    if (!c.returns.empty())
-                    {
-                        c.returns += " ";
-                    }
-                    c.returns += l.substr(pos);
+                    c.returns.push_back(l.substr(pos));
                     i = lines.erase(i);
                     continue;
                 }
@@ -2625,14 +2606,10 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         {
             string fixed = fixIdent(param->name());
             _out << nl << fixed << " : " << typeToDocstring(param->type(), param->optional());
-            StringMap::const_iterator r = comment.params.find(param->name());
-            if (r == comment.params.end())
+            const auto r = comment.params.find(param->name());
+            for (const auto& line : r->second)
             {
-                r = comment.params.find(fixed); // Just in case.
-            }
-            if (r != comment.params.end())
-            {
-                _out << nl << "    " << r->second;
+                _out << nl << "    " << line;
             }
         }
         if (mode == DocSync || mode == DocAsync)
@@ -2703,10 +2680,10 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
             for (const auto& param : outParams)
             {
                 _out << nl << "    - " << typeToDocstring(param->type(), param->optional());
-                StringMap::const_iterator r = comment.params.find(param->name());
-                if (r != comment.params.end())
+                const auto r = comment.params.find(param->name());
+                for (const string& line : r->second)
                 {
-                    _out << nl << "        " << r->second;
+                    _out << nl << "        " << line;
                 }
             }
         }
@@ -2736,7 +2713,10 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         for (const auto& [exception, exceptionDescription] : comment.exceptions)
         {
             _out << nl << exception;
-            _out << nl << "    " << exceptionDescription;
+            for (const auto& line : exceptionDescription)
+            {
+                _out << nl << "    " << line;
+            }
         }
     }
     _out << nl << "\"\"\"";
