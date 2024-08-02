@@ -2577,9 +2577,9 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
     out << spar;
     for (const auto& q : inParams)
     {
-        out << q.name << ": iceP_" << q.name << ", ";
+        out << (q.name + ": iceP_" + q.name);
     }
-    out << "current: request.current)";
+    out << "current: request.current";
     out << epar;
 
     if (outParams.empty())
