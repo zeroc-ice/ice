@@ -493,7 +493,7 @@ run(const Ice::StringSeq& args)
                 env.close();
             }
 
-            Ice::OutputStream stream(communicator, Ice::currentEncoding);
+            Ice::OutputStream stream{Ice::currentEncoding};
             stream.write("IceGrid");
             stream.write(ICE_INT_VERSION);
             stream.write(data);

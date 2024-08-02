@@ -302,7 +302,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                 env.close();
             }
 
-            Ice::OutputStream stream(communicator, Ice::currentEncoding);
+            Ice::OutputStream stream{Ice::currentEncoding};
             stream.write("IceStorm");
             stream.write(ICE_INT_VERSION);
             stream.write(data);
