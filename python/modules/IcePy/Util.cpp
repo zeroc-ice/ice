@@ -277,18 +277,18 @@ IcePy::PyException::PyException(PyObject* raisedException)
     ex = raisedException;
 }
 
-namespace IcePy
+namespace
 {
     string getTypeName(PyObject* ex)
     {
         PyObject* cls = reinterpret_cast<PyObject*>(ex->ob_type);
-        PyObjectHandle name = getAttr(cls, "__name__", false);
+        IcePy::PyObjectHandle name = IcePy::getAttr(cls, "__name__", false);
         assert(name.get());
-        PyObjectHandle mod = getAttr(cls, "__module__", false);
+        IcePy::PyObjectHandle mod = IcePy::getAttr(cls, "__module__", false);
         assert(mod.get());
-        string result = getString(mod.get());
+        string result = IcePy::getString(mod.get());
         result += ".";
-        result += getString(name.get());
+        result += IcePy::getString(name.get());
         return result;
     }
     string createUnknownExceptionMessage(PyObject* ex)
