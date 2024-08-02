@@ -113,7 +113,7 @@ loggerNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     {
         return nullptr;
     }
-    self->logger = 0;
+    self->logger = nullptr;
     return self;
 }
 

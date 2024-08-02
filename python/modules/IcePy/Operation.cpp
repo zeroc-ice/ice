@@ -859,7 +859,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         {
             try
             {
-                PyException().raise();
+                throwPythonException();
             }
             catch (const Ice::UnknownException& ex)
             {
@@ -879,7 +879,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         {
             try
             {
-                PyException().raise();
+                throwPythonException();
             }
             catch (const Ice::UnknownException& ex)
             {

@@ -87,7 +87,7 @@ namespace IcePy
         PyException(PyObject*);
 
         //
-        // Convert the Python exception to its C++ equivalent.
+        // Converts the Python exception into one of the 6 special Ice local exceptions.
         //
         void raise();
 
@@ -97,14 +97,6 @@ namespace IcePy
         void checkSystemExit();
 
         PyObjectHandle ex;
-
-    private:
-        void raiseLocalException();
-        std::string getTraceback();
-        std::string getTypeName();
-
-        PyObjectHandle _type;
-        PyObjectHandle _tb;
     };
 
     //
