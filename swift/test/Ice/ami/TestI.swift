@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
+import Combine
 import Foundation
 import Ice
-import Combine
 import TestCommon
 
 actor State {

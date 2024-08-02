@@ -64,7 +64,7 @@ extension Object {
         let istr = request.inputStream
         _ = try istr.startEncapsulation()
         let identity: String = try istr.read()
-        let returnValue = try await  ice_isA(id: identity, current: request.current)
+        let returnValue = try await ice_isA(id: identity, current: request.current)
         return request.current.makeOutgoingResponse(returnValue, formatType: .CompactFormat) { ostr, value in
             ostr.write(value)
         }

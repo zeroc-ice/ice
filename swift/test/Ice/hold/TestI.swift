@@ -25,7 +25,7 @@ class HoldI: Hold {
         } else {
             Task {
                 try await Task.sleep(for: .seconds(Int(seconds)))
-                 do {
+                do {
                     try await self.putOnHold(seconds: 0, current: current)
                 } catch is Ice.ObjectAdapterDeactivatedException {} catch {
                     preconditionFailure()
@@ -36,7 +36,7 @@ class HoldI: Hold {
 
     func waitForHold(current: Ice.Current) async throws {
         Task {
-             do {
+            do {
                 current.adapter.waitForHold()
                 try current.adapter.activate()
             } catch {
