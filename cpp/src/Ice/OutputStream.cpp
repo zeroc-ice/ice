@@ -91,6 +91,16 @@ Ice::OutputStream::OutputStream(
     b.reset();
 }
 
+Ice::OutputStream::OutputStream(pair<const byte*, const byte*> buf, const EncodingVersion& encoding, FormatType format)
+    : Buffer(buf.first, buf.second),
+      _closure(nullptr),
+      _currentEncaps(nullptr)
+{
+    _encoding = encoding;
+    _format = format;
+    b.reset();
+}
+
 Ice::OutputStream::OutputStream(Instance* instance, const EncodingVersion& encoding) : _closure(0), _currentEncaps(0)
 {
     initialize(instance, encoding);

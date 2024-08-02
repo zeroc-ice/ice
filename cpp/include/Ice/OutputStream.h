@@ -10,6 +10,7 @@
 #include "Ice/Format.h"
 #include "Ice/StringConverter.h"
 #include "Ice/Version.h"
+#include "Ice/VersionFunctions.h"
 #include "InstanceF.h"
 #include "SlicedDataF.h"
 #include "StreamableTraits.h"
@@ -66,6 +67,11 @@ namespace Ice
             const CommunicatorPtr& communicator,
             const EncodingVersion& version,
             std::pair<const std::byte*, const std::byte*> bytes);
+
+        OutputStream(
+            std::pair<const std::byte*, const std::byte*> bytes,
+            const EncodingVersion& version = currentEncoding,
+            FormatType format = FormatType::CompactFormat);
 
         /**
          * Move constructor.

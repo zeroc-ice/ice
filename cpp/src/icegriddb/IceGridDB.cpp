@@ -176,10 +176,7 @@ run(const Ice::StringSeq& args)
     {
         IceGrid::AllData data;
 
-        IceDB::IceContext dbContext;
-        dbContext.communicator = communicator;
-        dbContext.encoding.major = 1;
-        dbContext.encoding.minor = 1;
+        IceDB::IceContext dbContext{communicator};
 
         if (import)
         {
@@ -233,7 +230,7 @@ run(const Ice::StringSeq& args)
                     IceGrid::IceBoxDescriptor::ice_staticId());
             }
 
-            Ice::InputStream stream(communicator, dbContext.encoding, buf);
+            Ice::InputStream stream(communicator, Ice::currentEncoding, buf);
 
             string type;
             int version;
@@ -496,7 +493,7 @@ run(const Ice::StringSeq& args)
                 env.close();
             }
 
-            Ice::OutputStream stream(communicator, dbContext.encoding);
+            Ice::OutputStream stream(communicator, Ice::currentEncoding);
             stream.write("IceGrid");
             stream.write(ICE_INT_VERSION);
             stream.write(data);

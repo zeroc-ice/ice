@@ -24,7 +24,7 @@
 #endif
 
 //
-// Automatically link IceDB37[D].lib with Visual C++
+// Automatically link IceDBxx[D].lib with Visual C++
 //
 #if !defined(ICE_BUILDING_ICE_DB) && defined(ICE_DB_API_EXPORTS)
 #    define ICE_BUILDING_ICE_DB
@@ -82,17 +82,17 @@ namespace IceDB
     // Read [out] T from [in] MDB_val using [in] context C
     // static void read(T& , const MDB_val&, const C&);
     //
-    // Write [in] T into [out] MDB_val using [in] context C
+    // Write [in] T into [out] MDB_val
     // [out] H& holds the memory for MDB_val.mv_data.
-    // static void write(const T&, MDB_val&, H&, const C&);
+    // static void write(const T&, MDB_val&, H&);
     //
-    // Write [in] T into [in/out] MDB_val using [in] context C
+    // Write [in] T into [in/out] MDB_val
     // [in] MDB_val contains the destination array
     // write returns true on success, and false if the provided
     // array is too small.
     // On failure, MDB_val.mv_size contains the marshaled key
     // size if known, and 0 if not know.
-    // static bool write(const T&, MDB_val&, H&, const C&);
+    // static bool write(const T&, MDB_val&, H&);
     //
     template<typename T, typename C, typename H> struct Codec;
 
@@ -188,7 +188,7 @@ namespace IceDB
             unsigned char kbuf[maxKeySize];
             MDB_val mkey = {maxKeySize, kbuf};
 
-            if (Codec<K, C, H>::write(key, mkey, _marshalingContext))
+            if (Codec<K, C, H>::write(key, mkey))
             {
                 MDB_val mdata;
                 if (DbiBase::get(txn, &mkey, &mdata))
@@ -205,11 +205,11 @@ namespace IceDB
             unsigned char kbuf[maxKeySize];
             MDB_val mkey = {maxKeySize, kbuf};
 
-            if (Codec<K, C, H>::write(key, mkey, _marshalingContext))
+            if (Codec<K, C, H>::write(key, mkey))
             {
                 H hdata;
                 MDB_val mdata;
-                Codec<D, C, H>::write(data, mdata, hdata, _marshalingContext);
+                Codec<D, C, H>::write(data, mdata, hdata);
                 DbiBase::put(txn, &mkey, &mdata, flags);
             }
             else
@@ -222,7 +222,7 @@ namespace IceDB
         {
             unsigned char kbuf[maxKeySize];
             MDB_val mkey = {maxKeySize, kbuf};
-            if (Codec<K, C, H>::write(key, mkey, _marshalingContext))
+            if (Codec<K, C, H>::write(key, mkey))
             {
                 return DbiBase::find(txn, &mkey);
             }
@@ -236,11 +236,11 @@ namespace IceDB
         {
             unsigned char kbuf[maxKeySize];
             MDB_val mkey = {maxKeySize, kbuf};
-            if (Codec<K, C, H>::write(key, mkey, _marshalingContext))
+            if (Codec<K, C, H>::write(key, mkey))
             {
                 H hdata;
                 MDB_val mdata;
-                Codec<D, C, H>::write(data, mdata, hdata, _marshalingContext);
+                Codec<D, C, H>::write(data, mdata, hdata);
                 return DbiBase::del(txn, &mkey, &mdata);
             }
             else
@@ -253,7 +253,7 @@ namespace IceDB
         {
             unsigned char kbuf[maxKeySize];
             MDB_val mkey = {maxKeySize, kbuf};
-            if (Codec<K, C, H>::write(key, mkey, _marshalingContext))
+            if (Codec<K, C, H>::write(key, mkey))
             {
                 return DbiBase::del(txn, &mkey, 0);
             }
@@ -321,7 +321,7 @@ namespace IceDB
         {
             unsigned char kbuf[maxKeySize];
             MDB_val mkey = {maxKeySize, kbuf};
-            if (Codec<K, C, H>::write(key, mkey, _marshalingContext))
+            if (Codec<K, C, H>::write(key, mkey))
             {
                 return CursorBase::find(&mkey);
             }
@@ -335,7 +335,7 @@ namespace IceDB
         {
             unsigned char kbuf[maxKeySize];
             MDB_val mkey = {maxKeySize, kbuf};
-            if (Codec<K, C, H>::write(key, mkey, _marshalingContext))
+            if (Codec<K, C, H>::write(key, mkey))
             {
                 MDB_val mdata;
                 if (CursorBase::find(&mkey, &mdata))
@@ -360,11 +360,11 @@ namespace IceDB
         {
             unsigned char kbuf[maxKeySize];
             MDB_val mkey = {maxKeySize, kbuf};
-            if (Codec<K, C, H>::write(key, mkey, this->_marshalingContext))
+            if (Codec<K, C, H>::write(key, mkey))
             {
                 H hdata;
                 MDB_val mdata;
-                Codec<D, C, H>::write(data, mdata, hdata, this->_marshalingContext);
+                Codec<D, C, H>::write(data, mdata, hdata);
                 CursorBase::put(&mkey, &mdata, flags);
             }
             else
@@ -390,7 +390,6 @@ namespace IceDB
     struct IceContext
     {
         Ice::CommunicatorPtr communicator;
-        Ice::EncodingVersion encoding;
     };
 
     template<typename T> struct Codec<T, IceContext, Ice::OutputStream>
@@ -400,26 +399,26 @@ namespace IceDB
             std::pair<const std::byte*, const std::byte*> p(
                 static_cast<const std::byte*>(val.mv_data),
                 static_cast<const std::byte*>(val.mv_data) + val.mv_size);
-            Ice::InputStream in(ctx.communicator, ctx.encoding, p);
+            Ice::InputStream in(ctx.communicator, Ice::currentEncoding, p);
             in.read(t);
         }
 
-        static void write(const T& t, MDB_val& val, Ice::OutputStream& holder, const IceContext&)
+        static void write(const T& t, MDB_val& val, Ice::OutputStream& holder)
         {
-            // Since we use an OutputStream constructed with the default constructor, the encoding is 1.1 and
-            // the class format is Compact.
+            // Since we use an OutputStream constructed with the default constructor, the encoding is 1.1
+            // (aka currentEncoding) and the class format is Compact.
             holder.write(t);
             val.mv_size = holder.b.size();
             val.mv_data = &holder.b[0];
         }
 
-        static bool write(const T& t, MDB_val& val, const IceContext& ctx)
+        static bool write(const T& t, MDB_val& val)
         {
             const size_t limit = val.mv_size;
             std::pair<std::byte*, std::byte*> p(
                 reinterpret_cast<std::byte*>(val.mv_data),
                 reinterpret_cast<std::byte*>(val.mv_data) + limit);
-            Ice::OutputStream stream(ctx.communicator, ctx.encoding, p);
+            Ice::OutputStream stream(p);
             stream.write(t);
             val.mv_size = stream.b.size();
             return stream.b.size() > limit ? false : true;

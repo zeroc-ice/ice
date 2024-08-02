@@ -133,7 +133,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     {
         IceStorm::AllData data;
 
-        IceDB::IceContext dbContext = {communicator, {1, 1}};
+        IceDB::IceContext dbContext = {communicator};
 
         if (import)
         {
@@ -179,7 +179,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             string type;
             int version;
 
-            Ice::InputStream stream(communicator, dbContext.encoding, buf);
+            Ice::InputStream stream(communicator, Ice::currentEncoding, buf);
             stream.read(type);
             if (type != "IceStorm")
             {
@@ -302,7 +302,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                 env.close();
             }
 
-            Ice::OutputStream stream(communicator, dbContext.encoding);
+            Ice::OutputStream stream(communicator, Ice::currentEncoding);
             stream.write("IceStorm");
             stream.write(ICE_INT_VERSION);
             stream.write(data);
