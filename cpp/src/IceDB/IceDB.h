@@ -404,9 +404,10 @@ namespace IceDB
             in.read(t);
         }
 
-        static void write(const T& t, MDB_val& val, Ice::OutputStream& holder, const IceContext& ctx)
+        static void write(const T& t, MDB_val& val, Ice::OutputStream& holder, const IceContext&)
         {
-            holder.initialize(ctx.communicator, ctx.encoding);
+            // Since we use an OutputStream constructed with the default constructor, the encoding is 1.1 and
+            // the class format is Compact.
             holder.write(t);
             val.mv_size = holder.b.size();
             val.mv_data = &holder.b[0];
