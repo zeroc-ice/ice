@@ -424,6 +424,12 @@ RouterService::initializeCommunicator(
     //
     initData.properties->setProperty("Ice.Default.Router", "");
 
+    // Turn-off the inactivity timeout for the Glacier2.Client object adapter unless the application sets this property.
+    if (initData.properties->getProperty("Glacier2.Client.Connection.InactivityTimeout").empty())
+    {
+        initData.properties->setProperty("Glacier2.Client.Connection.InactivityTimeout", "0");
+    }
+
     //
     // If Glacier2.PermissionsVerifier is not set and Glacier2.CryptPasswords is set,
     // load the Glacier2CryptPermissionsVerifier plug-in
