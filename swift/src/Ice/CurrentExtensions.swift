@@ -30,24 +30,6 @@ extension Current {
         return OutgoingResponse(ostr)
     }
 
-    /// Creates an outgoing response with the specified payload.
-    /// - Parameters:
-    ///   - ok: When true, the reply status of the response is `ok`; otherwise, it's `userException`.
-    ///   - encapsulation: The payload of the response.
-    /// - Returns: The outgoing response.
-    public func makeOutgoingResponse(ok: Bool, encapsulation: Data) -> OutgoingResponse {
-        let ostr = startReplyStream(replyStatus: ok ? .ok : .userException)
-
-        if requestId != 0 {
-            if encapsulation.isEmpty {
-                ostr.writeEmptyEncapsulation(encoding)
-            } else {
-                ostr.writeEncapsulation(encapsulation)
-            }
-        }
-        return OutgoingResponse(ostr)
-    }
-
     /// Creates an outgoing response that marshals an exception.
     /// - Parameter error: The exception to marshal into the response payload.
     /// - Returns: The outgoing response.
@@ -163,6 +145,7 @@ extension Current {
     /// is 0 (one-way request), the returned output stream is empty.
     /// - Parameter replyStatus: The reply status.
     /// - Returns: The output stream.
+    /// TODO: Make this method private once it's not used by the generated code (when we only have async invocations).
     public func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
         let ostr = OutputStream(communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
         if requestId != 0 {

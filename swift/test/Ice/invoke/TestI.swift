@@ -23,36 +23,37 @@ class DispatcherI: Ice.Dispatcher {
         let (inEncaps, _) = try request.inputStream.readEncapsulation()
         let inS = Ice.InputStream(communicator: communicator, bytes: inEncaps)
         _ = try inS.startEncapsulation()
-        let outS = Ice.OutputStream(communicator: communicator)
-        outS.startEncapsulation()
+
         if current.operation == "opOneway" {
-            return request.current.makeOutgoingResponse(ok: true, encapsulation: Data())
+            return request.current.makeEmptyOutgoingResponse()
         } else if current.operation == "opString" {
             let s: String = try inS.read()
-            outS.write(s)
-            outS.write(s)
-            outS.endEncapsulation()
-            return request.current.makeOutgoingResponse(ok: true, encapsulation: outS.finished())
+            return request.current.makeOutgoingResponse(
+                s, formatType: nil,
+                marshal: { ostr, s in
+                    ostr.write(s)
+                    ostr.write(s)
+                })
         } else if current.operation == "opException" {
             if current.ctx["raise"] != nil {
                 throw MyException()
             }
             let ex = MyException()
-            outS.write(ex)
-            outS.endEncapsulation()
-            return request.current.makeOutgoingResponse(ok: false, encapsulation: outS.finished())
+            return request.current.makeOutgoingResponse(error: ex)
         } else if current.operation == "shutdown" {
             communicator.shutdown()
-            return request.current.makeOutgoingResponse(ok: true, encapsulation: Data())
+            return request.current.makeEmptyOutgoingResponse()
         } else if current.operation == "ice_isA" {
             let s: String = try inS.read()
-            if s == "::Test::MyClass" {
-                outS.write(true)
-            } else {
-                outS.write(false)
-            }
-            outS.endEncapsulation()
-            return request.current.makeOutgoingResponse(ok: true, encapsulation: outS.finished())
+            return request.current.makeOutgoingResponse(
+                s, formatType: nil,
+                marshal: { ostr, s in
+                    if s == "::Test::MyClass" {
+                        ostr.write(true)
+                    } else {
+                        ostr.write(false)
+                    }
+                })
         } else {
             throw Ice.OperationNotExistException(
                 id: current.id,
