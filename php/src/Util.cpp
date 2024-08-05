@@ -23,7 +23,9 @@ namespace
         {
             if (required)
             {
-                invalidArgument("object does not contain member `%s'", name.c_str());
+                ostringstream os;
+                os << "object does not contain member '" << name << "'";
+                invalidArgument(os.str());
                 return false;
             }
         }
@@ -34,13 +36,10 @@ namespace
             val = Z_INDIRECT_P(val);
             if (Z_TYPE_P(val) != type)
             {
-                string expected = zendTypeToString(type);
-                string actual = zendTypeToString(Z_TYPE_P(val));
-                invalidArgument(
-                    "expected value of type %s for member `%s' but received %s",
-                    expected.c_str(),
-                    name.c_str(),
-                    actual.c_str());
+                ostringstream os;
+                os << "expected value of type " << zendTypeToString(type) << " for member '" << name
+                   << "' but received " << zendTypeToString(Z_TYPE_P(val));
+                invalidArgument(os.str());
                 return false;
             }
             ZVAL_COPY_VALUE(member, val);
@@ -75,7 +74,9 @@ namespace
         zend_class_entry* ce = Z_OBJCE_P(zv);
         if (ce != cls)
         {
-            invalidArgument("expected an instance of %s", ce->name->val);
+            ostringstream os;
+            os << "expected an instance of " << ce->name->val;
+            invalidArgument(os.str());
             return false;
         }
 
@@ -128,7 +129,9 @@ namespace
 
         if (object_init_ex(zv, cls) != SUCCESS)
         {
-            runtimeError("unable to initialize %s", cls->name->val);
+            ostringstream os;
+            os << "unable to initialize " << cls->name->val;
+            runtimeError(os.str());
             return false;
         }
         zendUpdatePropertyLong(cls, zv, const_cast<char*>("major"), sizeof("major") - 1, version.major);
@@ -183,15 +186,19 @@ IcePHP::extractWrapper(zval* zv)
 {
     if (!zv)
     {
-        runtimeError("method %s() must be invoked on an object", get_active_function_name());
-        return 0;
+        ostringstream os;
+        os << "method " << get_active_function_name() << " must be invoked on an object";
+        runtimeError(os.str());
+        return nullptr;
     }
 
     zend_object* obj = Z_OBJ_P(zv);
     if (!obj)
     {
-        runtimeError("no object found in %s()", get_active_function_name());
-        return 0;
+        ostringstream os;
+        os << "no object found in " << get_active_function_name() << "()";
+        runtimeError(os.str());
+        return nullptr;
     }
 
     return obj;
@@ -247,7 +254,9 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id)
     zend_class_entry* ce = Z_OBJCE_P(zv);
     if (ce != cls)
     {
-        invalidArgument("expected an identity but received %s", ce->name->val);
+        ostringstream os;
+        os << "expected an identity but received " << ce->name->val;
+        invalidArgument(os.str());
         return false;
     }
 
@@ -302,8 +311,9 @@ IcePHP::extractStringMap(zval* zv, map<string, string>& ctx)
 {
     if (Z_TYPE_P(zv) != IS_ARRAY)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
-        invalidArgument("expected an associative array but received %s", s.c_str());
+        ostringstream os;
+        os << "expected an associative array but received " << zendTypeToString(Z_TYPE_P(zv));
+        invalidArgument(os.str());
         return false;
     }
 
@@ -353,8 +363,9 @@ IcePHP::extractStringArray(zval* zv, Ice::StringSeq& seq)
 {
     if (Z_TYPE_P(zv) != IS_ARRAY)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
-        invalidArgument("expected an array of strings but received %s", s.c_str());
+        ostringstream os;
+        os << "expected an array of strings but received " << zendTypeToString(Z_TYPE_P(zv));
+        invalidArgument(os.str());
         return false;
     }
 
@@ -410,14 +421,18 @@ namespace
             }
             else
             {
-                runtimeError("unable to create PHP exception class for type ID %s", typeId);
+                ostringstream os;
+                os << "unable to create PHP exception class for type ID " << typeId;
+                runtimeError(os.str());
                 return nullptr;
             }
         }
 
         if (object_init_ex(ex, cls) != SUCCESS)
         {
-            runtimeError("unable to create PHP exception class %s", cls->name->val);
+            ostringstream os;
+            os << "unable to create PHP exception class " << cls->name->val;
+            runtimeError(os.str());
             return nullptr;
         }
         return cls;
@@ -601,42 +616,14 @@ throwError(const string& name, const string& msg)
 }
 
 void
-IcePHP::runtimeError(const char* fmt, ...)
+IcePHP::runtimeError(const string& msg)
 {
-    va_list args;
-    char msg[1024];
-
-    va_start(args, fmt);
-
-#if defined(__APPLE__)
-    // vsprintf is deprecated with macOS Ventura
-    vsnprintf(msg, sizeof(msg), fmt, args);
-#else
-    vsprintf(msg, fmt, args);
-#endif
-
-    va_end(args);
-
     throwError("RuntimeException", msg);
 }
 
 void
-IcePHP::invalidArgument(const char* fmt, ...)
+IcePHP::invalidArgument(const string& msg)
 {
-    va_list args;
-    char msg[1024];
-
-    va_start(args, fmt);
-
-#if defined(__APPLE__)
-    // vsprintf is deprecated with macOS Ventura
-    vsnprintf(msg, sizeof(msg), fmt, args);
-#else
-    vsprintf(msg, fmt, args);
-#endif
-
-    va_end(args);
-
     throwError("InvalidArgumentException", msg);
 }
 

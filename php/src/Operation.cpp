@@ -356,7 +356,9 @@ IcePHP::TypedInvocation::prepareRequest(
     // Verify that the expected number of arguments are supplied. The context argument is optional.
     if (argc != _op->numParams && argc != _op->numParams + 1)
     {
-        runtimeError("incorrect number of parameters (%d)", argc);
+        ostringstream os;
+        os << "incorrect number of parameters (" << argc << ")";
+        runtimeError(os.str());
         return false;
     }
 
@@ -386,10 +388,9 @@ IcePHP::TypedInvocation::prepareRequest(
 
                 if ((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
                 {
-                    invalidArgument(
-                        "invalid value for argument %d in operation `%s'",
-                        info->pos + 1,
-                        _op->name.c_str());
+                    ostringstream os;
+                    os << "invalid value for argument " << info->pos + 1 << " in operation '" << _op->name << "'";
+                    invalidArgument(os.str());
                     return false;
                 }
             }
