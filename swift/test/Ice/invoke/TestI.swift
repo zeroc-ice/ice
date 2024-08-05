@@ -29,11 +29,11 @@ class DispatcherI: Ice.Dispatcher {
         } else if current.operation == "opString" {
             let s: String = try inS.read()
             return request.current.makeOutgoingResponse(
-                s, formatType: nil,
-                marshal: { ostr, s in
-                    ostr.write(s)
-                    ostr.write(s)
-                })
+                s, formatType: nil
+            ) { ostr, s in
+                ostr.write(s)
+                ostr.write(s)
+            }
         } else if current.operation == "opException" {
             if current.ctx["raise"] != nil {
                 throw MyException()
@@ -46,14 +46,14 @@ class DispatcherI: Ice.Dispatcher {
         } else if current.operation == "ice_isA" {
             let s: String = try inS.read()
             return request.current.makeOutgoingResponse(
-                s, formatType: nil,
-                marshal: { ostr, s in
-                    if s == "::Test::MyClass" {
-                        ostr.write(true)
-                    } else {
-                        ostr.write(false)
-                    }
-                })
+                s, formatType: nil
+            ) { ostr, s in
+                if s == "::Test::MyClass" {
+                    ostr.write(true)
+                } else {
+                    ostr.write(false)
+                }
+            }
         } else {
             throw Ice.OperationNotExistException(
                 id: current.id,

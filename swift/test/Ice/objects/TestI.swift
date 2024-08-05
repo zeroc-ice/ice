@@ -254,10 +254,10 @@ class UnexpectedObjectExceptionTestDispatcher: Ice.Dispatcher {
     public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
         let ae = AlsoEmpty()
         return request.current.makeOutgoingResponse(
-            ae, formatType: nil,
-            marshal: { ostr, ae in
-                ostr.write(ae)
-                ostr.writePendingValues()
-            })
+            ae, formatType: nil
+        ) { ostr, ae in
+            ostr.write(ae)
+            ostr.writePendingValues()
+        }
     }
 }

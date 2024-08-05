@@ -145,8 +145,7 @@ extension Current {
     /// is 0 (one-way request), the returned output stream is empty.
     /// - Parameter replyStatus: The reply status.
     /// - Returns: The output stream.
-    /// TODO: Make this method private once it's not used by the generated code (when we only have async invocations).
-    public func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
+    private func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
         let ostr = OutputStream(communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
         if requestId != 0 {
             ostr.writeBlob(replyHdr)
