@@ -41,7 +41,7 @@ internal class AllTests : global::Test.AllTests
         await p.sleepAsync(4000); // the implementation in the server sleeps for 2,000ms
 
         // close connection
-        p.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+        p.ice_getConnection()!.close(ConnectionClose.GracefullyWithWait);
         output.WriteLine("ok");
     }
 
@@ -65,7 +65,7 @@ internal class AllTests : global::Test.AllTests
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
         // Establish connection.
-        Connection connection = p.ice_getConnection();
+        Connection? connection = p.ice_getConnection();
         test(connection is not null);
 
         // The idle check on the server side aborts the connection because it doesn't get a heartbeat in a timely fashion.
@@ -101,7 +101,7 @@ internal class AllTests : global::Test.AllTests
         Communicator communicator = Util.initialize(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
-        Connection connection = await p.ice_getConnectionAsync();
+        Connection? connection = await p.ice_getConnectionAsync();
         test(connection is not null);
 
         try

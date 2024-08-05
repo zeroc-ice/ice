@@ -435,20 +435,22 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     bool ice_isFixed();
 
     /// <summary>
-    /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
-    /// it first attempts to create a connection.
-    /// </summary>
-    /// <returns>The Connection for this proxy.</returns>
-    Connection ice_getConnection();
+    /// Gets the connection to the server that hosts the target object. This method establishes the connection to the
+    /// server if it is not already established.
+    /// /// </summary>
+    /// <returns>The connection to the server that hosts the target object, or null when this proxy uses collocation
+    /// optimization to communicate with the target object.</returns>
+    Connection? ice_getConnection();
 
     /// <summary>
-    /// Asynchronously gets the connection for this proxy.
+    /// Gets the connection to the server that hosts the target object. This method establishes the connection to the
+    /// server if it is not already established.
     /// </summary>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-    /// <returns>The task object representing the asynchronous operation.</returns>
-    Task<Connection> ice_getConnectionAsync(IProgress<bool>? progress = null,
-                                            CancellationToken cancel = default);
+    /// <returns>The connection to the server that hosts the target object, or null when this proxy uses collocation
+    /// optimization to communicate with the target object.</returns>
+    Task<Connection?> ice_getConnectionAsync(IProgress<bool>? progress = null, CancellationToken cancel = default);
 
     /// <summary>
     /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
@@ -1462,34 +1464,26 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         return _reference is Ice.Internal.FixedReference;
     }
 
-    public class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>
+    public class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection?>
     {
-        public GetConnectionTaskCompletionCallback(ObjectPrx proxy,
-                                                   IProgress<bool>? progress = null,
-                                                   CancellationToken cancellationToken = default) :
-            base(progress, cancellationToken)
+        public GetConnectionTaskCompletionCallback(
+            IProgress<bool>? progress = null,
+            CancellationToken cancellationToken = default)
+            : base(progress, cancellationToken)
         {
-            _proxy = proxy;
         }
 
         public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
         {
             SetResult(((ProxyGetConnection)og).getConnection());
         }
-
-        private ObjectPrx _proxy;
     }
 
-    /// <summary>
-    /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
-    /// it first attempts to create a connection.
-    /// </summary>
-    /// <returns>The Connection for this proxy.</returns>
-    public Connection ice_getConnection()
+    public Connection? ice_getConnection()
     {
         try
         {
-            var completed = new GetConnectionTaskCompletionCallback(this);
+            var completed = new GetConnectionTaskCompletionCallback();
             iceI_ice_getConnection(completed, true);
             return completed.Task.Result;
         }
@@ -1499,9 +1493,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    public Task<Connection> ice_getConnectionAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
+    public Task<Connection?> ice_getConnectionAsync(IProgress<bool>? progress, CancellationToken cancel)
     {
-        var completed = new GetConnectionTaskCompletionCallback(this, progress, cancel);
+        var completed = new GetConnectionTaskCompletionCallback(progress, cancel);
         iceI_ice_getConnection(completed, false);
         return completed.Task;
     }
@@ -1515,7 +1509,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         {
             outgoing.invoke(_ice_getConnection_name, synchronous);
         }
-        catch (Exception ex)
+        catch (Ice.Exception ex)
         {
             outgoing.abort(ex);
         }
