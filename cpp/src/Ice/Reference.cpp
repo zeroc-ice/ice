@@ -1094,11 +1094,13 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
         _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
     {
         ostringstream s;
+        s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
         s << _locatorCacheTimeout;
         properties[prefix + ".LocatorCacheTimeout"] = s.str();
     }
     {
         ostringstream s;
+        s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
         s << getInvocationTimeout();
         properties[prefix + ".InvocationTimeout"] = s.str();
     }

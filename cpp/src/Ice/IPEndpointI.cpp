@@ -212,6 +212,7 @@ IceInternal::IPEndpointI::options() const
     // format of proxyToString() before changing this and related code.
     //
     ostringstream s;
+    s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
 
     if (!_host.empty())
     {

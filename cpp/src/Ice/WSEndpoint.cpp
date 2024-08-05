@@ -219,6 +219,7 @@ IceInternal::WSEndpoint::connectorsAsync(
     if (info)
     {
         ostringstream os;
+        os.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
         os << info->host << ":" << info->port;
         host = os.str();
     }
@@ -333,6 +334,7 @@ IceInternal::WSEndpoint::options() const
     // format of proxyToString() before changing this and related code.
     //
     ostringstream s;
+    s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
     s << _delegate->options();
 
     if (!_resource.empty())
