@@ -312,8 +312,6 @@ PersistentInstance::PersistentInstance(
     try
     {
         dbContext.communicator = std::move(communicator);
-        dbContext.encoding.minor = 1;
-        dbContext.encoding.major = 1;
 
         IceDB::ReadWriteTxn txn(_dbEnv);
 
