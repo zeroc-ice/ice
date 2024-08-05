@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 final class MyObjectI: ObjectI<MyObjectTraits>, MyObject {
-    override func ice_ping(current: Ice.Current) throws {
+    override func ice_ping(current: Ice.Current) async throws {
         if current.id.name == "ObjectNotExist" {
             throw Ice.ObjectNotExistException(id: current.id, facet: "", operation: "ice_ping")
         } else if current.id.name == "FacetNotExist" {
@@ -12,7 +12,7 @@ final class MyObjectI: ObjectI<MyObjectTraits>, MyObject {
         }
     }
 
-    func getName(current: Ice.Current) throws -> String {
+    func getName(current: Ice.Current) async throws -> String {
         if current.id.name == "ObjectNotExist" {
             throw Ice.ObjectNotExistException(id: current.id, facet: "", operation: "ice_ping")
         } else if current.id.name == "FacetNotExist" {

@@ -17,16 +17,17 @@ class HoldI: Hold {
         _helper = helper
     }
 
-    func putOnHold(seconds: Int32, current: Ice.Current) throws {
+    func putOnHold(seconds: Int32, current: Ice.Current) async throws {
         if seconds < 0 {
             _adapter.hold()
         } else if seconds == 0 {
             _adapter.hold()
             try _adapter.activate()
         } else {
-            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(seconds))) {
+            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(seconds))) { [self] in
                 do {
-                    try self.putOnHold(seconds: 0, current: current)
+                    _adapter.hold()
+                    try _adapter.activate()
                 } catch is Ice.ObjectAdapterDeactivatedException {} catch {
                     preconditionFailure()
                 }
@@ -34,7 +35,7 @@ class HoldI: Hold {
         }
     }
 
-    func waitForHold(current: Ice.Current) throws {
+    func waitForHold(current: Ice.Current) async throws {
         _queue.async {
             do {
                 current.adapter.waitForHold()
@@ -49,8 +50,8 @@ class HoldI: Hold {
         }
     }
 
-    func set(value: Int32, delay: Int32, current _: Ice.Current) throws -> Int32 {
-        Thread.sleep(forTimeInterval: Double(delay / 1000))
+    func set(value: Int32, delay: Int32, current _: Ice.Current) async throws -> Int32 {
+        try await Task.sleep(for: .milliseconds(Int(delay)))
         return withLock(&_lock) {
             let tmp = _last
             _last = value
@@ -58,14 +59,14 @@ class HoldI: Hold {
         }
     }
 
-    func setOneway(value: Int32, expected: Int32, current _: Ice.Current) throws {
+    func setOneway(value: Int32, expected: Int32, current _: Ice.Current) async throws {
         try withLock(&_lock) {
             try self._helper.test(_last == expected)
             _last = value
         }
     }
 
-    func shutdown(current _: Ice.Current) throws {
+    func shutdown(current _: Ice.Current) async throws {
         _adapter.hold()
         _adapter.getCommunicator().shutdown()
     }

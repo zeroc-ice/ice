@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 class TestI: TestIntf {
-    func getAdapterName(current: Ice.Current) throws -> String {
+    func getAdapterName(current: Ice.Current) async throws -> String {
         return current.adapter.getName()
     }
 }
@@ -49,11 +49,11 @@ class RemoteCommunicatorI: RemoteCommunicator {
         }
     }
 
-    func deactivateObjectAdapter(adapter: RemoteObjectAdapterPrx?, current _: Ice.Current) throws {
+    func deactivateObjectAdapter(adapter: RemoteObjectAdapterPrx?, current _: Ice.Current) async throws {
         try adapter!.deactivate()  // Collocated call.
     }
 
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current: Ice.Current) async throws {
         current.adapter.getCommunicator().shutdown()
     }
 }
@@ -69,11 +69,11 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
         try _adapter.activate()
     }
 
-    func getTestIntf(current _: Ice.Current) throws -> TestIntfPrx? {
+    func getTestIntf(current _: Ice.Current) async throws -> TestIntfPrx? {
         return _testIntf
     }
 
-    func deactivate(current _: Ice.Current) throws {
+    func deactivate(current _: Ice.Current) async throws {
         _adapter.destroy()
     }
 

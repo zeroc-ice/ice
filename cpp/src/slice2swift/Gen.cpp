@@ -1438,7 +1438,8 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out.inc();
         if (opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
         {
-            out << nl << "try (servant as? Ice.Object ?? " << disp << ".defaultObject)._iceD_" << opName << "(request)";
+            out << nl << "try await (servant as? Ice.Object ?? " << disp << ".defaultObject)._iceD_" << opName
+                << "(request)";
         }
         else
         {
@@ -1510,15 +1511,14 @@ Gen::ObjectVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 {
-    const bool isAmd = operationIsAmd(op);
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
-    const string opName = fixIdent(op->name() + (isAmd ? "Async" : ""));
+    const string opName = fixIdent(op->name());
     const ParamInfoList allInParams = getAllInParams(op);
     const ParamInfoList allOutParams = getAllOutParams(op);
     const ExceptionList allExceptions = op->throws();
 
     out << sp;
-    writeOpDocSummary(out, op, isAmd, true);
+    writeOpDocSummary(out, op, true, true);
     out << nl << "func " << opName;
     out << spar;
     for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
@@ -1530,17 +1530,10 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
 
-    if (isAmd)
+    out << " async throws";
+    if (allOutParams.size() > 0)
     {
-        out << " async throws -> " << (allOutParams.size() > 0 ? operationReturnType(op) : "Swift.Void");
-    }
-    else
-    {
-        out << " throws";
-        if (allOutParams.size() > 0)
-        {
-            out << " -> " << operationReturnType(op);
-        }
+        out << " -> " << operationReturnType(op);
     }
 }
 

@@ -1,40 +1,87 @@
 // Copyright (c) ZeroC, Inc.
 
+import Combine
 import Foundation
 import Ice
 import TestCommon
 
-class TestI: TestIntf {
-    var _batchCount: Int32
-    var _shutdown: Bool
-    var _lock = os_unfair_lock()
-    var _semaphore = DispatchSemaphore(value: 0)
+actor State {
+    var _batchCount: Int32 = 0
+    var _shutdown: Bool = false
     var _pending: CheckedContinuation<Void, Never>?
+
+    func setContinuation() async {
+        return await withCheckedContinuation { continuation in
+            if _shutdown {
+                continuation.resume(returning: ())
+            } else if let pending = _pending {
+                pending.resume(returning: ())
+            }
+            _pending = continuation
+        }
+    }
+
+    func callContinuation() {
+        if _shutdown {
+            return
+        } else if let pending = _pending {
+            pending.resume(returning: ())
+            _pending = nil
+        }
+    }
+
+    func incrementBatchCount() -> Int32 {
+        _batchCount += 1
+        return _batchCount
+    }
+
+    func getBatchCount() -> Int32 {
+        return _batchCount
+    }
+
+    func clearBatchCount() {
+        _batchCount = 0
+    }
+
+    func shutdown() {
+        _shutdown = true
+        if let pending = _pending {
+            pending.resume(returning: ())
+            _pending = nil
+        }
+    }
+
+    func sleep(ms: Int32) async throws {
+        try await Task.sleep(for: .milliseconds(100))
+    }
+}
+
+class TestI: TestIntf {
+    var _state = State()
+    var _batchSubject: CurrentValueSubject<Int32, Never> = CurrentValueSubject(0)
     var _helper: TestHelper
 
     init(helper: TestHelper) {
-        _batchCount = 0
-        _shutdown = false
         _helper = helper
     }
 
-    func op(current _: Current) throws {}
+    func op(current _: Current) async throws {}
 
-    func opWithPayload(seq _: ByteSeq, current _: Current) throws {}
+    func opWithPayload(seq _: ByteSeq, current _: Current) async throws {}
 
-    func opWithResult(current _: Current) throws -> Int32 {
+    func opWithResult(current _: Current) async throws -> Int32 {
         return 15
     }
 
-    func opWithUE(current _: Current) throws {
+    func opWithUE(current _: Current) async throws {
         throw TestIntfException()
     }
 
-    func opWithResultAndUE(current _: Current) throws -> Int32 {
+    func opWithResultAndUE(current _: Current) async throws -> Int32 {
         throw TestIntfException()
     }
 
-    func opWithArgs(current _: Current) throws -> (
+    func opWithArgs(current _: Current) async throws -> (
         one: Int32,
         two: Int32,
         three: Int32,
@@ -50,50 +97,46 @@ class TestI: TestIntf {
         return (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
     }
 
-    func startDispatchAsync(current _: Current) async throws {
-        return await withCheckedContinuation { continuation in
-            return withLock(&_lock) {
-                if _shutdown {
-                    continuation.resume(returning: ())
-                } else if let pending = _pending {
-                    pending.resume(returning: ())
-                }
-                _pending = continuation
-            }
-        }
+    func startDispatch(current _: Current) async throws {
+        await _state.setContinuation()
     }
 
-    func pingBiDir(reply: PingReplyPrx?, current: Current) throws {
+    func pingBiDir(reply: PingReplyPrx?, current: Current) async throws {
         if let reply = reply {
             try reply.ice_fixed(current.con!).reply()
         }
     }
 
-    func opBatch(current _: Current) throws {
-        withLock(&_lock) {
-            _batchCount += 1
-            _semaphore.signal()
-        }
+    func opBatch(current _: Current) async throws {
+        let count = await _state.incrementBatchCount()
+        _batchSubject.send(count)
     }
 
-    func opBatchCount(current _: Current) throws -> Int32 {
-        return withLock(&_lock) {
-            _batchCount
-        }
+    func opBatchCount(current _: Current) async throws -> Int32 {
+        return await _state.getBatchCount()
     }
 
-    func waitForBatch(count: Int32, current _: Current) throws -> Bool {
-        while _batchCount < count {
-            if _semaphore.wait(timeout: .now() + .seconds(5)) == .timedOut {
-                try _helper.test(false)
+    func waitForBatch(count: Int32, current _: Current) async throws -> Bool {
+        if await count == _state.getBatchCount() {
+            await _state.clearBatchCount()
+            return true
+        }
+
+        var sub: AnyCancellable?
+        let currentCount = await withCheckedContinuation { continuation in
+            sub = _batchSubject.sink { batchCount in
+                if batchCount >= count {
+                    continuation.resume(returning: batchCount)
+                }
             }
         }
-        let result = count == _batchCount
-        _batchCount = 0
+        sub!.cancel()
+        let result = count == currentCount
+        await _state.clearBatchCount()
         return result
     }
 
-    func close(mode: CloseMode, current: Current) throws {
+    func close(mode: CloseMode, current: Current) async throws {
         if let con = current.con,
             let closeMode = ConnectionClose(rawValue: mode.rawValue)
         {
@@ -101,41 +144,24 @@ class TestI: TestIntf {
         }
     }
 
-    func sleep(ms: Int32, current _: Current) throws {
-        withLock(&_lock) {
-            Thread.sleep(forTimeInterval: TimeInterval(ms) / 1000)
-        }
+    func sleep(ms: Int32, current _: Current) async throws {
+        try await _state.sleep(ms: ms)
     }
 
-    func finishDispatch(current _: Current) throws {
-        withLock(&_lock) {
-            if _shutdown {
-                return
-            } else if let pending = _pending {
-                // Pending might not be set yet if startDispatch is dispatch out-of-order
-                pending.resume(returning: ())
-                _pending = nil
-            }
-        }
+    func finishDispatch(current _: Current) async throws {
+        await _state.callContinuation()
     }
 
-    func shutdown(current: Current) throws {
-        withLock(&_lock) {
-            _shutdown = true
-            if let pending = _pending {
-                // Pending might not be set yet if startDispatch is dispatch out-of-order
-                pending.resume(returning: ())
-                _pending = nil
-            }
-        }
+    func shutdown(current: Current) async throws {
+        await _state.shutdown()
         current.adapter.getCommunicator().shutdown()
     }
 
-    func supportsAMD(current _: Current) throws -> Bool {
+    func supportsAMD(current _: Current) async throws -> Bool {
         return true
     }
 
-    func supportsFunctionalTests(current _: Current) throws -> Bool {
+    func supportsFunctionalTests(current _: Current) async throws -> Bool {
         return false
     }
 }

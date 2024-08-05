@@ -2001,12 +2001,6 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
     return os.str();
 }
 
-bool
-SwiftGenerator::operationIsAmd(const OperationPtr& op)
-{
-    return op->hasMetaData("amd") || op->interface()->hasMetaData("amd");
-}
-
 ParamInfoList
 SwiftGenerator::getAllInParams(const OperationPtr& op, int typeCtx)
 {
@@ -2567,67 +2561,33 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
         writeUnmarshalInParams(out, op);
     }
 
-    if (operationIsAmd(op))
+    out << nl;
+    if (!outParams.empty())
     {
-        out << nl;
-        if (!outParams.empty())
-        {
-            out << "let result = ";
-        }
+        out << "let result = ";
+    }
 
-        out << "try await self." << opName << "Async(";
-        out << nl << "    "; // inc/dec doesn't work for an unknown reason
-        for (const auto& q : inParams)
-        {
-            out << q.name << ": iceP_" << q.name << ", ";
-        }
-        out << "current: request.current)";
+    out << "try await self." << fixIdent(opName);
+    out << spar;
+    for (const auto& q : inParams)
+    {
+        out << (q.name + ": iceP_" + q.name);
+    }
+    out << "current: request.current";
+    out << epar;
 
-        if (outParams.empty())
-        {
-            out << nl << "return request.current.makeEmptyOutgoingResponse()";
-        }
-        else
-        {
-            out << nl << "return request.current.makeOutgoingResponse(result, formatType: " << opFormatTypeToString(op)
-                << ")";
-            out << sb;
-            out << " ostr, value in ";
-            writeMarshalAsyncOutParams(out, op);
-            out << eb;
-        }
+    if (outParams.empty())
+    {
+        out << nl << "return request.current.makeEmptyOutgoingResponse()";
     }
     else
     {
-        out << sp;
-        out << nl;
-        if (!outParams.empty())
-        {
-            out << "let " << operationReturnDeclaration(op) << " = ";
-        }
-        out << "try self." << fixIdent(opName);
-        out << spar;
-        for (const auto& q : inParams)
-        {
-            out << (q.name + ": iceP_" + q.name);
-        }
-        out << "current: request.current";
-        out << epar;
-
-        if (outParams.empty())
-        {
-            out << nl << "return request.current.makeEmptyOutgoingResponse()";
-        }
-        else
-        {
-            out << nl << "let ostr = request.current.startReplyStream()";
-            out << nl
-                << "ostr.startEncapsulation(encoding: request.current.encoding, format: " << opFormatTypeToString(op)
-                << ")";
-            writeMarshalOutParams(out, op);
-            out << nl << "ostr.endEncapsulation()";
-            out << nl << "return Ice.OutgoingResponse(ostr)";
-        }
+        out << nl << "return request.current.makeOutgoingResponse(result, formatType: " << opFormatTypeToString(op)
+            << ")";
+        out << sb;
+        out << " ostr, value in ";
+        writeMarshalAsyncOutParams(out, op);
+        out << eb;
     }
 
     out << eb;

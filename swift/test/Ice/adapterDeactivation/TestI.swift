@@ -7,7 +7,7 @@ import TestCommon
 class TestI: TestIntf {
     init() {}
 
-    func transient(current: Ice.Current) throws {
+    func transient(current: Ice.Current) async throws {
         let communicator = current.adapter.getCommunicator()
 
         let adapter = try communicator.createObjectAdapterWithEndpoints(
@@ -17,9 +17,9 @@ class TestI: TestIntf {
         adapter.destroy()
     }
 
-    func deactivate(current: Ice.Current) throws {
+    func deactivate(current: Ice.Current) async throws {
         current.adapter.deactivate()
-        Thread.sleep(forTimeInterval: 0.1)
+        try await Task.sleep(for: .milliseconds(100))
     }
 }
 
@@ -30,17 +30,17 @@ class Cookie {
 }
 
 class RouterI: Ice.Router {
-    func getClientProxy(current _: Ice.Current) throws -> (
+    func getClientProxy(current _: Ice.Current) async throws -> (
         returnValue: ObjectPrx?, hasRoutingTable: Bool?
     ) {
         return (nil, false)
     }
 
-    func addProxies(proxies _: [ObjectPrx?], current _: Current) throws -> [ObjectPrx?] {
+    func addProxies(proxies _: [ObjectPrx?], current _: Current) async throws -> [ObjectPrx?] {
         return []
     }
 
-    func getServerProxy(current: Ice.Current) throws -> Ice.ObjectPrx? {
+    func getServerProxy(current: Ice.Current) async throws -> Ice.ObjectPrx? {
         let prx =
             try current.adapter.getCommunicator().stringToProxy(
                 "dummy:tcp -h localhost -p \(_nextPort) -t 30000")

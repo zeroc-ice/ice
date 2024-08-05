@@ -4,45 +4,45 @@ import Ice
 import TestCommon
 
 class IAI: MAIA {
-    func iaop(p: MAIAPrx?, current _: Ice.Current) throws -> MAIAPrx? {
+    func iaop(p: MAIAPrx?, current _: Ice.Current) async throws -> MAIAPrx? {
         return p
     }
 }
 
 class IB1I: MBIB1 {
-    func iaop(p: MAIAPrx?, current _: Ice.Current) throws -> MAIAPrx? {
+    func iaop(p: MAIAPrx?, current _: Ice.Current) async throws -> MAIAPrx? {
         return p
     }
 
-    func ib1op(p: MBIB1Prx?, current _: Ice.Current) throws -> MBIB1Prx? {
+    func ib1op(p: MBIB1Prx?, current _: Ice.Current) async throws -> MBIB1Prx? {
         return p
     }
 }
 
 class IB2I: MBIB2 {
-    func iaop(p: MAIAPrx?, current _: Ice.Current) throws -> MAIAPrx? {
+    func iaop(p: MAIAPrx?, current _: Ice.Current) async throws -> MAIAPrx? {
         return p
     }
 
-    func ib2op(p: MBIB2Prx?, current _: Ice.Current) throws -> MBIB2Prx? {
+    func ib2op(p: MBIB2Prx?, current _: Ice.Current) async throws -> MBIB2Prx? {
         return p
     }
 }
 
 class ICI: MAIC {
-    func iaop(p: MAIAPrx?, current _: Ice.Current) throws -> MAIAPrx? {
+    func iaop(p: MAIAPrx?, current _: Ice.Current) async throws -> MAIAPrx? {
         return p
     }
 
-    func icop(p: MAICPrx?, current _: Ice.Current) throws -> MAICPrx? {
+    func icop(p: MAICPrx?, current _: Ice.Current) async throws -> MAICPrx? {
         return p
     }
 
-    func ib1op(p: MBIB1Prx?, current _: Ice.Current) throws -> MBIB1Prx? {
+    func ib1op(p: MBIB1Prx?, current _: Ice.Current) async throws -> MBIB1Prx? {
         return p
     }
 
-    func ib2op(p: MBIB2Prx?, current _: Ice.Current) throws -> MBIB2Prx? {
+    func ib2op(p: MBIB2Prx?, current _: Ice.Current) async throws -> MBIB2Prx? {
         return p
     }
 }
@@ -60,23 +60,23 @@ class InitialI: Initial {
         _ic = try uncheckedCast(prx: adapter.addWithUUID(MAICDisp(ICI())), type: MAICPrx.self)
     }
 
-    func iaop(current _: Ice.Current) throws -> MAIAPrx? {
+    func iaop(current _: Ice.Current) async throws -> MAIAPrx? {
         return _ia
     }
 
-    func ib1op(current _: Ice.Current) throws -> MBIB1Prx? {
+    func ib1op(current _: Ice.Current) async throws -> MBIB1Prx? {
         return _ib1
     }
 
-    func ib2op(current _: Ice.Current) throws -> MBIB2Prx? {
+    func ib2op(current _: Ice.Current) async throws -> MBIB2Prx? {
         return _ib2
     }
 
-    func icop(current _: Ice.Current) throws -> MAICPrx? {
+    func icop(current _: Ice.Current) async throws -> MAICPrx? {
         return _ic
     }
 
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current: Ice.Current) async throws {
         current.adapter.getCommunicator().shutdown()
     }
 }

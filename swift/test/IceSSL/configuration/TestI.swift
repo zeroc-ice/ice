@@ -12,7 +12,7 @@ class ServerI: SSLServer {
         _helper = helper
     }
 
-    func noCert(current: Ice.Current) throws {
+    func noCert(current: Ice.Current) async throws {
         do {
             let info = try current.con!.getInfo() as! SSLConnectionInfo
             try _helper.test(info.peerCertificate == nil)
@@ -21,7 +21,7 @@ class ServerI: SSLServer {
         }
     }
 
-    func checkCert(subjectDN _: String, issuerDN _: String, current: Ice.Current) throws {
+    func checkCert(subjectDN _: String, issuerDN _: String, current: Ice.Current) async throws {
         do {
             let info = try current.con!.getInfo() as! SSLConnectionInfo
             try _helper.test(info.peerCertificate != nil)
@@ -46,7 +46,7 @@ class ServerFactoryI: SSLServerFactory {
         _servers = [:]
     }
 
-    func createServer(props: [String: String], current _: Ice.Current) throws -> SSLServerPrx? {
+    func createServer(props: [String: String], current _: Ice.Current) async throws -> SSLServerPrx? {
         let properties = Ice.createProperties()
         for (key, value) in props {
             properties.setProperty(key: key, value: value)
@@ -64,7 +64,7 @@ class ServerFactoryI: SSLServerFactory {
         return uncheckedCast(prx: obj, type: SSLServerPrx.self)
     }
 
-    func destroyServer(srv: SSLServerPrx?, current _: Ice.Current) throws {
+    func destroyServer(srv: SSLServerPrx?, current _: Ice.Current) async throws {
         if let srv = srv {
             if let server = _servers.removeValue(forKey: srv.ice_getIdentity()) {
                 try server.destroy()
@@ -72,7 +72,7 @@ class ServerFactoryI: SSLServerFactory {
         }
     }
 
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current: Ice.Current) async throws {
         try _helper.test(_servers.count == 0)
         current.adapter.getCommunicator().shutdown()
     }

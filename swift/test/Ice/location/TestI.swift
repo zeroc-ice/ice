@@ -26,23 +26,23 @@ class TestI: TestIntf {
             _adapter1.add(servant: HelloDisp(HelloI()), id: Ice.stringToIdentity("hello")))
     }
 
-    func shutdown(current _: Ice.Current) throws {
+    func shutdown(current _: Ice.Current) async throws {
         _adapter1.getCommunicator().shutdown()
     }
 
-    func getHello(current _: Ice.Current) throws -> HelloPrx? {
+    func getHello(current _: Ice.Current) async throws -> HelloPrx? {
         return try uncheckedCast(
             prx: _adapter1.createIndirectProxy(Ice.stringToIdentity("hello")),
             type: HelloPrx.self)
     }
 
-    func getReplicatedHello(current _: Ice.Current) throws -> HelloPrx? {
+    func getReplicatedHello(current _: Ice.Current) async throws -> HelloPrx? {
         return try uncheckedCast(
             prx: _adapter1.createProxy(Ice.stringToIdentity("hello")),
             type: HelloPrx.self)
     }
 
-    func migrateHello(current _: Ice.Current) throws {
+    func migrateHello(current _: Ice.Current) async throws {
         let id = try Ice.stringToIdentity("hello")
         do {
             try _registry.addObject(_adapter2.add(servant: _adapter1.remove(id), id: id))
@@ -63,7 +63,7 @@ class ServerManagerI: ServerManager {
         _helper = helper
     }
 
-    func startServer(current _: Ice.Current) throws {
+    func startServer(current _: Ice.Current) async throws {
         for c in _communicators {
             c.waitForShutdown()
             c.destroy()
@@ -143,7 +143,7 @@ class ServerManagerI: ServerManager {
         }
     }
 
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current: Ice.Current) async throws {
         for c in _communicators {
             c.destroy()
         }
@@ -163,7 +163,7 @@ class ServerLocator: TestLocator {
         _requestCount = 0
     }
 
-    func findAdapterByIdAsync(id: String, current: Ice.Current) async throws -> ObjectPrx? {
+    func findAdapterById(id: String, current: Ice.Current) async throws -> ObjectPrx? {
         _requestCount += 1
         if id == "TestAdapter10" || id == "TestAdapter10-2" {
             precondition(current.encoding == Ice.Encoding_1_0)
@@ -176,7 +176,7 @@ class ServerLocator: TestLocator {
         }
     }
 
-    func findObjectByIdAsync(id: Ice.Identity, current _: Ice.Current) async throws -> ObjectPrx? {
+    func findObjectById(id: Ice.Identity, current _: Ice.Current) async throws -> ObjectPrx? {
         _requestCount += 1
         // We add a small delay to make sure locator request queuing gets tested when
         // running the test on a fast machine
@@ -185,11 +185,11 @@ class ServerLocator: TestLocator {
         return try _registry.getObject(id)
     }
 
-    func getRegistry(current _: Ice.Current) throws -> Ice.LocatorRegistryPrx? {
+    func getRegistry(current _: Ice.Current) async throws -> Ice.LocatorRegistryPrx? {
         return _registryPrx
     }
 
-    func getRequestCount(current _: Ice.Current) throws -> Int32 {
+    func getRequestCount(current _: Ice.Current) async throws -> Int32 {
         return _requestCount
     }
 }
@@ -199,7 +199,7 @@ class ServerLocatorRegistry: TestLocatorRegistry {
     var _objects = [Ice.Identity: Ice.ObjectPrx]()
     var _lock = os_unfair_lock()
 
-    func setAdapterDirectProxyAsync(id: String, proxy: ObjectPrx?, current _: Current) async throws {
+    func setAdapterDirectProxy(id: String, proxy: ObjectPrx?, current _: Current) async throws {
 
         withLock(&_lock) {
             if let obj = proxy {
@@ -210,7 +210,7 @@ class ServerLocatorRegistry: TestLocatorRegistry {
         }
     }
 
-    func setReplicatedAdapterDirectProxyAsync(
+    func setReplicatedAdapterDirectProxy(
         adapterId adapter: String,
         replicaGroupId replica: String,
         proxy: Ice.ObjectPrx?,
@@ -227,7 +227,7 @@ class ServerLocatorRegistry: TestLocatorRegistry {
         }
     }
 
-    func setServerProcessProxyAsync(id _: String, proxy _: Ice.ProcessPrx?, current _: Ice.Current) async throws {
+    func setServerProcessProxy(id _: String, proxy _: Ice.ProcessPrx?, current _: Ice.Current) async throws {
     }
 
     func addObject(_ obj: Ice.ObjectPrx?) {
@@ -236,7 +236,7 @@ class ServerLocatorRegistry: TestLocatorRegistry {
         }
     }
 
-    func addObject(obj: Ice.ObjectPrx?, current _: Ice.Current) throws {
+    func addObject(obj: Ice.ObjectPrx?, current _: Ice.Current) async throws {
         addObject(obj)
     }
 
