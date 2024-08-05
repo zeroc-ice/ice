@@ -221,8 +221,8 @@
 }
 
 - (void)flushBatchRequests:(std::uint8_t)compress
-                      exception:(void (^)(NSError*))exception
-                           sent:(void (^_Nullable)(bool))sent
+                 exception:(void (^)(NSError*))exception
+                      sent:(void (^_Nullable)(bool))sent
 {
     try
     {
