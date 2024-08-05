@@ -286,7 +286,7 @@ public sealed class DNSException : SyscallException
     public override string ice_id() => "::Ice::DNSException";
 }
 
-/// <summary>This exception indicates a file error.</summary>
+/// <summary>This exception indicates a file error occurred.</summary>
 public sealed class FileException : SyscallException
 {
     public FileException(string message, System.Exception innerException)

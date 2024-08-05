@@ -377,7 +377,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           _asyncRequests.remove(o.requestId);
         }
 
-        if (ex instanceof ConnectionIdleException) {
+        if (ex instanceof ConnectionAbortedException) {
           setState(StateClosed, ex);
         } else {
           //
@@ -404,7 +404,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       java.util.Iterator<OutgoingAsyncBase> it2 = _asyncRequests.values().iterator();
       while (it2.hasNext()) {
         if (it2.next() == outAsync) {
-          if (ex instanceof ConnectionIdleException) {
+          if (ex instanceof ConnectionAbortedException) {
             setState(StateClosed, ex);
           } else {
             it2.remove();
@@ -963,7 +963,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionAbortedException
             || _exception instanceof ConnectionClosedException
-            || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException)) {
           s.append("\n");
@@ -1163,10 +1162,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
         setState(
             StateClosed,
-            new ConnectionIdleException(
+            new ConnectionAbortedException(
                 "Connection aborted by the idle check because it did not receive any bytes for "
                     + idleTimeout
-                    + "s."));
+                    + "s.",
+                false));
       }
     }
     // else nothing to do
@@ -1359,7 +1359,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionAbortedException
             || _exception instanceof ConnectionClosedException
-            || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException
             || (_exception instanceof ConnectionLostException && _state >= StateClosing))) {
@@ -1512,7 +1511,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionAbortedException
             || _exception instanceof ConnectionClosedException
-            || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException
             || (_exception instanceof ConnectionLostException && _state >= StateClosing))) {
@@ -2199,13 +2197,14 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     } catch (RuntimeException | java.lang.Error ex) {
       // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code).
       // Note that this code does NOT send a response to the client.
-      var uex = new UnknownException(ex);
       var sw = new java.io.StringWriter();
       var pw = new java.io.PrintWriter(sw);
       ex.printStackTrace(pw);
       pw.flush();
-      uex.unknown = sw.toString();
-      _logger.error(uex.unknown);
+
+      var uex = new UnknownException(sw.toString());
+      uex.initCause(ex);
+      _logger.error(uex.getMessage());
       dispatchException(uex, requestCount);
     }
   }

@@ -1,24 +1,16 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.Ice;
 
-/**
- * This exception is raised if an unsupported feature is used. The unsupported feature string
- * contains the name of the unsupported feature.
- */
-public class FeatureNotSupportedException extends LocalException {
-  public FeatureNotSupportedException(String unsupportedFeature) {
-    this.unsupportedFeature = unsupportedFeature;
+/** This exception is raised if an unsupported feature is used. */
+public final class FeatureNotSupportedException extends LocalException {
+  public FeatureNotSupportedException(String message) {
+    super(message);
   }
 
   public String ice_id() {
     return "::Ice::FeatureNotSupportedException";
   }
-
-  /** The name of the unsupported feature. */
-  public String unsupportedFeature;
 
   private static final long serialVersionUID = -4629958372080397318L;
 }

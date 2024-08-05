@@ -1,26 +1,20 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.Ice;
 
 /** This exception is raised when a failure occurs during initialization. */
-public class InitializationException extends LocalException {
-  public InitializationException(String reason) {
-    this.reason = reason;
+public final class InitializationException extends LocalException {
+  public InitializationException(String message) {
+    super(message);
   }
 
-  public InitializationException(String reason, Throwable cause) {
-    super(cause);
-    this.reason = reason;
+  public InitializationException(String message, Throwable cause) {
+    super(message, cause);
   }
 
   public String ice_id() {
     return "::Ice::InitializationException";
   }
-
-  /** The reason for the failure. */
-  public String reason;
 
   private static final long serialVersionUID = 578611869232039264L;
 }

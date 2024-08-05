@@ -225,13 +225,14 @@ public final class CollocatedRequestHandler implements RequestHandler {
     } catch (RuntimeException | java.lang.Error ex) {
       // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code).
       // Note that this code does NOT send a response to the client.
-      var uex = new UnknownException(ex);
       var sw = new java.io.StringWriter();
       var pw = new java.io.PrintWriter(sw);
       ex.printStackTrace(pw);
       pw.flush();
-      uex.unknown = sw.toString();
-      _logger.error(uex.unknown);
+
+      var uex = new UnknownException(sw.toString());
+      uex.initCause(ex);
+      _logger.error(uex.getMessage());
       dispatchException(uex, requestId, false);
     } finally {
       _adapter.decDirectCount();

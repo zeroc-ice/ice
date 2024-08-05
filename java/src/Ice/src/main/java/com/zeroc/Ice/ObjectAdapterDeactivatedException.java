@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.Ice;
 
@@ -10,8 +8,9 @@ package com.zeroc.Ice;
  * @see ObjectAdapter#deactivate
  * @see Communicator#shutdown
  */
-public class ObjectAdapterDeactivatedException extends LocalException {
+public final class ObjectAdapterDeactivatedException extends LocalException {
   public ObjectAdapterDeactivatedException(String name) {
+    super("Object adapter '" + name + "' is deactivated.");
     this.name = name;
   }
 
@@ -20,7 +19,7 @@ public class ObjectAdapterDeactivatedException extends LocalException {
   }
 
   /** Name of the adapter. */
-  public String name;
+  public final String name;
 
   private static final long serialVersionUID = -1946575462194055987L;
 }

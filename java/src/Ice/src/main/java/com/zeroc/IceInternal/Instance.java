@@ -714,7 +714,7 @@ public final class Instance implements java.util.function.Function<String, Class
             try {
               outStream = new java.io.PrintStream(new java.io.FileOutputStream(stdOut, true));
             } catch (java.io.FileNotFoundException ex) {
-              throw new com.zeroc.Ice.FileException(stdOut, ex);
+              throw new com.zeroc.Ice.FileException("cannot append to '" + stdOut + "'", ex);
             }
 
             System.setOut(outStream);
@@ -731,7 +731,7 @@ public final class Instance implements java.util.function.Function<String, Class
               try {
                 System.setErr(new java.io.PrintStream(new java.io.FileOutputStream(stdErr, true)));
               } catch (java.io.FileNotFoundException ex) {
-                throw new com.zeroc.Ice.FileException(stdErr, ex);
+                throw new com.zeroc.Ice.FileException("cannot append to '" + stdErr + "'", ex);
               }
             }
           }

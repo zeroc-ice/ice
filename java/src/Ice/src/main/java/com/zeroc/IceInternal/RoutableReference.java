@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.NoEndpointException;
+
 public class RoutableReference extends Reference {
   @Override
   public final EndpointI[] getEndpoints() {
@@ -448,7 +450,7 @@ public class RoutableReference extends Reference {
             @Override
             public void setEndpoints(EndpointI[] endpoints, final boolean cached) {
               if (endpoints.length == 0) {
-                callback.setException(new com.zeroc.Ice.NoEndpointException(self.toString()));
+                callback.setException(NoEndpointException.fromProxyString(self.toString()));
                 return;
               }
 
@@ -466,7 +468,7 @@ public class RoutableReference extends Reference {
                     public void setException(com.zeroc.Ice.LocalException exc) {
                       try {
                         throw exc;
-                      } catch (com.zeroc.Ice.NoEndpointException ex) {
+                      } catch (NoEndpointException ex) {
                         callback.setException(ex); // No need to retry if there's no endpoints.
                       } catch (com.zeroc.Ice.LocalException ex) {
                         assert (_locatorInfo != null);
@@ -495,7 +497,7 @@ public class RoutableReference extends Reference {
             }
           });
     } else {
-      callback.setException(new com.zeroc.Ice.NoEndpointException(toString()));
+      callback.setException(NoEndpointException.fromProxyString(toString()));
     }
   }
 
@@ -662,7 +664,7 @@ public class RoutableReference extends Reference {
   protected void createConnection(EndpointI[] allEndpoints, final GetConnectionCallback callback) {
     final EndpointI[] endpoints = filterEndpoints(allEndpoints);
     if (endpoints.length == 0) {
-      callback.setException(new com.zeroc.Ice.NoEndpointException(toString()));
+      callback.setException(NoEndpointException.fromProxyString(toString()));
       return;
     }
 

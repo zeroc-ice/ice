@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.Ice;
 
@@ -11,8 +9,9 @@ package com.zeroc.Ice;
  * not currently registered. It's also raised if the Ice locator can't find an object or object
  * adapter when resolving an indirect proxy or when an object adapter is activated.
  */
-public class NotRegisteredException extends LocalException {
+public final class NotRegisteredException extends LocalException {
   public NotRegisteredException(String kindOfObject, String id) {
+    super("No " + kindOfObject + " is registered with ID '" + id + "'.");
     this.kindOfObject = kindOfObject;
     this.id = id;
   }
@@ -26,10 +25,10 @@ public class NotRegisteredException extends LocalException {
    * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
    * "replica group".
    */
-  public String kindOfObject;
+  public final String kindOfObject;
 
   /** The ID (or name) of the object that could not be removed. */
-  public String id;
+  public final String id;
 
   private static final long serialVersionUID = 3335358291266771447L;
 }

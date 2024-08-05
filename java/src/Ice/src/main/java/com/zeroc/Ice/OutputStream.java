@@ -1291,7 +1291,7 @@ public class OutputStream {
             try {
               b = _charEncoder.encode(java.nio.CharBuffer.wrap(_stringChars, 0, len));
             } catch (java.nio.charset.CharacterCodingException ex) {
-              throw new MarshalException(ex);
+              throw new MarshalException("failed to encode multibyte character", ex);
             }
             writeSize(b.limit());
             expand(b.limit());

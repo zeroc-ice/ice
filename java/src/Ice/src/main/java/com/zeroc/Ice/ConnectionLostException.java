@@ -1,11 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.Ice;
 
 /** This exception indicates a lost connection. */
-public class ConnectionLostException extends SocketException {
+public final class ConnectionLostException extends SocketException {
   public ConnectionLostException() {
     super();
   }

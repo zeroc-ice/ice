@@ -14,7 +14,7 @@ public class TestI implements test.Ice.interrupt.Test.TestIntf {
 
   @Override
   public void opIdempotent(com.zeroc.Ice.Current current) {
-    throw new com.zeroc.Ice.UnknownException();
+    throw new com.zeroc.Ice.UnknownException("reason");
   }
 
   @Override

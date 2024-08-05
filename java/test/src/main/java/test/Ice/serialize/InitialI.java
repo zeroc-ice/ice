@@ -48,7 +48,7 @@ public final class InitialI implements Initial {
       stream.writeObject(_s);
       return byteStream.toByteArray();
     } catch (IOException ex) {
-      com.zeroc.Ice.UnknownException e = new com.zeroc.Ice.UnknownException();
+      var e = new com.zeroc.Ice.UnknownException("reason");
       e.initCause(ex);
       throw e;
     }
@@ -62,7 +62,7 @@ public final class InitialI implements Initial {
       stream.writeObject(_d);
       return byteStream.toByteArray();
     } catch (IOException ex) {
-      com.zeroc.Ice.UnknownException e = new com.zeroc.Ice.UnknownException();
+      var e = new com.zeroc.Ice.UnknownException("reason");
       e.initCause(ex);
       throw e;
     }
@@ -80,7 +80,7 @@ public final class InitialI implements Initial {
       stream.writeObject(ex);
       return byteStream.toByteArray();
     } catch (IOException ex) {
-      com.zeroc.Ice.UnknownException e = new com.zeroc.Ice.UnknownException();
+      var e = new com.zeroc.Ice.UnknownException("reason");
       e.initCause(ex);
       throw e;
     }

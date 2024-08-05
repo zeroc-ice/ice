@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.Ice;
 
@@ -9,8 +7,9 @@ package com.zeroc.Ice;
  * raised if an attempt is made to register a servant, servant locator, facet, value factory,
  * plug-in, object adapter, object, or user exception factory more than once for the same ID.
  */
-public class AlreadyRegisteredException extends LocalException {
+public final class AlreadyRegisteredException extends LocalException {
   public AlreadyRegisteredException(String kindOfObject, String id) {
+    super("Another " + kindOfObject + " is already registered with ID '" + id + "'.");
     this.kindOfObject = kindOfObject;
     this.id = id;
   }
@@ -24,10 +23,10 @@ public class AlreadyRegisteredException extends LocalException {
    * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
    * "replica group".
    */
-  public String kindOfObject;
+  public final String kindOfObject;
 
   /** The ID (or name) of the object that is registered already. */
-  public String id;
+  public final String id;
 
   private static final long serialVersionUID = 392587231034664196L;
 }

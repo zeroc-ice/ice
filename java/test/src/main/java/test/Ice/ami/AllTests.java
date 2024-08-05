@@ -996,8 +996,7 @@ public class AllTests {
       {
         //
         // Local case: start an operation and then close the connection forcefully on the client
-        // side.
-        // There will be no retry and we expect the invocation to fail with
+        // side. There will be no retry and we expect the invocation to fail with
         // ConnectionAbortedException.
         //
         p.ice_ping();

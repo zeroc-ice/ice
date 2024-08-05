@@ -513,7 +513,7 @@ public final class Properties {
         java.io.InputStream f =
             com.zeroc.IceInternal.Util.openResource(getClass().getClassLoader(), file);
         if (f == null) {
-          throw new FileException(file);
+          throw new FileException("failed to open '" + file + "'");
         }
         //
         // Skip UTF-8 BOM if present.
@@ -531,7 +531,7 @@ public final class Properties {
         java.io.BufferedReader br = new java.io.BufferedReader(isr);
         parse(br);
       } catch (java.io.IOException ex) {
-        throw new FileException(file, ex);
+        throw new FileException("Cannot read '" + file + "'", ex);
       } finally {
         if (is != null) {
           try {

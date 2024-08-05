@@ -4,6 +4,7 @@
 
 package test.Ice.slicing.objects;
 
+import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
 import test.Ice.slicing.objects.client.Test.*;
@@ -241,7 +242,7 @@ public class AllTests {
       try {
         SBase sb = test.SBSUnknownDerivedAsSBaseCompact();
         test(sb.sb.equals("SBSUnknownDerived.sb"));
-      } catch (com.zeroc.Ice.OperationNotExistException ex) {
+      } catch (OperationNotExistException ex) {
       } catch (Exception ex) {
         test(false);
       }
@@ -255,7 +256,7 @@ public class AllTests {
         test(false);
       } catch (com.zeroc.Ice.MarshalException ex) {
         // Expected.
-      } catch (com.zeroc.Ice.OperationNotExistException ex) {
+      } catch (OperationNotExistException ex) {
       } catch (Exception ex) {
         test(false);
       }
@@ -284,7 +285,7 @@ public class AllTests {
           .whenComplete(
               (result, ex) -> {
                 if (ex != null) {
-                  test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                  test(ex instanceof OperationNotExistException);
                 } else {
                   test(result.sb.equals("SBSUnknownDerived.sb"));
                 }
@@ -302,7 +303,7 @@ public class AllTests {
               (result, ex) -> {
                 test(ex != null);
                 test(
-                    ex instanceof com.zeroc.Ice.OperationNotExistException
+                    ex instanceof OperationNotExistException
                         || ex instanceof com.zeroc.Ice.MarshalException);
                 cb.called();
               });
@@ -1741,7 +1742,7 @@ public class AllTests {
       test(p2.pi == 3);
       test(p2.ps.equals("preserved"));
       test(p2.pb == p2);
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -1764,7 +1765,7 @@ public class AllTests {
         test(p2 != null);
         test(p2.pu.equals("preserved"));
       }
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -1785,7 +1786,7 @@ public class AllTests {
         test(p2.pi == 3);
         test(p2.pbs[0] == p2);
       }
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -1806,7 +1807,7 @@ public class AllTests {
         test(p2.pi == 3);
         test(p2.pbs[0] == p2);
       }
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -1850,7 +1851,7 @@ public class AllTests {
         test(p3.pcd2 == p3.pi);
         test(p3.pcd3 == p3.pbs[10]);
       }
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -1870,7 +1871,7 @@ public class AllTests {
       } else {
         test(p.ice_getSlicedData() == null);
       }
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
     out.println("ok");
 
@@ -1890,7 +1891,7 @@ public class AllTests {
           .whenComplete(
               (result, ex) -> {
                 if (ex != null) {
-                  test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                  test(ex instanceof OperationNotExistException);
                 } else {
                   PDerived p2 = (PDerived) result;
                   test(p2.pi == 3);
@@ -1900,7 +1901,7 @@ public class AllTests {
                 cb.called();
               });
       cb.check();
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -1916,7 +1917,7 @@ public class AllTests {
           .whenComplete(
               (result, ex) -> {
                 if (ex != null) {
-                  test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                  test(ex instanceof OperationNotExistException);
                 } else {
                   if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
                     test(!(result instanceof PCUnknown));
@@ -1930,7 +1931,7 @@ public class AllTests {
                 cb.called();
               });
       cb.check();
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -1948,7 +1949,7 @@ public class AllTests {
             .whenComplete(
                 (result, ex) -> {
                   if (ex != null) {
-                    test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                    test(ex instanceof OperationNotExistException);
                   } else {
                     test(!(result instanceof PCDerived));
                     test(result.pi == 3);
@@ -1962,7 +1963,7 @@ public class AllTests {
             .whenComplete(
                 (result, ex) -> {
                   if (ex != null) {
-                    test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                    test(ex instanceof OperationNotExistException);
                   } else {
                     PCDerived p2 = (PCDerived) result;
                     test(p2.pi == 3);
@@ -1972,7 +1973,7 @@ public class AllTests {
                 });
         cb.check();
       }
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -1990,7 +1991,7 @@ public class AllTests {
             .whenComplete(
                 (result, ex) -> {
                   if (ex != null) {
-                    test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                    test(ex instanceof OperationNotExistException);
                   } else {
                     test(!(result instanceof CompactPCDerived));
                     test(result.pi == 3);
@@ -2004,7 +2005,7 @@ public class AllTests {
             .whenComplete(
                 (result, ex) -> {
                   if (ex != null) {
-                    test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                    test(ex instanceof OperationNotExistException);
                   } else {
                     CompactPCDerived p2 = (CompactPCDerived) result;
                     test(p2.pi == 3);
@@ -2014,7 +2015,7 @@ public class AllTests {
                 });
         cb.check();
       }
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -2046,7 +2047,7 @@ public class AllTests {
             .whenComplete(
                 (result, ex) -> {
                   if (ex != null) {
-                    test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                    test(ex instanceof OperationNotExistException);
                   } else {
                     test(!(result instanceof PCDerived3));
                     test(result instanceof Preserved);
@@ -2061,7 +2062,7 @@ public class AllTests {
             .whenComplete(
                 (result, ex) -> {
                   if (ex != null) {
-                    test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                    test(ex instanceof OperationNotExistException);
                   } else {
                     PCDerived3 p3 = (PCDerived3) result;
                     test(p3.pi == 3);
@@ -2079,7 +2080,7 @@ public class AllTests {
                 });
         cb.check();
       }
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     try {
@@ -2093,7 +2094,7 @@ public class AllTests {
       if (!test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
         test.ice_encodingVersion(Util.Encoding_1_0).checkPBSUnknown(p);
       }
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     out.println("ok");
@@ -2171,7 +2172,7 @@ public class AllTests {
       }
 
       PreservedI.counter = 0;
-    } catch (com.zeroc.Ice.OperationNotExistException ex) {
+    } catch (OperationNotExistException ex) {
     }
 
     out.println("ok");

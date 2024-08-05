@@ -83,13 +83,13 @@ public final class ThrowerI implements Thrower {
   @Override
   public void throwUndeclaredA(int a, com.zeroc.Ice.Current current) {
     // Not possible in Java.
-    throw new com.zeroc.Ice.UnknownUserException();
+    throw new com.zeroc.Ice.UnknownUserException("reason");
   }
 
   @Override
   public void throwUndeclaredB(int a, int b, com.zeroc.Ice.Current current) {
     // Not possible in Java.
-    throw new com.zeroc.Ice.UnknownUserException();
+    throw new com.zeroc.Ice.UnknownUserException("reason");
   }
 
   @Override

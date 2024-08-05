@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /** This exception indicates that a connection was closed forcefully. */
-public class ConnectionAbortedException extends LocalException {
+public final class ConnectionAbortedException extends LocalException {
   public ConnectionAbortedException(String message, boolean closedByApplication) {
     super(message);
     this.closedByApplication = closedByApplication;

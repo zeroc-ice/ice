@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /** This exception indicates that a connection was closed gracefully. */
-public class ConnectionClosedException extends LocalException {
+public final class ConnectionClosedException extends LocalException {
   public ConnectionClosedException(String message, boolean closedByApplication) {
     super(message);
     this.closedByApplication = closedByApplication;

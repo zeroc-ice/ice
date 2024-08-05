@@ -438,9 +438,7 @@ public class SSLEngine {
       if (_securityTraceLevel >= 1) {
         _logger.trace(_securityTraceCategory, msg);
       }
-      com.zeroc.Ice.SecurityException ex = new com.zeroc.Ice.SecurityException();
-      ex.reason = msg;
-      throw ex;
+      throw new com.zeroc.Ice.SecurityException(msg);
     }
   }
 

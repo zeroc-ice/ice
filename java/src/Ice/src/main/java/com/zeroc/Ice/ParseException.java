@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /** Reports a failure that occurred while parsing a string. */
-public class ParseException extends LocalException {
+public final class ParseException extends LocalException {
   public ParseException(String message) {
     super(message);
   }
