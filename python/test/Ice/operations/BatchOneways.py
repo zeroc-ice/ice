@@ -52,12 +52,7 @@ class BatchRequestInterceptorI(Ice.BatchRequestInterceptor):
 def batchOneways(p):
     bs1 = bytes([0 for x in range(0, 10 * 1024)])
 
-    try:
-        p.opByteSOneway(bs1)
-    # TODO: Should this `MarshalException` now that we refactored all the exceptions?
-    except Ice.MemoryLimitException:
-        test(False)
-
+    p.opByteSOneway(bs1)
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
     batch.ice_flushBatchRequests()  # Empty flush
