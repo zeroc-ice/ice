@@ -233,10 +233,7 @@
                     exception(convertException(e));
                 }
             },
-            [sent](bool sentSynchronously)
-            {
-                sent(sentSynchronously);
-            });
+            [sent](bool sentSynchronously) { sent(sentSynchronously); });
     }
     catch (...)
     {
