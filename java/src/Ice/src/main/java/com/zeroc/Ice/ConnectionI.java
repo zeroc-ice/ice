@@ -155,11 +155,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     if (mode == ConnectionClose.Forcefully) {
       setState(
           StateClosed,
-          new ConnectionAbortedException("Connection closed forcefully by the application.", true));
+          new ConnectionAbortedException("connection aborted by the application", true));
     } else if (mode == ConnectionClose.Gracefully) {
       setState(
           StateClosing,
-          new ConnectionClosedException("Connection closed gracefully by the application.", true));
+          new ConnectionClosedException("connection closed gracefully by the application", true));
     } else {
       assert (mode == ConnectionClose.GracefullyWithWait);
 
@@ -1704,7 +1704,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           throw new ProtocolException(
               "Received message of type "
                   + messageType
-                  + " on connection that is not yet validated.");
+                  + " over a connection that is not yet validated.");
         }
         _readStream.readByte(); // Ignore compression status for
         // validate connection.
