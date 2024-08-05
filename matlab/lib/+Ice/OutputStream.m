@@ -7,15 +7,16 @@ classdef OutputStream < handle
 
     methods
         function obj = OutputStream(communicator, encoding)
-            obj.communicator = communicator;
+            if nargin == 1
+                encoding = communicator.getEncoding();
+            end
+
             obj.encoding = encoding;
             obj.encoding_1_0 = encoding.major == 1 && encoding.minor == 0;
             obj.encapsStack = [];
             obj.encapsCache = [];
             obj.buf = IceInternal.Buffer();
-        end
-        function r = getCommunicator(obj)
-            r = obj.communicator;
+            obj.format = communicator.getFormat();
         end
         function r = getEncoding(obj)
             if isempty(obj.encapsStack)
@@ -320,15 +321,6 @@ classdef OutputStream < handle
             end
         end
         function writeValue(obj, v)
-            if isempty(obj.format)
-                % Lazy initialization
-                if obj.communicator.getProperties().getPropertyAsIntWithDefault('Ice.Default.SlicedFormat', 0) > 0
-                    obj.format = Ice.FormatType.SlicedFormat;
-                else
-                    obj.format = Ice.FormatType.CompactFormat;
-                end
-            end
-
             obj.initEncaps();
             obj.encapsStack.encoder.writeValue(v);
         end
@@ -480,9 +472,6 @@ classdef OutputStream < handle
         function writeBlob(obj, bytes)
             obj.buf.push(bytes);
         end
-        function r = createInputStream(obj)
-            r = Ice.InputStream(obj.communicator, obj.getEncoding(), obj.finished());
-        end
         function r = finished(obj)
             r = obj.buf.buf(1:obj.buf.size);
         end
@@ -531,7 +520,6 @@ classdef OutputStream < handle
         end
     end
     properties(Access=private)
-        communicator
         encoding
         encoding_1_0 logical
         format

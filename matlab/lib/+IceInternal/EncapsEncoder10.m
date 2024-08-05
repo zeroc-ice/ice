@@ -93,15 +93,8 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
                     % are added to toBeMarshaledMap.
                     %
                     obj.os.writeInt(keys{i});
-
                     v = savedMap(keys{i});
-                    try
-                        v.ice_preMarshal();
-                    catch ex
-                        msg = sprintf('exception raised by ice_preMarshal:\n%s', getReport(ex, 'extended'));
-                        obj.os.getCommunicator().getLogger().warning(msg);
-                    end
-
+                    v.ice_preMarshal();
                     v.iceWrite(obj.os);
                 end
             end

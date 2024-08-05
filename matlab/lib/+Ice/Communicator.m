@@ -21,6 +21,8 @@ classdef Communicator < IceInternal.WrapperObject
     %   setDefaultRouter - Set a default router for this communicator.
     %   getDefaultLocator - Get the default locator for this communicator.
     %   setDefaultLocator - Set a default locator for this communicator.
+    %   getEncoding - Get the encoding version for this communicator.
+    %   getFormat - Get class the format for this communicator.
     %   getValueFactoryManager - Get the value factory manager for this
     %     communicator.
     %   flushBatchRequests - Flush any pending batch requests for this
@@ -49,6 +51,11 @@ classdef Communicator < IceInternal.WrapperObject
                     throw(LocalException('Ice:ArgumentException', 'invalid value for Ice.Default.EncodingVersion'));
                 end
                 obj.encoding = Ice.EncodingVersion(arr(1), arr(2));
+            end
+            if obj.getProperties().getIcePropertyAsInt('Ice.Default.SlicedFormat') > 0
+                obj.format = Ice.FormatType.SlicedFormat;
+            else
+                obj.format = Ice.FormatType.CompactFormat;
             end
         end
         function destroy(obj)
@@ -329,17 +336,15 @@ classdef Communicator < IceInternal.WrapperObject
         function r = getEncoding(obj)
             r = obj.encoding;
         end
-        function r = createOutputStream(obj, encoding)
-            if nargin == 1
-                encoding = obj.encoding;
-            end
-            r = Ice.OutputStream(obj, encoding);
+        function r = getFormat(obj)
+            r = obj.format;
         end
     end
     properties(Access=private)
         initData
         classResolver
         encoding
+        format
         implicitContext
         properties_
         logger
