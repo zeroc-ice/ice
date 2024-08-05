@@ -61,6 +61,10 @@ namespace Glacier2
         {
             _sessionRouter->destroySession(_connection);
             _filters->destroy();
+
+            // Initiate a graceful closure of the connection. Only initiate and graceful because the ultimate caller
+            // can be the Glacier2 client calling us over _connection.
+            _connection->close(ConnectionClose::Gracefully);
         }
 
     private:

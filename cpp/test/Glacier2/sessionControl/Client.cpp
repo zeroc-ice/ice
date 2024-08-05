@@ -6,6 +6,9 @@
 #include "Ice/Ice.h"
 #include "Session.h"
 #include "TestHelper.h"
+
+#include <chrono>
+#include <future>
 #include <set>
 
 using namespace std;
@@ -44,6 +47,10 @@ SessionControlClient::run(int argc, char** argv)
     cout << "ok" << endl;
 
     cout << "testing destroy... " << flush;
+    ConnectionPtr connection = session->ice_getConnection();
+    promise<void> connectionClosed;
+    connection->setCloseCallback([&connectionClosed](const ConnectionPtr&) { connectionClosed.set_value(); });
+
     try
     {
         session->destroyFromClient();
@@ -52,14 +59,9 @@ SessionControlClient::run(int argc, char** argv)
     {
         test(false);
     }
-    try
-    {
-        session->ice_ping();
-        test(false);
-    }
-    catch (const Ice::ConnectionLostException&)
-    {
-    }
+
+    // Make sure destroy closes the connection to the router.
+    test(connectionClosed.get_future().wait_for(chrono::milliseconds(100)) == future_status::ready);
     cout << "ok" << endl;
 
     cout << "testing create exceptions... " << flush;
