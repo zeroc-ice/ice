@@ -55,7 +55,7 @@ namespace
     OutgoingResponse makeOutgoingResponseCore(std::exception_ptr exc, const Current& current)
     {
         assert(exc);
-        OutputStream ostr(current.adapter->getCommunicator(), Ice::currentProtocolEncoding);
+        OutputStream ostr{current.adapter->getCommunicator(), Ice::currentProtocolEncoding};
 
         if (current.requestId != 0)
         {
@@ -235,10 +235,10 @@ OutgoingResponse
 Ice::makeOutgoingResponse(
     std::function<void(OutputStream*)> marshal,
     const Current& current,
-    FormatType format) noexcept
+    std::optional<FormatType> format) noexcept
 {
     assert(marshal);
-    OutputStream ostr(current.adapter->getCommunicator(), Ice::currentProtocolEncoding);
+    OutputStream ostr{current.adapter->getCommunicator(), Ice::currentProtocolEncoding};
     if (current.requestId != 0)
     {
         try
@@ -288,7 +288,7 @@ Ice::makeEmptyOutgoingResponse(const Current& current) noexcept
 OutgoingResponse
 Ice::makeOutgoingResponse(bool ok, pair<const byte*, const byte*> encapsulation, const Current& current) noexcept
 {
-    OutputStream ostr(current.adapter->getCommunicator(), Ice::currentProtocolEncoding);
+    OutputStream ostr{current.adapter->getCommunicator(), Ice::currentProtocolEncoding};
     if (current.requestId != 0)
     {
         try

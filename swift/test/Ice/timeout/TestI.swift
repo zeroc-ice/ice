@@ -5,12 +5,12 @@ import Foundation
 import Ice
 
 class TimeoutI: Timeout {
-    func op(current _: Current) throws {}
+    func op(current _: Current) async throws {}
 
-    func sendData(seq _: ByteSeq, current _: Current) throws {}
+    func sendData(seq _: ByteSeq, current _: Current) async throws {}
 
-    func sleep(to: Int32, current _: Current) throws {
-        Thread.sleep(forTimeInterval: TimeInterval(to) / 1000)
+    func sleep(to: Int32, current _: Current) async throws {
+        try await Task.sleep(for: .milliseconds(Int(to)))
     }
 }
 
@@ -21,24 +21,23 @@ class ControllerI: Controller {
         _adapter = adapter
     }
 
-    func holdAdapter(to: Int32, current: Ice.Current) throws {
+    func holdAdapter(to: Int32, current: Ice.Current) async throws {
         _adapter.hold()
         if to >= 0 {
-            let queue = try current.adapter.getDispatchQueue()
-            queue.async {
-                self._adapter.waitForHold()
-                queue.asyncAfter(deadline: .now() + .milliseconds(Int(to))) {
-                    do {
-                        try self._adapter.activate()
-                    } catch {
-                        preconditionFailure()
-                    }
+            Task {
+                do {
+                    self._adapter.waitForHold()
+                    try await Task.sleep(for: .milliseconds(Int(to)))
+                    try self._adapter.activate()
+                } catch {
+                    fatalError("unexpected error: \(error)")
                 }
+
             }
         }
     }
 
-    func resumeAdapter(current _: Ice.Current) throws {
+    func resumeAdapter(current _: Ice.Current) async throws {
         try _adapter.activate()
     }
 

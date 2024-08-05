@@ -16,6 +16,17 @@ namespace IceStorm
 {
     class Instance;
 
+    class SendQueueSizeMaxReachedException final : public Ice::LocalException
+    {
+    public:
+        SendQueueSizeMaxReachedException(const char* file, int line)
+            : Ice::LocalException(file, line, "send queue size max reached")
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
     class Subscriber : public std::enable_shared_from_this<Subscriber>
     {
     public:

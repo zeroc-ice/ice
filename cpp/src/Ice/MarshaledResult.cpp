@@ -12,7 +12,7 @@ using namespace IceInternal;
 
 // currentProtocolEncoding because we're writing the protocol header.
 MarshaledResult::MarshaledResult(const Current& current)
-    : _ostr(current.adapter->getCommunicator(), Ice::currentProtocolEncoding)
+    : _ostr(current.adapter->getCommunicator(), currentProtocolEncoding)
 {
     _ostr.writeBlob(replyHdr, sizeof(replyHdr));
     _ostr.write(current.requestId);

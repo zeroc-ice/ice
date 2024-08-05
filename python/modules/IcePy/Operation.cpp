@@ -55,7 +55,7 @@ namespace IcePy
         string name;
         Ice::OperationMode mode;
         bool amd;
-        Ice::FormatType format;
+        std::optional<Ice::FormatType> format;
         Ice::StringSeq metaData;
         ParamInfoList inParams;
         ParamInfoList optionalInParams;
@@ -718,7 +718,7 @@ IcePy::Operation::Operation(
     //
     if (fmt == Py_None)
     {
-        format = Ice::FormatType::DefaultFormat;
+        format = std::nullopt;
     }
     else
     {
@@ -859,7 +859,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         {
             try
             {
-                PyException().raise();
+                throwPythonException();
             }
             catch (const Ice::UnknownException& ex)
             {
@@ -879,7 +879,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         {
             try
             {
-                PyException().raise();
+                throwPythonException();
             }
             catch (const Ice::UnknownException& ex)
             {

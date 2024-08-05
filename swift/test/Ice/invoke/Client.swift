@@ -1,11 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 import Ice
-import PromiseKit
 import TestCommon
 
 public class Client: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
@@ -15,7 +14,7 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        let cl = try allTests(self)
+        let cl = try await allTests(self)
         try cl.shutdown()
     }
 }

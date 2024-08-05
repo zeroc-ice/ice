@@ -30,40 +30,6 @@ namespace
     class ThreadPoolDestroyedException
     {
     };
-
-#ifdef __APPLE__
-    string prefixToDispatchQueueLabel(string_view prefix)
-    {
-        if (prefix == "Ice.ThreadPool.Client")
-        {
-            return "com.zeroc.ice.client";
-        }
-
-        if (prefix == "Ice.ThreadPool.Server")
-        {
-            return "com.zeroc.ice.server";
-        }
-
-        string::size_type end = prefix.find_last_of(".ThreadPool");
-        if (end == string::npos)
-        {
-            end = prefix.size();
-        }
-
-        return "com.zeroc.ice.oa." + string{prefix.substr(0, end)};
-    }
-
-    dispatch_queue_t initDispatchQueue(const InitializationData& initData, string_view prefix)
-    {
-        if (initData.useDispatchQueueExecutor)
-        {
-            return dispatch_queue_create(
-                prefixToDispatchQueueLabel(prefix).c_str(),
-                DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL);
-        }
-        return nullptr;
-    }
-#endif
 }
 
 IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(ThreadPool& threadPool)
@@ -182,9 +148,6 @@ IceInternal::ThreadPool::create(const InstancePtr& instance, const string& prefi
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout)
     : _instance(instance),
-#ifdef __APPLE__
-      _dispatchQueue(initDispatchQueue(instance->initializationData(), prefix)),
-#endif
       _executor(_instance->initializationData().executor),
       _destroyed(false),
       _prefix(prefix),
@@ -207,22 +170,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 #endif
       _promote(true)
 {
-#ifdef __APPLE__
-    if (_dispatchQueue && _executor)
-    {
-        throw InitializationException{__FILE__, __LINE__, "cannot use both dispatch queues and custom executors"};
-    }
-
-    if (_dispatchQueue)
-    {
-        _executor = [dispatchQueue = _dispatchQueue](function<void()> call, const Ice::ConnectionPtr&)
-        {
-            dispatch_sync(dispatchQueue, ^{
-              call();
-            });
-        };
-    }
-#endif
 }
 
 void
@@ -365,16 +312,7 @@ IceInternal::ThreadPool::initialize()
     }
 }
 
-IceInternal::ThreadPool::~ThreadPool()
-{
-    assert(_destroyed);
-#ifdef __APPLE__
-    if (_dispatchQueue)
-    {
-        dispatch_release(_dispatchQueue);
-    }
-#endif
-}
+IceInternal::ThreadPool::~ThreadPool() { assert(_destroyed); }
 
 void
 IceInternal::ThreadPool::destroy()
@@ -576,14 +514,6 @@ IceInternal::ThreadPool::prefix() const
 {
     return _prefix;
 }
-
-#ifdef __APPLE__
-dispatch_queue_t
-IceInternal::ThreadPool::getDispatchQueue() const noexcept
-{
-    return _dispatchQueue;
-}
-#endif
 
 void
 IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)

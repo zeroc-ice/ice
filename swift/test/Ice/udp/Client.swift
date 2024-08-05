@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 class Client: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         do {
             var restArgs = args
             let properties = try createTestProperties(&restArgs)

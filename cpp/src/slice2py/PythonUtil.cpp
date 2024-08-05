@@ -5,6 +5,7 @@
 #include "PythonUtil.h"
 #include "../Slice/Util.h"
 #include "Ice/StringUtil.h"
+
 #include <algorithm>
 #include <cassert>
 #include <climits>
@@ -31,6 +32,99 @@ namespace
     }
 
     const string tripleQuotes = "\"\"\"";
+
+    string typeToDocstring(const TypePtr& type, bool optional)
+    {
+        assert(type);
+
+        if (optional)
+        {
+            if (isProxyType(type))
+            {
+                // We map optional proxies like regular proxies, as XxxPrx or None.
+                return typeToDocstring(type, false);
+            }
+            else
+            {
+                ostringstream os;
+                os << "(";
+                os << typeToDocstring(type, false);
+                os << " or None)";
+                return os.str();
+            }
+        }
+
+        static constexpr string_view builtinTable[] = {
+            "int",
+            "bool",
+            "int",
+            "int",
+            "int",
+            "float",
+            "float",
+            "str",
+            "Ice.Value",
+            "(Ice.ObjectPrx or None)",
+            "Ice.Value"};
+
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+        if (builtin)
+        {
+            if (builtin->kind() == Builtin::KindObject)
+            {
+                return string{builtinTable[Builtin::KindValue]};
+            }
+            else
+            {
+                return string{builtinTable[builtin->kind()]};
+            }
+        }
+
+        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
+        if (cl)
+        {
+            return Slice::Python::scopedToName(cl->scoped());
+        }
+
+        StructPtr st = dynamic_pointer_cast<Struct>(type);
+        if (st)
+        {
+            return Slice::Python::scopedToName(st->scoped());
+        }
+
+        InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
+        if (proxy)
+        {
+            ostringstream os;
+            os << "(";
+            os << Slice::Python::scopedToName(proxy->scoped() + "Prx");
+            os << " or None)";
+            return os.str();
+        }
+
+        EnumPtr en = dynamic_pointer_cast<Enum>(type);
+        if (en)
+        {
+            return Slice::Python::scopedToName(en->scoped());
+        }
+
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
+        if (seq)
+        {
+            return typeToDocstring(seq->type(), false) + "[]";
+        }
+
+        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
+        if (dict)
+        {
+            ostringstream os;
+            os << "dict where keys are " << typeToDocstring(dict->keyType(), false) << " and values are "
+               << typeToDocstring(dict->valueType(), false);
+            return os.str();
+        }
+
+        return "???";
+    }
 }
 
 namespace Slice
@@ -178,9 +272,7 @@ namespace Slice
             void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
             void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
-            typedef vector<string> StringVec;
-
-            StringVec stripMarkup(const string&);
+            vector<string> stripMarkup(const string&);
 
             void writeDocstring(const string&, const string& = "");
             void writeDocstring(const string&, const DataMemberList&);
@@ -189,10 +281,10 @@ namespace Slice
             typedef map<string, string> StringMap;
             struct OpComment
             {
-                StringVec description;
-                StringMap params;
-                string returns;
-                StringMap exceptions;
+                vector<string> description;
+                map<string, vector<string>> params;
+                vector<string> returns;
+                map<string, vector<string>> exceptions;
             };
             bool parseOpComment(const string&, OpComment&);
 
@@ -200,8 +292,6 @@ namespace Slice
             {
                 DocSync,
                 DocAsync,
-                DocAsyncBegin,
-                DocAsyncEnd,
                 DocDispatch,
                 DocAsyncDispatch
             };
@@ -939,17 +1029,24 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         ParamDeclList::iterator t;
         int count;
         string format;
-        switch (operation->format())
+        optional<FormatType> opFormat = operation->format();
+        if (opFormat)
         {
-            case DefaultFormat:
-                format = "None";
-                break;
-            case CompactFormat:
-                format = "Ice.FormatType.CompactFormat";
-                break;
-            case SlicedFormat:
-                format = "Ice.FormatType.SlicedFormat";
-                break;
+            switch (*opFormat)
+            {
+                case CompactFormat:
+                    format = "Ice.FormatType.CompactFormat";
+                    break;
+                case SlicedFormat:
+                    format = "Ice.FormatType.SlicedFormat";
+                    break;
+                default:
+                    assert(false);
+            }
+        }
+        else
+        {
+            format = "None";
         }
 
         _out << nl << className << "._op_" << operation->name() << " = IcePy.Operation('" << operation->name() << "', "
@@ -1958,7 +2055,7 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
     }
 }
 
-Slice::Python::CodeVisitor::StringVec
+vector<string>
 Slice::Python::CodeVisitor::stripMarkup(const string& comment)
 {
     //
@@ -2096,7 +2193,7 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
     //
     // Split text into lines.
     //
-    StringVec lines;
+    vector<string> lines;
     if (!text.empty())
     {
         string::size_type start = 0;
@@ -2123,6 +2220,11 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
             {
                 line.erase(pos + 1, line.size() - pos - 1);
             }
+            pos = line.find_first_not_of(" \t");
+            if (pos != string::npos)
+            {
+                line = line.substr(pos);
+            }
 
             lines.push_back(line);
 
@@ -2136,7 +2238,7 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
 void
 Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& prefix)
 {
-    StringVec lines = stripMarkup(comment);
+    vector<string> lines = stripMarkup(comment);
     if (lines.empty())
     {
         return;
@@ -2144,7 +2246,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& 
 
     _out << nl << prefix << tripleQuotes;
 
-    for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (vector<string>::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
@@ -2155,7 +2257,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& 
 void
 Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemberList& members)
 {
-    StringVec lines = stripMarkup(comment);
+    vector<string> lines = stripMarkup(comment);
     if (lines.empty())
     {
         return;
@@ -2163,9 +2265,9 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
 
     _out << nl << tripleQuotes;
 
-    for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (const auto& line : lines)
     {
-        _out << nl << *q;
+        _out << nl << line;
     }
 
     if (!members.empty())
@@ -2173,13 +2275,13 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
         //
         // Collect docstrings (if any) for the members.
         //
-        map<string, StringVec> docs;
-        for (DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
+        map<string, vector<string>> docs;
+        for (const auto& member : members)
         {
-            StringVec doc = stripMarkup((*m)->comment());
+            vector<string> doc = stripMarkup(member->comment());
             if (!doc.empty())
             {
-                docs[(*m)->name()] = doc;
+                docs[member->name()] = doc;
             }
         }
         //
@@ -2187,20 +2289,18 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
         //
         if (!docs.empty())
         {
-            _out << nl << "Members:";
-            for (DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
+            _out << nl;
+            _out << nl << "Attributes";
+            _out << nl << "----------";
+            for (const auto& member : members)
             {
-                _out << nl << fixIdent((*m)->name()) << " -- ";
-                map<string, StringVec>::iterator p = docs.find((*m)->name());
+                _out << nl << fixIdent(member->name()) << " : " << typeToDocstring(member->type(), member->optional());
+                map<string, vector<string>>::iterator p = docs.find(member->name());
                 if (p != docs.end())
                 {
-                    for (StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    for (const auto& line : p->second)
                     {
-                        if (q != p->second.begin())
-                        {
-                            _out << nl;
-                        }
-                        _out << *q;
+                        _out << nl << "    " << line;
                     }
                 }
             }
@@ -2213,7 +2313,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
 void
 Slice::Python::CodeVisitor::writeDocstring(const string& comment, const EnumeratorList& enums)
 {
-    StringVec lines = stripMarkup(comment);
+    vector<string> lines = stripMarkup(comment);
     if (lines.empty())
     {
         return;
@@ -2221,7 +2321,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
 
     _out << nl << tripleQuotes;
 
-    for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (vector<string>::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
@@ -2231,10 +2331,10 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
         //
         // Collect docstrings (if any) for the enumerators.
         //
-        map<string, StringVec> docs;
+        map<string, vector<string>> docs;
         for (EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
         {
-            StringVec doc = stripMarkup((*e)->comment());
+            vector<string> doc = stripMarkup((*e)->comment());
             if (!doc.empty())
             {
                 docs[(*e)->name()] = doc;
@@ -2249,10 +2349,10 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
             for (EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
             {
                 _out << nl << fixIdent((*e)->name()) << " -- ";
-                map<string, StringVec>::iterator p = docs.find((*e)->name());
+                map<string, vector<string>>::iterator p = docs.find((*e)->name());
                 if (p != docs.end())
                 {
-                    for (StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    for (vector<string>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
                     {
                         if (q != p->second.begin())
                         {
@@ -2274,7 +2374,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
     //
     // Remove most javadoc & HTML markup.
     //
-    StringVec lines = stripMarkup(comment);
+    vector<string> lines = stripMarkup(comment);
     if (lines.empty())
     {
         return false;
@@ -2316,7 +2416,6 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     // Description of foo...
                     //
                     name = l.substr(namePos);
-                    c.params[name] = "";
                 }
                 else
                 {
@@ -2324,11 +2423,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     pos = l.find_first_not_of(" \t", pos);
                     if (pos != string::npos)
                     {
-                        c.params[name] = l.substr(pos);
-                    }
-                    else
-                    {
-                        c.params[name] = "";
+                        c.params[name].push_back(l.substr(pos));
                     }
                 }
             }
@@ -2358,7 +2453,6 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     // Description of foo...
                     //
                     name = l.substr(namePos);
-                    c.exceptions[name] = "";
                 }
                 else
                 {
@@ -2366,11 +2460,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     pos = l.find_first_not_of(" \t", pos);
                     if (pos != string::npos)
                     {
-                        c.exceptions[name] = l.substr(pos);
-                    }
-                    else
-                    {
-                        c.exceptions[name] = "";
+                        c.exceptions[name].push_back(l.substr(pos));
                     }
                 }
             }
@@ -2389,7 +2479,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                 inReturn = true;
                 inException = false;
                 inParam = false;
-                c.returns = l.substr(pos);
+                c.returns.push_back(l.substr(pos));
             }
             i = lines.erase(i);
             continue;
@@ -2406,32 +2496,20 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                 if (inParam)
                 {
                     assert(!name.empty());
-                    if (!c.params[name].empty())
-                    {
-                        c.params[name] += " ";
-                    }
-                    c.params[name] += l.substr(pos);
+                    c.params[name].push_back(l.substr(pos));
                     i = lines.erase(i);
                     continue;
                 }
                 else if (inException)
                 {
                     assert(!name.empty());
-                    if (!c.exceptions[name].empty())
-                    {
-                        c.exceptions[name] += " ";
-                    }
-                    c.exceptions[name] += l.substr(pos);
+                    c.exceptions[name].push_back(l.substr(pos));
                     i = lines.erase(i);
                     continue;
                 }
                 else if (inReturn)
                 {
-                    if (!c.returns.empty())
-                    {
-                        c.returns += " ";
-                    }
-                    c.returns += l.substr(pos);
+                    c.returns.push_back(l.substr(pos));
                     i = lines.erase(i);
                     continue;
                 }
@@ -2444,11 +2522,12 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
     //
     // All remaining lines become the general description.
     //
-    for (vector<string>::iterator p = lines.begin(); p != lines.end(); ++p)
+    for (const string& line : lines)
     {
-        if (p->find_first_not_of(" \t\n\r") != string::npos)
+        auto pos = line.find_first_not_of(" \t");
+        if (pos != string::npos)
         {
-            c.description.push_back(*p);
+            c.description.push_back(line.substr(pos));
         }
     }
 
@@ -2466,16 +2545,16 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
     TypePtr ret = op->returnType();
     ParamDeclList params = op->parameters();
-    vector<string> inParams, outParams;
-    for (ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
+    ParamDeclList inParams, outParams;
+    for (const auto& param : params)
     {
-        if ((*p)->isOutParam())
+        if (param->isOutParam())
         {
-            outParams.push_back((*p)->name());
+            outParams.push_back(param);
         }
         else
         {
-            inParams.push_back((*p)->name());
+            inParams.push_back(param);
         }
     }
 
@@ -2486,11 +2565,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         {
             return;
         }
-        else if ((mode == DocAsync || mode == DocAsyncBegin) && inParams.empty())
-        {
-            return;
-        }
-        else if (mode == DocAsyncEnd && outParams.empty() && comment.returns.empty())
+        else if (mode == DocAsync && inParams.empty())
         {
             return;
         }
@@ -2504,12 +2579,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     // Emit the general description.
     //
     _out << nl << "\"\"\"";
-    if (!comment.description.empty())
+    for (const string& line : comment.description)
     {
-        for (StringVec::const_iterator q = comment.description.begin(); q != comment.description.end(); ++q)
-        {
-            _out << nl << *q;
-        }
+        _out << nl << line;
     }
 
     //
@@ -2520,11 +2592,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     {
         case DocSync:
         case DocAsync:
-        case DocAsyncBegin:
         case DocDispatch:
             needArgs = true;
             break;
-        case DocAsyncEnd:
         case DocAsyncDispatch:
             needArgs = true;
             break;
@@ -2532,110 +2602,128 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
     if (needArgs)
     {
-        _out << nl << "Arguments:";
-        for (vector<string>::iterator q = inParams.begin(); q != inParams.end(); ++q)
+        if (!comment.description.empty())
         {
-            string fixed = fixIdent(*q);
-            _out << nl << fixed << " -- ";
-            StringMap::const_iterator r = comment.params.find(*q);
-            if (r == comment.params.end())
+            _out << nl;
+        }
+
+        _out << nl << "Parameters";
+        _out << nl << "----------";
+        for (const auto& param : inParams)
+        {
+            string fixed = fixIdent(param->name());
+            _out << nl << fixed << " : " << typeToDocstring(param->type(), param->optional());
+            const auto r = comment.params.find(param->name());
+            for (const auto& line : r->second)
             {
-                r = comment.params.find(fixed); // Just in case.
-            }
-            if (r != comment.params.end())
-            {
-                _out << r->second;
+                _out << nl << "    " << line;
             }
         }
-        if (mode == DocAsyncBegin)
-        {
-            _out << nl << "_response -- The asynchronous response callback." << nl
-                 << "_ex -- The asynchronous exception callback." << nl << "_sent -- The asynchronous sent callback.";
-        }
-        if (mode == DocSync || mode == DocAsync || mode == DocAsyncBegin)
+        if (mode == DocSync || mode == DocAsync)
         {
             const string contextParamName = getEscapedParamName(op, "context");
-            _out << nl << contextParamName << " -- The request context for the invocation.";
+            _out << nl << contextParamName << " : Ice.Context";
+            _out << nl << "    The request context for the invocation.";
         }
         if (mode == DocDispatch || mode == DocAsyncDispatch)
         {
             const string currentParamName = getEscapedParamName(op, "current");
-            _out << nl << currentParamName << " -- The Current object for the invocation.";
+            _out << nl << currentParamName << " : Ice.Current";
+            _out << nl << "    The Current object for the dispatch.";
         }
-    }
-    else if (mode == DocAsyncEnd)
-    {
-        _out << nl << "Arguments:" << nl << "_r - The asynchronous result object for the invocation.";
     }
 
     //
     // Emit return value(s).
     //
+    bool hasReturnValue = false;
     if (mode == DocAsync || mode == DocAsyncDispatch)
     {
-        _out << nl << "Returns: A future object for the invocation.";
-    }
-    if (mode == DocAsyncBegin)
-    {
-        _out << nl << "Returns: An asynchronous result object for the invocation.";
+        hasReturnValue = true;
+        if (!comment.description.empty() || needArgs)
+        {
+            _out << nl;
+        }
+        _out << nl << "Returns";
+        _out << nl << "-------";
+        _out << nl << "Ice.Future";
+        _out << nl << "    A future object that is completed with the result of "
+             << (mode == DocAsync ? "the invocation." : "the dispatch.");
     }
 
-    if ((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch) && (ret || !outParams.empty()))
+    if ((mode == DocSync || mode == DocDispatch) && (ret || !outParams.empty()))
     {
+        hasReturnValue = true;
+        if (!comment.description.empty() || needArgs)
+        {
+            _out << nl;
+        }
+        _out << nl << "Returns";
+        _out << nl << "-------";
         if ((outParams.size() + (ret ? 1 : 0)) > 1)
         {
-            _out << nl << "Returns a tuple containing the following:";
+            _out << nl << "Returns a tuple of (";
             if (ret)
             {
-                _out << nl << "_retval -- " << comment.returns;
+                _out << typeToDocstring(ret, op->returnIsOptional());
+                _out << ", ";
             }
-            for (vector<string>::iterator q = outParams.begin(); q != outParams.end(); ++q)
+
+            for (const auto& param : outParams)
             {
-                string fixed = fixIdent(*q);
-                _out << nl << fixed << " -- ";
-                StringMap::const_iterator r = comment.params.find(*q);
-                if (r == comment.params.end())
+                _out << typeToDocstring(param->type(), param->optional());
+                if (param != outParams.back())
                 {
-                    r = comment.params.find(fixed); // Just in case.
+                    _out << ", ";
                 }
-                if (r != comment.params.end())
+            }
+            _out << ")";
+            _out << nl << "    A tuple containing:";
+            if (ret)
+            {
+                _out << nl << "    - " << typeToDocstring(ret, op->returnIsOptional());
+                _out << nl << "        " << comment.returns;
+            }
+            for (const auto& param : outParams)
+            {
+                _out << nl << "    - " << typeToDocstring(param->type(), param->optional());
+                const auto r = comment.params.find(param->name());
+                for (const string& line : r->second)
                 {
-                    _out << r->second;
+                    _out << nl << "        " << line;
                 }
             }
         }
         else if (ret && !comment.returns.empty())
         {
-            _out << nl << "Returns: " << comment.returns;
+            _out << nl << typeToDocstring(ret, op->returnIsOptional());
+            _out << nl << "    " << comment.returns;
         }
         else if (!outParams.empty())
         {
             assert(outParams.size() == 1);
-            _out << nl << "Returns:";
-            string fixed = fixIdent(outParams[0]);
-            _out << nl << fixed << " -- ";
-            StringMap::const_iterator r = comment.params.find(outParams[0]);
-            if (r == comment.params.end())
-            {
-                r = comment.params.find(fixed); // Just in case.
-            }
-            if (r != comment.params.end())
-            {
-                _out << r->second;
-            }
+            _out << nl << typeToDocstring(outParams.front()->type(), outParams.front()->optional());
         }
     }
 
     //
     // Emit exceptions.
     //
-    if ((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch || mode == DocAsyncDispatch) &&
-        !comment.exceptions.empty())
+    if ((mode == DocSync || mode == DocDispatch || mode == DocAsyncDispatch) && !comment.exceptions.empty())
     {
-        _out << nl << "Throws:";
-        for (StringMap::const_iterator r = comment.exceptions.begin(); r != comment.exceptions.end(); ++r)
+        if (!comment.description.empty() || needArgs || hasReturnValue)
         {
-            _out << nl << r->first << " -- " << r->second;
+            _out << nl;
+        }
+        _out << nl << "Raises";
+        _out << nl << "------";
+        for (const auto& [exception, exceptionDescription] : comment.exceptions)
+        {
+            _out << nl << exception;
+            for (const auto& line : exceptionDescription)
+            {
+                _out << nl << "    " << line;
+            }
         }
     }
     _out << nl << "\"\"\"";
@@ -3006,42 +3094,10 @@ Slice::Python::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    static const string protobuf = "python:protobuf:";
     StringList metaData = p->getMetaData();
     const string file = p->file();
     const string line = p->line();
-    StringList protobufMetaData;
-    const UnitPtr ut = p->unit();
-    const DefinitionContextPtr dc = ut->findDefinitionContext(file);
-    assert(dc);
-
-    for (StringList::const_iterator q = metaData.begin(); q != metaData.end();)
-    {
-        string s = *q++;
-        if (s.find(protobuf) == 0)
-        {
-            //
-            // Remove from list so validateSequence does not try to handle as well.
-            //
-            metaData.remove(s);
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-            if (!builtin || builtin->kind() != Builtin::KindByte)
-            {
-                dc->warning(
-                    InvalidMetaData,
-                    file,
-                    line,
-                    "ignoring invalid metadata `" + s + ": " + "`protobuf' encoding must be a byte sequence");
-            }
-            else
-            {
-                protobufMetaData.push_back(s);
-            }
-        }
-    }
-
     metaData = validateSequence(file, line, p, metaData);
-    metaData.insert(metaData.end(), protobufMetaData.begin(), protobufMetaData.end());
     p->setMetaData(metaData);
 }
 

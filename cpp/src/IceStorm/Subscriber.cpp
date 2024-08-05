@@ -7,7 +7,6 @@
 #include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "NodeI.h"
-#include "SendQueueSizeMaxReached.h"
 #include "TraceLevels.h"
 #include "Util.h"
 
@@ -23,11 +22,6 @@ using namespace IceStormElection;
 //
 namespace
 {
-    struct SendQueueSizeMaxReached : std::exception
-    {
-        const char* what() const noexcept override { return "maximum size of send queue reached"; }
-    };
-
     class PerSubscriberPublisherI final : public Ice::BlobjectArray
     {
     public:
@@ -372,6 +366,12 @@ namespace
     }
 }
 
+const char*
+SendQueueSizeMaxReachedException::ice_id() const noexcept
+{
+    return "::IceStorm::SendQueueSizeMaxReachedException";
+}
+
 shared_ptr<Subscriber>
 Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord& rec)
 {
@@ -543,10 +543,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
                 {
                     if (_instance->sendQueueSizeMaxPolicy() == Instance::RemoveSubscriber)
                     {
-                        error(
-                            false,
-                            make_exception_ptr(
-                                SendQueueSizeMaxReached{__FILE__, __LINE__, "send queue size max reached"}));
+                        error(false, make_exception_ptr(SendQueueSizeMaxReachedException{__FILE__, __LINE__}));
                         return false;
                     }
                     else // DropEvents
@@ -686,7 +683,7 @@ Subscriber::error(bool dec, exception_ptr e)
         return;
     }
 
-    // A hard error is an ObjectNotExistException, NotRegisteredException, or SendQueueSizeMaxReached
+    // A hard error is an ObjectNotExistException, NotRegisteredException, or SendQueueSizeMaxReachedException
     bool hardError;
     string what;
     try
@@ -703,7 +700,7 @@ Subscriber::error(bool dec, exception_ptr e)
         hardError = true;
         what = ex.what();
     }
-    catch (const SendQueueSizeMaxReached& ex)
+    catch (const SendQueueSizeMaxReachedException& ex)
     {
         hardError = true;
         what = ex.what();

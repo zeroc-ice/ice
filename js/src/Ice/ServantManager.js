@@ -4,7 +4,12 @@
 
 import { HashMap } from "./HashMap.js";
 import { StringUtil } from "./StringUtil.js";
-import { AlreadyRegisteredException, NotRegisteredException } from "./LocalExceptions.js";
+import {
+    AlreadyRegisteredException,
+    NotRegisteredException,
+    ObjectNotExistException,
+    FacetNotExistException,
+} from "./LocalExceptions.js";
 import { identityToString } from "./IdentityToString.js";
 import { Debug } from "./Debug.js";
 
@@ -21,6 +26,51 @@ export class ServantManager {
         this._defaultServantMap = new Map();
         // Map<String, Ice.ServantLocator>
         this._locatorMap = new Map();
+    }
+
+    async dispatch(request) {
+        const current = request.current;
+        let servant = this.findServant(current.id, current.facet);
+
+        if (servant !== null) {
+            // the simple, common path
+            return await servant.dispatch(request);
+        }
+
+        // Else, check servant locators
+        let locator = this.findServantLocator(current.id.category);
+        if (locator === null && current.id.category.length > 0) {
+            locator = this.findServantLocator("");
+        }
+
+        if (locator !== null) {
+            const cookie = {};
+            try {
+                servant = locator.locate(current, cookie);
+            } catch (ex) {
+                // Skip the encapsulation. This allows the next batch requests in the same InputStream to proceed.
+                request.inputStream.skipEncapsulation();
+                throw ex;
+            }
+
+            if (servant !== null) {
+                try {
+                    return await servant.dispatch(request);
+                } finally {
+                    locator.finished(current, servant, cookie.value);
+                }
+            }
+        }
+
+        Debug.assert(servant === null);
+
+        // Skip the encapsulation. This allows the next batch requests in the same InputStream to proceed.
+        request.inputStream.skipEncapsulation();
+        if (this.hasServant(current.id)) {
+            throw new FacetNotExistException();
+        } else {
+            throw new ObjectNotExistException();
+        }
     }
 
     addServant(servant, ident, facet) {

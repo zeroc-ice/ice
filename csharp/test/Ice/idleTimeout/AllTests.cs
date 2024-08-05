@@ -14,8 +14,7 @@ internal class AllTests : global::Test.AllTests
 
         string proxyString3s = $"test: {helper.getTestEndpoint(1)}";
 
-        // TODO: this test no longer works with the thread pool fix, idle timeout implementation needs fixing.
-        // await testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(p, helper.getWriter());
+        await testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(p, helper.getWriter());
         await testConnectionAbortedByIdleCheck(proxyString, communicator.getProperties(), helper.getWriter());
         await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
         await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
@@ -39,7 +38,10 @@ internal class AllTests : global::Test.AllTests
         // Establish connection.
         await p.ice_pingAsync();
 
-        await p.sleepAsync(2000); // the implementation in the server sleeps for 2,000ms
+        await p.sleepAsync(4000); // the implementation in the server sleeps for 2,000ms
+
+        // close connection
+        p.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
         output.WriteLine("ok");
     }
 

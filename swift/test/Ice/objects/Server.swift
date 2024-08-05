@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 class Server: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         var initData = Ice.InitializationData()
@@ -21,7 +21,7 @@ class Server: TestHelperI {
         try adapter.add(servant: InitialDisp(InitialI(adapter)), id: Ice.stringToIdentity("initial"))
         try adapter.add(servant: F2Disp(F2I()), id: Ice.stringToIdentity("F21"))
         try adapter.add(
-            servant: BlobjectDisp(UnexpectedObjectExceptionTestI()),
+            servant: UnexpectedObjectExceptionTestDispatcher(),
             id: Ice.stringToIdentity("uoet"))
         try adapter.activate()
         serverReady()

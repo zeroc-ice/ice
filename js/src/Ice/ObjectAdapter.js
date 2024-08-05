@@ -24,6 +24,8 @@ import { Timer } from "./Timer.js";
 import { identityToString } from "./IdentityToString.js";
 import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
+import { Logger } from "./Logger.js";
+import { LoggerMiddleware } from "./LoggerMiddleware.js";
 
 const _suffixes = [
     "ACM",
@@ -86,6 +88,18 @@ export class ObjectAdapter {
         this._noConfig = noConfig;
         this._statePromises = [];
 
+        this._dispatchPipeline = null;
+        this._middlewareStack = [];
+
+        // Install default middleware depending on the communicator's configuration.
+        const logger = instance.initializationData().logger;
+        if (logger instanceof Logger) {
+            const warningLevel = instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch");
+            if (warningLevel > 0) {
+                this.use(next => new LoggerMiddleware(next, logger, warningLevel, instance.toStringMode()));
+            }
+        }
+
         if (this._noConfig) {
             this._reference = this._instance.referenceFactory().createFromString("dummy -t", "");
             this._messageSizeMax = this._instance.messageSizeMax();
@@ -103,7 +117,7 @@ export class ObjectAdapter {
         if (unknownProps.length !== 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0) {
             const message = ["found unknown properties for object adapter `" + name + "':"];
             unknownProps.forEach(unknownProp => message.push("\n    " + unknownProp));
-            this._instance.initializationData().logger.warning(message.join(""));
+            logger.warning(message.join(""));
         }
 
         //
@@ -263,6 +277,14 @@ export class ObjectAdapter {
         });
     }
 
+    use(middleware) {
+        if (this._dispatchPipeline !== null) {
+            throw new Error("All middleware must be installed before the first dispatch.");
+        }
+        this._middlewareStack.push(middleware);
+        return this;
+    }
+
     add(object, ident) {
         return this.addFacet(object, ident, "");
     }
@@ -347,6 +369,18 @@ export class ObjectAdapter {
     findDefaultServant(category) {
         this.checkForDeactivation();
         return this._servantManager.findDefaultServant(category);
+    }
+
+    get dispatchPipeline() {
+        if (this._dispatchPipeline === null) {
+            let dispatchPipeline = this._servantManager; // the "final" dispatcher
+            while (this._middlewareStack.length > 0) {
+                const middleware = this._middlewareStack.pop();
+                dispatchPipeline = middleware(dispatchPipeline);
+            }
+            this._dispatchPipeline = dispatchPipeline;
+        }
+        return this._dispatchPipeline;
     }
 
     addServantLocator(locator, prefix) {

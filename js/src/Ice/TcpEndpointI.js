@@ -182,8 +182,8 @@ export class TcpEndpointI extends IPEndpointI {
         s.writeBool(this._compress);
     }
 
-    hashInit(h) {
-        h = super.hashInit(h);
+    hashCode() {
+        let h = super.hashCode();
         h = HashUtil.addNumber(h, this._timeout);
         h = HashUtil.addBoolean(h, this._compress);
         return h;

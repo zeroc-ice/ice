@@ -36,7 +36,7 @@ final class OpaqueEndpointI extends EndpointI {
   //
   @Override
   public void streamWrite(com.zeroc.Ice.OutputStream s) {
-    s.startEncapsulation(_rawEncoding, com.zeroc.Ice.FormatType.DefaultFormat);
+    s.startEncapsulation(_rawEncoding, null);
     s.writeBlob(_rawBytes);
     s.endEncapsulation();
   }

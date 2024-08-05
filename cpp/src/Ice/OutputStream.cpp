@@ -59,54 +59,66 @@ namespace
     };
 }
 
-Ice::OutputStream::OutputStream()
-    : _instance(nullptr),
+Ice::OutputStream::OutputStream(
+    EncodingVersion encoding,
+    FormatType format,
+    StringConverterPtr stringConverter,
+    WstringConverterPtr wstringConverter)
+    : _stringConverter(std::move(stringConverter)),
+      _wstringConverter(std::move(wstringConverter)),
       _closure(nullptr),
-      _encoding(currentEncoding),
-      _format(FormatType::CompactFormat),
-      _currentEncaps(0)
+      _encoding(std::move(encoding)),
+      _format(format),
+      _currentEncaps(nullptr)
 {
-}
-
-Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator) : _closure(0), _currentEncaps(0)
-{
-    initialize(communicator);
-}
-
-Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, const EncodingVersion& encoding)
-    : _closure(0),
-      _currentEncaps(0)
-{
-    initialize(communicator, encoding);
 }
 
 Ice::OutputStream::OutputStream(
-    const CommunicatorPtr& communicator,
-    const EncodingVersion& encoding,
-    pair<const byte*, const byte*> buf)
+    pair<const byte*, const byte*> buf,
+    EncodingVersion encoding,
+    FormatType format,
+    StringConverterPtr stringConverter,
+    WstringConverterPtr wstringConverter)
     : Buffer(buf.first, buf.second),
-      _closure(0),
-      _currentEncaps(0)
+      _stringConverter(std::move(stringConverter)),
+      _wstringConverter(std::move(wstringConverter)),
+      _closure(nullptr),
+      _encoding(std::move(encoding)),
+      _format(format),
+      _currentEncaps(nullptr)
 {
-    initialize(communicator, encoding);
     b.reset();
 }
 
-Ice::OutputStream::OutputStream(Instance* instance, const EncodingVersion& encoding) : _closure(0), _currentEncaps(0)
+Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, EncodingVersion encoding)
+    : OutputStream(getInstance(communicator).get(), std::move(encoding))
 {
-    initialize(instance, encoding);
+}
+
+Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator)
+    : OutputStream(communicator, getInstance(communicator)->defaultsAndOverrides()->defaultEncoding)
+{
+}
+
+Ice::OutputStream::OutputStream(Instance* instance, EncodingVersion encoding)
+    : OutputStream(
+          std::move(encoding),
+          instance->defaultsAndOverrides()->defaultFormat,
+          instance->getStringConverter(),
+          instance->getWstringConverter())
+{
 }
 
 Ice::OutputStream::OutputStream(OutputStream&& other) noexcept
     : Buffer(std::move(other)),
-      _instance(other._instance),
+      _stringConverter(std::move(other._stringConverter)),
+      _wstringConverter(std::move(other._wstringConverter)),
       _closure(other._closure),
       _encoding(std::move(other._encoding)),
       _format(other._format),
       _currentEncaps(other._currentEncaps)
 {
     // Reset other to its default state.
-    other._instance = nullptr;
     other._closure = nullptr;
     other._encoding = currentEncoding;
     other._format = FormatType::CompactFormat;
@@ -123,14 +135,14 @@ Ice::OutputStream::operator=(OutputStream&& other) noexcept
     if (this != &other)
     {
         Buffer::operator=(std::move(other));
-        _instance = other._instance;
+        _stringConverter = std::move(other._stringConverter);
+        _wstringConverter = std::move(other._wstringConverter);
         _closure = other._closure;
         _encoding = std::move(other._encoding);
         _format = other._format;
         _currentEncaps = other._currentEncaps;
 
         // Reset other to its default state.
-        other._instance = nullptr;
         other._closure = nullptr;
         other._encoding = currentEncoding;
         other._format = FormatType::CompactFormat;
@@ -144,32 +156,6 @@ Ice::OutputStream::operator=(OutputStream&& other) noexcept
 }
 
 void
-Ice::OutputStream::initialize(const CommunicatorPtr& communicator)
-{
-    assert(communicator);
-    Instance* instance = getInstance(communicator).get();
-    initialize(instance, instance->defaultsAndOverrides()->defaultEncoding);
-}
-
-void
-Ice::OutputStream::initialize(const CommunicatorPtr& communicator, const EncodingVersion& encoding)
-{
-    assert(communicator);
-    initialize(getInstance(communicator).get(), encoding);
-}
-
-void
-Ice::OutputStream::initialize(Instance* instance, const EncodingVersion& encoding)
-{
-    assert(instance);
-
-    _instance = instance;
-    _encoding = encoding;
-
-    _format = _instance->defaultsAndOverrides()->defaultFormat;
-}
-
-void
 Ice::OutputStream::clear()
 {
     while (_currentEncaps && _currentEncaps != &_preAllocatedEncaps)
@@ -178,12 +164,6 @@ Ice::OutputStream::clear()
         _currentEncaps = _currentEncaps->previous;
         delete oldEncaps;
     }
-}
-
-void
-Ice::OutputStream::setFormat(FormatType fmt)
-{
-    _format = fmt;
 }
 
 void*
@@ -205,7 +185,8 @@ Ice::OutputStream::swap(OutputStream& other)
 {
     swapBuffer(other);
 
-    std::swap(_instance, other._instance);
+    std::swap(_stringConverter, other._stringConverter);
+    std::swap(_wstringConverter, other._wstringConverter);
     std::swap(_closure, other._closure);
     std::swap(_encoding, other._encoding);
     std::swap(_format, other._format);
@@ -247,12 +228,12 @@ Ice::OutputStream::startEncapsulation()
     }
     else
     {
-        startEncapsulation(_encoding, Ice::FormatType::DefaultFormat);
+        startEncapsulation(_encoding, nullopt);
     }
 }
 
 void
-Ice::OutputStream::startEncapsulation(const EncodingVersion& encoding, FormatType format)
+Ice::OutputStream::startEncapsulation(const EncodingVersion& encoding, std::optional<FormatType> format)
 {
     IceInternal::checkSupportedEncoding(encoding);
 
@@ -266,7 +247,7 @@ Ice::OutputStream::startEncapsulation(const EncodingVersion& encoding, FormatTyp
         _currentEncaps = new Encaps();
         _currentEncaps->previous = oldEncaps;
     }
-    _currentEncaps->format = format;
+    _currentEncaps->format = format.value_or(_format);
     _currentEncaps->encoding = encoding;
     _currentEncaps->start = b.size();
 
@@ -740,23 +721,16 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 
         byte* lastByte = nullptr;
         bool converted = false;
-        if (_instance)
+
+        StringConverterPtr stringConverter = _stringConverter;
+        if (!stringConverter)
         {
-            const StringConverterPtr& stringConverter = _instance->getStringConverter();
-            if (stringConverter)
-            {
-                lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
-                converted = true;
-            }
+            stringConverter = getProcessStringConverter();
         }
-        else
+        if (stringConverter)
         {
-            StringConverterPtr stringConverter = getProcessStringConverter();
-            if (stringConverter)
-            {
-                lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
-                converted = true;
-            }
+            lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
+            converted = true;
         }
 
         if (!converted)
@@ -852,15 +826,13 @@ Ice::OutputStream::write(wstring_view v)
 
         byte* lastByte = nullptr;
 
-        // Note: wstringConverter is never null; when set to null, get returns the default unicode wstring converter
-        if (_instance)
+        WstringConverterPtr wstringConverter = _wstringConverter;
+        if (!wstringConverter)
         {
-            lastByte = _instance->getWstringConverter()->toUTF8(v.data(), v.data() + v.size(), buffer);
+            wstringConverter = getProcessWstringConverter();
         }
-        else
-        {
-            lastByte = getProcessWstringConverter()->toUTF8(v.data(), v.data() + v.size(), buffer);
-        }
+        assert(wstringConverter); // never null
+        lastByte = wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
 
         if (lastByte != b.end())
         {
@@ -1021,11 +993,6 @@ Ice::OutputStream::initEncaps()
         _currentEncaps->encoding = _encoding;
     }
 
-    if (_currentEncaps->format == Ice::FormatType::DefaultFormat)
-    {
-        _currentEncaps->format = _format;
-    }
-
     if (!_currentEncaps->encoder) // Lazy initialization.
     {
         if (_currentEncaps->encoding == Encoding_1_0)
@@ -1184,21 +1151,7 @@ Ice::OutputStream::EncapsEncoder10::writePendingValues()
             //
             _stream->write(p->second);
 
-            try
-            {
-                p->first->ice_preMarshal();
-            }
-            catch (const std::exception& ex)
-            {
-                Warning out(_stream->instance()->initializationData().logger);
-                out << "std::exception raised by ice_preMarshal:\n" << ex;
-            }
-            catch (...)
-            {
-                Warning out(_stream->instance()->initializationData().logger);
-                out << "unknown exception raised by ice_preMarshal";
-            }
-
+            p->first->ice_preMarshal();
             p->first->_iceWrite(_stream);
         }
     }
@@ -1503,21 +1456,7 @@ Ice::OutputStream::EncapsEncoder11::writeInstance(const shared_ptr<Value>& v)
     //
     _marshaledMap.insert(make_pair(v, ++_valueIdIndex));
 
-    try
-    {
-        v->ice_preMarshal();
-    }
-    catch (const std::exception& ex)
-    {
-        Warning out(_stream->instance()->initializationData().logger);
-        out << "std::exception raised by ice_preMarshal:\n" << ex;
-    }
-    catch (...)
-    {
-        Warning out(_stream->instance()->initializationData().logger);
-        out << "unknown exception raised by ice_preMarshal";
-    }
-
+    v->ice_preMarshal();
     _stream->writeSize(1); // Object instance marker.
     v->_iceWrite(_stream);
 }

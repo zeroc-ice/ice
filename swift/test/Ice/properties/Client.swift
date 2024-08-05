@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 public class Client: TestHelperI {
-    override public func run(args _: [String]) throws {
+    override public func run(args _: [String]) async throws {
         let output = getWriter()
 
         output.write("testing load properties exception... ")
@@ -141,7 +141,7 @@ public class Client: TestHelperI {
                 try test(error.message == "unknown Ice property: Ice.UnknownProperty")
             }
 
-            output.write("ok")
+            output.writeLine("ok")
         }
     }
 }

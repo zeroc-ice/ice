@@ -41,9 +41,8 @@ declare module "ice" {
          */
         class UnknownException extends LocalException {
             /**
-             * One-shot constructor to initialize all data members.
-             * @param unknown This field is set to the textual representation of the unknown exception if available.
-             * @param ice_cause The error that cause this exception.
+             * Constructs an unknown exception.
+             * @param message The exception message.
              */
             constructor(message: string);
             unknown: string;
@@ -53,6 +52,10 @@ declare module "ice" {
          * The dispatch failed with a {@link LocalException} that is not one of the special marshal-able local exceptions.
          */
         class UnknownLocalException extends UnknownException {
+            /**
+             * Constructs an unknown local exception.
+             * @param message The exception message.
+             */
             constructor(message: string);
         }
 
@@ -60,6 +63,10 @@ declare module "ice" {
          * The dispatch returned a {@link UserException} that was not declared in the operation's exception specification.
          */
         class UnknownUserException extends UnknownException {
+            /**
+             * Constructs an unknown user exception.
+             * @param message The exception message.
+             */
             constructor(message: string);
         }
 

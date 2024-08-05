@@ -9,7 +9,7 @@ extension Current {
     ///   - formatType: The class format.
     ///   - marshal: The action that marshals result into an output stream.
     /// - Returns: The outgoing response.
-    public func makeOutgoingResponse<T>(_ result: T, formatType: FormatType, marshal: (OutputStream, T) -> Void)
+    public func makeOutgoingResponse<T>(_ result: T, formatType: FormatType?, marshal: (OutputStream, T) -> Void)
         -> OutgoingResponse
     {
         precondition(requestId != 0, "A one-way request cannot return a response")
@@ -26,24 +26,6 @@ extension Current {
         let ostr = startReplyStream()
         if requestId != 0 {
             ostr.writeEmptyEncapsulation(encoding)
-        }
-        return OutgoingResponse(ostr)
-    }
-
-    /// Creates an outgoing response with the specified payload.
-    /// - Parameters:
-    ///   - ok: When true, the reply status of the response is `ok`; otherwise, it's `userException`.
-    ///   - encapsulation: The payload of the response.
-    /// - Returns: The outgoing response.
-    public func makeOutgoingResponse(ok: Bool, encapsulation: Data) -> OutgoingResponse {
-        let ostr = startReplyStream(replyStatus: ok ? .ok : .userException)
-
-        if requestId != 0 {
-            if encapsulation.isEmpty {
-                ostr.writeEmptyEncapsulation(encoding)
-            } else {
-                ostr.writeEncapsulation(encapsulation)
-            }
         }
         return OutgoingResponse(ostr)
     }
@@ -163,7 +145,7 @@ extension Current {
     /// is 0 (one-way request), the returned output stream is empty.
     /// - Parameter replyStatus: The reply status.
     /// - Returns: The output stream.
-    public func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
+    private func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
         let ostr = OutputStream(communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
         if requestId != 0 {
             ostr.writeBlob(replyHdr)

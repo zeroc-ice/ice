@@ -24,7 +24,7 @@ export class OpaqueEndpointI extends EndpointI {
     // Marshal the endpoint
     //
     streamWrite(s) {
-        s.startEncapsulation(this._rawEncoding, FormatType.DefaultFormat);
+        s.startEncapsulation(this._rawEncoding, null);
         s.writeBlob(this._rawBytes);
         s.endEncapsulation();
     }
@@ -138,14 +138,11 @@ export class OpaqueEndpointI extends EndpointI {
     }
 
     hashCode() {
-        if (this._hashCode === undefined) {
-            let h = 5381;
-            h = HashUtil.addNumber(h, this._type);
-            h = HashUtil.addHashable(h, this._rawEncoding);
-            h = HashUtil.addArray(h, this._rawBytes, HashUtil.addNumber);
-            this._hashCode = h;
-        }
-        return this._hashCode;
+        let h = 5381;
+        h = HashUtil.addNumber(h, this._type);
+        h = HashUtil.addHashable(h, this._rawEncoding);
+        h = HashUtil.addArray(h, this._rawBytes, HashUtil.addNumber);
+        return h;
     }
 
     options() {

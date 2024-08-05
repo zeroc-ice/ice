@@ -55,10 +55,6 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
       throw new com.zeroc.Ice.TwowayOnlyException(_operation);
     }
 
-    if (format == null) {
-      format = FormatType.DefaultFormat;
-    }
-
     try {
       prepare(ctx);
 

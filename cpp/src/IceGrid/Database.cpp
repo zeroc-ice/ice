@@ -221,10 +221,7 @@ Database::Database(
 {
     IceDB::ReadWriteTxn txn(_env);
 
-    IceDB::IceContext context;
-    context.communicator = _communicator;
-    context.encoding.major = 1;
-    context.encoding.minor = 1;
+    IceDB::IceContext context{_communicator};
 
     _applications = StringApplicationInfoMap(txn, applicationsDbName, context, MDB_CREATE);
 

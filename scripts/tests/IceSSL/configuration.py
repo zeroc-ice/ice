@@ -129,28 +129,14 @@ class ConfigurationTestCase(ClientServerTestCase):
         else:
             return "openssl"
 
-
-class IceSSLConfigurationClient(Client):
-    def getExe(self, current):
-        if isinstance(platform, Windows) and current.config.openssl:
-            return "clientopenssl"
-        return Client.getExe(self, current)
-
-
-class IceSSLConfigurationServer(Server):
-    def getExe(self, current):
-        if isinstance(platform, Windows) and current.config.openssl:
-            return "serveropenssl"
-        return Server.getExe(self, current)
-
-
 TestSuite(
     __name__,
     [
         ConfigurationTestCase(
-            client=IceSSLConfigurationClient(args=['"{testdir}"']),
-            server=IceSSLConfigurationServer(args=['"{testdir}"']),
+            client=Client(args=['"{testdir}"']),
+            server=Server(args=['"{testdir}"']),
         )
     ],
     multihost=False,
+    options={"protocol": ["tcp"]},
 )

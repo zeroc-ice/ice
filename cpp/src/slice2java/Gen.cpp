@@ -37,23 +37,24 @@ namespace
 
     string opFormatTypeToString(const OperationPtr& op)
     {
-        string format = "com.zeroc.Ice.FormatType.";
-        switch (op->format())
+        optional<FormatType> opFormat = op->format();
+        if (opFormat)
         {
-            case DefaultFormat:
-                format += "DefaultFormat";
-                break;
-            case CompactFormat:
-                format += "CompactFormat";
-                break;
-            case SlicedFormat:
-                format += "SlicedFormat";
-                break;
-            default:
-                assert(false);
-                break;
+            switch (*opFormat)
+            {
+                case CompactFormat:
+                    return "com.zeroc.Ice.FormatType.CompactFormat";
+                case SlicedFormat:
+                    return "com.zeroc.Ice.FormatType.SlicedFormat";
+                default:
+                    assert(false);
+                    return "???";
+            }
         }
-        return format;
+        else
+        {
+            return "null";
+        }
     }
 
     string getEscapedParamName(const OperationPtr& p, const string& name)
@@ -3928,7 +3929,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         while (s)
         {
             //
-            // Stop if the inner sequence type has a custom, serializable or protobuf type.
+            // Stop if the inner sequence type has a custom or serializable type.
             //
             if (hasTypeMetaData(s))
             {

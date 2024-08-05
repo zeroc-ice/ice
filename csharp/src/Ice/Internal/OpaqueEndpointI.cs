@@ -40,7 +40,7 @@ internal sealed class OpaqueEndpointI : EndpointI
     //
     public override void streamWrite(Ice.OutputStream s)
     {
-        s.startEncapsulation(_rawEncoding, Ice.FormatType.DefaultFormat);
+        s.startEncapsulation(_rawEncoding);
         s.writeBlob(_rawBytes);
         s.endEncapsulation();
     }

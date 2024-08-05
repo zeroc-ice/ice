@@ -201,12 +201,12 @@ namespace IceInternal
         void invoke(
             std::string_view,
             Ice::OperationMode,
-            Ice::FormatType,
+            std::optional<Ice::FormatType>,
             const Ice::Context&,
             std::function<void(Ice::OutputStream*)>);
         void throwUserException();
 
-        Ice::OutputStream* startWriteParams(Ice::FormatType format)
+        Ice::OutputStream* startWriteParams(std::optional<Ice::FormatType> format)
         {
             _os.startEncapsulation(_encoding, format);
             return &_os;
@@ -294,7 +294,7 @@ namespace IceInternal
         void invoke(
             std::string_view operation,
             Ice::OperationMode mode,
-            Ice::FormatType format,
+            std::optional<Ice::FormatType> format,
             const Ice::Context& ctx,
             std::function<void(Ice::OutputStream*)> write,
             std::function<void(const Ice::UserException&)> userException)
@@ -312,7 +312,7 @@ namespace IceInternal
         void invoke(
             std::string_view operation,
             Ice::OperationMode mode,
-            Ice::FormatType format,
+            std::optional<Ice::FormatType> format,
             const Ice::Context& ctx,
             std::function<void(Ice::OutputStream*)> write,
             std::function<void(const Ice::UserException&)> userException,
@@ -335,7 +335,7 @@ namespace IceInternal
         void invoke(
             std::string_view operation,
             Ice::OperationMode mode,
-            Ice::FormatType format,
+            std::optional<Ice::FormatType> format,
             const Ice::Context& ctx,
             std::function<void(Ice::OutputStream*)> write,
             std::function<void(const Ice::UserException&)> userException)

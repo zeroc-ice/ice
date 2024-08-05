@@ -126,17 +126,6 @@ namespace
         }
         return os.str();
     }
-
-    bool initHasExecutor(const InitializationData& initData)
-    {
-#ifdef __APPLE__
-        if (initData.useDispatchQueueExecutor)
-        {
-            return true;
-        }
-#endif
-        return initData.executor != nullptr;
-    }
 }
 
 ConnectionFlushBatchAsync::ConnectionFlushBatchAsync(const ConnectionIPtr& connection, const InstancePtr& instance)
@@ -1792,10 +1781,10 @@ Ice::ConnectionI::ConnectionI(
       _connector(connector),
       _endpoint(endpoint),
       _adapter(adapter),
-      _hasExecutor(initHasExecutor(_instance->initializationData())), // Cached for better performance.
-      _logger(_instance->initializationData().logger),                // Cached for better performance.
-      _traceLevels(_instance->traceLevels()),                         // Cached for better performance.
-      _timer(_instance->timer()),                                     // Cached for better performance.
+      _hasExecutor(_instance->initializationData().executor != nullptr), // Cached for better performance.
+      _logger(_instance->initializationData().logger),                   // Cached for better performance.
+      _traceLevels(_instance->traceLevels()),                            // Cached for better performance.
+      _timer(_instance->timer()),                                        // Cached for better performance.
       _connectTimeout(options.connectTimeout),
       _closeTimeout(options.closeTimeout), // not used for datagram connections
       // suppress inactivity timeout for datagram connections
@@ -1811,7 +1800,6 @@ Ice::ConnectionI::ConnectionI(
       _batchRequestQueue(new BatchRequestQueue(instance, endpoint->datagram())),
       _readStream(_instance.get(), Ice::currentProtocolEncoding),
       _readHeader(false),
-      _writeStream(_instance.get(), Ice::currentProtocolEncoding),
       _upcallCount(0),
       _state(StateNotInitialized),
       _shutdownInitiated(false),
@@ -2178,7 +2166,7 @@ Ice::ConnectionI::initiateShutdown()
         //
         // Before we shut down, we send a close connection message.
         //
-        OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
+        OutputStream os{Ice::currentProtocolEncoding};
         os.write(magic[0]);
         os.write(magic[1]);
         os.write(magic[2]);
@@ -2339,7 +2327,7 @@ Ice::ConnectionI::sendHeartbeat() noexcept
         // _sendStreams message.
         if (_sendStreams.empty())
         {
-            OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
+            OutputStream os{Ice::currentProtocolEncoding};
             os.write(magic[0]);
             os.write(magic[1]);
             os.write(magic[2]);
@@ -2468,7 +2456,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                     static_cast<uint8_t>(0));   // Compression status (always zero for validate connection).
                 _writeStream.write(headerSize); // Message size.
                 _writeStream.i = _writeStream.b.begin();
-                traceSend(_writeStream, _logger, _traceLevels);
+                traceSend(_writeStream, _instance, _logger, _traceLevels);
             }
 
             if (_observer)
@@ -2673,10 +2661,10 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                 //
                 // Do compression.
                 //
-                OutputStream stream(_instance.get(), Ice::currentProtocolEncoding);
+                OutputStream stream{currentProtocolEncoding};
                 doCompress(*message->stream, stream);
 
-                traceSend(*message->stream, _logger, _traceLevels);
+                traceSend(*message->stream, _instance, _logger, _traceLevels);
 
                 message->adopt(&stream); // Adopt the compressed stream.
                 message->stream->i = message->stream->b.begin();
@@ -2706,7 +2694,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                     copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
                 }
                 message->stream->i = message->stream->b.begin();
-                traceSend(*message->stream, _logger, _traceLevels);
+                traceSend(*message->stream, _instance, _logger, _traceLevels);
 
 #ifdef ICE_HAS_BZIP2
             }
@@ -2789,11 +2777,11 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         // Do compression.
         //
-        OutputStream stream(_instance.get(), Ice::currentProtocolEncoding);
+        OutputStream stream{currentProtocolEncoding};
         doCompress(*message.stream, stream);
         stream.i = stream.b.begin();
 
-        traceSend(*message.stream, _logger, _traceLevels);
+        traceSend(*message.stream, _instance, _logger, _traceLevels);
 
         if (_observer)
         {
@@ -2844,7 +2832,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         }
         message.stream->i = message.stream->b.begin();
 
-        traceSend(*message.stream, _logger, _traceLevels);
+        traceSend(*message.stream, _instance, _logger, _traceLevels);
 
         if (_observer)
         {

@@ -36,11 +36,10 @@ namespace Slice
     };
 
     //
-    // Format preference for classes and exceptions.
+    // Format to use when marshaling a class instance.
     //
     enum FormatType
     {
-        DefaultFormat, // No preference was specified.
         CompactFormat, // Minimal format.
         SlicedFormat   // Full format.
     };
@@ -380,6 +379,7 @@ namespace Slice
         std::string file() const;
         std::string line() const;
         std::string comment() const;
+        CommentPtr parseComment(const std::string&, bool) const;
         CommentPtr parseComment(bool) const;
 
         int includeLevel() const;
@@ -390,7 +390,7 @@ namespace Slice
         std::list<std::string> getMetaData() const;
         void setMetaData(const std::list<std::string>&);
 
-        static FormatType parseFormatMetaData(const std::list<std::string>&);
+        static std::optional<FormatType> parseFormatMetaData(const std::list<std::string>&);
 
         /// Returns true if this item is deprecated (due to the presence of 'deprecated' metadata).
         /// @param checkParent If true, this item's immediate container will also be checked for 'deprecated' metadata.
@@ -677,7 +677,7 @@ namespace Slice
         bool returnsData() const;
         bool returnsMultipleValues() const;
         bool sendsOptionals() const;
-        FormatType format() const;
+        std::optional<FormatType> format() const;
         std::string kindOf() const final;
         void visit(ParserVisitor*, bool) final;
 

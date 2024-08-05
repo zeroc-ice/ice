@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import IceImpl
-import PromiseKit
 
 /// A SliceTraits struct describes a Slice interface.
 public protocol SliceTraits {
@@ -19,14 +18,14 @@ public protocol Object {
     /// - parameter current: `Ice.Current` - The Current object for the dispatch.
     ///
     /// - returns: `String` - The Slice type ID of the most-derived interface.
-    func ice_id(current: Current) throws -> String
+    func ice_id(current: Current) async throws -> String
 
     /// Returns the Slice type IDs of the interfaces supported by this object.
     ///
     /// - parameter current: `Ice.Current` - The Current object for the dispatch.
     ///
     /// - returns: `[String]` The Slice type IDs of the interfaces supported by this object, in alphabetical order.
-    func ice_ids(current: Current) throws -> [String]
+    func ice_ids(current: Current) async throws -> [String]
 
     /// Tests whether this object supports a specific Slice interface.
     ///
@@ -36,64 +35,45 @@ public protocol Object {
     ///
     /// - returns: `Bool` - True if this object has the interface specified by s or
     ///   derives from the interface specified by s.
-    func ice_isA(id: String, current: Current) throws -> Bool
+    func ice_isA(id: String, current: Current) async throws -> Bool
 
     /// Tests whether this object can be reached.
     ///
     /// - parameter current: The Current object for the dispatch.
-    func ice_ping(current: Current) throws
+    func ice_ping(current: Current) async throws
 }
 
 extension Object {
-    public func _iceD_ice_id(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
-        do {
-            _ = try request.inputStream.skipEmptyEncapsulation()
-            let returnValue = try ice_id(current: request.current)
-            return Promise.value(
-                request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
-                    ostr.write(value)
-                })
-        } catch {
-            return Promise(error: error)
+    public func _iceD_ice_id(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        _ = try request.inputStream.skipEmptyEncapsulation()
+        let returnValue = try await ice_id(current: request.current)
+        return request.current.makeOutgoingResponse(returnValue, formatType: .CompactFormat) { ostr, value in
+            ostr.write(value)
         }
     }
 
-    public func _iceD_ice_ids(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
-        do {
-            _ = try request.inputStream.skipEmptyEncapsulation()
-            let returnValue = try ice_ids(current: request.current)
-            return Promise.value(
-                request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
-                    ostr.write(value)
-                })
-        } catch {
-            return Promise(error: error)
+    public func _iceD_ice_ids(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        _ = try request.inputStream.skipEmptyEncapsulation()
+        let returnValue = try await ice_ids(current: request.current)
+        return request.current.makeOutgoingResponse(returnValue, formatType: .CompactFormat) { ostr, value in
+            ostr.write(value)
         }
     }
 
-    public func _iceD_ice_isA(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
-        do {
-            let istr = request.inputStream
-            _ = try istr.startEncapsulation()
-            let identity: String = try istr.read()
-            let returnValue = try ice_isA(id: identity, current: request.current)
-            return Promise.value(
-                request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
-                    ostr.write(value)
-                })
-        } catch {
-            return Promise(error: error)
+    public func _iceD_ice_isA(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        let istr = request.inputStream
+        _ = try istr.startEncapsulation()
+        let identity: String = try istr.read()
+        let returnValue = try await ice_isA(id: identity, current: request.current)
+        return request.current.makeOutgoingResponse(returnValue, formatType: .CompactFormat) { ostr, value in
+            ostr.write(value)
         }
     }
 
-    public func _iceD_ice_ping(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
-        do {
-            _ = try request.inputStream.skipEmptyEncapsulation()
-            try ice_ping(current: request.current)
-            return Promise.value(request.current.makeEmptyOutgoingResponse())
-        } catch {
-            return Promise(error: error)
-        }
+    public func _iceD_ice_ping(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        _ = try request.inputStream.skipEmptyEncapsulation()
+        try await ice_ping(current: request.current)
+        return request.current.makeEmptyOutgoingResponse()
     }
 }
 
@@ -108,19 +88,19 @@ public struct ObjectTraits: SliceTraits {
 open class ObjectI<T: SliceTraits>: Object {
     public init() {}
 
-    open func ice_id(current _: Current) throws -> String {
+    open func ice_id(current _: Current) async throws -> String {
         return T.staticId
     }
 
-    open func ice_ids(current _: Current) throws -> [String] {
+    open func ice_ids(current _: Current) async throws -> [String] {
         return T.staticIds
     }
 
-    open func ice_isA(id: String, current _: Current) throws -> Bool {
+    open func ice_isA(id: String, current _: Current) async throws -> Bool {
         return T.staticIds.contains(id)
     }
 
-    open func ice_ping(current _: Current) throws {
+    open func ice_ping(current _: Current) async throws {
         // Do nothing
     }
 }
@@ -133,18 +113,18 @@ public struct ObjectDisp: Dispatcher {
         self.servant = servant
     }
 
-    public func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+    public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
         switch request.current.operation {
         case "ice_id":
-            servant._iceD_ice_id(request)
+            try await servant._iceD_ice_id(request)
         case "ice_ids":
-            servant._iceD_ice_ids(request)
+            try await servant._iceD_ice_ids(request)
         case "ice_isA":
-            servant._iceD_ice_isA(request)
+            try await servant._iceD_ice_isA(request)
         case "ice_ping":
-            servant._iceD_ice_ping(request)
+            try await servant._iceD_ice_ping(request)
         default:
-            Promise(error: OperationNotExistException())
+            throw OperationNotExistException()
         }
     }
 }

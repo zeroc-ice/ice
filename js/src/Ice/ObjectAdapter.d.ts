@@ -70,7 +70,7 @@ declare module "ice" {
             /**
              * Wait until the object adapter has deactivated. Calling {@link ObjectAdapter#deactivate} initiates object adapter
              * deactivation, and {@link ObjectAdapter#waitForDeactivate} only returns when deactivation has been completed.
-             * @return @returns The asynchronous result object for the invocation.
+             * @return The asynchronous result object for the invocation.
              * @see ObjectAdapter#deactivate
              * @see ObjectAdapter#waitForHold
              * @see Communicator#waitForShutdown
@@ -87,12 +87,23 @@ declare module "ice" {
              * not yet been deactivated, destroy implicitly initiates the deactivation and waits for it to finish. Subsequent
              * calls to destroy are ignored. Once destroy has returned, it is possible to create another object adapter with
              * the same name.
-             * @return @returns The asynchronous result object for the invocation.
+             * @return The asynchronous result object for the invocation.
              * @see ObjectAdapter#deactivate
              * @see ObjectAdapter#waitForDeactivate
              * @see Communicator#destroy
              */
             destroy(): AsyncResultBase<void>;
+
+            /**
+             *  Install a middleware in this object adapter.
+             *
+             * @param middleware The middleware to install.
+             * @return This object adapter.
+             * @throws Error Thrown if the object adapter's dispatch pipeline has already been
+             * created. This creation typically occurs the first time the object adapter dispatches an incoming request.
+             */
+            use(middleware: (next: Ice.Object) => Ice.Object): ObjectAdapter;
+
             /**
              * Add a servant to this object adapter's Active Servant Map. Note that one servant can implement several Ice
              * objects by registering the servant with multiple identities. Adding a servant with an identity that is in the

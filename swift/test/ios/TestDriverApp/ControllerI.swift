@@ -12,15 +12,15 @@ class ProcessI: CommonProcess {
         _helper = helper
     }
 
-    func waitReady(timeout: Int32, current _: Ice.Current) throws {
+    func waitReady(timeout: Int32, current _: Ice.Current) async throws {
         try _helper.waitReady(timeout: timeout)
     }
 
-    func waitSuccess(timeout: Int32, current _: Ice.Current) throws -> Int32 {
+    func waitSuccess(timeout: Int32, current _: Ice.Current) async throws -> Int32 {
         return try _helper.waitSuccess(timeout: timeout)
     }
 
-    func terminate(current: Ice.Current) throws -> String {
+    func terminate(current: Ice.Current) async throws -> String {
         _helper.shutdown()
         let adapter = current.adapter
         try adapter.remove(current.id)
@@ -202,7 +202,7 @@ class ControllerHelperI: ControllerHelper, TextWriter {
                 let testHelper = TestBundle.getTestHelper(name: className)
                 testHelper.setControllerHelper(controllerHelper: self)
                 testHelper.setWriter(writer: self)
-                try testHelper.run(args: self._args)
+                try await testHelper.run(args: self._args)
                 self.completed(status: 0)
             } catch {
                 self.writeLine("Error: \(error)")

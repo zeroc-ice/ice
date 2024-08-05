@@ -12,10 +12,11 @@ import { identityToString } from "./IdentityToString.js";
 import { ToStringMode } from "./ToStringMode.js";
 
 import { Encoding_1_0, encodingVersionToString } from "./Protocol.js";
+import { ReplyStatus } from "./ReplyStatus.js";
+import { InputStream } from "./Stream.js";
 
-// TODO Circular dependency
-// import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
-// const { StringSeqHelper } = Ice_BuiltinSequences;
+import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
+const { StringSeqHelper } = Ice_BuiltinSequences;
 
 const OperationMode = Ice_OperationMode.OperationMode;
 
@@ -31,12 +32,11 @@ function printIdentityFacetOperation(s, stream) {
     identity._read(stream);
     s.push("\nidentity = " + identityToString(identity, toStringMode));
 
-    // TODO Circular dependency see import comments
-    // const facet = StringSeqHelper.read(stream);
-    // s.push("\nfacet = ");
-    // if (facet.length > 0) {
-    //    s.push(StringUtil.escapeString(facet[0], "", toStringMode));
-    // }
+    const facet = StringSeqHelper.read(stream);
+    s.push("\nfacet = ");
+    if (facet.length > 0) {
+        s.push(StringUtil.escapeString(facet[0], "", toStringMode));
+    }
 
     const operation = stream.readString();
     s.push("\noperation = " + operation);
@@ -66,35 +66,35 @@ function printReply(s, stream) {
     const requestId = stream.readInt();
     s.push("\nrequest id = " + requestId);
 
-    const replyStatus = stream.readByte();
-    s.push("\nreply status = " + replyStatus + " ");
+    const replyStatus = ReplyStatus.valueOf(stream.readByte());
+    s.push("\nreply status = " + replyStatus.value + " ");
 
     switch (replyStatus) {
-        case Protocol.replyOK: {
+        case ReplyStatus.Ok: {
             s.push("(ok)");
             break;
         }
 
-        case Protocol.replyUserException: {
+        case ReplyStatus.UserException: {
             s.push("(user exception)");
             break;
         }
 
-        case Protocol.replyObjectNotExist:
-        case Protocol.replyFacetNotExist:
-        case Protocol.replyOperationNotExist: {
+        case ReplyStatus.ObjectNotExist:
+        case ReplyStatus.FacetNotExist:
+        case ReplyStatus.OperationNotExist: {
             switch (replyStatus) {
-                case Protocol.replyObjectNotExist: {
+                case ReplyStatus.ObjectNotExist: {
                     s.push("(object not exist)");
                     break;
                 }
 
-                case Protocol.replyFacetNotExist: {
+                case ReplyStatus.FacetNotExist: {
                     s.push("(facet not exist)");
                     break;
                 }
 
-                case Protocol.replyOperationNotExist: {
+                case ReplyStatus.OperationNotExist: {
                     s.push("(operation not exist)");
                     break;
                 }
@@ -109,21 +109,21 @@ function printReply(s, stream) {
             break;
         }
 
-        case Protocol.replyUnknownException:
-        case Protocol.replyUnknownLocalException:
-        case Protocol.replyUnknownUserException: {
+        case ReplyStatus.UnknownException:
+        case ReplyStatus.UnknownLocalException:
+        case ReplyStatus.UnknownUserException: {
             switch (replyStatus) {
-                case Protocol.replyUnknownException: {
+                case ReplyStatus.UnknownException: {
                     s.push("(unknown exception)");
                     break;
                 }
 
-                case Protocol.replyUnknownLocalException: {
+                case ReplyStatus.UnknownLocalException: {
                     s.push("(unknown local exception)");
                     break;
                 }
 
-                case Protocol.replyUnknownUserException: {
+                case ReplyStatus.UnknownUserException: {
                     s.push("(unknown user exception)");
                     break;
                 }
@@ -145,7 +145,7 @@ function printReply(s, stream) {
         }
     }
 
-    if (replyStatus === Protocol.replyOK || replyStatus === Protocol.replyUserException) {
+    if (replyStatus === ReplyStatus.Ok || replyStatus === ReplyStatus.UserException) {
         const ver = stream.skipEncapsulation();
         if (!ver.equals(Encoding_1_0)) {
             s.push("\nencoding = ");
@@ -300,13 +300,6 @@ function getMessageTypeAsString(type) {
 }
 
 export class TraceUtil {
-    static traceSlicing(kind, typeId, slicingCat, logger) {
-        if (!slicingIds.has(typeId)) {
-            logger.trace(slicingCat, `unknown ${kind} type \`${typeId}'`);
-            slicingIds.set(typeId, 1);
-        }
-    }
-
     static traceSend(stream, logger, traceLevels) {
         if (traceLevels.protocol >= 1) {
             const p = stream.pos;

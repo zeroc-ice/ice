@@ -51,14 +51,14 @@ namespace IcePHP
     class OperationI final : public Operation
     {
     public:
-        OperationI(const char*, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*);
+        OperationI(const char*, Ice::OperationMode, std::optional<Ice::FormatType>, zval*, zval*, zval*, zval*);
         ~OperationI();
 
         zend_function* function() final;
 
         string name; // On-the-wire name.
         Ice::OperationMode mode;
-        Ice::FormatType format;
+        std::optional<Ice::FormatType> format;
         ParamInfoList inParams;
         ParamInfoList optionalInParams;
         ParamInfoList outParams;
@@ -151,7 +151,7 @@ IcePHP::ResultCallback::unset(void)
 IcePHP::OperationI::OperationI(
     const char* n,
     Ice::OperationMode m,
-    Ice::FormatType f,
+    std::optional<Ice::FormatType> f,
     zval* in,
     zval* out,
     zval* ret,
@@ -356,7 +356,9 @@ IcePHP::TypedInvocation::prepareRequest(
     // Verify that the expected number of arguments are supplied. The context argument is optional.
     if (argc != _op->numParams && argc != _op->numParams + 1)
     {
-        runtimeError("incorrect number of parameters (%d)", argc);
+        ostringstream os;
+        os << "incorrect number of parameters (" << argc << ")";
+        runtimeError(os.str());
         return false;
     }
 
@@ -386,10 +388,9 @@ IcePHP::TypedInvocation::prepareRequest(
 
                 if ((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
                 {
-                    invalidArgument(
-                        "invalid value for argument %d in operation `%s'",
-                        info->pos + 1,
-                        _op->name.c_str());
+                    ostringstream os;
+                    os << "invalid value for argument " << info->pos + 1 << " in operation '" << _op->name << "'";
+                    invalidArgument(os.str());
                     return false;
                 }
             }
@@ -726,11 +727,17 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     TypeInfoPtr type = Wrapper<TypeInfoPtr>::value(cls);
     auto c = dynamic_pointer_cast<ProxyInfo>(type);
     assert(c);
+    // we encode nullopt as -1.
+    std::optional<Ice::FormatType> cppFormat;
+    if (format != -1)
+    {
+        cppFormat = static_cast<Ice::FormatType>(format);
+    }
 
     auto op = make_shared<OperationI>(
         name,
         static_cast<Ice::OperationMode>(mode),
-        static_cast<Ice::FormatType>(format),
+        cppFormat,
         inParams,
         outParams,
         returnType,

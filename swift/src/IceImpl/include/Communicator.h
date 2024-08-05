@@ -53,8 +53,6 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
 - (nullable id)findAdminFacet:(NSString*)facet error:(NSError* _Nullable* _Nullable)error;
 - (nullable NSDictionary<NSString*, id<ICEDispatchAdapter>>*)findAllAdminFacets:(NSError* _Nullable* _Nullable)error;
 - (ICEProperties*)getProperties;
-- (nullable dispatch_queue_t)getClientDispatchQueue:(NSError* _Nullable* _Nullable)error;
-- (nullable dispatch_queue_t)getServerDispatchQueue:(NSError* _Nullable* _Nullable)error;
 
 // DefaultsAndOverrides
 - (void)getDefaultEncoding:(uint8_t*)major minor:(uint8_t*)minor NS_SWIFT_NAME(getDefaultEncoding(major:minor:));

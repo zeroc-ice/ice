@@ -39,8 +39,7 @@ public interface Transceiver {
 
   /**
    * Checks if this transceiver is waiting to be read, typically because it has bytes readily
-   * available for reading. The caller must ensure the transceiver is not closed when calling this
-   * method.
+   * available for reading.
    *
    * @return true if this transceiver is waiting to be read, false otherwise.
    */

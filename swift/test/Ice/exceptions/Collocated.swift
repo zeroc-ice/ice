@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 class Collocated: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
@@ -35,6 +35,6 @@ class Collocated: TestHelperI {
 
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
 
-        _ = try allTests(self)
+        _ = try await allTests(self)
     }
 }

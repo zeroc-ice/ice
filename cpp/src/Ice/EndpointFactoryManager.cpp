@@ -138,10 +138,10 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
             // and ask the factory to read the endpoint data from that stream to create
             // the actual endpoint.
             //
-            OutputStream bs(_instance.get(), Ice::currentProtocolEncoding);
+            OutputStream bs;
             bs.write(ue->type());
             ue->streamWrite(&bs);
-            InputStream is(bs.instance(), bs.getEncoding(), bs);
+            InputStream is(_instance.get(), bs.getEncoding(), bs);
             short type;
             is.read(type);
             is.startEncapsulation();

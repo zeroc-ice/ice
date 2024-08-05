@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 class Client: TestHelperI {
-    override public func run(args: [String]) throws {
+    override public func run(args: [String]) async throws {
         do {
             let properties = try createTestProperties(args)
             properties.setProperty(key: "Ice.Connection.ConnectTimeout", value: "1")
@@ -13,7 +13,7 @@ class Client: TestHelperI {
             defer {
                 communicator.destroy()
             }
-            try allTests(helper: self)
+            try await allTests(helper: self)
         }
     }
 }

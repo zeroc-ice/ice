@@ -218,12 +218,6 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         }
     }
 
-    func getDispatchQueue() throws -> DispatchQueue {
-        return try autoreleasepool {
-            try handle.getDispatchQueue()
-        }
-    }
-
     func dispatch(
         _ adapter: ICEObjectAdapter,
         inEncapsBytes: UnsafeMutableRawPointer,
@@ -238,7 +232,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         requestId: Int32,
         encodingMajor: UInt8,
         encodingMinor: UInt8,
-        completionHandler: @escaping ICEOutgoingResponse
+        outgoingResponseHandler: @escaping ICEOutgoingResponse
     ) {
         precondition(handle == adapter)
 
@@ -263,19 +257,16 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
         let request = IncomingRequest(current: current, inputStream: istr)
 
-        dispatchPipeline.dispatch(request).map { response in
-            response.outputStream.finished().withUnsafeBytes {
-                completionHandler(
-                    response.replyStatus.rawValue,
-                    response.exceptionId,
-                    response.exceptionDetails,
-                    $0.baseAddress!,
-                    $0.count)
+        Task {
+            let response: OutgoingResponse
+            do {
+                response = try await dispatchPipeline.dispatch(request)
+            } catch {
+                response = current.makeOutgoingResponse(error: error)
             }
-        }.catch { error in
-            let response = current.makeOutgoingResponse(error: error)
+
             response.outputStream.finished().withUnsafeBytes {
-                completionHandler(
+                outgoingResponseHandler(
                     response.replyStatus.rawValue,
                     response.exceptionId,
                     response.exceptionDetails,

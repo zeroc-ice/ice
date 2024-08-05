@@ -10,7 +10,7 @@ class RetryI: Retry {
         _counter = 0
     }
 
-    func op(kill: Bool, current: Ice.Current) throws {
+    func op(kill: Bool, current: Ice.Current) async throws {
         if kill {
             if let con = current.con {
                 try con.close(.Forcefully)
@@ -20,7 +20,7 @@ class RetryI: Retry {
         }
     }
 
-    func opIdempotent(c: Int32, current _: Ice.Current) throws -> Int32 {
+    func opIdempotent(c: Int32, current _: Ice.Current) async throws -> Int32 {
         if c < 0 {
             _counter = 0
             return 0
@@ -34,12 +34,8 @@ class RetryI: Retry {
         return counter
     }
 
-    func opNotIdempotent(current _: Ice.Current) throws {
+    func opNotIdempotent(current _: Ice.Current) async throws {
         throw Ice.ConnectionLostException("opNotIdempotent failed")
-    }
-
-    func sleep(delay: Int32, current _: Ice.Current) throws {
-        Thread.sleep(forTimeInterval: Double(delay) / 1000.0)
     }
 
     func shutdown(current: Ice.Current) {

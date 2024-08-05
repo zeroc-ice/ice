@@ -93,11 +93,9 @@ export class WSEndpoint extends EndpointI {
     }
 
     hashCode() {
-        if (this._hashCode === undefined) {
-            this._hashCode = this._delegate.hashCode();
-            this._hashCode = HashUtil.addString(this._hashCode, this._resource);
-        }
-        return this._hashCode;
+        let h = this._delegate.hashCode();
+        h = HashUtil.addString(h, this._resource);
+        return h;
     }
 
     compareTo(p) {

@@ -53,18 +53,6 @@ Protocol.replyMsg = 2;
 Protocol.validateConnectionMsg = 3;
 Protocol.closeConnectionMsg = 4;
 
-//
-// Reply status
-//
-Protocol.replyOK = 0;
-Protocol.replyUserException = 1;
-Protocol.replyObjectNotExist = 2;
-Protocol.replyFacetNotExist = 3;
-Protocol.replyOperationNotExist = 4;
-Protocol.replyUnknownLocalException = 5;
-Protocol.replyUnknownUserException = 6;
-Protocol.replyUnknownException = 7;
-
 Protocol.requestHdr = new Uint8Array([
     Protocol.magic[0],
     Protocol.magic[1],

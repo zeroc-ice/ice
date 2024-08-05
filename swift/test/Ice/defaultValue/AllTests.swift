@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-func allTests(_ helper: TestHelper) throws {
+func allTests(_ helper: TestHelper) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }

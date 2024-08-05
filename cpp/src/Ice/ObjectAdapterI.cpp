@@ -686,18 +686,6 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
     }
 }
 
-#ifdef __APPLE__
-dispatch_queue_t
-Ice::ObjectAdapterI::getDispatchQueue() const
-{
-    lock_guard lock(_mutex);
-
-    checkForDeactivation();
-
-    return getThreadPool()->getDispatchQueue();
-}
-#endif
-
 bool
 Ice::ObjectAdapterI::isLocal(const ReferencePtr& ref) const
 {

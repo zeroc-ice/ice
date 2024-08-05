@@ -2,7 +2,6 @@
 
 import Foundation
 import Ice
-import PromiseKit
 
 public class BI: B {
     override public func ice_preMarshal() {
@@ -91,49 +90,49 @@ class InitialI: Initial {
         _d.theC = nil  // Reference to a C.
     }
 
-    func getAll(current _: Ice.Current) throws -> (b1: B?, b2: B?, theC: C?, theD: D?) {
+    func getAll(current _: Ice.Current) async throws -> (b1: B?, b2: B?, theC: C?, theD: D?) {
         return (_b1, _b2, _c, _d)
     }
 
-    func getMB(current _: Current) throws -> B? {
+    func getMB(current _: Current) async throws -> B? {
         return _b1
     }
 
-    func getB1(current _: Ice.Current) throws -> B? {
+    func getB1(current _: Ice.Current) async throws -> B? {
         return _b1
     }
 
-    func getB2(current _: Ice.Current) throws -> B? {
+    func getB2(current _: Ice.Current) async throws -> B? {
         return _b2
     }
 
-    func getC(current _: Ice.Current) throws -> C? {
+    func getC(current _: Ice.Current) async throws -> C? {
         return _c
     }
 
-    func getD(current _: Ice.Current) throws -> D? {
+    func getD(current _: Ice.Current) async throws -> D? {
         return _d
     }
 
-    func getE(current _: Ice.Current) throws -> E? {
+    func getE(current _: Ice.Current) async throws -> E? {
         return _e
     }
 
-    func getF(current _: Ice.Current) throws -> F? {
+    func getF(current _: Ice.Current) async throws -> F? {
         return _f
     }
 
-    func getK(current _: Ice.Current) throws -> K? {
+    func getK(current _: Ice.Current) async throws -> K? {
         return K(value: L(data: "l"))
     }
 
-    func opValue(v1: Ice.Value?, current _: Ice.Current) throws -> (
+    func opValue(v1: Ice.Value?, current _: Ice.Current) async throws -> (
         returnValue: Ice.Value?, v2: Ice.Value?
     ) {
         return (v1, v1)
     }
 
-    func opValueSeq(v1: [Ice.Value?], current _: Ice.Current) throws -> (
+    func opValueSeq(v1: [Ice.Value?], current _: Ice.Current) async throws -> (
         returnValue: [Ice.Value?], v2: [Ice.Value?]
     ) {
         return (v1, v1)
@@ -158,16 +157,16 @@ class InitialI: Initial {
         r!.v = nil
     }
 
-    func acceptsClassCycles(current: Ice.Current) throws -> Bool {
+    func acceptsClassCycles(current: Ice.Current) async throws -> Bool {
         let properties = current.adapter.getCommunicator().getProperties()
         return properties.getPropertyAsIntWithDefault(key: "Ice.AcceptClassCycles", value: 0) > 0
     }
 
-    func getD1(d1: D1?, current _: Ice.Current) throws -> D1? {
+    func getD1(d1: D1?, current _: Ice.Current) async throws -> D1? {
         return d1
     }
 
-    func throwEDerived(current _: Ice.Current) throws {
+    func throwEDerived(current _: Ice.Current) async throws {
         throw EDerived(
             a1: A1(name: "a1"),
             a2: A1(name: "a2"),
@@ -175,19 +174,19 @@ class InitialI: Initial {
             a4: A1(name: "a4"))
     }
 
-    func setG(theG _: G?, current _: Ice.Current) throws {}
+    func setG(theG _: G?, current _: Ice.Current) async throws {}
 
-    func opBaseSeq(inSeq: [Base?], current _: Ice.Current) throws -> (
+    func opBaseSeq(inSeq: [Base?], current _: Ice.Current) async throws -> (
         returnValue: [Base?], outSeq: [Base?]
     ) {
         return (inSeq, inSeq)
     }
 
-    func getCompact(current _: Ice.Current) throws -> Compact? {
+    func getCompact(current _: Ice.Current) async throws -> Compact? {
         return CompactExt()
     }
 
-    func shutdown(current _: Ice.Current) throws {
+    func shutdown(current _: Ice.Current) async throws {
         _b1.theA = nil  // Break cyclic reference.
         _b1.theB = nil  // Break cyclic reference.
 
@@ -204,64 +203,61 @@ class InitialI: Initial {
         _adapter.getCommunicator().shutdown()
     }
 
-    func getInnerA(current _: Ice.Current) throws -> InnerA? {
+    func getInnerA(current _: Ice.Current) async throws -> InnerA? {
         return InnerA(theA: _b1)
     }
 
-    func getInnerSubA(current _: Ice.Current) throws -> InnerSubA? {
+    func getInnerSubA(current _: Ice.Current) async throws -> InnerSubA? {
         return InnerSubA(theA: InnerA(theA: _b1))
     }
 
-    func throwInnerEx(current _: Ice.Current) throws {
+    func throwInnerEx(current _: Ice.Current) async throws {
         throw InnerEx(reason: "Inner::Ex")
     }
 
-    func throwInnerSubEx(current _: Ice.Current) throws {
+    func throwInnerSubEx(current _: Ice.Current) async throws {
         throw InnerSubEx(reason: "Inner::Sub::Ex")
     }
 
-    func getAMDMBAsync(current _: Ice.Current) -> Promise<B?> {
-        return Promise<B?> { seal in
-            seal.fulfill(_b1)
-        }
+    func getAMDMB(current _: Ice.Current) -> B? {
+        return _b1
     }
 
-    func opM(v1: M?, current _: Ice.Current) throws -> (returnValue: M?, v2: M?) {
+    func opM(v1: M?, current _: Ice.Current) async throws -> (returnValue: M?, v2: M?) {
         return (v1, v1)
     }
 
-    func opF1(f11: F1?, current _: Ice.Current) throws -> (returnValue: F1?, f12: F1?) {
+    func opF1(f11: F1?, current _: Ice.Current) async throws -> (returnValue: F1?, f12: F1?) {
         return (f11, F1(name: "F12"))
     }
 
-    func opF2(f21: F2Prx?, current: Current) throws -> (returnValue: F2Prx?, f22: F2Prx?) {
+    func opF2(f21: F2Prx?, current: Current) async throws -> (returnValue: F2Prx?, f22: F2Prx?) {
         let prx = try current.adapter.getCommunicator().stringToProxy("F22")!
         return (f21, uncheckedCast(prx: prx, type: F2Prx.self))
     }
 
-    func opF3(f31: F3?, current: Current) throws -> (returnValue: F3?, f32: F3?) {
+    func opF3(f31: F3?, current: Current) async throws -> (returnValue: F3?, f32: F3?) {
         let prx = try current.adapter.getCommunicator().stringToProxy("F22")!
         return (f31, F3(f1: F1(name: "F12"), f2: uncheckedCast(prx: prx, type: F2Prx.self)))
     }
 
-    func hasF3(current _: Current) throws -> Bool {
+    func hasF3(current _: Current) async throws -> Bool {
         return true
     }
 }
 
 class F2I: F2 {
-    func op(current _: Current) throws {}
+    func op(current _: Current) async throws {}
 }
 
-class UnexpectedObjectExceptionTestI: Ice.Blobject {
-    func ice_invoke(inEncaps _: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
-        let communicator = current.adapter.getCommunicator()
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation(encoding: current.encoding, format: .DefaultFormat)
+class UnexpectedObjectExceptionTestDispatcher: Ice.Dispatcher {
+    public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
         let ae = AlsoEmpty()
-        ostr.write(ae)
-        ostr.writePendingValues()
-        ostr.endEncapsulation()
-        return (true, ostr.finished())
+        return request.current.makeOutgoingResponse(
+            ae, formatType: nil
+        ) { ostr, ae in
+            ostr.write(ae)
+            ostr.writePendingValues()
+        }
     }
 }

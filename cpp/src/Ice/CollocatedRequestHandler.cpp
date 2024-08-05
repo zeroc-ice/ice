@@ -30,25 +30,15 @@ namespace
             copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
         }
     }
-
-    bool initHasExecutor(const InitializationData& initData)
-    {
-#ifdef __APPLE__
-        if (initData.useDispatchQueueExecutor)
-        {
-            return true;
-        }
-#endif
-        return initData.executor != nullptr;
-    }
 }
 
 CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, const ObjectAdapterPtr& adapter)
     : RequestHandler(ref),
       _adapter(dynamic_pointer_cast<ObjectAdapterI>(adapter)),
-      _hasExecutor(initHasExecutor(_reference->getInstance()->initializationData())),
-      _logger(_reference->getInstance()->initializationData().logger), // Cached for better performance.
-      _traceLevels(_reference->getInstance()->traceLevels()),          // Cached for better performance.
+      _hasExecutor(
+          _reference->getInstance()->initializationData().executor != nullptr), // Cached for better performance.
+      _logger(_reference->getInstance()->initializationData().logger),          // Cached for better performance.
+      _traceLevels(_reference->getInstance()->traceLevels()),                   // Cached for better performance.
       _requestId(0)
 {
 }
@@ -143,12 +133,12 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         {
             fillInValue(os, headerSize, batchRequestCount);
         }
-        traceSend(*os, _logger, _traceLevels);
+        traceSend(*os, _reference->getInstance(), _logger, _traceLevels);
     }
 
     outAsync->attachCollocatedObserver(_adapter, requestId);
 
-    InputStream is(os->instance(), os->getEncoding(), *os);
+    InputStream is(_reference->getInstance().get(), os->getEncoding(), *os);
 
     if (batchRequestCount > 0)
     {
@@ -340,7 +330,11 @@ CollocatedRequestHandler::sendResponse(OutgoingResponse response)
                     fillInValue(os, 10, static_cast<int32_t>(os->b.size()));
                 }
 
-                InputStream is(os->instance(), os->getEncoding(), *os, true); // Adopting the OutputStream's buffer.
+                InputStream is(
+                    _reference->getInstance().get(),
+                    os->getEncoding(),
+                    *os,
+                    true); // Adopting the OutputStream's buffer.
                 is.pos(sizeof(replyHdr) + 4);
 
                 if (_traceLevels->protocol >= 1)

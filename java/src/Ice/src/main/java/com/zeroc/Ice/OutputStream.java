@@ -323,7 +323,7 @@ public class OutputStream {
     if (_encapsStack != null) {
       startEncapsulation(_encapsStack.encoding, _encapsStack.format);
     } else {
-      startEncapsulation(_encoding, FormatType.DefaultFormat);
+      startEncapsulation(_encoding, null);
     }
   }
 
@@ -331,7 +331,7 @@ public class OutputStream {
    * Writes the start of an encapsulation to the stream.
    *
    * @param encoding The encoding version of the encapsulation.
-   * @param format Specify the compact or sliced format.
+   * @param format Specify the compact or sliced format, or null.
    */
   public void startEncapsulation(EncodingVersion encoding, FormatType format) {
     com.zeroc.IceInternal.Protocol.checkSupportedEncoding(encoding);
@@ -2037,7 +2037,7 @@ public class OutputStream {
     }
 
     int start;
-    FormatType format = FormatType.DefaultFormat;
+    FormatType format = null;
     EncodingVersion encoding;
     boolean encoding_1_0;
 
@@ -2073,7 +2073,7 @@ public class OutputStream {
       _encapsStack.setEncoding(_encoding);
     }
 
-    if (_encapsStack.format == FormatType.DefaultFormat) {
+    if (_encapsStack.format == null) {
       _encapsStack.format = _format;
     }
 

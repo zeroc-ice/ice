@@ -11,6 +11,8 @@ import "./CommunicatorExtensions.js";
 import * as Ice_Connection from "./Connection.js";
 import * as Ice_Context from "./Context.js";
 import * as Ice_Current from "./Current.js";
+// Must be imported after Current.js for the prototype extensions.
+import "./CurrentExtensions.js";
 import * as Ice_DefaultsAndOverrides from "./DefaultsAndOverrides.js";
 import * as Ice_Endpoint from "./Endpoint.js";
 import * as Ice_EndpointSelectionType from "./EndpointSelectionType.js";
@@ -21,12 +23,12 @@ import * as Ice_FormatType from "./FormatType.js";
 import * as Ice_HashMap from "./HashMap.js";
 import * as Ice_HashUtil from "./HashUtil.js";
 import * as Ice_Identity from "./Identity.js";
+import * as Ice_IncomingRequest from "./IncomingRequest.js";
 // Must be imported after Identity.js for the prototype extensions.
 import "./IdentityExtensions.js";
 import * as Ice_IdentityUtil from "./IdentityUtil.js";
 import * as Ice_IdentityToString from "./IdentityToString.js";
 import * as Ice_ImplicitContext from "./ImplicitContext.js";
-import * as Ice_IncomingAsync from "./IncomingAsync.js";
 import * as Ice_Initialize from "./Initialize.js";
 import * as Ice_Instance from "./Instance.js";
 // Must be imported after Instance.js for the prototype extensions.
@@ -49,6 +51,7 @@ import * as Ice_Operation from "./Operation.js";
 import * as Ice_OperationMode from "./OperationMode.js";
 import * as Ice_OptionalFormat from "./OptionalFormat.js";
 import * as Ice_OutgoingAsync from "./OutgoingAsync.js";
+import * as Ice_OutgoingResponse from "./OutgoingResponse.js";
 import * as Ice_Process from "./Process.js";
 import * as Ice_ProcessLogger from "./ProcessLogger.js";
 import * as Ice_Promise from "./Promise.js";
@@ -62,6 +65,7 @@ import * as Ice_ProtocolInstance from "./ProtocolInstance.js";
 import * as Ice_Reference from "./Reference.js";
 import * as Ice_ReferenceMode from "./ReferenceMode.js";
 import * as Ice_RemoteLogger from "./RemoteLogger.js";
+import * as Ice_ReplyStatus from "./ReplyStatus.js";
 import * as Ice_Router from "./Router.js";
 import * as Ice_RouterInfo from "./RouterInfo.js";
 import * as Ice_Stream from "./Stream.js";
@@ -103,9 +107,9 @@ export const Ice = {
     ...Ice_IdentityUtil,
     ...Ice_IdentityToString,
     ...Ice_ImplicitContext,
-    ...Ice_IncomingAsync,
     ...Ice_Initialize,
     ...Ice_Instance,
+    ...Ice_IncomingRequest,
     ...Ice_LocalException,
     ...Ice_LocalExceptions,
     ...Ice_LocatorInfo,
@@ -118,6 +122,7 @@ export const Ice = {
     ...Ice_Operation,
     ...Ice_OptionalFormat,
     ...Ice_OutgoingAsync,
+    ...Ice_OutgoingResponse,
     ...Ice_ProcessLogger,
     ...Ice_Promise,
     ...Ice_Properties,
@@ -127,6 +132,7 @@ export const Ice = {
     ...Ice_ProtocolInstance,
     ...Ice_Reference,
     ...Ice_ReferenceMode,
+    ...Ice_ReplyStatus,
     ...Ice_RouterInfo,
     ...Ice_Stream,
     ...Ice_StreamHelpers,

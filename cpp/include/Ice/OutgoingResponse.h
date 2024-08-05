@@ -140,7 +140,7 @@ namespace Ice
     ICE_API OutgoingResponse makeOutgoingResponse(
         std::function<void(OutputStream*)> marshal,
         const Current& current,
-        FormatType format = FormatType::DefaultFormat) noexcept;
+        std::optional<FormatType> format = std::nullopt) noexcept;
 
     /**
      * Create an OutgoingResponse object with the Ok reply status and an empty payload.
