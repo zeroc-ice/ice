@@ -29,7 +29,7 @@ class Collocated: TestHelperI {
         try adapter.add(servant: InitialDisp(InitialI(adapter)), id: Ice.stringToIdentity("initial"))
         try adapter.add(servant: F2Disp(F2I()), id: Ice.stringToIdentity("F21"))
         try adapter.add(
-            servant: BlobjectDisp(UnexpectedObjectExceptionTestI()),
+            servant: UnexpectedObjectExceptionTestDispatcher(),
             id: Ice.stringToIdentity("uoet"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
 

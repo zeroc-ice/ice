@@ -250,15 +250,14 @@ class F2I: F2 {
     func op(current _: Current) async throws {}
 }
 
-class UnexpectedObjectExceptionTestI: Ice.Blobject {
-    func ice_invoke(inEncaps _: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
-        let communicator = current.adapter.getCommunicator()
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation(encoding: current.encoding, format: nil)
+class UnexpectedObjectExceptionTestDispatcher: Ice.Dispatcher {
+    public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
         let ae = AlsoEmpty()
-        ostr.write(ae)
-        ostr.writePendingValues()
-        ostr.endEncapsulation()
-        return (true, ostr.finished())
+        return request.current.makeOutgoingResponse(
+            ae, formatType: nil
+        ) { ostr, ae in
+            ostr.write(ae)
+            ostr.writePendingValues()
+        }
     }
 }

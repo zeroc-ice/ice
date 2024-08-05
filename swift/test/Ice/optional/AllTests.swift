@@ -482,7 +482,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
 
     //
-    // Send a request using blobjects. Upon receival, we don't read
+    // Send a request using ice_invoke. Upon receival, we don't read
     // any of the optional members. This ensures the optional members
     // are skipped even if the receiver knows nothing about them.
     //

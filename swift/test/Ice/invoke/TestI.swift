@@ -4,80 +4,56 @@ import Foundation
 import Ice
 import TestCommon
 
-class BlobjectI: Ice.Blobject {
-    func ice_invoke(inEncaps: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
+class ServantLocatorI: Ice.ServantLocator {
+    let _dispatcher: Ice.Dispatcher = DispatcherI()
+
+    func locate(_: Ice.Current) -> (returnValue: Ice.Dispatcher?, cookie: AnyObject?) {
+        return (_dispatcher, nil)
+    }
+
+    func finished(curr _: Ice.Current, servant _: Ice.Dispatcher, cookie _: AnyObject?) {}
+
+    func deactivate(_: String) {}
+}
+
+class DispatcherI: Ice.Dispatcher {
+    public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        let current = request.current
         let communicator = current.adapter.getCommunicator()
+        let (inEncaps, _) = try request.inputStream.readEncapsulation()
         let inS = Ice.InputStream(communicator: communicator, bytes: inEncaps)
         _ = try inS.startEncapsulation()
-        let outS = Ice.OutputStream(communicator: communicator)
-        outS.startEncapsulation()
+
         if current.operation == "opOneway" {
-            return (true, Data())
+            return request.current.makeEmptyOutgoingResponse()
         } else if current.operation == "opString" {
             let s: String = try inS.read()
-            outS.write(s)
-            outS.write(s)
-            outS.endEncapsulation()
-            return (true, outS.finished())
+            return request.current.makeOutgoingResponse(
+                s, formatType: nil
+            ) { ostr, s in
+                ostr.write(s)
+                ostr.write(s)
+            }
         } else if current.operation == "opException" {
             if current.ctx["raise"] != nil {
                 throw MyException()
             }
             let ex = MyException()
-            outS.write(ex)
-            outS.endEncapsulation()
-            return (false, outS.finished())
+            return request.current.makeOutgoingResponse(error: ex)
         } else if current.operation == "shutdown" {
             communicator.shutdown()
-            return (true, Data())
+            return request.current.makeEmptyOutgoingResponse()
         } else if current.operation == "ice_isA" {
             let s: String = try inS.read()
-            if s == "::Test::MyClass" {
-                outS.write(true)
-            } else {
-                outS.write(false)
+            return request.current.makeOutgoingResponse(
+                s, formatType: nil
+            ) { ostr, s in
+                if s == "::Test::MyClass" {
+                    ostr.write(true)
+                } else {
+                    ostr.write(false)
+                }
             }
-            outS.endEncapsulation()
-            return (true, outS.finished())
-        } else {
-            throw Ice.OperationNotExistException(
-                id: current.id, facet: current.facet, operation: current.operation)
-        }
-    }
-}
-
-class BlobjectAsyncI: Ice.BlobjectAsync {
-    func ice_invokeAsync(inEncaps: Data, current: Current) async throws -> (ok: Bool, outParams: Data) {
-        let communicator = current.adapter.getCommunicator()
-        let inS = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try inS.startEncapsulation()
-        let outS = Ice.OutputStream(communicator: communicator)
-        outS.startEncapsulation()
-        if current.operation == "opOneway" {
-            return (true, Data())
-        } else if current.operation == "opString" {
-            let s: String = try inS.read()
-            outS.write(s)
-            outS.write(s)
-            outS.endEncapsulation()
-            return (true, outS.finished())
-        } else if current.operation == "opException" {
-            let ex = MyException()
-            outS.write(ex)
-            outS.endEncapsulation()
-            return (false, outS.finished())
-        } else if current.operation == "shutdown" {
-            communicator.shutdown()
-            return (false, Data())
-        } else if current.operation == "ice_isA" {
-            let s: String = try inS.read()
-            if s == "::Test::MyClass" {
-                outS.write(true)
-            } else {
-                outS.write(false)
-            }
-            outS.endEncapsulation()
-            return (true, outS.finished())
         } else {
             throw Ice.OperationNotExistException(
                 id: current.id,
