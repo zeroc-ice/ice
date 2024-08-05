@@ -3929,7 +3929,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         while (s)
         {
             //
-            // Stop if the inner sequence type has a custom, serializable or protobuf type.
+            // Stop if the inner sequence type has a custom or serializable type.
             //
             if (hasTypeMetaData(s))
             {
