@@ -452,7 +452,7 @@
     return [ICEConnection getHandle:cppConnection];
 }
 
-- (void)ice_flushBatchRequests:(void (^)(NSError*))exception sent:(void (^_Nullable)(bool))sent
+- (void)ice_flushBatchRequests:(void (^)(NSError*))exception sent:(void (^)(bool))sent
 {
     try
     {
@@ -464,13 +464,7 @@
                     exception(convertException(e));
                 }
             },
-            [sent](bool sentSynchronously)
-            {
-                if (sent)
-                {
-                    sent(sentSynchronously);
-                }
-            });
+            [sent](bool sentSynchronously) { sent(sentSynchronously); });
     }
     catch (...)
     {

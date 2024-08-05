@@ -220,9 +220,7 @@
     }
 }
 
-- (void)flushBatchRequests:(std::uint8_t)compress
-                 exception:(void (^)(NSError*))exception
-                      sent:(void (^_Nullable)(bool))sent
+- (void)flushBatchRequests:(std::uint8_t)compress exception:(void (^)(NSError*))exception sent:(void (^)(bool))sent
 {
     try
     {
@@ -237,10 +235,7 @@
             },
             [sent](bool sentSynchronously)
             {
-                if (sent)
-                {
-                    sent(sentSynchronously);
-                }
+                sent(sentSynchronously);
             });
     }
     catch (...)

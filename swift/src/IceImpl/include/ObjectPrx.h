@@ -68,7 +68,7 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
 - (void)ice_getConnection:(void (^)(ICEConnection* _Nullable))response exception:(void (^)(NSError*))exception;
 - (nullable ICEConnection*)ice_getCachedConnection;
 - (void)ice_flushBatchRequests:(void (^)(NSError*))exception
-                          sent:(void (^_Nullable)(bool))sent NS_SWIFT_NAME(ice_flushBatchRequests(exception:sent:));
+                          sent:(void (^)(bool))sent NS_SWIFT_NAME(ice_flushBatchRequests(exception:sent:));
 - (bool)ice_isCollocationOptimized;
 - (nullable instancetype)ice_collocationOptimized:(bool)collocated error:(NSError* _Nullable* _Nullable)error;
 

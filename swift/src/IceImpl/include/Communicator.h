@@ -39,7 +39,7 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
 - (BOOL)setDefaultRouter:(ICEObjectPrx* _Nullable)router error:(NSError* _Nullable* _Nullable)error;
 - (nullable ICEObjectPrx*)getDefaultLocator;
 - (BOOL)setDefaultLocator:(ICEObjectPrx* _Nullable)locator error:(NSError* _Nullable* _Nullable)error;
-- (void)flushBatchRequests:(uint8_t)compress exception:(void (^)(NSError*))exception sent:(void (^_Nullable)(bool))sent;
+- (void)flushBatchRequests:(uint8_t)compress exception:(void (^)(NSError*))exception sent:(void (^)(bool))sent;
 - (nullable ICEObjectPrx*)createAdmin:(ICEObjectAdapter* _Nullable)adminAdapter
                                  name:(NSString*)name
                              category:(NSString*)category
