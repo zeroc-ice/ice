@@ -10,6 +10,7 @@ class HoldI: Hold {
     var _helper: TestHelper
     var _last: Int32 = 0
     var _lock = os_unfair_lock()
+    var _queue = DispatchQueue(label: "ice.hold.Server")
 
     init(adapter: Ice.ObjectAdapter, helper: TestHelper) {
         _adapter = adapter
@@ -23,10 +24,10 @@ class HoldI: Hold {
             _adapter.hold()
             try _adapter.activate()
         } else {
-            Task {
-                try await Task.sleep(for: .seconds(Int(seconds)))
+            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(seconds))) { [self] in
                 do {
-                    try await self.putOnHold(seconds: 0, current: current)
+                    _adapter.hold()
+                    try _adapter.activate()
                 } catch is Ice.ObjectAdapterDeactivatedException {} catch {
                     preconditionFailure()
                 }
@@ -35,7 +36,7 @@ class HoldI: Hold {
     }
 
     func waitForHold(current: Ice.Current) async throws {
-        Task {
+        _queue.async {
             do {
                 current.adapter.waitForHold()
                 try current.adapter.activate()
