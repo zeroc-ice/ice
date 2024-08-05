@@ -166,15 +166,7 @@ public protocol Communicator: AnyObject {
     ///
     /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
     /// being sent over the wire.
-    func flushBatchRequests(_ compress: CompressBatch) throws
-
-    /// Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
-    /// for all connections associated with the communicator. Any errors that occur while flushing a connection are
-    /// ignored.
-    ///
-    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
-    /// being sent over the wire.
-    func flushBatchRequestsAsync(
+    func flushBatchRequests(
         _ compress: CompressBatch
     ) async throws
 

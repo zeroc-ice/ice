@@ -40,7 +40,7 @@ class PingReplyI: PingReply {
     }
 }
 
-public func allTests(_ helper: TestHelper) throws {
+public func allTests(_ helper: TestHelper) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -104,7 +104,7 @@ public func allTests(_ helper: TestHelper) throws {
             //
             try test(seq.count > 16384)
         }
-        try obj.ice_getConnection()!.close(.GracefullyWithWait)
+        try await obj.ice_getConnection()!.close(.GracefullyWithWait)
         communicator.getProperties().setProperty(key: "Ice.UDP.SndSize", value: "64000")
         seq = ByteSeq(repeating: 0, count: 50000)
         do {
@@ -162,7 +162,7 @@ public func allTests(_ helper: TestHelper) throws {
     }
 
     output.write("testing udp bi-dir connection... ")
-    try obj.ice_getConnection()!.setAdapter(adapter)
+    try await obj.ice_getConnection()!.setAdapter(adapter)
     for _ in 0..<5 {
         replyI.reset()
         try obj.pingBiDir(reply.ice_getIdentity())

@@ -33,7 +33,7 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
         try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
 
-        try batchOneway.ice_flushBatchRequests()
+        try await batchOneway.ice_flushBatchRequests()
         let outS = Ice.OutputStream(communicator: communicator)
         outS.startEncapsulation()
         outS.write(testString)

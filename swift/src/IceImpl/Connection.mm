@@ -62,21 +62,7 @@
     return [ICEEndpoint getHandle:endpoint];
 }
 
-- (BOOL)flushBatchRequests:(std::uint8_t)compress error:(NSError**)error
-{
-    try
-    {
-        self.connection->flushBatchRequests(Ice::CompressBatch(compress));
-        return YES;
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return NO;
-    }
-}
-
-- (void)flushBatchRequestsAsync:(std::uint8_t)compress
+- (void)flushBatchRequests:(std::uint8_t)compress
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent
 {

@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 // temporary work-around for issue #816
-func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
+func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -1088,7 +1088,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
         }
     }
 
-    let conn = try p.ice_getConnection()
+    let conn = try await p.ice_getConnection()
     if conn != nil {
         //
         // Test implicit context propagation

@@ -812,7 +812,7 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     //
     // Test implicit context propagation with async result
     //
-    let conn = try p.ice_getConnection()
+    let conn = try await p.ice_getConnection()
     if conn != nil {
         var initData = Ice.InitializationData()
         let properties = communicator.getProperties().clone()

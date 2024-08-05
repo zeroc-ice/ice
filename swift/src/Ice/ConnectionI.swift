@@ -3,20 +3,6 @@
 import IceImpl
 
 extension Connection {
-    public func flushBatchRequestsAsync(
-        _ compress: CompressBatch
-    ) async throws {
-        let impl = self as! ConnectionI
-        return try await withCheckedThrowingContinuation { continuation in
-            impl.handle.flushBatchRequestsAsync(
-                compress.rawValue,
-                exception: { error in continuation.resume(throwing: error) },
-                sent: { _ in
-                    continuation.resume(returning: ())
-                })
-        }
-    }
-
     // CustomStringConvertible implementation
     public var description: String {
         return toString()
@@ -58,9 +44,16 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         }
     }
 
-    func flushBatchRequests(_ compress: CompressBatch) throws {
-        return try autoreleasepool {
-            try handle.flushBatchRequests(compress.rawValue)
+    func flushBatchRequests(
+        _ compress: CompressBatch
+    ) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            handle.flushBatchRequests(
+                compress.rawValue,
+                exception: { error in continuation.resume(throwing: error) },
+                sent: { _ in
+                    continuation.resume(returning: ())
+                })
         }
     }
 

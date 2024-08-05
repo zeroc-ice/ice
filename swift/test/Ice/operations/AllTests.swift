@@ -16,8 +16,8 @@ func allTests(helper: TestHelper) async throws -> MyClassPrx {
     let derivedProxy = try checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
 
     output.write("testing twoway operations... ")
-    try twoways(helper, cl)
-    try twoways(helper, derivedProxy)
+    try await twoways(helper, cl)
+    try await twoways(helper, derivedProxy)
     try derivedProxy.opDerived()
     output.writeLine("ok")
 
@@ -38,13 +38,13 @@ func allTests(helper: TestHelper) async throws -> MyClassPrx {
     output.writeLine("ok")
 
     output.write("testing batch oneway operations... ")
-    try batchOneways(helper, cl)
-    try batchOneways(helper, derivedProxy)
+    try await batchOneways(helper, cl)
+    try await batchOneways(helper, derivedProxy)
     output.writeLine("ok")
 
     output.write("testing batch oneway operations with AMI... ")
-    try batchOneways(helper, cl)
-    try batchOneways(helper, derivedProxy)
+    try await batchOneways(helper, cl)
+    try await batchOneways(helper, derivedProxy)
     output.writeLine("ok")
 
     return cl

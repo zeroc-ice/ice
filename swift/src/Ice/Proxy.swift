@@ -612,26 +612,10 @@ extension ObjectPrx {
     /// Returns the connection for this proxy. If the proxy does not yet have an established connection,
     /// it first attempts to create a connection.
     ///
-    /// - returns: `Ice.Connection?` - The Connection for this proxy.
-    public func ice_getConnection() throws -> Connection? {
-        return try autoreleasepool {
-            //
-            // Returns Any which is either NSNull or ICEConnection
-            //
-            guard let handle = try _impl.handle.ice_getConnection() as? ICEConnection else {
-                return nil
-            }
-            return handle.getSwiftObject(ConnectionI.self) { ConnectionI(handle: handle) }
-        }
-    }
-
-    /// Returns the connection for this proxy. If the proxy does not yet have an established connection,
-    /// it first attempts to create a connection.
-    ///
     /// - returns: `Ice.Connection?` - The result of the invocation.
-    public func ice_getConnectionAsync() async throws -> Connection? {
+    public func ice_getConnection() async throws -> Connection? {
         return try await withCheckedThrowingContinuation { continuation in
-            self._impl.handle.ice_getConnectionAsync(
+            self._impl.handle.ice_getConnection(
                 { connection in
                     continuation.resume(
                         returning:
@@ -642,17 +626,10 @@ extension ObjectPrx {
         }
     }
 
-    /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
-    public func ice_flushBatchRequests() throws {
-        return try autoreleasepool {
-            try _impl.handle.ice_flushBatchRequests()
-        }
-    }
-
     /// Asynchronously flushes any pending batched requests for this proxy.
-    public func ice_flushBatchRequestsAsync() async throws {
+    public func ice_flushBatchRequests() async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            _impl.handle.ice_flushBatchRequestsAsync(
+            _impl.handle.ice_flushBatchRequests(
                 exception: {
                     continuation.resume(throwing: $0)
                 },

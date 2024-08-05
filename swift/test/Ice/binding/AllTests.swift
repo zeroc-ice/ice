@@ -42,14 +42,14 @@ func allTests(_ helper: TestHelper) async throws {
         let test1 = try adapter.getTestIntf()!
         let test2 = try adapter.getTestIntf()!
 
-        try test(test1.ice_getConnection() === test2.ice_getConnection())
+        try await test(test1.ice_getConnection() === test2.ice_getConnection())
 
         try test1.ice_ping()
         try test2.ice_ping()
 
         try com.deactivateObjectAdapter(adapter)
 
-        try test(test1.ice_getConnection() === test2.ice_getConnection())
+        try await test(test1.ice_getConnection() === test2.ice_getConnection())
 
         do {
             try test1.ice_ping()
@@ -84,12 +84,12 @@ func allTests(_ helper: TestHelper) async throws {
             adpts.shuffle()
             let test3 = try createTestIntfPrx(adpts)
             try test1.ice_ping()
-            try test(test1.ice_getConnection() === test2.ice_getConnection())
-            try test(test2.ice_getConnection() === test3.ice_getConnection())
+            try await test(test1.ice_getConnection() === test2.ice_getConnection())
+            try await test(test2.ice_getConnection() === test3.ice_getConnection())
 
             let adapterName = try test1.getAdapterName()
             names.removeAll(where: { $0 == adapterName })
-            try test1.ice_getConnection()!.close(.GracefullyWithWait)
+            try await test1.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
         //
@@ -112,7 +112,7 @@ func allTests(_ helper: TestHelper) async throws {
             try test(i == nRetry)
 
             for adpt in adapters {
-                try adpt.getTestIntf()!.ice_getConnection()!.close(.GracefullyWithWait)
+                try await adpt.getTestIntf()!.ice_getConnection()!.close(.GracefullyWithWait)
             }
         }
 
@@ -133,13 +133,13 @@ func allTests(_ helper: TestHelper) async throws {
             adpts.shuffle()
             let test3 = try createTestIntfPrx(adpts)
 
-            try test(test1.ice_getConnection() === test2.ice_getConnection())
-            try test(test2.ice_getConnection() === test3.ice_getConnection())
+            try await test(test1.ice_getConnection() === test2.ice_getConnection())
+            try await test(test2.ice_getConnection() === test3.ice_getConnection())
 
             let adapterName = try test1.getAdapterName()
             names.removeAll(where: { $0 == adapterName })
 
-            try test1.ice_getConnection()!.close(.GracefullyWithWait)
+            try await test1.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
         //
@@ -206,7 +206,7 @@ func allTests(_ helper: TestHelper) async throws {
 
             for a in adapters {
                 do {
-                    try a.getTestIntf()!.ice_getConnection()!.close(.GracefullyWithWait)
+                    try await a.getTestIntf()!.ice_getConnection()!.close(.GracefullyWithWait)
                 } catch is Ice.LocalException {}  // Expected if adapter is down.
             }
         }
@@ -235,12 +235,12 @@ func allTests(_ helper: TestHelper) async throws {
             adpts.shuffle()
             let test3 = try createTestIntfPrx(adpts)
             try test1.ice_ping()
-            try test(test1.ice_getConnection() === test2.ice_getConnection())
-            try test(test2.ice_getConnection() === test3.ice_getConnection())
+            try await test(test1.ice_getConnection() === test2.ice_getConnection())
+            try await test(test2.ice_getConnection() === test3.ice_getConnection())
 
             let adapterName = try test1.getAdapterName()
             names.removeAll(where: { $0 == adapterName })
-            try test1.ice_getConnection()!.close(.GracefullyWithWait)
+            try await test1.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
         //
@@ -262,7 +262,7 @@ func allTests(_ helper: TestHelper) async throws {
             try test(i == nRetry)
 
             for adpt in adapters {
-                try adpt.getTestIntf()!.ice_getConnection()!.close(.GracefullyWithWait)
+                try await adpt.getTestIntf()!.ice_getConnection()!.close(.GracefullyWithWait)
             }
         }
 
@@ -281,12 +281,12 @@ func allTests(_ helper: TestHelper) async throws {
             adpts.shuffle()
             let test3 = try createTestIntfPrx(adpts)
 
-            try test(test1.ice_getConnection() === test2.ice_getConnection())
-            try test(test2.ice_getConnection() === test3.ice_getConnection())
+            try await test(test1.ice_getConnection() === test2.ice_getConnection())
+            try await test(test2.ice_getConnection() === test3.ice_getConnection())
 
             let adapterName = try test1.getAdapterName()
             names.removeAll(where: { $0 == adapterName })
-            try test1.ice_getConnection()!.close(.GracefullyWithWait)
+            try await test1.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
         //
@@ -316,7 +316,7 @@ func allTests(_ helper: TestHelper) async throws {
         while names.count > 0 {
             let adapterName = try obj.getAdapterName()
             names.removeAll(where: { $0 == adapterName })
-            try obj.ice_getConnection()!.close(.GracefullyWithWait)
+            try await obj.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
         obj = obj.ice_endpointSelection(.Random)
@@ -329,7 +329,7 @@ func allTests(_ helper: TestHelper) async throws {
         while names.count > 0 {
             let adapterName = try obj.getAdapterName()
             names.removeAll(where: { $0 == adapterName })
-            try obj.ice_getConnection()!.close(.GracefullyWithWait)
+            try await obj.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
         try deactivate(communicator: com, adapters: adapters)
@@ -397,7 +397,7 @@ func allTests(_ helper: TestHelper) async throws {
             i += 1
         }
         try test(i == nRetry)
-        try obj.ice_getConnection()!.close(.GracefullyWithWait)
+        try await obj.ice_getConnection()!.close(.GracefullyWithWait)
 
         try adapters.append(
             com.createObjectAdapter(name: "Adapter35", endpoints: endpoints[1].toString())!)
@@ -406,7 +406,7 @@ func allTests(_ helper: TestHelper) async throws {
             i += 1
         }
         try test(i == nRetry)
-        try obj.ice_getConnection()!.close(.GracefullyWithWait)
+        try await obj.ice_getConnection()!.close(.GracefullyWithWait)
 
         try adapters.append(
             com.createObjectAdapter(name: "Adapter34", endpoints: endpoints[0].toString())!)
@@ -428,15 +428,16 @@ func allTests(_ helper: TestHelper) async throws {
         let test2 = try adapter.getTestIntf()!.ice_connectionCached(false)
         try test(!test1.ice_isConnectionCached())
         try test(!test2.ice_isConnectionCached())
-        try test(test1.ice_getConnection() != nil && test2.ice_getConnection() != nil)
-        try test(test1.ice_getConnection() === test2.ice_getConnection())
+        try await test(test1.ice_getConnection() != nil)
+        try await test(test2.ice_getConnection() != nil)
+        try await test(test1.ice_getConnection() === test2.ice_getConnection())
 
         try test1.ice_ping()
 
         try com.deactivateObjectAdapter(adapter)
 
         do {
-            _ = try test1.ice_getConnection()
+            _ = try await test1.ice_getConnection()
             try test(false)
         } catch is Ice.ConnectFailedException {
             // expected
@@ -692,7 +693,7 @@ func allTests(_ helper: TestHelper) async throws {
         try test(obj.getAdapterName() == "Adapter71")
 
         let testUDP = obj.ice_datagram()
-        try test(obj.ice_getConnection() !== testUDP.ice_getConnection())
+        try await test(obj.ice_getConnection() !== testUDP.ice_getConnection())
         do {
             _ = try testUDP.getAdapterName()
         } catch is Ice.TwowayOnlyException {}
@@ -710,7 +711,7 @@ func allTests(_ helper: TestHelper) async throws {
             let obj = try createTestIntfPrx(adapters)
             for _ in 0..<5 {
                 try test(obj.getAdapterName() == "Adapter82")
-                try obj.ice_getConnection()!.close(.GracefullyWithWait)
+                try await obj.ice_getConnection()!.close(.GracefullyWithWait)
             }
 
             var testSecure = obj.ice_secure(true)
@@ -719,13 +720,13 @@ func allTests(_ helper: TestHelper) async throws {
             try test(!testSecure.ice_isSecure())
             testSecure = obj.ice_secure(true)
             try test(testSecure.ice_isSecure())
-            try test(obj.ice_getConnection() !== testSecure.ice_getConnection())
+            try await test(obj.ice_getConnection() !== testSecure.ice_getConnection())
 
             try com.deactivateObjectAdapter(adapters[1])
 
             for _ in 0..<5 {
                 try test(obj.getAdapterName() == "Adapter81")
-                try obj.ice_getConnection()!.close(.GracefullyWithWait)
+                try await obj.ice_getConnection()!.close(.GracefullyWithWait)
             }
 
             // Reactive tcp OA.
@@ -734,7 +735,7 @@ func allTests(_ helper: TestHelper) async throws {
 
             for _ in 0..<5 {
                 try test(obj.getAdapterName() == "Adapter83")
-                try obj.ice_getConnection()!.close(.GracefullyWithWait)
+                try await obj.ice_getConnection()!.close(.GracefullyWithWait)
             }
 
             try com.deactivateObjectAdapter(adapters[0])

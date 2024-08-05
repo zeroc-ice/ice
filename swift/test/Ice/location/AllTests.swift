@@ -461,7 +461,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.write("testing object migration... ")
     hello = try makeProxy(communicator: communicator, proxyString: "hello", type: HelloPrx.self)
     try obj.migrateHello()
-    try hello.ice_getConnection()!.close(.GracefullyWithWait)
+    try await hello.ice_getConnection()!.close(.GracefullyWithWait)
     try hello.sayHello()
     try obj.migrateHello()
     try hello.sayHello()
@@ -530,11 +530,11 @@ func allTests(_ helper: TestHelper) async throws {
 
     // Ensure that calls on the indirect proxy (with adapter ID) is collocated
     var helloPrx = try checkedCast(prx: adapter.createIndirectProxy(ident), type: HelloPrx.self)!
-    try test(helloPrx.ice_getConnection() == nil)
+    try await test(helloPrx.ice_getConnection() == nil)
 
     // Ensure that calls on the direct proxy is collocated
     helloPrx = try checkedCast(prx: adapter.createDirectProxy(ident), type: HelloPrx.self)!
-    try test(helloPrx.ice_getConnection() == nil)
+    try await test(helloPrx.ice_getConnection() == nil)
 
     output.writeLine("ok")
 
