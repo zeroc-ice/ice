@@ -100,10 +100,10 @@ namespace IcePHP
     std::string zendTypeToString(int);
 
     // Raise RuntimeException with the given message.
-    void runtimeError(const char*, ...);
+    void runtimeError(const std::string&);
 
     // Raise InvalidArgumentException with the given message.
-    void invalidArgument(const char*, ...);
+    void invalidArgument(const std::string&);
 
     // Invoke a method on a PHP object. The method must not take any arguments.
     bool invokeMethod(zval*, const std::string&);
