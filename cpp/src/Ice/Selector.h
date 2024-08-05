@@ -74,7 +74,7 @@ namespace IceInternal
         HANDLE _handle;
     };
 
-#elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_SELECT) || defined(ICE_USE_POLL)
+#elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_POLL)
 
     class Selector final
     {
@@ -121,27 +121,6 @@ namespace IceInternal
         std::vector<struct kevent> _events;
         std::vector<struct kevent> _changes;
         int _queueFd;
-#    elif defined(ICE_USE_SELECT)
-        std::vector<std::pair<EventHandler*, SocketOperation>> _changes;
-        std::map<SOCKET, EventHandler*> _handlers;
-
-        fd_set _readFdSet;
-        fd_set _writeFdSet;
-        fd_set _errorFdSet;
-        fd_set _selectedReadFdSet;
-        fd_set _selectedWriteFdSet;
-        fd_set _selectedErrorFdSet;
-
-        fd_set* fdSetCopy(fd_set& dest, fd_set& src)
-        {
-            if (src.fd_count > 0)
-            {
-                dest.fd_count = src.fd_count;
-                memcpy(dest.fd_array, src.fd_array, sizeof(SOCKET) * src.fd_count);
-                return &dest;
-            }
-            return 0;
-        }
 #    elif defined(ICE_USE_POLL)
         std::vector<std::pair<EventHandler*, SocketOperation>> _changes;
         std::map<SOCKET, EventHandler*> _handlers;

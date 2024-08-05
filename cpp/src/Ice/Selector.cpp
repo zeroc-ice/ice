@@ -172,7 +172,7 @@ Selector::completed(EventHandler* handler, SocketOperation op)
     }
 }
 
-#elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_SELECT) || defined(ICE_USE_POLL)
+#elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_POLL)
 
 Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrupted(false)
 {
@@ -215,11 +215,6 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrup
         Ice::Error out(_instance->initializationData().logger);
         out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
     }
-#    elif defined(ICE_USE_SELECT)
-    FD_ZERO(&_readFdSet);
-    FD_ZERO(&_writeFdSet);
-    FD_ZERO(&_errorFdSet);
-    FD_SET(_fdIntrRead, &_readFdSet);
 #    else
     struct pollfd pollFd;
     pollFd.fd = _fdIntrRead;
@@ -519,7 +514,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
 
     assert(handlers.empty());
 
-#    if defined(ICE_USE_POLL) || defined(ICE_USE_SELECT)
+#    if defined(ICE_USE_POLL)
     if (_interrupted) // Interrupted, we have to process the interrupt before returning any handlers
     {
         return;
@@ -550,30 +545,6 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
         }
         p.first = reinterpret_cast<EventHandler*>(ev.udata);
         p.second = (ev.filter == EVFILT_READ) ? SocketOperationRead : SocketOperationWrite;
-#    elif defined(ICE_USE_SELECT)
-        //
-        // Round robin for the filedescriptors.
-        //
-        SOCKET fd;
-        p.second = SocketOperationNone;
-        if (i < _selectedReadFdSet.fd_count)
-        {
-            fd = _selectedReadFdSet.fd_array[i];
-            p.second = static_cast<SocketOperation>(p.second | SocketOperationRead);
-        }
-        else if (i < _selectedWriteFdSet.fd_count + _selectedReadFdSet.fd_count)
-        {
-            fd = _selectedWriteFdSet.fd_array[i - _selectedReadFdSet.fd_count];
-            p.second = static_cast<SocketOperation>(p.second | SocketOperationWrite);
-        }
-        else
-        {
-            fd = _selectedErrorFdSet.fd_array[i - _selectedReadFdSet.fd_count - _selectedWriteFdSet.fd_count];
-            p.second = static_cast<SocketOperation>(p.second | SocketOperationConnect);
-        }
-
-        assert(fd != _fdIntrRead);
-        p.first = _handlers[fd];
 #    else
         if (r->revents == 0)
         {
@@ -639,8 +610,8 @@ Selector::select(int timeout)
     }
     else if (timeout > 0)
     {
-        // kpoll and select use seconds, epoll and poll use milliseconds
-#    if !defined(ICE_USE_KQUEUE) && !defined(ICE_USE_SELECT)
+        // kqueue use seconds, epoll and poll use milliseconds
+#    ifndef ICE_USE_KQUEUE
         timeout = timeout * 1000;
 #    endif
     }
@@ -664,19 +635,6 @@ Selector::select(int timeout)
         else
         {
             _count = kevent(_queueFd, nullptr, 0, &_events[0], static_cast<int>(_events.size()), nullptr);
-        }
-#    elif defined(ICE_USE_SELECT)
-        fd_set* rFdSet = fdSetCopy(_selectedReadFdSet, _readFdSet);
-        fd_set* wFdSet = fdSetCopy(_selectedWriteFdSet, _writeFdSet);
-        fd_set* eFdSet = fdSetCopy(_selectedErrorFdSet, _errorFdSet);
-        if (timeout >= 0)
-        {
-            timespec ts{.tv_sec = timeout, .tv_nsec = 0};
-            _count = ::select(0, rFdSet, wFdSet, eFdSet, &tv); // The first parameter is ignored on Windows
-        }
-        else
-        {
-            _count = ::select(0, rFdSet, wFdSet, eFdSet, 0); // The first parameter is ignored on Windows
         }
 #    else
         _count = poll(&_pollFdSet[0], _pollFdSet.size(), timeout);
@@ -776,35 +734,6 @@ Selector::updateSelector()
         SOCKET fd = handler->getNativeInfo()->fd();
         if (status)
         {
-#        if defined(ICE_USE_SELECT)
-            if (status & SocketOperationRead)
-            {
-                FD_SET(fd, &_readFdSet);
-            }
-            else
-            {
-                FD_CLR(fd, &_readFdSet);
-            }
-            if (status & SocketOperationWrite)
-            {
-                FD_SET(fd, &_writeFdSet);
-            }
-            else
-            {
-                FD_CLR(fd, &_writeFdSet);
-            }
-            if (status & SocketOperationConnect)
-            {
-                FD_SET(fd, &_writeFdSet);
-                FD_SET(fd, &_errorFdSet);
-            }
-            else
-            {
-                FD_CLR(fd, &_writeFdSet);
-                FD_CLR(fd, &_errorFdSet);
-            }
-            _handlers[fd] = handler;
-#        else
             short events = 0;
             if (status & SocketOperationRead)
             {
@@ -835,15 +764,9 @@ Selector::updateSelector()
                     }
                 }
             }
-#        endif
         }
         else
         {
-#        if defined(ICE_USE_SELECT)
-            FD_CLR(fd, &_readFdSet);
-            FD_CLR(fd, &_writeFdSet);
-            FD_CLR(fd, &_errorFdSet);
-#        else
             for (vector<struct pollfd>::iterator r = _pollFdSet.begin(); r != _pollFdSet.end(); ++r)
             {
                 if (r->fd == fd)
@@ -852,7 +775,6 @@ Selector::updateSelector()
                     break;
                 }
             }
-#        endif
             _handlers.erase(fd);
         }
     }
