@@ -250,8 +250,9 @@ class F2I: F2 {
     func op(current _: Current) async throws {}
 }
 
-class UnexpectedObjectExceptionTestI: Ice.Blobject {
-    func ice_invoke(inEncaps _: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
+class UnexpectedObjectExceptionTestI: Ice.Dispatcher {
+    public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        let current = request.current
         let communicator = current.adapter.getCommunicator()
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation(encoding: current.encoding, format: nil)
@@ -259,6 +260,6 @@ class UnexpectedObjectExceptionTestI: Ice.Blobject {
         ostr.write(ae)
         ostr.writePendingValues()
         ostr.endEncapsulation()
-        return (true, ostr.finished())
+        return request.current.makeOutgoingResponse(ok: true, encapsulation: ostr.finished())
     }
 }
