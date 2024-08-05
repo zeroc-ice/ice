@@ -27,9 +27,6 @@ classdef OutputStream < handle
                 r = obj.encapsStack.encoding;
             end
         end
-        function setFormat(obj, format)
-            obj.format = format;
-        end
         function writeBool(obj, v)
             sz = obj.buf.size;
             newSz = sz + 1;
