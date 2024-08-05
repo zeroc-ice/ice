@@ -32,7 +32,7 @@ classdef LocalTests
             % to "convert" it to finalize the class instances.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             s = S1(C1(3));
             S1.ice_write(out, s);
@@ -55,7 +55,7 @@ classdef LocalTests
             % class instances. Calling convert() returns the wrapped cell array.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             seq = {};
             for i = 1:10
@@ -84,7 +84,7 @@ classdef LocalTests
             % Test: sequence of struct containing class. Each element of the sequence needs to be converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             seq = S1();
             for i = 1:10
@@ -115,7 +115,7 @@ classdef LocalTests
             % values until converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 1:10
@@ -146,7 +146,7 @@ classdef LocalTests
             % IceInternal.ValueHolder objects as its member until converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 1:10
@@ -176,7 +176,7 @@ classdef LocalTests
             % Test: sequence of sequence of class. Converting the outer sequence should convert every inner sequence.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             seq = {};
             for i = 1:10
@@ -210,7 +210,7 @@ classdef LocalTests
             % be converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             seq = {};
             for i = 1:10
@@ -246,7 +246,7 @@ classdef LocalTests
             % Test: struct containing struct containing class member. The inner struct must be converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             s = S2(S1(C1(3)));
             S2.ice_write(out, s);
@@ -268,7 +268,7 @@ classdef LocalTests
             % Test: struct containing sequence of class. The sequence must be converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             s3 = S3();
             for i = 1:10
@@ -298,7 +298,7 @@ classdef LocalTests
             % be converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             s4 = S4();
             s4.s1seq = S1();
@@ -330,7 +330,7 @@ classdef LocalTests
             % objects as its values until converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             s5 = S5();
             for i = 1:10
@@ -361,7 +361,7 @@ classdef LocalTests
             % structure temporarily stores IceInternal.ValueHolder objects as its member until converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             s6 = S6();
             for i = 1:10
@@ -392,7 +392,7 @@ classdef LocalTests
             % every inner sequence.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             s7 = S7();
             for i = 1:10
@@ -426,7 +426,7 @@ classdef LocalTests
             % sequence needs to be converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             s8 = S8();
             for i = 1:10
@@ -465,7 +465,7 @@ classdef LocalTests
             % We installed a factory that creates a subclass of the outer class and overrides ice_postUnmarshal.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             cb = CB1(S1(C1(3)));
             out.writeValue(cb);
@@ -495,7 +495,7 @@ classdef LocalTests
             % We installed a factory that creates a subclass of the outer class and overrides ice_postUnmarshal.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             cb = CB2();
             cb.c1seq = {};
@@ -533,7 +533,7 @@ classdef LocalTests
             % We installed a factory that creates a subclass of the outer class and overrides ice_postUnmarshal.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             cb = CB3();
             cb.s1seq = S1();
@@ -569,7 +569,7 @@ classdef LocalTests
             % We installed a factory that creates a subclass of the outer class and overrides ice_postUnmarshal.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             cb = CB4();
             for i = 1:10
@@ -607,7 +607,7 @@ classdef LocalTests
             % We installed a factory that creates a subclass of the outer class and overrides ice_postUnmarshal.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             cb = CB5();
             for i = 1:10
@@ -645,7 +645,7 @@ classdef LocalTests
             % We installed a factory that creates a subclass of the outer class and overrides ice_postUnmarshal.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             cb = CB6();
             for i = 1:10
@@ -688,7 +688,7 @@ classdef LocalTests
             % We installed a factory that creates a subclass of the outer class and overrides ice_postUnmarshal.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             cb = CB7();
             for i = 1:10
@@ -731,7 +731,7 @@ classdef LocalTests
             % We installed a factory that creates a subclass of the outer class and overrides ice_postUnmarshal.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             cb = CB8();
             cb.s1 = S1(C1(3));
@@ -772,7 +772,7 @@ classdef LocalTests
             % temporarily stores IceInternal.ValueHolder objects as its values until converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             d = struct.empty();
             for i = 1:10
@@ -804,7 +804,7 @@ classdef LocalTests
             % struct array and temporarily stores IceInternal.ValueHolder objects as its values until converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             d = struct.empty();
             for i = 1:10
@@ -836,7 +836,7 @@ classdef LocalTests
             % objects as its values until converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 1:10
@@ -877,7 +877,7 @@ classdef LocalTests
             % IceInternal.ValueHolder objects until converted.
             %
 
-            out = Ice.OutputStream(communicator, encoding);
+            out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
             d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 1:10

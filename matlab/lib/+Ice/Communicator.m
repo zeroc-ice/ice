@@ -22,7 +22,7 @@ classdef Communicator < IceInternal.WrapperObject
     %   getDefaultLocator - Get the default locator for this communicator.
     %   setDefaultLocator - Set a default locator for this communicator.
     %   getEncoding - Get the encoding version for this communicator.
-    %   getFormat - Get class the format for this communicator.
+    %   getFormat - Get the class format for this communicator.
     %   getValueFactoryManager - Get the value factory manager for this
     %     communicator.
     %   flushBatchRequests - Flush any pending batch requests for this

@@ -6,17 +6,19 @@ classdef OutputStream < handle
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = OutputStream(communicator, encoding)
-            if nargin == 1
-                encoding = communicator.getEncoding();
+        function obj = OutputStream(encoding, format)
+            if nargin < 1
+                encoding = Ice.currentEncoding();
             end
-
+            if nargin < 2
+                format = Ice.FormatType.CompactFormat;
+            end
             obj.encoding = encoding;
+            obj.format = format;
             obj.encoding_1_0 = encoding.major == 1 && encoding.minor == 0;
             obj.encapsStack = [];
             obj.encapsCache = [];
             obj.buf = IceInternal.Buffer();
-            obj.format = communicator.getFormat();
         end
         function r = getEncoding(obj)
             if isempty(obj.encapsStack)

@@ -157,10 +157,6 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function r = ice_createOutputStream(obj)
-            r = Ice.OutputStream(obj.communicator, obj.encoding);
-        end
-
         function r = ice_toString(obj)
             % ice_toString - Returns a stringified version of this proxy.
             %
@@ -936,7 +932,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
     methods(Access=protected)
         function os = iceStartWriteParams(obj, format)
-            os = obj.ice_createOutputStream();
+            os = Ice.OutputStream(obj.encoding, obj.communicator.getFormat());
             os.startEncapsulation(format);
         end
 
