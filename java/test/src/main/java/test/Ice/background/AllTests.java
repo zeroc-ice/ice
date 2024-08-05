@@ -291,7 +291,7 @@ public class AllTests {
 
     for (int i = 0; i < 4; ++i) {
       if (i == 0 || i == 2) {
-        configuration.connectorsException(new com.zeroc.Ice.DNSException("Dummy"));
+        configuration.connectorsException(new com.zeroc.Ice.DNSException("dummy"));
       } else {
         configuration.connectException(new com.zeroc.Ice.SocketException());
       }

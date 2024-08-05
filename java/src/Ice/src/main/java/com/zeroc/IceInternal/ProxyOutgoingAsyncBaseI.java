@@ -101,7 +101,8 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
 
             switch (replyStatus) {
               case UnknownException -> throw new com.zeroc.Ice.UnknownException(unknownId);
-              case UnknownLocalException -> throw new com.zeroc.Ice.UnknownLocalException(unknownId);
+              case UnknownLocalException ->
+                  throw new com.zeroc.Ice.UnknownLocalException(unknownId);
               case UnknownUserException -> throw new com.zeroc.Ice.UnknownUserException(unknownId);
               default -> throw new IllegalStateException();
             }

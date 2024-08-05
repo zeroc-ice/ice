@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception indicates a connection closure timeout condition. */
 public final class CloseTimeoutException extends TimeoutException {
   public CloseTimeoutException() {
-    super("Closed timed out.");
+    super("Close timed out.");
   }
 
   public String ice_id() {
