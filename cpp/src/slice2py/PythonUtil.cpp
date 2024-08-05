@@ -3094,42 +3094,10 @@ Slice::Python::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    static const string protobuf = "python:protobuf:";
     StringList metaData = p->getMetaData();
     const string file = p->file();
     const string line = p->line();
-    StringList protobufMetaData;
-    const UnitPtr ut = p->unit();
-    const DefinitionContextPtr dc = ut->findDefinitionContext(file);
-    assert(dc);
-
-    for (StringList::const_iterator q = metaData.begin(); q != metaData.end();)
-    {
-        string s = *q++;
-        if (s.find(protobuf) == 0)
-        {
-            //
-            // Remove from list so validateSequence does not try to handle as well.
-            //
-            metaData.remove(s);
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-            if (!builtin || builtin->kind() != Builtin::KindByte)
-            {
-                dc->warning(
-                    InvalidMetaData,
-                    file,
-                    line,
-                    "ignoring invalid metadata `" + s + ": " + "`protobuf' encoding must be a byte sequence");
-            }
-            else
-            {
-                protobufMetaData.push_back(s);
-            }
-        }
-    }
-
     metaData = validateSequence(file, line, p, metaData);
-    metaData.insert(metaData.end(), protobufMetaData.begin(), protobufMetaData.end());
     p->setMetaData(metaData);
 }
 
