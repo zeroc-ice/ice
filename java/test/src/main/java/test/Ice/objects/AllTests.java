@@ -312,8 +312,8 @@ public class AllTests {
       uoet.op();
       test(false);
     } catch (com.zeroc.Ice.MarshalException ex) {
-      test(ex.reason.contains("'::Test::AlsoEmpty'"));
-      test(ex.reason.contains("'::Test::Empty'"));
+      test(ex.getMessage().contains("'::Test::AlsoEmpty'"));
+      test(ex.getMessage().contains("'::Test::Empty'"));
     } catch (java.lang.Exception ex) {
       out.println(ex);
       test(false);

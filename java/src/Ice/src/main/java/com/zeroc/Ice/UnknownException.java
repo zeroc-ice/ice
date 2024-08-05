@@ -12,9 +12,9 @@ public class UnknownException extends LocalException {
     this.unknown = "";
   }
 
-  public UnknownException(String message) {
-    super(message);
-    this.unknown = "";
+  public UnknownException(String unknown) {
+    super("unknown exception with type ID '" + unknown + "'");
+    this.unknown = unknown;
   }
 
   public UnknownException(String unknown, Throwable cause) {

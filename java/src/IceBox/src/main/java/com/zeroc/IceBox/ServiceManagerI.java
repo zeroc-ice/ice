@@ -239,9 +239,7 @@ public class ServiceManagerI implements ServiceManager {
           String key = prefix + name;
           String value = services.get(key);
           if (value == null) {
-            FailureException ex = new FailureException();
-            ex.reason = "ServiceManager: no service definition for `" + name + "'";
-            throw ex;
+            throw new FailureException("ServiceManager: no service definition for `" + name + "'");
           }
           servicesInfo.add(new StartServiceInfo(name, value, _argv));
           services.remove(key);

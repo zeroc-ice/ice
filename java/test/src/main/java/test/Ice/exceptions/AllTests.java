@@ -312,7 +312,7 @@ public class AllTests {
         thrower.throwMemoryLimitException(null);
         test(false);
       } catch (com.zeroc.Ice.MarshalException ex) {
-        test(ex.reason.contains("exceeds the maximum allowed"));
+        test(ex.getMessage().contains("exceeds the maximum allowed"));
       } catch (Throwable ex) {
         ex.printStackTrace();
         test(false);
@@ -336,7 +336,7 @@ public class AllTests {
         try {
           thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
         } catch (com.zeroc.Ice.MarshalException ex) {
-          test(ex.reason.contains("exceeds the maximum allowed"));
+          test(ex.getMessage().contains("exceeds the maximum allowed"));
         }
         var thrower3 = ThrowerPrx.createProxy(communicator, "thrower:" + helper.getTestEndpoint(2));
         try {

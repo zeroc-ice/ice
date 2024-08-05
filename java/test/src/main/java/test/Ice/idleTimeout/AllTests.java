@@ -111,7 +111,7 @@ public class AllTests {
       try {
         p.sleep(2000); // the implementation in the server sleeps for 2,000ms
         test(!enabled);
-      } catch (ConnectionAbortedException e) {
+      } catch (com.zeroc.Ice.ConnectionAbortedException e) {
         test(enabled);
       }
       output.println("ok");

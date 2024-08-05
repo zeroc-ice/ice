@@ -97,12 +97,12 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
         case UnknownLocalException:
         case UnknownUserException:
           {
-            String message = is.readString();
+            String unknown = is.readString();
 
             switch (replyStatus) {
-              case UnknownException -> throw new com.zeroc.Ice.UnknownException(message);
-              case UnknownLocalException -> throw new com.zeroc.Ice.UnknownLocalException(message);
-              case UnknownUserException -> throw new com.zeroc.Ice.UnknownUserException(message);
+              case UnknownException -> throw new com.zeroc.Ice.UnknownException(unknown);
+              case UnknownLocalException -> throw new com.zeroc.Ice.UnknownLocalException(unknown);
+              case UnknownUserException -> throw new com.zeroc.Ice.UnknownUserException(unknown);
               default -> throw new IllegalStateException();
             }
           }

@@ -199,7 +199,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
               }
             }
           }
-          completeExceptionally(UnknownUserException.fromTypeId(ex.ice_id()));
+          completeExceptionally(new UnknownUserException(ex.ice_id()));
         } catch (Throwable ex) {
           completeExceptionally(ex);
         }
