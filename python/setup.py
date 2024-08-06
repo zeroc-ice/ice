@@ -60,7 +60,6 @@ else:
 
 # Define macros used during the build process
 define_macros = [
-    ('ICE_STATIC_LIBS', None),
     ('ICE_BUILDING_SRC', None),
     ('ICE_BUILDING_ICE', None),
     ('ICE_BUILDING_ICE_LOCATOR_DISCOVERY', None)]

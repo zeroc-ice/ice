@@ -6,12 +6,8 @@
 	<string>ice3.7-iphoneos</string>
 	<key>DefaultProperties</key>
 	<dict>
-	        <key>PLATFORM_NAME</key>
+		<key>PLATFORM_NAME</key>
 		<string>iphoneos</string>
-		<key>GCC_PREPROCESSOR_DEFINITIONS</key>
-		<array>
-			<string>ICE_STATIC_LIBS</string>
-		</array>
 	</dict>
 	<key>DisplayName</key>
 	<string>Ice 3.7 for iOS</string>
