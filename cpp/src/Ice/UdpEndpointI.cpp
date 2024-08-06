@@ -241,7 +241,8 @@ IceInternal::UdpEndpointI::options() const
 
     if (_mcastTtl != -1)
     {
-        s << " --ttl " << _mcastTtl;
+        // Use to_string for locale independent formatting.
+        s << " --ttl " << to_string(_mcastTtl);
     }
 
     if (_connect)

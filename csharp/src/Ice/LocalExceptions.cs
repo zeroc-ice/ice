@@ -28,11 +28,12 @@ public class RequestFailedException : LocalException
         this.operation = operation;
     }
 
-    protected RequestFailedException()
+    protected RequestFailedException(string typeName)
+        : base($"Dispatch failed with {typeName}.")
     {
-        this.id = new Identity();
-        this.facet = "";
-        this.operation = "";
+        id = new Identity();
+        facet = "";
+        operation = "";
     }
 
     internal static string createMessage(string typeName, Identity id, string facet, string operation) =>
@@ -45,6 +46,7 @@ public class RequestFailedException : LocalException
 public sealed class ObjectNotExistException : RequestFailedException
 {
     public ObjectNotExistException()
+        : base(nameof(ObjectNotExistException))
     {
     }
 
@@ -62,6 +64,7 @@ public sealed class ObjectNotExistException : RequestFailedException
 public sealed class FacetNotExistException : RequestFailedException
 {
     public FacetNotExistException()
+        : base(nameof(FacetNotExistException))
     {
     }
 
@@ -80,6 +83,7 @@ public sealed class FacetNotExistException : RequestFailedException
 public sealed class OperationNotExistException : RequestFailedException
 {
     public OperationNotExistException()
+        : base(nameof(OperationNotExistException))
     {
     }
 
@@ -146,7 +150,7 @@ public sealed class UnknownUserException : UnknownException
 /// </summary>
 public class ProtocolException : LocalException
 {
-    public ProtocolException(string? message = null, System.Exception? innerException = null)
+    public ProtocolException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
@@ -164,7 +168,7 @@ public class ProtocolException : LocalException
 public sealed class CloseConnectionException : ProtocolException
 {
     public CloseConnectionException()
-        : base(message: "Connection closed by the peer.", innerException: null)
+        : base("Connection closed by the peer.")
     {
     }
 
@@ -179,7 +183,7 @@ public sealed class CloseConnectionException : ProtocolException
 public sealed class DatagramLimitException : ProtocolException
 {
     public DatagramLimitException()
-        : base(message: "Datagram limit exceeded.", innerException: null)
+        : base("Datagram limit exceeded.")
     {
     }
 
@@ -206,8 +210,8 @@ public sealed class MarshalException : ProtocolException
 /// <summary>This exception indicates a timeout condition.</summary>
 public class TimeoutException : LocalException
 {
-    public TimeoutException(string? message = null, System.Exception? innerException = null)
-        : base(message ?? "Operation timed out.", innerException)
+    public TimeoutException(string? message = null)
+        : base(message ?? "Operation timed out.")
     {
     }
 
@@ -260,13 +264,13 @@ public sealed class InvocationTimeoutException : TimeoutException
 /// </summary>
 public class SyscallException : LocalException
 {
-    public SyscallException(string? message = null, System.Exception? innerException = null)
+    public SyscallException(string? message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
     public SyscallException(System.Exception innerException)
-        : base(innerException)
+        : this(message: null, innerException)
     {
     }
 
@@ -398,7 +402,7 @@ public sealed class ConnectionAbortedException : LocalException
     public bool closedByApplication { get; }
 
     public ConnectionAbortedException(string message, bool closedByApplication)
-        : base(message, innerException: null) =>
+        : base(message) =>
         this.closedByApplication = closedByApplication;
 
     public override string ice_id() => "::Ice::ConnectionAbortedException";
@@ -412,7 +416,7 @@ public sealed class ConnectionClosedException : LocalException
     public bool closedByApplication { get; }
 
     public ConnectionClosedException(string message, bool closedByApplication)
-        : base(message, innerException: null) =>
+        : base(message) =>
         this.closedByApplication = closedByApplication;
 
     public override string ice_id() => "::Ice::ConnectionClosedException";

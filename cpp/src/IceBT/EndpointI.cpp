@@ -378,7 +378,6 @@ IceBT::EndpointI::options() const
     // format of proxyToString() before changing this and related code.
     //
     ostringstream s;
-
     if (!_addr.empty())
     {
         s << " -a ";
@@ -411,7 +410,8 @@ IceBT::EndpointI::options() const
 
     if (_channel > 0)
     {
-        s << " -c " << _channel;
+        // Use to_string for locale independent formatting.
+        s << " -c " << to_string(_channel);
     }
 
     if (_timeout == -1)
@@ -420,7 +420,8 @@ IceBT::EndpointI::options() const
     }
     else
     {
-        s << " -t " << _timeout;
+        // Use to_string for locale independent formatting.
+        s << " -t " << to_string(_timeout);
     }
 
     if (_compress)

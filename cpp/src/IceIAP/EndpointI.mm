@@ -542,7 +542,8 @@ IceObjC::iAPEndpointI::options() const
 
     if (_timeout != -1)
     {
-        s << " -t " << _timeout;
+        // Use to_string for locale independent formatting.
+        s << " -t " << to_string(_timeout);
     }
 
     if (_compress)

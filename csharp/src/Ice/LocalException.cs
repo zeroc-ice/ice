@@ -14,17 +14,8 @@ public class LocalException : Ice.Exception
     /// </summary>
     /// <param name="message">The exception message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public LocalException(string? message = null, System.Exception? innerException = null)
+    public LocalException(string? message, System.Exception? innerException = null)
         : base(message, innerException)
-    {
-    }
-
-    /// <summary>
-    /// Constructs a LocalException.
-    /// </summary>
-    /// <param name="innerException">The inner exception.</param>
-    public LocalException(System.Exception innerException)
-        : this(message: null, innerException)
     {
     }
 

@@ -96,7 +96,7 @@ implicitContextGetContext(ImplicitContextObject* self, PyObject* /*args*/)
 {
     Ice::Context ctx = (*self->implicitContext)->getContext();
 
-    PyObjectHandle dict = PyDict_New();
+    PyObjectHandle dict{PyDict_New()};
     if (!dict.get())
     {
         return nullptr;

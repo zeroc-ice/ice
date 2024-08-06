@@ -29,7 +29,7 @@ IcePy::LoggerWrapper::print(const string& message)
     //
     // Method must be named "_print".
     //
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "_print", "s", message.c_str());
+    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "_print", "s", message.c_str())};
     if (!tmp.get())
     {
         throwPythonException();
@@ -41,7 +41,7 @@ IcePy::LoggerWrapper::trace(const string& category, const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "trace", "ss", category.c_str(), message.c_str());
+    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "trace", "ss", category.c_str(), message.c_str())};
     if (!tmp.get())
     {
         throwPythonException();
@@ -53,7 +53,7 @@ IcePy::LoggerWrapper::warning(const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "warning", "s", message.c_str());
+    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "warning", "s", message.c_str())};
     if (!tmp.get())
     {
         throwPythonException();
@@ -65,7 +65,7 @@ IcePy::LoggerWrapper::error(const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "error", "s", message.c_str());
+    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "error", "s", message.c_str())};
     if (!tmp.get())
     {
         throwPythonException();
@@ -77,7 +77,7 @@ IcePy::LoggerWrapper::getPrefix()
 {
     AdoptThread adoptThread;
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "getPrefix", 0);
+    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "getPrefix", 0)};
     if (!tmp.get())
     {
         throwPythonException();
@@ -90,7 +90,7 @@ IcePy::LoggerWrapper::cloneWithPrefix(const string& prefix)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "cloneWithPrefix", "s", prefix.c_str());
+    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "cloneWithPrefix", "s", prefix.c_str())};
     if (!tmp.get())
     {
         throwPythonException();

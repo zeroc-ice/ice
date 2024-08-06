@@ -228,7 +228,7 @@ IceInternal::IPEndpointI::options() const
         }
     }
 
-    s << " -p " << _port;
+    s << " -p " << to_string(_port);
 
     if (isAddressValid(_sourceAddr))
     {

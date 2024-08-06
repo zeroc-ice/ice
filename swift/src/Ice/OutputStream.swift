@@ -4,12 +4,10 @@ import Foundation
 import IceImpl
 
 /// Stream class to write (marshal) Slice types into a sequence of bytes.
-public class OutputStream {
+public final class OutputStream {
     private var data: Data = .init(capacity: 240)
-    private let communicator: Communicator
     private let encoding: EncodingVersion
     private let format: FormatType
-
     private var encaps: Encaps!
 
     /// Determines the current encoding version.
@@ -17,15 +15,27 @@ public class OutputStream {
         return encaps != nil ? encaps.encoding : encoding
     }
 
-    public convenience init(communicator: Communicator) {
-        let encoding = (communicator as! CommunicatorI).defaultsAndOverrides.defaultEncoding
-        self.init(communicator: communicator, encoding: encoding)
+    /// Constructs an output stream using an encoding version and a class format.
+    /// - parameter encoding: The encoding version.
+    /// - parameter format: The class format.
+    public init(encoding: EncodingVersion, format: FormatType) {
+        self.encoding = encoding
+        self.format = format
     }
 
-    public init(communicator: Communicator, encoding: EncodingVersion) {
-        self.communicator = communicator
-        self.encoding = encoding
-        format = (communicator as! CommunicatorI).defaultsAndOverrides.defaultFormat
+    /// Constructs an output stream using a communicator.
+    /// - parameter communicator: A communicator that supplies the encoding version and the class format.
+    public convenience init(communicator: Communicator) {
+        let defaultsAndOverrides = (communicator as! CommunicatorI).defaultsAndOverrides
+        self.init(encoding: defaultsAndOverrides.defaultEncoding, format: defaultsAndOverrides.defaultFormat)
+    }
+
+    /// Constructs an output stream using a communicator and an encoding version.
+    /// - parameter communicator: A communicator that supplies the class format.
+    /// - parameter encoding: The encoding version.
+    public convenience init(communicator: Communicator, encoding: EncodingVersion) {
+        let defaultsAndOverrides = (communicator as! CommunicatorI).defaultsAndOverrides
+        self.init(encoding: encoding, format: defaultsAndOverrides.defaultFormat)
     }
 
     /// Writes the start of an encapsulation to the stream.

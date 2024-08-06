@@ -2289,14 +2289,14 @@ class WriteEncaps {
 
 export class OutputStream {
     constructor(arg1, arg2) {
-        this._instance = null;
+        var instance = null;
         this._encoding = null;
 
         if (arg1 !== undefined && arg1 !== null) {
             if (arg1.constructor == Communicator) {
-                this._instance = arg1.instance;
+                instance = arg1.instance;
             } else if (arg1.constructor == Instance) {
-                this._instance = arg1;
+                instance = arg1;
             } else if (arg1.constructor == EncodingVersion) {
                 this._encoding = arg1;
             } else {
@@ -2319,11 +2319,11 @@ export class OutputStream {
         this._encapsStack = null;
         this._encapsCache = null;
 
-        if (this._instance !== null) {
+        if (instance !== null) {
             if (this._encoding === null) {
-                this._encoding = this._instance.defaultsAndOverrides().defaultEncoding;
+                this._encoding = instance.defaultsAndOverrides().defaultEncoding;
             }
-            this._format = this._instance.defaultsAndOverrides().defaultFormat;
+            this._format = instance.defaultsAndOverrides().defaultFormat;
         } else {
             if (this._encoding === null) {
                 this._encoding = Protocol.currentEncoding;
@@ -2355,8 +2355,6 @@ export class OutputStream {
     }
 
     swap(other) {
-        Debug.assert(this._instance === other._instance);
-
         [other._buf, this._buf] = [this._buf, other._buf];
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
         [other._closure, this._closure] = [this._closure, other._closure];
@@ -2710,7 +2708,7 @@ export class OutputStream {
         }
 
         if (this._encapsStack.format === null) {
-            this._encapsStack.format = this._instance.defaultsAndOverrides().defaultFormat;
+            this._encapsStack.format = this._format;
         }
 
         if (!this._encapsStack.encoder) {
@@ -2744,10 +2742,6 @@ export class OutputStream {
 
     get size() {
         return this._buf.limit;
-    }
-
-    get instance() {
-        return this._instance;
     }
 
     get closure() {

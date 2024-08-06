@@ -27,13 +27,13 @@ internal class AllTests : global::Test.AllTests
         output.Flush();
 
         await p.ice_pingAsync();
-        Connection connection = p.ice_getConnection();
+        Connection? connection = p.ice_getConnection();
         test(connection is not null);
 
         // The inactivity timeout is 3s on the client side and 5s on the server side. 4 seconds tests the client side.
         await Task.Delay(4000);
         await p.ice_pingAsync();
-        Connection connection2 = p.ice_getConnection();
+        Connection? connection2 = p.ice_getConnection();
         test(connection2 != connection);
         output.WriteLine("ok");
     }
@@ -50,13 +50,13 @@ internal class AllTests : global::Test.AllTests
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
         await p.ice_pingAsync();
-        Connection connection = p.ice_getConnection();
+        Connection? connection = p.ice_getConnection();
         test(connection is not null);
 
         // The inactivity timeout is 5s on the client side and 3s on the server side. 4 seconds tests the server side.
         await Task.Delay(4000);
         await p.ice_pingAsync();
-        Connection connection2 = p.ice_getConnection();
+        Connection? connection2 = p.ice_getConnection();
         test(connection2 != connection);
         output.WriteLine("ok");
     }
@@ -73,7 +73,7 @@ internal class AllTests : global::Test.AllTests
         }
 
         await p.ice_pingAsync();
-        Connection connection = p.ice_getConnection();
+        Connection? connection = p.ice_getConnection();
         test(connection is not null);
 
         // The inactivity timeout is 3s on the client side and 5s on the server side; 4 seconds tests only the
@@ -84,7 +84,7 @@ internal class AllTests : global::Test.AllTests
             await Task.Delay(4000);
         }
         await p.ice_pingAsync();
-        Connection connection2 = p.ice_getConnection();
+        Connection? connection2 = p.ice_getConnection();
 
         if (oneway)
         {

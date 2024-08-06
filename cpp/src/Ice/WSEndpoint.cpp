@@ -219,7 +219,8 @@ IceInternal::WSEndpoint::connectorsAsync(
     if (info)
     {
         ostringstream os;
-        os << info->host << ":" << info->port;
+        // Use to_string for locale independent formatting.
+        os << info->host << ":" << to_string(info->port);
         host = os.str();
     }
 

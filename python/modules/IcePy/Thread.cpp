@@ -41,8 +41,8 @@ IcePy::ThreadHook::start()
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
     if (_threadStart.get())
     {
-        PyObjectHandle args = PyTuple_New(0);
-        PyObjectHandle tmp = PyObject_Call(_threadStart.get(), args.get(), 0);
+        PyObjectHandle args{PyTuple_New(0)};
+        PyObjectHandle tmp{PyObject_Call(_threadStart.get(), args.get(), 0)};
         if (!tmp.get())
         {
             throwPythonException();
@@ -56,8 +56,8 @@ IcePy::ThreadHook::stop()
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
     if (_threadStop.get())
     {
-        PyObjectHandle args = PyTuple_New(0);
-        PyObjectHandle tmp = PyObject_Call(_threadStop.get(), args.get(), 0);
+        PyObjectHandle args{PyTuple_New(0)};
+        PyObjectHandle tmp{PyObject_Call(_threadStop.get(), args.get(), 0)};
         if (!tmp.get())
         {
             throwPythonException();

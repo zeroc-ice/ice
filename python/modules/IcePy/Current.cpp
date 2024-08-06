@@ -16,7 +16,7 @@ IcePy::createCurrent(const Ice::Current& current)
 {
     PyObject* currentType = lookupType("Ice.Current");
 
-    PyObjectHandle args = PyTuple_New(9);
+    PyObjectHandle args{PyTuple_New(9)};
 
     PyObject* adapter = wrapObjectAdapter(current.adapter);
     if (!adapter)
@@ -77,7 +77,7 @@ IcePy::createCurrent(const Ice::Current& current)
     }
     PyTuple_SetItem(args.get(), 5, getAttr(operationModeType, enumerator, false));
 
-    PyObjectHandle ctx = PyDict_New();
+    PyObjectHandle ctx{PyDict_New()};
     if (!contextToDictionary(current.ctx, ctx.get()))
     {
         return nullptr;

@@ -1092,16 +1092,8 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
     properties[prefix + ".EndpointSelection"] =
         _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
-    {
-        ostringstream s;
-        s << _locatorCacheTimeout;
-        properties[prefix + ".LocatorCacheTimeout"] = s.str();
-    }
-    {
-        ostringstream s;
-        s << getInvocationTimeout();
-        properties[prefix + ".InvocationTimeout"] = s.str();
-    }
+    properties[prefix + ".LocatorCacheTimeout"] = to_string(_locatorCacheTimeout);
+    properties[prefix + ".InvocationTimeout"] = to_string(getInvocationTimeout());
 
     if (_routerInfo)
     {

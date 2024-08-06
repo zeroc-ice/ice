@@ -232,14 +232,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             %
             obj.valueIdIndex = obj.valueIdIndex + 1;
             obj.marshaledMap(v.iceInternal_) = obj.valueIdIndex;
-
-            try
-                v.ice_preMarshal();
-            catch ex
-                msg = sprintf('exception raised by ice_preMarshal:\n%s', getReport(ex, 'extended'));
-                obj.os.getCommunicator().getLogger().warning(msg);
-            end
-
+            v.ice_preMarshal();
             obj.os.writeSize(1); % Class instance marker.
             v.iceWrite(obj.os);
         end
