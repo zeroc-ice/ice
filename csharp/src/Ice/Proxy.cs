@@ -437,7 +437,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Gets the connection to the server that hosts the target object. This method establishes the connection to the
     /// server if it is not already established.
-    /// /// </summary>
+    /// </summary>
     /// <returns>The connection to the server that hosts the target object, or null when this proxy uses collocation
     /// optimization to communicate with the target object.</returns>
     Connection? ice_getConnection();
