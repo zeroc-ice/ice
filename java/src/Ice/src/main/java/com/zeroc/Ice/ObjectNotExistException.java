@@ -8,11 +8,11 @@ package com.zeroc.Ice;
  */
 public final class ObjectNotExistException extends RequestFailedException {
   public ObjectNotExistException() {
-    super();
+    super("ObjectNotExistException");
   }
 
   public ObjectNotExistException(Identity id, String facet, String operation) {
-    super(id, facet, operation);
+    super("ObjectNotExistException", id, facet, operation);
   }
 
   public String ice_id() {

@@ -8,26 +8,20 @@ package com.zeroc.Ice;
  */
 public class UnknownException extends LocalException {
   public UnknownException(Throwable cause) {
-    super(cause);
-    this.unknown = "";
+    super(null, cause);
   }
 
-  public UnknownException(String unknown) {
-    super("unknown exception with type ID '" + unknown + "'");
-    this.unknown = unknown;
+  public UnknownException(String message) {
+    super(message);
   }
 
-  public UnknownException(String unknown, Throwable cause) {
-    super("unknown exception with type ID '" + unknown + "'", cause);
-    this.unknown = unknown;
+  public UnknownException(String message, Throwable cause) {
+    super(message, cause);
   }
 
   public String ice_id() {
     return "::Ice::UnknownException";
   }
-
-  /** This field is set to the textual representation of the unknown exception if available. */
-  public final String unknown;
 
   private static final long serialVersionUID = 4845487294380422868L;
 }

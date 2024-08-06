@@ -8,12 +8,15 @@ package com.zeroc.Ice;
  * declared <code>local</code>.
  */
 public class RequestFailedException extends LocalException {
-  public RequestFailedException() {
-    this(new Identity(), "", "");
+  public RequestFailedException(String typename) {
+    super("Dispatch failed with " + typename + ".");
+    this.id = new Identity();
+    this.facet = "";
+    this.operation = "";
   }
 
-  public RequestFailedException(Identity id, String facet, String operation) {
-    super(createMessage("RequestFailedException", id, facet, operation));
+  public RequestFailedException(String typename, Identity id, String facet, String operation) {
+    super(createMessage(typename, id, facet, operation));
     this.id = id;
     this.facet = facet;
     this.operation = operation;

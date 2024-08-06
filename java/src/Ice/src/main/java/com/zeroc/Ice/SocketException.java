@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception indicates socket errors. */
 public class SocketException extends SyscallException {
   public SocketException() {
-    super();
+    super((String) null);
   }
 
   public SocketException(Throwable cause) {

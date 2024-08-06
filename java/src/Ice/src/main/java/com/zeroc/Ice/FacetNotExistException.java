@@ -8,11 +8,11 @@ package com.zeroc.Ice;
  */
 public final class FacetNotExistException extends RequestFailedException {
   public FacetNotExistException() {
-    super();
+    super("FacetNotExistException");
   }
 
   public FacetNotExistException(Identity id, String facet, String operation) {
-    super(id, facet, operation);
+    super("FacetNotExistException", id, facet, operation);
   }
 
   public String ice_id() {

@@ -7,7 +7,7 @@ package com.zeroc.Ice;
  */
 public final class InvocationCanceledException extends LocalException {
   public InvocationCanceledException() {
-    super("invocation canceled");
+    super("Invocation canceled.");
   }
 
   public String ice_id() {

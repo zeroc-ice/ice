@@ -350,7 +350,7 @@ public class ServiceManagerI implements ServiceManager {
     } catch (FailureException ex) {
       java.io.StringWriter sw = new java.io.StringWriter();
       java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-      pw.println(ex.reason);
+      pw.println(ex.toString());
       ex.printStackTrace(pw);
       pw.flush();
       _logger.error(sw.toString());
@@ -520,10 +520,8 @@ public class ServiceManagerI implements ServiceManager {
           }
         }
       } catch (Throwable ex) {
-        FailureException e = new FailureException();
-        e.reason = "ServiceManager: exception while starting service " + service;
-        e.initCause(ex);
-        throw e;
+        throw new FailureException(
+            "ServiceManager: exception while starting service " + service, ex);
       }
     }
 
@@ -602,10 +600,8 @@ public class ServiceManagerI implements ServiceManager {
       } catch (FailureException ex) {
         throw ex;
       } catch (Throwable ex) {
-        FailureException e = new FailureException();
-        e.reason = "ServiceManager: exception while starting service " + service;
-        e.initCause(ex);
-        throw e;
+        throw new FailureException(
+            "ServiceManager: exception while starting service " + service, ex);
       }
 
       info.status = StatusStarted;
@@ -782,7 +778,7 @@ public class ServiceManagerI implements ServiceManager {
         args = com.zeroc.IceUtilInternal.Options.split(value);
       } catch (com.zeroc.Ice.ParseException ex) {
         throw new FailureException(
-            "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.getMessage());
+            "ServiceManager: invalid arguments for service `" + name + "'", ex);
       }
 
       assert (args.length > 0);

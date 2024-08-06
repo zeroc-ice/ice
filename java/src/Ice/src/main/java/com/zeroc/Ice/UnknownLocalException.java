@@ -10,8 +10,8 @@ package com.zeroc.Ice;
  * even though they are declared <code>local</code>.
  */
 public final class UnknownLocalException extends UnknownException {
-  public UnknownLocalException(String unknown) {
-    super(unknown);
+  public UnknownLocalException(String message) {
+    super(message);
   }
 
   public String ice_id() {

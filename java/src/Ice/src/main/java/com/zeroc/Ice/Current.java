@@ -242,7 +242,6 @@ public final class Current implements Cloneable {
       }
     } else if (exc instanceof UserException ex) {
       exceptionId = ex.ice_id();
-      exceptionDetails = ex.toString();
 
       replyStatus = ReplyStatus.UserException;
 
@@ -255,15 +254,15 @@ public final class Current implements Cloneable {
     } else if (exc instanceof UnknownLocalException ex) {
       exceptionId = ex.ice_id();
       replyStatus = ReplyStatus.UnknownLocalException;
-      unknownExceptionMessage = ex.unknown;
+      unknownExceptionMessage = ex.toString();
     } else if (exc instanceof UnknownUserException ex) {
       exceptionId = ex.ice_id();
       replyStatus = ReplyStatus.UnknownUserException;
-      unknownExceptionMessage = ex.unknown;
+      unknownExceptionMessage = ex.toString();
     } else if (exc instanceof UnknownException ex) {
       exceptionId = ex.ice_id();
       replyStatus = ReplyStatus.UnknownException;
-      unknownExceptionMessage = ex.unknown;
+      unknownExceptionMessage = ex.toString();
     } else if (exc instanceof LocalException ex) {
       exceptionId = ex.ice_id();
       replyStatus = ReplyStatus.UnknownLocalException;
@@ -284,13 +283,17 @@ public final class Current implements Cloneable {
             || replyStatus == ReplyStatus.UnknownException)) {
       ostr.writeByte(replyStatus.value());
       if (unknownExceptionMessage == null) {
-        unknownExceptionMessage = "Dispatch failed with " + exceptionId + ": " + exc.getMessage();
+        unknownExceptionMessage = "Dispatch failed with " + exc.toString();
       }
       ostr.writeString(unknownExceptionMessage);
     }
 
     if (exceptionDetails == null) {
-      exceptionDetails = exc.toString();
+      var stringWriter = new java.io.StringWriter();
+      var printWriter = new java.io.PrintWriter(stringWriter);
+      exc.printStackTrace(printWriter);
+      printWriter.flush();
+      exceptionDetails = stringWriter.toString();
     }
 
     return new OutgoingResponse(replyStatus, exceptionId, exceptionDetails, ostr);

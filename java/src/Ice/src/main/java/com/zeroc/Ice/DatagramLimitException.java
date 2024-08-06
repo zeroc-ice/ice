@@ -9,11 +9,11 @@ package com.zeroc.Ice;
  */
 public final class DatagramLimitException extends ProtocolException {
   public DatagramLimitException() {
-    this("");
+    super("Datagram limit exceeded");
   }
 
   public DatagramLimitException(String reason) {
-    super("Datagram limit exceed: " + reason);
+    super("Datagram limit exceeded: " + reason);
   }
 
   public String ice_id() {

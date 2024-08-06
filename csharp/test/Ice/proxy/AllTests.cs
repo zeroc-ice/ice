@@ -874,8 +874,8 @@ namespace Ice
                 catch (Ice.UnknownLocalException ex)
                 {
                     test(
-                        ex.unknown.Contains("::Ice::MarshalException") ||
-                        ex.unknown.Contains("Ice.MarshalException"));
+                        ex.Message.Contains("::Ice::MarshalException") ||
+                        ex.Message.Contains("Ice.MarshalException"));
                 }
 
                 try
@@ -895,8 +895,8 @@ namespace Ice
                 catch (Ice.UnknownLocalException ex)
                 {
                     test(
-                        ex.unknown.Contains("::Ice::MarshalException") ||
-                        ex.unknown.Contains("Ice.MarshalException"));
+                        ex.Message.Contains("::Ice::MarshalException") ||
+                        ex.Message.Contains("Ice.MarshalException"));
                 }
 
                 output.WriteLine("ok");

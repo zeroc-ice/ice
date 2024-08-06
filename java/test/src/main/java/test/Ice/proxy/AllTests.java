@@ -921,9 +921,8 @@ public class AllTests {
       cl.ice_invoke("ice_ping", com.zeroc.Ice.OperationMode.Normal, inEncaps);
       test(false);
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
-      test(
-          ex.unknown.contains("::Ice::MarshalException")
-              || ex.unknown.contains("Ice.MarshalException"));
+      var message = ex.getMessage();
+      test(message.contains("::Ice::MarshalException") || message.contains("Ice.MarshalException"));
     }
 
     try {
@@ -938,9 +937,8 @@ public class AllTests {
       cl.ice_invoke("ice_ping", com.zeroc.Ice.OperationMode.Normal, inEncaps);
       test(false);
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
-      test(
-          ex.unknown.contains("::Ice::MarshalException")
-              || ex.unknown.contains("Ice.MarshalException"));
+      var message = ex.getMessage();
+      test(message.contains("::Ice::MarshalException") || message.contains("Ice.MarshalException"));
     }
 
     out.println("ok");

@@ -94,19 +94,11 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
           }
 
         case UnknownException:
+          throw new com.zeroc.Ice.UnknownException(is.readString());
         case UnknownLocalException:
+          throw new com.zeroc.Ice.UnknownLocalException(is.readString());
         case UnknownUserException:
-          {
-            String unknownId = is.readString();
-
-            switch (replyStatus) {
-              case UnknownException -> throw new com.zeroc.Ice.UnknownException(unknownId);
-              case UnknownLocalException ->
-                  throw new com.zeroc.Ice.UnknownLocalException(unknownId);
-              case UnknownUserException -> throw new com.zeroc.Ice.UnknownUserException(unknownId);
-              default -> throw new IllegalStateException();
-            }
-          }
+          throw new com.zeroc.Ice.UnknownUserException(is.readString());
 
         default:
           // Can't happen. We throw MarshalException in ReplyStatus.valueOf if we receive an invalid

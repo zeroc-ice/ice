@@ -4,19 +4,15 @@ package com.zeroc.Ice;
 
 /** This exception is raised if a system error occurred in the server or client process. */
 public class SyscallException extends LocalException {
-  public SyscallException() {
-    super();
-  }
-
   public SyscallException(Throwable cause) {
-    super(cause);
+    super(null, cause);
   }
 
-  public SyscallException(String message) {
+  protected SyscallException(String message) {
     super(message);
   }
 
-  public SyscallException(String message, Throwable cause) {
+  protected SyscallException(String message, Throwable cause) {
     super(message, cause);
   }
 

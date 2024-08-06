@@ -9,12 +9,12 @@ package com.zeroc.Ice;
  * declared in the <code>throws</code> clause can be raised.
  */
 public final class UnknownUserException extends UnknownException {
-  public UnknownUserException(String unknown) {
-    super(unknown);
+  public UnknownUserException(String message) {
+    super(message);
   }
 
-  public UnknownUserException(String unknown, Throwable cause) {
-    super(unknown, cause);
+  public UnknownUserException(String message, Throwable cause) {
+    super(message, cause);
   }
 
   public String ice_id() {

@@ -96,8 +96,6 @@ public sealed class OperationNotExistException : RequestFailedException
 /// </summary>
 public class UnknownException : LocalException
 {
-    public string unknown => Message;
-
     public UnknownException(string message)
         : base(message)
     {
