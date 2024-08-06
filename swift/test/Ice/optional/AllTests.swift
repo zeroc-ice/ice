@@ -197,7 +197,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
-    let initial = try checkedCast(prx: base, type: InitialPrx.self)!
+    let initial = try await checkedCast(prx: base, type: InitialPrx.self)!
     try test(initial == base)
     output.writeLine("ok")
 
@@ -285,19 +285,19 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
 
     output.write("testing marshaling... ")
 
-    if let oo4 = try initial.pingPong(OneOptional()) as? OneOptional {
+    if let oo4 = try await initial.pingPong(OneOptional()) as? OneOptional {
         try test(oo4.a == nil)
     } else {
         try test(false)
     }
 
-    if let oo5 = try initial.pingPong(oo1) as? OneOptional {
+    if let oo5 = try await initial.pingPong(oo1) as? OneOptional {
         try test(oo1.a == oo5.a)
     } else {
         try test(false)
     }
 
-    if let mo4 = try initial.pingPong(MultiOptional()) as? MultiOptional {
+    if let mo4 = try await initial.pingPong(MultiOptional()) as? MultiOptional {
         try test(mo4.a == nil)
         try test(mo4.b == nil)
         try test(mo4.c == nil)
@@ -336,7 +336,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     let mo6 = MultiOptional()
     let mo8 = MultiOptional()
 
-    if let mo5 = try initial.pingPong(mo1) as? MultiOptional {
+    if let mo5 = try await initial.pingPong(mo1) as? MultiOptional {
         try test(mo5.a == mo1.a)
         try test(mo5.b == mo1.b)
         try test(mo5.c == mo1.c)
@@ -401,7 +401,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         try test(false)
     }
 
-    if let mo7 = try initial.pingPong(mo6) as? MultiOptional {
+    if let mo7 = try await initial.pingPong(mo6) as? MultiOptional {
         try test(mo7.a == nil)
         try test(mo7.b == mo1.b)
         try test(mo7.c == nil)
@@ -436,7 +436,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         try test(false)
     }
 
-    if let mo9 = try initial.pingPong(mo8) as? MultiOptional {
+    if let mo9 = try await initial.pingPong(mo8) as? MultiOptional {
         try test(mo9.a == mo1.a)
         try test(mo9.b == nil)
         try test(mo9.c == mo1.c)
@@ -473,7 +473,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     do {
         let owc1 = OptionalWithCustom()
         owc1.l = [SmallStruct(m: 5), SmallStruct(m: 6), SmallStruct(m: 7)]
-        if let owc2 = try initial.pingPong(owc1) as? OptionalWithCustom {
+        if let owc2 = try await initial.pingPong(owc1) as? OptionalWithCustom {
             try test(owc2.l != nil)
             try test(owc1.l == owc2.l)
         } else {
@@ -493,7 +493,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(oo1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "pingPong",
             mode: Ice.OperationMode.Normal,
             inEncaps: inEncaps)
@@ -514,7 +514,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(mo1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "pingPong",
             mode: .Normal,
             inEncaps: inEncaps)
@@ -534,13 +534,13 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         g.gg2 = G2(a: 10)
         g.gg2Opt = G2(a: 20)
         g.gg1 = G1(a: "gg1")
-        g = try initial.opG(g)
+        g = try await initial.opG(g)
         try test(g.gg1Opt!.a == "gg1Opt")
         try test(g.gg2.a == 10)
         try test(g.gg2Opt!.a == 20)
         try test(g.gg1.a == "gg1")
 
-        try initial.opVoid()
+        try await initial.opVoid()
 
         let ostr = OutputStream(communicator: communicator)
         ostr.startEncapsulation()
@@ -550,7 +550,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write("test")
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opVoid", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opVoid", mode: .Normal, inEncaps: inEncaps)
         try test(result.ok)
     }
     output.writeLine("ok")
@@ -568,7 +568,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             mc.ifsd![i] = FixedStruct()
         }
 
-        mc = try initial.pingPong(mc) as! MultiOptional
+        mc = try await initial.pingPong(mc) as! MultiOptional
         try test(mc.bs?.count == 1000)
         try test(mc.shs?.count == 300)
         try test(mc.fss?.count == 300)
@@ -580,7 +580,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(mc)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
         try test(result.ok)
         let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -595,7 +595,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     output.write("testing tag marshaling... ")
     do {
         let b = B()
-        var b2 = try initial.pingPong(b) as! B
+        var b2 = try await initial.pingPong(b) as! B
         try test(b2.ma == nil)
         try test(b2.mb == nil)
         try test(b2.mc == nil)
@@ -605,7 +605,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         b.mc = 12
         b.md = 13
 
-        b2 = try initial.pingPong(b) as! B
+        b2 = try await initial.pingPong(b) as! B
         try test(b2.ma! == 10)
         try test(b2.mb! == 11)
         try test(b2.mc! == 12)
@@ -617,7 +617,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(b)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
         try test(result.ok)
         let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -636,7 +636,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         f.fsf = FixedStruct()
         f.fse = f.fsf!
 
-        var rf = try initial.pingPong(f) as! F
+        var rf = try await initial.pingPong(f) as! F
         try test(rf.fse == rf.fsf)
 
         factory.setEnabled(enabled: true)
@@ -658,12 +658,12 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
 
     output.write("testing optional with default values... ")
     do {
-        var wd = try initial.pingPong(WD()) as! WD
+        var wd = try await initial.pingPong(WD()) as! WD
         try test(wd.a == 5)
         try test(wd.s == "test")
         wd.a = nil
         wd.s = nil
-        wd = try initial.pingPong(wd) as! WD
+        wd = try await initial.pingPong(wd) as! WD
         try test(wd.a == nil)
         try test(wd.s == nil)
     }
@@ -681,7 +681,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             ostr.endEncapsulation()
             var inEncaps = ostr.finished()
             factory.setEnabled(enabled: true)
-            var result = try initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+            var result = try await initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
             try test(result.ok)
             var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
             _ = try istr.startEncapsulation()
@@ -698,7 +698,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             ostr.write(d)
             ostr.endEncapsulation()
             inEncaps = ostr.finished()
-            result = try initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+            result = try await initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
             try test(result.ok)
             istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
             _ = try istr.startEncapsulation()
@@ -722,7 +722,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             ostr.write(tag: 1, value: ovs)
             ostr.endEncapsulation()
             let inEncaps = ostr.finished()
-            let result = try initial.ice_invoke(
+            let result = try await initial.ice_invoke(
                 operation: "opClassAndUnknownOptional",
                 mode: .Normal,
                 inEncaps: inEncaps)
@@ -741,35 +741,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: UInt8?
         var p3: UInt8?
 
-        (p2, p3) = try initial.opByte(p1)
+        (p2, p3) = try await initial.opByte(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opByte(nil)
+        (p2, p3) = try await initial.opByte(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opByte()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opByteAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opByteAsync()
+        (p2, p3) = try await initial.opByte()
         try test(p2 == nil && p3 == nil)
 
         p1 = 56
-        (p2, p3) = try initial.opByte(p1)
+        (p2, p3) = try await initial.opByte(p1)
         try test(p2 == 56 && p3 == 56)
 
-        (p2, p3) = try await initial.opByteAsync(p1)
+        (p2, p3) = try await initial.opByte(56)
         try test(p2 == 56 && p3 == 56)
 
-        (p2, p3) = try initial.opByte(56)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opByteAsync(56)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try initial.opByte(nil)
+        (p2, p3) = try await initial.opByte(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -777,7 +765,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opByte", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opByte", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.readOptional(tag: 1, expectedFormat: .F1))
@@ -796,35 +784,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p3: Bool?
         var p2: Bool?
 
-        (p2, p3) = try initial.opBool(p1)
+        (p2, p3) = try await initial.opBool(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opBool(nil)
+        (p2, p3) = try await initial.opBool(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opBool()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opBoolAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opBoolAsync()
+        (p2, p3) = try await initial.opBool()
         try test(p2 == nil && p3 == nil)
 
         p1 = true
-        (p2, p3) = try initial.opBool(p1)
+        (p2, p3) = try await initial.opBool(p1)
         try test(p2 == true && p3 == true)
 
-        (p2, p3) = try await initial.opBoolAsync(p1)
+        (p2, p3) = try await initial.opBool(true)
         try test(p2 == true && p3 == true)
 
-        (p2, p3) = try initial.opBool(true)
-        try test(p2 == true && p3 == true)
-
-        (p2, p3) = try await initial.opBoolAsync(true)
-        try test(p2 == true && p3 == true)
-
-        (p2, p3) = try initial.opBool(nil)
+        (p2, p3) = try await initial.opBool(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -832,7 +808,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opBool", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opBool", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.readOptional(tag: 1, expectedFormat: .F1))
@@ -851,35 +827,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: Int16?
         var p3: Int16?
 
-        (p2, p3) = try initial.opShort(p1)
+        (p2, p3) = try await initial.opShort(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opShort(nil)
+        (p2, p3) = try await initial.opShort(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opShort()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opShortAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opShortAsync()
+        (p2, p3) = try await initial.opShort()
         try test(p2 == nil && p3 == nil)
 
         p1 = 56
-        (p2, p3) = try initial.opShort(p1)
+        (p2, p3) = try await initial.opShort(p1)
         try test(p2 == 56 && p3 == 56)
 
-        (p2, p3) = try await initial.opShortAsync(p1)
+        (p2, p3) = try await initial.opShort(p1)
         try test(p2 == 56 && p3 == 56)
 
-        (p2, p3) = try initial.opShort(p1)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opShortAsync(p1)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try initial.opShort(nil)
+        (p2, p3) = try await initial.opShort(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -887,7 +851,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opShort", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opShort", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.readOptional(tag: 1, expectedFormat: .F2))
@@ -906,35 +870,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: Int32?
         var p3: Int32?
 
-        (p2, p3) = try initial.opInt(p1)
+        (p2, p3) = try await initial.opInt(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opInt(nil)
+        (p2, p3) = try await initial.opInt(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opInt()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntAsync()
+        (p2, p3) = try await initial.opInt()
         try test(p2 == nil && p3 == nil)
 
         p1 = 56
-        (p2, p3) = try initial.opInt(p1)
+        (p2, p3) = try await initial.opInt(p1)
         try test(p2 == 56 && p3 == 56)
 
-        (p2, p3) = try await initial.opIntAsync(p1)
+        (p2, p3) = try await initial.opInt(56)
         try test(p2 == 56 && p3 == 56)
 
-        (p2, p3) = try initial.opInt(56)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opIntAsync(56)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try initial.opInt(nil)
+        (p2, p3) = try await initial.opInt(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -942,7 +894,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opInt", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -962,35 +914,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: Int64?
         var p3: Int64?
 
-        (p2, p3) = try initial.opLong(p1)
+        (p2, p3) = try await initial.opLong(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opLong(nil)
+        (p2, p3) = try await initial.opLong(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opLong()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opLongAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opLongAsync()
+        (p2, p3) = try await initial.opLong()
         try test(p2 == nil && p3 == nil)
 
         p1 = 56
-        (p2, p3) = try initial.opLong(p1)
+        (p2, p3) = try await initial.opLong(p1)
         try test(p2 == 56 && p3 == 56)
 
-        (p2, p3) = try await initial.opLongAsync(p1)
+        (p2, p3) = try await initial.opLong(56)
         try test(p2 == 56 && p3 == 56)
 
-        (p2, p3) = try initial.opLong(56)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opLongAsync(56)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try initial.opLong(nil)
+        (p2, p3) = try await initial.opLong(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -998,7 +938,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 1, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opLong", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opLong", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.readOptional(tag: 2, expectedFormat: .F8))
@@ -1017,35 +957,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: Float?
         var p3: Float?
 
-        (p2, p3) = try initial.opFloat(p1)
+        (p2, p3) = try await initial.opFloat(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opFloat(nil)
+        (p2, p3) = try await initial.opFloat(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opFloat()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFloatAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFloatAsync()
+        (p2, p3) = try await initial.opFloat()
         try test(p2 == nil && p3 == nil)
 
         p1 = 1.0
-        (p2, p3) = try initial.opFloat(p1)
+        (p2, p3) = try await initial.opFloat(p1)
         try test(p2 == 1.0 && p3 == 1.0)
 
-        (p2, p3) = try await initial.opFloatAsync(p1)
+        (p2, p3) = try await initial.opFloat(1.0)
         try test(p2 == 1.0 && p3 == 1.0)
 
-        (p2, p3) = try initial.opFloat(1.0)
-        try test(p2 == 1.0 && p3 == 1.0)
-
-        (p2, p3) = try await initial.opFloatAsync(1.0)
-        try test(p2 == 1.0 && p3 == 1.0)
-
-        (p2, p3) = try initial.opFloat(nil)
+        (p2, p3) = try await initial.opFloat(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1053,7 +981,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opFloat", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opFloat", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.readOptional(tag: 1, expectedFormat: .F4))
@@ -1071,35 +999,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p1: Double?
         var p2: Double?
         var p3: Double?
-        (p2, p3) = try initial.opDouble(p1)
+        (p2, p3) = try await initial.opDouble(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opDouble(nil)
+        (p2, p3) = try await initial.opDouble(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opDouble()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opDoubleAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opDoubleAsync()
+        (p2, p3) = try await initial.opDouble()
         try test(p2 == nil && p3 == nil)
 
         p1 = 1.0
-        (p2, p3) = try initial.opDouble(p1)
+        (p2, p3) = try await initial.opDouble(p1)
         try test(p2 == 1.0 && p3 == 1.0)
 
-        (p2, p3) = try await initial.opDoubleAsync(p1)
+        (p2, p3) = try await initial.opDouble(1.0)
         try test(p2 == 1.0 && p3 == 1.0)
 
-        (p2, p3) = try initial.opDouble(1.0)
-        try test(p2 == 1.0 && p3 == 1.0)
-
-        (p2, p3) = try await initial.opDoubleAsync(1.0)
-        try test(p2 == 1.0 && p3 == 1.0)
-
-        (p2, p3) = try initial.opDouble(nil)
+        (p2, p3) = try await initial.opDouble(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1107,7 +1023,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opDouble", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opDouble", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.readOptional(tag: 1, expectedFormat: .F8))
@@ -1125,35 +1041,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p1: String?
         var p2: String?
         var p3: String?
-        (p2, p3) = try initial.opString(p1)
+        (p2, p3) = try await initial.opString(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opString(nil)
+        (p2, p3) = try await initial.opString(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opString()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringAsync()
+        (p2, p3) = try await initial.opString()
         try test(p2 == nil && p3 == nil)
 
         p1 = "test"
-        (p2, p3) = try initial.opString(p1)
+        (p2, p3) = try await initial.opString(p1)
         try test(p2 == "test" && p3 == "test")
 
-        (p2, p3) = try await initial.opStringAsync(p1)
+        (p2, p3) = try await initial.opString(p1)
         try test(p2 == "test" && p3 == "test")
 
-        (p2, p3) = try initial.opString(p1)
-        try test(p2 == "test" && p3 == "test")
-
-        (p2, p3) = try await initial.opStringAsync(p1)
-        try test(p2 == "test" && p3 == "test")
-
-        (p2, p3) = try initial.opString(nil)
+        (p2, p3) = try await initial.opString(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1161,7 +1065,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opString",
             mode: .Normal,
             inEncaps: inEncaps)
@@ -1183,35 +1087,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: MyEnum?
         var p3: MyEnum?
 
-        (p2, p3) = try initial.opMyEnum(p1)
+        (p2, p3) = try await initial.opMyEnum(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opMyEnum(nil)
+        (p2, p3) = try await initial.opMyEnum(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opMyEnum()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opMyEnumAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opMyEnumAsync()
+        (p2, p3) = try await initial.opMyEnum()
         try test(p2 == nil && p3 == nil)
 
         p1 = .MyEnumMember
-        (p2, p3) = try initial.opMyEnum(p1)
+        (p2, p3) = try await initial.opMyEnum(p1)
         try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
 
-        (p2, p3) = try await initial.opMyEnumAsync(p1)
+        (p2, p3) = try await initial.opMyEnum(p1)
         try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
 
-        (p2, p3) = try initial.opMyEnum(p1)
-        try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
-
-        (p2, p3) = try await initial.opMyEnumAsync(.MyEnumMember)
-        try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
-
-        (p2, p3) = try initial.opMyEnum(nil)
+        (p2, p3) = try await initial.opMyEnum(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1219,7 +1111,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opMyEnum", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opMyEnum", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.readOptional(tag: 1, expectedFormat: .Size))
@@ -1237,34 +1129,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p1: SmallStruct?
         var p2: SmallStruct?
         var p3: SmallStruct?
-        (p2, p3) = try initial.opSmallStruct(p1)
+        (p2, p3) = try await initial.opSmallStruct(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opSmallStruct(nil)
+        (p2, p3) = try await initial.opSmallStruct(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opSmallStruct()
+        (p2, p3) = try await initial.opSmallStruct()
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try await initial.opSmallStructAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opSmallStructAsync()
-        try test(p2 == nil && p3 == nil)
         p1 = SmallStruct(m: 56)
-        (p2, p3) = try initial.opSmallStruct(p1)
+        (p2, p3) = try await initial.opSmallStruct(p1)
         try test(p2!.m == 56 && p3!.m == 56)
 
-        (p2, p3) = try await initial.opSmallStructAsync(p1)
+        (p2, p3) = try await initial.opSmallStruct(SmallStruct(m: 56))
         try test(p2!.m == 56 && p3!.m == 56)
 
-        (p2, p3) = try initial.opSmallStruct(SmallStruct(m: 56))
-        try test(p2!.m == 56 && p3!.m == 56)
-
-        (p2, p3) = try await initial.opSmallStructAsync(SmallStruct(m: 56))
-        try test(p2!.m == 56 && p3!.m == 56)
-
-        (p2, p3) = try initial.opSmallStruct(nil)
+        (p2, p3) = try await initial.opSmallStruct(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1272,7 +1153,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opSmallStruct", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -1292,35 +1173,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: FixedStruct?
         var p3: FixedStruct?
 
-        (p2, p3) = try initial.opFixedStruct(p1)
+        (p2, p3) = try await initial.opFixedStruct(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opFixedStruct(nil)
+        (p2, p3) = try await initial.opFixedStruct(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opFixedStruct()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFixedStructAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFixedStructAsync()
+        (p2, p3) = try await initial.opFixedStruct()
         try test(p2 == nil && p3 == nil)
 
         p1 = FixedStruct(m: 56)
-        (p2, p3) = try initial.opFixedStruct(p1)
+        (p2, p3) = try await initial.opFixedStruct(p1)
         try test(p2!.m == 56 && p3!.m == 56)
 
-        (p2, p3) = try await initial.opFixedStructAsync(p1)
+        (p2, p3) = try await initial.opFixedStruct(FixedStruct(m: 56))
         try test(p2!.m == 56 && p3!.m == 56)
 
-        (p2, p3) = try initial.opFixedStruct(FixedStruct(m: 56))
-        try test(p2!.m == 56 && p3!.m == 56)
-
-        (p2, p3) = try await initial.opFixedStructAsync(FixedStruct(m: 56))
-        try test(p2!.m == 56 && p3!.m == 56)
-
-        (p2, p3) = try initial.opFixedStruct(nil)
+        (p2, p3) = try await initial.opFixedStruct(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1328,7 +1197,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opFixedStruct", mode: .Normal, inEncaps: inEncaps)
 
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
@@ -1348,39 +1217,27 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: VarStruct?
         var p3: VarStruct?
 
-        (p2, p3) = try initial.opVarStruct(p1)
+        (p2, p3) = try await initial.opVarStruct(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opVarStruct(nil)
+        (p2, p3) = try await initial.opVarStruct(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opVarStruct()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opVarStructAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opVarStructAsync()
+        (p2, p3) = try await initial.opVarStruct()
         try test(p2 == nil && p3 == nil)
 
         p1 = VarStruct(m: "test")
-        (p2, p3) = try initial.opVarStruct(p1)
+        (p2, p3) = try await initial.opVarStruct(p1)
         try test(p2!.m == "test" && p3!.m == "test")
 
         // Test null struct
-        (p2, p3) = try initial.opVarStruct(nil)
+        (p2, p3) = try await initial.opVarStruct(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try await initial.opVarStructAsync(p1)
+        (p2, p3) = try await initial.opVarStruct(VarStruct(m: "test"))
         try test(p2!.m == "test" && p3!.m == "test")
 
-        (p2, p3) = try initial.opVarStruct(VarStruct(m: "test"))
-        try test(p2!.m == "test" && p3!.m == "test")
-
-        (p2, p3) = try await initial.opVarStructAsync(VarStruct(m: "test"))
-        try test(p2!.m == "test" && p3!.m == "test")
-
-        (p2, p3) = try initial.opVarStruct(nil)
+        (p2, p3) = try await initial.opVarStruct(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1388,7 +1245,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opVarStruct", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opVarStruct", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         var v: VarStruct = try istr.read(tag: 1)!
@@ -1408,20 +1265,14 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p3: OneOptional?
 
         p1 = OneOptional()
-        (p2, p3) = try initial.opOneOptional(p1)
-        try test(p2!.a == nil && p3!.a == nil)
-
-        (p2, p3) = try await initial.opOneOptionalAsync(p1)
+        (p2, p3) = try await initial.opOneOptional(p1)
         try test(p2!.a == nil && p3!.a == nil)
 
         p1 = OneOptional(a: 58)
-        (p2, p3) = try initial.opOneOptional(p1)
+        (p2, p3) = try await initial.opOneOptional(p1)
         try test(p2!.a! == 58 && p3!.a! == 58)
 
-        (p2, p3) = try await initial.opOneOptionalAsync(p1)
-        try test(p2!.a! == 58 && p3!.a! == 58)
-
-        (p2, p3) = try initial.opOneOptional(OneOptional())
+        (p2, p3) = try await initial.opOneOptional(OneOptional())
         try test(p2!.a == nil && p3!.a == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1429,7 +1280,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
         let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -1445,29 +1296,20 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p1: MyInterfacePrx?
         var p2: MyInterfacePrx?
         var p3: MyInterfacePrx?
-        (p2, p3) = try initial.opMyInterfaceProxy(p1)
+        (p2, p3) = try await initial.opMyInterfaceProxy(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opMyInterfaceProxy(nil)
+        (p2, p3) = try await initial.opMyInterfaceProxy(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opMyInterfaceProxy()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opMyInterfaceProxyAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opMyInterfaceProxyAsync()
+        (p2, p3) = try await initial.opMyInterfaceProxy()
         try test(p2 == nil && p3 == nil)
 
         p1 = try uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
-        (p2, p3) = try initial.opMyInterfaceProxy(p1)
+        (p2, p3) = try await initial.opMyInterfaceProxy(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opMyInterfaceProxyAsync(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opMyInterfaceProxy(nil)
+        (p2, p3) = try await initial.opMyInterfaceProxy(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1475,7 +1317,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opMyInterfaceProxy", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -1495,35 +1337,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: ByteSeq?
         var p3: ByteSeq?
 
-        (p2, p3) = try initial.opByteSeq(p1)
+        (p2, p3) = try await initial.opByteSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opByteSeq(nil)
+        (p2, p3) = try await initial.opByteSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opByteSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opByteSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opByteSeqAsync()
+        (p2, p3) = try await initial.opByteSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = ByteSeq(repeating: 56, count: 100)
-        (p2, p3) = try initial.opByteSeq(p1)
+        (p2, p3) = try await initial.opByteSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opByteSeqAsync(p1)
+        (p2, p3) = try await initial.opByteSeq(ByteSeq(repeating: 56, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opByteSeq(ByteSeq(repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opByteSeqAsync(ByteSeq(repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opByteSeq(nil)
+        (p2, p3) = try await initial.opByteSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1531,7 +1361,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opByteSeq", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opByteSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.read(tag: 1) == p1)
@@ -1548,35 +1378,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: [Bool]?
         var p3: [Bool]?
 
-        (p2, p3) = try initial.opBoolSeq(p1)
+        (p2, p3) = try await initial.opBoolSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opBoolSeq(nil)
+        (p2, p3) = try await initial.opBoolSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opBoolSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opBoolSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opBoolSeqAsync()
+        (p2, p3) = try await initial.opBoolSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = [Bool](repeating: true, count: 100)
-        (p2, p3) = try initial.opBoolSeq(p1)
+        (p2, p3) = try await initial.opBoolSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opBoolSeqAsync(p1)
+        (p2, p3) = try await initial.opBoolSeq([Bool](repeating: true, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opBoolSeq([Bool](repeating: true, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opBoolSeqAsync([Bool](repeating: true, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opBoolSeq(nil)
+        (p2, p3) = try await initial.opBoolSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1584,7 +1402,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opBoolSeq", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opBoolSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.read(tag: 1) == p1)
@@ -1601,35 +1419,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: [Int16]?
         var p3: [Int16]?
 
-        (p2, p3) = try initial.opShortSeq(p1)
+        (p2, p3) = try await initial.opShortSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opShortSeq(nil)
+        (p2, p3) = try await initial.opShortSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opShortSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opShortSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opShortSeqAsync()
+        (p2, p3) = try await initial.opShortSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = [Int16](repeating: 56, count: 100)
-        (p2, p3) = try initial.opShortSeq(p1)
+        (p2, p3) = try await initial.opShortSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opShortSeqAsync(p1)
+        (p2, p3) = try await initial.opShortSeq([Int16](repeating: 56, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opShortSeq([Int16](repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opShortSeqAsync([Int16](repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opShortSeq(nil)
+        (p2, p3) = try await initial.opShortSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1637,7 +1443,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opShortSeq", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opShortSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.read(tag: 1) == p1)
@@ -1654,35 +1460,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: [Int32]?
         var p3: [Int32]?
 
-        (p2, p3) = try initial.opIntSeq(p1)
+        (p2, p3) = try await initial.opIntSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opIntSeq(nil)
+        (p2, p3) = try await initial.opIntSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opIntSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntSeqAsync()
+        (p2, p3) = try await initial.opIntSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = [Int32](repeating: 56, count: 100)
-        (p2, p3) = try initial.opIntSeq(p1)
+        (p2, p3) = try await initial.opIntSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opIntSeqAsync(p1)
+        (p2, p3) = try await initial.opIntSeq([Int32](repeating: 56, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opIntSeq([Int32](repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opIntSeqAsync([Int32](repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opIntSeq(nil)
+        (p2, p3) = try await initial.opIntSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1690,7 +1484,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opIntSeq", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opIntSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.read(tag: 1) == p1)
@@ -1707,35 +1501,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: [Int64]?
         var p3: [Int64]?
 
-        (p2, p3) = try initial.opLongSeq(p1)
+        (p2, p3) = try await initial.opLongSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opLongSeq(nil)
+        (p2, p3) = try await initial.opLongSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opLongSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opLongSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opLongSeqAsync()
+        (p2, p3) = try await initial.opLongSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = [Int64](repeating: 56, count: 100)
-        (p2, p3) = try initial.opLongSeq(p1)
+        (p2, p3) = try await initial.opLongSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opLongSeqAsync(p1)
+        (p2, p3) = try await initial.opLongSeq([Int64](repeating: 56, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opLongSeq([Int64](repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opLongSeqAsync([Int64](repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opLongSeq(nil)
+        (p2, p3) = try await initial.opLongSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1743,7 +1525,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opLongSeq", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opLongSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.read(tag: 1) == p1)
@@ -1760,35 +1542,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: [Float]?
         var p3: [Float]?
 
-        (p2, p3) = try initial.opFloatSeq(p1)
+        (p2, p3) = try await initial.opFloatSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opFloatSeq(nil)
+        (p2, p3) = try await initial.opFloatSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opFloatSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFloatSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFloatSeqAsync()
+        (p2, p3) = try await initial.opFloatSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = [Float](repeating: 1.0, count: 100)
-        (p2, p3) = try initial.opFloatSeq(p1)
+        (p2, p3) = try await initial.opFloatSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opFloatSeqAsync(p1)
+        (p2, p3) = try await initial.opFloatSeq([Float](repeating: 1.0, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opFloatSeq([Float](repeating: 1.0, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opFloatSeqAsync([Float](repeating: 1.0, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opFloatSeq(nil)
+        (p2, p3) = try await initial.opFloatSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1796,7 +1566,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opFloatSeq", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opFloatSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.read(tag: 1) == p1)
@@ -1813,35 +1583,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: [Double]?
         var p3: [Double]?
 
-        (p2, p3) = try initial.opDoubleSeq(p1)
+        (p2, p3) = try await initial.opDoubleSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opDoubleSeq(nil)
+        (p2, p3) = try await initial.opDoubleSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opDoubleSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opDoubleSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opDoubleSeqAsync()
+        (p2, p3) = try await initial.opDoubleSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = [Double](repeating: 1.0, count: 100)
-        (p2, p3) = try initial.opDoubleSeq(p1)
+        (p2, p3) = try await initial.opDoubleSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opDoubleSeqAsync(p1)
+        (p2, p3) = try await initial.opDoubleSeq([Double](repeating: 1.0, count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opDoubleSeq([Double](repeating: 1.0, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opDoubleSeqAsync([Double](repeating: 1.0, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opDoubleSeq(nil)
+        (p2, p3) = try await initial.opDoubleSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1849,7 +1607,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opDoubleSeq", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opDoubleSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.read(tag: 1) == p1)
@@ -1866,35 +1624,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: [String]?
         var p3: [String]?
 
-        (p2, p3) = try initial.opStringSeq(p1)
+        (p2, p3) = try await initial.opStringSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opStringSeq(nil)
+        (p2, p3) = try await initial.opStringSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opStringSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringSeqAsync()
+        (p2, p3) = try await initial.opStringSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = [String](repeating: "test", count: 100)
-        (p2, p3) = try initial.opStringSeq(p1)
+        (p2, p3) = try await initial.opStringSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opStringSeqAsync(p1)
+        (p2, p3) = try await initial.opStringSeq([String](repeating: "test", count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opStringSeq([String](repeating: "test", count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opStringSeqAsync([String](repeating: "test", count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opStringSeq(nil)
+        (p2, p3) = try await initial.opStringSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1902,7 +1648,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opStringSeq", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(operation: "opStringSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try test(istr.read(tag: 1) == p1)
@@ -1919,35 +1665,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: SmallStructSeq?
         var p3: SmallStructSeq?
 
-        (p2, p3) = try initial.opSmallStructSeq(p1)
+        (p2, p3) = try await initial.opSmallStructSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opSmallStructSeq(nil)
+        (p2, p3) = try await initial.opSmallStructSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opSmallStructSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opSmallStructSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opSmallStructSeqAsync()
+        (p2, p3) = try await initial.opSmallStructSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = SmallStructSeq(repeating: SmallStruct(), count: 100)
-        (p2, p3) = try initial.opSmallStructSeq(p1)
+        (p2, p3) = try await initial.opSmallStructSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opSmallStructSeqAsync(p1)
+        (p2, p3) = try await initial.opSmallStructSeq(SmallStructSeq(repeating: SmallStruct(), count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opSmallStructSeq(SmallStructSeq(repeating: SmallStruct(), count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opSmallStructSeqAsync(SmallStructSeq(repeating: SmallStruct(), count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opSmallStructSeq(nil)
+        (p2, p3) = try await initial.opSmallStructSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -1955,7 +1689,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         SmallStructSeqHelper.write(to: ostr, tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opSmallStructSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -1973,32 +1707,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: FixedStructSeq?
         var p3: FixedStructSeq?
 
-        (p2, p3) = try initial.opFixedStructSeq(p1)
+        (p2, p3) = try await initial.opFixedStructSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opFixedStructSeq(nil)
+        (p2, p3) = try await initial.opFixedStructSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opFixedStructSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFixedStructSeqAsync(p1)
+        (p2, p3) = try await initial.opFixedStructSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = FixedStructSeq(repeating: FixedStruct(), count: 100)
-        (p2, p3) = try initial.opFixedStructSeq(p1)
+        (p2, p3) = try await initial.opFixedStructSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opFixedStructSeqAsync(p1)
+        (p2, p3) = try await initial.opFixedStructSeq(FixedStructSeq(repeating: FixedStruct(), count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opFixedStructSeq(FixedStructSeq(repeating: FixedStruct(), count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opFixedStructSeqAsync(FixedStructSeq(repeating: FixedStruct(), count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opFixedStructSeq(nil)
+        (p2, p3) = try await initial.opFixedStructSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -2006,7 +1731,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         FixedStructSeqHelper.write(to: ostr, tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opFixedStructSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -2024,35 +1749,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: VarStructSeq?
         var p3: VarStructSeq?
 
-        (p2, p3) = try initial.opVarStructSeq(p1)
+        (p2, p3) = try await initial.opVarStructSeq(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opVarStructSeq(nil)
+        (p2, p3) = try await initial.opVarStructSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opVarStructSeq()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opVarStructSeqAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opVarStructSeqAsync()
+        (p2, p3) = try await initial.opVarStructSeq()
         try test(p2 == nil && p3 == nil)
 
         p1 = VarStructSeq(repeating: VarStruct(), count: 100)
-        (p2, p3) = try initial.opVarStructSeq(p1)
+        (p2, p3) = try await initial.opVarStructSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opVarStructSeqAsync(p1)
+        (p2, p3) = try await initial.opVarStructSeq(VarStructSeq(repeating: VarStruct(), count: 100))
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opVarStructSeq(VarStructSeq(repeating: VarStruct(), count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opVarStructSeqAsync(VarStructSeq(repeating: VarStruct(), count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opVarStructSeq(nil)
+        (p2, p3) = try await initial.opVarStructSeq(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -2060,7 +1773,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         VarStructSeqHelper.write(to: ostr, tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opVarStructSeq", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -2078,35 +1791,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: [Int32: Int32]?
         var p3: [Int32: Int32]?
 
-        (p2, p3) = try initial.opIntIntDict(p1)
+        (p2, p3) = try await initial.opIntIntDict(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opIntIntDict(nil)
+        (p2, p3) = try await initial.opIntIntDict(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opIntIntDict()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntIntDictAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntIntDictAsync()
+        (p2, p3) = try await initial.opIntIntDict()
         try test(p2 == nil && p3 == nil)
 
         p1 = [1: 2, 2: 3]
-        (p2, p3) = try initial.opIntIntDict(p1)
+        (p2, p3) = try await initial.opIntIntDict(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opIntIntDictAsync(p1)
+        (p2, p3) = try await initial.opIntIntDict([1: 2, 2: 3])
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opIntIntDict([1: 2, 2: 3])
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opIntIntDictAsync([1: 2, 2: 3])
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opIntIntDict(nil)
+        (p2, p3) = try await initial.opIntIntDict(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
@@ -2114,7 +1815,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         IntIntDictHelper.write(to: ostr, tag: 2, value: p1)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opIntIntDict", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -2132,35 +1833,23 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var p2: [String: Int32]?
         var p3: [String: Int32]?
 
-        (p2, p3) = try initial.opStringIntDict(p1)
+        (p2, p3) = try await initial.opStringIntDict(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opStringIntDict(nil)
+        (p2, p3) = try await initial.opStringIntDict(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3) = try initial.opStringIntDict()
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringIntDictAsync(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringIntDictAsync()
+        (p2, p3) = try await initial.opStringIntDict()
         try test(p2 == nil && p3 == nil)
 
         p1 = ["1": 1, "2": 2]
-        (p2, p3) = try initial.opStringIntDict(p1)
+        (p2, p3) = try await initial.opStringIntDict(p1)
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try await initial.opStringIntDictAsync(p1)
+        (p2, p3) = try await initial.opStringIntDict(["1": 1, "2": 2])
         try test(p2 == p1 && p3 == p1)
 
-        (p2, p3) = try initial.opStringIntDict(["1": 1, "2": 2])
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opStringIntDictAsync(["1": 1, "2": 2])
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try initial.opStringIntDict(nil)
+        (p2, p3) = try await initial.opStringIntDict(nil)
         try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
 
         var ostr = Ice.OutputStream(communicator: communicator)
@@ -2168,7 +1857,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         StringIntDictHelper.write(to: ostr, tag: 2, value: p1)
         ostr.endEncapsulation()
         var inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(
+        let result = try await initial.ice_invoke(
             operation: "opStringIntDict", mode: .Normal, inEncaps: inEncaps)
         var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -2201,35 +1890,35 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
 
     output.write("testing exception optionals... ")
     do {
-        try initial.opOptionalException(a: nil, b: nil)
+        try await initial.opOptionalException(a: nil, b: nil)
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
     }
 
     do {
-        try initial.opOptionalException()
+        try await initial.opOptionalException()
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
     }
 
     do {
-        try initial.opOptionalException(b: nil)
+        try await initial.opOptionalException(b: nil)
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
     }
 
     do {
-        try initial.opOptionalException()
+        try await initial.opOptionalException()
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
     }
 
     do {
-        try initial.opOptionalException(a: 30, b: "test")
+        try await initial.opOptionalException(a: 30, b: "test")
     } catch let ex as OptionalException {
         try test(ex.a == 30)
         try test(ex.b == "test")
@@ -2240,14 +1929,14 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         // Use the 1.0 encoding with an exception whose only data members are optional.
         //
         let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
-        try initial2.opOptionalException(a: 30, b: "test")
+        try await initial2.opOptionalException(a: 30, b: "test")
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
     }
 
     do {
-        try initial.opDerivedException(a: nil, b: nil)
+        try await initial.opDerivedException(a: nil, b: nil)
     } catch let ex as DerivedException {
         try test(ex.a == nil)
         try test(ex.b == nil)
@@ -2257,7 +1946,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
 
     do {
-        try initial.opDerivedException(a: 30, b: "test2")
+        try await initial.opDerivedException(a: 30, b: "test2")
     } catch let ex as DerivedException {
         try test(ex.a == 30)
         try test(ex.b == "test2")
@@ -2267,7 +1956,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
 
     do {
-        try initial.opRequiredException(a: nil, b: nil)
+        try await initial.opRequiredException(a: nil, b: nil)
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
@@ -2275,7 +1964,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
 
     do {
-        try initial.opRequiredException(b: nil)
+        try await initial.opRequiredException(b: nil)
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
@@ -2283,7 +1972,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
 
     do {
-        try initial.opRequiredException()
+        try await initial.opRequiredException()
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
@@ -2291,7 +1980,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
 
     do {
-        try initial.opRequiredException()
+        try await initial.opRequiredException()
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
@@ -2299,7 +1988,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
 
     do {
-        try initial.opRequiredException(a: 30, b: "test2")
+        try await initial.opRequiredException(a: 30, b: "test2")
     } catch let ex as RequiredException {
         try test(ex.a == 30)
         try test(ex.b == "test2")

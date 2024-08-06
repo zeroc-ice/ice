@@ -13,303 +13,198 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try checkedCast(prx: obj, type: IPrx.self)!
+        let i = try await checkedCast(prx: obj, type: IPrx.self)!
 
         let s1 = S(v: 0)
-        let (s3, s2) = try i.opS(s1)
+        let (s3, s2) = try await i.opS(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try i.opSSeq(sseq1)
+        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
         try test(sseq2 == sseq1)
         try test(sseq3 == sseq1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try i.opSMap(smap1)
+        let (smap3, smap2) = try await i.opSMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
         let c1 = C(s: s1)
-        let (c3, c2) = try i.opC(c1)
+        let (c3, c2) = try await i.opC(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try i.opCMap(cmap1)
+        let (cmap3, cmap2) = try await i.opCMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
 
-        let e = try i.opE1(.v1)
+        let e = try await i.opE1(.v1)
         try test(e == .v1)
 
-        let s = try i.opS1(S1(s: "S1"))
+        let s = try await i.opS1(S1(s: "S1"))
         try test(s.s == "S1")
 
-        let c = try i.opC1(C1(s: "C1"))!
+        let c = try await i.opC1(C1(s: "C1"))!
         try test(c.s == "C1")
 
-        let ss = try i.opS1Seq([S1(s: "S1")])
+        let ss = try await i.opS1Seq([S1(s: "S1")])
         try test(ss[0].s == "S1")
 
-        let sm = try i.opS1Map(["s1": S1(s: "S1")])
+        let sm = try await i.opS1Map(["s1": S1(s: "S1")])
         try test(sm["s1"]!.s == "S1")
     }
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try checkedCast(prx: obj, type: IPrx.self)!
+        let i = try await checkedCast(prx: obj, type: IPrx.self)!
 
         let s1 = S(v: 0)
-        let (s3, s2) = try await i.opSAsync(s1)
+        let (s3, s2) = try await i.opS(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try await i.opSSeqAsync(sseq1)
+        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
         try test(sseq2 == sseq1)
         try test(sseq3 == sseq1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try await i.opSMapAsync(smap1)
+        let (smap3, smap2) = try await i.opSMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
         let c1 = C(s: s1)
-        let (c3, c2) = try await i.opCAsync(c1)
+        let (c3, c2) = try await i.opC(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try await i.opCSeqAsync(cseq1)
+        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try await i.opCMapAsync(cmap1)
+        let (cmap3, cmap2) = try await i.opCMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
 
     do {
         let obj = try communicator.stringToProxy("i2:\(helper.getTestEndpoint())")!
-        let i = try checkedCast(prx: obj, type: InnerIPrx.self)!
+        let i = try await checkedCast(prx: obj, type: InnerIPrx.self)!
 
         let s1 = InnerInner2S(v: 0)
-        let (s3, s2) = try i.opS(s1)
+        let (s3, s2) = try await i.opS(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try i.opSSeq(sseq1)
+        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
         try test(sseq2 == sseq1)
         try test(sseq3 == sseq1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try i.opSMap(smap1)
+        let (smap3, smap2) = try await i.opSMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
         let c1 = InnerInner2C(s: s1)
-        let (c3, c2) = try i.opC(c1)
+        let (c3, c2) = try await i.opC(c1)
         try test(c2!.s == c1.s)
         try test(c3!.s == c1.s)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try i.opCMap(cmap1)
-        try test(cmap2["a"]!!.s == s1)
-        try test(cmap3["a"]!!.s == s1)
-    }
-
-    do {
-        let obj = try communicator.stringToProxy("i2:\(helper.getTestEndpoint())")!
-        let i = try checkedCast(prx: obj, type: InnerIPrx.self)!
-
-        let s1 = InnerInner2S(v: 0)
-        let (s3, s2) = try await i.opSAsync(s1)
-        try test(s2 == s1)
-        try test(s3 == s1)
-
-        let sseq1 = [s1]
-        let (sseq3, sseq2) = try await i.opSSeqAsync(sseq1)
-        try test(sseq2 == sseq1)
-        try test(sseq3 == sseq1)
-
-        let smap1 = ["a": s1]
-        let (smap3, smap2) = try await i.opSMapAsync(smap1)
-        try test(smap2 == smap1)
-        try test(smap3 == smap1)
-
-        let c1 = InnerInner2C(s: s1)
-        let (c3, c2) = try await i.opCAsync(c1)
-        try test(c2!.s == c1.s)
-        try test(c3!.s == c1.s)
-
-        let cseq1 = [c1]
-        let (cseq3, cseq2) = try await i.opCSeqAsync(cseq1)
-        try test(cseq2[0]!.s == s1)
-        try test(cseq3[0]!.s == s1)
-
-        let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try await i.opCMapAsync(cmap1)
+        let (cmap3, cmap2) = try await i.opCMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
 
     do {
         let obj = try communicator.stringToProxy("i3:\(helper.getTestEndpoint())")!
-        let i = try checkedCast(prx: obj, type: InnerInner2IPrx.self)!
+        let i = try await checkedCast(prx: obj, type: InnerInner2IPrx.self)!
 
         let s1 = InnerInner2S(v: 0)
-        let (s3, s2) = try i.opS(s1)
+        let (s3, s2) = try await i.opS(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try i.opSSeq(sseq1)
+        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
         try test(sseq2[0] == s1)
         try test(sseq3[0] == s1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try i.opSMap(smap1)
+        let (smap3, smap2) = try await i.opSMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
         let c1 = InnerInner2C(s: s1)
-        let (c3, c2) = try i.opC(c1)
+        let (c3, c2) = try await i.opC(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try i.opCMap(cmap1)
-        try test(cmap2["a"]!!.s == s1)
-        try test(cmap3["a"]!!.s == s1)
-    }
-
-    do {
-        let obj = try communicator.stringToProxy("i3:\(helper.getTestEndpoint())")!
-        let i = try checkedCast(prx: obj, type: InnerInner2IPrx.self)!
-
-        let s1 = InnerInner2S(v: 0)
-        let (s3, s2) = try await i.opSAsync(s1)
-        try test(s2 == s1)
-        try test(s3 == s1)
-
-        let sseq1 = [s1]
-        let (sseq3, sseq2) = try await i.opSSeqAsync(sseq1)
-        try test(sseq2[0] == s1)
-        try test(sseq3[0] == s1)
-
-        let smap1 = ["a": s1]
-        let (smap3, smap2) = try await i.opSMapAsync(smap1)
-        try test(smap2 == smap1)
-        try test(smap3 == smap1)
-
-        let c1 = InnerInner2C(s: s1)
-        let (c3, c2) = try await i.opCAsync(c1)
-        try test(c2!.s == s1)
-        try test(c3!.s == s1)
-
-        let cseq1 = [c1]
-        let (cseq3, cseq2) = try await i.opCSeqAsync(cseq1)
-        try test(cseq2[0]!.s == s1)
-        try test(cseq3[0]!.s == s1)
-
-        let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try await i.opCMapAsync(cmap1)
+        let (cmap3, cmap2) = try await i.opCMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
 
     do {
         let obj = try communicator.stringToProxy("i4:\(helper.getTestEndpoint())")!
-        let i = try checkedCast(prx: obj, type: InnerTestInner2IPrx.self)!
+        let i = try await checkedCast(prx: obj, type: InnerTestInner2IPrx.self)!
 
         let s1 = S(v: 0)
-        let (s3, s2) = try i.opS(s1)
+        let (s3, s2) = try await i.opS(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try i.opSSeq(sseq1)
+        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
         try test(sseq2[0] == s1)
         try test(sseq3[0] == s1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try i.opSMap(smap1)
+        let (smap3, smap2) = try await i.opSMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
         let c1 = C(s: s1)
-        let (c3, c2) = try i.opC(c1)
+        let (c3, c2) = try await i.opC(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try i.opCMap(cmap1)
-        try test(cmap2["a"]!!.s == s1)
-        try test(cmap3["a"]!!.s == s1)
-    }
-
-    do {
-        let obj = try communicator.stringToProxy("i4:\(helper.getTestEndpoint())")!
-        let i = try checkedCast(prx: obj, type: InnerTestInner2IPrx.self)!
-
-        let s1 = S(v: 0)
-        let (s3, s2) = try await i.opSAsync(s1)
-        try test(s2 == s1)
-        try test(s3 == s1)
-
-        let sseq1 = [s1]
-        let (sseq3, sseq2) = try await i.opSSeqAsync(sseq1)
-        try test(sseq2[0] == s1)
-        try test(sseq3[0] == s1)
-
-        let smap1 = ["a": s1]
-        let (smap3, smap2) = try await i.opSMapAsync(smap1)
-        try test(smap2 == smap1)
-        try test(smap3 == smap1)
-
-        let c1 = C(s: s1)
-        let (c3, c2) = try i.opC(c1)
-        try test(c2!.s == s1)
-        try test(c3!.s == s1)
-
-        let cseq1 = [c1]
-        let (cseq3, cseq2) = try await i.opCSeqAsync(cseq1)
-        try test(cseq2[0]!.s == s1)
-        try test(cseq3[0]!.s == s1)
-
-        let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try await i.opCMapAsync(cmap1)
+        let (cmap3, cmap2) = try await i.opCMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try checkedCast(prx: obj, type: IPrx.self)!
-        try i.shutdown()
+        let i = try await checkedCast(prx: obj, type: IPrx.self)!
+        try await i.shutdown()
     }
     output.writeLine("ok")
 }

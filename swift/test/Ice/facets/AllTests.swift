@@ -5,7 +5,7 @@ import TestCommon
 
 class EmptyI: Empty {}
 
-func allTests(_ helper: TestHelper) throws -> GPrx {
+func allTests(_ helper: TestHelper) async throws -> GPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -106,56 +106,56 @@ func allTests(_ helper: TestHelper) throws -> GPrx {
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
-    prx = try checkedCast(prx: db, type: ObjectPrx.self)!
+    prx = try await checkedCast(prx: db, type: ObjectPrx.self)!
     try test(prx.ice_getFacet() == "")
-    prx = try checkedCast(prx: db, type: ObjectPrx.self, facet: "facetABCD")!
+    prx = try await checkedCast(prx: db, type: ObjectPrx.self, facet: "facetABCD")!
     try test(prx.ice_getFacet() == "facetABCD")
-    prx2 = try checkedCast(prx: prx, type: ObjectPrx.self)!
+    prx2 = try await checkedCast(prx: prx, type: ObjectPrx.self)!
     try test(prx2.ice_getFacet() == "facetABCD")
-    prx3 = try checkedCast(prx: prx, type: ObjectPrx.self, facet: "")!
+    prx3 = try await checkedCast(prx: prx, type: ObjectPrx.self, facet: "")!
     try test(prx3.ice_getFacet() == "")
-    d = try checkedCast(prx: db, type: DPrx.self)!
+    d = try await checkedCast(prx: db, type: DPrx.self)!
     try test(d.ice_getFacet() == "")
-    df = try checkedCast(prx: db, type: DPrx.self, facet: "facetABCD")!
+    df = try await checkedCast(prx: db, type: DPrx.self, facet: "facetABCD")!
     try test(df.ice_getFacet() == "facetABCD")
-    df2 = try checkedCast(prx: df, type: DPrx.self)!
+    df2 = try await checkedCast(prx: df, type: DPrx.self)!
     try test(df2.ice_getFacet() == "facetABCD")
-    df3 = try checkedCast(prx: df, type: DPrx.self, facet: "")!
+    df3 = try await checkedCast(prx: df, type: DPrx.self, facet: "")!
     try test(df3.ice_getFacet() == "")
     output.writeLine("ok")
 
     output.write("testing non-facets A, B, C, and D... ")
-    d = try checkedCast(prx: db, type: DPrx.self)!
+    d = try await checkedCast(prx: db, type: DPrx.self)!
     try test(d == db)
-    try test(d.callA() == "A")
-    try test(d.callB() == "B")
-    try test(d.callC() == "C")
-    try test(d.callD() == "D")
+    try await test(d.callA() == "A")
+    try await test(d.callB() == "B")
+    try await test(d.callC() == "C")
+    try await test(d.callD() == "D")
     output.writeLine("ok")
 
     output.write("testing facets A, B, C, and D... ")
-    df = try checkedCast(prx: d, type: DPrx.self, facet: "facetABCD")!
-    try test(df.callA() == "A")
-    try test(df.callB() == "B")
-    try test(df.callC() == "C")
-    try test(df.callD() == "D")
+    df = try await checkedCast(prx: d, type: DPrx.self, facet: "facetABCD")!
+    try await test(df.callA() == "A")
+    try await test(df.callB() == "B")
+    try await test(df.callC() == "C")
+    try await test(df.callD() == "D")
     output.writeLine("ok")
 
     output.write("testing facets E and F... ")
-    let ff = try checkedCast(prx: d, type: FPrx.self, facet: "facetEF")!
-    try test(ff.callE() == "E")
-    try test(ff.callF() == "F")
+    let ff = try await checkedCast(prx: d, type: FPrx.self, facet: "facetEF")!
+    try await test(ff.callE() == "E")
+    try await test(ff.callF() == "F")
     output.writeLine("ok")
 
     output.write("testing facet G... ")
-    let gf = try checkedCast(prx: ff, type: GPrx.self, facet: "facetGH")!
-    try test(gf.callG() == "G")
+    let gf = try await checkedCast(prx: ff, type: GPrx.self, facet: "facetGH")!
+    try await test(gf.callG() == "G")
     output.writeLine("ok")
 
     output.write("testing whether casting preserves the facet... ")
-    let hf = try checkedCast(prx: gf, type: HPrx.self)!
-    try test(hf.callG() == "G")
-    try test(hf.callH() == "H")
+    let hf = try await checkedCast(prx: gf, type: HPrx.self)!
+    try await test(hf.callG() == "G")
+    try await test(hf.callH() == "H")
     output.writeLine("ok")
     return gf
 }

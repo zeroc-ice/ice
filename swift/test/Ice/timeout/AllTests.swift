@@ -17,7 +17,7 @@ func connect(_ prx: Ice.ObjectPrx) async throws -> Ice.Connection {
 }
 
 public func allTests(helper: TestHelper) async throws {
-    let controller = try checkedCast(
+    let controller = try await checkedCast(
         prx: helper.communicator().stringToProxy("controller:\(helper.getTestEndpoint(num: 1))")!,
         type: ControllerPrx.self
     )!
@@ -26,7 +26,7 @@ public func allTests(helper: TestHelper) async throws {
     } catch {
         // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
         // the test from hanging on exit in case a connection which disables timeouts is still opened.
-        try controller.resumeAdapter()
+        try await controller.resumeAdapter()
         throw error
     }
 }
@@ -40,7 +40,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
     let sref = "timeout:\(helper.getTestEndpoint(num: 0))"
     let obj = try communicator.stringToProxy(sref)!
 
-    let timeout = try checkedCast(prx: obj, type: TimeoutPrx.self)!
+    let timeout = try await checkedCast(prx: obj, type: TimeoutPrx.self)!
 
     let output = helper.getWriter()
     output.write("testing connect timeout... ")
@@ -49,15 +49,15 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         // Expect ConnectTimeoutException.
         //
         let to = timeout.ice_connectionId("con1")
-        try controller.holdAdapter(-1)
+        try await controller.holdAdapter(-1)
         do {
-            try to.op()
+            try await to.op()
             try test(false)
         } catch is Ice.ConnectTimeoutException {
             // Expected.
         }
-        try controller.resumeAdapter()
-        try timeout.op()  // Ensure adapter is active.
+        try await controller.resumeAdapter()
+        try await timeout.op()  // Ensure adapter is active.
     }
 
     do {
@@ -65,9 +65,9 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         // Expect success.
         //
         let to = timeout.ice_connectionId("con2")
-        try controller.holdAdapter(100)
+        try await controller.holdAdapter(100)
         do {
-            try to.op()
+            try await to.op()
         } catch is Ice.ConnectTimeoutException {
             try test(false)
         }
@@ -80,14 +80,14 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         var to = timeout.ice_invocationTimeout(100)
         try await test(connection === to.ice_getConnection())
         do {
-            try to.sleep(1000)
+            try await to.sleep(1000)
             try test(false)
         } catch is Ice.InvocationTimeoutException {}
-        try obj.ice_ping()
+        try await obj.ice_ping()
         to = timeout.ice_invocationTimeout(1000)
         try await test(connection === to.ice_getConnection())
         do {
-            try to.sleep(100)
+            try await to.sleep(100)
         } catch is Ice.InvocationTimeoutException {
             try test(false)
         }
@@ -100,10 +100,10 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         //
         let to = timeout.ice_invocationTimeout(100)
         do {
-            try await to.sleepAsync(500)
+            try await to.sleep(500)
             try test(false)
         } catch is Ice.InvocationTimeoutException {}
-        try timeout.ice_ping()
+        try await timeout.ice_ping()
     }
 
     do {
@@ -112,7 +112,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         //
         let to = timeout.ice_invocationTimeout(1000)
         do {
-            try await to.sleepAsync(100)
+            try await to.sleep(100)
         } catch {
             try test(false)
         }
@@ -123,7 +123,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
     do {
         let to = timeout
         let connection = try await connect(to)
-        try controller.holdAdapter(-1)
+        try await controller.holdAdapter(-1)
         try connection.close(.GracefullyWithWait)
         do {
             _ = try connection.getInfo()  // getInfo() doesn't throw in the closing state.
@@ -141,8 +141,8 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
                 break
             }
         }
-        try controller.resumeAdapter()
-        try timeout.op()  // Ensure adapter is active.
+        try await controller.resumeAdapter()
+        try await timeout.op()  // Ensure adapter is active.
     }
     output.writeLine("ok")
 
@@ -159,29 +159,17 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
             type: TimeoutPrx.self
         ).ice_invocationTimeout(100)
         do {
-            try proxy.sleep(500)
+            try await proxy.sleep(500)
             try test(false)
         } catch is Ice.InvocationTimeoutException {}
 
         do {
-            try await proxy.sleepAsync(500)
+            try await proxy.sleep(500)
             try test(false)
         } catch is Ice.InvocationTimeoutException {}
-
-        // let batchTimeout = proxy.ice_batchOneway()
-        // try batchTimeout.ice_ping()
-        // try batchTimeout.ice_ping()
-        // try batchTimeout.ice_ping()
-
-        // async let _ = proxy.ice_invocationTimeout(-1).sleepAsync(500)  // Keep the server thread pool busy.
-
-        // do {
-        //     try await batchTimeout.ice_flushBatchRequestsAsync()
-        //     try test(false)
-        // } catch is Ice.InvocationTimeoutException {}
 
         adapter.destroy()
     }
     output.writeLine("ok")
-    try controller.shutdown()
+    try await controller.shutdown()
 }

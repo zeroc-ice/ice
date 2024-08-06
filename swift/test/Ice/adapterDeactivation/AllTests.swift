@@ -16,7 +16,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
-    let obj = try checkedCast(prx: base, type: TestIntfPrx.self)!
+    let obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
     try test(obj == base)
     output.writeLine("ok")
 
@@ -42,8 +42,8 @@ func allTests(_ helper: TestHelper) async throws {
     }
 
     output.write("creating/activating/deactivating object adapter in one operation... ")
-    try obj.transient()
-    try await obj.transientAsync()
+    try await obj.transient()
+    try await obj.transient()
     output.writeLine("ok")
 
     do {
@@ -57,7 +57,7 @@ func allTests(_ helper: TestHelper) async throws {
             let prx = try comm.stringToProxy(ref)!
 
             Task {
-                try await prx.ice_pingAsync()
+                try await prx.ice_ping()
             }
             comm.destroy()
 
@@ -171,12 +171,12 @@ func allTests(_ helper: TestHelper) async throws {
     output.writeLine("ok")
 
     output.write("deactivating object adapter in the server... ")
-    try obj.deactivate()
+    try await obj.deactivate()
     output.writeLine("ok")
 
     output.write("testing whether server is gone... ")
     do {
-        try obj.ice_ping()
+        try await obj.ice_ping()
         try test(false)
     } catch is Ice.LocalException {
         output.writeLine("ok")

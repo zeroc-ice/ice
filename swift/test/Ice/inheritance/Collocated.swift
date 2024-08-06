@@ -18,6 +18,6 @@ class Collocated: TestHelperI {
         try adapter.add(servant: InitialDisp(InitialI(adapter)), id: Ice.stringToIdentity("initial"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
 
-        _ = try allTests(self)
+        _ = try await allTests(self)
     }
 }

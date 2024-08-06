@@ -21,7 +21,7 @@ class Client: TestHelperI {
             for i in 0..<(num ?? 1) {
                 let prx = try communicator.stringToProxy(
                     "control:\(getTestEndpoint(num: Int32(i), prot: "tcp"))")!
-                try uncheckedCast(prx: prx, type: TestIntfPrx.self).shutdown()
+                try await uncheckedCast(prx: prx, type: TestIntfPrx.self).shutdown()
             }
         }
     }

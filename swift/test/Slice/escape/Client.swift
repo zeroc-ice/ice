@@ -37,9 +37,9 @@ public class Client: TestHelperI {
 
         let out = getWriter()
         out.write("testing operation name... ")
-        let p = try checkedCast(
+        let p = try await checkedCast(
             prx: adapter.createProxy(Ice.stringToIdentity("test")), type: breakPrx.self)!
-        _ = try p.case(0)
+        _ = try await p.case(0)
         out.writeLine("ok")
 
         out.write("testing types... ")

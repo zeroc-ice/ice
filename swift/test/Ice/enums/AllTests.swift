@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
+func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -87,18 +87,18 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
     output.write("testing enum operations... ")
 
-    try test(proxy.opByte(ByteEnum.benum1) == (ByteEnum.benum1, ByteEnum.benum1))
+    try await test(proxy.opByte(ByteEnum.benum1) == (ByteEnum.benum1, ByteEnum.benum1))
 
-    try test(proxy.opByte(ByteEnum.benum11) == (ByteEnum.benum11, ByteEnum.benum11))
+    try await test(proxy.opByte(ByteEnum.benum11) == (ByteEnum.benum11, ByteEnum.benum11))
 
-    try test(proxy.opShort(ShortEnum.senum1) == (ShortEnum.senum1, ShortEnum.senum1))
-    try test(proxy.opShort(ShortEnum.senum11) == (ShortEnum.senum11, ShortEnum.senum11))
+    try await test(proxy.opShort(ShortEnum.senum1) == (ShortEnum.senum1, ShortEnum.senum1))
+    try await test(proxy.opShort(ShortEnum.senum11) == (ShortEnum.senum11, ShortEnum.senum11))
 
-    try test(proxy.opInt(IntEnum.ienum1) == (IntEnum.ienum1, IntEnum.ienum1))
-    try test(proxy.opInt(IntEnum.ienum11) == (IntEnum.ienum11, IntEnum.ienum11))
-    try test(proxy.opInt(IntEnum.ienum12) == (IntEnum.ienum12, IntEnum.ienum12))
+    try await test(proxy.opInt(IntEnum.ienum1) == (IntEnum.ienum1, IntEnum.ienum1))
+    try await test(proxy.opInt(IntEnum.ienum11) == (IntEnum.ienum11, IntEnum.ienum11))
+    try await test(proxy.opInt(IntEnum.ienum12) == (IntEnum.ienum12, IntEnum.ienum12))
 
-    try test(proxy.opSimple(SimpleEnum.green) == (SimpleEnum.green, SimpleEnum.green))
+    try await test(proxy.opSimple(SimpleEnum.green) == (SimpleEnum.green, SimpleEnum.green))
 
     output.writeLine("ok")
 
@@ -118,7 +118,7 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             ByteEnum.benum10,
             ByteEnum.benum11,
         ]
-        try test(proxy.opByteSeq(b1) == (b1, b1))
+        try await test(proxy.opByteSeq(b1) == (b1, b1))
     }
 
     do {
@@ -136,7 +136,7 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             ShortEnum.senum11,
         ]
 
-        try test(proxy.opShortSeq(s1) == (s1, s1))
+        try await test(proxy.opShortSeq(s1) == (s1, s1))
     }
 
     do {
@@ -154,7 +154,7 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             IntEnum.ienum11,
         ]
 
-        try test(proxy.opIntSeq(i1) == (i1, i1))
+        try await test(proxy.opIntSeq(i1) == (i1, i1))
     }
 
     do {
@@ -163,7 +163,7 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             SimpleEnum.green,
             SimpleEnum.blue,
         ]
-        try test(proxy.opSimpleSeq(s1) == (s1, s1))
+        try await test(proxy.opSimpleSeq(s1) == (s1, s1))
     }
 
     output.writeLine("ok")

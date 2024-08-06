@@ -5,7 +5,7 @@ import Ice
 class TestIntfI: TestIntf {
     func ping(reply: PingReplyPrx?, current _: Current) async throws {
         do {
-            try reply!.reply()
+            try await reply!.reply()
         } catch {
             preconditionFailure()
         }
@@ -13,7 +13,7 @@ class TestIntfI: TestIntf {
 
     func sendByteSeq(seq _: ByteSeq, reply: PingReplyPrx?, current _: Current) async throws {
         do {
-            try reply!.reply()
+            try await reply!.reply()
         } catch {
             preconditionFailure()
         }
@@ -28,11 +28,11 @@ class TestIntfI: TestIntf {
             do {
                 let seq = Ice.ByteSeq(repeating: 0, count: 32 * 1024)
                 let prx = try uncheckedCast(prx: current.con!.createProxy(reply), type: TestIntfPrx.self)
-                try prx.sendByteSeq(seq: seq, reply: nil)
+                try await prx.sendByteSeq(seq: seq, reply: nil)
             } catch is Ice.DatagramLimitException {
                 // Expected.
             }
-            try uncheckedCast(
+            try await uncheckedCast(
                 prx: current.con!.createProxy(reply),
                 type: PingReplyPrx.self
             ).reply()

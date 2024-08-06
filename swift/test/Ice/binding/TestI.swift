@@ -50,7 +50,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
     }
 
     func deactivateObjectAdapter(adapter: RemoteObjectAdapterPrx?, current _: Ice.Current) async throws {
-        try adapter!.deactivate()  // Collocated call.
+        try await adapter!.deactivate()  // Collocated call.
     }
 
     func shutdown(current: Ice.Current) async throws {

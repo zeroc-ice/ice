@@ -117,7 +117,7 @@ func testFacets(com: Ice.Communicator, builtInFacets: Bool, helper: TestHelper) 
     } catch is Ice.NotRegisteredException {}
 }
 
-func allTests(_ helper: TestHelper) throws {
+func allTests(_ helper: TestHelper) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -220,12 +220,12 @@ func allTests(_ helper: TestHelper) throws {
             "Ice.Admin.Endpoints": "tcp -h 127.0.0.1",
             "Ice.Admin.InstanceName": "Test",
         ]
-        let com = try factory.createCommunicator(props)!
-        let obj = try com.getAdmin()!
-        let proc = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")!
-        try proc.shutdown()
-        try com.waitForShutdown()
-        try com.destroy()
+        let com = try await factory.createCommunicator(props)!
+        let obj = try await com.getAdmin()!
+        let proc = try await checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")!
+        try await proc.shutdown()
+        try await com.waitForShutdown()
+        try await com.destroy()
     }
     output.writeLine("ok")
 
@@ -239,20 +239,20 @@ func allTests(_ helper: TestHelper) throws {
             "Prop3": "3",
         ]
 
-        let com = try factory.createCommunicator(props)!
-        let obj = try com.getAdmin()!
-        let pa = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")!
+        let com = try await factory.createCommunicator(props)!
+        let obj = try await com.getAdmin()!
+        let pa = try await checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")!
 
         //
         // Test: PropertiesAdmin::getProperty()
         //
-        try test(pa.getProperty("Prop2") == "2")
-        try test(pa.getProperty("Bogus") == "")
+        try await test(pa.getProperty("Prop2") == "2")
+        try await test(pa.getProperty("Bogus") == "")
 
         //
         // Test: PropertiesAdmin::getProperties()
         //
-        let pd = try pa.getPropertiesForPrefix("")
+        let pd = try await pa.getPropertiesForPrefix("")
         try test(pd.count == 5)
         try test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1")
         try test(pd["Ice.Admin.InstanceName"] == "Test")
@@ -270,24 +270,24 @@ func allTests(_ helper: TestHelper) throws {
             "Prop4": "4",  // Added
             "Prop5": "5",  // Added
         ]
-        try pa.setProperties(setProps)
-        try test(pa.getProperty("Prop1") == "10")
-        try test(pa.getProperty("Prop2") == "20")
-        try test(pa.getProperty("Prop3") == "")
-        try test(pa.getProperty("Prop4") == "4")
-        try test(pa.getProperty("Prop5") == "5")
-        var changes = try com.getChanges()
+        try await pa.setProperties(setProps)
+        try await test(pa.getProperty("Prop1") == "10")
+        try await test(pa.getProperty("Prop2") == "20")
+        try await test(pa.getProperty("Prop3") == "")
+        try await test(pa.getProperty("Prop4") == "4")
+        try await test(pa.getProperty("Prop5") == "5")
+        var changes = try await com.getChanges()
         try test(changes.count == 5)
         try test(changes["Prop1"] == "10")
         try test(changes["Prop2"] == "20")
         try test(changes["Prop3"] == "")
         try test(changes["Prop4"] == "4")
         try test(changes["Prop5"] == "5")
-        try pa.setProperties(setProps)
-        changes = try com.getChanges()
+        try await pa.setProperties(setProps)
+        changes = try await com.getChanges()
         try test(changes.count == 0)
 
-        try com.destroy()
+        try await com.destroy()
     }
     output.writeLine("ok")
 
@@ -310,7 +310,7 @@ func allTests(_ helper: TestHelper) throws {
     //     try com.print("print")
 
     //     let obj = try com.getAdmin()!
-    //     let logger = try checkedCast(prx: obj, type: Ice.LoggerAdminPrx.self, facet: "Logger")!
+    //     let logger = try await checkedCast(prx: obj, type: Ice.LoggerAdminPrx.self, facet: "Logger")!
 
     //     //
     //     // Get all
@@ -515,11 +515,11 @@ func allTests(_ helper: TestHelper) throws {
             "Ice.Admin.Endpoints": "tcp -h 127.0.0.1",
             "Ice.Admin.InstanceName": "Test",
         ]
-        let com = try factory.createCommunicator(props)!
-        let obj = try com.getAdmin()!
-        let tf = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
-        try tf.op()
-        try com.destroy()
+        let com = try await factory.createCommunicator(props)!
+        let obj = try await com.getAdmin()!
+        let tf = try await checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
+        try await tf.op()
+        try await com.destroy()
     }
     output.writeLine("ok")
 
@@ -535,17 +535,17 @@ func allTests(_ helper: TestHelper) throws {
             "Ice.Admin.Facets": "Properties",
         ]
 
-        let com = try factory.createCommunicator(props)!
-        let obj = try com.getAdmin()!
+        let com = try await factory.createCommunicator(props)!
+        let obj = try await com.getAdmin()!
         do {
-            _ = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
+            _ = try await checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
             try test(false)
         } catch is Ice.FacetNotExistException {}
         do {
-            _ = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")
+            _ = try await checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")
             try test(false)
         } catch is Ice.FacetNotExistException {}
-        try com.destroy()
+        try await com.destroy()
     }
 
     do {
@@ -558,17 +558,17 @@ func allTests(_ helper: TestHelper) throws {
             "Ice.Admin.InstanceName": "Test",
             "Ice.Admin.Facets": "Process",
         ]
-        let com = try factory.createCommunicator(props)!
-        let obj = try com.getAdmin()!
+        let com = try await factory.createCommunicator(props)!
+        let obj = try await com.getAdmin()!
         do {
-            _ = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
+            _ = try await checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
             try test(false)
         } catch is Ice.FacetNotExistException {}
         do {
-            _ = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")
+            _ = try await checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")
             try test(false)
         } catch is Ice.FacetNotExistException {}
-        try com.destroy()
+        try await com.destroy()
     }
 
     do {
@@ -582,17 +582,17 @@ func allTests(_ helper: TestHelper) throws {
             "Ice.Admin.Facets": "TestFacet",
         ]
 
-        let com = try factory.createCommunicator(props)!
-        let obj = try com.getAdmin()!
+        let com = try await factory.createCommunicator(props)!
+        let obj = try await com.getAdmin()!
         do {
-            _ = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
+            _ = try await checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
             try test(false)
         } catch is Ice.FacetNotExistException {}
         do {
-            _ = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
+            _ = try await checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
             try test(false)
         } catch is Ice.FacetNotExistException {}
-        try com.destroy()
+        try await com.destroy()
     }
 
     do {
@@ -606,17 +606,17 @@ func allTests(_ helper: TestHelper) throws {
             "Ice.Admin.Facets": "Properties TestFacet",
         ]
 
-        let com = try factory.createCommunicator(props)!
-        let obj = try com.getAdmin()!
-        let pa = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")!
-        try test(pa.getProperty("Ice.Admin.InstanceName") == "Test")
-        let tf = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
-        try tf.op()
+        let com = try await factory.createCommunicator(props)!
+        let obj = try await com.getAdmin()!
+        let pa = try await checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")!
+        try await test(pa.getProperty("Ice.Admin.InstanceName") == "Test")
+        let tf = try await checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
+        try await tf.op()
         do {
-            _ = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
+            _ = try await checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")
             try test(false)
         } catch is Ice.FacetNotExistException {}
-        try com.destroy()
+        try await com.destroy()
     }
 
     do {
@@ -629,20 +629,20 @@ func allTests(_ helper: TestHelper) throws {
             "Ice.Admin.InstanceName": "Test",
             "Ice.Admin.Facets": "TestFacet, Process",
         ]
-        let com = try factory.createCommunicator(props)!
-        let obj = try com.getAdmin()!
+        let com = try await factory.createCommunicator(props)!
+        let obj = try await com.getAdmin()!
         do {
-            _ = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
+            _ = try await checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
             try test(false)
         } catch is Ice.FacetNotExistException {}
-        let tf = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
-        try tf.op()
-        let proc = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")!
-        try proc.shutdown()
-        try com.waitForShutdown()
-        try com.destroy()
+        let tf = try await checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
+        try await tf.op()
+        let proc = try await checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")!
+        try await proc.shutdown()
+        try await com.waitForShutdown()
+        try await com.destroy()
     }
     output.writeLine("ok")
 
-    try factory.shutdown()
+    try await factory.shutdown()
 }

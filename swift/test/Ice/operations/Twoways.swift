@@ -11,7 +11,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
 
     let communicator = helper.communicator()
 
-    let literals = try p.opStringLiterals()
+    let literals = try await p.opStringLiterals()
 
     try test(s0 == "\\" && s0 == sw0 && s0 == literals[0] && s0 == literals[11])
 
@@ -48,16 +48,16 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     try test(
         su0 == su1 && su0 == su2 && su0 == literals[28] && su0 == literals[29] && su0 == literals[30])
 
-    try p.ice_ping()
+    try await p.ice_ping()
 
     try test(ice_staticId(MyClassPrx.self) == "::Test::MyClass")
     try test(ice_staticId(Ice.ObjectPrx.self) == "::Ice::Object")
 
-    try test(p.ice_isA(id: ice_staticId(MyClassPrx.self)))
-    try test(p.ice_id() == ice_staticId(MyDerivedClassPrx.self))
+    try await test(p.ice_isA(id: ice_staticId(MyClassPrx.self)))
+    try await test(p.ice_id() == ice_staticId(MyDerivedClassPrx.self))
 
     do {
-        let ids = try p.ice_ids()
+        let ids = try await p.ice_ids()
         try test(ids.count == 3)
         try test(ids[0] == "::Ice::Object")
         try test(ids[1] == "::Test::MyClass")
@@ -65,35 +65,35 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     }
 
     do {
-        try p.opVoid()
+        try await p.opVoid()
     }
 
     do {
-        let (r, b) = try p.opByte(p1: 0xFF, p2: 0x0F)
+        let (r, b) = try await p.opByte(p1: 0xFF, p2: 0x0F)
         try test(b == 0xF0)
         try test(r == 0xFF)
     }
 
     do {
-        let (r, b) = try p.opBool(p1: true, p2: false)
+        let (r, b) = try await p.opBool(p1: true, p2: false)
         try test(b)
         try test(!r)
     }
 
     do {
-        var (r, s, i, l) = try p.opShortIntLong(p1: 10, p2: 11, p3: 12)
+        var (r, s, i, l) = try await p.opShortIntLong(p1: 10, p2: 11, p3: 12)
         try test(s == 10)
         try test(i == 11)
         try test(l == 12)
         try test(r == 12)
 
-        (r, s, i, l) = try p.opShortIntLong(p1: Int16.min, p2: Int32.min, p3: Int64.min)
+        (r, s, i, l) = try await p.opShortIntLong(p1: Int16.min, p2: Int32.min, p3: Int64.min)
         try test(s == Int16.min)
         try test(i == Int32.min)
         try test(l == Int64.min)
         try test(r == Int64.min)
 
-        (r, s, i, l) = try p.opShortIntLong(p1: Int16.max, p2: Int32.max, p3: Int64.max)
+        (r, s, i, l) = try await p.opShortIntLong(p1: Int16.max, p2: Int32.max, p3: Int64.max)
         try test(s == Int16.max)
         try test(i == Int32.max)
         try test(l == Int64.max)
@@ -101,17 +101,17 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     }
 
     do {
-        var (r, f, d) = try p.opFloatDouble(p1: 3.14, p2: 1.1e10)
+        var (r, f, d) = try await p.opFloatDouble(p1: 3.14, p2: 1.1e10)
         try test(f == 3.14)
         try test(d == 1.1e10)
         try test(r == 1.1e10)
 
-        (r, f, d) = try p.opFloatDouble(p1: Float.ulpOfOne, p2: Double.leastNormalMagnitude)
+        (r, f, d) = try await p.opFloatDouble(p1: Float.ulpOfOne, p2: Double.leastNormalMagnitude)
         try test(f == Float.ulpOfOne)
         try test(d == Double.leastNormalMagnitude)
         try test(r == Double.leastNormalMagnitude)
 
-        (r, f, d) = try p.opFloatDouble(
+        (r, f, d) = try await p.opFloatDouble(
             p1: Float.greatestFiniteMagnitude, p2: Double.greatestFiniteMagnitude)
         try test(f == Float.greatestFiniteMagnitude)
         try test(d == Double.greatestFiniteMagnitude)
@@ -119,35 +119,35 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     }
 
     do {
-        let (r, s) = try p.opString(p1: "hello", p2: "world")
+        let (r, s) = try await p.opString(p1: "hello", p2: "world")
         try test(s == "world hello")
         try test(r == "hello world")
     }
 
     do {
-        let (r, e) = try p.opMyEnum(MyEnum.enum2)
+        let (r, e) = try await p.opMyEnum(MyEnum.enum2)
         try test(e == MyEnum.enum2)
         try test(r == MyEnum.enum3)
     }
 
     do {
-        var (r, c1, c2) = try p.opMyClass(p)
+        var (r, c1, c2) = try await p.opMyClass(p)
 
         try test(c1!.ice_getIdentity() == Ice.stringToIdentity("test"))
         try test(c2!.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
         try test(r!.ice_getIdentity() == Ice.stringToIdentity("test"))
-        try r!.opVoid()
-        try c1!.opVoid()
+        try await r!.opVoid()
+        try await c1!.opVoid()
 
         do {
-            try c2!.opVoid()
+            try await c2!.opVoid()
             try test(false)
         } catch is Ice.ObjectNotExistException {}
 
-        (r, c1, c2) = try p.opMyClass(nil)
+        (r, c1, c2) = try await p.opMyClass(nil)
         try test(c1 == nil)
         try test(c2 != nil)
-        try r!.opVoid()
+        try await r!.opVoid()
     }
 
     do {
@@ -162,21 +162,21 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         si2.s = AnotherStruct()
         si2.s.s = "def"
 
-        let (rso, so) = try p.opStruct(p1: si1, p2: si2)
+        let (rso, so) = try await p.opStruct(p1: si1, p2: si2)
         try test(rso.p == nil)
         try test(rso.e == MyEnum.enum2)
         try test(rso.s.s == "def")
         try test(so.p == p)
         try test(so.e == MyEnum.enum3)
         try test(so.s.s == "a new string")
-        try so.p!.opVoid()
+        try await so.p!.opVoid()
     }
 
     do {
         let bsi1 = ByteSeq([0x01, 0x11, 0x12, 0x22])
         let bsi2 = ByteSeq([0xF1, 0xF2, 0xF3, 0xF4])
 
-        let (rso, bso) = try p.opByteS(p1: bsi1, p2: bsi2)
+        let (rso, bso) = try await p.opByteS(p1: bsi1, p2: bsi2)
         try test(bso.count == 4)
         try test(bso[0] == 0x22)
         try test(bso[1] == 0x12)
@@ -197,7 +197,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let bsi1: [Bool] = [true, true, false]
         let bsi2 = [false]
 
-        let (rso, bso) = try p.opBoolS(p1: bsi1, p2: bsi2)
+        let (rso, bso) = try await p.opBoolS(p1: bsi1, p2: bsi2)
         try test(bso.count == 4)
         try test(bso[0])
         try test(bso[1])
@@ -214,7 +214,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let isi: [Int32] = [5, 6, 7, 8]
         let lsi: [Int64] = [10, 30, 20]
 
-        let (rso, sso, iso, lso) = try p.opShortIntLongS(p1: ssi, p2: isi, p3: lsi)
+        let (rso, sso, iso, lso) = try await p.opShortIntLongS(p1: ssi, p2: isi, p3: lsi)
         try test(sso.count == 3)
         try test(sso[0] == 1)
         try test(sso[1] == 2)
@@ -241,7 +241,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let fsi: [Float] = [3.14, 1.11]
         let dsi: [Double] = [1.1e10, 1.2e10, 1.3e10]
 
-        let (rso, fso, dso) = try p.opFloatDoubleS(p1: fsi, p2: dsi)
+        let (rso, fso, dso) = try await p.opFloatDoubleS(p1: fsi, p2: dsi)
         try test(fso.count == 2)
         try test(fso[0] == 3.14)
         try test(fso[1] == 1.11)
@@ -261,7 +261,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let ssi1 = ["abc", "de", "fghi"]
         let ssi2 = ["xyz"]
 
-        let (rso, sso) = try p.opStringS(p1: ssi1, p2: ssi2)
+        let (rso, sso) = try await p.opStringS(p1: ssi1, p2: ssi2)
         try test(sso.count == 4)
         try test(sso[0] == "abc")
         try test(sso[1] == "de")
@@ -282,7 +282,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let s22 = ByteSeq([0xF2, 0xF1])
         let bsi2 = [s21, s22]
 
-        let (rso, bso) = try p.opByteSS(p1: bsi1, p2: bsi2)
+        let (rso, bso) = try await p.opByteSS(p1: bsi1, p2: bsi2)
         try test(bso.count == 2)
         try test(bso[0].count == 1)
         try test(bso[0][0] == 0xFF)
@@ -313,7 +313,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let s21 = [false, false, true]
         let bsi2 = [s21]
 
-        let (rso, bso) = try p.opBoolSS(p1: bsi1, p2: bsi2)
+        let (rso, bso) = try await p.opBoolSS(p1: bsi1, p2: bsi2)
         try test(bso.count == 4)
         try test(bso[0].count == 1)
         try test(bso[0][0])
@@ -349,7 +349,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let l11: [Int64] = [496, 1729]
         let lsi = [l11]
 
-        let (rso, sso, iso, lso) = try p.opShortIntLongSS(p1: ssi, p2: isi, p3: lsi)
+        let (rso, sso, iso, lso) = try await p.opShortIntLongSS(p1: ssi, p2: isi, p3: lsi)
 
         try test(rso.count == 1)
         try test(rso[0].count == 2)
@@ -387,7 +387,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let d11: [Double] = [1.1e10, 1.2e10, 1.3e10]
         let dsi = [d11]
 
-        let (rso, fso, dso) = try p.opFloatDoubleSS(p1: fsi, p2: dsi)
+        let (rso, fso, dso) = try await p.opFloatDoubleSS(p1: fsi, p2: dsi)
         try test(fso.count == 3)
         try test(fso[0].count == 1)
         try test(fso[0][0] == 3.14)
@@ -420,7 +420,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let s23 = ["xyz"]
         let ssi2 = [s21, s22, s23]
 
-        let (rso, sso) = try p.opStringSS(p1: ssi1, p2: ssi2)
+        let (rso, sso) = try await p.opStringSS(p1: ssi1, p2: ssi2)
         try test(sso.count == 5)
         try test(sso[0].count == 1)
         try test(sso[0][0] == "abc")
@@ -454,7 +454,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let ss23 = [[String]]()
         let sssi2 = [ss21, ss22, ss23]
 
-        let (rsso, ssso) = try p.opStringSSS(p1: sssi1, p2: sssi2)
+        let (rsso, ssso) = try await p.opStringSSS(p1: sssi1, p2: sssi2)
         try test(ssso.count == 5)
         try test(ssso[0].count == 2)
         try test(ssso[0][0].count == 2)
@@ -492,7 +492,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     do {
         let di1: [UInt8: Bool] = [10: true, 100: false]
         let di2: [UInt8: Bool] = [10: true, 11: false, 101: true]
-        let (ro, `do`) = try p.opByteBoolD(p1: di1, p2: di2)
+        let (ro, `do`) = try await p.opByteBoolD(p1: di1, p2: di2)
 
         try test(`do` == di1)
         try test(ro.count == 4)
@@ -505,7 +505,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     do {
         let di1: [Int16: Int32] = [110: -1, 1100: 123_123]
         let di2: [Int16: Int32] = [110: -1, 111: -100, 1101: 0]
-        let (ro, `do`) = try p.opShortIntD(p1: di1, p2: di2)
+        let (ro, `do`) = try await p.opShortIntD(p1: di1, p2: di2)
 
         try test(`do` == di1)
         try test(ro.count == 4)
@@ -518,7 +518,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     do {
         let di1: [Int64: Float] = [999_999_110: -1.1, 999_999_111: 123_123.2]
         let di2: [Int64: Float] = [999_999_110: -1.1, 999_999_120: -100.4, 999_999_130: 0.5]
-        let (ro, `do`) = try p.opLongFloatD(p1: di1, p2: di2)
+        let (ro, `do`) = try await p.opLongFloatD(p1: di1, p2: di2)
 
         try test(`do` == di1)
         try test(ro.count == 4)
@@ -531,7 +531,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     do {
         let di1 = ["foo": "abc -1.1", "bar": "abc 123123.2"]
         let di2 = ["foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5"]
-        let (ro, `do`) = try p.opStringStringD(p1: di1, p2: di2)
+        let (ro, `do`) = try await p.opStringStringD(p1: di1, p2: di2)
 
         try test(`do` == di1)
         try test(ro.count == 4)
@@ -544,7 +544,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     do {
         let di1 = ["abc": MyEnum.enum1, "": MyEnum.enum2]
         let di2 = ["abc": MyEnum.enum1, "qwerty": MyEnum.enum3, "Hello!!": MyEnum.enum2]
-        let (ro, `do`) = try p.opStringMyEnumD(p1: di1, p2: di2)
+        let (ro, `do`) = try await p.opStringMyEnumD(p1: di1, p2: di2)
 
         try test(`do` == di1)
         try test(ro.count == 4)
@@ -557,7 +557,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     do {
         let di1 = [MyEnum.enum1: "abc"]
         let di2 = [MyEnum.enum2: "Hello!!", MyEnum.enum3: "qwerty"]
-        let (ro, `do`) = try p.opMyEnumStringD(p1: di1, p2: di2)
+        let (ro, `do`) = try await p.opMyEnumStringD(p1: di1, p2: di2)
 
         try test(`do` == di1)
         try test(ro.count == 3)
@@ -575,7 +575,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let s23 = MyStruct(i: 2, j: 3)
         let di2 = [s11: MyEnum.enum1, s22: MyEnum.enum3, s23: MyEnum.enum2]
 
-        let (ro, `do`) = try p.opMyStructMyEnumD(p1: di1, p2: di2)
+        let (ro, `do`) = try await p.opMyStructMyEnumD(p1: di1, p2: di2)
 
         try test(`do` == di1)
         try test(ro.count == 4)
@@ -593,7 +593,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let dsi1 = [di1, di2]
         let dsi2 = [di3]
 
-        let (ro, `do`) = try p.opByteBoolDS(p1: dsi1, p2: dsi2)
+        let (ro, `do`) = try await p.opByteBoolDS(p1: dsi1, p2: dsi2)
 
         try test(ro.count == 2)
         try test(ro[0].count == 3)
@@ -625,7 +625,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let dsi1 = [di1, di2]
         let dsi2 = [di3]
 
-        let (ro, `do`) = try p.opShortIntDS(p1: dsi1, p2: dsi2)
+        let (ro, `do`) = try await p.opShortIntDS(p1: dsi1, p2: dsi2)
 
         try test(ro.count == 2)
         try test(ro[0].count == 3)
@@ -656,7 +656,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let dsi1 = [di1, di2]
         let dsi2 = [di3]
 
-        let (ro, `do`) = try p.opLongFloatDS(p1: dsi1, p2: dsi2)
+        let (ro, `do`) = try await p.opLongFloatDS(p1: dsi1, p2: dsi2)
 
         try test(ro.count == 2)
         try test(ro[0].count == 3)
@@ -687,7 +687,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let dsi1 = [di1, di2]
         let dsi2 = [di3]
 
-        let (ro, `do`) = try p.opStringStringDS(p1: dsi1, p2: dsi2)
+        let (ro, `do`) = try await p.opStringStringDS(p1: dsi1, p2: dsi2)
 
         try test(ro.count == 2)
         try test(ro[0].count == 3)
@@ -718,7 +718,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let dsi1 = [di1, di2]
         let dsi2 = [di3]
 
-        let (ro, `do`) = try p.opStringMyEnumDS(p1: dsi1, p2: dsi2)
+        let (ro, `do`) = try await p.opStringMyEnumDS(p1: dsi1, p2: dsi2)
 
         try test(ro.count == 2)
         try test(ro[0].count == 3)
@@ -749,7 +749,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let dsi1 = [di1, di2]
         let dsi2 = [di3]
 
-        let (ro, `do`) = try p.opMyEnumStringDS(p1: dsi1, p2: dsi2)
+        let (ro, `do`) = try await p.opMyEnumStringDS(p1: dsi1, p2: dsi2)
 
         try test(ro.count == 2)
         try test(ro[0].count == 2)
@@ -782,7 +782,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let dsi1 = [di1, di2]
         let dsi2 = [di3]
 
-        let (ro, `do`) = try p.opMyStructMyEnumDS(p1: dsi1, p2: dsi2)
+        let (ro, `do`) = try await p.opMyStructMyEnumDS(p1: dsi1, p2: dsi2)
 
         try test(ro.count == 2)
         try test(ro[0].count == 3)
@@ -813,7 +813,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let sdi1: [UInt8: ByteSeq] = [0x01: si1, 0x22: si2]
         let sdi2: [UInt8: ByteSeq] = [0xF1: si3]
 
-        let (ro, `do`) = try p.opByteByteSD(p1: sdi1, p2: sdi2)
+        let (ro, `do`) = try await p.opByteByteSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
         try test(`do`[0xF1]!.count == 2)
@@ -838,7 +838,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let sdi1 = [false: si1, true: si2]
         let sdi2 = [false: si1]
 
-        let (ro, `do`) = try p.opBoolBoolSD(p1: sdi1, p2: sdi2)
+        let (ro, `do`) = try await p.opBoolBoolSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
         try test(`do`[false]!.count == 2)
@@ -862,7 +862,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let sdi1: [Int16: [Int16]] = [1: si1, 2: si2]
         let sdi2: [Int16: [Int16]] = [4: si3]
 
-        let (ro, `do`) = try p.opShortShortSD(p1: sdi1, p2: sdi2)
+        let (ro, `do`) = try await p.opShortShortSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
         try test(`do`[4]!.count == 2)
@@ -890,7 +890,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let sdi1: [Int32: [Int32]] = [100: si1, 200: si2]
         let sdi2: [Int32: [Int32]] = [400: si3]
 
-        let (ro, `do`) = try p.opIntIntSD(p1: sdi1, p2: sdi2)
+        let (ro, `do`) = try await p.opIntIntSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
         try test(`do`[400]!.count == 2)
@@ -918,7 +918,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let sdi1: [Int64: [Int64]] = [999_999_990: si1, 999_999_991: si2]
         let sdi2: [Int64: [Int64]] = [999_999_992: si3]
 
-        let (ro, `do`) = try p.opLongLongSD(p1: sdi1, p2: sdi2)
+        let (ro, `do`) = try await p.opLongLongSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
         try test(`do`[999_999_992]!.count == 2)
@@ -945,7 +945,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let sdi1 = ["abc": si1, "ABC": si2]
         let sdi2 = ["aBc": si3]
 
-        let (ro, `do`) = try p.opStringFloatSD(p1: sdi1, p2: sdi2)
+        let (ro, `do`) = try await p.opStringFloatSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
         try test(`do`["aBc"]!.count == 2)
@@ -973,7 +973,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let sdi1 = ["Hello!!": si1, "Goodbye": si2]
         let sdi2 = ["": si3]
 
-        let (ro, `do`) = try p.opStringDoubleSD(p1: sdi1, p2: sdi2)
+        let (ro, `do`) = try await p.opStringDoubleSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
         try test(`do`[""]!.count == 2)
@@ -1000,7 +1000,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let sdi1 = ["abc": si1, "def": si2]
         let sdi2 = ["ghi": si3]
 
-        let (ro, `do`) = try p.opStringStringSD(p1: sdi1, p2: sdi2)
+        let (ro, `do`) = try await p.opStringStringSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
         try test(`do`["ghi"]!.count == 2)
@@ -1028,7 +1028,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let sdi1 = [MyEnum.enum3: si1, MyEnum.enum2: si2]
         let sdi2 = [MyEnum.enum1: si3]
 
-        let (ro, `do`) = try p.opMyEnumMyEnumSD(p1: sdi1, p2: sdi2)
+        let (ro, `do`) = try await p.opMyEnumMyEnumSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
         try test(`do`[MyEnum.enum1]!.count == 2)
@@ -1056,7 +1056,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
                 s.append(i)
             }
 
-            let r = try p.opIntS(s)
+            let r = try await p.opIntS(s)
             try test(r.count == lengths[l])
             for j in 0..<r.count {
                 try test(r[j] == -j)
@@ -1068,22 +1068,22 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let ctx = ["one": "ONE", "two": "TWO", "three": "THREE"]
         do {
             try test(p.ice_getContext().count == 0)
-            let r = try p.opContext()
+            let r = try await p.opContext()
             try test(r != ctx)
         }
 
         do {
-            let r = try p.opContext(context: ctx)
+            let r = try await p.opContext(context: ctx)
             try test(p.ice_getContext().count == 0)
             try test(r == ctx)
         }
 
         do {
-            let p2 = try checkedCast(prx: p.ice_context(ctx), type: MyClassPrx.self)!
+            let p2 = try await checkedCast(prx: p.ice_context(ctx), type: MyClassPrx.self)!
             try test(p2.ice_getContext() == ctx)
-            var r = try p2.opContext()
+            var r = try await p2.opContext()
             try test(r == ctx)
-            r = try p2.opContext(context: ctx)
+            r = try await p2.opContext(context: ctx)
             try test(r == ctx)
         }
     }
@@ -1108,7 +1108,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
 
         ic.getImplicitContext().setContext(ctx)
         try test(ic.getImplicitContext().getContext() == ctx)
-        try test(p3.opContext() == ctx)
+        try await test(p3.opContext() == ctx)
 
         try test(ic.getImplicitContext().containsKey("zero") == false)
         let r = ic.getImplicitContext().put(key: "zero", value: "ZERO")
@@ -1116,7 +1116,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try test(ic.getImplicitContext().get("zero") == "ZERO")
 
         ctx = ic.getImplicitContext().getContext()
-        try test(p3.opContext() == ctx)
+        try await test(p3.opContext() == ctx)
 
         let prxContext = ["one": "UN", "four": "QUATRE"]
 
@@ -1129,37 +1129,37 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         p3 = uncheckedCast(prx: p3.ice_context(prxContext), type: MyClassPrx.self)
 
         ic.getImplicitContext().setContext(Ice.Context())
-        try test(p3.opContext() == prxContext)
+        try await test(p3.opContext() == prxContext)
 
         ic.getImplicitContext().setContext(ctx)
-        try test(p3.opContext() == combined)
+        try await test(p3.opContext() == combined)
 
         ic.destroy()
     }
 
     do {
-        try p.opIdempotent()
+        try await p.opIdempotent()
     }
 
     do {
-        try test(p.opByte1(0xFF) == 0xFF)
-        try test(p.opShort1(0x7FFF) == 0x7FFF)
-        try test(p.opInt1(0x7FFF_FFFF) == 0x7FFF_FFFF)
-        try test(p.opLong1(0x7FFF_FFFF_FFFF_FFFF) == 0x7FFF_FFFF_FFFF_FFFF)
-        try test(p.opFloat1(1.0) == 1.0)
-        try test(p.opDouble1(1.0) == 1.0)
-        try test(p.opString1("opString1") == "opString1")
-        try test(p.opStringS1([]).count == 0)
-        try test(p.opByteBoolD1([:]).count == 0)
-        try test(p.opStringS2([]).count == 0)
-        try test(p.opByteBoolD2([:]).count == 0)
+        try await test(p.opByte1(0xFF) == 0xFF)
+        try await test(p.opShort1(0x7FFF) == 0x7FFF)
+        try await test(p.opInt1(0x7FFF_FFFF) == 0x7FFF_FFFF)
+        try await test(p.opLong1(0x7FFF_FFFF_FFFF_FFFF) == 0x7FFF_FFFF_FFFF_FFFF)
+        try await test(p.opFloat1(1.0) == 1.0)
+        try await test(p.opDouble1(1.0) == 1.0)
+        try await test(p.opString1("opString1") == "opString1")
+        try await test(p.opStringS1([]).count == 0)
+        try await test(p.opByteBoolD1([:]).count == 0)
+        try await test(p.opStringS2([]).count == 0)
+        try await test(p.opByteBoolD2([:]).count == 0)
 
         let d = uncheckedCast(prx: p, type: MyDerivedClassPrx.self)
         var s = MyStruct1()
         s.tesT = "MyStruct1.s"
         s.myClass = nil
         s.myStruct1 = "MyStruct1.myStruct1"
-        s = try d.opMyStruct1(s)
+        s = try await d.opMyStruct1(s)
         try test(s.tesT == "MyStruct1.s")
         try test(s.myClass == nil)
         try test(s.myStruct1 == "MyStruct1.myStruct1")
@@ -1167,7 +1167,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         c.tesT = "MyClass1.testT"
         c.myClass = nil
         c.myClass1 = "MyClass1.myClass1"
-        c = try d.opMyClass1(c)!
+        c = try await d.opMyClass1(c)!
         try test(c.tesT == "MyClass1.testT")
         try test(c.myClass == nil)
         try test(c.myClass1 == "MyClass1.myClass1")

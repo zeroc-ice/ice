@@ -40,29 +40,29 @@ func allTests(_ helper: TestHelper) async throws {
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
-    let hold = try checkedCast(prx: base, type: HoldPrx.self)!
+    let hold = try await checkedCast(prx: base, type: HoldPrx.self)!
     let holdOneway = uncheckedCast(prx: base.ice_oneway(), type: HoldPrx.self)
     try test(hold == base)
-    let holdSerialized = try checkedCast(prx: baseSerialized, type: HoldPrx.self)!
+    let holdSerialized = try await checkedCast(prx: baseSerialized, type: HoldPrx.self)!
     let holdSerializedOneway = uncheckedCast(prx: baseSerialized.ice_oneway(), type: HoldPrx.self)
     try test(holdSerialized == baseSerialized)
     output.writeLine("ok")
 
     output.write("changing state between active and hold rapidly... ")
     for _ in 0..<100 {
-        try hold.putOnHold(0)
+        try await hold.putOnHold(0)
     }
 
     for _ in 0..<100 {
-        try holdOneway.putOnHold(0)
+        try await holdOneway.putOnHold(0)
     }
 
     for _ in 0..<100 {
-        try holdSerialized.putOnHold(0)
+        try await holdSerialized.putOnHold(0)
     }
 
     for _ in 0..<100 {
-        try holdSerializedOneway.putOnHold(0)
+        try await holdSerializedOneway.putOnHold(0)
     }
     output.writeLine("ok")
 
@@ -133,22 +133,22 @@ func allTests(_ helper: TestHelper) async throws {
 
     output.write("testing waitForHold... ")
     do {
-        try hold.waitForHold()
-        try hold.waitForHold()
+        try await hold.waitForHold()
+        try await hold.waitForHold()
         for i in 0..<1000 {
-            try holdOneway.ice_ping()
+            try await holdOneway.ice_ping()
             if (i % 20) == 0 {
-                try hold.putOnHold(0)
+                try await hold.putOnHold(0)
             }
         }
-        try hold.putOnHold(-1)
-        try hold.ice_ping()
-        try hold.putOnHold(-1)
-        try hold.ice_ping()
+        try await hold.putOnHold(-1)
+        try await hold.ice_ping()
+        try await hold.putOnHold(-1)
+        try await hold.ice_ping()
     }
     output.writeLine("ok")
 
     output.write("changing state to hold and shutting down server... ")
-    try hold.shutdown()
+    try await hold.shutdown()
     output.writeLine("ok")
 }

@@ -545,60 +545,6 @@
     [os copy:p.first count:static_cast<long>(p.second - p.first)];
 }
 
-- (BOOL)invoke:(NSString* _Nonnull)op
-          mode:(std::uint8_t)mode
-      inParams:(NSData*)inParams
-       context:(NSDictionary* _Nullable)context
-      response:(void (^)(bool, void*, long))response
-         error:(NSError**)error
-{
-    std::pair<const std::byte*, const std::byte*> params(0, 0);
-    params.first = static_cast<const std::byte*>(inParams.bytes);
-    params.second = params.first + inParams.length;
-
-    try
-    {
-        Ice::Context ctx;
-        if (context)
-        {
-            fromNSDictionary(context, ctx);
-        }
-        std::vector<std::byte> outParams;
-
-        // We use a std::promise and invokeAsync to avoid making an extra copy of the outParam buffer.
-        std::promise<void> p;
-
-        _prx->ice_invokeAsync(
-            fromNSString(op),
-            static_cast<Ice::OperationMode>(mode),
-            params,
-            [response, &p](bool ok, std::pair<const std::byte*, const std::byte*> outParams)
-            {
-                // We need an autorelease pool as the unmarshaling (in the response) can
-                // create autorelease objects, typically when unmarshaling proxies
-                @autoreleasepool
-                {
-                    response(
-                        ok,
-                        const_cast<std::byte*>(outParams.first),
-                        static_cast<long>(outParams.second - outParams.first));
-                }
-                p.set_value();
-            },
-            [&p](std::exception_ptr e) { p.set_exception(e); },
-            nullptr,
-            context ? ctx : Ice::noExplicitContext);
-
-        p.get_future().get();
-        return YES;
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return NO;
-    }
-}
-
 - (BOOL)onewayInvoke:(NSString*)op
                 mode:(std::uint8_t)mode
             inParams:(NSData*)inParams
@@ -633,13 +579,13 @@
     }
 }
 
-- (void)invokeAsync:(NSString* _Nonnull)op
-               mode:(std::uint8_t)mode
-           inParams:(NSData*)inParams
-            context:(NSDictionary* _Nullable)context
-           response:(void (^)(bool, void*, long))response
-          exception:(void (^)(NSError*))exception
-               sent:(void (^_Nullable)(bool))sent
+- (void)invoke:(NSString* _Nonnull)op
+          mode:(std::uint8_t)mode
+      inParams:(NSData*)inParams
+       context:(NSDictionary* _Nullable)context
+      response:(void (^)(bool, void*, long))response
+     exception:(void (^)(NSError*))exception
+          sent:(void (^_Nullable)(bool))sent
 {
     std::pair<const std::byte*, const std::byte*> params(0, 0);
     params.first = static_cast<const std::byte*>(inParams.bytes);

@@ -18,8 +18,8 @@ class Client: TestHelperI {
 
             let certsDir = resourcePath.appending("/ice-test_IceSSL_configuration.bundle/certs")
 
-            let factory = try allTests(self, certsDir)
-            try factory.shutdown()
+            let factory = try await allTests(self, certsDir)
+            try await factory.shutdown()
         }
     }
 }

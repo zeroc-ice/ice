@@ -1128,10 +1128,11 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "/// - throws: `Ice.LocalException` if a communication error occurs.";
     out << nl << "public func checkedCast" << spar << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil")
-        << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil") << epar << " throws -> " << prx
+        << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil") << epar << " async throws -> " << prx
         << "?";
     out << sb;
-    out << nl << "return try " << prxI << ".checkedCast(prx: prx, facet: facet, context: context) as " << prxI << "?";
+    out << nl << "return try await " << prxI << ".checkedCast(prx: prx, facet: facet, context: context) as " << prxI
+        << "?";
     out << eb;
 
     //
@@ -1218,7 +1219,6 @@ void
 Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
 {
     writeProxyOperation(out, op);
-    writeProxyAsyncOperation(out, op);
 }
 
 Gen::ValueVisitor::ValueVisitor(::IceInternal::Output& o) : out(o) {}
@@ -1518,7 +1518,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     const ExceptionList allExceptions = op->throws();
 
     out << sp;
-    writeOpDocSummary(out, op, true, true);
+    writeOpDocSummary(out, op, true);
     out << nl << "func " << opName;
     out << spar;
     for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)

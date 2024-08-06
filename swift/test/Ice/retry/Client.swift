@@ -34,7 +34,7 @@ class Client: TestHelperI {
                 helper: self,
                 communicator2: communicator2,
                 ref: "retry:\(getTestEndpoint(num: 0))")
-            try r.shutdown()
+            try await r.shutdown()
         }
     }
 }

@@ -9,6 +9,6 @@ class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        try allTests(self)
+        try await allTests(self)
     }
 }
