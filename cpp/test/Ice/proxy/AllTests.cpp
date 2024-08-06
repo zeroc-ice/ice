@@ -1221,6 +1221,43 @@ allTests(TestHelper* helper)
 
     cout << "ok" << endl;
 
+    cout << "testing proxy to string is not affected by locale settings... " << flush;
+    auto currentLocale = std::locale();
+    std::locale::global(std::locale("en_US.UTF-8"));
+
+    {
+        optional<ObjectPrx> p = communicator->stringToProxy("test -t -e 1.0:tcp -h localhost -p 10000 -t 20000");
+        pstr = communicator->proxyToString(p);
+        test(pstr == "test -t -e 1.0:tcp -h localhost -p 10000 -t 20000");
+
+        // Test with UDP endpoint
+        p = communicator->stringToProxy("test -t -e 1.0:udp -h localhost -p 10001 --ttl 10000");
+        pstr = communicator->proxyToString(p);
+        test(pstr == "test -t -e 1.0:udp -h localhost -p 10001 --ttl 10000");
+
+        // Test with WS endpoint
+        p = communicator->stringToProxy("test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
+        pstr = communicator->proxyToString(p);
+        cerr << pstr << endl;
+        test(pstr == "test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
+    }
+    std::locale::global(currentLocale);
+    cout << "ok" << endl;
+
+    cout << "testing proxy to property is not affected by locale settings... " << flush;
+    std::locale::global(std::locale("en_US.UTF-8"));
+    {
+        optional<ObjectPrx> p = communicator->stringToProxy("test -t -e 1.1:tcp -h localhost -p 10000 -t 20000");
+        p = p->ice_invocationTimeout(10000);
+        p = p->ice_locatorCacheTimeout(20000);
+        map<string, string> properties = communicator->proxyToProperty(p, "Test");
+        test(properties["Test"] == "test -t -e 1.1:tcp -h localhost -p 10000 -t 20000");
+        test(properties["Test.InvocationTimeout"] == "10000");
+        test(properties["Test.LocatorCacheTimeout"] == "20000");
+    }
+    std::locale::global(currentLocale);
+    cout << "ok" << endl;
+
     cout << "testing communicator shutdown/destroy... " << flush;
     {
         Ice::CommunicatorPtr c = Ice::initialize();
