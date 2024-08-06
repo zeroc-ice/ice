@@ -383,13 +383,11 @@ Slice::printVersionCheck(Output& out)
 void
 Slice::printDllExportStuff(Output& out, const string& dllExport)
 {
-    if (dllExport.size())
+    if (dllExport.size() && dllExport != "ICE_API")
     {
         out << sp;
         out << "\n#ifndef " << dllExport;
-        out << "\n#   if defined(ICE_STATIC_LIBS)";
-        out << "\n#       define " << dllExport << " /**/";
-        out << "\n#   elif defined(" << dllExport << "_EXPORTS)";
+        out << "\n#   if defined(" << dllExport << "_EXPORTS)";
         out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
         out << "\n#   else";
         out << "\n#       define " << dllExport << " ICE_DECLSPEC_IMPORT";

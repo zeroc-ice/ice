@@ -22,9 +22,7 @@
 
 // These IceStorm APIs are exported because they are used by IceGrid
 #ifndef ICESTORM_SERVICE_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICESTORM_SERVICE_API /**/
-#    elif defined(ICESTORM_SERVICE_API_EXPORTS)
+#    if defined(ICESTORM_SERVICE_API_EXPORTS)
 #        define ICESTORM_SERVICE_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICESTORM_SERVICE_API ICE_DECLSPEC_IMPORT

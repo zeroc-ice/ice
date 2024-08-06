@@ -21,9 +21,9 @@ IceInternal::RegisterPluginsInit::RegisterPluginsInit()
     Ice::registerPluginFactory("IceSSL", createIceSSL, true);
 
     //
-    // Only include the UDP and WS transport plugins with non-static builds.
+    // Include the UDP and WS transport plugins with non-static builds.
     //
-#if !defined(ICE_STATIC_LIBS)
+#if defined(ICE_API_EXPORTS)
     Ice::registerPluginFactory("IceUDP", createIceUDP, true);
     Ice::registerPluginFactory("IceWS", createIceWS, true);
 #endif

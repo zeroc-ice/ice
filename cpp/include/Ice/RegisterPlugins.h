@@ -17,12 +17,6 @@
 
 namespace Ice
 {
-#if defined(ICE_STATIC_LIBS)
-#    define ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT /**/
-#else
-#    define ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT ICE_DECLSPEC_IMPORT
-#endif
-
     //
     // Checking for the API_EXPORTS macro is necessary to prevent
     // inconsistent DLL linkage errors on Windows.
@@ -36,7 +30,7 @@ namespace Ice
      * If false, the plug-in is only loaded during communicator initialization if its corresponding
      * plug-in property is set to 1.
      */
-    ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceUDP(bool loadOnInitialize = true);
+    ICE_DECLSPEC_IMPORT void registerIceUDP(bool loadOnInitialize = true);
 
     /**
      * When using static libraries, calling this function ensures the WebSocket transport is
@@ -45,7 +39,7 @@ namespace Ice
      * If false, the plug-in is only loaded during communicator initialization if its corresponding
      * plug-in property is set to 1.
      */
-    ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceWS(bool loadOnInitialize = true);
+    ICE_DECLSPEC_IMPORT void registerIceWS(bool loadOnInitialize = true);
 #endif
 
 #ifndef ICE_DISCOVERY_API_EXPORTS
@@ -56,7 +50,7 @@ namespace Ice
      * If false, the plug-in is only loaded during communicator initialization if its corresponding
      * plug-in property is set to 1.
      */
-    ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceDiscovery(bool loadOnInitialize = true);
+    ICE_DECLSPEC_IMPORT void registerIceDiscovery(bool loadOnInitialize = true);
 #endif
 
 #ifndef ICE_LOCATOR_DISCOVERY_API_EXPORTS
@@ -67,7 +61,7 @@ namespace Ice
      * If false, the plug-in is only loaded during communicator initialization if its corresponding
      * plug-in property is set to 1.
      */
-    ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceLocatorDiscovery(bool loadOnInitialize = true);
+    ICE_DECLSPEC_IMPORT void registerIceLocatorDiscovery(bool loadOnInitialize = true);
 #endif
 
 #if !defined(_WIN32) && !defined(__APPLE__)
@@ -79,7 +73,7 @@ namespace Ice
      * If false, the plug-in is only loaded during communicator initialization if its corresponding
      * plug-in property is set to 1.
      */
-    ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceBT(bool loadOnInitialize = true);
+    ICE_DECLSPEC_IMPORT void registerIceBT(bool loadOnInitialize = true);
 #    endif
 #endif
 
@@ -92,7 +86,7 @@ namespace Ice
      * If false, the plug-in is only loaded during communicator initialization if its corresponding
      * plug-in property is set to 1.
      */
-    ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceIAP(bool loadOnInitialize = true);
+    ICE_DECLSPEC_IMPORT void registerIceIAP(bool loadOnInitialize = true);
 #    endif
 #endif
 

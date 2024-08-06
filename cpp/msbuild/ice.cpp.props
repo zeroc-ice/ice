@@ -97,15 +97,6 @@
   </ItemDefinitionGroup>
 
   <!--
-      Common properties for all static libraries.
-  -->
-  <ItemDefinitionGroup Condition="'$(ConfigurationType)'=='StaticLibrary'">
-    <ClCompile>
-      <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
-  <!--
       Common properties for all release builds and platforms.
   -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">

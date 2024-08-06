@@ -18,6 +18,7 @@
 #    define __STDC_LIMIT_MACROS
 #endif
 
+#include "Ice/Config.h"
 #include "Ice/Exception.h"
 #include "Ice/StringUtil.h"
 #include "StackTrace.h"
@@ -46,7 +47,7 @@
 #        endif
 #    endif
 
-#    if !defined(__FreeBSD__) && !defined(ICE_STATIC_LIBS)
+#    if !defined(__FreeBSD__) && defined(ICE_API_EXPORTS)
 #        include <cxxabi.h>
 #        include <execinfo.h>
 #        include <stdint.h>

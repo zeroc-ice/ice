@@ -9,9 +9,7 @@
 #include "Ice/LocalExceptions.h"
 
 #ifndef ICEBT_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEBT_API /**/
-#    elif defined(ICEBT_API_EXPORTS)
+#    if defined(ICEBT_API_EXPORTS)
 #        define ICEBT_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICEBT_API ICE_DECLSPEC_IMPORT
