@@ -2129,7 +2129,8 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         }
         else
         {
-            op = PyObjectHandle{PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&out[0]), static_cast<Py_ssize_t>(out.size()))};
+            op = PyObjectHandle{
+                PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&out[0]), static_cast<Py_ssize_t>(out.size()))};
         }
         if (!op.get())
         {
@@ -2531,7 +2532,8 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*
     }
     else
     {
-        ip = PyObjectHandle{PyBytes_FromStringAndSize(reinterpret_cast<const char*>(inBytes.first), inBytes.second - inBytes.first)};
+        ip = PyObjectHandle{
+            PyBytes_FromStringAndSize(reinterpret_cast<const char*>(inBytes.first), inBytes.second - inBytes.first)};
     }
 
     PyTuple_SET_ITEM(args.get(), start, ip.release()); // PyTuple_SET_ITEM steals a reference.

@@ -2162,7 +2162,8 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             int sz = static_cast<int>(p.second - p.first);
             if (sm->factory)
             {
-                result = PyObjectHandle{createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz, BuiltinTypeByte)};
+                result = PyObjectHandle{
+                    createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz, BuiltinTypeByte)};
             }
             else if (sm->type == SequenceMapping::SEQ_DEFAULT)
             {
