@@ -137,13 +137,13 @@ wsConnectionInfoGetHeaders(ConnectionInfoObject* self, PyObject* /*args*/)
     auto info = dynamic_pointer_cast<Ice::WSConnectionInfo>(*self->connectionInfo);
     assert(info);
 
-    PyObjectHandle result = PyDict_New();
+    PyObjectHandle result{PyDict_New()};
     if (result.get())
     {
         for (Ice::HeaderDict::iterator p = info->headers.begin(); p != info->headers.end(); ++p)
         {
-            PyObjectHandle key = createString(p->first);
-            PyObjectHandle val = createString(p->second);
+            PyObjectHandle key{createString(p->first)};
+            PyObjectHandle val{createString(p->second)};
             if (!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
             {
                 return nullptr;

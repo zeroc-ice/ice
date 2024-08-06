@@ -296,21 +296,21 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         assert(_sliceInfoType);
     }
 
-    IcePy::PyObjectHandle args = PyTuple_New(0);
+    IcePy::PyObjectHandle args{PyTuple_New(0)};
     if (!args.get())
     {
         assert(PyErr_Occurred());
         throw AbortMarshaling();
     }
 
-    PyObjectHandle sd = PyEval_CallObject(_slicedDataType, args.get());
+    PyObjectHandle sd{PyEval_CallObject(_slicedDataType, args.get())};
     if (!sd.get())
     {
         assert(PyErr_Occurred());
         throw AbortMarshaling();
     }
 
-    PyObjectHandle slices = PyTuple_New(static_cast<Py_ssize_t>(slicedData->slices.size()));
+    PyObjectHandle slices{PyTuple_New(static_cast<Py_ssize_t>(slicedData->slices.size()))};
     if (!slices.get())
     {
         assert(PyErr_Occurred());
@@ -329,7 +329,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
     int i = 0;
     for (vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
     {
-        PyObjectHandle slice = PyEval_CallObject(_sliceInfoType, args.get());
+        PyObjectHandle slice{PyEval_CallObject(_sliceInfoType, args.get())};
         if (!slice.get())
         {
             assert(PyErr_Occurred());
@@ -342,7 +342,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         //
         // typeId
         //
-        PyObjectHandle typeId = createString((*p)->typeId);
+        PyObjectHandle typeId{createString((*p)->typeId)};
         if (!typeId.get() || PyObject_SetAttrString(slice.get(), "typeId", typeId.get()) < 0)
         {
             assert(PyErr_Occurred());
@@ -352,7 +352,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         //
         // compactId
         //
-        PyObjectHandle compactId = PyLong_FromLong((*p)->compactId);
+        PyObjectHandle compactId{PyLong_FromLong((*p)->compactId)};
         if (!compactId.get() || PyObject_SetAttrString(slice.get(), "compactId", compactId.get()) < 0)
         {
             assert(PyErr_Occurred());
@@ -365,13 +365,13 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         PyObjectHandle bytes;
         if ((*p)->bytes.size() > 0)
         {
-            bytes = PyBytes_FromStringAndSize(
-                (*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
-                static_cast<Py_ssize_t>((*p)->bytes.size()));
+            bytes = PyObjectHandle{PyBytes_FromStringAndSize(
+                reinterpret_cast<const char*>(&(*p)->bytes[0]),
+                static_cast<Py_ssize_t>((*p)->bytes.size()))};
         }
         else
         {
-            bytes = PyBytes_FromStringAndSize(0, 0);
+            bytes = PyObjectHandle{PyBytes_FromStringAndSize(nullptr, 0)};
         }
         if (!bytes.get() || PyObject_SetAttrString(slice.get(), "bytes", bytes.get()) < 0)
         {
@@ -382,7 +382,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         //
         // instances
         //
-        PyObjectHandle instances = PyTuple_New(static_cast<Py_ssize_t>((*p)->instances.size()));
+        PyObjectHandle instances{PyTuple_New(static_cast<Py_ssize_t>((*p)->instances.size()))};
         if (!instances.get() || PyObject_SetAttrString(slice.get(), "instances", instances.get()) < 0)
         {
             assert(PyErr_Occurred());
@@ -443,7 +443,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
 
     if (PyObject_HasAttrString(obj, "_ice_slicedData"))
     {
-        PyObjectHandle sd = getAttr(obj, "_ice_slicedData", false);
+        PyObjectHandle sd{getAttr(obj, "_ice_slicedData", false)};
         assert(sd.get());
 
         if (sd.get() != Py_None)
@@ -451,7 +451,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
             //
             // The "slices" member is a tuple of Ice.SliceInfo objects.
             //
-            PyObjectHandle sl = getAttr(sd.get(), "slices", false);
+            PyObjectHandle sl{getAttr(sd.get(), "slices", false)};
             assert(sl.get());
             assert(PyTuple_Check(sl.get()));
 
@@ -460,16 +460,16 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
             Py_ssize_t sz = PyTuple_GET_SIZE(sl.get());
             for (Py_ssize_t i = 0; i < sz; ++i)
             {
-                PyObjectHandle s = PyTuple_GET_ITEM(sl.get(), i);
+                PyObjectHandle s{PyTuple_GET_ITEM(sl.get(), i)};
                 Py_INCREF(s.get());
 
-                PyObjectHandle typeId = getAttr(s.get(), "typeId", false);
+                PyObjectHandle typeId{getAttr(s.get(), "typeId", false)};
                 assert(typeId.get());
 
-                PyObjectHandle compactId = getAttr(s.get(), "compactId", false);
+                PyObjectHandle compactId{getAttr(s.get(), "compactId", false)};
                 assert(compactId.get());
 
-                PyObjectHandle bytes = getAttr(s.get(), "bytes", false);
+                PyObjectHandle bytes{getAttr(s.get(), "bytes", false)};
                 assert(bytes.get());
                 char* str;
                 Py_ssize_t strsz;
@@ -477,10 +477,10 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 PyBytes_AsStringAndSize(bytes.get(), &str, &strsz);
                 vector<byte> vtmp(reinterpret_cast<byte*>(str), reinterpret_cast<byte*>(str + strsz));
 
-                PyObjectHandle hasOptionalMembers = getAttr(s.get(), "hasOptionalMembers", false);
+                PyObjectHandle hasOptionalMembers{getAttr(s.get(), "hasOptionalMembers", false)};
                 assert(hasOptionalMembers.get());
 
-                PyObjectHandle isLastSlice = getAttr(s.get(), "isLastSlice", false);
+                PyObjectHandle isLastSlice{getAttr(s.get(), "isLastSlice", false)};
                 assert(isLastSlice.get());
 
                 auto info = std::make_shared<Ice::SliceInfo>(
@@ -490,7 +490,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                     PyObject_IsTrue(hasOptionalMembers.get()) ? true : false,
                     PyObject_IsTrue(isLastSlice.get()) ? true : false);
 
-                PyObjectHandle instances = getAttr(s.get(), "instances", false);
+                PyObjectHandle instances{getAttr(s.get(), "instances", false)};
                 assert(instances.get());
                 assert(PyTuple_Check(instances.get()));
                 Py_ssize_t osz = PyTuple_GET_SIZE(instances.get());
@@ -862,7 +862,7 @@ IcePy::PrimitiveInfo::unmarshal(
         {
             uint8_t val;
             is->read(val);
-            PyObjectHandle p = PyLong_FromLong(val);
+            PyObjectHandle p{PyLong_FromLong(val)};
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -870,7 +870,7 @@ IcePy::PrimitiveInfo::unmarshal(
         {
             int16_t val;
             is->read(val);
-            PyObjectHandle p = PyLong_FromLong(val);
+            PyObjectHandle p{PyLong_FromLong(val)};
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -878,7 +878,7 @@ IcePy::PrimitiveInfo::unmarshal(
         {
             int32_t val;
             is->read(val);
-            PyObjectHandle p = PyLong_FromLong(val);
+            PyObjectHandle p{PyLong_FromLong(val)};
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -886,7 +886,7 @@ IcePy::PrimitiveInfo::unmarshal(
         {
             int64_t val;
             is->read(val);
-            PyObjectHandle p = PyLong_FromLongLong(val);
+            PyObjectHandle p{PyLong_FromLongLong(val)};
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -894,7 +894,7 @@ IcePy::PrimitiveInfo::unmarshal(
         {
             float val;
             is->read(val);
-            PyObjectHandle p = PyFloat_FromDouble(val);
+            PyObjectHandle p{PyFloat_FromDouble(val)};
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -902,7 +902,7 @@ IcePy::PrimitiveInfo::unmarshal(
         {
             double val;
             is->read(val);
-            PyObjectHandle p = PyFloat_FromDouble(val);
+            PyObjectHandle p{PyFloat_FromDouble(val)};
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -910,7 +910,7 @@ IcePy::PrimitiveInfo::unmarshal(
         {
             string val;
             is->read(val, false); // Bypass string conversion.
-            PyObjectHandle p = createString(val);
+            PyObjectHandle p{createString(val)};
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -925,7 +925,7 @@ IcePy::PrimitiveInfo::print(PyObject* value, IceInternal::Output& out, PrintObje
         out << "<invalid value - expected " << getId() << ">";
         return;
     }
-    PyObjectHandle p = PyObject_Str(value);
+    PyObjectHandle p{PyObject_Str(value)};
     if (!p.get())
     {
         return;
@@ -1019,7 +1019,7 @@ IcePy::EnumInfo::unmarshal(
 {
     int32_t val = is->readEnum(maxValue);
 
-    PyObjectHandle p = enumeratorForValue(val);
+    PyObjectHandle p{enumeratorForValue(val)};
     if (!p.get())
     {
         ostringstream ostr;
@@ -1039,7 +1039,7 @@ IcePy::EnumInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHis
         out << "<invalid value - expected " << id << ">";
         return;
     }
-    PyObjectHandle p = PyObject_Str(value);
+    PyObjectHandle p{PyObject_Str(value)};
     if (!p.get())
     {
         return;
@@ -1059,7 +1059,7 @@ IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
 {
     assert(PyObject_IsInstance(p, pythonType) == 1);
 
-    PyObjectHandle v = PyObject_GetAttrString(p, "_value");
+    PyObjectHandle v{PyObject_GetAttrString(p, "_value")};
     if (!v.get())
     {
         assert(PyErr_Occurred());
@@ -1257,7 +1257,7 @@ IcePy::StructInfo::marshal(
     {
         if (!_nullMarshalValue.get())
         {
-            PyObjectHandle args = PyTuple_New(0);
+            PyObjectHandle args{PyTuple_New(0)};
             PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType);
             _nullMarshalValue = type->tp_new(type, args.get(), 0);
             type->tp_init(_nullMarshalValue.get(), args.get(), 0); // Initialize the struct members
@@ -1282,7 +1282,7 @@ IcePy::StructInfo::marshal(
     {
         DataMemberPtr member = *q;
         char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = getAttr(p, member->name, true);
+        PyObjectHandle attr{getAttr(p, member->name, true)};
         if (!attr.get())
         {
             PyErr_Format(
@@ -1319,7 +1319,7 @@ IcePy::StructInfo::unmarshal(
     bool optional,
     const Ice::StringSeq*)
 {
-    PyObjectHandle p = instantiate(pythonType);
+    PyObjectHandle p{instantiate(pythonType)};
     if (!p.get())
     {
         assert(PyErr_Occurred());
@@ -1366,7 +1366,7 @@ IcePy::StructInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectH
         for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             DataMemberPtr member = *q;
-            PyObjectHandle attr = getAttr(value, member->name, true);
+            PyObjectHandle attr{getAttr(value, member->name, true)};
             out << nl << member->name << " = ";
             if (!attr.get())
             {
@@ -1391,7 +1391,7 @@ IcePy::StructInfo::destroy()
 PyObject*
 IcePy::StructInfo::instantiate(PyObject* pythonType)
 {
-    PyObjectHandle args = PyTuple_New(0);
+    PyObjectHandle args{PyTuple_New(0)};
     PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType);
     return type->tp_new(type, args.get(), 0);
 }
@@ -1492,11 +1492,11 @@ IcePy::SequenceInfo::marshal(
                     PyObjectHandle fs;
                     if (pi)
                     {
-                        fs = getSequence(pi, p);
+                        fs = PyObjectHandle{getSequence(pi, p)};
                     }
                     else
                     {
-                        fs = PySequence_Fast(p, "expected a sequence value");
+                        fs = PyObjectHandle{PySequence_Fast(p, "expected a sequence value")};
                     }
                     if (!fs.get())
                     {
@@ -1522,7 +1522,7 @@ IcePy::SequenceInfo::marshal(
     }
     else
     {
-        PyObjectHandle fastSeq = PySequence_Fast(p, "expected a sequence value");
+        PyObjectHandle fastSeq{PySequence_Fast(p, "expected a sequence value")};
         if (!fastSeq.get())
         {
             return;
@@ -1617,7 +1617,7 @@ IcePy::SequenceInfo::unmarshal(
     }
 
     int32_t sz = is->readSize();
-    PyObjectHandle result = sm->createContainer(sz);
+    PyObjectHandle result{sm->createContainer(sz)};
 
     if (!result.get())
     {
@@ -1649,7 +1649,7 @@ IcePy::SequenceInfo::print(PyObject* value, IceInternal::Output& out, PrintObjec
     }
     else
     {
-        PyObjectHandle fastSeq = PySequence_Fast(value, "expected a sequence value");
+        PyObjectHandle fastSeq{PySequence_Fast(value, "expected a sequence value")};
         if (!fastSeq.get())
         {
             return;
@@ -1690,12 +1690,12 @@ IcePy::SequenceInfo::getSequence(const PrimitiveInfoPtr& pi, PyObject* p)
         //
         if (!PyBytes_Check(p))
         {
-            fs = PySequence_Fast(p, "expected a bytes, sequence, or buffer value");
+            fs = PyObjectHandle{PySequence_Fast(p, "expected a bytes, sequence, or buffer value")};
         }
     }
     else
     {
-        fs = PySequence_Fast(p, "expected a sequence or buffer value");
+        fs = PyObjectHandle{PySequence_Fast(p, "expected a sequence or buffer value")};
     }
 
     return fs.release();
@@ -1824,7 +1824,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
         }
     }
 
-    PyObjectHandle fs = getSequence(pi, p);
+    PyObjectHandle fs{getSequence(pi, p)};
     if (!fs.get())
     {
         assert(PyErr_Occurred());
@@ -2081,7 +2081,7 @@ IcePy::SequenceInfo::createSequenceFromMemory(
     PyObjectHandle memoryView;
     if (size > 0)
     {
-        memoryView = PyMemoryView_FromMemory(const_cast<char*>(buffer), size, PyBUF_READ);
+        memoryView = PyObjectHandle{PyMemoryView_FromMemory(const_cast<char*>(buffer), size, PyBUF_READ)};
         if (!memoryView.get())
         {
             assert(PyErr_Occurred());
@@ -2089,7 +2089,7 @@ IcePy::SequenceInfo::createSequenceFromMemory(
         }
     }
 
-    PyObjectHandle builtinType = PyLong_FromLong(static_cast<int>(type));
+    PyObjectHandle builtinType{PyLong_FromLong(static_cast<int>(type))};
     if (!builtinType.get())
     {
         assert(PyErr_Occurred());
@@ -2098,10 +2098,10 @@ IcePy::SequenceInfo::createSequenceFromMemory(
 
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle args = PyTuple_New(2);
+    PyObjectHandle args{PyTuple_New(2)};
     PyTuple_SET_ITEM(args.get(), 0, memoryView.get() ? memoryView.release() : Py_None);
     PyTuple_SET_ITEM(args.get(), 1, builtinType.release());
-    PyObjectHandle result = PyObject_Call(sm->factory, args.get(), 0);
+    PyObjectHandle result{PyObject_Call(sm->factory, args.get(), 0)};
 
     if (!result.get())
     {
@@ -2137,11 +2137,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             if (sm->factory)
             {
                 const char* data = reinterpret_cast<const char*>(p.first);
-                result = createSequenceFromMemory(sm, data, sz, BuiltinTypeBool);
+                result = PyObjectHandle{createSequenceFromMemory(sm, data, sz, BuiltinTypeBool)};
             }
             else
             {
-                result = sm->createContainer(sz);
+                result = PyObjectHandle{sm->createContainer(sz)};
                 if (!result.get())
                 {
                     assert(PyErr_Occurred());
@@ -2162,11 +2162,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             int sz = static_cast<int>(p.second - p.first);
             if (sm->factory)
             {
-                result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz, BuiltinTypeByte);
+                result = PyObjectHandle{createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz, BuiltinTypeByte)};
             }
             else if (sm->type == SequenceMapping::SEQ_DEFAULT)
             {
-                result = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(p.first), sz);
+                result = PyObjectHandle{PyBytes_FromStringAndSize(reinterpret_cast<const char*>(p.first), sz)};
                 if (!result.get())
                 {
                     assert(PyErr_Occurred());
@@ -2175,7 +2175,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             }
             else
             {
-                result = sm->createContainer(sz);
+                result = PyObjectHandle{sm->createContainer(sz)};
                 if (!result.get())
                 {
                     assert(PyErr_Occurred());
@@ -2184,7 +2184,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
 
                 for (int i = 0; i < sz; ++i)
                 {
-                    PyObjectHandle item = PyLong_FromLong(p.first[i]);
+                    PyObjectHandle item{PyLong_FromLong(p.first[i])};
                     if (!item.get())
                     {
                         assert(PyErr_Occurred());
@@ -2203,11 +2203,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             if (sm->factory)
             {
                 const char* data = reinterpret_cast<const char*>(p.first);
-                result = createSequenceFromMemory(sm, data, sz * 2, BuiltinTypeShort);
+                result = PyObjectHandle{createSequenceFromMemory(sm, data, sz * 2, BuiltinTypeShort)};
             }
             else
             {
-                result = sm->createContainer(sz);
+                result = PyObjectHandle{sm->createContainer(sz)};
                 if (!result.get())
                 {
                     assert(PyErr_Occurred());
@@ -2216,7 +2216,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
 
                 for (int i = 0; i < sz; ++i)
                 {
-                    PyObjectHandle item = PyLong_FromLong(p.first[i]);
+                    PyObjectHandle item{PyLong_FromLong(p.first[i])};
                     if (!item.get())
                     {
                         assert(PyErr_Occurred());
@@ -2235,11 +2235,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             if (sm->factory)
             {
                 const char* data = reinterpret_cast<const char*>(p.first);
-                result = createSequenceFromMemory(sm, data, sz * 4, BuiltinTypeInt);
+                result = PyObjectHandle{createSequenceFromMemory(sm, data, sz * 4, BuiltinTypeInt)};
             }
             else
             {
-                result = sm->createContainer(sz);
+                result = PyObjectHandle{sm->createContainer(sz)};
                 if (!result.get())
                 {
                     assert(PyErr_Occurred());
@@ -2247,7 +2247,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
                 }
                 for (int i = 0; i < sz; ++i)
                 {
-                    PyObjectHandle item = PyLong_FromLong(p.first[i]);
+                    PyObjectHandle item{PyLong_FromLong(p.first[i])};
                     if (!item.get())
                     {
                         assert(PyErr_Occurred());
@@ -2266,11 +2266,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             if (sm->factory)
             {
                 const char* data = reinterpret_cast<const char*>(p.first);
-                result = createSequenceFromMemory(sm, data, sz * 8, BuiltinTypeLong);
+                result = PyObjectHandle{createSequenceFromMemory(sm, data, sz * 8, BuiltinTypeLong)};
             }
             else
             {
-                result = sm->createContainer(sz);
+                result = PyObjectHandle{sm->createContainer(sz)};
                 if (!result.get())
                 {
                     assert(PyErr_Occurred());
@@ -2279,7 +2279,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
 
                 for (int i = 0; i < sz; ++i)
                 {
-                    PyObjectHandle item = PyLong_FromLongLong(p.first[i]);
+                    PyObjectHandle item{PyLong_FromLongLong(p.first[i])};
                     if (!item.get())
                     {
                         assert(PyErr_Occurred());
@@ -2298,11 +2298,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             if (sm->factory)
             {
                 const char* data = reinterpret_cast<const char*>(p.first);
-                result = createSequenceFromMemory(sm, data, sz * 4, BuiltinTypeFloat);
+                result = PyObjectHandle{createSequenceFromMemory(sm, data, sz * 4, BuiltinTypeFloat)};
             }
             else
             {
-                result = sm->createContainer(sz);
+                result = PyObjectHandle{sm->createContainer(sz)};
                 if (!result.get())
                 {
                     assert(PyErr_Occurred());
@@ -2311,7 +2311,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
 
                 for (int i = 0; i < sz; ++i)
                 {
-                    PyObjectHandle item = PyFloat_FromDouble(p.first[i]);
+                    PyObjectHandle item{PyFloat_FromDouble(p.first[i])};
                     if (!item.get())
                     {
                         assert(PyErr_Occurred());
@@ -2330,11 +2330,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             if (sm->factory)
             {
                 const char* data = reinterpret_cast<const char*>(p.first);
-                result = createSequenceFromMemory(sm, data, sz * 8, BuiltinTypeDouble);
+                result = PyObjectHandle{createSequenceFromMemory(sm, data, sz * 8, BuiltinTypeDouble)};
             }
             else
             {
-                result = sm->createContainer(sz);
+                result = PyObjectHandle{sm->createContainer(sz)};
                 if (!result.get())
                 {
                     assert(PyErr_Occurred());
@@ -2343,7 +2343,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
 
                 for (int i = 0; i < sz; ++i)
                 {
-                    PyObjectHandle item = PyFloat_FromDouble(p.first[i]);
+                    PyObjectHandle item{PyFloat_FromDouble(p.first[i])};
                     if (!item.get())
                     {
                         assert(PyErr_Occurred());
@@ -2359,7 +2359,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
             Ice::StringSeq seq;
             is->read(seq, false); // Bypass string conversion.
             int sz = static_cast<int>(seq.size());
-            result = sm->createContainer(sz);
+            result = PyObjectHandle{sm->createContainer(sz)};
             if (!result.get())
             {
                 assert(PyErr_Occurred());
@@ -2368,7 +2368,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
 
             for (int i = 0; i < sz; ++i)
             {
-                PyObjectHandle item = createString(seq[static_cast<size_t>(i)]);
+                PyObjectHandle item{createString(seq[static_cast<size_t>(i)])};
                 if (!item.get())
                 {
                     assert(PyErr_Occurred());
@@ -2665,7 +2665,7 @@ IcePy::DictionaryInfo::unmarshal(
         }
     }
 
-    PyObjectHandle p = PyDict_New();
+    PyObjectHandle p{PyDict_New()};
     if (!p.get())
     {
         assert(PyErr_Occurred());
@@ -2889,7 +2889,7 @@ IcePy::ClassInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHi
         }
         else
         {
-            PyObjectHandle iceType = getAttr(value, "_ice_type", false);
+            PyObjectHandle iceType{getAttr(value, "_ice_type", false)};
             ClassInfoPtr info;
             assert(iceType.get());
             info = dynamic_pointer_cast<ClassInfo>(getType(iceType.get()));
@@ -3083,7 +3083,7 @@ IcePy::ValueInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHi
         }
         else
         {
-            PyObjectHandle iceType = getAttr(value, "_ice_type", false);
+            PyObjectHandle iceType{getAttr(value, "_ice_type", false)};
             ValueInfoPtr info;
             if (!iceType.get())
             {
@@ -3129,7 +3129,7 @@ IcePy::ValueInfo::printMembers(PyObject* value, IceInternal::Output& out, PrintO
     for (q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
-        PyObjectHandle attr = getAttr(value, member->name, true);
+        PyObjectHandle attr{getAttr(value, member->name, true)};
         out << nl << member->name << " = ";
         if (!attr.get())
         {
@@ -3144,7 +3144,7 @@ IcePy::ValueInfo::printMembers(PyObject* value, IceInternal::Output& out, PrintO
     for (q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         DataMemberPtr member = *q;
-        PyObjectHandle attr = getAttr(value, member->name, true);
+        PyObjectHandle attr{getAttr(value, member->name, true)};
         out << nl << member->name << " = ";
         if (!attr.get())
         {
@@ -3267,7 +3267,7 @@ IcePy::ProxyInfo::unmarshal(
         throw AbortMarshaling();
     }
 
-    PyObjectHandle p = createProxy(proxy.value(), proxy->ice_getCommunicator(), pythonType);
+    PyObjectHandle p{createProxy(proxy.value(), proxy->ice_getCommunicator(), pythonType)};
     cb->unmarshaled(p.get(), target, closure);
 }
 
@@ -3286,7 +3286,7 @@ IcePy::ProxyInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHi
     }
     else
     {
-        PyObjectHandle p = PyObject_Str(value);
+        PyObjectHandle p{PyObject_Str(value)};
         if (!p.get())
         {
             return;
@@ -3307,7 +3307,7 @@ IcePy::ValueWriter::ValueWriter(PyObject* object, ObjectMap* objectMap, const Va
     Py_INCREF(object);
     if (!_formal || !_formal->interface)
     {
-        PyObjectHandle iceType = getAttr(object, "_ice_type", false);
+        PyObjectHandle iceType{getAttr(object, "_ice_type", false)};
         if (!iceType.get())
         {
             assert(PyErr_Occurred());
@@ -3323,7 +3323,7 @@ IcePy::ValueWriter::ice_preMarshal()
 {
     if (PyObject_HasAttrString(_object.get(), "ice_preMarshal") == 1)
     {
-        PyObjectHandle tmp = PyObject_CallMethod(_object.get(), "ice_preMarshal", 0);
+        PyObjectHandle tmp{PyObject_CallMethod(_object.get(), "ice_preMarshal", 0)};
         if (!tmp.get())
         {
             assert(PyErr_Occurred());
@@ -3344,7 +3344,7 @@ IcePy::ValueWriter::_iceWrite(Ice::OutputStream* os) const
 
     if (_formal && _formal->interface)
     {
-        PyObjectHandle ret = PyObject_CallMethod(_object.get(), "ice_id", 0);
+        PyObjectHandle ret{PyObject_CallMethod(_object.get(), "ice_id", 0)};
         if (!ret.get())
         {
             assert(PyErr_Occurred());
@@ -3391,7 +3391,7 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
 
         char* memberName = const_cast<char*>(member->name.c_str());
 
-        PyObjectHandle val = getAttr(_object.get(), member->name, true);
+        PyObjectHandle val{getAttr(_object.get(), member->name, true)};
         if (!val.get())
         {
             if (member->optional)
@@ -3443,7 +3443,7 @@ IcePy::ValueReader::ice_postUnmarshal()
 {
     if (PyObject_HasAttrString(_object.get(), "ice_postUnmarshal") == 1)
     {
-        PyObjectHandle tmp = PyObject_CallMethod(_object.get(), "ice_postUnmarshal", 0);
+        PyObjectHandle tmp{PyObject_CallMethod(_object.get(), "ice_postUnmarshal", 0)};
         if (!tmp.get())
         {
             assert(PyErr_Occurred());
@@ -3521,7 +3521,7 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
         {
             assert(!_slicedData->slices.empty());
 
-            PyObjectHandle typeId = createString(_slicedData->slices[0]->typeId);
+            PyObjectHandle typeId{createString(_slicedData->slices[0]->typeId)};
             if (!typeId.get() || PyObject_SetAttrString(_object.get(), "unknownTypeId", typeId.get()) < 0)
             {
                 assert(PyErr_Occurred());
@@ -3639,7 +3639,7 @@ IcePy::ExceptionInfo::writeMembers(
 
         char* memberName = const_cast<char*>(member->name.c_str());
 
-        PyObjectHandle val = getAttr(p, member->name, true);
+        PyObjectHandle val{getAttr(p, member->name, true)};
         if (!val.get())
         {
             if (member->optional)
@@ -3681,7 +3681,7 @@ IcePy::ExceptionInfo::writeMembers(
 PyObject*
 IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
 {
-    PyObjectHandle p = createExceptionInstance(pythonType);
+    PyObjectHandle p{createExceptionInstance(pythonType)};
     if (!p.get())
     {
         assert(PyErr_Occurred());
@@ -3757,7 +3757,7 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceInternal::Output& out, Pr
     for (q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
-        PyObjectHandle attr = getAttr(value, member->name, true);
+        PyObjectHandle attr{getAttr(value, member->name, true)};
         out << nl << member->name << " = ";
         if (!attr.get() || attr.get() == Py_None)
         {
@@ -3772,7 +3772,7 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceInternal::Output& out, Pr
     for (q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         DataMemberPtr member = *q;
-        PyObjectHandle attr = getAttr(value, member->name, true);
+        PyObjectHandle attr{getAttr(value, member->name, true)};
         out << nl << member->name << " = ";
         if (!attr.get())
         {
@@ -3798,7 +3798,7 @@ IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const Exceptio
 {
     if (!info)
     {
-        PyObjectHandle iceType = getAttr(ex.get(), "_ice_type", false);
+        PyObjectHandle iceType{getAttr(ex.get(), "_ice_type", false)};
         assert(iceType.get());
         _info = dynamic_pointer_cast<ExceptionInfo>(getException(iceType.get()));
         assert(_info);
@@ -4082,7 +4082,7 @@ IcePy::initTypes(PyObject* module)
     }
 
     PrimitiveInfoPtr boolType = make_shared<PrimitiveInfo>(PrimitiveInfo::KindBool);
-    PyObjectHandle boolTypeObj = createType(boolType);
+    PyObjectHandle boolTypeObj{createType(boolType)};
     if (PyModule_AddObject(module, "_t_bool", boolTypeObj.get()) < 0)
     {
         return false;
@@ -4090,7 +4090,7 @@ IcePy::initTypes(PyObject* module)
     boolTypeObj.release(); // PyModule_AddObject steals a reference.
 
     PrimitiveInfoPtr byteType = make_shared<PrimitiveInfo>(PrimitiveInfo::KindByte);
-    PyObjectHandle byteTypeObj = createType(byteType);
+    PyObjectHandle byteTypeObj{createType(byteType)};
     if (PyModule_AddObject(module, "_t_byte", byteTypeObj.get()) < 0)
     {
         return false;
@@ -4098,7 +4098,7 @@ IcePy::initTypes(PyObject* module)
     byteTypeObj.release(); // PyModule_AddObject steals a reference.
 
     PrimitiveInfoPtr shortType = make_shared<PrimitiveInfo>(PrimitiveInfo::KindShort);
-    PyObjectHandle shortTypeObj = createType(shortType);
+    PyObjectHandle shortTypeObj{createType(shortType)};
     if (PyModule_AddObject(module, "_t_short", shortTypeObj.get()) < 0)
     {
         return false;
@@ -4106,7 +4106,7 @@ IcePy::initTypes(PyObject* module)
     shortTypeObj.release(); // PyModule_AddObject steals a reference.
 
     PrimitiveInfoPtr intType = make_shared<PrimitiveInfo>(PrimitiveInfo::KindInt);
-    PyObjectHandle intTypeObj = createType(intType);
+    PyObjectHandle intTypeObj{createType(intType)};
     if (PyModule_AddObject(module, "_t_int", intTypeObj.get()) < 0)
     {
         return false;
@@ -4114,7 +4114,7 @@ IcePy::initTypes(PyObject* module)
     intTypeObj.release(); // PyModule_AddObject steals a reference.
 
     PrimitiveInfoPtr longType = make_shared<PrimitiveInfo>(PrimitiveInfo::KindLong);
-    PyObjectHandle longTypeObj = createType(longType);
+    PyObjectHandle longTypeObj{createType(longType)};
     if (PyModule_AddObject(module, "_t_long", longTypeObj.get()) < 0)
     {
         return false;
@@ -4122,7 +4122,7 @@ IcePy::initTypes(PyObject* module)
     longTypeObj.release(); // PyModule_AddObject steals a reference.
 
     PrimitiveInfoPtr floatType = make_shared<PrimitiveInfo>(PrimitiveInfo::KindFloat);
-    PyObjectHandle floatTypeObj = createType(floatType);
+    PyObjectHandle floatTypeObj{createType(floatType)};
     if (PyModule_AddObject(module, "_t_float", floatTypeObj.get()) < 0)
     {
         return false;
@@ -4130,7 +4130,7 @@ IcePy::initTypes(PyObject* module)
     floatTypeObj.release(); // PyModule_AddObject steals a reference.
 
     PrimitiveInfoPtr doubleType = make_shared<PrimitiveInfo>(PrimitiveInfo::KindDouble);
-    PyObjectHandle doubleTypeObj = createType(doubleType);
+    PyObjectHandle doubleTypeObj{createType(doubleType)};
     if (PyModule_AddObject(module, "_t_double", doubleTypeObj.get()) < 0)
     {
         return false;
@@ -4138,7 +4138,7 @@ IcePy::initTypes(PyObject* module)
     doubleTypeObj.release(); // PyModule_AddObject steals a reference.
 
     PrimitiveInfoPtr stringType = make_shared<PrimitiveInfo>(PrimitiveInfo::KindString);
-    PyObjectHandle stringTypeObj = createType(stringType);
+    PyObjectHandle stringTypeObj{createType(stringType)};
     if (PyModule_AddObject(module, "_t_string", stringTypeObj.get()) < 0)
     {
         return false;
@@ -4545,7 +4545,7 @@ IcePy_stringifyException(PyObject*, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle iceType = getAttr(value, "_ice_type", false);
+    PyObjectHandle iceType{getAttr(value, "_ice_type", false)};
     assert(iceType.get());
     ExceptionInfoPtr info = getException(iceType.get());
     assert(info);

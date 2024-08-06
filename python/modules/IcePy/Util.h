@@ -54,7 +54,7 @@ namespace IcePy
     class PyObjectHandle
     {
     public:
-        PyObjectHandle(PyObject* = nullptr);
+        explicit PyObjectHandle(PyObject* = nullptr);
         PyObjectHandle(const PyObjectHandle&);
         ~PyObjectHandle();
 

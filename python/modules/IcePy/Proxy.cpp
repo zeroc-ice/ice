@@ -203,7 +203,7 @@ proxyIceIsA(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue("((O), O)", type, ctx);
+    PyObjectHandle newArgs{Py_BuildValue("((O), O)", type, ctx)};
 
     return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_isA", newArgs.get());
 }
@@ -221,7 +221,7 @@ proxyIceIsAAsync(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue("((O), O)", type, ctx);
+    PyObjectHandle newArgs{Py_BuildValue("((O), O)", type, ctx)};
 
     return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_isA", newArgs.get());
 }
@@ -238,7 +238,7 @@ proxyIcePing(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue("((), O)", ctx);
+    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
 
     return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_ping", newArgs.get());
 }
@@ -255,7 +255,7 @@ proxyIcePingAsync(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue("((), O)", ctx);
+    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
 
     return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_ping", newArgs.get());
 }
@@ -272,7 +272,7 @@ proxyIceIds(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue("((), O)", ctx);
+    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
 
     return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_ids", newArgs.get());
 }
@@ -289,7 +289,7 @@ proxyIceIdsAsync(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue("((), O)", ctx);
+    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
 
     return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_ids", newArgs.get());
 }
@@ -306,7 +306,7 @@ proxyIceId(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue("((), O)", ctx);
+    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
 
     return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_id", newArgs.get());
 }
@@ -323,7 +323,7 @@ proxyIceIdAsync(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue("((), O)", ctx);
+    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
 
     return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_id", newArgs.get());
 }
@@ -396,7 +396,7 @@ proxyIceGetContext(ProxyObject* self, PyObject* /*args*/)
         return nullptr;
     }
 
-    PyObjectHandle result = PyDict_New();
+    PyObjectHandle result{PyDict_New()};
     if (result.get() && contextToDictionary(ctx, result.get()))
     {
         return result.release();
@@ -552,11 +552,11 @@ proxyIceGetEndpoints(ProxyObject* self, PyObject* /*args*/)
     }
 
     int count = static_cast<int>(endpoints.size());
-    PyObjectHandle result = PyTuple_New(count);
+    PyObjectHandle result{PyTuple_New(count)};
     int i = 0;
     for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
     {
-        PyObjectHandle endp = createEndpoint(*p);
+        PyObjectHandle endp{createEndpoint(*p)};
         if (!endp.get())
         {
             return nullptr;
@@ -772,8 +772,8 @@ proxyIceGetEndpointSelection(ProxyObject* self, PyObject* /*args*/)
     PyObject* cls = lookupType("Ice.EndpointSelectionType");
     assert(cls);
 
-    PyObjectHandle rnd = getAttr(cls, "Random", false);
-    PyObjectHandle ord = getAttr(cls, "Ordered", false);
+    PyObjectHandle rnd{getAttr(cls, "Random", false)};
+    PyObjectHandle ord{getAttr(cls, "Ordered", false)};
     assert(rnd.get());
     assert(ord.get());
 
@@ -814,8 +814,8 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
     }
 
     Ice::EndpointSelectionType val;
-    PyObjectHandle rnd = getAttr(cls, "Random", false);
-    PyObjectHandle ord = getAttr(cls, "Ordered", false);
+    PyObjectHandle rnd{getAttr(cls, "Random", false)};
+    PyObjectHandle ord{getAttr(cls, "Ordered", false)};
     assert(rnd.get());
     assert(ord.get());
     if (rnd.get() == type)
@@ -1559,13 +1559,13 @@ proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kw
         return nullptr;
     }
 
-    PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(cancel, *self->communicator);
+    PyObjectHandle asyncInvocationContextObj{createAsyncInvocationContext(cancel, *self->communicator)};
     if (!asyncInvocationContextObj.get())
     {
         return nullptr;
     }
 
-    PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
+    PyObjectHandle future{createFuture(op, asyncInvocationContextObj.get())};
     if (!future.get())
     {
         return nullptr;
@@ -1640,13 +1640,13 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
         return nullptr;
     }
 
-    PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(std::move(cancel), *self->communicator);
+    PyObjectHandle asyncInvocationContextObj{createAsyncInvocationContext(std::move(cancel), *self->communicator)};
     if (!asyncInvocationContextObj.get())
     {
         return nullptr;
     }
 
-    PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
+    PyObjectHandle future{createFuture(op, asyncInvocationContextObj.get())};
     if (!future.get())
     {
         return nullptr;

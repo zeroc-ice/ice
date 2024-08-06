@@ -87,9 +87,9 @@ namespace IcePy
         {
             AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-            PyObjectHandle args = Py_BuildValue("(O)", _con);
+            PyObjectHandle args{Py_BuildValue("(O)", _con)};
             assert(_cb);
-            PyObjectHandle tmp = PyObject_Call(_cb, args.get(), 0);
+            PyObjectHandle tmp{PyObject_Call(_cb, args.get(), 0)};
             if (PyErr_Occurred())
             {
                 PyException ex; // Retrieve it before another Python API call clears it.
@@ -202,7 +202,7 @@ connectionClose(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle v = getAttr(mode, "_value", true);
+    PyObjectHandle v{getAttr(mode, "_value", true)};
     assert(v.get());
     Ice::ConnectionClose cc = static_cast<Ice::ConnectionClose>(PyLong_AsLong(v.get()));
 
@@ -323,7 +323,7 @@ connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle v = getAttr(compressBatch, "_value", true);
+    PyObjectHandle v{getAttr(compressBatch, "_value", true)};
     assert(v.get());
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -352,7 +352,7 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle v = getAttr(compressBatch, "_value", true);
+    PyObjectHandle v{getAttr(compressBatch, "_value", true)};
     assert(v.get());
     Ice::CompressBatch compress = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -375,13 +375,13 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(std::move(cancel), *self->communicator);
+    PyObjectHandle asyncInvocationContextObj{createAsyncInvocationContext(std::move(cancel), *self->communicator)};
     if (!asyncInvocationContextObj.get())
     {
         return nullptr;
     }
 
-    PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
+    PyObjectHandle future{createFuture(op, asyncInvocationContextObj.get())};
     if (!future.get())
     {
         return nullptr;

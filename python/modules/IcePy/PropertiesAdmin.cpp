@@ -52,13 +52,13 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                 {
                     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-                    PyObjectHandle result = PyDict_New();
+                    PyObjectHandle result{PyDict_New()};
                     if (result.get())
                     {
                         for (Ice::PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
                         {
-                            PyObjectHandle key = createString(p->first);
-                            PyObjectHandle val = createString(p->second);
+                            PyObjectHandle key{createString(p->first)};
+                            PyObjectHandle val{createString(p->second)};
                             if (!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
                             {
                                 return;
@@ -66,7 +66,7 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                         }
                     }
 
-                    PyObjectHandle obj = PyObject_CallMethod(callback, "updated", "O", result.get());
+                    PyObjectHandle obj{PyObject_CallMethod(callback, "updated", "O", result.get())};
                     if (!obj.get())
                     {
                         assert(PyErr_Occurred());

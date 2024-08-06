@@ -137,7 +137,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
     // return either the servant by itself, or the servant in a tuple
     // with an optional cookie object.
     //
-    PyObjectHandle res = PyObject_CallMethod(_locator, "locate", "O", c->current);
+    PyObjectHandle res{PyObject_CallMethod(_locator, "locate", "O", c->current)};
     if (PyErr_Occurred())
     {
         PyException ex; // Retrieve the exception before another Python API call clears it.
@@ -220,9 +220,8 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr
     assert(c);
 
     ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(c->servant);
-    PyObjectHandle servantObj = wrapper->getObject();
 
-    PyObjectHandle res = PyObject_CallMethod(_locator, "finished", "OOO", c->current, servantObj.get(), c->cookie);
+    PyObjectHandle res{PyObject_CallMethod(_locator, "finished", "OOO", c->current, wrapper->getObject(), c->cookie)};
     if (PyErr_Occurred())
     {
         PyException ex; // Retrieve the exception before another Python API call clears it.
@@ -250,7 +249,7 @@ IcePy::ServantLocatorWrapper::deactivate(const string& category)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle res = PyObject_CallMethod(_locator, "deactivate", "s", category.c_str());
+    PyObjectHandle res{PyObject_CallMethod(_locator, "deactivate", "s", category.c_str())};
     if (PyErr_Occurred())
     {
         PyException ex; // Retrieve the exception before another Python API call clears it.
@@ -897,7 +896,7 @@ adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle result = PyDict_New();
+    PyObjectHandle result{PyDict_New()};
     if (!result.get())
     {
         return nullptr;
@@ -907,8 +906,7 @@ adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
     {
         ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(p->second);
         assert(wrapper);
-        PyObjectHandle obj = wrapper->getObject();
-        if (PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
+        if (PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), wrapper->getObject()) < 0)
         {
             return nullptr;
         }
@@ -1065,7 +1063,7 @@ adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle result = PyDict_New();
+    PyObjectHandle result{PyDict_New()};
     if (!result.get())
     {
         return nullptr;
@@ -1075,8 +1073,7 @@ adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
     {
         ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(p->second);
         assert(wrapper);
-        PyObjectHandle obj = wrapper->getObject();
-        if (PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
+        if (PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), wrapper->getObject()) < 0)
         {
             return nullptr;
         }
@@ -1432,11 +1429,11 @@ adapterGetEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
     }
 
     int count = static_cast<int>(endpoints.size());
-    PyObjectHandle result = PyTuple_New(count);
+    PyObjectHandle result{PyTuple_New(count)};
     int i = 0;
     for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
     {
-        PyObjectHandle endp = createEndpoint(*p);
+        PyObjectHandle endp{createEndpoint(*p)};
         if (!endp.get())
         {
             return nullptr;
@@ -1482,11 +1479,11 @@ adapterGetPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
     }
 
     int count = static_cast<int>(endpoints.size());
-    PyObjectHandle result = PyTuple_New(count);
+    PyObjectHandle result{PyTuple_New(count)};
     int i = 0;
     for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
     {
-        PyObjectHandle endp = createEndpoint(*p);
+        PyObjectHandle endp{createEndpoint(*p)};
         if (!endp.get())
         {
             return nullptr;
@@ -1763,14 +1760,14 @@ IcePy::wrapObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
     //
     // Create an Ice.ObjectAdapter wrapper for IcePy.ObjectAdapter.
     //
-    PyObjectHandle adapterI = createObjectAdapter(adapter);
+    PyObjectHandle adapterI{createObjectAdapter(adapter)};
     if (!adapterI.get())
     {
         return nullptr;
     }
     PyObject* wrapperType = lookupType("Ice.ObjectAdapter");
     assert(wrapperType);
-    PyObjectHandle args = PyTuple_New(1);
+    PyObjectHandle args{PyTuple_New(1)};
     if (!args.get())
     {
         return nullptr;
@@ -1787,7 +1784,7 @@ IcePy::unwrapObjectAdapter(PyObject* obj)
 #endif
     assert(wrapperType);
     assert(PyObject_IsInstance(obj, wrapperType));
-    PyObjectHandle impl = getAttr(obj, "_impl", false);
+    PyObjectHandle impl{getAttr(obj, "_impl", false)};
     assert(impl.get());
     return getObjectAdapter(impl.get());
 }

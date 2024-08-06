@@ -66,7 +66,7 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
         assert(propType);
         if (PyObject_IsInstance(defaultsObj, propType))
         {
-            PyObjectHandle impl = getAttr(defaultsObj, "_impl", false);
+            PyObjectHandle impl{getAttr(defaultsObj, "_impl", false)};
             assert(impl.get());
             defaults = getProperties(impl.get());
         }
@@ -492,13 +492,13 @@ propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle result = PyDict_New();
+    PyObjectHandle result{PyDict_New()};
     if (result.get())
     {
         for (Ice::PropertyDict::iterator p = dict.begin(); p != dict.end(); ++p)
         {
-            PyObjectHandle key = createString(p->first);
-            PyObjectHandle val = createString(p->second);
+            PyObjectHandle key{createString(p->first)};
+            PyObjectHandle val{createString(p->second)};
             if (!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
             {
                 return nullptr;
