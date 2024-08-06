@@ -1092,18 +1092,8 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
     properties[prefix + ".EndpointSelection"] =
         _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
-    {
-        ostringstream s;
-        s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
-        s << _locatorCacheTimeout;
-        properties[prefix + ".LocatorCacheTimeout"] = s.str();
-    }
-    {
-        ostringstream s;
-        s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
-        s << getInvocationTimeout();
-        properties[prefix + ".InvocationTimeout"] = s.str();
-    }
+    properties[prefix + ".LocatorCacheTimeout"] = to_string(_locatorCacheTimeout);
+    properties[prefix + ".InvocationTimeout"] = to_string(getInvocationTimeout());
 
     if (_routerInfo)
     {

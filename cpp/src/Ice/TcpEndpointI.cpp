@@ -163,8 +163,6 @@ IceInternal::TcpEndpointI::options() const
     // format of proxyToString() before changing this and related code.
     //
     ostringstream s;
-    s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
-
     s << IPEndpointI::options();
 
     if (_timeout == -1)
@@ -173,7 +171,7 @@ IceInternal::TcpEndpointI::options() const
     }
     else
     {
-        s << " -t " << _timeout;
+        s << " -t " << to_string(_timeout);
     }
 
     if (_compress)
