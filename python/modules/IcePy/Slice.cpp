@@ -162,21 +162,21 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         //
         code += "\nIce.updateModules()\n";
 
-        PyObjectHandle src =
-            Py_CompileString(const_cast<char*>(code.c_str()), const_cast<char*>(file.c_str()), Py_file_input);
+        PyObjectHandle src{
+            Py_CompileString(const_cast<char*>(code.c_str()), const_cast<char*>(file.c_str()), Py_file_input)};
         if (!src.get())
         {
             return nullptr;
         }
 
-        PyObjectHandle globals = PyDict_New();
+        PyObjectHandle globals{PyDict_New()};
         if (!globals.get())
         {
             return nullptr;
         }
 
         PyDict_SetItemString(globals.get(), "__builtins__", PyEval_GetBuiltins());
-        PyObjectHandle val = PyEval_EvalCode(src.get(), globals.get(), 0);
+        PyObjectHandle val{PyEval_EvalCode(src.get(), globals.get(), 0)};
         if (!val.get())
         {
             return nullptr;

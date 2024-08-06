@@ -158,7 +158,7 @@ IcePy::CustomValueFactory::create(string_view id)
         return nullptr;
     }
 
-    PyObjectHandle obj = PyObject_CallFunction(_valueFactory, "s#", id.data(), static_cast<Py_ssize_t>(id.size()));
+    PyObjectHandle obj{PyObject_CallFunction(_valueFactory, "s#", id.data(), static_cast<Py_ssize_t>(id.size()))};
 
     if (!obj.get())
     {
@@ -201,8 +201,8 @@ IcePy::DefaultValueFactory::create(std::string_view id)
     // Instantiate the object.
     //
     PyTypeObject* type = reinterpret_cast<PyTypeObject*>(info->pythonType);
-    PyObjectHandle args = PyTuple_New(0);
-    PyObjectHandle obj = type->tp_new(type, args.get(), 0);
+    PyObjectHandle args{PyTuple_New(0)};
+    PyObjectHandle obj{type->tp_new(type, args.get(), 0)};
     if (!obj.get())
     {
         assert(PyErr_Occurred());

@@ -189,19 +189,19 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     {
         if (initData)
         {
-            PyObjectHandle properties = getAttr(initData, "properties", false);
-            PyObjectHandle logger = getAttr(initData, "logger", false);
-            PyObjectHandle threadStart = getAttr(initData, "threadStart", false);
-            PyObjectHandle threadStop = getAttr(initData, "threadStop", false);
-            PyObjectHandle batchRequestInterceptor = getAttr(initData, "batchRequestInterceptor", false);
-            PyObjectHandle dispatcher = getAttr(initData, "dispatcher", false);
+            PyObjectHandle properties{getAttr(initData, "properties", false)};
+            PyObjectHandle logger{getAttr(initData, "logger", false)};
+            PyObjectHandle threadStart{getAttr(initData, "threadStart", false)};
+            PyObjectHandle threadStop{getAttr(initData, "threadStop", false)};
+            PyObjectHandle batchRequestInterceptor{getAttr(initData, "batchRequestInterceptor", false)};
+            PyObjectHandle dispatcher{getAttr(initData, "dispatcher", false)};
 
             if (properties.get())
             {
                 //
                 // Get the properties implementation.
                 //
-                PyObjectHandle impl = getAttr(properties.get(), "_impl", false);
+                PyObjectHandle impl{getAttr(properties.get(), "_impl", false)};
                 assert(impl.get());
                 data.properties = getProperties(impl.get());
             }
@@ -315,7 +315,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
         for (i = 0; i < argc; ++i)
         {
-            PyObjectHandle str = Py_BuildValue("s", argv[i]);
+            PyObjectHandle str{Py_BuildValue("s", argv[i])};
             PyList_Append(argList, str.get());
         }
     }
@@ -647,13 +647,13 @@ communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle result = PyDict_New();
+    PyObjectHandle result{PyDict_New()};
     if (result.get())
     {
         for (Ice::PropertyDict::iterator p = dict.begin(); p != dict.end(); ++p)
         {
-            PyObjectHandle key = createString(p->first);
-            PyObjectHandle val = createString(p->second);
+            PyObjectHandle key{createString(p->first)};
+            PyObjectHandle val{createString(p->second)};
             if (!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
             {
                 return nullptr;
@@ -705,7 +705,7 @@ communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle v = getAttr(compressBatch, "_value", false);
+    PyObjectHandle v{getAttr(compressBatch, "_value", false)};
     assert(v.get());
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -734,7 +734,7 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
         return nullptr;
     }
 
-    PyObjectHandle v = getAttr(compressBatch, "_value", false);
+    PyObjectHandle v{getAttr(compressBatch, "_value", false)};
     assert(v.get());
     Ice::CompressBatch compress = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -757,13 +757,13 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
         return nullptr;
     }
 
-    PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(std::move(cancel), *self->communicator);
+    PyObjectHandle asyncInvocationContextObj{createAsyncInvocationContext(std::move(cancel), *self->communicator)};
     if (!asyncInvocationContextObj.get())
     {
         return nullptr;
     }
 
-    PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
+    PyObjectHandle future{createFuture(op, asyncInvocationContextObj.get())};
     if (!future.get())
     {
         return nullptr;
@@ -945,14 +945,14 @@ communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
         return nullptr;
     }
 
-    PyObjectHandle result = PyDict_New();
+    PyObjectHandle result{PyDict_New()};
     if (!result.get())
     {
         return nullptr;
     }
 
     PyTypeObject* objectType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Object"));
-    PyObjectHandle plainObject = objectType->tp_alloc(objectType, 0);
+    PyObjectHandle plainObject{objectType->tp_alloc(objectType, 0)};
 
     for (Ice::FacetMap::const_iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
@@ -1617,7 +1617,7 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
     Ice::ToStringMode toStringMode = Ice::ToStringMode::Unicode;
     if (mode != Py_None && PyObject_HasAttrString(mode, "value"))
     {
-        PyObjectHandle modeValue = getAttr(mode, "value", true);
+        PyObjectHandle modeValue{getAttr(mode, "value", true)};
         toStringMode = static_cast<Ice::ToStringMode>(PyLong_AsLong(modeValue.get()));
     }
 
