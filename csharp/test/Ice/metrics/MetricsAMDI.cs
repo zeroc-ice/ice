@@ -50,7 +50,7 @@ public sealed class MetricsI : MetricsDisp_
     override public Task
     opWithLocalExceptionAsync(Ice.Current current)
     {
-        throw new Ice.SyscallException();
+        throw new Ice.SyscallException(message: null);
     }
 
     override public Task
