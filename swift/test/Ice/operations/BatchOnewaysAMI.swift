@@ -12,7 +12,7 @@ func batchOnewaysAMI(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     let bs1 = ByteSeq(repeating: 0, count: 10 * 1024)
     let batch = p.ice_batchOneway()
 
-    try await batch.ice_flushBatchRequestsAsync()
+    try await batch.ice_flushBatchRequests()
 
     for _ in 0..<30 {
         async let _ = try batch.opByteSOnewayAsync(bs1)
@@ -24,23 +24,23 @@ func batchOnewaysAMI(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         usleep(100)
     }
 
-    let conn = try batch.ice_getConnection()
+    let conn = try await batch.ice_getConnection()
     if conn != nil {
         let batch1 = uncheckedCast(prx: p.ice_batchOneway(), type: MyClassPrx.self)
         let batch2 = uncheckedCast(prx: p.ice_batchOneway(), type: MyClassPrx.self)
 
         async let _ = try batch1.ice_pingAsync()
         async let _ = try batch2.ice_pingAsync()
-        try await batch1.ice_flushBatchRequestsAsync()
-        try batch1.ice_getConnection()!.close(Ice.ConnectionClose.GracefullyWithWait)
+        try await batch1.ice_flushBatchRequests()
+        try await batch1.ice_getConnection()!.close(Ice.ConnectionClose.GracefullyWithWait)
         async let _ = try batch1.ice_pingAsync()
         async let _ = try batch2.ice_pingAsync()
 
-        _ = try batch1.ice_getConnection()
-        _ = try batch2.ice_getConnection()
+        _ = try await batch1.ice_getConnection()
+        _ = try await batch2.ice_getConnection()
 
         async let _ = try batch1.ice_pingAsync()
-        try batch1.ice_getConnection()!.close(Ice.ConnectionClose.GracefullyWithWait)
+        try await batch1.ice_getConnection()!.close(Ice.ConnectionClose.GracefullyWithWait)
 
         async let _ = try batch1.ice_pingAsync()
         async let _ = try batch2.ice_pingAsync()
@@ -48,11 +48,11 @@ func batchOnewaysAMI(_ helper: TestHelper, _ p: MyClassPrx) async throws {
 
     let batch3 = batch.ice_identity(Ice.Identity(name: "invalid", category: ""))
     async let _ = try batch3.ice_pingAsync()
-    try await batch3.ice_flushBatchRequestsAsync()
+    try await batch3.ice_flushBatchRequests()
 
     // Make sure that a bogus batch request doesn't cause troubles to other ones.
     async let _ = try batch3.ice_pingAsync()
     async let _ = try batch.ice_pingAsync()
-    try await batch.ice_flushBatchRequestsAsync()
+    try await batch.ice_flushBatchRequests()
     async let _ = try batch.ice_pingAsync()
 }

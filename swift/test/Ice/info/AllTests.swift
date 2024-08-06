@@ -153,7 +153,7 @@ func allTests(_ helper: TestHelper) async throws {
 
     output.write("test connection endpoint information... ")
     do {
-        var info = try base.ice_getConnection()!.getEndpoint().getInfo()!
+        var info = try await base.ice_getConnection()!.getEndpoint().getInfo()!
         let tcpinfo = getTCPEndpointInfo(info)!
         try test(tcpinfo.port == endpointPort)
         try test(!tcpinfo.compress)
@@ -165,7 +165,7 @@ func allTests(_ helper: TestHelper) async throws {
         let port = Int(ctx["port"]!)!
         try test(port > 0)
 
-        info = try base.ice_datagram().ice_getConnection()!.getEndpoint().getInfo()!
+        info = try await base.ice_datagram().ice_getConnection()!.getEndpoint().getInfo()!
         let udp = (info as? Ice.UDPEndpointInfo)!
         try test(udp.port == endpointPort)
         try test(udp.host == defaultHost)
@@ -174,7 +174,7 @@ func allTests(_ helper: TestHelper) async throws {
 
     output.write("testing connection information... ")
     do {
-        var connection = try base.ice_getConnection()!
+        var connection = try await base.ice_getConnection()!
         try connection.setBufferSize(rcvSize: 1024, sndSize: 2048)
 
         let info = try connection.getInfo()
@@ -199,7 +199,7 @@ func allTests(_ helper: TestHelper) async throws {
         try test(ctx["remotePort"] == "\(ipInfo.localPort)")
         try test(ctx["localPort"] == "\(ipInfo.remotePort)")
 
-        if try base.ice_getConnection()!.type() == "ws" || base.ice_getConnection()!.type() == "wss" {
+        if try await ["ws", "wss"].contains(base.ice_getConnection()!.type()) {
             let headers = (info as? Ice.WSConnectionInfo)!.headers
 
             try test(headers["Upgrade"] == "websocket")
@@ -214,7 +214,7 @@ func allTests(_ helper: TestHelper) async throws {
             try test(ctx["ws.Sec-WebSocket-Key"] != nil)
         }
 
-        connection = try base.ice_datagram().ice_getConnection()!
+        connection = try await base.ice_datagram().ice_getConnection()!
         try connection.setBufferSize(rcvSize: 2048, sndSize: 1024)
 
         let udpInfo = try (connection.getInfo() as? Ice.UDPConnectionInfo)!

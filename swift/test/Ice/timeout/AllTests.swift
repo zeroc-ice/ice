@@ -4,16 +4,16 @@ import Foundation
 import Ice
 import TestCommon
 
-func connect(_ prx: Ice.ObjectPrx) throws -> Ice.Connection {
+func connect(_ prx: Ice.ObjectPrx) async throws -> Ice.Connection {
     for _ in 0..<10 {
         do {
-            _ = try prx.ice_getConnection()
+            _ = try await prx.ice_getConnection()
             break
         } catch is Ice.ConnectTimeoutException {
             // Can sporadically occur with slow machines
         }
     }
-    return try prx.ice_getConnection()!
+    return try await prx.ice_getConnection()!
 }
 
 public func allTests(helper: TestHelper) async throws {
@@ -76,22 +76,22 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
 
     output.write("testing invocation timeout... ")
     do {
-        let connection = try obj.ice_getConnection()
+        let connection = try await obj.ice_getConnection()
         var to = timeout.ice_invocationTimeout(100)
-        try test(connection === to.ice_getConnection())
+        try await test(connection === to.ice_getConnection())
         do {
             try to.sleep(1000)
             try test(false)
         } catch is Ice.InvocationTimeoutException {}
         try obj.ice_ping()
         to = timeout.ice_invocationTimeout(1000)
-        try test(connection === to.ice_getConnection())
+        try await test(connection === to.ice_getConnection())
         do {
             try to.sleep(100)
         } catch is Ice.InvocationTimeoutException {
             try test(false)
         }
-        try test(connection === to.ice_getConnection())
+        try await test(connection === to.ice_getConnection())
     }
 
     do {
@@ -122,7 +122,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
     output.write("testing close timeout... ")
     do {
         let to = timeout
-        let connection = try connect(to)
+        let connection = try await connect(to)
         try controller.holdAdapter(-1)
         try connection.close(.GracefullyWithWait)
         do {

@@ -98,14 +98,15 @@ func allTests(_ helper: TestHelper) async throws {
     }
     output.writeLine("ok")
 
-    if try obj.ice_getConnection() != nil {
+    if try await obj.ice_getConnection() != nil {
         output.write("testing object adapter with bi-dir connection... ")
         let adapter = try communicator.createObjectAdapter("")
-        try obj.ice_getConnection()!.setAdapter(adapter)
-        try obj.ice_getConnection()!.setAdapter(nil)
+        let connection = try await obj.ice_getConnection()!
+        try connection.setAdapter(adapter)
+        try connection.setAdapter(nil)
         adapter.deactivate()
         do {
-            try obj.ice_getConnection()!.setAdapter(adapter)
+            try connection.setAdapter(adapter)
             try test(false)
         } catch is Ice.ObjectAdapterDeactivatedException {}
         output.writeLine("ok")

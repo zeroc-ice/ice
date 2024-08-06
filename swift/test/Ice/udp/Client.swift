@@ -15,7 +15,7 @@ class Client: TestHelperI {
             defer {
                 communicator.destroy()
             }
-            try allTests(self)
+            try await allTests(self)
 
             let num = restArgs.count == 4 ? Int(restArgs[3]) : 1
             for i in 0..<(num ?? 1) {

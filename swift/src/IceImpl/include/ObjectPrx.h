@@ -65,13 +65,10 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
 - (nonnull instancetype)ice_compress:(bool)compress;
 - (nullable instancetype)ice_fixed:(ICEConnection*)connection error:(NSError* _Nullable* _Nullable)error;
 - (bool)ice_isFixed;
-- (nullable id)ice_getConnection:(NSError* _Nullable* _Nullable)error; // Either NSNull or ICEConnection
-- (void)ice_getConnectionAsync:(void (^)(ICEConnection* _Nullable))response exception:(void (^)(NSError*))exception;
+- (void)ice_getConnection:(void (^)(ICEConnection* _Nullable))response exception:(void (^)(NSError*))exception;
 - (nullable ICEConnection*)ice_getCachedConnection;
-- (BOOL)ice_flushBatchRequests:(NSError* _Nullable* _Nullable)error;
-- (void)ice_flushBatchRequestsAsync:(void (^)(NSError*))exception
-                               sent:(void (^_Nullable)(bool))sent
-    NS_SWIFT_NAME(ice_flushBatchRequestsAsync(exception:sent:));
+- (void)ice_flushBatchRequests:(void (^)(NSError*))exception
+                          sent:(void (^)(bool))sent NS_SWIFT_NAME(ice_flushBatchRequests(exception:sent:));
 - (bool)ice_isCollocationOptimized;
 - (nullable instancetype)ice_collocationOptimized:(bool)collocated error:(NSError* _Nullable* _Nullable)error;
 

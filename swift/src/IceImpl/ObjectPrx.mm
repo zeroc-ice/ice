@@ -418,22 +418,7 @@
     return _prx->ice_isFixed();
 }
 
-- (id)ice_getConnection:(NSError**)error
-{
-    try
-    {
-        auto cppConnection = _prx->ice_getConnection();
-        ICEConnection* connection = [ICEConnection getHandle:cppConnection];
-        return connection ? connection : [NSNull null];
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
-}
-
-- (void)ice_getConnectionAsync:(void (^)(ICEConnection* _Nullable))response exception:(void (^)(NSError*))exception
+- (void)ice_getConnection:(void (^)(ICEConnection* _Nullable))response exception:(void (^)(NSError*))exception
 {
     try
     {
@@ -467,21 +452,7 @@
     return [ICEConnection getHandle:cppConnection];
 }
 
-- (BOOL)ice_flushBatchRequests:(NSError**)error
-{
-    try
-    {
-        _prx->ice_flushBatchRequests();
-        return YES;
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return NO;
-    }
-}
-
-- (void)ice_flushBatchRequestsAsync:(void (^)(NSError*))exception sent:(void (^_Nullable)(bool))sent
+- (void)ice_flushBatchRequests:(void (^)(NSError*))exception sent:(void (^)(bool))sent
 {
     try
     {
@@ -493,13 +464,7 @@
                     exception(convertException(e));
                 }
             },
-            [sent](bool sentSynchronously)
-            {
-                if (sent)
-                {
-                    sent(sentSynchronously);
-                }
-            });
+            [sent](bool sentSynchronously) { sent(sentSynchronously); });
     }
     catch (...)
     {

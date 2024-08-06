@@ -159,9 +159,17 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return valueFactoryManager
     }
 
-    func flushBatchRequests(_ compress: CompressBatch) throws {
-        try autoreleasepool {
-            try handle.flushBatchRequests(compress.rawValue)
+    func flushBatchRequests(
+        _ compress: CompressBatch
+    ) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            handle.flushBatchRequests(
+                compress.rawValue,
+                exception: { continuation.resume(throwing: $0) },
+                sent: { _ in
+                    continuation.resume(returning: ())
+                }
+            )
         }
     }
 
@@ -257,21 +265,6 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 }
 
 extension Communicator {
-    public func flushBatchRequestsAsync(
-        _ compress: CompressBatch
-    ) async throws {
-        let impl = self as! CommunicatorI
-        return try await withCheckedThrowingContinuation { continuation in
-            impl.handle.flushBatchRequestsAsync(
-                compress.rawValue,
-                exception: { continuation.resume(throwing: $0) },
-                sent: { _ in
-                    continuation.resume(returning: ())
-                }
-            )
-        }
-    }
-
     /// Initialize the configured plug-ins. The communicator automatically initializes
     /// the plug-ins by default, but an application may need to interact directly with
     /// a plug-in prior to initialization. In this case, the application must set

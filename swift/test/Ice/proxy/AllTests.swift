@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
+public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -340,8 +340,8 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
 
     try test(b1 == b2)
 
-    if try b1.ice_getConnection() != nil {  // not colloc-optimized target
-        b2 = try b1.ice_getConnection()!.createProxy(Ice.stringToIdentity("fixed"))
+    if try await b1.ice_getConnection() != nil {  // not colloc-optimized target
+        b2 = try await b1.ice_getConnection()!.createProxy(Ice.stringToIdentity("fixed"))
         let str = communicator.proxyToString(b2)
         try test(b2.ice_toString() == str)
         let str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ice_toString()
@@ -655,9 +655,9 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         endpts1[0] == communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")!.ice_getEndpoints()[0]
     )
 
-    let baseConnection = try baseProxy.ice_getConnection()
+    let baseConnection = try await baseProxy.ice_getConnection()
     if baseConnection != nil {
-        let baseConnection2 = try baseProxy.ice_connectionId("base2").ice_getConnection()
+        let baseConnection2 = try await baseProxy.ice_connectionId("base2").ice_getConnection()
         compObj1 = compObj1!.ice_fixed(baseConnection!)
         compObj2 = compObj2!.ice_fixed(baseConnection2!)
         try test(compObj1 != compObj2)
@@ -683,7 +683,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
 
     writer.write("testing ice_fixed... ")
     do {
-        let connection = try cl.ice_getConnection()
+        let connection = try await cl.ice_getConnection()
         if connection != nil {
             let prx = cl.ice_fixed(connection!)
             try prx.ice_ping()
@@ -695,11 +695,11 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
             try test(cl.ice_context(ctx).ice_fixed(connection!).ice_getContext().count == 2)
             try test(cl.ice_fixed(connection!).ice_getInvocationTimeout() == -1)
             try test(cl.ice_invocationTimeout(10).ice_fixed(connection!).ice_getInvocationTimeout() == 10)
-            try test(cl.ice_fixed(connection!).ice_getConnection() === connection)
-            try test(cl.ice_fixed(connection!).ice_fixed(connection!).ice_getConnection() === connection)
+            try await test(cl.ice_fixed(connection!).ice_getConnection() === connection)
+            try await test(cl.ice_fixed(connection!).ice_fixed(connection!).ice_getConnection() === connection)
             try test(cl.ice_compress(true).ice_fixed(connection!).ice_getCompress()!)
-            let fixedConnection = try cl.ice_connectionId("ice_fixed").ice_getConnection()
-            try test(
+            let fixedConnection = try await cl.ice_connectionId("ice_fixed").ice_getConnection()
+            try await test(
                 cl.ice_fixed(connection!).ice_fixed(fixedConnection!).ice_getConnection()
                     === fixedConnection)
             do {

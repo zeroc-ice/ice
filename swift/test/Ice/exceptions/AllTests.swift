@@ -246,7 +246,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
         output.writeLine("ok")
     }
 
-    let conn = try thrower.ice_getConnection()
+    let conn = try await thrower.ice_getConnection()
     if conn != nil {
         output.write("testing memory limit marshal exception...")
         do {

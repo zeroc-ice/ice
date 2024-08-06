@@ -191,14 +191,7 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     ///
     /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
     /// being sent over the wire.
-    func flushBatchRequests(_ compress: CompressBatch) throws
-
-    /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
-    /// associated with the connection.
-    ///
-    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
-    /// being sent over the wire.
-    func flushBatchRequestsAsync(
+    func flushBatchRequests(
         _ compress: CompressBatch
     ) async throws
 
