@@ -5,7 +5,8 @@
 $(project)_libraries    = Ice
 
 Ice_targetdir           := $(libdir)
-Ice_cppflags            = -DICE_API_EXPORTS $(IceUtil_cppflags)
+Ice_cppflags            = $(IceUtil_cppflags)
+Ice[shared]_cppflags    := -DICE_API_EXPORTS
 
 Ice_sliceflags          := --include-dir Ice
 Ice_libs                := bz2

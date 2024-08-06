@@ -12,6 +12,7 @@ $(project)_caninstall   := no
 #
 TestCommon[shared]_targetdir    := $(call mappingdir,$(currentdir),lib)
 TestCommon_dependencies         := Ice
-TestCommon_cppflags             := -DTEST_API_EXPORTS -I$(includedir) -Itest/include
+TestCommon_cppflags             := -I$(includedir) -Itest/include
+TestCommon[shared]_cppflags     := -DTEST_API_EXPORTS
 
 projects += $(project)
