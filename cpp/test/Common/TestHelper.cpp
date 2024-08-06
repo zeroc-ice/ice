@@ -134,9 +134,9 @@ Test::TestHelper::TestHelper(bool registerPlugins)
     {
         Ice::registerIceWS(true);
         Ice::registerIceUDP(true);
-#    ifdef ICE_HAS_BT
+#ifdef ICE_HAS_BT
         Ice::registerIceBT(false);
-#    endif
+#endif
     }
 
 #if defined(_WIN32)

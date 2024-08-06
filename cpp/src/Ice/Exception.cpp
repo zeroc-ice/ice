@@ -18,8 +18,8 @@
 #    define __STDC_LIMIT_MACROS
 #endif
 
-#include "Ice/Config.h"
 #include "Ice/Exception.h"
+#include "Ice/Config.h"
 #include "Ice/StringUtil.h"
 #include "StackTrace.h"
 

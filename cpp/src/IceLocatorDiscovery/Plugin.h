@@ -16,7 +16,9 @@
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY)
-#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery")) // Automatically link IceLocatorDiscovery[D].lib with Visual C++
+#    pragma comment(                                                                                                   \
+        lib,                                                                                                           \
+        ICE_LIBNAME("IceLocatorDiscovery")) // Automatically link IceLocatorDiscovery[D].lib with Visual C++
 #endif
 
 #ifndef ICE_LOCATOR_DISCOVERY_API
