@@ -96,7 +96,7 @@ export class ConnectionI {
 
         this._readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
         this._readHeader = false;
-        this._writeStream = new OutputStream(instance, Protocol.currentProtocolEncoding);
+        this._writeStream = new OutputStream(); // temporary stream
 
         this._readStreamPos = -1;
         this._writeStreamPos = -1;
@@ -1052,7 +1052,7 @@ export class ConnectionI {
         //
         // Before we shut down, we send a close connection message.
         //
-        const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+        const os = new OutputStream(Protocol.currentProtocolEncoding);
         os.writeBlob(Protocol.magic);
         Protocol.currentProtocol._write(os);
         Protocol.currentProtocolEncoding._write(os);
@@ -1119,7 +1119,7 @@ export class ConnectionI {
             // As a result of this optimization, the only possible heartbeat in _sendStreams is the first
             // _sendStreams message.
             if (this._sendStreams.length == 0) {
-                const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                const os = new OutputStream(Protocol.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
                 Protocol.currentProtocol._write(os);
                 Protocol.currentProtocolEncoding._write(os);
@@ -1622,7 +1622,7 @@ class OutgoingMessage {
 
     doAdopt() {
         if (this.adopt) {
-            const stream = new OutputStream(this.stream.instance, Protocol.currentProtocolEncoding);
+            const stream = new OutputStream(Protocol.currentProtocolEncoding);
             stream.swap(this.stream);
             this.stream = stream;
             this.adopt = false;

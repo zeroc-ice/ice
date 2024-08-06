@@ -69,7 +69,7 @@ export class EndpointFactoryManager {
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                    const os = new OutputStream(Protocol.currentProtocolEncoding);
                     os.writeShort(ue.type());
                     ue.streamWrite(os);
                     const is = new InputStream(this._instance, Protocol.currentProtocolEncoding, os.buffer);

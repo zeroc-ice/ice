@@ -3,8 +3,6 @@
 //
 
 import { AsyncResultBase } from "./AsyncResultBase.js";
-import { OutputStream } from "./Stream.js";
-import { Protocol } from "./Protocol.js";
 import { UserException } from "./UserException.js";
 import { InvocationCanceledException } from "./LocalExceptions.js";
 import { Debug } from "./Debug.js";
@@ -14,7 +12,6 @@ export class AsyncResult extends AsyncResultBase {
         super(com, op, connection, proxy, adapter);
         this._completed = completedFn;
         this._is = null;
-        this._os = com !== null ? new OutputStream(this._instance, Protocol.currentProtocolEncoding) : null;
         this._state = 0;
         this._exception = null;
         this._sentSynchronously = false;
@@ -91,10 +88,6 @@ export class AsyncResult extends AsyncResultBase {
             }
         }
         this._cancellationHandler = handler;
-    }
-
-    getOs() {
-        return this._os;
     }
 
     startReadParams() {
