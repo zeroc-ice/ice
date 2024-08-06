@@ -2176,7 +2176,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                                          _compressionLevel);
                 if (cbuf is not null)
                 {
-                    OutputStream cstream = new OutputStream(uncompressed.getEncoding(), new Internal.Buffer(cbuf, true));
+                    OutputStream cstream = new OutputStream(new Internal.Buffer(cbuf, true), uncompressed.getEncoding());
 
                     //
                     // Set compression status.

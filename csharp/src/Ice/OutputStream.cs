@@ -37,8 +37,11 @@ public sealed class OutputStream
     {
     }
 
-    internal OutputStream(EncodingVersion encoding, Internal.Buffer buf)
-        : this(encoding) => _buf = buf;
+    internal OutputStream(
+        Internal.Buffer buf,
+        EncodingVersion? encoding = null,
+        FormatType format = FormatType.CompactFormat)
+        : this(encoding, format) => _buf = buf;
 
     /// <summary>
     /// Resets this output stream. This method allows the stream to be reused, to avoid creating

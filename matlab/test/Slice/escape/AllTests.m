@@ -27,9 +27,9 @@ classdef AllTests
             assert(s.continue_ == 1);
             assert(s.eq_ == 2);
             % Exercise the marshaling code.
-            os = communicator.createOutputStream();
+            os = Ice.OutputStream(communicator.getEncoding());
             classdef_.break_.bitor.ice_write(os, s);
-            is = os.createInputStream();
+            is = Ice.InputStream(communicator, os.getEncoding(), os.finished());
             s2 = classdef_.break_.bitor.ice_read(is);
             assert(isequal(s, s2));
 
@@ -44,10 +44,10 @@ classdef AllTests
             assert(c.for_.eq_ == 2);
             assert(c.int64 == true);
             % Exercise the marshaling code.
-            os = communicator.createOutputStream();
+            os = Ice.OutputStream(communicator.getEncoding());
             os.writeValue(c);
             os.writePendingValues();
-            is = os.createInputStream();
+            is = Ice.InputStream(communicator, os.getEncoding(), os.finished());
             v = IceInternal.ValueHolder();
             is.readValue(@v.set, 'classdef_.break_.logical');
             is.readPendingValues();
@@ -65,10 +65,10 @@ classdef AllTests
             assert(d.int64 == true);
             assert(d.return_ == 1);
             % Exercise the marshaling code.
-            os = communicator.createOutputStream();
+            os = Ice.OutputStream(communicator.getEncoding());
             os.writeValue(d);
             os.writePendingValues();
-            is = os.createInputStream();
+            is = Ice.InputStream(communicator, os.getEncoding(), os.finished());
             v = IceInternal.ValueHolder();
             is.readValue(@v.set, 'classdef_.break_.xor');
             is.readPendingValues();
@@ -87,10 +87,10 @@ classdef AllTests
             assert(isempty(p.otherwise_));
             p.catch_ = d;
             % Exercise the marshaling code.
-            os = communicator.createOutputStream();
+            os = Ice.OutputStream(communicator.getEncoding());
             os.writeValue(p);
             os.writePendingValues();
-            is = os.createInputStream();
+            is = Ice.InputStream(communicator, os.getEncoding(), os.finished());
             v = IceInternal.ValueHolder();
             is.readValue(@v.set, 'classdef_.break_.properties_');
             is.readPendingValues();

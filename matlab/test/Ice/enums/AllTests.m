@@ -102,12 +102,12 @@ classdef AllTests
 
             encoding_1_0 = strcmp(communicator.getProperties().getProperty('Ice.Default.EncodingVersion'), '1.0');
 
-            os = communicator.createOutputStream();
+            os = Ice.OutputStream(communicator.getEncoding());
             ByteEnum.ice_write(os, ByteEnum.benum11);
             bytes = os.finished();
             assert(length(bytes) == 1); % ByteEnum should require one byte
 
-            os = communicator.createOutputStream();
+            os = Ice.OutputStream(communicator.getEncoding());
             ShortEnum.ice_write(os, ShortEnum.senum11);
             bytes = os.finished();
             if encoding_1_0
@@ -116,7 +116,7 @@ classdef AllTests
                 assert(length(bytes) == 5);
             end
 
-            os = communicator.createOutputStream();
+            os = Ice.OutputStream(communicator.getEncoding());
             IntEnum.ice_write(os, IntEnum.ienum11);
             bytes = os.finished();
             if encoding_1_0
@@ -125,7 +125,7 @@ classdef AllTests
                 assert(length(bytes) == 5);
             end
 
-            os = communicator.createOutputStream();
+            os = Ice.OutputStream(communicator.getEncoding());
             SimpleEnum.ice_write(os, SimpleEnum.blue);
             bytes = os.finished();
             assert(length(bytes) == 1); % SimpleEnum should require one byte
@@ -205,9 +205,9 @@ classdef AllTests
             fprintf('testing enum exceptions... ');
 
             try
-                os = communicator.createOutputStream();
+                os = Ice.OutputStream(communicator.getEncoding());
                 os.writeByte(2); % Invalid enumerator
-                in = os.createInputStream();
+                in = Ice.InputStream(communicator, os.getEncoding(), os.finished());
                 ByteEnum.ice_read(in);
                 assert(false);
             catch ex
@@ -215,9 +215,9 @@ classdef AllTests
             end
 
             try
-                os = communicator.createOutputStream();
+                os = Ice.OutputStream(communicator.getEncoding());
                 os.writeByte(128); % Invalid enumerator
-                in = os.createInputStream();
+                in = Ice.InputStream(communicator, os.getEncoding(), os.finished());
                 ByteEnum.ice_read(in);
                 assert(false);
             catch ex
@@ -225,9 +225,9 @@ classdef AllTests
             end
 
             try
-                os = communicator.createOutputStream();
+                os = Ice.OutputStream(communicator.getEncoding());
                 os.writeShort(-1); % Negative enumerators are not supported
-                in = os.createInputStream();
+                in = Ice.InputStream(communicator, os.getEncoding(), os.finished());
                 ShortEnum.ice_read(in);
                 assert(false);
             catch ex
@@ -235,9 +235,9 @@ classdef AllTests
             end
 
             try
-                os = communicator.createOutputStream();
+                os = Ice.OutputStream(communicator.getEncoding());
                 os.writeShort(0); % Invalid enumerator
-                in = os.createInputStream();
+                in = Ice.InputStream(communicator, os.getEncoding(), os.finished());
                 ShortEnum.ice_read(in);
                 assert(false);
             catch ex
@@ -245,9 +245,9 @@ classdef AllTests
             end
 
             try
-                os = communicator.createOutputStream();
+                os = Ice.OutputStream(communicator.getEncoding());
                 os.writeShort(32767); % Invalid enumerator
-                in = os.createInputStream();
+                in = Ice.InputStream(communicator, os.getEncoding(), os.finished());
                 ShortEnum.ice_read(in);
                 assert(false);
             catch ex
@@ -255,9 +255,9 @@ classdef AllTests
             end
 
             try
-                os = communicator.createOutputStream();
+                os = Ice.OutputStream(communicator.getEncoding());
                 os.writeInt(-1); % Negative enumerators are not supported
-                in = os.createInputStream();
+                in = Ice.InputStream(communicator, os.getEncoding(), os.finished());
                 IntEnum.ice_read(in);
                 assert(false);
             catch ex
@@ -265,9 +265,9 @@ classdef AllTests
             end
 
             try
-                os = communicator.createOutputStream();
+                os = Ice.OutputStream(communicator.getEncoding());
                 os.writeInt(2); % Invalid enumerator
-                in = os.createInputStream();
+                in = Ice.InputStream(communicator, os.getEncoding(), os.finished());
                 IntEnum.ice_read(in);
                 assert(false);
             catch ex
