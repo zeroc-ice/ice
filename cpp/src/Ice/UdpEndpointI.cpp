@@ -222,7 +222,6 @@ IceInternal::UdpEndpointI::options() const
     // format of proxyToString() before changing this and related code.
     //
     ostringstream s;
-    s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
     s << IPEndpointI::options();
 
     if (_mcastInterface.length() > 0)
@@ -242,7 +241,8 @@ IceInternal::UdpEndpointI::options() const
 
     if (_mcastTtl != -1)
     {
-        s << " --ttl " << _mcastTtl;
+        // Use to_string for locale independent formatting.
+        s << " --ttl " << to_string(_mcastTtl);
     }
 
     if (_connect)

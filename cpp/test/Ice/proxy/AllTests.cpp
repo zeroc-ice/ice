@@ -1221,6 +1221,17 @@ allTests(TestHelper* helper)
 
     cout << "ok" << endl;
 
+    cout << "testing proxy to string is not affected by locale settings... " << flush;
+    auto currentLocale = std::locale();
+    std::locale::global(std::locale("en_US.UTF-8"));
+
+    optional<ObjectPrx> p = communicator->stringToProxy("test -t -e 1.0:tcp -h localhost -p 10000 -t 20000");
+    pstr = communicator->proxyToString(p);
+    cerr << pstr << endl;
+    test(pstr == "test -t -e 1.0:tcp -h localhost -p 10000 -t 20000");
+    std::locale::global(currentLocale);
+    cout << "ok";
+
     cout << "testing communicator shutdown/destroy... " << flush;
     {
         Ice::CommunicatorPtr c = Ice::initialize();

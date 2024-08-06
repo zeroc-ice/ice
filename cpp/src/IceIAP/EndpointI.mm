@@ -480,7 +480,6 @@ IceObjC::iAPEndpointI::options() const
     // format of proxyToString() before changing this and related code.
     //
     ostringstream s;
-    s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
     if (!_manufacturer.empty())
     {
         s << " -m ";
@@ -543,7 +542,8 @@ IceObjC::iAPEndpointI::options() const
 
     if (_timeout != -1)
     {
-        s << " -t " << _timeout;
+        // Use to_string for locale independent formatting.
+        s << " -t " << to_string(_timeout);
     }
 
     if (_compress)

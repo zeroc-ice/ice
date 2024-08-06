@@ -212,7 +212,6 @@ IceInternal::IPEndpointI::options() const
     // format of proxyToString() before changing this and related code.
     //
     ostringstream s;
-    s.imbue(locale::classic()); // Ensure we use the C locale for the number formatting.
 
     if (!_host.empty())
     {
@@ -229,7 +228,7 @@ IceInternal::IPEndpointI::options() const
         }
     }
 
-    s << " -p " << _port;
+    s << " -p " << to_string(_port);
 
     if (isAddressValid(_sourceAddr))
     {
