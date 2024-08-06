@@ -490,6 +490,23 @@ extension ObjectPrx {
                         continuation.resume(throwing: error)
                     })
             }
+        } else if ice_isBatchOneway() || ice_isBatchDatagram() {
+            return try await withCheckedThrowingContinuation { continuation in
+                do {
+                    try autoreleasepool {
+                        try _impl.handle.onewayInvoke(
+                            operation,
+                            mode: mode.rawValue,
+                            inParams: inEncaps,
+                            context: context)
+
+                        continuation.resume(returning: (true, Data()))
+                    }
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+
+            }
         } else {
             return try await withCheckedThrowingContinuation { continuation in
                 _impl.handle.invoke(
