@@ -1226,9 +1226,20 @@ allTests(TestHelper* helper)
     std::locale::global(std::locale("en_US.UTF-8"));
 
     {
-        optional<ObjectPrx> p = communicator->stringToProxy("test -t -e 1.0:tcp -h localhost -p 10000 -t 20000:udp -h localhost -p 10001 --ttl 10000");
+        optional<ObjectPrx> p = communicator->stringToProxy("test -t -e 1.0:tcp -h localhost -p 10000 -t 20000");
         pstr = communicator->proxyToString(p);
-        test(pstr == "test -t -e 1.0:tcp -h localhost -p 10000 -t 20000:udp -h localhost -p 10001 --ttl 10000");
+        test(pstr == "test -t -e 1.0:tcp -h localhost -p 10000 -t 20000");
+
+        // Test with UDP endpoint
+        p = communicator->stringToProxy("test -t -e 1.0:udp -h localhost -p 10001 --ttl 10000");
+        pstr = communicator->proxyToString(p);
+        test(pstr == "test -t -e 1.0:udp -h localhost -p 10001 --ttl 10000");
+
+        // Test with WS endpoint
+        p = communicator->stringToProxy("test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
+        pstr = communicator->proxyToString(p);
+        cerr << pstr << endl;
+        test(pstr == "test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
     }
     std::locale::global(currentLocale);
     cout << "ok" << endl;
