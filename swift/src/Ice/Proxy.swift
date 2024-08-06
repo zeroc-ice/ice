@@ -494,7 +494,7 @@ extension ObjectPrx {
             return try await withCheckedThrowingContinuation { continuation in
                 do {
                     try autoreleasepool {
-                        try _impl.handle.onewayInvoke(
+                        try _impl.handle.enqueueBatch(
                             operation,
                             mode: mode.rawValue,
                             inParams: inEncaps,
@@ -1001,7 +1001,7 @@ open class ObjectPrxI: ObjectPrx {
                 return try await withCheckedThrowingContinuation { continuation in
                     do {
                         try autoreleasepool {
-                            try handle.onewayInvoke(
+                            try handle.enqueueBatch(
                                 operation,
                                 mode: mode.rawValue,
                                 inParams: ostr.finished(),

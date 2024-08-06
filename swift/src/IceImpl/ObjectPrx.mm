@@ -545,7 +545,7 @@
     [os copy:p.first count:static_cast<long>(p.second - p.first)];
 }
 
-- (BOOL)onewayInvoke:(NSString*)op
+- (BOOL)enqueueBatch:(NSString*)op
                 mode:(std::uint8_t)mode
             inParams:(NSData*)inParams
              context:(NSDictionary*)context
@@ -564,6 +564,7 @@
         }
 
         std::vector<std::byte> ignored;
+        // So long as the proxy is batch oneway or batch datagram this will never block.
         _prx->ice_invoke(
             fromNSString(op),
             static_cast<Ice::OperationMode>(mode),
@@ -606,9 +607,7 @@
             [response](bool ok, std::pair<const std::byte*, const std::byte*> outParams)
             {
                 // We need an autorelease pool in case the unmarshaling creates auto
-                // release objects, and in case the application attaches a handler to
-                // the promise that runs on nil (= the Ice thread/dispatch queue that
-                // executes response)
+                // release objects.
                 @autoreleasepool
                 {
                     response(

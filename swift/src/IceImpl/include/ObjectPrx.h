@@ -85,7 +85,7 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
     encodingMinor:(uint8_t)encodingMinor;
 
 // Sync invocation on oneway proxy
-- (BOOL)onewayInvoke:(NSString* _Nonnull)op
+- (BOOL)enqueueBatch:(NSString* _Nonnull)op
                 mode:(uint8_t)mode
             inParams:(NSData*)inParams
              context:(NSDictionary* _Nullable)context
