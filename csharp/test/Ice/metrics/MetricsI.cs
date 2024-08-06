@@ -46,7 +46,7 @@ public sealed class MetricsI : MetricsDisp_
 
     override public void opWithLocalException(Ice.Current current)
     {
-        throw new Ice.SyscallException();
+        throw new Ice.SyscallException(message: null);
     }
 
     override public void opWithUnknownException(Ice.Current current)
