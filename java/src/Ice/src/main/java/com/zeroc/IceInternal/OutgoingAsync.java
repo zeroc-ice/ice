@@ -90,7 +90,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
     try {
       return waitForResponseOrUserEx();
     } catch (UserException ex) {
-      throw new UnknownUserException(ex.ice_id(), ex);
+      throw UnknownUserException.fromTypeId(ex.ice_id());
     }
   }
 
@@ -195,7 +195,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
               }
             }
           }
-          completeExceptionally(new UnknownUserException(ex.ice_id()));
+          completeExceptionally(UnknownUserException.fromTypeId(ex.ice_id()));
         } catch (Throwable ex) {
           completeExceptionally(ex);
         }
