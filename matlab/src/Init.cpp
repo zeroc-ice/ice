@@ -7,6 +7,12 @@
 #include "Util.h"
 #include "ice.h"
 
+// Link with IceDiscovery and IceLocatorDiscovery on Windows
+#if defined(_MSC_VER)
+#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
+#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
+#endif
+
 using namespace std;
 using namespace IceMatlab;
 

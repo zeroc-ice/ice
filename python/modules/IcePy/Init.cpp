@@ -22,6 +22,12 @@
 #include "Types.h"
 #include "ValueFactoryManager.h"
 
+// Link with IceDiscovery and IceLocatorDiscovery on Windows for "shared" builds.
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE)
+#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
+#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
+#endif
+
 using namespace std;
 using namespace IcePy;
 
