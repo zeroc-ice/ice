@@ -98,6 +98,9 @@ def filter_source(filename):
     if "ios/" in filename:
         return False
 
+    if "RegisterPluginsInit_min" in filename:
+        return False
+
     # Bzip2lib sources
     bzip2sources = ["blocksort.c", "bzlib.c", "compress.c", "crctable.c", "decompress.c", "huffman.c", "randtable.c"]
     if "bzip2-" in filename and os.path.basename(filename) not in bzip2sources:

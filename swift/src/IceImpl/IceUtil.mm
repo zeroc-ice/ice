@@ -19,7 +19,7 @@ namespace
         {
             //
             // Register plug-ins included in the Ice framework (a single binary file)
-            // See also RegisterPluginsInit.cpp in cpp/src/Ice
+            // See also RegisterPluginsInit_min/all.cpp in cpp/src/Ice
             //
             Ice::registerIceUDP(true);
             Ice::registerIceWS(true);
