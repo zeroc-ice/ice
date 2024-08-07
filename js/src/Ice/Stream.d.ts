@@ -119,9 +119,8 @@ declare module "ice" {
         }
 
         class OutputStream {
-            constructor(encoding: EncodingVersion);
             /**
-             * Constructs an empty output stream that uses the communicator's default encoding version and default class
+             * Constructs an empty output stream that uses the communicator's default encoding version and compact class
              * format.
              *
              * @param communicator The communicator that provides the encoding version and class format.
@@ -132,7 +131,7 @@ declare module "ice" {
              * Constructs an empty output stream.
              *
              * @param encoding The encoding version. null is equivalent to encoding 1.1.
-             * @param format The class format. null is equivalent to FormatType.DefaultFormat.
+             * @param format The class format. null is equivalent to FormatType.CompactFormat.
              */
             constructor(encoding?: EncodingVersion, format?: FormatType);
 
