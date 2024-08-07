@@ -44,7 +44,10 @@ import { ReplyStatus } from "./ReplyStatus.js";
 export class OutgoingAsyncBase extends AsyncResult {
     constructor(communicator, operation, connection, proxy, adapter) {
         super(communicator, operation, connection, proxy, adapter);
-        this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+        this._os = new OutputStream(
+            Protocol.currentProtocolEncoding,
+            this._instance.defaultsAndOverrides().defaultFormat,
+        );
     }
 
     getOs() {

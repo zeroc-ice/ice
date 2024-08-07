@@ -179,7 +179,7 @@ export class Client extends TestHelper {
         }
 
         {
-            outS = new Ice.OutputStream(communicator, Ice.Encoding_1_0);
+            outS = new Ice.OutputStream(Ice.Encoding_1_0);
             const o = new Test.OptionalClass();
             o.bo = true;
             o.by = 5;

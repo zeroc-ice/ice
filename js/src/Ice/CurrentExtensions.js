@@ -68,7 +68,10 @@ function startReplyStream(current, replyStatus = ReplyStatus.Ok) {
     if (current.requestId == 0) {
         return new OutputStream();
     } else {
-        var ostr = new OutputStream(current.adapter.getCommunicator(), Protocol.currentProtocolEncoding);
+        let ostr = new OutputStream(
+            Protocol.currentProtocolEncoding,
+            current.adapter.getCommunicator().instance.defaultsAndOverrides().defaultFormat,
+        );
         ostr.writeBlob(Protocol.replyHdr);
         ostr.writeInt(current.requestId);
         ostr.writeByte(replyStatus.value);
@@ -76,11 +79,11 @@ function startReplyStream(current, replyStatus = ReplyStatus.Ok) {
     }
 }
 
-function createOutgoingResponseCore(current, exception, communicator) {
+function createOutgoingResponseCore(current, exception) {
     let ostr;
 
     if (current.requestId != 0) {
-        ostr = new OutputStream(communicator, Protocol.currentProtocolEncoding);
+        ostr = new OutputStream(Protocol.currentProtocolEncoding);
         ostr.writeBlob(Protocol.replyHdr);
         ostr.writeInt(current.requestId);
     } else {

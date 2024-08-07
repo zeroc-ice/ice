@@ -2299,14 +2299,13 @@ export class OutputStream {
                 instance = arg1;
             } else if (arg1.constructor == EncodingVersion) {
                 this._encoding = arg1;
-            } else {
-                throw new InitializationException("unknown argument to OutputStream constructor");
-            }
-        }
-
-        if (arg2 !== undefined && arg2 !== null) {
-            if (arg2.constructor == EncodingVersion) {
-                this._encoding = arg2;
+                if (arg2 !== null && arg2 !== undefined) {
+                    if (arg2.constructor == FormatType) {
+                        this._format = arg2;
+                    } else {
+                        throw new InitializationException("unknown argument to OutputStream constructor");
+                    }
+                }
             } else {
                 throw new InitializationException("unknown argument to OutputStream constructor");
             }

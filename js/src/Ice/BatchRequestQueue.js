@@ -10,7 +10,10 @@ export class BatchRequestQueue {
     constructor(instance) {
         this._batchStreamInUse = false;
         this._batchRequestNum = 0;
-        this._batchStream = new OutputStream(instance, Protocol.currentProtocolEncoding);
+        this._batchStream = new OutputStream(
+            Protocol.currentProtocolEncoding,
+            instance.defaultsAndOverrides().defaultFormat,
+        );
         this._batchStream.writeBlob(Protocol.requestBatchHdr);
         this._batchMarker = this._batchStream.size;
         this._exception = null;
