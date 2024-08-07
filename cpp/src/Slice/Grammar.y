@@ -1662,6 +1662,10 @@ enumerator_list
 | enumerator
 {
 }
+| %empty
+{
+    $$ = make_shared<EnumeratorListTok>(); // Empty list
+}
 ;
 
 // ----------------------------------------------------------------------
@@ -1705,11 +1709,6 @@ enumerator
     currentUnit->error("keyword `" + ident->v + "' cannot be used as enumerator");
     auto ens = make_shared<EnumeratorListTok>(); // Dummy
     $$ = ens;
-}
-| %empty
-{
-    auto ens = make_shared<EnumeratorListTok>();
-    $$ = ens; // Dummy
 }
 ;
 
