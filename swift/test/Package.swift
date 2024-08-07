@@ -53,8 +53,7 @@ let testDirectories: [String: TestConfig] = [
     ),
     "Ice/operations": TestConfig(
         sources: defaultSources + [
-            "BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift",
-            "TwowaysAMI.swift",
+            "BatchOneways.swift", "Oneways.swift", "Twoways.swift",
         ]
     ),
     "Ice/optional": TestConfig(

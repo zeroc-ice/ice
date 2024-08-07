@@ -9,7 +9,7 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        let initial = try allTests(self)
-        try initial.shutdown()
+        let initial = try await allTests(self)
+        try await initial.shutdown()
     }
 }

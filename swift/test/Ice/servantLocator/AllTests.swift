@@ -3,9 +3,9 @@
 import Ice
 import TestCommon
 
-func testExceptions(_ obj: TestIntfPrx, _ helper: TestHelper) throws {
+func testExceptions(_ obj: TestIntfPrx, _ helper: TestHelper) async throws {
     do {
-        try obj.requestFailedException()
+        try await obj.requestFailedException()
         try helper.test(false)
     } catch let ex as Ice.ObjectNotExistException {
         try helper.test(ex.id == obj.ice_getIdentity())
@@ -14,35 +14,35 @@ func testExceptions(_ obj: TestIntfPrx, _ helper: TestHelper) throws {
     }
 
     do {
-        try obj.unknownUserException()
+        try await obj.unknownUserException()
         try helper.test(false)
     } catch let ex as Ice.UnknownUserException {
         try helper.test(ex.message.contains("::Foo::BarException"))
     }
 
     do {
-        try obj.unknownLocalException()
+        try await obj.unknownLocalException()
         try helper.test(false)
     } catch let ex as Ice.UnknownLocalException {
         try helper.test(ex.message == "reason")
     }
 
     do {
-        try obj.unknownException()
+        try await obj.unknownException()
         try helper.test(false)
     } catch let ex as Ice.UnknownException {
         try helper.test(ex.message == "reason")
     }
 
     do {
-        try obj.userException()
+        try await obj.userException()
         try helper.test(false)
     } catch let ex as Ice.UnknownUserException {
         try helper.test(ex.message.contains("Test::TestIntfUserException"))
     } catch is Ice.OperationNotExistException {}
 
     do {
-        try obj.localException()
+        try await obj.localException()
         try helper.test(false)
     } catch let ex as Ice.UnknownLocalException {
         try helper.test(
@@ -50,42 +50,42 @@ func testExceptions(_ obj: TestIntfPrx, _ helper: TestHelper) throws {
     }
 
     do {
-        try obj.unknownExceptionWithServantException()
+        try await obj.unknownExceptionWithServantException()
         try helper.test(false)
     } catch let ex as Ice.UnknownException {
         try helper.test(ex.message == "reason")
     }
 
     do {
-        _ = try obj.impossibleException(false)
+        _ = try await obj.impossibleException(false)
         try helper.test(false)
     } catch is Ice.UnknownUserException {
         // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
     }
 
     do {
-        _ = try obj.impossibleException(true)
+        _ = try await obj.impossibleException(true)
         try helper.test(false)
     } catch is Ice.UnknownUserException {
         // Operation throws TestImpossibleException, but locate() and finished() throw TestIntfUserException.
     }
 
     do {
-        _ = try obj.intfUserException(false)
+        _ = try await obj.intfUserException(false)
         try helper.test(false)
     } catch is TestImpossibleException {
         // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
     }
 
     do {
-        _ = try obj.intfUserException(true)
+        _ = try await obj.intfUserException(true)
         try helper.test(false)
     } catch is TestImpossibleException {
         // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
     }
 }
 
-func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
+func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -98,14 +98,14 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
-    var obj = try checkedCast(prx: base, type: TestIntfPrx.self)!
+    var obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
     try test(obj == base)
     output.writeLine("ok")
 
     output.write("testing ice_ids... ")
     do {
         let o = try communicator.stringToProxy("category/locate:\(helper.getTestEndpoint(num: 0))")!
-        _ = try o.ice_ids()
+        _ = try await o.ice_ids()
         try test(false)
     } catch let ex as Ice.UnknownUserException {
         try test(ex.message.contains("::Test::TestIntfUserException"))
@@ -113,7 +113,7 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
     do {
         let o = try communicator.stringToProxy("category/finished:\(helper.getTestEndpoint(num: 0))")!
-        _ = try o.ice_ids()
+        _ = try await o.ice_ids()
         try test(false)
     } catch let ex as Ice.UnknownUserException {
         try test(ex.message.contains("::Test::TestIntfUserException"))
@@ -122,9 +122,9 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
     output.write("testing servant locator...")
     base = try communicator.stringToProxy("category/locate:\(helper.getTestEndpoint(num: 0))")!
-    obj = try checkedCast(prx: base, type: TestIntfPrx.self)!
+    obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
     do {
-        _ = try checkedCast(
+        _ = try await checkedCast(
             prx: communicator.stringToProxy("category/unknown:\(helper.getTestEndpoint(num: 0))")!,
             type: TestIntfPrx.self)
     } catch is Ice.ObjectNotExistException {}
@@ -132,18 +132,18 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
     output.write("testing default servant locator...")
     base = try communicator.stringToProxy("anothercat/locate:\(helper.getTestEndpoint(num: 0))")!
-    obj = try checkedCast(prx: base, type: TestIntfPrx.self)!
+    obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
     base = try communicator.stringToProxy("locate:\(helper.getTestEndpoint(num: 0))")!
-    obj = try checkedCast(prx: base, type: TestIntfPrx.self)!
+    obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
 
     do {
-        _ = try checkedCast(
+        _ = try await checkedCast(
             prx: communicator.stringToProxy("anothercat/unknown:\(helper.getTestEndpoint(num: 0))")!,
             type: TestIntfPrx.self)
     } catch is Ice.ObjectNotExistException {}
 
     do {
-        _ = try checkedCast(
+        _ = try await checkedCast(
             prx: communicator.stringToProxy("unknown:\(helper.getTestEndpoint(num: 0))")!,
             type: TestIntfPrx.self)
     } catch is Ice.ObjectNotExistException {}
@@ -151,20 +151,20 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
     output.write("testing locate exceptions... ")
     base = try communicator.stringToProxy("category/locate:\(helper.getTestEndpoint(num: 0))")!
-    obj = try checkedCast(prx: base, type: TestIntfPrx.self)!
-    try testExceptions(obj, helper)
+    obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
+    try await testExceptions(obj, helper)
     output.writeLine("ok")
 
     output.write("testing finished exceptions... ")
     base = try communicator.stringToProxy("category/finished:\(helper.getTestEndpoint(num: 0))")!
-    obj = try checkedCast(prx: base, type: TestIntfPrx.self)!
-    try testExceptions(obj, helper)
+    obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
+    try await testExceptions(obj, helper)
 
     //
     // Only call these for category/finished.
     //
     do {
-        try obj.asyncResponse()
+        try await obj.asyncResponse()
     } catch is TestIntfUserException {
         try test(false)
     } catch is TestImpossibleException {
@@ -177,7 +177,7 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     // Only call these for category/finished.
     //
     do {
-        try obj.asyncException()
+        try await obj.asyncException()
     } catch is TestIntfUserException {
         try test(false)
     } catch is TestImpossibleException {
@@ -189,19 +189,19 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
     output.write("testing servant locator removal... ")
     base = try communicator.stringToProxy("test/activation:\(helper.getTestEndpoint(num: 0))")!
-    let activation = try checkedCast(prx: base, type: TestActivationPrx.self)!
-    try activation.activateServantLocator(false)
+    let activation = try await checkedCast(prx: base, type: TestActivationPrx.self)!
+    try await activation.activateServantLocator(false)
     do {
-        try obj.ice_ping()
+        try await obj.ice_ping()
         try test(false)
     } catch is Ice.ObjectNotExistException {
         output.writeLine("ok")
     }
 
     output.write("testing servant locator addition... ")
-    try activation.activateServantLocator(true)
+    try await activation.activateServantLocator(true)
     do {
-        try obj.ice_ping()
+        try await obj.ice_ping()
         output.writeLine("ok")
     } catch {
         try test(false)

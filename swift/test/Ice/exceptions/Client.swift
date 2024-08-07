@@ -18,6 +18,6 @@ public class Client: TestHelperI {
             communicator.destroy()
         }
         let thrower = try await allTests(self)
-        try thrower.shutdown()
+        try await thrower.shutdown()
     }
 }

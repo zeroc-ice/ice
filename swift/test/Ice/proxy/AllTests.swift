@@ -665,19 +665,19 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     writer.writeLine("ok")
 
     writer.write("testing checked cast... ")
-    var cl = try checkedCast(prx: baseProxy, type: MyClassPrx.self)!
-    let derived = try checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
+    var cl = try await checkedCast(prx: baseProxy, type: MyClassPrx.self)!
+    let derived = try await checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
     try test(cl == baseProxy)
     try test(derived == baseProxy)
     try test(cl == derived)
     writer.writeLine("ok")
 
     writer.write("testing checked cast with context... ")
-    var c = try cl.getContext()
+    var c = try await cl.getContext()
     try test(c.isEmpty)
     c = ["one": "hello", "two": "world"]
-    cl = try checkedCast(prx: baseProxy, type: MyClassPrx.self, context: c)!
-    let c2 = try cl.getContext()
+    cl = try await checkedCast(prx: baseProxy, type: MyClassPrx.self, context: c)!
+    let c2 = try await cl.getContext()
     try test(c == c2)
     writer.writeLine("ok")
 
@@ -686,7 +686,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         let connection = try await cl.ice_getConnection()
         if connection != nil {
             let prx = cl.ice_fixed(connection!)
-            try prx.ice_ping()
+            try await prx.ice_ping()
             try test(cl.ice_secure(true).ice_fixed(connection!).ice_isSecure())
             try test(cl.ice_facet("facet").ice_fixed(connection!).ice_getFacet() == "facet")
             try test(cl.ice_oneway().ice_fixed(connection!).ice_isOneway())
@@ -703,12 +703,12 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
                 cl.ice_fixed(connection!).ice_fixed(fixedConnection!).ice_getConnection()
                     === fixedConnection)
             do {
-                try cl.ice_secure(!connection!.getEndpoint().getInfo()!.secure()).ice_fixed(connection!)
+                try await cl.ice_secure(!connection!.getEndpoint().getInfo()!.secure()).ice_fixed(connection!)
                     .ice_ping()
             } catch is Ice.NoEndpointException {}
 
             do {
-                try cl.ice_datagram().ice_fixed(connection!).ice_ping()
+                try await cl.ice_datagram().ice_fixed(connection!).ice_ping()
             } catch is Ice.NoEndpointException {}
         }
     }
@@ -718,7 +718,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     var ref20 = "test -e 2.0:\(helper.getTestEndpoint(num: 0))"
     var cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyClassPrx.self)
     do {
-        try cl20.ice_ping()
+        try await cl20.ice_ping()
         try test(false)
     } catch is Ice.MarshalException {
         // Server 2.0 endpoint doesn't support 1.1 version.
@@ -726,9 +726,9 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
 
     var ref10 = "test -e 1.0:\(helper.getTestEndpoint(num: 0))"
     var cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)
-    try cl10.ice_ping()
-    try cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
-    try cl.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
+    try await cl10.ice_ping()
+    try await cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
+    try await cl.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
 
     do {
         // Send request with bogus 1.2 encoding.
@@ -740,7 +740,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         inEncaps[4] = version.major
         inEncaps[5] = version.minor
 
-        _ = try cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+        _ = try await cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
         try test(false)
     } catch let ex as Ice.UnknownLocalException {
         // TODO: remove UnsupportedEncodingException
@@ -758,7 +758,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         var inEncaps = os.finished()
         inEncaps[4] = version.major
         inEncaps[5] = version.minor
-        _ = try cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+        _ = try await cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
         try test(false)
     } catch let ex as Ice.UnknownLocalException {
         // TODO: remove UnsupportedEncodingException
@@ -772,7 +772,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     ref20 = "test -p 2.0:\(helper.getTestEndpoint(num: 0))"
     cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyClassPrx.self)
     do {
-        try cl20.ice_ping()
+        try await cl20.ice_ping()
         try test(false)
     } catch is Ice.FeatureNotSupportedException {
         // Server 2.0 proxy doesn't support 1.0 version.
@@ -780,7 +780,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
 
     ref10 = "test -p 1.0:\(helper.getTestEndpoint(num: 0))"
     cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)
-    try cl10.ice_ping()
+    try await cl10.ice_ping()
 
     writer.write("testing opaque endpoints... ")
     do {

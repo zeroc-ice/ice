@@ -19,19 +19,19 @@ public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: S
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
-    let retry1 = try checkedCast(prx: base1, type: RetryPrx.self)!
+    let retry1 = try await checkedCast(prx: base1, type: RetryPrx.self)!
     try test(retry1 == base1)
-    var retry2 = try checkedCast(prx: base2, type: RetryPrx.self)!
+    var retry2 = try await checkedCast(prx: base2, type: RetryPrx.self)!
     try test(retry2 == base2)
     output.writeLine("ok")
 
     output.write("calling regular operation with first proxy... ")
-    try retry1.op(false)
+    try await retry1.op(false)
     output.writeLine("ok")
 
     output.write("calling operation to kill connection with second proxy... ")
     do {
-        try retry2.op(true)
+        try await retry2.op(true)
         try test(false)
     } catch is Ice.UnknownLocalException {
         // Expected with collocation
@@ -39,59 +39,31 @@ public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: S
     output.writeLine("ok")
 
     output.write("calling regular operation with first proxy again... ")
-    try retry1.op(false)
-    output.writeLine("ok")
-
-    output.write("calling regular AMI operation with first proxy... ")
-    try await retry1.opAsync(false)
-    output.writeLine("ok")
-
-    output.write("calling AMI operation to kill connection with second proxy... ")
-    do {
-        try await retry2.opAsync(true)
-    } catch is Ice.ConnectionLostException {} catch is Ice.UnknownLocalException {}
-    output.writeLine("ok")
-
-    output.write("calling regular AMI operation with first proxy again... ")
-    try await retry1.opAsync(false)
+    try await retry1.op(false)
     output.writeLine("ok")
 
     output.write("testing idempotent operation... ")
-    try test(retry1.opIdempotent(4) == 4)
-    try await test(retry1.opIdempotentAsync(4) == 4)
+    try await test(retry1.opIdempotent(4) == 4)
     output.writeLine("ok")
 
     output.write("testing non-idempotent operation... ")
     do {
-        try retry1.opNotIdempotent()
-        try test(false)
-    } catch is Ice.LocalException {}
-
-    do {
-        try await retry1.opNotIdempotentAsync()
+        try await retry1.opNotIdempotent()
         try test(false)
     } catch is Ice.LocalException {}
     output.writeLine("ok")
 
     output.write("testing invocation timeout and retries... ")
 
-    retry2 = try checkedCast(
+    retry2 = try await checkedCast(
         prx: communicator2.stringToProxy(retry1.ice_toString())!,
         type: RetryPrx.self)!
     do {
         // No more than 2 retries before timeout kicks-in
-        _ = try retry2.ice_invocationTimeout(500).opIdempotent(4)
+        _ = try await retry2.ice_invocationTimeout(500).opIdempotent(4)
         try test(false)
     } catch is Ice.InvocationTimeoutException {
-        _ = try retry2.opIdempotent(-1)  // Reset the counter
-    }
-
-    do {
-        // No more than 2 retries before timeout kicks-in
-        _ = try await retry2.ice_invocationTimeout(500).opIdempotentAsync(4)
-        try test(false)
-    } catch is Ice.InvocationTimeoutException {
-        _ = try retry2.opIdempotent(-1)  // Reset the counter
+        _ = try await retry2.opIdempotent(-1)  // Reset the counter
     }
 
     output.writeLine("ok")

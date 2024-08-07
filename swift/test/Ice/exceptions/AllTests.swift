@@ -85,13 +85,13 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
-    let thrower = try checkedCast(prx: base, type: ThrowerPrx.self)!
+    let thrower = try await checkedCast(prx: base, type: ThrowerPrx.self)!
     try test(thrower == base)
     output.writeLine("ok")
 
     output.write("catching exact types... ")
     do {
-        try thrower.throwAasA(1)
+        try await thrower.throwAasA(1)
         try test(false)
     } catch let ex as A {
         try test(ex.aMem == 1)
@@ -101,7 +101,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try thrower.throwAorDasAorD(1)
+        try await thrower.throwAorDasAorD(1)
         try test(false)
     } catch let ex as A {
         try test(ex.aMem == 1)
@@ -110,7 +110,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try thrower.throwAorDasAorD(-1)
+        try await thrower.throwAorDasAorD(-1)
         try test(false)
     } catch let ex as D {
         try test(ex.dMem == -1)
@@ -119,7 +119,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try thrower.throwBasB(a: 1, b: 2)
+        try await thrower.throwBasB(a: 1, b: 2)
         try test(false)
     } catch let ex as B {
         try test(ex.aMem == 1)
@@ -129,7 +129,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try thrower.throwCasC(a: 1, b: 2, c: 3)
+        try await thrower.throwCasC(a: 1, b: 2, c: 3)
         try test(false)
     } catch let ex as C {
         try test(ex.aMem == 1)
@@ -140,7 +140,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try thrower.throwModA(a: 1, a2: 2)
+        try await thrower.throwModA(a: 1, a2: 2)
         try test(false)
     } catch let ex as ModA {
         try test(ex.aMem == 1)
@@ -154,7 +154,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
 
     output.write("catching base types... ")
     do {
-        try thrower.throwBasB(a: 1, b: 2)
+        try await thrower.throwBasB(a: 1, b: 2)
         try test(false)
     } catch let ex as A {
         try test(ex.aMem == 1)
@@ -163,7 +163,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try thrower.throwCasC(a: 1, b: 2, c: 3)
+        try await thrower.throwCasC(a: 1, b: 2, c: 3)
         try test(false)
     } catch let ex as B {
         try test(ex.aMem == 1)
@@ -173,7 +173,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try thrower.throwModA(a: 1, a2: 2)
+        try await thrower.throwModA(a: 1, a2: 2)
         try test(false)
     } catch let ex as ModA {
         try test(ex.aMem == 1)
@@ -187,7 +187,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
 
     output.write("catching derived types... ")
     do {
-        try thrower.throwBasA(a: 1, b: 2)
+        try await thrower.throwBasA(a: 1, b: 2)
         try test(false)
     } catch let ex as B {
         try test(ex.aMem == 1)
@@ -197,7 +197,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try thrower.throwCasA(a: 1, b: 2, c: 3)
+        try await thrower.throwCasA(a: 1, b: 2, c: 3)
         try test(false)
     } catch let ex as C {
         try test(ex.aMem == 1)
@@ -208,7 +208,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try thrower.throwCasB(a: 1, b: 2, c: 3)
+        try await thrower.throwCasB(a: 1, b: 2, c: 3)
         try test(false)
     } catch let ex as C {
         try test(ex.aMem == 1)
@@ -219,26 +219,26 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
     output.writeLine("ok")
 
-    let supportsUndeclaredExceptions = try thrower.supportsUndeclaredExceptions()
+    let supportsUndeclaredExceptions = try await thrower.supportsUndeclaredExceptions()
     if supportsUndeclaredExceptions {
         output.write("catching unknown user exception... ")
 
         do {
-            try thrower.throwUndeclaredA(1)
+            try await thrower.throwUndeclaredA(1)
             try test(false)
         } catch is Ice.UnknownUserException {} catch {
             try test(false)
         }
 
         do {
-            try thrower.throwUndeclaredB(a: 1, b: 2)
+            try await thrower.throwUndeclaredB(a: 1, b: 2)
             try test(false)
         } catch is Ice.UnknownUserException {} catch {
             try test(false)
         }
 
         do {
-            try thrower.throwUndeclaredC(a: 1, b: 2, c: 3)
+            try await thrower.throwUndeclaredC(a: 1, b: 2, c: 3)
             try test(false)
         } catch is Ice.UnknownUserException {} catch {
             try test(false)
@@ -250,14 +250,14 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     if conn != nil {
         output.write("testing memory limit marshal exception...")
         do {
-            _ = try thrower.throwMemoryLimitException(ByteSeq())
+            _ = try await thrower.throwMemoryLimitException(ByteSeq())
             try test(false)
         } catch is Ice.MarshalException {} catch {
             try test(false)
         }
 
         do {
-            _ = try thrower.throwMemoryLimitException(ByteSeq(repeating: 0, count: 20 * 1024))  // 20KB
+            _ = try await thrower.throwMemoryLimitException(ByteSeq(repeating: 0, count: 20 * 1024))  // 20KB
             try test(false)
         } catch is Ice.ConnectionLostException {} catch is Ice.UnknownLocalException {
             // Expected with JS bidir server
@@ -270,13 +270,13 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
             let thrower2 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)
             do {
                 // 2MB(no limits)
-                _ = try thrower2.throwMemoryLimitException(ByteSeq(repeating: 0, count: 2 * 1024 * 1024))
+                _ = try await thrower2.throwMemoryLimitException(ByteSeq(repeating: 0, count: 2 * 1024 * 1024))
             } catch is Ice.MarshalException {}
             str = "thrower:\(helper.getTestEndpoint(num: 2))"
             let thrower3 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)
             do {
                 // 1KB limit
-                _ = try thrower3.throwMemoryLimitException(ByteSeq(repeating: 0, count: 1024))
+                _ = try await thrower3.throwMemoryLimitException(ByteSeq(repeating: 0, count: 1024))
                 try test(false)
             } catch is Ice.ConnectionLostException {}
         } catch is Ice.ConnectionRefusedException {
@@ -290,7 +290,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
         let id = try Ice.stringToIdentity("does not exist")
         do {
             let thrower2 = uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
-            try thrower2.ice_ping()
+            try await thrower2.ice_ping()
             try test(false)
         } catch let ex as Ice.ObjectNotExistException {
             try test(ex.id == id)
@@ -304,7 +304,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     do {
         let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")
         do {
-            try thrower2.ice_ping()
+            try await thrower2.ice_ping()
             try test(false)
         } catch let ex as Ice.FacetNotExistException {
             try test(ex.facet == "no such facet")
@@ -317,7 +317,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     output.write("catching operation not exist exception... ")
     do {
         let thrower2 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)
-        try thrower2.noSuchOperation()
+        try await thrower2.noSuchOperation()
         try test(false)
     } catch let ex as Ice.OperationNotExistException {
         try test(ex.operation == "noSuchOperation")
@@ -328,14 +328,14 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
 
     output.write("catching unknown local exception... ")
     do {
-        try thrower.throwLocalException()
+        try await thrower.throwLocalException()
         try test(false)
     } catch is Ice.UnknownLocalException {} catch {
         try test(false)
     }
 
     do {
-        try thrower.throwLocalExceptionIdempotent()
+        try await thrower.throwLocalExceptionIdempotent()
         try test(false)
     } catch is Ice.UnknownLocalException {
     } catch is Ice.OperationNotExistException {} catch {
@@ -345,7 +345,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
 
     output.write("catching unknown non-Ice exception... ")
     do {
-        try thrower.throwNonIceException()
+        try await thrower.throwNonIceException()
         try test(false)
     } catch is Ice.UnknownException {} catch {
         try test(false)
@@ -354,13 +354,13 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
 
     output.write("testing asynchronous exceptions... ")
     do {
-        try thrower.throwAfterResponse()
+        try await thrower.throwAfterResponse()
     } catch {
         try test(false)
     }
 
     do {
-        try thrower.throwAfterException()
+        try await thrower.throwAfterException()
         try test(false)
     } catch is A {} catch {
         try test(false)
@@ -369,14 +369,14 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
 
     output.write("catching exact types with AMI mapping... ")
     do {
-        try await thrower.throwAasAAsync(1)
+        try await thrower.throwAasA(1)
         try test(false)
     } catch let ex as A {
         try test(ex.aMem == 1)
     }
 
     do {
-        try await thrower.throwModAAsync(a: 1, a2: 2)
+        try await thrower.throwModA(a: 1, a2: 2)
         try test(false)
     } catch let ex as ModA {
         try test(ex.aMem == 1)
@@ -387,7 +387,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
 
     for i in [1, -1] {
         do {
-            try await thrower.throwAorDasAorDAsync(Int32(i))
+            try await thrower.throwAorDasAorD(Int32(i))
             try test(false)
         } catch let ex as A {
             try test(ex.aMem == 1)
@@ -397,7 +397,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try await thrower.throwBasBAsync(a: 1, b: 2)
+        try await thrower.throwBasB(a: 1, b: 2)
         try test(false)
     } catch let ex as B {
         try test(ex.aMem == 1)
@@ -405,7 +405,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try await thrower.throwCasCAsync(a: 1, b: 2, c: 3)
+        try await thrower.throwCasC(a: 1, b: 2, c: 3)
         try test(false)
     } catch let ex as C {
         try test(ex.aMem == 1)
@@ -416,7 +416,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
 
     output.write("catching derived types with new AMI mapping... ")
     do {
-        try await thrower.throwBasAAsync(a: 1, b: 2)
+        try await thrower.throwBasA(a: 1, b: 2)
         try test(false)
     } catch let ex as B {
         try test(ex.aMem == 1)
@@ -424,7 +424,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try await thrower.throwCasAAsync(a: 1, b: 2, c: 3)
+        try await thrower.throwCasA(a: 1, b: 2, c: 3)
         try test(false)
     } catch let ex as C {
         try test(ex.aMem == 1)
@@ -433,7 +433,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
-        try await thrower.throwCasBAsync(a: 1, b: 2, c: 3)
+        try await thrower.throwCasB(a: 1, b: 2, c: 3)
         try test(false)
     } catch let ex as C {
         try test(ex.aMem == 1)
@@ -441,153 +441,6 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
         try test(ex.cMem == 3)
     }
 
-    output.writeLine("ok")
-
-    if supportsUndeclaredExceptions {
-        output.write("catching unknown user exception with new AMI mapping... ")
-
-        do {
-            try await thrower.throwUndeclaredAAsync(1)
-            try test(false)
-        } catch is Ice.UnknownUserException {}
-
-        do {
-            try await thrower.throwUndeclaredBAsync(a: 1, b: 2)
-            try test(false)
-        } catch is Ice.UnknownUserException {}
-
-        do {
-            try await thrower.throwUndeclaredCAsync(a: 1, b: 2, c: 3)
-            try test(false)
-        } catch is Ice.UnknownUserException {}
-
-        output.writeLine("ok")
-    }
-
-    output.write("catching object not exist exception with new AMI mapping... ")
-    do {
-        let id = try Ice.stringToIdentity("does not exist")
-        let thrower2 = uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
-        do {
-            try await thrower2.throwAasAAsync(1)
-            try test(false)
-        } catch let ex as Ice.ObjectNotExistException {
-            try test(ex.id == id)
-        }
-    }
-    output.writeLine("ok")
-
-    output.write("catching facet not exist exception with new AMI mapping... ")
-    do {
-        let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")
-        try await thrower2.throwAasAAsync(1)
-        try test(false)
-    } catch let ex as Ice.FacetNotExistException {
-        try test(ex.facet == "no such facet")
-    }
-    output.writeLine("ok")
-
-    output.write("catching operation not exist exception with new AMI mapping... ")
-    do {
-        let thrower4 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)
-        try await thrower4.noSuchOperationAsync()
-        try test(false)
-    } catch let ex as Ice.OperationNotExistException {
-        try test(ex.operation == "noSuchOperation")
-    }
-    output.writeLine("ok")
-
-    output.write("catching unknown local exception with new AMI mapping... ")
-    do {
-        try await thrower.throwLocalExceptionAsync()
-        try test(false)
-    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {}
-
-    do {
-        try await thrower.throwLocalExceptionIdempotentAsync()
-        try test(false)
-    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {}
-    output.writeLine("ok")
-
-    output.write("catching unknown non-Ice exception with new AMI mapping... ")
-
-    do {
-        try await thrower.throwNonIceExceptionAsync()
-        try test(false)
-    } catch is Ice.UnknownException {}
-    output.writeLine("ok")
-
-    if supportsUndeclaredExceptions {
-        output.write("catching unknown user exception with new AMI mapping... ")
-        do {
-            try await thrower.throwUndeclaredAAsync(1)
-            try test(false)
-        } catch is Ice.UnknownUserException {}
-
-        do {
-            try await thrower.throwUndeclaredBAsync(a: 1, b: 2)
-            try test(false)
-        } catch is Ice.UnknownUserException {}
-
-        do {
-            try await thrower.throwUndeclaredCAsync(a: 1, b: 2, c: 3)
-            try test(false)
-        } catch is Ice.UnknownUserException {}
-        output.writeLine("ok")
-    }
-
-    output.write("catching object not exist exception with new AMI mapping... ")
-    do {
-        let id = try Ice.stringToIdentity("does not exist")
-        let thrower2 = uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
-        do {
-            try await thrower2.throwAasAAsync(1)
-            try test(false)
-        } catch let ex as Ice.ObjectNotExistException {
-            try test(ex.id == id)
-        }
-    }
-    output.writeLine("ok")
-
-    output.write("catching facet not exist exception with new AMI mapping... ")
-    do {
-        let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")
-        do {
-            try await thrower2.throwAasAAsync(1)
-            try test(false)
-        } catch let ex as Ice.FacetNotExistException {
-            try test(ex.facet == "no such facet")
-        }
-    }
-    output.writeLine("ok")
-
-    output.write("catching operation not exist exception with new AMI mapping... ")
-    do {
-        let thrower4 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)
-        try await thrower4.noSuchOperationAsync()
-        try test(false)
-    } catch let ex as Ice.OperationNotExistException {
-        try test(ex.operation == "noSuchOperation")
-    }
-    output.writeLine("ok")
-
-    output.write("catching unknown local exception with new AMI mapping... ")
-    do {
-        try await thrower.throwLocalExceptionAsync()
-        try test(false)
-    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {}
-
-    do {
-        try await thrower.throwLocalExceptionIdempotentAsync()
-        try test(false)
-    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {}
-    output.writeLine("ok")
-
-    output.write("catching unknown non-Ice exception with new AMI mapping... ")
-    do {
-        try await thrower.throwNonIceExceptionAsync()
-        try test(false)
-    } catch is Ice.UnknownException {}
     output.writeLine("ok")
 
     return thrower

@@ -22,7 +22,7 @@ public class Client: TestHelperI {
                 prx: communicator.stringToProxy("test:\(getTestEndpoint(num: 0))")!,
                 type: Glacier2.RouterPrx.self)
             do {
-                _ = try router.createSession(userId: "foo", password: "bar")
+                _ = try await router.createSession(userId: "foo", password: "bar")
                 try test(false)
             } catch is LocalException {
                 // expected
@@ -39,7 +39,7 @@ public class Client: TestHelperI {
             let topicName = "time"
             var topic: TopicPrx?
             do {
-                topic = try manager.retrieve(topicName)
+                topic = try await manager.retrieve(topicName)
                 try test(false)
             } catch is NoSuchTopic {
                 try test(false)
@@ -48,7 +48,7 @@ public class Client: TestHelperI {
             }
 
             // topic is always nil, we're just checking the API compiling/linking here
-            let publisher = try topic?.subscribeAndGetPublisher(theQoS: QoS(), subscriber: nil)
+            let publisher = try await topic?.subscribeAndGetPublisher(theQoS: QoS(), subscriber: nil)
             try test(publisher == nil)
             out.writeLine("ok")
         }
@@ -61,14 +61,14 @@ public class Client: TestHelperI {
 
             var session: AdminSessionPrx?
             do {
-                session = try registry.createAdminSession(userId: "foo", password: "bar")
+                session = try await registry.createAdminSession(userId: "foo", password: "bar")
                 try test(false)
             } catch is LocalException {
                 // expected
             }
 
             // session is always nil, we're just checking the API
-            let admin = try session?.getAdmin()
+            let admin = try await session?.getAdmin()
             try test(admin == nil)
             out.writeLine("ok")
         }

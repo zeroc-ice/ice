@@ -35,6 +35,6 @@ class Collocated: TestHelperI {
 
         let initial = try await allTests(self)
         // We must call shutdown even in the collocated case for cyclic dependency cleanup
-        try initial.shutdown()
+        try await initial.shutdown()
     }
 }

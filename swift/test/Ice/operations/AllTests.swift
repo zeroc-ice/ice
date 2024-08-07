@@ -12,37 +12,21 @@ func allTests(helper: TestHelper) async throws -> MyClassPrx {
     let communicator = helper.communicator()
 
     let baseProxy = try communicator.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!
-    let cl = try checkedCast(prx: baseProxy, type: MyClassPrx.self)!
-    let derivedProxy = try checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
+    let cl = try await checkedCast(prx: baseProxy, type: MyClassPrx.self)!
+    let derivedProxy = try await checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
 
     output.write("testing twoway operations... ")
     try await twoways(helper, cl)
     try await twoways(helper, derivedProxy)
-    try derivedProxy.opDerived()
+    try await derivedProxy.opDerived()
     output.writeLine("ok")
 
     output.write("testing oneway operations... ")
-    try oneways(helper, cl)
-    try oneways(helper, derivedProxy)
-    output.writeLine("ok")
-
-    output.write("testing twoway operations with AMI... ")
-    try await twowaysAMI(helper, cl)
-    try await twowaysAMI(helper, derivedProxy)
-    try derivedProxy.opDerived()
-    output.writeLine("ok")
-
-    output.write("testing oneway operations with AMI... ")
-    try await onewaysAMI(helper, cl)
-    try await onewaysAMI(helper, derivedProxy)
+    try await oneways(helper, cl)
+    try await oneways(helper, derivedProxy)
     output.writeLine("ok")
 
     output.write("testing batch oneway operations... ")
-    try await batchOneways(helper, cl)
-    try await batchOneways(helper, derivedProxy)
-    output.writeLine("ok")
-
-    output.write("testing batch oneway operations with AMI... ")
     try await batchOneways(helper, cl)
     try await batchOneways(helper, derivedProxy)
     output.writeLine("ok")

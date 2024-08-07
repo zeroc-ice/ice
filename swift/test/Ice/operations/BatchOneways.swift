@@ -13,11 +13,11 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     let batch = p.ice_batchOneway()
     try await batch.ice_flushBatchRequests()  // Empty flush
 
-    _ = try p.opByteSOnewayCallCount()  // Reset the call count
+    _ = try await p.opByteSOnewayCallCount()  // Reset the call count
 
     for _ in 0..<30 {
         do {
-            try batch.opByteSOneway(bs1)
+            try await batch.opByteSOneway(bs1)
         } catch is Ice.MarshalException {
             try test(false)
         }
@@ -25,7 +25,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
 
     var count: Int32 = 0
     while count < 27 {  // 3 * 9 requests auto-flushed.
-        count += try p.opByteSOnewayCallCount()
+        count += try await p.opByteSOnewayCallCount()
         usleep(100)
     }
 
@@ -34,39 +34,39 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let batch1 = p.ice_batchOneway()
         let batch2 = p.ice_batchOneway()
 
-        try batch1.ice_ping()
-        try batch2.ice_ping()
+        try await batch1.ice_ping()
+        try await batch2.ice_ping()
         try await batch1.ice_flushBatchRequests()
         try await batch1.ice_getConnection()!.close(Ice.ConnectionClose.GracefullyWithWait)
-        try batch1.ice_ping()
-        try batch2.ice_ping()
+        try await batch1.ice_ping()
+        try await batch2.ice_ping()
 
         _ = try await batch1.ice_getConnection()
         _ = try await batch2.ice_getConnection()
 
-        try batch1.ice_ping()
+        try await batch1.ice_ping()
         try await batch1.ice_getConnection()!.close(Ice.ConnectionClose.GracefullyWithWait)
-        try batch1.ice_ping()
-        try batch2.ice_ping()
+        try await batch1.ice_ping()
+        try await batch2.ice_ping()
     }
 
     var identity = Ice.Identity()
     identity.name = "invalid"
     let batch3 = batch.ice_identity(identity)
-    try batch3.ice_ping()
+    try await batch3.ice_ping()
     try await batch3.ice_flushBatchRequests()
 
     // Make sure that a bogus batch request doesn't cause troubles to other ones.
-    try batch3.ice_ping()
-    try batch.ice_ping()
+    try await batch3.ice_ping()
+    try await batch.ice_ping()
     try await batch.ice_flushBatchRequests()
-    try batch.ice_ping()
+    try await batch.ice_ping()
 
-    try p.ice_ping()
+    try await p.ice_ping()
 
     var supportsCompress = true
     do {
-        supportsCompress = try p.supportsCompress()
+        supportsCompress = try await p.supportsCompress()
     } catch is Ice.OperationNotExistException {}
 
     conn = try await p.ice_getConnection()
@@ -80,29 +80,29 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         let batchC2 = uncheckedCast(prx: prx.ice_compress(true), type: MyClassPrx.self)
         let batchC3 = uncheckedCast(prx: prx.ice_identity(identity), type: MyClassPrx.self)
 
-        try batchC1.opByteSOneway(bs1)
-        try batchC1.opByteSOneway(bs1)
-        try batchC1.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
         try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.Yes)
 
-        try batchC2.opByteSOneway(bs1)
-        try batchC2.opByteSOneway(bs1)
-        try batchC2.opByteSOneway(bs1)
+        try await batchC2.opByteSOneway(bs1)
+        try await batchC2.opByteSOneway(bs1)
+        try await batchC2.opByteSOneway(bs1)
         try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.No)
 
-        try batchC1.opByteSOneway(bs1)
-        try batchC1.opByteSOneway(bs1)
-        try batchC1.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
         try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
 
-        try batchC1.opByteSOneway(bs1)
-        try batchC2.opByteSOneway(bs1)
-        try batchC1.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
+        try await batchC2.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
         try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
 
-        try batchC1.opByteSOneway(bs1)
-        try batchC3.opByteSOneway(bs1)
-        try batchC1.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
+        try await batchC3.opByteSOneway(bs1)
+        try await batchC1.opByteSOneway(bs1)
         try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
     }
 }

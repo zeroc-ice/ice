@@ -259,6 +259,7 @@ SwiftGenerator::splitComment(const string& c)
     string comment = c;
 
     //
+    // TODO: this comment is suspicious. Does this apply to Swift docs as well?
     // Strip HTML markup and javadoc links -- MATLAB doesn't display them.
     //
     string::size_type pos = 0;
@@ -662,7 +663,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 }
 
 void
-SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async, bool dispatch)
+SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool dispatch)
 {
     DocElements doc = parseComment(p);
     if (!doc.overview.empty())
@@ -708,30 +709,53 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 
     typeCtx = 0;
 
-    if (async)
+    const ParamInfoList allOutParams = getAllOutParams(p, typeCtx);
+    if (allOutParams.size() == 1)
+    {
+        ParamInfo ret = allOutParams.front();
+        out << nl << "///";
+        out << nl << "/// - returns: `" << ret.typeStr << "`";
+        if (p->returnType())
+        {
+            if (!doc.returns.empty())
+            {
+                out << " - ";
+                writeDocLines(out, doc.returns, false);
+            }
+        }
+        else
+        {
+            map<string, StringList>::const_iterator r = doc.params.find(ret.name);
+            if (r != doc.params.end() && !r->second.empty())
+            {
+                out << " - ";
+                writeDocLines(out, r->second, false);
+            }
+        }
+    }
+    else if (allOutParams.size() > 1)
     {
         out << nl << "///";
-        out << nl << "/// - returns: `" << operationReturnType(p, typeCtx) << "` - The result of the operation";
-    }
-    else
-    {
-        const ParamInfoList allOutParams = getAllOutParams(p, typeCtx);
-        if (allOutParams.size() == 1)
+        out << nl << "/// - returns: `" << operationReturnType(p, typeCtx) << "`:";
+        if (p->returnType())
         {
-            ParamInfo ret = allOutParams.front();
+            ParamInfo ret = allOutParams.back();
             out << nl << "///";
-            out << nl << "/// - returns: `" << ret.typeStr << "`";
-            if (p->returnType())
+            out << nl << "///   - " << ret.name << ": `" << ret.typeStr << "`";
+            if (!doc.returns.empty())
             {
-                if (!doc.returns.empty())
-                {
-                    out << " - ";
-                    writeDocLines(out, doc.returns, false);
-                }
+                out << " - ";
+                writeDocLines(out, doc.returns, false);
             }
-            else
+        }
+
+        for (ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
+        {
+            if (q->param != 0)
             {
-                map<string, StringList>::const_iterator r = doc.params.find(ret.name);
+                out << nl << "///";
+                out << nl << "///   - " << q->name << ": `" << q->typeStr << "`";
+                map<string, StringList>::const_iterator r = doc.params.find(q->name);
                 if (r != doc.params.end() && !r->second.empty())
                 {
                     out << " - ";
@@ -739,40 +763,9 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
                 }
             }
         }
-        else if (allOutParams.size() > 1)
-        {
-            out << nl << "///";
-            out << nl << "/// - returns: `" << operationReturnType(p, typeCtx) << "`:";
-            if (p->returnType())
-            {
-                ParamInfo ret = allOutParams.back();
-                out << nl << "///";
-                out << nl << "///   - " << ret.name << ": `" << ret.typeStr << "`";
-                if (!doc.returns.empty())
-                {
-                    out << " - ";
-                    writeDocLines(out, doc.returns, false);
-                }
-            }
-
-            for (ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
-            {
-                if (q->param != 0)
-                {
-                    out << nl << "///";
-                    out << nl << "///   - " << q->name << ": `" << q->typeStr << "`";
-                    map<string, StringList>::const_iterator r = doc.params.find(q->name);
-                    if (r != doc.params.end() && !r->second.empty())
-                    {
-                        out << " - ";
-                        writeDocLines(out, r->second, false);
-                    }
-                }
-            }
-        }
     }
 
-    if (!doc.exceptions.empty() && !async)
+    if (!doc.exceptions.empty())
     {
         out << nl << "///";
         out << nl << "/// - throws:";
@@ -2374,93 +2367,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
     out << sp;
-    writeOpDocSummary(out, op, false, false);
-    out << nl << "func " << opName;
-    out << spar;
-    for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
-    {
-        if (allInParams.size() == 1)
-        {
-            out << ("_ iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
-        }
-        else
-        {
-            out << (q->name + " iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
-        }
-    }
-    out << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil");
-
-    out << epar;
-    out << " throws";
-
-    if (allOutParams.size() > 0)
-    {
-        out << " -> " << operationReturnType(op);
-    }
-
-    out << sb;
-
-    //
-    // Invoke
-    //
-    out << sp;
-    out << nl;
-    if (allOutParams.size() > 0)
-    {
-        out << "return ";
-    }
-    out << "try _impl._invoke(";
-
-    out.useCurrentPosAsIndent();
-    out << "operation: \"" << op->name() << "\",";
-    out << nl << "mode: " << modeToString(op->mode()) << ",";
-
-    if (op->format())
-    {
-        out << nl << "format: " << opFormatTypeToString(op);
-        out << ",";
-    }
-
-    if (allInParams.size() > 0)
-    {
-        out << nl << "write: ";
-        writeMarshalInParams(out, op);
-        out << ",";
-    }
-
-    if (allOutParams.size() > 0)
-    {
-        out << nl << "read: ";
-        writeUnmarshalOutParams(out, op);
-        out << ",";
-    }
-
-    if (allExceptions.size() > 0)
-    {
-        out << nl << "userException:";
-        writeUnmarshalUserException(out, op);
-        out << ",";
-    }
-
-    out << nl << "context: context)";
-    out.restoreIndent();
-
-    out << eb;
-}
-
-void
-SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const OperationPtr& op)
-{
-    const string opName = fixIdent(op->name() + "Async");
-
-    const ParamInfoList allInParams = getAllInParams(op);
-    const ParamInfoList allOutParams = getAllOutParams(op);
-    const ExceptionList allExceptions = op->throws();
-
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
-
-    out << sp;
-    writeOpDocSummary(out, op, true, false);
+    writeOpDocSummary(out, op, false);
     out << nl << "func " << opName;
     out << spar;
     for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
@@ -2492,7 +2399,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const Opera
     // Invoke
     //
     out << sp;
-    out << nl << "return try await _impl._invokeAsync(";
+    out << nl << "return try await _impl._invoke(";
 
     out.useCurrentPosAsIndent();
     out << "operation: \"" << op->name() << "\",";

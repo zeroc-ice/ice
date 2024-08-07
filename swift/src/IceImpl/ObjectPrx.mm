@@ -440,8 +440,7 @@
     }
     catch (...)
     {
-        // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation.
+        // Typically CommunicatorDestroyedException.
         exception(convertException(std::current_exception()));
     }
 }
@@ -468,8 +467,7 @@
     }
     catch (...)
     {
-        // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation.
+        // Typically CommunicatorDestroyedException.
         exception(convertException(std::current_exception()));
     }
 }
@@ -545,66 +543,14 @@
     [os copy:p.first count:static_cast<long>(p.second - p.first)];
 }
 
-- (BOOL)invoke:(NSString* _Nonnull)op
-          mode:(std::uint8_t)mode
-      inParams:(NSData*)inParams
-       context:(NSDictionary* _Nullable)context
-      response:(void (^)(bool, void*, long))response
-         error:(NSError**)error
-{
-    std::pair<const std::byte*, const std::byte*> params(0, 0);
-    params.first = static_cast<const std::byte*>(inParams.bytes);
-    params.second = params.first + inParams.length;
-
-    try
-    {
-        Ice::Context ctx;
-        if (context)
-        {
-            fromNSDictionary(context, ctx);
-        }
-        std::vector<std::byte> outParams;
-
-        // We use a std::promise and invokeAsync to avoid making an extra copy of the outParam buffer.
-        std::promise<void> p;
-
-        _prx->ice_invokeAsync(
-            fromNSString(op),
-            static_cast<Ice::OperationMode>(mode),
-            params,
-            [response, &p](bool ok, std::pair<const std::byte*, const std::byte*> outParams)
-            {
-                // We need an autorelease pool as the unmarshaling (in the response) can
-                // create autorelease objects, typically when unmarshaling proxies
-                @autoreleasepool
-                {
-                    response(
-                        ok,
-                        const_cast<std::byte*>(outParams.first),
-                        static_cast<long>(outParams.second - outParams.first));
-                }
-                p.set_value();
-            },
-            [&p](std::exception_ptr e) { p.set_exception(e); },
-            nullptr,
-            context ? ctx : Ice::noExplicitContext);
-
-        p.get_future().get();
-        return YES;
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return NO;
-    }
-}
-
-- (BOOL)onewayInvoke:(NSString*)op
+- (BOOL)enqueueBatch:(NSString*)op
                 mode:(std::uint8_t)mode
             inParams:(NSData*)inParams
              context:(NSDictionary*)context
                error:(NSError**)error
 {
+    assert(_prx->ice_isBatchOneway() || _prx->ice_isBatchDatagram());
+
     std::pair<const std::byte*, const std::byte*> params(0, 0);
     params.first = static_cast<const std::byte*>(inParams.bytes);
     params.second = params.first + inParams.length;
@@ -618,6 +564,7 @@
         }
 
         std::vector<std::byte> ignored;
+        // So long as the proxy is batch oneway or batch datagram this will never block.
         _prx->ice_invoke(
             fromNSString(op),
             static_cast<Ice::OperationMode>(mode),
@@ -633,14 +580,16 @@
     }
 }
 
-- (void)invokeAsync:(NSString* _Nonnull)op
-               mode:(std::uint8_t)mode
-           inParams:(NSData*)inParams
-            context:(NSDictionary* _Nullable)context
-           response:(void (^)(bool, void*, long))response
-          exception:(void (^)(NSError*))exception
-               sent:(void (^_Nullable)(bool))sent
+- (void)invoke:(NSString* _Nonnull)op
+          mode:(std::uint8_t)mode
+      inParams:(NSData*)inParams
+       context:(NSDictionary* _Nullable)context
+      response:(void (^)(bool, void*, long))response
+     exception:(void (^)(NSError*))exception
+          sent:(void (^_Nullable)(bool))sent
 {
+    assert(!_prx->ice_isBatchOneway() && !_prx->ice_isBatchDatagram());
+
     std::pair<const std::byte*, const std::byte*> params(0, 0);
     params.first = static_cast<const std::byte*>(inParams.bytes);
     params.second = params.first + inParams.length;
@@ -660,9 +609,7 @@
             [response](bool ok, std::pair<const std::byte*, const std::byte*> outParams)
             {
                 // We need an autorelease pool in case the unmarshaling creates auto
-                // release objects, and in case the application attaches a handler to
-                // the promise that runs on nil (= the Ice thread/dispatch queue that
-                // executes response)
+                // release objects.
                 @autoreleasepool
                 {
                     response(
@@ -689,8 +636,7 @@
     }
     catch (...)
     {
-        // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation.
+        // Typically CommunicatorDestroyedException.
         exception(convertException(std::current_exception()));
     }
 }

@@ -71,7 +71,7 @@ namespace Slice
         void writeDocSentence(IceInternal::Output&, const StringList&);
         void writeSeeAlso(IceInternal::Output&, const StringList&, const ContainerPtr&);
         void writeDocSummary(IceInternal::Output&, const ContainedPtr&);
-        void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool, bool);
+        void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool);
 
         void writeProxyDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
         void writeServantDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
@@ -148,7 +148,6 @@ namespace Slice
         void writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr&);
         void writeSwiftAttributes(::IceInternal::Output&, const StringList&);
         void writeProxyOperation(::IceInternal::Output&, const OperationPtr&);
-        void writeProxyAsyncOperation(::IceInternal::Output&, const OperationPtr&);
         void writeDispatchOperation(::IceInternal::Output&, const OperationPtr&);
 
     private:

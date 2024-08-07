@@ -21,17 +21,17 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     let communicator = helper.communicator()
 
     let baseProxy = try communicator.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!
-    let cl = try checkedCast(prx: baseProxy, type: MyClassPrx.self)!
+    let cl = try await checkedCast(prx: baseProxy, type: MyClassPrx.self)!
     let oneway = cl.ice_oneway()
     let batchOneway = cl.ice_batchOneway()
 
     output.write("testing ice_invoke... ")
     do {
-        try test(oneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
-        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
-        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
-        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
-        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(oneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
 
         try await batchOneway.ice_flushBatchRequests()
         let outS = Ice.OutputStream(communicator: communicator)
@@ -39,7 +39,7 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         outS.write(testString)
         outS.endEncapsulation()
         let inEncaps = outS.finished()
-        let result = try cl.ice_invoke(operation: "opString", mode: .Normal, inEncaps: inEncaps)
+        let result = try await cl.ice_invoke(operation: "opString", mode: .Normal, inEncaps: inEncaps)
         try test(result.ok)
         let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try inS.startEncapsulation()
@@ -56,7 +56,7 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
             ctx = Ice.Context()
             ctx["raise"] = ""
         }
-        let result = try cl.ice_invoke(
+        let result = try await cl.ice_invoke(
             operation: "opException", mode: .Normal, inEncaps: Data(), context: ctx)
         try test(!result.ok)
         let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
@@ -73,42 +73,5 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
 
     output.writeLine("ok")
 
-    output.write("testing asynchronous ice_invoke... ")
-    do {
-        var result = try await oneway.ice_invokeAsync(operation: "opOneway", mode: .Normal, inEncaps: Data())
-        try test(result.ok)
-
-        let outS = Ice.OutputStream(communicator: communicator)
-        outS.startEncapsulation()
-        outS.write(testString)
-        outS.endEncapsulation()
-        let inEncaps = outS.finished()
-
-        result = try await cl.ice_invokeAsync(operation: "opString", mode: .Normal, inEncaps: inEncaps)
-        try test(result.ok)
-        let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try inS.startEncapsulation()
-        var s: String = try inS.read()
-        try test(s == testString)
-        s = try inS.read()
-        try inS.endEncapsulation()
-        try test(s == testString)
-    }
-
-    do {
-        let result = try await cl.ice_invokeAsync(operation: "opException", mode: .Normal, inEncaps: Data())
-        try test(!result.ok)
-        let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try inS.startEncapsulation()
-        do {
-            try inS.throwException()
-        } catch is MyException {
-            try inS.endEncapsulation()
-        } catch {
-            try test(false)
-        }
-    }
-
-    output.writeLine("ok")
     return cl
 }

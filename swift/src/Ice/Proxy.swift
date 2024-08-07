@@ -335,8 +335,8 @@ public func checkedCast(
     type _: ObjectPrx.Protocol,
     facet: String? = nil,
     context: Ice.Context? = nil
-) throws -> ObjectPrx? {
-    return try ObjectPrxI.checkedCast(prx: prx, facet: facet, context: context) as ObjectPrxI?
+) async throws -> ObjectPrx? {
+    return try await ObjectPrxI.checkedCast(prx: prx, facet: facet, context: context) as ObjectPrxI?
 }
 
 /// Creates a new proxy that is identical to the passed proxy, except for its facet. This call does
@@ -391,44 +391,12 @@ extension ObjectPrx {
     /// Sends ping request to the target object.
     ///
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
-    ///
-    /// - throws: `Ice.LocalException` such as `Ice.ObjectNotExistException` and
-    ///   `Ice.ConnectionRefusedException`.
-    public func ice_ping(context: Context? = nil) throws {
-        try _impl._invoke(
-            operation: "ice_ping",
-            mode: OperationMode.Idempotent,
-            context: context)
-    }
-
-    /// Sends ping request to the target object asynchronously.
-    ///
-    /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
-    public func ice_pingAsync(
+    public func ice_ping(
         context: Context? = nil
     ) async throws {
-        return try await _impl._invokeAsync(
+        return try await _impl._invoke(
             operation: "ice_ping",
             mode: .Idempotent,
-            context: context)
-    }
-
-    /// Tests whether this object supports a specific Slice interface.
-    ///
-    /// - parameter id: `String` - The type ID of the Slice interface to test against.
-    ///
-    /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
-    ///
-    /// - returns: `Bool` - True if the target object has the interface specified by id or derives
-    ///   from the interface specified by id.
-    public func ice_isA(id: String, context: Context? = nil) throws -> Bool {
-        return try _impl._invoke(
-            operation: "ice_isA",
-            mode: .Idempotent,
-            write: { ostr in
-                ostr.write(id)
-            },
-            read: { istr in try istr.read() as Bool },
             context: context)
     }
 
@@ -439,10 +407,10 @@ extension ObjectPrx {
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
     ///
     /// - returns: `Bool` - The result of the invocation.
-    public func ice_isAAsync(
+    public func ice_isA(
         id: String, context: Context? = nil
     ) async throws -> Bool {
-        return try await _impl._invokeAsync(
+        return try await _impl._invoke(
             operation: "ice_isA",
             mode: .Idempotent,
             write: { ostr in
@@ -456,41 +424,14 @@ extension ObjectPrx {
     ///
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
-    /// - returns: `String` - The Slice type ID of the most-derived interface.
-    public func ice_id(context: Context? = nil) throws -> String {
-        return try _impl._invoke(
-            operation: "ice_id",
-            mode: .Idempotent,
-            read: { istr in try istr.read() as String },
-            context: context)
-    }
-
-    /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
-    ///
-    /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
-    ///
     /// - returns: `String` The result of the invocation.
-    public func ice_idAsync(
+    public func ice_id(
         context: Context? = nil
     ) async throws -> String {
-        return try await _impl._invokeAsync(
+        return try await _impl._invoke(
             operation: "ice_id",
             mode: .Idempotent,
             read: { istr in try istr.read() as String },
-            context: context)
-    }
-
-    /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
-    ///
-    /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
-    ///
-    /// - returns: `Ice.StringSeq` - The Slice type IDs of the interfaces supported by the target object,
-    ///   in alphabetical order.
-    public func ice_ids(context: Context? = nil) throws -> StringSeq {
-        return try _impl._invoke(
-            operation: "ice_ids",
-            mode: .Idempotent,
-            read: { istr in try istr.read() as StringSeq },
             context: context)
     }
 
@@ -499,54 +440,14 @@ extension ObjectPrx {
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
     /// - returns: `Ice.StringSeq` - The result of the invocation.
-    public func ice_idsAsync(
+    public func ice_ids(
         context: Context? = nil
     ) async throws -> StringSeq {
-        return try await _impl._invokeAsync(
+        return try await _impl._invoke(
             operation: "ice_ids",
             mode: .Idempotent,
             read: { istr in try istr.read() as StringSeq },
             context: context)
-    }
-
-    /// Invokes an operation dynamically.
-    ///
-    /// - parameter operation: `String` - The name of the operation to invoke.
-    ///
-    /// - parameter mode: `Ice.OperationMode` - The operation mode (normal or idempotent).
-    ///
-    /// - parameter inEncaps: `Data` - The encoded in-parameters for the operation.
-    ///
-    /// - parameter context: `Ice.Context` - The context dictionary for the invocation.
-    ///
-    /// - returns: A tuple with the following fields:
-    ///
-    ///   - ok: `Bool` - If the operation completed successfully, the value
-    ///     is set to true. If the operation raises a user exception, the return value
-    ///     is false; in this case, outEncaps contains the encoded user exception. If
-    ///     the operation raises a run-time exception, it throws it directly.
-    ///
-    ///   - outEncaps: `Data` - The encoded out-paramaters and return value for the operation.
-    ///     The return value follows any out-parameters.
-    public func ice_invoke(
-        operation: String,
-        mode: OperationMode,
-        inEncaps: Data,
-        context: Context? = nil
-    ) throws -> (ok: Bool, outEncaps: Data) {
-        if _impl.isTwoway {
-            var data: Data?
-            var ok: Bool = false
-            try _impl.handle.invoke(operation, mode: mode.rawValue, inParams: inEncaps, context: context) {
-                ok = $0
-                data = Data(bytes: $1, count: $2)  // make a copy
-            }
-            return (ok, data!)
-        } else {
-            try _impl.handle.onewayInvoke(
-                operation, mode: mode.rawValue, inParams: inEncaps, context: context)
-            return (true, Data())
-        }
     }
 
     /// Invokes an operation dynamically.
@@ -560,7 +461,7 @@ extension ObjectPrx {
     /// - parameter context: `Ice.Context` - The context dictionary for the invocation.
     ///
     /// - returns: `(ok: Bool, outEncaps: Data)` - The result of the invocation.
-    public func ice_invokeAsync(
+    public func ice_invoke(
         operation: String,
         mode: OperationMode,
         inEncaps: Data,
@@ -568,7 +469,7 @@ extension ObjectPrx {
     ) async throws -> (ok: Bool, outEncaps: Data) {
         if _impl.isTwoway {
             return try await withCheckedThrowingContinuation { continuation in
-                _impl.handle.invokeAsync(
+                _impl.handle.invoke(
                     operation,
                     mode: mode.rawValue,
                     inParams: inEncaps,
@@ -589,9 +490,19 @@ extension ObjectPrx {
                         continuation.resume(throwing: error)
                     })
             }
+        } else if ice_isBatchOneway() || ice_isBatchDatagram() {
+            return try autoreleasepool {
+                try _impl.handle.enqueueBatch(
+                    operation,
+                    mode: mode.rawValue,
+                    inParams: inEncaps,
+                    context: context)
+
+                return (true, Data())
+            }
         } else {
             return try await withCheckedThrowingContinuation { continuation in
-                _impl.handle.invokeAsync(
+                _impl.handle.invoke(
                     operation,
                     mode: mode.rawValue,
                     inParams: inEncaps,
@@ -626,7 +537,7 @@ extension ObjectPrx {
         }
     }
 
-    /// Asynchronously flushes any pending batched requests for this proxy.
+    /// Flushes any pending batched requests for this proxy.
     public func ice_flushBatchRequests() async throws {
         return try await withCheckedThrowingContinuation { continuation in
             _impl.handle.ice_flushBatchRequests(
@@ -1037,121 +948,6 @@ open class ObjectPrxI: ObjectPrx {
         write: ((OutputStream) -> Void)? = nil,
         userException: ((UserException) throws -> Void)? = nil,
         context: Context? = nil
-    ) throws {
-        if userException != nil, !isTwoway {
-            throw TwowayOnlyException(operation: operation)
-        }
-
-        let ostr = OutputStream(communicator: communicator)
-        if let write = write {
-            ostr.startEncapsulation(encoding: encoding, format: format)
-            write(ostr)
-            ostr.endEncapsulation()
-        }
-
-        if isTwoway {
-            var uex: Error?
-            try autoreleasepool {
-                try handle.invoke(
-                    operation, mode: mode.rawValue,
-                    inParams: ostr.finished(), context: context,
-                    response: { ok, bytes, count in
-                        do {
-                            let istr = InputStream(
-                                communicator: self.communicator,
-                                encoding: self.encoding,
-                                bytes: Data(
-                                    bytesNoCopy: bytes, count: count,
-                                    deallocator: .none))
-                            if ok == false {
-                                try ObjectPrxI.throwUserException(
-                                    istr: istr,
-                                    userException: userException)
-                            }
-                            try istr.skipEmptyEncapsulation()
-                        } catch {
-                            uex = error
-                        }
-                    })
-
-                if let e = uex {
-                    throw e
-                }
-            }
-        } else {
-            try autoreleasepool {
-                try handle.onewayInvoke(
-                    operation,
-                    mode: mode.rawValue,
-                    inParams: ostr.finished(),
-                    context: context)
-            }
-        }
-    }
-
-    public func _invoke<T>(
-        operation: String,
-        mode: OperationMode,
-        format: FormatType? = nil,
-        write: ((OutputStream) -> Void)? = nil,
-        read: @escaping (InputStream) throws -> T,
-        userException: ((UserException) throws -> Void)? = nil,
-        context: Context? = nil
-    ) throws -> T {
-        if !isTwoway {
-            throw TwowayOnlyException(operation: operation)
-        }
-        let ostr = OutputStream(communicator: communicator)
-        if let write = write {
-            ostr.startEncapsulation(encoding: encoding, format: format)
-            write(ostr)
-            ostr.endEncapsulation()
-        }
-        var uex: Error?
-        var ret: T!
-        try autoreleasepool {
-            try handle.invoke(
-                operation,
-                mode: mode.rawValue,
-                inParams: ostr.finished(),
-                context: context,
-                response: { ok, bytes, count in
-                    do {
-                        let istr = InputStream(
-                            communicator: self.communicator,
-                            encoding: self.encoding,
-                            bytes: Data(
-                                bytesNoCopy: bytes, count: count,
-                                deallocator: .none))
-                        if ok == false {
-                            try ObjectPrxI.throwUserException(
-                                istr: istr,
-                                userException: userException)
-                        }
-                        try istr.startEncapsulation()
-                        ret = try read(istr)
-                        try istr.endEncapsulation()
-                    } catch {
-                        uex = error
-                    }
-                })
-
-            if let e = uex {
-                throw e
-            }
-        }
-
-        precondition(ret != nil)
-        return ret
-    }
-
-    public func _invokeAsync(
-        operation: String,
-        mode: OperationMode,
-        format: FormatType? = nil,
-        write: ((OutputStream) -> Void)? = nil,
-        userException: ((UserException) throws -> Void)? = nil,
-        context: Context? = nil
     ) async throws {
 
         if userException != nil, !isTwoway {
@@ -1165,7 +961,7 @@ open class ObjectPrxI: ObjectPrx {
         }
         if isTwoway {
             return try await withCheckedThrowingContinuation { continuation in
-                handle.invokeAsync(
+                handle.invoke(
                     operation,
                     mode: mode.rawValue,
                     inParams: ostr.finished(),
@@ -1193,46 +989,35 @@ open class ObjectPrxI: ObjectPrx {
                         continuation.resume(throwing: error)
                     })
             }
+        } else if ice_isBatchOneway() || ice_isBatchDatagram() {
+            return try autoreleasepool {
+                try _impl.handle.enqueueBatch(
+                    operation,
+                    mode: mode.rawValue,
+                    inParams: ostr.finished(),
+                    context: context)
+            }
         } else {
-            if ice_isBatchOneway() || ice_isBatchDatagram() {
-                return try await withCheckedThrowingContinuation { continuation in
-                    do {
-                        try autoreleasepool {
-                            try handle.onewayInvoke(
-                                operation,
-                                mode: mode.rawValue,
-                                inParams: ostr.finished(),
-                                context: context)
-
-                            continuation.resume(returning: ())
-                        }
-                    } catch {
+            return try await withCheckedThrowingContinuation { continuation in
+                handle.invoke(
+                    operation,
+                    mode: mode.rawValue,
+                    inParams: ostr.finished(),
+                    context: context,
+                    response: { _, _, _ in
+                        fatalError("unexpected response")
+                    },
+                    exception: { error in
                         continuation.resume(throwing: error)
-                    }
-
-                }
-            } else {
-                return try await withCheckedThrowingContinuation { continuation in
-                    handle.invokeAsync(
-                        operation,
-                        mode: mode.rawValue,
-                        inParams: ostr.finished(),
-                        context: context,
-                        response: { _, _, _ in
-                            fatalError("unexpected response")
-                        },
-                        exception: { error in
-                            continuation.resume(throwing: error)
-                        },
-                        sent: { _ in
-                            continuation.resume(returning: ())
-                        })
-                }
+                    },
+                    sent: { _ in
+                        continuation.resume(returning: ())
+                    })
             }
         }
     }
 
-    public func _invokeAsync<T>(
+    public func _invoke<T>(
         operation: String,
         mode: OperationMode,
         format: FormatType? = nil,
@@ -1253,7 +1038,7 @@ open class ObjectPrxI: ObjectPrx {
         }
 
         return try await withCheckedThrowingContinuation { continuation in
-            handle.invokeAsync(
+            handle.invoke(
                 operation,
                 mode: mode.rawValue,
                 inParams: ostr.finished(),
@@ -1305,12 +1090,12 @@ open class ObjectPrxI: ObjectPrx {
         prx: ObjectPrx,
         facet: String? = nil,
         context: Context? = nil
-    ) throws -> ProxyImpl?
+    ) async throws -> ProxyImpl?
     where ProxyImpl: ObjectPrxI {
         let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
 
         // checkedCast always calls ice_isA - no optimization on purpose
-        guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
+        guard try await objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
             return nil
         }
         return ProxyImpl(from: objPrx)

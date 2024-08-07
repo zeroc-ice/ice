@@ -26,6 +26,6 @@ class Collocated: TestHelperI {
             servant: TestActivationDisp(TestActivationI(self)),
             id: Ice.stringToIdentity("test/activation"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
-        _ = try allTests(self)
+        _ = try await allTests(self)
     }
 }

@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-func allTests(_ helper: TestHelper) throws {
+func allTests(_ helper: TestHelper) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -11,10 +11,10 @@ func allTests(_ helper: TestHelper) throws {
     let communicator = helper.communicator()
     let output = helper.getWriter()
 
-    try testMiddlewareExecutionOrder(communicator, output)
+    try await testMiddlewareExecutionOrder(communicator, output)
 
     // Verifies the middleware execute in installation order.
-    func testMiddlewareExecutionOrder(_ communicator: Communicator, _ output: TextWriter) throws {
+    func testMiddlewareExecutionOrder(_ communicator: Communicator, _ output: TextWriter) async throws {
         output.write("testing middleware execution order... ")
 
         // Arrange
@@ -35,7 +35,7 @@ func allTests(_ helper: TestHelper) throws {
         let p = uncheckedCast(prx: objPrx, type: MyObjectPrx.self)
 
         // Act
-        try p.ice_ping()
+        try await p.ice_ping()
 
         // Assert
         try test(log.inLog == ["A", "B", "C"])

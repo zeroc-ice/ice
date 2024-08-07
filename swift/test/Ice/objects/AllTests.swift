@@ -48,24 +48,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
-    let initial = try checkedCast(prx: base, type: InitialPrx.self)!
+    let initial = try await checkedCast(prx: base, type: InitialPrx.self)!
     try test(initial == base)
     output.writeLine("ok")
 
     output.write("getting B1... ")
-    var b1 = try initial.getB1()!
+    var b1 = try await initial.getB1()!
     output.writeLine("ok")
 
     output.write("getting B2... ")
-    let b2 = try initial.getB2()!
+    let b2 = try await initial.getB2()!
     output.writeLine("ok")
 
     output.write("getting C... ")
-    let c = try initial.getC()!
+    let c = try await initial.getC()!
     output.writeLine("ok")
 
     output.write("getting D... ")
-    let d = try initial.getD()!
+    let d = try await initial.getD()!
     output.writeLine("ok")
 
     output.write("checking consistency... ")
@@ -102,7 +102,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     output.writeLine("ok")
 
     output.write("getting B1, B2, C, and D all at once... ")
-    let (b1out, b2out, cout, dout) = try initial.getAll()
+    let (b1out, b2out, cout, dout) = try await initial.getAll()
     try test(b1out !== nil)
     try test(b2out !== nil)
     try test(cout !== nil)
@@ -138,24 +138,24 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     output.writeLine("ok")
 
     output.write("getting K... ")
-    let k = try initial.getK()!
+    let k = try await initial.getK()!
     let l = k.value as! L
     try test(l.data == "l")
     output.writeLine("ok")
 
     output.write("testing Value as parameter... ")
     do {
-        let (v3, v2) = try initial.opValue(L(data: "l"))
+        let (v3, v2) = try await initial.opValue(L(data: "l"))
         try test((v2 as! L).data == "l")
         try test((v3 as! L).data == "l")
     }
     do {
-        let (v3, v2) = try initial.opValueSeq([L(data: "l")])
+        let (v3, v2) = try await initial.opValueSeq([L(data: "l")])
         try test((v2[0] as! L).data == "l")
         try test((v3[0] as! L).data == "l")
     }
     do {
-        let (v3, v2) = try initial.opValueMap(["l": L(data: "l")])
+        let (v3, v2) = try await initial.opValueMap(["l": L(data: "l")])
         try test((v2["l"]! as! L).data == "l")
         try test((v3["l"]! as! L).data == "l")
     }
@@ -168,7 +168,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             a2: A1(name: "a2"),
             a3: A1(name: "a3"),
             a4: A1(name: "a4"))
-        d1 = try initial.getD1(d1)!
+        d1 = try await initial.getD1(d1)!
         try test(d1.a1!.name == "a1")
         try test(d1.a2!.name == "a2")
         try test(d1.a3!.name == "a3")
@@ -178,7 +178,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
 
     output.write("throw EDerived... ")
     do {
-        try initial.throwEDerived()
+        try await initial.throwEDerived()
         try test(false)
     } catch let ederived as EDerived {
         try test(ederived.a1!.name == "a1")
@@ -190,14 +190,14 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
 
     output.write("setting G... ")
     do {
-        try initial.setG(G(theS: S(str: "hello"), str: "g"))
+        try await initial.setG(G(theS: S(str: "hello"), str: "g"))
     } catch is Ice.OperationNotExistException {}
     output.writeLine("ok")
 
     output.write("testing sequences...")
     do {
-        var (retS, outS) = try initial.opBaseSeq([Base]())
-        (retS, outS) = try initial.opBaseSeq([Base(theS: S(), str: "")])
+        var (retS, outS) = try await initial.opBaseSeq([Base]())
+        (retS, outS) = try await initial.opBaseSeq([Base(theS: S(), str: "")])
         try test(retS.count == 1 && outS.count == 1)
     } catch is Ice.OperationNotExistException {}
     output.writeLine("ok")
@@ -209,31 +209,31 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         bottom.v = Recursive()
         bottom = bottom.v!
     }
-    try initial.setRecursive(top)
+    try await initial.setRecursive(top)
 
     // Adding one more level would exceed the max class graph depth
     bottom.v = Recursive()
     bottom = bottom.v!
     do {
-        try initial.setRecursive(top)
+        try await initial.setRecursive(top)
         try test(false)
     } catch is Ice.UnknownLocalException {
         // Expected marshal exception from the server(max class graph depth reached)
     }
-    try initial.setRecursive(Recursive())
+    try await initial.setRecursive(Recursive())
     output.writeLine("ok")
 
     output.write("testing compact ID...")
     do {
-        try test(initial.getCompact() != nil)
+        try await test(initial.getCompact() != nil)
     } catch is Ice.OperationNotExistException {}
     output.writeLine("ok")
 
     output.write("testing marshaled results...")
-    b1 = try initial.getMB()!
+    b1 = try await initial.getMB()!
     try test(b1.theB === b1)
     breakRetainCycleB(b1)
-    b1 = try await initial.getAMDMBAsync()!
+    b1 = try await initial.getAMDMB()!
     try test(b1.theB === b1)
     breakRetainCycleB(b1)
     output.writeLine("ok")
@@ -243,7 +243,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     base = try communicator.stringToProxy(ref)!
     let uoet = uncheckedCast(prx: base, type: UnexpectedObjectExceptionTestPrx.self)
     do {
-        _ = try uoet.op()
+        _ = try await uoet.op()
         try test(false)
     } catch let ex as Ice.MarshalException {
         try test(ex.message.contains("::Test::AlsoEmpty"))
@@ -258,7 +258,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     do {
         let k1 = StructKey(i: 1, s: "1")
         let k2 = StructKey(i: 2, s: "2")
-        let (m2, m1) = try initial.opM(M(v: [k1: L(data: "one"), k2: L(data: "two")]))
+        let (m2, m1) = try await initial.opM(M(v: [k1: L(data: "one"), k2: L(data: "two")]))
         try test(m1!.v.count == 2)
         try test(m2!.v.count == 2)
 
@@ -272,21 +272,21 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
 
     output.write("testing forward declarations... ")
     do {
-        let (f11, f12) = try initial.opF1(F1(name: "F11"))
+        let (f11, f12) = try await initial.opF1(F1(name: "F11"))
         try test(f11!.name == "F11")
         try test(f12!.name == "F12")
 
         ref = "F21:\(helper.getTestEndpoint(num: 0))"
-        let (f21, f22) = try initial.opF2(
+        let (f21, f22) = try await initial.opF2(
             uncheckedCast(
                 prx: communicator.stringToProxy(ref)!,
                 type: F2Prx.self))
         try test(f21!.ice_getIdentity().name == "F21")
-        try f21!.op()
+        try await f21!.op()
         try test(f22!.ice_getIdentity().name == "F22")
 
-        if try initial.hasF3() {
-            let (f31, f32) = try initial.opF3(F3(f1: f11, f2: f21))
+        if try await initial.hasF3() {
+            let (f31, f32) = try await initial.opF3(F3(f1: f11, f2: f21))
             try test(f31!.f1!.name == "F11")
             try test(f31!.f2!.ice_getIdentity().name == "F21")
 
@@ -300,9 +300,9 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     do {
         let rec = Recursive(v: nil)
         rec.v = rec
-        let acceptsCycles = try initial.acceptsClassCycles()
+        let acceptsCycles = try await initial.acceptsClassCycles()
         do {
-            try initial.setCycle(rec)
+            try await initial.setCycle(rec)
             try test(acceptsCycles)
         } catch is Ice.UnknownLocalException {
             try test(!acceptsCycles)

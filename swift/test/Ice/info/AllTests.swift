@@ -147,7 +147,7 @@ func allTests(_ helper: TestHelper) async throws {
     let base = try communicator.stringToProxy(
         "test:" + helper.getTestEndpoint(num: 0) + ":" + helper.getTestEndpoint(num: 0, prot: "udp"))!
 
-    let testIntf = try checkedCast(prx: base, type: TestIntfPrx.self)!
+    let testIntf = try await checkedCast(prx: base, type: TestIntfPrx.self)!
 
     let defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
 
@@ -159,7 +159,7 @@ func allTests(_ helper: TestHelper) async throws {
         try test(!tcpinfo.compress)
         try test(tcpinfo.host == defaultHost)
 
-        let ctx = try testIntf.getEndpointInfoAsContext()
+        let ctx = try await testIntf.getEndpointInfoAsContext()
         try test(ctx["host"] == tcpinfo.host)
         try test(ctx["compress"] == "false")
         let port = Int(ctx["port"]!)!
@@ -191,7 +191,7 @@ func allTests(_ helper: TestHelper) async throws {
         try test(ipInfo.rcvSize >= 1024)
         try test(ipInfo.sndSize >= 2048)
 
-        let ctx = try testIntf.getConnectionInfoAsContext()
+        let ctx = try await testIntf.getConnectionInfoAsContext()
         try test(ctx["incoming"] == "true")
         try test(ctx["adapterName"] == "TestAdapter")
         try test(ctx["remoteAddress"] == ipInfo.localAddress)
@@ -232,5 +232,5 @@ func allTests(_ helper: TestHelper) async throws {
     }
     output.writeLine("ok")
 
-    try testIntf.shutdown()
+    try await testIntf.shutdown()
 }

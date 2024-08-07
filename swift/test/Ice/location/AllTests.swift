@@ -22,7 +22,7 @@ func allTests(_ helper: TestHelper) async throws {
     )
 
     let locator = uncheckedCast(prx: communicator.getDefaultLocator()!, type: TestLocatorPrx.self)
-    let registry = try uncheckedCast(prx: locator.getRegistry()!, type: TestLocatorRegistryPrx.self)
+    let registry = try await uncheckedCast(prx: locator.getRegistry()!, type: TestLocatorRegistryPrx.self)
 
     output.write("testing stringToProxy... ")
     var base = try communicator.stringToProxy("test @ TestAdapter")!
@@ -71,92 +71,92 @@ func allTests(_ helper: TestHelper) async throws {
     output.writeLine("ok")
 
     output.write("starting server... ")
-    try manager.startServer()
+    try await manager.startServer()
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
-    var obj = try checkedCast(prx: base, type: TestIntfPrx.self)!
-    let obj2 = try checkedCast(prx: base2, type: TestIntfPrx.self)!
-    let obj3 = try checkedCast(prx: base3, type: TestIntfPrx.self)!
-    _ = try checkedCast(prx: base4, type: ServerManagerPrx.self)!
-    let obj5 = try checkedCast(prx: base5, type: TestIntfPrx.self)!
-    let obj6 = try checkedCast(prx: base6, type: TestIntfPrx.self)!
+    var obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
+    let obj2 = try await checkedCast(prx: base2, type: TestIntfPrx.self)!
+    let obj3 = try await checkedCast(prx: base3, type: TestIntfPrx.self)!
+    _ = try await checkedCast(prx: base4, type: ServerManagerPrx.self)!
+    let obj5 = try await checkedCast(prx: base5, type: TestIntfPrx.self)!
+    let obj6 = try await checkedCast(prx: base6, type: TestIntfPrx.self)!
     output.writeLine("ok")
 
     output.write("testing id@AdapterId indirect proxy... ")
-    try obj.shutdown()
-    try manager.startServer()
+    try await obj.shutdown()
+    try await manager.startServer()
     do {
-        try obj2.ice_ping()
+        try await obj2.ice_ping()
     } catch {
         try test(false)
     }
     output.writeLine("ok")
 
     output.write("testing id@ReplicaGroupId indirect proxy... ")
-    try obj.shutdown()
-    try manager.startServer()
+    try await obj.shutdown()
+    try await manager.startServer()
     do {
-        try obj6.ice_ping()
+        try await obj6.ice_ping()
     } catch {
         try test(false)
     }
     output.writeLine("ok")
 
     output.write("testing identity indirect proxy... ")
-    try obj.shutdown()
-    try manager.startServer()
+    try await obj.shutdown()
+    try await manager.startServer()
 
     do {
-        try obj3.ice_ping()
+        try await obj3.ice_ping()
     } catch {
         try test(false)
     }
 
     do {
-        try obj2.ice_ping()
+        try await obj2.ice_ping()
     } catch {
         try test(false)
     }
-    try obj.shutdown()
-    try manager.startServer()
+    try await obj.shutdown()
+    try await manager.startServer()
 
     do {
-        try obj2.ice_ping()
-    } catch {
-        try test(false)
-    }
-
-    do {
-        try obj3.ice_ping()
+        try await obj2.ice_ping()
     } catch {
         try test(false)
     }
 
-    try obj.shutdown()
-    try manager.startServer()
-
     do {
-        try obj2.ice_ping()
+        try await obj3.ice_ping()
     } catch {
         try test(false)
     }
 
-    try obj.shutdown()
-    try manager.startServer()
+    try await obj.shutdown()
+    try await manager.startServer()
 
     do {
-        try obj3.ice_ping()
+        try await obj2.ice_ping()
     } catch {
         try test(false)
     }
 
-    try obj.shutdown()
-    try manager.startServer()
+    try await obj.shutdown()
+    try await manager.startServer()
 
     do {
-        let obj5 = try checkedCast(prx: base5, type: TestIntfPrx.self)!
-        try obj5.ice_ping()
+        try await obj3.ice_ping()
+    } catch {
+        try test(false)
+    }
+
+    try await obj.shutdown()
+    try await manager.startServer()
+
+    do {
+        let obj5 = try await checkedCast(prx: base5, type: TestIntfPrx.self)!
+        try await obj5.ice_ping()
     } catch {
         try test(false)
     }
@@ -165,7 +165,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.write("testing proxy with unknown identity... ")
     do {
         base = try communicator.stringToProxy("unknown/unknown")!
-        try base.ice_ping()
+        try await base.ice_ping()
         try test(false)
     } catch let ex as Ice.NotRegisteredException {
         try test(ex.kindOfObject == "object")
@@ -176,7 +176,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.write("testing proxy with unknown adapter... ")
     do {
         base = try communicator.stringToProxy("test @ TestAdapterUnknown")!
-        try base.ice_ping()
+        try await base.ice_ping()
         try test(false)
     } catch let ex as Ice.NotRegisteredException {
         try test(ex.kindOfObject == "object adapter")
@@ -186,39 +186,39 @@ func allTests(_ helper: TestHelper) async throws {
 
     output.write("testing locator cache timeout... ")
     let basencc = try communicator.stringToProxy("test@TestAdapter")!.ice_connectionCached(false)
-    var count = try locator.getRequestCount()
-    try basencc.ice_locatorCacheTimeout(0).ice_ping()  // No locator cache.
+    var count = try await locator.getRequestCount()
+    try await basencc.ice_locatorCacheTimeout(0).ice_ping()  // No locator cache.
     count += 1
-    try test(count == locator.getRequestCount())
-    try basencc.ice_locatorCacheTimeout(0).ice_ping()  // No locator cache.
+    try await test(count == locator.getRequestCount())
+    try await basencc.ice_locatorCacheTimeout(0).ice_ping()  // No locator cache.
     count += 1
-    try test(count == locator.getRequestCount())
-    try basencc.ice_locatorCacheTimeout(2).ice_ping()  // 2s timeout.
-    try test(count == locator.getRequestCount())
+    try await test(count == locator.getRequestCount())
+    try await basencc.ice_locatorCacheTimeout(2).ice_ping()  // 2s timeout.
+    try await test(count == locator.getRequestCount())
     try await Task.sleep(for: .milliseconds(1300))
-    try basencc.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
+    try await basencc.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
     count += 1
-    try test(count == locator.getRequestCount())
+    try await test(count == locator.getRequestCount())
 
     // No locator cache.
-    try communicator.stringToProxy("test")!.ice_locatorCacheTimeout(0).ice_ping()
+    try await communicator.stringToProxy("test")!.ice_locatorCacheTimeout(0).ice_ping()
     count += 2
-    try test(count == locator.getRequestCount())
-    try communicator.stringToProxy("test")!.ice_locatorCacheTimeout(2).ice_ping()  // 2s timeout
-    try test(count == locator.getRequestCount())
+    try await test(count == locator.getRequestCount())
+    try await communicator.stringToProxy("test")!.ice_locatorCacheTimeout(2).ice_ping()  // 2s timeout
+    try await test(count == locator.getRequestCount())
     try await Task.sleep(for: .milliseconds(1300))
-    try communicator.stringToProxy("test")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout
+    try await communicator.stringToProxy("test")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout
     count += 2
-    try test(count == locator.getRequestCount())
+    try await test(count == locator.getRequestCount())
 
-    try communicator.stringToProxy("test@TestAdapter")!.ice_locatorCacheTimeout(-1).ice_ping()
-    try test(count == locator.getRequestCount())
-    try communicator.stringToProxy("test")!.ice_locatorCacheTimeout(-1).ice_ping()
-    try test(count == locator.getRequestCount())
-    try communicator.stringToProxy("test@TestAdapter")!.ice_ping()
-    try test(count == locator.getRequestCount())
-    try communicator.stringToProxy("test")!.ice_ping()
-    try test(count == locator.getRequestCount())
+    try await communicator.stringToProxy("test@TestAdapter")!.ice_locatorCacheTimeout(-1).ice_ping()
+    try await test(count == locator.getRequestCount())
+    try await communicator.stringToProxy("test")!.ice_locatorCacheTimeout(-1).ice_ping()
+    try await test(count == locator.getRequestCount())
+    try await communicator.stringToProxy("test@TestAdapter")!.ice_ping()
+    try await test(count == locator.getRequestCount())
+    try await communicator.stringToProxy("test")!.ice_ping()
+    try await test(count == locator.getRequestCount())
 
     try test(
         communicator.stringToProxy("test")!.ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout()
@@ -228,25 +228,25 @@ func allTests(_ helper: TestHelper) async throws {
 
     output.write("testing proxy from server... ")
     obj = try makeProxy(communicator: communicator, proxyString: "test@TestAdapter", type: TestIntfPrx.self)
-    var hello = try obj.getHello()!
+    var hello = try await obj.getHello()!
     try test(hello.ice_getAdapterId() == "TestAdapter")
-    try hello.sayHello()
-    hello = try obj.getReplicatedHello()!
+    try await hello.sayHello()
+    hello = try await obj.getReplicatedHello()!
     try test(hello.ice_getAdapterId() == "ReplicatedAdapter")
-    try hello.sayHello()
+    try await hello.sayHello()
     output.writeLine("ok")
 
     output.write("testing locator request queuing... ")
-    hello = try obj.getReplicatedHello()!.ice_locatorCacheTimeout(0).ice_connectionCached(false)
-    count = try locator.getRequestCount()
-    try hello.ice_ping()
+    hello = try await obj.getReplicatedHello()!.ice_locatorCacheTimeout(0).ice_connectionCached(false)
+    count = try await locator.getRequestCount()
+    try await hello.ice_ping()
     count += 1
-    try test(count == locator.getRequestCount())
+    try await test(count == locator.getRequestCount())
 
     try await withThrowingTaskGroup(of: Void.self) { [hello] taskGroup in
         for _ in 0..<1000 {
             taskGroup.addTask {
-                try await hello.sayHelloAsync()
+                try await hello.sayHello()
             }
         }
 
@@ -254,20 +254,20 @@ func allTests(_ helper: TestHelper) async throws {
         try await taskGroup.waitForAll()
     }
 
-    try test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999)
+    try await test(count...count + 1999 ~= locator.getRequestCount())
 
-    if try locator.getRequestCount() > count + 800 {
-        try output.write("queuing = \(locator.getRequestCount() - count)")
+    if try await locator.getRequestCount() > count + 800 {
+        try await output.write("queuing = \(locator.getRequestCount() - count)")
     }
 
-    count = try locator.getRequestCount()
+    count = try await locator.getRequestCount()
     hello = hello.ice_adapterId("unknown")
 
     try await withThrowingTaskGroup(of: Void.self) { [hello] taskGroup in
         for _ in 0..<1000 {
             taskGroup.addTask {
                 do {
-                    try await hello.sayHelloAsync()
+                    try await hello.sayHello()
                     try test(false)
                 } catch is Ice.NotRegisteredException {}
             }
@@ -278,116 +278,116 @@ func allTests(_ helper: TestHelper) async throws {
     }
 
     // TODO: Take into account the retries.
-    try test(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999)
+    try await test(count...count + 1999 ~= locator.getRequestCount())
 
-    if try locator.getRequestCount() > count + 800 {
-        try output.write("queuing = \(locator.getRequestCount() - count)")
+    if try await locator.getRequestCount() > count + 800 {
+        try await output.write("queuing = \(locator.getRequestCount() - count)")
     }
     output.writeLine("ok")
 
     output.write("testing adapter locator cache... ")
     do {
-        try communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
+        try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
         try test(false)
     } catch let ex as Ice.NotRegisteredException {
         try test(ex.kindOfObject == "object adapter")
         try test(ex.id == "TestAdapter3")
     }
 
-    try registry.setAdapterDirectProxy(
+    try await registry.setAdapterDirectProxy(
         id: "TestAdapter3", proxy: locator.findAdapterById("TestAdapter"))
     do {
-        try communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
-        try registry.setAdapterDirectProxy(
+        try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
+        try await registry.setAdapterDirectProxy(
             id: "TestAdapter3",
             proxy: communicator.stringToProxy("dummy:\(helper.getTestEndpoint(num: 99))")
         )
-        try communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
+        try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
     } catch {
         try test(false)
     }
 
     do {
-        try communicator.stringToProxy("test@TestAdapter3")!.ice_locatorCacheTimeout(0).ice_ping()
+        try await communicator.stringToProxy("test@TestAdapter3")!.ice_locatorCacheTimeout(0).ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
     do {
-        try communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
+        try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
-    try registry.setAdapterDirectProxy(
+    try await registry.setAdapterDirectProxy(
         id: "TestAdapter3", proxy: locator.findAdapterById("TestAdapter"))
     do {
-        try communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
+        try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
     } catch {
         try test(false)
     }
     output.writeLine("ok")
 
     output.write("testing well-known object locator cache... ")
-    try registry.addObject(communicator.stringToProxy("test3@TestUnknown"))
+    try await registry.addObject(communicator.stringToProxy("test3@TestUnknown"))
     do {
-        try communicator.stringToProxy("test3")!.ice_ping()
+        try await communicator.stringToProxy("test3")!.ice_ping()
         try test(false)
     } catch let ex as Ice.NotRegisteredException {
         try test(ex.kindOfObject == "object adapter")
         try test(ex.id == "TestUnknown")
     }
-    try registry.addObject(communicator.stringToProxy("test3@TestAdapter4"))  // Update
-    try registry.setAdapterDirectProxy(
+    try await registry.addObject(communicator.stringToProxy("test3@TestAdapter4"))  // Update
+    try await registry.setAdapterDirectProxy(
         id: "TestAdapter4",
         proxy: communicator.stringToProxy("dummy:\(helper.getTestEndpoint(num: 99))"))
     do {
-        try communicator.stringToProxy("test3")!.ice_ping()
+        try await communicator.stringToProxy("test3")!.ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
-    try registry.setAdapterDirectProxy(
+    try await registry.setAdapterDirectProxy(
         id: "TestAdapter4", proxy: locator.findAdapterById("TestAdapter"))
     do {
-        try communicator.stringToProxy("test3")!.ice_ping()
+        try await communicator.stringToProxy("test3")!.ice_ping()
     } catch {
         try test(false)
     }
 
-    try registry.setAdapterDirectProxy(
+    try await registry.setAdapterDirectProxy(
         id: "TestAdapter4",
         proxy: communicator.stringToProxy("dummy:\(helper.getTestEndpoint(num: 99))"))
     do {
-        try communicator.stringToProxy("test3")!.ice_ping()
+        try await communicator.stringToProxy("test3")!.ice_ping()
     } catch {
         try test(false)
     }
 
     do {
-        try communicator.stringToProxy("test@TestAdapter4")!.ice_locatorCacheTimeout(0).ice_ping()
+        try await communicator.stringToProxy("test@TestAdapter4")!.ice_locatorCacheTimeout(0).ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
     do {
-        try communicator.stringToProxy("test@TestAdapter4")!.ice_ping()
+        try await communicator.stringToProxy("test@TestAdapter4")!.ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
     do {
-        try communicator.stringToProxy("test3")!.ice_ping()
+        try await communicator.stringToProxy("test3")!.ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
-    try registry.addObject(communicator.stringToProxy("test3@TestAdapter"))
+    try await registry.addObject(communicator.stringToProxy("test3@TestAdapter"))
 
     do {
-        try communicator.stringToProxy("test3")!.ice_ping()
+        try await communicator.stringToProxy("test3")!.ice_ping()
     } catch {
         try test(false)
     }
 
-    try registry.addObject(communicator.stringToProxy("test4"))
+    try await registry.addObject(communicator.stringToProxy("test4"))
 
     do {
-        try communicator.stringToProxy("test4")!.ice_ping()
+        try await communicator.stringToProxy("test4")!.ice_ping()
         try test(false)
     } catch is Ice.NoEndpointException {}
     output.writeLine("ok")
@@ -401,24 +401,24 @@ func allTests(_ helper: TestHelper) async throws {
 
         let ic = try helper.initialize(initData)
 
-        try registry.setAdapterDirectProxy(
+        try await registry.setAdapterDirectProxy(
             id: "TestAdapter5", proxy: locator.findAdapterById("TestAdapter"))
-        try registry.addObject(communicator.stringToProxy("test3@TestAdapter"))
+        try await registry.addObject(communicator.stringToProxy("test3@TestAdapter"))
 
-        count = try locator.getRequestCount()
+        count = try await locator.getRequestCount()
 
         // No locator cache.
-        try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(0).ice_ping()
-        try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(0).ice_ping()  // No locator cache.
+        try await ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(0).ice_ping()
+        try await ic.stringToProxy("test3")!.ice_locatorCacheTimeout(0).ice_ping()  // No locator cache.
         count += 3
-        try test(count == locator.getRequestCount())
-        try registry.setAdapterDirectProxy(id: "TestAdapter5", proxy: nil)
-        try registry.addObject(communicator.stringToProxy("test3:" + helper.getTestEndpoint(num: 99)))
+        try await test(count == locator.getRequestCount())
+        try await registry.setAdapterDirectProxy(id: "TestAdapter5", proxy: nil)
+        try await registry.addObject(communicator.stringToProxy("test3:" + helper.getTestEndpoint(num: 99)))
 
         // 10s timeout.
-        try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(10).ice_ping()
-        try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(10).ice_ping()  // 10s timeout.
-        try test(count == locator.getRequestCount())
+        try await ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(10).ice_ping()
+        try await ic.stringToProxy("test3")!.ice_locatorCacheTimeout(10).ice_ping()  // 10s timeout.
+        try await test(count == locator.getRequestCount())
         try await Task.sleep(for: .milliseconds(1200))
 
         // The following request should trigger the background
@@ -426,13 +426,13 @@ func allTests(_ helper: TestHelper) async throws {
         // therefore succeed.
 
         // 1s timeout.
-        try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()
-        try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
+        try await ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()
+        try await ic.stringToProxy("test3")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
 
         do {
             while true {
                 // 1s timeout.
-                try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()
+                try await ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()
                 try await Task.sleep(for: .milliseconds(100))
             }
         } catch is Ice.LocalException {
@@ -441,7 +441,7 @@ func allTests(_ helper: TestHelper) async throws {
 
         do {
             while true {
-                try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
+                try await ic.stringToProxy("test3")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
                 try await Task.sleep(for: .milliseconds(100))
             }
         } catch is Ice.LocalException {
@@ -452,55 +452,55 @@ func allTests(_ helper: TestHelper) async throws {
     output.writeLine("ok")
 
     output.write("testing proxy from server after shutdown... ")
-    hello = try obj.getReplicatedHello()!
-    try obj.shutdown()
-    try manager.startServer()
-    try hello.sayHello()
+    hello = try await obj.getReplicatedHello()!
+    try await obj.shutdown()
+    try await manager.startServer()
+    try await hello.sayHello()
     output.writeLine("ok")
 
     output.write("testing object migration... ")
     hello = try makeProxy(communicator: communicator, proxyString: "hello", type: HelloPrx.self)
-    try obj.migrateHello()
+    try await obj.migrateHello()
     try await hello.ice_getConnection()!.close(.GracefullyWithWait)
-    try hello.sayHello()
-    try obj.migrateHello()
-    try hello.sayHello()
-    try obj.migrateHello()
-    try hello.sayHello()
+    try await hello.sayHello()
+    try await obj.migrateHello()
+    try await hello.sayHello()
+    try await obj.migrateHello()
+    try await hello.sayHello()
     output.writeLine("ok")
 
     output.write("testing locator encoding resolution... ")
     hello = try makeProxy(communicator: communicator, proxyString: "hello", type: HelloPrx.self)
-    count = try locator.getRequestCount()
-    try communicator.stringToProxy("test@TestAdapter")!.ice_encodingVersion(Ice.Encoding_1_1)
+    count = try await locator.getRequestCount()
+    try await communicator.stringToProxy("test@TestAdapter")!.ice_encodingVersion(Ice.Encoding_1_1)
         .ice_ping()
-    try test(count == locator.getRequestCount())
-    try communicator.stringToProxy("test@TestAdapter10")!.ice_encodingVersion(Ice.Encoding_1_0)
+    try await test(count == locator.getRequestCount())
+    try await communicator.stringToProxy("test@TestAdapter10")!.ice_encodingVersion(Ice.Encoding_1_0)
         .ice_ping()
     count += 1
-    try test(count == locator.getRequestCount())
-    try communicator.stringToProxy("test -e 1.0@TestAdapter10-2")!.ice_ping()
+    try await test(count == locator.getRequestCount())
+    try await communicator.stringToProxy("test -e 1.0@TestAdapter10-2")!.ice_ping()
     count += 1
-    try test(count == locator.getRequestCount())
+    try await test(count == locator.getRequestCount())
     output.writeLine("ok")
 
     output.write("shutdown server... ")
-    try obj.shutdown()
+    try await obj.shutdown()
     output.writeLine("ok")
 
     output.write("testing whether server is gone... ")
     do {
-        try obj2.ice_ping()
+        try await obj2.ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
     do {
-        try obj3.ice_ping()
+        try await obj3.ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
     do {
-        try obj5.ice_ping()
+        try await obj5.ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
     output.writeLine("ok")
@@ -522,23 +522,23 @@ func allTests(_ helper: TestHelper) async throws {
     do {
         let helloPrx = try makeProxy(
             communicator: communicator, proxyString: "\(communicator.identityToString(ident))", type: HelloPrx.self)
-        try helloPrx.ice_ping()
+        try await helloPrx.ice_ping()
         try test(false)
     } catch is Ice.NotRegisteredException {
         // Calls on the well-known proxy are not collocated because of issue #507
     }
 
     // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-    var helloPrx = try checkedCast(prx: adapter.createIndirectProxy(ident), type: HelloPrx.self)!
+    var helloPrx = try await checkedCast(prx: adapter.createIndirectProxy(ident), type: HelloPrx.self)!
     try await test(helloPrx.ice_getConnection() == nil)
 
     // Ensure that calls on the direct proxy is collocated
-    helloPrx = try checkedCast(prx: adapter.createDirectProxy(ident), type: HelloPrx.self)!
+    helloPrx = try await checkedCast(prx: adapter.createDirectProxy(ident), type: HelloPrx.self)!
     try await test(helloPrx.ice_getConnection() == nil)
 
     output.writeLine("ok")
 
     output.write("shutdown server manager... ")
-    try manager.shutdown()
+    try await manager.shutdown()
     output.writeLine("ok")
 }

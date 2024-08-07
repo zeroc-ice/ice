@@ -65,9 +65,9 @@ public func allTests(_ helper: TestHelper) async throws {
     var ret = false
     for _ in 0..<5 {
         replyI.reset()
-        try obj.ping(reply)
-        try obj.ping(reply)
-        try obj.ping(reply)
+        try await obj.ping(reply)
+        try await obj.ping(reply)
+        try await obj.ping(reply)
         ret = replyI.waitReply(expectedReplies: 3, timeout: 2000)
         if ret {
             break  // Success
@@ -94,7 +94,7 @@ public func allTests(_ helper: TestHelper) async throws {
             while true {
                 seq = ByteSeq(repeating: 0, count: seq.count * 2 + 10)
                 replyI.reset()
-                try obj.sendByteSeq(seq: seq, reply: reply)
+                try await obj.sendByteSeq(seq: seq, reply: reply)
                 _ = replyI.waitReply(expectedReplies: 1, timeout: 10000)
             }
         } catch is Ice.DatagramLimitException {
@@ -109,7 +109,7 @@ public func allTests(_ helper: TestHelper) async throws {
         seq = ByteSeq(repeating: 0, count: 50000)
         do {
             replyI.reset()
-            try obj.sendByteSeq(seq: seq, reply: reply)
+            try await obj.sendByteSeq(seq: seq, reply: reply)
             let b = replyI.waitReply(expectedReplies: 1, timeout: 500)
             //
             // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
@@ -138,7 +138,7 @@ public func allTests(_ helper: TestHelper) async throws {
     for _ in 0..<5 {
         replyI.reset()
         do {
-            try objMcast.ping(reply)
+            try await objMcast.ping(reply)
             ret = replyI.waitReply(expectedReplies: 5, timeout: 5000)
         } catch is Ice.SocketException where communicator.getProperties().getProperty("Ice.IPv6") == "1" {
             output.write("(not supported) ")
@@ -165,9 +165,9 @@ public func allTests(_ helper: TestHelper) async throws {
     try await obj.ice_getConnection()!.setAdapter(adapter)
     for _ in 0..<5 {
         replyI.reset()
-        try obj.pingBiDir(reply.ice_getIdentity())
-        try obj.pingBiDir(reply.ice_getIdentity())
-        try obj.pingBiDir(reply.ice_getIdentity())
+        try await obj.pingBiDir(reply.ice_getIdentity())
+        try await obj.pingBiDir(reply.ice_getIdentity())
+        try await obj.pingBiDir(reply.ice_getIdentity())
         ret = replyI.waitReply(expectedReplies: 3, timeout: 2000)
         if ret {
             break  // Success
@@ -180,34 +180,4 @@ public func allTests(_ helper: TestHelper) async throws {
     }
     try test(ret)
     output.writeLine("ok")
-
-    //
-    // Sending the replies back on the multicast UDP connection doesn't work for most
-    // platform(it works for macOS Leopard but not Snow Leopard, doesn't work on SLES,
-    // Windows...). For Windows, see UdpTransceiver constructor for the details. So
-    // we don't run this test.
-    //
-    //         Console.Out.Write("testing udp bi-dir connection... ");
-    //         nRetry = 5;
-    //         while(nRetry-- > 0)
-    //         {
-    //             replyI.reset();
-    //             objMcast.pingBiDir(reply.ice_getIdentity());
-    //             ret = replyI.waitReply(5, 2000);
-    //             if(ret)
-    //             {
-    //                 break; // Success
-    //             }
-    //             replyI = new PingReplyI();
-    //             reply =(PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
-    //         }
-
-    //         if(!ret)
-    //         {
-    //             Console.Out.WriteLine("failed(is a firewall enabled?)");
-    //         }
-    //         else
-    //         {
-    //             Console.Out.WriteLine("ok");
-    //         }
 }

@@ -22,7 +22,7 @@ final class MyObjectI: ObjectI<MyObjectTraits>, MyObject {
     }
 }
 
-func allTests(_ helper: TestHelper) throws {
+func allTests(_ helper: TestHelper) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -61,31 +61,31 @@ func allTests(_ helper: TestHelper) throws {
     for name in names {
         identity.name = name
         prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
-        try prx.ice_ping()
-        try test(prx.getName() == name)
+        try await prx.ice_ping()
+        try await test(prx.getName() == name)
     }
 
     identity.name = "ObjectNotExist"
     prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
     do {
-        try prx.ice_ping()
+        try await prx.ice_ping()
         try test(false)
     } catch is Ice.ObjectNotExistException {}  // Expected
 
     do {
-        _ = try prx.getName()
+        _ = try await prx.getName()
         try test(false)
     } catch is Ice.ObjectNotExistException {}  // Expected
 
     identity.name = "FacetNotExist"
     prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
     do {
-        try prx.ice_ping()
+        try await prx.ice_ping()
         try test(false)
     } catch is Ice.FacetNotExistException {}  // Expected
 
     do {
-        _ = try prx.getName()
+        _ = try await prx.getName()
         try test(false)
     } catch is Ice.FacetNotExistException {}  // Expected
 
@@ -95,12 +95,12 @@ func allTests(_ helper: TestHelper) throws {
         prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
 
         do {
-            try prx.ice_ping()
+            try await prx.ice_ping()
             try test(false)
         } catch is Ice.ObjectNotExistException {}  // Expected
 
         do {
-            _ = try prx.getName()
+            _ = try await prx.getName()
             try test(false)
         } catch is Ice.ObjectNotExistException {}  // Expected
     }
@@ -109,7 +109,7 @@ func allTests(_ helper: TestHelper) throws {
     identity.category = "foo"
     prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
     do {
-        try prx.ice_ping()
+        try await prx.ice_ping()
         try test(false)
     } catch is Ice.ObjectNotExistException {}  // Expected
 
@@ -128,8 +128,8 @@ func allTests(_ helper: TestHelper) throws {
     for name in names {
         identity.name = name
         prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
-        try prx.ice_ping()
-        try test(prx.getName() == name)
+        try await prx.ice_ping()
+        try await test(prx.getName() == name)
     }
     output.writeLine("ok")
 }

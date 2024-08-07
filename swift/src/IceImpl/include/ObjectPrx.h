@@ -84,27 +84,20 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
     encodingMajor:(uint8_t)encodingMajor
     encodingMinor:(uint8_t)encodingMinor;
 
-- (BOOL)invoke:(NSString* _Nonnull)op
-          mode:(uint8_t)mode
-      inParams:(NSData*)inParams
-       context:(NSDictionary* _Nullable)context
-      response:(void (^)(bool, void*, long))response
-         error:(NSError* _Nullable* _Nullable)error;
-
-// Sync invocation on oneway proxy
-- (BOOL)onewayInvoke:(NSString* _Nonnull)op
+// Sync invocation on batch proxy
+- (BOOL)enqueueBatch:(NSString* _Nonnull)op
                 mode:(uint8_t)mode
             inParams:(NSData*)inParams
              context:(NSDictionary* _Nullable)context
                error:(NSError* _Nullable* _Nullable)error;
 
-- (void)invokeAsync:(NSString* _Nonnull)op
-               mode:(uint8_t)mode
-           inParams:(NSData*)inParams
-            context:(NSDictionary* _Nullable)context
-           response:(void (^)(bool, void*, long))response
-          exception:(void (^)(NSError*))exception
-               sent:(void (^_Nullable)(bool))sent;
+- (void)invoke:(NSString* _Nonnull)op
+          mode:(uint8_t)mode
+      inParams:(NSData*)inParams
+       context:(NSDictionary* _Nullable)context
+      response:(void (^)(bool, void*, long))response
+     exception:(void (^)(NSError*))exception
+          sent:(void (^_Nullable)(bool))sent;
 
 - (bool)isEqual:(ICEObjectPrx* _Nullable)prx;
 

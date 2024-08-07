@@ -103,7 +103,7 @@ class TestI: TestIntf {
 
     func pingBiDir(reply: PingReplyPrx?, current: Current) async throws {
         if let reply = reply {
-            try reply.ice_fixed(current.con!).reply()
+            try await reply.ice_fixed(current.con!).reply()
         }
     }
 
