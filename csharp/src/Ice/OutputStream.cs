@@ -144,25 +144,6 @@ public sealed class OutputStream
     }
 
     /// <summary>
-    /// Prepares the internal data buffer to be written to a socket.
-    /// </summary>
-    public Ice.Internal.Buffer prepareWrite()
-    {
-        _buf.b.limit(_buf.size());
-        _buf.b.position(0);
-        return _buf;
-    }
-
-    /// <summary>
-    /// Retrieves the internal data buffer.
-    /// </summary>
-    /// <returns>The buffer.</returns>
-    public Ice.Internal.Buffer getBuffer()
-    {
-        return _buf;
-    }
-
-    /// <summary>
     /// Marks the start of a class instance.
     /// </summary>
     /// <param name="data">Preserved slices for this instance, or null.</param>
@@ -1759,6 +1740,25 @@ public sealed class OutputStream
     public void expand(int n)
     {
         _buf.expand(n);
+    }
+
+    /// <summary>
+    /// Prepares the internal data buffer to be written to a socket.
+    /// </summary>
+    internal Ice.Internal.Buffer prepareWrite()
+    {
+        _buf.b.limit(_buf.size());
+        _buf.b.position(0);
+        return _buf;
+    }
+
+    /// <summary>
+    /// Retrieves the internal data buffer.
+    /// </summary>
+    /// <returns>The buffer.</returns>
+    internal Ice.Internal.Buffer getBuffer()
+    {
+        return _buf;
     }
 
     private Ice.Internal.Buffer _buf;
