@@ -79,8 +79,7 @@
     }
     catch (...)
     {
-        // Typically CommunicatorDestroyedException. Note that the callback is called on the
-        // thread making the invocation.
+        // Typically CommunicatorDestroyedException.
         exception(convertException(std::current_exception()));
     }
 }
