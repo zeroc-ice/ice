@@ -348,7 +348,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                         catch e
                             reason = sprintf('constructor failed for type %s with compact id %d', ...
                                 eval(sprintf('IceCompactId.TypeId_%d.typeId', compactId)), compactId);
-                            % TODO does this type still exist in MATLAB?
                             ex = Ice.NoValueFactoryException('', reason, reason, '');
                             ex.addCause(e);
                             throw(ex);

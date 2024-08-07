@@ -934,7 +934,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         //
         if (router == nullopt && noProps)
         {
-            throw InitializationException(__FILE__, __LINE__, "Object adapter `" + _name + "' requires configuration.");
+            throw InitializationException(__FILE__, __LINE__, "object adapter `" + _name + "' requires configuration");
         }
 
         const_cast<string&>(_id) = properties->getProperty(_name + ".AdapterId");

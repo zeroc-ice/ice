@@ -171,7 +171,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 setState(
                     StateClosing,
                     new ConnectionClosedException(
-                        "Connection closed gracefully by the application.",
+                        "The connection was closed gracefully by the application.",
                         closedByApplication: true));
             }
             else
@@ -189,7 +189,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 setState(
                     StateClosing,
                     new ConnectionClosedException(
-                        "Connection closed gracefully by the application.",
+                        "The connection was closed gracefully by the application.",
                         closedByApplication: true));
             }
         }
