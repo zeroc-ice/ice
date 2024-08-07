@@ -171,7 +171,9 @@ public class AllTests {
       o.ice_ids();
       test(false);
     } catch (UnknownUserException ex) {
-      test(ex.getMessage().equals("::Test::TestIntfUserException"));
+      var expected =
+          "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
+      test(ex.getMessage().equals(expected));
     } catch (Throwable ex) {
       test(false);
     }
@@ -181,7 +183,9 @@ public class AllTests {
       o.ice_ids();
       test(false);
     } catch (UnknownUserException ex) {
-      test(ex.getMessage().equals("::Test::TestIntfUserException"));
+      var expected =
+          "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
+      test(ex.getMessage().equals(expected));
     } catch (Throwable ex) {
       test(false);
     }

@@ -129,7 +129,7 @@ UnknownUserException
 Ice::UnknownUserException::fromTypeId(const char* file, int line, const char* typeId)
 {
     ostringstream os;
-    os << "the reply carries a user exception that does not conform to the exception specification of the operation: ";
+    os << "the reply carries a user exception that does not conform to the operation's exception specification: ";
     os << typeId;
     return UnknownUserException{file, line, os.str()};
 }

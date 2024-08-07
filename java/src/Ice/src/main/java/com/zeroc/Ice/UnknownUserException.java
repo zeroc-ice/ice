@@ -19,7 +19,7 @@ public final class UnknownUserException extends UnknownException {
 
   public static UnknownUserException fromTypeId(String typeId) {
     return new UnknownUserException(
-        "The reply carries a user exception that does not conform to the exception specification of the operation: "
+        "The reply carries a user exception that does not conform to the operation's exception specification: "
             + typeId);
   }
 
