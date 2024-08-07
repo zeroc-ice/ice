@@ -71,18 +71,6 @@ namespace
         return name;
     }
 
-    string getEscapedParamName(const DataMemberList& params, const string& name)
-    {
-        for (DataMemberList::const_iterator i = params.begin(); i != params.end(); ++i)
-        {
-            if ((*i)->name() == name)
-            {
-                return name + "_";
-            }
-        }
-        return name;
-    }
-
     // Returns java.util.OptionalXXX.ofYYY depending on the type
     string ofFactory(const TypePtr& type)
     {
@@ -2703,6 +2691,11 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string absolute = getUnqualified(p);
     DataMemberList members = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
+    DataMemberList baseDataMembers;
+    if (base)
+    {
+        baseDataMembers = base->allDataMembers();
+    }
 
     open(absolute, p->file());
 
@@ -2735,53 +2728,33 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sp;
     out << nl << "public " << name << "()";
     out << sb;
-    if (base)
-    {
-        out << nl << "super();";
-    }
     writeDataMemberInitializers(out, members, package);
     out << eb;
-
-    out << sp;
-    out << nl << "public " << name << "(Throwable cause)";
-    out << sb;
-    out << nl << "super(cause);";
-    writeDataMemberInitializers(out, members, package);
-    out << eb;
-
-    bool hasOptionalMembers = false;
-    bool hasRequiredMembers = false;
-    for (DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
-    {
-        if ((*d)->optional())
-        {
-            hasOptionalMembers = true;
-        }
-        else
-        {
-            hasRequiredMembers = true;
-        }
-    }
 
     if (!allDataMembers.empty())
     {
-        DataMemberList baseDataMembers;
-        if (base)
-        {
-            baseDataMembers = base->allDataMembers();
-        }
-
-        //
-        // Generate constructor if the parameter list is not too large.
-        //
+        // Only generate additional constructors if the parameter list is not too large.
         if (isValidMethodParameterList(allDataMembers))
         {
+            bool hasOptionalMembers = false;
+            bool hasRequiredMembers = false;
+            for (const auto& member : allDataMembers)
+            {
+                if (member->optional())
+                {
+                    hasOptionalMembers = true;
+                }
+                else
+                {
+                    hasRequiredMembers = true;
+                }
+            }
             if (hasRequiredMembers && hasOptionalMembers)
             {
                 bool hasBaseRequired = false;
-                for (DataMemberList::const_iterator d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                for (const auto& member : baseDataMembers)
                 {
-                    if (!(*d)->optional())
+                    if (!member->optional())
                     {
                         hasBaseRequired = true;
                         break;
@@ -2790,18 +2763,16 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
                 DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
-                //
                 // Generate a constructor accepting parameters for just the required members.
-                //
                 out << sp << nl << "public " << name << spar;
                 vector<string> paramDecl;
-                for (DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+                for (const auto& member : allDataMembers)
                 {
-                    if (!(*d)->optional())
+                    if (!member->optional())
                     {
-                        string memberName = fixKwd((*d)->name());
+                        string memberName = fixKwd(member->name());
                         string memberType =
-                            typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData(), true, false);
+                            typeToString(member->type(), TypeModeMember, package, member->getMetaData(), true, false);
                         paramDecl.push_back(memberType + " " + memberName);
                     }
                 }
@@ -2813,100 +2784,61 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     {
                         out << nl << "super" << spar;
                         vector<string> baseParamNames;
-                        for (DataMemberList::const_iterator d = baseDataMembers.begin(); d != baseDataMembers.end();
-                             ++d)
+                        for (const auto& member : baseDataMembers)
                         {
-                            if (!(*d)->optional())
+                            if (!member->optional())
                             {
-                                baseParamNames.push_back(fixKwd((*d)->name()));
+                                baseParamNames.push_back(fixKwd(member->name()));
                             }
                         }
                         out << baseParamNames << epar << ';';
                     }
                 }
 
-                for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+                for (const auto& member : members)
                 {
-                    if (!(*d)->optional())
+                    if (!member->optional())
                     {
-                        string paramName = fixKwd((*d)->name());
+                        string paramName = fixKwd(member->name());
                         out << nl << "this." << paramName << " = " << paramName << ';';
                     }
                 }
                 writeDataMemberInitializers(out, optionalMembers, package);
                 out << eb;
-
-                //
-                // Create constructor that takes all data members plus a Throwable.
-                // Do this only when the parameter list is not too large.
-                //
-                if (isValidMethodParameterList(allDataMembers, 1))
-                {
-                    const string causeParamName = getEscapedParamName(allDataMembers, "cause");
-
-                    paramDecl.push_back("Throwable " + causeParamName);
-                    out << sp << nl << "public " << name << spar;
-                    out << paramDecl << epar;
-                    out << sb;
-                    if (hasBaseRequired)
-                    {
-                        out << nl << "super" << spar;
-                        vector<string> baseParamNames;
-                        for (DataMemberList::const_iterator d = baseDataMembers.begin(); d != baseDataMembers.end();
-                             ++d)
-                        {
-                            if (!(*d)->optional())
-                            {
-                                baseParamNames.push_back(fixKwd((*d)->name()));
-                            }
-                        }
-                        baseParamNames.push_back(causeParamName);
-                        out << baseParamNames << epar << ';';
-                    }
-                    else
-                    {
-                        out << nl << "super(" << causeParamName << ");";
-                    }
-                    for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
-                    {
-                        if (!(*d)->optional())
-                        {
-                            string paramName = fixKwd((*d)->name());
-                            out << nl << "this." << paramName << " = " << paramName << ';';
-                        }
-                    }
-                    writeDataMemberInitializers(out, optionalMembers, package);
-                    out << eb;
-                }
             }
 
+            //
+            // Primary constructor which takes all data members.
+            //
             out << sp << nl << "public " << name << spar;
             vector<string> paramDecl;
-            for (DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+            for (const auto& member : allDataMembers)
             {
-                string memberName = fixKwd((*d)->name());
+                string memberName = fixKwd(member->name());
                 string memberType =
-                    typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData(), true, false);
+                    typeToString(member->type(), TypeModeMember, package, member->getMetaData(), true, false);
                 paramDecl.push_back(memberType + " " + memberName);
             }
             out << paramDecl << epar;
             out << sb;
+            // Set any base members by calling the super-constructor (if necessary).
             if (base && allDataMembers.size() != members.size())
             {
                 out << nl << "super" << spar;
                 vector<string> baseParamNames;
                 DataMemberList baseDataMemberList = base->allDataMembers();
-                for (DataMemberList::const_iterator d = baseDataMemberList.begin(); d != baseDataMemberList.end(); ++d)
+                for (const auto& member : baseDataMemberList)
                 {
-                    baseParamNames.push_back(fixKwd((*d)->name()));
+                    baseParamNames.push_back(fixKwd(member->name()));
                 }
 
                 out << baseParamNames << epar << ';';
             }
-            for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+            // Set any non-base members in the constructor body.
+            for (const auto& member : members)
             {
-                string paramName = fixKwd((*d)->name());
-                if ((*d)->optional())
+                string paramName = fixKwd(member->name());
+                if (member->optional())
                 {
                     string capName = paramName;
                     capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -2918,52 +2850,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 }
             }
             out << eb;
-
-            //
-            // Create constructor that takes all data members plus a Throwable.
-            // Do this only when the parameter list is not too large.
-            //
-            if (isValidMethodParameterList(allDataMembers, 1))
-            {
-                const string causeParamName = getEscapedParamName(allDataMembers, "cause");
-
-                paramDecl.push_back("Throwable " + causeParamName);
-                out << sp << nl << "public " << name << spar;
-                out << paramDecl << epar;
-                out << sb;
-                if (!base)
-                {
-                    out << nl << "super(" << causeParamName << ");";
-                }
-                else
-                {
-                    out << nl << "super" << spar;
-                    vector<string> baseParamNames;
-                    DataMemberList baseDataMemberList = base->allDataMembers();
-                    for (DataMemberList::const_iterator d = baseDataMemberList.begin(); d != baseDataMemberList.end();
-                         ++d)
-                    {
-                        baseParamNames.push_back(fixKwd((*d)->name()));
-                    }
-                    baseParamNames.push_back(causeParamName);
-                    out << baseParamNames << epar << ';';
-                }
-                for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
-                {
-                    string paramName = fixKwd((*d)->name());
-                    if ((*d)->optional())
-                    {
-                        string capName = paramName;
-                        capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
-                        out << nl << "set" << capName << '(' << paramName << ");";
-                    }
-                    else
-                    {
-                        out << nl << "this." << paramName << " = " << paramName << ';';
-                    }
-                }
-                out << eb;
-            }
         }
     }
 
