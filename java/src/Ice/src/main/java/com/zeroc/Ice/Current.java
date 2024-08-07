@@ -216,26 +216,27 @@ public final class Current implements Cloneable {
         throw new MarshalException("Unexpected exception type");
       }
 
-      Identity id = rfe.id;
-      String facet = rfe.facet;
-      if (id.name.isEmpty()) {
-        id = this.id;
-        facet = this.facet;
+      Identity objectId = rfe.id;
+      String objectFacet = rfe.facet;
+      if (objectId.name.isEmpty()) {
+        objectId = this.id;
+        objectFacet = this.facet;
       }
 
       String operation = rfe.operation.isEmpty() ? this.operation : rfe.operation;
 
       exceptionDetails =
-          RequestFailedException.createMessage(rfe.getClass().getName(), id, facet, operation);
+          RequestFailedException.createMessage(
+              rfe.getClass().getName(), objectId, objectFacet, operation);
 
       if (requestId != 0) {
         ostr.writeByte(replyStatus.value());
-        Identity.ice_write(ostr, id);
+        Identity.ice_write(ostr, objectId);
 
-        if (facet.isEmpty()) {
+        if (objectFacet.isEmpty()) {
           ostr.writeStringSeq(new String[] {});
         } else {
-          ostr.writeStringSeq(new String[] {facet});
+          ostr.writeStringSeq(new String[] {objectFacet});
         }
 
         ostr.writeString(operation);
@@ -254,15 +255,15 @@ public final class Current implements Cloneable {
     } else if (exc instanceof UnknownLocalException ex) {
       exceptionId = ex.ice_id();
       replyStatus = ReplyStatus.UnknownLocalException;
-      unknownExceptionMessage = ex.toString();
+      unknownExceptionMessage = ex.getMessage();
     } else if (exc instanceof UnknownUserException ex) {
       exceptionId = ex.ice_id();
       replyStatus = ReplyStatus.UnknownUserException;
-      unknownExceptionMessage = ex.toString();
+      unknownExceptionMessage = ex.getMessage();
     } else if (exc instanceof UnknownException ex) {
       exceptionId = ex.ice_id();
       replyStatus = ReplyStatus.UnknownException;
-      unknownExceptionMessage = ex.toString();
+      unknownExceptionMessage = ex.getMessage();
     } else if (exc instanceof LocalException ex) {
       exceptionId = ex.ice_id();
       replyStatus = ReplyStatus.UnknownLocalException;
