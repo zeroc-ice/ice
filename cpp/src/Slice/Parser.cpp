@@ -1621,28 +1621,12 @@ Slice::Container::createEnum(const string& name, NodeType nt)
 }
 
 EnumeratorPtr
-Slice::Container::createEnumerator(const string& name)
+Slice::Container::createEnumerator(const string& name, optional<int> value)
 {
-    EnumeratorPtr p = validateEnumerator(name);
-    if (!p)
-    {
-        p = make_shared<Enumerator>(dynamic_pointer_cast<Container>(shared_from_this()), name);
-        p->init();
-        _contents.push_back(p);
-    }
-    return p;
-}
-
-EnumeratorPtr
-Slice::Container::createEnumerator(const string& name, int value)
-{
-    EnumeratorPtr p = validateEnumerator(name);
-    if (!p)
-    {
-        p = make_shared<Enumerator>(dynamic_pointer_cast<Container>(shared_from_this()), name, value);
-        p->init();
-        _contents.push_back(p);
-    }
+    validateEnumerator(name);
+    EnumeratorPtr p = make_shared<Enumerator>(dynamic_pointer_cast<Container>(shared_from_this()), name, value);
+    p->init();
+    _contents.push_back(p);
     return p;
 }
 
@@ -2520,7 +2504,7 @@ Slice::Container::validateConstant(
     return true;
 }
 
-EnumeratorPtr
+void
 Slice::Container::validateEnumerator(const string& name)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -2542,7 +2526,6 @@ Slice::Container::validateEnumerator(const string& name)
     }
 
     checkIdentifier(name); // Ignore return value.
-    return nullptr;
 }
 
 // ----------------------------------------------------------------------
@@ -4242,20 +4225,12 @@ Slice::Enumerator::value() const
     return _value;
 }
 
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name)
+Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, optional<int> value)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
-      _explicitValue(false),
-      _value(-1)
+      _explicitValue(value)
 {
-}
-
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value)
-    : SyntaxTreeBase(container->unit()),
-      Contained(container, name),
-      _explicitValue(true),
-      _value(value)
-{
+    _value = value ? value.value() : -1;
 }
 
 void
