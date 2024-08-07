@@ -89,8 +89,7 @@ classdef (Abstract) EncapsDecoder < handle
                 try
                     r = constructor(); % Invoke the constructor.
                 catch e
-                    reason = sprintf('constructor failed for %s', typeId);
-                    ex = Ice.MarshalException('', reason, reason);
+                    ex = Ice.MarshalException(sprintf('constructor failed for %s', typeId));
                     ex.addCause(e);
                     throw(ex);
                 end

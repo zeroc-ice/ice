@@ -77,8 +77,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                         %
                         % Instantiation failed.
                         %
-                        reason = sprintf('exception in constructor for %s', obj.current.typeId);
-                        me = Ice.MarshalException('', reason, reason);
+                        me = Ice.MarshalException(sprintf('exception in constructor for %s', obj.current.typeId));
                         me.addCause(e);
                         throw(me);
                     end
@@ -346,9 +345,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                         try
                             v = constructor(); % Invoke the constructor.
                         catch e
-                            reason = sprintf('constructor failed for type %s with compact id %d', ...
-                                eval(sprintf('IceCompactId.TypeId_%d.typeId', compactId)), compactId);
-                            ex = Ice.NoValueFactoryException('', reason, reason, '');
+                            ex = Ice.MarshalException(sprintf('constructor failed for type with compact id %d', compactId));
                             ex.addCause(e);
                             throw(ex);
                         end

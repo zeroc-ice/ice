@@ -269,7 +269,7 @@ IceObjC::StreamEndpointI::options() const
     }
     else
     {
-        s << " -t " << _timeout;
+        s << " -t " << to_string(_timeout);
     }
 
     if (_compress)

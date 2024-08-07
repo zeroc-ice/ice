@@ -119,7 +119,21 @@ declare module "ice" {
         }
 
         class OutputStream {
-            constructor(communicator?: Ice.Communicator, encoding?: EncodingVersion, buffer?: Uint8Array);
+            /**
+             * Constructs an empty output stream that uses the communicator's default encoding version and compact class
+             * format.
+             *
+             * @param communicator The communicator that provides the encoding version and class format.
+             */
+            constructor(communicator: Communicator);
+
+            /**
+             * Constructs an empty output stream.
+             *
+             * @param encoding The encoding version. null is equivalent to encoding 1.1.
+             * @param format The class format. null is equivalent to FormatType.CompactFormat.
+             */
+            constructor(encoding?: EncodingVersion, format?: FormatType);
 
             //
             // This function allows this object to be reused, rather than reallocated.
