@@ -132,12 +132,10 @@ Test::TestHelper::TestHelper(bool registerPlugins)
 
     if (registerPlugins)
     {
-#ifdef ICE_STATIC_LIBS
         Ice::registerIceWS(true);
         Ice::registerIceUDP(true);
-#    ifdef ICE_HAS_BT
+#ifdef ICE_HAS_BT
         Ice::registerIceBT(false);
-#    endif
 #endif
     }
 

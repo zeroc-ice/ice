@@ -8,9 +8,7 @@
 #include "Ice/Config.h"
 
 #ifndef ICEBOX_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEBOX_API /**/
-#    elif defined(ICEBOX_API_EXPORTS)
+#    if defined(ICEBOX_API_EXPORTS)
 #        define ICEBOX_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICEBOX_API ICE_DECLSPEC_IMPORT

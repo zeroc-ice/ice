@@ -6,6 +6,6 @@ $(project)_libraries := IceLocatorDiscovery
 
 IceLocatorDiscovery_targetdir                   := $(libdir)
 IceLocatorDiscovery_dependencies                := Ice
-IceLocatorDiscovery_cppflags                    := -DICE_LOCATOR_DISCOVERY_API_EXPORTS
+IceLocatorDiscovery[shared]_cppflags            := -DICE_LOCATOR_DISCOVERY_API_EXPORTS
 
 projects += $(project)

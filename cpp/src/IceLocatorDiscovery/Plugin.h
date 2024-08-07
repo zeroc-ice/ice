@@ -11,21 +11,18 @@
 
 #include <chrono>
 
-//
-// Automatically link IceLocatorDiscovery[D].lib with Visual C++
-//
 #if !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY) && defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
 #    define ICE_BUILDING_ICE_LOCATOR_DISCOVERY
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY)
-#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
+#    pragma comment(                                                                                                   \
+        lib,                                                                                                           \
+        ICE_LIBNAME("IceLocatorDiscovery")) // Automatically link IceLocatorDiscovery[D].lib with Visual C++
 #endif
 
 #ifndef ICE_LOCATOR_DISCOVERY_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICE_LOCATOR_DISCOVERY_API /**/
-#    elif defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
+#    if defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
 #        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_IMPORT

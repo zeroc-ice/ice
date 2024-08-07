@@ -35,12 +35,8 @@ namespace Ice
     {
         Ice::registerPluginFactory("IceDiscovery", createIceDiscovery, loadOnInitialize);
 
-#ifdef ICE_STATIC_LIBS
-        //
-        // Also register the UDP plugin with static builds to ensure the UDP transport is loaded.
-        //
+        // Also register the UDP plugin (required for static builds)
         registerIceUDP(true);
-#endif
     }
 }
 

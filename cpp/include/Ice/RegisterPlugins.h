@@ -15,14 +15,12 @@
 // must call the register function before initializing the communicator.
 //
 
-namespace Ice
-{
-#if defined(ICE_STATIC_LIBS)
-#    define ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT /**/
-#else
+#ifndef ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT
 #    define ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT ICE_DECLSPEC_IMPORT
 #endif
 
+namespace Ice
+{
     //
     // Checking for the API_EXPORTS macro is necessary to prevent
     // inconsistent DLL linkage errors on Windows.

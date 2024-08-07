@@ -14,24 +14,19 @@
 #include <lmdb.h>
 
 #ifndef ICE_DB_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICE_DB_API /**/
-#    elif defined(ICE_DB_API_EXPORTS)
+#    if defined(ICE_DB_API_EXPORTS)
 #        define ICE_DB_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICE_DB_API ICE_DECLSPEC_IMPORT
 #    endif
 #endif
 
-//
-// Automatically link IceDBxx[D].lib with Visual C++
-//
 #if !defined(ICE_BUILDING_ICE_DB) && defined(ICE_DB_API_EXPORTS)
 #    define ICE_BUILDING_ICE_DB
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_DB)
-#    pragma comment(lib, ICE_LIBNAME("IceDB"))
+#    pragma comment(lib, ICE_LIBNAME("IceDB")) // Automatically link IceDBxx[D].lib with Visual C++
 #endif
 
 namespace IceDB

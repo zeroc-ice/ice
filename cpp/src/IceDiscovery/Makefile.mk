@@ -6,6 +6,6 @@ $(project)_libraries := IceDiscovery
 
 IceDiscovery_targetdir                  := $(libdir)
 IceDiscovery_dependencies               := Ice
-IceDiscovery_cppflags                   := -DICE_DISCOVERY_API_EXPORTS
+IceDiscovery[shared]_cppflags           := -DICE_DISCOVERY_API_EXPORTS
 
 projects += $(project)

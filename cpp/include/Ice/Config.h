@@ -28,17 +28,13 @@
 #endif
 
 #ifndef ICE_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICE_API /**/
+#    if defined(ICE_BUILDING_SLICE_COMPILERS) // Only defined for Windows builds.
+#        define ICE_API                       /**/
 #    elif defined(ICE_API_EXPORTS)
 #        define ICE_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICE_API ICE_DECLSPEC_IMPORT
 #    endif
-#endif
-
-#ifdef __APPLE__
-#    include <TargetConditionals.h>
 #endif
 
 // The Ice version.
@@ -50,19 +46,24 @@
 #    define ICE_BUILDING_ICE
 #endif
 
-#if defined(_MSC_VER)
-#    if !defined(ICE_STATIC_LIBS) && (!defined(_DLL) || !defined(_MT))
-#        error "Only multi-threaded DLL libraries can be used with Ice!"
+#ifdef _MSC_VER
+#    if !defined(ICE_BUILDING_SLICE_COMPILERS) // Not using the IceUtil static build
+#        if !defined(_DLL) || !defined(_MT)
+#            error "Ice C++ applications on Windows require /MD or /MDd."
+#        endif
+#        if defined(_DEBUG)
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
+#        else
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
+#        endif
+#        if !defined(ICE_BUILDING_ICE)
+#            pragma comment(lib, ICE_LIBNAME("Ice")) // Automatically link with Ice[D].lib
+#        endif
 #    endif
-#    if defined(_DEBUG)
-#        define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
-#    else
-#        define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
-#    endif
-//  Automatically link with Ice[D].lib when using MSVC
-#    if !defined(ICE_BUILDING_ICE) && !defined(ICE_BUILDING_SLICE_COMPILERS)
-#        pragma comment(lib, ICE_LIBNAME("Ice"))
-#    endif
+#endif
+
+#ifdef __APPLE__
+#    include <TargetConditionals.h>
 #endif
 
 #endif

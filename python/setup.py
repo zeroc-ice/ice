@@ -59,11 +59,15 @@ else:
         "dist/ice/cpp/src/IceLocatorDiscovery/generated"])
 
 # Define macros used during the build process
+# All the /**/ macros are necessary only on Windows
 define_macros = [
-    ('ICE_STATIC_LIBS', None),
     ('ICE_BUILDING_SRC', None),
     ('ICE_BUILDING_ICE', None),
-    ('ICE_BUILDING_ICE_LOCATOR_DISCOVERY', None)]
+    ('ICE_BUILDING_ICE_LOCATOR_DISCOVERY', None),
+    ('ICE_API', '/**/'),
+    ('ICE_DISCOVERY_API', '/**/'),
+    ('ICE_LOCATOR_DISCOVERY_API', '/**/'),
+    ('ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT', '/**/')]
 
 # Platform-specific compile and link arguments
 if sys.platform == 'darwin':

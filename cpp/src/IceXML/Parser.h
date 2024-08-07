@@ -11,9 +11,7 @@
 #include <vector>
 
 #ifndef ICE_XML_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICE_XML_API /**/
-#    elif defined(ICE_XML_API_EXPORTS)
+#    if defined(ICE_XML_API_EXPORTS)
 #        define ICE_XML_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICE_XML_API ICE_DECLSPEC_IMPORT

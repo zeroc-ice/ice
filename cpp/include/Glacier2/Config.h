@@ -12,17 +12,11 @@
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_GLACIER2)
-#    pragma comment(lib, ICE_LIBNAME("Glacier2"))
+#    pragma comment(lib, ICE_LIBNAME("Glacier2")) // Automatically link with Glacier2[D].lib
 #endif
 
-//
-// Automatically link with Glacier2[D].lib
-//
-
 #ifndef GLACIER2_API
-#    if defined(ICE_STATIC_LIBS)
-#        define GLACIER2_API /**/
-#    elif defined(GLACIER2_API_EXPORTS)
+#    if defined(GLACIER2_API_EXPORTS)
 #        define GLACIER2_API ICE_DECLSPEC_EXPORT
 #    else
 #        define GLACIER2_API ICE_DECLSPEC_IMPORT
