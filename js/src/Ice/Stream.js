@@ -2331,14 +2331,6 @@ export class OutputStream {
         }
     }
 
-    //
-    // This function allows this object to be reused, rather than reallocated.
-    //
-    reset() {
-        this._buf.reset();
-        this.clear();
-    }
-
     clear() {
         if (this._encapsStack !== null) {
             Debug.assert(this._encapsStack.next);
@@ -2430,7 +2422,7 @@ export class OutputStream {
         curr.next = this._encapsStack;
         this._encapsStack = curr;
 
-        this._encapsStack.format = format;
+        this._encapsStack.format = format || this._format;
         this._encapsStack.setEncoding(encoding);
         this._encapsStack.start = this._buf.limit;
 
@@ -2656,13 +2648,6 @@ export class OutputStream {
         // Exceptions are always encoded with the sliced format.
         this._encapsStack.format = FormatType.SlicedFormat;
         this._encapsStack.encoder.writeException(e);
-    }
-
-    //
-    // Keep for compatibility with 3.7.0 remove with next major version
-    //
-    writeUserException(e) {
-        this.WriteException(e);
     }
 
     writeOptImpl(tag, format) {
