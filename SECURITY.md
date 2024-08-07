@@ -13,4 +13,4 @@ The following versions of Ice are currently supported with security updates.
 
 ## Reporting a Vulnerability
 
-Please report all security vulnerabilities to security@zeroc.com.
+Please report all security vulnerabilities to <security@zeroc.com>.
