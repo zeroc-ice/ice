@@ -37,21 +37,21 @@ public class AllTests {
       test(false);
     } catch (UnknownUserException ex) {
       helper.getWriter().flush();
-      test(ex.getMessage().equals("com.zeroc.Ice.UnknownUserException: reason"));
+      test(ex.getMessage().equals("reason"));
     }
 
     try {
       obj.unknownLocalException();
       test(false);
     } catch (UnknownLocalException ex) {
-      test(ex.getMessage().equals("com.zeroc.Ice.UnknownLocalException: reason"));
+      test(ex.getMessage().equals("reason"));
     }
 
     try {
       obj.unknownException();
       test(false);
     } catch (UnknownException ex) {
-      test(ex.getMessage().equals("com.zeroc.Ice.UnknownException: reason"));
+      test(ex.getMessage().equals("reason"));
     }
 
     //
@@ -99,7 +99,7 @@ public class AllTests {
       obj.unknownExceptionWithServantException();
       test(false);
     } catch (UnknownException ex) {
-      test(ex.getMessage().equals("com.zeroc.Ice.UnknownException: reason"));
+      test(ex.getMessage().equals("reason"));
     } catch (Throwable ex) {
       test(false);
     }
