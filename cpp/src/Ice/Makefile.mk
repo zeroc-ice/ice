@@ -5,8 +5,7 @@
 $(project)_libraries    = Ice
 
 Ice_targetdir           := $(libdir)
-Ice_cppflags            = $(IceUtil_cppflags)
-Ice[shared]_cppflags    := -DICE_API_EXPORTS
+Ice_cppflags            = -DICE_API_EXPORTS $(IceUtil_cppflags)
 
 Ice_sliceflags          := --include-dir Ice
 Ice_libs                := bz2
@@ -16,7 +15,11 @@ Ice_extra_sources       := $(filter-out src/Ice/SSL/OpenSSL%.cpp src/Ice/SSL/Sch
 else
 Ice_extra_sources       := $(filter-out src/Ice/SSL/SecureTransport%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
 endif
+
 Ice_excludes            = src/Ice/DLLMain.cpp
+Ice[shared]_excludes    = src/Ice/RegisterPluginsInit_min.cpp
+Ice[xcodesdk]_excludes  = src/Ice/RegisterPluginsInit_min.cpp
+Ice[static]_excludes    = src/Ice/RegisterPluginsInit_all.cpp
 
 ifeq ($(os),Linux)
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)

@@ -33,9 +33,8 @@ endif
 
 # On macos, objects are always PIC/PIE, and executables are always PIE. So there is no need to pass -fPIC or -fPIE to
 # the compiler.
-shared_cppflags = -fvisibility=hidden
 
-cppflags        = -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls -Wno-shadow-field \
+cppflags        = -fvisibility=hidden -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls -Wno-shadow-field \
                   -Wdeprecated -Wstrict-prototypes -Werror -Wconversion -Wdocumentation -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
 
