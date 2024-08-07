@@ -997,7 +997,6 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         if (needStreamHelpers)
         {
             jsIceImports.insert("StreamHelpers");
-            jsIceImports.insert("Stream");
         }
     }
     else

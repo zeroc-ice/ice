@@ -19,7 +19,7 @@ import {
     FloatHelper,
     DoubleHelper,
     StringHelper,
-} from "./Stream.js";
+} from "./StreamHelpers.js";
 import { Value } from "./Value.js";
 
 const builtinHelpers = [

@@ -3,7 +3,7 @@
 //
 
 import { Protocol } from "./Protocol.js";
-import { OutputStream } from "./Stream.js";
+import { OutputStream } from "./OutputStream.js";
 import { Debug } from "./Debug.js";
 
 export class BatchRequestQueue {
