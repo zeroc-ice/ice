@@ -66,7 +66,9 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
 
             try handle.setCloseCallback { c in
                 precondition(c.getCachedSwiftObject(ConnectionI.self) === self)
-                cb(self)
+                Task {
+                    await cb(self)
+                }
             }
         }
     }

@@ -89,13 +89,9 @@
 {
     try
     {
-        if (!callback)
+        if (callback)
         {
-            self.connection->setCloseCallback(nullptr);
-        }
-        else
-        {
-            self.connection->setCloseCallback(
+             self.connection->setCloseCallback(
                 [callback](auto connection)
                 {
                     ICEConnection* conn = [ICEConnection getHandle:connection];
@@ -105,6 +101,11 @@
                         callback(conn);
                     }
                 });
+
+        }
+        else
+        {
+            self.connection->setCloseCallback(nullptr);
         }
         return YES;
     }

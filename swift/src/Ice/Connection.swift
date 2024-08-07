@@ -141,13 +141,13 @@ public protocol ConnectionInfo: AnyObject {
     var connectionId: String { get set }
 }
 
-/// An application can implement this interface to receive notifications when a connection closes.
+/// An application can register a callback to be notified when a connection is closed.
 ///
 /// This method is called by the connection when the connection is closed. If the callback needs more information
 /// about the closure, it can call Connection.throwException.
 ///
 /// - parameter _: `Connection?` The connection that closed.
-public typealias CloseCallback = (Connection?) -> Void
+public typealias CloseCallback = (Connection?) async -> Void
 
 /// The user-level interface to a connection.
 public protocol Connection: AnyObject, CustomStringConvertible {
@@ -195,9 +195,8 @@ public protocol Connection: AnyObject, CustomStringConvertible {
         _ compress: CompressBatch
     ) async throws
 
-    /// Set a close callback on the connection. The callback is called by the connection when it's closed. The callback
-    /// is called from the Ice thread pool associated with the connection. If the callback needs more information about
-    /// the closure, it can call Connection.throwException.
+    /// Set a close callback on the connection. The callback is called (on the global executor) by the connection when
+    /// it's closed. If the callback needs more information about the closure, it can call Connection.throwException.
     ///
     /// - parameter _: `CloseCallback?` The close callback object.
     func setCloseCallback(_ callback: CloseCallback?) throws
