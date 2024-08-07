@@ -223,11 +223,11 @@ public final class Current implements Cloneable {
         objectFacet = this.facet;
       }
 
-      String operation = rfe.operation.isEmpty() ? this.operation : rfe.operation;
+      String operationName = rfe.operation.isEmpty() ? this.operation : rfe.operation;
 
       exceptionDetails =
           RequestFailedException.createMessage(
-              rfe.getClass().getName(), objectId, objectFacet, operation);
+              rfe.getClass().getName(), objectId, objectFacet, operationName);
 
       if (requestId != 0) {
         ostr.writeByte(replyStatus.value());
@@ -239,7 +239,7 @@ public final class Current implements Cloneable {
           ostr.writeStringSeq(new String[] {objectFacet});
         }
 
-        ostr.writeString(operation);
+        ostr.writeString(operationName);
       }
     } else if (exc instanceof UserException ex) {
       exceptionId = ex.ice_id();
