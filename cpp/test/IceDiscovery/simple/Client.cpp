@@ -19,10 +19,12 @@ public:
 void
 Client::run(int argc, char** argv)
 {
+#ifdef ICE_STATIC_LIBS
     //
     // Explicitly register the IceDiscovery plugin to test registerIceDiscovery.
     //
     Ice::registerIceDiscovery();
+#endif
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     int num = argc == 2 ? atoi(argv[1]) : 1;

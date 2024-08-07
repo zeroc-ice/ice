@@ -75,7 +75,7 @@ allTests(Test::TestHelper* helper)
             // handles failure to find a locator. Also test
             // Ice::registerIceLocatorDiscovery()
             //
-#ifndef ICE_STATIC_LIBS
+#ifdef ICE_STATIC_LIBS
             Ice::registerIceLocatorDiscovery();
             initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery", "");
 #else
