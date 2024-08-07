@@ -33,7 +33,6 @@ endif
 
 # On macos, objects are always PIC/PIE, and executables are always PIE. So there is no need to pass -fPIC or -fPIE to
 # the compiler.
-
 cppflags        = -fvisibility=hidden -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls -Wno-shadow-field \
                   -Wdeprecated -Wstrict-prototypes -Werror -Wconversion -Wdocumentation -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
@@ -41,6 +40,10 @@ cppflags        = -fvisibility=hidden -Wall -Wextra -Wshadow -Wshadow-all -Wredu
 ifeq ($(MAXWARN),yes)
     cppflags	+=  -Wweak-vtables
 endif
+
+# We compile static and shared with the same flags so we want their .o to share directories.
+static_objdir   = obj
+shared_objdir   = obj
 
 clang_version = $(shell clang -dumpversion 2>&1 | cut -f1 -d\.)
 

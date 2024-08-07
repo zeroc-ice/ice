@@ -1118,7 +1118,6 @@ static_ldflags          += $$(call make-ldflags,$$(call get-all-deps,$4),make-st
 
 # Shared configuration for shared builds
 shared_projects         = %
-shared_objdir           = $(if $(filter-out program,$($1_target)),shared/pic,shared/pie)
 shared_targetrule       = $(if $(filter-out program,$($1_target)),shared)
 shared_cppflags         += $(strip $(call make-lib-cppflags,$4))
 shared_ldflags          += $$(call make-ldflags,$($4_dependencies),make-shared-dep-ldflags,$4,unique)\
