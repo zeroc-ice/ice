@@ -405,11 +405,6 @@ declare module "ice" {
             expand(n: number): void;
 
             /**
-             * Gets or sets the encoding format for class and exception instances.
-             */
-            format: FormatType;
-
-            /**
              * Gets or sets the stream position
              */
             pos: number;
