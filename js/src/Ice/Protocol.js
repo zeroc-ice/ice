@@ -219,7 +219,7 @@ Protocol.FLAG_IS_LAST_SLICE = 1 << 5;
 function stringToMajor(str) {
     const pos = str.indexOf(".");
     if (pos === -1) {
-        throw new ParseException(`malformed version value '${str}'`);
+        throw new ParseException(`malformed version value in '${str}'`);
     }
 
     try {
@@ -229,14 +229,14 @@ function stringToMajor(str) {
         }
         return majVersion;
     } catch (ex) {
-        throw new ParseException(`invalid version value ${str}'`);
+        throw new ParseException(`invalid version value in '${str}'`);
     }
 }
 
 function stringToMinor(str) {
     const pos = str.indexOf(".");
     if (pos === -1) {
-        throw new ParseException(`malformed version value '${str}'`);
+        throw new ParseException(`malformed version value in '${str}'`);
     }
 
     try {
@@ -246,7 +246,7 @@ function stringToMinor(str) {
         }
         return minVersion;
     } catch (ex) {
-        throw new ParseException(`invalid version value '${str}'`);
+        throw new ParseException(`invalid version value in '${str}'`);
     }
 }
 

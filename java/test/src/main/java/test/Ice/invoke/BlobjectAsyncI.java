@@ -57,11 +57,7 @@ public class BlobjectAsyncI implements com.zeroc.Ice.BlobjectAsync {
       r.outParams = out.finished();
       return CompletableFuture.completedFuture(r);
     } else {
-      com.zeroc.Ice.OperationNotExistException ex = new com.zeroc.Ice.OperationNotExistException();
-      ex.id = current.id;
-      ex.facet = current.facet;
-      ex.operation = current.operation;
-      throw ex;
+      throw new com.zeroc.Ice.OperationNotExistException();
     }
   }
 }

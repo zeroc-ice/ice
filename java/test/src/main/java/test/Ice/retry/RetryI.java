@@ -4,6 +4,7 @@
 
 package test.Ice.retry;
 
+import com.zeroc.Ice.ConnectionLostException;
 import test.Ice.retry.Test.Retry;
 
 public final class RetryI implements Retry {
@@ -15,7 +16,7 @@ public final class RetryI implements Retry {
       if (current.con != null) {
         current.con.close(com.zeroc.Ice.ConnectionClose.Forcefully);
       } else {
-        throw new com.zeroc.Ice.ConnectionLostException();
+        throw new ConnectionLostException();
       }
     }
   }
@@ -29,7 +30,7 @@ public final class RetryI implements Retry {
 
     if (nRetry > _counter) {
       ++_counter;
-      throw new com.zeroc.Ice.ConnectionLostException();
+      throw new ConnectionLostException();
     }
 
     int counter = _counter;
@@ -39,7 +40,7 @@ public final class RetryI implements Retry {
 
   @Override
   public void opNotIdempotent(com.zeroc.Ice.Current current) {
-    throw new com.zeroc.Ice.ConnectionLostException();
+    throw new ConnectionLostException();
   }
 
   @Override

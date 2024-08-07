@@ -1441,7 +1441,7 @@ public sealed class ObjectAdapter
             EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
             if (endp is null)
             {
-                throw new ParseException($"invalid object adapter endpoint {s}'");
+                throw new ParseException($"invalid object adapter endpoint '{s}'");
             }
             endpoints.Add(endp);
 

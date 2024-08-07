@@ -4,6 +4,7 @@
 
 package test.Ice.exceptions;
 
+import com.zeroc.Ice.ConnectionLostException;
 import java.io.PrintWriter;
 import java.util.concurrent.CompletionException;
 import test.Ice.exceptions.Test.A;
@@ -69,13 +70,12 @@ public class AllTests {
       try {
         adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity(""));
         test(false);
-      } catch (com.zeroc.Ice.IllegalIdentityException ex) {
-        test(ex.id.name.isEmpty());
+      } catch (IllegalArgumentException ex) {
       }
       try {
         adapter.add(null, com.zeroc.Ice.Util.stringToIdentity("x"));
         test(false);
-      } catch (com.zeroc.Ice.IllegalServantException ex) {
+      } catch (IllegalArgumentException ex) {
       }
 
       adapter.remove(com.zeroc.Ice.Util.stringToIdentity("x"));
@@ -295,7 +295,7 @@ public class AllTests {
       try {
         thrower.throwAssertException();
         test(false);
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
+      } catch (ConnectionLostException ex) {
       } catch (com.zeroc.Ice.UnknownException ex) {
       } catch (Throwable ex) {
         ex.printStackTrace();
@@ -311,7 +311,8 @@ public class AllTests {
       try {
         thrower.throwMemoryLimitException(null);
         test(false);
-      } catch (com.zeroc.Ice.MemoryLimitException ex) {
+      } catch (com.zeroc.Ice.MarshalException ex) {
+        test(ex.getMessage().contains("exceeds the maximum allowed"));
       } catch (Throwable ex) {
         ex.printStackTrace();
         test(false);
@@ -320,7 +321,7 @@ public class AllTests {
       try {
         thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
         test(false);
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
+      } catch (ConnectionLostException ex) {
       } catch (com.zeroc.Ice.UnknownLocalException ex) {
         // Expected with JS bidir server
       } catch (com.zeroc.Ice.SocketException ex) {
@@ -334,13 +335,14 @@ public class AllTests {
         var thrower2 = ThrowerPrx.createProxy(communicator, "thrower:" + helper.getTestEndpoint(1));
         try {
           thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
-        } catch (com.zeroc.Ice.MemoryLimitException ex) {
+        } catch (com.zeroc.Ice.MarshalException ex) {
+          test(ex.getMessage().contains("exceeds the maximum allowed"));
         }
         var thrower3 = ThrowerPrx.createProxy(communicator, "thrower:" + helper.getTestEndpoint(2));
         try {
           thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
           test(false);
-        } catch (com.zeroc.Ice.ConnectionLostException ex) {
+        } catch (ConnectionLostException ex) {
         }
       } catch (com.zeroc.Ice.ConnectionRefusedException ex) {
         // Expected with JS bidir server
@@ -584,7 +586,7 @@ public class AllTests {
         test(false);
       } catch (CompletionException ex) {
         test(
-            ex.getCause() instanceof com.zeroc.Ice.ConnectionLostException
+            ex.getCause() instanceof ConnectionLostException
                 || ex.getCause() instanceof com.zeroc.Ice.UnknownException);
       }
 

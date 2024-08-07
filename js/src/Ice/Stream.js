@@ -301,8 +301,7 @@ class EncapsDecoder10 extends EncapsDecoder {
                 //
                 // An oversight in the 1.0 encoding means there is no marker to indicate
                 // the last slice of an exception. As a result, we just try to read the
-                // next type ID, which raises UnmarshalOutOfBoundsException when the
-                // input buffer underflow.
+                // next type ID, which raises MarshalException when the input buffer underflow.
                 if (ex instanceof MarshalException) {
                     throw new MarshalException(`unknown exception type '${mostDerivedId}'`);
                 }

@@ -268,8 +268,11 @@ final class WSEndpoint extends EndpointI {
       case 'r':
         {
           if (argument == null) {
-            throw new com.zeroc.Ice.EndpointParseException(
-                "no argument provided for -r option in endpoint " + endpoint + _delegate.options());
+            throw new com.zeroc.Ice.ParseException(
+                "no argument provided for -r option in endpoint '"
+                    + endpoint
+                    + _delegate.options()
+                    + "'");
           }
           _resource = argument;
           return true;

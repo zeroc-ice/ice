@@ -388,7 +388,8 @@ public class OutputStream {
    */
   public void writeEncapsulation(byte[] v) {
     if (v.length < 6) {
-      throw new EncapsulationException();
+      throw new MarshalException(
+          "A byte sequence with " + v.length + " bytes is not a valid encapsulation.");
     }
     expand(v.length);
     _buf.b.put(v);
@@ -1290,7 +1291,7 @@ public class OutputStream {
             try {
               b = _charEncoder.encode(java.nio.CharBuffer.wrap(_stringChars, 0, len));
             } catch (java.nio.charset.CharacterCodingException ex) {
-              throw new MarshalException(ex);
+              throw new MarshalException("failed to encode multibyte character", ex);
             }
             writeSize(b.limit());
             expand(b.limit());

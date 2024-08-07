@@ -645,12 +645,12 @@ public interface ObjectPrx {
    * @param communicator The communicator of the new proxy.
    * @param proxyString The string representation of the proxy.
    * @return The new proxy.
-   * @throws ProxyParseException Thrown when <code>proxyString</code> is not a valid proxy string.
+   * @throws ParseException Thrown when <code>proxyString</code> is not a valid proxy string.
    */
   public static ObjectPrx createProxy(Communicator communicator, String proxyString) {
     var ref = communicator.getInstance().referenceFactory().create(proxyString, null);
     if (ref == null) {
-      throw new ProxyParseException("Invalid empty proxy string.");
+      throw new ParseException("Invalid empty proxy string.");
     }
     return new com.zeroc.Ice._ObjectPrxI(ref);
   }

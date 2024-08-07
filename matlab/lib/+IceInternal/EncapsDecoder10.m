@@ -109,8 +109,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                             %
                             % An oversight in the 1.0 encoding means there is no marker to indicate
                             % the last slice of an exception. As a result, we just try to read the
-                            % next type ID, which raises UnmarshalOutOfBoundsException when the
-                            % input buffer underflows.
+                            % next type ID, which raises MarshalException when the input buffer underflows.
                             %
                             throw(Ice.MarshalException(sprintf('unknown exception type ''%s''', mostDerivedId)));
                         end

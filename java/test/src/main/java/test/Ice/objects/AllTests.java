@@ -311,9 +311,9 @@ public class AllTests {
     try {
       uoet.op();
       test(false);
-    } catch (com.zeroc.Ice.UnexpectedObjectException ex) {
-      test(ex.type.equals("::Test::AlsoEmpty"));
-      test(ex.expectedType.equals("::Test::Empty"));
+    } catch (com.zeroc.Ice.MarshalException ex) {
+      test(ex.getMessage().contains("'::Test::AlsoEmpty'"));
+      test(ex.getMessage().contains("'::Test::Empty'"));
     } catch (java.lang.Exception ex) {
       out.println(ex);
       test(false);

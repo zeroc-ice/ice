@@ -453,9 +453,7 @@ public final class Properties {
         java.lang.Process process = Runtime.getRuntime().exec(new String[] {"reg", "query", file});
         process.waitFor();
         if (process.exitValue() != 0) {
-          InitializationException ie = new InitializationException();
-          ie.reason = "Could not read Windows registry key `" + file + "'";
-          throw ie;
+          throw new InitializationException("Could not read Windows registry key '" + file + "'");
         }
 
         java.io.InputStream is = process.getInputStream();
@@ -515,9 +513,7 @@ public final class Properties {
         java.io.InputStream f =
             com.zeroc.IceInternal.Util.openResource(getClass().getClassLoader(), file);
         if (f == null) {
-          FileException fe = new FileException();
-          fe.path = file;
-          throw fe;
+          throw new FileException("failed to open '" + file + "'");
         }
         //
         // Skip UTF-8 BOM if present.
@@ -535,7 +531,7 @@ public final class Properties {
         java.io.BufferedReader br = new java.io.BufferedReader(isr);
         parse(br);
       } catch (java.io.IOException ex) {
-        throw new FileException(0, file, ex);
+        throw new FileException("Cannot read '" + file + "'", ex);
       } finally {
         if (is != null) {
           try {

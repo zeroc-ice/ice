@@ -100,8 +100,6 @@ public sealed class OperationNotExistException : RequestFailedException
 /// </summary>
 public class UnknownException : LocalException
 {
-    public string unknown => Message;
-
     public UnknownException(string message)
         : base(message)
     {
@@ -131,7 +129,7 @@ public sealed class UnknownLocalException : UnknownException
 public sealed class UnknownUserException : UnknownException
 {
     public static UnknownUserException fromTypeId(string typeId) =>
-        new($"The reply carries a user exception that does not conform to the exception specification of the operation: {typeId}");
+        new($"The reply carries a user exception that does not conform to the operation's exception specification: {typeId}");
 
     public UnknownUserException(string message)
         : base(message)
@@ -290,7 +288,7 @@ public sealed class DNSException : SyscallException
     public override string ice_id() => "::Ice::DNSException";
 }
 
-/// <summary>This exception indicates a file error.</summary>
+/// <summary>This exception indicates a file error occurred.</summary>
 public sealed class FileException : SyscallException
 {
     public FileException(string message, System.Exception innerException)

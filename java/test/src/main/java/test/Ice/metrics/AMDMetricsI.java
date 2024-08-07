@@ -40,7 +40,7 @@ public final class AMDMetricsI implements Metrics {
   @Override
   public CompletionStage<Void> opWithLocalExceptionAsync(com.zeroc.Ice.Current current) {
     CompletableFuture<Void> r = new CompletableFuture<>();
-    r.completeExceptionally(new com.zeroc.Ice.SyscallException());
+    r.completeExceptionally(new com.zeroc.Ice.SyscallException(null));
     return r;
   }
 

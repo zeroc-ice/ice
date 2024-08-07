@@ -5,6 +5,7 @@
 package test.IceSSL.configuration;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
@@ -157,7 +158,7 @@ public class AllTests {
         test(false);
       } catch (com.zeroc.Ice.SecurityException ex) {
         // Expected.
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
+      } catch (ConnectionLostException ex) {
         // Expected.
       } catch (com.zeroc.Ice.LocalException ex) {
         ex.printStackTrace();
@@ -266,7 +267,7 @@ public class AllTests {
         test(false);
       } catch (com.zeroc.Ice.SecurityException ex) {
         // Expected.
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
+      } catch (ConnectionLostException ex) {
         // Expected.
       } catch (com.zeroc.Ice.LocalException ex) {
         ex.printStackTrace();
@@ -604,7 +605,7 @@ public class AllTests {
       try {
         server.ice_ping();
         test(false);
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
+      } catch (ConnectionLostException ex) {
         // Expected.
       } catch (com.zeroc.Ice.SecurityException ex) {
         // Expected.

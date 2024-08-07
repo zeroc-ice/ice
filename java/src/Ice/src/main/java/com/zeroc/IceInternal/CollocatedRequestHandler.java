@@ -230,8 +230,8 @@ public final class CollocatedRequestHandler implements RequestHandler {
       var pw = new java.io.PrintWriter(sw);
       ex.printStackTrace(pw);
       pw.flush();
-      uex.unknown = sw.toString();
-      _logger.error(uex.unknown);
+
+      _logger.error(sw.toString());
       dispatchException(uex, requestId, false);
     } finally {
       _adapter.decDirectCount();

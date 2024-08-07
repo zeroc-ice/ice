@@ -186,7 +186,7 @@ public final class Network {
         }
       }
     } catch (Exception ex) {
-      throw new com.zeroc.Ice.SocketException(ex);
+      throw new SocketException(ex);
     }
   }
 
@@ -202,7 +202,7 @@ public final class Network {
         }
       }
     } catch (Exception ex) {
-      throw new com.zeroc.Ice.SocketException(ex);
+      throw new SocketException(ex);
     }
   }
 
@@ -210,7 +210,7 @@ public final class Network {
     try {
       fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_TTL, ttl);
     } catch (Exception ex) {
-      throw new com.zeroc.Ice.SocketException(ex);
+      throw new SocketException(ex);
     }
   }
 
@@ -638,7 +638,7 @@ public final class Network {
         }
       }
     } catch (java.net.UnknownHostException ex) {
-      throw new com.zeroc.Ice.DNSException(0, host, ex);
+      throw new com.zeroc.Ice.DNSException(host, ex);
     } catch (java.lang.SecurityException ex) {
       throw new SocketException(ex);
     }
@@ -647,7 +647,7 @@ public final class Network {
     // No Inet4Address/Inet6Address available.
     //
     if (addresses.isEmpty()) {
-      throw new com.zeroc.Ice.DNSException(0, host);
+      throw new com.zeroc.Ice.DNSException(host);
     }
 
     return addresses;

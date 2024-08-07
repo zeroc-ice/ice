@@ -42,7 +42,8 @@ public final class IncomingRequest {
     String[] facetPath = inputStream.readStringSeq();
     if (facetPath.length > 0) {
       if (facetPath.length > 1) {
-        throw new MarshalException();
+        throw new MarshalException(
+            "Received invalid facet path with " + facetPath.length + " elements.");
       }
       facet = facetPath[0];
     }

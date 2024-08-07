@@ -184,7 +184,8 @@ export class ConnectionI {
     destroy(reason) {
         switch (reason) {
             case ConnectionI.ObjectAdapterDeactivated: {
-                this.setState(StateClosing, new ObjectAdapterDeactivatedException());
+                const adapterName = this._adapter !== null ? this._adapter.getName() : "";
+                this.setState(StateClosing, new ObjectAdapterDeactivatedException(adapterName));
                 break;
             }
 
@@ -243,7 +244,7 @@ export class ConnectionI {
             Timer.setImmediate(() => {
                 this.setState(
                     StateClosing,
-                    new ConnectionClosedException("Connection close gracefully by the application.", true),
+                    new ConnectionClosedException("Connection closed gracefully by the application.", true),
                 );
                 this._closePromises.forEach(p => p.resolve());
                 this._closePromises = [];

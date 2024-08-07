@@ -179,7 +179,7 @@ Ice::ThreadHookPlugin::ThreadHookPlugin(
 {
     if (communicator == nullptr)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
+        throw PluginInitializationException(__FILE__, __LINE__, "communicator cannot be null");
     }
 
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);

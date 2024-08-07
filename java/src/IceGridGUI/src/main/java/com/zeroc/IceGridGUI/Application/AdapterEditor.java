@@ -534,7 +534,7 @@ class AdapterEditor extends CommunicatorChildEditor {
         com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity(p.getKey());
         String[] val = p.getValue();
         result.add(new ObjectDescriptor(id, val[0], val[2]));
-      } catch (com.zeroc.Ice.IdentityParseException ex) {
+      } catch (com.zeroc.Ice.ParseException ex) {
         badIdentities += "- " + p.getKey() + "\n";
       }
     }

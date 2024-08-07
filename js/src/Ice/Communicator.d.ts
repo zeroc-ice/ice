@@ -58,9 +58,8 @@ declare module "ice" {
              * Convert a stringified proxy into a proxy.
              * For example, <code>MyCategory/MyObject:tcp -h some_host -p 10000</code> creates a proxy that refers to the Ice
              * object having an identity with a name "MyObject" and a category "MyCategory", with the server running on host
-             * "some_host", port 10000. If the stringified proxy does not parse correctly, the operation throws one of
-             * ProxyParseException, EndpointParseException, or IdentityParseException. Refer to the Ice manual for a detailed
-             * description of the syntax supported by stringified proxies.
+             * "some_host", port 10000. If the stringified proxy does not parse correctly, the operation throws ParseException.
+             * Refer to the Ice manual for a detailed description of the syntax supported by stringified proxies.
              * @param str The stringified proxy to convert into a proxy.
              * @return The proxy, or nil if <code>str</code> is an empty string.
              * @see #proxyToString
@@ -92,7 +91,7 @@ declare module "ice" {
             proxyToProperty(proxy: Ice.ObjectPrx, property: string): PropertyDict;
             /**
              * Convert a string into an identity. If the string does not parse correctly, the operation throws
-             * IdentityParseException.
+             * ParseException.
              * @param str The string to convert into an identity.
              * @return The identity.
              * @see #identityToString

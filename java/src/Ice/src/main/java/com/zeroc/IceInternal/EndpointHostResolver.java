@@ -57,8 +57,7 @@ class EndpointHostResolver {
         () -> {
           synchronized (EndpointHostResolver.this) {
             if (_destroyed) {
-              com.zeroc.Ice.CommunicatorDestroyedException ex =
-                  new com.zeroc.Ice.CommunicatorDestroyedException();
+              var ex = new com.zeroc.Ice.CommunicatorDestroyedException();
               if (observer != null) {
                 observer.failed(ex.ice_id());
                 observer.detach();

@@ -13,7 +13,7 @@ public class RetryException extends Exception {
     return _ex;
   }
 
-  private com.zeroc.Ice.LocalException _ex;
+  private final com.zeroc.Ice.LocalException _ex;
 
   private static final long serialVersionUID = -8555917196921366848L;
 }

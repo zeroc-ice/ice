@@ -118,17 +118,14 @@ public final class ServantManager implements Object {
       _servantMapMap.put(ident, m);
     } else {
       if (m.containsKey(facet)) {
-        com.zeroc.Ice.AlreadyRegisteredException ex =
-            new com.zeroc.Ice.AlreadyRegisteredException();
-        ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
-        ex.kindOfObject = "servant";
+        String id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
         if (!facet.isEmpty()) {
-          ex.id +=
+          id +=
               " -f "
                   + com.zeroc.IceUtilInternal.StringUtil.escapeString(
                       facet, "", _instance.toStringMode());
         }
-        throw ex;
+        throw new com.zeroc.Ice.AlreadyRegisteredException("servant", id);
       }
     }
 
@@ -140,10 +137,7 @@ public final class ServantManager implements Object {
 
     Object obj = _defaultServantMap.get(category);
     if (obj != null) {
-      com.zeroc.Ice.AlreadyRegisteredException ex = new com.zeroc.Ice.AlreadyRegisteredException();
-      ex.kindOfObject = "default servant";
-      ex.id = category;
-      throw ex;
+      throw new com.zeroc.Ice.AlreadyRegisteredException("default servant", category);
     }
 
     _defaultServantMap.put(category, servant);
@@ -159,16 +153,14 @@ public final class ServantManager implements Object {
     Map<String, Object> m = _servantMapMap.get(ident);
     Object obj = null;
     if (m == null || (obj = m.remove(facet)) == null) {
-      com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
-      ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
-      ex.kindOfObject = "servant";
+      String id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
       if (!facet.isEmpty()) {
-        ex.id +=
+        id +=
             " -f "
                 + com.zeroc.IceUtilInternal.StringUtil.escapeString(
                     facet, "", _instance.toStringMode());
       }
-      throw ex;
+      throw new com.zeroc.Ice.NotRegisteredException("servant", id);
     }
 
     if (m.isEmpty()) {
@@ -182,10 +174,7 @@ public final class ServantManager implements Object {
 
     Object obj = _defaultServantMap.get(category);
     if (obj == null) {
-      com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
-      ex.kindOfObject = "default servant";
-      ex.id = category;
-      throw ex;
+      throw new com.zeroc.Ice.NotRegisteredException("default servant", category);
     }
 
     _defaultServantMap.remove(category);
@@ -197,10 +186,8 @@ public final class ServantManager implements Object {
 
     Map<String, Object> m = _servantMapMap.get(ident);
     if (m == null) {
-      com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
-      ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
-      ex.kindOfObject = "servant";
-      throw ex;
+      final String id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
+      throw new com.zeroc.Ice.NotRegisteredException("servant", id);
     }
 
     _servantMapMap.remove(ident);
@@ -275,11 +262,9 @@ public final class ServantManager implements Object {
 
     ServantLocator l = _locatorMap.get(category);
     if (l != null) {
-      com.zeroc.Ice.AlreadyRegisteredException ex = new com.zeroc.Ice.AlreadyRegisteredException();
-      ex.id =
+      final String id =
           com.zeroc.IceUtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
-      ex.kindOfObject = "servant locator";
-      throw ex;
+      throw new com.zeroc.Ice.AlreadyRegisteredException("servant locator", id);
     }
 
     _locatorMap.put(category, locator);
@@ -291,11 +276,9 @@ public final class ServantManager implements Object {
 
     l = _locatorMap.remove(category);
     if (l == null) {
-      com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
-      ex.id =
+      final String id =
           com.zeroc.IceUtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
-      ex.kindOfObject = "servant locator";
-      throw ex;
+      throw new com.zeroc.Ice.NotRegisteredException("servant locator", id);
     }
     return l;
   }

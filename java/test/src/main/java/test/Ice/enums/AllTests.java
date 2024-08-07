@@ -4,6 +4,7 @@
 
 package test.Ice.enums;
 
+import com.zeroc.Ice.MarshalException;
 import java.io.PrintWriter;
 import test.Ice.enums.Test.*;
 
@@ -248,7 +249,7 @@ public class AllTests {
       com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
       ByteEnum.ice_read(in);
       test(false);
-    } catch (com.zeroc.Ice.MarshalException ex) {
+    } catch (MarshalException ex) {
     }
 
     try {
@@ -257,7 +258,7 @@ public class AllTests {
       com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
       ByteEnum.ice_read(in);
       test(false);
-    } catch (com.zeroc.Ice.MarshalException ex) {
+    } catch (MarshalException ex) {
     }
 
     try {
@@ -266,7 +267,7 @@ public class AllTests {
       com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
       ShortEnum.ice_read(in);
       test(false);
-    } catch (com.zeroc.Ice.MarshalException ex) {
+    } catch (MarshalException ex) {
     }
 
     try {
@@ -275,7 +276,7 @@ public class AllTests {
       com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
       ShortEnum.ice_read(in);
       test(false);
-    } catch (com.zeroc.Ice.MarshalException ex) {
+    } catch (MarshalException ex) {
     }
 
     try {
@@ -284,7 +285,7 @@ public class AllTests {
       com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
       ShortEnum.ice_read(in);
       test(false);
-    } catch (com.zeroc.Ice.MarshalException ex) {
+    } catch (MarshalException ex) {
     }
 
     try {
@@ -293,7 +294,7 @@ public class AllTests {
       com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
       IntEnum.ice_read(in);
       test(false);
-    } catch (com.zeroc.Ice.MarshalException ex) {
+    } catch (MarshalException ex) {
     }
 
     try {
@@ -302,7 +303,7 @@ public class AllTests {
       com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
       IntEnum.ice_read(in);
       test(false);
-    } catch (com.zeroc.Ice.MarshalException ex) {
+    } catch (MarshalException ex) {
     }
 
     out.println("ok");
