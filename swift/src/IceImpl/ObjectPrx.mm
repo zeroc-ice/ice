@@ -551,6 +551,8 @@
              context:(NSDictionary*)context
                error:(NSError**)error
 {
+    assert(_prx->ice_isBatchOneway() || _prx->ice_isBatchDatagram());
+
     std::pair<const std::byte*, const std::byte*> params(0, 0);
     params.first = static_cast<const std::byte*>(inParams.bytes);
     params.second = params.first + inParams.length;
@@ -588,6 +590,8 @@
      exception:(void (^)(NSError*))exception
           sent:(void (^_Nullable)(bool))sent
 {
+    assert(!_prx->ice_isBatchOneway() && !_prx->ice_isBatchDatagram());
+
     std::pair<const std::byte*, const std::byte*> params(0, 0);
     params.first = static_cast<const std::byte*>(inParams.bytes);
     params.second = params.first + inParams.length;

@@ -388,7 +388,7 @@ extension ObjectPrx {
         return self as! ObjectPrxI
     }
 
-    /// Sends ping request to the target object asynchronously.
+    /// Sends ping request to the target object.
     ///
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
     public func ice_ping(
@@ -491,21 +491,14 @@ extension ObjectPrx {
                     })
             }
         } else if ice_isBatchOneway() || ice_isBatchDatagram() {
-            return try await withCheckedThrowingContinuation { continuation in
-                do {
-                    try autoreleasepool {
-                        try _impl.handle.enqueueBatch(
-                            operation,
-                            mode: mode.rawValue,
-                            inParams: inEncaps,
-                            context: context)
+            return try autoreleasepool {
+                try _impl.handle.enqueueBatch(
+                    operation,
+                    mode: mode.rawValue,
+                    inParams: inEncaps,
+                    context: context)
 
-                        continuation.resume(returning: (true, Data()))
-                    }
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-
+                return (true, Data())
             }
         } else {
             return try await withCheckedThrowingContinuation { continuation in
@@ -544,7 +537,7 @@ extension ObjectPrx {
         }
     }
 
-    /// Asynchronously flushes any pending batched requests for this proxy.
+    /// Flushes any pending batched requests for this proxy.
     public func ice_flushBatchRequests() async throws {
         return try await withCheckedThrowingContinuation { continuation in
             _impl.handle.ice_flushBatchRequests(
@@ -996,41 +989,30 @@ open class ObjectPrxI: ObjectPrx {
                         continuation.resume(throwing: error)
                     })
             }
+        } else if ice_isBatchOneway() || ice_isBatchDatagram() {
+            return try autoreleasepool {
+                try _impl.handle.enqueueBatch(
+                    operation,
+                    mode: mode.rawValue,
+                    inParams: ostr.finished(),
+                    context: context)
+            }
         } else {
-            if ice_isBatchOneway() || ice_isBatchDatagram() {
-                return try await withCheckedThrowingContinuation { continuation in
-                    do {
-                        try autoreleasepool {
-                            try handle.enqueueBatch(
-                                operation,
-                                mode: mode.rawValue,
-                                inParams: ostr.finished(),
-                                context: context)
-
-                            continuation.resume(returning: ())
-                        }
-                    } catch {
+            return try await withCheckedThrowingContinuation { continuation in
+                handle.invoke(
+                    operation,
+                    mode: mode.rawValue,
+                    inParams: ostr.finished(),
+                    context: context,
+                    response: { _, _, _ in
+                        fatalError("unexpected response")
+                    },
+                    exception: { error in
                         continuation.resume(throwing: error)
-                    }
-
-                }
-            } else {
-                return try await withCheckedThrowingContinuation { continuation in
-                    handle.invoke(
-                        operation,
-                        mode: mode.rawValue,
-                        inParams: ostr.finished(),
-                        context: context,
-                        response: { _, _, _ in
-                            fatalError("unexpected response")
-                        },
-                        exception: { error in
-                            continuation.resume(throwing: error)
-                        },
-                        sent: { _ in
-                            continuation.resume(returning: ())
-                        })
-                }
+                    },
+                    sent: { _ in
+                        continuation.resume(returning: ())
+                    })
             }
         }
     }
