@@ -98,6 +98,7 @@ class Ice(Util.Component):
                     "IceSSL/configuration",
                     "IceDiscovery/simple",
                     "IceGrid/simple",
+                    "IceUtil/stacktrace",
                     "Glacier2/application",
                 ],
                 ["Ice/library", "Ice/plugin"],
