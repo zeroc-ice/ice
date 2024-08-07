@@ -81,8 +81,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                         %
                         % Instantiation failed.
                         %
-                        reason = sprintf('exception in constructor for %s', obj.typeId);
-                        me = Ice.MarshalException('', reason, reason);
+                        me = Ice.MarshalException(sprintf('exception in constructor for %s', obj.typeId));
                         me.addCause(e);
                         throw(me);
                     end
