@@ -31,8 +31,9 @@ MCPP_HOME                      ?= $(shell brew --prefix mcpp)
 LMDB_HOME                      ?= $(shell brew --prefix lmdb)
 endif
 
-# If building objects for a shared library build, enable PIC or PIE:
-shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC,-fPIE) -fvisibility=hidden
+# On macos, objects are always PIC/PIE, and executables are always PIE. So there is no need to pass -fPIC or -fPIE to
+# the compiler.
+shared_cppflags = -fvisibility=hidden
 
 cppflags        = -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls -Wno-shadow-field \
                   -Wdeprecated -Wstrict-prototypes -Werror -Wconversion -Wdocumentation -pthread \
