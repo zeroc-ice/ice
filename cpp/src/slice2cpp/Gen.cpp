@@ -1291,7 +1291,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     //
     // Check if any of the enumerators were assigned an explicit value.
     //
-    const bool explicitValue = p->explicitValue();
+    const bool hasExplicitValues = p->hasExplicitValues();
     for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end();)
     {
         writeDocSummary(H, *en);
@@ -1310,7 +1310,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
         // If any of the enumerators were assigned an explicit value, we emit
         // an explicit value for *all* enumerators.
         //
-        if (explicitValue)
+        if (hasExplicitValues)
         {
             H << " = " << std::to_string((*en)->value());
         }

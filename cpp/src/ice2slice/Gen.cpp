@@ -644,12 +644,12 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out.inc();
 
     EnumeratorList enumerators = p->enumerators();
-    const bool explicitValue = p->explicitValue();
+    const bool hasExplicitValues = p->hasExplicitValues();
     for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         EnumeratorPtr en = *q;
         out << nl << en->name();
-        if (explicitValue)
+        if (hasExplicitValues)
         {
             out << " = " << en->value();
         }

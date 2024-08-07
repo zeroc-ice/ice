@@ -4076,9 +4076,9 @@ Slice::Enum::destroy()
 }
 
 bool
-Slice::Enum::explicitValue() const
+Slice::Enum::hasExplicitValues() const
 {
-    return _explicitValue;
+    return _hasExplicitValues;
 }
 
 int
@@ -4129,7 +4129,7 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name)
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
-      _explicitValue(false),
+      _hasExplicitValues(false),
       _minValue(numeric_limits<int32_t>::max()),
       _maxValue(0),
       _lastValue(-1)
@@ -4139,9 +4139,9 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name)
 int
 Slice::Enum::newEnumerator(const EnumeratorPtr& p)
 {
-    if (p->explicitValue())
+    if (p->hasExplicitValue())
     {
-        _explicitValue = true;
+        _hasExplicitValues = true;
         _lastValue = p->value();
 
         if (_lastValue < 0)
@@ -4214,9 +4214,9 @@ Slice::Enumerator::kindOf() const
 }
 
 bool
-Slice::Enumerator::explicitValue() const
+Slice::Enumerator::hasExplicitValue() const
 {
-    return _explicitValue;
+    return _hasExplicitValue;
 }
 
 int
@@ -4228,7 +4228,7 @@ Slice::Enumerator::value() const
 Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, optional<int> value)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
-      _explicitValue(value)
+      _hasExplicitValue(value)
 {
     _value = value ? value.value() : -1;
 }

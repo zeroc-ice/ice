@@ -2218,7 +2218,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     string ns = getNamespace(p);
     string scoped = fixId(p->scoped());
     EnumeratorList enumerators = p->enumerators();
-    const bool explicitValue = p->explicitValue();
+    const bool hasExplicitValues = p->hasExplicitValues();
 
     _out << sp;
     emitObsoleteAttribute(p, _out);
@@ -2235,7 +2235,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         }
         writeDocComment(*en, "");
         _out << nl << fixId((*en)->name());
-        if (explicitValue)
+        if (hasExplicitValues)
         {
             _out << " = " << (*en)->value();
         }

@@ -868,7 +868,7 @@ namespace Slice
     public:
         Enum(const ContainerPtr&, const std::string&);
         void destroy() final;
-        bool explicitValue() const;
+        bool hasExplicitValues() const;
         int minValue() const;
         int maxValue() const;
         size_t minWireSize() const final;
@@ -883,7 +883,7 @@ namespace Slice
         friend class Container;
         friend class Enumerator;
 
-        bool _explicitValue;
+        bool _hasExplicitValues;
         std::int64_t _minValue;
         std::int64_t _maxValue;
         int _lastValue;
@@ -901,13 +901,13 @@ namespace Slice
         EnumPtr type() const;
         std::string kindOf() const final;
 
-        bool explicitValue() const;
+        bool hasExplicitValue() const;
         int value() const;
 
     protected:
         friend class Container;
 
-        bool _explicitValue;
+        bool _hasExplicitValue;
         int _value;
     };
 
