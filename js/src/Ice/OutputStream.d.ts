@@ -61,7 +61,7 @@ declare module "ice" {
              *
              * @param slicedData Preserved slices for this instance, or null.
              */
-            startValue(data: SlicedData): void;
+            startValue(slicedData: SlicedData): void;
 
             /**
              * Marks the end of a class instance.
@@ -275,9 +275,9 @@ declare module "ice" {
             /**
              * Writes a user exception to the stream.
              *
-             * @param v The user exception to write.</param>
+             * @param exception The user exception to write.</param>
              */
-            writeException(e: UserException): void;
+            writeException(exception: UserException): void;
 
             /**
              *  Returns whether the stream is empty.
