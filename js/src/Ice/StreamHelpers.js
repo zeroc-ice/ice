@@ -3,10 +3,158 @@
 //
 
 import { OptionalFormat } from "./OptionalFormat.js";
-import { ByteHelper, ObjectHelper } from "./Stream.js";
+import { InputStream } from "./InputStream.js";
+import { OutputStream } from "./OutputStream.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 
 const defineProperty = Object.defineProperty;
+
+function defineBuiltinHelper(write, read, sz, format, min, max) {
+    const helper = class {
+        static write(os, v) {
+            return write.call(os, v);
+        }
+
+        static read(is) {
+            return read.call(is);
+        }
+
+        static writeOptional(os, tag, v) {
+            os.writeOptionalHelper(tag, format, write, v);
+        }
+
+        static readOptional(is, tag) {
+            return is.readOptionalHelper(tag, format, read);
+        }
+
+        static get minWireSize() {
+            return sz;
+        }
+    };
+
+    if (min !== undefined && max !== undefined) {
+        helper.validate = function (v) {
+            return v >= min && v <= max;
+        };
+    }
+
+    return helper;
+}
+
+const istr = InputStream.prototype;
+const ostr = OutputStream.prototype;
+
+//
+// Constants to use in number type range checks.
+//
+const MIN_UINT8_VALUE = 0x0;
+const MAX_UINT8_VALUE = 0xff;
+
+const MIN_INT16_VALUE = -0x8000;
+const MAX_INT16_VALUE = 0x7fff;
+
+const MIN_UINT32_VALUE = 0x0;
+const MAX_UINT32_VALUE = 0xffffffff;
+
+const MIN_INT32_VALUE = -0x80000000;
+const MAX_INT32_VALUE = 0x7fffffff;
+
+const MIN_FLOAT32_VALUE = -3.4028234664e38;
+const MAX_FLOAT32_VALUE = 3.4028234664e38;
+
+export const ByteHelper = defineBuiltinHelper(
+    ostr.writeByte,
+    istr.readByte,
+    1,
+    OptionalFormat.F1,
+    MIN_UINT8_VALUE,
+    MAX_UINT8_VALUE,
+);
+
+export const ShortHelper = defineBuiltinHelper(
+    ostr.writeShort,
+    istr.readShort,
+    2,
+    OptionalFormat.F2,
+    MIN_INT16_VALUE,
+    MAX_INT16_VALUE,
+);
+
+export const IntHelper = defineBuiltinHelper(
+    ostr.writeInt,
+    istr.readInt,
+    4,
+    OptionalFormat.F4,
+    MIN_INT32_VALUE,
+    MAX_INT32_VALUE,
+);
+
+export const FloatHelper = defineBuiltinHelper(
+    ostr.writeFloat,
+    istr.readFloat,
+    4,
+    OptionalFormat.F4,
+    MIN_FLOAT32_VALUE,
+    MAX_FLOAT32_VALUE,
+);
+FloatHelper.validate = function (v) {
+    return (
+        Number.isNaN(v) ||
+        v == Number.POSITIVE_INFINITY ||
+        v == Number.NEGATIVE_INFINITY ||
+        (v >= MIN_FLOAT32_VALUE && v <= MAX_FLOAT32_VALUE)
+    );
+};
+
+export const DoubleHelper = defineBuiltinHelper(
+    ostr.writeDouble,
+    istr.readDouble,
+    8,
+    OptionalFormat.F8,
+    -Number.MAX_VALUE,
+    Number.MAX_VALUE,
+);
+DoubleHelper.validate = function (v) {
+    return (
+        Number.isNaN(v) ||
+        v == Number.POSITIVE_INFINITY ||
+        v == Number.NEGATIVE_INFINITY ||
+        (v >= -Number.MAX_VALUE && v <= Number.MAX_VALUE)
+    );
+};
+
+export const BoolHelper = defineBuiltinHelper(ostr.writeBool, istr.readBool, 1, OptionalFormat.F1);
+export const LongHelper = defineBuiltinHelper(ostr.writeLong, istr.readLong, 8, OptionalFormat.F8);
+LongHelper.validate = function (v) {
+    //
+    // For a long to be valid both words must be within the range of UINT32
+    //
+    return (
+        v.low >= MIN_UINT32_VALUE &&
+        v.low <= MAX_UINT32_VALUE &&
+        v.high >= MIN_UINT32_VALUE &&
+        v.high <= MAX_UINT32_VALUE
+    );
+};
+
+export const StringHelper = defineBuiltinHelper(ostr.writeString, istr.readString, 1, OptionalFormat.VSize);
+export const ObjectHelper = class {
+    static write(os, v) {
+        os.writeValue(v);
+    }
+
+    static read(is) {
+        let o;
+        is.readValue(v => {
+            o = v;
+        }, Value);
+        return o;
+    }
+
+    static get minWireSize() {
+        return 1;
+    }
+};
 
 export const StreamHelpers = {};
 

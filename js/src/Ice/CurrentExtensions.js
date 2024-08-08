@@ -19,7 +19,7 @@ import {
     UnknownLocalException,
     RequestFailedException,
 } from "./LocalExceptions.js";
-import { OutputStream } from "./Stream.js";
+import { OutputStream } from "./OutputStream.js";
 import { Protocol } from "./Protocol.js";
 import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
 const { StringSeqHelper } = Ice_BuiltinSequences;

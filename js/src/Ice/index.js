@@ -30,6 +30,7 @@ import * as Ice_IdentityUtil from "./IdentityUtil.js";
 import * as Ice_IdentityToString from "./IdentityToString.js";
 import * as Ice_ImplicitContext from "./ImplicitContext.js";
 import * as Ice_Initialize from "./Initialize.js";
+import * as Ice_InputStream from "./InputStream.js";
 import * as Ice_Instance from "./Instance.js";
 // Must be imported after Instance.js for the prototype extensions.
 import "./InstanceExtensions.js";
@@ -52,6 +53,7 @@ import * as Ice_OperationMode from "./OperationMode.js";
 import * as Ice_OptionalFormat from "./OptionalFormat.js";
 import * as Ice_OutgoingAsync from "./OutgoingAsync.js";
 import * as Ice_OutgoingResponse from "./OutgoingResponse.js";
+import * as Ice_OutputStream from "./OutputStream.js";
 import * as Ice_Process from "./Process.js";
 import * as Ice_ProcessLogger from "./ProcessLogger.js";
 import * as Ice_Promise from "./Promise.js";
@@ -68,7 +70,6 @@ import * as Ice_RemoteLogger from "./RemoteLogger.js";
 import * as Ice_ReplyStatus from "./ReplyStatus.js";
 import * as Ice_Router from "./Router.js";
 import * as Ice_RouterInfo from "./RouterInfo.js";
-import * as Ice_Stream from "./Stream.js";
 import * as Ice_StreamHelpers from "./StreamHelpers.js";
 import * as Ice_Struct from "./Struct.js";
 import * as Ice_Timer from "./Timer.js";
@@ -108,6 +109,7 @@ export const Ice = {
     ...Ice_IdentityToString,
     ...Ice_ImplicitContext,
     ...Ice_Initialize,
+    ...Ice_InputStream,
     ...Ice_Instance,
     ...Ice_IncomingRequest,
     ...Ice_LocalException,
@@ -123,6 +125,7 @@ export const Ice = {
     ...Ice_OptionalFormat,
     ...Ice_OutgoingAsync,
     ...Ice_OutgoingResponse,
+    ...Ice_OutputStream,
     ...Ice_ProcessLogger,
     ...Ice_Promise,
     ...Ice_Properties,
@@ -134,7 +137,6 @@ export const Ice = {
     ...Ice_ReferenceMode,
     ...Ice_ReplyStatus,
     ...Ice_RouterInfo,
-    ...Ice_Stream,
     ...Ice_StreamHelpers,
     ...Ice_Struct,
     ...Ice_Timer,

@@ -21,7 +21,8 @@ import {
 import { ConnectionClose } from "./Connection.js";
 
 import { BatchRequestQueue } from "./BatchRequestQueue.js";
-import { InputStream, OutputStream } from "./Stream.js";
+import { InputStream } from "./InputStream.js";
+import { OutputStream } from "./OutputStream.js";
 import { Protocol } from "./Protocol.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { ProtocolVersion, EncodingVersion } = Ice_Version;

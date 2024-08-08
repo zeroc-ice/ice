@@ -13,7 +13,7 @@ import { ToStringMode } from "./ToStringMode.js";
 
 import { Encoding_1_0, encodingVersionToString } from "./Protocol.js";
 import { ReplyStatus } from "./ReplyStatus.js";
-import { InputStream } from "./Stream.js";
+import { InputStream } from "./InputStream.js";
 
 import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
 const { StringSeqHelper } = Ice_BuiltinSequences;

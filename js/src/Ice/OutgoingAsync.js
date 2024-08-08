@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { OutputStream } from "./Stream.js";
+import { OutputStream } from "./OutputStream.js";
 import { AsyncResult } from "./AsyncResult.js";
 import { AsyncStatus } from "./AsyncStatus.js";
 import { UserException } from "./UserException.js";
@@ -34,7 +34,7 @@ const { ContextHelper } = Ice_Context;
 import { Protocol } from "./Protocol.js";
 import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
 const { StringSeqHelper } = Ice_BuiltinSequences;
-import { InputStream } from "./Stream.js";
+import { InputStream } from "./InputStream.js";
 
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
