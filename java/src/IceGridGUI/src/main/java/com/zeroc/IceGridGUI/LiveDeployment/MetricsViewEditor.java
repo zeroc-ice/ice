@@ -175,7 +175,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
           try {
             _properties.load(s.trim());
           } catch (com.zeroc.Ice.FileException ex) {
-            coord.getCommunicator().getLogger().warning("unable to load `" + ex.path + "'");
+            coord.getCommunicator().getLogger().warning(ex.getMessage());
           }
           sectionSort.addAll(
               java.util.Arrays.asList(_properties.getPropertyAsList("IceGridGUI.Metrics")));

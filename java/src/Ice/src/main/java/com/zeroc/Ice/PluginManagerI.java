@@ -12,9 +12,7 @@ public final class PluginManagerI implements PluginManager {
   @Override
   public synchronized void initializePlugins() {
     if (_initialized) {
-      InitializationException ex = new InitializationException();
-      ex.reason = "plug-ins already initialized";
-      throw ex;
+      throw new InitializationException("plug-ins already initialized");
     }
 
     //
@@ -28,10 +26,8 @@ public final class PluginManagerI implements PluginManager {
         } catch (PluginInitializationException ex) {
           throw ex;
         } catch (RuntimeException ex) {
-          PluginInitializationException e = new PluginInitializationException();
-          e.reason = "plugin `" + p.name + "' initialization failed";
-          e.initCause(ex);
-          throw e;
+          throw new PluginInitializationException(
+              "plugin '" + p.name + "' initialization failed", ex);
         }
         initializedPlugins.add(p.plugin);
       }
@@ -75,10 +71,7 @@ public final class PluginManagerI implements PluginManager {
       return p;
     }
 
-    NotRegisteredException ex = new NotRegisteredException();
-    ex.id = name;
-    ex.kindOfObject = _kindOfObject;
-    throw ex;
+    throw new NotRegisteredException(_kindOfObject, name);
   }
 
   @Override
@@ -88,10 +81,7 @@ public final class PluginManagerI implements PluginManager {
     }
 
     if (findPlugin(name) != null) {
-      AlreadyRegisteredException ex = new AlreadyRegisteredException();
-      ex.id = name;
-      ex.kindOfObject = _kindOfObject;
-      throw ex;
+      throw new AlreadyRegisteredException(_kindOfObject, name);
     }
 
     PluginInfo info = new PluginInfo();
@@ -157,9 +147,7 @@ public final class PluginManagerI implements PluginManager {
     final String[] loadOrder = properties.getPropertyAsList("Ice.PluginLoadOrder");
     for (String name : loadOrder) {
       if (findPlugin(name) != null) {
-        PluginInitializationException ex = new PluginInitializationException();
-        ex.reason = "plug-in `" + name + "' already loaded";
-        throw ex;
+        throw new PluginInitializationException("plug-in '" + name + "' already loaded");
       }
 
       String key = "Ice.Plugin." + name + ".java";
@@ -176,9 +164,7 @@ public final class PluginManagerI implements PluginManager {
         cmdArgs = loadPlugin(name, value, cmdArgs);
         plugins.remove(key);
       } else {
-        PluginInitializationException ex = new PluginInitializationException();
-        ex.reason = "plug-in `" + name + "' not defined";
-        throw ex;
+        throw new PluginInitializationException("plug-in '" + name + "' not defined");
       }
     }
 
@@ -251,9 +237,8 @@ public final class PluginManagerI implements PluginManager {
     String[] args;
     try {
       args = com.zeroc.IceUtilInternal.Options.split(pluginSpec);
-    } catch (com.zeroc.IceUtilInternal.Options.BadQuote ex) {
-      throw new PluginInitializationException(
-          "invalid arguments for plug-in `" + name + "':\n" + ex.getMessage());
+    } catch (ParseException ex) {
+      throw new PluginInitializationException("invalid arguments for plug-in `" + name + "'", ex);
     }
 
     assert (args.length > 0);

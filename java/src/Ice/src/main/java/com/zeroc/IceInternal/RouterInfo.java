@@ -97,7 +97,7 @@ public final class RouterInfo {
   public EndpointI[] getServerEndpoints() {
     com.zeroc.Ice.ObjectPrx serverProxy = _router.getServerProxy();
     if (serverProxy == null) {
-      throw new com.zeroc.Ice.NoEndpointException();
+      throw new com.zeroc.Ice.NoEndpointException("Router::getServerProxy returned a null proxy.");
     }
     serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
     return ((com.zeroc.Ice._ObjectPrxI) serverProxy)._getReference().getEndpoints();

@@ -159,7 +159,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
   public ObjectPrx ice_identity(Identity newIdentity) {
     if (newIdentity.name == null || newIdentity.name.isEmpty()) {
-      throw new IllegalIdentityException();
+      throw new IllegalArgumentException("The name of an Ice object identity cannot be empty.");
     }
     if (newIdentity.equals(_reference.getIdentity())) {
       return this;

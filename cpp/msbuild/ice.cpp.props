@@ -115,9 +115,6 @@
       Definitions when building the Ice C++ sources (as opposed to the test suite).
   -->
   <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
-    <ClCompile>
-      <PreprocessorDefinitions Condition="'$(IceLanguageMapping)' == 'cpp'">ICE_BUILDING_SRC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>

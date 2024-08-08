@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.ConnectionLostException;
+
 final class UdpTransceiver implements Transceiver {
   @Override
   public java.nio.channels.SelectableChannel fd() {
@@ -112,9 +114,9 @@ final class UdpTransceiver implements Transceiver {
         }
         break;
       } catch (java.nio.channels.AsynchronousCloseException ex) {
-        throw new com.zeroc.Ice.ConnectionLostException(ex);
+        throw new ConnectionLostException(ex);
       } catch (java.net.PortUnreachableException ex) {
-        throw new com.zeroc.Ice.ConnectionLostException(ex);
+        throw new ConnectionLostException(ex);
       } catch (java.io.InterruptedIOException ex) {
         continue;
       } catch (java.io.IOException ex) {
@@ -155,13 +157,13 @@ final class UdpTransceiver implements Transceiver {
         ret = buf.b.position();
         break;
       } catch (java.nio.channels.AsynchronousCloseException ex) {
-        throw new com.zeroc.Ice.ConnectionLostException(ex);
+        throw new ConnectionLostException(ex);
       } catch (java.net.PortUnreachableException ex) {
-        throw new com.zeroc.Ice.ConnectionLostException(ex);
+        throw new ConnectionLostException(ex);
       } catch (java.io.InterruptedIOException ex) {
         continue;
       } catch (java.io.IOException ex) {
-        throw new com.zeroc.Ice.ConnectionLostException(ex);
+        throw new ConnectionLostException(ex);
       }
     }
 

@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.NoEndpointException;
+
 public class FixedReference extends Reference {
   public FixedReference(
       Instance instance,
@@ -181,7 +183,7 @@ public class FixedReference extends Reference {
       case Reference.ModeBatchOneway:
         {
           if (_fixedConnection.endpoint().datagram()) {
-            throw new com.zeroc.Ice.NoEndpointException(toString());
+            throw NoEndpointException.fromProxyString(toString());
           }
           break;
         }
@@ -190,7 +192,7 @@ public class FixedReference extends Reference {
       case Reference.ModeBatchDatagram:
         {
           if (!_fixedConnection.endpoint().datagram()) {
-            throw new com.zeroc.Ice.NoEndpointException(toString());
+            throw NoEndpointException.fromProxyString(toString());
           }
           break;
         }
@@ -208,7 +210,7 @@ public class FixedReference extends Reference {
       secure = getSecure();
     }
     if (secure && !_fixedConnection.endpoint().secure()) {
-      throw new com.zeroc.Ice.NoEndpointException(toString());
+      throw NoEndpointException.fromProxyString(toString());
     }
 
     _fixedConnection.throwException(); // Throw in case our connection is already destroyed.

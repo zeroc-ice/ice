@@ -90,7 +90,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
     try {
       return waitForResponseOrUserEx();
     } catch (UserException ex) {
-      throw new UnknownUserException(ex.ice_id(), ex);
+      throw UnknownUserException.fromTypeId(ex.ice_id());
     }
   }
 
@@ -195,7 +195,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
               }
             }
           }
-          completeExceptionally(new com.zeroc.Ice.UnknownUserException(ex.ice_id(), ex));
+          completeExceptionally(UnknownUserException.fromTypeId(ex.ice_id()));
         } catch (Throwable ex) {
           completeExceptionally(ex);
         }
@@ -248,11 +248,11 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
     _is.skipEmptyEncapsulation();
   }
 
-  private final void throwUserException() throws com.zeroc.Ice.UserException {
+  private final void throwUserException() throws UserException {
     try {
       _is.startEncapsulation();
       _is.throwException(null);
-    } catch (com.zeroc.Ice.UserException ex) {
+    } catch (UserException ex) {
       _is.endEncapsulation();
       throw ex;
     }

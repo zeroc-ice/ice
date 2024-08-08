@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.ConnectionLostException;
+
 public class StreamSocket {
   public StreamSocket(
       ProtocolInstance instance,
@@ -143,7 +145,7 @@ public class StreamSocket {
       try {
         int ret = _fd.read(buf);
         if (ret == -1) {
-          throw new com.zeroc.Ice.ConnectionLostException();
+          throw new ConnectionLostException();
         } else if (ret == 0) {
           return read;
         }
@@ -152,7 +154,7 @@ public class StreamSocket {
       } catch (java.io.InterruptedIOException ex) {
         continue;
       } catch (java.io.IOException ex) {
-        throw new com.zeroc.Ice.ConnectionLostException(ex);
+        throw new ConnectionLostException(ex);
       }
     }
     return read;
@@ -177,7 +179,7 @@ public class StreamSocket {
         }
 
         if (ret == -1) {
-          throw new com.zeroc.Ice.ConnectionLostException();
+          throw new ConnectionLostException();
         } else if (ret == 0) {
           return sent;
         }

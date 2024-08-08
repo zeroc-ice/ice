@@ -1859,17 +1859,17 @@ public class SessionKeeper {
                             WizardStep.DirectUsernamePasswordCredentialsStep.toString());
                         _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                       }
-                    } catch (com.zeroc.Ice.EndpointParseException ex) {
+                    } catch (com.zeroc.Ice.ParseException ex) {
                       JOptionPane.showMessageDialog(
                           ConnectionWizardDialog.this,
-                          ex.str,
+                          ex.getMessage(),
                           "Error parsing endpoint",
                           JOptionPane.ERROR_MESSAGE);
                       return;
-                    } catch (com.zeroc.Ice.ProxyParseException ex) {
+                    } catch (com.zeroc.Ice.Exception ex) {
                       JOptionPane.showMessageDialog(
                           ConnectionWizardDialog.this,
-                          ex.str,
+                          ex.getMessage(),
                           "Error parsing endpoint",
                           JOptionPane.ERROR_MESSAGE);
                       return;
@@ -1905,17 +1905,10 @@ public class SessionKeeper {
                             WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                         _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                       }
-                    } catch (com.zeroc.Ice.EndpointParseException ex) {
+                    } catch (com.zeroc.Ice.ParseException ex) {
                       JOptionPane.showMessageDialog(
                           ConnectionWizardDialog.this,
-                          ex.str,
-                          "Error parsing endpoint",
-                          JOptionPane.ERROR_MESSAGE);
-                      return;
-                    } catch (com.zeroc.Ice.ProxyParseException ex) {
-                      JOptionPane.showMessageDialog(
-                          ConnectionWizardDialog.this,
-                          ex.str,
+                          ex.getMessage(),
                           "Error parsing endpoint",
                           JOptionPane.ERROR_MESSAGE);
                       return;
@@ -2695,8 +2688,7 @@ public class SessionKeeper {
           return true;
         }
       }
-    } catch (com.zeroc.Ice.EndpointParseException ex) {
-    } catch (com.zeroc.Ice.ProxyParseException ex) {
+    } catch (com.zeroc.Ice.ParseException ex) {
     }
     return false;
   }

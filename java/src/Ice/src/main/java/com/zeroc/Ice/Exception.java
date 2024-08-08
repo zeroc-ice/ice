@@ -10,10 +10,12 @@ package com.zeroc.Ice;
  * from java.lang.Exception.
  */
 public abstract class Exception extends RuntimeException implements Cloneable {
-  public Exception() {}
+  public Exception(String message) {
+    super(message);
+  }
 
-  public Exception(Throwable cause) {
-    super(cause);
+  public Exception(String message, Throwable cause) {
+    super(message, cause);
   }
 
   /**
@@ -34,29 +36,11 @@ public abstract class Exception extends RuntimeException implements Cloneable {
   }
 
   /**
-   * Returns the type id of this exception.
+   * Returns the type ID of this exception.
    *
-   * @return The type id of this exception.
+   * @return The type ID of this exception.
    */
   public abstract String ice_id();
-
-  /**
-   * Returns a string representation of this exception.
-   *
-   * @return A string representation of this exception.
-   */
-  @Override
-  public String toString() {
-    java.io.StringWriter sw = new java.io.StringWriter();
-    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-    com.zeroc.IceUtilInternal.OutputBase out = new com.zeroc.IceUtilInternal.OutputBase(pw);
-    out.setUseTab(false);
-    out.print(getClass().getName());
-    out.inc();
-    com.zeroc.IceInternal.ValueWriter.write(this, out);
-    pw.flush();
-    return sw.toString();
-  }
 
   private static final long serialVersionUID = 0L;
 }

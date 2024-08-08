@@ -4,6 +4,7 @@
 
 package test.IceUtil.inputUtil;
 
+import com.zeroc.Ice.ParseException;
 import com.zeroc.IceUtilInternal.Options;
 import com.zeroc.IceUtilInternal.StringUtil;
 
@@ -76,7 +77,7 @@ public class Client extends test.TestHelper {
       test(args.length == 1 && args[0].equals("-Dir=C:\\ff\015i"));
       args = Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
       test(args.length == 1 && args[0].equals("-Dir=C:\\\015ffi"));
-    } catch (Options.BadQuote ex) {
+    } catch (ParseException ex) {
       test(false);
     }
 
@@ -91,7 +92,7 @@ public class Client extends test.TestHelper {
       try {
         Options.split(badQuoteCommands[i]);
         test(false);
-      } catch (Options.BadQuote ex) {
+      } catch (ParseException ex) {
       }
     }
 

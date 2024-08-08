@@ -22,7 +22,7 @@ public class AllTests {
     }
   }
 
-  public static void testExceptions(TestIntfPrx obj) {
+  public static void testExceptions(TestIntfPrx obj, test.TestHelper helper) {
     try {
       obj.requestFailedException();
       test(false);
@@ -36,21 +36,22 @@ public class AllTests {
       obj.unknownUserException();
       test(false);
     } catch (UnknownUserException ex) {
-      test(ex.unknown.equals("reason"));
+      helper.getWriter().flush();
+      test(ex.getMessage().equals("reason"));
     }
 
     try {
       obj.unknownLocalException();
       test(false);
     } catch (UnknownLocalException ex) {
-      test(ex.unknown.equals("reason"));
+      test(ex.getMessage().equals("reason"));
     }
 
     try {
       obj.unknownException();
       test(false);
     } catch (UnknownException ex) {
-      test(ex.unknown.equals("reason"));
+      test(ex.getMessage().equals("reason"));
     }
 
     //
@@ -63,9 +64,10 @@ public class AllTests {
     //      }
     //      catch(UnknownUserException ex)
     //      {
-    //          //System.err.println(ex.unknown);
+    //          // // TODO remove this print after figuring out why this block is commented out.
+    //          //System.err.println(ex.getMessage());
     //          test(!collocated);
-    //          test(ex.unknown.equals("Test::TestIntfUserException"));
+    //          test(ex.getMessage().equals("Test::TestIntfUserException"));
     //      }
     //      catch(TestIntfUserException ex)
     //      {
@@ -76,9 +78,8 @@ public class AllTests {
       obj.localException();
       test(false);
     } catch (UnknownLocalException ex) {
-      test(
-          ex.unknown.indexOf("Ice::SocketException") >= 0
-              || ex.unknown.indexOf("Ice.SocketException") >= 0);
+      var message = ex.getMessage();
+      test(message.contains("Ice::SocketException") || message.contains("Ice.SocketException"));
     } catch (Throwable ex) {
       test(false);
     }
@@ -87,7 +88,7 @@ public class AllTests {
       obj.javaException();
       test(false);
     } catch (UnknownException ex) {
-      test(ex.unknown.indexOf("java.lang.RuntimeException: message") >= 0);
+      test(ex.getMessage().contains("java.lang.RuntimeException: message"));
     } catch (com.zeroc.Ice.OperationNotExistException ex) {
     } catch (Throwable ex) {
       // System.err.println(ex);
@@ -98,7 +99,7 @@ public class AllTests {
       obj.unknownExceptionWithServantException();
       test(false);
     } catch (UnknownException ex) {
-      test(ex.unknown.equals("reason"));
+      test(ex.getMessage().equals("reason"));
     } catch (Throwable ex) {
       test(false);
     }
@@ -170,7 +171,9 @@ public class AllTests {
       o.ice_ids();
       test(false);
     } catch (UnknownUserException ex) {
-      test(ex.unknown.equals("::Test::TestIntfUserException"));
+      var expected =
+          "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
+      test(ex.getMessage().equals(expected));
     } catch (Throwable ex) {
       test(false);
     }
@@ -180,7 +183,9 @@ public class AllTests {
       o.ice_ids();
       test(false);
     } catch (UnknownUserException ex) {
-      test(ex.unknown.equals("::Test::TestIntfUserException"));
+      var expected =
+          "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
+      test(ex.getMessage().equals(expected));
     } catch (Throwable ex) {
       test(false);
     }
@@ -218,14 +223,14 @@ public class AllTests {
     out.flush();
     base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
     obj = TestIntfPrx.checkedCast(base);
-    testExceptions(obj);
+    testExceptions(obj, helper);
     out.println("ok");
 
     out.print("testing finished exceptions... ");
     out.flush();
     base = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
     obj = TestIntfPrx.checkedCast(base);
-    testExceptions(obj);
+    testExceptions(obj, helper);
 
     //
     // Only call these for category/finished.

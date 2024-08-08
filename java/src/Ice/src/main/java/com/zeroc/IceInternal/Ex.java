@@ -4,17 +4,16 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.MarshalException;
+
 public class Ex {
   public static <T extends com.zeroc.Ice.Value> void throwUOE(
       Class<T> expectedType, com.zeroc.Ice.Value v) {
-    //
-    // If the object is an unknown sliced object, we didn't find an
-    // value factory, in this case raise a NoValueFactoryException
-    // instead.
-    //
+    // If the object is an unknown sliced object, we didn't find a value factory.
     if (v instanceof com.zeroc.Ice.UnknownSlicedValue) {
-      com.zeroc.Ice.UnknownSlicedValue usv = (com.zeroc.Ice.UnknownSlicedValue) v;
-      throw new com.zeroc.Ice.NoValueFactoryException("", usv.ice_id());
+      var usv = (com.zeroc.Ice.UnknownSlicedValue) v;
+      throw new MarshalException(
+          "Cannot find value factory to unmarshal class with type ID '" + usv.ice_id() + "'.");
     }
 
     String type = v.ice_id();
@@ -25,35 +24,38 @@ public class Ex {
       expected = "";
       assert (false);
     }
-    throw new com.zeroc.Ice.UnexpectedObjectException(
-        "expected element of type `" + expected + "' but received `" + type + "'", type, expected);
+    throw new MarshalException(
+        "Failed to unmarshal class with type ID '"
+            + expected
+            + "': value factory returned class with type ID '"
+            + type
+            + "'.");
   }
 
   public static void throwUOE(String expectedType, com.zeroc.Ice.Value v) {
-    //
-    // If the object is an unknown sliced object, we didn't find an
-    // value factory, in this case raise a NoValueFactoryException
-    // instead.
-    //
+    // If the object is an unknown sliced object, we didn't find a value factory.
     if (v instanceof com.zeroc.Ice.UnknownSlicedValue) {
-      com.zeroc.Ice.UnknownSlicedValue usv = (com.zeroc.Ice.UnknownSlicedValue) v;
-      throw new com.zeroc.Ice.NoValueFactoryException("", usv.ice_id());
+      var usv = (com.zeroc.Ice.UnknownSlicedValue) v;
+      throw new MarshalException(
+          "Cannot find value factory to unmarshal class with type ID '" + usv.ice_id() + "'.");
     }
 
     String type = v.ice_id();
-    throw new com.zeroc.Ice.UnexpectedObjectException(
-        "expected element of type `" + expectedType + "' but received `" + type + "'",
-        type,
-        expectedType);
+    throw new MarshalException(
+        "Failed to unmarshal class with type ID '"
+            + expectedType
+            + "': value factory returned class with type ID '"
+            + type
+            + "'.");
   }
 
   public static void throwMemoryLimitException(int requested, int maximum) {
-    throw new com.zeroc.Ice.MemoryLimitException(
-        "requested "
+    throw new MarshalException(
+        "Cannot unmarshal Ice message: the message size of "
             + requested
-            + " bytes, maximum allowed is "
+            + " bytes exceeds the maximum allowed of "
             + maximum
-            + " bytes (see Ice.MessageSizeMax)");
+            + " bytes (see Ice.MessageSizeMax).");
   }
 
   //

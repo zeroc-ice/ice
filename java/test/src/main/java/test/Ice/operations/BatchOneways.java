@@ -70,7 +70,7 @@ class BatchOneways {
     for (int i = 0; i < 30; ++i) {
       try {
         batch.opByteSOneway(bs1);
-      } catch (com.zeroc.Ice.MemoryLimitException ex) {
+      } catch (com.zeroc.Ice.MarshalException ex) {
         test(false);
       }
     }

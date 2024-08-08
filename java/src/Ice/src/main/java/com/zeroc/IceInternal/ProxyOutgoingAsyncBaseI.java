@@ -6,10 +6,12 @@ package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.CloseConnectionException;
 import com.zeroc.Ice.CommunicatorDestroyedException;
+import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.InvocationTimeoutException;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.OperationMode;
+import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.ReplyStatus;
 import com.zeroc.Ice.RequestFailedException;
 
@@ -73,7 +75,8 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
             String facet;
             if (facetPath.length > 0) {
               if (facetPath.length > 1) {
-                throw new com.zeroc.Ice.MarshalException();
+                throw new com.zeroc.Ice.MarshalException(
+                    "Received invalid facet path with '" + facetPath.length + "' elements.");
               }
               facet = facetPath[0];
             } else {
@@ -82,35 +85,20 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
 
             String operation = is.readString();
 
-            RequestFailedException ex =
-                switch (replyStatus) {
-                  case ObjectNotExist -> new ObjectNotExistException();
-                  case FacetNotExist -> new com.zeroc.Ice.FacetNotExistException();
-                  default -> new com.zeroc.Ice.OperationNotExistException();
-                };
-
-            ex.id = id;
-            ex.facet = facet;
-            ex.operation = operation;
-            throw ex;
+            switch (replyStatus) {
+              case ObjectNotExist -> throw new ObjectNotExistException(id, facet, operation);
+              case FacetNotExist -> throw new FacetNotExistException(id, facet, operation);
+              case OperationNotExist -> throw new OperationNotExistException(id, facet, operation);
+              default -> throw new IllegalStateException();
+            }
           }
 
         case UnknownException:
+          throw new com.zeroc.Ice.UnknownException(is.readString());
         case UnknownLocalException:
+          throw new com.zeroc.Ice.UnknownLocalException(is.readString());
         case UnknownUserException:
-          {
-            String unknown = is.readString();
-
-            com.zeroc.Ice.UnknownException ex =
-                switch (replyStatus) {
-                  case UnknownException -> new com.zeroc.Ice.UnknownException();
-                  case UnknownLocalException -> new com.zeroc.Ice.UnknownLocalException();
-                  default -> new com.zeroc.Ice.UnknownUserException();
-                };
-
-            ex.unknown = unknown;
-            throw ex;
-          }
+          throw new com.zeroc.Ice.UnknownUserException(is.readString());
 
         default:
           // Can't happen. We throw MarshalException in ReplyStatus.valueOf if we receive an invalid
@@ -404,9 +392,8 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     // UnknownLocalException instead), which means there was a problem
     // in this process that will not change if we try again.
     //
-    // The most likely cause for a MarshalException is exceeding the
-    // maximum message size, which is represented by the subclass
-    // MemoryLimitException. For example, a client can attempt to send
+    // A likely cause for a MarshalException is exceeding the
+    // maximum message size. For example, a client can attempt to send
     // a message that exceeds the maximum memory size, or accumulate
     // enough batch requests without flushing that the maximum size is
     // reached.
@@ -422,12 +409,22 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
       throw ex;
     }
 
-    // Don't retry if the communicator is destroyed, object adapter is deactivated,
-    // or connection is manually closed.
+    // Don't retry if the communicator is destroyed or object adapter is deactivated.
     if (ex instanceof CommunicatorDestroyedException
-        || ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException
-        || ex instanceof com.zeroc.Ice.ConnectionManuallyClosedException) {
+        || ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException) {
       throw ex;
+    }
+
+    // Don't retry if the connection was closed by the application.
+    if (ex instanceof com.zeroc.Ice.ConnectionAbortedException) {
+      if (((com.zeroc.Ice.ConnectionAbortedException) ex).closedByApplication) {
+        throw ex;
+      }
+    }
+    if (ex instanceof com.zeroc.Ice.ConnectionClosedException) {
+      if (((com.zeroc.Ice.ConnectionClosedException) ex).closedByApplication) {
+        throw ex;
+      }
     }
 
     // Don't retry invocation timeouts.

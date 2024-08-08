@@ -27,8 +27,8 @@ public protocol ValueFactoryManager: AnyObject {
     /// value was marshaled:
     /// If the value uses the "sliced" format, Ice ascends the class hierarchy until it finds a type that is recognized
     /// by a factory, or it reaches the least-derived type. If no factory is found that can create an instance, the run
-    /// time throws NoValueFactoryException.
-    /// If the value uses the "compact" format, Ice immediately raises NoValueFactoryException.
+    /// time throws a MarshalException.
+    /// If the value uses the "compact" format, Ice immediately raises a MarshalException.
     /// The following order is used to locate a factory for a type:
     ///
     /// The Ice run-time looks for a factory registered specifically for the type.

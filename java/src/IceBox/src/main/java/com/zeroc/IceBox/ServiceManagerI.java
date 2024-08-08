@@ -239,9 +239,7 @@ public class ServiceManagerI implements ServiceManager {
           String key = prefix + name;
           String value = services.get(key);
           if (value == null) {
-            FailureException ex = new FailureException();
-            ex.reason = "ServiceManager: no service definition for `" + name + "'";
-            throw ex;
+            throw new FailureException("ServiceManager: no service definition for `" + name + "'");
           }
           servicesInfo.add(new StartServiceInfo(name, value, _argv));
           services.remove(key);
@@ -352,7 +350,7 @@ public class ServiceManagerI implements ServiceManager {
     } catch (FailureException ex) {
       java.io.StringWriter sw = new java.io.StringWriter();
       java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-      pw.println(ex.reason);
+      pw.println(ex.toString());
       ex.printStackTrace(pw);
       pw.flush();
       _logger.error(sw.toString());
@@ -522,10 +520,8 @@ public class ServiceManagerI implements ServiceManager {
           }
         }
       } catch (Throwable ex) {
-        FailureException e = new FailureException();
-        e.reason = "ServiceManager: exception while starting service " + service;
-        e.initCause(ex);
-        throw e;
+        throw new FailureException(
+            "ServiceManager: exception while starting service " + service, ex);
       }
     }
 
@@ -604,10 +600,8 @@ public class ServiceManagerI implements ServiceManager {
       } catch (FailureException ex) {
         throw ex;
       } catch (Throwable ex) {
-        FailureException e = new FailureException();
-        e.reason = "ServiceManager: exception while starting service " + service;
-        e.initCause(ex);
-        throw e;
+        throw new FailureException(
+            "ServiceManager: exception while starting service " + service, ex);
       }
 
       info.status = StatusStarted;
@@ -782,9 +776,9 @@ public class ServiceManagerI implements ServiceManager {
 
       try {
         args = com.zeroc.IceUtilInternal.Options.split(value);
-      } catch (com.zeroc.IceUtilInternal.Options.BadQuote ex) {
+      } catch (com.zeroc.Ice.ParseException ex) {
         throw new FailureException(
-            "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.getMessage());
+            "ServiceManager: invalid arguments for service `" + name + "'", ex);
       }
 
       assert (args.length > 0);

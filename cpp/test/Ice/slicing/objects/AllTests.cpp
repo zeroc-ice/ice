@@ -195,21 +195,7 @@ namespace
 
         void response_SBSUnknownDerivedAsSBaseCompact(const SBasePtr&) { test(false); }
 
-        void exception_SBSUnknownDerivedAsSBaseCompact(const Ice::Exception& exc)
-        {
-            // TODO: this test appears unused since this type ID no longer exists.
-            test(string{exc.ice_id()} == "::Ice::NoValueFactoryException");
-            called();
-        }
-
         void response_SUnknownAsObject10(const Ice::ValuePtr&) { test(false); }
-
-        void exception_SUnknownAsObject10(const Ice::Exception& exc)
-        {
-            // TODO: this test appears unused since this type ID no longer exists.
-            test(string{exc.ice_id()} == "::Ice::NoValueFactoryException");
-            called();
-        }
 
         void response_SUnknownAsObject11(const Ice::ValuePtr& o)
         {

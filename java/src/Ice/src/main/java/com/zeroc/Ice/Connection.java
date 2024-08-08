@@ -131,8 +131,9 @@ public interface Connection {
   /**
    * Throw an exception indicating the reason for connection closure. For example, {@link
    * CloseConnectionException} is raised if the connection was closed gracefully, whereas {@link
-   * ConnectionManuallyClosedException} is raised if the connection was manually closed by the
-   * application. This operation does nothing if the connection is not yet closed.
+   * ConnectionAbortedException}/{@link ConnectionClosedException} is raised if the connection was
+   * manually closed by the application. This operation does nothing if the connection is not yet
+   * closed.
    */
   void throwException();
 }

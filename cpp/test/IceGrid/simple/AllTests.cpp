@@ -71,15 +71,11 @@ allTests(Test::TestHelper* helper)
             com->destroy();
 
             //
-            // Now, ensure that the IceGrid discovery locator correctly
-            // handles failure to find a locator. Also test
+            // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator. Also test
             // Ice::registerIceLocatorDiscovery()
             //
-#ifndef ICE_STATIC_LIBS
+#ifdef ICE_STATIC_LIBS
             Ice::registerIceLocatorDiscovery();
-            initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery", "");
-#else
-            initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery", "1");
 #endif
             initData.properties->setProperty("IceLocatorDiscovery.InstanceName", "unknown");
             initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");

@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.ParseException;
+
 public final class EndpointFactoryManager {
   EndpointFactoryManager(Instance instance) {
     _instance = instance;
@@ -36,15 +38,12 @@ public final class EndpointFactoryManager {
   public synchronized EndpointI create(String str, boolean oaEndpoint) {
     String[] arr = com.zeroc.IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
     if (arr == null) {
-      com.zeroc.Ice.EndpointParseException e = new com.zeroc.Ice.EndpointParseException();
-      e.str = "mismatched quote";
-      throw e;
+      throw new ParseException("Failed to parse endpoint '" + str + "': mismatched quote");
     }
 
     if (arr.length == 0) {
-      com.zeroc.Ice.EndpointParseException e = new com.zeroc.Ice.EndpointParseException();
-      e.str = "value has no non-whitespace characters";
-      throw e;
+      throw new ParseException(
+          "Failed to parse endpoint '" + str + "': value has no non-whitespace characters");
     }
 
     java.util.ArrayList<String> v = new java.util.ArrayList<>(java.util.Arrays.asList(arr));
@@ -66,9 +65,8 @@ public final class EndpointFactoryManager {
     if (factory != null) {
       EndpointI e = factory.create(v, oaEndpoint);
       if (!v.isEmpty()) {
-        com.zeroc.Ice.EndpointParseException ex = new com.zeroc.Ice.EndpointParseException();
-        ex.str = "unrecognized argument `" + v.get(0) + "' in endpoint `" + str + "'";
-        throw ex;
+        throw new ParseException(
+            "Failed to parse endpoint '" + str + "': unrecognized argument '" + v.get(0) + "'");
       }
       return e;
 
@@ -95,9 +93,8 @@ public final class EndpointFactoryManager {
     if (protocol.equals("opaque")) {
       EndpointI ue = new OpaqueEndpointI(v);
       if (!v.isEmpty()) {
-        com.zeroc.Ice.EndpointParseException ex = new com.zeroc.Ice.EndpointParseException();
-        ex.str = "unrecognized argument `" + v.get(0) + "' in endpoint `" + str + "'";
-        throw ex;
+        throw new ParseException(
+            "Failed to parse endpoint '" + str + "': unrecognized argument '" + v.get(0) + "'");
       }
       factory = get(ue.type());
       if (factory != null) {

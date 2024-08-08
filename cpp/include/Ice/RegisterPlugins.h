@@ -10,9 +10,8 @@
 //
 // Register functions for Ice plugins are declared here.
 //
-// These functions can be used to explicitly link with a plugin rather
-// than relying on the loading of the plugin at runtime. The application
-// must call the register function before initializing the communicator.
+// These functions can be used to explicitly link with a plugin rather than relying on the loading of the plugin at
+// runtime. The application must call the register function before initializing the communicator.
 //
 
 #ifndef ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT
@@ -22,8 +21,7 @@
 namespace Ice
 {
     //
-    // Checking for the API_EXPORTS macro is necessary to prevent
-    // inconsistent DLL linkage errors on Windows.
+    // Checking for the API_EXPORTS macro is necessary to prevent inconsistent DLL linkage errors on Windows.
     //
 
 #ifndef ICE_API_EXPORTS
@@ -94,10 +92,6 @@ namespace Ice
 #    endif
 #endif
 
-#if defined(_MSC_VER) && !defined(ICE_BUILDING_SRC)
-#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
-#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
-#endif
 }
 
 #endif

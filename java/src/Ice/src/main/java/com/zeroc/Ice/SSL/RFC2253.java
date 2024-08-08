@@ -4,27 +4,12 @@
 
 package com.zeroc.Ice.SSL;
 
+import com.zeroc.Ice.ParseException;
+
 //
 // See RFC 2253 and RFC 1779.
 //
 class RFC2253 {
-  static class ParseException extends com.zeroc.Ice.LocalException {
-    public ParseException() {}
-
-    public ParseException(String reason) {
-      this.reason = reason;
-    }
-
-    @Override
-    public String ice_id() {
-      return "::RFC2253::ParseException";
-    }
-
-    public String reason;
-
-    private static final long serialVersionUID = 6648623149548446986L;
-  }
-
   static class RDNPair {
     String key;
     String value;

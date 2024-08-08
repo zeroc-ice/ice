@@ -418,12 +418,6 @@ function allTests($helper)
             test(str_contains($ex->getMessage(), "::Test::AlsoEmpty"));
             test(str_contains($ex->getMessage(), "::Test::Empty"));
         }
-        else if($ex instanceof Ice\UnmarshalOutOfBoundsException)
-        {
-            //
-            // We get UnmarshalOutOfBoundsException on Windows with VC6.
-            //
-        }
         else
         {
             throw $ex;

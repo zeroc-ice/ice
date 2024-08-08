@@ -22,9 +22,7 @@ public class ThreadHookPlugin implements Plugin {
    */
   public ThreadHookPlugin(Communicator communicator, Runnable threadStart, Runnable threadStop) {
     if (communicator == null) {
-      PluginInitializationException ex = new PluginInitializationException();
-      ex.reason = "Communicator cannot be null";
-      throw ex;
+      throw new PluginInitializationException("Communicator cannot be null.");
     }
 
     com.zeroc.IceInternal.Instance instance = communicator.getInstance();

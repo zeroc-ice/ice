@@ -129,9 +129,9 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   | EncapsulationException              | MarshalException (base)    |          |
   | EndpointParseException              | ParseException             |          |
   | EndpointSelectionTypeParseException | ParseException             |          |
-  | IllegalIdentityException            | ArgumentException (C#), std::invalid_argument (C++)     | |
+  | IllegalIdentityException            | ArgumentException (C#), std::invalid_argument (C++), IllegalArgumentException (Java)     | |
   | IllegalMessageSizeException         | MarshalException           |          |
-  | IllegalServantException             | ArgumentNullException (C#), std::invalid_argument (C++) | |
+  | IllegalServantException             | ArgumentNullException (C#), std::invalid_argument (C++), IllegalArgumentException (Java) | |
   | IdentityParseException              | ParseException             |          |
   | MemoryLimitException                | MarshalException (base)    |          |
   | NoValueFactoryException             | MarshalException (base)    |          |

@@ -55,11 +55,7 @@ public class BlobjectI implements com.zeroc.Ice.Blobject {
       r.outParams = out.finished();
       return r;
     } else {
-      com.zeroc.Ice.OperationNotExistException ex = new com.zeroc.Ice.OperationNotExistException();
-      ex.id = current.id;
-      ex.facet = current.facet;
-      ex.operation = current.operation;
-      throw ex;
+      throw new com.zeroc.Ice.OperationNotExistException();
     }
   }
 }

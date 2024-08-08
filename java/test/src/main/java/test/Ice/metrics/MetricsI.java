@@ -29,7 +29,7 @@ public final class MetricsI implements Metrics {
 
   @Override
   public void opWithLocalException(com.zeroc.Ice.Current current) {
-    throw new com.zeroc.Ice.SyscallException();
+    throw new com.zeroc.Ice.SyscallException(null);
   }
 
   @Override

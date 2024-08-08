@@ -50,7 +50,7 @@ export class ObjectAdapterFactory {
 
     createObjectAdapter(name, router, promise) {
         if (this._instance === null) {
-            throw new ObjectAdapterDeactivatedException();
+            throw new ObjectAdapterDeactivatedException(name);
         }
 
         let adapter = null;

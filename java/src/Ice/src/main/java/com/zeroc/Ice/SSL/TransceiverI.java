@@ -4,6 +4,7 @@
 
 package com.zeroc.Ice.SSL;
 
+import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.IceInternal.SocketOperation;
 import java.nio.*;
 import javax.net.ssl.*;
@@ -187,7 +188,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
         assert status != Status.BUFFER_OVERFLOW;
 
         if (status == Status.CLOSED) {
-          throw new com.zeroc.Ice.ConnectionLostException();
+          throw new ConnectionLostException();
         }
         // Android API 21 SSLEngine doesn't report underflow, so look at the absence of
         // network data and application data to signal a network read.
@@ -346,7 +347,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
                   }
                 case CLOSED:
                   {
-                    throw new com.zeroc.Ice.ConnectionLostException();
+                    throw new ConnectionLostException();
                   }
                 case OK:
                   {
@@ -392,7 +393,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
               assert (status == HandshakeStatus.NEED_UNWRAP);
               break;
             case CLOSED:
-              throw new com.zeroc.Ice.ConnectionLostException();
+              throw new ConnectionLostException();
             case OK:
               break;
           }
@@ -427,7 +428,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
               assert (false);
               break;
             case CLOSED:
-              throw new com.zeroc.Ice.ConnectionLostException();
+              throw new ConnectionLostException();
             case OK:
               break;
           }
@@ -463,7 +464,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
         return s;
       }
     } catch (com.zeroc.Ice.SocketException ex) {
-      throw new com.zeroc.Ice.ConnectionLostException(ex);
+      throw new ConnectionLostException(ex);
     }
     // Cast to java.nio.Buffer to avoid incompatible covariant
     // return type used in Java 9 java.nio.ByteBuffer

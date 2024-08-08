@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.FeatureNotSupportedException;
+
 public final class SOCKSNetworkProxy implements NetworkProxy {
   public SOCKSNetworkProxy(String host, int port) {
     _host = host;
@@ -18,9 +20,9 @@ public final class SOCKSNetworkProxy implements NetworkProxy {
   public void beginWrite(java.net.InetSocketAddress endpoint, Buffer buf) {
     final java.net.InetAddress addr = endpoint.getAddress();
     if (addr == null) {
-      throw new com.zeroc.Ice.FeatureNotSupportedException("SOCKS4 does not support domain names");
+      throw new FeatureNotSupportedException("SOCKS4 does not support domain names");
     } else if (!(addr instanceof java.net.Inet4Address)) {
-      throw new com.zeroc.Ice.FeatureNotSupportedException("SOCKS4 only supports IPv4 addresses");
+      throw new FeatureNotSupportedException("SOCKS4 only supports IPv4 addresses");
     }
 
     //

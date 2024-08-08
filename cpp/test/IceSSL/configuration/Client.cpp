@@ -21,9 +21,7 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceWS(true);
-#endif
+    Ice::registerIceWS(); // for static builds
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     string testdir;

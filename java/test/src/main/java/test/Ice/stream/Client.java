@@ -112,7 +112,7 @@ public class Client extends test.TestHelper {
         try {
           in.readBool();
           test(false);
-        } catch (com.zeroc.Ice.UnmarshalOutOfBoundsException ex) {
+        } catch (com.zeroc.Ice.MarshalException ex) {
         }
       }
 

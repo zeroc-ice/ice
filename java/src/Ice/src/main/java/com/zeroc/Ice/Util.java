@@ -242,9 +242,7 @@ public final class Util {
           //
           // Extra unescaped slash found.
           //
-          IdentityParseException ex = new IdentityParseException();
-          ex.str = "unescaped backslash in identity `" + s + "'";
-          throw ex;
+          throw new ParseException("unescaped backslash in identity string '" + s + "'");
         }
       }
       pos++;
@@ -254,26 +252,20 @@ public final class Util {
       ident.category = "";
       try {
         ident.name = StringUtil.unescapeString(s, 0, s.length(), "/");
-      } catch (IllegalArgumentException e) {
-        IdentityParseException ex = new IdentityParseException();
-        ex.str = "invalid identity name `" + s + "': " + e.getMessage();
-        throw ex;
+      } catch (IllegalArgumentException ex) {
+        throw new ParseException("invalid name in identity string '" + s + "'", ex);
       }
     } else {
       try {
         ident.category = StringUtil.unescapeString(s, 0, slash, "/");
-      } catch (IllegalArgumentException e) {
-        IdentityParseException ex = new IdentityParseException();
-        ex.str = "invalid category in identity `" + s + "': " + e.getMessage();
-        throw ex;
+      } catch (IllegalArgumentException ex) {
+        throw new ParseException("invalid category in identity string '" + s + "'", ex);
       }
       if (slash + 1 < s.length()) {
         try {
           ident.name = StringUtil.unescapeString(s, slash + 1, s.length(), "/");
-        } catch (IllegalArgumentException e) {
-          IdentityParseException ex = new IdentityParseException();
-          ex.str = "invalid name in identity `" + s + "': " + e.getMessage();
-          throw ex;
+        } catch (IllegalArgumentException ex) {
+          throw new ParseException("invalid name in identity string '" + s + "'", ex);
         }
       } else {
         ident.name = "";
@@ -619,7 +611,7 @@ public final class Util {
   private static byte stringToMajor(String str) {
     int pos = str.indexOf('.');
     if (pos == -1) {
-      throw new VersionParseException("malformed version value `" + str + "'");
+      throw new ParseException("malformed version value in '" + str + "'");
     }
 
     String majStr = str.substring(0, pos);
@@ -627,11 +619,11 @@ public final class Util {
     try {
       majVersion = Integer.parseInt(majStr);
     } catch (NumberFormatException ex) {
-      throw new VersionParseException("invalid version value `" + str + "'");
+      throw new ParseException("invalid version value in '" + str + "'", ex);
     }
 
     if (majVersion < 1 || majVersion > 255) {
-      throw new VersionParseException("range error in version `" + str + "'");
+      throw new ParseException("range error in version '" + str + "'");
     }
 
     return (byte) majVersion;
@@ -640,7 +632,7 @@ public final class Util {
   private static byte stringToMinor(String str) {
     int pos = str.indexOf('.');
     if (pos == -1) {
-      throw new VersionParseException("malformed version value `" + str + "'");
+      throw new ParseException("malformed version value in '" + str + "'");
     }
 
     String minStr = str.substring(pos + 1, str.length());
@@ -648,11 +640,11 @@ public final class Util {
     try {
       minVersion = Integer.parseInt(minStr);
     } catch (NumberFormatException ex) {
-      throw new VersionParseException("invalid version value `" + str + "'");
+      throw new ParseException("invalid version value in '" + str + "'", ex);
     }
 
     if (minVersion < 0 || minVersion > 255) {
-      throw new VersionParseException("range error in version `" + str + "'");
+      throw new ParseException("range error in version '" + str + "'");
     }
 
     return (byte) minVersion;

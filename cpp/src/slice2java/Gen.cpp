@@ -4507,7 +4507,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         out << nl << "catch(com.zeroc.Ice.UserException ex)";
         out << sb;
-        out << nl << "throw new com.zeroc.Ice.UnknownUserException(ex.ice_id(), ex);";
+        out << nl << "throw com.zeroc.Ice.UnknownUserException.fromTypeId(ex.ice_id());";
         out << eb;
     }
     out << eb;
@@ -4575,7 +4575,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             }
             out << nl << "catch(com.zeroc.Ice.UserException ex)";
             out << sb;
-            out << nl << "throw new com.zeroc.Ice.UnknownUserException(ex.ice_id(), ex);";
+            out << nl << "throw com.zeroc.Ice.UnknownUserException.fromTypeId(ex.ice_id());";
             out << eb;
         }
         out << eb;

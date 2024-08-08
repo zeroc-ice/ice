@@ -73,7 +73,7 @@ define make-cpp-src-project
 ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
 $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
-$1_cppflags             += -I$1/generated -I$(includedir) -I$(includedir)/generated -DICE_BUILDING_SRC
+$1_cppflags             += -I$1/generated -I$(includedir) -I$(includedir)/generated
 $(make-project)
 srcs:: $1
 endif

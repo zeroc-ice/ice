@@ -168,9 +168,9 @@ classdef Connection < IceInternal.WrapperObject
             % throwException   Throw an exception indicating the reason for
             %   connection closure. For example, CloseConnectionException is
             %   raised if the connection was closed gracefully, whereas
-            %   ConnectionManuallyClosedException is raised if the connection
-            %   was manually closed by the application. This operation does
-            %   nothing if the connection is not yet closed.
+            %   ConnectionAbortedException/ConnectionClosedException is raised
+            %   if the connection was manually closed by the application. This
+            %   operation does nothing if the connection is not yet closed.
 
             obj.iceCall('throwException');
         end

@@ -21,15 +21,11 @@ public class LoggerPlugin implements Plugin {
    */
   public LoggerPlugin(Communicator communicator, Logger logger) {
     if (communicator == null) {
-      PluginInitializationException ex = new PluginInitializationException();
-      ex.reason = "Communicator cannot be null";
-      throw ex;
+      throw new PluginInitializationException("Communicator cannot be null.");
     }
 
     if (logger == null) {
-      PluginInitializationException ex = new PluginInitializationException();
-      ex.reason = "Logger cannot be null";
-      throw ex;
+      throw new PluginInitializationException("Logger cannot be null.");
     }
 
     com.zeroc.IceInternal.Instance instance = communicator.getInstance();

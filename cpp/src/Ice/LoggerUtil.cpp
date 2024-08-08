@@ -56,12 +56,12 @@ Ice::LoggerPlugin::LoggerPlugin(const CommunicatorPtr& communicator, const Logge
 {
     if (communicator == 0)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
+        throw PluginInitializationException(__FILE__, __LINE__, "communicator cannot be null");
     }
 
     if (logger == 0)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, "Logger cannot be null");
+        throw PluginInitializationException(__FILE__, __LINE__, "logger cannot be null");
     }
 
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);

@@ -233,12 +233,12 @@ internal sealed class TcpEndpointI : IPEndpointI
                         _timeout = int.Parse(argument, CultureInfo.InvariantCulture);
                         if (_timeout < 1)
                         {
-                            throw new ParseException($"invalid timeout value '{argument}' in endpoint {endpoint}");
+                            throw new ParseException($"invalid timeout value '{argument}' in endpoint '{endpoint}'");
                         }
                     }
                     catch (System.FormatException ex)
                     {
-                        throw new ParseException($"invalid timeout value '{argument}' in endpoint {endpoint}", ex);
+                        throw new ParseException($"invalid timeout value '{argument}' in endpoint '{endpoint}'", ex);
                     }
                 }
 

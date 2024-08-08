@@ -329,7 +329,8 @@ public final class Instance implements java.util.function.Function<String, Class
       }
 
       if (adminIdentity == null || adminIdentity.name == null || adminIdentity.name.isEmpty()) {
-        throw new com.zeroc.Ice.IllegalIdentityException(adminIdentity);
+        throw new IllegalArgumentException(
+            "The admin identity '" + adminIdentity + "' is not valid");
       }
 
       if (_adminAdapter != null) {
@@ -713,7 +714,7 @@ public final class Instance implements java.util.function.Function<String, Class
             try {
               outStream = new java.io.PrintStream(new java.io.FileOutputStream(stdOut, true));
             } catch (java.io.FileNotFoundException ex) {
-              throw new com.zeroc.Ice.FileException(0, stdOut, ex);
+              throw new com.zeroc.Ice.FileException("cannot append to '" + stdOut + "'", ex);
             }
 
             System.setOut(outStream);
@@ -730,7 +731,7 @@ public final class Instance implements java.util.function.Function<String, Class
               try {
                 System.setErr(new java.io.PrintStream(new java.io.FileOutputStream(stdErr, true)));
               } catch (java.io.FileNotFoundException ex) {
-                throw new com.zeroc.Ice.FileException(0, stdErr, ex);
+                throw new com.zeroc.Ice.FileException("cannot append to '" + stdErr + "'", ex);
               }
             }
           }

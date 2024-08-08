@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-import com.zeroc.Ice.EndpointParseException;
+import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 import com.zeroc.IceUtilInternal.Base64;
 
@@ -17,10 +17,10 @@ final class OpaqueEndpointI extends EndpointI {
     initWithOptions(args);
 
     if (_type < 0) {
-      throw new EndpointParseException("no -t option in endpoint " + toString());
+      throw new ParseException("no -t option in endpoint '" + toString() + "'");
     }
     if (_rawBytes.length == 0) {
-      throw new EndpointParseException("no -v option in endpoint " + toString());
+      throw new ParseException("no -v option in endpoint '" + toString() + "'");
     }
   }
 
@@ -285,24 +285,24 @@ final class OpaqueEndpointI extends EndpointI {
       case 't':
         {
           if (_type > -1) {
-            throw new EndpointParseException("multiple -t options in endpoint " + endpoint);
+            throw new ParseException("multiple -t options in endpoint '" + endpoint + "'");
           }
           if (argument == null) {
-            throw new EndpointParseException(
-                "no argument provided for -t option in endpoint " + endpoint);
+            throw new ParseException(
+                "no argument provided for -t option in endpoint '" + endpoint + "'");
           }
 
           int t;
           try {
             t = Integer.parseInt(argument);
           } catch (NumberFormatException ex) {
-            throw new EndpointParseException(
-                "invalid type value `" + argument + "' in endpoint " + endpoint);
+            throw new ParseException(
+                "invalid type value '" + argument + "' in endpoint '" + endpoint + "'", ex);
           }
 
           if (t < 0 || t > 65535) {
-            throw new EndpointParseException(
-                "type value `" + argument + "' out of range in endpoint " + endpoint);
+            throw new ParseException(
+                "type value '" + argument + "' out of range in endpoint '" + endpoint + "'");
           }
 
           _type = (short) t;
@@ -312,17 +312,17 @@ final class OpaqueEndpointI extends EndpointI {
       case 'v':
         {
           if (_rawBytes.length > 0) {
-            throw new EndpointParseException("multiple -v options in endpoint " + endpoint);
+            throw new ParseException("multiple -v options in endpoint '" + endpoint + "'");
           }
           if (argument == null) {
-            throw new EndpointParseException(
-                "no argument provided for -v option in endpoint " + endpoint);
+            throw new ParseException(
+                "no argument provided for -v option in endpoint '" + endpoint + "'");
           }
 
           try {
             _rawBytes = Base64.decode(argument);
           } catch (IllegalArgumentException ex) {
-            throw new EndpointParseException("base64 decoding failed in endpoint " + endpoint, ex);
+            throw new ParseException("invalid Base64 input in endpoint '" + endpoint + "'", ex);
           }
           return true;
         }
@@ -330,20 +330,15 @@ final class OpaqueEndpointI extends EndpointI {
       case 'e':
         {
           if (argument == null) {
-            throw new EndpointParseException(
-                "no argument provided for -e option in endpoint " + endpoint);
+            throw new ParseException(
+                "no argument provided for -e option in endpoint '" + endpoint + "'");
           }
 
           try {
             _rawEncoding = com.zeroc.Ice.Util.stringToEncodingVersion(argument);
-          } catch (com.zeroc.Ice.VersionParseException e) {
-            throw new EndpointParseException(
-                "invalid encoding version `"
-                    + argument
-                    + "' in endpoint "
-                    + endpoint
-                    + ":\n"
-                    + e.str);
+          } catch (ParseException ex) {
+            throw new ParseException(
+                "invalid encoding version '" + argument + "' in endpoint '" + endpoint + "'", ex);
           }
           return true;
         }

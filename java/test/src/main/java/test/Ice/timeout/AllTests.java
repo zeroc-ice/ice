@@ -145,9 +145,9 @@ public class AllTests {
             Thread.sleep(10);
           } catch (java.lang.InterruptedException ex) {
           }
-        } catch (com.zeroc.Ice.ConnectionManuallyClosedException ex) {
+        } catch (com.zeroc.Ice.ConnectionClosedException ex) {
           // Expected.
-          test(ex.graceful);
+          test(ex.closedByApplication);
           break;
         }
       }

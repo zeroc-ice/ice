@@ -337,7 +337,7 @@ internal sealed class UdpEndpointI : IPEndpointI
         {
             if (argument == null)
             {
-                throw new ParseException($"unexpected argument '{argument}' provided for {option} option in endpoint '{endpoint}'");
+                throw new ParseException($"no argument provided for {option} option in endpoint '{endpoint}'");
             }
 
             try

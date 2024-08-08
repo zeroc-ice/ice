@@ -296,7 +296,6 @@ namespace Ice
                     }
                     catch (NotRegisteredException)
                     {
-
                     }
                 }
                 results.Clear();
