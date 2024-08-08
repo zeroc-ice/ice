@@ -105,7 +105,7 @@ func testPathToTargetName(_ path: String) -> String {
 func filterDebugTest(_ key: String, _ value: TestConfig) -> Bool {
     let skipDebugTests = [
         // "Ice/operations",
-        "Ice/optional",
+        "Ice/optional"
     ]
     let debugBuild = ProcessInfo.processInfo.environment["OPTIMIZE"] == "no"
 
