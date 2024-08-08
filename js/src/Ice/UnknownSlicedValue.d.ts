@@ -49,10 +49,22 @@ declare module "ice" {
             slices: SliceInfo[];
         }
 
+        /**
+         * Unknown sliced value holds an instance of an unknown Slice class type.
+         */
         class UnknownSlicedValue extends Ice.Value {
+            /**
+             * Constructs an unknown sliced value.
+             *
+             * @param unknownTypeId The Slice type ID of the unknown class.
+             */
             constructor(unknownTypeId: string);
 
-            ice_getSlicedData(): SlicedData;
+            /**
+             * Returns the Slice type ID associated with this object.
+             *
+             * @returns The Slice type ID.
+             */
             ice_id(): string;
         }
     }

@@ -19,8 +19,8 @@ declare module "ice" {
             /**
              * Constructs an empty output stream.
              *
-             * @param encoding The encoding version. null is equivalent to encoding 1.1.
-             * @param format The class format. null is equivalent to FormatType.CompactFormat.
+             * @param encoding The encoding version. `null` is equivalent to encoding 1.1.
+             * @param format The class format. `null` is equivalent to `FormatType.CompactFormat`.
              */
             constructor(encoding?: EncodingVersion, format?: FormatType);
 
@@ -31,12 +31,13 @@ declare module "ice" {
 
             /**
              * Indicates that the marshaling of a request or reply is finished.
-             * @returns The Uint8Array containing the encoded request or reply
+             * @returns The `Uint8Array` containing the encoded request or reply
              */
             finished(): Uint8Array;
 
             /**
-             * Swaps the contents of one stream with another.
+             * Swaps the contents of this stream with another.
+             *
              * @param other The other stream.
              */
             swap(other: OutputStream): void;
@@ -44,22 +45,22 @@ declare module "ice" {
             /**
              * Resizes the stream to a new size.
              *
-             * @param sz The new size of the stream.
+             * @param sz The new size of the stream in bytes.
              */
 
             resize(sz: number): void;
 
             /**
-             * Prepare the internal buffer for writing to a socket.
+             * Prepares the internal buffer for writing to a socket.
              *
-             * @returns The Uint8Array containing the encoded request or reply
+             * @returns The `Uint8Array` containing the encoded request or reply.
              */
             prepareWrite(): Uint8Array;
 
             /**
              * Marks the start of a class instance.
              *
-             * @param slicedData Preserved slices for this instance, or null.
+             * @param slicedData Preserved slices for this instance, or `null`.
              */
             startValue(slicedData: SlicedData): void;
 
@@ -187,8 +188,8 @@ declare module "ice" {
              *
              * Writes a byte sequence to the stream.
              *
-             * @param v The byte sequence to write to the stream.
-             * Passing null causes an empty sequence to be written to the stream.
+             * @param v The byte sequence to write to the stream. Passing `null` causes an empty sequence to be written
+             *          to the stream.
              */
             writeByteSeq(v?: Uint8Array): void;
 
@@ -237,8 +238,8 @@ declare module "ice" {
             /**
              * Writes a string to the stream.
              *
-             * @param v The string to write to the stream. Passing null causes an empty string to be written to the
-             * stream.
+             * @param v The string to write to the stream. Passing `null` causes an empty string to be written to the
+             *          stream.
              */
             writeString(v: string): void;
 
@@ -253,16 +254,16 @@ declare module "ice" {
              * Writes an optional proxy to the stream.
              *
              * @param tag The optional tag.
-             * @param v The proxy to write.
+             * @param v The proxy to write, or `undefined` if the optional proxy is not present.
              */
             writeOptionalProxy(tag: number, v?: ObjectPrx | undefined): void;
 
-            /// TODO use a base enum type
             /**
              * Writes an enumerated value.
-             * @param v The enumerator.
+             *
+             * @param v The enumerator to write to the stream.
              */
-            writeEnum(v: any): void;
+            writeEnum(v: EnumBase): void;
 
             /**
              * Writes a class instance to the stream. This method writes the index of an instance; the state of the
@@ -294,7 +295,7 @@ declare module "ice" {
             expand(n: number): void;
 
             /**
-             * Gets or sets the stream position
+             * Gets or sets the stream position.
              */
             pos: number;
 

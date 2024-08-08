@@ -276,44 +276,6 @@ namespace
         OpDocAllParams
     };
 
-    void writeOpDocParams(
-        Output& out,
-        const OperationPtr& op,
-        const CommentPtr& doc,
-        OpDocParamType type,
-        const StringList& postParams = StringList())
-    {
-        ParamDeclList params;
-        switch (type)
-        {
-            case OpDocInParams:
-                params = op->inParameters();
-                break;
-            case OpDocOutParams:
-                params = op->outParameters();
-                break;
-            case OpDocAllParams:
-                params = op->parameters();
-                break;
-        }
-
-        map<string, StringList> paramDoc = doc->parameters();
-        for (ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
-        {
-            map<string, StringList>::iterator q = paramDoc.find((*p)->name());
-            if (q != paramDoc.end())
-            {
-                out << nl << " * @param " << Slice::JsGenerator::fixId(q->first) << " ";
-                writeDocLines(out, q->second, false);
-            }
-        }
-
-        if (!postParams.empty())
-        {
-            writeDocLines(out, postParams, true);
-        }
-    }
-
     void writeOpDocExceptions(Output& out, const OperationPtr& op, const CommentPtr& doc)
     {
         map<string, StringList> exDoc = doc->exceptions();
@@ -332,56 +294,6 @@ namespace
             out << nl << " * @throws {@link " << name << "} ";
             writeDocLines(out, p->second, false);
         }
-    }
-
-    void writeOpDocSummary(
-        Output& out,
-        const OperationPtr& op,
-        const CommentPtr& doc,
-        OpDocParamType type,
-        const StringList& postParams = StringList(),
-        const StringList& returns = StringList())
-    {
-        out << nl << "/**";
-
-        if (!doc->overview().empty())
-        {
-            writeDocLines(out, doc->overview(), true);
-        }
-
-        writeOpDocParams(out, op, doc, type, postParams);
-
-        if (!returns.empty())
-        {
-            out << nl << " * @return ";
-            writeDocLines(out, returns, false);
-        }
-
-        writeOpDocExceptions(out, op, doc);
-
-        if (!doc->misc().empty())
-        {
-            writeDocLines(out, doc->misc(), true);
-        }
-
-        if (!doc->seeAlso().empty())
-        {
-            writeSeeAlso(out, doc->seeAlso());
-        }
-
-        if (!doc->deprecated().empty())
-        {
-            out << nl << " *";
-            out << nl << " * @deprecated ";
-            writeDocLines(out, doc->deprecated(), false);
-        }
-        else if (doc->isDeprecated())
-        {
-            out << nl << " *";
-            out << nl << " * @deprecated";
-        }
-
-        out << nl << " */";
     }
 }
 
@@ -600,15 +512,29 @@ Slice::JsVisitor::splitComment(const ContainedPtr& p)
     string comment = p->comment();
     string::size_type pos = 0;
     string::size_type nextPos;
+    string line;
     while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
     {
-        result.push_back(string(comment, pos, nextPos - pos));
+        line = string(comment, pos, nextPos - pos);
+        pos = line.find_first_not_of(" \t");
+        if (pos != string::npos)
+        {
+            line = line.substr(pos);
+        }
+        result.push_back(line);
         pos = nextPos + 1;
     }
-    string lastLine = string(comment, pos);
-    if (lastLine.find_first_not_of(" \t\n\r") != string::npos)
+
+    line = string(comment, pos);
+    pos = line.find_first_not_of(" \t");
+    if (pos != string::npos)
     {
-        result.push_back(lastLine);
+        line = line.substr(pos);
+    }
+
+    if (line.find_first_not_of(" \t\n\r") != string::npos)
+    {
+        result.push_back(line);
     }
 
     return result;
@@ -631,8 +557,8 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p)
     for (const auto& line : lines)
     {
         //
-        // @param must precede @return, so emit any extra parameter
-        // when @return is seen.
+        // @param must precede @returns, so emit any extra parameter
+        // when @returns is seen.
         //
         if (line.empty())
         {
@@ -2547,13 +2473,14 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "constructor" << spar;
     for (const auto& dataMember : allDataMembers)
     {
-        _out << (fixId(dataMember->name()) + "?:" + typeToTsString(dataMember->type()));
+        _out << (fixId(dataMember->name()) + "?: " + typeToTsString(dataMember->type()));
     }
     _out << epar << ";";
-    for (const auto& dataMember : allDataMembers)
+    for (const auto& dataMember : dataMembers)
     {
+        _out << sp;
         writeDocSummary(_out, dataMember);
-        _out << nl << fixDataMemberName(dataMember->name(), false, false) << ":"
+        _out << nl << fixDataMemberName(dataMember->name(), false, false) << ": "
              << typeToTsString(dataMember->type(), true) << ";";
     }
     _out << eb;
@@ -2582,6 +2509,104 @@ namespace
     }
 }
 
+void
+Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
+    Output& out,
+    const OperationPtr& op,
+    const CommentPtr& doc,
+    bool forDispatch)
+{
+    out << nl << "/**";
+
+    if (!doc->overview().empty())
+    {
+        writeDocLines(out, doc->overview(), true);
+    }
+
+    map<string, StringList> paramDoc = doc->parameters();
+    for (const auto& param : op->inParameters())
+    {
+        map<string, StringList>::iterator q = paramDoc.find(param->name());
+        if (q != paramDoc.end())
+        {
+            out << nl << " * @param " << Slice::JsGenerator::fixId(q->first) << " ";
+            writeDocLines(out, q->second, false);
+        }
+    }
+
+    ParamDeclList outParams = op->outParameters();
+    TypePtr ret = op->returnType();
+
+    if (forDispatch)
+    {
+        const string currentParam = escapeParam(op->inParameters(), "current");
+        out << nl << " * @param " + currentParam + " The Current object for the dispatch.";
+        out << nl << " * @returns A promise like object representing the result of the dispatch";
+    }
+    else
+    {
+        const string contextParam = escapeParam(op->inParameters(), "context");
+        out << nl << " * @param " + contextParam + " The Context map to send with the invocation.";
+        out << nl << " * @returns An {@link Ice.AsyncResult} object representing the result of the invocation";
+    }
+
+    if ((outParams.size() + (ret ? 1 : 0)) > 1)
+    {
+        out << ", which resolves to an array with the following entries:";
+        
+    }
+    else if (ret || outParams.size() == 1)
+    {
+        out << ", which resolves to:";
+    }
+    else
+    {
+        out << ".";
+    }
+
+    if (ret)
+    {
+        out << nl << " * - " << typeToTsString(ret, true, false, op->returnIsOptional()) << " : ";
+        writeDocLines(out, doc->returns(), false, "   ");
+    }
+
+    for (const auto& param : outParams)
+    {
+        map<string, StringList>::iterator q = paramDoc.find(param->name());
+        if (q != paramDoc.end())
+        {
+            out << nl << " * - " << typeToTsString(param->type(), true, false, param->optional()) << " : ";
+            writeDocLines(out, q->second, false, "   ");
+        }
+    }
+
+    writeOpDocExceptions(out, op, doc);
+
+    if (!doc->misc().empty())
+    {
+        writeDocLines(out, doc->misc(), true);
+    }
+
+    if (!doc->seeAlso().empty())
+    {
+        writeSeeAlso(out, doc->seeAlso());
+    }
+
+    if (!doc->deprecated().empty())
+    {
+        out << nl << " *";
+        out << nl << " * @deprecated ";
+        writeDocLines(out, doc->deprecated(), false);
+    }
+    else if (doc->isDeprecated())
+    {
+        out << nl << " *";
+        out << nl << " * @deprecated";
+    }
+
+    out << nl << " */";
+}
+
 bool
 Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
@@ -2590,6 +2615,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     const string prx = p->name() + "Prx";
     _out << sp;
+    writeDocSummary(_out, p);
     _out << nl << "export class " << prx << " extends " << _iceImportPrefix << "Ice.ObjectPrx";
     _out << sb;
 
@@ -2637,10 +2663,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << sp;
         if (comment)
         {
-            StringList postParams, returns;
-            postParams.push_back(contextDoc);
-            returns.push_back(asyncDoc);
-            writeOpDocSummary(_out, op, comment, OpDocInParams, postParams, returns);
+            writeOpDocSummary(_out, op, comment, false);
         }
         _out << nl << fixId(op->name()) << spar;
         for (const auto& param : inParams)
@@ -2649,13 +2672,13 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             const string optionalPrefix =
                 param->optional() && areRemainingParamsOptional(paramList, param->name()) ? "?" : "";
             _out
-                << (fixId(param->name()) + optionalPrefix + ":" +
+                << (fixId(param->name()) + optionalPrefix + ": " +
                     typeToTsString(param->type(), true, true, param->optional()));
         }
-        _out << "context?:Map<string, string>";
+        _out << "context?: Map<string, string>";
         _out << epar;
 
-        _out << ":" << _iceImportPrefix << "Ice.AsyncResult";
+        _out << ": " << _iceImportPrefix << "Ice.AsyncResult";
         if (!ret && outParams.empty())
         {
             _out << "<void>";
@@ -2663,7 +2686,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         else if ((ret && outParams.empty()) || (!ret && outParams.size() == 1))
         {
             TypePtr t = ret ? ret : outParams.front()->type();
-            _out << "<" << typeToTsString(t, true, false, op->returnIsOptional()) << ">";
+            bool optional = ret ? op->returnIsOptional() : outParams.front()->optional();
+            _out << "<" << typeToTsString(t, true, false, optional) << ">";
         }
         else
         {
@@ -2692,27 +2716,30 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "/**";
     _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
     _out << nl << " * @param prx The target proxy.";
-    _out << nl << " * @return A proxy with the requested type.";
+    _out << nl << " * @returns A proxy with the requested type.";
     _out << nl << " */";
-    _out << nl << "static uncheckedCast(prx:" << _iceImportPrefix << "Ice.ObjectPrx"
+    _out << nl << "static uncheckedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
-         << "facet?:string):" << fixId(p->name() + "Prx") << ";";
+         << "facet?: string): " << fixId(p->name() + "Prx") << ";";
+    
+    _out << sp;
     _out << nl << "/**";
     _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
     _out << nl << " * @param prx The target proxy.";
     _out << nl << " * @param facet A facet name.";
     _out << nl << " * @param context The context map for the invocation.";
     _out << nl
-         << " * @return A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
+         << " * @returns A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
     _out << nl << " * object does not support the requested type.";
     _out << nl << " */";
-    _out << nl << "static checkedCast(prx:" << _iceImportPrefix << "Ice.ObjectPrx"
+    _out << nl << "static checkedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
-         << "facet?:string, context?:Map<string, string>):" << _iceImportPrefix << "Ice.AsyncResult"
+         << "facet?: string, context?: Map<string, string>): " << _iceImportPrefix << "Ice.AsyncResult"
          << "<" << fixId(p->name() + "Prx") << " | null>;";
     _out << eb;
 
     _out << sp;
+    writeDocSummary(_out, p);
     _out << nl << "export abstract class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.Object";
     _out << sb;
     for (const auto& op : p->allOperations())
@@ -2737,20 +2764,19 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
         const string resultDoc = "The result or a promise like object that will "
                                  "be resolved with the result of the invocation.";
+
+        _out << sp;
         if (comment)
         {
-            StringList postParams, returns;
-            postParams.push_back(currentDoc);
-            returns.push_back(resultDoc);
-            writeOpDocSummary(_out, op, comment, OpDocInParams, postParams, returns);
+            writeOpDocSummary(_out, op, comment, true);
         }
         _out << nl << "abstract " << fixId(op->name()) << spar;
         for (const auto& param : inParams)
         {
-            _out << (fixId(param->name()) + ":" + typeToTsString(param->type(), true, true, param->optional()));
+            _out << (fixId(param->name()) + ": " + typeToTsString(param->type(), true, true, param->optional()));
         }
-        _out << ("current:" + _iceImportPrefix + "Ice.Current");
-        _out << epar << ":";
+        _out << ("current: " + _iceImportPrefix + "Ice.Current");
+        _out << epar << ": ";
 
         if (!ret && outParams.empty())
         {
@@ -2782,11 +2808,13 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << ";";
     }
+
+    _out << sp;
     _out << nl << "/**";
     _out << nl << " * Obtains the Slice type ID of this type.";
-    _out << nl << " * @return The return value is always \"" + p->scoped() + "\".";
+    _out << nl << " * @returns The return value is always \"" + p->scoped() + "\".";
     _out << nl << " */";
-    _out << nl << "static ice_staticId():string;";
+    _out << nl << "static ice_staticId(): string;";
     _out << eb;
 
     return false;
@@ -2825,21 +2853,19 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
                 _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
             }
         }
-        _out << nl << " * @param ice_cause The error that cause this exception.";
         _out << nl << " */";
         _out << nl << "constructor" << spar;
         for (const auto& dataMember : allDataMembers)
         {
-            _out << (fixId(dataMember->name()) + "?:" + typeToTsString(dataMember->type()));
+            _out << (fixId(dataMember->name()) + "?: " + typeToTsString(dataMember->type()));
         }
-        _out << "ice_cause?:string|Error";
         _out << epar << ";";
     }
 
     for (const auto& dataMember : allDataMembers)
     {
         const string optionalModifier = dataMember->optional() ? "?" : "";
-        _out << nl << fixId(dataMember->name()) << optionalModifier << ":" << typeToTsString(dataMember->type(), true)
+        _out << nl << fixId(dataMember->name()) << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
              << ";";
     }
     _out << eb;
@@ -2857,12 +2883,27 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "constructor" << spar;
     for (const auto& dataMember : dataMembers)
     {
-        _out << (fixDataMemberName(dataMember->name(), false, false) + "?:" + typeToTsString(dataMember->type()));
+        // TODO why are all parameters optional?
+        _out << (fixDataMemberName(dataMember->name(), false, false) + "?: " + typeToTsString(dataMember->type()));
     }
     _out << epar << ";";
 
-    _out << nl << "clone():" << name << ";";
-    _out << nl << "equals(rhs:any):boolean;";
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * A deep copy of the current object.";
+    _out << nl << " *";
+    _out << nl << " * @returns A deep copy of the current object.";
+    _out << nl << " */";
+    _out << nl << "clone(): " << name << ";";
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Determines whether the specified object is equal to the current object.";
+    _out << nl << " *";
+    _out << nl << " * @param other The object to compare with the current object.";
+    _out << nl << " * @returns `true` if the specified object is equal to the current object, `false` otherwise.";
+    _out << nl << " */";
+    _out << nl << "equals(other: any): boolean;";
 
     //
     // Only generate hashCode if this structure type is a legal dictionary key type.
@@ -2870,20 +2911,41 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     bool isLegalKeyType = Dictionary::legalKeyType(p);
     if (isLegalKeyType)
     {
-        _out << nl << "hashCode():number;";
+        _out << sp;
+        _out << nl << "/**";
+        _out << nl << " * Returns the hash code of the object.";
+        _out << nl << " *";
+        _out << nl << " * @returns The hash code of the object.";
+        _out << nl << " */";
+        _out << nl << "hashCode(): number;";
     }
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Writes the {@link " << name << "} value to the given OutputStream.";
+    _out << nl << " *";
+    _out << nl << " * @param outs The OutputStream to write to.";
+    _out << nl << " * @param value The value to write.";
+    _out << nl << " */";
+    _out << nl << "static write(outs: " << _iceImportPrefix << "Ice.OutputStream, value:" << name << "): void;";
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Reads {@link " << name << "} from the given InputStream.";
+    _out << nl << " *";
+    _out << nl << " * @param ins The InputStream to read from.";
+    _out << nl << " * @returns The read {@link " << name << "} value.";
+    _out << nl << " */";
+    _out << nl << "static read(ins: " << _iceImportPrefix << "Ice.InputStream): " << name << ";";
 
     for (const auto& dataMember : dataMembers)
     {
+        _out << sp;
+        writeDocCommentFor(dataMember);
         _out << nl << fixDataMemberName(dataMember->name(), true, isLegalKeyType) << ":"
              << typeToTsString(dataMember->type(), true) << ";";
     }
 
-    //
-    // Streaming API
-    //
-    _out << nl << "static write(outs:" << _iceImportPrefix << "Ice.OutputStream, value:" << name << "):void;";
-    _out << nl << "static read(ins:" << _iceImportPrefix << "Ice.InputStream):" << name << ";";
     _out << eb;
     return false;
 }
@@ -2897,13 +2959,29 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "export type " << name << " = " << typeToTsString(p) << ";";
 
     _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Helper class for encoding {@link " << name << "} into an OutputStream and";
+    _out << nl << " * decoding {@link " << name << "} from an InputStream.";
+    _out << nl << " */";
     _out << nl << "export class " << fixId(p->name() + "Helper");
     _out << sb;
-    //
-    // Streaming API
-    //
-    _out << nl << "static write(outs:" << _iceImportPrefix << "Ice.OutputStream, value:" << name << "):void;";
-    _out << nl << "static read(ins:" << _iceImportPrefix << "Ice.InputStream):" << name << ";";
+
+    _out << nl << "/**";
+    _out << nl << " * Writes the {@link " << name << "} value to the given OutputStream.";
+    _out << nl << " *";
+    _out << nl << " * @param outs The OutputStream to write to.";
+    _out << nl << " * @param value The value to write.";
+    _out << nl << " */";
+    _out << nl << "static write(outs: " << _iceImportPrefix << "Ice.OutputStream, value: " << name << "): void;";
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Reads {@link " << name << "} from the given InputStream.";
+    _out << nl << " *";
+    _out << nl << " * @param ins The InputStream to read from.";
+    _out << nl << " * @returns The read {@link " << name << "} value.";
+    _out << nl << " */";
+    _out << nl << "static read(ins: " << _iceImportPrefix << "Ice.InputStream): " << name << ";";
     _out << eb;
 }
 
@@ -2923,13 +3001,29 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 
     _out << sp;
+     _out << nl << "/**";
+    _out << nl << " * Helper class for encoding {@link " << name << "} into an OutputStream and";
+    _out << nl << " * decoding {@link " << name << "} from an InputStream.";
+    _out << nl << " */";
     _out << nl << "export class " << fixId(p->name() + "Helper");
     _out << sb;
-    //
-    // Streaming API
-    //
-    _out << nl << "static write(outs:" << _iceImportPrefix << "Ice.OutputStream, value:" << name << "):void;";
-    _out << nl << "static read(ins:" << _iceImportPrefix << "Ice.InputStream):" << name << ";";
+    
+    _out << nl << "/**";
+    _out << nl << " * Writes the {@link " << name << "} value to the given OutputStream.";
+    _out << nl << " *";
+    _out << nl << " * @param outs The OutputStream to write to.";
+    _out << nl << " * @param value The value to write.";
+    _out << nl << " */";
+    _out << nl << "static write(outs: " << _iceImportPrefix << "Ice.OutputStream, value: " << name << "): void;";
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Reads {@link " << name << "} from the given InputStream.";
+    _out << nl << " *";
+    _out << nl << " * @param ins The InputStream to read from.";
+    _out << nl << " * @returns The read {@link " << name << "} value.";
+    _out << nl << " */";
+    _out << nl << "static read(ins: " << _iceImportPrefix << "Ice.InputStream): " << name << ";";
     _out << eb;
 }
 
@@ -2938,21 +3032,22 @@ Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 {
     _out << sp;
     writeDocSummary(_out, p);
-    _out << nl << "export class " << fixId(p->name());
+    _out << nl << "export class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.EnumBase";
     _out << sb;
     for (const auto& enumerator : p->enumerators())
     {
+        _out << sp;
         writeDocSummary(_out, enumerator);
-        _out << nl << "static readonly " << fixId(enumerator->name()) << ":" << fixId(p->name()) << ";";
+        _out << nl << "static readonly " << fixId(enumerator->name()) << ": " << fixId(p->name()) << ";";
     }
     _out << nl;
-    _out << nl << "static valueOf(value:number):" << fixId(p->name()) << ";";
-    _out << nl << "equals(other:any):boolean;";
-    _out << nl << "hashCode():number;";
-    _out << nl << "toString():string;";
-    _out << nl;
-    _out << nl << "readonly name:string;";
-    _out << nl << "readonly value:number;";
+    _out << nl << "/**";
+    _out << nl << " * Returns the enumerator for the given value.";
+    _out << nl << " *";
+    _out << nl << " * @param value The enumerator value.";
+    _out << nl << " * @returns The enumerator for the given value.";
+    _out << nl << " */";
+    _out << nl << "static valueOf(value: number): " << fixId(p->name()) << ";";
     _out << eb;
 }
 
@@ -2961,5 +3056,5 @@ Slice::Gen::TypeScriptVisitor::visitConst(const ConstPtr& p)
 {
     _out << sp;
     writeDocSummary(_out, p);
-    _out << nl << "export const " << fixId(p->name()) << ":" << typeToTsString(p->type()) << ";";
+    _out << nl << "export const " << fixId(p->name()) << ": " << typeToTsString(p->type()) << ";";
 }

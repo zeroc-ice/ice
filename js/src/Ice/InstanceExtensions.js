@@ -3,7 +3,6 @@
 //
 
 import { Instance, StateDestroyInProgress, StateDestroyed } from "./Instance.js";
-import { AsyncResultBase } from "./AsyncResultBase.js";
 import { DefaultsAndOverrides } from "./DefaultsAndOverrides.js";
 import { EndpointFactoryManager } from "./EndpointFactoryManager.js";
 import { ImplicitContext } from "./ImplicitContext.js";
@@ -179,11 +178,7 @@ Instance.prototype.setLogger = function (logger) {
     this._initData.logger = logger;
 };
 
-Instance.prototype.finishSetup = function (communicator, promise) {
-    //
-    // If promise == null, it means the caller is requesting a synchronous setup.
-    // Otherwise, we resolve the promise after all initialization is complete.
-    //
+Instance.prototype.finishSetup = function (communicator) {
     try {
         if (this._initData.properties === null) {
             this._initData.properties = Properties.createProperties();
@@ -325,123 +320,84 @@ Instance.prototype.finishSetup = function (communicator, promise) {
         if (loc !== null) {
             this._referenceFactory = this._referenceFactory.setDefaultLocator(new LocatorPrx(loc));
         }
-
-        if (promise !== null) {
-            promise.resolve(communicator);
-        }
     } catch (ex) {
-        if (promise !== null) {
-            if (ex instanceof LocalException) {
-                this.destroy().finally(() => promise.reject(ex));
-            } else {
-                promise.reject(ex);
-            }
-        } else {
-            if (ex instanceof LocalException) {
-                this.destroy();
-            }
-            throw ex;
+        if (ex instanceof LocalException) {
+            this.destroy();
         }
+        throw ex;
     }
 };
 
-Instance.prototype.destroy = function () {
-    const promise = new AsyncResultBase(null, "destroy", null, this, null);
-
-    //
-    // If destroy is in progress, wait for it to be done. This is
-    // necessary in case destroy() is called concurrently by
-    // multiple threads.
-    //
+Instance.prototype.destroy = async function () {
+    // If destroy is in progress, wait for it to be done. This is necessary in case destroy() is called multiple times.
     if (this._state == StateDestroyInProgress) {
-        if (!this._destroyPromises) {
-            this._destroyPromises = [];
-        }
-        this._destroyPromises.push(promise);
-        return promise;
+        Debug.assert(this._destroyPromise !== null);
+        return this._destroyPromise;
     }
     this._state = StateDestroyInProgress;
+    this._destroyPromise = new Promise();
 
-    //
-    // Shutdown and destroy all the incoming and outgoing Ice
-    // connections and wait for the connections to be finished.
-    //
-    Promise.try(() => {
-        if (this._objectAdapterFactory) {
-            return this._objectAdapterFactory.shutdown();
+    // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be finished.
+    if (this._objectAdapterFactory) {
+        await this._objectAdapterFactory.shutdown();
+    }
+
+    if (this._outgoingConnectionFactory !== null) {
+        this._outgoingConnectionFactory.destroy();
+    }
+
+    if (this._objectAdapterFactory !== null) {
+        await this._objectAdapterFactory.destroy();
+    }
+
+    if (this._outgoingConnectionFactory !== null) {
+        await this._outgoingConnectionFactory.waitUntilFinished();
+    }
+
+    if (this._retryQueue) {
+        this._retryQueue.destroy();
+    }
+
+    if (this._timer) {
+        this._timer.destroy();
+    }
+
+    if (this._objectFactoryMap !== null) {
+        this._objectFactoryMap.forEach(factory => factory.destroy());
+        this._objectFactoryMap.clear();
+    }
+
+    if (this._routerManager) {
+        this._routerManager.destroy();
+    }
+    if (this._locatorManager) {
+        this._locatorManager.destroy();
+    }
+    if (this._endpointFactoryManager) {
+        this._endpointFactoryManager.destroy();
+    }
+
+    if (this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
+        const unusedProperties = this._initData.properties.getUnusedProperties();
+        if (unusedProperties.length > 0) {
+            const message = [];
+            message.push("The following properties were set but never read:");
+            unusedProperties.forEach(p => message.push("\n    ", p));
+            this._initData.logger.warning(message.join(""));
         }
-    })
-        .then(() => {
-            if (this._outgoingConnectionFactory !== null) {
-                this._outgoingConnectionFactory.destroy();
-            }
+    }
 
-            if (this._objectAdapterFactory !== null) {
-                return this._objectAdapterFactory.destroy();
-            }
-        })
-        .then(() => {
-            if (this._outgoingConnectionFactory !== null) {
-                return this._outgoingConnectionFactory.waitUntilFinished();
-            }
-        })
-        .then(() => {
-            if (this._retryQueue) {
-                this._retryQueue.destroy();
-            }
-            if (this._timer) {
-                this._timer.destroy();
-            }
+    this._objectAdapterFactory = null;
+    this._outgoingConnectionFactory = null;
+    this._retryQueue = null;
+    this._timer = null;
 
-            if (this._objectFactoryMap !== null) {
-                this._objectFactoryMap.forEach(factory => factory.destroy());
-                this._objectFactoryMap.clear();
-            }
+    this._referenceFactory = null;
+    this._routerManager = null;
+    this._locatorManager = null;
+    this._endpointFactoryManager = null;
 
-            if (this._routerManager) {
-                this._routerManager.destroy();
-            }
-            if (this._locatorManager) {
-                this._locatorManager.destroy();
-            }
-            if (this._endpointFactoryManager) {
-                this._endpointFactoryManager.destroy();
-            }
-
-            if (this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
-                const unusedProperties = this._initData.properties.getUnusedProperties();
-                if (unusedProperties.length > 0) {
-                    const message = [];
-                    message.push("The following properties were set but never read:");
-                    unusedProperties.forEach(p => message.push("\n    ", p));
-                    this._initData.logger.warning(message.join(""));
-                }
-            }
-
-            this._objectAdapterFactory = null;
-            this._outgoingConnectionFactory = null;
-            this._retryQueue = null;
-            this._timer = null;
-
-            this._referenceFactory = null;
-            this._routerManager = null;
-            this._locatorManager = null;
-            this._endpointFactoryManager = null;
-
-            this._state = StateDestroyed;
-
-            if (this._destroyPromises) {
-                this._destroyPromises.forEach(p => p.resolve());
-            }
-            promise.resolve();
-        })
-        .catch(ex => {
-            if (this._destroyPromises) {
-                this._destroyPromises.forEach(p => p.reject(ex));
-            }
-            promise.reject(ex);
-        });
-    return promise;
+    this._state = StateDestroyed;
 };
 
 Object.defineProperty(Instance.prototype, "clientConnectionOptions", {

@@ -8,6 +8,10 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
+function proxyIdentityCompare(p1: Ice.ObjectPrx, p2: Ice.ObjectPrx): boolean {
+    return p1.ice_getIdentity().equals(p2.ice_getIdentity());
+}
+
 export class Client extends TestHelper {
     async allTests() {
         const communicator = this.communicator();
@@ -28,18 +32,18 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing ice_locator and ice_getLocator... ");
-        test(Ice.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) === 0);
+        test(proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()));
         const anotherLocator = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("anotherLocator"));
         base = base.ice_locator(anotherLocator);
-        test(Ice.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) === 0);
+        test(proxyIdentityCompare(base.ice_getLocator(), anotherLocator));
         communicator.setDefaultLocator(null);
         base = communicator.stringToProxy("test @ TestAdapter");
         test(base.ice_getLocator() === null);
         base = base.ice_locator(anotherLocator);
-        test(Ice.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) === 0);
+        test(proxyIdentityCompare(base.ice_getLocator(), anotherLocator));
         communicator.setDefaultLocator(locator);
         base = communicator.stringToProxy("test @ TestAdapter");
-        test(Ice.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) === 0);
+        test(proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()));
 
         //
         // We also test ice_router/ice_getRouter (perhaps we should add a
@@ -48,11 +52,11 @@ export class Client extends TestHelper {
         test(base.ice_getRouter() === null);
         const anotherRouter = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("anotherRouter"));
         base = base.ice_router(anotherRouter);
-        test(Ice.proxyIdentityCompare(base.ice_getRouter(), anotherRouter) === 0);
+        test(proxyIdentityCompare(base.ice_getRouter(), anotherRouter));
         const router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"));
         communicator.setDefaultRouter(router);
         base = communicator.stringToProxy("test @ TestAdapter");
-        test(Ice.proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()) === 0);
+        test(proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()));
         communicator.setDefaultRouter(null);
         base = communicator.stringToProxy("test @ TestAdapter");
         test(base.ice_getRouter() === null);

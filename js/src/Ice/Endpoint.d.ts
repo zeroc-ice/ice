@@ -15,30 +15,36 @@ declare module "ice" {
              * @param compress Specifies whether or not compression should be used if available when using this endpoint.
              */
             constructor(underlying?: Ice.EndpointInfo, timeout?: number, compress?: boolean);
+
             /**
              * The information of the underlying endpoint or null if there's no underlying endpoint.
              */
             underlying: Ice.EndpointInfo;
+
             /**
              * The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
              */
             timeout: number;
+
             /**
              * Specifies whether or not compression should be used if available when using this endpoint.
              */
             compress: boolean;
+
             /**
              * Returns the type of the endpoint.
-             * @return The endpoint type.
+             * @returns The endpoint type.
              */
             type(): number;
+
             /**
              * Returns true if this endpoint is a datagram endpoint.
-             * @return True for a datagram endpoint.
+             * @returns True for a datagram endpoint.
              */
             datagram(): boolean;
+
             /**
-             * @return True for a secure endpoint.
+             * @returns True for a secure endpoint.
              */
             secure(): boolean;
         }
@@ -49,15 +55,23 @@ declare module "ice" {
         interface Endpoint {
             /**
              * Return a string representation of the endpoint.
-             * @return The string representation of the endpoint.
+             * @returns The string representation of the endpoint.
              */
             toString(): string;
+
             /**
              * Returns the endpoint information.
-             * @return The endpoint information class.
+             * @returns The endpoint information class.
              */
             getInfo(): Ice.EndpointInfo;
-            equals(rhs: any): boolean;
+
+            /**
+             * Determines whether the specified object is equal to this object.
+             *
+             * @param other The object to compare with.
+             * @returns `true` if the specified object is equal to the this object, `false` otherwise.
+             */
+            equals(other: any): boolean;
         }
 
         /**
@@ -82,30 +96,36 @@ declare module "ice" {
                 port?: number,
                 sourceAddress?: string,
             );
+
             /**
              * The host or address configured with the endpoint.
              */
             host: string;
+
             /**
              * The port number.
              */
             port: number;
+
             /**
              * The source IP address.
              */
             sourceAddress: string;
+
             /**
              * Returns the type of the endpoint.
-             * @return The endpoint type.
+             * @returns The endpoint type.
              */
             type(): number;
+
             /**
              * Returns true if this endpoint is a datagram endpoint.
-             * @return True for a datagram endpoint.
+             * @returns True for a datagram endpoint.
              */
             datagram(): boolean;
+
             /**
-             * @return True for a secure endpoint.
+             * @returns True for a secure endpoint.
              */
             secure(): boolean;
         }
@@ -132,18 +152,21 @@ declare module "ice" {
                 port?: number,
                 sourceAddress?: string,
             );
+
             /**
              * Returns the type of the endpoint.
-             * @return The endpoint type.
+             * @returns The endpoint type.
              */
             type(): number;
+
             /**
              * Returns true if this endpoint is a datagram endpoint.
-             * @return True for a datagram endpoint.
+             * @returns True for a datagram endpoint.
              */
             datagram(): boolean;
+
             /**
-             * @return True for a secure endpoint.
+             * @returns True for a secure endpoint.
              */
             secure(): boolean;
         }
@@ -160,22 +183,26 @@ declare module "ice" {
              * @param resource The URI configured with the endpoint.
              */
             constructor(underlying?: Ice.EndpointInfo, timeout?: number, compress?: boolean, resource?: string);
+
             /**
              * The URI configured with the endpoint.
              */
             resource: string;
+
             /**
              * Returns the type of the endpoint.
-             * @return The endpoint type.
+             * @returns The endpoint type.
              */
             type(): number;
+
             /**
              * Returns true if this endpoint is a datagram endpoint.
-             * @return True for a datagram endpoint.
+             * @returns True for a datagram endpoint.
              */
             datagram(): boolean;
+
             /**
-             * @return True for a secure endpoint.
+             * @returns True for a secure endpoint.
              */
             secure(): boolean;
         }
@@ -200,26 +227,31 @@ declare module "ice" {
                 rawEncoding?: EncodingVersion,
                 rawBytes?: ByteSeq,
             );
+
             /**
              * The encoding version of the opaque endpoint (to decode or encode the rawBytes).
              */
             rawEncoding: EncodingVersion;
+
             /**
              * The raw encoding of the opaque endpoint.
              */
             rawBytes: ByteSeq;
+
             /**
              * Returns the type of the endpoint.
-             * @return The endpoint type.
+             * @returns The endpoint type.
              */
             type(): number;
+
             /**
              * Returns true if this endpoint is a datagram endpoint.
-             * @return True for a datagram endpoint.
+             * @returns True for a datagram endpoint.
              */
             datagram(): boolean;
+
             /**
-             * @return True for a secure endpoint.
+             * @returns True for a secure endpoint.
              */
             secure(): boolean;
         }

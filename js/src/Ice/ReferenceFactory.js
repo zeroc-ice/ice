@@ -17,7 +17,7 @@ import { ParseException, MarshalException } from "./LocalExceptions.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { ProtocolVersion, EncodingVersion } = Ice_Version;
 import { Debug } from "./Debug.js";
-import { stringToIdentity } from "./IdentityUtil.js";
+import { stringToIdentity } from "./StringToIdentity.js";
 import { RoutableReference, FixedReference } from "./Reference.js";
 
 const suffixes = [

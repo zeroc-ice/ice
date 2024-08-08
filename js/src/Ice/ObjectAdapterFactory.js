@@ -44,8 +44,9 @@ export class ObjectAdapterFactory {
         return this._instance === null;
     }
 
-    destroy() {
-        return this.waitForShutdown().then(() => Promise.all(this._adapters.map(adapter => adapter.destroy())));
+    async destroy() {
+        await this.waitForShutdown();
+        await Promise.all(this._adapters.map(adapter => adapter.destroy()));
     }
 
     createObjectAdapter(name, router, promise) {

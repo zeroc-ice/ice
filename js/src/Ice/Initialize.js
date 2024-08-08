@@ -50,9 +50,7 @@ export function initialize(arg1, arg2) {
     }
     initData.properties = createProperties(args, initData.properties);
 
-    const result = new Communicator(initData);
-    result.finishSetup(null);
-    return result;
+    return new Communicator(initData);
 }
 
 export function createProperties(args, defaults) {

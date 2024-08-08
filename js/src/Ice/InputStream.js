@@ -80,9 +80,7 @@ class EncapsDecoder {
     }
 
     newInstance(typeId) {
-        //
         // Try to find a factory registered for the specific type.
-        //
         let userFactory = this._valueFactoryManager.find(typeId);
         let v = null;
 
@@ -90,10 +88,7 @@ class EncapsDecoder {
             v = userFactory(typeId);
         }
 
-        //
-        // If that fails, invoke the default factory if one has been
-        // registered.
-        //
+        // If that fails, invoke the default factory if one has been registered.
         if (v === null || v === undefined) {
             userFactory = this._valueFactoryManager.find("");
             if (userFactory !== undefined) {
@@ -101,9 +96,7 @@ class EncapsDecoder {
             }
         }
 
-        //
         // Last chance: try to instantiate the class dynamically.
-        //
         if (v === null || v === undefined) {
             v = this._stream.createInstance(typeId);
         }

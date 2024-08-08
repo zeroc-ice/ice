@@ -1205,7 +1205,12 @@ export class RoutableReference extends Reference {
                 //
                 // Shuffle the endpoints.
                 //
-                ArrayUtil.shuffle(endpoints);
+                for (let i = endpoints.length; i > 0; --i) {
+                    const e = endpoints[i - 1];
+                    const rand = Math.floor(Math.random() * i);
+                    endpoints[i - 1] = endpoints[rand];
+                    endpoints[rand] = e;
+                }
                 break;
             }
             case EndpointSelectionType.Ordered: {

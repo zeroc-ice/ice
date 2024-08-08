@@ -6,7 +6,8 @@ declare module "ice" {
     namespace Ice {
         /**
          * Generates a universally unique identifier (UUID).
-         * @return The UUID.
+         *
+         * @returns The UUID.
          */
         function generateUUID(): string;
     }

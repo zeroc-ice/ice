@@ -15,9 +15,6 @@ declare module "ice" {
                  * @param incoming Whether or not the connection is an incoming or outgoing connection.
                  * @param adapterName The name of the adapter associated with the connection.
                  * @param connectionId The connection id.
-                 * @param cipher The negotiated cipher suite.
-                 * @param certs The certificate chain.
-                 * @param verified The certificate chain verification status.
                  */
                 constructor(
                     underlying?: Ice.ConnectionInfo,
@@ -28,18 +25,6 @@ declare module "ice" {
                     certs?: Ice.StringSeq,
                     verified?: boolean,
                 );
-                /**
-                 * The negotiated cipher suite.
-                 */
-                cipher: string;
-                /**
-                 * The certificate chain.
-                 */
-                certs: Ice.StringSeq;
-                /**
-                 * The certificate chain verification status.
-                 */
-                verified: boolean;
             }
         }
     }

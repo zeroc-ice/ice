@@ -818,8 +818,6 @@ export class Client extends TestHelper {
         let ref13 = "test -e 1.3:" + this.getTestEndpoint();
         let cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13));
         await cl13.ice_ping();
-
-        // TODO port ice_invoke test
         out.writeLine("ok");
 
         out.write("testing protocol versioning... ");

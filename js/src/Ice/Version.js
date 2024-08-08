@@ -55,5 +55,5 @@ Ice.EncodingVersion = class {
     }
 };
 
-// Moved to StreamHelpers.js to avoid circular dependencies.
+// Moved to VersionExtensions.js to avoid circular dependencies.
 // defineStruct(EncodingVersion, true, false);

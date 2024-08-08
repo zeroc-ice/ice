@@ -11,18 +11,16 @@ declare module "ice" {
             /**
              * Returns the type id of this exception.
              *
-             * @return The type id of this exception.
+             * @returns The type id of this exception.
              **/
             ice_id(): string;
 
             /**
              * Returns a string representation of this exception.
              *
-             * @return A string representation of this exception.
+             * @returns A string representation of this exception.
              **/
             toString(): string;
-
-            ice_cause: string | Error;
         }
     }
 }

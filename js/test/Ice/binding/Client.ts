@@ -14,6 +14,15 @@ const isConnectionFailed = (ex: Ice.Exception) =>
     (TestHelper.isBrowser() && ex instanceof Ice.ConnectFailedException) ||
     ex instanceof Ice.ConnectTimeoutException;
 
+function shuffle<T>(values: T[]) {
+    for (let i = values.length; i > 0; --i) {
+        const e = values[i - 1];
+        const rand = Math.floor(Math.random() * i);
+        values[i - 1] = values[rand];
+        values[rand] = e;
+    }
+}
+
 export class Client extends TestHelper {
     async allTests() {
         async function createTestIntfPrx(adapters: Test.RemoteObjectAdapterPrx[]): Promise<Test.TestIntfPrx> {
@@ -88,9 +97,9 @@ export class Client extends TestHelper {
             while (names.length > 0) {
                 const adpts = ArrayUtil.clone(adapters);
                 const test1 = await createTestIntfPrx(adpts);
-                ArrayUtil.shuffle(adpts);
+                shuffle(adpts);
                 const test2 = await createTestIntfPrx(adpts);
-                ArrayUtil.shuffle(adpts);
+                shuffle(adpts);
                 const test3 = await createTestIntfPrx(adpts);
                 await test1.ice_ping();
                 test((await test1.ice_getConnection()) == (await test2.ice_getConnection()));
@@ -141,9 +150,9 @@ export class Client extends TestHelper {
                 const adpts = ArrayUtil.clone(adapters);
 
                 const test1 = await createTestIntfPrx(adpts);
-                ArrayUtil.shuffle(adpts);
+                shuffle(adpts);
                 const test2 = await createTestIntfPrx(adpts);
-                ArrayUtil.shuffle(adpts);
+                shuffle(adpts);
                 const test3 = await createTestIntfPrx(adpts);
 
                 test((await test1.ice_getConnection()) == (await test2.ice_getConnection()));

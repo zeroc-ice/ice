@@ -316,7 +316,7 @@ declare module "ice" {
              * @param type The type of the enumeration.
              * @returns The enumerated value.
              */
-            readEnum<T>(type: new () => T): T;
+            readEnum<T extends EnumBase>(type: new (name: string, value: number) => T): T;
 
             /**
              * Reads an enumerated value.
