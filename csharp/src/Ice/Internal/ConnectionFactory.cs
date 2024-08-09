@@ -1419,6 +1419,20 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 }
 
                 _connections.Add(connection);
+                if (_maxConnections > 0 && _connections.Count == _maxConnections)
+                {
+                    if (_instance.traceLevels().network >= 1)
+                    {
+                        StringBuilder s = new StringBuilder("holding ");
+                        s.Append(_endpoint.protocol());
+                        s.Append(" connections at ");
+                        s.Append(_acceptor.ToString());
+                        s.Append(" because the maximum number of connections is reached");
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat,
+                                                                    s.ToString());
+                    }
+                    _adapter.getThreadPool().unregister(this, SocketOperation.Read);
+                }
             }
             finally
             {
@@ -1503,6 +1517,9 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         _connections = new HashSet<Ice.ConnectionI>();
         _state = StateHolding;
         _acceptorStarted = false;
+
+        // TODO: add MaxConnections property.
+        _maxConnections = 0;
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
@@ -1595,6 +1612,13 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 {
                     return;
                 }
+
+                if (_maxConnections > 0 && _connections.Count == _maxConnections)
+                {
+                    // Don't resume accepting new connections if the max connection count is reached.
+                    return;
+                }
+
                 if (_acceptor != null)
                 {
                     if (_instance.traceLevels().network >= 1)
@@ -1622,6 +1646,12 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 {
                     return;
                 }
+
+                if (_maxConnections > 0 && _connections.Count == _maxConnections)
+                {
+                    return;
+                }
+
                 if (_acceptor != null)
                 {
                     if (_instance.traceLevels().network >= 1)
@@ -1739,10 +1769,26 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     private void removeConnection(ConnectionI connection)
     {
+        Debug.Assert(_acceptor != null);
+
         lock (this)
         {
             if (_state is StateActive or StateHolding)
             {
+                if (_state is StateActive && _maxConnections > 0 && _connections.Count == _maxConnections)
+                {
+                    if (_instance.traceLevels().network >= 1)
+                    {
+                        StringBuilder s = new StringBuilder("accepting ");
+                        s.Append(_endpoint.protocol());
+                        s.Append(" connections at ");
+                        s.Append(_acceptor.ToString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat,
+                                                                    s.ToString());
+                    }
+                    // Resume accepting new connections.
+                    _adapter.getThreadPool().register(this, SocketOperation.Read);
+                }
                 _connections.Remove(connection);
             }
             // else it's already being cleaned up.
@@ -1770,5 +1816,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     private int _state;
     private bool _acceptorStarted;
+    private int _maxConnections;
     private Ice.LocalException _acceptorException;
 }

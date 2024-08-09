@@ -9,4 +9,5 @@ internal sealed record class ConnectionOptions(
     TimeSpan closeTimeout,
     TimeSpan idleTimeout,
     bool enableIdleCheck,
-    TimeSpan inactivityTimeout);
+    TimeSpan inactivityTimeout,
+    int maxDispatches);

@@ -1376,6 +1376,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _closeTimeout = options.closeTimeout; // not used for datagram connections
         // suppress inactivity timeout for datagram connections
         _inactivityTimeout = endpoint.datagram() ? TimeSpan.Zero : options.inactivityTimeout;
+        _maxDispatches = options.maxDispatches;
         _removeFromFactory = removeFromFactory;
         _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _warnUdp = initData.properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
@@ -1647,13 +1648,19 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 case StateActive:
                 {
                     //
-                    // Can only switch from holding or not validated to
-                    // active.
+                    // Can only switch to active from holding or not validated.
                     //
                     if (_state != StateHolding && _state != StateNotValidated)
                     {
                         return;
                     }
+
+                    if (_maxDispatches > 0 && _dispatchCount >= _maxDispatches)
+                    {
+                        // Don't resume reads if the max dispatch count is reached.
+                        return;
+                    }
+
                     _threadPool.register(this, SocketOperation.Read);
                     break;
                 }
@@ -1661,17 +1668,20 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 case StateHolding:
                 {
                     //
-                    // Can only switch from active or not validated to
-                    // holding.
+                    // Can only switch to holding from active or not validated.
                     //
                     if (_state != StateActive && _state != StateNotValidated)
                     {
                         return;
                     }
-                    if (_state == StateActive)
+
+                    if (_maxDispatches > 0 && _dispatchCount >= _maxDispatches)
                     {
-                        _threadPool.unregister(this, SocketOperation.Read);
+                        // Reads are already disabled if the max dispatch count is reached.
+                        return;
                     }
+
+                    _threadPool.unregister(this, SocketOperation.Read);
                     break;
                 }
 
@@ -2409,7 +2419,15 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
         }
 
-        return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
+        if (_state == StateHolding || (_maxDispatches > 0 && _dispatchCount >= _maxDispatches))
+        {
+            // Don't re-enable reads if the connection is in the holding state or if the max dispatch count is reached.
+            return SocketOperation.None;
+        }
+        else
+        {
+            return SocketOperation.Read;
+        }
     }
 
     private void dispatchAll(
@@ -2513,6 +2531,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     if (isTwoWay)
                     {
                         sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
+                    }
+
+                    if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches)
+                    {
+                        // Resume reads if the connection is active and the dispatch count is (about to be) bellow the
+                        // max dispatch count.
+                        _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
                     }
 
                     --_dispatchCount;
@@ -2895,6 +2920,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
     private int _dispatchCount;
+    private readonly int _maxDispatches;
 
     private int _state; // The current state.
     private bool _shutdownInitiated;
