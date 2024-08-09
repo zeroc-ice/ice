@@ -1662,6 +1662,10 @@ enumerator_list
 | enumerator
 {
 }
+| %empty
+{
+    $$ = make_shared<EnumeratorListTok>(); // Empty list
+}
 ;
 
 // ----------------------------------------------------------------------
@@ -1672,7 +1676,7 @@ enumerator
     auto ident = dynamic_pointer_cast<StringTok>($1);
     auto ens = make_shared<EnumeratorListTok>();
     ContainerPtr cont = currentUnit->currentContainer();
-    EnumeratorPtr en = cont->createEnumerator(ident->v);
+    EnumeratorPtr en = cont->createEnumerator(ident->v, nullopt);
     if (en)
     {
         ens->v.push_front(en);
@@ -1705,11 +1709,6 @@ enumerator
     currentUnit->error("keyword `" + ident->v + "' cannot be used as enumerator");
     auto ens = make_shared<EnumeratorListTok>(); // Dummy
     $$ = ens;
-}
-| %empty
-{
-    auto ens = make_shared<EnumeratorListTok>();
-    $$ = ens; // Dummy
 }
 ;
 
