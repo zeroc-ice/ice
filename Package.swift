@@ -94,6 +94,7 @@ let package = Package(
                 "src/Ice/Ice.rc",
                 "src/Ice/Makefile.mk",
                 "src/Ice/DLLMain.cpp",
+                "src/Ice/RegisterPluginsInit_min.cpp",
                 "src/Ice/SSL/SchannelEngine.cpp",
                 "src/Ice/SSL/SchannelTransceiverI.cpp",
                 "src/Ice/SSL/OpenSSLTransceiverI.cpp",

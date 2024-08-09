@@ -47,7 +47,7 @@
 #        endif
 #    endif
 
-#    if !defined(__FreeBSD__) && defined(ICE_API_EXPORTS)
+#    if !defined(__FreeBSD__)
 #        include <cxxabi.h>
 #        include <execinfo.h>
 #        include <stdint.h>

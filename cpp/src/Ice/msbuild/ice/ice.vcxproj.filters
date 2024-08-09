@@ -399,7 +399,7 @@
     <ClCompile Include="..\..\ReferenceFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\RegisterPluginsInit.cpp">
+    <ClCompile Include="..\..\RegisterPluginsInit_all.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\RequestHandler.cpp">

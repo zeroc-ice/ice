@@ -51,6 +51,7 @@ static_components       = $(coreandstub_components)
 static_projects         = test/Common \
                           test/Ice/% \
                           test/IceSSL/% \
+                          test/IceUtil/stacktrace \
                           test/IceDiscovery/simple \
                           test/Glacier2/application \
                           test/IceGrid/simple

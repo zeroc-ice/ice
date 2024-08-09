@@ -563,7 +563,7 @@
     <ClCompile Include="..\..\Proxy.cpp" />
     <ClCompile Include="..\..\Reference.cpp" />
     <ClCompile Include="..\..\ReferenceFactory.cpp" />
-    <ClCompile Include="..\..\RegisterPluginsInit.cpp" />
+    <ClCompile Include="..\..\RegisterPluginsInit_all.cpp" />
     <ClCompile Include="..\..\RequestHandler.cpp" />
     <ClCompile Include="..\..\RetryQueue.cpp" />
     <ClCompile Include="..\..\RouterInfo.cpp" />

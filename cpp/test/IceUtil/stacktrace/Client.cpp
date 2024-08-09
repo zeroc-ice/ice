@@ -98,6 +98,7 @@ Client::run(int, char*[])
     }
     catch (const Ice::Exception& ex)
     {
+        // cerr << ex << endl;
         test(splitLines(ex.ice_stackTrace()).size() >= 3);
     }
     cout << "ok" << endl;

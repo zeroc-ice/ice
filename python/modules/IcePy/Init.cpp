@@ -139,8 +139,6 @@ PyInit_IcePy(void)
 {
     PyObject* module;
 
-    Ice::registerIceUDP(true);
-    Ice::registerIceWS(true);
     Ice::registerIceDiscovery(false);
     Ice::registerIceLocatorDiscovery(false);
 
