@@ -5,24 +5,7 @@
 package com.zeroc.Ice;
 
 /** Base class for exceptions defined in Slice. */
-public abstract class UserException extends java.lang.Exception implements Cloneable {
-  /**
-   * Creates a copy of this exception.
-   *
-   * @return The copy of this exception.
-   */
-  @Override
-  public UserException clone() {
-    UserException c = null;
-
-    try {
-      c = (UserException) super.clone();
-    } catch (CloneNotSupportedException ex) {
-      assert false;
-    }
-    return c;
-  }
-
+public abstract class UserException extends java.lang.Exception {
   /**
    * Returns the type id of this exception.
    *
