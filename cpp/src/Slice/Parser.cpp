@@ -4068,14 +4068,9 @@ Slice::Enum::createEnumerator(const string& name, optional<int> value)
     int nextValue;
     if (value)
     {
+        // If an explicit value was provided, the parser already checks that it's between `0` and `int32_t::max`.
         _hasExplicitValues = true;
         nextValue = *value;
-        if (nextValue < 0)
-        {
-            ostringstream os;
-            os << "value for enumerator `" << name << "' is out of range";
-            _unit->error(os.str());
-        }
     }
     else
     {

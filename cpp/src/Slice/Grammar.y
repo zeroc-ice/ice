@@ -1655,12 +1655,17 @@ enumerator_list
 // ----------------------------------------------------------------------
 : enumerator ',' enumerator_list
 {
-    auto ens = dynamic_pointer_cast<EnumeratorListTok>($1);
-    ens->v.splice(ens->v.end(), dynamic_pointer_cast<EnumeratorListTok>($3)->v);
-    $$ = ens;
+    auto enumerator = dynamic_pointer_cast<Enumerator>($1);
+    auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>($3);
+    enumeratorList->v.push_front(enumerator);
+    $$ = enumeratorList;
 }
 | enumerator
 {
+    auto enumerator = dynamic_pointer_cast<Enumerator>($1);
+    auto enumeratorList = make_shared<EnumeratorListTok>();
+    enumeratorList->v.push_front(enumerator);
+    $$ = enumeratorList;
 }
 | %empty
 {
@@ -1674,19 +1679,12 @@ enumerator
 : ICE_IDENTIFIER
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    auto ens = make_shared<EnumeratorListTok>();
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
-    EnumeratorPtr en = cont->createEnumerator(ident->v, nullopt);
-    if (en)
-    {
-        ens->v.push_front(en);
-    }
-    $$ = ens;
+    $$ = cont->createEnumerator(ident->v, nullopt);
 }
 | ICE_IDENTIFIER '=' enumerator_initializer
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    auto ens = make_shared<EnumeratorListTok>();
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
     auto intVal = dynamic_pointer_cast<IntegerTok>($3);
     if (intVal)
@@ -1695,20 +1693,19 @@ enumerator
         {
             currentUnit->error("value for enumerator `" + ident->v + "' is out of range");
         }
-        else
-        {
-            EnumeratorPtr en = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
-            ens->v.push_front(en);
-        }
+        $$ = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
     }
-    $$ = ens;
+    else
+    {
+        $$ = cont->createEnumerator(ident->v, nullopt); // Dummy
+    }
 }
 | keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
+    EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
     currentUnit->error("keyword `" + ident->v + "' cannot be used as enumerator");
-    auto ens = make_shared<EnumeratorListTok>(); // Dummy
-    $$ = ens;
+    $$ = cont->createEnumerator(ident->v, nullopt); // Dummy
 }
 ;
 
