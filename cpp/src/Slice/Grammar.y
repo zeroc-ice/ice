@@ -1657,9 +1657,9 @@ enumerator_list
 {
     auto metadata = dynamic_pointer_cast<StringListTok>($1);
     auto enumerator = dynamic_pointer_cast<Enumerator>($2);
-    if (enumerator && !metaData->v.empty())
+    if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetaData(metaData->v);
+        enumerator->setMetaData(metadata->v);
     }
     auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>($4);
     enumeratorList->v.push_front(enumerator);
@@ -1669,9 +1669,9 @@ enumerator_list
 {
     auto metadata = dynamic_pointer_cast<StringListTok>($1);
     auto enumerator = dynamic_pointer_cast<Enumerator>($2);
-    if (enumerator && !metaData->v.empty())
+    if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetaData(metaData->v);
+        enumerator->setMetaData(metadata->v);
     }
     auto enumeratorList = make_shared<EnumeratorListTok>();
     enumeratorList->v.push_front(enumerator);
