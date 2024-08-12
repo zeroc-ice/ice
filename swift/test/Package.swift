@@ -102,18 +102,8 @@ func testPathToTargetName(_ path: String) -> String {
     return path.replacingOccurrences(of: "/", with: "_")
 }
 
-func filterDebugTest(_ key: String, _ value: TestConfig) -> Bool {
-    let skipDebugTests = [
-        // "Ice/operations",
-        "Ice/optional"
-    ]
-    let debugBuild = ProcessInfo.processInfo.environment["OPTIMIZE"] == "no"
-
-    return !debugBuild || !skipDebugTests.contains(key)
-}
-
 var testDriverDependencies = [Target.Dependency]()
-let testTargets = testDirectories.filter(filterDebugTest).map { (testPath, testConfig) in
+let testTargets = testDirectories.map { (testPath, testConfig) in
 
     var targets = [Target]()
 
