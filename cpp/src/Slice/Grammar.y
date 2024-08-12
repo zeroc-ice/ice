@@ -1675,7 +1675,7 @@ enumerator
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     auto ens = make_shared<EnumeratorListTok>();
-    ContainerPtr cont = currentUnit->currentContainer();
+    EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
     EnumeratorPtr en = cont->createEnumerator(ident->v, nullopt);
     if (en)
     {
@@ -1687,7 +1687,7 @@ enumerator
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     auto ens = make_shared<EnumeratorListTok>();
-    ContainerPtr cont = currentUnit->currentContainer();
+    EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
     auto intVal = dynamic_pointer_cast<IntegerTok>($3);
     if (intVal)
     {

@@ -3335,7 +3335,7 @@ yyreduce:
         {
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
             auto ens = make_shared<EnumeratorListTok>();
-            ContainerPtr cont = currentUnit->currentContainer();
+            EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
             EnumeratorPtr en = cont->createEnumerator(ident->v, nullopt);
             if (en)
             {
@@ -3351,7 +3351,7 @@ yyreduce:
         {
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
             auto ens = make_shared<EnumeratorListTok>();
-            ContainerPtr cont = currentUnit->currentContainer();
+            EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
             auto intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
             if (intVal)
             {
