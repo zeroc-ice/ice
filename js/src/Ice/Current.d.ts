@@ -9,17 +9,17 @@ declare module "ice" {
          */
         class Current {
             /**
-             * Construct a new Current instance.
+             * Construct a new `Current` object.
              *
-             * @param adapter The object adapter that received the request.
-             * @param con The connection that received the request.
-             * @param id The identity of the target Ice object.
-             * @param facet The facet of the target Ice object.
-             * @param operation The name of the operation.
-             * @param mode The operation mode (idempotent or not).
-             * @param ctx  The request context.
-             * @param requestId The request ID. 0 means the request is a one-way request.
-             * @param encoding he encoding of the request payload.
+             * @param adapter - The object adapter that received the request.
+             * @param con - The connection that received the request.
+             * @param id - The identity of the target Ice object.
+             * @param facet - The facet of the target Ice object.
+             * @param operation - The name of the operation being invoked.
+             * @param mode - The operation mode (idempotent or not).
+             * @param ctx - The request context.
+             * @param requestId - The request ID. A value of `0` indicates a one-way request.
+             * @param encoding - The encoding of the request payload.
              */
             constructor(
                 adapter: Ice.ObjectAdapter,

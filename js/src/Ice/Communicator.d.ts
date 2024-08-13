@@ -121,7 +121,7 @@ declare module "ice" {
              *
              * @param name - The object adapter name.
              * @returns A promise that resolves to the created object adapter.
-             * @throws InitializationException - Thrown if the object adapter cannot be created.
+             * @throws {@link InitializationException} - Thrown if the object adapter cannot be created.
              *
              * @see {@link createObjectAdapterWithEndpoints}
              * @see {@link ObjectAdapter}

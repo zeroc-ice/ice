@@ -9,11 +9,12 @@ declare module "ice" {
          */
         class ConnectionInfo {
             /**
-             * One-shot constructor to initialize all data members.
-             * @param underlying The information of the underlying transport or null if there's no underlying transport.
-             * @param incoming Whether or not the connection is an incoming or outgoing connection.
-             * @param adapterName The name of the adapter associated with the connection.
-             * @param connectionId The connection id.
+             * Constructs a new `ConnectionInfo` object.
+             *
+             * @param underlying - The information of the underlying transport, or `null` if there is no underlying transport.
+             * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
+             * @param adapterName - The name of the adapter associated with the connection.
+             * @param connectionId - The connection ID.
              */
             constructor(
                 underlying?: Ice.ConnectionInfo,
@@ -23,17 +24,17 @@ declare module "ice" {
             );
 
             /**
-             * The information of the underlying transport or null if there's no underlying transport.
+             * The information of the underlying transport, or `null` if there is no underlying transport.
              */
             underlying: Ice.ConnectionInfo;
 
             /**
-             * Whether or not the connection is an incoming or outgoing connection.
+             * Indicates whether the connection is incoming (`true`) or outgoing (`false`).
              */
             incoming: boolean;
 
             /**
-             * The name of the adapter associated with the connection.
+             * The name of the adapter associated with this connection.
              */
             adapterName: string;
 
@@ -44,39 +45,40 @@ declare module "ice" {
         }
 
         /**
-         * This callback is called by the connection when the connection is closed. If the callback needs more information
-         * about the closure, it can call {@link Connection#throwException}.
+         * Callback invoked when the connection is closed. If additional information about the closure is needed,
+         * the callback can call {@link Connection#throwException}.
          *
-         * @param con - The connection that was closed.
+         * @param connection - The connection that was closed.
          */
-        type CloseCallback = (con: Ice.Connection) => void;
+        type CloseCallback = (connection: Ice.Connection) => void;
 
         /**
          * Determines the behavior when manually closing a connection.
          */
         class ConnectionClose extends Ice.EnumBase {
             /**
-             * Close the connection immediately without sending a close connection protocol message to the peer and waiting
-             * for the peer to acknowledge it.
+             * Closes the connection immediately without sending a close connection protocol message to the peer and
+             * without waiting for the peer to acknowledge it.
              */
             static readonly Forcefully: ConnectionClose;
 
             /**
-             * Close the connection by notifying the peer but do not wait for pending outgoing invocations to complete. On the
-             * server side, the connection will not be closed until all incoming invocations have completed.
+             * Closes the connection by notifying the peer but does not wait for pending outgoing invocations to
+             * complete. On the server side, the connection will not be closed until all incoming invocations have
+             * completed.
              */
             static readonly Gracefully: ConnectionClose;
 
             /**
-             * Wait for all pending invocations to complete before closing the connection.
+             * Waits for all pending invocations to complete before closing the connection.
              */
             static readonly GracefullyWithWait: ConnectionClose;
 
             /**
-             * Returns the enumerator for the given value.
+             * Returns the enumerator corresponding to the given value.
              *
-             * @param value The enumerator value.
-             * @returns The enumerator for the given value.
+             * @param value - The numeric value of the enumerator.
+             * @returns The enumerator corresponding to the given value.
              */
             static valueOf(value: number): ConnectionClose;
         }
@@ -86,31 +88,38 @@ declare module "ice" {
          */
         interface Connection {
             /**
-             * Manually close the connection using the specified closure mode.
-             * @param mode Determines how the connection will be closed.
-             * @returns The asynchronous result object for the invocation.
+             * Manually closes the connection using the specified closure mode.
+             * 
+             * @param mode - The mode that determines how the connection will be closed.
+             * @returns A promise that resolves when the close operation is complete.
+             *
              * @see {@link ConnectionClose}
              */
             close(mode: ConnectionClose): Promise<void>;
 
             /**
-             * Create a special proxy that always uses this connection. This can be used for callbacks from a server to a
-             * client if the server cannot directly establish a connection to the client, for example because of firewalls. In
-             * this case, the server would create a proxy using an already established connection from the client.
-             * @param id The identity for which a proxy is to be created.
+             * Creates a special proxy that always uses this connection. This is useful for callbacks from a server to a
+             * client when the server cannot directly establish a connection to the client, such as in cases where firewalls
+             * are present. In such scenarios, the server would create a proxy using an already established connection from the client.
+             *
+             * @param id - The identity for which the proxy is to be created.
              * @returns A proxy that matches the given identity and uses this connection.
+             *
              * @see {@link setAdapter}
              */
             createProxy(id: Identity): Ice.ObjectPrx;
 
             /**
-             * Explicitly set an object adapter that dispatches requests that are received over this connection. A client can
-             * invoke an operation on a server using a proxy, and then set an object adapter for the outgoing connection that
-             * is used by the proxy in order to receive callbacks. This is useful if the server cannot establish a connection
-             * back to the client, for example because of firewalls.
-             * @param adapter The object adapter that should be used by this connection to dispatch requests. The object
-             * adapter must be activated. When the object adapter is deactivated, it is automatically removed from the
-             * connection. Attempts to use a deactivated object adapter raise {@link ObjectAdapterDeactivatedException}
+             * Explicitly sets an object adapter that dispatches requests received over this connection. A client can 
+             * invoke an operation on a server using a proxy and then set an object adapter for the outgoing connection 
+             * used by the proxy to receive callbacks. This is particularly useful when the server cannot establish a 
+             * connection back to the client, such as in scenarios involving firewalls.
+             * 
+             * @param adapter - The object adapter that should be used by this connection to dispatch requests. The
+             *                  object adapter must be activated. When the object adapter is deactivated, it is 
+             *                  automatically removed from the connection. Attempts to use a deactivated object adapter
+             *                  raise an {@link ObjectAdapterDeactivatedException}.
+             * 
              * @see {@link createProxy}
              * @see {@link getAdapter}
              */
@@ -118,13 +127,16 @@ declare module "ice" {
 
             /**
              * Get the object adapter that dispatches requests for this connection.
+             *
              * @returns The object adapter that dispatches requests for the connection, or null if no adapter is set.
+             *
              * @see {@link setAdapter}
              */
             getAdapter(): Ice.ObjectAdapter;
 
             /**
              * Get the endpoint from which the connection was created.
+             *
              * @returns The endpoint from which the connection was created.
              */
             getEndpoint(): Ice.Endpoint;
@@ -137,35 +149,39 @@ declare module "ice" {
             flushBatchRequests(): Promise<void>;
 
             /**
-             * Set a close callback on the connection. The callback is called by the connection when it's closed. The callback
-             * is called from the Ice thread pool associated with the connection. If the callback needs more information about
-             * the closure, it can call {@link Connection#throwException}.
-             * @param callback The close callback object.
+             * Sets a close callback on the connection. The callback is invoked by the connection when it is closed. 
+             * If the callback needs more information about the closure, it can call {@link Connection#throwException}.
+             *
+             * @param callback - The close callback object.
              */
             setCloseCallback(callback: Ice.CloseCallback): void;
 
             /**
-             * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
+             * Returns the connection type, which corresponds to the endpoint type (e.g., "tcp", "udp", etc.).
+             * 
              * @returns The type of the connection.
              */
             type(): string;
 
             /**
              * Return a description of the connection as human readable text, suitable for logging or error messages.
+             *
              * @returns The description of the connection as human readable text.
              */
             toString(): string;
 
             /**
-             * Returns the connection information.
+             * Retrieves the connection information.
+             *
              * @returns The connection information.
              */
             getInfo(): Ice.ConnectionInfo;
 
             /**
-             * Set the connection buffer receive/send size.
-             * @param rcvSize The connection receive buffer size.
-             * @param sndSize The connection send buffer size.
+             * Sets the connection buffer sizes for receiving and sending data.
+             * 
+             * @param rcvSize - The size of the receive buffer in bytes.
+             * @param sndSize - The size of the send buffer in bytes.
              */
             setBufferSize(rcvSize: number, sndSize: number): void;
 
@@ -183,15 +199,16 @@ declare module "ice" {
          */
         class IPConnectionInfo extends ConnectionInfo {
             /**
-             * One-shot constructor to initialize all data members.
-             * @param underlying The information of the underlying transport or null if there's no underlying transport.
-             * @param incoming Whether or not the connection is an incoming or outgoing connection.
-             * @param adapterName The name of the adapter associated with the connection.
-             * @param connectionId The connection id.
-             * @param localAddress The local address.
-             * @param localPort The local port.
-             * @param remoteAddress The remote address.
-             * @param remotePort The remote port.
+             * Constructs a new `IPConnectionInfo` object.
+             * 
+             * @param underlying - The information of the underlying transport, or `null` if there is no underlying transport.
+             * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
+             * @param adapterName - The name of the adapter associated with the connection.
+             * @param connectionId - The connection ID.
+             * @param localAddress - The local IP address.
+             * @param localPort - The local port number.
+             * @param remoteAddress - The remote IP address.
+             * @param remotePort - The remote port number.
              */
             constructor(
                 underlying?: Ice.ConnectionInfo,
@@ -230,17 +247,19 @@ declare module "ice" {
          */
         class TCPConnectionInfo extends IPConnectionInfo {
             /**
-             * One-shot constructor to initialize all data members.
-             * @param underlying The information of the underlying transport or null if there's no underlying transport.
-             * @param incoming Whether or not the connection is an incoming or outgoing connection.
-             * @param adapterName The name of the adapter associated with the connection.
-             * @param connectionId The connection id.
-             * @param localAddress The local address.
-             * @param localPort The local port.
-             * @param remoteAddress The remote address.
-             * @param remotePort The remote port.
-             * @param rcvSize The connection buffer receive size.
-             * @param sndSize The connection buffer send size.
+             * Constructs a new `TCPConnectionInfo` object.
+             * 
+             * @param underlying - The information of the underlying transport, or `null` if there is no underlying
+             *                     transport.
+             * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
+             * @param adapterName - The name of the adapter associated with the connection.
+             * @param connectionId - The connection ID.
+             * @param localAddress - The local IP address.
+             * @param localPort - The local port number.
+             * @param remoteAddress - The remote IP address.
+             * @param remotePort - The remote port number.
+             * @param rcvSize - The receive buffer size in bytes.
+             * @param sndSize - The send buffer size in bytes.
              */
             constructor(
                 underlying?: Ice.ConnectionInfo,
@@ -271,22 +290,41 @@ declare module "ice" {
          */
         class HeaderDict extends Map<string, string> {}
 
+        /**
+         * Helper class for encoding a {@link HeaderDict} into an `OutputStream` and decoding a {@link HeaderDict} from an
+         * `InputStream`.
+         */
         class HeaderDictHelper {
+            /**
+             * Writes the {@link HeaderDict} value to the given `OutputStream`.
+             * 
+             * @param outs - The `OutputStream` to write to.
+             * @param value - The `HeaderDict` value to write.
+             */
             static write(outs: OutputStream, value: HeaderDict): void;
+
+            /**
+             * Reads a {@link HeaderDict} value from the given `InputStream`.
+             * 
+             * @param ins - The `InputStream` to read from.
+             * @returns The read {@link HeaderDict} value.
+             */
             static read(ins: InputStream): HeaderDict;
         }
 
         /**
-         * Provides access to the connection details of a WebSocket connection
+         * Provides access to the connection details of a WebSocket connection.
          */
         class WSConnectionInfo extends ConnectionInfo {
             /**
-             * One-shot constructor to initialize all data members.
-             * @param underlying The information of the underlying transport or null if there's no underlying transport.
-             * @param incoming Whether or not the connection is an incoming or outgoing connection.
-             * @param adapterName The name of the adapter associated with the connection.
-             * @param connectionId The connection id.
-             * @param headers The headers from the HTTP upgrade request.
+             * Constructs a new `WSConnectionInfo` object.
+             * 
+             * @param underlying - The information of the underlying transport, or `null` if there is no underlying
+             *                     transport.
+             * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
+             * @param adapterName - The name of the adapter associated with the connection.
+             * @param connectionId - The connection ID.
+             * @param headers - The headers from the HTTP upgrade request.
              */
             constructor(
                 underlying?: Ice.ConnectionInfo,

@@ -11,30 +11,30 @@ declare module "ice" {
             /**
              * Constructs a new enumerator.
              *
-             * @param name The name of the enumerator.
-             * @param value The value of the enumerator.
+             * @param name - The name of the enumerator.
+             * @param value - The numeric value of the enumerator.
              */
             constructor(name: string, value: number);
 
             /**
-             * Determines whether the specified object is equal to the current value.
+             * Determines whether the specified object is equal to the current enumerator.
              *
-             * @param other The object to compare with the current value.
-             * @returns `true` if the specified object is equal to the current value, `false` otherwise.
+             * @param other - The object to compare with the current enumerator.
+             * @returns `true` if the specified object is equal to the current enumerator, `false` otherwise.
              */
             equals(other: any): boolean;
 
             /**
-             * Returns the hash code of the current value.
+             * Returns the hash code of the current enumerator.
              *
-             * @returns The hash code of the current value.
+             * @returns The hash code of the current enumerator.
              */
             hashCode(): number;
 
             /**
-             * Returns a string representation of the current value.
+             * Returns a string representation of the current enumerator.
              *
-             * @returns A string representation of the current value.
+             * @returns A string representation of the current enumerator.
              */
             toString(): string;
 

@@ -25,8 +25,8 @@ declare module "ice" {
             /**
              * Returns the enumerator for the given value.
              *
-             * @param value The enumerator value.
-             * @returns The enumerator for the given value.
+             * @param value - The numeric value of the enumerator.
+             * @returns The enumerator corresponding to the given value.
              */
             static valueOf(value: number): FormatType;
         }

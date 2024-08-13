@@ -126,16 +126,8 @@ export class AsyncResult extends Promise {
         return this._communicator;
     }
 
-    get connection() {
-        return this._connection;
-    }
-
     get proxy() {
         return this._proxy;
-    }
-
-    get adapter() {
-        return this._adapter;
     }
 
     get operation() {
