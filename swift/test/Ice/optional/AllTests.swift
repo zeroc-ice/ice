@@ -736,1156 +736,35 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
 
     output.write("testing optional parameters... ")
-    do {
-        var p1: UInt8?
-        var p2: UInt8?
-        var p3: UInt8?
 
-        (p2, p3) = try await initial.opByte(p1)
-        try test(p2 == nil && p3 == nil)
+    try await testByte(initial: initial, helper: helper)
+    try await testBool(initial: initial, helper: helper)
+    try await testShort(initial: initial, helper: helper)
+    try await testInt32(initial: initial, helper: helper)
+    try await testInt64(initial: initial, helper: helper)
+    try await testFloat(initial: initial, helper: helper)
+    try await testDouble(initial: initial, helper: helper)
+    try await testString(initial: initial, helper: helper)
+    try await testEnum(initial: initial, helper: helper)
+    try await testSmallStruct(initial: initial, helper: helper)
+    try await testFixedStruct(initial: initial, helper: helper)
+    try await testVarStruct(initial: initial, helper: helper)
+    try await testOneOptional(initial: initial, helper: helper)
+    try await testMyInterfacePrx(initial: initial, helper: helper)
+    try await testByteSeq(initial: initial, helper: helper)
+    try await testBoolSeq(initial: initial, helper: helper)
+    try await testInt16Seq(initial: initial, helper: helper)
+    try await testInt32Seq(initial: initial, helper: helper)
+    try await testInt64Seq(initial: initial, helper: helper)
+    try await testFloatSeq(initial: initial, helper: helper)
+    try await testDoubleSeq(initial: initial, helper: helper)
+    try await testStringSeq(initial: initial, helper: helper)
+    try await testSmallStructSeq(initial: initial, helper: helper)
+    try await testFixedStructSeq(initial: initial, helper: helper)
+    try await testVarStructSeq(initial: initial, helper: helper)
+    try await testInt32Int32Dict(initial: initial, helper: helper)
+    try await testStringInt32Dict(initial: initial, helper: helper)
 
-        (p2, p3) = try await initial.opByte(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opByte()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = 56
-        (p2, p3) = try await initial.opByte(p1)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opByte(56)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opByte(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opByte", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 1, expectedFormat: .F1))
-        try test(istr.read() as UInt8 == 56)
-        try test(istr.readOptional(tag: 3, expectedFormat: .F1))
-        try test(istr.read() as UInt8 == 56)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: Bool?
-        var p3: Bool?
-        var p2: Bool?
-
-        (p2, p3) = try await initial.opBool(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opBool(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opBool()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = true
-        (p2, p3) = try await initial.opBool(p1)
-        try test(p2 == true && p3 == true)
-
-        (p2, p3) = try await initial.opBool(true)
-        try test(p2 == true && p3 == true)
-
-        (p2, p3) = try await initial.opBool(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opBool", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 1, expectedFormat: .F1))
-        try test(istr.read() as Bool == true)
-        try test(istr.readOptional(tag: 3, expectedFormat: .F1))
-        try test(istr.read() as Bool == true)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: Int16?
-        var p2: Int16?
-        var p3: Int16?
-
-        (p2, p3) = try await initial.opShort(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opShort(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opShort()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = 56
-        (p2, p3) = try await initial.opShort(p1)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opShort(p1)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opShort(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opShort", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 1, expectedFormat: .F2))
-        try test(istr.read() as Int16 == 56)
-        try test(istr.readOptional(tag: 3, expectedFormat: .F2))
-        try test(istr.read() as Int16 == 56)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: Int32?
-        var p2: Int32?
-        var p3: Int32?
-
-        (p2, p3) = try await initial.opInt(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opInt(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opInt()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = 56
-        (p2, p3) = try await initial.opInt(p1)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opInt(56)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opInt(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opInt", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 1, expectedFormat: .F4))
-        try test(istr.read() as Int32 == 56)
-        try test(istr.readOptional(tag: 3, expectedFormat: .F4))
-        try test(istr.read() as Int32 == 56)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: Int64?
-        var p2: Int64?
-        var p3: Int64?
-
-        (p2, p3) = try await initial.opLong(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opLong(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opLong()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = 56
-        (p2, p3) = try await initial.opLong(p1)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opLong(56)
-        try test(p2 == 56 && p3 == 56)
-
-        (p2, p3) = try await initial.opLong(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 1, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opLong", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 2, expectedFormat: .F8))
-        try test(istr.read() as Int64 == 56)
-        try test(istr.readOptional(tag: 3, expectedFormat: .F8))
-        try test(istr.read() as Int64 == 56)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: Float?
-        var p2: Float?
-        var p3: Float?
-
-        (p2, p3) = try await initial.opFloat(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFloat(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFloat()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = 1.0
-        (p2, p3) = try await initial.opFloat(p1)
-        try test(p2 == 1.0 && p3 == 1.0)
-
-        (p2, p3) = try await initial.opFloat(1.0)
-        try test(p2 == 1.0 && p3 == 1.0)
-
-        (p2, p3) = try await initial.opFloat(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opFloat", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 1, expectedFormat: .F4))
-        try test(istr.read() as Float == 1.0)
-        try test(istr.readOptional(tag: 3, expectedFormat: .F4))
-        try test(istr.read() as Float == 1.0)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: Double?
-        var p2: Double?
-        var p3: Double?
-        (p2, p3) = try await initial.opDouble(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opDouble(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opDouble()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = 1.0
-        (p2, p3) = try await initial.opDouble(p1)
-        try test(p2 == 1.0 && p3 == 1.0)
-
-        (p2, p3) = try await initial.opDouble(1.0)
-        try test(p2 == 1.0 && p3 == 1.0)
-
-        (p2, p3) = try await initial.opDouble(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opDouble", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 1, expectedFormat: .F8))
-        try test(istr.read() as Double == 1.0)
-        try test(istr.readOptional(tag: 3, expectedFormat: .F8))
-        try test(istr.read() as Double == 1.0)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: String?
-        var p2: String?
-        var p3: String?
-        (p2, p3) = try await initial.opString(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opString(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opString()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = "test"
-        (p2, p3) = try await initial.opString(p1)
-        try test(p2 == "test" && p3 == "test")
-
-        (p2, p3) = try await initial.opString(p1)
-        try test(p2 == "test" && p3 == "test")
-
-        (p2, p3) = try await initial.opString(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opString",
-            mode: .Normal,
-            inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 1, expectedFormat: .VSize))
-        try test(istr.read() as String == "test")
-        try test(istr.readOptional(tag: 3, expectedFormat: .VSize))
-        try test(istr.read() as String == "test")
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: MyEnum?
-        var p2: MyEnum?
-        var p3: MyEnum?
-
-        (p2, p3) = try await initial.opMyEnum(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opMyEnum(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opMyEnum()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = .MyEnumMember
-        (p2, p3) = try await initial.opMyEnum(p1)
-        try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
-
-        (p2, p3) = try await initial.opMyEnum(p1)
-        try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
-
-        (p2, p3) = try await initial.opMyEnum(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opMyEnum", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 1, expectedFormat: .Size))
-        try test(istr.read() as MyEnum == .MyEnumMember)
-        try test(istr.readOptional(tag: 3, expectedFormat: .Size))
-        try test(istr.read() as MyEnum == .MyEnumMember)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: SmallStruct?
-        var p2: SmallStruct?
-        var p3: SmallStruct?
-        (p2, p3) = try await initial.opSmallStruct(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opSmallStruct(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opSmallStruct()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = SmallStruct(m: 56)
-        (p2, p3) = try await initial.opSmallStruct(p1)
-        try test(p2!.m == 56 && p3!.m == 56)
-
-        (p2, p3) = try await initial.opSmallStruct(SmallStruct(m: 56))
-        try test(p2!.m == 56 && p3!.m == 56)
-
-        (p2, p3) = try await initial.opSmallStruct(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opSmallStruct", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        var s: SmallStruct = try istr.read(tag: 1)!
-        try test(s.m == 56)
-        s = try istr.read(tag: 3)!
-        try test(s.m == 56)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: FixedStruct?
-        var p2: FixedStruct?
-        var p3: FixedStruct?
-
-        (p2, p3) = try await initial.opFixedStruct(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFixedStruct(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFixedStruct()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = FixedStruct(m: 56)
-        (p2, p3) = try await initial.opFixedStruct(p1)
-        try test(p2!.m == 56 && p3!.m == 56)
-
-        (p2, p3) = try await initial.opFixedStruct(FixedStruct(m: 56))
-        try test(p2!.m == 56 && p3!.m == 56)
-
-        (p2, p3) = try await initial.opFixedStruct(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opFixedStruct", mode: .Normal, inEncaps: inEncaps)
-
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        var s: FixedStruct = try istr.read(tag: 1)!
-        try test(s.m == 56)
-        s = try istr.read(tag: 3)!
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: VarStruct?
-        var p2: VarStruct?
-        var p3: VarStruct?
-
-        (p2, p3) = try await initial.opVarStruct(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opVarStruct(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opVarStruct()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = VarStruct(m: "test")
-        (p2, p3) = try await initial.opVarStruct(p1)
-        try test(p2!.m == "test" && p3!.m == "test")
-
-        // Test null struct
-        (p2, p3) = try await initial.opVarStruct(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opVarStruct(VarStruct(m: "test"))
-        try test(p2!.m == "test" && p3!.m == "test")
-
-        (p2, p3) = try await initial.opVarStruct(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opVarStruct", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        var v: VarStruct = try istr.read(tag: 1)!
-        try test(v.m == "test")
-        v = try istr.read(tag: 3)!
-        try test(v.m == "test")
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: OneOptional?
-        var p2: OneOptional?
-        var p3: OneOptional?
-
-        p1 = OneOptional()
-        (p2, p3) = try await initial.opOneOptional(p1)
-        try test(p2!.a == nil && p3!.a == nil)
-
-        p1 = OneOptional(a: 58)
-        (p2, p3) = try await initial.opOneOptional(p1)
-        try test(p2!.a! == 58 && p3!.a! == 58)
-
-        (p2, p3) = try await initial.opOneOptional(OneOptional())
-        try test(p2!.a == nil && p3!.a == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
-        let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        var v1: Ice.Value?
-        try istr.read { v1 = $0 }
-        var v2: Ice.Value?
-        try istr.read { v2 = $0 }
-        try istr.endEncapsulation()
-        try test((v1 as! OneOptional).a! == 58 && (v2 as! OneOptional).a == 58)
-    }
-
-    do {
-        var p1: MyInterfacePrx?
-        var p2: MyInterfacePrx?
-        var p3: MyInterfacePrx?
-        (p2, p3) = try await initial.opMyInterfaceProxy(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opMyInterfaceProxy(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opMyInterfaceProxy()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = try uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
-        (p2, p3) = try await initial.opMyInterfaceProxy(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opMyInterfaceProxy(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opMyInterfaceProxy", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        p2 = try istr.read(tag: 1, type: MyInterfacePrx.self)
-        try test(p2 == p1)
-        p3 = try istr.read(tag: 3, type: MyInterfacePrx.self)
-        try test(p3 == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: ByteSeq?
-        var p2: ByteSeq?
-        var p3: ByteSeq?
-
-        (p2, p3) = try await initial.opByteSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opByteSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opByteSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = ByteSeq(repeating: 56, count: 100)
-        (p2, p3) = try await initial.opByteSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opByteSeq(ByteSeq(repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opByteSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opByteSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.read(tag: 1) == p1)
-        try test(istr.read(tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: [Bool]?
-        var p2: [Bool]?
-        var p3: [Bool]?
-
-        (p2, p3) = try await initial.opBoolSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opBoolSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opBoolSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = [Bool](repeating: true, count: 100)
-        (p2, p3) = try await initial.opBoolSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opBoolSeq([Bool](repeating: true, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opBoolSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opBoolSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.read(tag: 1) == p1)
-        try test(istr.read(tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: [Int16]?
-        var p2: [Int16]?
-        var p3: [Int16]?
-
-        (p2, p3) = try await initial.opShortSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opShortSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opShortSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = [Int16](repeating: 56, count: 100)
-        (p2, p3) = try await initial.opShortSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opShortSeq([Int16](repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opShortSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opShortSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.read(tag: 1) == p1)
-        try test(istr.read(tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: [Int32]?
-        var p2: [Int32]?
-        var p3: [Int32]?
-
-        (p2, p3) = try await initial.opIntSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = [Int32](repeating: 56, count: 100)
-        (p2, p3) = try await initial.opIntSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opIntSeq([Int32](repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opIntSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opIntSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.read(tag: 1) == p1)
-        try test(istr.read(tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: [Int64]?
-        var p2: [Int64]?
-        var p3: [Int64]?
-
-        (p2, p3) = try await initial.opLongSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opLongSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opLongSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = [Int64](repeating: 56, count: 100)
-        (p2, p3) = try await initial.opLongSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opLongSeq([Int64](repeating: 56, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opLongSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opLongSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.read(tag: 1) == p1)
-        try test(istr.read(tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: [Float]?
-        var p2: [Float]?
-        var p3: [Float]?
-
-        (p2, p3) = try await initial.opFloatSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFloatSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFloatSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = [Float](repeating: 1.0, count: 100)
-        (p2, p3) = try await initial.opFloatSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opFloatSeq([Float](repeating: 1.0, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opFloatSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opFloatSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.read(tag: 1) == p1)
-        try test(istr.read(tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: [Double]?
-        var p2: [Double]?
-        var p3: [Double]?
-
-        (p2, p3) = try await initial.opDoubleSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opDoubleSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opDoubleSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = [Double](repeating: 1.0, count: 100)
-        (p2, p3) = try await initial.opDoubleSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opDoubleSeq([Double](repeating: 1.0, count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opDoubleSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opDoubleSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.read(tag: 1) == p1)
-        try test(istr.read(tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: [String]?
-        var p2: [String]?
-        var p3: [String]?
-
-        (p2, p3) = try await initial.opStringSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = [String](repeating: "test", count: 100)
-        (p2, p3) = try await initial.opStringSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opStringSeq([String](repeating: "test", count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opStringSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opStringSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.read(tag: 1) == p1)
-        try test(istr.read(tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: SmallStructSeq?
-        var p2: SmallStructSeq?
-        var p3: SmallStructSeq?
-
-        (p2, p3) = try await initial.opSmallStructSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opSmallStructSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opSmallStructSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = SmallStructSeq(repeating: SmallStruct(), count: 100)
-        (p2, p3) = try await initial.opSmallStructSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opSmallStructSeq(SmallStructSeq(repeating: SmallStruct(), count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opSmallStructSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        SmallStructSeqHelper.write(to: ostr, tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opSmallStructSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(SmallStructSeqHelper.read(from: istr, tag: 1) == p1)
-        try test(SmallStructSeqHelper.read(from: istr, tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: FixedStructSeq?
-        var p2: FixedStructSeq?
-        var p3: FixedStructSeq?
-
-        (p2, p3) = try await initial.opFixedStructSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFixedStructSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opFixedStructSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = FixedStructSeq(repeating: FixedStruct(), count: 100)
-        (p2, p3) = try await initial.opFixedStructSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opFixedStructSeq(FixedStructSeq(repeating: FixedStruct(), count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opFixedStructSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        FixedStructSeqHelper.write(to: ostr, tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opFixedStructSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(FixedStructSeqHelper.read(from: istr, tag: 1) == p1)
-        try test(FixedStructSeqHelper.read(from: istr, tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: VarStructSeq?
-        var p2: VarStructSeq?
-        var p3: VarStructSeq?
-
-        (p2, p3) = try await initial.opVarStructSeq(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opVarStructSeq(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opVarStructSeq()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = VarStructSeq(repeating: VarStruct(), count: 100)
-        (p2, p3) = try await initial.opVarStructSeq(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opVarStructSeq(VarStructSeq(repeating: VarStruct(), count: 100))
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opVarStructSeq(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        VarStructSeqHelper.write(to: ostr, tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opVarStructSeq", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(VarStructSeqHelper.read(from: istr, tag: 1) == p1)
-        try test(VarStructSeqHelper.read(from: istr, tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: [Int32: Int32]?
-        var p2: [Int32: Int32]?
-        var p3: [Int32: Int32]?
-
-        (p2, p3) = try await initial.opIntIntDict(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntIntDict(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opIntIntDict()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = [1: 2, 2: 3]
-        (p2, p3) = try await initial.opIntIntDict(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opIntIntDict([1: 2, 2: 3])
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opIntIntDict(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        IntIntDictHelper.write(to: ostr, tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opIntIntDict", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(IntIntDictHelper.read(from: istr, tag: 1) == p1)
-        try test(IntIntDictHelper.read(from: istr, tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
-        var p1: [String: Int32]?
-        var p2: [String: Int32]?
-        var p3: [String: Int32]?
-
-        (p2, p3) = try await initial.opStringIntDict(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringIntDict(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try await initial.opStringIntDict()
-        try test(p2 == nil && p3 == nil)
-
-        p1 = ["1": 1, "2": 2]
-        (p2, p3) = try await initial.opStringIntDict(p1)
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opStringIntDict(["1": 1, "2": 2])
-        try test(p2 == p1 && p3 == p1)
-
-        (p2, p3) = try await initial.opStringIntDict(nil)
-        try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-        var ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        StringIntDictHelper.write(to: ostr, tag: 2, value: p1)
-        ostr.endEncapsulation()
-        var inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(
-            operation: "opStringIntDict", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(StringIntDictHelper.read(from: istr, tag: 1) == p1)
-        try test(StringIntDictHelper.read(from: istr, tag: 3) == p1)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-
-        let f = F()
-        f.fsf = FixedStruct()
-        f.fsf!.m = 56
-        f.fse = f.fsf!
-
-        ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: f.fse)
-        ostr.endEncapsulation()
-        inEncaps = ostr.finished()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try istr.startEncapsulation()
-        let fs1: FixedStruct? = try istr.read(tag: 2)
-        try istr.endEncapsulation()
-        try test(fs1 != nil && fs1!.m == 56)
-    }
     output.writeLine("ok")
 
     output.write("testing exception optionals... ")
@@ -1999,4 +878,1266 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     factory.destroy()  // Break cycle with helper
 
     return initial
+}
+
+func testByte(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+
+    var p1: UInt8?
+    var p2: UInt8?
+    var p3: UInt8?
+
+    (p2, p3) = try await initial.opByte(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opByte(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opByte()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = 56
+    (p2, p3) = try await initial.opByte(p1)
+    try test(p2 == 56 && p3 == 56)
+
+    (p2, p3) = try await initial.opByte(56)
+    try test(p2 == 56 && p3 == 56)
+
+    (p2, p3) = try await initial.opByte(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opByte", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.readOptional(tag: 1, expectedFormat: .F1))
+    try test(istr.read() as UInt8 == 56)
+    try test(istr.readOptional(tag: 3, expectedFormat: .F1))
+    try test(istr.read() as UInt8 == 56)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+
+}
+
+func testBool(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: Bool?
+    var p3: Bool?
+    var p2: Bool?
+
+    (p2, p3) = try await initial.opBool(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opBool(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opBool()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = true
+    (p2, p3) = try await initial.opBool(p1)
+    try test(p2 == true && p3 == true)
+
+    (p2, p3) = try await initial.opBool(true)
+    try test(p2 == true && p3 == true)
+
+    (p2, p3) = try await initial.opBool(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opBool", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.readOptional(tag: 1, expectedFormat: .F1))
+    try test(istr.read() as Bool == true)
+    try test(istr.readOptional(tag: 3, expectedFormat: .F1))
+    try test(istr.read() as Bool == true)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testShort(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: Int16?
+    var p2: Int16?
+    var p3: Int16?
+
+    (p2, p3) = try await initial.opShort(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opShort(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opShort()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = 56
+    (p2, p3) = try await initial.opShort(p1)
+    try test(p2 == 56 && p3 == 56)
+
+    (p2, p3) = try await initial.opShort(p1)
+    try test(p2 == 56 && p3 == 56)
+
+    (p2, p3) = try await initial.opShort(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opShort", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.readOptional(tag: 1, expectedFormat: .F2))
+    try test(istr.read() as Int16 == 56)
+    try test(istr.readOptional(tag: 3, expectedFormat: .F2))
+    try test(istr.read() as Int16 == 56)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testInt32(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: Int32?
+    var p2: Int32?
+    var p3: Int32?
+
+    (p2, p3) = try await initial.opInt(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opInt(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opInt()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = 56
+    (p2, p3) = try await initial.opInt(p1)
+    try test(p2 == 56 && p3 == 56)
+
+    (p2, p3) = try await initial.opInt(56)
+    try test(p2 == 56 && p3 == 56)
+
+    (p2, p3) = try await initial.opInt(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opInt", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.readOptional(tag: 1, expectedFormat: .F4))
+    try test(istr.read() as Int32 == 56)
+    try test(istr.readOptional(tag: 3, expectedFormat: .F4))
+    try test(istr.read() as Int32 == 56)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testInt64(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: Int64?
+    var p2: Int64?
+    var p3: Int64?
+
+    (p2, p3) = try await initial.opLong(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opLong(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opLong()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = 56
+    (p2, p3) = try await initial.opLong(p1)
+    try test(p2 == 56 && p3 == 56)
+
+    (p2, p3) = try await initial.opLong(56)
+    try test(p2 == 56 && p3 == 56)
+
+    (p2, p3) = try await initial.opLong(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 1, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opLong", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.readOptional(tag: 2, expectedFormat: .F8))
+    try test(istr.read() as Int64 == 56)
+    try test(istr.readOptional(tag: 3, expectedFormat: .F8))
+    try test(istr.read() as Int64 == 56)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testFloat(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: Float?
+    var p2: Float?
+    var p3: Float?
+
+    (p2, p3) = try await initial.opFloat(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opFloat(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opFloat()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = 1.0
+    (p2, p3) = try await initial.opFloat(p1)
+    try test(p2 == 1.0 && p3 == 1.0)
+
+    (p2, p3) = try await initial.opFloat(1.0)
+    try test(p2 == 1.0 && p3 == 1.0)
+
+    (p2, p3) = try await initial.opFloat(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opFloat", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.readOptional(tag: 1, expectedFormat: .F4))
+    try test(istr.read() as Float == 1.0)
+    try test(istr.readOptional(tag: 3, expectedFormat: .F4))
+    try test(istr.read() as Float == 1.0)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testDouble(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: Double?
+    var p2: Double?
+    var p3: Double?
+    (p2, p3) = try await initial.opDouble(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opDouble(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opDouble()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = 1.0
+    (p2, p3) = try await initial.opDouble(p1)
+    try test(p2 == 1.0 && p3 == 1.0)
+
+    (p2, p3) = try await initial.opDouble(1.0)
+    try test(p2 == 1.0 && p3 == 1.0)
+
+    (p2, p3) = try await initial.opDouble(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opDouble", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.readOptional(tag: 1, expectedFormat: .F8))
+    try test(istr.read() as Double == 1.0)
+    try test(istr.readOptional(tag: 3, expectedFormat: .F8))
+    try test(istr.read() as Double == 1.0)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testString(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: String?
+    var p2: String?
+    var p3: String?
+    (p2, p3) = try await initial.opString(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opString(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opString()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = "test"
+    (p2, p3) = try await initial.opString(p1)
+    try test(p2 == "test" && p3 == "test")
+
+    (p2, p3) = try await initial.opString(p1)
+    try test(p2 == "test" && p3 == "test")
+
+    (p2, p3) = try await initial.opString(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opString",
+        mode: .Normal,
+        inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.readOptional(tag: 1, expectedFormat: .VSize))
+    try test(istr.read() as String == "test")
+    try test(istr.readOptional(tag: 3, expectedFormat: .VSize))
+    try test(istr.read() as String == "test")
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testEnum(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: MyEnum?
+    var p2: MyEnum?
+    var p3: MyEnum?
+
+    (p2, p3) = try await initial.opMyEnum(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opMyEnum(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opMyEnum()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = .MyEnumMember
+    (p2, p3) = try await initial.opMyEnum(p1)
+    try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
+
+    (p2, p3) = try await initial.opMyEnum(p1)
+    try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
+
+    (p2, p3) = try await initial.opMyEnum(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opMyEnum", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.readOptional(tag: 1, expectedFormat: .Size))
+    try test(istr.read() as MyEnum == .MyEnumMember)
+    try test(istr.readOptional(tag: 3, expectedFormat: .Size))
+    try test(istr.read() as MyEnum == .MyEnumMember)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testSmallStruct(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: SmallStruct?
+    var p2: SmallStruct?
+    var p3: SmallStruct?
+    (p2, p3) = try await initial.opSmallStruct(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opSmallStruct(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opSmallStruct()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = SmallStruct(m: 56)
+    (p2, p3) = try await initial.opSmallStruct(p1)
+    try test(p2!.m == 56 && p3!.m == 56)
+
+    (p2, p3) = try await initial.opSmallStruct(SmallStruct(m: 56))
+    try test(p2!.m == 56 && p3!.m == 56)
+
+    (p2, p3) = try await initial.opSmallStruct(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opSmallStruct", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    var s: SmallStruct = try istr.read(tag: 1)!
+    try test(s.m == 56)
+    s = try istr.read(tag: 3)!
+    try test(s.m == 56)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testFixedStruct(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: FixedStruct?
+    var p2: FixedStruct?
+    var p3: FixedStruct?
+
+    (p2, p3) = try await initial.opFixedStruct(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opFixedStruct(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opFixedStruct()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = FixedStruct(m: 56)
+    (p2, p3) = try await initial.opFixedStruct(p1)
+    try test(p2!.m == 56 && p3!.m == 56)
+
+    (p2, p3) = try await initial.opFixedStruct(FixedStruct(m: 56))
+    try test(p2!.m == 56 && p3!.m == 56)
+
+    (p2, p3) = try await initial.opFixedStruct(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opFixedStruct", mode: .Normal, inEncaps: inEncaps)
+
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    var s: FixedStruct = try istr.read(tag: 1)!
+    try test(s.m == 56)
+    s = try istr.read(tag: 3)!
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testVarStruct(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: VarStruct?
+    var p2: VarStruct?
+    var p3: VarStruct?
+
+    (p2, p3) = try await initial.opVarStruct(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opVarStruct(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opVarStruct()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = VarStruct(m: "test")
+    (p2, p3) = try await initial.opVarStruct(p1)
+    try test(p2!.m == "test" && p3!.m == "test")
+
+    // Test null struct
+    (p2, p3) = try await initial.opVarStruct(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opVarStruct(VarStruct(m: "test"))
+    try test(p2!.m == "test" && p3!.m == "test")
+
+    (p2, p3) = try await initial.opVarStruct(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opVarStruct", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    var v: VarStruct = try istr.read(tag: 1)!
+    try test(v.m == "test")
+    v = try istr.read(tag: 3)!
+    try test(v.m == "test")
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testOneOptional(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: OneOptional?
+    var p2: OneOptional?
+    var p3: OneOptional?
+
+    p1 = OneOptional()
+    (p2, p3) = try await initial.opOneOptional(p1)
+    try test(p2!.a == nil && p3!.a == nil)
+
+    p1 = OneOptional(a: 58)
+    (p2, p3) = try await initial.opOneOptional(p1)
+    try test(p2!.a! == 58 && p3!.a! == 58)
+
+    (p2, p3) = try await initial.opOneOptional(OneOptional())
+    try test(p2!.a == nil && p3!.a == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
+    let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    var v1: Ice.Value?
+    try istr.read { v1 = $0 }
+    var v2: Ice.Value?
+    try istr.read { v2 = $0 }
+    try istr.endEncapsulation()
+    try test((v1 as! OneOptional).a! == 58 && (v2 as! OneOptional).a == 58)
+}
+
+func testMyInterfacePrx(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: MyInterfacePrx?
+    var p2: MyInterfacePrx?
+    var p3: MyInterfacePrx?
+    (p2, p3) = try await initial.opMyInterfaceProxy(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opMyInterfaceProxy(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opMyInterfaceProxy()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = try uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
+    (p2, p3) = try await initial.opMyInterfaceProxy(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opMyInterfaceProxy(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opMyInterfaceProxy", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    p2 = try istr.read(tag: 1, type: MyInterfacePrx.self)
+    try test(p2 == p1)
+    p3 = try istr.read(tag: 3, type: MyInterfacePrx.self)
+    try test(p3 == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testByteSeq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: ByteSeq?
+    var p2: ByteSeq?
+    var p3: ByteSeq?
+
+    (p2, p3) = try await initial.opByteSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opByteSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opByteSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = ByteSeq(repeating: 56, count: 100)
+    (p2, p3) = try await initial.opByteSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opByteSeq(ByteSeq(repeating: 56, count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opByteSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opByteSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.read(tag: 1) == p1)
+    try test(istr.read(tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testBoolSeq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: [Bool]?
+    var p2: [Bool]?
+    var p3: [Bool]?
+
+    (p2, p3) = try await initial.opBoolSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opBoolSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opBoolSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = [Bool](repeating: true, count: 100)
+    (p2, p3) = try await initial.opBoolSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opBoolSeq([Bool](repeating: true, count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opBoolSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opBoolSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.read(tag: 1) == p1)
+    try test(istr.read(tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testInt16Seq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: [Int16]?
+    var p2: [Int16]?
+    var p3: [Int16]?
+
+    (p2, p3) = try await initial.opShortSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opShortSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opShortSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = [Int16](repeating: 56, count: 100)
+    (p2, p3) = try await initial.opShortSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opShortSeq([Int16](repeating: 56, count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opShortSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opShortSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.read(tag: 1) == p1)
+    try test(istr.read(tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testInt32Seq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: [Int32]?
+    var p2: [Int32]?
+    var p3: [Int32]?
+
+    (p2, p3) = try await initial.opIntSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opIntSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opIntSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = [Int32](repeating: 56, count: 100)
+    (p2, p3) = try await initial.opIntSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opIntSeq([Int32](repeating: 56, count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opIntSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opIntSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.read(tag: 1) == p1)
+    try test(istr.read(tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testInt64Seq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: [Int64]?
+    var p2: [Int64]?
+    var p3: [Int64]?
+
+    (p2, p3) = try await initial.opLongSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opLongSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opLongSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = [Int64](repeating: 56, count: 100)
+    (p2, p3) = try await initial.opLongSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opLongSeq([Int64](repeating: 56, count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opLongSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opLongSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.read(tag: 1) == p1)
+    try test(istr.read(tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+
+}
+
+func testFloatSeq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: [Float]?
+    var p2: [Float]?
+    var p3: [Float]?
+
+    (p2, p3) = try await initial.opFloatSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opFloatSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opFloatSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = [Float](repeating: 1.0, count: 100)
+    (p2, p3) = try await initial.opFloatSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opFloatSeq([Float](repeating: 1.0, count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opFloatSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opFloatSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.read(tag: 1) == p1)
+    try test(istr.read(tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testDoubleSeq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: [Double]?
+    var p2: [Double]?
+    var p3: [Double]?
+
+    (p2, p3) = try await initial.opDoubleSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opDoubleSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opDoubleSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = [Double](repeating: 1.0, count: 100)
+    (p2, p3) = try await initial.opDoubleSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opDoubleSeq([Double](repeating: 1.0, count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opDoubleSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opDoubleSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.read(tag: 1) == p1)
+    try test(istr.read(tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testStringSeq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: [String]?
+    var p2: [String]?
+    var p3: [String]?
+
+    (p2, p3) = try await initial.opStringSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opStringSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opStringSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = [String](repeating: "test", count: 100)
+    (p2, p3) = try await initial.opStringSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opStringSeq([String](repeating: "test", count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opStringSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(operation: "opStringSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(istr.read(tag: 1) == p1)
+    try test(istr.read(tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testSmallStructSeq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: SmallStructSeq?
+    var p2: SmallStructSeq?
+    var p3: SmallStructSeq?
+
+    (p2, p3) = try await initial.opSmallStructSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opSmallStructSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opSmallStructSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = SmallStructSeq(repeating: SmallStruct(), count: 100)
+    (p2, p3) = try await initial.opSmallStructSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opSmallStructSeq(SmallStructSeq(repeating: SmallStruct(), count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opSmallStructSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    SmallStructSeqHelper.write(to: ostr, tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opSmallStructSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(SmallStructSeqHelper.read(from: istr, tag: 1) == p1)
+    try test(SmallStructSeqHelper.read(from: istr, tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testFixedStructSeq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: FixedStructSeq?
+    var p2: FixedStructSeq?
+    var p3: FixedStructSeq?
+
+    (p2, p3) = try await initial.opFixedStructSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opFixedStructSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opFixedStructSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = FixedStructSeq(repeating: FixedStruct(), count: 100)
+    (p2, p3) = try await initial.opFixedStructSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opFixedStructSeq(FixedStructSeq(repeating: FixedStruct(), count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opFixedStructSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    FixedStructSeqHelper.write(to: ostr, tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opFixedStructSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(FixedStructSeqHelper.read(from: istr, tag: 1) == p1)
+    try test(FixedStructSeqHelper.read(from: istr, tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testVarStructSeq(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: VarStructSeq?
+    var p2: VarStructSeq?
+    var p3: VarStructSeq?
+
+    (p2, p3) = try await initial.opVarStructSeq(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opVarStructSeq(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opVarStructSeq()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = VarStructSeq(repeating: VarStruct(), count: 100)
+    (p2, p3) = try await initial.opVarStructSeq(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opVarStructSeq(VarStructSeq(repeating: VarStruct(), count: 100))
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opVarStructSeq(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    VarStructSeqHelper.write(to: ostr, tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opVarStructSeq", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(VarStructSeqHelper.read(from: istr, tag: 1) == p1)
+    try test(VarStructSeqHelper.read(from: istr, tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testInt32Int32Dict(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: [Int32: Int32]?
+    var p2: [Int32: Int32]?
+    var p3: [Int32: Int32]?
+
+    (p2, p3) = try await initial.opIntIntDict(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opIntIntDict(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opIntIntDict()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = [1: 2, 2: 3]
+    (p2, p3) = try await initial.opIntIntDict(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opIntIntDict([1: 2, 2: 3])
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opIntIntDict(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    IntIntDictHelper.write(to: ostr, tag: 2, value: p1)
+    ostr.endEncapsulation()
+    let inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opIntIntDict", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(IntIntDictHelper.read(from: istr, tag: 1) == p1)
+    try test(IntIntDictHelper.read(from: istr, tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+}
+
+func testStringInt32Dict(initial: InitialPrx, helper: TestHelper) async throws {
+    let communicator = helper.communicator()
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+    var p1: [String: Int32]?
+    var p2: [String: Int32]?
+    var p3: [String: Int32]?
+
+    (p2, p3) = try await initial.opStringIntDict(p1)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opStringIntDict(nil)
+    try test(p2 == nil && p3 == nil)
+
+    (p2, p3) = try await initial.opStringIntDict()
+    try test(p2 == nil && p3 == nil)
+
+    p1 = ["1": 1, "2": 2]
+    (p2, p3) = try await initial.opStringIntDict(p1)
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opStringIntDict(["1": 1, "2": 2])
+    try test(p2 == p1 && p3 == p1)
+
+    (p2, p3) = try await initial.opStringIntDict(nil)
+    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+
+    var ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    StringIntDictHelper.write(to: ostr, tag: 2, value: p1)
+    ostr.endEncapsulation()
+    var inEncaps = ostr.finished()
+    let result = try await initial.ice_invoke(
+        operation: "opStringIntDict", mode: .Normal, inEncaps: inEncaps)
+    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try test(StringIntDictHelper.read(from: istr, tag: 1) == p1)
+    try test(StringIntDictHelper.read(from: istr, tag: 3) == p1)
+    try istr.endEncapsulation()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation()
+    try istr.endEncapsulation()
+
+    let f = F()
+    f.fsf = FixedStruct()
+    f.fsf!.m = 56
+    f.fse = f.fsf!
+
+    ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
+    ostr.write(tag: 2, value: f.fse)
+    ostr.endEncapsulation()
+    inEncaps = ostr.finished()
+
+    istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
+    _ = try istr.startEncapsulation()
+    let fs1: FixedStruct? = try istr.read(tag: 2)
+    try istr.endEncapsulation()
+    try test(fs1 != nil && fs1!.m == 56)
 }
