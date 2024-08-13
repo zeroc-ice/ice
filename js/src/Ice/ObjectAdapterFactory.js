@@ -20,18 +20,13 @@ export class ObjectAdapterFactory {
     }
 
     shutdown() {
-        //
-        // Ignore shutdown requests if the object adapter factory has
-        // already been shut down.
-        //
-        if (this._instance === null) {
-            return this._shutdownPromise;
+        // Ignore shutdown requests if the object adapter factory has already been shut down.
+        if (this._instance !== null) {
+            this._instance = null;
+            this._communicator = null;
+            this._adapters.map(adapter => adapter.deactivate());
+            this._shutdownPromise.resolve();
         }
-
-        this._instance = null;
-        this._communicator = null;
-        Promise.all(this._adapters.map(adapter => adapter.deactivate())).then(() => this._shutdownPromise.resolve());
-        return this._shutdownPromise;
     }
 
     waitForShutdown() {

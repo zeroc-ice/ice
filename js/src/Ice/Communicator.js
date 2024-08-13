@@ -27,7 +27,6 @@ export class Communicator {
             return this._instance.objectAdapterFactory().shutdown();
         } catch (ex) {
             Debug.assert(ex instanceof CommunicatorDestroyedException);
-            return Promise.resolve();
         }
     }
 

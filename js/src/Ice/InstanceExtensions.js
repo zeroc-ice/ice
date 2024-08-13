@@ -337,67 +337,74 @@ Instance.prototype.destroy = async function () {
     this._state = StateDestroyInProgress;
     this._destroyPromise = new Promise();
 
-    // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be finished.
-    if (this._objectAdapterFactory) {
-        await this._objectAdapterFactory.shutdown();
-    }
-
-    if (this._outgoingConnectionFactory !== null) {
-        this._outgoingConnectionFactory.destroy();
-    }
-
-    if (this._objectAdapterFactory !== null) {
-        await this._objectAdapterFactory.destroy();
-    }
-
-    if (this._outgoingConnectionFactory !== null) {
-        await this._outgoingConnectionFactory.waitUntilFinished();
-    }
-
-    if (this._retryQueue) {
-        this._retryQueue.destroy();
-    }
-
-    if (this._timer) {
-        this._timer.destroy();
-    }
-
-    if (this._objectFactoryMap !== null) {
-        this._objectFactoryMap.forEach(factory => factory.destroy());
-        this._objectFactoryMap.clear();
-    }
-
-    if (this._routerManager) {
-        this._routerManager.destroy();
-    }
-    if (this._locatorManager) {
-        this._locatorManager.destroy();
-    }
-    if (this._endpointFactoryManager) {
-        this._endpointFactoryManager.destroy();
-    }
-
-    if (this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
-        const unusedProperties = this._initData.properties.getUnusedProperties();
-        if (unusedProperties.length > 0) {
-            const message = [];
-            message.push("The following properties were set but never read:");
-            unusedProperties.forEach(p => message.push("\n    ", p));
-            this._initData.logger.warning(message.join(""));
+    try {
+        // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be finished.
+        if (this._objectAdapterFactory) {
+            this._objectAdapterFactory.shutdown();
         }
+
+        if (this._outgoingConnectionFactory !== null) {
+            this._outgoingConnectionFactory.destroy();
+        }
+
+        if (this._objectAdapterFactory !== null) {
+            await this._objectAdapterFactory.destroy();
+        }
+
+        if (this._outgoingConnectionFactory !== null) {
+            await this._outgoingConnectionFactory.waitUntilFinished();
+        }
+
+        if (this._retryQueue) {
+            this._retryQueue.destroy();
+        }
+
+        if (this._timer) {
+            this._timer.destroy();
+        }
+
+        if (this._objectFactoryMap !== null) {
+            this._objectFactoryMap.forEach(factory => factory.destroy());
+            this._objectFactoryMap.clear();
+        }
+
+        if (this._routerManager) {
+            this._routerManager.destroy();
+        }
+        if (this._locatorManager) {
+            this._locatorManager.destroy();
+        }
+        if (this._endpointFactoryManager) {
+            this._endpointFactoryManager.destroy();
+        }
+
+        if (this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
+            const unusedProperties = this._initData.properties.getUnusedProperties();
+            if (unusedProperties.length > 0) {
+                const message = [];
+                message.push("The following properties were set but never read:");
+                unusedProperties.forEach(p => message.push("\n    ", p));
+                this._initData.logger.warning(message.join(""));
+            }
+        }
+
+        this._objectAdapterFactory = null;
+        this._outgoingConnectionFactory = null;
+        this._retryQueue = null;
+        this._timer = null;
+
+        this._referenceFactory = null;
+        this._routerManager = null;
+        this._locatorManager = null;
+        this._endpointFactoryManager = null;
+
+        this._state = StateDestroyed;
+        this._destroyPromise.resolve();
+    } catch (ex) {
+        this._state = StateDestroyed;
+        this._destroyPromise.reject(ex);
+        throw ex;
     }
-
-    this._objectAdapterFactory = null;
-    this._outgoingConnectionFactory = null;
-    this._retryQueue = null;
-    this._timer = null;
-
-    this._referenceFactory = null;
-    this._routerManager = null;
-    this._locatorManager = null;
-    this._endpointFactoryManager = null;
-
-    this._state = StateDestroyed;
 };
 
 Object.defineProperty(Instance.prototype, "clientConnectionOptions", {

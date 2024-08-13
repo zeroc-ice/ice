@@ -29,6 +29,11 @@ declare module "ice" {
             isSent(): boolean;
 
             /**
+             * Throws the exception if the asynchronous request was rejected with one; otherwise, does nothing.
+             */
+            throwLocalException(): void;
+
+            /**
              * Whether the asynchronous request has been sent synchronously.
              *
              * @returns `true` if the asynchronous request has been sent synchronously, `false` otherwise.

@@ -43,9 +43,7 @@ export class Client extends TestHelper {
             const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             const comm = Ice.initialize(initData);
-            comm.stringToProxy("test:" + this.getTestEndpoint())
-                .ice_ping()
-                .catch((ex) => {});
+            await comm.stringToProxy("test:" + this.getTestEndpoint()).ice_ping();
             await comm.destroy();
         }
         out.writeLine("ok");

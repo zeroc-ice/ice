@@ -18,6 +18,7 @@ export class AsyncResult extends Promise {
         this._is = null;
         this._state = 0;
         this._sentSynchronously = false;
+        this._exception = null;
     }
 
     cancel() {
@@ -30,6 +31,12 @@ export class AsyncResult extends Promise {
 
     isSent() {
         return (this._state & AsyncResult.Sent) > 0;
+    }
+
+    throwLocalException() {
+        if (this._exception !== null) {
+            throw this._exception;
+        }
     }
 
     sentSynchronously() {
@@ -62,6 +69,7 @@ export class AsyncResult extends Promise {
 
     markFinishedEx(ex) {
         Debug.assert((this._state & AsyncResult.Done) === 0);
+        this._exception = ex;
         this._state |= AsyncResult.Done;
         this._cancellationHandler = null;
         this.reject(ex);

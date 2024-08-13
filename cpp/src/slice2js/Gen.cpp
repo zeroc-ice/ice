@@ -2553,7 +2553,7 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
     if ((outParams.size() + (ret ? 1 : 0)) > 1)
     {
         out << ", which resolves to an array with the following entries:";
-        
+
     }
     else if (ret || outParams.size() == 1)
     {
@@ -2721,7 +2721,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "static uncheckedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
          << "facet?: string): " << fixId(p->name() + "Prx") << ";";
-    
+
     _out << sp;
     _out << nl << "/**";
     _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
@@ -3007,7 +3007,7 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << " */";
     _out << nl << "export class " << fixId(p->name() + "Helper");
     _out << sb;
-    
+
     _out << nl << "/**";
     _out << nl << " * Writes the {@link " << name << "} value to the given OutputStream.";
     _out << nl << " *";
