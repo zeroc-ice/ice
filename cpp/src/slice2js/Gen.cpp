@@ -2553,7 +2553,6 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
     if ((outParams.size() + (ret ? 1 : 0)) > 1)
     {
         out << ", which resolves to an array with the following entries:";
-
     }
     else if (ret || outParams.size() == 1)
     {
@@ -3001,7 +3000,7 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 
     _out << sp;
-     _out << nl << "/**";
+    _out << nl << "/**";
     _out << nl << " * Helper class for encoding {@link " << name << "} into an OutputStream and";
     _out << nl << " * decoding {@link " << name << "} from an InputStream.";
     _out << nl << " */";

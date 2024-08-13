@@ -6,9 +6,9 @@ declare module "ice" {
     namespace Ice {
         /**
          * Represents the identity of an Ice object. In a proxy, an empty {@link Identity#name} denotes a null proxy.
-         * An identity with an empty {@link Identity#name} and a non-empty {@link Identity#category} is illegal. 
+         * An identity with an empty {@link Identity#name} and a non-empty {@link Identity#category} is illegal.
          * Additionally, you cannot add a servant with an empty name to the Active Servant Map.
-         * 
+         *
          * @see {@link ServantLocator}
          * @see {@link ObjectAdapter#addServantLocator}
          */

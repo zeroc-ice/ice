@@ -89,7 +89,7 @@ declare module "ice" {
         interface Connection {
             /**
              * Manually closes the connection using the specified closure mode.
-             * 
+             *
              * @param mode - The mode that determines how the connection will be closed.
              * @returns A promise that resolves when the close operation is complete.
              *
@@ -110,16 +110,16 @@ declare module "ice" {
             createProxy(id: Identity): Ice.ObjectPrx;
 
             /**
-             * Explicitly sets an object adapter that dispatches requests received over this connection. A client can 
-             * invoke an operation on a server using a proxy and then set an object adapter for the outgoing connection 
-             * used by the proxy to receive callbacks. This is particularly useful when the server cannot establish a 
+             * Explicitly sets an object adapter that dispatches requests received over this connection. A client can
+             * invoke an operation on a server using a proxy and then set an object adapter for the outgoing connection
+             * used by the proxy to receive callbacks. This is particularly useful when the server cannot establish a
              * connection back to the client, such as in scenarios involving firewalls.
-             * 
+             *
              * @param adapter - The object adapter that should be used by this connection to dispatch requests. The
-             *                  object adapter must be activated. When the object adapter is deactivated, it is 
+             *                  object adapter must be activated. When the object adapter is deactivated, it is
              *                  automatically removed from the connection. Attempts to use a deactivated object adapter
              *                  raise an {@link ObjectAdapterDeactivatedException}.
-             * 
+             *
              * @see {@link createProxy}
              * @see {@link getAdapter}
              */
@@ -149,7 +149,7 @@ declare module "ice" {
             flushBatchRequests(): Promise<void>;
 
             /**
-             * Sets a close callback on the connection. The callback is invoked by the connection when it is closed. 
+             * Sets a close callback on the connection. The callback is invoked by the connection when it is closed.
              * If the callback needs more information about the closure, it can call {@link Connection#throwException}.
              *
              * @param callback - The close callback object.
@@ -158,7 +158,7 @@ declare module "ice" {
 
             /**
              * Returns the connection type, which corresponds to the endpoint type (e.g., "tcp", "udp", etc.).
-             * 
+             *
              * @returns The type of the connection.
              */
             type(): string;
@@ -179,7 +179,7 @@ declare module "ice" {
 
             /**
              * Sets the connection buffer sizes for receiving and sending data.
-             * 
+             *
              * @param rcvSize - The size of the receive buffer in bytes.
              * @param sndSize - The size of the send buffer in bytes.
              */
@@ -200,7 +200,7 @@ declare module "ice" {
         class IPConnectionInfo extends ConnectionInfo {
             /**
              * Constructs a new `IPConnectionInfo` object.
-             * 
+             *
              * @param underlying - The information of the underlying transport, or `null` if there is no underlying transport.
              * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
              * @param adapterName - The name of the adapter associated with the connection.
@@ -248,7 +248,7 @@ declare module "ice" {
         class TCPConnectionInfo extends IPConnectionInfo {
             /**
              * Constructs a new `TCPConnectionInfo` object.
-             * 
+             *
              * @param underlying - The information of the underlying transport, or `null` if there is no underlying
              *                     transport.
              * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
@@ -297,7 +297,7 @@ declare module "ice" {
         class HeaderDictHelper {
             /**
              * Writes the {@link HeaderDict} value to the given `OutputStream`.
-             * 
+             *
              * @param outs - The `OutputStream` to write to.
              * @param value - The `HeaderDict` value to write.
              */
@@ -305,7 +305,7 @@ declare module "ice" {
 
             /**
              * Reads a {@link HeaderDict} value from the given `InputStream`.
-             * 
+             *
              * @param ins - The `InputStream` to read from.
              * @returns The read {@link HeaderDict} value.
              */
@@ -318,7 +318,7 @@ declare module "ice" {
         class WSConnectionInfo extends ConnectionInfo {
             /**
              * Constructs a new `WSConnectionInfo` object.
-             * 
+             *
              * @param underlying - The information of the underlying transport, or `null` if there is no underlying
              *                     transport.
              * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
