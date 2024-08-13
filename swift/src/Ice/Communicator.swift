@@ -184,7 +184,7 @@ public protocol Communicator: AnyObject {
     func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx
 
     /// Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
-    /// activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of
+    /// activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Endpoints is set. The identity of
     /// the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin when
     /// Ice.Admin.InstanceName is not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called
     /// by the communicator initialization, after initialization of all plugins.

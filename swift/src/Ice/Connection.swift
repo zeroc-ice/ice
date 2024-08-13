@@ -82,7 +82,7 @@ public enum ConnectionClose: UInt8 {
 extension InputStream {
     /// Read an enumerated value.
     ///
-    /// - returns: `ConnectionClose` - The enumarated value.
+    /// - returns: `ConnectionClose` - The enumerated value.
     public func read() throws -> ConnectionClose {
         let rawValue: UInt8 = try read(enumMaxValue: 2)
         guard let val = ConnectionClose(rawValue: rawValue) else {

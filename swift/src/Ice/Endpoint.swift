@@ -4,7 +4,7 @@ import Foundation
 
 /// Base class providing access to the endpoint details.
 public protocol EndpointInfo: AnyObject {
-    /// The information of the underyling endpoint or null if there's no underlying endpoint.
+    /// The information of the underlying endpoint or null if there's no underlying endpoint.
     var underlying: EndpointInfo? { get set }
     /// The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
     var timeout: Int32 { get set }
@@ -21,6 +21,7 @@ public protocol EndpointInfo: AnyObject {
     /// - returns: `Bool` - True for a datagram endpoint.
     func datagram() -> Bool
 
+    /// Returns true if this endpoint is a secure endpoint.
     ///
     /// - returns: `Bool` - True for a secure endpoint.
     func secure() -> Bool
