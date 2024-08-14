@@ -128,9 +128,12 @@ endif
 rpath-link-ldflag       = -Wl,-rpath-link,$1
 make-rpath-link-ldflags = $(foreach d,$(filter-out $2,$(call get-all-deps,$1)),$(call rpath-link-ldflag,$($d_targetdir)))
 
-# If building objects for a shared library build, enable PIC or PIE and segregate the objects
-shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC,-fPIE) -fvisibility=hidden
-shared_objdir   = $(if $(filter-out program,$($1_target)),shared/pic,shared/pie)
+# If building objects for a shared library build, add -fPIC or -fPIE.
+# gcc in most Linux distribution is configued with --enable-default-pie, which is equivalent to auto-adding -fPIE -pie:
+# https://gcc.gnu.org/install/configure.html
+# We pass these options explicitly in case the gcc we use is not configured with --enable-default-pie.
+shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC,-fPIE)
+shared_objdir   = $(if $(filter-out program,$($1_target)),obj/pic,obj/pie)
 
 # If we are linking a program, add -rpath-link to locate secondary libraries that aren't linked with the executable.
 shared_ldflags      = $(if $(filter-out program,$($1_target)),\
@@ -138,7 +141,13 @@ shared_ldflags      = $(if $(filter-out program,$($1_target)),\
         -pie $(if $(filter yes,$(new_dtags)),-Wl$(comma)--enable-new-dtags,-Wl$(comma)--disable-new-dtags) \
         $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
 
-cppflags        = -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
+# We use the same obj/pie directory as the shared build since all the flags are the same.
+static_cppflags = -fPIE
+static_objdir   = obj/pie
+static_ldflags  = -pie
+
+cppflags        = -fvisibility=hidden -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread \
+                  $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
 ldflags         = -pthread
 
 gcc_version = $(shell $(CXX) -dumpversion 2>&1 | cut -f1 -d\.)
