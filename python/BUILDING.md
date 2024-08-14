@@ -36,7 +36,7 @@ python3 -m build
 After running these commands, the build module will generate both the source distribution (.tar.gz) and the wheel
 distribution (.whl) in the dist directory.
 
-Exit the virtual enviroment
+Exit the virtual environment
 
 ```shell
 deactivate
@@ -50,7 +50,7 @@ First create a new Python virtual environment to install the Python build packag
 
 ```shell
 python -m venv .venv
-.venv/Scripts/activate.bat
+.venv\Scripts\activate.bat
 ```
 
 Install the Python build package
@@ -68,7 +68,7 @@ python -m build
 After running these commands, the build module will generate both the source distribution (.tar.gz) and the wheel
 distribution (.whl) in the dist directory.
 
-Exit the virtual enviroment
+Exit the virtual environment
 
 ```shell
 deactivate
