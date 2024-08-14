@@ -25,7 +25,7 @@ class ServantManager: Dispatcher {
                 if m[facet] != nil {
                     var id = communicator.identityToString(ident)
                     if !facet.isEmpty {
-                        id += " - f \(facet)"
+                        id += " -f \(facet)"
                     }
                     throw AlreadyRegisteredException(kindOfObject: "servant", id: id)
                 }
@@ -52,7 +52,7 @@ class ServantManager: Dispatcher {
             guard var m = servantMapMap[ident], let obj = m.removeValue(forKey: facet) else {
                 var id = communicator.identityToString(ident)
                 if !facet.isEmpty {
-                    id += " - f \(facet)"
+                    id += " -f \(facet)"
                 }
                 throw NotRegisteredException(kindOfObject: "servant", id: id)
             }
