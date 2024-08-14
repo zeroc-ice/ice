@@ -26,18 +26,6 @@ func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
     return (major, minor)
 }
 
-func escapeString(string: String, special: String, communicator: Communicator) throws -> String {
-    guard factoriesRegistered else {
-        fatalError("Unable to initialize Ice")
-    }
-    return try autoreleasepool {
-        try ICEUtil.escapeString(
-            string: string,
-            special: special,
-            communicator: (communicator as! CommunicatorI).handle)
-    }
-}
-
 func checkSupportedEncoding(_ v: EncodingVersion) throws {
     let c = currentEncoding
     if v.major != c.major || v.minor > c.minor {

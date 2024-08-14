@@ -361,11 +361,8 @@ public class InputStream {
             return
         }
 
-        ICETraceUtil.traceSlicing(
-            kind: sliceType == SliceType.ExceptionSlice ? "exception" : "object",
-            typeId: typeId,
-            slicingCat: "Slicing",
-            logger: LoggerWrapper(handle: communicator.getLogger()))
+        let kind = sliceType == SliceType.ExceptionSlice ? "exception" : "object"
+        communicator.getLogger().trace(category: "Slicing", message: "unknown \(kind) type '\(typeId)'")
     }
 
     static func throwUOE(expectedType: Value.Type, v: Value) throws {
