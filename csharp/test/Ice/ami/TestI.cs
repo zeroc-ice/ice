@@ -77,10 +77,26 @@ namespace Ice
                 }
             }
 
-            override public void
-            close(Test.CloseMode mode, Ice.Current current)
+            public override void close(Test.CloseMode mode, Ice.Current current)
             {
-                current.con.close((Ice.ConnectionClose)((int)mode));
+                switch (mode)
+                {
+                    case Test.CloseMode.Forcefully:
+                        abortConnection(current);
+                        break;
+                    default:
+                        closeConnection(current);
+                        break;
+                }
+            }
+
+            public void abortConnection(Ice.Current current) => current.con.abort();
+
+            public void closeConnection(Ice.Current current)
+            {
+                // We can't wait for the connection to be closed - it would self-deadlock. So we just initiate the
+                // closure.
+                _ = current.con.closeAsync();
             }
 
             override public void

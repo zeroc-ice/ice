@@ -129,7 +129,7 @@ namespace Ice
                         test(test2.ice_getConnection() == test3.ice_getConnection());
 
                         names.Remove(test1.getAdapterName());
-                        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        await test1.ice_getConnection().closeAsync();
                     }
 
                     //
@@ -151,7 +151,7 @@ namespace Ice
 
                         foreach (var adpt in adapters)
                         {
-                            adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            await adpt.getTestIntf().ice_getConnection().closeAsync();
                         }
                     }
 
@@ -176,7 +176,7 @@ namespace Ice
                         test(test2.ice_getConnection() == test3.ice_getConnection());
 
                         names.Remove(test1.getAdapterName());
-                        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        await test1.ice_getConnection().closeAsync();
                     }
 
                     //
@@ -260,7 +260,7 @@ namespace Ice
                         {
                             try
                             {
-                                a.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                                await a.getTestIntf().ice_getConnection().closeAsync();
                             }
                             catch (LocalException)
                             {
@@ -301,7 +301,7 @@ namespace Ice
                         test(test2.ice_getConnection() == test3.ice_getConnection());
 
                         names.Remove(await test1.getAdapterNameAsync());
-                        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        await test1.ice_getConnection().closeAsync();
                     }
 
                     //
@@ -323,7 +323,7 @@ namespace Ice
 
                         foreach (var adpt in adapters)
                         {
-                            adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            await adpt.getTestIntf().ice_getConnection().closeAsync();
                         }
                     }
 
@@ -348,7 +348,7 @@ namespace Ice
                         test(test2.ice_getConnection() == test3.ice_getConnection());
 
                         names.Remove(await test1.getAdapterNameAsync());
-                        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        await test1.ice_getConnection().closeAsync();
                     }
 
                     //
@@ -381,7 +381,7 @@ namespace Ice
                     while (names.Count > 0)
                     {
                         names.Remove(obj.getAdapterName());
-                        obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        await obj.ice_getConnection().closeAsync();
                     }
 
                     obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Random));
@@ -393,7 +393,7 @@ namespace Ice
                     while (names.Count > 0)
                     {
                         names.Remove(obj.getAdapterName());
-                        obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        await obj.ice_getConnection().closeAsync();
                     }
 
                     deactivate(com, adapters);
@@ -450,11 +450,11 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString()));
                     for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter36"; i++) ;
                     test(i == nRetry);
-                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    await obj.ice_getConnection().closeAsync();
                     adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString()));
                     for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter35"; i++) ;
                     test(i == nRetry);
-                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    await obj.ice_getConnection().closeAsync();
                     adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString()));
                     for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter34"; i++) ;
                     test(i == nRetry);
@@ -729,7 +729,7 @@ namespace Ice
                         for (i = 0; i < 5; i++)
                         {
                             test(obj.getAdapterName() == "Adapter82");
-                            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            await obj.ice_getConnection().closeAsync();
                         }
 
                         var testSecure = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
@@ -745,7 +745,7 @@ namespace Ice
                         for (i = 0; i < 5; i++)
                         {
                             test(obj.getAdapterName() == "Adapter81");
-                            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            await obj.ice_getConnection().closeAsync();
                         }
 
                         com.createObjectAdapter("Adapter83", (obj.ice_getEndpoints()[1]).ToString()); // Reactive tcp OA.
@@ -753,7 +753,7 @@ namespace Ice
                         for (i = 0; i < 5; i++)
                         {
                             test(obj.getAdapterName() == "Adapter83");
-                            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            await obj.ice_getConnection().closeAsync();
                         }
 
                         com.deactivateObjectAdapter(adapters[0]);

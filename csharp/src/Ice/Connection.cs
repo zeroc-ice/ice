@@ -2,6 +2,8 @@
 
 #nullable enable
 
+using Ice.Internal;
+
 namespace Ice
 {
     /// <summary>
@@ -50,39 +52,20 @@ namespace Ice
 
     public delegate void CloseCallback(Connection con);
 
-    /// <summary>
-    /// Determines the behavior when manually closing a connection.
-    /// </summary>
-    public enum ConnectionClose
-    {
-        /// <summary>
-        /// Close the connection immediately without sending a close connection protocol message to the peer and waiting
-        ///  for the peer to acknowledge it.
-        /// </summary>
-
-        Forcefully,
-        /// <summary>
-        /// Close the connection by notifying the peer but do not wait for pending outgoing invocations to complete.
-        /// On the
-        ///  server side, the connection will not be closed until all incoming invocations have completed.
-        /// </summary>
-
-        Gracefully,
-        /// <summary>
-        /// Wait for all pending invocations to complete before closing the connection.
-        /// </summary>
-
-        GracefullyWithWait
-    }
-
     public interface Connection
     {
         /// <summary>
-        /// Manually close the connection using the specified closure mode.
+        /// Closes the connection forcefully without waiting for any other operation to complete.
         /// </summary>
-        /// <param name="mode">Determines how the connection will be closed.
-        ///  </param>
-        void close(ConnectionClose mode);
+        void abort();
+
+        /// <summary>
+        /// Closes the connection gracefully.
+        /// </summary>
+        /// <param name="waitForInvocations">If true, this operation waits for all pending invocations to complete
+        /// before closing the connection.</param>
+        /// <returns>A task that completes when the connection is closed.</returns>
+        Task closeAsync(bool waitForInvocations = true);
 
         /// <summary>
         /// Create a special proxy that always uses this connection.

@@ -147,7 +147,7 @@ public class AllTests : global::Test.AllTests
         {
             var connection = connect(timeout);
             controller.holdAdapter(-1);
-            connection.close(ConnectionClose.GracefullyWithWait);
+            _ = connection.closeAsync(waitForInvocations: false); // initiate closure
             try
             {
                 connection.getInfo(); // getInfo() doesn't throw in the closing state.

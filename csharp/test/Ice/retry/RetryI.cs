@@ -18,7 +18,7 @@ namespace Ice
                 {
                     if (current.con != null)
                     {
-                        current.con.close(Ice.ConnectionClose.Forcefully);
+                        current.con.abort();
                     }
                     else
                     {

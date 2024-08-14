@@ -32,8 +32,8 @@ public sealed class MetricsI : MetricsDisp_
 
     override public Task failAsync(Ice.Current current)
     {
-        current.con.close(Ice.ConnectionClose.Forcefully);
-        return null;
+        current.con.abort();
+        return Task.CompletedTask;
     }
 
     override public Task opWithUserExceptionAsync(Ice.Current current)

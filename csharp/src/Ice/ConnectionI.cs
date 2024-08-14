@@ -155,44 +155,62 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public void close(ConnectionClose mode)
+    public void abort()
     {
         lock (this)
         {
-            if (mode == ConnectionClose.Forcefully)
-            {
-                setState(StateClosed,
-                    new ConnectionAbortedException(
-                        "The connection was aborted by the application.",
-                        closedByApplication: true));
-            }
-            else if (mode == ConnectionClose.Gracefully)
-            {
-                setState(
-                    StateClosing,
-                    new ConnectionClosedException(
-                        "The connection was closed gracefully by the application.",
-                        closedByApplication: true));
-            }
-            else
-            {
-                Debug.Assert(mode == ConnectionClose.GracefullyWithWait);
+            setState(
+                StateClosed,
+                new ConnectionAbortedException(
+                    "The connection was aborted by the application.",
+                    closedByApplication: true));
+        }
+    }
 
-                //
-                // Wait until all outstanding requests have been completed.
-                //
-                while (_asyncRequests.Count != 0)
+    public async Task closeAsync(bool waitForInvocations)
+    {
+        while (true)
+        {
+            Task asyncRequestsCompletedTask = null;
+
+            lock (this)
+            {
+                // We don't wait for outstanding two-way invocations if the connection is already closed. The closing
+                // aborts these these invocations anyway.
+                if (_state >= StateClosing)
                 {
-                    Monitor.Wait(this);
+                    break; // exit the forever loop
                 }
 
-                setState(
-                    StateClosing,
-                    new ConnectionClosedException(
-                        "The connection was closed gracefully by the application.",
-                        closedByApplication: true));
+                if (!waitForInvocations || _asyncRequests.Count == 0)
+                {
+                    setState(
+                        StateClosing,
+                        new ConnectionClosedException(
+                            "The connection was closed gracefully by the application.",
+                            closedByApplication: true));
+                    break; // exit the forever loop
+                }
+                else
+                {
+                    Debug.Assert(waitForInvocations && _asyncRequests.Count > 0);
+                    if (_asyncRequestsCompleted is null || _asyncRequestsCompleted.Task.IsCompleted)
+                    {
+                        // Create or recreate the task completion source within lock
+                        _asyncRequestsCompleted = new TaskCompletionSource();
+                    }
+                    // else, reuse existing (shared) task completion source
+
+                    asyncRequestsCompletedTask = _asyncRequestsCompleted.Task;
+                }
             }
+
+            // Since we (must) await outside the lock, it's possible that a new invocation will get through before we
+            // re-acquire the lock. This is fine, as we'll just loop around again.
+            await asyncRequestsCompletedTask.ConfigureAwait(false);
         }
+
+        await _closed.Task.ConfigureAwait(false);
     }
 
     internal bool isActiveOrHolding()
@@ -1265,6 +1283,19 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _writeStream.getBuffer().clear();
         _readStream.clear();
         _readStream.getBuffer().clear();
+
+        if (_exception is ConnectionClosedException or
+            CloseConnectionException or
+            CommunicatorDestroyedException or
+            ObjectAdapterDeactivatedException)
+        {
+            _closed.SetResult();
+        }
+        else
+        {
+            Debug.Assert(_exception is not null);
+            _closed.SetException(_exception);
+        }
 
         if (_closeCallback is not null)
         {
@@ -2374,7 +2405,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         {
                             info.outAsync = null;
                         }
-                        Monitor.PulseAll(this); // Notify threads blocked in close()
+                        if (_asyncRequests.Count == 0 && _asyncRequestsCompleted is TaskCompletionSource tcs)
+                        {
+                            // Notify closeAsync that all two-way invocations have completed.
+                            tcs.SetResult();
+                        }
                     }
                     break;
                 }
@@ -2867,6 +2902,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
 
+    // when not-null, closeAsync is waiting for _asyncRequests to be empty; _asyncRequestsCompleted is never completed
+    // with an exception.
+    private TaskCompletionSource _asyncRequestsCompleted;
+
     private LocalException _exception;
 
     private readonly int _messageSizeMax;
@@ -2906,6 +2945,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private ConnectionInfo _info;
 
     private CloseCallback _closeCallback;
+    private readonly TaskCompletionSource _closed = new(); // can run synchronously
 
     private static ConnectionState[] connectionStateMap = [
         ConnectionState.ConnectionStateValidating,   // StateNotInitialized
