@@ -1620,16 +1620,6 @@ Slice::Container::createEnum(const string& name, NodeType nt)
     return p;
 }
 
-EnumeratorPtr
-Slice::Container::createEnumerator(const string& name, optional<int> value)
-{
-    validateEnumerator(name);
-    EnumeratorPtr p = make_shared<Enumerator>(dynamic_pointer_cast<Container>(shared_from_this()), name, value);
-    p->init();
-    _contents.push_back(p);
-    return p;
-}
-
 ConstPtr
 Slice::Container::createConst(
     const string name,
@@ -2502,30 +2492,6 @@ Slice::Container::validateConstant(
     }
 
     return true;
-}
-
-void
-Slice::Container::validateEnumerator(const string& name)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
-    {
-        EnumeratorPtr p = dynamic_pointer_cast<Enumerator>(matches.front());
-        if (matches.front()->name() == name)
-        {
-            ostringstream os;
-            os << "redefinition of enumerator `" << name << "'";
-            _unit->error(os.str());
-        }
-        else
-        {
-            ostringstream os;
-            os << "enumerator `" << name << "' differs only in capitalization from `" << matches.front()->name() << "'";
-            _unit->error(os.str());
-        }
-    }
-
-    checkIdentifier(name); // Ignore return value.
 }
 
 // ----------------------------------------------------------------------
@@ -4075,6 +4041,84 @@ Slice::Enum::destroy()
     SyntaxTreeBase::destroy();
 }
 
+EnumeratorPtr
+Slice::Enum::createEnumerator(const string& name, optional<int> value)
+{
+    // Validate the enumerator's name.
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if (!matches.empty())
+    {
+        EnumeratorPtr p = dynamic_pointer_cast<Enumerator>(matches.front());
+        if (matches.front()->name() == name)
+        {
+            ostringstream os;
+            os << "redefinition of enumerator `" << name << "'";
+            _unit->error(os.str());
+        }
+        else
+        {
+            ostringstream os;
+            os << "enumerator `" << name << "' differs only in capitalization from `" << matches.front()->name() << "'";
+            _unit->error(os.str());
+        }
+    }
+    checkIdentifier(name); // Ignore return value.
+
+    // Determine the enumerator's value, and check that it's valid.
+    int nextValue;
+    if (value)
+    {
+        // If an explicit value was provided, the parser already checks that it's between `0` and `int32_t::max`.
+        _hasExplicitValues = true;
+        nextValue = *value;
+    }
+    else
+    {
+        if (_lastValue == numeric_limits<int32_t>::max())
+        {
+            ostringstream os;
+            os << "value for enumerator `" << name << "' is out of range";
+            _unit->error(os.str());
+        }
+        // If the enumerator was not assigned an explicit value,
+        // we automatically assign it one more than the previous enumerator.
+        nextValue = _lastValue + 1;
+    }
+
+    // Check if the enumerator's value is already in use.
+    bool checkForDuplicates = true;
+    if (nextValue > _maxValue)
+    {
+        _maxValue = nextValue;
+        checkForDuplicates = false;
+    }
+    if (nextValue < _minValue)
+    {
+        _minValue = nextValue;
+        checkForDuplicates = false;
+    }
+    if (checkForDuplicates)
+    {
+        for (const auto& r : enumerators())
+        {
+            if (r->value() == nextValue)
+            {
+                ostringstream os;
+                os << "enumerator `" << name << "' has the same value as enumerator `" << r->name() << "'";
+                _unit->error(os.str());
+            }
+        }
+    }
+
+    // Create the enumerator.
+    ContainerPtr cont = dynamic_pointer_cast<Container>(shared_from_this());
+    EnumeratorPtr p = make_shared<Enumerator>(cont, name, nextValue, value.has_value());
+    p->init();
+    _contents.push_back(p);
+    _lastValue = nextValue;
+    return p;
+}
+
 bool
 Slice::Enum::hasExplicitValues() const
 {
@@ -4136,67 +4180,6 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name)
 {
 }
 
-int
-Slice::Enum::newEnumerator(const EnumeratorPtr& p)
-{
-    if (p->hasExplicitValue())
-    {
-        _hasExplicitValues = true;
-        _lastValue = p->value();
-
-        if (_lastValue < 0)
-        {
-            ostringstream os;
-            os << "value for enumerator `" << p->name() << "' is out of range";
-            _unit->error(os.str());
-        }
-    }
-    else
-    {
-        if (_lastValue == numeric_limits<int32_t>::max())
-        {
-            ostringstream os;
-            os << "value for enumerator `" << p->name() << "' is out of range";
-            _unit->error(os.str());
-        }
-        else
-        {
-            //
-            // If the enumerator was not assigned an explicit value, we automatically assign
-            // it one more than the previous enumerator.
-            //
-            ++_lastValue;
-        }
-    }
-
-    bool checkForDuplicates = true;
-    if (_lastValue > _maxValue)
-    {
-        _maxValue = _lastValue;
-        checkForDuplicates = false;
-    }
-    if (_lastValue < _minValue)
-    {
-        _minValue = _lastValue;
-        checkForDuplicates = false;
-    }
-
-    if (checkForDuplicates)
-    {
-        for (const auto& r : enumerators())
-        {
-            if (r != p && r->value() == _lastValue)
-            {
-                ostringstream os;
-                os << "enumerator `" << p->name() << "' has the same value as enumerator `" << r->name() << "'";
-                _unit->error(os.str());
-            }
-        }
-    }
-
-    return _lastValue;
-}
-
 // ----------------------------------------------------------------------
 // Enumerator
 // ----------------------------------------------------------------------
@@ -4225,24 +4208,12 @@ Slice::Enumerator::value() const
     return _value;
 }
 
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, optional<int> value)
+Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value, bool hasExplicitValue)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
-      _hasExplicitValue(value)
+      _hasExplicitValue(hasExplicitValue),
+      _value(value)
 {
-    _value = value ? value.value() : -1;
-}
-
-void
-Slice::Enumerator::init()
-{
-    int value =
-        dynamic_pointer_cast<Enum>(_container)->newEnumerator(dynamic_pointer_cast<Enumerator>(shared_from_this()));
-    if (_value == -1)
-    {
-        _value = value;
-    }
-    Contained::init();
 }
 
 // ----------------------------------------------------------------------

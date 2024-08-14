@@ -444,7 +444,6 @@ namespace Slice
             const StringList&,
             NodeType = Real);
         EnumPtr createEnum(const std::string&, NodeType = Real);
-        EnumeratorPtr createEnumerator(const std::string&, std::optional<int>);
         ConstPtr createConst(
             const std::string,
             const TypePtr&,
@@ -499,7 +498,6 @@ namespace Slice
 
     protected:
         bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
-        void validateEnumerator(const std::string&);
 
         ContainedList _contents;
         std::map<std::string, ContainedPtr, CICompare> _introducedMap;
@@ -868,6 +866,7 @@ namespace Slice
     public:
         Enum(const ContainerPtr&, const std::string&);
         void destroy() final;
+        EnumeratorPtr createEnumerator(const std::string&, std::optional<int>);
         bool hasExplicitValues() const;
         int minValue() const;
         int maxValue() const;
@@ -878,8 +877,6 @@ namespace Slice
         void visit(ParserVisitor*, bool) final;
 
     protected:
-        int newEnumerator(const EnumeratorPtr&);
-
         friend class Container;
         friend class Enumerator;
 
@@ -896,8 +893,7 @@ namespace Slice
     class Enumerator final : public virtual Contained
     {
     public:
-        Enumerator(const ContainerPtr&, const std::string&, std::optional<int>);
-        void init() final;
+        Enumerator(const ContainerPtr&, const std::string&, int, bool);
         EnumPtr type() const;
         std::string kindOf() const final;
 
