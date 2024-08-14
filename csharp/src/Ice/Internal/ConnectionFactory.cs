@@ -866,7 +866,7 @@ public sealed class OutgoingConnectionFactory
         {
             foreach (ConnectorInfo ci in connectors)
             {
-                while (_connectors.Remove(ci)) ; // Remove all of them.
+                while (_connectors.Remove(ci)); // Remove all of them.
             }
             return _connectors.Count == 0;
         }
