@@ -1548,7 +1548,7 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& unit)
     static const string attributePrefix = "cs:attribute:";
 
     bool sep = false;
-    for (const auto metadata : dc->getMetaData())
+    for (const auto& metadata : dc->getMetaData())
     {
         string::size_type pos = metadata.find(attributePrefix);
         if (pos == 0 && metadata.size() > attributePrefix.size())
