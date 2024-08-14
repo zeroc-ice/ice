@@ -2120,20 +2120,20 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
 }
 
 bool
-Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& unit)
 {
-    _module = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
-    _filename = p->topLevelFile();
+    _module = getJavaScriptModule(unit->findDefinitionContext(unit->topLevelFile()));
+    _filename = unit->topLevelFile();
     if (_module != "ice")
     {
         _importedModules.insert("ice");
     }
-    StringList includes = p->includeFiles();
+    StringList includes = unit->includeFiles();
     // Iterate all the included files and generate an import statement for each top-level module in the included file.
     for (const auto& included : includes)
     {
         // The JavaScript module corresponding to the "js:module:" metadata in the included file.
-        string jsImportedModule = getJavaScriptModule(p->findDefinitionContext(included));
+        string jsImportedModule = getJavaScriptModule(unit->findDefinitionContext(included));
 
         if (_module != jsImportedModule)
         {
@@ -2454,9 +2454,9 @@ Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
 }
 
 bool
-Slice::Gen::TypeScriptVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::TypeScriptVisitor::visitUnitStart(const UnitPtr& unit)
 {
-    _module = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
+    _module = getJavaScriptModule(unit->findDefinitionContext(unit->topLevelFile()));
     _iceImportPrefix = _module == "ice" ? "" : "__module_ice.";
     if (!_module.empty())
     {

@@ -231,7 +231,6 @@ compile(const vector<string>& argv)
                     depend ? Preprocessor::CPlusPlus : Preprocessor::SliceXML,
                     includePaths,
                     "-D__SLICE2CPP__",
-                    sourceExtension,
                     ext))
             {
                 return EXIT_FAILURE;

@@ -1540,26 +1540,25 @@ Slice::Gen::printHeader()
 Slice::Gen::UnitVisitor::UnitVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
-Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& unit)
 {
-    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+    DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
     assert(dc);
-    StringList globalMetaData = dc->getMetaData();
 
     static const string attributePrefix = "cs:attribute:";
 
     bool sep = false;
-    for (StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+    for (const auto metadata : dc->getMetaData())
     {
-        string::size_type pos = q->find(attributePrefix);
-        if (pos == 0 && q->size() > attributePrefix.size())
+        string::size_type pos = metadata.find(attributePrefix);
+        if (pos == 0 && metadata.size() > attributePrefix.size())
         {
             if (!sep)
             {
                 _out << sp;
                 sep = true;
             }
-            string attrib = q->substr(pos + attributePrefix.size());
+            string attrib = metadata.substr(pos + attributePrefix.size());
             _out << nl << '[' << attrib << ']';
         }
     }

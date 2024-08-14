@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef PREPROCESSOR_H
 #define PREPROCESSOR_H
@@ -17,13 +15,15 @@ namespace Slice
     class Preprocessor final
     {
     public:
-        static PreprocessorPtr create(const std::string&, const std::string&, const std::vector<std::string>&);
+        static PreprocessorPtr create(
+            const std::string& path,
+            const std::string& fileName,
+            const std::vector<std::string>& args);
 
-        Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
+        Preprocessor(const std::string& path, const std::string& fileName, const std::vector<std::string>& args);
         ~Preprocessor();
 
-        FILE* preprocess(bool, const std::string& = "");
-        FILE* preprocess(bool, const std::vector<std::string>&);
+        FILE* preprocess(bool keepComments, const std::string& languageArg = "");
         bool close();
 
         enum Language
@@ -43,25 +43,16 @@ namespace Slice
         };
 
         bool printMakefileDependencies(
-            std::ostream&,
-            Language,
-            const std::vector<std::string>&,
-            const std::string& = "",
-            const std::string& = "cpp",
-            const std::string& = "");
-        bool printMakefileDependencies(
-            std::ostream&,
-            Language,
-            const std::vector<std::string>&,
-            const std::vector<std::string>&,
-            const std::string& = "cpp",
-            const std::string& = "");
+            std::ostream& out,
+            Language lang,
+            const std::vector<std::string>& includePaths,
+            const std::string& languageArg = "",
+            const std::string& optValue = "");
 
         std::string getFileName();
         std::string getBaseName();
 
-        static std::string addQuotes(const std::string&);
-        static std::string normalizeIncludePath(const std::string&);
+        static std::string normalizeIncludePath(const std::string& path);
 
     private:
         bool checkInputFile();

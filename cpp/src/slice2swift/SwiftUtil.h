@@ -170,7 +170,7 @@ namespace Slice
                 const SyntaxTreeBasePtr&,
                 const StringList&,
                 const std::string&,
-                const std::string&,
+                int,
                 bool local = false,
                 bool operationParameter = false);
 

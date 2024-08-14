@@ -2504,10 +2504,9 @@ bool
 SwiftGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
-    DataMemberList members = p->dataMembers();
-    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (auto& member : p->dataMembers())
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
+        member->setMetaData(validate(member->type(), member->getMetaData(), p->file(), member->line()));
     }
     return true;
 }
@@ -2628,7 +2627,7 @@ SwiftGenerator::MetaDataVisitor::validate(
     const SyntaxTreeBasePtr& cont,
     const StringList& metaData,
     const string& file,
-    const string& line,
+    int line,
     bool local,
     bool operationParameter)
 {

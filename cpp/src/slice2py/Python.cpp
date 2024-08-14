@@ -577,7 +577,6 @@ Slice::Python::compile(const vector<string>& argv)
                     depend ? Preprocessor::Python : Preprocessor::SliceXML,
                     includePaths,
                     "-D__SLICE2PY__",
-                    "",
                     prefix))
             {
                 return EXIT_FAILURE;

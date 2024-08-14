@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Preprocessor.h"
 #include "../Ice/ConsoleUtil.h"
@@ -81,16 +79,6 @@ Slice::Preprocessor::getBaseName()
 }
 
 string
-Slice::Preprocessor::addQuotes(const string& arg)
-{
-    //
-    // Add quotes around the given argument to ensure that arguments
-    // with spaces will be preserved as a single argument
-    //
-    return "\"" + escapeString(arg, "", Ice::ToStringMode::Unicode) + "\"";
-}
-
-string
 Slice::Preprocessor::normalizeIncludePath(const string& path)
 {
     string result = path;
@@ -140,7 +128,7 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
 namespace
 {
     vector<string>
-    baseArgs(vector<string> args, bool keepComments, const vector<string>& extraArgs, const string& fileName)
+    baseArgs(vector<string> args, bool keepComments, const string& languageArg, const string& fileName)
     {
         if (keepComments)
         {
@@ -161,25 +149,14 @@ namespace
             args.push_back(os.str());
         }
 
-        copy(extraArgs.begin(), extraArgs.end(), back_inserter(args));
+        args.push_back(languageArg);
         args.push_back(fileName);
         return args;
     }
 }
 
 FILE*
-Slice::Preprocessor::preprocess(bool keepComments, const string& extraArg)
-{
-    vector<string> args;
-    if (!extraArg.empty())
-    {
-        args.push_back(extraArg);
-    }
-    return preprocess(keepComments, args);
-}
-
-FILE*
-Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraArgs)
+Slice::Preprocessor::preprocess(bool keepComments, const string& languageArg)
 {
     if (!checkInputFile())
     {
@@ -189,7 +166,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
     //
     // Build arguments list.
     //
-    vector<string> args = baseArgs(_args, keepComments, extraArgs, _fileName);
+    vector<string> args = baseArgs(_args, keepComments, languageArg, _fileName);
     const char** argv = new const char*[args.size() + 1];
     argv[0] = "mcpp";
     for (unsigned int i = 0; i < args.size(); ++i)
@@ -294,22 +271,7 @@ Slice::Preprocessor::printMakefileDependencies(
     ostream& out,
     Language lang,
     const vector<string>& includePaths,
-    const string& extraArg,
-    const string& cppSourceExt,
-    const string& optValue)
-{
-    vector<string> extraArgs;
-    extraArgs.push_back(extraArg);
-    return printMakefileDependencies(out, lang, includePaths, extraArgs, cppSourceExt, optValue);
-}
-
-bool
-Slice::Preprocessor::printMakefileDependencies(
-    ostream& out,
-    Language lang,
-    const vector<string>& includePaths,
-    const vector<string>& extraArgs,
-    const string& /*cppSourceExt*/,
+    const string& languageArg,
     const string& optValue)
 {
     if (!checkInputFile())
@@ -327,13 +289,17 @@ Slice::Preprocessor::printMakefileDependencies(
     {
         pyPrefix = optValue;
     }
+    else
+    {
+        assert(optValue.empty());
+    }
 
     //
     // Build arguments list.
     //
     vector<string> args = _args;
     args.push_back("-M");
-    args = baseArgs(args, false, extraArgs, _fileName);
+    args = baseArgs(args, false, languageArg, _fileName);
 
     const char** argv = new const char*[args.size() + 1];
     for (unsigned int i = 0; i < args.size(); ++i)
