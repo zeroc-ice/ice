@@ -3,13 +3,46 @@
 This document describes how to build and install Ice for Python from source.
 You can also download and install a [binary distribution].
 
-* [Building Python Packages with build](#building-python-packages-with-build)
+* [Building Python Packages with build on Linux or macOS](#building-python-packages-with-build-on-linux-or-macos)
+* [Building Python Packages with build on Windows](#building-python-packages-with-build-on-windows)
 * [Building with Visual Studio 2022 and MSBuild (Python 3\.12 for Windows)](#building-with-visual-studio-2022-and-msbuild-python-312-for-windows)
 * [Building on Linux or macOS](#building-on-linux-or-macos)
 * [Configuring your Environment for Python](#configuring-your-environment-for-python)
 * [Running the Python Tests](#running-the-python-tests)
 
-## Building Python Packages with build
+## Building Python Packages with build on Linux or macOS
+
+You can build the Ice for Python extension using [build]. Follow these steps:
+
+First create a new Python virtual environment to install the Python build package, and activate it
+
+```shell
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Install the Python build package
+
+```shell
+python3 -m pip install build
+```
+
+Build the extension
+
+```shell
+python3 -m build
+```
+
+After running these commands, the build module will generate both the source distribution (.tar.gz) and the wheel
+distribution (.whl) in the dist directory.
+
+Exit the virtual enviroment
+
+```shell
+deactivate
+```
+
+## Building Python Packages with build on Windows
 
 You can build the Ice for Python extension using [build]. Follow these steps:
 
@@ -17,7 +50,7 @@ First create a new Python virtual environment to install the Python build packag
 
 ```shell
 python -m venv .venv
-source .venv/bin/activate
+.venv/Scripts/activate.bat
 ```
 
 Install the Python build package
