@@ -324,7 +324,7 @@ dotnet_diagnostic.SA1106.severity = none
 # SA1009: Closing parenthesis should not be preceded by a space
 dotnet_diagnostic.SA1009.severity = none
 
-# SA1503: Braces should not be omitted 
+# SA1503: Braces should not be omitted
 dotnet_diagnostic.SA1503.severity = none
 
 # SA1131: Constant values should appear on the right-hand side of comparisons
@@ -342,7 +342,7 @@ dotnet_diagnostic.SA1314.severity = none
 # SA1408: Conditional expressions should declare precedence
 dotnet_diagnostic.SA1408.severity = none
 
-# SA1025: Code should not contain multiple whitespace characters in a row 
+# SA1025: Code should not contain multiple whitespace characters in a row
 dotnet_diagnostic.SA1025.severity = none
 
 # SA1121: Use built-in type alias
