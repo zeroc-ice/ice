@@ -5,7 +5,6 @@
 import { ObjectPrx } from "./ObjectPrx.js";
 
 import { ArrayUtil } from "./ArrayUtil.js";
-import { AsyncResultBase } from "./AsyncResultBase.js";
 import { OutgoingAsync, ProxyFlushBatch, ProxyGetConnection } from "./OutgoingAsync.js";
 import { ReferenceMode } from "./ReferenceMode.js";
 import { UserException } from "./UserException.js";
@@ -302,11 +301,10 @@ ObjectPrx.prototype.ice_getConnectionId = function () {
 };
 
 ObjectPrx.prototype.ice_connectionId = function (id) {
-    const ref = this._reference.changeConnectionId(id);
-    if (ref.equals(this._reference)) {
+    if (id == this._reference.getConnectionId()) {
         return this;
     } else {
-        return this._newInstance(ref);
+        return this._newInstance(this._reference.changeConnectionId(id));
     }
 };
 
@@ -479,24 +477,17 @@ ObjectPrx.dispatchLocalException = function (r, ex) {
     r.reject(ex);
 };
 
-ObjectPrx.checkedCast = function (prx, facet, ctx) {
+ObjectPrx.checkedCast = async function (prx, facet, ctx) {
     let r = null;
-
-    if (prx === undefined || prx === null) {
-        r = new AsyncResultBase(null, "checkedCast", null, null, null);
-        r.resolve(null);
-    } else {
+    if (prx !== undefined && prx !== null) {
         if (facet !== undefined) {
             prx = prx.ice_facet(facet);
         }
 
-        r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
-        prx.ice_isA(this.ice_staticId(), ctx).then(
-            ret => r.resolve(ret ? new this(prx) : null),
-            ex => r.reject(ex),
-        );
+        if (await prx.ice_isA(this.ice_staticId(), ctx)) {
+            r = new this(prx);
+        }
     }
-
     return r;
 };
 

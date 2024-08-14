@@ -33,7 +33,6 @@ import { HashMap } from "./HashMap.js";
 import { SocketOperation } from "./SocketOperation.js";
 import { TraceUtil } from "./TraceUtil.js";
 import { AsyncStatus } from "./AsyncStatus.js";
-import { AsyncResultBase } from "./AsyncResultBase.js";
 import { RetryException } from "./RetryException.js";
 import { ConnectionFlushBatch, OutgoingAsync } from "./OutgoingAsync.js";
 import { Debug } from "./Debug.js";
@@ -203,31 +202,30 @@ export class ConnectionI {
     }
 
     close(mode) {
-        const r = new AsyncResultBase(this._communicator, "close", this, null, null);
+        const promise = new Promise();
 
         if (mode == ConnectionClose.Forcefully) {
             this.setState(
                 StateClosed,
                 new ConnectionAbortedException("The connection was aborted by the application.", true),
             );
-            r.resolve();
+            promise.resolve();
         } else if (mode == ConnectionClose.Gracefully) {
             this.setState(
                 StateClosing,
                 new ConnectionClosedException("The connection was closed gracefully by the application.", true),
             );
-            r.resolve();
+            promise.resolve();
         } else {
             Debug.assert(mode == ConnectionClose.GracefullyWithWait);
 
             //
             // Wait until all outstanding requests have been completed.
             //
-            this._closePromises.push(r);
+            this._closePromises.push(promise);
             this.checkClose();
         }
-
-        return r;
+        return promise;
     }
 
     checkClose() {

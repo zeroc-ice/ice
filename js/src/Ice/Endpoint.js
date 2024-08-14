@@ -18,7 +18,7 @@ export class EndpointInfo {
 
 /**
  *  Provides access to the address details of a IP endpoint.
- *  @see Endpoint
+ *  @see {@link Endpoint}
  **/
 export class IPEndpointInfo extends EndpointInfo {
     constructor(underlying, timeout, compress, host = "", port = 0, sourceAddress = "") {
@@ -31,7 +31,7 @@ export class IPEndpointInfo extends EndpointInfo {
 
 /**
  *  Provides access to a TCP endpoint information.
- *  @see Endpoint
+ *  @see {@link Endpoint}
  **/
 export class TCPEndpointInfo extends IPEndpointInfo {
     constructor(underlying, timeout, compress, host, port, sourceAddress) {
@@ -51,7 +51,7 @@ export class WSEndpointInfo extends EndpointInfo {
 
 /**
  *  Provides access to the details of an opaque endpoint.
- *  @see Endpoint
+ *  @see {@link Endpoint}
  **/
 export class OpaqueEndpointInfo extends EndpointInfo {
     constructor(underlying, timeout, compress, rawEncoding = new EncodingVersion(), rawBytes = null) {

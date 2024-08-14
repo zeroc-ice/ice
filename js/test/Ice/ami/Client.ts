@@ -218,7 +218,6 @@ export class Client extends TestHelper {
             {
                 let r: Ice.AsyncResult<void> = p.ice_ping();
                 test(r.operation === "ice_ping");
-                test(r.connection === null); // Expected
                 test(r.communicator == communicator);
                 test(r.proxy == p);
                 await r;
@@ -231,7 +230,6 @@ export class Client extends TestHelper {
                 let p2 = p.ice_oneway();
                 let r: Ice.AsyncResult<void> = p2.ice_ping();
                 test(r.operation === "ice_ping");
-                test(r.connection === null); // Expected
                 test(r.communicator == communicator);
                 test(r.proxy == p2);
                 await r;
@@ -241,33 +239,18 @@ export class Client extends TestHelper {
                 //
                 p2 = p.ice_batchOneway();
                 p2.ice_ping();
-                r = p2.ice_flushBatchRequests();
-                test(r.operation === "ice_flushBatchRequests");
-                test(r.connection === null); // Expected
-                test(r.communicator == communicator);
-                test(r.proxy == p2);
-                await r;
+                await p2.ice_flushBatchRequests();
             }
 
             {
                 const con: Ice.Connection = p.ice_getCachedConnection();
                 let p2 = p.ice_batchOneway();
                 p2.ice_ping();
-                let r: Ice.AsyncResultBase<void> = con.flushBatchRequests();
-                test(r.operation === "flushBatchRequests");
-                test(r.connection == con);
-                test(r.communicator == communicator);
-                test(r.proxy === null);
-                await r;
+                await con.flushBatchRequests();
 
                 p2 = p.ice_batchOneway();
                 p2.ice_ping();
-                r = communicator.flushBatchRequests();
-                test(r.operation === "flushBatchRequests");
-                test(r.connection === null);
-                test(r.communicator == communicator);
-                test(r.proxy === null);
-                await r;
+                await communicator.flushBatchRequests();
             }
         }
 

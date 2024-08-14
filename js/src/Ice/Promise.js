@@ -21,23 +21,12 @@ class P extends Promise {
         this.reject = rej;
     }
 
-    delay(ms) {
-        return this.then(
-            value => new P((resolve, reject) => Timer.setTimeout(() => resolve(value), ms)),
-            reason => new P((resolve, reject) => Timer.setTimeout(() => reject(reason), ms)),
-        );
-    }
-
     static get [Symbol.species]() {
         return P;
     }
 
     static delay(ms, value) {
         return new P(resolve => Timer.setTimeout(() => resolve(value), ms));
-    }
-
-    static try(cb) {
-        return P.resolve().then(cb);
     }
 }
 

@@ -1,7 +1,6 @@
 import * as Ice_Address from "./Address.js";
 import * as Ice_ArrayUtil from "./ArrayUtil.js";
 import * as Ice_AsyncResult from "./AsyncResult.js";
-import * as Ice_AsyncResultBase from "./AsyncResultBase.js";
 import * as Ice_AsyncStatus from "./AsyncStatus.js";
 import * as Ice_Buffer from "./Buffer.js";
 import * as Ice_BuiltinSequences from "./BuiltinSequences.js";
@@ -26,7 +25,7 @@ import * as Ice_Identity from "./Identity.js";
 import * as Ice_IncomingRequest from "./IncomingRequest.js";
 // Must be imported after Identity.js for the prototype extensions.
 import "./IdentityExtensions.js";
-import * as Ice_IdentityUtil from "./IdentityUtil.js";
+import * as Ice_StringToIdentity from "./StringToIdentity.js";
 import * as Ice_IdentityToString from "./IdentityToString.js";
 import * as Ice_ImplicitContext from "./ImplicitContext.js";
 import * as Ice_Initialize from "./Initialize.js";
@@ -91,7 +90,6 @@ export const Ice = {
     ...Ice_Address,
     ...Ice_ArrayUtil,
     ...Ice_AsyncResult,
-    ...Ice_AsyncResultBase,
     ...Ice_AsyncStatus,
     ...Ice_Buffer,
     ...Ice_Communicator,
@@ -105,7 +103,7 @@ export const Ice = {
     ...Ice_FormatType,
     ...Ice_HashMap,
     ...Ice_HashUtil,
-    ...Ice_IdentityUtil,
+    ...Ice_StringToIdentity,
     ...Ice_IdentityToString,
     ...Ice_ImplicitContext,
     ...Ice_Initialize,

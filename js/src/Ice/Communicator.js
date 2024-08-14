@@ -15,13 +15,7 @@ import { ObjectPrx } from "./ObjectPrx.js";
 export class Communicator {
     constructor(initData) {
         this._instance = this.createInstance(initData);
-    }
-
-    //
-    // Certain initialization tasks need to be completed after the constructor.
-    //
-    finishSetup(promise) {
-        this._instance.finishSetup(this, promise);
+        this._instance.finishSetup(this);
     }
 
     destroy() {
@@ -33,7 +27,6 @@ export class Communicator {
             return this._instance.objectAdapterFactory().shutdown();
         } catch (ex) {
             Debug.assert(ex instanceof CommunicatorDestroyedException);
-            return Promise.resolve();
         }
     }
 
@@ -81,7 +74,7 @@ export class Communicator {
     }
 
     createObjectAdapter(name) {
-        const promise = this.createAsyncResultBase(this, "createObjectAdapter", this, null, null);
+        const promise = new Promise();
         this._instance.objectAdapterFactory().createObjectAdapter(name, null, promise);
         return promise;
     }
@@ -92,7 +85,7 @@ export class Communicator {
         }
 
         this.getProperties().setProperty(name + ".Endpoints", endpoints);
-        const promise = this.createAsyncResultBase(this, "createObjectAdapterWithEndpoints", this, null, null);
+        const promise = new Promise();
         this._instance.objectAdapterFactory().createObjectAdapter(name, null, promise);
         return promise;
     }
@@ -102,7 +95,7 @@ export class Communicator {
             name = generateUUID();
         }
 
-        const promise = this.createAsyncResultBase(this, "createObjectAdapterWithRouter", this, null, null);
+        const promise = new Promise();
 
         //
         // We set the proxy properties here, although we still use the proxy supplied.

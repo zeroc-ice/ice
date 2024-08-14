@@ -33,9 +33,7 @@ Current.prototype.createOutgoingResponseWithResult = function (marshal, formatTy
             ostr.endEncapsulation();
             return new OutgoingResponse(ostr);
         } catch (ex) {
-            const communicator = this.adapter.getCommunicator();
-            Debug.assert(communicator !== null);
-            return this.createOutgoingResponseWithException(ex, communicator);
+            return this.createOutgoingResponseWithException(ex);
         }
     } else {
         Debug.assert("A one-way request cannot return a response");
@@ -55,12 +53,12 @@ Current.prototype.createEmptyOutgoingResponse = function () {
     return new OutgoingResponse(ostr);
 };
 
-Current.prototype.createOutgoingResponseWithException = function (exception, communicator) {
+Current.prototype.createOutgoingResponseWithException = function (exception) {
     try {
-        return createOutgoingResponseCore(this, exception, communicator);
+        return createOutgoingResponseCore(this, exception);
     } catch (ex) {
         // Try a second time with the marshal exception. This should not fail.
-        return createOutgoingResponseCore(this, exception, communicator);
+        return createOutgoingResponseCore(this, exception);
     }
 };
 

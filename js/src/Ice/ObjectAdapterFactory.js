@@ -20,18 +20,13 @@ export class ObjectAdapterFactory {
     }
 
     shutdown() {
-        //
-        // Ignore shutdown requests if the object adapter factory has
-        // already been shut down.
-        //
-        if (this._instance === null) {
-            return this._shutdownPromise;
+        // Ignore shutdown requests if the object adapter factory has already been shut down.
+        if (this._instance !== null) {
+            this._instance = null;
+            this._communicator = null;
+            this._adapters.map(adapter => adapter.deactivate());
+            this._shutdownPromise.resolve();
         }
-
-        this._instance = null;
-        this._communicator = null;
-        Promise.all(this._adapters.map(adapter => adapter.deactivate())).then(() => this._shutdownPromise.resolve());
-        return this._shutdownPromise;
     }
 
     waitForShutdown() {
@@ -44,8 +39,9 @@ export class ObjectAdapterFactory {
         return this._instance === null;
     }
 
-    destroy() {
-        return this.waitForShutdown().then(() => Promise.all(this._adapters.map(adapter => adapter.destroy())));
+    async destroy() {
+        await this.waitForShutdown();
+        await Promise.all(this._adapters.map(adapter => adapter.destroy()));
     }
 
     createObjectAdapter(name, router, promise) {

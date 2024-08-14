@@ -5,25 +5,26 @@
 declare module "ice" {
     namespace Ice {
         /**
-         * Determines the order in which the Ice run time uses the endpoints in a proxy when establishing a connection.
+         * Determines the order in which the Ice runtime uses the endpoints in a proxy when establishing a connection.
          */
-        class EndpointSelectionType {
+        class EndpointSelectionType extends Ice.EnumBase {
             /**
-             * <code>Random</code> causes the endpoints to be arranged in a random order.
+             * `Random` arranges the endpoints in a random order.
              */
             static readonly Random: EndpointSelectionType;
+
             /**
-             * <code>Ordered</code> forces the Ice run time to use the endpoints in the order they appeared in the proxy.
+             * `Ordered` forces the Ice runtime to use the endpoints in the order they appear in the proxy.
              */
             static readonly Ordered: EndpointSelectionType;
 
+            /**
+             * Returns the enumerator for the given value.
+             *
+             * @param value - The numeric value of the enumerator.
+             * @returns The enumerator corresponding to the given value.
+             */
             static valueOf(value: number): EndpointSelectionType;
-            equals(other: any): boolean;
-            hashCode(): number;
-            toString(): string;
-
-            readonly name: string;
-            readonly value: number;
         }
     }
 }

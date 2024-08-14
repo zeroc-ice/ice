@@ -42,8 +42,8 @@ import { Debug } from "./Debug.js";
 import { ReplyStatus } from "./ReplyStatus.js";
 
 export class OutgoingAsyncBase extends AsyncResult {
-    constructor(communicator, operation, connection, proxy, adapter) {
-        super(communicator, operation, connection, proxy, adapter);
+    constructor(communicator, operation, proxy) {
+        super(communicator, operation, proxy);
         this._os = new OutputStream(
             Protocol.currentProtocolEncoding,
             this._instance.defaultsAndOverrides().defaultFormat,
@@ -65,11 +65,7 @@ export class OutgoingAsyncBase extends AsyncResult {
 
 export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
     constructor(prx, operation) {
-        if (prx) {
-            super(prx.ice_getCommunicator(), operation, null, prx, null);
-        } else {
-            super();
-        }
+        super(prx.ice_getCommunicator(), operation, prx);
         this._mode = null;
         this._cnt = 0;
         this._sent = false;
@@ -534,7 +530,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
 
     throwUserException() {
         Debug.assert((this._state & AsyncResult.Done) !== 0);
-        if ((this._state & AsyncResult.OK) === 0) {
+        if ((this._state & AsyncResult.Ok) === 0) {
             try {
                 this._is.startEncapsulation();
                 this._is.throwException();
@@ -588,8 +584,9 @@ export class ProxyGetConnection extends ProxyOutgoingAsyncBase {
 }
 
 export class ConnectionFlushBatch extends OutgoingAsyncBase {
-    constructor(con, communicator, operation) {
-        super(communicator, operation, con, null, null);
+    constructor(connection, communicator, operation) {
+        super(communicator, operation);
+        this._connection = connection;
     }
 
     invoke() {
@@ -607,7 +604,8 @@ export class ConnectionFlushBatch extends OutgoingAsyncBase {
                 this._sentSynchronously = true;
             }
         } catch (ex) {
-            this.completedEx(ex);
+            console.log(ex);
+            this.markFinishedEx(ex);
         }
     }
 }

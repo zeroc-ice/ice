@@ -3,7 +3,6 @@
 //
 
 import { ArrayUtil } from "./ArrayUtil.js";
-import { AsyncResultBase } from "./AsyncResultBase.js";
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
 import { generateUUID } from "./UUID.js";
@@ -220,10 +219,7 @@ export class ObjectAdapter {
     }
 
     activate() {
-        const promise = new AsyncResultBase(this._communicator, "activate", null, null, this);
         this.setState(StateActive);
-        promise.resolve();
-        return promise;
     }
 
     hold() {
@@ -232,7 +228,7 @@ export class ObjectAdapter {
     }
 
     waitForHold() {
-        const promise = new AsyncResultBase(this._communicator, "waitForHold", null, null, this);
+        const promise = new Promise();
         try {
             this.checkForDeactivation();
             this.waitState(StateHeld, promise);
@@ -243,17 +239,14 @@ export class ObjectAdapter {
     }
 
     deactivate() {
-        const promise = new AsyncResultBase(this._communicator, "deactivate", null, null, this);
         if (this._state < StateDeactivated) {
             this.setState(StateDeactivated);
             this._instance.outgoingConnectionFactory().removeAdapter(this);
         }
-        promise.resolve();
-        return promise;
     }
 
     waitForDeactivate() {
-        const promise = new AsyncResultBase(this._communicator, "waitForDeactivate", null, null, this);
+        const promise = new Promise();
         this.waitState(StateDeactivated, promise);
         return promise;
     }
@@ -263,18 +256,14 @@ export class ObjectAdapter {
     }
 
     destroy() {
-        // NOTE: we don't call waitForDeactivate since it's currently a no-op.
-        return this.deactivate().then(() => {
-            if (this._state < StateDestroyed) {
-                this.setState(StateDestroyed);
-                this._servantManager.destroy();
-                this._objectAdapterFactory.removeObjectAdapter(this);
-                this._publishedEndpoints = [];
-            }
-            const promise = new AsyncResultBase(this._communicator, "destroy", null, null, this);
-            promise.resolve();
-            return promise;
-        });
+        // We don't call waitForDeactivate since deactivate is a synchronous operation.
+        this.deactivate();
+        if (this._state < StateDestroyed) {
+            this.setState(StateDestroyed);
+            this._servantManager.destroy();
+            this._objectAdapterFactory.removeObjectAdapter(this);
+            this._publishedEndpoints = [];
+        }
     }
 
     use(middleware) {
@@ -294,10 +283,7 @@ export class ObjectAdapter {
         ObjectAdapter.checkIdentity(ident);
         ObjectAdapter.checkServant(object);
 
-        //
-        // Create a copy of the Identity argument, in case the caller
-        // reuses it.
-        //
+        // Create a copy of the Identity argument, in case the caller reuses it.
         const id = ident.clone();
 
         this._servantManager.addServant(object, id, facet);
@@ -408,14 +394,6 @@ export class ObjectAdapter {
         return this.createProxy(ident);
     }
 
-    createIndirectProxy(ident) {
-        throw new FeatureNotSupportedException("createIndirectProxy not supported");
-    }
-
-    setLocator(locator) {
-        throw new FeatureNotSupportedException("setLocator not supported");
-    }
-
     getEndpoints() {
         return [];
     }
@@ -440,9 +418,6 @@ export class ObjectAdapter {
     }
 
     getServantManager() {
-        //
-        // _servantManager is immutable.
-        //
         return this._servantManager;
     }
 
@@ -492,27 +467,17 @@ export class ObjectAdapter {
         }
     }
 
-    computePublishedEndpoints() {
-        let p;
+    async computePublishedEndpoints() {
+        let endpoints = [];
         if (this._routerInfo !== null) {
-            p = this._routerInfo.getServerEndpoints().then(endpts => {
-                //
-                // Remove duplicate endpoints, so we have a list of unique endpoints.
-                //
-                const endpoints = [];
-                endpts.forEach(endpoint => {
-                    if (endpoints.findIndex(value => endpoint.equals(value)) === -1) {
-                        endpoints.push(endpoint);
-                    }
-                });
-                return endpoints;
-            });
+            endpoints = await this._routerInfo.getServerEndpoints();
+            // Remove duplicate endpoints, so we have a list of unique endpoints.
+            endpoints = endpoints.filter(
+                (object, index, self) => index === self.findIndex(value => object.equals(value)),
+            );
         } else {
-            //
-            // Parse published endpoints. If set, these are used in proxies
-            // instead of the connection factory Endpoints.
-            //
-            const endpoints = [];
+            // Parse published endpoints. If set, these are used in proxies instead of the connection factory
+            // endpoints.
             const s = this._instance.initializationData().properties.getProperty(this._name + ".PublishedEndpoints");
             const delim = " \t\n\r";
 
@@ -558,35 +523,21 @@ export class ObjectAdapter {
                     }
                 }
 
-                const es = s.substring(beg, end);
-                const endp = this._instance.endpointFactoryManager().create(es, false);
-                if (endp === null) {
+                const endpointString = s.substring(beg, end);
+                const endpoint = this._instance.endpointFactoryManager().create(endpointString, false);
+                if (endpoint === null) {
                     throw new ParseException(`invalid object adapter endpoint '${s}'`);
                 }
-                endpoints.push(endp);
+                endpoints.push(endpoint);
             }
-
-            p = Promise.resolve(endpoints);
         }
 
-        return p.then(endpoints => {
-            if (this._instance.traceLevels().network >= 1 && endpoints.length > 0) {
-                const s = [];
-                s.push("published endpoints for object adapter `");
-                s.push(this._name);
-                s.push("':\n");
-                let first = true;
-                endpoints.forEach(endpoint => {
-                    if (!first) {
-                        s.push(":");
-                    }
-                    s.push(endpoint.toString());
-                    first = false;
-                });
-                this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.toString());
-            }
-            return endpoints;
-        });
+        if (this._instance.traceLevels().network >= 1 && endpoints.length > 0) {
+            msg = `published endpoints for object adapter '${this._name}':\n`;
+            msg += endpoints.map(endpoint => endpoint.toString()).join(":");
+            this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, msg);
+        }
+        return endpoints;
     }
 
     filterProperties(unknownProps) {

@@ -12,7 +12,7 @@ declare module "ice" {
 
             /**
              * Obtains the Slice type ID of this exception.
-             * @return The fully-scoped type ID.
+             * @returns The fully-scoped type ID.
              */
             static ice_staticId(): string;
         }

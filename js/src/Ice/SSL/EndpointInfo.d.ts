@@ -14,16 +14,16 @@ declare module "ice" {
                 constructor(underlying?: Ice.EndpointInfo, timeout?: number, compress?: boolean);
                 /**
                  * Returns the type of the endpoint.
-                 * @return The endpoint type.
+                 * @returns The endpoint type.
                  */
                 type(): number;
                 /**
                  * Returns true if this endpoint is a datagram endpoint.
-                 * @return True for a datagram endpoint.
+                 * @returns True for a datagram endpoint.
                  */
                 datagram(): boolean;
                 /**
-                 * @return True for a secure endpoint.
+                 * @returns True for a secure endpoint.
                  */
                 secure(): boolean;
             }

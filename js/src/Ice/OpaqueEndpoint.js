@@ -7,7 +7,6 @@ import { ParseException } from "./LocalExceptions.js";
 import { HashUtil } from "./HashUtil.js";
 import { StringUtil } from "./StringUtil.js";
 import { EndpointI } from "./EndpointI.js";
-import { FormatType } from "./FormatType.js";
 import { Encoding_1_0, encodingVersionToString, stringToEncodingVersion } from "./Protocol.js";
 import { OpaqueEndpointInfo } from "./Endpoint.js";
 import { Debug } from "./Debug.js";

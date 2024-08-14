@@ -4,7 +4,10 @@
 
 declare module "ice" {
     namespace Ice {
-        class Holder<T> {
+        /**
+         * A holder for a value. This interface is used to emulate `out` parameters in JavaScript.
+         */
+        interface Holder<T> {
             value: T;
         }
     }

@@ -4,7 +4,6 @@
 
 import { ConnectionI } from "./ConnectionI.js";
 import { HashMap } from "./HashMap.js";
-import { AsyncResultBase } from "./AsyncResultBase.js";
 import { Promise } from "./Promise.js";
 import { LocalException } from "./LocalException.js";
 import { CommunicatorDestroyedException } from "./LocalExceptions.js";
@@ -67,38 +66,40 @@ export class OutgoingConnectionFactory {
     }
 
     setRouterInfo(routerInfo) {
-        return Promise.try(() => {
-            if (this._destroyed) {
-                throw new CommunicatorDestroyedException();
-            }
-            return routerInfo.getClientEndpoints();
-        }).then(endpoints => {
-            //
-            // Search for connections to the router's client proxy
-            // endpoints, and update the object adapter for such
-            // connections, so that callbacks from the router can be
-            // received over such connections.
-            //
-            const adapter = routerInfo.getAdapter();
-            endpoints.forEach(endpoint => {
+        return Promise.resolve()
+            .then(() => {
+                if (this._destroyed) {
+                    throw new CommunicatorDestroyedException();
+                }
+                return routerInfo.getClientEndpoints();
+            })
+            .then(endpoints => {
                 //
-                // The Connection object does not take the compression flag of
-                // endpoints into account, but instead gets the information
-                // about whether messages should be compressed or not from
-                // other sources. In order to allow connection sharing for
-                // endpoints that differ in the value of the compression flag
-                // only, we always set the compression flag to false here in
-                // this connection factory.
+                // Search for connections to the router's client proxy
+                // endpoints, and update the object adapter for such
+                // connections, so that callbacks from the router can be
+                // received over such connections.
                 //
-                endpoint = endpoint.changeCompress(false);
+                const adapter = routerInfo.getAdapter();
+                endpoints.forEach(endpoint => {
+                    //
+                    // The Connection object does not take the compression flag of
+                    // endpoints into account, but instead gets the information
+                    // about whether messages should be compressed or not from
+                    // other sources. In order to allow connection sharing for
+                    // endpoints that differ in the value of the compression flag
+                    // only, we always set the compression flag to false here in
+                    // this connection factory.
+                    //
+                    endpoint = endpoint.changeCompress(false);
 
-                this._connectionsByEndpoint.forEach(connection => {
-                    if (connection.endpoint().equals(endpoint)) {
-                        connection.setAdapter(adapter);
-                    }
+                    this._connectionsByEndpoint.forEach(connection => {
+                        if (connection.endpoint().equals(endpoint)) {
+                            connection.setAdapter(adapter);
+                        }
+                    });
                 });
             });
-        });
     }
 
     removeAdapter(adapter) {
@@ -112,27 +113,22 @@ export class OutgoingConnectionFactory {
         });
     }
 
-    flushAsyncBatchRequests() {
-        const promise = new AsyncResultBase(this._communicator, "flushBatchRequests", null, null, null);
-        if (this._destroyed) {
-            promise.resolve();
-            return promise;
+    async flushAsyncBatchRequests() {
+        if (!this._destroyed) {
+            await Promise.all(
+                this._connectionsByEndpoint.map(connection => {
+                    if (connection.isActiveOrHolding()) {
+                        return connection.flushBatchRequests().catch(ex => {
+                            if (ex instanceof LocalException) {
+                                // Ignore
+                            } else {
+                                throw ex;
+                            }
+                        });
+                    }
+                }),
+            );
         }
-
-        Promise.all(
-            this._connectionsByEndpoint.map(connection => {
-                if (connection.isActiveOrHolding()) {
-                    return connection.flushBatchRequests().catch(ex => {
-                        if (ex instanceof LocalException) {
-                            // Ignore
-                        } else {
-                            throw ex;
-                        }
-                    });
-                }
-            }),
-        ).then(promise.resolve, promise.reject);
-        return promise;
     }
 
     findConnectionByEndpoint(endpoints) {

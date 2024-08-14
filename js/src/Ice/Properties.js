@@ -18,10 +18,8 @@ export class Properties {
         this._properties = new Map();
 
         if (defaults !== undefined && defaults !== null) {
-            //
-            // NOTE: we can't just do a shallow copy of the map as the map values
-            // would otherwise be shared between the two PropertiesI object.
-            //
+            // We can't just do a shallow copy of the map as the map values would otherwise be shared between the two
+            // instances.
             for (const [key, property] of defaults._properties) {
                 this._properties.set(key, {
                     value: property.value,

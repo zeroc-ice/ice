@@ -275,7 +275,7 @@ export class Client extends TestHelper {
             await this.allTests(args.indexOf("--shutdown") > -1);
         } finally {
             if (communicator) {
-                await communicator.shutdown();
+                communicator.shutdown();
             }
         }
     }

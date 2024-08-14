@@ -5,213 +5,251 @@
 declare module "ice" {
     namespace Ice {
         /**
-         * The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
-         * instantiation is language-specific, and not specified in Slice code.
-         * @see Logger
-         * @see ObjectAdapter
-         * @see Properties
-         * @see ValueFactory
+         * The central object in Ice. One or more communicators can be instantiated for an Ice application.
+         *
+         * @see {@link Logger}
+         * @see {@link ObjectAdapter}
+         * @see {@link Properties}
+         * @see {@link ValueFactory}
          */
         interface Communicator {
             /**
              * Destroy the communicator. This operation calls {@link Communicator#shutdown} implicitly. Calling {@link Communicator#destroy} cleans up
-             * memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
-             * calls to {@link Communicator#destroy} are ignored.
-             * @return The asynchronous result object for the invocation.
-             * @see #shutdown
-             * @see ObjectAdapter#destroy
+             * memory, and shuts down this communicator's client functionality and destroys all object adapters.
+             *
+             * @returns A promise that is resolved when the communicator has been destroyed.
+             *
+             * @see {@link shutdown}
+             * @see {@link ObjectAdapter#destroy}
              */
-            destroy(): AsyncResultBase<void>;
+            destroy(): Promise<void>;
+
             /**
-             * Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
-             * Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException. Subsequent calls to
-             * shutdown are ignored.
-             * After shutdown returns, no new requests are processed. However, requests that have been started before shutdown
-             * was called might still be active. You can use {@link Communicator#waitForShutdown} to wait for the completion of all
-             * requests.
-             * @return The asynchronous result object for the invocation.
-             * @see #destroy
-             * @see #waitForShutdown
-             * @see ObjectAdapter#deactivate
+             * Shuts down this communicator's server functionality, including the deactivation of all object adapters.
+             *
+             * After `shutdown` returns, no new requests are processed. However, requests that were started before
+             * `shutdown` was called might still be active. You can use {@link Communicator#waitForShutdown} to wait for
+             * the completion of all active requests.
+             *
+             * @see {@link destroy}
+             * @see {@link waitForShutdown}
+             * @see {@link ObjectAdapter#deactivate}
              */
-            shutdown(): AsyncResultBase<void>;
+            shutdown(): void;
+
             /**
-             * Wait until the application has called {@link Communicator#shutdown} (or {@link Communicator#destroy}). On the server side, this
-             * operation blocks the calling thread until all currently-executing operations have completed. On the client
-             * side, the operation simply blocks until another thread has called {@link Communicator#shutdown} or {@link Communicator#destroy}.
-             * A typical use of this operation is to call it from the main thread, which then waits until some other thread
-             * calls {@link Communicator#shutdown}. After shut-down is complete, the main thread returns and can do some cleanup work
-             * before it finally calls {@link Communicator#destroy} to shut down the client functionality, and then exits the application.
-             * @return The asynchronous result object for the invocation.
-             * @see #shutdown
-             * @see #destroy
-             * @see ObjectAdapter#waitForDeactivate
+             * Waits until the application has called {@link Communicator#shutdown} or {@link Communicator#destroy}.
+             *
+             * On the server side, the returned promise is resolved after all currently-executing operations have completed.
+             * On the client side, the returned promise is resolved after {@link Communicator#shutdown} or
+             * {@link Communicator#destroy} have been called.
+             *
+             * @returns A promise that is resolved when the communicator has been shut down.
+             *
+             * @see {@link shutdown}
+             * @see {@link destroy}
+             * @see {@link ObjectAdapter#waitForDeactivate}
              */
-            waitForShutdown(): AsyncResultBase<void>;
+            waitForShutdown(): Promise<void>;
+
             /**
-             * Check whether communicator has been shut down.
-             * @return True if the communicator has been shut down; false otherwise.
-             * @see #shutdown
+             * Checks whether the communicator has been shut down.
+             *
+             * @returns `true` if the communicator has been shut down; `false` otherwise.
+             *
+             * @see {@link shutdown}
              */
             isShutdown(): boolean;
+
             /**
-             * Convert a stringified proxy into a proxy.
-             * For example, <code>MyCategory/MyObject:tcp -h some_host -p 10000</code> creates a proxy that refers to the Ice
-             * object having an identity with a name "MyObject" and a category "MyCategory", with the server running on host
-             * "some_host", port 10000. If the stringified proxy does not parse correctly, the operation throws ParseException.
-             * Refer to the Ice manual for a detailed description of the syntax supported by stringified proxies.
-             * @param str The stringified proxy to convert into a proxy.
-             * @return The proxy, or nil if <code>str</code> is an empty string.
-             * @see #proxyToString
+             * Converts a proxy string into a proxy.
+             *
+             * @param proxyString - The proxy string to convert.
+             *
+             * @returns The proxy, or `null` if `proxyString` is an empty string.
+             *
+             * @see {@link proxyToString}
              */
-            stringToProxy(str: string): Ice.ObjectPrx;
+            stringToProxy(proxyString: string): Ice.ObjectPrx;
+
             /**
-             * Convert a proxy into a string.
-             * @param obj The proxy to convert into a stringified proxy.
-             * @return The stringified proxy, or an empty string if
-             * <code>obj</code> is nil.
-             * @see #stringToProxy
+             * Converts a proxy into a string.
+             *
+             * @param prx - The proxy to convert into a string.
+             * @returns The string representation of the proxy, or an empty string if `prx` is `null`.
              */
-            proxyToString(obj: Ice.ObjectPrx): string;
+            proxyToString(prx: Ice.ObjectPrx): string;
+
             /**
-             * Convert a set of proxy properties into a proxy. The "base" name supplied in the <code>property</code> argument
-             * refers to a property containing a stringified proxy, such as <code>MyProxy=id:tcp -h localhost -p 10000</code>.
-             * Additional properties configure local settings for the proxy, such as <code>MyProxy.PreferSecure=1</code>. The
-             * "Properties" appendix in the Ice manual describes each of the supported proxy properties.
-             * @param property The base property name.
-             * @return The proxy.
+             * Converts a set of proxy properties into a proxy.
+             *
+             * The "base" name supplied in the `property` argument refers to a property containing a
+             * stringified proxy, such as `MyProxy=id:tcp -h localhost -p 10000`. Additional properties
+             * configure local settings for the proxy, such as `MyProxy.PreferSecure=1`. The "Properties"
+             * appendix in the Ice manual describes each of the supported proxy properties.
+             *
+             * @param property - The base property name.
+             * @returns The proxy created from the specified properties.
              */
             propertyToProxy(property: string): Ice.ObjectPrx;
+
             /**
-             * Convert a proxy to a set of proxy properties.
-             * @param proxy The proxy.
-             * @param property The base property name.
-             * @return The property set.
+             * Converts a proxy into a set of proxy properties.
+             *
+             * @param proxy - The proxy to convert.
+             * @param property - The base property name to associate with the proxy.
+             * @returns A dictionary containing the property set derived from the proxy.
              */
             proxyToProperty(proxy: Ice.ObjectPrx, property: string): PropertyDict;
+
             /**
-             * Convert a string into an identity. If the string does not parse correctly, the operation throws
-             * ParseException.
-             * @param str The string to convert into an identity.
-             * @return The identity.
-             * @see #identityToString
+             * Converts an identity into a string.
              *
-             * @deprecated stringToIdentity() is deprecated, use the static stringToIdentity() method instead.
+             * @param identity - The identity to convert into a string.
+             * @returns The string representation of the identity.
              */
-            stringToIdentity(str: string): Identity;
+            identityToString(identity: Identity): string;
+
             /**
-             * Convert an identity into a string.
-             * @param ident The identity to convert into a string.
-             * @return The "stringified" identity.
-             * @see #stringToIdentity
+             * Creates a new object adapter.
+             *
+             * The endpoints for the object adapter are taken from the property `<name>.Endpoints`.
+             *
+             * It is valid to create an object adapter with an empty string as its name. Such an object adapter is
+             * accessible via bidirectional connections. Attempts to create a named object adapter for which no
+             * configuration can be found will raise an `InitializationException`.
+             *
+             * @param name - The object adapter name.
+             * @returns A promise that resolves to the created object adapter.
+             * @throws {@link InitializationException} - Thrown if the object adapter cannot be created.
+             *
+             * @see {@link createObjectAdapterWithEndpoints}
+             * @see {@link ObjectAdapter}
+             * @see {@link Properties}
              */
-            identityToString(ident: Identity): string;
+            createObjectAdapter(name: string): Promise<Ice.ObjectAdapter>;
+
             /**
-             * Create a new object adapter. The endpoints for the object adapter are taken from the property
-             * <code><em>name</em>.Endpoints</code>.
-             * It is legal to create an object adapter with the empty string as its name. Such an object adapter is accessible
-             * via bidirectional connections or by collocated invocations that originate from the same communicator as is used
-             * by the adapter. Attempts to create a named object adapter for which no configuration can be found raise
-             * InitializationException.
-             * @param name The object adapter name.
-             * @return The asynchronous result object for the invocation.
-             * @see #createObjectAdapterWithEndpoints
-             * @see ObjectAdapter
-             * @see Properties
+             * Creates a new object adapter with the given endpoints.
+             *
+             * This operation sets the property `<name>.Endpoints`, and then calls {@link Communicator#createObjectAdapter}.
+             * If the `name` parameter is an empty string, a UUID will be generated and used as the object adapter name.
+             *
+             * @param name - The object adapter name.
+             * @param endpoints - The endpoints for the object adapter.
+             * @returns A promise that resolves to the created object adapter.
+             *
+             * @see {@link createObjectAdapter}
+             * @see {@link ObjectAdapter}
+             * @see {@link Properties}
              */
-            createObjectAdapter(name: string): AsyncResultBase<Ice.ObjectAdapter>;
+            createObjectAdapterWithEndpoints(name: string, endpoints: string): Promise<Ice.ObjectAdapter>;
+
             /**
-             * Create a new object adapter with endpoints. This operation sets the property
-             * <code><em>name</em>.Endpoints</code>, and then calls {@link Communicator#createObjectAdapter}. It is provided as a
-             * convenience function. Calling this operation with an empty name will result in a UUID being generated for the
-             * name.
-             * @param name The object adapter name.
-             * @param endpoints The endpoints for the object adapter.
-             * @return The asynchronous result object for the invocation.
-             * @see #createObjectAdapter
-             * @see ObjectAdapter
-             * @see Properties
+             * Creates a new object adapter with a router.
+             *
+             * This operation creates a routed object adapter. If the `name` parameter is an empty string, a UUID will be
+             * generated and used as the object adapter name.
+             *
+             * @param name - The object adapter name.
+             * @param router - The router to associate with the object adapter.
+             * @returns A promise that resolves to the created object adapter.
+             *
+             * @see {@link createObjectAdapter}
+             * @see {@link ObjectAdapter}
+             * @see {@link Properties}
              */
-            createObjectAdapterWithEndpoints(name: string, endpoints: string): AsyncResultBase<Ice.ObjectAdapter>;
+            createObjectAdapterWithRouter(name: string, router: RouterPrx): Promise<Ice.ObjectAdapter>;
+
             /**
-             * Create a new object adapter with a router. This operation creates a routed object adapter.
-             * Calling this operation with an empty name will result in a UUID being generated for the name.
-             * @param name The object adapter name.
-             * @param rtr The router.
-             * @return The asynchronous result object for the invocation.
-             * @see #createObjectAdapter
-             * @see ObjectAdapter
-             * @see Properties
-             */
-            createObjectAdapterWithRouter(name: string, rtr: RouterPrx): AsyncResultBase<Ice.ObjectAdapter>;
-            /**
-             * Get the implicit context associated with this communicator.
-             * @return The implicit context associated with this communicator; returns null when the property Ice.ImplicitContext
-             * is not set or is set to None.
+             * Retrieves the implicit context associated with this communicator.
+             *
+             * @returns The implicit context associated with this communicator, or `null` if the `Ice.ImplicitContext`
+             *          property is not set or is set to `None`.
              */
             getImplicitContext(): Ice.ImplicitContext;
+
             /**
-             * Get the properties for this communicator.
-             * @return This communicator's properties.
-             * @see Properties
+             * Retrieves the properties associated with this communicator.
+             *
+             * @returns The properties of the communicator.
              */
             getProperties(): Ice.Properties;
+
             /**
-             * Get the logger for this communicator.
-             * @return This communicator's logger.
-             * @see Logger
+             * Retrieves the logger associated with this communicator.
+             *
+             * @returns The logger of the communicator.
              */
             getLogger(): Ice.Logger;
+
             /**
-             * Get the default router for this communicator.
-             * @return The default router for this communicator.
-             * @see #setDefaultRouter
-             * @see Router
+             * Retrieves the default router for this communicator.
+             *
+             * @returns The default router of the communicator.
+             *
+             * @see {@link setDefaultRouter}
              */
             getDefaultRouter(): RouterPrx;
+
             /**
-             * Set a default router for this communicator. All newly created proxies will use this default router. To disable
-             * the default router, null can be used. Note that this operation has no effect on existing proxies.
-             * You can also set a router for an individual proxy by calling the operation <code>ice_router</code> on the
-             * proxy.
-             * @param rtr The default router to use for this communicator.
-             * @see #getDefaultRouter
-             * @see #createObjectAdapterWithRouter
-             * @see Router
+             * Sets the communicator's default router.
+             *
+             * All newly created proxies will use this default router. To disable the default router, pass `null`.
+             * Note that this operation has no effect on existing proxies.
+             *
+             * You can also set a router for an individual proxy by calling {@link ObjectPrx#ice_router} on the proxy.
+             *
+             * @param router - The default router to use for this communicator, or `null` to disable the default
+             *                 router.
+             *
+             * @see {@link getDefaultRouter}
+             * @see {@link createObjectAdapterWithRouter}
              */
-            setDefaultRouter(rtr: RouterPrx | null): void;
+            setDefaultRouter(router: RouterPrx | null): void;
+
             /**
-             * Get the default locator for this communicator.
-             * @return The default locator for this communicator.
-             * @see #setDefaultLocator
-             * @see Locator
+             * Retrieves the communicator's default locator.
+             *
+             * @returns The default locator of the communicator.
+             *
+             * @see {@link setDefaultLocator}
              */
             getDefaultLocator(): LocatorPrx;
+
             /**
-             * Set a default Ice locator for this communicator. All newly created proxy and object adapters will use this
-             * default locator. To disable the default locator, null can be used. Note that this operation has no effect on
-             * existing proxies or object adapters.
-             * You can also set a locator for an individual proxy by calling the operation <code>ice_locator</code> on the
-             * proxy, or for an object adapter by calling {@link ObjectAdapter#setLocator} on the object adapter.
-             * @param loc The default locator to use for this communicator.
-             * @see #getDefaultLocator
-             * @see Locator
-             * @see ObjectAdapter#setLocator
+             * Sets the communicator's default locator.
+             *
+             * All newly created proxies will use this default locator. To disable the default locator, pass `null`.
+             * Note that this operation has no effect on existing proxies.
+             *
+             * You can also set a locator for an individual proxy by calling {@link ObjectPrx#ice_locator} on the proxy.
+             *
+             * @param locator - The default locator to use for this communicator, or `null` to disable the default
+             *                  locator.
+             *
+             * @see {@link getDefaultLocator}
              */
-            setDefaultLocator(loc: LocatorPrx | null): void;
+            setDefaultLocator(locator: LocatorPrx | null): void;
+
             /**
-             * Get the value factory manager for this communicator.
-             * @return This communicator's value factory manager.
-             * @see ValueFactoryManager
+             * Retrieves the communicator's value factory manager.
+             *
+             * @returns The value factory manager of the communicator.
+             *
+             * @see {@link ValueFactoryManager}
              */
             getValueFactoryManager(): Ice.ValueFactoryManager;
+
             /**
-             * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
-             * for all connections associated with the communicator. Any errors that occur while flushing a connection are
-             * ignored.
-             * @return The asynchronous result object for the invocation.
+             * Flushes any pending batch requests for this communicator.
+             *
+             * This operation flushes all batch requests invoked on fixed proxies for all connections associated with the
+             * communicator. Any errors that occur while flushing a connection are ignored.
+             *
+             * @returns A promise that resolves when the flush operation is complete.
              */
-            flushBatchRequests(): AsyncResultBase<void>;
+            flushBatchRequests(): Promise<void>;
         }
     }
 }

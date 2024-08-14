@@ -2,19 +2,23 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { AsyncResultBase } from "./AsyncResultBase.js";
+import { Promise } from "./Promise.js";
 import { UserException } from "./UserException.js";
 import { InvocationCanceledException } from "./LocalExceptions.js";
 import { Debug } from "./Debug.js";
 
-export class AsyncResult extends AsyncResultBase {
-    constructor(com, op, connection, proxy, adapter, completedFn) {
-        super(com, op, connection, proxy, adapter);
-        this._completed = completedFn;
+export class AsyncResult extends Promise {
+    constructor(communicator, op, proxy, completed) {
+        super();
+        this._communicator = communicator;
+        this._instance = communicator ? communicator.instance : null;
+        this._operation = op;
+        this._proxy = proxy;
+        this._completed = completed;
         this._is = null;
         this._state = 0;
-        this._exception = null;
         this._sentSynchronously = false;
+        this._exception = null;
     }
 
     cancel() {
@@ -43,7 +47,7 @@ export class AsyncResult extends AsyncResultBase {
         Debug.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Sent;
         if (done) {
-            this._state |= AsyncResult.Done | AsyncResult.OK;
+            this._state |= AsyncResult.Done | AsyncResult.Ok;
             this._cancellationHandler = null;
             this.resolve();
         }
@@ -53,7 +57,7 @@ export class AsyncResult extends AsyncResultBase {
         Debug.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Done;
         if (ok) {
-            this._state |= AsyncResult.OK;
+            this._state |= AsyncResult.Ok;
         }
         this._cancellationHandler = null;
         if (completed) {
@@ -105,7 +109,7 @@ export class AsyncResult extends AsyncResultBase {
 
     throwUserException() {
         Debug.assert((this._state & AsyncResult.Done) !== 0);
-        if ((this._state & AsyncResult.OK) === 0) {
+        if ((this._state & AsyncResult.Ok) === 0) {
             try {
                 this._is.startEncapsulation();
                 this._is.throwException();
@@ -117,8 +121,20 @@ export class AsyncResult extends AsyncResultBase {
             }
         }
     }
+
+    get communicator() {
+        return this._communicator;
+    }
+
+    get proxy() {
+        return this._proxy;
+    }
+
+    get operation() {
+        return this._operation;
+    }
 }
 
-AsyncResult.OK = 0x1;
+AsyncResult.Ok = 0x1;
 AsyncResult.Done = 0x2;
 AsyncResult.Sent = 0x4;

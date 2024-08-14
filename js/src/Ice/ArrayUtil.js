@@ -42,15 +42,6 @@ export class ArrayUtil {
 
         return true;
     }
-
-    static shuffle(arr) {
-        for (let i = arr.length; i > 1; --i) {
-            const e = arr[i - 1];
-            const rand = Math.floor(Math.random() * i);
-            arr[i - 1] = arr[rand];
-            arr[rand] = e;
-        }
-    }
 }
 
 ArrayUtil.eq = eq;

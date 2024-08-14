@@ -178,6 +178,11 @@ namespace Slice
             std::string
             typeToTsString(const TypePtr&, bool nullable = false, bool forParameter = false, bool optional = false)
                 const;
+            void writeOpDocSummary(
+                ::IceInternal::Output& out,
+                const OperationPtr& op,
+                const CommentPtr& doc,
+                bool forDispatch);
 
             // The module name of the current unit.
             std::string _module;
