@@ -13,7 +13,6 @@ xcodesdk_ldflags        = $(static_ldflags)
 # $(call make-xcodesdk,$1=translator)
 #
 define make-xcodesdk
-
 $(install_sdkdir)/%.sdk/SDKSettings.plist $(top_srcdir)/sdk/%.sdk/SDKSettings.plist: \
 	$(top_srcdir)/config/%-SDKSettings.plist
 	$(Q)$(MKDIR) -p $$(@D)
@@ -93,7 +92,6 @@ endef
 # $(call make-xcode-project,$1=project)
 #
 define make-xcode-project
-
 #
 # Define per-<platform-config> rules for this component.
 #
