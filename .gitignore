@@ -134,6 +134,9 @@ Carthage
 # Python Formatter cache
 .ruff_cache
 
+# Python venv
+.venv
+
 # SPM build artifacts
 .build
 .swiftpm

@@ -13,16 +13,17 @@ You can also download and install a [binary distribution].
 
 You can build the Ice for Python extension using [build]. Follow these steps:
 
-Ensure you have pip installed
+First create a new Python virtual environment to install the Python build package, and activate it
 
 ```shell
-python -m ensurepip --upgrade
+python -m venv .venv
+source .venv/bin/activate
 ```
 
-Install the build module
+Install the Python build package
 
 ```shell
-pip install build
+python -m pip install build
 ```
 
 Build the extension
@@ -33,6 +34,12 @@ python -m build
 
 After running these commands, the build module will generate both the source distribution (.tar.gz) and the wheel
 distribution (.whl) in the dist directory.
+
+Exit the virtual enviroment
+
+```shell
+deactivate
+```
 
 ## Building with Visual Studio 2022 and MSBuild (Python 3.12 for Windows)
 
