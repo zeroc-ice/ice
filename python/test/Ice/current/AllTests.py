@@ -60,7 +60,7 @@ def allTests(helper, communicator, collocated):
     if collocated:
         test(7 == proxy.getRequestId())
     else:
-        proxy.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        proxy.ice_getConnection().close()
         test(1 == proxy.getRequestId())
     print("ok")
 

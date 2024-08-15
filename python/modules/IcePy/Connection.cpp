@@ -193,24 +193,49 @@ connectionHash(ConnectionObject* self)
 }
 
 extern "C" PyObject*
-connectionClose(ConnectionObject* self, PyObject* args)
+connectionAbort(ConnectionObject* self, PyObject* /* args */)
 {
-    PyObject* closeType = lookupType("Ice.ConnectionClose");
-    PyObject* mode;
-    if (!PyArg_ParseTuple(args, "O!", closeType, &mode))
+    assert(self->connection);
+    try
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
+        (*self->connection)->abort();
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
         return nullptr;
     }
 
-    PyObjectHandle v{getAttr(mode, "_value", true)};
-    assert(v.get());
-    Ice::ConnectionClose cc = static_cast<Ice::ConnectionClose>(PyLong_AsLong(v.get()));
+    return Py_None;
+}
+
+extern "C" PyObject*
+connectionClose(ConnectionObject* self, PyObject* args)
+{
+    // TODO: temporary. For now True = wait (default) and False = don't wait.
+
+    bool waitForClose = true;
+
+    PyObject* flag = nullptr;
+    if (!PyArg_ParseTuple(args, "|O", &flag))
+    {
+        return nullptr;
+    }
+    if (flag)
+    {
+        waitForClose =  PyObject_IsTrue(flag) == 1;
+    }
 
     assert(self->connection);
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
-        (*self->connection)->close(cc);
+        auto future = (*self->connection)->close();
+        if (waitForClose)
+        {
+            future.get();
+        }
     }
     catch (...)
     {
@@ -545,10 +570,14 @@ connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef ConnectionMethods[] = {
+    {"abort",
+     reinterpret_cast<PyCFunction>(connectionAbort),
+     METH_NOARGS,
+     PyDoc_STR("abort() -> None")},
     {"close",
      reinterpret_cast<PyCFunction>(connectionClose),
      METH_VARARGS,
-     PyDoc_STR("close(Ice.ConnectionClose) -> None")},
+     PyDoc_STR("close(bool) -> None")},
     {"createProxy",
      reinterpret_cast<PyCFunction>(connectionCreateProxy),
      METH_VARARGS,
