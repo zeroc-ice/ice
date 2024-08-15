@@ -183,7 +183,7 @@ BridgeConnection::outgoingSuccess(ConnectionPtr outgoing)
         // The incoming connection is already closed. There's no point in leaving the outgoing
         // connection open.
         //
-        outgoing->close(ConnectionClose::Gracefully);
+        outgoing->close(nullptr);
         return;
     }
 
@@ -219,7 +219,7 @@ BridgeConnection::outgoingException(exception_ptr ex)
     // The outgoing connection failed so we close the incoming connection. closed() will eventually
     // be called for it when the connection's dispatch count reaches zero.
     //
-    _incoming->close(ConnectionClose::Gracefully);
+    _incoming->close(nullptr);
 
     //
     // Complete the queued incoming dispatch, otherwise the incoming connection will never
@@ -254,7 +254,7 @@ BridgeConnection::closed(const ConnectionPtr& con)
         _exception = current_exception();
         if (toBeClosed)
         {
-            toBeClosed->close(ConnectionClose::Gracefully);
+            toBeClosed->close(nullptr);
         }
     }
     catch (const std::exception&)
@@ -262,7 +262,7 @@ BridgeConnection::closed(const ConnectionPtr& con)
         _exception = current_exception();
         if (toBeClosed)
         {
-            toBeClosed->close(ConnectionClose::Forcefully);
+            toBeClosed->abort();
         }
     }
 

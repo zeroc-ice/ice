@@ -32,3 +32,39 @@ Ice::Connection::flushBatchRequestsAsync(CompressBatch compress)
         [promise](bool) { promise->set_value(); });
     return promise->get_future();
 }
+
+future<void>
+Ice::Connection::close() noexcept
+{
+    auto sharedPromise = make_shared<promise<void>>();
+    close(
+        [sharedPromise](exception_ptr closeException)
+        {
+            try
+            {
+                rethrow_exception(closeException);
+            }
+            catch (const ConnectionClosedException&)
+            {
+                sharedPromise->set_value();
+            }
+            catch (const CloseConnectionException&)
+            {
+                sharedPromise->set_value();
+            }
+            catch (const CommunicatorDestroyedException&)
+            {
+                sharedPromise->set_value();
+            }
+            catch (const ObjectAdapterDeactivatedException&)
+            {
+                sharedPromise->set_value();
+            }
+            catch (...)
+            {
+                sharedPromise->set_exception(closeException);
+            }
+        });
+
+    return sharedPromise->get_future();
+}

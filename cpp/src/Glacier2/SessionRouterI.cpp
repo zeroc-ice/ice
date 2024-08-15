@@ -64,7 +64,7 @@ namespace Glacier2
 
             // Initiate a graceful closure of the connection. Only initiate and graceful because the ultimate caller
             // can be the Glacier2 client calling us over _connection.
-            _connection->close(ConnectionClose::Gracefully);
+            _connection->close(nullptr);
         }
 
     private:
@@ -842,7 +842,7 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
             out << "rejecting request, no session is associated with the connection.\n";
             out << "identity: " << identityToString(id);
         }
-        connection->close(ConnectionClose::Forcefully);
+        connection->abort();
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
     return nullptr;

@@ -30,6 +30,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <deque>
+#include <list>
 #include <mutex>
 
 #ifndef ICE_HAS_BZIP2
@@ -140,7 +141,9 @@ namespace Ice
         void activate();
         void hold();
         void destroy(DestructionReason);
-        void close(ConnectionClose) noexcept final; // From Connection.
+
+        void abort() noexcept final;
+        void close(std::function<void(std::exception_ptr)> whenClosed) noexcept final;
 
         bool isActiveOrHolding() const;
         bool isFinished() const;
@@ -322,6 +325,8 @@ namespace Ice
         void scheduleInactivityTimerTask();
         void cancelInactivityTimerTask();
 
+        void doApplicationClose() noexcept;
+
         Ice::CommunicatorPtr _communicator;
         const IceInternal::InstancePtr _instance;
         const IceInternal::TransceiverPtr _transceiver;
@@ -397,7 +402,12 @@ namespace Ice
         bool _initialized;
         bool _validated;
 
+        // When true, the application called close and Connection must close the connection when it receives the reply
+        // for the last outstanding invocation.
+        bool _closeRequested = false;
+
         CloseCallback _closeCallback;
+        std::list<std::function<void(std::exception_ptr)>> _whenClosedList;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _conditionVariable;

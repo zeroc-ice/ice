@@ -47,27 +47,6 @@ namespace Ice
     };
 
     /**
-     * Determines the behavior when manually closing a connection.
-     */
-    enum class ConnectionClose : std::uint8_t
-    {
-        /**
-         * Close the connection immediately without sending a close connection protocol message to the peer and waiting
-         * for the peer to acknowledge it.
-         */
-        Forcefully,
-        /**
-         * Close the connection by notifying the peer but do not wait for pending outgoing invocations to complete. On
-         * the server side, the connection will not be closed until all incoming invocations have completed.
-         */
-        Gracefully,
-        /**
-         * Wait for all pending invocations to complete before closing the connection.
-         */
-        GracefullyWithWait
-    };
-
-    /**
      * A collection of HTTP headers.
      */
     using HeaderDict = std::map<std::string, std::string>;
@@ -144,11 +123,24 @@ namespace Ice
         virtual ~Connection() = 0;
 
         /**
-         * Manually close the connection using the specified closure mode.
-         * @param mode Determines how the connection will be closed.
-         * @see ConnectionClose
+         * Aborts this connection immediately.
          */
-        virtual void close(ConnectionClose mode) noexcept = 0;
+        virtual void abort() noexcept = 0;
+
+        /**
+         * Starts a graceful closure of this connection once all outstanding invocations have completed.
+         * @param whenClosed A callback that is called when the connection is closed. Its parameter is always non-
+         * null and describes the reason for the closure. Several exceptions, including Ice::ConnectionClosedException,
+         * indicate a graceful closure. This callback is called immediately (and synchronously) if close is called on a
+         * closed connection. You can pass nullptr if you don't need to be notified when the connection is closed.
+         */
+        virtual void close(std::function<void(std::exception_ptr)> whenClosed) noexcept = 0;
+
+        /**
+         * Starts a graceful closure of this connection once all outstanding invocations have completed.
+         * @return A future that completes then the connection is closed.
+         */
+        std::future<void> close() noexcept;
 
         /**
          * Create a special proxy that always uses this connection. This can be used for callbacks from a server to a

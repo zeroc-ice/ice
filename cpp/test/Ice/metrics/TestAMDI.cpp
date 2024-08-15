@@ -16,7 +16,7 @@ MetricsI::opAsync(function<void()> response, function<void(exception_ptr)>, cons
 void
 MetricsI::failAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
-    current.con->close(Ice::ConnectionClose::Forcefully);
+    current.con->abort();
     response();
 }
 
