@@ -55,7 +55,7 @@ namespace Ice
     public interface Connection
     {
         /// <summary>
-        /// Aborts this connection immediately.
+        /// Aborts this connection.
         /// </summary>
         void abort();
 
@@ -63,6 +63,8 @@ namespace Ice
         /// Closes the connection gracefully after waiting for all outstanding invocations to complete.
         /// </summary>
         /// <returns>A task that completes when the connection is closed.</returns>
+        /// <remarks>If this operation takes longer than the configured close timeout, the connection is aborted with a
+        /// <see cref="CloseTimeoutException"/> .</remarks>
         Task closeAsync();
 
         /// <summary>

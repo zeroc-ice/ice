@@ -180,6 +180,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 else
                 {
                     _closeRequested = true;
+                    scheduleCloseTimer(); // we don't wait forever for outstanding invocations to complete
                 }
             }
             // else nothing to do, already closing or closed.
@@ -1794,13 +1795,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
             os.writeInt(Protocol.headerSize); // Message size.
 
-            if (_closeTimeout > TimeSpan.Zero)
-            {
-                var closeTimer = new System.Threading.Timer(
-                    timerObj => closeTimedOut((System.Threading.Timer)timerObj));
-                // schedule timer to run once; closeTimedOut disposes the timer too.
-                closeTimer.Change(_closeTimeout, Timeout.InfiniteTimeSpan);
-            }
+            scheduleCloseTimer();
 
             if ((sendMessage(new OutgoingMessage(os, false, false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
             {
@@ -2291,13 +2286,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         int op = _transceiver.closing(false, _exception);
                         if (op != 0)
                         {
-                            if (_closeTimeout > TimeSpan.Zero)
-                            {
-                                var closeTimer = new System.Threading.Timer(
-                                    timerObj => closeTimedOut((System.Threading.Timer)timerObj));
-                                // schedule timer to run once; closeTimedOut disposes the timer too.
-                                closeTimer.Change(_closeTimeout, Timeout.InfiniteTimeSpan);
-                            }
+                            scheduleCloseTimer();
                             return op;
                         }
                         setState(StateClosed);
@@ -2773,6 +2762,17 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             _inactivityTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             _inactivityTimer.Dispose();
             _inactivityTimer = null;
+        }
+    }
+
+    private void scheduleCloseTimer()
+    {
+        if (_closeTimeout > TimeSpan.Zero)
+        {
+            var closeTimer = new System.Threading.Timer(
+                timerObj => closeTimedOut((System.Threading.Timer)timerObj));
+            // schedule timer to run once; closeTimedOut disposes the timer too.
+            closeTimer.Change(_closeTimeout, Timeout.InfiniteTimeSpan);
         }
     }
 
