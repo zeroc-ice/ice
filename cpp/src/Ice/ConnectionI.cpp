@@ -505,6 +505,7 @@ Ice::ConnectionI::close(function<void(std::exception_ptr)> whenClosed) noexcept
                 {
                     // We'll close the connection when we get the last reply message.
                     _closeRequested = true;
+                    scheduleCloseTimerTask(); // we don't want to wait forever
                 }
             }
             // else nothing to do
@@ -2195,10 +2196,7 @@ Ice::ConnectionI::initiateShutdown()
         os.write(static_cast<uint8_t>(1)); // compression status: compression supported but not used.
         os.write(headerSize);              // Message size.
 
-        if (_closeTimeout > chrono::seconds::zero())
-        {
-            _timer->schedule(make_shared<CloseTimerTask>(shared_from_this()), _closeTimeout);
-        }
+        scheduleCloseTimerTask();
 
         OutgoingMessage message(&os, false);
         if (sendMessage(message) & AsyncStatusSent)
@@ -3116,10 +3114,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     SocketOperation op = _transceiver->closing(false, _exception);
                     if (op)
                     {
-                        if (_closeTimeout > chrono::seconds::zero())
-                        {
-                            _timer->schedule(make_shared<CloseTimerTask>(shared_from_this()), _closeTimeout);
-                        }
+                        scheduleCloseTimerTask();
                         return op;
                     }
                     setState(StateClosed);
@@ -3457,6 +3452,18 @@ ConnectionI::cancelInactivityTimerTask()
     {
         _inactivityTimerTaskScheduled = false;
         _timer->cancel(_inactivityTimerTask);
+    }
+}
+
+void
+ConnectionI::scheduleCloseTimerTask()
+{
+    // Called with the ConnectionI mutex locked.
+
+    if (_closeTimeout > chrono::seconds::zero())
+    {
+        // We schedule a new task every time this function is called.
+        _timer->schedule(make_shared<CloseTimerTask>(shared_from_this()), _closeTimeout);
     }
 }
 

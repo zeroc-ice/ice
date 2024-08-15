@@ -325,6 +325,7 @@ namespace Ice
         void scheduleInactivityTimerTask();
         void cancelInactivityTimerTask();
 
+        void scheduleCloseTimerTask();
         void doApplicationClose() noexcept;
 
         Ice::CommunicatorPtr _communicator;

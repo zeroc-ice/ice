@@ -123,7 +123,7 @@ namespace Ice
         virtual ~Connection() = 0;
 
         /**
-         * Aborts this connection immediately.
+         * Aborts this connection.
          */
         virtual void abort() noexcept = 0;
 
@@ -133,6 +133,8 @@ namespace Ice
          * null and describes the reason for the closure. Several exceptions, including Ice::ConnectionClosedException,
          * indicate a graceful closure. This callback is called immediately (and synchronously) if close is called on a
          * closed connection. You can pass nullptr if you don't need to be notified when the connection is closed.
+         * @remarks If this operation takes longer than the configured close timeout, the connection is aborted with a
+         * CloseTimeoutException.
          */
         virtual void close(std::function<void(std::exception_ptr)> whenClosed) noexcept = 0;
 
