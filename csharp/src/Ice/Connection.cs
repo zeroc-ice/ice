@@ -64,7 +64,7 @@ namespace Ice
         /// </summary>
         /// <returns>A task that completes when the connection is closed.</returns>
         /// <remarks>If this operation takes longer than the configured close timeout, the connection is aborted with a
-        /// <see cref="CloseTimeoutException"/> .</remarks>
+        /// <see cref="CloseTimeoutException"/>.</remarks>
         Task closeAsync();
 
         /// <summary>
