@@ -23,38 +23,39 @@
 
 - (void)close:(void (^)(NSError* _Nullable error))completionHandler
 {
-    self.connection->close([completionHandler](std::exception_ptr closeException)
-    {
-        // Keep this code in sync with the future-returning Ice::Connection::close in C++.
-        try
+    self.connection->close(
+        [completionHandler](std::exception_ptr closeException)
         {
-            rethrow_exception(closeException);
-        }
-        catch (const Ice::ConnectionClosedException&)
-        {
-            completionHandler(nil);
-        }
-        catch (const Ice::CloseConnectionException&)
-        {
-            completionHandler(nil);
-        }
-        catch (const Ice::CommunicatorDestroyedException&)
-        {
-            completionHandler(nil);
-        }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
-        {
-            completionHandler(nil);
-        }
-        catch (...)
-        {
-            // TODO: explain why we need an autoreleasepool here.
-            @autoreleasepool
+            // Keep this code in sync with the future-returning Ice::Connection::close in C++.
+            try
             {
-                completionHandler(convertException(closeException));
+                rethrow_exception(closeException);
             }
-        }
-    });
+            catch (const Ice::ConnectionClosedException&)
+            {
+                completionHandler(nil);
+            }
+            catch (const Ice::CloseConnectionException&)
+            {
+                completionHandler(nil);
+            }
+            catch (const Ice::CommunicatorDestroyedException&)
+            {
+                completionHandler(nil);
+            }
+            catch (const Ice::ObjectAdapterDeactivatedException&)
+            {
+                completionHandler(nil);
+            }
+            catch (...)
+            {
+                // TODO: explain why we need an autoreleasepool here.
+                @autoreleasepool
+                {
+                    completionHandler(convertException(closeException));
+                }
+            }
+        });
 }
 
 - (nullable ICEObjectPrx*)createProxy:(NSString*)name category:(NSString*)category error:(NSError**)error

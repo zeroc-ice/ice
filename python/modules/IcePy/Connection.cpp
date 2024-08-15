@@ -224,7 +224,7 @@ connectionClose(ConnectionObject* self, PyObject* args)
     }
     if (flag)
     {
-        waitForClose =  PyObject_IsTrue(flag) == 1;
+        waitForClose = PyObject_IsTrue(flag) == 1;
     }
 
     assert(self->connection);
@@ -570,14 +570,8 @@ connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef ConnectionMethods[] = {
-    {"abort",
-     reinterpret_cast<PyCFunction>(connectionAbort),
-     METH_NOARGS,
-     PyDoc_STR("abort() -> None")},
-    {"close",
-     reinterpret_cast<PyCFunction>(connectionClose),
-     METH_VARARGS,
-     PyDoc_STR("close(bool) -> None")},
+    {"abort", reinterpret_cast<PyCFunction>(connectionAbort), METH_NOARGS, PyDoc_STR("abort() -> None")},
+    {"close", reinterpret_cast<PyCFunction>(connectionClose), METH_VARARGS, PyDoc_STR("close(bool) -> None")},
     {"createProxy",
      reinterpret_cast<PyCFunction>(connectionCreateProxy),
      METH_VARARGS,
