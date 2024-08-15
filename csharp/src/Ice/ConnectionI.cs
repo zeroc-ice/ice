@@ -196,8 +196,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     Debug.Assert(waitForInvocations && _asyncRequests.Count > 0);
                     if (_asyncRequestsCompleted is null || _asyncRequestsCompleted.Task.IsCompleted)
                     {
-                        // Create or recreate the task completion source within lock.
-                        _asyncRequestsCompleted = new TaskCompletionSource();
+                        // Create or recreate the task completion source within lock. RunContinuationsAsynchronously
+                        // because we call SetResult within a lock(this) block.
+                        _asyncRequestsCompleted =
+                            new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                     }
                     // else, reuse existing (shared) task completion source
 
