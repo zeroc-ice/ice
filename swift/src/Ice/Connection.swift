@@ -63,69 +63,6 @@ extension OutputStream {
     }
 }
 
-/// Determines the behavior when manually closing a connection.
-public enum ConnectionClose: UInt8 {
-    /// Forcefully Close the connection immediately without sending a close connection protocol message to the peer
-    /// and waiting for the peer to acknowledge it.
-    case Forcefully = 0
-    /// Gracefully Close the connection by notifying the peer but do not wait for pending outgoing invocations to
-    /// complete. On the server side, the connection will not be closed until all incoming invocations have completed.
-    case Gracefully = 1
-    /// GracefullyWithWait Wait for all pending invocations to complete before closing the connection.
-    case GracefullyWithWait = 2
-    public init() {
-        self = .Forcefully
-    }
-}
-
-/// An `Ice.InputStream` extension to read `ConnectionClose` enumerated values from the stream.
-extension InputStream {
-    /// Read an enumerated value.
-    ///
-    /// - returns: `ConnectionClose` - The enumerated value.
-    public func read() throws -> ConnectionClose {
-        let rawValue: UInt8 = try read(enumMaxValue: 2)
-        guard let val = ConnectionClose(rawValue: rawValue) else {
-            throw MarshalException("invalid enum value")
-        }
-        return val
-    }
-
-    /// Read an optional enumerated value from the stream.
-    ///
-    /// - parameter tag: `Int32` - The numeric tag associated with the value.
-    ///
-    /// - returns: `ConnectionClose` - The enumerated value.
-    public func read(tag: Int32) throws -> ConnectionClose? {
-        guard try readOptional(tag: tag, expectedFormat: .Size) else {
-            return nil
-        }
-        return try read() as ConnectionClose
-    }
-}
-
-/// An `Ice.OutputStream` extension to write `ConnectionClose` enumerated values to the stream.
-extension OutputStream {
-    /// Writes an enumerated value to the stream.
-    ///
-    /// parameter _: `ConnectionClose` - The enumerator to write.
-    public func write(_ v: ConnectionClose) {
-        write(enum: v.rawValue, maxValue: 2)
-    }
-
-    /// Writes an optional enumerated value to the stream.
-    ///
-    /// parameter tag: `Int32` - The numeric tag associated with the value.
-    ///
-    /// parameter _: `ConnectionClose` - The enumerator to write.
-    public func write(tag: Int32, value: ConnectionClose?) {
-        guard let v = value else {
-            return
-        }
-        write(tag: tag, val: v.rawValue, maxValue: 2)
-    }
-}
-
 /// A collection of HTTP headers.
 public typealias HeaderDict = [String: String]
 
@@ -151,10 +88,14 @@ public typealias CloseCallback = (Connection?) -> Void
 
 /// The user-level interface to a connection.
 public protocol Connection: AnyObject, CustomStringConvertible {
-    /// Manually close the connection using the specified closure mode.
-    ///
-    /// - parameter _: `ConnectionClose` Determines how the connection will be closed.
-    func close(_ mode: ConnectionClose) throws
+
+    /// Aborts this connection.
+    func abort()
+
+    /// Closes this connection gracefully after all outstanding invocations have completed.
+    /// If this operation takes longer than the configured close timeout, the connection is aborted with a
+    /// `CloseTimeoutException`.
+    func close() async throws
 
     /// Create a special proxy that always uses this connection. This can be used for callbacks from a server to a
     /// client if the server cannot directly establish a connection to the client, for example because of firewalls. In
