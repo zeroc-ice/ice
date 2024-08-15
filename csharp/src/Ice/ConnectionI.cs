@@ -176,7 +176,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             lock (this)
             {
                 // We don't wait for outstanding two-way invocations if the connection is already closed. The closing
-                // aborts these these invocations anyway.
+                // aborts these invocations anyway.
                 if (_state >= StateClosing)
                 {
                     break; // exit the forever loop
@@ -196,7 +196,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     Debug.Assert(waitForInvocations && _asyncRequests.Count > 0);
                     if (_asyncRequestsCompleted is null || _asyncRequestsCompleted.Task.IsCompleted)
                     {
-                        // Create or recreate the task completion source within lock
+                        // Create or recreate the task completion source within lock.
                         _asyncRequestsCompleted = new TaskCompletionSource();
                     }
                     // else, reuse existing (shared) task completion source
@@ -1289,6 +1289,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             CommunicatorDestroyedException or
             ObjectAdapterDeactivatedException)
         {
+            // Can execute synchronously. Note that we're not within a lock(this) here.
             _closed.SetResult();
         }
         else
@@ -2407,7 +2408,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         }
                         if (_asyncRequests.Count == 0 && _asyncRequestsCompleted is TaskCompletionSource tcs)
                         {
-                            // Notify closeAsync that all two-way invocations have completed.
+                            // Notify closeAsync that all two-way invocations have completed. It's ok to make this call
+                            // within lock(this) because the continuation runs asynchronously.
                             tcs.SetResult();
                         }
                     }
