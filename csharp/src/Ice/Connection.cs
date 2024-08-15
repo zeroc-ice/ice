@@ -55,17 +55,15 @@ namespace Ice
     public interface Connection
     {
         /// <summary>
-        /// Closes the connection forcefully without waiting for any other operation to complete.
+        /// Aborts this connection immediately.
         /// </summary>
         void abort();
 
         /// <summary>
-        /// Closes the connection gracefully.
+        /// Closes the connection gracefully after waiting for all outstanding invocations to complete.
         /// </summary>
-        /// <param name="waitForInvocations">If true, this operation waits for all pending invocations to complete
-        /// before closing the connection.</param>
         /// <returns>A task that completes when the connection is closed.</returns>
-        Task closeAsync(bool waitForInvocations = true);
+        Task closeAsync();
 
         /// <summary>
         /// Create a special proxy that always uses this connection.

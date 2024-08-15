@@ -691,7 +691,7 @@ namespace Ice
 
                 if (p.ice_getConnection() != null && p.supportsAMD())
                 {
-                    output.Write("testing graceful close connection with wait... ");
+                    output.Write("testing connection close... ");
                     output.Flush();
                     {
                         //
@@ -713,7 +713,7 @@ namespace Ice
                         byte[] seq = new byte[1024 * 10];
 
                         //
-                        // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+                        // Send multiple opWithPayload, followed by a close and followed by multiple opWithPayload.
                         // The goal is to make sure that none of the opWithPayload fail even if the server closes
                         // the connection gracefully in between.
                         //
@@ -764,46 +764,7 @@ namespace Ice
                     }
                     output.WriteLine("ok");
 
-                    output.Write("testing graceful close connection without wait... ");
-                    output.Flush();
-                    {
-                        //
-                        // Local case: start an operation and then close the connection gracefully on the client side
-                        // without waiting for the pending invocation to complete. There will be no retry and we expect the
-                        // invocation to fail with ConnectionClosedException.
-                        //
-                        p = (Test.TestIntfPrx)p.ice_connectionId("CloseGracefully"); // Start with a new connection.
-                        Connection con = p.ice_getConnection();
-                        var tcs = new TaskCompletionSource();
-                        Task t = p.startDispatchAsync(progress: new Progress<bool>(_ => tcs.SetResult()));
-                        await tcs.Task; // Ensure the request was sent before we close the connection.
-                        await con.closeAsync(waitForInvocations: false);
-                        try
-                        {
-                            await t;
-                            test(false);
-                        }
-                        catch (ConnectionClosedException ex)
-                        {
-                            test(ex.closedByApplication);
-                        }
-                        p.finishDispatch();
-
-                        //
-                        // Remote case: the server closes the connection gracefully, which means the connection
-                        // will not be closed until all pending dispatched requests have completed.
-                        //
-                        con = p.ice_getConnection();
-                        tcs = new TaskCompletionSource();
-                        con.setCloseCallback(_ => tcs.SetResult());
-                        t = p.sleepAsync(100);
-                        p.close(Test.CloseMode.Gracefully); // Close is delayed until sleep completes.
-                        await tcs.Task;
-                        await t;
-                    }
-                    output.WriteLine("ok");
-
-                    output.Write("testing forceful close connection... ");
+                    output.Write("testing connection abort... ");
                     output.Flush();
                     {
                         //
