@@ -294,6 +294,12 @@ dotnet_diagnostic.CA1859.severity = none
 # SA0001: XML comment analysis is disabled due to project configuration
 dotnet_diagnostic.SA0001.severity = none
 
+# SA1004: Documentation line should begin with a space
+dotnet_diagnostic.SA1004.severity = none
+
+# SA1606: Element documentation should have summary text
+dotnet_diagnostic.SA1606.severity = none
+
 # SA1008: Opening parenthesis should not be preceded by a space
 dotnet_diagnostic.SA1008.severity = none
 
@@ -309,11 +315,50 @@ dotnet_diagnostic.SA1502.severity = none
 # SA1136: Enum values should be on separate lines
 dotnet_diagnostic.SA1136.severity = none
 
+# SA1506: Element documentation headers should not be followed by blank line
+dotnet_diagnostic.SA1506.severity = none
+
 # SA1509: Opening braces should not be preceded by blank line
 dotnet_diagnostic.SA1509.severity = none
 
+# SA1514: Element documentation header should be preceded by blank line
+dotnet_diagnostic.SA1514.severity = none
+
 # SA1505: An opening brace should not be followed by a blank line
 dotnet_diagnostic.SA1505.severity = none
+
+# SA1600: Elements should be documented
+dotnet_diagnostic.SA1600.severity = none
+
+# SA1602: Enumeration items should be documented
+dotnet_diagnostic.SA1602.severity = none
+
+# SA1604: Element documentation should have summary
+dotnet_diagnostic.SA1604.severity = none
+
+# SA1611 The documentation for parameter is missing
+dotnet_diagnostic.SA1611.severity = none
+
+# SA1612: The parameter does not exist 
+dotnet_diagnostic.SA1612.severity = none
+
+# SA1615: Element return value should be documented
+dotnet_diagnostic.SA1615.severity = none
+
+# SA1618: The documentation for type parameter 'TKey' is missing
+dotnet_diagnostic.SA1618.severity = none
+
+# SA1623: The property's documentation summary text should begin with: 'Gets or sets'
+dotnet_diagnostic.SA1623.severity = none
+
+# SA1626: Single-line comments should not use documentation style slashes
+dotnet_diagnostic.SA1626.severity = none
+
+# SA1627: The documentation text within the 'exception' tag should not be empty
+dotnet_diagnostic.SA1627.severity = none
+
+# SA1629: Documentation text should end with a period
+dotnet_diagnostic.SA1629.severity = none
 
 # SA1636: The file header copyright text should match the copyright text from the settings.
 dotnet_diagnostic.SA1636.severity = none

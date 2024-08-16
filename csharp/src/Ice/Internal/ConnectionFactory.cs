@@ -864,10 +864,7 @@ public sealed class OutgoingConnectionFactory
 
         public bool removeConnectors(List<ConnectorInfo> connectors)
         {
-            foreach (ConnectorInfo ci in connectors)
-            {
-                while (_connectors.Remove(ci)); // Remove all of them.
-            }
+            _connectors.RemoveAll(ci => connectors.Contains(ci));
             return _connectors.Count == 0;
         }
 
