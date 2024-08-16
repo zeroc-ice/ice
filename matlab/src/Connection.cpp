@@ -156,33 +156,34 @@ extern "C"
         auto connection = deref<Ice::Connection>(self);
 
         auto futurePtr = make_shared<SimpleFuture>();
-        connection->close([futurePtr](exception_ptr closeException)
-        {
-            try
+        connection->close(
+            [futurePtr](exception_ptr closeException)
             {
-                rethrow_exception(closeException);
-            }
-            catch (const Ice::ConnectionClosedException&)
-            {
-                futurePtr->done();
-            }
-            catch (const Ice::CloseConnectionException&)
-            {
-                futurePtr->done();
-            }
-            catch (const Ice::CommunicatorDestroyedException&)
-            {
-                futurePtr->done();
-            }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
-            {
-                futurePtr->done();
-            }
-            catch (...)
-            {
-                futurePtr->exception(closeException);
-            }
-        });
+                try
+                {
+                    rethrow_exception(closeException);
+                }
+                catch (const Ice::ConnectionClosedException&)
+                {
+                    futurePtr->done();
+                }
+                catch (const Ice::CloseConnectionException&)
+                {
+                    futurePtr->done();
+                }
+                catch (const Ice::CommunicatorDestroyedException&)
+                {
+                    futurePtr->done();
+                }
+                catch (const Ice::ObjectAdapterDeactivatedException&)
+                {
+                    futurePtr->done();
+                }
+                catch (...)
+                {
+                    futurePtr->exception(closeException);
+                }
+            });
 
         *future = new shared_ptr<SimpleFuture>(move(futurePtr));
         return nullptr;
