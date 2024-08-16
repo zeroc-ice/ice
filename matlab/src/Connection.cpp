@@ -145,43 +145,47 @@ extern "C"
         }
     }
 
-    mxArray* Ice_Connection_close(void* self, mxArray* m)
+    mxArray* Ice_Connection_abort(void* self)
     {
-        try
-        {
-            auto mode = static_cast<Ice::ConnectionClose>(getEnumerator(m, "Ice.ConnectionClose"));
-            deref<Ice::Connection>(self)->close(mode);
-        }
-        catch (...)
-        {
-            return convertException(std::current_exception());
-        }
-        return 0;
+        deref<Ice::Connection>(self)->abort();
+        return nullptr;
     }
 
-    mxArray* Ice_Connection_closeAsync(void* self, mxArray* m, void** future)
+    mxArray* Ice_Connection_close(void* self, void** future)
     {
-        *future = 0;
-        auto c = deref<Ice::Connection>(self);
-        auto f = make_shared<SimpleFuture>();
+        auto connection = deref<Ice::Connection>(self);
 
-        thread t(
-            [m, c, f]
+        auto futurePtr = make_shared<SimpleFuture>();
+        connection->close([futurePtr](exception_ptr closeException)
+        {
+            try
             {
-                try
-                {
-                    auto mode = static_cast<Ice::ConnectionClose>(getEnumerator(m, "Ice.ConnectionClose"));
-                    c->close(mode);
-                    f->done();
-                }
-                catch (const std::exception&)
-                {
-                    f->exception(current_exception());
-                }
-            });
-        t.detach();
-        *future = new shared_ptr<SimpleFuture>(move(f));
-        return 0;
+                rethrow_exception(closeException);
+            }
+            catch (const Ice::ConnectionClosedException&)
+            {
+                futurePtr->done();
+            }
+            catch (const Ice::CloseConnectionException&)
+            {
+                futurePtr->done();
+            }
+            catch (const Ice::CommunicatorDestroyedException&)
+            {
+                futurePtr->done();
+            }
+            catch (const Ice::ObjectAdapterDeactivatedException&)
+            {
+                futurePtr->done();
+            }
+            catch (...)
+            {
+                futurePtr->exception(closeException);
+            }
+        });
+
+        *future = new shared_ptr<SimpleFuture>(move(futurePtr));
+        return nullptr;
     }
 
     mxArray* Ice_Connection_createProxy(void* self, mxArray* id, void** r)
