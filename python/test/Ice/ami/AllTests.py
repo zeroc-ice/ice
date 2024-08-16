@@ -6,6 +6,7 @@ import Ice
 import IcePy
 import Test
 import sys
+import time
 import threading
 import random
 
@@ -433,6 +434,9 @@ def allTests(helper, communicator, collocated):
         f = p.startDispatchAsync()
         f.sent()  # Ensure the request was sent before we close the connection.
         con.close(False)
+
+        # give time for startDispatch to start in the server before we call finishDispatch
+        time.sleep(0.1) # 100ms
         p.finishDispatch()
         f.result()
         cb.check()
