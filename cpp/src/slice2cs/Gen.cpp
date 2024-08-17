@@ -373,8 +373,6 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     DataMemberList classMembers = p->classDataMembers();
 
     _out << sp;
-    emitGeneratedCodeAttribute();
-
     _out << nl << "protected override void iceWriteImpl(Ice.OutputStream ostr_)";
     _out << sb;
     _out << nl << "ostr_.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
@@ -397,8 +395,6 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << eb;
 
     _out << sp;
-    emitGeneratedCodeAttribute();
-
     _out << nl << "protected override void iceReadImpl(Ice.InputStream istr_)";
     _out << sb;
     _out << nl << "istr_.startSlice();";
@@ -591,43 +587,10 @@ Slice::CsVisitor::emitAttributes(const ContainedPtr& p)
 }
 
 void
-Slice::CsVisitor::emitComVisibleAttribute()
-{
-    _out << nl << "[global::System.Runtime.InteropServices.ComVisible(false)]";
-}
-
-void
-Slice::CsVisitor::emitGeneratedCodeAttribute()
-{
-    _out << nl << "[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"slice2cs\", \"" << ICE_STRING_VERSION
-         << "\")]";
-}
-
-void
 Slice::CsVisitor::emitNonBrowsableAttribute()
 {
     _out << nl
          << "[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]";
-}
-
-void
-Slice::CsVisitor::emitPartialTypeAttributes()
-{
-    //
-    // We are not supposed to mark an entire partial type with GeneratedCodeAttribute, therefore
-    // FxCop may complain about naming convention violations. These attributes suppress those
-    // warnings, but only when the generated code is compiled with /define:CODE_ANALYSIS.
-    //
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1704\")]";
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1707\")]";
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1709\")]";
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1710\")]";
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1711\")]";
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1715\")]";
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1716\")]";
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1720\")]";
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1722\")]";
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1724\")]";
 }
 
 string
@@ -1463,12 +1426,9 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         fileBase = base.substr(pos + 1);
     }
     string file = fileBase + ".cs";
-    string fileImpl = fileBase + "I.cs";
-
     if (!dir.empty())
     {
         file = dir + '/' + file;
-        fileImpl = dir + '/' + fileImpl;
     }
 
     _out.open(file.c_str());
@@ -1484,8 +1444,15 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     printGeneratedHeader(_out, fileBase + ".ice");
 
     _out << nl << "#nullable enable";
-    _out << sp << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
-    _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
+    _out << sp;
+    _out << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
+
+    _out << sp;
+    _out << nl << "#pragma warning disable CS1591 // Missing XML Comment";
+    _out << nl << "#pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment";
+    _out << nl << "#pragma warning disable CS0612 // Type or member is obsolete";
+    _out << nl << "#pragma warning disable CS0618 // Type or member is obsolete";
+    _out << nl << "#pragma warning disable CS0619 // Type or member is obsolete";
 }
 
 Slice::Gen::~Gen()
@@ -1600,8 +1567,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     emitAttributes(p);
 
-    emitComVisibleAttribute();
-    emitPartialTypeAttributes();
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     if (p->compactId() >= 0)
     {
@@ -1638,7 +1603,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if (allDataMembers.empty())
     {
         _out << sp;
-        emitGeneratedCodeAttribute();
         _out << nl << "public " << name << spar << epar;
         _out << sb;
         _out << nl << "ice_initialize();";
@@ -1648,7 +1612,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         // Primary constructor.
         _out << sp;
-        emitGeneratedCodeAttribute();
         _out << nl << "public " << name << spar;
 
         vector<string> paramDecl;
@@ -1710,7 +1673,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if (secondaryCtorParams.size() != paramDecl.size())
         {
             _out << sp;
-            emitGeneratedCodeAttribute();
             _out << nl << "public " << name << spar << secondaryCtorParams << epar;
             if (base && secondaryCtorBaseParamNames.size() > 0)
             {
@@ -1731,7 +1693,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if (secondaryCtorParams.size() > 0)
         {
             _out << sp;
-            emitGeneratedCodeAttribute();
             emitNonBrowsableAttribute();
             _out << nl << "public " << name << "()";
             _out << sb;
@@ -1742,10 +1703,8 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public static new string ice_staticId() => \"" << p->scoped() << "\";";
 
-    emitGeneratedCodeAttribute();
     _out << nl << "public override string ice_id() => ice_staticId();";
     writeMarshaling(p);
 
@@ -1765,8 +1724,6 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp;
     emitAttributes(p);
 
-    emitComVisibleAttribute();
-    emitPartialTypeAttributes();
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial interface " << fixId(name);
 
@@ -1838,7 +1795,6 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     }
     emitAttributes(op);
     emitObsoleteAttribute(op, _out);
-    emitGeneratedCodeAttribute();
     _out << nl << retS << " " << opName << spar << params << epar << ";";
 }
 
@@ -1861,14 +1817,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeDocComment(p, getDeprecationMessageForComment(p, "type"));
     emitObsoleteAttribute(p, _out);
     emitAttributes(p);
-    emitComVisibleAttribute();
-    //
-    // Suppress diagnostic about missing constructors:
-    // https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1032
-    //
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1032\")]";
-
-    emitPartialTypeAttributes();
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial class " << name << " : ";
     if (base)
@@ -1899,7 +1847,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         // Primary constructor.
         _out << sp;
-        emitGeneratedCodeAttribute();
         _out << nl << "public " << name << spar;
 
         vector<string> paramDecl;
@@ -1961,7 +1908,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if (secondaryCtorParams.size() != paramDecl.size())
         {
             _out << sp;
-            emitGeneratedCodeAttribute();
             _out << nl << "public " << name << spar << secondaryCtorParams << epar;
             if (base && secondaryCtorBaseParamNames.size() > 0)
             {
@@ -1981,7 +1927,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if (secondaryCtorParams.size() > 0)
         {
             _out << sp;
-            emitGeneratedCodeAttribute();
             emitNonBrowsableAttribute();
             _out << nl << "public " << name << "()";
             _out << sb;
@@ -1991,13 +1936,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public override string ice_id() => \"" << p->scoped() << "\";";
 
     string scoped = p->scoped();
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "protected override void iceWriteImpl(Ice.OutputStream ostr_)";
     _out << sb;
     _out << nl << "ostr_.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
@@ -2022,7 +1965,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << eb;
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "protected override void iceReadImpl(Ice.InputStream istr_)";
     _out << sb;
     _out << nl << "istr_.startSlice();";
@@ -2049,7 +1991,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if (p->usesClasses() && !(base && base->usesClasses()))
     {
         _out << sp;
-        emitGeneratedCodeAttribute();
         _out << nl << "public override bool iceUsesClasses()";
         _out << sb;
         _out << nl << "return true;";
@@ -2070,7 +2011,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     emitObsoleteAttribute(p, _out);
 
     emitAttributes(p);
-    emitPartialTypeAttributes();
     _out << nl << "public " << (classMapping ? "sealed partial record class" : "partial record struct") << ' ' << name;
 
     //
@@ -2138,7 +2078,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         if (ctorParams.size() != dataMembers.size())
         {
             _out << sp;
-            emitGeneratedCodeAttribute();
             _out << nl << "public " << name << spar << ctorParams << epar;
             _out << sb;
             for (const auto& q : ctorParamNames)
@@ -2153,7 +2092,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public " << name << spar;
     vector<string> paramDecl;
     for (const auto& q : dataMembers)
@@ -2178,7 +2116,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     // Unmarshaling constructor
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "(Ice.InputStream istr)";
     _out << sb;
     for (const auto& q : dataMembers)
@@ -2189,7 +2126,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public void ice_writeMembers(Ice.OutputStream ostr)";
     _out << sb;
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -2199,14 +2135,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public static void ice_write(Ice.OutputStream ostr, " << name << " v)";
     _out << sb;
     _out << nl << "v.ice_writeMembers(ostr);";
     _out << eb;
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public static " << name << " ice_read(Ice.InputStream istr) => new(istr);";
     _out << eb;
 }
@@ -2224,7 +2158,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     emitObsoleteAttribute(p, _out);
     writeDocComment(p, getDeprecationMessageForComment(p, "type"));
     emitAttributes(p);
-    emitGeneratedCodeAttribute();
     _out << nl << "public enum " << name;
     _out << sb;
     for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
@@ -2243,7 +2176,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << eb;
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public sealed class " << p->name() << "Helper";
     _out << sb;
     _out << sp;
@@ -2253,7 +2185,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << eb;
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public static " << name << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << name << " v;";
@@ -2270,7 +2201,6 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     string name = fixId(p->name());
     _out << sp;
     emitAttributes(p);
-    emitGeneratedCodeAttribute();
     _out << nl << "public abstract class " << name;
     _out << sb;
     _out << sp << nl << "public const " << typeToString(p->type(), "") << " value = ";
@@ -2322,7 +2252,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string dataMemberName = fixId(p->name(), baseTypes, isClass);
 
     emitAttributes(p);
-    emitGeneratedCodeAttribute();
     if (isProtected)
     {
         _out << nl << "protected";
@@ -2464,7 +2393,6 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         string name = resultStructName(interface->name(), p->name(), true);
 
         _out << sp;
-        emitGeneratedCodeAttribute();
         _out << nl << "public readonly record struct " << name << " : Ice.MarshaledResult";
         _out << sb;
 
@@ -2522,7 +2450,6 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp;
     writeDocComment(p, getDeprecationMessageForComment(p, "interface"));
-    emitGeneratedCodeAttribute();
     _out << nl << "public interface " << name << "Prx : ";
 
     vector<string> baseInterfaces;
@@ -2829,8 +2756,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     InterfaceList bases = p->bases();
 
     _out << sp;
-    emitComVisibleAttribute();
-    emitGeneratedCodeAttribute();
     _out << nl << "public sealed class " << name << "PrxHelper : "
          << "Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
@@ -3223,7 +3148,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     string ns = getNamespace(p);
     string typeS = typeToString(p, ns);
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public sealed class " << p->name() << "Helper";
     _out << sb;
 
@@ -3261,7 +3185,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         // custom sequence type does not implement an indexer.
         //
         _out << sp;
-        emitGeneratedCodeAttribute();
         _out << nl << "public class " << p->name() << "_Tester";
         _out << sb;
         _out << nl << p->name() << "_Tester()";
@@ -3298,7 +3221,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     string name = "global::System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">";
 
     _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public sealed class " << p->name() << "Helper";
     _out << sb;
 
@@ -3384,8 +3306,6 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    emitComVisibleAttribute();
-    emitGeneratedCodeAttribute();
     _out << nl << "public abstract class " << name << "Disp_ : Ice.ObjectImpl, ";
 
     _out << fixId(name);

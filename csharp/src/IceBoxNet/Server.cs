@@ -10,8 +10,7 @@ public static class Server
         Console.Error.WriteLine(
             "Options:\n" +
             "-h, --help           Show this message.\n" +
-            "-v, --version        Display the Ice version."
-        );
+            "-v, --version        Display the Ice version.");
     }
 
     private static int run(Ice.Communicator communicator, string[] args)

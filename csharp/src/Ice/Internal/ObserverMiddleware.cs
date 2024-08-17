@@ -47,7 +47,7 @@ internal sealed class ObserverMiddleware : Object
                     default:
                         observer.failed(response.exceptionId ?? "");
                         break;
-                };
+                }
 
                 if (request.current.requestId != 0)
                 {
