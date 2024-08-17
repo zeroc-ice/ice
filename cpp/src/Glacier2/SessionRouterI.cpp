@@ -64,7 +64,7 @@ namespace Glacier2
 
             // Initiate a graceful closure of the connection. Only initiate and graceful because the ultimate caller
             // can be the Glacier2 client calling us over _connection.
-            _connection->close(nullptr);
+            _connection->close(nullptr, nullptr);
         }
 
     private:

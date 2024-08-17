@@ -129,14 +129,18 @@ namespace Ice
 
         /**
          * Starts a graceful closure of this connection once all outstanding invocations have completed.
-         * @param whenClosed A callback that is called when the connection is closed. Its parameter is always non-
-         * null and describes the reason for the closure. Several exceptions, including Ice::ConnectionClosedException,
-         * indicate a graceful closure. This callback is called immediately (and synchronously) if close is called on a
-         * closed connection. You can pass nullptr if you don't need to be notified when the connection is closed.
-         * @remarks If this operation takes longer than the configured close timeout, the connection is aborted with a
+         * @param response A callback called when the connection is closed gracefully. This callback is not called when
+         * the exception callback is called.
+         * @param exception A callback called when the connection closure failed. Its exception_ptr parameter is always
+         * non-null and describes the reason for the closure. This callback is not called when the response callback is
+         * called.
+         * @remarks The response and exception callbacks may be called synchronously (from the calling thread); in
+         * particular, this occurs when you call close on a connection that is already closed.
+         * If closing the connection takes longer than the configured close timeout, the connection is aborted with a
          * CloseTimeoutException.
          */
-        virtual void close(std::function<void(std::exception_ptr)> whenClosed) noexcept = 0;
+        virtual void
+        close(std::function<void()> response, std::function<void(std::exception_ptr)> exception) noexcept = 0;
 
         /**
          * Starts a graceful closure of this connection once all outstanding invocations have completed.

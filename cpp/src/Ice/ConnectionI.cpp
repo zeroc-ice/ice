@@ -478,7 +478,7 @@ Ice::ConnectionI::abort() noexcept
 }
 
 void
-Ice::ConnectionI::close(function<void(std::exception_ptr)> whenClosed) noexcept
+Ice::ConnectionI::close(function<void()> response, function<void(std::exception_ptr)> exception) noexcept
 {
     std::exception_ptr closeException = nullptr;
     {
@@ -490,9 +490,9 @@ Ice::ConnectionI::close(function<void(std::exception_ptr)> whenClosed) noexcept
         }
         else
         {
-            if (whenClosed)
+            if (response || exception)
             {
-                _whenClosedList.push_back(std::move(whenClosed));
+                _onClosedList.push_back(make_pair(std::move(response), std::move(exception)));
             }
 
             if (_state < StateClosing)
@@ -514,9 +514,29 @@ Ice::ConnectionI::close(function<void(std::exception_ptr)> whenClosed) noexcept
 
     if (closeException) // already closed
     {
-        if (whenClosed)
+        try
         {
-            whenClosed(closeException);
+            rethrow_exception(closeException);
+        }
+        catch (const ConnectionClosedException&)
+        {
+            response();
+        }
+        catch (const CloseConnectionException&)
+        {
+            response();
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            response();
+        }
+        catch (const ObjectAdapterDeactivatedException&)
+        {
+            response();
+        }
+        catch (...)
+        {
+            exception(closeException);
         }
     }
 }
@@ -1701,11 +1721,53 @@ Ice::ConnectionI::finish(bool close)
     _readStream.clear();
     _readStream.b.clear();
 
-    for (auto& cb : _whenClosedList)
+    if (!_onClosedList.empty())
     {
-        cb(_exception); // the _whenClosed callback should be noexcept
+        bool success;
+        try
+        {
+            rethrow_exception(_exception);
+        }
+        catch (const ConnectionClosedException&)
+        {
+            success = true;
+        }
+        catch (const CloseConnectionException&)
+        {
+            success = true;
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            success = true;
+        }
+        catch (const ObjectAdapterDeactivatedException&)
+        {
+            success = true;
+        }
+        catch (...)
+        {
+            success = false;
+        }
+
+        for (auto& pair : _onClosedList)
+        {
+            if (success)
+            {
+                if (pair.first)
+                {
+                    pair.first();
+                }
+            }
+            else
+            {
+                if (pair.second)
+                {
+                    pair.second(_exception);
+                }
+            }
+        }
+        _onClosedList.clear(); // break potential cycles
     }
-    _whenClosedList.clear(); // break potential cycles
 
     if (_closeCallback)
     {

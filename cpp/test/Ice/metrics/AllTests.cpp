@@ -594,7 +594,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["holding"]->current == 1);
 
-        metrics->ice_getConnection()->close(nullptr);
+        metrics->ice_getConnection()->close(nullptr, nullptr);
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["closing"]->current == 1);

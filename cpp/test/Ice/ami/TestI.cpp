@@ -103,7 +103,7 @@ TestIntfI::close(Test::CloseMode mode, const Ice::Current& current)
             current.con->abort();
             break;
         default:
-            current.con->close(nullptr);
+            current.con->close(nullptr, nullptr);
             break;
     }
 }

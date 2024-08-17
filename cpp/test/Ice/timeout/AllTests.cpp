@@ -156,7 +156,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
     {
         Ice::ConnectionPtr connection = connect(timeout);
         controller->holdAdapter(-1);
-        connection->close(nullptr);
+        connection->close(nullptr, nullptr);
         try
         {
             connection->getInfo(); // getInfo() doesn't throw in the closing state.

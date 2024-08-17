@@ -89,7 +89,7 @@ MyClassI::closeConnection(bool forceful, const Ice::Current& current)
     }
     else
     {
-        current.con->close(nullptr);
+        current.con->close(nullptr, nullptr);
     }
 }
 

@@ -143,7 +143,7 @@ namespace Ice
         void destroy(DestructionReason);
 
         void abort() noexcept final;
-        void close(std::function<void(std::exception_ptr)> whenClosed) noexcept final;
+        void close(std::function<void()> response, std::function<void(std::exception_ptr)> exception) noexcept final;
 
         bool isActiveOrHolding() const;
         bool isFinished() const;
@@ -408,7 +408,7 @@ namespace Ice
         bool _closeRequested = false;
 
         CloseCallback _closeCallback;
-        std::list<std::function<void(std::exception_ptr)>> _whenClosedList;
+        std::list<std::pair<std::function<void()>, std::function<void(std::exception_ptr)>>> _onClosedList;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _conditionVariable;

@@ -24,36 +24,13 @@
 - (void)close:(void (^)(NSError* _Nullable error))completionHandler
 {
     self.connection->close(
+        [completionHandler]() { completionHandler(nil); },
         [completionHandler](std::exception_ptr closeException)
         {
-            // Keep this code in sync with the future-returning Ice::Connection::close in C++.
-            try
+            // TODO: explain why we need an autoreleasepool here.
+            @autoreleasepool
             {
-                rethrow_exception(closeException);
-            }
-            catch (const Ice::ConnectionClosedException&)
-            {
-                completionHandler(nil);
-            }
-            catch (const Ice::CloseConnectionException&)
-            {
-                completionHandler(nil);
-            }
-            catch (const Ice::CommunicatorDestroyedException&)
-            {
-                completionHandler(nil);
-            }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
-            {
-                completionHandler(nil);
-            }
-            catch (...)
-            {
-                // TODO: explain why we need an autoreleasepool here.
-                @autoreleasepool
-                {
-                    completionHandler(convertException(closeException));
-                }
+                completionHandler(convertException(closeException));
             }
         });
 }
