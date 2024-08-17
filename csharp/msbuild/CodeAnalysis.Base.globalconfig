@@ -339,7 +339,7 @@ dotnet_diagnostic.SA1604.severity = none
 # SA1611 The documentation for parameter is missing
 dotnet_diagnostic.SA1611.severity = none
 
-# SA1612: The parameter does not exist 
+# SA1612: The parameter does not exist
 dotnet_diagnostic.SA1612.severity = none
 
 # SA1615: Element return value should be documented
