@@ -238,23 +238,6 @@ generated from the section label.
         <suffix name="MessageSizeMax" />
     </class>
 
-    <class name="deprecatedthreadpool" prefix-only="true">
-        <suffix name="Size" deprecated="true" />
-        <suffix name="SizeMax" deprecated="true" />
-        <suffix name="SizeWarn" deprecated="true" />
-        <suffix name="StackSize" deprecated="true" />
-    </class>
-
-    <class name="deprecatedobjectadapter" prefix-only="true">
-        <suffix name="AdapterId" deprecated="true" />
-        <suffix name="Endpoints" deprecated="true" />
-        <suffix name="Locator" deprecated="true" />
-        <suffix name="PublishedEndpoints" deprecated="true" />
-        <suffix name="ReplicaGroupId" deprecated="true" />
-        <suffix name="Router" deprecated="true" />
-        <suffix name="ThreadPool" class="deprecatedthreadpool"/>
-    </class>
-
     <class name="mx" prefix-only="false">
         <suffix name="GroupBy" />
         <suffix name="Map" />
@@ -376,7 +359,7 @@ generated from the section label.
         <property name="Timeout" default="300" />
         <property name="RetryCount" default="3" />
         <property name="LatencyMultiplier" default="1" />
-        <!-- We dont' set a default for Address as it depends on Ice.IPV4 and Ice.PreferIPv6Address -->
+        <!-- We don't set a default for Address as it depends on Ice.IPV4 and Ice.PreferIPv6Address -->
         <property name="Address"/>
         <property name="Port" default="4061"/>
         <property name="Interface"/>
@@ -403,7 +386,6 @@ generated from the section label.
         <property name="LoadOrder" />
         <property name="PrintServicesReady" />
         <property name="Service.[any]" />
-        <property name="ServiceManager" class="deprecatedobjectadapter" />
         <property name="Trace.ServiceObserver" />
         <property name="UseSharedCommunicator.[any]" />
     </section>

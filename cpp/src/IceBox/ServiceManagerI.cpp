@@ -434,7 +434,7 @@ IceBox::ServiceManagerI::start()
         }
 
         //
-        // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
+        // Start Admin (if enabled)
         //
         _communicator->addAdminFacet(shared_from_this(), "IceBox.ServiceManager");
         _communicator->getAdmin();

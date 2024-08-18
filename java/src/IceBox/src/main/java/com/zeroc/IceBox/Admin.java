@@ -59,40 +59,8 @@ public final class Admin {
     com.zeroc.Ice.ObjectPrx base = communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
     if (base == null) {
-      //
-      // The old deprecated way to retrieve the service manager proxy
-      //
-
-      com.zeroc.Ice.Properties properties = communicator.getProperties();
-
-      com.zeroc.Ice.Identity managerIdentity = new com.zeroc.Ice.Identity();
-      managerIdentity.category = properties.getIceProperty("IceBox.InstanceName");
-      managerIdentity.name = "ServiceManager";
-
-      String managerProxy;
-      if (properties.getIceProperty("Ice.Default.Locator").isEmpty()) {
-        String managerEndpoints = properties.getIceProperty("IceBox.ServiceManager.Endpoints");
-        if (managerEndpoints.isEmpty()) {
-          System.err.println(
-              "IceBox.Admin: property `IceBoxAdmin.ServiceManager.Proxy' is not set");
-          return 1;
-        }
-
-        managerProxy =
-            "\"" + communicator.identityToString(managerIdentity) + "\" :" + managerEndpoints;
-      } else {
-        String managerAdapterId = properties.getIceProperty("IceBox.ServiceManager.AdapterId");
-        if (managerAdapterId.isEmpty()) {
-          System.err.println(
-              "IceBox.Admin: property `IceBoxAdmin.ServiceManager.Proxy' is not set");
-          return 1;
-        }
-
-        managerProxy =
-            "\"" + communicator.identityToString(managerIdentity) + "\" @" + managerAdapterId;
-      }
-
-      base = communicator.stringToProxy(managerProxy);
+      System.err.println("IceBox.Admin: property 'IceBoxAdmin.ServiceManager.Proxy' is not set");
+      return 1;
     }
 
     com.zeroc.IceBox.ServiceManagerPrx manager =
