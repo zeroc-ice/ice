@@ -36,10 +36,9 @@ namespace IceInternal
         virtual ~ObjectAdapterFactory();
 
     private:
-        friend class Instance;
-
-        InstancePtr _instance;
-        Ice::CommunicatorPtr _communicator;
+        const std::weak_ptr<Instance> _instance;
+        const std::weak_ptr<Ice::Communicator> _communicator;
+        bool _isShutdown = false;
         std::set<std::string> _adapterNamesInUse;
         std::list<std::shared_ptr<Ice::ObjectAdapterI>> _adapters;
         mutable std::recursive_mutex _mutex;

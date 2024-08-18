@@ -7,6 +7,7 @@
 #include "Ice/Object.h"
 #include "Ice/Router.h"
 #include "Ice/UUID.h"
+#include "Instance.h"
 #include "ObjectAdapterI.h"
 
 using namespace std;
@@ -25,16 +26,13 @@ IceInternal::ObjectAdapterFactory::shutdown()
         // Ignore shutdown requests if the object adapter factory has
         // already been shut down.
         //
-        if (!_instance)
+        if (_isShutdown)
         {
             return;
         }
+        _isShutdown = true;
 
         adapters = _adapters;
-
-        _instance = nullptr;
-        _communicator = nullptr;
-
         _conditionVariable.notify_all();
     }
 
@@ -56,7 +54,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
         //
         // First we wait for the shutdown of the factory itself.
         //
-        _conditionVariable.wait(lock, [this] { return !_instance; });
+        _conditionVariable.wait(lock, [this] { return _isShutdown; });
         adapters = _adapters;
     }
 
@@ -71,8 +69,7 @@ bool
 IceInternal::ObjectAdapterFactory::isShutdown() const
 {
     lock_guard lock(_mutex);
-
-    return _instance == 0;
+    return _isShutdown;
 }
 
 void
@@ -120,21 +117,36 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(
     const optional<Ice::RouterPrx>& router,
     const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
 {
+    auto instance = _instance.lock();
+    auto communicator = _communicator.lock();
+    if (!instance || !communicator)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+
+    // Create and activate the Admin object adapter when we create the first object adapter. If the Admin object is
+    // already created or is not enabled, this call is essentially no-op.
+    if (name != "Ice.Admin" &&
+        instance->initializationData().properties->getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0)
+    {
+        instance->getAdmin();
+    }
+
     shared_ptr<ObjectAdapterI> adapter;
     {
         lock_guard lock(_mutex);
 
-        if (!_instance)
+        if (_isShutdown)
         {
-            throw CommunicatorDestroyedException(__FILE__, __LINE__);
+            throw CommunicatorDestroyedException{__FILE__, __LINE__};
         }
 
         if (name.empty())
         {
             string uuid = Ice::generateUUID();
             adapter = make_shared<ObjectAdapterI>(
-                _instance,
-                _communicator,
+                instance,
+                communicator,
                 shared_from_this(),
                 uuid,
                 true,
@@ -147,8 +159,8 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(
                 throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
             }
             adapter = make_shared<ObjectAdapterI>(
-                _instance,
-                _communicator,
+                instance,
+                communicator,
                 shared_from_this(),
                 name,
                 false,
@@ -168,7 +180,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(
         initialized = true;
 
         lock_guard lock(_mutex);
-        if (!_instance)
+        if (_isShutdown)
         {
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
@@ -202,7 +214,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ReferencePtr& referen
     {
         lock_guard lock(_mutex);
 
-        if (!_instance)
+        if (_isShutdown)
         {
             return nullptr;
         }
@@ -233,7 +245,7 @@ IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& a
 {
     lock_guard lock(_mutex);
 
-    if (!_instance)
+    if (_isShutdown)
     {
         return;
     }
@@ -275,9 +287,4 @@ IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(
 {
 }
 
-IceInternal::ObjectAdapterFactory::~ObjectAdapterFactory()
-{
-    assert(!_instance);
-    assert(!_communicator);
-    assert(_adapters.empty());
-}
+IceInternal::ObjectAdapterFactory::~ObjectAdapterFactory() { assert(_adapters.empty()); }

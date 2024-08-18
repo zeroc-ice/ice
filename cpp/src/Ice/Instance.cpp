@@ -1577,20 +1577,6 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     {
         pluginManagerImpl->initializePlugins();
     }
-
-    //
-    // This must be done last as this call creates the Ice.Admin object adapter
-    // and eventually register a process proxy with the Ice locator (allowing
-    // remote clients to invoke Admin facets as soon as it's registered).
-    //
-    // Note: getAdmin here can return 0 and do nothing in the event the
-    // application set Ice.Admin.Enabled but did not set Ice.Admin.Endpoints
-    // and one or more of the properties required to create the Admin object.
-    //
-    if (_adminEnabled && _initData.properties->getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0)
-    {
-        getAdmin();
-    }
 }
 
 void

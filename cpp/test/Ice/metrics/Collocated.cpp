@@ -23,7 +23,6 @@ Collocated::run(int argc, char** argv)
     initData.properties = createTestProperties(argc, argv);
     initData.properties->setProperty("Ice.Admin.Endpoints", "tcp");
     initData.properties->setProperty("Ice.Admin.InstanceName", "client");
-    initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
     initData.properties->setProperty("Ice.Warn.Dispatch", "0");
     CommunicatorObserverIPtr observer = make_shared<CommunicatorObserverI>();

@@ -59,7 +59,6 @@
           <object identity="${server}" type="::Test::TestIntf2"/>
         </adapter>
         <property name="Identity" value="${replicaGroup}"/>
-        <property name="Ice.Admin.DelayCreation" value="1"/>
         <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
       </server>
     </server-template>

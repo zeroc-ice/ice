@@ -133,9 +133,5 @@ main(int argc, char* argv[])
 #endif
 {
     IceBox::IceBoxService svc;
-
-    InitializationData initData;
-    initData.properties = createProperties();
-    initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
-    return svc.main(argc, argv, initData);
+    return svc.main(argc, argv);
 }

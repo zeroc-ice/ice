@@ -341,10 +341,11 @@ namespace Ice
          * Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
          * activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Endpoints is set. The identity
          * of the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin when
-         * <code>Ice.Admin.InstanceName</code> is not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is
-         * called by the communicator initialization, after initialization of all plugins.
+         * <code>Ice.Admin.InstanceName</code> is not set.
          * @return A proxy to the main ("") facet of the Admin object, or nullopt if no Admin object is configured.
          * @see #createAdmin
+         * @remarks The creation of the first object adapter calls getAdmin to create and activate the Ice.Admin object
+         * adapter.
          */
         std::optional<ObjectPrx> getAdmin() const;
 

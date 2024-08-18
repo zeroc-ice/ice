@@ -265,7 +265,6 @@ allTests(Test::TestHelper* helper)
         init.properties = createProperties();
         init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
-        init.properties->setProperty("Ice.Admin.DelayCreation", "1");
         CommunicatorPtr com = initialize(init);
         testFacets(com);
         com->getAdmin();

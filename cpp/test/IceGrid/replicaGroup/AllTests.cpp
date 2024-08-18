@@ -1102,7 +1102,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const ServerStartException&)
     {
-        // Server should fail to start because it can't regsiter dynamically an OA
+        // Server should fail to start because it can't register dynamically an OA
         // with a deployed replica group.
     }
     catch (const Ice::Exception& ex)

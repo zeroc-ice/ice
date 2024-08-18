@@ -55,6 +55,9 @@ Sub::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
+    // With "mx", this creates the Ice.Admin object adapter.
+    auto adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
+
     auto base = communicator->stringToProxy(managerProxy);
     auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
     if (!manager)
@@ -63,8 +66,6 @@ Sub::run(int argc, char** argv)
         os << argv[0] << ": `" << managerProxy << "' is not running";
         throw invalid_argument(os.str());
     }
-
-    auto adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
 
     auto topic = manager->retrieve("single");
 
