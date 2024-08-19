@@ -1,8 +1,6 @@
 %code top{
 
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 }
 
@@ -1910,12 +1908,12 @@ type
 // ----------------------------------------------------------------------
 : ICE_OBJECT '*'
 {
-    $$ = currentUnit->builtin(Builtin::KindObjectProxy);
+    $$ = currentUnit->createBuiltin(Builtin::KindObjectProxy);
 }
 | builtin
 {
     auto typeName = dynamic_pointer_cast<StringTok>($1);
-    $$ = currentUnit->builtin(Builtin::kindFromString(typeName->v).value());
+    $$ = currentUnit->createBuiltin(Builtin::kindFromString(typeName->v).value());
 }
 | scoped_name
 {
@@ -2019,7 +2017,7 @@ const_initializer
 // ----------------------------------------------------------------------
 : ICE_INTEGER_LITERAL
 {
-    BuiltinPtr type = currentUnit->builtin(Builtin::KindLong);
+    BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindLong);
     auto intVal = dynamic_pointer_cast<IntegerTok>($1);
     ostringstream sstr;
     sstr << intVal->v;
@@ -2028,7 +2026,7 @@ const_initializer
 }
 | ICE_FLOATING_POINT_LITERAL
 {
-    BuiltinPtr type = currentUnit->builtin(Builtin::KindDouble);
+    BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindDouble);
     auto floatVal = dynamic_pointer_cast<FloatingTok>($1);
     ostringstream sstr;
     sstr << floatVal->v;
@@ -2072,21 +2070,21 @@ const_initializer
 }
 | ICE_STRING_LITERAL
 {
-    BuiltinPtr type = currentUnit->builtin(Builtin::KindString);
+    BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindString);
     auto literal = dynamic_pointer_cast<StringTok>($1);
     auto def = make_shared<ConstDefTok>(type, literal->v, literal->literal);
     $$ = def;
 }
 | ICE_FALSE
 {
-    BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
+    BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>($1);
     auto def = make_shared<ConstDefTok>(type, "false", "false");
     $$ = def;
 }
 | ICE_TRUE
 {
-    BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
+    BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>($1);
     auto def = make_shared<ConstDefTok>(type, "true", "true");
     $$ = def;

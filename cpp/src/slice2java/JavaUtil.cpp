@@ -78,19 +78,14 @@ namespace
     class MetaDataVisitor final : public ParserVisitor
     {
     public:
-        bool visitUnitStart(const UnitPtr& p) final
+        bool visitUnitStart(const UnitPtr& unit) final
         {
             static const string prefix = "java:";
 
-            //
             // Validate file metadata in the top-level file and all included files.
-            //
-            StringList files = p->allFiles();
-
-            for (StringList::iterator q = files.begin(); q != files.end(); ++q)
+            for (const auto& file : unit->allFiles())
             {
-                string file = *q;
-                DefinitionContextPtr dc = p->findDefinitionContext(file);
+                DefinitionContextPtr dc = unit->findDefinitionContext(file);
                 assert(dc);
                 StringList globalMetaData = dc->getMetaData();
                 for (StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
@@ -105,7 +100,7 @@ namespace
                         }
                         else
                         {
-                            dc->warning(InvalidMetaData, file, "", "ignoring invalid file metadata `" + s + "'");
+                            dc->warning(InvalidMetaData, file, -1, "ignoring invalid file metadata `" + s + "'");
                             globalMetaData.remove(s);
                             continue;
                         }
@@ -219,7 +214,7 @@ namespace
             StringList newMetaData;
 
             const string file = p->file();
-            const string line = p->line();
+            int line = p->line();
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);
 
@@ -385,8 +380,7 @@ namespace
             return result;
         }
 
-        StringList
-        validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, const string& line)
+        StringList validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, int line)
         {
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);
@@ -474,8 +468,7 @@ namespace
             return newMetaData;
         }
 
-        StringList
-        validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, const string& line)
+        StringList validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, int line)
         {
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);
@@ -528,7 +521,7 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
             os << "missing serialVersionUID value for " << p->kindOf() << " `" << p->scoped()
                << "'; generating default value";
             const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
-            dc->warning(InvalidMetaData, "", "", os.str());
+            dc->warning(InvalidMetaData, "", -1, os.str());
         }
         else
         {
@@ -543,7 +536,7 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
                 os << "ignoring invalid serialVersionUID for " << p->kindOf() << " `" << p->scoped()
                    << "'; generating default value";
                 const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
-                dc->warning(InvalidMetaData, "", "", os.str());
+                dc->warning(InvalidMetaData, "", -1, os.str());
             }
         }
     }

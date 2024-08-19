@@ -885,16 +885,16 @@ Slice::Gen::validateMetaData(const UnitPtr& u)
 }
 
 bool
-Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& unit)
 {
     static const string prefix = "cpp:";
 
     //
     // Validate file metadata in the top-level file and all included files.
     //
-    for (const string& file : p->allFiles())
+    for (const string& file : unit->allFiles())
     {
-        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        DefinitionContextPtr dc = unit->findDefinitionContext(file);
         StringList globalMetaData = dc->getMetaData();
         assert(dc);
         int headerExtension = 0;
@@ -1094,7 +1094,7 @@ Slice::Gen::MetaDataVisitor::validate(
     const SyntaxTreeBasePtr& cont,
     const StringList& metaData,
     const string& file,
-    const string& line,
+    int line,
     bool operation)
 {
     static const string cppPrefix = "cpp:";
@@ -1399,9 +1399,9 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
 Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c), _factoryTableInitDone(false) {}
 
 bool
-Slice::Gen::DefaultFactoryVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::DefaultFactoryVisitor::visitUnitStart(const UnitPtr& unit)
 {
-    if (p->contains<ClassDef>() || p->contains<Exception>())
+    if (unit->contains<ClassDef>() || unit->contains<Exception>())
     {
         C << sp << nl << "namespace" << nl << "{";
         C.inc();

@@ -171,9 +171,6 @@ compile(const vector<string>& argv)
         os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
-    vector<string> cppOpts;
-    cppOpts.push_back("-D__SLICE2JAVA__");
-
     for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
         //
@@ -188,7 +185,7 @@ compile(const vector<string>& argv)
         if (depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, cppOpts);
+            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2JAVA__");
 
             if (cppHandle == 0)
             {
@@ -208,7 +205,7 @@ compile(const vector<string>& argv)
                     os,
                     depend ? Preprocessor::Java : Preprocessor::SliceXML,
                     includePaths,
-                    cppOpts))
+                    "-D__SLICE2JAVA__"))
             {
                 return EXIT_FAILURE;
             }
@@ -223,7 +220,7 @@ compile(const vector<string>& argv)
             FileTracker::instance()->setSource(*i);
 
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(true, cppOpts);
+            FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2JAVA__");
 
             if (cppHandle == 0)
             {

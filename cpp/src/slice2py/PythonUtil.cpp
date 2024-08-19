@@ -153,7 +153,7 @@ namespace Slice
             //
             // Validates sequence metadata.
             //
-            StringList validateSequence(const string&, const string&, const TypePtr&, const StringList&);
+            StringList validateSequence(const string&, int, const TypePtr&, const StringList&);
 
             //
             // Checks a definition that doesn't currently support Python metadata.
@@ -2959,18 +2959,14 @@ Slice::Python::printHeader(IceInternal::Output& out)
 }
 
 bool
-Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& unit)
 {
     static const string prefix = "python:";
 
-    //
     // Validate file metadata in the top-level file and all included files.
-    //
-    StringList files = p->allFiles();
-    for (StringList::iterator q = files.begin(); q != files.end(); ++q)
+    for (const auto& file : unit->allFiles())
     {
-        string file = *q;
-        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        DefinitionContextPtr dc = unit->findDefinitionContext(file);
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
         for (StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
@@ -2989,7 +2985,7 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     continue;
                 }
 
-                dc->warning(InvalidMetaData, file, "", "ignoring invalid file metadata `" + s + "'");
+                dc->warning(InvalidMetaData, file, -1, "ignoring invalid file metadata `" + s + "'");
                 globalMetaData.remove(s);
             }
         }
@@ -3020,7 +3016,7 @@ Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 
         if (s.find("python:") == 0)
         {
-            p->definitionContext()->warning(InvalidMetaData, p->file(), "", "ignoring invalid metadata `" + s + "'");
+            p->definitionContext()->warning(InvalidMetaData, p->file(), -1, "ignoring invalid metadata `" + s + "'");
             metaData.remove(s);
         }
     }
@@ -3078,10 +3074,9 @@ Slice::Python::MetaDataVisitor::visitOperation(const OperationPtr& p)
         validateSequence(p->file(), p->line(), ret, p->getMetaData());
     }
 
-    ParamDeclList params = p->parameters();
-    for (ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    for (const auto& param : p->parameters())
     {
-        validateSequence(p->file(), (*q)->line(), (*q)->type(), (*q)->getMetaData());
+        validateSequence(p->file(), param->line(), param->type(), param->getMetaData());
     }
 }
 
@@ -3095,9 +3090,7 @@ void
 Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
     StringList metaData = p->getMetaData();
-    const string file = p->file();
-    const string line = p->line();
-    metaData = validateSequence(file, line, p, metaData);
+    metaData = validateSequence(p->file(), p->line(), p, metaData);
     p->setMetaData(metaData);
 }
 
@@ -3122,7 +3115,7 @@ Slice::Python::MetaDataVisitor::visitConst(const ConstPtr& p)
 StringList
 Slice::Python::MetaDataVisitor::validateSequence(
     const string& file,
-    const string& line,
+    int line,
     const TypePtr& type,
     const StringList& metaData)
 {

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Parser.h"
 #include "GrammarUtil.h"
@@ -189,24 +187,7 @@ Slice::DefinitionContext::warning(WarningCategory category, const string& file, 
 }
 
 void
-Slice::DefinitionContext::warning(WarningCategory category, const string& file, const string& line, const string& msg)
-    const
-{
-    if (!suppressWarning(category))
-    {
-        emitWarning(file, line, msg);
-    }
-}
-
-void
 Slice::DefinitionContext::error(const string& file, int line, const string& msg) const
-{
-    emitError(file, line, msg);
-    throw CompilerException(__FILE__, __LINE__, msg);
-}
-
-void
-Slice::DefinitionContext::error(const string& file, const string& line, const string& msg) const
 {
     emitError(file, line, msg);
     throw CompilerException(__FILE__, __LINE__, msg);
@@ -256,7 +237,7 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 {
                     ostringstream os;
                     os << "invalid category `" << s << "' in file metadata suppress-warning";
-                    warning(InvalidMetaData, "", "", os.str());
+                    warning(InvalidMetaData, "", -1, os.str());
                 }
             }
         }
@@ -577,7 +558,7 @@ Slice::Contained::file() const
     return _file;
 }
 
-string
+int
 Slice::Contained::line() const
 {
     return _line;
@@ -1039,7 +1020,7 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name)
     _scoped += "::" + _name;
     assert(_unit);
     _file = _unit->currentFile();
-    _line = std::to_string(_unit->currentLine());
+    _line = _unit->currentLine();
     _comment = _unit->currentComment();
     _includeLevel = _unit->currentIncludeLevel();
 }
@@ -1692,7 +1673,7 @@ Slice::Container::lookupType(const string& scoped, bool printError)
     auto kind = Builtin::kindFromString(sc);
     if (kind)
     {
-        return {_unit->builtin(kind.value())};
+        return {_unit->createBuiltin(kind.value())};
     }
 
     // Not a builtin type, try to look up a constructed type.
@@ -5215,7 +5196,7 @@ Slice::Unit::visit(ParserVisitor* visitor, bool all)
 }
 
 BuiltinPtr
-Slice::Unit::builtin(Builtin::Kind kind)
+Slice::Unit::createBuiltin(Builtin::Kind kind)
 {
     map<Builtin::Kind, BuiltinPtr>::const_iterator p = _builtins.find(kind);
     if (p != _builtins.end())

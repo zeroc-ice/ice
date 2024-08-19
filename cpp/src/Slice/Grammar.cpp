@@ -3670,7 +3670,7 @@ yyreduce:
         case 160: /* type: ICE_OBJECT '*'  */
 #line 1912 "src/Slice/Grammar.y"
         {
-            yyval = currentUnit->builtin(Builtin::KindObjectProxy);
+            yyval = currentUnit->createBuiltin(Builtin::KindObjectProxy);
         }
 #line 3798 "src/Slice/Grammar.cpp"
         break;
@@ -3679,7 +3679,7 @@ yyreduce:
 #line 1916 "src/Slice/Grammar.y"
         {
             auto typeName = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-            yyval = currentUnit->builtin(Builtin::kindFromString(typeName->v).value());
+            yyval = currentUnit->createBuiltin(Builtin::kindFromString(typeName->v).value());
         }
 #line 3807 "src/Slice/Grammar.cpp"
         break;
@@ -3796,7 +3796,7 @@ yyreduce:
         case 168: /* const_initializer: ICE_INTEGER_LITERAL  */
 #line 2021 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindLong);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindLong);
             auto intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
             ostringstream sstr;
             sstr << intVal->v;
@@ -3809,7 +3809,7 @@ yyreduce:
         case 169: /* const_initializer: ICE_FLOATING_POINT_LITERAL  */
 #line 2030 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindDouble);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindDouble);
             auto floatVal = dynamic_pointer_cast<FloatingTok>(yyvsp[0]);
             ostringstream sstr;
             sstr << floatVal->v;
@@ -3861,7 +3861,7 @@ yyreduce:
         case 171: /* const_initializer: ICE_STRING_LITERAL  */
 #line 2074 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindString);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindString);
             auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
             auto def = make_shared<ConstDefTok>(type, literal->v, literal->literal);
             yyval = def;
@@ -3872,7 +3872,7 @@ yyreduce:
         case 172: /* const_initializer: ICE_FALSE  */
 #line 2081 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
             auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
             auto def = make_shared<ConstDefTok>(type, "false", "false");
             yyval = def;
@@ -3883,7 +3883,7 @@ yyreduce:
         case 173: /* const_initializer: ICE_TRUE  */
 #line 2088 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
             auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
             auto def = make_shared<ConstDefTok>(type, "true", "true");
             yyval = def;
