@@ -881,7 +881,7 @@ void
 Slice::Gen::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
-    u->visit(&visitor); // TODO should this of been true?
+    u->visit(&visitor);
 }
 
 bool

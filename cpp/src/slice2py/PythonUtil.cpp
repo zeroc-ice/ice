@@ -2810,7 +2810,7 @@ void
 Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output& out)
 {
     Slice::Python::MetaDataVisitor visitor;
-    un->visit(&visitor); // TODO should this of been true?
+    un->visit(&visitor);
 
     out << nl << "import Ice";
     out << nl << "import IcePy";
