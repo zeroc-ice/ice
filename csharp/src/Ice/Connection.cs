@@ -2,8 +2,6 @@
 
 #nullable enable
 
-using Ice.Internal;
-
 namespace Ice
 {
     /// <summary>
