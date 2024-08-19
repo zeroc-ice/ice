@@ -279,8 +279,6 @@ generated from the section label.
         <property name="Default.Router" class="proxy" />
         <property name="Default.SlicedFormat" default="0" />
         <property name="Default.SourceAddress" />
-        <!-- TODO: Remove Default.Timeout-->
-        <property name="Default.Timeout" default="60000" />
         <property name="EventLog.Source" />
         <property name="FactoryAssemblies" />
         <property name="HTTPProxyHost" />
@@ -294,10 +292,7 @@ generated from the section label.
         <property name="LogStdErr.Convert" default="1" />
         <property name="MessageSizeMax" default="1024" />
         <property name="Nohup" default="1" />
-        <property name="Override.CloseTimeout" />
         <property name="Override.Compress" />
-        <property name="Override.ConnectTimeout" />
-        <property name="Override.Timeout" />
         <property name="Override.Secure" />
         <property name="Package.[any]" />
         <property name="Plugin.[any]" />
@@ -382,7 +377,6 @@ generated from the section label.
 
     <section name="IceBox">
         <property name="InheritProperties" />
-        <property name="InstanceName" deprecated="true" default="IceBox" />
         <property name="LoadOrder" />
         <property name="PrintServicesReady" />
         <property name="Service.[any]" />
