@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef SLICE_GRAMMAR_UTIL_H
 #define SLICE_GRAMMAR_UTIL_H

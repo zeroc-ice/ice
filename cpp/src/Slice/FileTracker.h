@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef FILE_TRACKER_H
 #define FILE_TRACKER_H
@@ -27,9 +25,9 @@ namespace Slice
 
         static FileTrackerPtr instance();
 
-        void setSource(const std::string&);
-        void addFile(const std::string&);
-        void addDirectory(const std::string&);
+        void setSource(const std::string& source);
+        void addFile(const std::string& file);
+        void addDirectory(const std::string& dir);
         void error();
         void cleanup();
         void dumpxml();

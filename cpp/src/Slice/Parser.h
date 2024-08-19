@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
@@ -220,10 +218,8 @@ namespace Slice
         // Emit warning unless filtered out by [["suppress-warning"]]
         //
         void warning(WarningCategory, const std::string&, int, const std::string&) const;
-        void warning(WarningCategory, const std::string&, const std::string&, const std::string&) const;
 
         void error(const std::string&, int, const std::string&) const;
-        void error(const std::string&, const std::string&, const std::string&) const;
 
     private:
         bool suppressWarning(WarningCategory) const;
@@ -377,7 +373,7 @@ namespace Slice
         std::string scope() const;
         std::string flattenedScope() const;
         std::string file() const;
-        std::string line() const;
+        int line() const;
         std::string comment() const;
         CommentPtr parseComment(const std::string&, bool) const;
         CommentPtr parseComment(bool) const;
@@ -413,7 +409,7 @@ namespace Slice
         std::string _name;
         std::string _scoped;
         std::string _file;
-        std::string _line;
+        int _line;
         std::string _comment;
         int _includeLevel;
         std::list<std::string> _metaData;
@@ -1061,10 +1057,11 @@ namespace Slice
         void destroy() final;
         void visit(ParserVisitor*, bool) final;
 
-        BuiltinPtr builtin(Builtin::Kind); // Not const, as builtins are created on the fly. (Lazy initialization.)
+        // Not const, as builtins are created on the fly. (Lazy initialization.)
+        BuiltinPtr createBuiltin(Builtin::Kind kind);
 
-        void addTopLevelModule(const std::string&, const std::string&);
-        std::set<std::string> getTopLevelModules(const std::string&) const;
+        void addTopLevelModule(const std::string& file, const std::string& module);
+        std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
         void init();

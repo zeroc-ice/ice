@@ -1989,16 +1989,12 @@ Slice::CsGenerator::validateMetaData(const UnitPtr& u)
 }
 
 bool
-Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
+Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& unit)
 {
-    //
     // Validate file metadata in the top-level file and all included files.
-    //
-    StringList files = p->allFiles();
-    for (StringList::iterator q = files.begin(); q != files.end(); ++q)
+    for (const auto& file : unit->allFiles())
     {
-        string file = *q;
-        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        DefinitionContextPtr dc = unit->findDefinitionContext(file);
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
         StringList newGlobalMetaData;
