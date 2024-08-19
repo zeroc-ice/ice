@@ -245,7 +245,7 @@ namespace IcePy
         virtual void unmarshaled(PyObject*, PyObject*, void*);
 
         std::string name;
-        std::vector<std::string> metaData;
+        std::vector<std::string> metadata;
         TypeInfoPtr type;
         bool optional;
         int tag;

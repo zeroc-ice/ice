@@ -33,7 +33,7 @@ namespace IcePy
     public:
         virtual void unmarshaled(PyObject*, PyObject*, void*);
 
-        Ice::StringSeq metaData;
+        Ice::StringSeq metadata;
         TypeInfoPtr type;
         bool optional;
         int tag;
@@ -56,7 +56,7 @@ namespace IcePy
         Ice::OperationMode mode;
         bool amd;
         std::optional<Ice::FormatType> format;
-        Ice::StringSeq metaData;
+        Ice::StringSeq metadata;
         ParamInfoList inParams;
         ParamInfoList optionalInParams;
         ParamInfoList outParams;
@@ -345,7 +345,7 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* mode;
     int amd;
     PyObject* format;
-    PyObject* metaData;
+    PyObject* metadata;
     PyObject* inParams;
     PyObject* outParams;
     PyObject* returnType;
@@ -359,7 +359,7 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
             &amd,
             &format,
             &PyTuple_Type,
-            &metaData,
+            &metadata,
             &PyTuple_Type,
             &inParams,
             &PyTuple_Type,
@@ -372,7 +372,7 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     }
 
     self->op = new OperationPtr(
-        make_shared<Operation>(name, mode, amd, format, metaData, inParams, outParams, returnType, exceptions));
+        make_shared<Operation>(name, mode, amd, format, metadata, inParams, outParams, returnType, exceptions));
     return 0;
 }
 
@@ -728,13 +728,13 @@ IcePy::Operation::Operation(
     }
 
     //
-    // metaData
+    // metadata
     //
     assert(PyTuple_Check(meta));
 #ifndef NDEBUG
     bool b =
 #endif
-        tupleToStringSeq(meta, metaData);
+        tupleToStringSeq(meta, metadata);
     assert(b);
 
     //
@@ -900,7 +900,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         if (!info->optional)
         {
             PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
-            info->type->marshal(arg, &os, &objectMap, false, &info->metaData);
+            info->type->marshal(arg, &os, &objectMap, false, &info->metadata);
         }
     }
 
@@ -910,7 +910,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     if (returnType && !returnType->optional)
     {
         PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
-        returnType->type->marshal(res, &os, &objectMap, false, &metaData);
+        returnType->type->marshal(res, &os, &objectMap, false, &metadata);
     }
 
     //
@@ -922,7 +922,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
         if (arg != Py_None && os.writeOptional(info->tag, info->type->optionalFormat()))
         {
-            info->type->marshal(arg, &os, &objectMap, true, &info->metaData);
+            info->type->marshal(arg, &os, &objectMap, true, &info->metadata);
         }
     }
 
@@ -970,14 +970,14 @@ IcePy::Operation::convertParam(PyObject* p, Py_ssize_t pos)
     auto param = make_shared<ParamInfo>();
 
     //
-    // metaData
+    // metadata
     //
     PyObject* meta = PyTuple_GET_ITEM(p, 0);
     assert(PyTuple_Check(meta));
 #ifndef NDEBUG
     bool b =
 #endif
-        tupleToStringSeq(meta, param->metaData);
+        tupleToStringSeq(meta, param->metadata);
     assert(b);
 
     //
@@ -1347,7 +1347,7 @@ IcePy::Invocation::prepareRequest(
                 if (!info->optional)
                 {
                     PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
-                    info->type->marshal(arg, os, &objectMap, false, &info->metaData);
+                    info->type->marshal(arg, os, &objectMap, false, &info->metadata);
                 }
             }
 
@@ -1359,7 +1359,7 @@ IcePy::Invocation::prepareRequest(
                 PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
                 if (arg != Py_None && os->writeOptional(info->tag, info->type->optionalFormat()))
                 {
-                    info->type->marshal(arg, os, &objectMap, true, &info->metaData);
+                    info->type->marshal(arg, os, &objectMap, true, &info->metadata);
                 }
             }
 
@@ -1421,7 +1421,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
             if (!info->optional)
             {
                 void* closure = reinterpret_cast<void*>(info->pos);
-                info->type->unmarshal(&is, info, results.get(), closure, false, &info->metaData);
+                info->type->unmarshal(&is, info, results.get(), closure, false, &info->metadata);
             }
         }
 
@@ -1432,7 +1432,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
         {
             assert(op->returnType->pos == 0);
             void* closure = reinterpret_cast<void*>(op->returnType->pos);
-            op->returnType->type->unmarshal(&is, op->returnType, results.get(), closure, false, &op->metaData);
+            op->returnType->type->unmarshal(&is, op->returnType, results.get(), closure, false, &op->metadata);
         }
 
         //
@@ -1444,7 +1444,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
             if (is.readOptional(info->tag, info->type->optionalFormat()))
             {
                 void* closure = reinterpret_cast<void*>(info->pos);
-                info->type->unmarshal(&is, info, results.get(), closure, true, &info->metaData);
+                info->type->unmarshal(&is, info, results.get(), closure, true, &info->metadata);
             }
             else
             {
@@ -2360,7 +2360,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
                 if (!info->optional)
                 {
                     void* closure = reinterpret_cast<void*>(info->pos);
-                    info->type->unmarshal(&is, info, args.get(), closure, false, &info->metaData);
+                    info->type->unmarshal(&is, info, args.get(), closure, false, &info->metadata);
                 }
             }
 
@@ -2373,7 +2373,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
                 if (is.readOptional(info->tag, info->type->optionalFormat()))
                 {
                     void* closure = reinterpret_cast<void*>(info->pos);
-                    info->type->unmarshal(&is, info, args.get(), closure, true, &info->metaData);
+                    info->type->unmarshal(&is, info, args.get(), closure, true, &info->metadata);
                 }
                 else
                 {
