@@ -179,6 +179,8 @@ namespace Slice
 
             bool visitModuleStart(const ModulePtr&) final;
 
+            bool shouldVisitIncludedDefinitions() const final { return true; }
+
         private:
             Output& _out;
             set<string>& _history;
@@ -2808,7 +2810,7 @@ void
 Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output& out)
 {
     Slice::Python::MetaDataVisitor visitor;
-    un->visit(&visitor, false);
+    un->visit(&visitor); // TODO should this of been true?
 
     out << nl << "import Ice";
     out << nl << "import IcePy";
@@ -2832,10 +2834,10 @@ Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& inclu
     set<string> moduleHistory;
 
     ModuleVisitor moduleVisitor(out, moduleHistory);
-    un->visit(&moduleVisitor, true);
+    un->visit(&moduleVisitor);
 
     CodeVisitor codeVisitor(out, moduleHistory);
-    un->visit(&codeVisitor, false);
+    un->visit(&codeVisitor);
 
     out << nl; // Trailing newline.
 }

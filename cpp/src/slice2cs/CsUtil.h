@@ -130,6 +130,8 @@ namespace Slice
             void visitEnum(const EnumPtr&) final;
             void visitConst(const ConstPtr&) final;
 
+            bool shouldVisitIncludedDefinitions() const final { return true; }
+
         private:
             void validate(const ContainedPtr&);
 

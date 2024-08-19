@@ -2281,19 +2281,19 @@ Slice::Gen::generate(const UnitPtr& p)
     JavaGenerator::validateMetaData(p);
 
     PackageVisitor packageVisitor(_dir);
-    p->visit(&packageVisitor, false);
+    p->visit(&packageVisitor);
 
     TypesVisitor typesVisitor(_dir);
-    p->visit(&typesVisitor, false);
+    p->visit(&typesVisitor);
 
     CompactIdVisitor compactIdVisitor(_dir);
-    p->visit(&compactIdVisitor, false);
+    p->visit(&compactIdVisitor);
 
     HelperVisitor helperVisitor(_dir);
-    p->visit(&helperVisitor, false);
+    p->visit(&helperVisitor);
 
     ProxyVisitor proxyVisitor(_dir);
-    p->visit(&proxyVisitor, false);
+    p->visit(&proxyVisitor);
 }
 
 Slice::Gen::PackageVisitor::PackageVisitor(const string& dir) : JavaVisitor(dir) {}

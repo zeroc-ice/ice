@@ -830,24 +830,24 @@ Slice::Gen::generate(const UnitPtr& p)
 
     {
         ForwardDeclVisitor forwardDeclVisitor(H);
-        p->visit(&forwardDeclVisitor, false);
+        p->visit(&forwardDeclVisitor);
 
         DefaultFactoryVisitor defaultFactoryVisitor(C);
-        p->visit(&defaultFactoryVisitor, false);
+        p->visit(&defaultFactoryVisitor);
 
         ProxyVisitor proxyVisitor(H, C, _dllExport);
-        p->visit(&proxyVisitor, false);
+        p->visit(&proxyVisitor);
 
         DataDefVisitor dataDefVisitor(H, C, _dllExport);
-        p->visit(&dataDefVisitor, false);
+        p->visit(&dataDefVisitor);
 
         InterfaceVisitor interfaceVisitor(H, C, _dllExport);
-        p->visit(&interfaceVisitor, false);
+        p->visit(&interfaceVisitor);
 
         if (!dc->hasMetaDataDirective("cpp:no-stream"))
         {
             StreamVisitor streamVisitor(H);
-            p->visit(&streamVisitor, false);
+            p->visit(&streamVisitor);
         }
     }
 }
@@ -881,7 +881,7 @@ void
 Slice::Gen::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
-    u->visit(&visitor, false);
+    u->visit(&visitor); // TODO should this of been true?
 }
 
 bool

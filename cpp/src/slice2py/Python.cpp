@@ -194,7 +194,7 @@ namespace
     {
         StringList modules;
         PackageVisitor v(modules);
-        unt->visit(&v, false);
+        unt->visit(&v);
 
         for (StringList::iterator p = modules.begin(); p != modules.end(); ++p)
         {
