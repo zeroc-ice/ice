@@ -19,9 +19,9 @@ using namespace IceInternal;
 
 namespace
 {
-    string stringTypeToString(const TypePtr&, const StringList& metaData, TypeContext typeCtx)
+    string stringTypeToString(const TypePtr&, const StringList& metadata, TypeContext typeCtx)
     {
-        string strType = findMetaData(metaData, typeCtx);
+        string strType = findMetadata(metadata, typeCtx);
 
         if (strType == "")
         {
@@ -41,9 +41,9 @@ namespace
     }
 
     string
-    sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringList& metaData, TypeContext typeCtx)
+    sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringList& metadata, TypeContext typeCtx)
     {
-        string seqType = findMetaData(metaData, typeCtx);
+        string seqType = findMetadata(metadata, typeCtx);
         if (!seqType.empty())
         {
             if (seqType == "%array")
@@ -60,7 +60,7 @@ namespace
                         seq->type(),
                         false,
                         scope,
-                        seq->typeMetaData(),
+                        seq->typeMetadata(),
                         typeCtx | (inWstringModule(seq) ? TypeContext::UseWstring : TypeContext::None));
                 }
                 return "::std::pair<const " + s + "*, const " + s + "*>";
@@ -79,10 +79,10 @@ namespace
     string dictionaryTypeToString(
         const DictionaryPtr& dict,
         const string& scope,
-        const StringList& metaData,
+        const StringList& metadata,
         TypeContext typeCtx)
     {
-        const string dictType = findMetaData(metaData, typeCtx);
+        const string dictType = findMetadata(metadata, typeCtx);
         if (dictType.empty())
         {
             return getUnqualified(fixKwd(dict->scoped()), scope);
@@ -94,7 +94,7 @@ namespace
     }
 
     // Do we pass this type by value when it's an input parameter?
-    bool inputParamByValue(const TypePtr& type, const StringList& metaData)
+    bool inputParamByValue(const TypePtr& type, const StringList& metadata)
     {
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
         if ((builtin && (!builtin->isVariableLength() || builtin->kind() == Builtin::KindString)))
@@ -110,7 +110,7 @@ namespace
             static const string prefix = "cpp:";
 
             // Return true for view-type (sequence and dictionary) and array (sequence only)
-            for (const auto& str : metaData)
+            for (const auto& str : metadata)
             {
                 if (str.find(prefix) == 0)
                 {
@@ -122,7 +122,7 @@ namespace
                         {
                             return true;
                         }
-                        // else check remaining meta data
+                        // else check remaining metadata
                     }
                     else
                     {
@@ -130,7 +130,7 @@ namespace
                         {
                             return true;
                         }
-                        // else check remaining meta data
+                        // else check remaining metadata
                     }
                 }
             }
@@ -144,10 +144,10 @@ namespace
         bool optional,
         const string& scope,
         const string& fixedName,
-        const StringList& metaData,
+        const StringList& metadata,
         TypeContext typeCtx)
     {
-        string s = typeToString(type, optional, scope, metaData, typeCtx);
+        string s = typeToString(type, optional, scope, metadata, typeCtx);
         out << nl << s << ' ' << fixedName << ';';
     }
 
@@ -448,7 +448,7 @@ Slice::typeToString(
     const TypePtr& type,
     bool optional,
     const string& scope,
-    const StringList& metaData,
+    const StringList& metadata,
     TypeContext typeCtx)
 {
     assert(type);
@@ -458,11 +458,11 @@ Slice::typeToString(
         if (isProxyType(type))
         {
             // We map optional proxies like regular proxies, as optional<XxxPrx>.
-            return typeToString(type, false, scope, metaData, typeCtx);
+            return typeToString(type, false, scope, metadata, typeCtx);
         }
         else
         {
-            return "::std::optional<" + typeToString(type, false, scope, metaData, typeCtx) + '>';
+            return "::std::optional<" + typeToString(type, false, scope, metadata, typeCtx) + '>';
         }
     }
 
@@ -484,7 +484,7 @@ Slice::typeToString(
     {
         if (builtin->kind() == Builtin::KindString)
         {
-            return stringTypeToString(type, metaData, typeCtx);
+            return stringTypeToString(type, metadata, typeCtx);
         }
         else
         {
@@ -526,13 +526,13 @@ Slice::typeToString(
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
     {
-        return sequenceTypeToString(seq, scope, metaData, typeCtx);
+        return sequenceTypeToString(seq, scope, metadata, typeCtx);
     }
 
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if (dict)
     {
-        return dictionaryTypeToString(dict, scope, metaData, typeCtx);
+        return dictionaryTypeToString(dict, scope, metadata, typeCtx);
     }
 
     return "???";
@@ -543,22 +543,22 @@ Slice::inputTypeToString(
     const TypePtr& type,
     bool optional,
     const string& scope,
-    const StringList& metaData,
+    const StringList& metadata,
     TypeContext typeCtx)
 {
     assert(type);
     assert(typeCtx == TypeContext::None || typeCtx == TypeContext::UseWstring);
     typeCtx = (typeCtx | TypeContext::MarshalParam);
 
-    if (inputParamByValue(type, metaData))
+    if (inputParamByValue(type, metadata))
     {
         // Pass by value, even if it's optional.
-        return typeToString(type, optional, scope, metaData, typeCtx);
+        return typeToString(type, optional, scope, metadata, typeCtx);
     }
     else
     {
         // For all other types, pass by const reference.
-        return "const " + typeToString(type, optional, scope, metaData, typeCtx) + '&';
+        return "const " + typeToString(type, optional, scope, metadata, typeCtx) + '&';
     }
 }
 
@@ -567,13 +567,13 @@ Slice::outputTypeToString(
     const TypePtr& type,
     bool optional,
     const string& scope,
-    const StringList& metaData,
+    const StringList& metadata,
     TypeContext typeCtx)
 {
     assert(type);
     assert(typeCtx == TypeContext::None || typeCtx == TypeContext::UseWstring);
 
-    return typeToString(type, optional, scope, metaData, typeCtx) + '&';
+    return typeToString(type, optional, scope, metadata, typeCtx) + '&';
 }
 
 string
@@ -709,7 +709,7 @@ Slice::writeAllocateCode(
             (*p)->optional(),
             clScope,
             fixKwd(paramPrefix + (*p)->name()),
-            (*p)->getMetaData(),
+            (*p)->getMetadata(),
             typeCtx);
     }
 
@@ -721,7 +721,7 @@ Slice::writeAllocateCode(
             op->returnIsOptional(),
             clScope,
             "ret",
-            op->getMetaData(),
+            op->getMetadata(),
             typeCtx);
     }
 }
@@ -876,7 +876,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, DataMemberList dataMembers, Typ
             out << ", ";
         }
         out << "const ";
-        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), typeCtx) << "&";
+        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetadata(), typeCtx) << "&";
     }
     out << "> ice_tuple() const";
 
@@ -894,21 +894,21 @@ Slice::writeIceTuple(::IceInternal::Output& out, DataMemberList dataMembers, Typ
 }
 
 bool
-Slice::findMetaData(const string& prefix, const ClassDeclPtr& cl, string& value)
+Slice::findMetadata(const string& prefix, const ClassDeclPtr& cl, string& value)
 {
-    if (findMetaData(prefix, cl->getMetaData(), value))
+    if (findMetadata(prefix, cl->getMetadata(), value))
     {
         return true;
     }
 
     ClassDefPtr def = cl->definition();
-    return def ? findMetaData(prefix, def->getMetaData(), value) : false;
+    return def ? findMetadata(prefix, def->getMetadata(), value) : false;
 }
 
 bool
-Slice::findMetaData(const string& prefix, const StringList& metaData, string& value)
+Slice::findMetadata(const string& prefix, const StringList& metadata, string& value)
 {
-    for (const auto& s : metaData)
+    for (const auto& s : metadata)
     {
         if (s.find(prefix) == 0)
         {
@@ -920,11 +920,11 @@ Slice::findMetaData(const string& prefix, const StringList& metaData, string& va
 }
 
 string
-Slice::findMetaData(const StringList& metaData, TypeContext typeCtx)
+Slice::findMetadata(const StringList& metadata, TypeContext typeCtx)
 {
     static const string prefix = "cpp:";
 
-    for (StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
     {
         string str = *q;
         if (str.find(prefix) == 0)
@@ -988,12 +988,12 @@ Slice::inWstringModule(const SequencePtr& seq)
         {
             break;
         }
-        StringList metaData = mod->getMetaData();
-        if (find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
+        StringList metadata = mod->getMetadata();
+        if (find(metadata.begin(), metadata.end(), "cpp:type:wstring") != metadata.end())
         {
             return true;
         }
-        else if (find(metaData.begin(), metaData.end(), "cpp:type:string") != metaData.end())
+        else if (find(metadata.begin(), metadata.end(), "cpp:type:string") != metadata.end())
         {
             return false;
         }

@@ -101,9 +101,9 @@ namespace Slice
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metaData)
+Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metadata)
     : _includeLevel(includeLevel),
-      _metaData(metaData),
+      _metadata(metadata),
       _seenDefinition(false)
 {
     initSuppressedWarnings();
@@ -140,28 +140,28 @@ Slice::DefinitionContext::setSeenDefinition()
 }
 
 bool
-Slice::DefinitionContext::hasMetaData() const
+Slice::DefinitionContext::hasMetadata() const
 {
-    return !_metaData.empty();
+    return !_metadata.empty();
 }
 
 bool
-Slice::DefinitionContext::hasMetaDataDirective(const string& directive) const
+Slice::DefinitionContext::hasMetadataDirective(const string& directive) const
 {
-    return findMetaData(directive) == directive;
+    return findMetadata(directive) == directive;
 }
 
 void
-Slice::DefinitionContext::setMetaData(const StringList& metaData)
+Slice::DefinitionContext::setMetadata(const StringList& metadata)
 {
-    _metaData = metaData;
+    _metadata = metadata;
     initSuppressedWarnings();
 }
 
 string
-Slice::DefinitionContext::findMetaData(const string& prefix) const
+Slice::DefinitionContext::findMetadata(const string& prefix) const
 {
-    for (const auto& p : _metaData)
+    for (const auto& p : _metadata)
     {
         if (p.find(prefix) == 0)
         {
@@ -172,9 +172,9 @@ Slice::DefinitionContext::findMetaData(const string& prefix) const
 }
 
 StringList
-Slice::DefinitionContext::getMetaData() const
+Slice::DefinitionContext::getMetadata() const
 {
-    return _metaData;
+    return _metadata;
 }
 
 void
@@ -205,7 +205,7 @@ Slice::DefinitionContext::initSuppressedWarnings()
 {
     _suppressedWarnings.clear();
     const string prefix = "suppress-warning";
-    string value = findMetaData(prefix);
+    string value = findMetadata(prefix);
     if (value == prefix)
     {
         _suppressedWarnings.insert(All);
@@ -231,13 +231,13 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 }
                 else if (s == "invalid-metadata")
                 {
-                    _suppressedWarnings.insert(InvalidMetaData);
+                    _suppressedWarnings.insert(InvalidMetadata);
                 }
                 else
                 {
                     ostringstream os;
                     os << "invalid category `" << s << "' in file metadata suppress-warning";
-                    warning(InvalidMetaData, "", -1, os.str());
+                    warning(InvalidMetadata, "", -1, os.str());
                 }
             }
         }
@@ -904,15 +904,15 @@ Slice::Contained::updateIncludeLevel()
 }
 
 bool
-Slice::Contained::hasMetaData(const string& meta) const
+Slice::Contained::hasMetadata(const string& meta) const
 {
-    return find(_metaData.begin(), _metaData.end(), meta) != _metaData.end();
+    return find(_metadata.begin(), _metadata.end(), meta) != _metadata.end();
 }
 
 bool
-Slice::Contained::findMetaData(const string& prefix, string& meta) const
+Slice::Contained::findMetadata(const string& prefix, string& meta) const
 {
-    for (const auto& p : _metaData)
+    for (const auto& p : _metadata)
     {
         if (p.find(prefix) == 0)
         {
@@ -925,25 +925,25 @@ Slice::Contained::findMetaData(const string& prefix, string& meta) const
 }
 
 list<string>
-Slice::Contained::getMetaData() const
+Slice::Contained::getMetadata() const
 {
-    return _metaData;
+    return _metadata;
 }
 
 void
-Slice::Contained::setMetaData(const list<string>& metaData)
+Slice::Contained::setMetadata(const list<string>& metadata)
 {
-    _metaData = metaData;
+    _metadata = metadata;
 }
 
 std::optional<FormatType>
-Slice::Contained::parseFormatMetaData(const list<string>& metaData)
+Slice::Contained::parseFormatMetadata(const list<string>& metadata)
 {
     std::optional<FormatType> result;
 
     string tag;
     string prefix = "format:";
-    for (const auto& p : metaData)
+    for (const auto& p : metadata)
     {
         if (p.find(prefix) == 0)
         {
@@ -980,8 +980,8 @@ Slice::Contained::isDeprecated(bool checkParent) const
     string metadata;
     ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
 
-    return (findMetaData(prefix1, metadata) || (parent && parent->findMetaData(prefix1, metadata))) ||
-           (findMetaData(prefix2, metadata) || (parent && parent->findMetaData(prefix2, metadata)));
+    return (findMetadata(prefix1, metadata) || (parent && parent->findMetadata(prefix1, metadata))) ||
+           (findMetadata(prefix2, metadata) || (parent && parent->findMetadata(prefix2, metadata)));
 }
 
 optional<string>
@@ -991,14 +991,14 @@ Slice::Contained::getDeprecationReason(bool checkParent) const
     ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
 
     const string prefix1 = "deprecate:";
-    if (findMetaData(prefix1, metadata) || (parent && parent->findMetaData(prefix1, metadata)))
+    if (findMetadata(prefix1, metadata) || (parent && parent->findMetadata(prefix1, metadata)))
     {
         assert(metadata.find(prefix1) == 0);
         return metadata.substr(prefix1.size());
     }
 
     const string prefix2 = "deprecated:";
-    if (findMetaData(prefix2, metadata) || (parent && parent->findMetaData(prefix2, metadata)))
+    if (findMetadata(prefix2, metadata) || (parent && parent->findMetadata(prefix2, metadata)))
     {
         assert(metadata.find(prefix2) == 0);
         return metadata.substr(prefix2.size());
@@ -1474,7 +1474,7 @@ Slice::Container::createStruct(const string& name, NodeType nt)
 }
 
 SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, NodeType nt)
+Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metadata, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -1502,7 +1502,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
         checkForGlobalDef(name, "sequence"); // Don't return here -- we create the sequence anyway.
     }
 
-    SequencePtr p = make_shared<Sequence>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, metaData);
+    SequencePtr p = make_shared<Sequence>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, metadata);
     p->init();
     _contents.push_back(p);
     return p;
@@ -1512,9 +1512,9 @@ DictionaryPtr
 Slice::Container::createDictionary(
     const string& name,
     const TypePtr& keyType,
-    const StringList& keyMetaData,
+    const StringList& keyMetadata,
     const TypePtr& valueType,
-    const StringList& valueMetaData,
+    const StringList& valueMetadata,
     NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -1558,9 +1558,9 @@ Slice::Container::createDictionary(
         dynamic_pointer_cast<Container>(shared_from_this()),
         name,
         keyType,
-        keyMetaData,
+        keyMetadata,
         valueType,
-        valueMetaData);
+        valueMetadata);
     p->init();
     _contents.push_back(p);
     return p;
@@ -1605,7 +1605,7 @@ ConstPtr
 Slice::Container::createConst(
     const string name,
     const TypePtr& constType,
-    const StringList& metaData,
+    const StringList& metadata,
     const SyntaxTreeBasePtr& valueType,
     const string& value,
     const string& literal,
@@ -1649,7 +1649,7 @@ Slice::Container::createConst(
         dynamic_pointer_cast<Container>(shared_from_this()),
         name,
         constType,
-        metaData,
+        metadata,
         resolvedValueType,
         value,
         literal);
@@ -2826,9 +2826,9 @@ Slice::ClassDef::hasDefaultValues() const
 }
 
 bool
-Slice::ClassDef::inheritsMetaData(const string& meta) const
+Slice::ClassDef::inheritsMetadata(const string& meta) const
 {
-    return _base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta));
+    return _base && (_base->hasMetadata(meta) || _base->inheritsMetadata(meta));
 }
 
 bool
@@ -3284,11 +3284,11 @@ Slice::InterfaceDef::hasOperations() const
 }
 
 bool
-Slice::InterfaceDef::inheritsMetaData(const string& meta) const
+Slice::InterfaceDef::inheritsMetadata(const string& meta) const
 {
     for (const auto& p : _bases)
     {
-        if (p->hasMetaData(meta) || p->inheritsMetaData(meta))
+        if (p->hasMetadata(meta) || p->inheritsMetadata(meta))
         {
             return true;
         }
@@ -3587,9 +3587,9 @@ Slice::Exception::hasDefaultValues() const
 }
 
 bool
-Slice::Exception::inheritsMetaData(const string& meta) const
+Slice::Exception::inheritsMetadata(const string& meta) const
 {
-    if (_base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta)))
+    if (_base && (_base->hasMetadata(meta) || _base->inheritsMetadata(meta)))
     {
         return true;
     }
@@ -3823,9 +3823,9 @@ Slice::Sequence::type() const
 }
 
 StringList
-Slice::Sequence::typeMetaData() const
+Slice::Sequence::typeMetadata() const
 {
-    return _typeMetaData;
+    return _typeMetadata;
 }
 
 bool
@@ -3868,13 +3868,13 @@ Slice::Sequence::Sequence(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& type,
-    const StringList& typeMetaData)
+    const StringList& typeMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
       _type(type),
-      _typeMetaData(typeMetaData)
+      _typeMetadata(typeMetadata)
 {
 }
 
@@ -3895,15 +3895,15 @@ Slice::Dictionary::valueType() const
 }
 
 StringList
-Slice::Dictionary::keyMetaData() const
+Slice::Dictionary::keyMetadata() const
 {
-    return _keyMetaData;
+    return _keyMetadata;
 }
 
 StringList
-Slice::Dictionary::valueMetaData() const
+Slice::Dictionary::valueMetadata() const
 {
-    return _valueMetaData;
+    return _valueMetadata;
 }
 
 bool
@@ -3998,17 +3998,17 @@ Slice::Dictionary::Dictionary(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& keyType,
-    const StringList& keyMetaData,
+    const StringList& keyMetadata,
     const TypePtr& valueType,
-    const StringList& valueMetaData)
+    const StringList& valueMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
       _keyType(keyType),
       _valueType(valueType),
-      _keyMetaData(keyMetaData),
-      _valueMetaData(valueMetaData)
+      _keyMetadata(keyMetadata),
+      _valueMetadata(valueMetadata)
 {
 }
 
@@ -4208,9 +4208,9 @@ Slice::Const::type() const
 }
 
 StringList
-Slice::Const::typeMetaData() const
+Slice::Const::typeMetadata() const
 {
-    return _typeMetaData;
+    return _typeMetadata;
 }
 
 SyntaxTreeBasePtr
@@ -4247,14 +4247,14 @@ Slice::Const::Const(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& type,
-    const StringList& typeMetaData,
+    const StringList& typeMetadata,
     const SyntaxTreeBasePtr& valueType,
     const string& value,
     const string& literal)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       _type(type),
-      _typeMetaData(typeMetaData),
+      _typeMetadata(typeMetadata),
       _valueType(valueType),
       _value(value),
       _literal(literal)
@@ -4300,7 +4300,7 @@ Slice::Operation::hasMarshaledResult() const
 {
     InterfaceDefPtr intf = interface();
     assert(intf);
-    if (intf->hasMetaData("marshaled-result") || hasMetaData("marshaled-result"))
+    if (intf->hasMetadata("marshaled-result") || hasMetadata("marshaled-result"))
     {
         if (returnType() && isMutableAfterReturnType(returnType()))
         {
@@ -4606,12 +4606,12 @@ Slice::Operation::sendsOptionals() const
 std::optional<FormatType>
 Slice::Operation::format() const
 {
-    std::optional<FormatType> format = parseFormatMetaData(getMetaData());
+    std::optional<FormatType> format = parseFormatMetadata(getMetadata());
     if (!format)
     {
         ContainedPtr cont = dynamic_pointer_cast<Contained>(container());
         assert(cont);
-        format = parseFormatMetaData(cont->getMetaData());
+        format = parseFormatMetadata(cont->getMetadata());
     }
     return format;
 }
@@ -4778,9 +4778,9 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool all, const StringList& defaultGlobalMetadata)
+Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
 {
-    auto unit = make_shared<Unit>(all, defaultGlobalMetadata);
+    auto unit = make_shared<Unit>(all, defaultFileMetadata);
     unit->init();
     return unit;
 }
@@ -4965,7 +4965,7 @@ Slice::Unit::currentIncludeLevel() const
 }
 
 void
-Slice::Unit::addGlobalMetaData(const StringList& metaData)
+Slice::Unit::addFileMetadata(const StringList& metadata)
 {
     DefinitionContextPtr dc = currentDefinitionContext();
     assert(dc);
@@ -4976,9 +4976,9 @@ Slice::Unit::addGlobalMetaData(const StringList& metaData)
     else
     {
         // Append the file metadata to any existing metadata (e.g., default file metadata).
-        StringList l = dc->getMetaData();
-        copy(metaData.begin(), metaData.end(), back_inserter(l));
-        dc->setMetaData(l);
+        StringList l = dc->getMetadata();
+        copy(metadata.begin(), metadata.end(), back_inserter(l));
+        dc->setMetadata(l);
     }
 }
 
@@ -5044,7 +5044,7 @@ Slice::Unit::currentDefinitionContext() const
 void
 Slice::Unit::pushDefinitionContext()
 {
-    _definitionContextStack.push(make_shared<DefinitionContext>(_currentIncludeLevel, _defaultGlobalMetaData));
+    _definitionContextStack.push(make_shared<DefinitionContext>(_currentIncludeLevel, _defaultFileMetadata));
 }
 
 void
@@ -5238,11 +5238,11 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(bool all, const StringList& defaultGlobalMetadata)
+Slice::Unit::Unit(bool all, const StringList& defaultFileMetadata)
     : SyntaxTreeBase(nullptr),
       Container(nullptr),
       _all(all),
-      _defaultGlobalMetaData(defaultGlobalMetadata),
+      _defaultFileMetadata(defaultFileMetadata),
       _errors(0),
       _currentIncludeLevel(0)
 

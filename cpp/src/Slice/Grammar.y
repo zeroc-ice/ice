@@ -164,9 +164,9 @@ slice_error(const char* s)
 %token ICE_SCOPED_IDENTIFIER
 %token ICE_METADATA_OPEN
 %token ICE_METADATA_CLOSE
-%token ICE_GLOBAL_METADATA_OPEN
-%token ICE_GLOBAL_METADATA_IGNORE
-%token ICE_GLOBAL_METADATA_CLOSE
+%token ICE_FILE_METADATA_OPEN
+%token ICE_FILE_METADATA_IGNORE
+%token ICE_FILE_METADATA_CLOSE
 
 // Here 'OPEN' means these tokens end with an open parenthesis.
 %token ICE_IDENT_OPEN
@@ -197,21 +197,21 @@ opt_semicolon
 ;
 
 // ----------------------------------------------------------------------
-global_meta_data
+file_metadata
 // ----------------------------------------------------------------------
-: ICE_GLOBAL_METADATA_OPEN string_list ICE_GLOBAL_METADATA_CLOSE
+: ICE_FILE_METADATA_OPEN string_list ICE_FILE_METADATA_CLOSE
 {
     $$ = $2;
 }
-| ICE_GLOBAL_METADATA_IGNORE string_list ICE_GLOBAL_METADATA_CLOSE
+| ICE_FILE_METADATA_IGNORE string_list ICE_FILE_METADATA_CLOSE
 {
-    currentUnit->error("global metadata must appear before any definitions");
+    currentUnit->error("file metadata must appear before any definitions");
     $$ = $2; // Dummy
 }
 ;
 
 // ----------------------------------------------------------------------
-meta_data
+metadata
 // ----------------------------------------------------------------------
 : ICE_METADATA_OPEN string_list ICE_METADATA_CLOSE
 {
@@ -226,21 +226,21 @@ meta_data
 // ----------------------------------------------------------------------
 definitions
 // ----------------------------------------------------------------------
-: definitions global_meta_data
+: definitions file_metadata
 {
-    auto metaData = dynamic_pointer_cast<StringListTok>($2);
-    if (!metaData->v.empty())
+    auto metadata = dynamic_pointer_cast<StringListTok>($2);
+    if (!metadata->v.empty())
     {
-        currentUnit->addGlobalMetaData(metaData->v);
+        currentUnit->addFileMetadata(metadata->v);
     }
 }
-| definitions meta_data definition
+| definitions metadata definition
 {
-    auto metaData = dynamic_pointer_cast<StringListTok>($2);
+    auto metadata = dynamic_pointer_cast<StringListTok>($2);
     auto contained = dynamic_pointer_cast<Contained>($3);
-    if (contained && !metaData->v.empty())
+    if (contained && !metadata->v.empty())
     {
-        contained->setMetaData(metaData->v);
+        contained->setMetadata(metadata->v);
     }
 }
 | %empty
@@ -989,19 +989,19 @@ extends
 // ----------------------------------------------------------------------
 data_members
 // ----------------------------------------------------------------------
-: meta_data data_member ';' data_members
+: metadata data_member ';' data_members
 {
-    auto metaData = dynamic_pointer_cast<StringListTok>($1);
+    auto metadata = dynamic_pointer_cast<StringListTok>($1);
     auto contained = dynamic_pointer_cast<Contained>($2);
-    if (contained && !metaData->v.empty())
+    if (contained && !metadata->v.empty())
     {
-        contained->setMetaData(metaData->v);
+        contained->setMetadata(metadata->v);
     }
 }
 | error ';' data_members
 {
 }
-| meta_data data_member
+| metadata data_member
 {
     currentUnit->error("`;' missing after definition");
 }
@@ -1473,19 +1473,19 @@ interface_extends
 // ----------------------------------------------------------------------
 operations
 // ----------------------------------------------------------------------
-: meta_data operation ';' operations
+: metadata operation ';' operations
 {
-    auto metaData = dynamic_pointer_cast<StringListTok>($1);
+    auto metadata = dynamic_pointer_cast<StringListTok>($1);
     auto contained = dynamic_pointer_cast<Contained>($2);
-    if (contained && !metaData->v.empty())
+    if (contained && !metadata->v.empty())
     {
-        contained->setMetaData(metaData->v);
+        contained->setMetadata(metadata->v);
     }
 }
 | error ';' operations
 {
 }
-| meta_data operation
+| metadata operation
 {
     currentUnit->error("`;' missing after definition");
 }
@@ -1539,21 +1539,21 @@ exception
 // ----------------------------------------------------------------------
 sequence_def
 // ----------------------------------------------------------------------
-: ICE_SEQUENCE '<' meta_data type '>' ICE_IDENTIFIER
+: ICE_SEQUENCE '<' metadata type '>' ICE_IDENTIFIER
 {
     auto ident = dynamic_pointer_cast<StringTok>($6);
-    auto metaData = dynamic_pointer_cast<StringListTok>($3);
+    auto metadata = dynamic_pointer_cast<StringListTok>($3);
     auto type = dynamic_pointer_cast<Type>($4);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, metaData->v);
+    $$ = cont->createSequence(ident->v, type, metadata->v);
 }
-| ICE_SEQUENCE '<' meta_data type '>' keyword
+| ICE_SEQUENCE '<' metadata type '>' keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($6);
-    auto metaData = dynamic_pointer_cast<StringListTok>($3);
+    auto metadata = dynamic_pointer_cast<StringListTok>($3);
     auto type = dynamic_pointer_cast<Type>($4);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, metaData->v); // Dummy
+    $$ = cont->createSequence(ident->v, type, metadata->v); // Dummy
     currentUnit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 ;
@@ -1561,25 +1561,25 @@ sequence_def
 // ----------------------------------------------------------------------
 dictionary_def
 // ----------------------------------------------------------------------
-: ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' ICE_IDENTIFIER
+: ICE_DICTIONARY '<' metadata type ',' metadata type '>' ICE_IDENTIFIER
 {
     auto ident = dynamic_pointer_cast<StringTok>($9);
-    auto keyMetaData = dynamic_pointer_cast<StringListTok>($3);
+    auto keyMetadata = dynamic_pointer_cast<StringListTok>($3);
     auto keyType = dynamic_pointer_cast<Type>($4);
-    auto valueMetaData = dynamic_pointer_cast<StringListTok>($6);
+    auto valueMetadata = dynamic_pointer_cast<StringListTok>($6);
     auto valueType = dynamic_pointer_cast<Type>($7);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
+    $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v);
 }
-| ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' keyword
+| ICE_DICTIONARY '<' metadata type ',' metadata type '>' keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($9);
-    auto keyMetaData = dynamic_pointer_cast<StringListTok>($3);
+    auto keyMetadata = dynamic_pointer_cast<StringListTok>($3);
     auto keyType = dynamic_pointer_cast<Type>($4);
-    auto valueMetaData = dynamic_pointer_cast<StringListTok>($6);
+    auto valueMetadata = dynamic_pointer_cast<StringListTok>($6);
     auto valueType = dynamic_pointer_cast<Type>($7);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
+    $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v); // Dummy
     currentUnit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 ;
@@ -1651,25 +1651,25 @@ ICE_ENUM
 // ----------------------------------------------------------------------
 enumerator_list
 // ----------------------------------------------------------------------
-: meta_data enumerator ',' enumerator_list
+: metadata enumerator ',' enumerator_list
 {
     auto metadata = dynamic_pointer_cast<StringListTok>($1);
     auto enumerator = dynamic_pointer_cast<Enumerator>($2);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetaData(metadata->v);
+        enumerator->setMetadata(metadata->v);
     }
     auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>($4);
     enumeratorList->v.push_front(enumerator);
     $$ = enumeratorList;
 }
-| meta_data enumerator
+| metadata enumerator
 {
     auto metadata = dynamic_pointer_cast<StringListTok>($1);
     auto enumerator = dynamic_pointer_cast<Enumerator>($2);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetaData(metadata->v);
+        enumerator->setMetadata(metadata->v);
     }
     auto enumeratorList = make_shared<EnumeratorListTok>();
     enumeratorList->v.push_front(enumerator);
@@ -1785,7 +1785,7 @@ parameters
 : %empty
 {
 }
-| out_qualifier meta_data optional_type_id
+| out_qualifier metadata optional_type_id
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
     auto tsp = dynamic_pointer_cast<OptionalDefTok>($3);
@@ -1794,14 +1794,14 @@ parameters
     {
         ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
         currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
-        auto metaData = dynamic_pointer_cast<StringListTok>($2);
-        if (!metaData->v.empty())
+        auto metadata = dynamic_pointer_cast<StringListTok>($2);
+        if (!metadata->v.empty())
         {
-            pd->setMetaData(metaData->v);
+            pd->setMetadata(metadata->v);
         }
     }
 }
-| parameters ',' out_qualifier meta_data optional_type_id
+| parameters ',' out_qualifier metadata optional_type_id
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
     auto tsp = dynamic_pointer_cast<OptionalDefTok>($5);
@@ -1810,14 +1810,14 @@ parameters
     {
         ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
         currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
-        auto metaData = dynamic_pointer_cast<StringListTok>($4);
-        if (!metaData->v.empty())
+        auto metadata = dynamic_pointer_cast<StringListTok>($4);
+        if (!metadata->v.empty())
         {
-            pd->setMetaData(metaData->v);
+            pd->setMetadata(metadata->v);
         }
     }
 }
-| out_qualifier meta_data type keyword
+| out_qualifier metadata type keyword
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
     auto type = dynamic_pointer_cast<Type>($3);
@@ -1829,7 +1829,7 @@ parameters
         currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
-| parameters ',' out_qualifier meta_data type keyword
+| parameters ',' out_qualifier metadata type keyword
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
     auto type = dynamic_pointer_cast<Type>($5);
@@ -1841,7 +1841,7 @@ parameters
         currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
-| out_qualifier meta_data type
+| out_qualifier metadata type
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
     auto type = dynamic_pointer_cast<Type>($3);
@@ -1852,7 +1852,7 @@ parameters
         currentUnit->error("missing parameter name");
     }
 }
-| parameters ',' out_qualifier meta_data type
+| parameters ',' out_qualifier metadata type
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
     auto type = dynamic_pointer_cast<Type>($5);
@@ -2094,22 +2094,22 @@ const_initializer
 // ----------------------------------------------------------------------
 const_def
 // ----------------------------------------------------------------------
-: ICE_CONST meta_data type ICE_IDENTIFIER '=' const_initializer
+: ICE_CONST metadata type ICE_IDENTIFIER '=' const_initializer
 {
-    auto metaData = dynamic_pointer_cast<StringListTok>($2);
+    auto metadata = dynamic_pointer_cast<StringListTok>($2);
     auto const_type = dynamic_pointer_cast<Type>($3);
     auto ident = dynamic_pointer_cast<StringTok>($4);
     auto value = dynamic_pointer_cast<ConstDefTok>($6);
-    $$ = currentUnit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
+    $$ = currentUnit->currentContainer()->createConst(ident->v, const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
-| ICE_CONST meta_data type '=' const_initializer
+| ICE_CONST metadata type '=' const_initializer
 {
-    auto metaData = dynamic_pointer_cast<StringListTok>($2);
+    auto metadata = dynamic_pointer_cast<StringListTok>($2);
     auto const_type = dynamic_pointer_cast<Type>($3);
     auto value = dynamic_pointer_cast<ConstDefTok>($5);
     currentUnit->error("missing constant name");
-    $$ = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, metaData->v, value->v,
+    $$ = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
 ;

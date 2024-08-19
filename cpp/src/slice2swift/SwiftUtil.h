@@ -56,7 +56,7 @@ namespace Slice
 
         SwiftGenerator& operator=(const SwiftGenerator&) = delete;
 
-        static void validateMetaData(const UnitPtr&);
+        static void validateMetadata(const UnitPtr&);
 
     protected:
         void trimLines(StringList&);
@@ -151,7 +151,7 @@ namespace Slice
         void writeDispatchOperation(::IceInternal::Output&, const OperationPtr&);
 
     private:
-        class MetaDataVisitor final : public ParserVisitor
+        class MetadataVisitor final : public ParserVisitor
         {
         public:
             bool visitModuleStart(const ModulePtr&) final;

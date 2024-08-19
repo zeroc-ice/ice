@@ -413,11 +413,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
     if (yy_top_state() == PRE_SLICE)
     {
-        return ICE_GLOBAL_METADATA_OPEN;
+        return ICE_FILE_METADATA_OPEN;
     }
     else
     {
-        return ICE_GLOBAL_METADATA_IGNORE;
+        return ICE_FILE_METADATA_IGNORE;
     }
 }
 
@@ -448,7 +448,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
 <METADATA>"]]" {
     yy_pop_state();
-    return ICE_GLOBAL_METADATA_CLOSE;
+    return ICE_FILE_METADATA_CLOSE;
 }
 
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */

@@ -1669,7 +1669,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList members = p->dataMembers();
     if (!members.empty())
     {
-        if (p->hasMetaData("protected"))
+        if (p->hasMetadata("protected"))
         {
             //
             // All members are protected.
@@ -1693,7 +1693,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             DataMemberList prot, pub;
             for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
             {
-                if ((*q)->hasMetaData("protected"))
+                if ((*q)->hasMetadata("protected"))
                 {
                     prot.push_back(*q);
                 }
@@ -1737,8 +1737,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
+    const bool basePreserved = p->inheritsMetadata("preserve-slice");
+    const bool preserved = p->hasMetadata("preserve-slice");
 
     MemberInfoList allMembers;
     collectClassMembers(p, allMembers, false);
@@ -2568,8 +2568,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
+    const bool basePreserved = p->inheritsMetadata("preserve-slice");
+    const bool preserved = p->hasMetadata("preserve-slice");
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
