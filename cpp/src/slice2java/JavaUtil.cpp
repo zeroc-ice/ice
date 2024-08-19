@@ -380,8 +380,7 @@ namespace
             return result;
         }
 
-        StringList
-        validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, int line)
+        StringList validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, int line)
         {
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);
@@ -469,8 +468,7 @@ namespace
             return newMetaData;
         }
 
-        StringList
-        validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, int line)
+        StringList validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, int line)
         {
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);

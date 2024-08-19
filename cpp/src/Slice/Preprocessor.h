@@ -15,10 +15,8 @@ namespace Slice
     class Preprocessor final
     {
     public:
-        static PreprocessorPtr create(
-            const std::string& path,
-            const std::string& fileName,
-            const std::vector<std::string>& args);
+        static PreprocessorPtr
+        create(const std::string& path, const std::string& fileName, const std::vector<std::string>& args);
 
         Preprocessor(const std::string& path, const std::string& fileName, const std::vector<std::string>& args);
         ~Preprocessor();

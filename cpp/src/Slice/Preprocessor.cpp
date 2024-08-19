@@ -127,8 +127,7 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
 
 namespace
 {
-    vector<string>
-    baseArgs(vector<string> args, bool keepComments, const string& languageArg, const string& fileName)
+    vector<string> baseArgs(vector<string> args, bool keepComments, const string& languageArg, const string& fileName)
     {
         if (keepComments)
         {
