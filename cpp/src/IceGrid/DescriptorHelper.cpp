@@ -1625,8 +1625,6 @@ IceBoxHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& o
     out << "icebox `" + _desc->id + "'";
     out << sb;
 
-    string endpoints = getProperty("IceBox.ServiceManager.Endpoints");
-    out << nl << "service manager endpoints = `" << endpoints << "'";
     printImpl(communicator, out, info);
     out << nl << "services";
     out << sb;
