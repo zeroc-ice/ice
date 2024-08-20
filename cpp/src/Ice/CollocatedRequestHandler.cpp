@@ -232,11 +232,13 @@ CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 }
 
 void
-CollocatedRequestHandler::dispatchAll(InputStream& is, int32_t requestId, int32_t dispatchCount)
+CollocatedRequestHandler::dispatchAll(InputStream& is, int32_t requestId, int32_t requestCount)
 {
+    optional<int32_t> batchRequestCount = requestCount > 1 ? optional<int32_t>(requestCount) : nullopt;
+
     try
     {
-        while (dispatchCount > 0)
+        while (requestCount > 0)
         {
             //
             // Increase the direct count for the dispatch. We increase it again here for
@@ -254,7 +256,7 @@ CollocatedRequestHandler::dispatchAll(InputStream& is, int32_t requestId, int32_
                 break;
             }
 
-            IncomingRequest request{requestId, nullptr, _adapter, is};
+            IncomingRequest request{requestId, nullptr, _adapter, is, batchRequestCount};
 
             try
             {
@@ -268,7 +270,7 @@ CollocatedRequestHandler::dispatchAll(InputStream& is, int32_t requestId, int32_
                 sendResponse(makeOutgoingResponse(current_exception(), request.current()));
             }
 
-            --dispatchCount;
+            --requestCount;
         }
     }
     catch (...)
