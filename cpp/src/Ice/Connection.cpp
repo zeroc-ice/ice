@@ -34,7 +34,7 @@ Ice::Connection::flushBatchRequestsAsync(CompressBatch compress)
 }
 
 future<void>
-Ice::Connection::close() noexcept
+Ice::Connection::close()
 {
     auto sharedPromise = make_shared<promise<void>>();
     close(
