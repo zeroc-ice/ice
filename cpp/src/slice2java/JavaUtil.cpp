@@ -291,6 +291,8 @@ namespace
             p->setMetaData(metaData);
         }
 
+        bool shouldVisitIncludedDefinitions() const final { return true; }
+
     private:
         StringList getMetaData(const ContainedPtr& cont)
         {
@@ -2501,5 +2503,5 @@ void
 Slice::JavaGenerator::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
-    u->visit(&visitor, true);
+    u->visit(&visitor);
 }

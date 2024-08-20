@@ -319,7 +319,7 @@ Slice::SyntaxTreeBase::definitionContext() const
 }
 
 void
-Slice::SyntaxTreeBase::visit(ParserVisitor*, bool)
+Slice::SyntaxTreeBase::visit(ParserVisitor*)
 {
 }
 
@@ -2130,13 +2130,13 @@ Slice::Container::sortContents(bool sortFields)
 }
 
 void
-Slice::Container::visit(ParserVisitor* visitor, bool all)
+Slice::Container::visit(ParserVisitor* visitor)
 {
     for (const auto& p : _contents)
     {
-        if (all || p->includeLevel() == 0)
+        if (visitor->shouldVisitIncludedDefinitions() || p->includeLevel() == 0)
         {
-            p->visit(visitor, all);
+            p->visit(visitor);
         }
     }
 }
@@ -2486,12 +2486,12 @@ Slice::Module::kindOf() const
 }
 
 void
-Slice::Module::visit(ParserVisitor* visitor, bool all)
+Slice::Module::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<Module>(Container::shared_from_this());
     if (visitor->visitModuleStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitModuleEnd(self);
     }
 }
@@ -2568,7 +2568,7 @@ Slice::ClassDecl::kindOf() const
 }
 
 void
-Slice::ClassDecl::visit(ParserVisitor* visitor, bool)
+Slice::ClassDecl::visit(ParserVisitor* visitor)
 {
     visitor->visitClassDecl(dynamic_pointer_cast<ClassDecl>(shared_from_this()));
 }
@@ -2844,12 +2844,12 @@ Slice::ClassDef::kindOf() const
 }
 
 void
-Slice::ClassDef::visit(ParserVisitor* visitor, bool all)
+Slice::ClassDef::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<ClassDef>(Container::shared_from_this());
     if (visitor->visitClassDefStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitClassDefEnd(self);
     }
 }
@@ -2916,7 +2916,7 @@ Slice::InterfaceDecl::kindOf() const
 }
 
 void
-Slice::InterfaceDecl::visit(ParserVisitor* visitor, bool)
+Slice::InterfaceDecl::visit(ParserVisitor* visitor)
 {
     visitor->visitInterfaceDecl(dynamic_pointer_cast<InterfaceDecl>(shared_from_this()));
 }
@@ -3303,12 +3303,12 @@ Slice::InterfaceDef::kindOf() const
 }
 
 void
-Slice::InterfaceDef::visit(ParserVisitor* visitor, bool all)
+Slice::InterfaceDef::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<InterfaceDef>(Container::shared_from_this());
     if (visitor->visitInterfaceDefStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitInterfaceDefEnd(self);
     }
 }
@@ -3610,12 +3610,12 @@ Slice::Exception::kindOf() const
 }
 
 void
-Slice::Exception::visit(ParserVisitor* visitor, bool all)
+Slice::Exception::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<Exception>(Container::shared_from_this());
     if (visitor->visitExceptionStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitExceptionEnd(self);
     }
 }
@@ -3793,12 +3793,12 @@ Slice::Struct::kindOf() const
 }
 
 void
-Slice::Struct::visit(ParserVisitor* visitor, bool all)
+Slice::Struct::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<Struct>(Container::shared_from_this());
     if (visitor->visitStructStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitStructEnd(self);
     }
 }
@@ -3859,7 +3859,7 @@ Slice::Sequence::kindOf() const
 }
 
 void
-Slice::Sequence::visit(ParserVisitor* visitor, bool)
+Slice::Sequence::visit(ParserVisitor* visitor)
 {
     visitor->visitSequence(dynamic_pointer_cast<Sequence>(shared_from_this()));
 }
@@ -3937,7 +3937,7 @@ Slice::Dictionary::kindOf() const
 }
 
 void
-Slice::Dictionary::visit(ParserVisitor* visitor, bool)
+Slice::Dictionary::visit(ParserVisitor* visitor)
 {
     visitor->visitDictionary(dynamic_pointer_cast<Dictionary>(shared_from_this()));
 }
@@ -4143,7 +4143,7 @@ Slice::Enum::kindOf() const
 }
 
 void
-Slice::Enum::visit(ParserVisitor* visitor, bool)
+Slice::Enum::visit(ParserVisitor* visitor)
 {
     visitor->visitEnum(dynamic_pointer_cast<Enum>(Container::shared_from_this()));
 }
@@ -4238,7 +4238,7 @@ Slice::Const::kindOf() const
 }
 
 void
-Slice::Const::visit(ParserVisitor* visitor, bool)
+Slice::Const::visit(ParserVisitor* visitor)
 {
     visitor->visitConst(dynamic_pointer_cast<Const>(shared_from_this()));
 }
@@ -4623,7 +4623,7 @@ Slice::Operation::kindOf() const
 }
 
 void
-Slice::Operation::visit(ParserVisitor* visitor, bool)
+Slice::Operation::visit(ParserVisitor* visitor)
 {
     visitor->visitOperation(dynamic_pointer_cast<Operation>(Container::shared_from_this()));
 }
@@ -4680,7 +4680,7 @@ Slice::ParamDecl::kindOf() const
 }
 
 void
-Slice::ParamDecl::visit(ParserVisitor* visitor, bool)
+Slice::ParamDecl::visit(ParserVisitor* visitor)
 {
     visitor->visitParamDecl(dynamic_pointer_cast<ParamDecl>(shared_from_this()));
 }
@@ -4748,7 +4748,7 @@ Slice::DataMember::kindOf() const
 }
 
 void
-Slice::DataMember::visit(ParserVisitor* visitor, bool)
+Slice::DataMember::visit(ParserVisitor* visitor)
 {
     visitor->visitDataMember(dynamic_pointer_cast<DataMember>(shared_from_this()));
 }
@@ -5185,12 +5185,12 @@ Slice::Unit::destroy()
 }
 
 void
-Slice::Unit::visit(ParserVisitor* visitor, bool all)
+Slice::Unit::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<Unit>(shared_from_this());
     if (visitor->visitUnitStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitUnitEnd(self);
     }
 }

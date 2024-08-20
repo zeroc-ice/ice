@@ -84,23 +84,23 @@ Gen::generate(const UnitPtr& p)
     SwiftGenerator::validateMetaData(p);
 
     ImportVisitor importVisitor(_out);
-    p->visit(&importVisitor, false);
+    p->visit(&importVisitor);
     importVisitor.writeImports();
 
     TypesVisitor typesVisitor(_out);
-    p->visit(&typesVisitor, false);
+    p->visit(&typesVisitor);
 
     ProxyVisitor proxyVisitor(_out);
-    p->visit(&proxyVisitor, false);
+    p->visit(&proxyVisitor);
 
     ValueVisitor valueVisitor(_out);
-    p->visit(&valueVisitor, false);
+    p->visit(&valueVisitor);
 
     ObjectVisitor objectVisitor(_out);
-    p->visit(&objectVisitor, false);
+    p->visit(&objectVisitor);
 
     ObjectExtVisitor objectExtVisitor(_out);
-    p->visit(&objectExtVisitor, false);
+    p->visit(&objectExtVisitor);
 }
 
 void

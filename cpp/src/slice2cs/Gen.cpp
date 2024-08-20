@@ -1470,25 +1470,25 @@ Slice::Gen::generate(const UnitPtr& p)
     CsGenerator::validateMetaData(p);
 
     UnitVisitor unitVisitor(_out);
-    p->visit(&unitVisitor, false);
+    p->visit(&unitVisitor);
 
     TypesVisitor typesVisitor(_out);
-    p->visit(&typesVisitor, false);
+    p->visit(&typesVisitor);
 
     ResultVisitor resultVisitor(_out);
-    p->visit(&resultVisitor, false);
+    p->visit(&resultVisitor);
 
     ProxyVisitor proxyVisitor(_out);
-    p->visit(&proxyVisitor, false);
+    p->visit(&proxyVisitor);
 
     HelperVisitor helperVisitor(_out);
-    p->visit(&helperVisitor, false);
+    p->visit(&helperVisitor);
 
     DispatcherVisitor dispatcherVisitor(_out);
-    p->visit(&dispatcherVisitor, false);
+    p->visit(&dispatcherVisitor);
 
     DispatchAdapterVisitor dispatchAdapterVisitor(_out);
-    p->visit(&dispatchAdapterVisitor, false);
+    p->visit(&dispatchAdapterVisitor);
 }
 
 void

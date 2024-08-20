@@ -4647,7 +4647,7 @@ compile(const vector<string>& argv)
                     try
                     {
                         CodeVisitor codeVisitor(output);
-                        u->visit(&codeVisitor, all);
+                        u->visit(&codeVisitor);
                     }
                     catch (const Slice::FileException& ex)
                     {

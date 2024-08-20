@@ -190,6 +190,8 @@ namespace Slice
         virtual void visitDictionary(const DictionaryPtr&) {}
         virtual void visitEnum(const EnumPtr&) {}
         virtual void visitConst(const ConstPtr&) {}
+
+        virtual bool shouldVisitIncludedDefinitions() const { return false; }
     };
 
     // ----------------------------------------------------------------------
@@ -289,7 +291,7 @@ namespace Slice
         virtual void destroy();
         UnitPtr unit() const;
         DefinitionContextPtr definitionContext() const; // May be nil
-        virtual void visit(ParserVisitor*, bool);
+        virtual void visit(ParserVisitor*);
 
     protected:
         UnitPtr _unit;
@@ -468,7 +470,7 @@ namespace Slice
         std::string thisScope() const;
         void sort();
         void sortContents(bool);
-        void visit(ParserVisitor*, bool) override;
+        void visit(ParserVisitor*) override;
 
         bool checkIntroduced(const std::string&, ContainedPtr = 0);
         bool checkForGlobalDef(const std::string&, const char*);
@@ -508,7 +510,7 @@ namespace Slice
     public:
         Module(const ContainerPtr&, const std::string&);
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
         friend class Container;
     };
@@ -538,7 +540,7 @@ namespace Slice
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
         std::string kindOf() const final;
 
     protected:
@@ -586,7 +588,7 @@ namespace Slice
         bool hasDefaultValues() const;
         bool inheritsMetaData(const std::string&) const;
         bool hasBaseDataMembers() const;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
         int compactId() const;
         std::string kindOf() const final;
 
@@ -612,7 +614,7 @@ namespace Slice
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
         std::string kindOf() const final;
 
         static void checkBasesAreLegal(const std::string&, const InterfaceList&, const UnitPtr&);
@@ -672,7 +674,7 @@ namespace Slice
         bool sendsOptionals() const;
         std::optional<FormatType> format() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
     protected:
         friend class InterfaceDef;
@@ -712,7 +714,7 @@ namespace Slice
         bool hasOperations() const;
         bool inheritsMetaData(const std::string&) const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
         // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
         StringList ids() const;
@@ -756,7 +758,7 @@ namespace Slice
         bool inheritsMetaData(const std::string&) const;
         bool hasBaseDataMembers() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
     protected:
         friend class Container;
@@ -788,7 +790,7 @@ namespace Slice
         bool isVariableLength() const final;
         bool hasDefaultValues() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
         friend class Container;
     };
@@ -808,7 +810,7 @@ namespace Slice
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
     protected:
         friend class Container;
@@ -840,7 +842,7 @@ namespace Slice
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
         static bool legalKeyType(const TypePtr&);
 
@@ -870,7 +872,7 @@ namespace Slice
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
     protected:
         friend class Container;
@@ -924,7 +926,7 @@ namespace Slice
         std::string value() const;
         std::string literal() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
     protected:
         friend class Container;
@@ -949,7 +951,7 @@ namespace Slice
         bool optional() const;
         int tag() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
     protected:
         friend class Operation;
@@ -983,7 +985,7 @@ namespace Slice
         std::string defaultLiteral() const;
         SyntaxTreeBasePtr defaultValueType() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
     protected:
         friend class ClassDef;
@@ -1055,7 +1057,7 @@ namespace Slice
         int parse(const std::string&, FILE*, bool);
 
         void destroy() final;
-        void visit(ParserVisitor*, bool) final;
+        void visit(ParserVisitor*) final;
 
         // Not const, as builtins are created on the fly. (Lazy initialization.)
         BuiltinPtr createBuiltin(Builtin::Kind kind);

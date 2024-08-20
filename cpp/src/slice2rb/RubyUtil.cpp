@@ -1359,7 +1359,7 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
     }
 
     CodeVisitor codeVisitor(out);
-    un->visit(&codeVisitor, false);
+    un->visit(&codeVisitor);
 
     out << nl; // Trailing newline.
 }

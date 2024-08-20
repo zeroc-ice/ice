@@ -1985,7 +1985,7 @@ void
 Slice::CsGenerator::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
-    u->visit(&visitor, true);
+    u->visit(&visitor);
 }
 
 bool

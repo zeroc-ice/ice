@@ -1280,7 +1280,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
     }
 
     CodeVisitor codeVisitor(out);
-    un->visit(&codeVisitor, false);
+    un->visit(&codeVisitor);
 
     out << nl; // Trailing newline.
 }

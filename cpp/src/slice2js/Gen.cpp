@@ -687,18 +687,18 @@ Slice::Gen::generate(const UnitPtr& p)
 
     {
         ImportVisitor importVisitor(_javaScriptOutput, _includePaths);
-        p->visit(&importVisitor, false);
+        p->visit(&importVisitor);
         set<string> importedModules = importVisitor.writeImports(p);
 
         ExportsVisitor exportsVisitor(_javaScriptOutput, importedModules);
-        p->visit(&exportsVisitor, false);
+        p->visit(&exportsVisitor);
         set<string> exportedModules = exportsVisitor.exportedModules();
 
         set<string> seenModules = importedModules;
         seenModules.merge(exportedModules);
 
         TypesVisitor typesVisitor(_javaScriptOutput);
-        p->visit(&typesVisitor, false);
+        p->visit(&typesVisitor);
     }
 
     if (_useStdout)
@@ -721,11 +721,11 @@ Slice::Gen::generate(const UnitPtr& p)
         printGeneratedHeader(_typeScriptOutput, _fileBase + ".ice");
 
         TypeScriptImportVisitor importVisitor(_typeScriptOutput);
-        p->visit(&importVisitor, false);
+        p->visit(&importVisitor);
         map<string, string> importedTypes = importVisitor.writeImports();
 
         TypeScriptVisitor typeScriptVisitor(_typeScriptOutput, importedTypes);
-        p->visit(&typeScriptVisitor, false);
+        p->visit(&typeScriptVisitor);
 
         if (_useStdout)
         {
