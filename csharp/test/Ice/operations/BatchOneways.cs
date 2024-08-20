@@ -94,7 +94,7 @@ namespace Ice
                     batch1.ice_ping();
                     batch2.ice_ping();
                     batch1.ice_flushBatchRequests();
-                    batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    _ = batch1.ice_getConnection().closeAsync();
                     batch1.ice_ping();
                     batch2.ice_ping();
 
@@ -102,7 +102,7 @@ namespace Ice
                     batch2.ice_getConnection();
 
                     batch1.ice_ping();
-                    batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    _ = batch1.ice_getConnection().closeAsync();
                     batch1.ice_ping();
                     batch2.ice_ping();
                 }

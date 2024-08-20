@@ -151,7 +151,7 @@ namespace Ice
                         {
                             await sentTcs.Task;
                             holdSerialized.ice_ping(); // Ensure everything's dispatched.
-                            holdSerialized.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                            await holdSerialized.ice_getConnection().closeAsync();
                         }
                     }
                     await result;

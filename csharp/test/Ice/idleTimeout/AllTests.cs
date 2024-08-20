@@ -41,7 +41,7 @@ internal class AllTests : global::Test.AllTests
         await p.sleepAsync(4000); // the implementation in the server sleeps for 2,000ms
 
         // close connection
-        p.ice_getConnection()!.close(ConnectionClose.GracefullyWithWait);
+        await p.ice_getConnection()!.closeAsync();
         output.WriteLine("ok");
     }
 
