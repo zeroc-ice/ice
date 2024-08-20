@@ -46,7 +46,7 @@ namespace Slice
     {
         All,
         Deprecated,
-        InvalidMetaData
+        InvalidMetadata
     };
 
     class GrammarBase;
@@ -210,11 +210,11 @@ namespace Slice
         void setFilename(const std::string&);
         void setSeenDefinition();
 
-        bool hasMetaData() const;
-        bool hasMetaDataDirective(const std::string&) const;
-        void setMetaData(const StringList&);
-        std::string findMetaData(const std::string&) const;
-        StringList getMetaData() const;
+        bool hasMetadata() const;
+        bool hasMetadataDirective(const std::string&) const;
+        void setMetadata(const StringList&);
+        std::string findMetadata(const std::string&) const;
+        StringList getMetadata() const;
 
         //
         // Emit warning unless filtered out by [["suppress-warning"]]
@@ -228,7 +228,7 @@ namespace Slice
         void initSuppressedWarnings();
 
         int _includeLevel;
-        StringList _metaData;
+        StringList _metadata;
         std::string _filename;
         bool _seenDefinition;
         std::set<WarningCategory> _suppressedWarnings;
@@ -383,12 +383,12 @@ namespace Slice
         int includeLevel() const;
         void updateIncludeLevel();
 
-        bool hasMetaData(const std::string&) const;
-        bool findMetaData(const std::string&, std::string&) const;
-        std::list<std::string> getMetaData() const;
-        void setMetaData(const std::list<std::string>&);
+        bool hasMetadata(const std::string&) const;
+        bool findMetadata(const std::string&, std::string&) const;
+        std::list<std::string> getMetadata() const;
+        void setMetadata(const std::list<std::string>&);
 
-        static std::optional<FormatType> parseFormatMetaData(const std::list<std::string>&);
+        static std::optional<FormatType> parseFormatMetadata(const std::list<std::string>&);
 
         /// Returns true if this item is deprecated (due to the presence of 'deprecated' metadata).
         /// @param checkParent If true, this item's immediate container will also be checked for 'deprecated' metadata.
@@ -414,7 +414,7 @@ namespace Slice
         int _line;
         std::string _comment;
         int _includeLevel;
-        std::list<std::string> _metaData;
+        std::list<std::string> _metadata;
     };
 
     // ----------------------------------------------------------------------
@@ -586,7 +586,7 @@ namespace Slice
         bool isA(const std::string&) const;
         bool hasDataMembers() const;
         bool hasDefaultValues() const;
-        bool inheritsMetaData(const std::string&) const;
+        bool inheritsMetadata(const std::string&) const;
         bool hasBaseDataMembers() const;
         void visit(ParserVisitor*) final;
         int compactId() const;
@@ -712,7 +712,7 @@ namespace Slice
         OperationList allOperations() const;
         bool isA(const std::string&) const;
         bool hasOperations() const;
-        bool inheritsMetaData(const std::string&) const;
+        bool inheritsMetadata(const std::string&) const;
         std::string kindOf() const final;
         void visit(ParserVisitor*) final;
 
@@ -755,7 +755,7 @@ namespace Slice
         bool isBaseOf(const ExceptionPtr&) const;
         bool usesClasses() const;
         bool hasDefaultValues() const;
-        bool inheritsMetaData(const std::string&) const;
+        bool inheritsMetadata(const std::string&) const;
         bool hasBaseDataMembers() const;
         std::string kindOf() const final;
         void visit(ParserVisitor*) final;
@@ -804,7 +804,7 @@ namespace Slice
     public:
         Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&);
         TypePtr type() const;
-        StringList typeMetaData() const;
+        StringList typeMetadata() const;
         bool usesClasses() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
@@ -816,7 +816,7 @@ namespace Slice
         friend class Container;
 
         TypePtr _type;
-        StringList _typeMetaData;
+        StringList _typeMetadata;
     };
 
     // ----------------------------------------------------------------------
@@ -835,8 +835,8 @@ namespace Slice
             const StringList&);
         TypePtr keyType() const;
         TypePtr valueType() const;
-        StringList keyMetaData() const;
-        StringList valueMetaData() const;
+        StringList keyMetadata() const;
+        StringList valueMetadata() const;
         bool usesClasses() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
@@ -851,8 +851,8 @@ namespace Slice
 
         TypePtr _keyType;
         TypePtr _valueType;
-        StringList _keyMetaData;
-        StringList _valueMetaData;
+        StringList _keyMetadata;
+        StringList _valueMetadata;
     };
 
     // ----------------------------------------------------------------------
@@ -921,7 +921,7 @@ namespace Slice
             const std::string&,
             const std::string&);
         TypePtr type() const;
-        StringList typeMetaData() const;
+        StringList typeMetadata() const;
         SyntaxTreeBasePtr valueType() const;
         std::string value() const;
         std::string literal() const;
@@ -932,7 +932,7 @@ namespace Slice
         friend class Container;
 
         TypePtr _type;
-        StringList _typeMetaData;
+        StringList _typeMetadata;
         SyntaxTreeBasePtr _valueType;
         std::string _value;
         std::string _literal;
@@ -1021,7 +1021,7 @@ namespace Slice
         int setCurrentFile(const std::string&, int);
         int currentIncludeLevel() const;
 
-        void addGlobalMetaData(const StringList&);
+        void addFileMetadata(const StringList&);
 
         void setSeenDefinition();
 
@@ -1069,7 +1069,7 @@ namespace Slice
         void init();
 
         bool _all;
-        StringList _defaultGlobalMetaData;
+        StringList _defaultFileMetadata;
         int _errors;
         std::string _currentComment;
         int _currentIncludeLevel;

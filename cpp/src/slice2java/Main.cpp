@@ -131,9 +131,9 @@ compile(const vector<string>& argv)
 
     bool listGenerated = opts.isSet("list-generated");
 
-    StringList globalMetadata;
+    StringList fileMetadata;
     vector<string> v = opts.argVec("meta");
-    copy(v.begin(), v.end(), back_inserter(globalMetadata));
+    copy(v.begin(), v.end(), back_inserter(fileMetadata));
 
     if (args.empty())
     {
@@ -246,7 +246,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr p = Unit::createUnit(false, globalMetadata);
+                UnitPtr p = Unit::createUnit(false, fileMetadata);
                 int parseStatus = p->parse(*i, cppHandle, debug);
 
                 if (!icecpp->close())

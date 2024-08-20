@@ -149,7 +149,7 @@ Slice::getJavaScriptModule(const DefinitionContextPtr& dc)
     // Check if the file contains the js:module file metadata.-
     assert(dc);
     const string prefix = "js:module:";
-    const string value = dc->findMetaData(prefix);
+    const string value = dc->findMetadata(prefix);
     return value.empty() ? value : value.substr(prefix.size());
 }
 
@@ -201,9 +201,9 @@ Slice::JsGenerator::fixDataMemberName(const std::string& name, bool isStruct, bo
 }
 
 bool
-Slice::JsGenerator::findMetaData(const string& prefix, const StringList& metaData, string& value)
+Slice::JsGenerator::findMetadata(const string& prefix, const StringList& metadata, string& value)
 {
-    for (StringList::const_iterator i = metaData.begin(); i != metaData.end(); i++)
+    for (StringList::const_iterator i = metadata.begin(); i != metadata.end(); i++)
     {
         string s = *i;
         if (s.find(prefix) == 0)

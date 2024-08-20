@@ -203,7 +203,7 @@ namespace Slice
             ::IceInternal::Output& H;
         };
 
-        class MetaDataVisitor final : public ParserVisitor
+        class MetadataVisitor final : public ParserVisitor
         {
         public:
             bool visitUnitStart(const UnitPtr&) final;
@@ -223,7 +223,7 @@ namespace Slice
             StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, int, bool = false);
         };
 
-        static void validateMetaData(const UnitPtr&);
+        static void validateMetadata(const UnitPtr&);
     };
 }
 

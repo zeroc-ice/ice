@@ -421,8 +421,8 @@ string
 Slice::CsVisitor::getParamAttributes(const ParamDeclPtr& p)
 {
     string result;
-    StringList metaData = p->getMetaData();
-    for (StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+    StringList metadata = p->getMetadata();
+    for (StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
     {
         static const string prefix = "cs:attribute:";
         if (i->find(prefix) == 0)
@@ -541,7 +541,7 @@ Slice::CsVisitor::getDispatchParams(
     InterfaceDefPtr interface = op->interface();
     ParamDeclList paramDecls;
 
-    if (interface->hasMetaData("amd") || op->hasMetaData("amd"))
+    if (interface->hasMetadata("amd") || op->hasMetadata("amd"))
     {
         name = op->name() + "Async";
         params = getInParams(op, ns);
@@ -575,8 +575,8 @@ Slice::CsVisitor::getDispatchParams(
 void
 Slice::CsVisitor::emitAttributes(const ContainedPtr& p)
 {
-    StringList metaData = p->getMetaData();
-    for (StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+    StringList metadata = p->getMetadata();
+    for (StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
     {
         static const string prefix = "cs:attribute:";
         if (i->find(prefix) == 0)
@@ -1467,7 +1467,7 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    CsGenerator::validateMetaData(p);
+    CsGenerator::validateMetadata(p);
 
     UnitVisitor unitVisitor(_out);
     p->visit(&unitVisitor);
@@ -1515,7 +1515,7 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& unit)
     static const string attributePrefix = "cs:attribute:";
 
     bool sep = false;
-    for (const auto& metadata : dc->getMetaData())
+    for (const auto& metadata : dc->getMetadata())
     {
         string::size_type pos = metadata.find(attributePrefix);
         if (pos == 0 && metadata.size() > attributePrefix.size())
@@ -1739,9 +1739,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Check for cs:implements metadata.
     //
-    const StringList metaData = p->getMetaData();
+    const StringList metadata = p->getMetadata();
     static const string prefix = "cs:implements:";
-    for (StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
     {
         if (q->find(prefix) == 0)
         {
@@ -1776,7 +1776,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     string interfaceName = fixId(interface->name());
     string ns = getNamespace(interface);
 
-    const bool amd = interface->hasMetaData("amd") || op->hasMetaData("amd");
+    const bool amd = interface->hasMetadata("amd") || op->hasMetadata("amd");
     string retS;
     vector<string> params, args;
     string opName = getDispatchParams(op, retS, params, args, ns);
@@ -2016,9 +2016,9 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     // Check for cs:implements metadata.
     //
     StringList baseNames;
-    const StringList metaData = p->getMetaData();
+    const StringList metadata = p->getMetadata();
     static const string prefix = "cs:implements:";
-    for (StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
     {
         if (q->find(prefix) == 0)
         {
@@ -2218,7 +2218,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     assert(cont);
-    bool isProperty = cont->hasMetaData("cs:property");
+    bool isProperty = cont->hasMetadata("cs:property");
 
     StructPtr st = dynamic_pointer_cast<Struct>(cont);
     ExceptionPtr ex = dynamic_pointer_cast<Exception>(cont);
@@ -2240,7 +2240,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         assert(cl);
         baseTypes = DotNet::ICloneable;
         isClass = true;
-        isProtected = cont->hasMetaData("protected") || p->hasMetaData("protected");
+        isProtected = cont->hasMetadata("protected") || p->hasMetadata("protected");
     }
 
     _out << sp;
@@ -2581,7 +2581,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     InterfaceDefPtr interface = op->interface();
     string ns = getNamespace(interface);
     string interfaceName = fixId(interface->name());
-    const bool amd = interface->hasMetaData("amd") || op->hasMetaData("amd");
+    const bool amd = interface->hasMetadata("amd") || op->hasMetadata("amd");
 
     _out << sp;
     _out << nl << "protected static " << (amd ? "async " : "")
@@ -3165,7 +3165,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     string prefix = "cs:generic:";
     string meta;
-    if (p->findMetaData(prefix, meta))
+    if (p->findMetadata(prefix, meta))
     {
         string type = meta.substr(prefix.size());
         if (type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
@@ -3205,7 +3205,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     string prefix = "cs:generic:";
     string genericType;
-    if (!p->findMetaData(prefix, meta))
+    if (!p->findMetadata(prefix, meta))
     {
         genericType = "Dictionary";
     }

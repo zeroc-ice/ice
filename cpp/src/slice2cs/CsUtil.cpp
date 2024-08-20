@@ -86,7 +86,7 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
     static const string prefix = "cs:namespace:";
 
     string q;
-    if (m->findMetaData(prefix, q))
+    if (m->findMetadata(prefix, q))
     {
         q = q.substr(prefix.size());
     }
@@ -364,7 +364,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     {
         string prefix = "cs:generic:";
         string meta;
-        if (seq->findMetaData(prefix, meta))
+        if (seq->findMetadata(prefix, meta))
         {
             string customType = meta.substr(prefix.size());
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
@@ -387,7 +387,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         string prefix = "cs:generic:";
         string meta;
         string typeName;
-        if (d->findMetaData(prefix, meta))
+        if (d->findMetadata(prefix, meta))
         {
             typeName = meta.substr(prefix.size());
         }
@@ -487,7 +487,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
     StructPtr s = dynamic_pointer_cast<Struct>(type);
     if (s)
     {
-        if (s->hasMetaData("cs:class"))
+        if (s->hasMetadata("cs:class"))
         {
             return false;
         }
@@ -1167,7 +1167,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     const string genericPrefix = "cs:generic:";
     string genericType;
     string addMethod = "Add";
-    const bool isGeneric = seq->findMetaData(genericPrefix, genericType);
+    const bool isGeneric = seq->findMetadata(genericPrefix, genericType);
     bool isStack = false;
     bool isList = false;
     bool isLinkedList = false;
@@ -1792,7 +1792,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
     const string seqS = typeToString(seq, scope);
 
     string meta;
-    const bool isArray = !seq->findMetaData("cs:generic:", meta);
+    const bool isArray = !seq->findMetadata("cs:generic:", meta);
     const string length = isArray ? param + ".Length" : param + ".Count";
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -1982,25 +1982,25 @@ Slice::CsGenerator::toArrayAlloc(const string& decl, const string& sz)
 }
 
 void
-Slice::CsGenerator::validateMetaData(const UnitPtr& u)
+Slice::CsGenerator::validateMetadata(const UnitPtr& u)
 {
-    MetaDataVisitor visitor;
+    MetadataVisitor visitor;
     u->visit(&visitor);
 }
 
 bool
-Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& unit)
+Slice::CsGenerator::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 {
     // Validate file metadata in the top-level file and all included files.
     for (const auto& file : unit->allFiles())
     {
         DefinitionContextPtr dc = unit->findDefinitionContext(file);
         assert(dc);
-        StringList globalMetaData = dc->getMetaData();
-        StringList newGlobalMetaData;
+        StringList fileMetadata = dc->getMetadata();
+        StringList newFileMetadata;
         static const string csPrefix = "cs:";
 
-        for (StringList::iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
+        for (StringList::iterator r = fileMetadata.begin(); r != fileMetadata.end(); ++r)
         {
             string& s = *r;
             string oldS = s;
@@ -2010,54 +2010,54 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& unit)
                 static const string csAttributePrefix = csPrefix + "attribute:";
                 if (!(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size()))
                 {
-                    dc->warning(InvalidMetaData, file, -1, "ignoring invalid file metadata `" + oldS + "'");
+                    dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata `" + oldS + "'");
                     continue;
                 }
             }
-            newGlobalMetaData.push_back(oldS);
+            newFileMetadata.push_back(oldS);
         }
 
-        dc->setMetaData(newGlobalMetaData);
+        dc->setMetadata(newFileMetadata);
     }
     return true;
 }
 
 bool
-Slice::CsGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+Slice::CsGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
     validate(p);
     return true;
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     validate(p);
 }
 
 bool
-Slice::CsGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    validate(p);
-    return true;
-}
-
-bool
-Slice::CsGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     validate(p);
     return true;
 }
 
 bool
-Slice::CsGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    validate(p);
+    return true;
+}
+
+bool
+Slice::CsGenerator::MetadataVisitor::visitStructStart(const StructPtr& p)
 {
     validate(p);
     return true;
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
 {
     validate(p);
 
@@ -2069,54 +2069,54 @@ Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitParamDecl(const ParamDeclPtr& p)
 {
     validate(p);
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitDataMember(const DataMemberPtr& p)
 {
     validate(p);
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
+Slice::CsGenerator::MetadataVisitor::visitSequence(const SequencePtr& p)
 {
     validate(p);
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 {
     validate(p);
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitEnum(const EnumPtr& p)
 {
     validate(p);
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitConst(const ConstPtr& p)
 {
     validate(p);
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
+Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
 {
     const string msg = "ignoring invalid metadata";
 
-    StringList localMetaData = cont->getMetaData();
-    StringList newLocalMetaData;
+    StringList localMetadata = cont->getMetadata();
+    StringList newLocalMetadata;
 
     const UnitPtr ut = cont->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
     assert(dc);
 
-    for (StringList::iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    for (StringList::iterator p = localMetadata.begin(); p != localMetadata.end(); ++p)
     {
         string& s = *p;
         string oldS = s;
@@ -2135,13 +2135,13 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     {
                         if (!seq->type()->isClassType())
                         {
-                            newLocalMetaData.push_back(s);
+                            newLocalMetadata.push_back(s);
                             continue;
                         }
                     }
                     else if (!type.empty())
                     {
-                        newLocalMetaData.push_back(s);
+                        newLocalMetadata.push_back(s);
                         continue; // Custom type or List<T>
                     }
                 }
@@ -2150,18 +2150,18 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             {
                 if (s.substr(csPrefix.size()) == "class")
                 {
-                    newLocalMetaData.push_back(s);
+                    newLocalMetadata.push_back(s);
                     continue;
                 }
                 if (s.substr(csPrefix.size()) == "property")
                 {
-                    newLocalMetaData.push_back(s);
+                    newLocalMetadata.push_back(s);
                     continue;
                 }
                 static const string csImplementsPrefix = csPrefix + "implements:";
                 if (s.find(csImplementsPrefix) == 0)
                 {
-                    newLocalMetaData.push_back(s);
+                    newLocalMetadata.push_back(s);
                     continue;
                 }
             }
@@ -2169,7 +2169,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             {
                 if (s.substr(csPrefix.size()) == "property")
                 {
-                    newLocalMetaData.push_back(s);
+                    newLocalMetadata.push_back(s);
                     continue;
                 }
             }
@@ -2178,7 +2178,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 static const string csImplementsPrefix = csPrefix + "implements:";
                 if (s.find(csImplementsPrefix) == 0)
                 {
-                    newLocalMetaData.push_back(s);
+                    newLocalMetadata.push_back(s);
                     continue;
                 }
             }
@@ -2190,7 +2190,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     string type = s.substr(csGenericPrefix.size());
                     if (type == "SortedDictionary" || type == "SortedList")
                     {
-                        newLocalMetaData.push_back(s);
+                        newLocalMetadata.push_back(s);
                         continue;
                     }
                 }
@@ -2208,7 +2208,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 static const string csNamespacePrefix = csPrefix + "namespace:";
                 if (s.find(csNamespacePrefix) == 0 && s.size() > csNamespacePrefix.size())
                 {
-                    newLocalMetaData.push_back(s);
+                    newLocalMetadata.push_back(s);
                     continue;
                 }
             }
@@ -2216,15 +2216,15 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             static const string csAttributePrefix = csPrefix + "attribute:";
             if (s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
             {
-                newLocalMetaData.push_back(s);
+                newLocalMetadata.push_back(s);
                 continue;
             }
 
-            dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + oldS + "'");
+            dc->warning(InvalidMetadata, cont->file(), cont->line(), msg + " `" + oldS + "'");
             continue;
         }
-        newLocalMetaData.push_back(s);
+        newLocalMetadata.push_back(s);
     }
 
-    cont->setMetaData(newLocalMetaData);
+    cont->setMetadata(newLocalMetadata);
 }
