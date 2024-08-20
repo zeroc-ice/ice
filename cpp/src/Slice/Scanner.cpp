@@ -967,8 +967,8 @@ namespace Slice
     using StringTokenMap = map<string, int>;
     StringTokenMap keywordMap;
 
-    int checkKeyword(string&);
-    int checkIsScoped(const string&);
+    int checkKeyword(string& identifier);
+    int checkIsScoped(const string& identifier);
 }
 
 // Stores the scanner's current column position. Flex also automatically
@@ -979,11 +979,11 @@ string yyfilename;
 
 namespace
 {
-    void nextLine(int = 1);
-    int scanPosition(const char*);
-    void setLocation(TokenContext*);
-    void startLocation(TokenContext*);
-    void endLocation(TokenContext*);
+    void nextLine(int count = 1);
+    int scanPosition(const char* s);
+    void setLocation(TokenContext* location);
+    void startLocation(TokenContext* location);
+    void endLocation(TokenContext* location);
 
     void initScanner();
     void preAction();
@@ -3000,27 +3000,27 @@ namespace Slice
     // If the identifier is a keyword, return the
     // corresponding keyword token; otherwise, return
     // an identifier token.
-    int checkKeyword(string& id)
+    int checkKeyword(string& identifier)
     {
-        const auto pos = keywordMap.find(id);
+        const auto pos = keywordMap.find(identifier);
         if (pos != keywordMap.end())
         {
-            if (pos->first != id)
+            if (pos->first != identifier)
             {
                 currentUnit->error(
-                    "illegal identifier: `" + id + "' differs from keyword `" + pos->first +
+                    "illegal identifier: `" + identifier + "' differs from keyword `" + pos->first +
                     "' only in capitalization");
-                id = pos->first;
+                identifier = pos->first;
             }
             return pos->second;
         }
-        return checkIsScoped(id);
+        return checkIsScoped(identifier);
     }
 
     // Checks if an identifier is scoped or not, and returns the corresponding token.
-    int checkIsScoped(const string& id)
+    int checkIsScoped(const string& identifier)
     {
-        return id.find("::") == string::npos ? ICE_IDENTIFIER : ICE_SCOPED_IDENTIFIER;
+        return identifier.find("::") == string::npos ? ICE_IDENTIFIER : ICE_SCOPED_IDENTIFIER;
     }
 }
 

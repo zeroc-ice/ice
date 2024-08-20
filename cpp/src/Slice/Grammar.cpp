@@ -2562,7 +2562,7 @@ yyreduce:
             DataMemberPtr dm;
             if (cl)
             {
-                dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "", "");
+                dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "");
             }
             auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
             if (st)
@@ -2570,17 +2570,17 @@ yyreduce:
                 if (def->isOptional)
                 {
                     currentUnit->error("optional data members are not supported in structs");
-                    dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
+                    dm = st->createDataMember(def->name, def->type, false, 0, 0, ""); // Dummy
                 }
                 else
                 {
-                    dm = st->createDataMember(def->name, def->type, false, -1, 0, "", "");
+                    dm = st->createDataMember(def->name, def->type, false, -1, 0, "");
                 }
             }
             auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
             if (ex)
             {
-                dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "", "");
+                dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "");
             }
             currentUnit->currentContainer()->checkIntroduced(def->name, dm);
             yyval = dm;
@@ -2603,8 +2603,7 @@ yyreduce:
                     def->isOptional,
                     def->tag,
                     value->v,
-                    value->valueAsString,
-                    value->valueAsLiteral);
+                    value->valueAsString);
             }
             auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
             if (st)
@@ -2612,7 +2611,7 @@ yyreduce:
                 if (def->isOptional)
                 {
                     currentUnit->error("optional data members are not supported in structs");
-                    dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
+                    dm = st->createDataMember(def->name, def->type, false, 0, 0, ""); // Dummy
                 }
                 else
                 {
@@ -2622,8 +2621,7 @@ yyreduce:
                         false,
                         -1,
                         value->v,
-                        value->valueAsString,
-                        value->valueAsLiteral);
+                        value->valueAsString);
                 }
             }
             auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
@@ -2635,8 +2633,7 @@ yyreduce:
                     def->isOptional,
                     def->tag,
                     value->v,
-                    value->valueAsString,
-                    value->valueAsLiteral);
+                    value->valueAsString);
             }
             currentUnit->currentContainer()->checkIntroduced(def->name, dm);
             yyval = dm;
@@ -2652,17 +2649,17 @@ yyreduce:
             auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
             if (cl)
             {
-                yyval = cl->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+                yyval = cl->createDataMember(name, type, false, 0, 0, ""); // Dummy
             }
             auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
             if (st)
             {
-                yyval = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+                yyval = st->createDataMember(name, type, false, 0, 0, ""); // Dummy
             }
             auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
             if (ex)
             {
-                yyval = ex->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+                yyval = ex->createDataMember(name, type, false, 0, 0, ""); // Dummy
             }
             assert(yyval);
             currentUnit->error("keyword `" + name + "' cannot be used as data member name");
@@ -2677,17 +2674,17 @@ yyreduce:
             auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
             if (cl)
             {
-                yyval = cl->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+                yyval = cl->createDataMember(Ice::generateUUID(), type, false, 0, 0, ""); // Dummy
             }
             auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
             if (st)
             {
-                yyval = st->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+                yyval = st->createDataMember(Ice::generateUUID(), type, false, 0, 0, ""); // Dummy
             }
             auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
             if (ex)
             {
-                yyval = ex->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+                yyval = ex->createDataMember(Ice::generateUUID(), type, false, 0, 0, ""); // Dummy
             }
             assert(yyval);
             currentUnit->error("missing data member name");
@@ -3072,7 +3069,7 @@ yyreduce:
 #line 1456 "src/Slice/Grammar.y"
         {
             currentUnit->error("illegal inheritance from type Value");
-            yyval = make_shared<ClassListTok>(); // Dummy
+            yyval = make_shared<InterfaceListTok>(); // Dummy
         }
 #line 3210 "src/Slice/Grammar.cpp"
         break;
@@ -3800,7 +3797,7 @@ yyreduce:
             auto intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
             ostringstream sstr;
             sstr << intVal->v;
-            auto def = make_shared<ConstDefTok>(type, sstr.str(), intVal->literal);
+            auto def = make_shared<ConstDefTok>(type, sstr.str());
             yyval = def;
         }
 #line 3929 "src/Slice/Grammar.cpp"
@@ -3813,7 +3810,7 @@ yyreduce:
             auto floatVal = dynamic_pointer_cast<FloatingTok>(yyvsp[0]);
             ostringstream sstr;
             sstr << floatVal->v;
-            auto def = make_shared<ConstDefTok>(type, sstr.str(), floatVal->literal);
+            auto def = make_shared<ConstDefTok>(type, sstr.str());
             yyval = def;
         }
 #line 3942 "src/Slice/Grammar.cpp"
@@ -3828,7 +3825,7 @@ yyreduce:
             if (cl.empty())
             {
                 // Could be an enumerator
-                def = make_shared<ConstDefTok>(nullptr, scoped->v, scoped->v);
+                def = make_shared<ConstDefTok>(nullptr, scoped->v);
             }
             else
             {
@@ -3837,12 +3834,12 @@ yyreduce:
                 if (enumerator)
                 {
                     currentUnit->currentContainer()->checkIntroduced(scoped->v, enumerator);
-                    def = make_shared<ConstDefTok>(enumerator, scoped->v, scoped->v);
+                    def = make_shared<ConstDefTok>(enumerator, scoped->v);
                 }
                 else if (constant)
                 {
                     currentUnit->currentContainer()->checkIntroduced(scoped->v, constant);
-                    def = make_shared<ConstDefTok>(constant, constant->value(), constant->value());
+                    def = make_shared<ConstDefTok>(constant, constant->value());
                 }
                 else
                 {
@@ -3863,7 +3860,7 @@ yyreduce:
         {
             BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindString);
             auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-            auto def = make_shared<ConstDefTok>(type, literal->v, literal->literal);
+            auto def = make_shared<ConstDefTok>(type, literal->v);
             yyval = def;
         }
 #line 3992 "src/Slice/Grammar.cpp"
@@ -3874,7 +3871,7 @@ yyreduce:
         {
             BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
             auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-            auto def = make_shared<ConstDefTok>(type, "false", "false");
+            auto def = make_shared<ConstDefTok>(type, "false");
             yyval = def;
         }
 #line 4003 "src/Slice/Grammar.cpp"
@@ -3885,7 +3882,7 @@ yyreduce:
         {
             BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
             auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-            auto def = make_shared<ConstDefTok>(type, "true", "true");
+            auto def = make_shared<ConstDefTok>(type, "true");
             yyval = def;
         }
 #line 4014 "src/Slice/Grammar.cpp"
@@ -3903,8 +3900,7 @@ yyreduce:
                 const_type,
                 metadata->v,
                 value->v,
-                value->valueAsString,
-                value->valueAsLiteral);
+                value->valueAsString);
         }
 #line 4027 "src/Slice/Grammar.cpp"
         break;
@@ -3922,7 +3918,6 @@ yyreduce:
                 metadata->v,
                 value->v,
                 value->valueAsString,
-                value->valueAsLiteral,
                 Dummy); // Dummy
         }
 #line 4040 "src/Slice/Grammar.cpp"

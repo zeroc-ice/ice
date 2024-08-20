@@ -104,7 +104,6 @@ namespace Slice
     bool containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs);
 
     using TypeList = std::list<TypePtr>;
-    using ExceptionList = std::list<ExceptionPtr>;
     using StringSet = std::set<std::string>;
     using StringList = std::list<std::string>;
     using TypeString = std::pair<TypePtr, std::string>;
@@ -123,22 +122,6 @@ namespace Slice
     using DataMemberList = std::list<DataMemberPtr>;
     using ParamDeclList = std::list<ParamDeclPtr>;
     using EnumeratorList = std::list<EnumeratorPtr>;
-
-    struct ConstDef
-    {
-        TypePtr type;
-        SyntaxTreeBasePtr value;
-        std::string valueAsString;
-        std::string valueAsLiteral;
-    };
-
-    struct OptionalDef
-    {
-        TypePtr type;
-        std::string name;
-        bool optional;
-        int tag;
-    };
 
     // ----------------------------------------------------------------------
     // CICompare -- function object to do case-insensitive string comparison.
@@ -210,8 +193,7 @@ namespace Slice
         void setFilename(const std::string&);
         void setSeenDefinition();
 
-        bool hasMetadata() const;
-        bool hasMetadataDirective(const std::string&) const;
+        bool hasMetadata(const std::string&) const;
         void setMetadata(const StringList&);
         std::string findMetadata(const std::string&) const;
         StringList getMetadata() const;
@@ -381,7 +363,6 @@ namespace Slice
         CommentPtr parseComment(bool) const;
 
         int includeLevel() const;
-        void updateIncludeLevel();
 
         bool hasMetadata(const std::string&) const;
         bool findMetadata(const std::string&, std::string&) const;
@@ -448,7 +429,6 @@ namespace Slice
             const StringList&,
             const SyntaxTreeBasePtr&,
             const std::string&,
-            const std::string&,
             NodeType = Real);
         TypeList lookupType(const std::string&, bool = true);
         TypeList lookupTypeNoBuiltin(const std::string&, bool = true, bool = false);
@@ -468,8 +448,6 @@ namespace Slice
         ConstList consts() const;
         ContainedList contents() const;
         std::string thisScope() const;
-        void sort();
-        void sortContents(bool);
         void visit(ParserVisitor*) override;
 
         bool checkIntroduced(const std::string&, ContainedPtr = 0);
@@ -572,7 +550,6 @@ namespace Slice
             bool,
             int,
             const SyntaxTreeBasePtr&,
-            const std::string&,
             const std::string&);
         ClassDeclPtr declaration() const;
         ClassDefPtr base() const;
@@ -583,9 +560,6 @@ namespace Slice
         DataMemberList classDataMembers() const;
         DataMemberList allClassDataMembers() const;
         bool canBeCyclic() const;
-        bool isA(const std::string&) const;
-        bool hasDataMembers() const;
-        bool hasDefaultValues() const;
         bool inheritsMetadata(const std::string&) const;
         bool hasBaseDataMembers() const;
         void visit(ParserVisitor*) final;
@@ -596,7 +570,6 @@ namespace Slice
         friend class Container;
 
         ClassDeclPtr _declaration;
-        bool _hasDataMembers;
         ClassDefPtr _base;
         int _compactId;
     };
@@ -710,7 +683,6 @@ namespace Slice
         InterfaceList allBases() const;
         OperationList operations() const;
         OperationList allOperations() const;
-        bool isA(const std::string&) const;
         bool hasOperations() const;
         bool inheritsMetadata(const std::string&) const;
         std::string kindOf() const final;
@@ -743,7 +715,6 @@ namespace Slice
             bool,
             int,
             const SyntaxTreeBasePtr&,
-            const std::string&,
             const std::string&);
         DataMemberList dataMembers() const;
         DataMemberList orderedOptionalDataMembers() const;
@@ -754,7 +725,6 @@ namespace Slice
         ExceptionList allBases() const;
         bool isBaseOf(const ExceptionPtr&) const;
         bool usesClasses() const;
-        bool hasDefaultValues() const;
         bool inheritsMetadata(const std::string&) const;
         bool hasBaseDataMembers() const;
         std::string kindOf() const final;
@@ -780,7 +750,6 @@ namespace Slice
             bool,
             int,
             const SyntaxTreeBasePtr&,
-            const std::string&,
             const std::string&);
         DataMemberList dataMembers() const;
         DataMemberList classDataMembers() const;
@@ -788,7 +757,6 @@ namespace Slice
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
-        bool hasDefaultValues() const;
         std::string kindOf() const final;
         void visit(ParserVisitor*) final;
 
@@ -918,13 +886,11 @@ namespace Slice
             const TypePtr&,
             const StringList&,
             const SyntaxTreeBasePtr&,
-            const std::string&,
             const std::string&);
         TypePtr type() const;
         StringList typeMetadata() const;
         SyntaxTreeBasePtr valueType() const;
         std::string value() const;
-        std::string literal() const;
         std::string kindOf() const final;
         void visit(ParserVisitor*) final;
 
@@ -935,7 +901,6 @@ namespace Slice
         StringList _typeMetadata;
         SyntaxTreeBasePtr _valueType;
         std::string _value;
-        std::string _literal;
     };
 
     // ----------------------------------------------------------------------
@@ -976,13 +941,11 @@ namespace Slice
             bool,
             int,
             const SyntaxTreeBasePtr&,
-            const std::string&,
             const std::string&);
         TypePtr type() const;
         bool optional() const;
         int tag() const;
         std::string defaultValue() const;
-        std::string defaultLiteral() const;
         SyntaxTreeBasePtr defaultValueType() const;
         std::string kindOf() const final;
         void visit(ParserVisitor*) final;
@@ -997,7 +960,6 @@ namespace Slice
         int _tag;
         SyntaxTreeBasePtr _defaultValueType;
         std::string _defaultValue;
-        std::string _defaultLiteral;
     };
 
     // ----------------------------------------------------------------------
@@ -1033,8 +995,6 @@ namespace Slice
         void popContainer();
 
         DefinitionContextPtr currentDefinitionContext() const;
-        void pushDefinitionContext();
-        void popDefinitionContext();
         DefinitionContextPtr findDefinitionContext(const std::string&) const;
 
         void addContent(const ContainedPtr&);
@@ -1042,7 +1002,6 @@ namespace Slice
 
         void addTypeId(int, const std::string&);
         std::string getTypeId(int) const;
-        bool hasCompactTypeId() const;
 
         //
         // Returns the path names of the files included directly by the top-level file.
@@ -1066,6 +1025,9 @@ namespace Slice
         std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
+        void pushDefinitionContext();
+        void popDefinitionContext();
+
         void init();
 
         bool _all;

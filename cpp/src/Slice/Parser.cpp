@@ -140,13 +140,7 @@ Slice::DefinitionContext::setSeenDefinition()
 }
 
 bool
-Slice::DefinitionContext::hasMetadata() const
-{
-    return !_metadata.empty();
-}
-
-bool
-Slice::DefinitionContext::hasMetadataDirective(const string& directive) const
+Slice::DefinitionContext::hasMetadata(const string& directive) const
 {
     return findMetadata(directive) == directive;
 }
@@ -897,12 +891,6 @@ Slice::Contained::includeLevel() const
     return _includeLevel;
 }
 
-void
-Slice::Contained::updateIncludeLevel()
-{
-    _includeLevel = min(_includeLevel, _unit->currentIncludeLevel());
-}
-
 bool
 Slice::Contained::hasMetadata(const string& meta) const
 {
@@ -1541,10 +1529,7 @@ Slice::Container::createDictionary(
     if (nt == Real)
     {
         checkForGlobalDef(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
-    }
 
-    if (nt == Real)
-    {
         if (!Dictionary::legalKeyType(keyType))
         {
             ostringstream os;
@@ -1608,7 +1593,6 @@ Slice::Container::createConst(
     const StringList& metadata,
     const SyntaxTreeBasePtr& valueType,
     const string& value,
-    const string& literal,
     NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -1651,8 +1635,7 @@ Slice::Container::createConst(
         constType,
         metadata,
         resolvedValueType,
-        value,
-        literal);
+        value);
     p->init();
     _contents.push_back(p);
     return p;
@@ -2094,39 +2077,6 @@ Slice::Container::thisScope() const
     }
     s += "::";
     return s;
-}
-
-void
-Slice::Container::sort()
-{
-    _contents.sort(containedCompare);
-}
-
-void
-Slice::Container::sortContents(bool sortFields)
-{
-    for (const auto& p : _contents)
-    {
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container)
-        {
-            if (!sortFields)
-            {
-                if (dynamic_pointer_cast<Struct>(container) || dynamic_pointer_cast<ClassDef>(container) ||
-                    dynamic_pointer_cast<InterfaceDef>(container) || dynamic_pointer_cast<Exception>(container))
-                {
-                    continue;
-                }
-            }
-
-            // Don't sort operation definitions, otherwise parameters are shown in the wrong order in the synopsis.
-            if (!dynamic_pointer_cast<Operation>(container))
-            {
-                container->sort();
-            }
-            container->sortContents(sortFields);
-        }
-    }
 }
 
 void
@@ -2601,8 +2551,7 @@ Slice::ClassDef::createDataMember(
     bool optional,
     int tag,
     const SyntaxTreeBasePtr& defaultValueType,
-    const string& defaultValue,
-    const string& defaultLiteral)
+    const string& defaultValue)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -2655,7 +2604,6 @@ Slice::ClassDef::createDataMember(
 
     SyntaxTreeBasePtr dlt = defaultValueType;
     string dv = defaultValue;
-    string dl = defaultLiteral;
 
     if (dlt || (dynamic_pointer_cast<Enum>(type) && !dv.empty()))
     {
@@ -2665,7 +2613,6 @@ Slice::ClassDef::createDataMember(
             // Create the data member anyway, just without the default value.
             dlt = nullptr;
             dv.clear();
-            dl.clear();
         }
     }
 
@@ -2684,9 +2631,8 @@ Slice::ClassDef::createDataMember(
         }
     }
 
-    _hasDataMembers = true;
     DataMemberPtr member = make_shared<
-        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
+        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv);
     member->init();
     _contents.push_back(member);
     return member;
@@ -2806,26 +2752,6 @@ Slice::ClassDef::canBeCyclic() const
 }
 
 bool
-Slice::ClassDef::hasDataMembers() const
-{
-    return _hasDataMembers;
-}
-
-bool
-Slice::ClassDef::hasDefaultValues() const
-{
-    for (const auto& i : dataMembers())
-    {
-        if (i->defaultValueType())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
 Slice::ClassDef::inheritsMetadata(const string& meta) const
 {
     return _base && (_base->hasMetadata(meta) || _base->inheritsMetadata(meta));
@@ -2864,7 +2790,6 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
       Contained(container, name),
-      _hasDataMembers(false),
       _base(base),
       _compactId(id)
 {
@@ -3260,24 +3185,6 @@ Slice::InterfaceDef::allOperations() const
 }
 
 bool
-Slice::InterfaceDef::isA(const string& id) const
-{
-    if (id == _scoped)
-    {
-        return true;
-    }
-
-    for (const auto& p : _bases)
-    {
-        if (p->isA(id))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
 Slice::InterfaceDef::hasOperations() const
 {
     return _hasOperations;
@@ -3353,8 +3260,7 @@ Slice::Exception::createDataMember(
     bool optional,
     int tag,
     const SyntaxTreeBasePtr& defaultValueType,
-    const string& defaultValue,
-    const string& defaultLiteral)
+    const string& defaultValue)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3409,7 +3315,6 @@ Slice::Exception::createDataMember(
 
     SyntaxTreeBasePtr dlt = defaultValueType;
     string dv = defaultValue;
-    string dl = defaultLiteral;
 
     if (dlt || (dynamic_pointer_cast<Enum>(type) && !dv.empty()))
     {
@@ -3419,7 +3324,6 @@ Slice::Exception::createDataMember(
             // Create the data member anyway, just without the default value.
             dlt = nullptr;
             dv.clear();
-            dl.clear();
         }
     }
 
@@ -3439,7 +3343,7 @@ Slice::Exception::createDataMember(
     }
 
     DataMemberPtr p = make_shared<
-        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
+        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv);
     p->init();
     _contents.push_back(p);
     return p;
@@ -3573,20 +3477,6 @@ Slice::Exception::usesClasses() const
 }
 
 bool
-Slice::Exception::hasDefaultValues() const
-{
-    for (const auto& i : dataMembers())
-    {
-        if (i->defaultValueType())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
 Slice::Exception::inheritsMetadata(const string& meta) const
 {
     if (_base && (_base->hasMetadata(meta) || _base->inheritsMetadata(meta)))
@@ -3639,8 +3529,7 @@ Slice::Struct::createDataMember(
     bool optional,
     int tag,
     const SyntaxTreeBasePtr& defaultValueType,
-    const string& defaultValue,
-    const string& defaultLiteral)
+    const string& defaultValue)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3674,7 +3563,6 @@ Slice::Struct::createDataMember(
 
     SyntaxTreeBasePtr dlt = defaultValueType;
     string dv = defaultValue;
-    string dl = defaultLiteral;
 
     if (dlt || (dynamic_pointer_cast<Enum>(type) && !dv.empty()))
     {
@@ -3684,12 +3572,11 @@ Slice::Struct::createDataMember(
             // Create the data member anyway, just without the default value.
             dlt = nullptr;
             dv.clear();
-            dl.clear();
         }
     }
 
     DataMemberPtr p = make_shared<
-        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
+        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv);
     p->init();
     _contents.push_back(p);
     return p;
@@ -3766,19 +3653,6 @@ Slice::Struct::isVariableLength() const
     for (const auto& i : dataMembers())
     {
         if (i->type()->isVariableLength())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Struct::hasDefaultValues() const
-{
-    for (const auto& i : dataMembers())
-    {
-        if (i->defaultValueType())
         {
             return true;
         }
@@ -4226,12 +4100,6 @@ Slice::Const::value() const
 }
 
 string
-Slice::Const::literal() const
-{
-    return _literal;
-}
-
-string
 Slice::Const::kindOf() const
 {
     return "constant";
@@ -4249,15 +4117,13 @@ Slice::Const::Const(
     const TypePtr& type,
     const StringList& typeMetadata,
     const SyntaxTreeBasePtr& valueType,
-    const string& value,
-    const string& literal)
+    const string& value)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       _type(type),
       _typeMetadata(typeMetadata),
       _valueType(valueType),
-      _value(value),
-      _literal(literal)
+      _value(value)
 {
 }
 
@@ -4729,12 +4595,6 @@ Slice::DataMember::defaultValue() const
     return _defaultValue;
 }
 
-string
-Slice::DataMember::defaultLiteral() const
-{
-    return _defaultLiteral;
-}
-
 SyntaxTreeBasePtr
 Slice::DataMember::defaultValueType() const
 {
@@ -4760,16 +4620,14 @@ Slice::DataMember::DataMember(
     bool optional,
     int tag,
     const SyntaxTreeBasePtr& defaultValueType,
-    const string& defaultValue,
-    const string& defaultLiteral)
+    const string& defaultValue)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       _type(type),
       _optional(optional),
       _tag(tag),
       _defaultValueType(defaultValueType),
-      _defaultValue(defaultValue),
-      _defaultLiteral(defaultLiteral)
+      _defaultValue(defaultValue)
 {
 }
 
@@ -5105,12 +4963,6 @@ Slice::Unit::getTypeId(int compactId) const
         return p->second;
     }
     return string();
-}
-
-bool
-Slice::Unit::hasCompactTypeId() const
-{
-    return _typeIds.size() > 0;
 }
 
 StringList
