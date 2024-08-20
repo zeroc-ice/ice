@@ -65,9 +65,18 @@ ZEND_METHOD(Ice_Connection, __toString)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_close_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, mode)
-ZEND_END_ARG_INFO()
+ZEND_METHOD(Ice_Connection, abort)
+{
+    if (ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
+    assert(_this);
+
+    _this->abort();
+}
 
 ZEND_METHOD(Ice_Connection, close)
 {
@@ -293,14 +302,17 @@ static zend_function_entry _connectionClassMethods[] = {
     ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
     // __toString
     ZEND_ME(Ice_Connection, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
+    // abort
+    ZEND_ME(Ice_Connection, abort, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // close
-    ZEND_ME(Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, close, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // getEndpoint
     ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // flushBatchRequests
     ZEND_ME(Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
     // type
     ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+
     // toString
     ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // getInfo

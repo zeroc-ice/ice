@@ -37,6 +37,15 @@ IceRuby::createConnection(const Ice::ConnectionPtr& p)
 }
 
 extern "C" VALUE
+IceRuby_Connection_abort(VALUE self)
+{
+    Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+    assert(p);
+    (*p)->abort();
+    return Qnil;
+}
+
+extern "C" VALUE
 IceRuby_Connection_close(VALUE self)
 {
     ICE_RUBY_TRY
@@ -283,6 +292,7 @@ IceRuby::initConnection(VALUE iceModule)
     //
     // Instance methods.
     //
+    rb_define_method(_connectionClass, "abort", CAST_METHOD(IceRuby_Connection_abort), 0);
     rb_define_method(_connectionClass, "close", CAST_METHOD(IceRuby_Connection_close), 0);
     rb_define_method(_connectionClass, "flushBatchRequests", CAST_METHOD(IceRuby_Connection_flushBatchRequests), 1);
     rb_define_method(_connectionClass, "type", CAST_METHOD(IceRuby_Connection_type), 0);
