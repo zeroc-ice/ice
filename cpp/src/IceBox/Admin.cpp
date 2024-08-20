@@ -99,46 +99,11 @@ run(const Ice::StringSeq& args)
     }
 
     auto manager = communicator->propertyToProxy<IceBox::ServiceManagerPrx>("IceBoxAdmin.ServiceManager.Proxy");
-
     if (!manager)
     {
-        //
-        // The old deprecated way to retrieve the service manager proxy
-        //
-
-        Ice::PropertiesPtr properties = communicator->getProperties();
-
-        Ice::Identity managerIdentity;
-        managerIdentity.category = properties->getIceProperty("IceBox.InstanceName");
-        managerIdentity.name = "ServiceManager";
-
-        string managerProxy;
-        if (properties->getIceProperty("Ice.Default.Locator").empty())
-        {
-            string managerEndpoints = properties->getIceProperty("IceBox.ServiceManager.Endpoints");
-            if (managerEndpoints.empty())
-            {
-                consoleErr << args[0] << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
-                return 1;
-            }
-
-            managerProxy = "\"" + communicator->identityToString(managerIdentity) + "\" :" + managerEndpoints;
-        }
-        else
-        {
-            string managerAdapterId = properties->getProperty("IceBox.ServiceManager.AdapterId");
-            if (managerAdapterId.empty())
-            {
-                consoleErr << args[0] << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
-                return 1;
-            }
-
-            managerProxy = "\"" + communicator->identityToString(managerIdentity) + "\" @" + managerAdapterId;
-        }
-
-        manager = IceBox::ServiceManagerPrx{communicator, managerProxy};
+        consoleErr << args[0] << ": property 'IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
+        return 1;
     }
-    assert(manager);
 
     for (vector<string>::const_iterator r = commands.begin(); r != commands.end(); ++r)
     {

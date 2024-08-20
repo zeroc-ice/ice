@@ -290,7 +290,7 @@ Slice::Preprocessor::printMakefileDependencies(
     }
     else
     {
-        assert(optValue.empty());
+        assert(optValue.empty() || lang == SliceXML);
     }
 
     //

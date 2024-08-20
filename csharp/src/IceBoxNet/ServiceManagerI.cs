@@ -240,22 +240,6 @@ internal class ServiceManagerI : ServiceManagerDisp_
             Ice.Properties properties = _communicator.getProperties();
 
             //
-            // Create an object adapter. Services probably should NOT share
-            // this object adapter, as the endpoint(s) for this object adapter
-            // will most likely need to be firewalled for security reasons.
-            //
-            Ice.ObjectAdapter adapter = null;
-            if (properties.getIceProperty("IceBox.ServiceManager.Endpoints").Length != 0)
-            {
-                adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
-
-                var identity = new Ice.Identity(
-                    "ServiceManager",
-                    properties.getIceProperty("IceBox.InstanceName"));
-                adapter.add(this, identity);
-            }
-
-            //
             // Parse the property set with the prefix "IceBox.Service.". These
             // properties should have the following format:
             //
@@ -370,14 +354,10 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
 
             //
-            // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
+            // Start Admin (if enabled).
             //
             _communicator.addAdminFacet(this, "IceBox.ServiceManager");
             _communicator.getAdmin();
-            if (adapter != null)
-            {
-                adapter.activate();
-            }
 
             //
             // We may want to notify external scripts that the services
