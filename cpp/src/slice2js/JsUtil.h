@@ -24,7 +24,7 @@ namespace Slice
         JsGenerator& operator=(const JsGenerator&) = delete;
         static std::string fixDataMemberName(const std::string&, bool, bool);
         static std::string fixId(const std::string&);
-        static bool findMetaData(const std::string&, const StringList&, std::string&);
+        static bool findMetadata(const std::string&, const StringList&, std::string&);
 
         static std::string getUnqualified(const std::string&, const std::string&, const std::string&);
 

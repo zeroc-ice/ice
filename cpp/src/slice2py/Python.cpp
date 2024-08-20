@@ -194,7 +194,7 @@ namespace
     {
         StringList modules;
         PackageVisitor v(modules);
-        unt->visit(&v, false);
+        unt->visit(&v);
 
         for (StringList::iterator p = modules.begin(); p != modules.end(); ++p)
         {
@@ -577,7 +577,6 @@ Slice::Python::compile(const vector<string>& argv)
                     depend ? Preprocessor::Python : Preprocessor::SliceXML,
                     includePaths,
                     "-D__SLICE2PY__",
-                    "",
                     prefix))
             {
                 return EXIT_FAILURE;

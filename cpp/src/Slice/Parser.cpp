@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Parser.h"
 #include "GrammarUtil.h"
@@ -103,9 +101,9 @@ namespace Slice
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metaData)
+Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metadata)
     : _includeLevel(includeLevel),
-      _metaData(metaData),
+      _metadata(metadata),
       _seenDefinition(false)
 {
     initSuppressedWarnings();
@@ -142,28 +140,28 @@ Slice::DefinitionContext::setSeenDefinition()
 }
 
 bool
-Slice::DefinitionContext::hasMetaData() const
+Slice::DefinitionContext::hasMetadata() const
 {
-    return !_metaData.empty();
+    return !_metadata.empty();
 }
 
 bool
-Slice::DefinitionContext::hasMetaDataDirective(const string& directive) const
+Slice::DefinitionContext::hasMetadataDirective(const string& directive) const
 {
-    return findMetaData(directive) == directive;
+    return findMetadata(directive) == directive;
 }
 
 void
-Slice::DefinitionContext::setMetaData(const StringList& metaData)
+Slice::DefinitionContext::setMetadata(const StringList& metadata)
 {
-    _metaData = metaData;
+    _metadata = metadata;
     initSuppressedWarnings();
 }
 
 string
-Slice::DefinitionContext::findMetaData(const string& prefix) const
+Slice::DefinitionContext::findMetadata(const string& prefix) const
 {
-    for (const auto& p : _metaData)
+    for (const auto& p : _metadata)
     {
         if (p.find(prefix) == 0)
         {
@@ -174,9 +172,9 @@ Slice::DefinitionContext::findMetaData(const string& prefix) const
 }
 
 StringList
-Slice::DefinitionContext::getMetaData() const
+Slice::DefinitionContext::getMetadata() const
 {
-    return _metaData;
+    return _metadata;
 }
 
 void
@@ -189,24 +187,7 @@ Slice::DefinitionContext::warning(WarningCategory category, const string& file, 
 }
 
 void
-Slice::DefinitionContext::warning(WarningCategory category, const string& file, const string& line, const string& msg)
-    const
-{
-    if (!suppressWarning(category))
-    {
-        emitWarning(file, line, msg);
-    }
-}
-
-void
 Slice::DefinitionContext::error(const string& file, int line, const string& msg) const
-{
-    emitError(file, line, msg);
-    throw CompilerException(__FILE__, __LINE__, msg);
-}
-
-void
-Slice::DefinitionContext::error(const string& file, const string& line, const string& msg) const
 {
     emitError(file, line, msg);
     throw CompilerException(__FILE__, __LINE__, msg);
@@ -224,7 +205,7 @@ Slice::DefinitionContext::initSuppressedWarnings()
 {
     _suppressedWarnings.clear();
     const string prefix = "suppress-warning";
-    string value = findMetaData(prefix);
+    string value = findMetadata(prefix);
     if (value == prefix)
     {
         _suppressedWarnings.insert(All);
@@ -250,13 +231,13 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 }
                 else if (s == "invalid-metadata")
                 {
-                    _suppressedWarnings.insert(InvalidMetaData);
+                    _suppressedWarnings.insert(InvalidMetadata);
                 }
                 else
                 {
                     ostringstream os;
                     os << "invalid category `" << s << "' in file metadata suppress-warning";
-                    warning(InvalidMetaData, "", "", os.str());
+                    warning(InvalidMetadata, "", -1, os.str());
                 }
             }
         }
@@ -338,7 +319,7 @@ Slice::SyntaxTreeBase::definitionContext() const
 }
 
 void
-Slice::SyntaxTreeBase::visit(ParserVisitor*, bool)
+Slice::SyntaxTreeBase::visit(ParserVisitor*)
 {
 }
 
@@ -577,7 +558,7 @@ Slice::Contained::file() const
     return _file;
 }
 
-string
+int
 Slice::Contained::line() const
 {
     return _line;
@@ -923,15 +904,15 @@ Slice::Contained::updateIncludeLevel()
 }
 
 bool
-Slice::Contained::hasMetaData(const string& meta) const
+Slice::Contained::hasMetadata(const string& meta) const
 {
-    return find(_metaData.begin(), _metaData.end(), meta) != _metaData.end();
+    return find(_metadata.begin(), _metadata.end(), meta) != _metadata.end();
 }
 
 bool
-Slice::Contained::findMetaData(const string& prefix, string& meta) const
+Slice::Contained::findMetadata(const string& prefix, string& meta) const
 {
-    for (const auto& p : _metaData)
+    for (const auto& p : _metadata)
     {
         if (p.find(prefix) == 0)
         {
@@ -944,25 +925,25 @@ Slice::Contained::findMetaData(const string& prefix, string& meta) const
 }
 
 list<string>
-Slice::Contained::getMetaData() const
+Slice::Contained::getMetadata() const
 {
-    return _metaData;
+    return _metadata;
 }
 
 void
-Slice::Contained::setMetaData(const list<string>& metaData)
+Slice::Contained::setMetadata(const list<string>& metadata)
 {
-    _metaData = metaData;
+    _metadata = metadata;
 }
 
 std::optional<FormatType>
-Slice::Contained::parseFormatMetaData(const list<string>& metaData)
+Slice::Contained::parseFormatMetadata(const list<string>& metadata)
 {
     std::optional<FormatType> result;
 
     string tag;
     string prefix = "format:";
-    for (const auto& p : metaData)
+    for (const auto& p : metadata)
     {
         if (p.find(prefix) == 0)
         {
@@ -999,8 +980,8 @@ Slice::Contained::isDeprecated(bool checkParent) const
     string metadata;
     ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
 
-    return (findMetaData(prefix1, metadata) || (parent && parent->findMetaData(prefix1, metadata))) ||
-           (findMetaData(prefix2, metadata) || (parent && parent->findMetaData(prefix2, metadata)));
+    return (findMetadata(prefix1, metadata) || (parent && parent->findMetadata(prefix1, metadata))) ||
+           (findMetadata(prefix2, metadata) || (parent && parent->findMetadata(prefix2, metadata)));
 }
 
 optional<string>
@@ -1010,14 +991,14 @@ Slice::Contained::getDeprecationReason(bool checkParent) const
     ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
 
     const string prefix1 = "deprecate:";
-    if (findMetaData(prefix1, metadata) || (parent && parent->findMetaData(prefix1, metadata)))
+    if (findMetadata(prefix1, metadata) || (parent && parent->findMetadata(prefix1, metadata)))
     {
         assert(metadata.find(prefix1) == 0);
         return metadata.substr(prefix1.size());
     }
 
     const string prefix2 = "deprecated:";
-    if (findMetaData(prefix2, metadata) || (parent && parent->findMetaData(prefix2, metadata)))
+    if (findMetadata(prefix2, metadata) || (parent && parent->findMetadata(prefix2, metadata)))
     {
         assert(metadata.find(prefix2) == 0);
         return metadata.substr(prefix2.size());
@@ -1039,7 +1020,7 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name)
     _scoped += "::" + _name;
     assert(_unit);
     _file = _unit->currentFile();
-    _line = std::to_string(_unit->currentLine());
+    _line = _unit->currentLine();
     _comment = _unit->currentComment();
     _includeLevel = _unit->currentIncludeLevel();
 }
@@ -1493,7 +1474,7 @@ Slice::Container::createStruct(const string& name, NodeType nt)
 }
 
 SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, NodeType nt)
+Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metadata, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -1521,7 +1502,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
         checkForGlobalDef(name, "sequence"); // Don't return here -- we create the sequence anyway.
     }
 
-    SequencePtr p = make_shared<Sequence>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, metaData);
+    SequencePtr p = make_shared<Sequence>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, metadata);
     p->init();
     _contents.push_back(p);
     return p;
@@ -1531,9 +1512,9 @@ DictionaryPtr
 Slice::Container::createDictionary(
     const string& name,
     const TypePtr& keyType,
-    const StringList& keyMetaData,
+    const StringList& keyMetadata,
     const TypePtr& valueType,
-    const StringList& valueMetaData,
+    const StringList& valueMetadata,
     NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -1577,9 +1558,9 @@ Slice::Container::createDictionary(
         dynamic_pointer_cast<Container>(shared_from_this()),
         name,
         keyType,
-        keyMetaData,
+        keyMetadata,
         valueType,
-        valueMetaData);
+        valueMetadata);
     p->init();
     _contents.push_back(p);
     return p;
@@ -1624,7 +1605,7 @@ ConstPtr
 Slice::Container::createConst(
     const string name,
     const TypePtr& constType,
-    const StringList& metaData,
+    const StringList& metadata,
     const SyntaxTreeBasePtr& valueType,
     const string& value,
     const string& literal,
@@ -1668,7 +1649,7 @@ Slice::Container::createConst(
         dynamic_pointer_cast<Container>(shared_from_this()),
         name,
         constType,
-        metaData,
+        metadata,
         resolvedValueType,
         value,
         literal);
@@ -1692,7 +1673,7 @@ Slice::Container::lookupType(const string& scoped, bool printError)
     auto kind = Builtin::kindFromString(sc);
     if (kind)
     {
-        return {_unit->builtin(kind.value())};
+        return {_unit->createBuiltin(kind.value())};
     }
 
     // Not a builtin type, try to look up a constructed type.
@@ -2149,13 +2130,13 @@ Slice::Container::sortContents(bool sortFields)
 }
 
 void
-Slice::Container::visit(ParserVisitor* visitor, bool all)
+Slice::Container::visit(ParserVisitor* visitor)
 {
     for (const auto& p : _contents)
     {
-        if (all || p->includeLevel() == 0)
+        if (visitor->shouldVisitIncludedDefinitions() || p->includeLevel() == 0)
         {
-            p->visit(visitor, all);
+            p->visit(visitor);
         }
     }
 }
@@ -2505,12 +2486,12 @@ Slice::Module::kindOf() const
 }
 
 void
-Slice::Module::visit(ParserVisitor* visitor, bool all)
+Slice::Module::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<Module>(Container::shared_from_this());
     if (visitor->visitModuleStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitModuleEnd(self);
     }
 }
@@ -2587,7 +2568,7 @@ Slice::ClassDecl::kindOf() const
 }
 
 void
-Slice::ClassDecl::visit(ParserVisitor* visitor, bool)
+Slice::ClassDecl::visit(ParserVisitor* visitor)
 {
     visitor->visitClassDecl(dynamic_pointer_cast<ClassDecl>(shared_from_this()));
 }
@@ -2845,9 +2826,9 @@ Slice::ClassDef::hasDefaultValues() const
 }
 
 bool
-Slice::ClassDef::inheritsMetaData(const string& meta) const
+Slice::ClassDef::inheritsMetadata(const string& meta) const
 {
-    return _base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta));
+    return _base && (_base->hasMetadata(meta) || _base->inheritsMetadata(meta));
 }
 
 bool
@@ -2863,12 +2844,12 @@ Slice::ClassDef::kindOf() const
 }
 
 void
-Slice::ClassDef::visit(ParserVisitor* visitor, bool all)
+Slice::ClassDef::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<ClassDef>(Container::shared_from_this());
     if (visitor->visitClassDefStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitClassDefEnd(self);
     }
 }
@@ -2935,7 +2916,7 @@ Slice::InterfaceDecl::kindOf() const
 }
 
 void
-Slice::InterfaceDecl::visit(ParserVisitor* visitor, bool)
+Slice::InterfaceDecl::visit(ParserVisitor* visitor)
 {
     visitor->visitInterfaceDecl(dynamic_pointer_cast<InterfaceDecl>(shared_from_this()));
 }
@@ -3303,11 +3284,11 @@ Slice::InterfaceDef::hasOperations() const
 }
 
 bool
-Slice::InterfaceDef::inheritsMetaData(const string& meta) const
+Slice::InterfaceDef::inheritsMetadata(const string& meta) const
 {
     for (const auto& p : _bases)
     {
-        if (p->hasMetaData(meta) || p->inheritsMetaData(meta))
+        if (p->hasMetadata(meta) || p->inheritsMetadata(meta))
         {
             return true;
         }
@@ -3322,12 +3303,12 @@ Slice::InterfaceDef::kindOf() const
 }
 
 void
-Slice::InterfaceDef::visit(ParserVisitor* visitor, bool all)
+Slice::InterfaceDef::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<InterfaceDef>(Container::shared_from_this());
     if (visitor->visitInterfaceDefStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitInterfaceDefEnd(self);
     }
 }
@@ -3606,9 +3587,9 @@ Slice::Exception::hasDefaultValues() const
 }
 
 bool
-Slice::Exception::inheritsMetaData(const string& meta) const
+Slice::Exception::inheritsMetadata(const string& meta) const
 {
-    if (_base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta)))
+    if (_base && (_base->hasMetadata(meta) || _base->inheritsMetadata(meta)))
     {
         return true;
     }
@@ -3629,12 +3610,12 @@ Slice::Exception::kindOf() const
 }
 
 void
-Slice::Exception::visit(ParserVisitor* visitor, bool all)
+Slice::Exception::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<Exception>(Container::shared_from_this());
     if (visitor->visitExceptionStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitExceptionEnd(self);
     }
 }
@@ -3812,12 +3793,12 @@ Slice::Struct::kindOf() const
 }
 
 void
-Slice::Struct::visit(ParserVisitor* visitor, bool all)
+Slice::Struct::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<Struct>(Container::shared_from_this());
     if (visitor->visitStructStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitStructEnd(self);
     }
 }
@@ -3842,9 +3823,9 @@ Slice::Sequence::type() const
 }
 
 StringList
-Slice::Sequence::typeMetaData() const
+Slice::Sequence::typeMetadata() const
 {
-    return _typeMetaData;
+    return _typeMetadata;
 }
 
 bool
@@ -3878,7 +3859,7 @@ Slice::Sequence::kindOf() const
 }
 
 void
-Slice::Sequence::visit(ParserVisitor* visitor, bool)
+Slice::Sequence::visit(ParserVisitor* visitor)
 {
     visitor->visitSequence(dynamic_pointer_cast<Sequence>(shared_from_this()));
 }
@@ -3887,13 +3868,13 @@ Slice::Sequence::Sequence(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& type,
-    const StringList& typeMetaData)
+    const StringList& typeMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
       _type(type),
-      _typeMetaData(typeMetaData)
+      _typeMetadata(typeMetadata)
 {
 }
 
@@ -3914,15 +3895,15 @@ Slice::Dictionary::valueType() const
 }
 
 StringList
-Slice::Dictionary::keyMetaData() const
+Slice::Dictionary::keyMetadata() const
 {
-    return _keyMetaData;
+    return _keyMetadata;
 }
 
 StringList
-Slice::Dictionary::valueMetaData() const
+Slice::Dictionary::valueMetadata() const
 {
-    return _valueMetaData;
+    return _valueMetadata;
 }
 
 bool
@@ -3956,7 +3937,7 @@ Slice::Dictionary::kindOf() const
 }
 
 void
-Slice::Dictionary::visit(ParserVisitor* visitor, bool)
+Slice::Dictionary::visit(ParserVisitor* visitor)
 {
     visitor->visitDictionary(dynamic_pointer_cast<Dictionary>(shared_from_this()));
 }
@@ -4017,17 +3998,17 @@ Slice::Dictionary::Dictionary(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& keyType,
-    const StringList& keyMetaData,
+    const StringList& keyMetadata,
     const TypePtr& valueType,
-    const StringList& valueMetaData)
+    const StringList& valueMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
       _keyType(keyType),
       _valueType(valueType),
-      _keyMetaData(keyMetaData),
-      _valueMetaData(valueMetaData)
+      _keyMetadata(keyMetadata),
+      _valueMetadata(valueMetadata)
 {
 }
 
@@ -4162,7 +4143,7 @@ Slice::Enum::kindOf() const
 }
 
 void
-Slice::Enum::visit(ParserVisitor* visitor, bool)
+Slice::Enum::visit(ParserVisitor* visitor)
 {
     visitor->visitEnum(dynamic_pointer_cast<Enum>(Container::shared_from_this()));
 }
@@ -4227,9 +4208,9 @@ Slice::Const::type() const
 }
 
 StringList
-Slice::Const::typeMetaData() const
+Slice::Const::typeMetadata() const
 {
-    return _typeMetaData;
+    return _typeMetadata;
 }
 
 SyntaxTreeBasePtr
@@ -4257,7 +4238,7 @@ Slice::Const::kindOf() const
 }
 
 void
-Slice::Const::visit(ParserVisitor* visitor, bool)
+Slice::Const::visit(ParserVisitor* visitor)
 {
     visitor->visitConst(dynamic_pointer_cast<Const>(shared_from_this()));
 }
@@ -4266,14 +4247,14 @@ Slice::Const::Const(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& type,
-    const StringList& typeMetaData,
+    const StringList& typeMetadata,
     const SyntaxTreeBasePtr& valueType,
     const string& value,
     const string& literal)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       _type(type),
-      _typeMetaData(typeMetaData),
+      _typeMetadata(typeMetadata),
       _valueType(valueType),
       _value(value),
       _literal(literal)
@@ -4319,7 +4300,7 @@ Slice::Operation::hasMarshaledResult() const
 {
     InterfaceDefPtr intf = interface();
     assert(intf);
-    if (intf->hasMetaData("marshaled-result") || hasMetaData("marshaled-result"))
+    if (intf->hasMetadata("marshaled-result") || hasMetadata("marshaled-result"))
     {
         if (returnType() && isMutableAfterReturnType(returnType()))
         {
@@ -4625,12 +4606,12 @@ Slice::Operation::sendsOptionals() const
 std::optional<FormatType>
 Slice::Operation::format() const
 {
-    std::optional<FormatType> format = parseFormatMetaData(getMetaData());
+    std::optional<FormatType> format = parseFormatMetadata(getMetadata());
     if (!format)
     {
         ContainedPtr cont = dynamic_pointer_cast<Contained>(container());
         assert(cont);
-        format = parseFormatMetaData(cont->getMetaData());
+        format = parseFormatMetadata(cont->getMetadata());
     }
     return format;
 }
@@ -4642,7 +4623,7 @@ Slice::Operation::kindOf() const
 }
 
 void
-Slice::Operation::visit(ParserVisitor* visitor, bool)
+Slice::Operation::visit(ParserVisitor* visitor)
 {
     visitor->visitOperation(dynamic_pointer_cast<Operation>(Container::shared_from_this()));
 }
@@ -4699,7 +4680,7 @@ Slice::ParamDecl::kindOf() const
 }
 
 void
-Slice::ParamDecl::visit(ParserVisitor* visitor, bool)
+Slice::ParamDecl::visit(ParserVisitor* visitor)
 {
     visitor->visitParamDecl(dynamic_pointer_cast<ParamDecl>(shared_from_this()));
 }
@@ -4767,7 +4748,7 @@ Slice::DataMember::kindOf() const
 }
 
 void
-Slice::DataMember::visit(ParserVisitor* visitor, bool)
+Slice::DataMember::visit(ParserVisitor* visitor)
 {
     visitor->visitDataMember(dynamic_pointer_cast<DataMember>(shared_from_this()));
 }
@@ -4797,9 +4778,9 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool all, const StringList& defaultGlobalMetadata)
+Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
 {
-    auto unit = make_shared<Unit>(all, defaultGlobalMetadata);
+    auto unit = make_shared<Unit>(all, defaultFileMetadata);
     unit->init();
     return unit;
 }
@@ -4984,7 +4965,7 @@ Slice::Unit::currentIncludeLevel() const
 }
 
 void
-Slice::Unit::addGlobalMetaData(const StringList& metaData)
+Slice::Unit::addFileMetadata(const StringList& metadata)
 {
     DefinitionContextPtr dc = currentDefinitionContext();
     assert(dc);
@@ -4995,9 +4976,9 @@ Slice::Unit::addGlobalMetaData(const StringList& metaData)
     else
     {
         // Append the file metadata to any existing metadata (e.g., default file metadata).
-        StringList l = dc->getMetaData();
-        copy(metaData.begin(), metaData.end(), back_inserter(l));
-        dc->setMetaData(l);
+        StringList l = dc->getMetadata();
+        copy(metadata.begin(), metadata.end(), back_inserter(l));
+        dc->setMetadata(l);
     }
 }
 
@@ -5063,7 +5044,7 @@ Slice::Unit::currentDefinitionContext() const
 void
 Slice::Unit::pushDefinitionContext()
 {
-    _definitionContextStack.push(make_shared<DefinitionContext>(_currentIncludeLevel, _defaultGlobalMetaData));
+    _definitionContextStack.push(make_shared<DefinitionContext>(_currentIncludeLevel, _defaultFileMetadata));
 }
 
 void
@@ -5204,18 +5185,18 @@ Slice::Unit::destroy()
 }
 
 void
-Slice::Unit::visit(ParserVisitor* visitor, bool all)
+Slice::Unit::visit(ParserVisitor* visitor)
 {
     auto self = dynamic_pointer_cast<Unit>(shared_from_this());
     if (visitor->visitUnitStart(self))
     {
-        Container::visit(visitor, all);
+        Container::visit(visitor);
         visitor->visitUnitEnd(self);
     }
 }
 
 BuiltinPtr
-Slice::Unit::builtin(Builtin::Kind kind)
+Slice::Unit::createBuiltin(Builtin::Kind kind)
 {
     map<Builtin::Kind, BuiltinPtr>::const_iterator p = _builtins.find(kind);
     if (p != _builtins.end())
@@ -5257,11 +5238,11 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(bool all, const StringList& defaultGlobalMetadata)
+Slice::Unit::Unit(bool all, const StringList& defaultFileMetadata)
     : SyntaxTreeBase(nullptr),
       Container(nullptr),
       _all(all),
-      _defaultGlobalMetaData(defaultGlobalMetadata),
+      _defaultFileMetadata(defaultFileMetadata),
       _errors(0),
       _currentIncludeLevel(0)
 

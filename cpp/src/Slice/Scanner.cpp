@@ -1810,11 +1810,11 @@ YY_DECL
                         // slice definition).
                         if (yy_top_state() == PRE_SLICE)
                         {
-                            return ICE_GLOBAL_METADATA_OPEN;
+                            return ICE_FILE_METADATA_OPEN;
                         }
                         else
                         {
-                            return ICE_GLOBAL_METADATA_IGNORE;
+                            return ICE_FILE_METADATA_IGNORE;
                         }
                     }
                     YY_BREAK
@@ -1861,7 +1861,7 @@ YY_DECL
 #line 452 "src/Slice/Scanner.l"
                     {
                         yy_pop_state();
-                        return ICE_GLOBAL_METADATA_CLOSE;
+                        return ICE_FILE_METADATA_CLOSE;
                     }
                     YY_BREAK
                 /* Matches any characters not matched by another metadata rule (except whitespace), and reports an

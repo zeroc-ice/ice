@@ -3376,6 +3376,8 @@ Ice::ConnectionI::dispatchAll(
     // Note: In contrast to other private or protected methods, this operation must be called *without* the mutex
     // locked.
 
+    optional<int32_t> batchRequestCount = requestCount > 1 ? optional<int32_t>(requestCount) : nullopt;
+
     try
     {
         while (requestCount > 0)
@@ -3384,7 +3386,7 @@ Ice::ConnectionI::dispatchAll(
             // Start of the dispatch pipeline.
             //
 
-            IncomingRequest request{requestId, shared_from_this(), adapter, stream};
+            IncomingRequest request{requestId, shared_from_this(), adapter, stream, batchRequestCount};
 
             if (adapter)
             {

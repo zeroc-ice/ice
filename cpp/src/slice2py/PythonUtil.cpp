@@ -131,7 +131,7 @@ namespace Slice
 {
     namespace Python
     {
-        class MetaDataVisitor final : public ParserVisitor
+        class MetadataVisitor final : public ParserVisitor
         {
         public:
             bool visitUnitStart(const UnitPtr&) final;
@@ -153,7 +153,7 @@ namespace Slice
             //
             // Validates sequence metadata.
             //
-            StringList validateSequence(const string&, const string&, const TypePtr&, const StringList&);
+            StringList validateSequence(const string&, int, const TypePtr&, const StringList&);
 
             //
             // Checks a definition that doesn't currently support Python metadata.
@@ -178,6 +178,8 @@ namespace Slice
             ModuleVisitor(Output&, set<string>&);
 
             bool visitModuleStart(const ModulePtr&) final;
+
+            bool shouldVisitIncludedDefinitions() const final { return true; }
 
         private:
             Output& _out;
@@ -239,7 +241,7 @@ namespace Slice
             //
             // Write Python metadata as a tuple.
             //
-            void writeMetaData(const StringList&);
+            void writeMetadata(const StringList&);
 
             //
             // Convert an operation mode into a string.
@@ -656,7 +658,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
     _out << sp << nl << "_M_" << type << " = IcePy.defineValue('" << scoped << "', " << valueName << ", "
          << p->compactId() << ", ";
-    writeMetaData(p->getMetaData());
+    writeMetadata(p->getMetadata());
     _out << ", False, ";
     if (!base)
     {
@@ -672,7 +674,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetaData, MemberType, Optional, Tag)
+    //   ('MemberName', MemberMetadata, MemberType, Optional, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -681,7 +683,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.inc();
         _out << nl;
     }
-    bool isProtected = p->hasMetaData("protected");
+    bool isProtected = p->hasMetadata("protected");
     for (DataMemberList::iterator r = members.begin(); r != members.end(); ++r)
     {
         if (r != members.begin())
@@ -689,12 +691,12 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << ',' << nl;
         }
         _out << "('";
-        if (isProtected || (*r)->hasMetaData("protected"))
+        if (isProtected || (*r)->hasMetadata("protected"))
         {
             _out << '_';
         }
         _out << fixIdent((*r)->name()) << "', ";
-        writeMetaData((*r)->getMetaData());
+        writeMetadata((*r)->getMetadata());
         _out << ", ";
         writeType((*r)->type());
         _out << ", " << ((*r)->optional() ? "True" : "False") << ", " << ((*r)->optional() ? (*r)->tag() : 0) << ')';
@@ -991,7 +993,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.dec();
 
     _out << sp << nl << "_M_" << classType << " = IcePy.defineClass('" << scoped << "', " << className << ", ";
-    writeMetaData(p->getMetaData());
+    writeMetadata(p->getMetadata());
     _out << ", None, (";
 
     int interfaceCount = 0;
@@ -1014,7 +1016,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Define each operation. The arguments to the IcePy.Operation constructor are:
     //
-    // 'opName', Mode, AMD, Format, MetaData, (InParams), (OutParams), ReturnParam, (Exceptions)
+    // 'opName', Mode, AMD, Format, Metadata, (InParams), (OutParams), ReturnParam, (Exceptions)
     //
     // where InParams and OutParams are tuples of type descriptions, and Exceptions
     // is a tuple of exception type ids.
@@ -1051,8 +1053,8 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         _out << nl << className << "._op_" << operation->name() << " = IcePy.Operation('" << operation->name() << "', "
              << getOperationMode(operation->mode()) << ", "
-             << ((p->hasMetaData("amd") || operation->hasMetaData("amd")) ? "True" : "False") << ", " << format << ", ";
-        writeMetaData(operation->getMetaData());
+             << ((p->hasMetadata("amd") || operation->hasMetadata("amd")) ? "True" : "False") << ", " << format << ", ";
+        writeMetadata(operation->getMetadata());
         _out << ", (";
         for (t = params.begin(), count = 0; t != params.end(); ++t)
         {
@@ -1063,7 +1065,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     _out << ", ";
                 }
                 _out << '(';
-                writeMetaData((*t)->getMetaData());
+                writeMetadata((*t)->getMetadata());
                 _out << ", ";
                 writeType((*t)->type());
                 _out << ", " << ((*t)->optional() ? "True" : "False") << ", " << ((*t)->optional() ? (*t)->tag() : 0)
@@ -1085,7 +1087,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     _out << ", ";
                 }
                 _out << '(';
-                writeMetaData((*t)->getMetaData());
+                writeMetadata((*t)->getMetadata());
                 _out << ", ";
                 writeType((*t)->type());
                 _out << ", " << ((*t)->optional() ? "True" : "False") << ", " << ((*t)->optional() ? (*t)->tag() : 0)
@@ -1104,7 +1106,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // The return type has the same format as an in/out parameter:
             //
-            // MetaData, Type, Optional?, OptionalTag
+            // Metadata, Type, Optional?, OptionalTag
             //
             _out << "((), ";
             writeType(returnType);
@@ -1237,7 +1239,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     string type = getAbsolute(p, "_t_");
     _out << sp << nl << "_M_" << type << " = IcePy.defineException('" << scoped << "', " << name << ", ";
-    writeMetaData(p->getMetaData());
+    writeMetadata(p->getMetadata());
     _out << ", ";
     if (!base)
     {
@@ -1256,7 +1258,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetaData, MemberType, Optional, Tag)
+    //   ('MemberName', MemberMetadata, MemberType, Optional, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -1267,7 +1269,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             _out << ',' << nl;
         }
         _out << "('" << fixIdent((*dmli)->name()) << "', ";
-        writeMetaData((*dmli)->getMetaData());
+        writeMetadata((*dmli)->getMetadata());
         _out << ", ";
         writeType((*dmli)->type());
         _out << ", " << ((*dmli)->optional() ? "True" : "False") << ", " << ((*dmli)->optional() ? (*dmli)->tag() : 0)
@@ -1521,12 +1523,12 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     // Emit the type information.
     //
     _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineStruct('" << scoped << "', " << name << ", ";
-    writeMetaData(p->getMetaData());
+    writeMetadata(p->getMetadata());
     _out << ", (";
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetaData, MemberType)
+    //   ('MemberName', MemberMetadata, MemberType)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -1542,7 +1544,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
             _out << ',' << nl;
         }
         _out << "('" << r->fixedName << "', ";
-        writeMetaData(r->dataMember->getMetaData());
+        writeMetadata(r->dataMember->getMetadata());
         _out << ", ";
         writeType(r->dataMember->type());
         _out << ')';
@@ -1569,12 +1571,12 @@ void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
     // Emit the type information.
-    StringList metaData = p->getMetaData();
+    StringList metadata = p->getMetadata();
     string scoped = p->scoped();
     _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
     _out.inc();
     _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
-    writeMetaData(metaData);
+    writeMetadata(metadata);
     _out << ", ";
     writeType(p->type());
     _out << ")";
@@ -1589,7 +1591,7 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
     _out.inc();
     _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineDictionary('" << scoped << "', ";
-    writeMetaData(p->getMetaData());
+    writeMetadata(p->getMetadata());
     _out << ", ";
     writeType(p->keyType());
     _out << ", ";
@@ -1655,7 +1657,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     // Emit the type information.
     //
     _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineEnum('" << scoped << "', " << name << ", ";
-    writeMetaData(p->getMetaData());
+    writeMetadata(p->getMetadata());
     _out << ", " << name << "._enumerators)";
 
     registerName(name);
@@ -1862,7 +1864,7 @@ Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int&
 }
 
 void
-Slice::Python::CodeVisitor::writeMetaData(const StringList& meta)
+Slice::Python::CodeVisitor::writeMetadata(const StringList& meta)
 {
     int i = 0;
     _out << '(';
@@ -2020,7 +2022,7 @@ Slice::Python::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfo
     for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
-        if (p->hasMetaData("protected") || (*q)->hasMetaData("protected"))
+        if (p->hasMetadata("protected") || (*q)->hasMetadata("protected"))
         {
             m.fixedName = "_" + fixIdent((*q)->name());
         }
@@ -2742,14 +2744,14 @@ Slice::Python::getPackageDirectory(const string& file, const UnitPtr& ut)
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     const string prefix = "python:pkgdir:";
-    string pkgdir = dc->findMetaData(prefix);
+    string pkgdir = dc->findMetadata(prefix);
     if (!pkgdir.empty())
     {
         //
         // The metadata is present, so the generated file was placed in the specified directory.
         //
         pkgdir = pkgdir.substr(prefix.size());
-        assert(!pkgdir.empty()); // This situation should have been caught by MetaDataVisitor.
+        assert(!pkgdir.empty()); // This situation should have been caught by MetadataVisitor.
     }
     return pkgdir;
 }
@@ -2807,8 +2809,8 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
 void
 Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output& out)
 {
-    Slice::Python::MetaDataVisitor visitor;
-    un->visit(&visitor, false);
+    Slice::Python::MetadataVisitor visitor;
+    un->visit(&visitor);
 
     out << nl << "import Ice";
     out << nl << "import IcePy";
@@ -2832,10 +2834,10 @@ Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& inclu
     set<string> moduleHistory;
 
     ModuleVisitor moduleVisitor(out, moduleHistory);
-    un->visit(&moduleVisitor, true);
+    un->visit(&moduleVisitor);
 
     CodeVisitor codeVisitor(out, moduleHistory);
-    un->visit(&codeVisitor, false);
+    un->visit(&codeVisitor);
 
     out << nl; // Trailing newline.
 }
@@ -2905,7 +2907,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     static const string prefix = "python:package:";
 
     string q;
-    if (!m->findMetaData(prefix, q))
+    if (!m->findMetadata(prefix, q))
     {
         UnitPtr ut = cont->unit();
         string file = cont->file();
@@ -2913,7 +2915,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 
         DefinitionContextPtr dc = ut->findDefinitionContext(file);
         assert(dc);
-        q = dc->findMetaData(prefix);
+        q = dc->findMetadata(prefix);
     }
 
     if (!q.empty())
@@ -2959,21 +2961,17 @@ Slice::Python::printHeader(IceInternal::Output& out)
 }
 
 bool
-Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 {
     static const string prefix = "python:";
 
-    //
     // Validate file metadata in the top-level file and all included files.
-    //
-    StringList files = p->allFiles();
-    for (StringList::iterator q = files.begin(); q != files.end(); ++q)
+    for (const auto& file : unit->allFiles())
     {
-        string file = *q;
-        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        DefinitionContextPtr dc = unit->findDefinitionContext(file);
         assert(dc);
-        StringList globalMetaData = dc->getMetaData();
-        for (StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
+        StringList fileMetadata = dc->getMetadata();
+        for (StringList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
         {
             string s = *r++;
             if (s.find(prefix) == 0)
@@ -2989,22 +2987,22 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     continue;
                 }
 
-                dc->warning(InvalidMetaData, file, "", "ignoring invalid file metadata `" + s + "'");
-                globalMetaData.remove(s);
+                dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata `" + s + "'");
+                fileMetadata.remove(s);
             }
         }
-        dc->setMetaData(globalMetaData);
+        dc->setMetadata(fileMetadata);
     }
     return true;
 }
 
 bool
-Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
     static const string prefix = "python:package:";
 
-    StringList metaData = p->getMetaData();
-    for (StringList::const_iterator r = metaData.begin(); r != metaData.end();)
+    StringList metadata = p->getMetadata();
+    for (StringList::const_iterator r = metadata.begin(); r != metadata.end();)
     {
         string s = *r++;
         if (s.find(prefix) == 0)
@@ -3020,119 +3018,116 @@ Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 
         if (s.find("python:") == 0)
         {
-            p->definitionContext()->warning(InvalidMetaData, p->file(), "", "ignoring invalid metadata `" + s + "'");
-            metaData.remove(s);
+            p->definitionContext()->warning(InvalidMetadata, p->file(), -1, "ignoring invalid metadata `" + s + "'");
+            metadata.remove(s);
         }
     }
 
-    p->setMetaData(metaData);
+    p->setMetadata(metadata);
     return true;
 }
 
 void
-Slice::Python::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
+Slice::Python::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     reject(p);
 }
 
 bool
-Slice::Python::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    reject(p);
-    return true;
-}
-
-void
-Slice::Python::MetaDataVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
-{
-    reject(p);
-}
-
-bool
-Slice::Python::MetaDataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    reject(p);
-    return true;
-}
-
-bool
-Slice::Python::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    reject(p);
-    return true;
-}
-
-bool
-Slice::Python::MetaDataVisitor::visitStructStart(const StructPtr& p)
+Slice::Python::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     reject(p);
     return true;
 }
 
 void
-Slice::Python::MetaDataVisitor::visitOperation(const OperationPtr& p)
+Slice::Python::MetadataVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
+{
+    reject(p);
+}
+
+bool
+Slice::Python::MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    reject(p);
+    return true;
+}
+
+bool
+Slice::Python::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    reject(p);
+    return true;
+}
+
+bool
+Slice::Python::MetadataVisitor::visitStructStart(const StructPtr& p)
+{
+    reject(p);
+    return true;
+}
+
+void
+Slice::Python::MetadataVisitor::visitOperation(const OperationPtr& p)
 {
     TypePtr ret = p->returnType();
     if (ret)
     {
-        validateSequence(p->file(), p->line(), ret, p->getMetaData());
+        validateSequence(p->file(), p->line(), ret, p->getMetadata());
     }
 
-    ParamDeclList params = p->parameters();
-    for (ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    for (const auto& param : p->parameters())
     {
-        validateSequence(p->file(), (*q)->line(), (*q)->type(), (*q)->getMetaData());
+        validateSequence(p->file(), param->line(), param->type(), param->getMetadata());
     }
 }
 
 void
-Slice::Python::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::Python::MetadataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    validateSequence(p->file(), p->line(), p->type(), p->getMetaData());
+    validateSequence(p->file(), p->line(), p->type(), p->getMetadata());
 }
 
 void
-Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
+Slice::Python::MetadataVisitor::visitSequence(const SequencePtr& p)
 {
-    StringList metaData = p->getMetaData();
-    const string file = p->file();
-    const string line = p->line();
-    metaData = validateSequence(file, line, p, metaData);
-    p->setMetaData(metaData);
+    StringList metadata = p->getMetadata();
+    metadata = validateSequence(p->file(), p->line(), p, metadata);
+    p->setMetadata(metadata);
 }
 
 void
-Slice::Python::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::Python::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 {
     reject(p);
 }
 
 void
-Slice::Python::MetaDataVisitor::visitEnum(const EnumPtr& p)
+Slice::Python::MetadataVisitor::visitEnum(const EnumPtr& p)
 {
     reject(p);
 }
 
 void
-Slice::Python::MetaDataVisitor::visitConst(const ConstPtr& p)
+Slice::Python::MetadataVisitor::visitConst(const ConstPtr& p)
 {
     reject(p);
 }
 
 StringList
-Slice::Python::MetaDataVisitor::validateSequence(
+Slice::Python::MetadataVisitor::validateSequence(
     const string& file,
-    const string& line,
+    int line,
     const TypePtr& type,
-    const StringList& metaData)
+    const StringList& metadata)
 {
     const UnitPtr ut = type->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
 
     static const string prefix = "python:";
-    StringList newMetaData = metaData;
-    for (StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
+    StringList newMetadata = metadata;
+    for (StringList::const_iterator p = newMetadata.begin(); p != newMetadata.end();)
     {
         string s = *p++;
         if (s.find(prefix) == 0)
@@ -3186,31 +3181,31 @@ Slice::Python::MetaDataVisitor::validateSequence(
                     }
                 }
             }
-            dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
-            newMetaData.remove(s);
+            dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + s + "'");
+            newMetadata.remove(s);
         }
     }
-    return newMetaData;
+    return newMetadata;
 }
 
 void
-Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
+Slice::Python::MetadataVisitor::reject(const ContainedPtr& cont)
 {
-    StringList localMetaData = cont->getMetaData();
+    StringList localMetadata = cont->getMetadata();
     static const string prefix = "python:";
 
     const UnitPtr ut = cont->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
     assert(dc);
 
-    for (StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)
+    for (StringList::const_iterator p = localMetadata.begin(); p != localMetadata.end();)
     {
         string s = *p++;
         if (s.find(prefix) == 0)
         {
-            dc->warning(InvalidMetaData, cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
-            localMetaData.remove(s);
+            dc->warning(InvalidMetadata, cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
+            localMetadata.remove(s);
         }
     }
-    cont->setMetaData(localMetaData);
+    cont->setMetadata(localMetadata);
 }

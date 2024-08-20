@@ -109,7 +109,7 @@ namespace
         static const string prefix = "cs:namespace:";
 
         string q;
-        if (m->findMetaData(prefix, q))
+        if (m->findMetadata(prefix, q))
         {
             hasCSharpNamespaceAttribute = true;
             return q.substr(prefix.size()) + "." + csharpNamespace;
@@ -345,10 +345,10 @@ void
 Gen::generate(const UnitPtr& p)
 {
     OutputVisitor outputVisitor;
-    p->visit(&outputVisitor, false);
+    p->visit(&outputVisitor);
 
     TypesVisitor typesVisitor(_fileBase, outputVisitor.modules());
-    p->visit(&typesVisitor, false);
+    p->visit(&typesVisitor);
 }
 
 bool
@@ -464,7 +464,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         OperationPtr op = *q;
         writeComment(op, out);
-        if (op->hasMetaData("marshaled-result"))
+        if (op->hasMetadata("marshaled-result"))
         {
             out << nl << "[cs::encodedReturn]";
         }
@@ -573,9 +573,9 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     out << nl << "typealias " << p->name() << " = ";
 
-    StringList metaData = p->getMetaData();
+    StringList metadata = p->getMetadata();
     const string csGenericPrefix = "cs:generic:";
-    for (StringList::iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for (StringList::iterator q = metadata.begin(); q != metadata.end(); ++q)
     {
         string& s = *q;
         if (s.find(csGenericPrefix) == 0)
@@ -614,9 +614,9 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << nl << "typealias " << p->name() << " = ";
 
-    StringList metaData = p->getMetaData();
+    StringList metadata = p->getMetadata();
     const string csGenericPrefix = "cs:generic:SortedDictionary";
-    for (StringList::iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for (StringList::iterator q = metadata.begin(); q != metadata.end(); ++q)
     {
         string& s = *q;
         if (s.find(csGenericPrefix) == 0)

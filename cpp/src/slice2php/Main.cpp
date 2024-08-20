@@ -253,11 +253,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (!members.empty())
     {
         _out << sp;
-        bool isProtected = p->hasMetaData("protected");
+        bool isProtected = p->hasMetadata("protected");
         for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
             _out << nl;
-            if (isProtected || (*q)->hasMetaData("protected"))
+            if (isProtected || (*q)->hasMetadata("protected"))
             {
                 _out << "protected ";
             }
@@ -849,7 +849,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     {
         // TODO: using 'InvalidMetadata' as our warning category for an unsupported key type feels weird.
         // See https://github.com/zeroc-ice/ice/issues/254
-        dc->warning(InvalidMetaData, p->file(), p->line(), "dictionary key type not supported in PHP");
+        dc->warning(InvalidMetadata, p->file(), p->line(), "dictionary key type not supported in PHP");
     }
 
     string type = getTypeVar(p);
@@ -1280,7 +1280,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
     }
 
     CodeVisitor codeVisitor(out);
-    un->visit(&codeVisitor, false);
+    un->visit(&codeVisitor);
 
     out << nl; // Trailing newline.
 }

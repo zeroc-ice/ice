@@ -356,11 +356,11 @@ public class AllTests : Test.AllTests
         }
     }
 
-    private static void connect(Ice.ObjectPrx proxy)
+    private static async void connect(Ice.ObjectPrx proxy)
     {
         if (proxy.ice_getCachedConnection() != null)
         {
-            proxy.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            await proxy.ice_getCachedConnection().closeAsync();
         }
 
         try
@@ -373,7 +373,7 @@ public class AllTests : Test.AllTests
 
         if (proxy.ice_getCachedConnection() != null)
         {
-            proxy.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            await proxy.ice_getCachedConnection().closeAsync();
         }
     }
 
@@ -581,8 +581,8 @@ public class AllTests : Test.AllTests
 
         if (!collocated)
         {
-            metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-            metrics.ice_connectionId("Con1").ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            await metrics.ice_getConnection().closeAsync();
+            await metrics.ice_connectionId("Con1").ice_getConnection().closeAsync();
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
             waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -685,7 +685,7 @@ public class AllTests : Test.AllTests
             map = toMap(serverMetrics.getMetricsView("View", out timestamp)["Connection"]);
             test(map["holding"].current == 1);
 
-            metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            _ = metrics.ice_getConnection().closeAsync(); // initiate closure
 
             map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Connection"]);
             test(map["closing"].current == 1);
@@ -700,10 +700,7 @@ public class AllTests : Test.AllTests
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
-            metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-
-            // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the connection.
-            Thread.Sleep(100);
+            await metrics.ice_getConnection().closeAsync();
 
             MetricsPrx m = (MetricsPrx)metrics.ice_connectionId("Con1");
             m.ice_ping();
@@ -731,7 +728,7 @@ public class AllTests : Test.AllTests
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", output);
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "", output);
 
-            m.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            await m.ice_getConnection().closeAsync();
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
             waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -751,7 +748,7 @@ public class AllTests : Test.AllTests
             IceMX.Metrics m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
             test(m1.current == 0 && m1.total == 1 && m1.id.Equals(hostAndPort));
 
-            metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            await metrics.ice_getConnection().closeAsync();
             controller.hold();
             try
             {
@@ -803,7 +800,7 @@ public class AllTests : Test.AllTests
             try
             {
                 prx.ice_ping();
-                prx.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                await prx.ice_getConnection().closeAsync();
             }
             catch (Ice.LocalException)
             {

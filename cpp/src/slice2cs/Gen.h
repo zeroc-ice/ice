@@ -43,10 +43,7 @@ namespace Slice
             const std::string&);
 
         void emitAttributes(const ContainedPtr&);
-        void emitComVisibleAttribute();
-        void emitGeneratedCodeAttribute();
         void emitNonBrowsableAttribute();
-        void emitPartialTypeAttributes();
 
         static std::string getParamAttributes(const ParamDeclPtr&);
 

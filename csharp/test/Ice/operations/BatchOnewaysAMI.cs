@@ -74,7 +74,7 @@ namespace Ice
                     await batch1.ice_pingAsync();
                     await batch2.ice_pingAsync();
                     await batch1.ice_flushBatchRequestsAsync();
-                    batch1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                    await batch1.ice_getConnection().closeAsync();
                     await batch1.ice_pingAsync();
                     await batch2.ice_pingAsync();
 
@@ -82,7 +82,7 @@ namespace Ice
                     batch2.ice_getConnection();
 
                     _ = batch1.ice_pingAsync();
-                    batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    await batch1.ice_getConnection().closeAsync();
 
                     _ = batch1.ice_pingAsync();
                     _ = batch2.ice_pingAsync();

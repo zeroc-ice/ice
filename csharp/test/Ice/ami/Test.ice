@@ -15,6 +15,7 @@ exception TestIntfException
 {
 }
 
+// TODO: remove only all mappings are fixed
 enum CloseMode
 {
     Forcefully,
@@ -37,6 +38,8 @@ interface TestIntf
     void opBatch();
     int opBatchCount();
     bool waitForBatch(int count);
+
+    // TODO: remove only all mappings are fixed
     void close(CloseMode mode);
     void sleep(int ms);
     ["amd"] void startDispatch();

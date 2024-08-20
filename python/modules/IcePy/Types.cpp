@@ -1138,7 +1138,7 @@ convertDataMembers(PyObject* members, DataMemberList& reqMembers, DataMemberList
 #ifndef NDEBUG
         bool b =
 #endif
-            tupleToStringSeq(meta, member->metaData);
+            tupleToStringSeq(meta, member->metadata);
         assert(b);
         member->type = getType(t);
         if (allowOptional)
@@ -1301,7 +1301,7 @@ IcePy::StructInfo::marshal(
                 memberName);
             throw AbortMarshaling();
         }
-        member->type->marshal(attr.get(), os, objectMap, false, &member->metaData);
+        member->type->marshal(attr.get(), os, objectMap, false, &member->metadata);
     }
 
     if (optional && _variableLength)
@@ -1341,7 +1341,7 @@ IcePy::StructInfo::unmarshal(
     for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
-        member->type->unmarshal(is, member, p.get(), 0, false, &member->metaData);
+        member->type->unmarshal(is, member, p.get(), 0, false, &member->metadata);
     }
 
     cb->unmarshaled(p.get(), target, closure);
@@ -1403,15 +1403,15 @@ IcePy::SequenceInfo::SequenceInfo(string ident, PyObject* m, PyObject* t) : id(s
 {
     assert(PyTuple_Check(m));
 
-    vector<string> metaData;
+    vector<string> metadata;
 #ifndef NDEBUG
     bool b =
 #endif
-        tupleToStringSeq(m, metaData);
+        tupleToStringSeq(m, metadata);
     assert(b);
 
-    const_cast<SequenceMappingPtr&>(mapping) = make_shared<SequenceMapping>(metaData);
-    mapping->init(metaData);
+    const_cast<SequenceMappingPtr&>(mapping) = make_shared<SequenceMapping>(metadata);
+    mapping->init(metadata);
     const_cast<TypeInfoPtr&>(elementType) = getType(t);
 }
 
@@ -1457,7 +1457,7 @@ IcePy::SequenceInfo::marshal(
     Ice::OutputStream* os,
     ObjectMap* objectMap,
     bool optional,
-    const Ice::StringSeq* /*metaData*/)
+    const Ice::StringSeq* /*metadata*/)
 {
     auto pi = dynamic_pointer_cast<PrimitiveInfo>(elementType);
 
@@ -1564,7 +1564,7 @@ IcePy::SequenceInfo::unmarshal(
     PyObject* target,
     void* closure,
     bool optional,
-    const Ice::StringSeq* metaData)
+    const Ice::StringSeq* metadata)
 {
     if (optional)
     {
@@ -1580,14 +1580,14 @@ IcePy::SequenceInfo::unmarshal(
 
     //
     // Determine the mapping to use for this sequence. Highest priority is given
-    // to the metaData argument, otherwise we use the mapping of the sequence
+    // to the metadata argument, otherwise we use the mapping of the sequence
     // definition.
     //
     SequenceMappingPtr sm;
-    if (metaData)
+    if (metadata)
     {
         SequenceMapping::Type type;
-        if (!SequenceMapping::getType(*metaData, type) || type == mapping->type)
+        if (!SequenceMapping::getType(*metadata, type) || type == mapping->type)
         {
             sm = mapping;
         }
@@ -1596,7 +1596,7 @@ IcePy::SequenceInfo::unmarshal(
             sm = make_shared<SequenceMapping>(type);
             try
             {
-                sm->init(*metaData);
+                sm->init(*metadata);
             }
             catch (const InvalidSequenceFactoryException&)
             {
@@ -2384,9 +2384,9 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
 }
 
 bool
-IcePy::SequenceInfo::SequenceMapping::getType(const Ice::StringSeq& metaData, Type& t)
+IcePy::SequenceInfo::SequenceMapping::getType(const Ice::StringSeq& metadata, Type& t)
 {
-    for (Ice::StringSeq::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
+    for (Ice::StringSeq::const_iterator p = metadata.begin(); p != metadata.end(); ++p)
     {
         if ((*p) == "python:seq:default" || (*p) == "python:default")
         {
@@ -3427,7 +3427,7 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
             throw AbortMarshaling();
         }
 
-        member->type->marshal(val.get(), os, _map, member->optional, &member->metaData);
+        member->type->marshal(val.get(), os, _map, member->optional, &member->metadata);
     }
 }
 
@@ -3481,7 +3481,7 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
             for (p = info->members.begin(); p != info->members.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                member->type->unmarshal(is, member, _object.get(), 0, false, &member->metaData);
+                member->type->unmarshal(is, member, _object.get(), 0, false, &member->metadata);
             }
 
             //
@@ -3492,7 +3492,7 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
                 DataMemberPtr member = *p;
                 if (is->readOptional(member->tag, member->type->optionalFormat()))
                 {
-                    member->type->unmarshal(is, member, _object.get(), 0, true, &member->metaData);
+                    member->type->unmarshal(is, member, _object.get(), 0, true, &member->metadata);
                 }
                 else if (PyObject_SetAttrString(_object.get(), const_cast<char*>(member->name.c_str()), Py_None) < 0)
                 {
@@ -3675,7 +3675,7 @@ IcePy::ExceptionInfo::writeMembers(
             throw AbortMarshaling();
         }
 
-        member->type->marshal(val.get(), os, objectMap, member->optional, &member->metaData);
+        member->type->marshal(val.get(), os, objectMap, member->optional, &member->metadata);
     }
 }
 
@@ -3699,7 +3699,7 @@ IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
         for (q = info->members.begin(); q != info->members.end(); ++q)
         {
             DataMemberPtr member = *q;
-            member->type->unmarshal(is, member, p.get(), 0, false, &member->metaData);
+            member->type->unmarshal(is, member, p.get(), 0, false, &member->metadata);
         }
 
         //
@@ -3710,7 +3710,7 @@ IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
             DataMemberPtr member = *q;
             if (is->readOptional(member->tag, member->type->optionalFormat()))
             {
-                member->type->unmarshal(is, member, p.get(), 0, true, &member->metaData);
+                member->type->unmarshal(is, member, p.get(), 0, true, &member->metadata);
             }
             else if (PyObject_SetAttrString(p.get(), const_cast<char*>(member->name.c_str()), Py_None) < 0)
             {

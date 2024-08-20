@@ -219,7 +219,7 @@ public class AllTests
             configuration.buffered(true);
             backgroundController.buffered(true);
             _ = background.opAsync();
-            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.ice_getCachedConnection().abort();
             _ = background.opAsync();
 
             var results = new List<Task>();
@@ -259,7 +259,7 @@ public class AllTests
             Console.Out.WriteLine(ex);
             test(false);
         }
-        background.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+        await background.ice_getConnection().closeAsync();
 
         for (int i = 0; i < 4; ++i)
         {
@@ -320,7 +320,7 @@ public class AllTests
                 }
 
                 configuration.connectException(new Ice.SocketException());
-                background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+                background.ice_getCachedConnection().abort();
                 Thread.Sleep(10);
                 configuration.connectException(null);
                 try
@@ -360,7 +360,7 @@ public class AllTests
         {
             test(false);
         }
-        background.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+        await background.ice_getConnection().closeAsync();
 
         for (int i = 0; i < 4; ++i)
         {
@@ -435,7 +435,7 @@ public class AllTests
             }
 
             configuration.initializeException(new Ice.SocketException());
-            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.ice_getCachedConnection().abort();
             Thread.Sleep(10);
             configuration.initializeException(null);
             try
@@ -454,11 +454,11 @@ public class AllTests
                 test(false);
             }
 
-            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.ice_getCachedConnection().abort();
             background.ice_ping();
 
             ctl.initializeException(true);
-            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.ice_getCachedConnection().abort();
             Thread.Sleep(10);
             ctl.initializeException(false);
             try
@@ -479,7 +479,7 @@ public class AllTests
 
             try
             {
-                background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+                background.ice_getCachedConnection().abort();
                 background.op();
             }
             catch (Ice.LocalException)
@@ -498,13 +498,7 @@ public class AllTests
     //
     // Close the connection associated with the proxy and wait until the close completes.
     //
-    private static async Task closeConnection(Ice.ObjectPrx prx)
-    {
-        var tcs = new TaskCompletionSource();
-        prx.ice_getConnection().setCloseCallback(value => tcs.SetResult());
-        prx.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-        await tcs.Task;
-    }
+    private static Task closeConnection(Ice.ObjectPrx prx) => prx.ice_getConnection().closeAsync();
 
     private static async Task validationTests(
         Configuration configuration,
@@ -700,7 +694,6 @@ public class AllTests
         backgroundBatchOneway.opWithPayload(seq);
         backgroundBatchOneway.opWithPayload(seq);
         ctl.resumeAdapter();
-        await backgroundBatchOneway.ice_flushBatchRequestsAsync();
         //
         // We can't close the connection before ensuring all the batches have been sent since
         // with auto-flushing the close connection message might be sent once the first call
@@ -708,7 +701,7 @@ public class AllTests
         // in the flush to report a CloseConnectionException). Instead we flush a second time
         // with the same callback to wait for the first flush to complete.
         //
-        //backgroundBatchOneway.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+        await backgroundBatchOneway.ice_flushBatchRequestsAsync();
         await closeConnection(backgroundBatchOneway);
     }
 
@@ -1044,10 +1037,10 @@ public class AllTests
             Thread.Sleep(10);
 
             background.ice_ping();
-            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.ice_getCachedConnection().abort();
             Thread.Sleep(10);
 
-            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.ice_getCachedConnection().abort();
         }
 
         thread1.destroy();

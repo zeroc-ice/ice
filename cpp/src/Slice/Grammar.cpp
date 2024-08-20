@@ -227,9 +227,9 @@ enum yysymbol_kind_t
     YYSYMBOL_ICE_SCOPED_IDENTIFIER = 34,      /* ICE_SCOPED_IDENTIFIER  */
     YYSYMBOL_ICE_METADATA_OPEN = 35,          /* ICE_METADATA_OPEN  */
     YYSYMBOL_ICE_METADATA_CLOSE = 36,         /* ICE_METADATA_CLOSE  */
-    YYSYMBOL_ICE_GLOBAL_METADATA_OPEN = 37,   /* ICE_GLOBAL_METADATA_OPEN  */
-    YYSYMBOL_ICE_GLOBAL_METADATA_IGNORE = 38, /* ICE_GLOBAL_METADATA_IGNORE  */
-    YYSYMBOL_ICE_GLOBAL_METADATA_CLOSE = 39,  /* ICE_GLOBAL_METADATA_CLOSE  */
+    YYSYMBOL_ICE_FILE_METADATA_OPEN = 37,     /* ICE_FILE_METADATA_OPEN  */
+    YYSYMBOL_ICE_FILE_METADATA_IGNORE = 38,   /* ICE_FILE_METADATA_IGNORE  */
+    YYSYMBOL_ICE_FILE_METADATA_CLOSE = 39,    /* ICE_FILE_METADATA_CLOSE  */
     YYSYMBOL_ICE_IDENT_OPEN = 40,             /* ICE_IDENT_OPEN  */
     YYSYMBOL_ICE_KEYWORD_OPEN = 41,           /* ICE_KEYWORD_OPEN  */
     YYSYMBOL_ICE_OPTIONAL_OPEN = 42,          /* ICE_OPTIONAL_OPEN  */
@@ -247,8 +247,8 @@ enum yysymbol_kind_t
     YYSYMBOL_YYACCEPT = 54,                   /* $accept  */
     YYSYMBOL_start = 55,                      /* start  */
     YYSYMBOL_opt_semicolon = 56,              /* opt_semicolon  */
-    YYSYMBOL_global_meta_data = 57,           /* global_meta_data  */
-    YYSYMBOL_meta_data = 58,                  /* meta_data  */
+    YYSYMBOL_file_metadata = 57,              /* file_metadata  */
+    YYSYMBOL_metadata = 58,                   /* metadata  */
     YYSYMBOL_definitions = 59,                /* definitions  */
     YYSYMBOL_definition = 60,                 /* definition  */
     YYSYMBOL_61_1 = 61,                       /* $@1  */
@@ -741,9 +741,9 @@ static const char* const yytname[] = {
     "ICE_SCOPED_IDENTIFIER",
     "ICE_METADATA_OPEN",
     "ICE_METADATA_CLOSE",
-    "ICE_GLOBAL_METADATA_OPEN",
-    "ICE_GLOBAL_METADATA_IGNORE",
-    "ICE_GLOBAL_METADATA_CLOSE",
+    "ICE_FILE_METADATA_OPEN",
+    "ICE_FILE_METADATA_IGNORE",
+    "ICE_FILE_METADATA_CLOSE",
     "ICE_IDENT_OPEN",
     "ICE_KEYWORD_OPEN",
     "ICE_OPTIONAL_OPEN",
@@ -761,8 +761,8 @@ static const char* const yytname[] = {
     "$accept",
     "start",
     "opt_semicolon",
-    "global_meta_data",
-    "meta_data",
+    "file_metadata",
+    "metadata",
     "definitions",
     "definition",
     "$@1",
@@ -1594,7 +1594,7 @@ yyreduce:
 #line 1748 "src/Slice/Grammar.cpp"
         break;
 
-        case 5: /* global_meta_data: ICE_GLOBAL_METADATA_OPEN string_list ICE_GLOBAL_METADATA_CLOSE  */
+        case 5: /* file_metadata: ICE_FILE_METADATA_OPEN string_list ICE_FILE_METADATA_CLOSE  */
 #line 205 "src/Slice/Grammar.y"
         {
             yyval = yyvsp[-1];
@@ -1602,16 +1602,16 @@ yyreduce:
 #line 1756 "src/Slice/Grammar.cpp"
         break;
 
-        case 6: /* global_meta_data: ICE_GLOBAL_METADATA_IGNORE string_list ICE_GLOBAL_METADATA_CLOSE  */
+        case 6: /* file_metadata: ICE_FILE_METADATA_IGNORE string_list ICE_FILE_METADATA_CLOSE  */
 #line 209 "src/Slice/Grammar.y"
         {
-            currentUnit->error("global metadata must appear before any definitions");
+            currentUnit->error("file metadata must appear before any definitions");
             yyval = yyvsp[-1]; // Dummy
         }
 #line 1765 "src/Slice/Grammar.cpp"
         break;
 
-        case 7: /* meta_data: ICE_METADATA_OPEN string_list ICE_METADATA_CLOSE  */
+        case 7: /* metadata: ICE_METADATA_OPEN string_list ICE_METADATA_CLOSE  */
 #line 219 "src/Slice/Grammar.y"
         {
             yyval = yyvsp[-1];
@@ -1619,7 +1619,7 @@ yyreduce:
 #line 1773 "src/Slice/Grammar.cpp"
         break;
 
-        case 8: /* meta_data: %empty  */
+        case 8: /* metadata: %empty  */
 #line 223 "src/Slice/Grammar.y"
         {
             yyval = make_shared<StringListTok>();
@@ -1627,26 +1627,26 @@ yyreduce:
 #line 1781 "src/Slice/Grammar.cpp"
         break;
 
-        case 9: /* definitions: definitions global_meta_data  */
+        case 9: /* definitions: definitions file_metadata  */
 #line 232 "src/Slice/Grammar.y"
         {
-            auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[0]);
-            if (!metaData->v.empty())
+            auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[0]);
+            if (!metadata->v.empty())
             {
-                currentUnit->addGlobalMetaData(metaData->v);
+                currentUnit->addFileMetadata(metadata->v);
             }
         }
 #line 1793 "src/Slice/Grammar.cpp"
         break;
 
-        case 10: /* definitions: definitions meta_data definition  */
+        case 10: /* definitions: definitions metadata definition  */
 #line 240 "src/Slice/Grammar.y"
         {
-            auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
+            auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
             auto contained = dynamic_pointer_cast<Contained>(yyvsp[0]);
-            if (contained && !metaData->v.empty())
+            if (contained && !metadata->v.empty())
             {
-                contained->setMetaData(metaData->v);
+                contained->setMetadata(metadata->v);
             }
         }
 #line 1806 "src/Slice/Grammar.cpp"
@@ -2519,14 +2519,14 @@ yyreduce:
 #line 2672 "src/Slice/Grammar.cpp"
         break;
 
-        case 81: /* data_members: meta_data data_member ';' data_members  */
+        case 81: /* data_members: metadata data_member ';' data_members  */
 #line 995 "src/Slice/Grammar.y"
         {
-            auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+            auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
             auto contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
-            if (contained && !metaData->v.empty())
+            if (contained && !metadata->v.empty())
             {
-                contained->setMetaData(metaData->v);
+                contained->setMetadata(metadata->v);
             }
         }
 #line 2685 "src/Slice/Grammar.cpp"
@@ -2539,7 +2539,7 @@ yyreduce:
 #line 2692 "src/Slice/Grammar.cpp"
         break;
 
-        case 83: /* data_members: meta_data data_member  */
+        case 83: /* data_members: metadata data_member  */
 #line 1007 "src/Slice/Grammar.y"
         {
             currentUnit->error("`;' missing after definition");
@@ -3093,14 +3093,14 @@ yyreduce:
 #line 3226 "src/Slice/Grammar.cpp"
         break;
 
-        case 111: /* operations: meta_data operation ';' operations  */
+        case 111: /* operations: metadata operation ';' operations  */
 #line 1479 "src/Slice/Grammar.y"
         {
-            auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+            auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
             auto contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
-            if (contained && !metaData->v.empty())
+            if (contained && !metadata->v.empty())
             {
-                contained->setMetaData(metaData->v);
+                contained->setMetadata(metadata->v);
             }
         }
 #line 3239 "src/Slice/Grammar.cpp"
@@ -3113,7 +3113,7 @@ yyreduce:
 #line 3246 "src/Slice/Grammar.cpp"
         break;
 
-        case 113: /* operations: meta_data operation  */
+        case 113: /* operations: metadata operation  */
 #line 1491 "src/Slice/Grammar.y"
         {
             currentUnit->error("`;' missing after definition");
@@ -3176,55 +3176,55 @@ yyreduce:
 #line 3309 "src/Slice/Grammar.cpp"
         break;
 
-        case 119: /* sequence_def: ICE_SEQUENCE '<' meta_data type '>' ICE_IDENTIFIER  */
+        case 119: /* sequence_def: ICE_SEQUENCE '<' metadata type '>' ICE_IDENTIFIER  */
 #line 1545 "src/Slice/Grammar.y"
         {
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-            auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+            auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
             auto type = dynamic_pointer_cast<Type>(yyvsp[-2]);
             ContainerPtr cont = currentUnit->currentContainer();
-            yyval = cont->createSequence(ident->v, type, metaData->v);
+            yyval = cont->createSequence(ident->v, type, metadata->v);
         }
 #line 3321 "src/Slice/Grammar.cpp"
         break;
 
-        case 120: /* sequence_def: ICE_SEQUENCE '<' meta_data type '>' keyword  */
+        case 120: /* sequence_def: ICE_SEQUENCE '<' metadata type '>' keyword  */
 #line 1553 "src/Slice/Grammar.y"
         {
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-            auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+            auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
             auto type = dynamic_pointer_cast<Type>(yyvsp[-2]);
             ContainerPtr cont = currentUnit->currentContainer();
-            yyval = cont->createSequence(ident->v, type, metaData->v); // Dummy
+            yyval = cont->createSequence(ident->v, type, metadata->v); // Dummy
             currentUnit->error("keyword `" + ident->v + "' cannot be used as sequence name");
         }
 #line 3334 "src/Slice/Grammar.cpp"
         break;
 
-        case 121: /* dictionary_def: ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' ICE_IDENTIFIER  */
+        case 121: /* dictionary_def: ICE_DICTIONARY '<' metadata type ',' metadata type '>' ICE_IDENTIFIER  */
 #line 1567 "src/Slice/Grammar.y"
         {
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-            auto keyMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-6]);
+            auto keyMetadata = dynamic_pointer_cast<StringListTok>(yyvsp[-6]);
             auto keyType = dynamic_pointer_cast<Type>(yyvsp[-5]);
-            auto valueMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+            auto valueMetadata = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
             auto valueType = dynamic_pointer_cast<Type>(yyvsp[-2]);
             ContainerPtr cont = currentUnit->currentContainer();
-            yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
+            yyval = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v);
         }
 #line 3348 "src/Slice/Grammar.cpp"
         break;
 
-        case 122: /* dictionary_def: ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' keyword  */
+        case 122: /* dictionary_def: ICE_DICTIONARY '<' metadata type ',' metadata type '>' keyword  */
 #line 1577 "src/Slice/Grammar.y"
         {
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-            auto keyMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-6]);
+            auto keyMetadata = dynamic_pointer_cast<StringListTok>(yyvsp[-6]);
             auto keyType = dynamic_pointer_cast<Type>(yyvsp[-5]);
-            auto valueMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+            auto valueMetadata = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
             auto valueType = dynamic_pointer_cast<Type>(yyvsp[-2]);
             ContainerPtr cont = currentUnit->currentContainer();
-            yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
+            yyval = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v); // Dummy
             currentUnit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
         }
 #line 3363 "src/Slice/Grammar.cpp"
@@ -3307,14 +3307,14 @@ yyreduce:
 #line 3440 "src/Slice/Grammar.cpp"
         break;
 
-        case 129: /* enumerator_list: meta_data enumerator ',' enumerator_list  */
+        case 129: /* enumerator_list: metadata enumerator ',' enumerator_list  */
 #line 1657 "src/Slice/Grammar.y"
         {
             auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
             auto enumerator = dynamic_pointer_cast<Enumerator>(yyvsp[-2]);
             if (enumerator && !metadata->v.empty())
             {
-                enumerator->setMetaData(metadata->v);
+                enumerator->setMetadata(metadata->v);
             }
             auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>(yyvsp[0]);
             enumeratorList->v.push_front(enumerator);
@@ -3323,14 +3323,14 @@ yyreduce:
 #line 3456 "src/Slice/Grammar.cpp"
         break;
 
-        case 130: /* enumerator_list: meta_data enumerator  */
+        case 130: /* enumerator_list: metadata enumerator  */
 #line 1669 "src/Slice/Grammar.y"
         {
             auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
             auto enumerator = dynamic_pointer_cast<Enumerator>(yyvsp[0]);
             if (enumerator && !metadata->v.empty())
             {
-                enumerator->setMetaData(metadata->v);
+                enumerator->setMetadata(metadata->v);
             }
             auto enumeratorList = make_shared<EnumeratorListTok>();
             enumeratorList->v.push_front(enumerator);
@@ -3465,7 +3465,7 @@ yyreduce:
 #line 3598 "src/Slice/Grammar.cpp"
         break;
 
-        case 140: /* parameters: out_qualifier meta_data optional_type_id  */
+        case 140: /* parameters: out_qualifier metadata optional_type_id  */
 #line 1791 "src/Slice/Grammar.y"
         {
             auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
@@ -3475,17 +3475,17 @@ yyreduce:
             {
                 ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
                 currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
-                auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
-                if (!metaData->v.empty())
+                auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
+                if (!metadata->v.empty())
                 {
-                    pd->setMetaData(metaData->v);
+                    pd->setMetadata(metadata->v);
                 }
             }
         }
 #line 3618 "src/Slice/Grammar.cpp"
         break;
 
-        case 141: /* parameters: parameters ',' out_qualifier meta_data optional_type_id  */
+        case 141: /* parameters: parameters ',' out_qualifier metadata optional_type_id  */
 #line 1807 "src/Slice/Grammar.y"
         {
             auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
@@ -3495,17 +3495,17 @@ yyreduce:
             {
                 ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
                 currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
-                auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
-                if (!metaData->v.empty())
+                auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
+                if (!metadata->v.empty())
                 {
-                    pd->setMetaData(metaData->v);
+                    pd->setMetadata(metadata->v);
                 }
             }
         }
 #line 3638 "src/Slice/Grammar.cpp"
         break;
 
-        case 142: /* parameters: out_qualifier meta_data type keyword  */
+        case 142: /* parameters: out_qualifier metadata type keyword  */
 #line 1823 "src/Slice/Grammar.y"
         {
             auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-3]);
@@ -3521,7 +3521,7 @@ yyreduce:
 #line 3654 "src/Slice/Grammar.cpp"
         break;
 
-        case 143: /* parameters: parameters ',' out_qualifier meta_data type keyword  */
+        case 143: /* parameters: parameters ',' out_qualifier metadata type keyword  */
 #line 1835 "src/Slice/Grammar.y"
         {
             auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-3]);
@@ -3537,7 +3537,7 @@ yyreduce:
 #line 3670 "src/Slice/Grammar.cpp"
         break;
 
-        case 144: /* parameters: out_qualifier meta_data type  */
+        case 144: /* parameters: out_qualifier metadata type  */
 #line 1847 "src/Slice/Grammar.y"
         {
             auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
@@ -3552,7 +3552,7 @@ yyreduce:
 #line 3685 "src/Slice/Grammar.cpp"
         break;
 
-        case 145: /* parameters: parameters ',' out_qualifier meta_data type  */
+        case 145: /* parameters: parameters ',' out_qualifier metadata type  */
 #line 1858 "src/Slice/Grammar.y"
         {
             auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
@@ -3670,7 +3670,7 @@ yyreduce:
         case 160: /* type: ICE_OBJECT '*'  */
 #line 1912 "src/Slice/Grammar.y"
         {
-            yyval = currentUnit->builtin(Builtin::KindObjectProxy);
+            yyval = currentUnit->createBuiltin(Builtin::KindObjectProxy);
         }
 #line 3798 "src/Slice/Grammar.cpp"
         break;
@@ -3679,7 +3679,7 @@ yyreduce:
 #line 1916 "src/Slice/Grammar.y"
         {
             auto typeName = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-            yyval = currentUnit->builtin(Builtin::kindFromString(typeName->v).value());
+            yyval = currentUnit->createBuiltin(Builtin::kindFromString(typeName->v).value());
         }
 #line 3807 "src/Slice/Grammar.cpp"
         break;
@@ -3796,7 +3796,7 @@ yyreduce:
         case 168: /* const_initializer: ICE_INTEGER_LITERAL  */
 #line 2021 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindLong);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindLong);
             auto intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
             ostringstream sstr;
             sstr << intVal->v;
@@ -3809,7 +3809,7 @@ yyreduce:
         case 169: /* const_initializer: ICE_FLOATING_POINT_LITERAL  */
 #line 2030 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindDouble);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindDouble);
             auto floatVal = dynamic_pointer_cast<FloatingTok>(yyvsp[0]);
             ostringstream sstr;
             sstr << floatVal->v;
@@ -3861,7 +3861,7 @@ yyreduce:
         case 171: /* const_initializer: ICE_STRING_LITERAL  */
 #line 2074 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindString);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindString);
             auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
             auto def = make_shared<ConstDefTok>(type, literal->v, literal->literal);
             yyval = def;
@@ -3872,7 +3872,7 @@ yyreduce:
         case 172: /* const_initializer: ICE_FALSE  */
 #line 2081 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
             auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
             auto def = make_shared<ConstDefTok>(type, "false", "false");
             yyval = def;
@@ -3883,7 +3883,7 @@ yyreduce:
         case 173: /* const_initializer: ICE_TRUE  */
 #line 2088 "src/Slice/Grammar.y"
         {
-            BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
+            BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
             auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
             auto def = make_shared<ConstDefTok>(type, "true", "true");
             yyval = def;
@@ -3891,17 +3891,17 @@ yyreduce:
 #line 4014 "src/Slice/Grammar.cpp"
         break;
 
-        case 174: /* const_def: ICE_CONST meta_data type ICE_IDENTIFIER '=' const_initializer  */
+        case 174: /* const_def: ICE_CONST metadata type ICE_IDENTIFIER '=' const_initializer  */
 #line 2100 "src/Slice/Grammar.y"
         {
-            auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-4]);
+            auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-4]);
             auto const_type = dynamic_pointer_cast<Type>(yyvsp[-3]);
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
             auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
             yyval = currentUnit->currentContainer()->createConst(
                 ident->v,
                 const_type,
-                metaData->v,
+                metadata->v,
                 value->v,
                 value->valueAsString,
                 value->valueAsLiteral);
@@ -3909,17 +3909,17 @@ yyreduce:
 #line 4027 "src/Slice/Grammar.cpp"
         break;
 
-        case 175: /* const_def: ICE_CONST meta_data type '=' const_initializer  */
+        case 175: /* const_def: ICE_CONST metadata type '=' const_initializer  */
 #line 2109 "src/Slice/Grammar.y"
         {
-            auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+            auto metadata = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
             auto const_type = dynamic_pointer_cast<Type>(yyvsp[-2]);
             auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
             currentUnit->error("missing constant name");
             yyval = currentUnit->currentContainer()->createConst(
                 Ice::generateUUID(),
                 const_type,
-                metaData->v,
+                metadata->v,
                 value->v,
                 value->valueAsString,
                 value->valueAsLiteral,

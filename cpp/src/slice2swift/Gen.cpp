@@ -27,7 +27,7 @@ namespace
         assert(dc);
 
         static const string classResolverPrefix = "swift:class-resolver-prefix:";
-        string result = dc->findMetaData(classResolverPrefix);
+        string result = dc->findMetadata(classResolverPrefix);
         if (!result.empty())
         {
             result = result.substr(classResolverPrefix.size());
@@ -81,26 +81,26 @@ Gen::~Gen()
 void
 Gen::generate(const UnitPtr& p)
 {
-    SwiftGenerator::validateMetaData(p);
+    SwiftGenerator::validateMetadata(p);
 
     ImportVisitor importVisitor(_out);
-    p->visit(&importVisitor, false);
+    p->visit(&importVisitor);
     importVisitor.writeImports();
 
     TypesVisitor typesVisitor(_out);
-    p->visit(&typesVisitor, false);
+    p->visit(&typesVisitor);
 
     ProxyVisitor proxyVisitor(_out);
-    p->visit(&proxyVisitor, false);
+    p->visit(&proxyVisitor);
 
     ValueVisitor valueVisitor(_out);
-    p->visit(&valueVisitor, false);
+    p->visit(&valueVisitor);
 
     ObjectVisitor objectVisitor(_out);
-    p->visit(&objectVisitor, false);
+    p->visit(&objectVisitor);
 
     ObjectExtVisitor objectExtVisitor(_out);
-    p->visit(&objectExtVisitor, false);
+    p->visit(&objectExtVisitor);
 }
 
 void
@@ -383,7 +383,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetaData());
+    writeSwiftAttributes(out, p->getMetadata());
     out << nl << "open class " << fixIdent(name) << ": ";
     if (base)
     {
@@ -496,7 +496,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool usesClasses = p->usesClasses();
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetaData());
+    writeSwiftAttributes(out, p->getMetadata());
     out << nl << "public " << (usesClasses ? "class " : "struct ") << name;
 
     // Only generate Hashable if this struct is a legal dictionary key type.
@@ -621,7 +621,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << "[" << typeToString(p->type(), p, p->getMetaData(), false, typeCtx) << "]";
+        out << "[" << typeToString(p->type(), p, p->getMetadata(), false, typeCtx) << "]";
     }
 
     if (builtin && builtin->kind() <= Builtin::KindString)
@@ -766,8 +766,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     int typeCtx = 0;
 
-    const string keyType = typeToString(p->keyType(), p, p->keyMetaData(), false, typeCtx);
-    const string valueType = typeToString(p->valueType(), p, p->valueMetaData(), false, typeCtx);
+    const string keyType = typeToString(p->keyType(), p, p->keyMetadata(), false, typeCtx);
+    const string valueType = typeToString(p->valueType(), p, p->valueMetadata(), false, typeCtx);
     out << sp;
     writeDocSummary(out, p);
     out << nl << "public typealias " << fixIdent(name) << " = [" << keyType << ": " << valueType << "]";
@@ -922,7 +922,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetaData());
+    writeSwiftAttributes(out, p->getMetadata());
     out << nl << "public enum " << name << ": " << enumType;
     out << sb;
 
@@ -1022,7 +1022,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     writeDocSummary(out, p);
     out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
-    writeConstantValue(out, type, p->valueType(), p->value(), p->getMetaData(), swiftModule);
+    writeConstantValue(out, type, p->valueType(), p->value(), p->getMetadata(), swiftModule);
     out << nl;
 }
 
@@ -1285,7 +1285,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetaData());
+    writeSwiftAttributes(out, p->getMetadata());
     out << nl << "open class " << fixIdent(name) << ": ";
     if (base)
     {
@@ -1470,9 +1470,9 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Check for swift:inherits metadata.
     //
-    const StringList metaData = p->getMetaData();
+    const StringList metadata = p->getMetadata();
     static const string prefix = "swift:inherits:";
-    for (StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
     {
         if (q->find(prefix) == 0)
         {

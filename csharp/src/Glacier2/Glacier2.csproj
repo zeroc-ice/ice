@@ -13,6 +13,10 @@
   <ItemGroup>
       <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" PrivateAssets="All" />
       <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+      <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Ice/Ice.csproj" />
