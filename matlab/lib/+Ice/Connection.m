@@ -44,29 +44,19 @@ classdef Connection < IceInternal.WrapperObject
                 r = obj.iceCallWithResult('equals', other.impl_);
             end
         end
-        function close(obj, mode)
-            % close   Manually close the connection using the specified
-            %   closure mode.
+        function abort(obj)
+            % abort   Aborts this connection.
             %
-            % Parameters:
-            %   mode (Ice.ConnectionClose) - Determines how the connection
-            %     will be closed.
 
-            obj.iceCall('close', mode);
+            obj.iceCall('abort');
         end
-        function f = closeAsync(obj)
-            % closeAsync   Manually close the connection using the specified
-            %   closure mode.
+        function f = close(obj)
+            % close   Closes the connection gracefully after waiting for all outstanding invocations to complete.
             %
-            % Parameters:
-            %   mode (Ice.ConnectionClose) - Determines how the connection
-            %     will be closed.
-            %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
+            % Returns (Ice.Future) - A future that completes when the connnection is closed.
 
             future = libpointer('voidPtr');
-            obj.iceCall('closeAsync', future);
+            obj.iceCall('close', future);
             assert(~isNull(future));
             f = Ice.Future(future, 'close', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end

@@ -45,7 +45,10 @@ class TestIntfI(Test.TestIntf):
             return result
 
     def close(self, mode, current):
-        current.con.close(Ice.ConnectionClose.valueOf(mode.value))
+        if mode == Test.CloseMode.Forcefully:
+            current.con.abort()
+        else:
+            current.con.close(False)
 
     def sleep(self, ms, current):
         time.sleep(ms / 1000.0)

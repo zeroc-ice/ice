@@ -205,7 +205,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     hello = Test.HelloPrx(communicator, "hello")
     obj.migrateHello()
-    hello.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+    hello.ice_getConnection().close()
     hello.sayHello()
     obj.migrateHello()
     hello.sayHello()

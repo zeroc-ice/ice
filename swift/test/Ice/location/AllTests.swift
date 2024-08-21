@@ -461,7 +461,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.write("testing object migration... ")
     hello = try makeProxy(communicator: communicator, proxyString: "hello", type: HelloPrx.self)
     try await obj.migrateHello()
-    try await hello.ice_getConnection()!.close(.GracefullyWithWait)
+    try await hello.ice_getConnection()!.close()
     try await hello.sayHello()
     try await obj.migrateHello()
     try await hello.sayHello()

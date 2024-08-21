@@ -104,7 +104,7 @@ public func allTests(_ helper: TestHelper) async throws {
             //
             try test(seq.count > 16384)
         }
-        try await obj.ice_getConnection()!.close(.GracefullyWithWait)
+        try await obj.ice_getConnection()!.close()
         communicator.getProperties().setProperty(key: "Ice.UDP.SndSize", value: "64000")
         seq = ByteSeq(repeating: 0, count: 50000)
         do {

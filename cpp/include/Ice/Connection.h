@@ -47,27 +47,6 @@ namespace Ice
     };
 
     /**
-     * Determines the behavior when manually closing a connection.
-     */
-    enum class ConnectionClose : std::uint8_t
-    {
-        /**
-         * Close the connection immediately without sending a close connection protocol message to the peer and waiting
-         * for the peer to acknowledge it.
-         */
-        Forcefully,
-        /**
-         * Close the connection by notifying the peer but do not wait for pending outgoing invocations to complete. On
-         * the server side, the connection will not be closed until all incoming invocations have completed.
-         */
-        Gracefully,
-        /**
-         * Wait for all pending invocations to complete before closing the connection.
-         */
-        GracefullyWithWait
-    };
-
-    /**
      * A collection of HTTP headers.
      */
     using HeaderDict = std::map<std::string, std::string>;
@@ -144,11 +123,29 @@ namespace Ice
         virtual ~Connection() = 0;
 
         /**
-         * Manually close the connection using the specified closure mode.
-         * @param mode Determines how the connection will be closed.
-         * @see ConnectionClose
+         * Aborts this connection.
          */
-        virtual void close(ConnectionClose mode) noexcept = 0;
+        virtual void abort() noexcept = 0;
+
+        /**
+         * Starts a graceful closure of this connection once all outstanding invocations have completed.
+         * @param response A callback that the implementation calls when the connection is closed gracefully.
+         * @param exception A callback that the implementation calls when the connection closure failed. Its
+         * exception_ptr parameter is always non-null and describes the reason for the closure.
+         * @remarks The response and exception callbacks may be called synchronously (from the calling thread); in
+         * particular, this occurs when you call close on a connection that is already closed. The implementation always
+         * calls one of the two callbacks once; it never calls both.
+         * If closing the connection takes longer than the configured close timeout, the connection is aborted with a
+         * CloseTimeoutException.
+         */
+        virtual void
+        close(std::function<void()> response, std::function<void(std::exception_ptr)> exception) noexcept = 0;
+
+        /**
+         * Starts a graceful closure of this connection once all outstanding invocations have completed.
+         * @return A future that completes then the connection is closed.
+         */
+        std::future<void> close();
 
         /**
          * Create a special proxy that always uses this connection. This can be used for callbacks from a server to a

@@ -100,7 +100,7 @@ function allTests($helper)
             {
                 unset($names[$key]);
             }
-            $test1->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+            $test1->ice_getConnection()->close();
         }
 
         //
@@ -121,7 +121,7 @@ function allTests($helper)
 
             foreach($adapters as $p)
             {
-                $p->getTestIntf()->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+                $p->getTestIntf()->ice_getConnection()->close();
             }
         }
 
@@ -149,7 +149,7 @@ function allTests($helper)
             {
                 unset($names[$key]);
             }
-            $test1->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+            $test1->ice_getConnection()->close();
         }
 
         //
@@ -183,7 +183,7 @@ function allTests($helper)
             {
                 unset($names[$key]);
             }
-            $test->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+            $test->ice_getConnection()->close();
         }
 
         $test = $test->ice_endpointSelection(Ice\EndpointSelectionType::Random);
@@ -197,7 +197,7 @@ function allTests($helper)
             {
                 unset($names[$key]);
             }
-            $test->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+            $test->ice_getConnection()->close();
         }
 
         deactivate($com, $adapters);
@@ -254,11 +254,11 @@ function allTests($helper)
         $adapters[] = $com->createObjectAdapter("Adapter36", $endpoints[2]->toString());
         for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter36"; $i++);
         test($i == $nRetry);
-        $test->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+        $test->ice_getConnection()->close();
         $adapters[] = $com->createObjectAdapter("Adapter35", $endpoints[1]->toString());
         for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter35"; $i++);
         test($i == $nRetry);
-        $test->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+        $test->ice_getConnection()->close();
         $adapters[] = $com->createObjectAdapter("Adapter34", $endpoints[0]->toString());
         for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter34"; $i++);
         test($i == $nRetry);
@@ -440,7 +440,7 @@ function allTests($helper)
             for($i = 0; $i < 5; $i++)
             {
                 test($test->getAdapterName() == "Adapter82");
-                $test->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+                $test->ice_getConnection()->close();
             }
 
             $testSecure = $test->ice_secure(true);
@@ -456,7 +456,7 @@ function allTests($helper)
             for($i = 0; $i < 5; $i++)
             {
                 test($test->getAdapterName() == "Adapter81");
-                $test->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+                $test->ice_getConnection()->close();
             }
 
             $endpts = $test->ice_getEndpoints();
@@ -465,7 +465,7 @@ function allTests($helper)
             for($i = 0; $i < 5; $i++)
             {
                 test($test->getAdapterName() == "Adapter83");
-                $test->ice_getConnection()->close(Ice\ConnectionClose::GracefullyWithWait);
+                $test->ice_getConnection()->close();
             }
 
             $com->deactivateObjectAdapter($adapters[0]);

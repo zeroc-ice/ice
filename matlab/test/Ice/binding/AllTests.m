@@ -98,7 +98,7 @@ classdef AllTests
                 if ~isempty(pos)
                     names(pos) = []; % Using the () syntax removes the element from the cell array.
                 end
-                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                test1.ice_getConnection().close().fetchOutputs();
             end
 
             %
@@ -119,7 +119,7 @@ classdef AllTests
             assert(i == nRetry);
 
             for i = 1:length(adapters)
-                adapters{i}.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                adapters{i}.getTestIntf().ice_getConnection().close().fetchOutputs();
             end
 
             %
@@ -145,7 +145,7 @@ classdef AllTests
                 if ~isempty(pos)
                     names(pos) = []; % Using the () syntax removes the element from the cell array.
                 end
-                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                test1.ice_getConnection().close().fetchOutputs();
             end
 
             %
@@ -232,7 +232,7 @@ classdef AllTests
 
                 for i = 1:length(adapters)
                     try
-                        adapters{i}.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        adapters{i}.getTestIntf().ice_getConnection().close().fetchOutputs();
                     catch ex
                         if isa(ex, 'Ice.LocalException')
                             % Expected if adapter is down.
@@ -273,7 +273,7 @@ classdef AllTests
                 if ~isempty(pos)
                     names(pos) = []; % Using the () syntax removes the element from the cell array.
                 end
-                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                test1.ice_getConnection().close().fetchOutputs();
             end
 
             %
@@ -294,7 +294,7 @@ classdef AllTests
             assert(i == nRetry);
 
             for i = 1:length(adapters)
-                adapters{i}.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                adapters{i}.getTestIntf().ice_getConnection().close().fetchOutputs();
             end
 
             %
@@ -320,7 +320,7 @@ classdef AllTests
                 if ~isempty(pos)
                     names(pos) = []; % Using the () syntax removes the element from the cell array.
                 end
-                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                test1.ice_getConnection().close().fetchOutputs();
             end
 
             %
@@ -351,7 +351,7 @@ classdef AllTests
                 if ~isempty(pos)
                     names(pos) = []; % Using the () syntax removes the element from the cell array.
                 end
-                test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                test.ice_getConnection().close().fetchOutputs();
             end
 
             test = test.ice_endpointSelection(Ice.EndpointSelectionType.Random);
@@ -363,7 +363,7 @@ classdef AllTests
                 if ~isempty(pos)
                     names(pos) = []; % Using the () syntax removes the element from the cell array.
                 end
-                test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                test.ice_getConnection().close().fetchOutputs();
             end
 
             AllTests.deactivate(rcom, adapters);
@@ -436,14 +436,14 @@ classdef AllTests
                 i = i + 1;
             end
             assert(i == nRetry);
-            test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            test.ice_getConnection().close().fetchOutputs();
             adapters{end + 1} = rcom.createObjectAdapter('Adapter35', endpoints{2}.toString());
             i = 0;
             while i < nRetry && strcmp(test.getAdapterName(), 'Adapter35')
                 i = i + 1;
             end
             assert(i == nRetry);
-            test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            test.ice_getConnection().close().fetchOutputs();
             adapters{end + 1} = rcom.createObjectAdapter('Adapter34', endpoints{1}.toString());
             i = 0;
             while i < nRetry && strcmp(test.getAdapterName(), 'Adapter34')
@@ -764,7 +764,7 @@ classdef AllTests
                 test = AllTests.createTestIntfPrx(adapters);
                 for i = 1:5
                     assert(strcmp(test.getAdapterName(), 'Adapter82'));
-                    test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    test.ice_getConnection().close().fetchOutputs();
                 end
 
                 testSecure = test.ice_secure(true);
@@ -779,7 +779,7 @@ classdef AllTests
 
                 for i = 1:5
                     assert(strcmp(test.getAdapterName(), 'Adapter81'));
-                    test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    test.ice_getConnection().close().fetchOutputs();
                 end
 
                 endpts = test.ice_getEndpoints();
@@ -787,7 +787,7 @@ classdef AllTests
 
                 for i = 1:5
                     assert(strcmp(test.getAdapterName(), 'Adapter83'));
-                    test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    test.ice_getConnection().close().fetchOutputs();
                 end
 
                 rcom.deactivateObjectAdapter(adapters{1});

@@ -24,7 +24,6 @@ require_once 'Ice/Value.php';
 
 require_once 'Ice/BuiltinSequences.php';
 require_once 'Ice/CompressBatch.php';
-require_once 'Ice/ConnectionClose.php';
 require_once 'Ice/EndpointSelectionType.php';
 require_once 'Ice/EndpointTypes.php';
 require_once 'Ice/Identity.php';

@@ -8,7 +8,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @interface ICEConnection : ICELocalObject
-- (void)close:(uint8_t)mode;
+- (void)abort;
+- (void)close:(void (^)(NSError* _Nullable error))completionHandler; // auto-mapped to Swift 'func close() async throws'
 - (nullable ICEObjectPrx*)createProxy:(NSString*)name
                              category:(NSString*)category
                                 error:(NSError* _Nullable* _Nullable)error;

@@ -802,7 +802,7 @@ allTests(TestHelper* helper, bool collocated)
             test(p->opBatchCount() == 0);
             auto b1 = p->ice_batchOneway();
             b1->opBatch();
-            b1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+            b1->ice_getConnection()->close().get();
 
             auto id = this_thread::get_id();
             promise<void> promise;
@@ -870,7 +870,7 @@ allTests(TestHelper* helper, bool collocated)
                 test(p->opBatchCount() == 0);
                 auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
-                b1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+                b1->ice_getConnection()->close().get();
 
                 promise<void> promise;
                 b1->ice_getConnection()->flushBatchRequestsAsync(
@@ -939,7 +939,7 @@ allTests(TestHelper* helper, bool collocated)
                 test(p->opBatchCount() == 0);
                 auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
-                b1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+                b1->ice_getConnection()->close().get();
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
@@ -1001,8 +1001,8 @@ allTests(TestHelper* helper, bool collocated)
                 b2->ice_getConnection(); // Ensure connection is established.
                 b1->opBatch();
                 b2->opBatch();
-                b1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
-                b2->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+                b1->ice_getConnection()->close().get();
+                b2->ice_getConnection()->close().get();
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
@@ -1077,7 +1077,7 @@ allTests(TestHelper* helper, bool collocated)
 
         if (p->ice_getConnection() && protocol != "bt" && p->supportsAMD())
         {
-            cout << "testing graceful close connection with wait... " << flush;
+            cout << "testing connection close... " << flush;
             {
                 //
                 // Local case: begin a request, close the connection gracefully, and make sure it waits
@@ -1091,7 +1091,7 @@ allTests(TestHelper* helper, bool collocated)
                 p->sleepAsync(100, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });
                 auto f = s->get_future();
                 // Blocks until the request completes.
-                con->close(ConnectionClose::GracefullyWithWait);
+                con->close().get();
                 f.get(); // Should complete successfully.
                 fc.get();
             }
@@ -1176,60 +1176,7 @@ allTests(TestHelper* helper, bool collocated)
             }
             cout << "ok" << endl;
 
-            cout << "testing graceful close connection without wait... " << flush;
-            {
-                //
-                // Local case: start an operation and then close the connection gracefully on the client side
-                // without waiting for the pending invocation to complete. There will be no retry and we expect the
-                // invocation to fail with ConnectionClosedException.
-                //
-                p = p->ice_connectionId("CloseGracefully"); // Start with a new connection.
-                auto con = p->ice_getConnection();
-                auto s = make_shared<promise<void>>();
-                auto sent = make_shared<promise<void>>();
-                p->startDispatchAsync(
-                    [s]() { s->set_value(); },
-                    [s](exception_ptr ex) { s->set_exception(ex); },
-                    [sent](bool) { sent->set_value(); });
-                auto f = s->get_future();
-                sent->get_future().get(); // Ensure the request was sent before we close the connection.
-                con->close(ConnectionClose::Gracefully);
-                try
-                {
-                    f.get();
-                    test(false);
-                }
-                catch (const ConnectionClosedException& ex)
-                {
-                    test(ex.closedByApplication());
-                }
-                p->finishDispatch();
-
-                //
-                // Remote case: the server closes the connection gracefully, which means the connection
-                // will not be closed until all pending dispatched requests have completed.
-                //
-                con = p->ice_getConnection();
-                auto sc = make_shared<promise<void>>();
-                con->setCloseCallback([sc](ConnectionPtr) { sc->set_value(); });
-                auto fc = sc->get_future();
-                s = make_shared<promise<void>>();
-                p->sleepAsync(100, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });
-                f = s->get_future();
-                p->close(CloseMode::Gracefully); // Close is delayed until sleep completes.
-                fc.get();                        // Ensure connection was closed.
-                try
-                {
-                    f.get();
-                }
-                catch (const Ice::LocalException&)
-                {
-                    test(false);
-                }
-            }
-            cout << "ok" << endl;
-
-            cout << "testing forceful close connection... " << flush;
+            cout << "testing connection abort... " << flush;
             {
                 //
                 // Local case: start a lengthy operation and then close the connection forcefully on the client side.
@@ -1245,7 +1192,7 @@ allTests(TestHelper* helper, bool collocated)
                     [sent](bool) { sent->set_value(); });
                 auto f = s->get_future();
                 sent->get_future().get(); // Ensure the request was sent before we close the connection.
-                con->close(ConnectionClose::Forcefully);
+                con->abort();
                 try
                 {
                     f.get();

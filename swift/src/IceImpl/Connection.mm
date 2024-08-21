@@ -16,9 +16,23 @@
     return std::static_pointer_cast<Ice::Connection>(self.cppObject);
 }
 
-- (void)close:(std::uint8_t)mode
+- (void)abort
 {
-    self.connection->close(Ice::ConnectionClose(mode));
+    self.connection->abort();
+}
+
+- (void)close:(void (^)(NSError* _Nullable error))completionHandler
+{
+    self.connection->close(
+        [completionHandler]() { completionHandler(nil); },
+        [completionHandler](std::exception_ptr closeException)
+        {
+            // TODO: explain why we need an autoreleasepool here.
+            @autoreleasepool
+            {
+                completionHandler(convertException(closeException));
+            }
+        });
 }
 
 - (nullable ICEObjectPrx*)createProxy:(NSString*)name category:(NSString*)category error:(NSError**)error

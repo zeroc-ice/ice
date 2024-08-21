@@ -17,7 +17,7 @@ MetricsI::op(const Current&)
 void
 MetricsI::fail(const Current& current)
 {
-    current.con->close(ConnectionClose::Forcefully);
+    current.con->abort();
 }
 
 void

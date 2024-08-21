@@ -468,43 +468,76 @@ Ice::ConnectionI::destroy(DestructionReason reason)
 }
 
 void
-Ice::ConnectionI::close(ConnectionClose mode) noexcept
+Ice::ConnectionI::abort() noexcept
 {
-    std::unique_lock lock(_mutex);
+    std::lock_guard lock(_mutex);
+    setState(
+        StateClosed,
+        make_exception_ptr(
+            ConnectionAbortedException{__FILE__, __LINE__, "connection aborted by the application", true}));
+}
 
-    if (mode == ConnectionClose::Forcefully)
+void
+Ice::ConnectionI::close(function<void()> response, function<void(std::exception_ptr)> exception) noexcept
+{
+    std::exception_ptr closeException = nullptr;
     {
-        setState(
-            StateClosed,
-            make_exception_ptr(
-                ConnectionAbortedException{__FILE__, __LINE__, "connection aborted by the application", true}));
+        std::lock_guard lock(_mutex);
+        if (_state >= StateClosed)
+        {
+            closeException = _exception;
+            assert(closeException);
+        }
+        else
+        {
+            if (response || exception)
+            {
+                _onClosedList.push_back(make_pair(std::move(response), std::move(exception)));
+            }
+
+            if (_state < StateClosing)
+            {
+                if (_asyncRequests.empty())
+                {
+                    doApplicationClose();
+                }
+                else
+                {
+                    // We'll close the connection when we get the last reply message.
+                    _closeRequested = true;
+                    scheduleCloseTimerTask(); // we don't want to wait forever
+                }
+            }
+            // else nothing to do
+        }
     }
-    else if (mode == ConnectionClose::Gracefully)
-    {
-        setState(
-            StateClosing,
-            make_exception_ptr(ConnectionClosedException{
-                __FILE__,
-                __LINE__,
-                "connection closed gracefully by the application",
-                true}));
-    }
-    else
-    {
-        assert(mode == ConnectionClose::GracefullyWithWait);
 
-        //
-        // Wait until all outstanding requests have been completed.
-        //
-        _conditionVariable.wait(lock, [this] { return _asyncRequests.empty(); });
-
-        setState(
-            StateClosing,
-            make_exception_ptr(ConnectionClosedException{
-                __FILE__,
-                __LINE__,
-                "connection closed gracefully by the application",
-                true}));
+    if (closeException) // already closed
+    {
+        try
+        {
+            rethrow_exception(closeException);
+        }
+        catch (const ConnectionClosedException&)
+        {
+            response();
+        }
+        catch (const CloseConnectionException&)
+        {
+            response();
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            response();
+        }
+        catch (const ObjectAdapterDeactivatedException&)
+        {
+            response();
+        }
+        catch (...)
+        {
+            exception(closeException);
+        }
     }
 }
 
@@ -1688,6 +1721,54 @@ Ice::ConnectionI::finish(bool close)
     _readStream.clear();
     _readStream.b.clear();
 
+    if (!_onClosedList.empty())
+    {
+        bool success;
+        try
+        {
+            rethrow_exception(_exception);
+        }
+        catch (const ConnectionClosedException&)
+        {
+            success = true;
+        }
+        catch (const CloseConnectionException&)
+        {
+            success = true;
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            success = true;
+        }
+        catch (const ObjectAdapterDeactivatedException&)
+        {
+            success = true;
+        }
+        catch (...)
+        {
+            success = false;
+        }
+
+        for (auto& pair : _onClosedList)
+        {
+            if (success)
+            {
+                if (pair.first)
+                {
+                    pair.first();
+                }
+            }
+            else
+            {
+                if (pair.second)
+                {
+                    pair.second(_exception);
+                }
+            }
+        }
+        _onClosedList.clear(); // break potential cycles
+    }
+
     if (_closeCallback)
     {
         closeCallback(_closeCallback);
@@ -2177,10 +2258,7 @@ Ice::ConnectionI::initiateShutdown()
         os.write(static_cast<uint8_t>(1)); // compression status: compression supported but not used.
         os.write(headerSize);              // Message size.
 
-        if (_closeTimeout > chrono::seconds::zero())
-        {
-            _timer->schedule(make_shared<CloseTimerTask>(shared_from_this()), _closeTimeout);
-        }
+        scheduleCloseTimerTask();
 
         OutgoingMessage message(&os, false);
         if (sendMessage(message) & AsyncStatusSent)
@@ -3098,10 +3176,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     SocketOperation op = _transceiver->closing(false, _exception);
                     if (op)
                     {
-                        if (_closeTimeout > chrono::seconds::zero())
-                        {
-                            _timer->schedule(make_shared<CloseTimerTask>(shared_from_this()), _closeTimeout);
-                        }
+                        scheduleCloseTimerTask();
                         return op;
                     }
                     setState(StateClosed);
@@ -3245,7 +3320,10 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                         };
                         ++upcallCount;
                     }
-                    _conditionVariable.notify_all(); // Notify threads blocked in close(false)
+                    if (_closeRequested && _state < StateClosing && _asyncRequests.empty())
+                    {
+                        doApplicationClose();
+                    }
                 }
 
                 break;
@@ -3439,4 +3517,28 @@ ConnectionI::cancelInactivityTimerTask()
         _inactivityTimerTaskScheduled = false;
         _timer->cancel(_inactivityTimerTask);
     }
+}
+
+void
+ConnectionI::scheduleCloseTimerTask()
+{
+    // Called with the ConnectionI mutex locked.
+
+    if (_closeTimeout > chrono::seconds::zero())
+    {
+        // We schedule a new task every time this function is called.
+        _timer->schedule(make_shared<CloseTimerTask>(shared_from_this()), _closeTimeout);
+    }
+}
+
+void
+ConnectionI::doApplicationClose() noexcept
+{
+    // Called with the ConnectionI mutex locked.
+    assert(_state < StateClosing);
+
+    setState(
+        StateClosing,
+        make_exception_ptr(
+            ConnectionClosedException{__FILE__, __LINE__, "connection closed gracefully by the application", true}));
 }

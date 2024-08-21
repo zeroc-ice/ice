@@ -233,7 +233,7 @@ namespace
         {
             if (proxy->ice_getCachedConnection())
             {
-                proxy->ice_getCachedConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+                proxy->ice_getCachedConnection()->close().get();
             }
             try
             {
@@ -244,7 +244,7 @@ namespace
             }
             if (proxy->ice_getCachedConnection())
             {
-                proxy->ice_getCachedConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+                proxy->ice_getCachedConnection()->close().get();
             }
         }
 
@@ -478,8 +478,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     if (!collocated)
     {
-        metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-        metrics->ice_connectionId("Con1")->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        metrics->ice_getConnection()->close().get();
+        metrics->ice_connectionId("Con1")->ice_getConnection()->close().get();
 
         waitForCurrent(clientMetrics, "View", "Connection", 0);
         waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -594,7 +594,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["holding"]->current == 1);
 
-        metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        metrics->ice_getConnection()->close(nullptr, nullptr);
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["closing"]->current == 1);
@@ -609,7 +609,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
         updateProps(clientProps, serverProps, update.get(), props, "Connection");
 
-        metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        metrics->ice_getConnection()->close().get();
 
         // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the connection.
         this_thread::sleep_for(chrono::milliseconds(100));
@@ -638,7 +638,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastHost", "");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastPort", "");
 
-        m->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        m->ice_getConnection()->close().get();
 
         waitForCurrent(clientMetrics, "View", "Connection", 0);
         waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -657,7 +657,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         IceMX::MetricsPtr m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][0];
         test(m1->current == 0 && m1->total == 1 && m1->id == hostAndPort);
 
-        metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        metrics->ice_getConnection()->close().get();
         controller->hold();
         try
         {
@@ -742,7 +742,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         try
         {
             prx->ice_ping();
-            prx->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+            prx->ice_getConnection()->close().get();
         }
         catch (const Ice::LocalException&)
         {

@@ -18,7 +18,7 @@ RetryI::op(bool kill, const Ice::Current& current)
     {
         if (current.con)
         {
-            current.con->close(Ice::ConnectionClose::Forcefully);
+            current.con->abort();
         }
         else
         {
