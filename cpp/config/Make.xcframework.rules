@@ -7,19 +7,32 @@
 
 define create-xcframework-from-library
 
-$3/$1.xcframework: $1
-	$(E) Creating $3/$1.xcframework
+lib/$1.xcframework: $1[macosx-static]
+	$(E) Creating lib/$1.xcframework
 	$(Q)$(RM) -r $3/$1.xcframework
-	$(Q)xcodebuild -create-xcframework -library $(top_srcdir)/cpp/lib/lib$1.a -headers $(top_srcdir)/cpp/include -output $3/$1.xcframework
+	$(Q)xcodebuild -create-xcframework -library $(top_srcdir)/cpp/lib/lib$1.a -headers $(top_srcdir)/cpp/include -output lib/$1.xcframework
 
-src all:: $3/$1.xcframework
+src all:: lib/$1.xcframework
+
+clean::
+	$(E) Cleaning lib/$1.xcframework
+	$(Q)$(RM) -r lib/$1.xcframework
 
 endef
 
 xcframeworks	= Ice IceDiscovery IceLocatorDiscovery
 
 $(eval $(call create-xcframework-from-library,Ice,arm64,$(top_srcdir)/cpp/lib))
-$(eval $(call create-xcframework-from-library,IceDiscovery,arm64,$(top_srcdir)/cpp/lib))
-$(eval $(call create-xcframework-from-library,IceLocatorDiscovery,arm64,$(top_srcdir)/cpp/lib))
+# $(eval $(call create-xcframework-from-library,IceDiscovery,arm64,$(top_srcdir)/cpp/lib))
+# $(eval $(call create-xcframework-from-library,IceLocatorDiscovery,arm64,$(top_srcdir)/cpp/lib))
 
 # $(call make-projects,xcodesdk)
+
+define make-cats-project
+
+cats:
+	$(E) "Making cats"
+
+all:: cats
+
+endef
