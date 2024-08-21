@@ -259,18 +259,17 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         cacheMessageBuffers();
       }
 
-      boolean invoke = (!alreadySent && _sentFuture != null || done) && !_synchronous;
-      if (!invoke && done && _observer != null) {
-        _observer.detach();
-        _observer = null;
-      }
-      ;
+      if (_synchronous && done) {
+        if (_observer != null) {
+          _observer.detach();
+          _observer = null;
+        }
 
-      if (!invoke && done) {
         markCompleted();
         return false;
       } else {
         this.notifyAll();
+        boolean invoke = (!alreadySent && _sentFuture != null || done) && !_synchronous;
         return invoke;
       }
     }
