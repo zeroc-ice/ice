@@ -21,7 +21,7 @@ import com.zeroc.Ice.RequestFailedException;
 // correct notified of failures and make sure the retry task is
 // correctly canceled when the invocation completes.
 //
-public abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBaseI<T> {
+public abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
   public abstract int invokeRemote(
       com.zeroc.Ice.ConnectionI con, boolean compress, boolean response) throws RetryException;
 

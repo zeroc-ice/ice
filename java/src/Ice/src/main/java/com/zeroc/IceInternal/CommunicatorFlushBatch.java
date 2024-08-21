@@ -25,7 +25,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void> {
 
   public void flushConnection(
       final com.zeroc.Ice.ConnectionI con, final com.zeroc.Ice.CompressBatch compressBatch) {
-    class FlushBatch extends OutgoingAsyncBaseI<Void> {
+    class FlushBatch extends OutgoingAsyncBase<Void> {
       public FlushBatch() {
         super(
             CommunicatorFlushBatch.this.getCommunicator(),
