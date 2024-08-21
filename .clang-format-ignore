@@ -1,3 +1,8 @@
+cpp/include/generated
+
+cpp/src/**/msbuild/*
+cpp/test/**/msbuild/*
+
 cpp/src/Slice/Grammar.h
 cpp/src/Slice/Grammar.cpp
 cpp/src/Slice/Scanner.cpp
@@ -7,3 +12,6 @@ cpp/src/IceGrid/Scanner.cpp
 cpp/src/IceStorm/Grammar.h
 cpp/src/IceStorm/Grammar.cpp
 cpp/src/IceStorm/Scanner.cpp
+
+cpp/src/Ice/PropertyNames.h
+cpp/src/Ice/PropertyNames.cpp
