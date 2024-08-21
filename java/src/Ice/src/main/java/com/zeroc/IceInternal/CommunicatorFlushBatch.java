@@ -6,7 +6,7 @@ package com.zeroc.IceInternal;
 
 import java.util.concurrent.Callable;
 
-public class CommunicatorFlushBatch extends InvocationFutureI<Void> {
+public class CommunicatorFlushBatch extends com.zeroc.Ice.InvocationFuture<Void> {
   public CommunicatorFlushBatch(com.zeroc.Ice.Communicator communicator, Instance instance) {
     super(communicator, instance, "flushBatchRequests");
 

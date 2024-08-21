@@ -9,7 +9,7 @@ package com.zeroc.IceInternal;
 // responsible for the handling of the output stream and the child
 // invocation observer.
 //
-public abstract class OutgoingAsyncBase<T> extends InvocationFutureI<T> {
+public abstract class OutgoingAsyncBase<T> extends com.zeroc.Ice.InvocationFuture<T> {
   public boolean sent() {
     return sent(true);
   }
