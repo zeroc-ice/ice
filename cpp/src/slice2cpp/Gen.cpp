@@ -731,7 +731,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     H << "\n#include <Ice/PushDisableWarnings.h>";
 
-    if (!dc->hasMetadataDirective("cpp:no-default-include"))
+    if (!dc->hasMetadata("cpp:no-default-include"))
     {
         H << "\n#include <Ice/Ice.h>";
     }
@@ -794,7 +794,7 @@ Slice::Gen::generate(const UnitPtr& p)
         dc->setMetadata(fileMetadata);
     }
 
-    if (!dc->hasMetadataDirective("cpp:no-default-include"))
+    if (!dc->hasMetadata("cpp:no-default-include"))
     {
         // For simplicity, we include these extra headers all the time.
 
@@ -844,7 +844,7 @@ Slice::Gen::generate(const UnitPtr& p)
         InterfaceVisitor interfaceVisitor(H, C, _dllExport);
         p->visit(&interfaceVisitor);
 
-        if (!dc->hasMetadataDirective("cpp:no-stream"))
+        if (!dc->hasMetadata("cpp:no-stream"))
         {
             StreamVisitor streamVisitor(H);
             p->visit(&streamVisitor);
