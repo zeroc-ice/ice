@@ -70,11 +70,7 @@ namespace Slice
     struct ConstDefTok final : public GrammarBase
     {
         ConstDefTok() {}
-        ConstDefTok(SyntaxTreeBasePtr value, std::string stringValue)
-            : v(value),
-              valueAsString(stringValue)
-        {
-        }
+        ConstDefTok(SyntaxTreeBasePtr value, std::string stringValue) : v(value), valueAsString(stringValue) {}
 
         SyntaxTreeBasePtr v;
         std::string valueAsString;

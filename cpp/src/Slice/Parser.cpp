@@ -2631,8 +2631,14 @@ Slice::ClassDef::createDataMember(
         }
     }
 
-    DataMemberPtr member = make_shared<
-        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv);
+    DataMemberPtr member = make_shared<DataMember>(
+        dynamic_pointer_cast<Container>(shared_from_this()),
+        name,
+        type,
+        optional,
+        tag,
+        dlt,
+        dv);
     member->init();
     _contents.push_back(member);
     return member;
@@ -3342,8 +3348,14 @@ Slice::Exception::createDataMember(
         }
     }
 
-    DataMemberPtr p = make_shared<
-        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv);
+    DataMemberPtr p = make_shared<DataMember>(
+        dynamic_pointer_cast<Container>(shared_from_this()),
+        name,
+        type,
+        optional,
+        tag,
+        dlt,
+        dv);
     p->init();
     _contents.push_back(p);
     return p;
@@ -3575,8 +3587,14 @@ Slice::Struct::createDataMember(
         }
     }
 
-    DataMemberPtr p = make_shared<
-        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv);
+    DataMemberPtr p = make_shared<DataMember>(
+        dynamic_pointer_cast<Container>(shared_from_this()),
+        name,
+        type,
+        optional,
+        tag,
+        dlt,
+        dv);
     p->init();
     _contents.push_back(p);
     return p;

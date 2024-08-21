@@ -550,7 +550,7 @@ namespace Slice
             bool,
             int,
             const SyntaxTreeBasePtr&,
-            const std::string&);
+            const std::string& defaultValue);
         ClassDeclPtr declaration() const;
         ClassDefPtr base() const;
         ClassList allBases() const;
@@ -715,7 +715,7 @@ namespace Slice
             bool,
             int,
             const SyntaxTreeBasePtr&,
-            const std::string&);
+            const std::string& defaultValue);
         DataMemberList dataMembers() const;
         DataMemberList orderedOptionalDataMembers() const;
         DataMemberList allDataMembers() const;
@@ -750,7 +750,7 @@ namespace Slice
             bool,
             int,
             const SyntaxTreeBasePtr&,
-            const std::string&);
+            const std::string& defaultValue);
         DataMemberList dataMembers() const;
         DataMemberList classDataMembers() const;
         bool usesClasses() const final;
