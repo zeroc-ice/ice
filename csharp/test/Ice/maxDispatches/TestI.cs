@@ -12,7 +12,7 @@ internal sealed class TestIntfI : Test.TestIntfDisp_
 
     public override async Task opAsync(Current current)
     {
-        lock(_mutex)
+        lock (_mutex)
         {
             if (++_dispatchCount > _maxDispatchCount)
             {
@@ -20,7 +20,7 @@ internal sealed class TestIntfI : Test.TestIntfDisp_
             }
         }
         await Task.Delay(TimeSpan.FromMilliseconds(50));
-        lock(_mutex)
+        lock (_mutex)
         {
             --_dispatchCount;
         }
