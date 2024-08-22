@@ -110,7 +110,7 @@ def allTests(helper, communicator):
         name = test1.getAdapterName()
         if names.count(name) > 0:
             names.remove(name)
-        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        test1.ice_getConnection().close()
 
     #
     # Ensure that the proxy correctly caches the connection (we
@@ -128,9 +128,7 @@ def allTests(helper, communicator):
     test(i == nRetry)
 
     for a in adapters:
-        a.getTestIntf().ice_getConnection().close(
-            Ice.ConnectionClose.GracefullyWithWait
-        )
+        a.getTestIntf().ice_getConnection().close()
 
     #
     # Deactivate an adapter and ensure that we can still
@@ -154,7 +152,7 @@ def allTests(helper, communicator):
         name = test1.getAdapterName()
         if names.count(name) > 0:
             names.remove(name)
-        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        test1.ice_getConnection().close()
 
     #
     # Deactivate an adapter and ensure that we can still
@@ -196,7 +194,7 @@ def allTests(helper, communicator):
         name = getAdapterNameWithAMI(test1)
         if names.count(name) > 0:
             names.remove(name)
-        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        test1.ice_getConnection().close()
 
     #
     # Ensure that the proxy correctly caches the connection (we
@@ -214,9 +212,7 @@ def allTests(helper, communicator):
     test(i == nRetry)
 
     for a in adapters:
-        a.getTestIntf().ice_getConnection().close(
-            Ice.ConnectionClose.GracefullyWithWait
-        )
+        a.getTestIntf().ice_getConnection().close()
 
     #
     # Deactivate an adapter and ensure that we can still
@@ -240,7 +236,7 @@ def allTests(helper, communicator):
         name = getAdapterNameWithAMI(test1)
         if names.count(name) > 0:
             names.remove(name)
-        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        test1.ice_getConnection().close()
 
     #
     # Deactivate an adapter and ensure that we can still
@@ -270,7 +266,7 @@ def allTests(helper, communicator):
         name = t.getAdapterName()
         if names.count(name) > 0:
             names.remove(name)
-        t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        t.ice_getConnection().close()
 
     t = t.ice_endpointSelection(Ice.EndpointSelectionType.Random)
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
@@ -282,7 +278,7 @@ def allTests(helper, communicator):
         name = t.getAdapterName()
         if names.count(name) > 0:
             names.remove(name)
-        t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        t.ice_getConnection().close()
 
     deactivate(com, adapters)
 
@@ -341,13 +337,13 @@ def allTests(helper, communicator):
     while i < nRetry and t.getAdapterName() == "Adapter36":
         i = i + 1
     test(i == nRetry)
-    t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+    t.ice_getConnection().close()
     adapters.append(com.createObjectAdapter("Adapter35", endpoints[1].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter35":
         i = i + 1
     test(i == nRetry)
-    t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+    t.ice_getConnection().close()
     adapters.append(com.createObjectAdapter("Adapter34", endpoints[0].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter34":
@@ -624,7 +620,7 @@ def allTests(helper, communicator):
         t = createTestIntfPrx(adapters)
         for i in range(0, 5):
             test(t.getAdapterName() == "Adapter82")
-            t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+            t.ice_getConnection().close()
 
         testSecure = t.ice_secure(True)
         test(testSecure.ice_isSecure())
@@ -638,7 +634,7 @@ def allTests(helper, communicator):
 
         for i in range(0, 5):
             test(t.getAdapterName() == "Adapter81")
-            t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+            t.ice_getConnection().close()
 
         com.createObjectAdapter(
             "Adapter83", (t.ice_getEndpoints()[1]).toString()
@@ -646,7 +642,7 @@ def allTests(helper, communicator):
 
         for i in range(0, 5):
             test(t.getAdapterName() == "Adapter83")
-            t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+            t.ice_getConnection().close()
 
         com.deactivateObjectAdapter(adapters[0])
         try:

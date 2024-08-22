@@ -32,7 +32,7 @@ classdef BatchOnewaysAMI
                 batch.ice_pingAsync();
                 batch2.ice_pingAsync();
                 assert(batch.ice_flushBatchRequestsAsync().wait());
-                batch.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                batch.ice_getConnection().close().fetchOutputs();
                 batch.ice_pingAsync();
                 batch2.ice_pingAsync();
 
@@ -40,7 +40,7 @@ classdef BatchOnewaysAMI
                 batch2.ice_getConnection();
 
                 batch.ice_pingAsync();
-                batch.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                batch.ice_getConnection().close().fetchOutputs();
                 assert(batch.ice_pingAsync().wait());
                 assert(batch2.ice_pingAsync().wait());
             end

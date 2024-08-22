@@ -124,7 +124,7 @@ func allTests(_ helper: TestHelper) async throws {
     //         if (i % 100) == 0 {
     //             try await completed.value
     //             try holdSerialized.ice_ping()  // Ensure everything's dispatched.
-    //             try holdSerialized.ice_getConnection()!.close(.GracefullyWithWait)
+    //             try holdSerialized.ice_getConnection()!.close()
     //         }
     //     }
     //     try await completed.value

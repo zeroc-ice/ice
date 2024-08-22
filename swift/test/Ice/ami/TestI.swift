@@ -137,10 +137,12 @@ class TestI: TestIntf {
     }
 
     func close(mode: CloseMode, current: Current) async throws {
-        if let con = current.con,
-            let closeMode = ConnectionClose(rawValue: mode.rawValue)
-        {
-            try con.close(closeMode)
+        if let con = current.con {
+            if mode == .Forcefully {
+                con.abort()
+            } else {
+                async let _ = con.close()
+            }
         }
     }
 

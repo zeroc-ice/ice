@@ -1020,7 +1020,7 @@ data_member
     DataMemberPtr dm;
     if (cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "", "");
+        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "");
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
@@ -1028,17 +1028,17 @@ data_member
         if (def->isOptional)
         {
             currentUnit->error("optional data members are not supported in structs");
-            dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
+            dm = st->createDataMember(def->name, def->type, false, 0, 0, ""); // Dummy
         }
         else
         {
-            dm = st->createDataMember(def->name, def->type, false, -1, 0, "", "");
+            dm = st->createDataMember(def->name, def->type, false, -1, 0, "");
         }
     }
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "", "");
+        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "");
     }
     currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
@@ -1051,8 +1051,7 @@ data_member
     DataMemberPtr dm;
     if (cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v,
-                                  value->valueAsString, value->valueAsLiteral);
+        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v, value->valueAsString);
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
@@ -1060,19 +1059,17 @@ data_member
         if (def->isOptional)
         {
             currentUnit->error("optional data members are not supported in structs");
-            dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
+            dm = st->createDataMember(def->name, def->type, false, 0, 0, ""); // Dummy
         }
         else
         {
-            dm = st->createDataMember(def->name, def->type, false, -1, value->v,
-                                      value->valueAsString, value->valueAsLiteral);
+            dm = st->createDataMember(def->name, def->type, false, -1, value->v, value->valueAsString);
         }
     }
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v,
-                                  value->valueAsString, value->valueAsLiteral);
+        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v, value->valueAsString);
     }
     currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
@@ -1084,17 +1081,17 @@ data_member
     auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     if (cl)
     {
-        $$ = cl->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+        $$ = cl->createDataMember(name, type, false, 0, 0, ""); // Dummy
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
     {
-        $$ = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+        $$ = st->createDataMember(name, type, false, 0, 0, ""); // Dummy
     }
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        $$ = ex->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+        $$ = ex->createDataMember(name, type, false, 0, 0, ""); // Dummy
     }
     assert($$);
     currentUnit->error("keyword `" + name + "' cannot be used as data member name");
@@ -1105,17 +1102,17 @@ data_member
     auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     if (cl)
     {
-        $$ = cl->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        $$ = cl->createDataMember(Ice::generateUUID(), type, false, 0, 0, ""); // Dummy
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
     {
-        $$ = st->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        $$ = st->createDataMember(Ice::generateUUID(), type, false, 0, 0, ""); // Dummy
     }
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        $$ = ex->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        $$ = ex->createDataMember(Ice::generateUUID(), type, false, 0, 0, ""); // Dummy
     }
     assert($$);
     currentUnit->error("missing data member name");
@@ -1453,7 +1450,7 @@ interface_list
 | ICE_VALUE
 {
     currentUnit->error("illegal inheritance from type Value");
-    $$ = make_shared<ClassListTok>(); // Dummy
+    $$ = make_shared<InterfaceListTok>(); // Dummy
 }
 ;
 
@@ -2021,7 +2018,7 @@ const_initializer
     auto intVal = dynamic_pointer_cast<IntegerTok>($1);
     ostringstream sstr;
     sstr << intVal->v;
-    auto def = make_shared<ConstDefTok>(type, sstr.str(), intVal->literal);
+    auto def = make_shared<ConstDefTok>(type, sstr.str());
     $$ = def;
 }
 | ICE_FLOATING_POINT_LITERAL
@@ -2030,7 +2027,7 @@ const_initializer
     auto floatVal = dynamic_pointer_cast<FloatingTok>($1);
     ostringstream sstr;
     sstr << floatVal->v;
-    auto def = make_shared<ConstDefTok>(type, sstr.str(), floatVal->literal);
+    auto def = make_shared<ConstDefTok>(type, sstr.str());
     $$ = def;
 }
 | scoped_name
@@ -2041,7 +2038,7 @@ const_initializer
     if (cl.empty())
     {
         // Could be an enumerator
-        def = make_shared<ConstDefTok>(nullptr, scoped->v, scoped->v);
+        def = make_shared<ConstDefTok>(nullptr, scoped->v);
     }
     else
     {
@@ -2050,12 +2047,12 @@ const_initializer
         if (enumerator)
         {
             currentUnit->currentContainer()->checkIntroduced(scoped->v, enumerator);
-            def = make_shared<ConstDefTok>(enumerator, scoped->v, scoped->v);
+            def = make_shared<ConstDefTok>(enumerator, scoped->v);
         }
         else if (constant)
         {
             currentUnit->currentContainer()->checkIntroduced(scoped->v, constant);
-            def = make_shared<ConstDefTok>(constant, constant->value(), constant->value());
+            def = make_shared<ConstDefTok>(constant, constant->value());
         }
         else
         {
@@ -2072,21 +2069,21 @@ const_initializer
 {
     BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindString);
     auto literal = dynamic_pointer_cast<StringTok>($1);
-    auto def = make_shared<ConstDefTok>(type, literal->v, literal->literal);
+    auto def = make_shared<ConstDefTok>(type, literal->v);
     $$ = def;
 }
 | ICE_FALSE
 {
     BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>($1);
-    auto def = make_shared<ConstDefTok>(type, "false", "false");
+    auto def = make_shared<ConstDefTok>(type, "false");
     $$ = def;
 }
 | ICE_TRUE
 {
     BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>($1);
-    auto def = make_shared<ConstDefTok>(type, "true", "true");
+    auto def = make_shared<ConstDefTok>(type, "true");
     $$ = def;
 }
 ;
@@ -2101,7 +2098,7 @@ const_def
     auto ident = dynamic_pointer_cast<StringTok>($4);
     auto value = dynamic_pointer_cast<ConstDefTok>($6);
     $$ = currentUnit->currentContainer()->createConst(ident->v, const_type, metadata->v, value->v,
-                                               value->valueAsString, value->valueAsLiteral);
+                                                      value->valueAsString);
 }
 | ICE_CONST metadata type '=' const_initializer
 {
@@ -2110,7 +2107,7 @@ const_def
     auto value = dynamic_pointer_cast<ConstDefTok>($5);
     currentUnit->error("missing constant name");
     $$ = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, metadata->v, value->v,
-                                               value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
+                                                      value->valueAsString, Dummy); // Dummy
 }
 ;
 

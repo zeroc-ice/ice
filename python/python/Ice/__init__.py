@@ -56,7 +56,6 @@ from .ImplicitContext import *
 from .EndpointSelectionType import *
 from .ObjectAdapter import *
 from .ValueFactory import *
-from .ConnectionClose import *
 from .CompressBatch import CompressBatch
 from .ServantLocator import *
 from .InitializationData import *

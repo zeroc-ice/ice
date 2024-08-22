@@ -170,7 +170,7 @@ allTests(Test::TestHelper* helper)
             {
                 completed->get_future().get();
                 holdSerialized->ice_ping(); // Ensure everything's dispatched
-                holdSerialized->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+                holdSerialized->ice_getConnection()->close().get();
             }
         }
         completed->get_future().get();

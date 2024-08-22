@@ -204,7 +204,7 @@ allTests(TestHelper* helper)
         configuration->buffered(true);
         backgroundController->buffered(true);
         background->opAsync();
-        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+        background->ice_getCachedConnection()->abort();
         background->opAsync();
 
         vector<future<void>> results;
@@ -247,7 +247,7 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
     {
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+    background->ice_getConnection()->close().get();
 
     for (int i = 0; i < 4; ++i)
     {
@@ -324,7 +324,7 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
 
         configuration->connectException(
             make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
-        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+        background->ice_getCachedConnection()->abort();
         this_thread::sleep_for(chrono::milliseconds(10));
         configuration->connectException(0);
         try
@@ -358,7 +358,7 @@ initializeTests(
         cerr << ex << endl;
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+    background->ice_getConnection()->close().get();
 
     for (int i = 0; i < 4; i++)
     {
@@ -421,7 +421,7 @@ initializeTests(
         cerr << ex << endl;
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+    background->ice_getConnection()->close().get();
 
     try
     {
@@ -434,7 +434,7 @@ initializeTests(
         cerr << ex << endl;
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+    background->ice_getConnection()->close().get();
 #endif
 
     //
@@ -468,7 +468,7 @@ initializeTests(
         cerr << ex << endl;
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+    background->ice_getConnection()->close().get();
 
     try
     {
@@ -509,7 +509,7 @@ initializeTests(
 
         configuration->initializeException(
             make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
-        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+        background->ice_getCachedConnection()->abort();
         this_thread::sleep_for(chrono::milliseconds(10));
         configuration->initializeException(0);
         try
@@ -530,12 +530,12 @@ initializeTests(
         }
 
         configuration->initializeSocketOperation(IceInternal::SocketOperationWrite);
-        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+        background->ice_getCachedConnection()->abort();
         background->ice_ping();
         configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
 
         ctl->initializeException(true);
-        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+        background->ice_getCachedConnection()->abort();
         this_thread::sleep_for(chrono::milliseconds(10));
         ctl->initializeException(false);
         try
@@ -559,11 +559,11 @@ initializeTests(
         {
 #if !defined(ICE_USE_IOCP) && !defined(ICE_USE_CFSTREAM)
             ctl->initializeSocketOperation(IceInternal::SocketOperationWrite);
-            background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+            background->ice_getCachedConnection()->abort();
             background->op();
             ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
 #else
-            background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+            background->ice_getCachedConnection()->abort();
             background->op();
 #endif
         }
@@ -595,7 +595,7 @@ validationTests(
     {
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+    background->ice_getConnection()->close().get();
 
     try
     {
@@ -645,7 +645,7 @@ validationTests(
             cerr << ex << endl;
             test(false);
         }
-        background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        background->ice_getConnection()->close().get();
 
         try
         {
@@ -761,7 +761,7 @@ validationTests(
             cerr << ex << endl;
             test(false);
         }
-        background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        background->ice_getConnection()->close().get();
 
         try
         {
@@ -839,7 +839,7 @@ validationTests(
     backgroundBatchOneway->op();
     ctl->resumeAdapter();
     backgroundBatchOneway->ice_flushBatchRequestsAsync();
-    backgroundBatchOneway->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+    backgroundBatchOneway->ice_getConnection()->close().get();
 
     ctl->holdAdapter();
     backgroundBatchOneway->opWithPayload(seq);
@@ -848,7 +848,7 @@ validationTests(
     backgroundBatchOneway->opWithPayload(seq);
     ctl->resumeAdapter();
     backgroundBatchOneway->ice_flushBatchRequestsAsync().get();
-    backgroundBatchOneway->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+    backgroundBatchOneway->ice_getConnection()->close().get();
 }
 
 void
@@ -1289,10 +1289,10 @@ readWriteTests(
         this_thread::sleep_for(chrono::milliseconds(10));
 
         background->ice_ping();
-        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+        background->ice_getCachedConnection()->abort();
         this_thread::sleep_for(chrono::milliseconds(10));
 
-        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+        background->ice_getCachedConnection()->abort();
     }
 
     opThread1->destroy();

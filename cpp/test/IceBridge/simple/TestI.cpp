@@ -85,11 +85,11 @@ MyClassI::closeConnection(bool forceful, const Ice::Current& current)
     checkConnection(current.con);
     if (forceful)
     {
-        current.con->close(Ice::ConnectionClose::Forcefully);
+        current.con->abort();
     }
     else
     {
-        current.con->close(Ice::ConnectionClose::Gracefully);
+        current.con->close(nullptr, nullptr);
     }
 }
 

@@ -12,7 +12,6 @@ require_relative 'Ice/Value.rb'
 
 require_relative 'Ice/BuiltinSequences.rb'
 require_relative 'Ice/CompressBatch.rb'
-require_relative 'Ice/ConnectionClose.rb'
 require_relative 'Ice/Context.rb'
 require_relative 'Ice/EndpointSelectionType.rb'
 require_relative 'Ice/EndpointTypes.rb'

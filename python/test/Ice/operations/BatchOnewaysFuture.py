@@ -56,7 +56,7 @@ def batchOneways(p):
         batch1.ice_pingAsync()
         batch2.ice_pingAsync()
         batch1.ice_flushBatchRequestsAsync().result()
-        batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        batch1.ice_getConnection().close()
         batch1.ice_pingAsync()
         batch2.ice_pingAsync()
 
@@ -64,7 +64,7 @@ def batchOneways(p):
         batch2.ice_getConnection()
 
         batch1.ice_pingAsync()
-        batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        batch1.ice_getConnection().close()
 
         test(batch1.ice_pingAsync().done() and not batch1.ice_pingAsync().exception())
         test(batch2.ice_pingAsync().done() and not batch1.ice_pingAsync().exception())

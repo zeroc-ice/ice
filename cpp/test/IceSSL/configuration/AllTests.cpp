@@ -431,7 +431,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         try
         {
             server->noCert();
-            server->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+            server->ice_getConnection()->close().get();
             server->noCert();
         }
         catch (const LocalException& ex)

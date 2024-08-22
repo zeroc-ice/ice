@@ -592,7 +592,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeConstructorParams(allMembers);
     _out << "):";
     _out.inc();
-    if (!base && !p->hasDataMembers())
+    if (!base && p->dataMembers().empty())
     {
         _out << nl << "pass";
     }

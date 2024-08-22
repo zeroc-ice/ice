@@ -96,7 +96,7 @@ allTests(Test::TestHelper* helper)
         {
             test(seq.size() > 16384);
         }
-        obj->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+        obj->ice_getConnection()->close().get();
         communicator->getProperties()->setProperty("Ice.UDP.SndSize", "64000");
         seq.resize(50000);
         try

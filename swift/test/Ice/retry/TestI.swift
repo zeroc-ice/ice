@@ -13,7 +13,7 @@ class RetryI: Retry {
     func op(kill: Bool, current: Ice.Current) async throws {
         if kill {
             if let con = current.con {
-                try con.close(.Forcefully)
+                con.abort()
             } else {
                 throw Ice.ConnectionLostException("op failed")
             }

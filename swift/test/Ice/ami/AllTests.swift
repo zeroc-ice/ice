@@ -134,7 +134,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             try await test(p.opBatchCount() == 0)
             let b1 = p.ice_batchOneway()
             try await b1.opBatch()
-            try await b1.ice_getConnection()!.close(.GracefullyWithWait)
+            try await b1.ice_getConnection()!.close()
 
             try await b1.ice_flushBatchRequests()
             try await test(p.waitForBatch(1))
@@ -158,7 +158,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             try await test(p.opBatchCount() == 0)
             let b1 = try await p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
             try await b1.opBatch()
-            try await b1.ice_getConnection()!.close(.GracefullyWithWait)
+            try await b1.ice_getConnection()!.close()
 
             do {
                 try await b1.ice_getConnection()!.flushBatchRequests(.BasedOnProxy)
@@ -189,7 +189,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             try await test(p.opBatchCount() == 0)
             let b1 = try await p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
             try await b1.opBatch()
-            try await b1.ice_getConnection()!.close(.GracefullyWithWait)
+            try await b1.ice_getConnection()!.close()
             try await communicator.flushBatchRequests(.BasedOnProxy)
             try await test(p.opBatchCount() == 0)
         }
@@ -224,7 +224,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             let b2 = p.ice_fixed(con).ice_batchOneway()
             try await b1.opBatch()
             try await b2.opBatch()
-            try await b1.ice_getConnection()!.close(.GracefullyWithWait)
+            try await b1.ice_getConnection()!.close()
             try await communicator.flushBatchRequests(.BasedOnProxy)
             try await test(p.waitForBatch(1))
         }
@@ -242,8 +242,8 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             let b2 = p.ice_fixed(con).ice_batchOneway()
             try await b1.opBatch()
             try await b2.opBatch()
-            try await b1.ice_getConnection()!.close(.GracefullyWithWait)
-            try await b2.ice_getConnection()!.close(.GracefullyWithWait)
+            try await b1.ice_getConnection()!.close()
+            try await b2.ice_getConnection()!.close()
             try await communicator.flushBatchRequests(.BasedOnProxy)
             try await test(p.opBatchCount() == 0)
         }
@@ -251,7 +251,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     }
 
     if try await p.ice_getConnection() != nil, try await p.supportsAMD() {
-        output.write("testing graceful close connection with wait... ")
+        output.write("testing connection close... ")
         do {
             //
             // Local case: begin a request, close the connection gracefully, and make sure it waits
@@ -271,7 +271,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
 
             let p1 = p
             async let r = Task { try await p1.sleep(100) }
-            try con.close(.GracefullyWithWait)
+            try await con.close()
             try await r.value  // Should complete successfully.
             await cb.value
         }
@@ -299,7 +299,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
         //             }
 
         //             var cb = Promise<Bool> { seal in
-        //                 _ = p.close(.GracefullyWithWait) {
+        //                 _ = p.close() {
         //                     seal.fulfill($0)
         //                 }
         //             }
@@ -328,56 +328,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
         //     }
         output.writeLine("ok")
 
-        output.write("testing graceful close connection without wait... ")
-        do {
-            //
-            // Local case: start an operation and then close the connection gracefully on the client side
-            // without waiting for the pending invocation to complete. There will be no retry and we expect the
-            // invocation to fail with ConnectionClosedException.
-            //
-            let p = p.ice_connectionId("CloseGracefully")  // Start with a new connection.
-            let con = try await p.ice_getConnection()!
-
-            do {
-                // Ensure the request was sent before we close the connection. Oneway invocations are
-                // completed when the request is sent.
-                async let startDispatch: Void = p.startDispatch()
-                try await Task.sleep(for: .milliseconds(100))  // Wait for the request to be sent.
-                try con.close(.Gracefully)
-                try await startDispatch
-                try test(false)
-
-            } catch let ex as Ice.ConnectionClosedException {
-                try test(ex.closedByApplication)
-            }
-            try await p.finishDispatch()
-        }
-
-        do {
-            //
-            // Remote case: the server closes the connection gracefully, which means the connection
-            // will not be closed until all pending dispatched requests have completed.
-            //
-            let con = try await p.ice_getConnection()!
-
-            async let cb = Task {
-                await withCheckedContinuation { continuation in
-                    do {
-                        try con.setCloseCallback { _ in continuation.resume() }
-                    } catch {
-                        fatalError("unexpected error: \(error)")
-                    }
-                }
-            }
-
-            async let t = Task { try await p.sleep(100) }
-            try await p.close(.Gracefully)  // Close is delayed until sleep completes.
-            await cb.value
-            try await t.value
-        }
-        output.writeLine("ok")
-
-        output.write("testing forceful close connection... ")
+        output.write("testing connection abort... ")
         do {
             //
             // Local case: start an operation and then close the connection forcefully on the client side.
@@ -388,7 +339,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
 
             async let startDispatch: Void = p.startDispatch()
             try await Task.sleep(for: .milliseconds(100))  // Wait for the request to be sent.
-            try con.close(.Forcefully)
+            con.abort()
             do {
                 try await startDispatch
                 try test(false)

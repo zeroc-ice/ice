@@ -121,7 +121,7 @@ public:
         if (!_done && (_rd() % 10 == 1 || ++_count == _total))
         {
             _done = true;
-            current.con->close(ConnectionClose::Forcefully);
+            current.con->abort();
             // Deactivate the OA. This ensures that the subscribers
             // that have subscribed with oneway QoS will be booted.
             current.adapter->deactivate();
