@@ -30,8 +30,8 @@ namespace Ice
          * @param adapter The object adapter to set in Current.
          * @param inputStream The input stream buffer over the incoming Ice protocol request message. The stream is
          * positioned at the beginning of the request header - the next data to read is the identity of the target.
-         * @param requestCount The total number of requests contained in the InputStream. The value is always 1 for
-         * non-batched requests. For batch requests, it is the total number of requests in the batch.
+         * @param requestCount The number of requests remaining in the InputStream. This value is always 1 for
+         * non-batched requests. For batch requests, it is the number of requests remaining in the InputStream.
          * @remarks This constructor reads the request header from inputStream. When it completes, the input stream is
          * positioned at the beginning of encapsulation carried by the request.
          */
@@ -73,8 +73,8 @@ namespace Ice
 
         /**
          * Get the request count.
-         * @return 1 when the request is not batched. For batch requests, it is the total number of requests in the
-         * batch.
+         * @return The value is always 1 for non-batched requests. For batch requests, it is the number
+         * of requests remaining in the InputStream.
          */
         std::int32_t requestCount() const noexcept { return _requestCount; }
 
