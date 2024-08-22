@@ -18,9 +18,9 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     const std::byte* inEncaps;
     std::function<void()> cleanup;
 
-    // An InputSteam can contain one or more requests when a batch request is being processed. In this case when there
-    // is more than one batch request we need to copy the encapsulation from the InputStream to a heap allocated vector
-    // as its memory is needed for subsequent requests.
+    // An InputSteam can contain one or more requests when we're processing a batch request. In the case when there
+    // is more than one request in the the batch we need to copy the encapsulation from the InputStream to a
+    // heap allocated vector as the remainder of the memory is needed for subsequent requests.
     if (request.requestCount() > 1)
     {
         Ice::InputStream& inputStream = request.inputStream();
