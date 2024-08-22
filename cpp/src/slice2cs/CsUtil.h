@@ -27,7 +27,7 @@ namespace Slice
         //
         // Validate all metadata in the unit with a "cs:" prefix.
         //
-        static void validateMetaData(const UnitPtr&);
+        static void validateMetadata(const UnitPtr&);
 
         //
         // Returns the namespace of a Contained entity.
@@ -113,7 +113,7 @@ namespace Slice
             bool);
 
     private:
-        class MetaDataVisitor final : public ParserVisitor
+        class MetadataVisitor final : public ParserVisitor
         {
         public:
             bool visitUnitStart(const UnitPtr&) final;
@@ -129,6 +129,8 @@ namespace Slice
             void visitDictionary(const DictionaryPtr&) final;
             void visitEnum(const EnumPtr&) final;
             void visitConst(const ConstPtr&) final;
+
+            bool shouldVisitIncludedDefinitions() const final { return true; }
 
         private:
             void validate(const ContainedPtr&);

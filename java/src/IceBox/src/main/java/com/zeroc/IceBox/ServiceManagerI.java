@@ -201,21 +201,6 @@ public class ServiceManagerI implements ServiceManager {
       Properties properties = _communicator.getProperties();
 
       //
-      // Create an object adapter. Services probably should NOT share
-      // this object adapter, as the endpoint(s) for this object adapter
-      // will most likely need to be firewalled for security reasons.
-      //
-      com.zeroc.Ice.ObjectAdapter adapter = null;
-      if (properties.getProperty("IceBox.ServiceManager.Endpoints").length() != 0) {
-        adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
-
-        com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
-        identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
-        identity.name = "ServiceManager";
-        adapter.add(this, identity);
-      }
-
-      //
       // Parse the property set with the prefix "IceBox.Service.". These
       // properties should have the following format:
       //
@@ -322,13 +307,10 @@ public class ServiceManagerI implements ServiceManager {
       }
 
       //
-      // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
+      // Start Admin (if enabled).
       //
       _communicator.addAdminFacet(this, "IceBox.ServiceManager");
       _communicator.getAdmin();
-      if (adapter != null) {
-        adapter.activate();
-      }
 
       //
       // We may want to notify external scripts that the services

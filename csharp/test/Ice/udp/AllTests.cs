@@ -51,7 +51,7 @@ namespace Ice
                 private int _replies = 0;
             }
 
-            public static void allTests(global::Test.TestHelper helper)
+            public static async void allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
@@ -113,7 +113,7 @@ namespace Ice
                         //
                         test(seq.Length > 16384);
                     }
-                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    await obj.ice_getConnection().closeAsync();
                     communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
                     seq = new byte[50000];
                     try

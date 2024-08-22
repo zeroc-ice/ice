@@ -61,7 +61,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
 
         if (!_verifier->verify(*prx))
         {
-            current.con->close(ConnectionClose::Forcefully);
+            current.con->abort();
             throw ObjectNotExistException(__FILE__, __LINE__);
         }
 

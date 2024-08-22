@@ -6,6 +6,7 @@ import Ice
 import IcePy
 import Test
 import sys
+import time
 import threading
 import random
 
@@ -419,25 +420,26 @@ def allTests(helper, communicator, collocated):
     p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
 
     if p.ice_getConnection() and p.supportsAMD():
-        sys.stdout.write("testing graceful close connection without wait... ")
+        sys.stdout.write("testing close connection... ")
         sys.stdout.flush()
 
         #
-        # Local case: start an operation and then close the connection gracefully on the client side
-        # without waiting for the pending invocation to complete. There will be no retry and we expect the
-        # invocation to fail with ConnectionClosedException.
+        # Local case: begin a request, close the connection gracefully, and make sure it waits
+        # for the request to complete.
         #
         p = p.ice_connectionId("CloseGracefully")  # Start with a new connection.
         con = p.ice_getConnection()
+        cb = CallbackBase()
+        con.setCloseCallback(lambda c: cb.called())
         f = p.startDispatchAsync()
         f.sent()  # Ensure the request was sent before we close the connection.
-        con.close(Ice.ConnectionClose.Gracefully)
-        try:
-            f.result()
-            test(False)
-        except Ice.ConnectionClosedException as ex:
-            test(ex.closedByApplication)
+        con.close(False)
+
+        # give time for startDispatch to start in the server before we call finishDispatch
+        time.sleep(0.1) # 100ms
         p.finishDispatch()
+        f.result()
+        cb.check()
 
         #
         # Remote case: the server closes the connection gracefully, which means the connection
@@ -456,7 +458,7 @@ def allTests(helper, communicator, collocated):
 
         print("ok")
 
-        sys.stdout.write("testing forceful close connection... ")
+        sys.stdout.write("testing abort connection... ")
         sys.stdout.flush()
 
         #
@@ -467,7 +469,7 @@ def allTests(helper, communicator, collocated):
         con = p.ice_getConnection()
         f = p.startDispatchAsync()
         f.sent()  # Ensure the request was sent before we close the connection.
-        con.close(Ice.ConnectionClose.Forcefully)
+        con.abort()
         try:
             f.result()
             test(False)
@@ -800,7 +802,7 @@ def allTestsFuture(helper, communicator, collocated):
         test(p.opBatchCount() == 0)
         b1 = p.ice_batchOneway()
         b1.opBatch()
-        b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        b1.ice_getConnection().close()
         cb = FutureFlushCallback()
         f = b1.ice_flushBatchRequestsAsync()
         f.add_sent_callback(cb.sent)
@@ -838,7 +840,7 @@ def allTestsFuture(helper, communicator, collocated):
             p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway()
         )
         b1.opBatch()
-        b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        b1.ice_getConnection().close()
         cb = FutureFlushExCallback()
         f = b1.ice_getConnection().flushBatchRequestsAsync(
             Ice.CompressBatch.BasedOnProxy
@@ -881,7 +883,7 @@ def allTestsFuture(helper, communicator, collocated):
             p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway()
         )
         b1.opBatch()
-        b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        b1.ice_getConnection().close()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_sent_callback(cb.sent)
@@ -937,7 +939,7 @@ def allTestsFuture(helper, communicator, collocated):
         b2.ice_getConnection()  # Ensure connection is established.
         b1.opBatch()
         b2.opBatch()
-        b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        b1.ice_getConnection().close()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_sent_callback(cb.sent)
@@ -965,8 +967,8 @@ def allTestsFuture(helper, communicator, collocated):
         b2.ice_getConnection()  # Ensure connection is established.
         b1.opBatch()
         b2.opBatch()
-        b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
-        b2.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        b1.ice_getConnection().close()
+        b2.ice_getConnection().close()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_sent_callback(cb.sent)

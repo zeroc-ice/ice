@@ -104,7 +104,7 @@ batchOneways(const MyClassPrx& p)
         batch1->ice_ping();
         batch2->ice_ping();
         batch1->ice_flushBatchRequests();
-        batch1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+        batch1->ice_getConnection()->close().get();
         batch1->ice_ping();
         batch2->ice_ping();
 
@@ -112,7 +112,7 @@ batchOneways(const MyClassPrx& p)
         batch2->ice_getConnection();
 
         batch1->ice_ping();
-        batch1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+        batch1->ice_getConnection()->close().get();
         batch1->ice_ping();
         batch2->ice_ping();
     }

@@ -37,7 +37,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try await batch1.ice_ping()
         try await batch2.ice_ping()
         try await batch1.ice_flushBatchRequests()
-        try await batch1.ice_getConnection()!.close(Ice.ConnectionClose.GracefullyWithWait)
+        try await batch1.ice_getConnection()!.close()
         try await batch1.ice_ping()
         try await batch2.ice_ping()
 
@@ -45,7 +45,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         _ = try await batch2.ice_getConnection()
 
         try await batch1.ice_ping()
-        try await batch1.ice_getConnection()!.close(Ice.ConnectionClose.GracefullyWithWait)
+        try await batch1.ice_getConnection()!.close()
         try await batch1.ice_ping()
         try await batch2.ice_ping()
     }

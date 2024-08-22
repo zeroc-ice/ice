@@ -65,31 +65,32 @@ ZEND_METHOD(Ice_Connection, __toString)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_close_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, mode)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_Connection, close)
+ZEND_METHOD(Ice_Connection, abort)
 {
+    if (ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
     assert(_this);
 
-    zval* mode;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &mode) != SUCCESS)
+    _this->abort();
+}
+
+ZEND_METHOD(Ice_Connection, close)
+{
+    if (ZEND_NUM_ARGS() > 0)
     {
-        RETURN_NULL();
+        WRONG_PARAM_COUNT;
     }
 
-    if (Z_TYPE_P(mode) != IS_LONG)
-    {
-        invalidArgument("value for 'mode' argument must be an enumerator of ConnectionClose");
-        RETURN_NULL();
-    }
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
+    assert(_this);
 
-    Ice::ConnectionClose cc = static_cast<Ice::ConnectionClose>(Z_LVAL_P(mode));
     try
     {
-        _this->close(cc);
+        _this->close().get();
     }
     catch (...)
     {
@@ -301,14 +302,17 @@ static zend_function_entry _connectionClassMethods[] = {
     ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
     // __toString
     ZEND_ME(Ice_Connection, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
+    // abort
+    ZEND_ME(Ice_Connection, abort, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // close
-    ZEND_ME(Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, close, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // getEndpoint
     ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // flushBatchRequests
     ZEND_ME(Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
     // type
     ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+
     // toString
     ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // getInfo

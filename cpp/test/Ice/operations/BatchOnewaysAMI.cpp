@@ -47,7 +47,7 @@ batchOnewaysAMI(const Test::MyClassPrx& p)
         batch1->ice_pingAsync().get();
         batch2->ice_pingAsync().get();
         batch1->ice_flushBatchRequestsAsync().get();
-        batch1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        batch1->ice_getConnection()->close().get();
         batch1->ice_pingAsync().get();
         batch2->ice_pingAsync().get();
 
@@ -55,7 +55,7 @@ batchOnewaysAMI(const Test::MyClassPrx& p)
         batch2->ice_getConnection();
 
         batch1->ice_pingAsync().get();
-        batch1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        batch1->ice_getConnection()->close().get();
 
         batch1->ice_pingAsync().get();
         batch2->ice_pingAsync().get();

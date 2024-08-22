@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
@@ -242,36 +240,6 @@ Slice::emitWarning(const string& file, int line, const string& message)
 }
 
 void
-Slice::emitError(const string& file, const std::string& line, const string& message)
-{
-    if (!file.empty())
-    {
-        consoleErr << file;
-        if (!line.empty())
-        {
-            consoleErr << ':' << line;
-        }
-        consoleErr << ": ";
-    }
-    consoleErr << message << endl;
-}
-
-void
-Slice::emitWarning(const string& file, const std::string& line, const string& message)
-{
-    if (!file.empty())
-    {
-        consoleErr << file;
-        if (!line.empty())
-        {
-            consoleErr << ':' << line;
-        }
-        consoleErr << ": ";
-    }
-    consoleErr << "warning: " << message << endl;
-}
-
-void
 Slice::emitRaw(const char* message)
 {
     consoleErr << message << flush;
@@ -470,19 +438,19 @@ Slice::prependA(const string& s)
 }
 
 bool
-Slice::checkIdentifier(const string& id)
+Slice::checkIdentifier(const string& identifier)
 {
     // check whether the identifier is scoped
-    size_t scopeIndex = id.rfind("::");
+    size_t scopeIndex = identifier.rfind("::");
     bool isScoped = scopeIndex != string::npos;
     string name;
     if (isScoped)
     {
-        name = id.substr(scopeIndex + 2); // Only check the unscoped identifier for syntax
+        name = identifier.substr(scopeIndex + 2); // Only check the unscoped identifier for syntax
     }
     else
     {
-        name = id;
+        name = identifier;
     }
 
     assert(!name.empty());

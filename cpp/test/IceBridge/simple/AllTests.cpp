@@ -111,7 +111,7 @@ allTests(Test::TestHelper* helper)
         test(cl->getConnectionCount() == 2);
         test(cl->ice_connectionId("other")->getConnectionInfo() != cl->getConnectionInfo());
         test(cl->getConnectionCount() == 3);
-        cl->ice_connectionId("other")->ice_getConnection()->close(Ice::ConnectionClose::Gracefully);
+        cl->ice_connectionId("other")->ice_getConnection()->close(nullptr, nullptr);
         nRetry = 20;
         while (cl->getConnectionCount() != 2 && --nRetry > 0)
         {

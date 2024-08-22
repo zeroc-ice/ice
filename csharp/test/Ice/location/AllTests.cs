@@ -519,7 +519,7 @@ namespace Ice
                 output.Flush();
                 hello = Test.HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
                 obj.migrateHello();
-                hello.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                await hello.ice_getConnection().closeAsync();
                 hello.sayHello();
                 obj.migrateHello();
                 hello.sayHello();

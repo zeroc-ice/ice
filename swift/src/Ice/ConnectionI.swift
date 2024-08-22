@@ -10,8 +10,13 @@ extension Connection {
 }
 
 class ConnectionI: LocalObject<ICEConnection>, Connection {
-    func close(_ mode: ConnectionClose) {
-        handle.close(mode.rawValue)
+
+    func abort() {
+        handle.abort()
+    }
+
+    func close() async throws {
+        try await handle.close()
     }
 
     func createProxy(_ id: Identity) throws -> ObjectPrx {

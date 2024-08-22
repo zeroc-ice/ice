@@ -56,7 +56,7 @@ namespace Slice
 
         SwiftGenerator& operator=(const SwiftGenerator&) = delete;
 
-        static void validateMetaData(const UnitPtr&);
+        static void validateMetadata(const UnitPtr&);
 
     protected:
         void trimLines(StringList&);
@@ -151,7 +151,7 @@ namespace Slice
         void writeDispatchOperation(::IceInternal::Output&, const OperationPtr&);
 
     private:
-        class MetaDataVisitor final : public ParserVisitor
+        class MetadataVisitor final : public ParserVisitor
         {
         public:
             bool visitModuleStart(const ModulePtr&) final;
@@ -165,12 +165,14 @@ namespace Slice
             void visitEnum(const EnumPtr&) final;
             void visitConst(const ConstPtr&) final;
 
+            bool shouldVisitIncludedDefinitions() const final { return true; }
+
         private:
             StringList validate(
                 const SyntaxTreeBasePtr&,
                 const StringList&,
                 const std::string&,
-                const std::string&,
+                int,
                 bool local = false,
                 bool operationParameter = false);
 

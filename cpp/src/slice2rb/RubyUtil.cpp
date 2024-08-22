@@ -331,7 +331,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if (!members.empty())
     {
-        bool prot = p->hasMetaData("protected");
+        bool prot = p->hasMetadata("protected");
         DataMemberList protectedMembers;
 
         _out << sp << nl << "attr_accessor ";
@@ -342,7 +342,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << ", ";
             }
             _out << ":" << fixIdent((*q)->name(), IdentNormal);
-            if (prot || (*q)->hasMetaData("protected"))
+            if (prot || (*q)->hasMetadata("protected"))
             {
                 protectedMembers.push_back(*q);
             }
@@ -583,7 +583,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << "::Ice::OperationMode::Idempotent";
                 break;
         }
-        _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", " << format
+        _out << ", " << ((p->hasMetadata("amd") || (*s)->hasMetadata("amd")) ? "true" : "false") << ", " << format
              << ", [";
         for (t = params.begin(), count = 0; t != params.end(); ++t)
         {
@@ -1359,7 +1359,7 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
     }
 
     CodeVisitor codeVisitor(out);
-    un->visit(&codeVisitor, false);
+    un->visit(&codeVisitor);
 
     out << nl; // Trailing newline.
 }

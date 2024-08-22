@@ -155,44 +155,38 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public void close(ConnectionClose mode)
+    public void abort()
     {
         lock (this)
         {
-            if (mode == ConnectionClose.Forcefully)
-            {
-                setState(StateClosed,
-                    new ConnectionAbortedException(
-                        "The connection was aborted by the application.",
-                        closedByApplication: true));
-            }
-            else if (mode == ConnectionClose.Gracefully)
-            {
-                setState(
-                    StateClosing,
-                    new ConnectionClosedException(
-                        "The connection was closed gracefully by the application.",
-                        closedByApplication: true));
-            }
-            else
-            {
-                Debug.Assert(mode == ConnectionClose.GracefullyWithWait);
-
-                //
-                // Wait until all outstanding requests have been completed.
-                //
-                while (_asyncRequests.Count != 0)
-                {
-                    Monitor.Wait(this);
-                }
-
-                setState(
-                    StateClosing,
-                    new ConnectionClosedException(
-                        "The connection was closed gracefully by the application.",
-                        closedByApplication: true));
-            }
+            setState(
+                StateClosed,
+                new ConnectionAbortedException(
+                    "The connection was aborted by the application.",
+                    closedByApplication: true));
         }
+    }
+
+    public Task closeAsync()
+    {
+        lock (this)
+        {
+            if (_state < StateClosing)
+            {
+                if (_asyncRequests.Count == 0)
+                {
+                    doApplicationClose();
+                }
+                else
+                {
+                    _closeRequested = true;
+                    scheduleCloseTimer(); // we don't wait forever for outstanding invocations to complete
+                }
+            }
+            // else nothing to do, already closing or closed.
+        }
+
+        return _closed.Task;
     }
 
     internal bool isActiveOrHolding()
@@ -1266,6 +1260,20 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _readStream.clear();
         _readStream.getBuffer().clear();
 
+        if (_exception is ConnectionClosedException or
+            CloseConnectionException or
+            CommunicatorDestroyedException or
+            ObjectAdapterDeactivatedException)
+        {
+            // Can execute synchronously. Note that we're not within a lock(this) here.
+            _closed.SetResult();
+        }
+        else
+        {
+            Debug.Assert(_exception is not null);
+            _closed.SetException(_exception);
+        }
+
         if (_closeCallback is not null)
         {
             try
@@ -1787,13 +1795,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
             os.writeInt(Protocol.headerSize); // Message size.
 
-            if (_closeTimeout > TimeSpan.Zero)
-            {
-                var closeTimer = new System.Threading.Timer(
-                    timerObj => closeTimedOut((System.Threading.Timer)timerObj));
-                // schedule timer to run once; closeTimedOut disposes the timer too.
-                closeTimer.Change(_closeTimeout, Timeout.InfiniteTimeSpan);
-            }
+            scheduleCloseTimer();
 
             if ((sendMessage(new OutgoingMessage(os, false, false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
             {
@@ -2284,13 +2286,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         int op = _transceiver.closing(false, _exception);
                         if (op != 0)
                         {
-                            if (_closeTimeout > TimeSpan.Zero)
-                            {
-                                var closeTimer = new System.Threading.Timer(
-                                    timerObj => closeTimedOut((System.Threading.Timer)timerObj));
-                                // schedule timer to run once; closeTimedOut disposes the timer too.
-                                closeTimer.Change(_closeTimeout, Timeout.InfiniteTimeSpan);
-                            }
+                            scheduleCloseTimer();
                             return op;
                         }
                         setState(StateClosed);
@@ -2374,7 +2370,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         {
                             info.outAsync = null;
                         }
-                        Monitor.PulseAll(this); // Notify threads blocked in close()
+                        if (_closeRequested && _state < StateClosing && _asyncRequests.Count == 0)
+                        {
+                            doApplicationClose();
+                        }
                     }
                     break;
                 }
@@ -2766,6 +2765,28 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
+    private void scheduleCloseTimer()
+    {
+        if (_closeTimeout > TimeSpan.Zero)
+        {
+            var closeTimer = new System.Threading.Timer(
+                timerObj => closeTimedOut((System.Threading.Timer)timerObj));
+            // schedule timer to run once; closeTimedOut disposes the timer too.
+            closeTimer.Change(_closeTimeout, Timeout.InfiniteTimeSpan);
+        }
+    }
+
+    private void doApplicationClose()
+    {
+        // Called with the ConnectionI mutex locked.
+        Debug.Assert(_state < StateClosing);
+        setState(
+            StateClosing,
+            new ConnectionClosedException(
+                "The connection was closed gracefully by the application.",
+                closedByApplication: true));
+    }
+
     private class OutgoingMessage
     {
         internal OutgoingMessage(OutputStream stream, bool compress, bool adopt)
@@ -2901,11 +2922,16 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private bool _initialized;
     private bool _validated;
 
+    // When true, the application called close and Connection must close the connection when it receives the reply
+    // for the last outstanding invocation.
+    private bool _closeRequested;
+
     private static bool _compressionSupported;
 
     private ConnectionInfo _info;
 
     private CloseCallback _closeCallback;
+    private readonly TaskCompletionSource _closed = new(); // can run synchronously
 
     private static ConnectionState[] connectionStateMap = [
         ConnectionState.ConnectionStateValidating,   // StateNotInitialized

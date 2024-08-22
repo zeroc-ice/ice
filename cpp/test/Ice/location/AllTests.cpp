@@ -550,7 +550,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     cout << "testing object migration... " << flush;
     hello = HelloPrx(communicator, "hello");
     obj->migrateHello();
-    hello->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+    hello->ice_getConnection()->close().get();
     hello->sayHello();
     obj->migrateHello();
     hello->sayHello();

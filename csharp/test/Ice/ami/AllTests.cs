@@ -388,7 +388,7 @@ namespace Ice
                         test(p.opBatchCount() == 0);
                         Test.TestIntfPrx b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
-                        b1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                        await b1.ice_getConnection().closeAsync();
                         var tcs = new TaskCompletionSource();
                         Task t = b1.ice_flushBatchRequestsAsync(
                             progress: new Progress<bool>(_ => tcs.SetResult()));
@@ -432,7 +432,7 @@ namespace Ice
                             var b1 = Test.TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                                  p.ice_getIdentity()).ice_batchOneway());
                             b1.opBatch();
-                            b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            await b1.ice_getConnection().closeAsync();
                             var tcs = new TaskCompletionSource();
                             Task t = b1.ice_getConnection().flushBatchRequestsAsync(
                                 CompressBatch.BasedOnProxy,
@@ -486,7 +486,7 @@ namespace Ice
                             var b1 = Test.TestIntfPrxHelper.uncheckedCast(
                                 p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                             b1.opBatch();
-                            b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            await b1.ice_getConnection().closeAsync();
                             var tcs = new TaskCompletionSource();
                             Task t = communicator.flushBatchRequestsAsync(
                                 CompressBatch.BasedOnProxy,
@@ -538,7 +538,7 @@ namespace Ice
                             b2.ice_getConnection(); // Ensure connection is established.
                             b1.opBatch();
                             b2.opBatch();
-                            b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            await b1.ice_getConnection().closeAsync();
                             var tcs = new TaskCompletionSource();
                             Task t = communicator.flushBatchRequestsAsync(
                                 CompressBatch.BasedOnProxy,
@@ -563,8 +563,8 @@ namespace Ice
                             b2.ice_getConnection(); // Ensure connection is established.
                             b1.opBatch();
                             b2.opBatch();
-                            b1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
-                            b2.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                            await b1.ice_getConnection().closeAsync();
+                            await b2.ice_getConnection().closeAsync();
                             var tcs = new TaskCompletionSource();
                             Task t = communicator.flushBatchRequestsAsync(
                                 CompressBatch.BasedOnProxy,
@@ -691,7 +691,7 @@ namespace Ice
 
                 if (p.ice_getConnection() != null && p.supportsAMD())
                 {
-                    output.Write("testing graceful close connection with wait... ");
+                    output.Write("testing connection close... ");
                     output.Flush();
                     {
                         //
@@ -702,7 +702,7 @@ namespace Ice
                         var tcs = new TaskCompletionSource();
                         con.setCloseCallback(_ => tcs.SetResult());
                         Task t = p.sleepAsync(100);
-                        con.close(ConnectionClose.GracefullyWithWait);
+                        await con.closeAsync();
                         await t; // Should complete successfully.
                         await tcs.Task;
                     }
@@ -713,7 +713,7 @@ namespace Ice
                         byte[] seq = new byte[1024 * 10];
 
                         //
-                        // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+                        // Send multiple opWithPayload, followed by a close and followed by multiple opWithPayload.
                         // The goal is to make sure that none of the opWithPayload fail even if the server closes
                         // the connection gracefully in between.
                         //
@@ -764,46 +764,7 @@ namespace Ice
                     }
                     output.WriteLine("ok");
 
-                    output.Write("testing graceful close connection without wait... ");
-                    output.Flush();
-                    {
-                        //
-                        // Local case: start an operation and then close the connection gracefully on the client side
-                        // without waiting for the pending invocation to complete. There will be no retry and we expect the
-                        // invocation to fail with ConnectionClosedException.
-                        //
-                        p = (Test.TestIntfPrx)p.ice_connectionId("CloseGracefully"); // Start with a new connection.
-                        Connection con = p.ice_getConnection();
-                        var tcs = new TaskCompletionSource();
-                        Task t = p.startDispatchAsync(progress: new Progress<bool>(_ => tcs.SetResult()));
-                        await tcs.Task; // Ensure the request was sent before we close the connection.
-                        con.close(ConnectionClose.Gracefully);
-                        try
-                        {
-                            await t;
-                            test(false);
-                        }
-                        catch (ConnectionClosedException ex)
-                        {
-                            test(ex.closedByApplication);
-                        }
-                        p.finishDispatch();
-
-                        //
-                        // Remote case: the server closes the connection gracefully, which means the connection
-                        // will not be closed until all pending dispatched requests have completed.
-                        //
-                        con = p.ice_getConnection();
-                        tcs = new TaskCompletionSource();
-                        con.setCloseCallback(_ => tcs.SetResult());
-                        t = p.sleepAsync(100);
-                        p.close(Test.CloseMode.Gracefully); // Close is delayed until sleep completes.
-                        await tcs.Task;
-                        await t;
-                    }
-                    output.WriteLine("ok");
-
-                    output.Write("testing forceful close connection... ");
+                    output.Write("testing connection abort... ");
                     output.Flush();
                     {
                         //
@@ -816,7 +777,7 @@ namespace Ice
                         Task t = p.startDispatchAsync(
                             progress: new Progress<bool>(_ => tcs.SetResult()));
                         await tcs.Task; // Ensure the request was sent before we close the connection.
-                        con.close(ConnectionClose.Forcefully);
+                        con.abort();
                         try
                         {
                             await t;

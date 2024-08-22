@@ -1,7 +1,5 @@
 %top{
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ScannerConfig.h"
 #include <cstdint>
@@ -27,8 +25,8 @@ namespace Slice
     using StringTokenMap = map<string, int>;
     StringTokenMap keywordMap;
 
-    int checkKeyword(string&);
-    int checkIsScoped(const string&);
+    int checkKeyword(string& identifier);
+    int checkIsScoped(const string& identifier);
 }
 
 // Stores the scanner's current column position. Flex also automatically
@@ -39,11 +37,11 @@ string yyfilename;
 
 namespace
 {
-    void nextLine(int = 1);
-    int scanPosition(const char*);
-    void setLocation(TokenContext*);
-    void startLocation(TokenContext*);
-    void endLocation(TokenContext*);
+    void nextLine(int count = 1);
+    int scanPosition(const char* s);
+    void setLocation(TokenContext* location);
+    void startLocation(TokenContext* location);
+    void endLocation(TokenContext* location);
 
     void initScanner();
     void preAction();
@@ -415,11 +413,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
     if (yy_top_state() == PRE_SLICE)
     {
-        return ICE_GLOBAL_METADATA_OPEN;
+        return ICE_FILE_METADATA_OPEN;
     }
     else
     {
-        return ICE_GLOBAL_METADATA_IGNORE;
+        return ICE_FILE_METADATA_IGNORE;
     }
 }
 
@@ -450,7 +448,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
 <METADATA>"]]" {
     yy_pop_state();
-    return ICE_GLOBAL_METADATA_CLOSE;
+    return ICE_FILE_METADATA_CLOSE;
 }
 
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
@@ -544,27 +542,27 @@ namespace Slice
     // If the identifier is a keyword, return the
     // corresponding keyword token; otherwise, return
     // an identifier token.
-    int checkKeyword(string& id)
+    int checkKeyword(string& identifier)
     {
-        const auto pos = keywordMap.find(id);
+        const auto pos = keywordMap.find(identifier);
         if (pos != keywordMap.end())
         {
-            if (pos->first != id)
+            if (pos->first != identifier)
             {
                 currentUnit->error(
-                    "illegal identifier: `" + id + "' differs from keyword `" + pos->first +
+                    "illegal identifier: `" + identifier + "' differs from keyword `" + pos->first +
                     "' only in capitalization");
-                id = pos->first;
+                identifier = pos->first;
             }
             return pos->second;
         }
-        return checkIsScoped(id);
+        return checkIsScoped(identifier);
     }
 
     // Checks if an identifier is scoped or not, and returns the corresponding token.
-    int checkIsScoped(const string& id)
+    int checkIsScoped(const string& identifier)
     {
-        return id.find("::") == string::npos ? ICE_IDENTIFIER : ICE_SCOPED_IDENTIFIER;
+        return identifier.find("::") == string::npos ? ICE_IDENTIFIER : ICE_SCOPED_IDENTIFIER;
     }
 }
 

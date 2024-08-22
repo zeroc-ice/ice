@@ -830,31 +830,6 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
         }
 
         props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
-
-        if (iceVersion != 0 && iceVersion < 30300)
-        {
-            if (hasProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess"))
-            {
-                if (getProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess") != "0")
-                {
-                    server->processRegistered = true;
-                }
-            }
-            else
-            {
-                props.push_back(createProperty("IceBox.ServiceManager.RegisterProcess", "1"));
-                server->processRegistered = true;
-            }
-            if (!hasProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.Endpoints"))
-            {
-                props.push_back(createProperty("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
-            }
-        }
-        if (!hasProperty(info.descriptor->propertySet.properties, "IceBox.InstanceName") &&
-            hasProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.Endpoints"))
-        {
-            props.push_back(createProperty("IceBox.InstanceName", server->id));
-        }
     }
 
     //

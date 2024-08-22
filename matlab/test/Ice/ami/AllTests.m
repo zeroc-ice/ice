@@ -156,7 +156,7 @@ classdef AllTests
             fprintf('ok\n');
 
             if ~isempty(p.ice_getConnection()) && p.supportsAMD()
-                fprintf('testing graceful close connection with wait... ');
+                fprintf('testing connection close... ');
 
                 %
                 % Local case: begin a request, close the connection gracefully, and make sure it waits
@@ -164,7 +164,7 @@ classdef AllTests
                 %
                 con = p.ice_getConnection();
                 f = p.sleepAsync(100);
-                con.close(Ice.ConnectionClose.GracefullyWithWait); % Blocks until the request completes.
+                con.close().fetchOutputs();
                 try
                     f.fetchOutputs(); % Should complete successfully
                 catch ex
@@ -173,41 +173,7 @@ classdef AllTests
 
                 fprintf('ok\n');
 
-                fprintf('testing graceful close connection without wait... ');
-
-                %
-                % Local case: start an operation and then close the connection gracefully on the client side
-                % without waiting for the pending invocation to complete. There will be no retry and we expect the
-                % invocation to fail with ConnectionClosedException.
-                %
-                p = p.ice_connectionId('CloseGracefully'); % Start with a new connection.
-                con = p.ice_getConnection();
-                f = p.startDispatchAsync();
-                while ~strcmp(f.State, 'sent') % Ensure the request was sent before we close the connection
-                    pause(0.1);
-                end
-                con.close(Ice.ConnectionClose.Gracefully);
-                try
-                    f.fetchOutputs();
-                    assert(false);
-                catch ex
-                    assert(isa(ex, 'Ice.ConnectionClosedException'));
-                    assert(ex.closedByApplication);
-                end
-                p.finishDispatch();
-
-                %
-                % Remote case: the server closes the connection gracefully, which means the connection
-                % will not be closed until all pending dispatched requests have completed.
-                %
-                con = p.ice_getConnection();
-                f = p.sleepAsync(100);
-                p.close(CloseMode.Gracefully); % Close is delayed until sleep completes.
-                f.fetchOutputs();
-
-                fprintf('ok\n');
-
-                fprintf('testing forceful close connection... ');
+                fprintf('testing connection abort... ');
 
                 %
                 % Local case: start an operation and then close the connection forcefully on the client side.
@@ -219,7 +185,7 @@ classdef AllTests
                 while ~strcmp(f.State, 'sent') % Ensure the request was sent before we close the connection
                     pause(0.1);
                 end
-                con.close(Ice.ConnectionClose.Forcefully);
+                con.abort();
                 try
                     f.fetchOutputs();
                     assert(false);

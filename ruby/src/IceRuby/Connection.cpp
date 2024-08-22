@@ -37,24 +37,22 @@ IceRuby::createConnection(const Ice::ConnectionPtr& p)
 }
 
 extern "C" VALUE
-IceRuby_Connection_close(VALUE self, VALUE mode)
+IceRuby_Connection_abort(VALUE self)
+{
+    Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+    assert(p);
+    (*p)->abort();
+    return Qnil;
+}
+
+extern "C" VALUE
+IceRuby_Connection_close(VALUE self)
 {
     ICE_RUBY_TRY
     {
         Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
         assert(p);
-
-        volatile VALUE type = callRuby(rb_path2class, "Ice::ConnectionClose");
-        if (callRuby(rb_obj_is_instance_of, mode, type) != Qtrue)
-        {
-            throw RubyException(
-                rb_eTypeError,
-                "value for 'mode' argument must be an enumerator of Ice::ConnectionClose");
-        }
-        volatile VALUE modeValue = callRuby(rb_funcall, mode, rb_intern("to_i"), 0);
-        assert(TYPE(modeValue) == T_FIXNUM);
-        Ice::ConnectionClose cc = static_cast<Ice::ConnectionClose>(FIX2LONG(modeValue));
-        (*p)->close(cc);
+        (*p)->close().get();
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -294,7 +292,8 @@ IceRuby::initConnection(VALUE iceModule)
     //
     // Instance methods.
     //
-    rb_define_method(_connectionClass, "close", CAST_METHOD(IceRuby_Connection_close), 1);
+    rb_define_method(_connectionClass, "abort", CAST_METHOD(IceRuby_Connection_abort), 0);
+    rb_define_method(_connectionClass, "close", CAST_METHOD(IceRuby_Connection_close), 0);
     rb_define_method(_connectionClass, "flushBatchRequests", CAST_METHOD(IceRuby_Connection_flushBatchRequests), 1);
     rb_define_method(_connectionClass, "type", CAST_METHOD(IceRuby_Connection_type), 0);
     rb_define_method(_connectionClass, "getInfo", CAST_METHOD(IceRuby_Connection_getInfo), 0);
