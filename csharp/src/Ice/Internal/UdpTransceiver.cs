@@ -9,15 +9,6 @@ namespace Ice.Internal;
 
 internal sealed class UdpTransceiver : Transceiver
 {
-    public bool isWaitingToBeRead
-    {
-        get
-        {
-            Debug.Fail("UdpTransceiver does not implement isWaitingToBeRead");
-            return false;
-        }
-    }
-
     public Socket fd()
     {
         return _fd;

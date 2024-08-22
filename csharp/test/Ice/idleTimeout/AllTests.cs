@@ -12,33 +12,32 @@ internal class AllTests : global::Test.AllTests
         string proxyString = $"test: {helper.getTestEndpoint()}";
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
-        string proxyString3s = $"test: {helper.getTestEndpoint(1)}";
+        string proxyStringDefaultMax = $"test: {helper.getTestEndpoint(1)}";
+        string proxyString3s = $"test: {helper.getTestEndpoint(2)}";
 
-        await testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(p, helper.getWriter());
-        await testConnectionAbortedByIdleCheck(proxyString, communicator.getProperties(), helper.getWriter());
+        await testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
+        await testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
         await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
         await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
 
         await p.shutdownAsync();
     }
 
-    // The client and server have the same idle timeout (1s) and the server enables connection idle checks
-    // (the default).
+    // The client and server have the same idle timeout (1s) and both side enable the idle check (the default)
     // We verify that the server's idle check does not abort the connection as long as this connection receives
     // heartbeats, even when the heartbeats are not read off the connection in a timely manner.
-    // To verify this situation, we use an OA with a 1-thread thread pool and use this unique thread for a long
-    // synchronous dispatch (sleep).
-    private static async Task testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(
+    // To verify this situation, we use an OA with a MaxDispatches = 1 to back-pressure the connection.
+    private static async Task testIdleCheckDoesNotAbortBackPressuredConnection(
         Test.TestIntfPrx p,
         TextWriter output)
     {
-        output.Write("testing that the idle check does not abort a connection that receives heartbeats... ");
+        output.Write("testing that the idle check does not abort a back-pressured connection... ");
         output.Flush();
 
         // Establish connection.
         await p.ice_pingAsync();
 
-        await p.sleepAsync(4000); // the implementation in the server sleeps for 2,000ms
+        await p.sleepAsync(2000); // the implementation in the server sleeps for 2,000ms
 
         // close connection
         await p.ice_getConnection()!.closeAsync();
@@ -46,9 +45,9 @@ internal class AllTests : global::Test.AllTests
     }
 
     // We verify that the idle check aborts the connection when the connection (here server connection) remains idle for
-    // longer than idle timeout. Here, the server has an idle timeout of 1s and idle checks enabled. We intentionally
-    // misconfigure the client with an idle timeout of 3s to send heartbeats every 1.5s, which is too long to prevent
-    // the server from aborting the connection.
+    // longer than idle timeout. Here, the server has an idle timeout of 1s and the default max dispatches. We
+    // intentionally misconfigure the client with an idle timeout of 3s to send heartbeats every 1.5s, which is too long
+    // to prevent the server from aborting the connection.
     private static async Task testConnectionAbortedByIdleCheck(
         string proxyString,
         Properties properties,

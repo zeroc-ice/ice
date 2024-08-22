@@ -6,11 +6,6 @@ namespace Ice.Internal;
 
 public interface Transceiver
 {
-    /// <summary>
-    /// Checks if this transceiver is waiting to be read, typically because it has bytes readily available for reading.
-    /// </summary>
-    bool isWaitingToBeRead { get; }
-
     Socket fd();
     int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData);
     int closing(bool initiator, Ice.LocalException ex);

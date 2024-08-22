@@ -1,13 +1,14 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.idleTimeout;
+#nullable enable
+
+namespace Ice.maxDispatches;
 
 public class Client : global::Test.TestHelper
 {
     public override async Task runAsync(string[] args)
     {
         var properties = createTestProperties(ref args);
-        properties.setProperty("Ice.Connection.IdleTimeout", "1");
         using var communicator = initialize(properties);
         await AllTests.allTests(this);
     }

@@ -9,8 +9,6 @@ namespace Ice.Internal;
 
 internal sealed class WSTransceiver : Transceiver
 {
-    public bool isWaitingToBeRead => _readBuffer.b.position() > _readBufferPos || _delegate.isWaitingToBeRead;
-
     public Socket fd()
     {
         return _delegate.fd();

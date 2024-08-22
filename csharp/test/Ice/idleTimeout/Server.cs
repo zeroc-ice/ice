@@ -10,7 +10,8 @@ public class Server : global::Test.TestHelper
 
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("TestAdapter.Connection.IdleTimeout", "1"); // 1 second
-        properties.setProperty("TestAdapter.ThreadPool.Size", "1"); // dedicated thread pool with a single thread
+        // Serialize dispatches on each incoming connection.
+        properties.setProperty("TestAdapter.Connection.MaxDispatches", "1");
 
         using var communicator = initialize(properties);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
@@ -18,7 +19,13 @@ public class Server : global::Test.TestHelper
         adapter.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();
 
-        communicator.getProperties().setProperty("TestAdapter3s.Endpoints", getTestEndpoint(1));
+        communicator.getProperties().setProperty("TestAdapterDefaultMax.Endpoints", getTestEndpoint(1));
+        communicator.getProperties().setProperty("TestAdapterDefaultMax.Connection.IdleTimeout", "1");
+        var adapterDefaultMax = communicator.createObjectAdapter("TestAdapterDefaultMax");
+        adapterDefaultMax.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
+        adapterDefaultMax.activate();
+
+        communicator.getProperties().setProperty("TestAdapter3s.Endpoints", getTestEndpoint(2));
         communicator.getProperties().setProperty("TestAdapter3s.Connection.IdleTimeout", "3");
         var adapter3s = communicator.createObjectAdapter("TestAdapter3s");
         adapter3s.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
