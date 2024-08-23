@@ -19,7 +19,7 @@ Server::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
-    initData.properties->setProperty("Ice.Connection.IdleTimeout", "1");
+    initData.properties->setProperty("Ice.Connection.Server.IdleTimeout", "1");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     Ice::TimerPtr timer = make_shared<Ice::Timer>();

@@ -61,7 +61,7 @@ classdef AllTests
                     %
                 elseif isa(ex, 'Ice.ConnectTimeoutException')
                     %
-                    % We reduce Ice.Connection.ConnectTimeout to speed up testing.
+                    % We reduce Ice.Connection.Client.ConnectTimeout to speed up testing.
                     %
                 else
                     rethrow(ex);
@@ -415,7 +415,7 @@ classdef AllTests
                     %
                 elseif isa(ex, 'Ice.ConnectTimeoutException')
                     %
-                    % We reduce Ice.Connection.ConnectTimeout to speed up testing.
+                    % We reduce Ice.Connection.Client.ConnectTimeout to speed up testing.
                     %
                 else
                     rethrow(ex);
@@ -482,7 +482,7 @@ classdef AllTests
                     %
                 elseif isa(ex, 'Ice.ConnectTimeoutException')
                     %
-                    % We reduce Ice.Connection.ConnectTimeout to speed up testing.
+                    % We reduce Ice.Connection.Client.ConnectTimeout to speed up testing.
                     %
                 else
                     rethrow(ex);
@@ -612,7 +612,7 @@ classdef AllTests
                     %
                 elseif isa(ex, 'Ice.ConnectTimeoutException')
                     %
-                    % We reduce Ice.Connection.ConnectTimeout to speed up testing.
+                    % We reduce Ice.Connection.Client.ConnectTimeout to speed up testing.
                     %
                 else
                     rethrow(ex);
@@ -697,7 +697,7 @@ classdef AllTests
                     %
                 elseif isa(ex, 'Ice.ConnectTimeoutException')
                     %
-                    % We reduce Ice.Connection.ConnectTimeout to speed up testing.
+                    % We reduce Ice.Connection.Client.ConnectTimeout to speed up testing.
                     %
                 else
                     rethrow(ex);
@@ -802,7 +802,7 @@ classdef AllTests
                         %
                     elseif isa(ex, 'Ice.ConnectTimeoutException')
                         %
-                        % We reduce Ice.Connection.ConnectTimeout to speed up testing.
+                        % We reduce Ice.Connection.Client.ConnectTimeout to speed up testing.
                         %
                     else
                         rethrow(ex);

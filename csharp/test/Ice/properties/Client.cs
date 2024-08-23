@@ -83,7 +83,7 @@ public class Client : Test.TestHelper
             Ice.Properties properties = new Ice.Properties();
             string toStringMode = properties.getIceProperty("Ice.ToStringMode");
             test(toStringMode == "Unicode");
-            int closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout");
+            int closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout");
             test(closeTimeout == 10);
             string[] retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals");
             test(retryIntervals.Length == 1);

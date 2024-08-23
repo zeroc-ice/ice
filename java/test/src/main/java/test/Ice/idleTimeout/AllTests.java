@@ -65,7 +65,7 @@ public class AllTests {
 
     // Create a new communicator with the desired properties.
     properties = properties._clone();
-    properties.setProperty("Ice.Connection.IdleTimeout", "3");
+    properties.setProperty("Ice.Connection.Client.IdleTimeout", "3");
     properties.setProperty("Ice.Warn.Connections", "0");
     var initData = new InitializationData();
     initData.properties = properties;
@@ -98,8 +98,8 @@ public class AllTests {
 
     // Create a new communicator with the desired properties.
     properties = properties._clone();
-    properties.setProperty("Ice.Connection.IdleTimeout", "1");
-    properties.setProperty("Ice.Connection.EnableIdleCheck", enabled ? "1" : "0");
+    properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
+    properties.setProperty("Ice.Connection.Client.EnableIdleCheck", enabled ? "1" : "0");
     properties.setProperty("Ice.Warn.Connections", "0");
     var initData = new InitializationData();
     initData.properties = properties;

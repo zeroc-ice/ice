@@ -749,7 +749,7 @@ SessionRouterI::getSessionTimeout(const Ice::Current& current) const
 int
 SessionRouterI::getACMTimeout(const Ice::Current&) const
 {
-    int idleTimeout = _instance->properties()->getIcePropertyAsInt("Ice.Connection.IdleTimeout");
+    int idleTimeout = _instance->properties()->getIcePropertyAsInt("Ice.Connection.Server.IdleTimeout");
     return _instance->properties()->getPropertyAsIntWithDefault("Glacier2.Client.Connection.IdleTimeout", idleTimeout);
 }
 

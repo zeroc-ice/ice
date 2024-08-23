@@ -698,16 +698,9 @@ public sealed class Instance
 
             _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties, _initData.logger);
 
-            Properties properties = _initData.properties;
+            clientConnectionOptions = readConnectionOptions("Ice.Connection.Client");
+            _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
 
-            // The TimeSpan value can be <= 0. In this case, the timeout is considered infinite.
-            clientConnectionOptions = new(
-                connectTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout")),
-                closeTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")),
-                idleTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout")),
-                enableIdleCheck: properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
-                inactivityTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout")),
-                maxDispatches: properties.getIcePropertyAsInt("Ice.Connection.MaxDispatches"));
             {
                 int num = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
                 if (num < 1 || num > 0x7fffffff / 1024)
@@ -1412,39 +1405,34 @@ public sealed class Instance
 
     internal ConnectionOptions serverConnectionOptions(string adapterName)
     {
-        if (adapterName.Length > 0)
-        {
-            Properties properties = _initData.properties;
+        Debug.Assert(adapterName.Length > 0);
+        Properties properties = _initData.properties;
+        string propertyPrefix = $"{adapterName}.Connection";
 
-            return new(
-                connectTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
-                    $"{adapterName}.Connection.ConnectTimeout",
-                    (int)clientConnectionOptions.connectTimeout.TotalSeconds)),
+        return new(
+            connectTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                $"{propertyPrefix}.ConnectTimeout",
+                (int)_serverConnectionOptions.connectTimeout.TotalSeconds)),
 
-                closeTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
-                    $"{adapterName}.Connection.CloseTimeout",
-                    (int)clientConnectionOptions.closeTimeout.TotalSeconds)),
+            closeTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                $"{propertyPrefix}.CloseTimeout",
+                (int)_serverConnectionOptions.closeTimeout.TotalSeconds)),
 
-                idleTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
-                    $"{adapterName}.Connection.IdleTimeout",
-                    (int)clientConnectionOptions.idleTimeout.TotalSeconds)),
+            idleTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                $"{propertyPrefix}.IdleTimeout",
+                (int)_serverConnectionOptions.idleTimeout.TotalSeconds)),
 
-                enableIdleCheck: properties.getPropertyAsIntWithDefault(
-                    $"{adapterName}.Connection.EnableIdleCheck",
-                    clientConnectionOptions.enableIdleCheck ? 1 : 0) > 0,
+            enableIdleCheck: properties.getPropertyAsIntWithDefault(
+                $"{propertyPrefix}.EnableIdleCheck",
+                _serverConnectionOptions.enableIdleCheck ? 1 : 0) > 0,
 
-                inactivityTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
-                    $"{adapterName}.Connection.InactivityTimeout",
-                    (int)clientConnectionOptions.inactivityTimeout.TotalSeconds)),
+            inactivityTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                $"{propertyPrefix}.InactivityTimeout",
+                (int)_serverConnectionOptions.inactivityTimeout.TotalSeconds)),
 
-                maxDispatches: properties.getPropertyAsIntWithDefault(
-                    $"{adapterName}.Connection.MaxDispatches",
-                    clientConnectionOptions.maxDispatches));
-        }
-        else
-        {
-            return clientConnectionOptions;
-        }
+            maxDispatches: properties.getPropertyAsIntWithDefault(
+                $"{propertyPrefix}.MaxDispatches",
+                _serverConnectionOptions.maxDispatches));
     }
 
     internal ConnectionOptions clientConnectionOptions { get; private set; } = null!; // set in initialize
@@ -1475,6 +1463,21 @@ public sealed class Instance
         }
 
         return null;
+    }
+
+    private ConnectionOptions readConnectionOptions(string propertyPrefix)
+    {
+        Properties properties = _initData.properties;
+
+        // The TimeSpan value can be <= 0. In this case, the timeout is considered infinite.
+        return new(
+            connectTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.ConnectTimeout")),
+            closeTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.CloseTimeout")),
+            idleTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.IdleTimeout")),
+            enableIdleCheck: properties.getIcePropertyAsInt($"{propertyPrefix}.EnableIdleCheck") > 0,
+            inactivityTimeout:
+                TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.InactivityTimeout")),
+            maxDispatches: properties.getIcePropertyAsInt($"{propertyPrefix}.MaxDispatches"));
     }
 
     private const int StateActive = 0;
@@ -1517,6 +1520,7 @@ public sealed class Instance
     private HashSet<string> _adminFacetFilter = new();
     private Ice.Identity _adminIdentity;
     private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
+    private ConnectionOptions _serverConnectionOptions; // set in initialize
     private Ice.SSL.SSLEngine _sslEngine;
     private static bool _printProcessIdDone;
     private static bool _oneOffDone;
