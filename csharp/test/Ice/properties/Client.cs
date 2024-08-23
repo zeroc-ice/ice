@@ -116,6 +116,7 @@ public class Client : Test.TestHelper
             catch (System.ArgumentException)
             {
             }
+            Console.Out.WriteLine("ok");
         }
     }
 

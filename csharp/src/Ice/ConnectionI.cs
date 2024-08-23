@@ -1650,14 +1650,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         return;
                     }
 
-                    if (_maxDispatches > 0 && _dispatchCount >= _maxDispatches)
+                    if (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)
                     {
-                        // Don't resume reads if we're at or over the _maxDispatches limit.
-                        return;
+                        _threadPool.register(this, SocketOperation.Read);
+                        _idleTimeoutTransceiver?.enableIdleCheck();
                     }
+                    // else don't resume reading since we're at or over the _maxDispatches limit.
 
-                    _threadPool.register(this, SocketOperation.Read);
-                    _idleTimeoutTransceiver?.enableIdleCheck();
                     break;
                 }
 
@@ -1671,14 +1670,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         return;
                     }
 
-                    if (_maxDispatches > 0 && _dispatchCount >= _maxDispatches)
+                    if (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)
                     {
-                        // Reads are already disabled if the _maxDispatches limit is reached or exceeded.
-                        return;
+                        _threadPool.unregister(this, SocketOperation.Read);
+                        _idleTimeoutTransceiver?.disableIdleCheck();
                     }
+                    // else reads are already disabled because the _maxDispatches limit is reached or exceeded.
 
-                    _threadPool.unregister(this, SocketOperation.Read);
-                    _idleTimeoutTransceiver?.disableIdleCheck();
                     break;
                 }
 
@@ -2530,7 +2528,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                     if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches)
                     {
-                        // Resume reads if the connection is active and the dispatch count is about to be below
+                        // Resume reading if the connection is active and the dispatch count is about to be less than
                         // _maxDispatches.
                         _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
                         _idleTimeoutTransceiver?.enableIdleCheck();
@@ -2943,7 +2941,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private int _dispatchCount;
 
     // When we dispatch _maxDispatches concurrent requests, we stop reading the connection to back-pressure the peer.
-    // _maxDispatches == 0 means no limit.
+    // _maxDispatches <= 0 means no limit.
     private readonly int _maxDispatches;
 
     private int _state; // The current state.
