@@ -3,12 +3,6 @@
 import Foundation
 import PackageDescription
 
-let iceCppSettings: [CXXSetting] = [
-    .headerSearchPath("src"),
-    .headerSearchPath("include"),
-    .headerSearchPath("include/generated"),
-]
-
 let iceUtilSources: [String] = [
     "src/Ice/ConsoleUtil.cpp",
     "src/Ice/CtrlCHandler.cpp",
@@ -75,126 +69,49 @@ let package = Package(
             dependencies: ["IceCpp", "IceDiscoveryCpp", "IceLocatorDiscoveryCpp"],
             path: "swift/src/IceImpl",
             cxxSettings: [
+                // We rely on a few private headers from Ice
                 .headerSearchPath("../../../cpp/src/"),
-                .headerSearchPath("../../../cpp/include"),
-                .headerSearchPath("../../../cpp/include/generated"),
             ],
             linkerSettings: [
+                .linkedLibrary("bz2"),
                 .linkedFramework("ExternalAccessory")
             ]
         ),
-        .target(
+        .binaryTarget(
             name: "IceCpp",
-            dependencies: ["IceUtilCpp"],
-            path: "cpp",
-            exclude: [
-                "test",
-                "src/Ice/build",
-                "src/Ice/msbuild",
-                "src/Ice/Ice.rc",
-                "src/Ice/Makefile.mk",
-                "src/Ice/DLLMain.cpp",
-                "src/Ice/RegisterPluginsInit_min.cpp",
-                "src/Ice/SSL/SchannelEngine.cpp",
-                "src/Ice/SSL/SchannelTransceiverI.cpp",
-                "src/Ice/SSL/OpenSSLTransceiverI.cpp",
-                "src/Ice/SSL/OpenSSLEngine.cpp",
-                "src/Ice/EventLoggerMsg.mc",
-                "src/Ice/generated/BuiltinSequences.ice.d",
-                "src/Ice/generated/Context.ice.d",
-                "src/Ice/generated/EndpointTypes.ice.d",
-                "src/Ice/generated/Identity.ice.d",
-                "src/Ice/generated/Locator.ice.d",
-                "src/Ice/generated/Metrics.ice.d",
-                "src/Ice/generated/OperationMode.ice.d",
-                "src/Ice/generated/Process.ice.d",
-                "src/Ice/generated/PropertiesAdmin.ice.d",
-                "src/Ice/generated/PropertyDict.ice.d",
-                "src/Ice/generated/RemoteLogger.ice.d",
-                "src/Ice/generated/Router.ice.d",
-                "src/Ice/generated/Version.ice.d",
-                "src/IceIAP/Makefile.mk",
-            ] + iceUtilSources,
-            sources: ["src/Ice", "src/IceIAP"],
-            publicHeadersPath: "include/Ice",
-            cxxSettings: iceCppSettings,
-            linkerSettings: [.linkedLibrary("iconv"), .linkedLibrary("bz2")]
+            path: "cpp/lib/Ice.xcframework"
         ),
-        .target(
+        .binaryTarget(
             name: "IceDiscoveryCpp",
-            dependencies: ["IceCpp"],
-            path: "cpp",
-            exclude: [
-                "test",
-                "src/IceDiscovery/build",
-                "src/IceDiscovery/msbuild",
-                "src/IceDiscovery/IceDiscovery.rc",
-                "src/IceDiscovery/Makefile.mk",
-                "src/IceDiscovery/generated/IceDiscovery.ice.d",
-            ],
-            sources: ["src/IceDiscovery"],
-            publicHeadersPath: "src/IceDiscovery/generated",
-            cxxSettings: iceCppSettings
-        ),
-        .target(
-            name: "IceLocatorDiscoveryCpp",
-            dependencies: ["IceCpp"],
-            path: "cpp",
-            exclude: [
-                "test",
-                "src/IceLocatorDiscovery/build",
-                "src/IceLocatorDiscovery/msbuild",
-                "src/IceLocatorDiscovery/IceLocatorDiscovery.rc",
-                "src/IceLocatorDiscovery/Makefile.mk",
-                "src/IceLocatorDiscovery/generated/IceLocatorDiscovery.ice.d",
-            ],
-            sources: ["src/IceLocatorDiscovery"],
-            publicHeadersPath: "src/IceLocatorDiscovery/generated",
-            cxxSettings: iceCppSettings
-        ),
+            path: "cpp/lib/IceDiscovery.xcframework"
 
-        .target(
-            name: "IceUtilCpp",
-            path: "cpp",
-            exclude: [
-                "test",
-                "src/IceUtil/build",
-                "src/IceUtil/msbuild",
-                "src/IceUtil/Makefile.mk",
-            ],
-            sources: iceUtilSources,
-            publicHeadersPath: "src/IceUtil",  // dummy path as we can't re-use include/Ice
-            cxxSettings: iceCppSettings
         ),
-        .target(
-            name: "SliceCpp",
-            dependencies: ["IceUtilCpp", "mcpp"],
-            path: "cpp",
-            exclude: [
-                "test",
-                "src/Slice/build",
-                "src/Slice/msbuild",
-                "src/Slice/Scanner.l",
-                "src/Slice/Grammar.y",
-                "src/Slice/Makefile.mk",
-            ],
-            sources: ["src/Slice"],
-            publicHeadersPath: "src/Slice",
-            cxxSettings: iceCppSettings
+        .binaryTarget(
+            name: "IceLocatorDiscoveryCpp",
+            path: "cpp/lib/IceLocatorDiscovery.xcframework"
+
         ),
         .executableTarget(
             name: "slice2swift",
-            dependencies: ["SliceCpp", "IceUtilCpp"],
+            dependencies: ["mcpp"],
             path: "cpp",
             exclude: [
                 "test",
                 "src/slice2swift/build",
                 "src/slice2swift/msbuild",
                 "src/slice2swift/Slice2Swift.rc",
+                "src/Slice/build",
+                "src/Slice/msbuild",
+                "src/Slice/Scanner.l",
+                "src/Slice/Grammar.y",
+                "src/Slice/Makefile.mk",
             ],
-            sources: ["src/slice2swift"],
+            sources: ["src/slice2swift", "src/Slice"] + iceUtilSources,
             publicHeadersPath: "src/slice2swift",
-            cxxSettings: iceCppSettings
+            cxxSettings: [
+                .headerSearchPath("src"),
+                .headerSearchPath("include")
+            ]
         ),
         .plugin(
             name: "CompileSlice",

@@ -4,15 +4,21 @@
 # $1: The name of the framework (Ice, IceDiscovery, etc.)
 # $2: The platform
 # $3: Output path
-
 define create-xcframework-from-library
 
-lib/$1.xcframework: $1[macosx-static]
+lib/$1.xcframework: lib/lib$1.a
 	$(E) Creating lib/$1.xcframework
-	$(Q)$(RM) -r $3/$1.xcframework
-	$(Q)xcodebuild -create-xcframework -library $(top_srcdir)/cpp/lib/lib$1.a -headers $(top_srcdir)/cpp/include -output lib/$1.xcframework
+	$(Q)$(RM) -r lib/$1.xcframework
+	$(Q)if [ -d include/$1 ]; then \
+		xcodebuild -create-xcframework -library lib/lib$1.a -headers include/$1 -output lib/$1.xcframework ; \
+		cp include/generated/$1/*.h lib/$1.xcframework/macos-arm64/Headers ; \
+		mkdir -p lib/$1.xcframework/macos-arm64/Headers/$1 ; \
+		find lib/$1.xcframework/macos-arm64/Headers/* -prune ! -name $1 -exec mv {} lib/$1.xcframework/macos-arm64/Headers/$1 \; ; \
+	else \
+		xcodebuild -create-xcframework -library lib/lib$1.a -output lib/$1.xcframework; \
+	fi
 
-src all:: lib/$1.xcframework
+srcs all:: lib/$1.xcframework
 
 clean::
 	$(E) Cleaning lib/$1.xcframework
@@ -20,19 +26,12 @@ clean::
 
 endef
 
-xcframeworks	= Ice IceDiscovery IceLocatorDiscovery
+ifeq ($(filter $(CONFIGS),static),)
+Ice_always_enable_configs := static
+IceDiscovery_always_enable_configs := static
+IceLocatorDiscovery_always_enable_configs := static
+endif
 
-$(eval $(call create-xcframework-from-library,Ice,arm64,$(top_srcdir)/cpp/lib))
-# $(eval $(call create-xcframework-from-library,IceDiscovery,arm64,$(top_srcdir)/cpp/lib))
-# $(eval $(call create-xcframework-from-library,IceLocatorDiscovery,arm64,$(top_srcdir)/cpp/lib))
-
-# $(call make-projects,xcodesdk)
-
-define make-cats-project
-
-cats:
-	$(E) "Making cats"
-
-all:: cats
-
-endef
+$(eval $(call create-xcframework-from-library,Ice))
+$(eval $(call create-xcframework-from-library,IceDiscovery))
+$(eval $(call create-xcframework-from-library,IceLocatorDiscovery))
