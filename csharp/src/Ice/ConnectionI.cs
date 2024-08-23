@@ -1443,7 +1443,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     }
 
     /// <summary>Aborts the connection with a <see cref="ConnectionAbortedException" /> if the connection is active and
-    /// does not receive any byte for some time. See the IdleCheckTransceiverDecorator.</summary>
+    /// does not receive a byte for some time. See the IdleCheckTransceiverDecorator.</summary>
     internal void idleCheck(TimeSpan idleTimeout)
     {
         lock (this)
