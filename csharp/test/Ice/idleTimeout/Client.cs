@@ -7,10 +7,10 @@ public class Client : global::Test.TestHelper
     public override async Task runAsync(string[] args)
     {
         var properties = createTestProperties(ref args);
-        properties.setProperty("Ice.Connection.IdleTimeout", "1");
+        properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
 
         // TODO: temporary work-around for IceSSL always sending messages asynchronously.
-        properties.setProperty("Ice.Connection.EnableIdleCheck", "0");
+        properties.setProperty("Ice.Connection.Client.EnableIdleCheck", "0");
         using var communicator = initialize(properties);
         await AllTests.allTests(this);
     }

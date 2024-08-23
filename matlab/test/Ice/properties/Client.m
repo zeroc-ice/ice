@@ -24,7 +24,7 @@ function client(args)
     props = Ice.createProperties();
     toStringMode = props.getIceProperty('Ice.ToStringMode');
     assert(strcmp(toStringMode, 'Unicode'));
-    closeTimeout = props.getIcePropertyAsInt('Ice.Connection.CloseTimeout');
+    closeTimeout = props.getIcePropertyAsInt('Ice.Connection.Client.CloseTimeout');
     assert(closeTimeout == 10);
     retryIntervals = props.getIcePropertyAsList('Ice.RetryIntervals');
     assert(length(retryIntervals) == 1);

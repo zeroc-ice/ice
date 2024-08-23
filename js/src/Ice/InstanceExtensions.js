@@ -185,11 +185,11 @@ Instance.prototype.finishSetup = function (communicator) {
         }
 
         this._clientConnectionOptions = new ConnectionOptions(
-            this._initData.properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout"),
-            this._initData.properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout"),
-            this._initData.properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout"),
-            this._initData.properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
-            this._initData.properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.ConnectTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.IdleTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.EnableIdleCheck") > 0,
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.InactivityTimeout"),
         );
 
         if (_oneOfDone === undefined) {

@@ -7,7 +7,7 @@ public class Client extends test.TestHelper {
   public void run(String[] args) {
     var properties = createTestProperties(args);
     properties.setProperty("Ice.Package.Test", "test.Ice.idleTimeout");
-    properties.setProperty("Ice.Connection.IdleTimeout", "1");
+    properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
 
     try (var communicator = initialize(properties)) {
       AllTests.allTests(this);
