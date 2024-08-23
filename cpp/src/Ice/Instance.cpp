@@ -1842,15 +1842,15 @@ IceInternal::Instance::readConnectionOptions(const string& propertyPrefix) const
     const PropertiesPtr& properties = _initData.properties;
     ConnectionOptions connectionOptions;
 
-    connectionOptions.connectTimeout = chrono::seconds(
-        properties->getIcePropertyAsInt(propertyPrefix + ".ConnectTimeout"));
+    connectionOptions.connectTimeout =
+        chrono::seconds(properties->getIcePropertyAsInt(propertyPrefix + ".ConnectTimeout"));
 
     connectionOptions.closeTimeout = chrono::seconds(properties->getIcePropertyAsInt(propertyPrefix + ".CloseTimeout"));
     connectionOptions.idleTimeout = chrono::seconds(properties->getIcePropertyAsInt(propertyPrefix + ".IdleTimeout"));
     connectionOptions.enableIdleCheck = properties->getIcePropertyAsInt(propertyPrefix + ".EnableIdleCheck") > 0;
 
-    connectionOptions.inactivityTimeout = chrono::seconds(
-        properties->getIcePropertyAsInt(propertyPrefix + ".InactivityTimeout"));
+    connectionOptions.inactivityTimeout =
+        chrono::seconds(properties->getIcePropertyAsInt(propertyPrefix + ".InactivityTimeout"));
 
     return connectionOptions;
 }
