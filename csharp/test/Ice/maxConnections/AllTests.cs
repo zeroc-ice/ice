@@ -61,9 +61,9 @@ internal class AllTests : global::Test.AllTests
             await p.ice_pingAsync();
             test(false);
         }
-        catch (Ice.ConnectTimeoutException)
+        catch (Ice.ConnectionLostException)
         {
-            // expected
+            // expected, the server aborts the connection when MaxConnections is reached
         }
 
         // Close all connections
@@ -81,16 +81,7 @@ internal class AllTests : global::Test.AllTests
         for (int i = 0; i < max; i++)
         {
             p = Test.TestIntfPrxHelper.uncheckedCast(p.ice_connectionId($"connection-{i}"));
-            try
-            {
-                await p.ice_pingAsync();
-            }
-            catch
-            {
-                // unexpected
-                Console.WriteLine($"could not connect to {p} with connection ID {p.ice_getConnectionId()}");
-                throw;
-            }
+            await p.ice_pingAsync();
             connectionList.Add(p.ice_getCachedConnection()!);
         }
 
@@ -100,7 +91,7 @@ internal class AllTests : global::Test.AllTests
             await p.ice_pingAsync();
             test(false);
         }
-        catch (Ice.ConnectTimeoutException)
+        catch (Ice.ConnectionLostException)
         {
             // expected
         }

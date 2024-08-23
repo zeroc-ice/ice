@@ -8,11 +8,7 @@ public class Client : global::Test.TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        var properties = createTestProperties(ref args);
-
-        // Reduce connect timeout to fail quickly if the server is not accepting connections.
-        properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
-        using var communicator = initialize(properties);
+        using var communicator = initialize(ref args);
         await AllTests.allTests(this);
     }
 

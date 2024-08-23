@@ -1350,6 +1350,29 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 {
                     transceiver = _acceptor.accept();
 
+                    if (_maxConnections > 0 && _connections.Count == _maxConnections)
+                    {
+                        // Can't accept more connections, so we abort this transport connection.
+
+                        if (_instance.traceLevels().network >= 2)
+                        {
+                            _instance.initializationData().logger.trace(
+                                _instance.traceLevels().networkCat,
+                                $"rejecting new {_endpoint.protocol()} connection at {_acceptor} because the maximum number of connections is reached");
+                        }
+
+                        try
+                        {
+                            transceiver.close();
+                        }
+                        catch
+                        {
+                            // Ignore
+                        }
+                        transceiver.destroy();
+                        return;
+                    }
+
                     if (_instance.traceLevels().network >= 2)
                     {
                         StringBuilder s = new StringBuilder("trying to accept ");
@@ -1416,17 +1439,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 }
 
                 _connections.Add(connection);
-                Debug.Assert(_acceptor is not null);
-                if (_maxConnections > 0 && _connections.Count == _maxConnections)
-                {
-                    if (_instance.traceLevels().network >= 1)
-                    {
-                        _instance.initializationData().logger.trace(
-                            _instance.traceLevels().networkCat,
-                            $"holding {_endpoint.protocol()} connections at {_acceptor} because the maximum number of connections is reached");
-                    }
-                    _adapter.getThreadPool().unregister(this, SocketOperation.Read);
-                }
             }
             finally
             {
@@ -1610,8 +1622,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                     return;
                 }
 
-                // Accept new connections unless we are already at maxConnections.
-                if (_acceptor is not null && (_maxConnections <= 0 || _connections.Count < _maxConnections))
+                if (_acceptor is not null)
                 {
                     if (_instance.traceLevels().network >= 1)
                     {
@@ -1636,8 +1647,8 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                     return;
                 }
 
-                // Stop accepting new connections if _connections.Count allows it
-                if (_acceptor is not null && (_maxConnections <= 0 || _connections.Count < _maxConnections))
+                // Stop accepting new connections.
+                if (_acceptor is not null)
                 {
                     if (_instance.traceLevels().network >= 1)
                     {
@@ -1755,19 +1766,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         {
             if (_state is StateActive or StateHolding)
             {
-                Debug.Assert(_acceptor is not null);
-                if (_state is StateActive && _maxConnections > 0 && _connections.Count == _maxConnections)
-                {
-                    // _connections.Count is about to be smaller than _maxConnections
-                    if (_instance.traceLevels().network >= 1)
-                    {
-                        _instance.initializationData().logger.trace(
-                            _instance.traceLevels().networkCat,
-                            $"accepting {_endpoint.protocol()} connections at {_acceptor}");
-                    }
-                    // Resume accepting new connections.
-                    _adapter.getThreadPool().register(this, SocketOperation.Read);
-                }
                 _connections.Remove(connection);
             }
             // else it's already being cleaned up.
