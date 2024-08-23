@@ -1416,6 +1416,17 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 }
 
                 _connections.Add(connection);
+                Debug.Assert(_acceptor is not null);
+                if (_maxConnections > 0 && _connections.Count == _maxConnections)
+                {
+                    if (_instance.traceLevels().network >= 1)
+                    {
+                        _instance.initializationData().logger.trace(
+                            _instance.traceLevels().networkCat,
+                            $"holding {_endpoint.protocol()} connections at {_acceptor} because the maximum number of connections is reached");
+                    }
+                    _adapter.getThreadPool().unregister(this, SocketOperation.Read);
+                }
             }
             finally
             {
@@ -1493,6 +1504,11 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     {
         _instance = instance;
         _connectionOptions = instance.serverConnectionOptions(adapter.getName());
+
+        // Meaningful only for non-datagram (non-UDP) connections.
+        _maxConnections = endpoint.datagram() ? 0 :
+            instance.initializationData().properties.getPropertyAsInt($"{adapter.getName()}.MaxConnections");
+
         _endpoint = endpoint;
         _publishedEndpoint = publish;
         _adapter = adapter;
@@ -1525,7 +1541,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 }
                 _endpoint = _transceiver.bind();
 
-                Ice.ConnectionI connection = new Ice.ConnectionI(
+                var connection = new ConnectionI(
                     _instance,
                     _transceiver,
                     connector: null,
@@ -1535,6 +1551,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                     _connectionOptions);
                 connection.startAndWait();
                 _connections.Add(connection);
+                Debug.Assert(_maxConnections == 0); // UDP so no max connections.
             }
             else
             {
@@ -1592,16 +1609,15 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 {
                     return;
                 }
-                if (_acceptor != null)
+
+                // Accept new connections unless we are already at maxConnections.
+                if (_acceptor is not null && (_maxConnections <= 0 || _connections.Count < _maxConnections))
                 {
                     if (_instance.traceLevels().network >= 1)
                     {
-                        StringBuilder s = new StringBuilder("accepting ");
-                        s.Append(_endpoint.protocol());
-                        s.Append(" connections at ");
-                        s.Append(_acceptor.ToString());
-                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat,
-                                                                    s.ToString());
+                        _instance.initializationData().logger.trace(
+                            _instance.traceLevels().networkCat,
+                            $"accepting {_endpoint.protocol()} connections at {_acceptor}");
                     }
                     _adapter.getThreadPool().register(this, SocketOperation.Read);
                 }
@@ -1619,16 +1635,15 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 {
                     return;
                 }
-                if (_acceptor != null)
+
+                // Stop accepting new connections if _connections.Count allows it
+                if (_acceptor is not null && (_maxConnections <= 0 || _connections.Count < _maxConnections))
                 {
                     if (_instance.traceLevels().network >= 1)
                     {
-                        StringBuilder s = new StringBuilder("holding ");
-                        s.Append(_endpoint.protocol());
-                        s.Append(" connections at ");
-                        s.Append(_acceptor.ToString());
-                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat,
-                                                                    s.ToString());
+                        _instance.initializationData().logger.trace(
+                            _instance.traceLevels().networkCat,
+                            $"holding {_endpoint.protocol()} connections at {_acceptor}");
                     }
                     _adapter.getThreadPool().unregister(this, SocketOperation.Read);
                 }
@@ -1740,6 +1755,19 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         {
             if (_state is StateActive or StateHolding)
             {
+                Debug.Assert(_acceptor is not null);
+                if (_state is StateActive && _maxConnections > 0 && _connections.Count == _maxConnections)
+                {
+                    // _connections.Count is about to be smaller than _maxConnections
+                    if (_instance.traceLevels().network >= 1)
+                    {
+                        _instance.initializationData().logger.trace(
+                            _instance.traceLevels().networkCat,
+                            $"accepting {_endpoint.protocol()} connections at {_acceptor}");
+                    }
+                    // Resume accepting new connections.
+                    _adapter.getThreadPool().register(this, SocketOperation.Read);
+                }
                 _connections.Remove(connection);
             }
             // else it's already being cleaned up.
@@ -1753,6 +1781,8 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     private readonly Instance _instance;
     private readonly ConnectionOptions _connectionOptions;
+
+    private readonly int _maxConnections;
 
     private Acceptor _acceptor;
     private readonly Transceiver _transceiver;
