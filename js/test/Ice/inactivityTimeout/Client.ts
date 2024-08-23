@@ -75,8 +75,8 @@ export class Client extends TestHelper {
             const [properties] = this.createTestProperties(args);
             // We configure a low idle timeout to make sure we send heartbeats frequently. It's the sending of the
             // heartbeats that schedules the inactivity timer task.
-            properties.setProperty("Ice.Connection.IdleTimeout", "1");
-            properties.setProperty("Ice.Connection.InactivityTimeout", "3");
+            properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
+            properties.setProperty("Ice.Connection.Client.InactivityTimeout", "3");
             [communicator] = this.initialize(properties);
             await this.allTests();
         } finally {

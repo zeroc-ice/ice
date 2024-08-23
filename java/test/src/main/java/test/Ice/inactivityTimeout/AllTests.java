@@ -54,7 +54,7 @@ public class AllTests {
 
     // Create a new communicator with the desired properties.
     properties = properties._clone();
-    properties.setProperty("Ice.Connection.InactivityTimeout", "5");
+    properties.setProperty("Ice.Connection.Client.InactivityTimeout", "5");
     var initData = new InitializationData();
     initData.properties = properties;
     try (var communicator = Util.initialize(initData)) {

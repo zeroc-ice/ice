@@ -60,7 +60,7 @@ export class Client extends TestHelper {
             const toStringMode = properties.getIceProperty("Ice.ToStringMode");
             test(toStringMode == "Unicode");
 
-            const closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout");
+            const closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout");
             test(closeTimeout == 10);
 
             const retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals");

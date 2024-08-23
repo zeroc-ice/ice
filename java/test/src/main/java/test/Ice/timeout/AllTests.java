@@ -63,7 +63,7 @@ public class AllTests {
       // Expect success.
       //
       var properties = communicator.getProperties()._clone();
-      properties.setProperty("Ice.Connection.ConnectTimeout", "-1");
+      properties.setProperty("Ice.Connection.Client.ConnectTimeout", "-1");
       var initData = new InitializationData();
       initData.properties = properties;
       try (var communicator2 = com.zeroc.Ice.Util.initialize(initData)) {

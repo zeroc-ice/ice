@@ -117,7 +117,7 @@ Client::run(int, char**)
         Ice::PropertiesPtr properties = Ice::createProperties();
         string toStringMode = properties->getIceProperty("Ice.ToStringMode");
         test(toStringMode == "Unicode");
-        int32_t closeTimeout = properties->getIcePropertyAsInt("Ice.Connection.CloseTimeout");
+        int32_t closeTimeout = properties->getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout");
         test(closeTimeout == 10);
         vector<string> retryIntervals = properties->getIcePropertyAsList("Ice.RetryIntervals");
         test(retryIntervals.size() == 1);
