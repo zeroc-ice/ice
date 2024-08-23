@@ -234,8 +234,6 @@ CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 void
 CollocatedRequestHandler::dispatchAll(InputStream& is, int32_t requestId, int32_t requestCount)
 {
-    optional<int32_t> batchRequestCount = requestCount > 1 ? optional<int32_t>(requestCount) : nullopt;
-
     try
     {
         while (requestCount > 0)
@@ -256,7 +254,7 @@ CollocatedRequestHandler::dispatchAll(InputStream& is, int32_t requestId, int32_
                 break;
             }
 
-            IncomingRequest request{requestId, nullptr, _adapter, is, batchRequestCount};
+            IncomingRequest request{requestId, nullptr, _adapter, is, requestCount};
 
             try
             {

@@ -15,9 +15,9 @@ IncomingRequest::IncomingRequest(
     ConnectionPtr connection,
     ObjectAdapterPtr adapter,
     InputStream& inputStream,
-    optional<int32_t> batchRequestCount)
+    int32_t requestCount)
     : _inputStream(inputStream),
-      _batchRequestCount(batchRequestCount)
+      _requestCount(requestCount)
 {
     _current.adapter = std::move(adapter);
     _current.con = std::move(connection);
