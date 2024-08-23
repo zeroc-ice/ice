@@ -43,7 +43,7 @@ export class Client extends TestHelper {
 
         {
             var properties = communicator.getProperties().clone();
-            properties.setProperty("Ice.Connection.ConnectTimeout", "-1");
+            properties.setProperty("Ice.Connection.Client.ConnectTimeout", "-1");
             const [communicator2, _] = this.initialize(properties);
 
             const to = new Test.TimeoutPrx(communicator2, timeout.toString());
@@ -121,8 +121,8 @@ export class Client extends TestHelper {
             //
             properties.setProperty("Ice.RetryIntervals", "-1");
 
-            properties.setProperty("Ice.Connection.ConnectTimeout", "1");
-            properties.setProperty("Ice.Connection.CloseTimeout", "1");
+            properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
+            properties.setProperty("Ice.Connection.Client.CloseTimeout", "1");
 
             //
             // We don't want connection warnings because of the timeout

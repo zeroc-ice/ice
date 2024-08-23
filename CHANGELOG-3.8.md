@@ -19,8 +19,9 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   Idle is never a good state. To prevent connections from becoming idle, Ice ensures there is regular write activity on
   established connections: if there is no write on a connection for idle timeout / 2, Ice sends a heartbeat on this
   connection. A heartbeat is a one-way, unacknowledged, ValidateConnection message. The default idle timeout is
-  60 seconds. You can change this value with the configuration property `Ice.Connection.IdleTimeout` (the unit is
-  seconds). You can also override this value for a specific object adapter with the configuration property
+  60 seconds. You can change this value with the configuration property `Ice.Connection.Client.IdleTimeout` (for client
+  connections) or `Ice.Connection.Server.IdleTimeout` (for server connections). The unit for this timeout is seconds.
+   You can also override this value for a specific object adapter with the configuration property
   `AdapterName.Connection.IdleTimeout`. Our general recommendation is to keep things simple: use the same value
   (typically the default) for all your Ice applications. In particular, the idle timeout is not negotiated during
   connection establishment and an idle timeout mismatch may result in untimely connection aborts.
@@ -31,8 +32,9 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
     you can set the property `Ice.ACM.Heartbeat` to 3, and make sure the `Ice.ACM.Timeout` property matches your idle
     timeout (the default for the ACM timeout is 60 seconds, just like the default idle timeout). If you are unable to
     change the configuration of your older Ice application, you can switch off the idle detection on the Ice 3.8 side
-    by setting `Ice.Connection.EnableIdleCheck` to 0. You can also switch off the idle check for just a specific object
-    adapter by setting `AdapterName.Connection.EnableIdleCheck` to 0.
+    by setting `Ice.Connection.Client.EnableIdleCheck` or `Ice.Connection.Server.EnableIdleCheck` to 0. You can also
+    switch off the idle check for just a specific object adapter by setting `AdapterName.Connection.EnableIdleCheck` to
+    0.
     - **Interop with IceRPC**\
     IceRPC uses the same idle timeout and idle check mechanism for connections that use the `ice` protocol.
   - Inactivity timeout\
@@ -42,20 +44,24 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   above) does not count as application-level activity. When a connection remains inactive for more than the inactivity
   timeout, this connection is closed gracefully. Inactive is a good state: the connection is healthy but unused, so we
   shut it down to reclaim resources. The default inactivity timeout is 300 seconds. You can change this default by
-  setting `Ice.Connection.InactivityTimeout` (the unit is seconds). You can also override this value for a specific
-  object adapter with the configuration property `AdapterName.Connection.InactivityTimeout`.\
+  setting `Ice.Connection.Client.InactivityTimeout` (for client connections) or
+  `Ice.Connection.Server.InactivityTimeout` (for server connections). The unit for this timeout is seconds. You
+  can also override this value for a specific object adapter with the configuration property
+  `AdapterName.Connection.InactivityTimeout`.\
   Note: make sure your inactivity timeout is greater than your idle timeout, as the implementation of the inactivity
   timeout relies on a smaller idle timeout value. If you disable your idle timeout by setting it to 0 or very large
   value (not something we recommend), you will effectively disable your inactivity timeout as well.
   - Connect timeout\
   A connection establishment fails if it takes more than connect timeout to complete. The default connect timeout is 10
-  seconds. You can change this value by setting `Ice.Connection.ConnectTimeout` (the unit is seconds). You can also
+  seconds. You can change this value by setting `Ice.Connection.Client.ConnectTimeout` (for client connections) or
+  `Ice.Connection.Server.ConnectTimeout` (for server connections). The unit for this timeout is seconds. You can also
   override this value for a specific object adapter with the configuration property
   `AdapterName.Connection.ConnectTimeout`.
   - Close timeout\
-  A graceful connection closure transitions to an ungraceful connection closure if it takes more than close timeout to
-  complete. The default close timeout is 10 seconds. You can change this value by setting `Ice.Connection.CloseTimeout`
-  (the unit is seconds). You can also override this value for a specific object adapter with the configuration
+  A graceful connection closure transitions to connection abort if it takes more than close timeout to complete. The
+  default close timeout is 10 seconds. You can change this value by setting `Ice.Connection.Client.CloseTimeout` (for
+  client connections) or `Ice.Connection.Server.CloseTimeout` (for server connections). The unit for this timeout is
+  seconds, as usual. You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.CloseTimeout`.
 
 - Simplify proxy creation.

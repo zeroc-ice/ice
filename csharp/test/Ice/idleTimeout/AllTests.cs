@@ -59,7 +59,7 @@ internal class AllTests : global::Test.AllTests
 
         // Create a new communicator with the desired properties.
         properties = properties.Clone();
-        properties.setProperty("Ice.Connection.IdleTimeout", "3");
+        properties.setProperty("Ice.Connection.Client.IdleTimeout", "3");
         properties.setProperty("Ice.Warn.Connections", "0");
         Communicator communicator = Util.initialize(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
@@ -95,8 +95,8 @@ internal class AllTests : global::Test.AllTests
 
         // Create a new communicator with the desired properties.
         properties = properties.Clone();
-        properties.setProperty("Ice.Connection.IdleTimeout", "1");
-        properties.setProperty("Ice.Connection.EnableIdleCheck", enabled ? "1" : "0");
+        properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
+        properties.setProperty("Ice.Connection.Client.EnableIdleCheck", enabled ? "1" : "0");
         properties.setProperty("Ice.Warn.Connections", "0");
         Communicator communicator = Util.initialize(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);

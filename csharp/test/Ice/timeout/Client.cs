@@ -13,8 +13,8 @@ namespace Ice.timeout
             //
             properties.setProperty("Ice.RetryIntervals", "-1");
 
-            properties.setProperty("Ice.Connection.ConnectTimeout", "1");
-            properties.setProperty("Ice.Connection.CloseTimeout", "1");
+            properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
+            properties.setProperty("Ice.Connection.Client.CloseTimeout", "1");
 
             //
             // This test kills connections, so we don't want warnings.

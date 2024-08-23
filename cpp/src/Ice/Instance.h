@@ -124,6 +124,7 @@ namespace IceInternal
         void initialize(const Ice::CommunicatorPtr&);
         void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
         void destroy();
+
         friend class Ice::Communicator;
 
         void updateConnectionObservers();
@@ -134,6 +135,8 @@ namespace IceInternal
         void setServerProcessProxy(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
 
         BufSizeWarnInfo getBufSizeWarnInternal(std::int16_t type);
+
+        Ice::ConnectionOptions readConnectionOptions(const std::string& propertyPrefix) const;
 
         enum State
         {
@@ -151,6 +154,7 @@ namespace IceInternal
         const Ice::ToStringMode _toStringMode;               // Immutable, not reset by destroy()
         const bool _acceptClassCycles;                       // Immutable, not reset by destroy()
         Ice::ConnectionOptions _clientConnectionOptions;
+        Ice::ConnectionOptions _serverConnectionOptions;
         RouterManagerPtr _routerManager;
         LocatorManagerPtr _locatorManager;
         ReferenceFactoryPtr _referenceFactory;

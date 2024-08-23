@@ -206,7 +206,7 @@ generated from the section label.
         <suffix name="Context.[any]" />
     </class>
 
-    <class name="connection" prefix-only="false">
+    <class name="connection" prefix-only="true">
         <suffix name="CloseTimeout" default="10" />
         <suffix name="ConnectTimeout" default="10" />
         <suffix name="EnableIdleCheck" default="1" />
@@ -264,7 +264,8 @@ generated from the section label.
         <property name="ClassGraphDepthMax" default="10" />
         <property name="Compression.Level" default="1" />
         <property name="Config" />
-        <property name="Connection" class="connection"/>
+        <property name="Connection.Client" class="connection" />
+        <property name="Connection.Server" class="connection" />
         <property name="ConsoleListener" default="1" />
         <property name="Default.CollocationOptimized" default="1" />
         <property name="Default.EncodingVersion" default="1.1"/>

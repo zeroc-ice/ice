@@ -71,7 +71,7 @@ class Client < ::TestHelper
         toStringMode = properties.getIceProperty("Ice.ToStringMode")
         test(toStringMode == "Unicode")
 
-        closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")
+        closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout")
         test(closeTimeout == 10)
 
         retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals")

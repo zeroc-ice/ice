@@ -487,29 +487,33 @@ IceInternal::Instance::pluginManager() const
 ConnectionOptions
 IceInternal::Instance::serverConnectionOptions(const string& adapterName) const
 {
-    ConnectionOptions connectionOptions = _clientConnectionOptions;
+    assert(!adapterName.empty());
+    string propertyPrefix = adapterName + ".Connection";
 
-    if (!adapterName.empty())
-    {
-        // Override if any of these properties are set, otherwise keep previous value.
-        const PropertiesPtr& properties = _initData.properties;
+    const PropertiesPtr& properties = _initData.properties;
 
-        connectionOptions.connectTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-            adapterName + ".Connection.ConnectTimeout",
-            static_cast<int>(connectionOptions.connectTimeout.count())));
-        connectionOptions.closeTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-            adapterName + ".Connection.CloseTimeout",
-            static_cast<int>(connectionOptions.closeTimeout.count())));
-        connectionOptions.idleTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-            adapterName + ".Connection.IdleTimeout",
-            static_cast<int>(connectionOptions.idleTimeout.count())));
-        connectionOptions.enableIdleCheck = properties->getPropertyAsIntWithDefault(
-                                                adapterName + ".Connection.EnableIdleCheck",
-                                                connectionOptions.enableIdleCheck ? 1 : 0) > 0;
-        connectionOptions.inactivityTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-            adapterName + ".Connection.InactivityTimeout",
-            static_cast<int>(connectionOptions.inactivityTimeout.count())));
-    }
+    ConnectionOptions connectionOptions;
+
+    connectionOptions.connectTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+        propertyPrefix + ".ConnectTimeout",
+        static_cast<int>(_serverConnectionOptions.connectTimeout.count())));
+
+    connectionOptions.closeTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+        propertyPrefix + ".CloseTimeout",
+        static_cast<int>(_serverConnectionOptions.closeTimeout.count())));
+
+    connectionOptions.idleTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+        propertyPrefix + ".IdleTimeout",
+        static_cast<int>(_serverConnectionOptions.idleTimeout.count())));
+
+    connectionOptions.enableIdleCheck = properties->getPropertyAsIntWithDefault(
+                                            propertyPrefix + ".EnableIdleCheck",
+                                            _serverConnectionOptions.enableIdleCheck ? 1 : 0) > 0;
+
+    connectionOptions.inactivityTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+        propertyPrefix + ".InactivityTimeout",
+        static_cast<int>(_serverConnectionOptions.inactivityTimeout.count())));
+
     return connectionOptions;
 }
 
@@ -1099,26 +1103,8 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) =
             make_shared<DefaultsAndOverrides>(_initData.properties, _initData.logger);
 
-        {
-            const PropertiesPtr& properties = _initData.properties;
-            ConnectionOptions& connectionOptions = const_cast<ConnectionOptions&>(_clientConnectionOptions);
-
-            connectionOptions.connectTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-                "Ice.Connection.ConnectTimeout",
-                static_cast<int>(connectionOptions.connectTimeout.count())));
-            connectionOptions.closeTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-                "Ice.Connection.CloseTimeout",
-                static_cast<int>(connectionOptions.closeTimeout.count())));
-            connectionOptions.idleTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-                "Ice.Connection.IdleTimeout",
-                static_cast<int>(connectionOptions.idleTimeout.count())));
-            connectionOptions.enableIdleCheck = properties->getPropertyAsIntWithDefault(
-                                                    "Ice.Connection.EnableIdleCheck",
-                                                    connectionOptions.enableIdleCheck ? 1 : 0) > 0;
-            connectionOptions.inactivityTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-                "Ice.Connection.InactivityTimeout",
-                static_cast<int>(connectionOptions.inactivityTimeout.count())));
-        }
+        const_cast<ConnectionOptions&>(_clientConnectionOptions) = readConnectionOptions("Ice.Connection.Client");
+        const_cast<ConnectionOptions&>(_serverConnectionOptions) = readConnectionOptions("Ice.Connection.Server");
 
         {
             int32_t num = _initData.properties->getIcePropertyAsInt("Ice.MessageSizeMax");
@@ -1848,6 +1834,25 @@ IceInternal::Instance::getBufSizeWarnInternal(int16_t type)
         info = p->second;
     }
     return info;
+}
+
+ConnectionOptions
+IceInternal::Instance::readConnectionOptions(const string& propertyPrefix) const
+{
+    const PropertiesPtr& properties = _initData.properties;
+    ConnectionOptions connectionOptions;
+
+    connectionOptions.connectTimeout = chrono::seconds(
+        properties->getIcePropertyAsInt(propertyPrefix + ".ConnectTimeout"));
+
+    connectionOptions.closeTimeout = chrono::seconds(properties->getIcePropertyAsInt(propertyPrefix + ".CloseTimeout"));
+    connectionOptions.idleTimeout = chrono::seconds(properties->getIcePropertyAsInt(propertyPrefix + ".IdleTimeout"));
+    connectionOptions.enableIdleCheck = properties->getIcePropertyAsInt(propertyPrefix + ".EnableIdleCheck") > 0;
+
+    connectionOptions.inactivityTimeout = chrono::seconds(
+        properties->getIcePropertyAsInt(propertyPrefix + ".InactivityTimeout"));
+
+    return connectionOptions;
 }
 
 void

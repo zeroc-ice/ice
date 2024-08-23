@@ -1091,7 +1091,7 @@ int
 RegistryI::getACMTimeout(const Ice::Current&) const
 {
     auto properties = _communicator->getProperties();
-    int idleTimeout = properties->getIcePropertyAsInt("Ice.Connection.IdleTimeout");
+    int idleTimeout = properties->getIcePropertyAsInt("Ice.Connection.Server.IdleTimeout");
     return properties->getPropertyAsIntWithDefault("IceGrid.Registry.Client.Connection.IdleTimeout", idleTimeout);
 }
 
