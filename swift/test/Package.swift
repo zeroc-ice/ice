@@ -16,14 +16,6 @@ struct TestConfig {
     var sliceFiles = defaultSliceFiles
 
     var resources: [Resource] = []
-
-    var sourceFiles: [String] {
-        sources + (collocated ? ["Collocated.swift"] : [])
-    }
-
-    var exclude: [String] {
-        return sliceFiles
-    }
 }
 
 let testDirectories: [String: TestConfig] = [
@@ -114,13 +106,15 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
     }
 
     let name = testPathToTargetName("\(testPath)")
+
+    let sources = testConfig.sources + (testConfig.collocated ? ["Collocated.swift"] : [])
+
     targets.append(
         Target.target(
             name: name,
             dependencies: dependencies,
             path: testPath,
-            exclude: testConfig.exclude,
-            sources: testConfig.sourceFiles,
+            sources: sources,
             resources: resources,
             plugins: plugins
         ))
