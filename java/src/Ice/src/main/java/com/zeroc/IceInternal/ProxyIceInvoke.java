@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object.Ice_invokeResult> {
+public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.Ice_invokeResult> {
   public ProxyIceInvoke(
       com.zeroc.Ice.ObjectPrx prx,
       String operation,

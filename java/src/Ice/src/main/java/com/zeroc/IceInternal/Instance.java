@@ -772,13 +772,8 @@ public final class Instance implements java.util.function.Function<String, Class
 
       _defaultsAndOverrides = new DefaultsAndOverrides(properties, _initData.logger);
 
-      _clientConnectionOptions =
-          new ConnectionOptions(
-              properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout"),
-              properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout"),
-              properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout"),
-              properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
-              properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout"));
+      _clientConnectionOptions = readConnectionOptions("Ice.Connection.Client");
+      _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
 
       {
         int num = properties.getIcePropertyAsInt("Ice.MessageSizeMax");
@@ -1355,27 +1350,23 @@ public final class Instance implements java.util.function.Function<String, Class
   }
 
   ConnectionOptions serverConnectionOptions(String adapterName) {
-    if (adapterName.isEmpty()) {
-      return _clientConnectionOptions;
-    } else {
-      Properties properties = _initData.properties;
+    assert (!adapterName.isEmpty());
+    Properties properties = _initData.properties;
+    String propertyPrefix = adapterName + ".Connection";
 
-      return new ConnectionOptions(
-          properties.getPropertyAsIntWithDefault(
-              adapterName + ".Connection.ConnectTimeout",
-              _clientConnectionOptions.connectTimeout()),
-          properties.getPropertyAsIntWithDefault(
-              adapterName + ".Connection.CloseTimeout", _clientConnectionOptions.closeTimeout()),
-          properties.getPropertyAsIntWithDefault(
-              adapterName + ".Connection.IdleTimeout", _clientConnectionOptions.idleTimeout()),
-          properties.getPropertyAsIntWithDefault(
-                  adapterName + ".Connection.EnableIdleCheck",
-                  _clientConnectionOptions.enableIdleCheck() ? 1 : 0)
-              > 0,
-          properties.getPropertyAsIntWithDefault(
-              adapterName + ".Connection.InactivityTimeout",
-              _clientConnectionOptions.inactivityTimeout()));
-    }
+    return new ConnectionOptions(
+        properties.getPropertyAsIntWithDefault(
+            propertyPrefix + ".ConnectTimeout", _serverConnectionOptions.connectTimeout()),
+        properties.getPropertyAsIntWithDefault(
+            propertyPrefix + ".CloseTimeout", _serverConnectionOptions.closeTimeout()),
+        properties.getPropertyAsIntWithDefault(
+            propertyPrefix + ".IdleTimeout", _serverConnectionOptions.idleTimeout()),
+        properties.getPropertyAsIntWithDefault(
+                propertyPrefix + ".EnableIdleCheck",
+                _serverConnectionOptions.enableIdleCheck() ? 1 : 0)
+            > 0,
+        properties.getPropertyAsIntWithDefault(
+            propertyPrefix + ".InactivityTimeout", _serverConnectionOptions.inactivityTimeout()));
   }
 
   private void updateConnectionObservers() {
@@ -1524,6 +1515,16 @@ public final class Instance implements java.util.function.Function<String, Class
     return null;
   }
 
+  private ConnectionOptions readConnectionOptions(String propertyPrefix) {
+    Properties properties = _initData.properties;
+    return new ConnectionOptions(
+        properties.getIcePropertyAsInt(propertyPrefix + ".ConnectTimeout"),
+        properties.getIcePropertyAsInt(propertyPrefix + ".CloseTimeout"),
+        properties.getIcePropertyAsInt(propertyPrefix + ".IdleTimeout"),
+        properties.getIcePropertyAsInt(propertyPrefix + ".EnableIdleCheck") > 0,
+        properties.getIcePropertyAsInt(propertyPrefix + ".InactivityTimeout"));
+  }
+
   private static final int StateActive = 0;
   private static final int StateDestroyInProgress = 1;
   private static final int StateDestroyed = 2;
@@ -1589,4 +1590,5 @@ public final class Instance implements java.util.function.Function<String, Class
           });
 
   private ConnectionOptions _clientConnectionOptions;
+  private ConnectionOptions _serverConnectionOptions;
 }

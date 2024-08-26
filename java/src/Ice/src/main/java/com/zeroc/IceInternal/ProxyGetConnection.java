@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Connection> {
+public class ProxyGetConnection extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Connection> {
   public ProxyGetConnection(com.zeroc.Ice._ObjectPrxI prx) {
     super(prx, "ice_getConnection");
     _observer = ObserverHelper.get(prx, "ice_getConnection");

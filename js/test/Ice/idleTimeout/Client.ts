@@ -32,8 +32,8 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
 
     // Create a new communicator with the desired properties.
     properties = properties.clone();
-    properties.setProperty("Ice.Connection.IdleTimeout", "1");
-    properties.setProperty("Ice.Connection.EnableIdleCheck", "1");
+    properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
+    properties.setProperty("Ice.Connection.Client.EnableIdleCheck", "1");
     properties.setProperty("Ice.Warn.Connections", "0");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
@@ -80,8 +80,8 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
 
     // Create a new communicator with the desired properties.
     properties = properties.clone();
-    properties.setProperty("Ice.Connection.IdleTimeout", "1");
-    properties.setProperty("Ice.Connection.EnableIdleCheck", "1");
+    properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
+    properties.setProperty("Ice.Connection.Client.EnableIdleCheck", "1");
     properties.setProperty("Ice.Warn.Connections", "0");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
@@ -121,8 +121,8 @@ async function testServerWithEnableDisableIdleCheck(
 
     // Create a new communicator with the desired properties.
     properties = properties.clone();
-    properties.setProperty("Ice.Connection.IdleTimeout", "1");
-    properties.setProperty("Ice.Connection.EnableIdleCheck", enabled ? "1" : "0");
+    properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
+    properties.setProperty("Ice.Connection.Client.EnableIdleCheck", enabled ? "1" : "0");
     properties.setProperty("Ice.Warn.Connections", "0");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
@@ -163,7 +163,7 @@ export class Client extends TestHelper {
         let communicator: Ice.Communicator | null = null;
         try {
             const [properties] = this.createTestProperties(args);
-            properties.setProperty("Ice.Connection.IdleTimeout", "1");
+            properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
             [communicator] = this.initialize(properties);
             await this.allTests();
         } finally {

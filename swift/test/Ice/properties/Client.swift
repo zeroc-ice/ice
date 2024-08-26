@@ -104,7 +104,7 @@ public class Client: TestHelperI {
             let toStringMode = try properties.getIceProperty("Ice.ToStringMode")
             try test(toStringMode == "Unicode")
 
-            let closeTimeout = try properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")
+            let closeTimeout = try properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout")
             try test(closeTimeout == 10)
 
             let retryIntervals = try properties.getIcePropertyAsList("Ice.RetryIntervals")

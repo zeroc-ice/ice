@@ -33,7 +33,7 @@ testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& prop
     // Create a new communicator with the desired properties.
     Ice::InitializationData initData;
     initData.properties = properties->clone();
-    initData.properties->setProperty("Ice.Connection.InactivityTimeout", "5");
+    initData.properties->setProperty("Ice.Connection.Client.InactivityTimeout", "5");
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
 
