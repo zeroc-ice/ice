@@ -7,8 +7,6 @@ let defaultSliceFiles = ["Test.ice"]
 let defaultSources = ["Client.swift", "AllTests.swift", "Server.swift", "TestI.swift"]
 
 struct TestConfig {
-    var dependencies: [Target.Dependency] = []
-
     var collocated = false
 
     var sources = defaultSources
@@ -107,7 +105,11 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
 
     let name = testPathToTargetName("\(testPath)")
 
-    let sources = testConfig.sources + (testConfig.collocated ? ["Collocated.swift"] : [])
+    var sources = testConfig.sources
+
+    if testConfig.collocated {
+        sources += ["Collocated.swift"]
+    }
 
     targets.append(
         Target.target(
@@ -118,6 +120,7 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
             resources: resources,
             plugins: plugins
         ))
+
     testDriverDependencies.append(Target.Dependency(stringLiteral: name))
 
     return targets
