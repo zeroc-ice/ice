@@ -15,6 +15,7 @@ default-configs   = shared
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 ifeq ($(os),Darwin)
 include         $(lang_srcdir)/config/Make.xcodesdk.rules
+include         $(lang_srcdir)/config/Make.xcframework.rules
 endif
 
 # Validate platforms and configs
