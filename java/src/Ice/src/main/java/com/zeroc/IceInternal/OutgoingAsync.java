@@ -13,7 +13,7 @@ import com.zeroc.Ice.UnknownUserException;
 import com.zeroc.Ice.UserException;
 import com.zeroc.Ice._ObjectPrxI;
 
-public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T> {
+public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
   @FunctionalInterface
   public static interface Unmarshaler<V> {
     V unmarshal(com.zeroc.Ice.InputStream istr);
