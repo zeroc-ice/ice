@@ -13,7 +13,7 @@ lib/$1.xcframework: lib/lib$1.a
 		xcodebuild -create-xcframework -library lib/lib$1.a -headers include/$1 -output lib/$1.xcframework ; \
 		mkdir -p lib/$1.xcframework/macos-arm64/Headers/$1 ; \
 		find lib/$1.xcframework/macos-arm64/Headers/* -prune ! -name $1 -exec mv {} lib/$1.xcframework/macos-arm64/Headers/$1 \; ; \
-		cp include/generated/$1/*.h lib/$1.xcframework/macos-arm64/Headers ; \
+		cp include/generated/$1/*.h lib/$1.xcframework/macos-arm64/Headers/$1 ; \
 	else \
 		xcodebuild -create-xcframework -library lib/lib$1.a -output lib/$1.xcframework; \
 	fi
