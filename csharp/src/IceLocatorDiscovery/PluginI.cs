@@ -173,7 +173,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     setLookupReply(LookupReplyPrx lookupReply)
     {
         //
-        // Use a lookup reply proxy whose address matches the interface used to send multicast datagram.
+        // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
         //
         var single = new Ice.Endpoint[1];
         foreach (var key in new List<LookupPrx>(_lookups.Keys))
