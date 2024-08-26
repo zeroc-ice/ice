@@ -1,3 +1,11 @@
+# C++ code generated from Slice files
+cpp/include/generated
+cpp/src/**/generated
+cpp/test/**/generated
+cpp/src/**/msbuild/*
+cpp/test/**/msbuild/*
+
+# C++ code generated from the Bison/Flex parsers
 cpp/src/Slice/Grammar.h
 cpp/src/Slice/Grammar.cpp
 cpp/src/Slice/Scanner.cpp
@@ -7,3 +15,7 @@ cpp/src/IceGrid/Scanner.cpp
 cpp/src/IceStorm/Grammar.h
 cpp/src/IceStorm/Grammar.cpp
 cpp/src/IceStorm/Scanner.cpp
+
+# The property files generated from `makeprops.py`
+cpp/src/Ice/PropertyNames.h
+cpp/src/Ice/PropertyNames.cpp

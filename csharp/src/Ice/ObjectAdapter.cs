@@ -1655,6 +1655,7 @@ public sealed class ObjectAdapter
         "Locator.PreferSecure",
         "Locator.CollocationOptimized",
         "Locator.Router",
+        "MaxConnections",
         "MessageSizeMax",
         "PublishedEndpoints",
         "ReplicaGroupId",
@@ -1674,11 +1675,13 @@ public sealed class ObjectAdapter
         "Router.LocatorCacheTimeout",
         "Router.InvocationTimeout",
         "ProxyOptions",
+        "ThreadPool.Serialize",
         "ThreadPool.Size",
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
         "ThreadPool.StackSize",
-        "ThreadPool.Serialize"
+        "ThreadPool.ThreadIdleTime",
+        "ThreadPool.ThreadPriority"
     };
 
     private bool filterProperties(List<string> unknownProps)
