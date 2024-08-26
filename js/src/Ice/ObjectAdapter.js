@@ -56,11 +56,13 @@ const _suffixes = [
     "Router.LocatorCacheTimeout",
     "Router.InvocationTimeout",
     "ProxyOptions",
+    "ThreadPool.Serialize",
     "ThreadPool.Size",
     "ThreadPool.SizeMax",
     "ThreadPool.SizeWarn",
     "ThreadPool.StackSize",
-    "ThreadPool.Serialize",
+    "ThreadPool.ThreadIdleTime",
+    "ThreadPool.ThreadPriority",
 ];
 
 const StateUninitialized = 0; // Just constructed.

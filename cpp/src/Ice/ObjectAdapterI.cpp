@@ -972,13 +972,12 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 
         int threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
         int threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-        bool hasPriority = properties->getProperty(_name + ".ThreadPool.ThreadPriority") != "";
 
         //
         // Create the per-adapter thread pool, if necessary. This is done before the creation of the incoming
         // connection factory as the thread pool is needed during creation for the call to incFdsInUse.
         //
-        if (threadPoolSize > 0 || threadPoolSizeMax > 0 || hasPriority)
+        if (threadPoolSize > 0 || threadPoolSizeMax > 0)
         {
             _threadPool = ThreadPool::create(_instance, _name + ".ThreadPool", 0);
         }
@@ -1426,11 +1425,12 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "Router.LocatorCacheTimeout",
         "Router.InvocationTimeout",
         "ProxyOptions",
+        "ThreadPool.Serialize",
         "ThreadPool.Size",
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
         "ThreadPool.StackSize",
-        "ThreadPool.Serialize",
+        "ThreadPool.ThreadIdleTime",
         "ThreadPool.ThreadPriority"};
 
     //
