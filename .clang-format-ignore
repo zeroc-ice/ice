@@ -1,3 +1,10 @@
+# C++ code generated from Slice files
+cpp/include/generated
+cpp/src/**/generated
+cpp/test/**/generated
+cpp/src/**/msbuild/*
+cpp/test/**/msbuild/*
+
 # C++ code generated from the Bison/Flex parsers
 cpp/src/Slice/Grammar.h
 cpp/src/Slice/Grammar.cpp
