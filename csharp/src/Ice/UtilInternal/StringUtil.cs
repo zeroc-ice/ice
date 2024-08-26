@@ -28,7 +28,7 @@ public sealed class StringUtil
         for (int i = start; i < len; i++)
         {
             char ch = str[i];
-            if (match.Contains(ch))
+            if (match.Contains(ch, StringComparison.Ordinal))
             {
                 return i;
             }
@@ -58,7 +58,7 @@ public sealed class StringUtil
         for (int i = start; i < len; i++)
         {
             char ch = str[i];
-            if (!match.Contains(ch))
+            if (!match.Contains(ch, StringComparison.Ordinal))
             {
                 return i;
             }
@@ -140,7 +140,7 @@ public sealed class StringUtil
             }
             default:
             {
-                if (special != null && special.Contains(c))
+                if (special != null && special.Contains(c, StringComparison.Ordinal))
                 {
                     sb.Append('\\');
                     sb.Append(c);
@@ -509,7 +509,7 @@ public sealed class StringUtil
                 }
                 default:
                 {
-                    if (string.IsNullOrEmpty(special) || !special.Contains(c))
+                    if (string.IsNullOrEmpty(special) || !special.Contains(c, StringComparison.Ordinal))
                     {
                         result.Append('\\'); // not in special, so we keep the backslash
                     }
@@ -596,7 +596,7 @@ public sealed class StringUtil
                 quoteChar = '\0';
                 continue; // Skip the quote.
             }
-            else if (delim.Contains(str[pos]))
+            else if (delim.Contains(str[pos], StringComparison.Ordinal))
             {
                 if (quoteChar == '\0')
                 {
@@ -668,16 +668,17 @@ public sealed class StringUtil
         //
         // If pattern does not contain a wildcard just compare strings.
         //
-        int beginIndex = pat.IndexOf('*');
+        int beginIndex = pat.IndexOf('*', StringComparison.Ordinal);
         if (beginIndex < 0)
         {
-            return s.Equals(pat);
+            return s.Equals(pat, StringComparison.Ordinal);
         }
 
         //
         // Make sure start of the strings match
         //
-        if (beginIndex > s.Length || !s.Substring(0, beginIndex).Equals(pat.Substring(0, beginIndex)))
+        if (beginIndex > s.Length ||
+            !s.Substring(0, beginIndex).Equals(pat.Substring(0, beginIndex), StringComparison.Ordinal))
         {
             return false;
         }
@@ -701,7 +702,8 @@ public sealed class StringUtil
         // Make sure end of the strings match
         //
         if (!s.Substring(endIndex, s.Length - endIndex).Equals(
-               pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1)))
+               pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1),
+               StringComparison.Ordinal))
         {
             return false;
         }

@@ -107,7 +107,8 @@ public class CollocatedRequestHandler : RequestHandler
                     {
                         dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
                     }
-                }, null);
+                },
+                null);
         }
         else if (_executor)
         {
@@ -118,7 +119,8 @@ public class CollocatedRequestHandler : RequestHandler
                     {
                         dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
                     }
-                }, null);
+                },
+                null);
         }
         else // Optimization: directly call invokeAll if there's no executor.
         {

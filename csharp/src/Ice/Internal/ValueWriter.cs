@@ -100,8 +100,8 @@ public sealed class ValueWriter
         }
     }
 
-    private static void writeFields(string name, object obj, System.Type c, Dictionary<Ice.Object, object> objectTable,
-                                    OutputBase output)
+    private static void
+    writeFields(string name, object obj, System.Type c, Dictionary<Ice.Object, object> objectTable, OutputBase output)
     {
         if (!c.Equals(typeof(object)))
         {

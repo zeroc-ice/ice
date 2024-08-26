@@ -143,7 +143,7 @@ public sealed class Network
         // TODO: Instead of testing for an English substring, we need to examine the inner
         // exception (if there is one).
         //
-        return ex.Message.Contains("period of time");
+        return ex.Message.Contains("period of time", StringComparison.Ordinal);
     }
 
     public static bool noMoreFds(System.Exception ex)
@@ -407,14 +407,17 @@ public sealed class Network
         {
             if (family == AddressFamily.InterNetwork)
             {
-                socket.SetSocketOption(SocketOptionLevel.IP,
-                                       SocketOptionName.MulticastInterface,
-                                       getInterfaceAddress(iface, family).GetAddressBytes());
+                socket.SetSocketOption(
+                    SocketOptionLevel.IP,
+                    SocketOptionName.MulticastInterface,
+                    getInterfaceAddress(iface, family).GetAddressBytes());
             }
             else
             {
-                socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface,
-                                       getInterfaceIndex(iface, family));
+                socket.SetSocketOption(
+                    SocketOptionLevel.IPv6,
+                    SocketOptionName.MulticastInterface,
+                    getInterfaceIndex(iface, family));
             }
         }
         catch (System.Exception ex)
@@ -591,11 +594,15 @@ public sealed class Network
         return true;
     }
 
-    public static IAsyncResult doConnectAsync(Socket fd, EndPoint addr, EndPoint sourceAddr, AsyncCallback callback,
-                                              object state)
+    public static IAsyncResult doConnectAsync(
+        Socket fd,
+        EndPoint addr,
+        EndPoint sourceAddr,
+        AsyncCallback callback,
+        object state)
     {
         //
-        // NOTE: It's the caller's responsability to close the socket upon
+        // NOTE: It's the caller's responsibility to close the socket upon
         // failure to connect. The socket isn't closed by this method.
         //
         EndPoint bindAddr = sourceAddr;
@@ -615,14 +622,16 @@ public sealed class Network
     repeatConnect:
         try
         {
-            return fd.BeginConnect(addr,
-                                   delegate (IAsyncResult result)
-                                   {
-                                       if (!result.CompletedSynchronously)
-                                       {
-                                           callback(result.AsyncState);
-                                       }
-                                   }, state);
+            return fd.BeginConnect(
+                addr,
+                (IAsyncResult result) =>
+                {
+                    if (!result.CompletedSynchronously)
+                    {
+                        callback(result.AsyncState);
+                    }
+                },
+                state);
         }
         catch (System.Net.Sockets.SocketException ex)
         {
@@ -705,8 +714,13 @@ public sealed class Network
         return getAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
     }
 
-    public static List<EndPoint> getAddresses(string host, int port, int protocol,
-                                              Ice.EndpointSelectionType selType, bool preferIPv6, bool blocking)
+    public static List<EndPoint> getAddresses(
+        string host,
+        int port,
+        int protocol,
+        Ice.EndpointSelectionType selType,
+        bool preferIPv6,
+        bool blocking)
     {
         List<EndPoint> addresses = new List<EndPoint>();
         if (host.Length == 0)
@@ -1106,7 +1120,7 @@ public sealed class Network
         //
         // The iface parameter must either be an IP address, an
         // index or the name of an interface. If it's an index we
-        // just return it. If it's an IP addess we search for an
+        // just return it. If it's an IP address we search for an
         // interface which has this IP address. If it's a name we
         // search an interface with this name.
         //
@@ -1268,8 +1282,13 @@ public sealed class Network
         EndPoint addr = null;
         if (!string.IsNullOrEmpty(sourceAddress))
         {
-            List<EndPoint> addrs = getAddresses(sourceAddress, 0, EnableBoth, Ice.EndpointSelectionType.Ordered,
-                                                false, false);
+            List<EndPoint> addrs = getAddresses(
+                sourceAddress,
+                0,
+                EnableBoth,
+                Ice.EndpointSelectionType.Ordered,
+                preferIPv6: false,
+                blocking: false);
             if (addrs.Count != 0)
             {
                 return addrs[0];

@@ -16,8 +16,16 @@ public class ReferenceFactory
             return null;
         }
 
-        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
-                      endpoints, null, null);
+        return create(
+            ident,
+            facet,
+            tmpl.getMode(),
+            tmpl.getSecure(),
+            tmpl.getProtocol(),
+            tmpl.getEncoding(),
+            endpoints,
+            null,
+            null);
     }
 
     public Reference
@@ -31,8 +39,16 @@ public class ReferenceFactory
         //
         // Create new reference
         //
-        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
-                      null, adapterId, null);
+        return create(
+            ident,
+            facet,
+            tmpl.getMode(),
+            tmpl.getSecure(),
+            tmpl.getProtocol(),
+            tmpl.getEncoding(),
+            null,
+            adapterId,
+            null);
     }
 
     public Reference create(Ice.Identity ident, Ice.ConnectionI connection)

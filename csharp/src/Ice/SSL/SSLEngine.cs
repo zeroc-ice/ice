@@ -387,7 +387,7 @@ internal class SSLEngine
         {
             if (value != "*")
             {
-                if (!value.Contains(':'))
+                if (!value.Contains(':', StringComparison.Ordinal))
                 {
                     throw new Ice.InitializationException($"IceSSL: no key in `{value}'");
                 }

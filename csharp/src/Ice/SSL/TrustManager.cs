@@ -208,10 +208,10 @@ internal sealed class TrustManager
             bool found = false;
             foreach (RFC2253.RDNPair subjectRDN in subject)
             {
-                if (matchRDN.key.Equals(subjectRDN.key))
+                if (matchRDN.key.Equals(subjectRDN.key, StringComparison.Ordinal))
                 {
                     found = true;
-                    if (!matchRDN.value.Equals(subjectRDN.value))
+                    if (!matchRDN.value.Equals(subjectRDN.value, StringComparison.Ordinal))
                     {
                         return false;
                     }

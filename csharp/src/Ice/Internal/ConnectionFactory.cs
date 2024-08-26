@@ -111,8 +111,11 @@ public sealed class OutgoingConnectionFactory
         }
     }
 
-    public void create(List<EndpointI> endpoints, bool hasMore, Ice.EndpointSelectionType selType,
-                       CreateConnectionCallback callback)
+    public void create(
+        List<EndpointI> endpoints,
+        bool hasMore,
+        Ice.EndpointSelectionType selType,
+        CreateConnectionCallback callback)
     {
         Debug.Assert(endpoints.Count > 0);
 
@@ -756,8 +759,12 @@ public sealed class OutgoingConnectionFactory
 
     private class ConnectCallback : Ice.ConnectionI.StartCallback, EndpointI_connectors
     {
-        internal ConnectCallback(OutgoingConnectionFactory f, List<EndpointI> endpoints, bool more,
-                                 CreateConnectionCallback cb, Ice.EndpointSelectionType selType)
+        internal ConnectCallback(
+            OutgoingConnectionFactory f,
+            List<EndpointI> endpoints,
+            bool more,
+            CreateConnectionCallback cb,
+            Ice.EndpointSelectionType selType)
         {
             _factory = f;
             _endpoints = endpoints;
@@ -1488,8 +1495,11 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         }
     }
 
-    public IncomingConnectionFactory(Instance instance, EndpointI endpoint, EndpointI publish,
-                                     Ice.ObjectAdapter adapter)
+    public IncomingConnectionFactory(
+        Instance instance,
+        EndpointI endpoint,
+        EndpointI publish,
+        Ice.ObjectAdapter adapter)
     {
         _instance = instance;
         _connectionOptions = instance.serverConnectionOptions(adapter.getName());

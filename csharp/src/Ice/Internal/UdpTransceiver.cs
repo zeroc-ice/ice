@@ -644,13 +644,16 @@ internal sealed class UdpTransceiver : Transceiver
         List<string> intfs;
         if (_mcastAddr == null)
         {
-            intfs = Network.getHostsForEndpointExpand(Network.endpointAddressToString(_addr),
-                                                      _instance.protocolSupport(), true);
+            intfs = Network.getHostsForEndpointExpand(
+                Network.endpointAddressToString(_addr),
+                _instance.protocolSupport(),
+                true);
         }
         else
         {
-            intfs = Network.getInterfacesForMulticast(_mcastInterface,
-                                                      Network.getProtocolSupport(_mcastAddr.Address));
+            intfs = Network.getInterfacesForMulticast(
+                _mcastInterface,
+                Network.getProtocolSupport(_mcastAddr.Address));
         }
         if (intfs.Count != 0)
         {
@@ -668,8 +671,12 @@ internal sealed class UdpTransceiver : Transceiver
     //
     // Only for use by UdpConnector.
     //
-    internal UdpTransceiver(ProtocolInstance instance, EndPoint addr, EndPoint sourceAddr, string mcastInterface,
-                            int mcastTtl)
+    internal UdpTransceiver(
+        ProtocolInstance instance,
+        EndPoint addr,
+        EndPoint sourceAddr,
+        string mcastInterface,
+        int mcastTtl)
     {
         _instance = instance;
         _addr = addr;
@@ -714,8 +721,13 @@ internal sealed class UdpTransceiver : Transceiver
     //
     // Only for use by UdpEndpoint.
     //
-    internal UdpTransceiver(UdpEndpointI endpoint, ProtocolInstance instance, string host, int port,
-                            string mcastInterface, bool connect)
+    internal UdpTransceiver(
+        UdpEndpointI endpoint,
+        ProtocolInstance instance,
+        string host,
+        int port,
+        string mcastInterface,
+        bool connect)
     {
         _endpoint = endpoint;
         _instance = instance;

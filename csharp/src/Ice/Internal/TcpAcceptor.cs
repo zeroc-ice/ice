@@ -42,13 +42,15 @@ internal class TcpAcceptor : Acceptor
     {
         try
         {
-            _result = _fd.BeginAccept(delegate (IAsyncResult result)
-                                      {
-                                          if (!result.CompletedSynchronously)
-                                          {
-                                              callback(result.AsyncState);
-                                          }
-                                      }, state);
+            _result = _fd.BeginAccept(
+                (IAsyncResult result) =>
+                {
+                    if (!result.CompletedSynchronously)
+                    {
+                        callback(result.AsyncState);
+                    }
+                },
+                state);
         }
         catch (System.Net.Sockets.SocketException ex)
         {

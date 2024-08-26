@@ -164,70 +164,156 @@ public static class BZip2
 
         if (AssemblyUtil.isWindows)
         {
-            _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
-                               int verbosity, int workFactor) =>
+            _compressBuffer = (
+                byte[] dest,
+                ref int destLen,
+                byte[] source,
+                int sourceLen,
+                int blockSize100k,
+                int verbosity,
+                int workFactor) =>
                 {
-                    return SafeNativeMethods.windowsBZ2_bzBuffToBuffCompress(dest, ref destLen, source, sourceLen,
-                                                                             blockSize100k, verbosity, workFactor);
+                    return SafeNativeMethods.windowsBZ2_bzBuffToBuffCompress(
+                        dest,
+                        ref destLen,
+                        source,
+                        sourceLen,
+                        blockSize100k,
+                        verbosity,
+                        workFactor);
                 };
 
-            _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
-                                 int verbosity) =>
+            _decompressBuffer = (
+                byte[] dest,
+                ref int destLen,
+                byte[] source,
+                int sourceLen,
+                int small,
+                int verbosity) =>
                 {
-                    return SafeNativeMethods.windowsBZ2_bzBuffToBuffDecompress(dest, ref destLen, source, sourceLen,
-                                                                               small, verbosity);
+                    return SafeNativeMethods.windowsBZ2_bzBuffToBuffDecompress(
+                        dest,
+                        ref destLen,
+                        source,
+                        sourceLen,
+                        small,
+                        verbosity);
                 };
         }
         else if (AssemblyUtil.isMacOS)
         {
-            _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
-                               int verbosity, int workFactor) =>
+            _compressBuffer = (
+                byte[] dest,
+                ref int destLen,
+                byte[] source,
+                int sourceLen,
+                int blockSize100k,
+                int verbosity,
+                int workFactor) =>
                 {
-                    return SafeNativeMethods.macOSBZ2_bzBuffToBuffCompress(dest, ref destLen, source, sourceLen,
-                                                                           blockSize100k, verbosity, workFactor);
+                    return SafeNativeMethods.macOSBZ2_bzBuffToBuffCompress(
+                        dest,
+                        ref destLen,
+                        source,
+                        sourceLen,
+                        blockSize100k,
+                        verbosity,
+                        workFactor);
                 };
 
-            _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
-                                 int verbosity) =>
+            _decompressBuffer = (
+                byte[] dest,
+                ref int destLen,
+                byte[] source,
+                int sourceLen,
+                int small,
+                int verbosity) =>
                 {
-                    return SafeNativeMethods.macOSBZ2_bzBuffToBuffDecompress(dest, ref destLen, source, sourceLen,
-                                                                             small, verbosity);
+                    return SafeNativeMethods.macOSBZ2_bzBuffToBuffDecompress(
+                        dest,
+                        ref destLen,
+                        source,
+                        sourceLen,
+                        small,
+                        verbosity);
                 };
         }
         else
         {
             if (_bzlibName == "libbz2.so.1.0")
             {
-                _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
-                                   int verbosity, int workFactor) =>
+                _compressBuffer = (
+                    byte[] dest,
+                    ref int destLen,
+                    byte[] source,
+                    int sourceLen,
+                    int blockSize100k,
+                    int verbosity,
+                    int workFactor) =>
                     {
-                        return SafeNativeMethods.unixBZ2_10_bzBuffToBuffCompress(dest, ref destLen, source,
-                                                                                 sourceLen, blockSize100k,
-                                                                                 verbosity, workFactor);
+                        return SafeNativeMethods.unixBZ2_10_bzBuffToBuffCompress(
+                            dest,
+                            ref destLen,
+                            source,
+                            sourceLen,
+                            blockSize100k,
+                            verbosity,
+                            workFactor);
                     };
 
-                _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
-                                     int verbosity) =>
+                _decompressBuffer = (
+                    byte[] dest,
+                    ref int destLen,
+                    byte[] source,
+                    int sourceLen,
+                    int small,
+                    int verbosity) =>
                     {
-                        return SafeNativeMethods.unixBZ2_10_bzBuffToBuffDecompress(dest, ref destLen, source,
-                                                                                   sourceLen, small, verbosity);
+                        return SafeNativeMethods.unixBZ2_10_bzBuffToBuffDecompress(
+                            dest,
+                            ref destLen,
+                            source,
+                            sourceLen,
+                            small,
+                            verbosity);
                     };
             }
             else
             {
-                _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
-                                   int verbosity, int workFactor) =>
+                _compressBuffer = (
+                    byte[] dest,
+                    ref int destLen,
+                    byte[] source,
+                    int sourceLen,
+                    int blockSize100k,
+                    int verbosity,
+                    int workFactor) =>
                     {
-                        return SafeNativeMethods.unixBZ2_1_bzBuffToBuffCompress(dest, ref destLen, source,
-                                                                                sourceLen, blockSize100k, verbosity,
-                                                                                workFactor);
+                        return SafeNativeMethods.unixBZ2_1_bzBuffToBuffCompress(
+                            dest,
+                            ref destLen,
+                            source,
+                            sourceLen,
+                            blockSize100k,
+                            verbosity,
+                            workFactor);
                     };
 
-                _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
-                                     int verbosity) =>
+                _decompressBuffer = (
+                    byte[] dest,
+                    ref int destLen,
+                    byte[] source,
+                    int sourceLen,
+                    int small,
+                    int verbosity) =>
                     {
-                        return SafeNativeMethods.unixBZ2_1_bzBuffToBuffDecompress(dest, ref destLen, source,
-                                                                                  sourceLen, small, verbosity);
+                        return SafeNativeMethods.unixBZ2_1_bzBuffToBuffDecompress(
+                            dest,
+                            ref destLen,
+                            source,
+                            sourceLen,
+                            small,
+                            verbosity);
                     };
             }
         }

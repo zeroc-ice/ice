@@ -279,7 +279,8 @@ public class SessionHelper
             connection.setCloseCallback(_ => destroy());
         }
 
-        dispatchCallback(() =>
+        dispatchCallback(
+            () =>
             {
                 try
                 {
@@ -289,7 +290,8 @@ public class SessionHelper
                 {
                     destroy();
                 }
-            }, conn);
+            },
+            conn);
     }
 
     private void
@@ -437,11 +439,13 @@ public class SessionHelper
         if (_initData.executor != null)
         {
             EventWaitHandle h = new ManualResetEvent(false);
-            _initData.executor(() =>
+            _initData.executor(
+                () =>
                 {
                     callback();
                     h.Set();
-                }, null);
+                },
+                null);
             h.WaitOne();
         }
         else

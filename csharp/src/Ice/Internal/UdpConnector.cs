@@ -19,8 +19,13 @@ internal sealed class UdpConnector : Connector
     //
     // Only for use by UdpEndpointI
     //
-    internal UdpConnector(ProtocolInstance instance, EndPoint addr, EndPoint sourceAddr, string mcastInterface,
-                          int mcastTtl, string connectionId)
+    internal UdpConnector(
+        ProtocolInstance instance,
+        EndPoint addr,
+        EndPoint sourceAddr,
+        string mcastInterface,
+        int mcastTtl,
+        string connectionId)
     {
         _instance = instance;
         _addr = addr;
@@ -43,12 +48,12 @@ internal sealed class UdpConnector : Connector
         }
 
         UdpConnector p = (UdpConnector)obj;
-        if (!_connectionId.Equals(p._connectionId))
+        if (!_connectionId.Equals(p._connectionId, StringComparison.Ordinal))
         {
             return false;
         }
 
-        if (!_mcastInterface.Equals(p._mcastInterface))
+        if (!_mcastInterface.Equals(p._mcastInterface, StringComparison.Ordinal))
         {
             return false;
         }

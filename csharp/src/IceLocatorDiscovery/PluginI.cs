@@ -127,8 +127,7 @@ internal class VoidLocatorI : Ice.LocatorDisp_
 internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 {
     public
-    LocatorI(string name, LookupPrx lookup, Ice.Properties properties, string instanceName,
-             Ice.LocatorPrx voidLocator)
+    LocatorI(string name, LookupPrx lookup, Ice.Properties properties, string instanceName, Ice.LocatorPrx voidLocator)
     {
         _lookup = lookup;
         _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
@@ -174,7 +173,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     setLookupReply(LookupReplyPrx lookupReply)
     {
         //
-        // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+        // Use a lookup reply proxy whose address matches the interface used to send multicast datagram.
         //
         var single = new Ice.Endpoint[1];
         foreach (var key in new List<LookupPrx>(_lookups.Keys))
@@ -185,7 +184,8 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                 foreach (var q in lookupReply.ice_getEndpoints())
                 {
                     var r = q.getInfo();
-                    if (r is Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface))
+                    if (r is Ice.IPEndpointInfo &&
+                        ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface, StringComparison.Ordinal))
                     {
                         single[0] = q;
                         _lookups[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
@@ -270,7 +270,8 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                 return;
             }
 
-            if (_instanceName.Length > 0 && !locator.ice_getIdentity().category.Equals(_instanceName))
+            if (_instanceName.Length > 0 &&
+                !locator.ice_getIdentity().category.Equals(_instanceName, StringComparison.Ordinal))
             {
                 if (_traceLevel > 2)
                 {
@@ -287,7 +288,8 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             // has the same identity, otherwise ignore it.
             //
             if (_pendingRequests.Count > 0 &&
-               _locator != null && !locator.ice_getIdentity().category.Equals(_locator.ice_getIdentity().category))
+               _locator != null &&
+               !locator.ice_getIdentity().category.Equals(_locator.ice_getIdentity().category, StringComparison.Ordinal))
             {
                 if (!_warned)
                 {
@@ -432,17 +434,19 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                         foreach (var l in _lookups)
                         {
-                            l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(t =>
-                            {
-                                try
+                            l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(
+                                t =>
                                 {
-                                    t.Wait();
-                                }
-                                catch (AggregateException ex)
-                                {
-                                    exception(ex.InnerException);
-                                }
-                            }, l.Key.ice_scheduler()); // Send multicast request.
+                                    try
+                                    {
+                                        t.Wait();
+                                    }
+                                    catch (AggregateException ex)
+                                    {
+                                        exception(ex.InnerException);
+                                    }
+                                },
+                                l.Key.ice_scheduler()); // Send multicast request.
                         }
                         _timer.schedule(this, _timeout);
                     }
@@ -554,17 +558,19 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                     foreach (var l in _lookups)
                     {
-                        l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(t =>
-                        {
-                            try
+                        l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(
+                            t =>
                             {
-                                t.Wait();
-                            }
-                            catch (AggregateException ex)
-                            {
-                                exception(ex.InnerException);
-                            }
-                        }, l.Key.ice_scheduler()); // Send multicast request.
+                                try
+                                {
+                                    t.Wait();
+                                }
+                                catch (AggregateException ex)
+                                {
+                                    exception(ex.InnerException);
+                                }
+                            },
+                            l.Key.ice_scheduler()); // Send multicast request.
                     }
                     _timer.schedule(this, _timeout);
                     return;

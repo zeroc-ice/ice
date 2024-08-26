@@ -383,13 +383,13 @@ internal sealed class PluginManagerI : PluginManager
             //
             // Extract the assembly name and the class name.
             //
-            int sepPos = entryPoint!.IndexOf(':');
+            int sepPos = entryPoint!.IndexOf(':', StringComparison.Ordinal);
             if (sepPos != -1)
             {
                 const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if (entryPoint.Length > 3 &&
                    sepPos == 1 &&
-                   driveLetters.Contains(entryPoint[0]) &&
+                   driveLetters.Contains(entryPoint[0], StringComparison.Ordinal) &&
                    (entryPoint[2] == '\\' || entryPoint[2] == '/'))
                 {
                     sepPos = entryPoint.IndexOf(':', 3);
@@ -491,7 +491,7 @@ internal sealed class PluginManagerI : PluginManager
     {
         foreach (PluginInfo p in _plugins)
         {
-            if (name.Equals(p.name))
+            if (name.Equals(p.name, StringComparison.Ordinal))
             {
                 return p.plugin;
             }
