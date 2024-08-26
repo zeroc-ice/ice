@@ -44,7 +44,7 @@ internal class AllTests : global::Test.AllTests
     // Verify that we can create max connections but not more.
     private static async Task testCreateConnectionsWithMax(Test.TestIntfPrx p, int max, TextWriter output)
     {
-        output.Write($"testing the creation of {max} connections with connect timeout at {max + 1}... ");
+        output.Write($"testing the creation of {max} connections with connection lost at {max + 1}... ");
         output.Flush();
 
         var connectionList = new List<Ice.Connection>();
@@ -71,10 +71,10 @@ internal class AllTests : global::Test.AllTests
         output.WriteLine("ok");
     }
 
-    // Verify that we can create max connections, then timeout, then recover.
+    // Verify that we can create max connections, then connection lost, then recover.
     private static async Task testCreateConnectionsWithMaxAndRecovery(Test.TestIntfPrx p, int max, TextWriter output)
     {
-        output.Write($"testing the creation of {max} connections with connect timeout at {max + 1} then recovery... ");
+        output.Write($"testing the creation of {max} connections with connection lost at {max + 1} then recovery... ");
         output.Flush();
 
         var connectionList = new List<Ice.Connection>();
