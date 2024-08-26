@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void> {
+public class ProxyFlushBatch extends ProxyOutgoingAsyncBase<Void> {
   public ProxyFlushBatch(com.zeroc.Ice._ObjectPrxI prx) {
     super(prx, "ice_flushBatchRequests");
     _observer = ObserverHelper.get(prx, "ice_flushBatchRequests");

@@ -6,7 +6,7 @@ package com.zeroc.IceInternal;
 
 import java.util.concurrent.Callable;
 
-public class CommunicatorFlushBatch extends InvocationFutureI<Void> {
+public class CommunicatorFlushBatch extends com.zeroc.Ice.InvocationFuture<Void> {
   public CommunicatorFlushBatch(com.zeroc.Ice.Communicator communicator, Instance instance) {
     super(communicator, instance, "flushBatchRequests");
 
@@ -25,7 +25,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void> {
 
   public void flushConnection(
       final com.zeroc.Ice.ConnectionI con, final com.zeroc.Ice.CompressBatch compressBatch) {
-    class FlushBatch extends OutgoingAsyncBaseI<Void> {
+    class FlushBatch extends OutgoingAsyncBase<Void> {
       public FlushBatch() {
         super(
             CommunicatorFlushBatch.this.getCommunicator(),
