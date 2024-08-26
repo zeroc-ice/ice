@@ -1358,7 +1358,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                         {
                             _instance.initializationData().logger.trace(
                                 _instance.traceLevels().networkCat,
-                                $"rejecting new {_endpoint.protocol()} connection at {_acceptor} because the maximum number of connections is reached");
+                                $"rejecting new {_endpoint.protocol()} connection at {_acceptor} because the maximum number of connections has been reached");
                         }
 
                         try
