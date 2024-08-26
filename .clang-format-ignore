@@ -1,5 +1,6 @@
 cpp/include/generated
-
+cpp/src/**/generated
+cpp/test/**/generated
 cpp/src/**/msbuild/*
 cpp/test/**/msbuild/*
 
