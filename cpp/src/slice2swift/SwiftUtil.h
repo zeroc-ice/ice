@@ -168,11 +168,7 @@ namespace Slice
             bool shouldVisitIncludedDefinitions() const final { return true; }
 
         private:
-            StringList validate(
-                const SyntaxTreeBasePtr&,
-                const StringList&,
-                const std::string&,
-                int);
+            StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, int);
 
             typedef std::map<std::string, std::string> ModuleMap;
             typedef std::map<std::string, ModuleMap> ModulePrefix;

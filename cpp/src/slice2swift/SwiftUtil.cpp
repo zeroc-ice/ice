@@ -2586,7 +2586,11 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
             continue;
         }
 
-        dc->warning(InvalidMetadata, p->file(), p->line(), "ignoring invalid metadata `" + s + "' for dictionary key type");
+        dc->warning(
+            InvalidMetadata,
+            p->file(),
+            p->line(),
+            "ignoring invalid metadata `" + s + "' for dictionary key type");
     }
 
     newMetadata = p->valueMetadata();
@@ -2599,7 +2603,11 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
             continue;
         }
 
-        dc->warning(InvalidMetadata, p->file(), p->line(), "ignoring invalid metadata `" + s + "' for dictionary value type");
+        dc->warning(
+            InvalidMetadata,
+            p->file(),
+            p->line(),
+            "ignoring invalid metadata `" + s + "' for dictionary value type");
     }
 
     p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
