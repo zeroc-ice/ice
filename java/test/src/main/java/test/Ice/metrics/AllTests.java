@@ -529,7 +529,7 @@ public class AllTests {
       var closureThread = new Thread(() -> metrics.ice_getConnection().close());
       closureThread.start();
       try {
-        Thread.sleep(100);
+        Thread.sleep(50);
       } catch (InterruptedException ex) {
       }
 
