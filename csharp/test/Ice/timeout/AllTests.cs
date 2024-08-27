@@ -147,7 +147,7 @@ public class AllTests : global::Test.AllTests
         {
             var connection = connect(timeout);
             controller.holdAdapter(-1);
-            _ = connection.closeAsync(); // initiate closure
+            Task closeTask = connection.closeAsync(); // initiate closure
             try
             {
                 connection.getInfo(); // getInfo() doesn't throw in the closing state.
@@ -163,13 +163,22 @@ public class AllTests : global::Test.AllTests
                     connection.getInfo();
                     Thread.Sleep(10);
                 }
-                catch (ConnectionClosedException ex)
+                catch (CloseTimeoutException)
                 {
                     // Expected.
-                    test(ex.closedByApplication);
                     break;
                 }
             }
+            try
+            {
+                await closeTask;
+                test(false);
+            }
+            catch (CloseTimeoutException)
+            {
+                // Expected.
+            }
+
             controller.resumeAdapter();
             timeout.op(); // Ensure adapter is active.
         }

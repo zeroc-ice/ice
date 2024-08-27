@@ -720,7 +720,14 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
         catch (LocalException ex)
         {
-            setState(StateClosed, ex);
+            if (_exception is null)
+            {
+                setState(StateClosed, ex);
+            }
+            else
+            {
+                setState(StateClosed); // and keep the existing exception
+            }
         }
         return _state < StateClosed;
     }
@@ -1554,6 +1561,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private void setState(int state, LocalException ex)
     {
+        Debug.Assert(ex is not null);
+
         //
         // If setState() is called with an exception, then only closed
         // and closing states are permissible.
@@ -1565,13 +1574,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return;
         }
 
-        if (_exception is null)
+        // If there is no exception or the new state is >= Closed and the current state is < Closed (meaning graceful
+        // closure), set the exception.
+        if (_exception is null || (state >= StateClosed && _state < StateClosed))
         {
-            //
-            // If we are in closed state, an exception must be set.
-            //
-            Debug.Assert(_state != StateClosed);
-
             _exception = ex;
 
             //
