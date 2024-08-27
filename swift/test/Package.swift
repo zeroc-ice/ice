@@ -17,7 +17,7 @@ struct TestConfig {
 }
 
 let testDirectories: [String: TestConfig] = [
-    "Ice/adapterDeactivation": TestConfig(),
+    "Ice/adapterDeactivation": TestConfig(collocated: true),
     "Ice/admin": TestConfig(),
     "Ice/ami": TestConfig(collocated: true),
     "Ice/binding": TestConfig(),
