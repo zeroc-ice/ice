@@ -99,7 +99,7 @@ public class AllTests {
       }
 
       communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
-      obj.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+      obj.ice_getConnection().close();
       seq = new byte[50000];
       try {
         replyI.reset();

@@ -127,7 +127,18 @@ public class TestI implements TestIntf {
 
   @Override
   public void close(CloseMode mode, com.zeroc.Ice.Current current) {
-    current.con.close(com.zeroc.Ice.ConnectionClose.valueOf(mode.value()));
+    switch (mode) {
+      case Forcefully:
+        current.con.abort();
+        break;
+
+      default:
+        // We can't wait for the connection to be closed - this would cause a self dead-lock.
+        // So instead we just initiate the closure by running `close` in a separate thread.
+        var closureThread = new Thread(() -> current.con.close());
+        closureThread.start();
+        break;
+    }
   }
 
   @Override

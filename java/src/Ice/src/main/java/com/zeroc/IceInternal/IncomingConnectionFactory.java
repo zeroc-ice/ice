@@ -101,7 +101,7 @@ public final class IncomingConnectionFactory extends EventHandler
         // Force close all of the connections.
         //
         for (ConnectionI c : connections) {
-          c.close(com.zeroc.Ice.ConnectionClose.Forcefully);
+          c.abort();
         }
         throw e;
       }

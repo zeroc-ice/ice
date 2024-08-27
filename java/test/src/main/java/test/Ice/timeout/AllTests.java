@@ -128,16 +128,35 @@ public class AllTests {
     out.print("testing close timeout... ");
     out.flush();
     {
+      //
+      // This test wants to call some local methods while our connection is in the `Closing` state,
+      // before it eventually transitions to the `Closed` state due to hitting the close timeout.
+      //
+      // However, in Java `close` blocks until the connection is closed. So, in order to access the
+      // `Closing` state, we initiate the close in a separate thread, wait 50ms to let the thread
+      // start the closure process, and hope that we're in the `Closing` state by then.
+      //
+
+      // Get the connection, and put the OA in the `Hold` state.
       var connection = timeout.ice_getConnection();
       controller.holdAdapter(-1);
-      connection.close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
+      // Initiate the connection closure.
+      var closureThread = new Thread(() -> connection.close());
+      closureThread.start();
+      try {
+        Thread.sleep(50);
+      } catch (java.lang.InterruptedException ex) {
+      }
+
+      // We set a connect timeout of '1s', so the connection should still be useable here.
       try {
         connection.getInfo(); // getInfo() doesn't throw in the closing state.
       } catch (com.zeroc.Ice.LocalException ex) {
         test(false);
       }
 
+      // We wait for the connection closure to timeout, at which point `getInfo` will throw.
       while (true) {
         try {
           connection.getInfo();
@@ -151,6 +170,8 @@ public class AllTests {
           break;
         }
       }
+
+      assert (!closureThread.isAlive()); // Ensure the connection closure completed.
       controller.resumeAdapter();
       timeout.op(); // Ensure adapter is active.
     }
