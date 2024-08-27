@@ -9,7 +9,64 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try helper.test(value, file: file, line: line)
     }
 
-    let communicator = helper.communicator()
+    try await testLiterals(helper: helper, prx: p)
+
+    try await testProxyMethods(helper: helper, prx: p)
+
+    try await testVoid(helper: helper, prx: p)
+
+    try await testNumerics(helper: helper, prx: p)
+
+    try await testStrings(helper: helper, prx: p)
+
+    try await testEnums(helper: helper, prx: p)
+    try await testClasses(helper: helper, prx: p)
+    try await testStructs(helper: helper, prx: p)
+
+    try await testSequences(helper: helper, prx: p)
+    try await testDictionaries(helper: helper, prx: p)
+
+    try await testContext(helper: helper, prx: p)
+
+    try await testIdempotent(helper: helper, prx: p)
+
+    do {
+        try await test(p.opByte1(0xFF) == 0xFF)
+        try await test(p.opShort1(0x7FFF) == 0x7FFF)
+        try await test(p.opInt1(0x7FFF_FFFF) == 0x7FFF_FFFF)
+        try await test(p.opLong1(0x7FFF_FFFF_FFFF_FFFF) == 0x7FFF_FFFF_FFFF_FFFF)
+        try await test(p.opFloat1(1.0) == 1.0)
+        try await test(p.opDouble1(1.0) == 1.0)
+        try await test(p.opString1("opString1") == "opString1")
+        try await test(p.opStringS1([]).count == 0)
+        try await test(p.opByteBoolD1([:]).count == 0)
+        try await test(p.opStringS2([]).count == 0)
+        try await test(p.opByteBoolD2([:]).count == 0)
+
+        let d = uncheckedCast(prx: p, type: MyDerivedClassPrx.self)
+        var s = MyStruct1()
+        s.tesT = "MyStruct1.s"
+        s.myClass = nil
+        s.myStruct1 = "MyStruct1.myStruct1"
+        s = try await d.opMyStruct1(s)
+        try test(s.tesT == "MyStruct1.s")
+        try test(s.myClass == nil)
+        try test(s.myStruct1 == "MyStruct1.myStruct1")
+        var c = MyClass1()
+        c.tesT = "MyClass1.testT"
+        c.myClass = nil
+        c.myClass1 = "MyClass1.myClass1"
+        c = try await d.opMyClass1(c)!
+        try test(c.tesT == "MyClass1.testT")
+        try test(c.myClass == nil)
+        try test(c.myClass1 == "MyClass1.myClass1")
+    }
+}
+
+func testLiterals(helper: TestHelper, prx p: MyClassPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
 
     let literals = try await p.opStringLiterals()
 
@@ -47,6 +104,12 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
 
     try test(
         su0 == su1 && su0 == su2 && su0 == literals[28] && su0 == literals[29] && su0 == literals[30])
+}
+
+func testProxyMethods(helper: TestHelper, prx p: MyClassPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
 
     try await p.ice_ping()
 
@@ -56,16 +119,20 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     try await test(p.ice_isA(id: ice_staticId(MyClassPrx.self)))
     try await test(p.ice_id() == ice_staticId(MyDerivedClassPrx.self))
 
-    do {
-        let ids = try await p.ice_ids()
-        try test(ids.count == 3)
-        try test(ids[0] == "::Ice::Object")
-        try test(ids[1] == "::Test::MyClass")
-        try test(ids[2] == "::Test::MyDerivedClass")
-    }
+    let ids = try await p.ice_ids()
+    try test(ids.count == 3)
+    try test(ids[0] == "::Ice::Object")
+    try test(ids[1] == "::Test::MyClass")
+    try test(ids[2] == "::Test::MyDerivedClass")
+}
 
-    do {
-        try await p.opVoid()
+func testVoid(helper: TestHelper, prx p: MyClassPrx) async throws {
+    try await p.opVoid()
+}
+
+func testNumerics(helper: TestHelper, prx p: MyClassPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
     }
 
     do {
@@ -117,17 +184,36 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try test(d == Double.greatestFiniteMagnitude)
         try test(r == Double.greatestFiniteMagnitude)
     }
+}
+
+func testStrings(helper: TestHelper, prx p: MyClassPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
 
     do {
         let (r, s) = try await p.opString(p1: "hello", p2: "world")
         try test(s == "world hello")
         try test(r == "hello world")
     }
+}
+
+func testEnums(helper: TestHelper, prx p: MyClassPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
 
     do {
         let (r, e) = try await p.opMyEnum(MyEnum.enum2)
         try test(e == MyEnum.enum2)
         try test(r == MyEnum.enum3)
+    }
+
+}
+
+func testClasses(helper: TestHelper, prx p: MyClassPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
     }
 
     do {
@@ -148,6 +234,12 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try test(c1 == nil)
         try test(c2 != nil)
         try await r!.opVoid()
+    }
+}
+
+func testStructs(helper: TestHelper, prx p: MyClassPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
     }
 
     do {
@@ -170,6 +262,12 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try test(so.e == MyEnum.enum3)
         try test(so.s.s == "a new string")
         try await so.p!.opVoid()
+    }
+}
+
+func testSequences(helper: TestHelper, prx p: MyClassPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
     }
 
     do {
@@ -487,6 +585,29 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try test(rsso[2][0][0] == "")
         try test(rsso[2][0][1] == "")
         try test(rsso[2][1][0] == "abcd")
+    }
+
+    do {
+        let lengths: [Int32] = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000]
+
+        for l in 0..<lengths.count {
+            var s = [Int32]()
+            for i in 0..<lengths[l] {
+                s.append(i)
+            }
+
+            let r = try await p.opIntS(s)
+            try test(r.count == lengths[l])
+            for j in 0..<r.count {
+                try test(r[j] == -j)
+            }
+        }
+    }
+}
+
+func testDictionaries(helper: TestHelper, prx p: MyClassPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
     }
 
     do {
@@ -1046,22 +1167,12 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try test(ro[MyEnum.enum1]![0] == MyEnum.enum3)
         try test(ro[MyEnum.enum1]![1] == MyEnum.enum3)
     }
+}
 
-    do {
-        let lengths: [Int32] = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000]
+func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
 
-        for l in 0..<lengths.count {
-            var s = [Int32]()
-            for i in 0..<lengths[l] {
-                s.append(i)
-            }
-
-            let r = try await p.opIntS(s)
-            try test(r.count == lengths[l])
-            for j in 0..<r.count {
-                try test(r[j] == -j)
-            }
-        }
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
     }
 
     do {
@@ -1094,7 +1205,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         // Test implicit context propagation
         //
         var initData = Ice.InitializationData()
-        let properties = communicator.getProperties().clone()
+        let properties = helper.communicator().getProperties().clone()
         properties.setProperty(key: "Ice.ImplicitContext", value: "Shared")
         initData.properties = properties
 
@@ -1136,40 +1247,8 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
 
         ic.destroy()
     }
+}
 
-    do {
-        try await p.opIdempotent()
-    }
-
-    do {
-        try await test(p.opByte1(0xFF) == 0xFF)
-        try await test(p.opShort1(0x7FFF) == 0x7FFF)
-        try await test(p.opInt1(0x7FFF_FFFF) == 0x7FFF_FFFF)
-        try await test(p.opLong1(0x7FFF_FFFF_FFFF_FFFF) == 0x7FFF_FFFF_FFFF_FFFF)
-        try await test(p.opFloat1(1.0) == 1.0)
-        try await test(p.opDouble1(1.0) == 1.0)
-        try await test(p.opString1("opString1") == "opString1")
-        try await test(p.opStringS1([]).count == 0)
-        try await test(p.opByteBoolD1([:]).count == 0)
-        try await test(p.opStringS2([]).count == 0)
-        try await test(p.opByteBoolD2([:]).count == 0)
-
-        let d = uncheckedCast(prx: p, type: MyDerivedClassPrx.self)
-        var s = MyStruct1()
-        s.tesT = "MyStruct1.s"
-        s.myClass = nil
-        s.myStruct1 = "MyStruct1.myStruct1"
-        s = try await d.opMyStruct1(s)
-        try test(s.tesT == "MyStruct1.s")
-        try test(s.myClass == nil)
-        try test(s.myStruct1 == "MyStruct1.myStruct1")
-        var c = MyClass1()
-        c.tesT = "MyClass1.testT"
-        c.myClass = nil
-        c.myClass1 = "MyClass1.myClass1"
-        c = try await d.opMyClass1(c)!
-        try test(c.tesT == "MyClass1.testT")
-        try test(c.myClass == nil)
-        try test(c.myClass1 == "MyClass1.myClass1")
-    }
+func testIdempotent(helper: TestHelper, prx p: MyClassPrx) async throws {
+    try await p.opIdempotent()
 }
