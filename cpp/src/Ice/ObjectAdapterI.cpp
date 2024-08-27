@@ -1406,6 +1406,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "Locator.PreferSecure",
         "Locator.CollocationOptimized",
         "Locator.Router",
+        "MaxConnections",
         "MessageSizeMax",
         "PublishedEndpoints",
         "ReplicaGroupId",

@@ -1607,6 +1607,7 @@ public final class ObjectAdapter {
     "Locator.PreferSecure",
     "Locator.CollocationOptimized",
     "Locator.Router",
+    "MaxConnections",
     "MessageSizeMax",
     "PublishedEndpoints",
     "ReplicaGroupId",

@@ -37,6 +37,7 @@ const _suffixes = [
     "Locator.PreferSecure",
     "Locator.CollocationOptimized",
     "Locator.Router",
+    "MaxConnections",
     "MessageSizeMax",
     "PublishedEndpoints",
     "ReplicaGroupId",
