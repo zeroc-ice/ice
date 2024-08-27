@@ -4,7 +4,6 @@ package test.Ice.idleTimeout;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectionAbortedException;
-import com.zeroc.Ice.ConnectionClose;
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Properties;
@@ -48,7 +47,7 @@ public class AllTests {
     p.sleep(2000); // the implementation in the server sleeps for 2,000ms
 
     // close connection
-    p.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+    p.ice_getConnection().close();
     output.println("ok");
   }
 
