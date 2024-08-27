@@ -189,42 +189,6 @@ internal sealed class TrustManager
         return false;
     }
 
-    private bool match(List<List<RFC2253.RDNPair>> matchSet, List<RFC2253.RDNPair> subject)
-    {
-        foreach (List<RFC2253.RDNPair> item in matchSet)
-        {
-            if (matchRDNs(item, subject))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private bool matchRDNs(List<RFC2253.RDNPair> match, List<RFC2253.RDNPair> subject)
-    {
-        foreach (RFC2253.RDNPair matchRDN in match)
-        {
-            bool found = false;
-            foreach (RFC2253.RDNPair subjectRDN in subject)
-            {
-                if (matchRDN.key.Equals(subjectRDN.key, StringComparison.Ordinal))
-                {
-                    found = true;
-                    if (!matchRDN.value.Equals(subjectRDN.value, StringComparison.Ordinal))
-                    {
-                        return false;
-                    }
-                }
-            }
-            if (!found)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
     // Note that unlike the C++ & Java implementation this returns unescaped data.
     private static void parse(string value, List<List<RFC2253.RDNPair>> reject, List<List<RFC2253.RDNPair>> accept)
     {
@@ -284,6 +248,42 @@ internal sealed class TrustManager
                 s.Append(rdn.value);
             }
         }
+    }
+
+    private bool match(List<List<RFC2253.RDNPair>> matchSet, List<RFC2253.RDNPair> subject)
+    {
+        foreach (List<RFC2253.RDNPair> item in matchSet)
+        {
+            if (matchRDNs(item, subject))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool matchRDNs(List<RFC2253.RDNPair> match, List<RFC2253.RDNPair> subject)
+    {
+        foreach (RFC2253.RDNPair matchRDN in match)
+        {
+            bool found = false;
+            foreach (RFC2253.RDNPair subjectRDN in subject)
+            {
+                if (matchRDN.key.Equals(subjectRDN.key, StringComparison.Ordinal))
+                {
+                    found = true;
+                    if (!matchRDN.value.Equals(subjectRDN.value, StringComparison.Ordinal))
+                    {
+                        return false;
+                    }
+                }
+            }
+            if (!found)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private readonly Ice.Communicator _communicator;

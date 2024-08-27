@@ -125,7 +125,7 @@ namespace Ice
                 private Ice.ValueFactory _factory;
             }
 
-            static public int allTests(global::Test.TestHelper helper)
+            public static int allTests(global::Test.TestHelper helper)
             {
                 var communicator = helper.communicator();
                 MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();

@@ -1762,12 +1762,19 @@ public sealed class OutputStream
     }
 
     private Ice.Internal.Buffer _buf;
+
     private object? _closure;
+
     private readonly FormatType _format;
 
-    private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
+    private enum SliceType
+    {
+        NoSlice,
+        ValueSlice,
+        ExceptionSlice
+    }
 
-    abstract private class EncapsEncoder
+    private abstract class EncapsEncoder
     {
         protected EncapsEncoder(OutputStream stream, Encaps encaps)
         {
@@ -1778,11 +1785,15 @@ public sealed class OutputStream
         }
 
         internal abstract void writeValue(Value? v);
+
         internal abstract void writeException(UserException v);
 
         internal abstract void startInstance(SliceType type, SlicedData? data);
+
         internal abstract void endInstance();
+
         internal abstract void startSlice(string typeId, int compactId, bool last);
+
         internal abstract void endSlice();
 
         internal virtual bool writeOptional(int tag, OptionalFormat format)
@@ -1814,6 +1825,7 @@ public sealed class OutputStream
         }
 
         protected readonly OutputStream _stream;
+
         protected readonly Encaps _encaps;
 
         // Encapsulation attributes for instance marshaling.
@@ -1821,6 +1833,7 @@ public sealed class OutputStream
 
         // Encapsulation attributes for instance marshaling.
         private Dictionary<string, int>? _typeIdMap;
+
         private int _typeIdIndex;
     }
 
@@ -2397,9 +2410,9 @@ public abstract class ValueWriter : Value
     /// <param name="outStream">The stream to write to.</param>
     public abstract void write(OutputStream outStream);
 
-    public override void iceWrite(OutputStream os)
+    public override void iceWrite(OutputStream ostr)
     {
-        write(os);
+        write(ostr);
     }
 
     public override void iceRead(InputStream istr)

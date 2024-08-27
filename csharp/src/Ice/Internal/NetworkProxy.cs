@@ -15,6 +15,7 @@ public interface NetworkProxy
     // the connection establishment succeeds.
     //
     void beginWrite(EndPoint endpoint, Buffer buf);
+
     int endWrite(Buffer buf);
 
     //
@@ -22,6 +23,7 @@ public interface NetworkProxy
     // to prepare and read the response from the proxy server.
     //
     void beginRead(Buffer buf);
+
     int endRead(Buffer buf);
 
     //

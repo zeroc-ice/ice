@@ -289,37 +289,19 @@ dotnet_diagnostic.IDE0290.severity = none
 # CA1859: use concrete types when possible for improved performance
 dotnet_diagnostic.CA1859.severity = none
 
+# CA1024: Use properties where appropriate. Fixing this would require changes to public APIs.
+dotnet_diagnostic.CA1024.severity = none
+
 # TODO review rules below
 
 # SA0001: XML comment analysis is disabled due to project configuration
 dotnet_diagnostic.SA0001.severity = none
 
-# SA1004: Documentation line should begin with a space
-dotnet_diagnostic.SA1004.severity = none
-
 # SA1606: Element documentation should have summary text
 dotnet_diagnostic.SA1606.severity = none
 
-# SA1008: Opening parenthesis should not be preceded by a space
-dotnet_diagnostic.SA1008.severity = none
-
-# SA1204: Static members should appear before non-static members
-dotnet_diagnostic.SA1204.severity = none
-
-# SA1501: Statement should not be on a single line
-dotnet_diagnostic.SA1501.severity = none
-
-# SA1502: Element should not be on a single line
-dotnet_diagnostic.SA1502.severity = none
-
 # SA1136: Enum values should be on separate lines
 dotnet_diagnostic.SA1136.severity = none
-
-# SA1506: Element documentation headers should not be followed by blank line
-dotnet_diagnostic.SA1506.severity = none
-
-# SA1509: Opening braces should not be preceded by blank line
-dotnet_diagnostic.SA1509.severity = none
 
 # SA1514: Element documentation header should be preceded by blank line
 dotnet_diagnostic.SA1514.severity = none
@@ -375,9 +357,6 @@ dotnet_diagnostic.SA1503.severity = none
 # SA1131: Constant values should appear on the right-hand side of comparisons
 dotnet_diagnostic.SA1131.severity = none
 
-# SA1100: Do not prefix calls with base unless local implementation exists
-dotnet_diagnostic.SA1100.severity = none
-
 # SA1119: Statement should not use unnecessary parenthesis
 dotnet_diagnostic.SA1119.severity = none
 
@@ -389,9 +368,6 @@ dotnet_diagnostic.SA1408.severity = none
 
 # SA1025: Code should not contain multiple whitespace characters in a row
 dotnet_diagnostic.SA1025.severity = none
-
-# SA1121: Use built-in type alias
-dotnet_diagnostic.SA1121.severity = none
 
 # SA1108: Block statements should not contain embedded comments
 dotnet_diagnostic.SA1108.severity = none
@@ -411,17 +387,11 @@ dotnet_diagnostic.SA1128.severity = none
 # SA1116: The parameters should begin on the line after the declaration
 dotnet_diagnostic.SA1116.severity = none
 
-# SA1516: Elements should be separated by blank line
-dotnet_diagnostic.SA1516.severity = none
-
 # SA1202: 'public' members should come before 'private' members
 dotnet_diagnostic.SA1202.severity = none
 
 # SA1203: Constant fields should appear before non-constant fields
 dotnet_diagnostic.SA1203.severity = none
-
-# SA1206: The 'public' modifier should appear before 'readonly
-dotnet_diagnostic.SA1206.severity = none
 
 # SA1120 The C# comment does not contain any comment text.
 dotnet_diagnostic.SA1120.severity = none
@@ -432,9 +402,6 @@ dotnet_diagnostic.CA1001.severity = none
 # CA1012: Abstract types should not have public constructors
 dotnet_diagnostic.CA1012.severity = none
 
-# CA1024: Use properties where appropriate
-dotnet_diagnostic.CA1024.severity = none
-
 # CA1027: Mark enums with FlagsAttribute
 dotnet_diagnostic.CA1027.severity = none
 
@@ -443,9 +410,6 @@ dotnet_diagnostic.CA1036.severity = none
 
 # CA1066: Implement IEquatable when overriding Equals
 dotnet_diagnostic.CA1066.severity = none
-
-# CA1068: CancellationToken parameters must come last
-dotnet_diagnostic.CA1068.severity = none
 
 # CA1304: Specify CultureInfo
 dotnet_diagnostic.CA1304.severity = none
@@ -459,12 +423,6 @@ dotnet_diagnostic.CA1309.severity = none
 # CA1310: Specify StringComparison for correctness
 dotnet_diagnostic.CA1310.severity = none
 
-# CA1710: Identifiers should have correct suffix
-dotnet_diagnostic.CA1710.severity = none
-
-# CA1725: Parameter names should match base declaration
-dotnet_diagnostic.CA1725.severity = none
-
 # CA1810: Initialize reference type static fields inline
 dotnet_diagnostic.CA1810.severity = none
 
@@ -476,9 +434,6 @@ dotnet_diagnostic.CA1822.severity = none
 
 # CA2000: Dispose objects before losing scope
 dotnet_diagnostic.CA2000.severity = none
-
-# CA2002: Do not lock on objects with weak identity
-dotnet_diagnostic.CA2002.severity = none
 
 # CA2008: Do not create tasks without passing a TaskScheduler
 dotnet_diagnostic.CA2008.severity = none

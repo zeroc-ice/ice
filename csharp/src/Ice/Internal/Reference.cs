@@ -21,6 +21,7 @@ public abstract class Reference : IEquatable<Reference>
     public interface GetConnectionCallback
     {
         void setConnection(Ice.ConnectionI connection, bool compress);
+
         void setException(Ice.LocalException ex);
     }
 
@@ -88,15 +89,25 @@ public abstract class Reference : IEquatable<Reference>
     }
 
     public abstract EndpointI[] getEndpoints();
+
     public abstract string getAdapterId();
+
     public abstract LocatorInfo getLocatorInfo();
+
     public abstract RouterInfo getRouterInfo();
+
     public abstract bool getCollocationOptimized();
+
     public abstract bool getCacheConnection();
+
     public abstract bool getPreferSecure();
+
     public abstract Ice.EndpointSelectionType getEndpointSelection();
+
     public abstract int getLocatorCacheTimeout();
+
     public abstract string getConnectionId();
+
     public abstract ThreadPool getThreadPool();
 
     public abstract Connection getConnection();
@@ -175,16 +186,25 @@ public abstract class Reference : IEquatable<Reference>
     }
 
     public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
+
     public abstract Reference changeAdapterId(string newAdapterId);
+
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
+
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
+
     public abstract Reference changeCollocationOptimized(bool newCollocationOptimized);
+
     public abstract Reference changeCacheConnection(bool newCache);
+
     public abstract Reference changePreferSecure(bool newPreferSecure);
+
     public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
+
     public abstract Reference changeLocatorCacheTimeout(int newTimeout);
 
     public abstract Reference changeConnectionId(string connectionId);
+
     public abstract Reference changeConnection(Ice.ConnectionI connection);
 
     // Gets the effective compression setting, taking into account the override.
@@ -195,6 +215,7 @@ public abstract class Reference : IEquatable<Reference>
     }
 
     public abstract bool isIndirect();
+
     public abstract bool isWellKnown();
 
     //
@@ -355,6 +376,7 @@ public abstract class Reference : IEquatable<Reference>
     internal abstract RequestHandler getRequestHandler();
 
     public static bool operator ==(Reference lhs, Reference rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
+
     public static bool operator !=(Reference lhs, Reference rhs) => !(lhs == rhs);
 
     public override int GetHashCode()
@@ -387,7 +409,7 @@ public abstract class Reference : IEquatable<Reference>
             _invocationTimeout == other._invocationTimeout;
     }
 
-    public override bool Equals(object other) => Equals(other as Reference);
+    public override bool Equals(object obj) => Equals(obj as Reference);
 
     public virtual Reference Clone() => (Reference)MemberwiseClone();
 
@@ -548,7 +570,7 @@ public class FixedReference : Reference
         throw new Ice.FixedProxyException();
     }
 
-    public override Reference changePreferSecure(bool prefSec)
+    public override Reference changePreferSecure(bool newPreferSecure)
     {
         throw new Ice.FixedProxyException();
     }
@@ -663,8 +685,8 @@ public class FixedReference : Reference
         return rhs is not null && base.Equals(rhs) && _fixedConnection.Equals(rhs._fixedConnection);
     }
 
-    private Ice.ConnectionI _fixedConnection;
     private static EndpointI[] _emptyEndpoints = [];
+    private Ice.ConnectionI _fixedConnection;
 }
 
 public class RoutableReference : Reference
@@ -834,16 +856,16 @@ public class RoutableReference : Reference
         return r;
     }
 
-    public override Reference changeConnectionId(string id)
+    public override Reference changeConnectionId(string connectionId)
     {
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._connectionId = id;
+        r._connectionId = connectionId;
         if (_endpoints.Length > 0)
         {
             EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
             for (int i = 0; i < _endpoints.Length; i++)
             {
-                newEndpoints[i] = _endpoints[i].connectionId(id);
+                newEndpoints[i] = _endpoints[i].connectionId(connectionId);
             }
             r._endpoints = newEndpoints;
         }
@@ -1145,7 +1167,7 @@ public class RoutableReference : Reference
                     TraceLevels traceLevels = _ir.getInstance().traceLevels();
                     if (traceLevels.retry >= 2)
                     {
-                        String s = "connection to cached endpoints failed\n" +
+                        string s = "connection to cached endpoints failed\n" +
                                    "removing endpoints from cache and trying again\n" + ex;
                         _ir.getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
                     }

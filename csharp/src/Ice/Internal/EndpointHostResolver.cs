@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net;
 
 namespace Ice.Internal;
+
 public class EndpointHostResolver
 {
     internal EndpointHostResolver(Instance instance)
@@ -47,7 +48,7 @@ public class EndpointHostResolver
             }
         }
 
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(!_destroyed);
 
@@ -69,17 +70,17 @@ public class EndpointHostResolver
             }
 
             _queue.AddLast(entry);
-            Monitor.Pulse(this);
+            Monitor.Pulse(_mutex);
         }
     }
 
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(!_destroyed);
             _destroyed = true;
-            Monitor.Pulse(this);
+            Monitor.Pulse(_mutex);
         }
     }
 
@@ -98,11 +99,11 @@ public class EndpointHostResolver
             ResolveEntry r;
             Ice.Instrumentation.ThreadObserver threadObserver;
 
-            lock (this)
+            lock (_mutex)
             {
                 while (!_destroyed && _queue.Count == 0)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 if (_destroyed)
@@ -184,7 +185,7 @@ public class EndpointHostResolver
     public void
     updateObserver()
     {
-        lock (this)
+        lock (_mutex)
         {
             Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
             if (obsv != null)
@@ -269,4 +270,5 @@ public class EndpointHostResolver
     }
 
     private HelperThread _thread;
+    private readonly object _mutex = new();
 }

@@ -566,7 +566,7 @@ public sealed class StringUtil
     //
     // Split string helper; returns null for unmatched quotes
     //
-    static public string[] splitString(string str, string delim)
+    public static string[] splitString(string str, string delim)
     {
         List<string> l = new List<string>();
         char[] arr = new char[str.Length];
@@ -718,5 +718,6 @@ public sealed class StringUtil
             return string.CompareOrdinal(l, r);
         }
     }
+
     public static IComparer<string> OrdinalStringComparer = new OrdinalStringComparerImpl();
 }

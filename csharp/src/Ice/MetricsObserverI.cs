@@ -69,7 +69,7 @@ public class MetricsHelper<T> where T : Metrics
             protected object getProperty(System.Reflection.PropertyInfo property, object obj) =>
                 property?.GetValue(obj);
 
-            readonly protected string _name;
+            protected readonly string _name;
         }
 
         private class FieldResolverI : Resolver
@@ -80,12 +80,12 @@ public class MetricsHelper<T> where T : Metrics
                 _field = field;
             }
 
-            override protected object resolve(object obj)
+            protected override object resolve(object obj)
             {
                 return getField(_field, obj);
             }
 
-            readonly private System.Reflection.FieldInfo _field;
+            private readonly System.Reflection.FieldInfo _field;
         }
 
         private class MethodResolverI : Resolver
@@ -96,12 +96,12 @@ public class MetricsHelper<T> where T : Metrics
                 _method = method;
             }
 
-            override protected object resolve(object obj)
+            protected override object resolve(object obj)
             {
                 return _method.Invoke(obj, null);
             }
 
-            readonly private System.Reflection.MethodInfo _method;
+            private readonly System.Reflection.MethodInfo _method;
         }
 
         private class MemberFieldResolverI : Resolver
@@ -117,7 +117,7 @@ public class MetricsHelper<T> where T : Metrics
                 _field = field;
             }
 
-            override protected object resolve(object obj)
+            protected override object resolve(object obj)
             {
                 object o = _method.Invoke(obj, null);
                 if (o != null)
@@ -127,8 +127,8 @@ public class MetricsHelper<T> where T : Metrics
                 throw new ArgumentOutOfRangeException(_name);
             }
 
-            readonly private System.Reflection.MethodInfo _method;
-            readonly private System.Reflection.FieldInfo _field;
+            private readonly System.Reflection.MethodInfo _method;
+            private readonly System.Reflection.FieldInfo _field;
         }
 
         private class MemberPropertyResolverI : Resolver
@@ -165,7 +165,7 @@ public class MetricsHelper<T> where T : Metrics
                 _subMethod = subMeth;
             }
 
-            override protected object resolve(object obj)
+            protected override object resolve(object obj)
             {
                 object o = _method.Invoke(obj, null);
                 if (o != null)
@@ -175,8 +175,8 @@ public class MetricsHelper<T> where T : Metrics
                 throw new ArgumentOutOfRangeException(_name);
             }
 
-            readonly private System.Reflection.MethodInfo _method;
-            readonly private System.Reflection.MethodInfo _subMethod;
+            private readonly System.Reflection.MethodInfo _method;
+            private readonly System.Reflection.MethodInfo _subMethod;
         }
 
         protected AttributeResolver()
@@ -242,12 +242,12 @@ public class MetricsHelper<T> where T : Metrics
         return _attributes.resolve(this, attribute);
     }
 
-    virtual public void initMetrics(T metrics)
+    public virtual void initMetrics(T metrics)
     {
         // Override in specialized helpers.
     }
 
-    virtual protected string defaultResolve(string attribute)
+    protected virtual string defaultResolve(string attribute)
     {
         return null;
     }
@@ -259,12 +259,12 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
 {
     public delegate void MetricsUpdate(T m);
 
-    virtual public void attach()
+    public virtual void attach()
     {
         Start();
     }
 
-    virtual public void detach()
+    public virtual void detach()
     {
         Stop();
         long lifetime = _previousDelay + (long)(ElapsedTicks / (Frequency / 1000000.0));
@@ -274,7 +274,7 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
         }
     }
 
-    virtual public void failed(string exceptionName)
+    public virtual void failed(string exceptionName)
     {
         foreach (MetricsMap<T>.Entry e in _objects)
         {
@@ -391,7 +391,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
     public O getObserver(MetricsHelper<T> helper, object observer)
     {
-        lock (this)
+        lock (_mutex)
         {
             List<MetricsMap<T>.Entry> metricsObjects = null;
             O old = null;
@@ -453,7 +453,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
     public void update()
     {
         Action updater;
-        lock (this)
+        lock (_mutex)
         {
             _maps.Clear();
             foreach (MetricsMap<T> m in _metrics.getMaps<T>(_name))
@@ -472,7 +472,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
     public void setUpdater(Action updater)
     {
-        lock (this)
+        lock (_mutex)
         {
             _updater = updater;
         }
@@ -483,4 +483,5 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
     private List<MetricsMap<T>> _maps = new();
     private volatile bool _enabled;
     private Action _updater;
+    private readonly object _mutex = new();
 }

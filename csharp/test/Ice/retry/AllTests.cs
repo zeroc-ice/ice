@@ -6,7 +6,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            static public async Task<Test.RetryPrx> allTests(global::Test.TestHelper helper,
+            public static async Task<Test.RetryPrx> allTests(global::Test.TestHelper helper,
                 Communicator communicator,
                 Communicator communicator2,
                 string rf)

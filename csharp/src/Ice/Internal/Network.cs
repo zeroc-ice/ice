@@ -1415,6 +1415,6 @@ public sealed class Network
         private bool _ipv6;
     }
 
-    private readonly static EndPointComparator _preferIPv4Comparator = new EndPointComparator(false);
-    private readonly static EndPointComparator _preferIPv6Comparator = new EndPointComparator(true);
+    private static readonly EndPointComparator _preferIPv4Comparator = new EndPointComparator(false);
+    private static readonly EndPointComparator _preferIPv6Comparator = new EndPointComparator(true);
 }

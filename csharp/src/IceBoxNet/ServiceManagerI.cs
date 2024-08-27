@@ -46,7 +46,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
     public override void startService(string name, Ice.Current current)
     {
         ServiceInfo info = new ServiceInfo();
-        lock (this)
+        lock (_mutex)
         {
             //
             // Search would be more efficient if services were contained in
@@ -88,7 +88,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             _logger.warning("ServiceManager: exception while starting service " + info.name + ":\n" + e.ToString());
         }
 
-        lock (this)
+        lock (_mutex)
         {
             int i;
             for (i = 0; i < _services.Count; ++i)
@@ -113,14 +113,14 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 }
             }
             _pendingStatusChanges = false;
-            Monitor.PulseAll(this);
+            Monitor.PulseAll(_mutex);
         }
     }
 
     public override void stopService(string name, Ice.Current current)
     {
         ServiceInfo info = new ServiceInfo();
-        lock (this)
+        lock (_mutex)
         {
             //
             // Search would be more efficient if services were contained in
@@ -159,7 +159,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             _logger.warning("ServiceManager: exception while stopping service " + info.name + "\n" + e.ToString());
         }
 
-        lock (this)
+        lock (_mutex)
         {
             int i;
             for (i = 0; i < _services.Count; ++i)
@@ -184,7 +184,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 }
             }
             _pendingStatusChanges = false;
-            Monitor.PulseAll(this);
+            Monitor.PulseAll(_mutex);
         }
     }
 
@@ -195,7 +195,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
         //
         // Null observers and duplicate registrations are ignored
         //
-        lock (this)
+        lock (_mutex)
         {
             if (observer != null)
             {
@@ -411,7 +411,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
     private void startService(string service, string entryPoint, string[] args)
     {
-        lock (this)
+        lock (_mutex)
         {
             //
             // Extract the assembly name and the class name.
@@ -663,14 +663,14 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
     private void stopAll()
     {
-        lock (this)
+        lock (_mutex)
         {
             //
             // First wait for any active startService/stopService calls to complete.
             //
             while (_pendingStatusChanges)
             {
-                Monitor.Wait(this);
+                Monitor.Wait(_mutex);
             }
 
             //
@@ -764,7 +764,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
         }
         catch (AggregateException ae)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_observers.Remove(observer))
                 {
@@ -978,4 +978,5 @@ internal class ServiceManagerI : ServiceManagerDisp_
     private bool _pendingStatusChanges;
     private Dictionary<ServiceObserverPrx, bool> _observers = new();
     private int _traceServiceObserver;
+    private readonly object _mutex = new();
 }

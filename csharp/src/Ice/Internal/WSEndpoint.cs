@@ -41,17 +41,17 @@ internal sealed class WSEndpoint : EndpointI
             _endpoint = e;
         }
 
-        override public short type()
+        public override short type()
         {
             return _endpoint.type();
         }
 
-        override public bool datagram()
+        public override bool datagram()
         {
             return _endpoint.datagram();
         }
 
-        override public bool secure()
+        public override bool secure()
         {
             return _endpoint.secure();
         }
@@ -333,17 +333,17 @@ public class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
     }
 
-    override public EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
+    public override EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
     {
         return new WSEndpointFactory(instance, underlying);
     }
 
-    override protected EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint)
+    protected override EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint)
     {
         return new WSEndpoint(instance_, underlying, args);
     }
 
-    override protected EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s)
+    protected override EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s)
     {
         return new WSEndpoint(instance_, underlying, s);
     }

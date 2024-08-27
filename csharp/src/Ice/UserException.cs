@@ -34,5 +34,6 @@ public abstract class UserException : Ice.Exception
     }
 
     protected abstract void iceWriteImpl(OutputStream ostr);
+
     protected abstract void iceReadImpl(InputStream istr);
 }

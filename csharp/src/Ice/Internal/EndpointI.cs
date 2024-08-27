@@ -4,9 +4,11 @@ using System.Diagnostics;
 using System.Net.Security;
 
 namespace Ice.Internal;
+
 public interface EndpointI_connectors
 {
     void connectors(List<Connector> connectors);
+
     void exception(Ice.LocalException ex);
 }
 
@@ -44,12 +46,13 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
     //
     // Marshal the endpoint.
     //
-    virtual public void streamWrite(Ice.OutputStream s)
+    public virtual void streamWrite(Ice.OutputStream s)
     {
         s.startEncapsulation();
         streamWriteImpl(s);
         s.endEncapsulation();
     }
+
     public abstract void streamWriteImpl(Ice.OutputStream s);
 
     //

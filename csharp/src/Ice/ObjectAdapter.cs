@@ -43,6 +43,8 @@ public sealed class ObjectAdapter
     private readonly Lazy<Object> _dispatchPipeline;
     private readonly Stack<Func<Object, Object>> _middlewareStack = new();
 
+    private readonly object _mutex = new();
+
     /// <summary>
     /// Get the name of this object adapter.
     /// </summary>
@@ -66,7 +68,7 @@ public sealed class ObjectAdapter
         LocatorInfo? locatorInfo = null;
         bool printAdapterReady = false;
 
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -113,10 +115,10 @@ public sealed class ObjectAdapter
             // allow to user code to retry activating the adapter
             // later.
             //
-            lock (this)
+            lock (_mutex)
             {
                 _state = StateUninitialized;
-                System.Threading.Monitor.PulseAll(this);
+                System.Threading.Monitor.PulseAll(_mutex);
             }
             throw;
         }
@@ -126,7 +128,7 @@ public sealed class ObjectAdapter
             Console.Out.WriteLine(_name + " ready");
         }
 
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(_state == StateActivating);
 
@@ -136,7 +138,7 @@ public sealed class ObjectAdapter
             }
 
             _state = StateActive;
-            System.Threading.Monitor.PulseAll(this);
+            System.Threading.Monitor.PulseAll(_mutex);
         }
     }
 
@@ -149,7 +151,7 @@ public sealed class ObjectAdapter
     /// </summary>
     public void hold()
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             _state = StateHeld;
@@ -168,7 +170,7 @@ public sealed class ObjectAdapter
     public void waitForHold()
     {
         List<IncomingConnectionFactory> incomingConnectionFactories;
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -195,7 +197,7 @@ public sealed class ObjectAdapter
     /// </summary>
     public void deactivate()
     {
-        lock (this)
+        lock (_mutex)
         {
             //
             //
@@ -204,7 +206,7 @@ public sealed class ObjectAdapter
             //
             while (_state == StateActivating || _state == StateDeactivating)
             {
-                System.Threading.Monitor.Wait(this);
+                System.Threading.Monitor.Wait(_mutex);
             }
             if (_state > StateDeactivating)
             {
@@ -250,11 +252,11 @@ public sealed class ObjectAdapter
 
         _instance.outgoingConnectionFactory().removeAdapter(this);
 
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(_state == StateDeactivating);
             _state = StateDeactivated;
-            System.Threading.Monitor.PulseAll(this);
+            System.Threading.Monitor.PulseAll(_mutex);
         }
     }
 
@@ -267,7 +269,7 @@ public sealed class ObjectAdapter
     public void waitForDeactivate()
     {
         IncomingConnectionFactory[]? incomingConnectionFactories = null;
-        lock (this)
+        lock (_mutex)
         {
             //
             // Wait for deactivation of the adapter itself, and
@@ -276,7 +278,7 @@ public sealed class ObjectAdapter
             //
             while ((_state < StateDeactivated) || _directCount > 0)
             {
-                System.Threading.Monitor.Wait(this);
+                System.Threading.Monitor.Wait(_mutex);
             }
             if (_state > StateDeactivated)
             {
@@ -303,7 +305,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public bool isDeactivated()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _state >= StateDeactivated;
         }
@@ -324,7 +326,7 @@ public sealed class ObjectAdapter
         deactivate();
         waitForDeactivate();
 
-        lock (this)
+        lock (_mutex)
         {
             //
             // Only a single thread is allowed to destroy the object
@@ -333,7 +335,7 @@ public sealed class ObjectAdapter
             //
             while (_state == StateDestroying)
             {
-                System.Threading.Monitor.Wait(this);
+                System.Threading.Monitor.Wait(_mutex);
             }
             if (_state == StateDestroyed)
             {
@@ -362,7 +364,7 @@ public sealed class ObjectAdapter
             _objectAdapterFactory.removeObjectAdapter(this);
         }
 
-        lock (this)
+        lock (_mutex)
         {
             //
             // We're done, now we can throw away all incoming connection
@@ -381,7 +383,7 @@ public sealed class ObjectAdapter
             _objectAdapterFactory = null;
 
             _state = StateDestroyed;
-            System.Threading.Monitor.PulseAll(this);
+            System.Threading.Monitor.PulseAll(_mutex);
         }
     }
 
@@ -432,7 +434,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public ObjectPrx addFacet(Object obj, Identity ident, string facet)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             checkIdentity(ident);
@@ -503,7 +505,7 @@ public sealed class ObjectAdapter
     {
         ArgumentNullException.ThrowIfNull(servant);
 
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -535,7 +537,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public Object removeFacet(Identity id, string facet)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             checkIdentity(id);
@@ -556,7 +558,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public Dictionary<string, Object> removeAllFacets(Identity id)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             checkIdentity(id);
@@ -576,7 +578,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public Object removeDefaultServant(string category)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -610,7 +612,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public Object? findFacet(Identity id, string facet)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             checkIdentity(id);
@@ -629,7 +631,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public Dictionary<string, Object> findAllFacets(Identity id)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             checkIdentity(id);
@@ -649,7 +651,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public Object? findByProxy(ObjectPrx proxy)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -684,7 +686,7 @@ public sealed class ObjectAdapter
     ///  </param>
     public void addServantLocator(ServantLocator locator, string prefix)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -703,7 +705,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public ServantLocator removeServantLocator(string prefix)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -721,7 +723,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public ServantLocator? findServantLocator(string prefix)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -738,13 +740,14 @@ public sealed class ObjectAdapter
     ///  </returns>
     public Object? findDefaultServant(string category)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
             return _servantManager.findDefaultServant(category);
         }
     }
+
     /// <summary>
     /// Gets the dispatch pipeline of this object adapter.
     /// </summary>
@@ -764,7 +767,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public ObjectPrx createProxy(Identity ident)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             checkIdentity(ident);
@@ -784,7 +787,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public ObjectPrx createDirectProxy(Identity ident)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             checkIdentity(ident);
@@ -805,7 +808,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public ObjectPrx createIndirectProxy(Identity ident)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             checkIdentity(ident);
@@ -825,7 +828,7 @@ public sealed class ObjectAdapter
     ///  </param>
     public void setLocator(LocatorPrx? locator)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -840,7 +843,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public LocatorPrx? getLocator()
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             return _locatorInfo?.getLocator();
@@ -854,7 +857,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public Endpoint[] getEndpoints()
     {
-        lock (this)
+        lock (_mutex)
         {
             List<Endpoint> endpoints = new List<Endpoint>();
             foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
@@ -877,7 +880,7 @@ public sealed class ObjectAdapter
         LocatorInfo? locatorInfo = null;
         EndpointI[] oldPublishedEndpoints;
 
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -894,7 +897,7 @@ public sealed class ObjectAdapter
         }
         catch (LocalException)
         {
-            lock (this)
+            lock (_mutex)
             {
                 //
                 // Restore the old published endpoints.
@@ -912,7 +915,7 @@ public sealed class ObjectAdapter
     ///  </returns>
     public Endpoint[] getPublishedEndpoints()
     {
-        lock (this)
+        lock (_mutex)
         {
             return (Endpoint[])_publishedEndpoints.Clone();
         }
@@ -928,7 +931,7 @@ public sealed class ObjectAdapter
         LocatorInfo? locatorInfo = null;
         EndpointI[] oldPublishedEndpoints;
 
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             if (_routerInfo is not null)
@@ -949,7 +952,7 @@ public sealed class ObjectAdapter
         }
         catch (LocalException)
         {
-            lock (this)
+            lock (_mutex)
             {
                 //
                 // Restore the old published endpoints.
@@ -988,7 +991,7 @@ public sealed class ObjectAdapter
         {
             EndpointI[] endpoints = r.getEndpoints();
 
-            lock (this)
+            lock (_mutex)
             {
                 checkForDeactivation();
 
@@ -1022,7 +1025,7 @@ public sealed class ObjectAdapter
     internal void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
     {
         List<IncomingConnectionFactory> f;
-        lock (this)
+        lock (_mutex)
         {
             f = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
         }
@@ -1036,7 +1039,7 @@ public sealed class ObjectAdapter
     internal void updateConnectionObservers()
     {
         List<IncomingConnectionFactory> f;
-        lock (this)
+        lock (_mutex)
         {
             f = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
         }
@@ -1050,7 +1053,7 @@ public sealed class ObjectAdapter
     internal void updateThreadObservers()
     {
         Ice.Internal.ThreadPool? threadPool;
-        lock (this)
+        lock (_mutex)
         {
             threadPool = _threadPool;
         }
@@ -1063,7 +1066,7 @@ public sealed class ObjectAdapter
 
     internal void incDirectCount()
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
 
@@ -1074,7 +1077,7 @@ public sealed class ObjectAdapter
 
     internal void decDirectCount()
     {
-        lock (this)
+        lock (_mutex)
         {
             // Not check for deactivation here!
 
@@ -1083,7 +1086,7 @@ public sealed class ObjectAdapter
             Debug.Assert(_directCount > 0);
             if (--_directCount == 0)
             {
-                System.Threading.Monitor.PulseAll(this);
+                System.Threading.Monitor.PulseAll(_mutex);
             }
         }
     }
@@ -1111,7 +1114,7 @@ public sealed class ObjectAdapter
 
     internal void setAdapterOnConnection(Ice.ConnectionI connection)
     {
-        lock (this)
+        lock (_mutex)
         {
             checkForDeactivation();
             connection.setAdapterFromAdapter(this);
@@ -1639,7 +1642,7 @@ public sealed class ObjectAdapter
         return dispatchPipeline;
     }
 
-    static private readonly string[] _suffixes =
+    private static readonly string[] _suffixes =
     {
         "AdapterId",
         "Connection.CloseTimeout",

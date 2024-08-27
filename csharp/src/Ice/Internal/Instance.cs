@@ -75,7 +75,7 @@ public sealed class Instance
 
     public RouterManager routerManager()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -89,7 +89,7 @@ public sealed class Instance
 
     public LocatorManager locatorManager()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -103,7 +103,7 @@ public sealed class Instance
 
     public ReferenceFactory referenceFactory()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -117,7 +117,7 @@ public sealed class Instance
 
     public OutgoingConnectionFactory outgoingConnectionFactory()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -131,7 +131,7 @@ public sealed class Instance
 
     public ObjectAdapterFactory objectAdapterFactory()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -160,7 +160,7 @@ public sealed class Instance
 
     public ThreadPool clientThreadPool()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -174,7 +174,7 @@ public sealed class Instance
 
     public ThreadPool serverThreadPool()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -197,7 +197,7 @@ public sealed class Instance
 
     public EndpointHostResolver endpointHostResolver()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -212,7 +212,7 @@ public sealed class Instance
     public RetryQueue
     retryQueue()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -227,7 +227,7 @@ public sealed class Instance
     public Timer
     timer()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -241,7 +241,7 @@ public sealed class Instance
 
     public EndpointFactoryManager endpointFactoryManager()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -255,7 +255,7 @@ public sealed class Instance
 
     public Ice.PluginManager pluginManager()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -307,7 +307,7 @@ public sealed class Instance
     {
         bool createAdapter = (adminAdapter == null);
 
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -363,7 +363,7 @@ public sealed class Instance
                 // since all the facets (servants) in the adapter are lost
                 //
                 adminAdapter.destroy();
-                lock (this)
+                lock (_mutex)
                 {
                     _adminAdapter = null;
                 }
@@ -380,7 +380,7 @@ public sealed class Instance
         Ice.ObjectAdapter adminAdapter;
         Ice.Identity adminIdentity;
 
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -433,7 +433,7 @@ public sealed class Instance
             // since all the facets (servants) in the adapter are lost
             //
             adminAdapter.destroy();
-            lock (this)
+            lock (_mutex)
             {
                 _adminAdapter = null;
             }
@@ -447,7 +447,7 @@ public sealed class Instance
     public void
     addAdminFacet(Ice.Object servant, string facet)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -472,7 +472,7 @@ public sealed class Instance
     public Ice.Object
     removeAdminFacet(string facet)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -504,7 +504,7 @@ public sealed class Instance
     public Ice.Object
     findAdminFacet(string facet)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -533,7 +533,7 @@ public sealed class Instance
     public Dictionary<string, Ice.Object>
     findAllAdminFacets()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -562,7 +562,7 @@ public sealed class Instance
     public void
     setDefaultLocator(Ice.LocatorPrx locator)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -576,7 +576,7 @@ public sealed class Instance
     public void
     setDefaultRouter(Ice.RouterPrx router)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateDestroyed)
             {
@@ -701,17 +701,15 @@ public sealed class Instance
             clientConnectionOptions = readConnectionOptions("Ice.Connection.Client");
             _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
 
+            int messageSizeMax =
+                _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
+            if (messageSizeMax < 1 || messageSizeMax > 0x7fffffff / 1024)
             {
-                int num =
-                    _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
-                if (num < 1 || num > 0x7fffffff / 1024)
-                {
-                    _messageSizeMax = 0x7fffffff;
-                }
-                else
-                {
-                    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
-                }
+                _messageSizeMax = 0x7fffffff;
+            }
+            else
+            {
+                _messageSizeMax = messageSizeMax * 1024; // Property is in kilobytes, _messageSizeMax in bytes
             }
 
             if (_initData.properties.getProperty("Ice.BatchAutoFlushSize").Length == 0 &&
@@ -1035,7 +1033,7 @@ public sealed class Instance
         //
         // Show process id if requested (but only once).
         //
-        lock (this)
+        lock (_mutex)
         {
             if (!_printProcessIdDone && _initData.properties.getIcePropertyAsInt("Ice.PrintProcessId") > 0)
             {
@@ -1078,7 +1076,7 @@ public sealed class Instance
     //
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             //
             // If destroy is in progress, wait for it to be done. This
@@ -1087,7 +1085,7 @@ public sealed class Instance
             //
             while (_state == StateDestroyInProgress)
             {
-                Monitor.Wait(this);
+                Monitor.Wait(_mutex);
             }
 
             if (_state == StateDestroyed)
@@ -1215,7 +1213,7 @@ public sealed class Instance
             _pluginManager.destroy();
         }
 
-        lock (this)
+        lock (_mutex)
         {
             _objectAdapterFactory = null;
             _outgoingConnectionFactory = null;
@@ -1236,7 +1234,7 @@ public sealed class Instance
             _adminFacets.Clear();
 
             _state = StateDestroyed;
-            Monitor.PulseAll(this);
+            Monitor.PulseAll(_mutex);
         }
 
         {
@@ -1336,7 +1334,7 @@ public sealed class Instance
 
     internal void addAllAdminFacets()
     {
-        lock (this)
+        lock (_mutex)
         {
             Dictionary<string, Ice.Object> filteredFacets = new Dictionary<string, Ice.Object>();
 
@@ -1475,6 +1473,10 @@ public sealed class Instance
             inactivityTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.InactivityTimeout")));
     }
 
+    private static bool _printProcessIdDone;
+    private static bool _oneOffDone;
+    private static readonly object _staticLock = new object();
+
     private const int StateActive = 0;
     private const int StateDestroyInProgress = 1;
     private const int StateDestroyed = 2;
@@ -1517,7 +1519,5 @@ public sealed class Instance
     private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
     private ConnectionOptions _serverConnectionOptions; // set in initialize
     private Ice.SSL.SSLEngine _sslEngine;
-    private static bool _printProcessIdDone;
-    private static bool _oneOffDone;
-    private static readonly object _staticLock = new object();
+    private readonly object _mutex = new();
 }

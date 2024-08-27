@@ -3,6 +3,7 @@
 using System.Diagnostics;
 
 namespace Ice.Internal;
+
 public sealed class EndpointFactoryManager
 {
     internal EndpointFactoryManager(Instance instance)
@@ -21,7 +22,7 @@ public sealed class EndpointFactoryManager
 
     public void add(EndpointFactory factory)
     {
-        lock (this)
+        lock (_mutex)
         {
             foreach (EndpointFactory f in _factories)
             {
@@ -36,7 +37,7 @@ public sealed class EndpointFactoryManager
 
     public EndpointFactory get(short type)
     {
-        lock (this)
+        lock (_mutex)
         {
             foreach (EndpointFactory f in _factories)
             {
@@ -73,7 +74,7 @@ public sealed class EndpointFactoryManager
 
         EndpointFactory factory = null;
 
-        lock (this)
+        lock (_mutex)
         {
             for (int i = 0; i < _factories.Count; i++)
             {
@@ -149,7 +150,7 @@ public sealed class EndpointFactoryManager
 
     public EndpointI read(Ice.InputStream s)
     {
-        lock (this)
+        lock (_mutex)
         {
             short type = s.readShort();
 
@@ -190,4 +191,5 @@ public sealed class EndpointFactoryManager
 
     private readonly Instance _instance;
     private readonly List<EndpointFactory> _factories;
+    private readonly object _mutex = new();
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ice.Internal;
+
 public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>>
 {
     public void
@@ -36,12 +37,13 @@ public sealed class OutgoingConnectionFactory
     public interface CreateConnectionCallback
     {
         void setConnection(Ice.ConnectionI connection, bool compress);
+
         void setException(Ice.LocalException ex);
     }
 
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_destroyed)
             {
@@ -58,13 +60,13 @@ public sealed class OutgoingConnectionFactory
 
             _destroyed = true;
             _communicator = null;
-            System.Threading.Monitor.PulseAll(this);
+            System.Threading.Monitor.PulseAll(_mutex);
         }
     }
 
     public void updateConnectionObservers()
     {
-        lock (this)
+        lock (_mutex)
         {
             foreach (ICollection<Ice.ConnectionI> connections in _connections.Values)
             {
@@ -79,7 +81,7 @@ public sealed class OutgoingConnectionFactory
     public void waitUntilFinished()
     {
         Dictionary<Connector, ICollection<Ice.ConnectionI>> connections = null;
-        lock (this)
+        lock (_mutex)
         {
             //
             // First we wait until the factory is destroyed. We also
@@ -89,7 +91,7 @@ public sealed class OutgoingConnectionFactory
             //
             while (!_destroyed || _pending.Count > 0 || _pendingConnectCount > 0)
             {
-                System.Threading.Monitor.Wait(this);
+                System.Threading.Monitor.Wait(_mutex);
             }
 
             //
@@ -148,7 +150,7 @@ public sealed class OutgoingConnectionFactory
         Ice.ObjectAdapter adapter = routerInfo.getAdapter();
         EndpointI[] endpoints = routerInfo.getClientEndpoints(); // Must be called outside the synchronization
 
-        lock (this)
+        lock (_mutex)
         {
             if (_destroyed)
             {
@@ -192,7 +194,7 @@ public sealed class OutgoingConnectionFactory
 
     public void removeAdapter(Ice.ObjectAdapter adapter)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_destroyed)
             {
@@ -216,7 +218,7 @@ public sealed class OutgoingConnectionFactory
     {
         ICollection<Ice.ConnectionI> c = new List<Ice.ConnectionI>();
 
-        lock (this)
+        lock (_mutex)
         {
             if (!_destroyed)
             {
@@ -260,7 +262,7 @@ public sealed class OutgoingConnectionFactory
 
     private Ice.ConnectionI findConnection(List<EndpointI> endpoints, out bool compress)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_destroyed)
             {
@@ -352,7 +354,7 @@ public sealed class OutgoingConnectionFactory
         // the asynchronous requests waiting on a connection to be established.
         //
 
-        lock (this)
+        lock (_mutex)
         {
             if (_destroyed)
             {
@@ -364,20 +366,20 @@ public sealed class OutgoingConnectionFactory
 
     internal void decPendingConnectCount()
     {
-        lock (this)
+        lock (_mutex)
         {
             --_pendingConnectCount;
             Debug.Assert(_pendingConnectCount >= 0);
             if (_destroyed && _pendingConnectCount == 0)
             {
-                System.Threading.Monitor.PulseAll(this);
+                System.Threading.Monitor.PulseAll(_mutex);
             }
         }
     }
 
     private Ice.ConnectionI getConnection(List<ConnectorInfo> connectors, ConnectCallback cb, out bool compress)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_destroyed)
             {
@@ -415,7 +417,7 @@ public sealed class OutgoingConnectionFactory
                     //
                     if (cb == null)
                     {
-                        System.Threading.Monitor.Wait(this);
+                        System.Threading.Monitor.Wait(_mutex);
                     }
                     else
                     {
@@ -451,7 +453,7 @@ public sealed class OutgoingConnectionFactory
 
     private Ice.ConnectionI createConnection(Transceiver transceiver, ConnectorInfo ci)
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(_pending.ContainsKey(ci.connector) && transceiver != null);
 
@@ -509,7 +511,7 @@ public sealed class OutgoingConnectionFactory
         }
 
         HashSet<ConnectCallback> callbacks = new HashSet<ConnectCallback>();
-        lock (this)
+        lock (_mutex)
         {
             foreach (ConnectorInfo c in connectors)
             {
@@ -540,7 +542,7 @@ public sealed class OutgoingConnectionFactory
             {
                 cc.removeFromPending();
             }
-            System.Threading.Monitor.PulseAll(this);
+            System.Threading.Monitor.PulseAll(_mutex);
         }
 
         bool compress;
@@ -573,7 +575,7 @@ public sealed class OutgoingConnectionFactory
         }
 
         HashSet<ConnectCallback> callbacks = new HashSet<ConnectCallback>();
-        lock (this)
+        lock (_mutex)
         {
             foreach (ConnectorInfo c in connectors)
             {
@@ -600,7 +602,7 @@ public sealed class OutgoingConnectionFactory
                 Debug.Assert(!failedCallbacks.Contains(cc));
                 cc.removeFromPending();
             }
-            System.Threading.Monitor.PulseAll(this);
+            System.Threading.Monitor.PulseAll(_mutex);
         }
 
         foreach (ConnectCallback cc in callbacks)
@@ -694,7 +696,7 @@ public sealed class OutgoingConnectionFactory
 
     private void removeConnection(ConnectionI connection)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_destroyed)
             {
@@ -1046,6 +1048,7 @@ public sealed class OutgoingConnectionFactory
     private MultiDictionary<EndpointI, Ice.ConnectionI> _connectionsByEndpoint = new();
     private Dictionary<Connector, HashSet<ConnectCallback>> _pending = new();
     private int _pendingConnectCount;
+    private readonly object _mutex = new();
 }
 
 public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.StartCallback
@@ -1067,7 +1070,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     public void startAcceptor()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state >= StateClosed || _acceptorStarted)
             {
@@ -1089,7 +1092,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     public void activate()
     {
-        lock (this)
+        lock (_mutex)
         {
             setState(StateActive);
         }
@@ -1097,7 +1100,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     public void hold()
     {
-        lock (this)
+        lock (_mutex)
         {
             setState(StateHolding);
         }
@@ -1105,7 +1108,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             setState(StateClosed);
         }
@@ -1113,7 +1116,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     public void updateConnectionObservers()
     {
-        lock (this)
+        lock (_mutex)
         {
             foreach (Ice.ConnectionI connection in _connections)
             {
@@ -1126,7 +1129,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     {
         ICollection<Ice.ConnectionI> connections;
 
-        lock (this)
+        lock (_mutex)
         {
             //
             // First we wait until the connection factory itself is in
@@ -1134,7 +1137,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             //
             while (_state < StateHolding)
             {
-                System.Threading.Monitor.Wait(this);
+                System.Threading.Monitor.Wait(_mutex);
             }
 
             //
@@ -1157,7 +1160,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     {
         ICollection<Ice.ConnectionI> connections = null;
 
-        lock (this)
+        lock (_mutex)
         {
             //
             // First we wait until the factory is destroyed. If we are using
@@ -1165,7 +1168,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             //
             while (_state != StateFinished)
             {
-                System.Threading.Monitor.Wait(this);
+                System.Threading.Monitor.Wait(_mutex);
             }
 
             //
@@ -1185,7 +1188,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             connection.waitUntilFinished();
         }
 
-        lock (this)
+        lock (_mutex)
         {
             _connections.Clear();
         }
@@ -1197,7 +1200,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         {
             return true;
         }
-        lock (this)
+        lock (_mutex)
         {
             return endpoint.equivalent(_endpoint);
         }
@@ -1209,7 +1212,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         {
             return _publishedEndpoint;
         }
-        lock (this)
+        lock (_mutex)
         {
             return _endpoint;
         }
@@ -1217,7 +1220,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     public ICollection<Ice.ConnectionI> connections()
     {
-        lock (this)
+        lock (_mutex)
         {
             ICollection<Ice.ConnectionI> connections = new List<Ice.ConnectionI>();
 
@@ -1268,7 +1271,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         // Ice thread pool thread is terminated.
         Task.Run(() =>
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state >= StateClosed)
                 {
@@ -1294,7 +1297,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         return true;
     }
 
-    public override bool finishAsync(int unused)
+    public override bool finishAsync(int operation)
     {
         try
         {
@@ -1326,7 +1329,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
         using ThreadPoolMessage msg = new ThreadPoolMessage(current, this);
 
-        lock (this)
+        lock (_mutex)
         {
             if (!msg.startIOScope())
             {
@@ -1459,7 +1462,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     public override void finished(ThreadPoolCurrent current)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state < StateClosed)
             {
@@ -1490,7 +1493,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     //
     public void connectionStartCompleted(Ice.ConnectionI connection)
     {
-        lock (this)
+        lock (_mutex)
         {
             //
             // Initially, connections are in the holding state. If the factory is active
@@ -1505,7 +1508,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     public void connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state >= StateClosed)
             {
@@ -1704,7 +1707,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         }
 
         _state = state;
-        System.Threading.Monitor.PulseAll(this);
+        System.Threading.Monitor.PulseAll(_mutex);
     }
 
     private void createAcceptor()
@@ -1772,7 +1775,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     private void removeConnection(ConnectionI connection)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state is StateActive or StateHolding)
             {
@@ -1806,4 +1809,5 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     private int _state;
     private bool _acceptorStarted;
     private Ice.LocalException _acceptorException;
+    private readonly object _mutex = new();
 }

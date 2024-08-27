@@ -9,6 +9,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     public interface GetEndpointsCallback
     {
         void setEndpoints(EndpointI[] endpoints, bool cached);
+
         void setException(Ice.LocalException ex);
     }
 
@@ -97,7 +98,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         addCallback(Reference @ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
         {
             RequestCallback callback = new RequestCallback(@ref, ttl, cb);
-            lock (this)
+            lock (_mutex)
             {
                 if (!_response && _exception == null)
                 {
@@ -138,12 +139,12 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         public void
         response(Ice.ObjectPrx proxy)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _locatorInfo.finishRequest(_ref, _wellKnownRefs, proxy, false);
                 _response = true;
                 _proxy = proxy;
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
             foreach (RequestCallback callback in _callbacks)
             {
@@ -154,12 +155,13 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         public void
         exception(Ice.Exception ex)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex is Ice.UserException);
                 _exception = ex;
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
+
             foreach (RequestCallback callback in _callbacks)
             {
                 callback.exception(_locatorInfo, ex);
@@ -168,8 +170,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
         protected abstract void send();
 
-        readonly protected LocatorInfo _locatorInfo;
-        readonly protected Reference _ref;
+        protected readonly LocatorInfo _locatorInfo;
+        protected readonly Reference _ref;
 
         private List<RequestCallback> _callbacks = new List<RequestCallback>();
         private List<Reference> _wellKnownRefs = new List<Reference>();
@@ -177,6 +179,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         private bool _response;
         private Ice.ObjectPrx _proxy;
         private Ice.Exception _exception;
+        private readonly object _mutex = new();
     }
 
     private class ObjectRequest : Request
@@ -185,7 +188,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         {
         }
 
-        override protected void
+        protected override void
         send()
         {
             _ = Task.Run(async () =>
@@ -211,7 +214,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         {
         }
 
-        override protected void
+        protected override void
         send()
         {
             _ = Task.Run(async () =>
@@ -239,7 +242,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             _locatorRegistry = null;
             _table.clear();
@@ -247,6 +250,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     }
 
     public static bool operator ==(LocatorInfo lhs, LocatorInfo rhs) => lhs is not null ? lhs.Equals(rhs) : rhs is null;
+
     public static bool operator !=(LocatorInfo lhs, LocatorInfo rhs) => !(lhs == rhs);
 
     public bool Equals(LocatorInfo other) =>
@@ -266,7 +270,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
     public Ice.LocatorRegistryPrx getLocatorRegistry()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_locatorRegistry != null)
             {
@@ -283,7 +287,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             return null;
         }
 
-        lock (this)
+        lock (_mutex)
         {
             //
             // The locator registry can't be located. We use ordered
@@ -573,7 +577,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
         }
 
-        lock (this)
+        lock (_mutex)
         {
             Request request;
             if (_adapterRequests.TryGetValue(@ref.getAdapterId(), out request))
@@ -599,7 +603,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
         }
 
-        lock (this)
+        lock (_mutex)
         {
             Request request;
             if (_objectRequests.TryGetValue(@ref.getIdentity(), out request))
@@ -641,7 +645,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
                 _table.removeAdapterEndpoints(@ref.getAdapterId());
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(_adapterRequests.ContainsKey(@ref.getAdapterId()));
                 _adapterRequests.Remove(@ref.getAdapterId());
@@ -659,7 +663,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
                 _table.removeObjectReference(@ref.getIdentity());
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(_objectRequests.ContainsKey(@ref.getIdentity()));
                 _objectRequests.Remove(@ref.getIdentity());
@@ -674,6 +678,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
     private Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
     private Dictionary<Ice.Identity, Request> _objectRequests = new Dictionary<Ice.Identity, Request>();
+    private readonly object _mutex = new();
 }
 
 public sealed class LocatorManager
@@ -716,7 +721,7 @@ public sealed class LocatorManager
 
     internal void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             foreach (LocatorInfo info in _table.Values)
             {
@@ -746,7 +751,7 @@ public sealed class LocatorManager
         //
         // TODO: reap unused locator info objects?
         //
-        lock (this)
+        lock (_mutex)
         {
             LocatorInfo info = null;
             if (!_table.TryGetValue(locator, out info))
@@ -775,6 +780,7 @@ public sealed class LocatorManager
     private Dictionary<Ice.LocatorPrx, LocatorInfo> _table;
     private Dictionary<LocatorKey, LocatorTable> _locatorTables;
     private readonly bool _background;
+    private readonly object _mutex = new();
 }
 
 internal sealed class LocatorTable
@@ -787,7 +793,7 @@ internal sealed class LocatorTable
 
     internal void clear()
     {
-        lock (this)
+        lock (_mutex)
         {
             _adapterEndpointsTable.Clear();
             _objectTable.Clear();
@@ -802,7 +808,7 @@ internal sealed class LocatorTable
             return null;
         }
 
-        lock (this)
+        lock (_mutex)
         {
             EndpointTableEntry entry = null;
             if (_adapterEndpointsTable.TryGetValue(adapter, out entry))
@@ -818,7 +824,7 @@ internal sealed class LocatorTable
 
     internal void addAdapterEndpoints(string adapter, EndpointI[] endpoints)
     {
-        lock (this)
+        lock (_mutex)
         {
             _adapterEndpointsTable[adapter] =
                 new EndpointTableEntry(Time.currentMonotonicTimeMillis(), endpoints);
@@ -827,7 +833,7 @@ internal sealed class LocatorTable
 
     internal EndpointI[] removeAdapterEndpoints(string adapter)
     {
-        lock (this)
+        lock (_mutex)
         {
             EndpointTableEntry entry = null;
             if (_adapterEndpointsTable.TryGetValue(adapter, out entry))
@@ -847,7 +853,7 @@ internal sealed class LocatorTable
             return null;
         }
 
-        lock (this)
+        lock (_mutex)
         {
             ReferenceTableEntry entry = null;
             if (_objectTable.TryGetValue(id, out entry))
@@ -862,7 +868,7 @@ internal sealed class LocatorTable
 
     internal void addObjectReference(Ice.Identity id, Reference reference)
     {
-        lock (this)
+        lock (_mutex)
         {
             _objectTable[id] = new ReferenceTableEntry(Time.currentMonotonicTimeMillis(), reference);
         }
@@ -870,7 +876,7 @@ internal sealed class LocatorTable
 
     internal Reference removeObjectReference(Ice.Identity id)
     {
-        lock (this)
+        lock (_mutex)
         {
             ReferenceTableEntry entry = null;
             if (_objectTable.TryGetValue(id, out entry))
@@ -895,7 +901,7 @@ internal sealed class LocatorTable
         }
     }
 
-    sealed private class EndpointTableEntry
+    private sealed class EndpointTableEntry
     {
         public EndpointTableEntry(long time, EndpointI[] endpoints)
         {
@@ -907,7 +913,7 @@ internal sealed class LocatorTable
         public EndpointI[] endpoints;
     }
 
-    sealed private class ReferenceTableEntry
+    private sealed class ReferenceTableEntry
     {
         public ReferenceTableEntry(long time, Reference reference)
         {
@@ -921,4 +927,5 @@ internal sealed class LocatorTable
 
     private Dictionary<string, EndpointTableEntry> _adapterEndpointsTable;
     private Dictionary<Ice.Identity, ReferenceTableEntry> _objectTable;
+    private readonly object _mutex = new();
 }

@@ -12,13 +12,19 @@ public interface Transceiver
     bool isWaitingToBeRead { get; }
 
     Socket fd();
+
     int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData);
+
     int closing(bool initiator, Ice.LocalException ex);
+
     void close();
+
     void destroy();
 
     EndpointI bind();
+
     int write(Buffer buf);
+
     int read(Buffer buf, ref bool hasMoreData);
 
     //
@@ -34,6 +40,7 @@ public interface Transceiver
     // raises ReadAbortedException.
     //
     bool startRead(Buffer buf, AsyncCallback callback, object state);
+
     void finishRead(Buffer buf);
 
     //
@@ -44,11 +51,16 @@ public interface Transceiver
     // will be canceled upon the termination of the thread that calls startWrite.
     //
     bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed);
+
     void finishWrite(Buffer buf);
 
     string protocol();
+
     string toDetailedString();
+
     Ice.ConnectionInfo getInfo();
+
     void checkSendSize(Buffer buf);
+
     void setBufferSize(int rcvSize, int sndSize);
 }

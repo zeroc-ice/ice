@@ -628,7 +628,7 @@ public class ReferenceFactory
         _communicator = communicator;
     }
 
-    static private readonly string[] _suffixes =
+    private static readonly string[] _suffixes =
     {
         "EndpointSelection",
         "ConnectionCached",

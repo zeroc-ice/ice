@@ -1073,7 +1073,7 @@ internal sealed class WSTransceiver : Transceiver
                 {
                     long l = _readBuffer.b.getLong(_readBufferPos); // Uses network byte order.
                     _readBufferPos += 8;
-                    if (l < 0 || l > Int32.MaxValue)
+                    if (l < 0 || l > int.MaxValue)
                     {
                         throw new Ice.ProtocolException("invalid WebSocket payload length: " + l);
                     }

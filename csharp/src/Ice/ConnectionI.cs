@@ -12,6 +12,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     internal interface StartCallback
     {
         void connectionStartCompleted(ConnectionI connection);
+
         void connectionStartFailed(ConnectionI connection, LocalException ex);
     }
 
@@ -19,7 +20,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         try
         {
-            lock (this)
+            lock (_mutex)
             {
                 //
                 // The connection might already be closed if the communicator was destroyed.
@@ -62,7 +63,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         try
         {
-            lock (this)
+            lock (_mutex)
             {
                 //
                 // The connection might already be closed if the communicator was destroyed.
@@ -80,7 +81,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     //
                     while (_state <= StateNotValidated)
                     {
-                        Monitor.Wait(this);
+                        Monitor.Wait(_mutex);
                     }
 
                     if (_state >= StateClosing)
@@ -106,7 +107,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     internal void activate()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state <= StateNotValidated)
             {
@@ -119,7 +120,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     internal void hold()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state <= StateNotValidated)
             {
@@ -136,7 +137,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     internal void destroy(int reason)
     {
-        lock (this)
+        lock (_mutex)
         {
             switch (reason)
             {
@@ -157,7 +158,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public void abort()
     {
-        lock (this)
+        lock (_mutex)
         {
             setState(
                 StateClosed,
@@ -169,7 +170,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public Task closeAsync()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state < StateClosing)
             {
@@ -191,7 +192,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     internal bool isActiveOrHolding()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _state > StateNotValidated && _state < StateClosing;
         }
@@ -204,7 +205,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         // threads operating in this connection object, connection
         // destruction is considered as not yet finished.
         //
-        if (!Monitor.TryEnter(this))
+        if (!Monitor.TryEnter(_mutex))
         {
             return false;
         }
@@ -221,13 +222,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
         finally
         {
-            Monitor.Exit(this);
+            Monitor.Exit(_mutex);
         }
     }
 
     public void throwException()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_exception is not null)
             {
@@ -239,18 +240,18 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     internal void waitUntilHolding()
     {
-        lock (this)
+        lock (_mutex)
         {
             while (_state < StateHolding || _upcallCount > 0)
             {
-                Monitor.Wait(this);
+                Monitor.Wait(_mutex);
             }
         }
     }
 
     internal void waitUntilFinished()
     {
-        lock (this)
+        lock (_mutex)
         {
             //
             // We wait indefinitely until the connection is finished and all
@@ -260,7 +261,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             //
             while (_state < StateFinished || _upcallCount > 0)
             {
-                Monitor.Wait(this);
+                Monitor.Wait(_mutex);
             }
 
             Debug.Assert(_state == StateFinished);
@@ -274,7 +275,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     internal void updateObserver()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state < StateNotValidated || _state > StateClosed)
             {
@@ -306,7 +307,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         OutputStream os = og.getOs();
 
-        lock (this)
+        lock (_mutex)
         {
             //
             // If the exception is closed before we even have a chance
@@ -391,13 +392,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return _batchRequestQueue;
     }
 
-    public void flushBatchRequests(CompressBatch compressBatch)
+    public void flushBatchRequests(CompressBatch compress)
     {
         try
         {
             var completed = new FlushBatchTaskCompletionCallback();
             var outgoing = new ConnectionFlushBatchAsync(this, _instance, completed);
-            outgoing.invoke(_flushBatchRequests_name, compressBatch, true);
+            outgoing.invoke(_flushBatchRequests_name, compress, true);
             completed.Task.Wait();
         }
         catch (AggregateException ex)
@@ -406,13 +407,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public Task flushBatchRequestsAsync(CompressBatch compressBatch,
+    public Task flushBatchRequestsAsync(CompressBatch compress,
                                         IProgress<bool> progress = null,
                                         CancellationToken cancel = default)
     {
         var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
         var outgoing = new ConnectionFlushBatchAsync(this, _instance, completed);
-        outgoing.invoke(_flushBatchRequests_name, compressBatch, false);
+        outgoing.invoke(_flushBatchRequests_name, compress, false);
         return completed.Task;
     }
 
@@ -420,7 +421,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public void setCloseCallback(CloseCallback callback)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state >= StateClosed)
             {
@@ -453,7 +454,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         // NOTE: This isn't called from a thread pool thread.
         //
 
-        lock (this)
+        lock (_mutex)
         {
             if (_state >= StateClosed)
             {
@@ -540,7 +541,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
         else
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state <= StateNotValidated || _state >= StateClosing)
                 {
@@ -558,7 +559,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public ObjectAdapter getAdapter()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _adapter;
         }
@@ -569,15 +570,15 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return _endpoint; // No mutex protection necessary, _endpoint is immutable.
     }
 
-    public ObjectPrx createProxy(Identity ident)
+    public ObjectPrx createProxy(Identity id)
     {
-        ObjectAdapter.checkIdentity(ident);
-        return new ObjectPrxHelper(_instance.referenceFactory().create(ident, this));
+        ObjectAdapter.checkIdentity(id);
+        return new ObjectPrxHelper(_instance.referenceFactory().create(id, this));
     }
 
     public void setAdapterFromAdapter(ObjectAdapter adapter)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state <= StateNotValidated || _state >= StateClosing)
             {
@@ -603,7 +604,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         // error if started from a thread which is later terminated).
         Task.Run(() =>
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state >= StateClosed)
                 {
@@ -737,7 +738,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         int upcallCount = 0;
 
         using ThreadPoolMessage msg = new ThreadPoolMessage(current, this);
-        lock (this)
+        lock (_mutex)
         {
             try
             {
@@ -1093,7 +1094,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         bool finished = false;
         if (completedUpcallCount > 0)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _upcallCount -= completedUpcallCount;
                 if (_upcallCount == 0)
@@ -1116,7 +1117,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         finished = true;
                         _observer?.detach();
                     }
-                    Monitor.PulseAll(this);
+                    Monitor.PulseAll(_mutex);
                 }
             }
         }
@@ -1133,7 +1134,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         // be called by the thread pool as soon as setState() calls _threadPool->finish(...). There's no need to lock
         // the mutex for the remainder of the code because the data members accessed by finish() are immutable once
         // _state == StateClosed (and we don't want to hold the mutex when calling upcalls).
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(_state == StateClosed);
         }
@@ -1296,7 +1297,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         // objects such as the timer might be destroyed too).
         //
         bool finished = false;
-        lock (this)
+        lock (_mutex)
         {
             setState(StateFinished);
 
@@ -1325,7 +1326,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public ConnectionInfo getInfo()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state >= StateClosed)
             {
@@ -1337,7 +1338,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public void setBufferSize(int rcvSize, int sndSize)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state >= StateClosed)
             {
@@ -1350,7 +1351,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public void exception(LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             setState(StateClosed, ex);
         }
@@ -1448,7 +1449,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     /// holding.</summary>
     internal void idleCheck(TimeSpan idleTimeout, Action rescheduleTimer)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateActive || _state == StateHolding)
             {
@@ -1489,7 +1490,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         Debug.Assert(!_endpoint.datagram());
 
-        lock (this)
+        lock (_mutex)
         {
             if (_state == StateActive || _state == StateHolding)
             {
@@ -1555,6 +1556,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private const int StateClosingPending = 5;
     private const int StateClosed = 6;
     private const int StateFinished = 7;
+
+    private static ConnectionState toConnectionState(int state)
+    {
+        return connectionStateMap[state];
+    }
 
     private void setState(int state, LocalException ex)
     {
@@ -1761,7 +1767,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
         _state = state;
 
-        Monitor.PulseAll(this);
+        Monitor.PulseAll(_mutex);
 
         if (_state == StateClosing && _upcallCount == 0)
         {
@@ -2502,7 +2508,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         bool finished = false;
         try
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(_state > StateNotValidated);
 
@@ -2515,7 +2521,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                             finished = true;
                             _observer?.detach();
                         }
-                        Monitor.PulseAll(this);
+                        Monitor.PulseAll(_mutex);
                     }
 
                     if (_state >= StateClosed)
@@ -2557,7 +2563,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         // Fatal exception while dispatching a request. Since sendResponse isn't called in case of a fatal exception
         // we decrement _upcallCount here.
-        lock (this)
+        lock (_mutex)
         {
             setState(StateClosed, ex);
 
@@ -2572,7 +2578,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         finished = true;
                         _observer?.detach();
                     }
-                    Monitor.PulseAll(this);
+                    Monitor.PulseAll(_mutex);
                 }
             }
         }
@@ -2585,7 +2591,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private void inactivityCheck(System.Threading.Timer inactivityTimer)
     {
-        lock (this)
+        lock (_mutex)
         {
             // If the timers are different, it means this inactivityTimer is no longer current.
             if (inactivityTimer == _inactivityTimer)
@@ -2608,7 +2614,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private void connectTimedOut(System.Threading.Timer connectTimer)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state < StateActive)
             {
@@ -2621,7 +2627,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private void closeTimedOut(System.Threading.Timer closeTimer)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_state < StateClosed)
             {
@@ -2654,11 +2660,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             info.incoming = _connector is null;
         }
         return _info;
-    }
-
-    private static ConnectionState toConnectionState(int state)
-    {
-        return connectionStateMap[state];
     }
 
     private void warning(string msg, System.Exception ex)
@@ -2870,6 +2871,19 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         internal bool receivedReply;
     }
 
+    private static bool _compressionSupported;
+
+    private static ConnectionState[] connectionStateMap = [
+        ConnectionState.ConnectionStateValidating,   // StateNotInitialized
+        ConnectionState.ConnectionStateValidating,   // StateNotValidated
+        ConnectionState.ConnectionStateActive,       // StateActive
+        ConnectionState.ConnectionStateHolding,      // StateHolding
+        ConnectionState.ConnectionStateClosing,      // StateClosing
+        ConnectionState.ConnectionStateClosing,      // StateClosingPending
+        ConnectionState.ConnectionStateClosed,       // StateClosed
+        ConnectionState.ConnectionStateClosed,       // StateFinished
+    ];
+
     private Instance _instance;
     private readonly Transceiver _transceiver;
     private string _desc;
@@ -2941,21 +2955,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     // for the last outstanding invocation.
     private bool _closeRequested;
 
-    private static bool _compressionSupported;
-
     private ConnectionInfo _info;
 
     private CloseCallback _closeCallback;
     private readonly TaskCompletionSource _closed = new(); // can run synchronously
-
-    private static ConnectionState[] connectionStateMap = [
-        ConnectionState.ConnectionStateValidating,   // StateNotInitialized
-        ConnectionState.ConnectionStateValidating,   // StateNotValidated
-        ConnectionState.ConnectionStateActive,       // StateActive
-        ConnectionState.ConnectionStateHolding,      // StateHolding
-        ConnectionState.ConnectionStateClosing,      // StateClosing
-        ConnectionState.ConnectionStateClosing,      // StateClosingPending
-        ConnectionState.ConnectionStateClosed,       // StateClosed
-        ConnectionState.ConnectionStateClosed,       // StateFinished
-    ];
+    private readonly object _mutex = new();
 }

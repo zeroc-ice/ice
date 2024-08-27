@@ -4,6 +4,14 @@ using System.Text;
 
 namespace IceDiscovery;
 
+public static class Util
+{
+    public static void registerIceDiscovery(bool loadOnInitialize)
+    {
+        Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
+    }
+}
+
 public sealed class PluginFactory : Ice.PluginFactory
 {
     public Ice.Plugin
@@ -143,13 +151,4 @@ public sealed class PluginI : Ice.Plugin
     private Ice.ObjectAdapter _locatorAdapter;
     private Ice.LocatorPrx _locator;
     private Ice.LocatorPrx _defaultLocator;
-}
-
-public static class Util
-{
-    public static void
-    registerIceDiscovery(bool loadOnInitialize)
-    {
-        Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
-    }
 }

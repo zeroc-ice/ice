@@ -72,7 +72,7 @@ public sealed class BatchRequestQueue
     public void
     prepareBatchRequest(Ice.OutputStream os)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_exception != null)
             {
@@ -122,12 +122,12 @@ public sealed class BatchRequestQueue
         }
         finally
         {
-            lock (this)
+            lock (_mutex)
             {
                 _batchStream.resize(_batchMarker);
                 _batchStreamInUse = false;
                 _batchStreamCanFlush = false;
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
         }
     }
@@ -135,14 +135,14 @@ public sealed class BatchRequestQueue
     public void
     abortBatchRequest(Ice.OutputStream os)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_batchStreamInUse)
             {
                 _batchStream.swap(os);
                 _batchStream.resize(_batchMarker);
                 _batchStreamInUse = false;
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
         }
     }
@@ -150,7 +150,7 @@ public sealed class BatchRequestQueue
     public int
     swap(Ice.OutputStream os, out bool compress)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_batchRequestNum == 0)
             {
@@ -192,7 +192,7 @@ public sealed class BatchRequestQueue
     public void
     destroy(Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             _exception = ex;
         }
@@ -201,7 +201,7 @@ public sealed class BatchRequestQueue
     public bool
     isEmpty()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _batchStream.size() == Protocol.requestBatchHdr.Length;
         }
@@ -218,7 +218,7 @@ public sealed class BatchRequestQueue
         //
         while (_batchStreamInUse && !(flush && _batchStreamCanFlush))
         {
-            Monitor.Wait(this);
+            Monitor.Wait(_mutex);
         }
     }
 
@@ -233,6 +233,8 @@ public sealed class BatchRequestQueue
         _batchMarker = _batchStream.size();
         ++_batchRequestNum;
     }
+
+    private readonly object _mutex = new object();
 
     private readonly System.Action<Ice.BatchRequest, int, int> _interceptor;
     private Ice.OutputStream _batchStream;

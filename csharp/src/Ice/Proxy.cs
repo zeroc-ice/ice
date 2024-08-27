@@ -216,14 +216,14 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
     /// </summary>
-    /// <param name="timeout">The new locator cache timeout (in seconds).</param>
-    ObjectPrx ice_locatorCacheTimeout(int timeout);
+    /// <param name="newTimeout">The new locator cache timeout (in seconds).</param>
+    ObjectPrx ice_locatorCacheTimeout(int newTimeout);
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="timeout">The new invocation timeout (in seconds).</param>
-    ObjectPrx ice_invocationTimeout(int timeout);
+    /// <param name="newTimeout">The new invocation timeout (in seconds).</param>
+    ObjectPrx ice_invocationTimeout(int newTimeout);
 
     /// <summary>
     /// Returns the invocation timeout of this proxy.
@@ -266,19 +266,19 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
     /// </summary>
-    /// <param name="b"> If b is true, only endpoints that use a secure transport are
-    /// used by the new proxy. If b is false, the returned proxy uses both secure and insecure
+    /// <param name="secure"> If secure is true, only endpoints that use a secure transport are
+    /// used by the new proxy. If secure is false, the returned proxy uses both secure and insecure
     /// endpoints.</param>
     /// <returns>The new proxy with the specified selection policy.</returns>
-    ObjectPrx ice_secure(bool b);
+    ObjectPrx ice_secure(bool secure);
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
     /// parameters.
     /// </summary>
-    /// <param name="e">The encoding version to use to marshal requests parameters.</param>
+    /// <param name="encodingVersion">The encoding version to use to marshal requests parameters.</param>
     /// <returns>The new proxy with the specified encoding version.</returns>
-    ObjectPrx ice_encodingVersion(EncodingVersion e);
+    ObjectPrx ice_encodingVersion(EncodingVersion encodingVersion);
 
     /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
     /// <returns>The encoding version.</returns>
@@ -294,11 +294,11 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
     /// </summary>
-    /// <param name="b">If b is true, the new proxy will use secure endpoints for invocations
-    /// and only use insecure endpoints if an invocation cannot be made via secure endpoints. If b is
+    /// <param name="preferSecure">If preferSecure is true, the new proxy will use secure endpoints for invocations
+    /// and only use insecure endpoints if an invocation cannot be made via secure endpoints. If preferSecure is
     /// false, the proxy prefers insecure endpoints to secure ones.</param>
     /// <returns>The new proxy with the new endpoint selection policy.</returns>
-    ObjectPrx ice_preferSecure(bool b);
+    ObjectPrx ice_preferSecure(bool preferSecure);
 
     /// <summary>
     /// Returns the router for this proxy.
@@ -336,9 +336,9 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for collocation optimization.
     /// </summary>
-    /// <param name="b">True if the new proxy enables collocation optimization; false, otherwise.</param>
+    /// <param name="collocated">True if the new proxy enables collocation optimization; false, otherwise.</param>
     /// <returns>The new proxy the specified collocation optimization.</returns>
-    ObjectPrx ice_collocationOptimized(bool b);
+    ObjectPrx ice_collocationOptimized(bool collocated);
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, but uses twoway invocations.
@@ -403,9 +403,9 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for compression.
     /// </summary>
-    /// <param name="co">True enables compression for the new proxy; false disables compression.</param>
+    /// <param name="compress">True enables compression for the new proxy; false disables compression.</param>
     /// <returns>A new proxy with the specified compression setting.</returns>
-    ObjectPrx ice_compress(bool co);
+    ObjectPrx ice_compress(bool compress);
 
     /// <summary>
     /// Obtains the compression override setting of this proxy.
@@ -517,12 +517,12 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
     /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
     /// </summary>
-    /// <param name="r">The proxy to compare this proxy with.</param>
+    /// <param name="obj">The proxy to compare this proxy with.</param>
     /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
-    public bool Equals(ObjectPrx? other) =>
-        other is not null && _reference == ((ObjectPrxHelperBase)other)._reference;
+    public bool Equals(ObjectPrx? obj) =>
+        obj is not null && _reference == ((ObjectPrxHelperBase)obj)._reference;
 
-    public override bool Equals(object? other) => Equals(other as ObjectPrx);
+    public override bool Equals(object? obj) => Equals(obj as ObjectPrx);
 
     /// <summary>
     /// Returns a hash code for this proxy.
@@ -562,7 +562,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         try
         {
-            return iceI_ice_isAAsync(id, context, null, CancellationToken.None, true).Result;
+            return iceI_ice_isAAsync(id, context, synchronous: true, progress: null, CancellationToken.None).Result;
         }
         catch (AggregateException ex)
         {
@@ -584,16 +584,16 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         IProgress<bool>? progress = null,
         CancellationToken cancel = default)
     {
-        return iceI_ice_isAAsync(id, context, progress, cancel, false);
+        return iceI_ice_isAAsync(id, context, synchronous: false, progress, cancel);
     }
 
     private Task<bool>
     iceI_ice_isAAsync(
         string id,
         Dictionary<string, string>? context,
+        bool synchronous,
         IProgress<bool>? progress,
-        CancellationToken cancel,
-        bool synchronous)
+        CancellationToken cancel)
     {
         iceCheckTwowayOnly(_ice_isA_name);
         var completed = new OperationTaskCompletionCallback<bool>(progress, cancel);
@@ -628,7 +628,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         try
         {
-            iceI_ice_pingAsync(context, null, CancellationToken.None, true).Wait();
+            iceI_ice_pingAsync(context, synchronous: true, progress: null, CancellationToken.None).Wait();
         }
         catch (AggregateException ex)
         {
@@ -647,11 +647,11 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
                               IProgress<bool>? progress = null,
                               CancellationToken cancel = default)
     {
-        return iceI_ice_pingAsync(context, progress, cancel, false);
+        return iceI_ice_pingAsync(context, synchronous: false, progress, cancel);
     }
 
     private Task
-    iceI_ice_pingAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
+    iceI_ice_pingAsync(Dictionary<string, string>? context, bool synchronous, IProgress<bool>? progress, CancellationToken cancel)
     {
         var completed = new OperationTaskCompletionCallback<object>(progress, cancel);
         iceI_ice_ping(context, completed, synchronous);
@@ -682,7 +682,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         try
         {
-            return iceI_ice_idsAsync(context, null, CancellationToken.None, true).Result;
+            return iceI_ice_idsAsync(context, synchronous: true, progress: null, CancellationToken.None).Result;
         }
         catch (AggregateException ex)
         {
@@ -702,14 +702,14 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
                  IProgress<bool>? progress = null,
                  CancellationToken cancel = default)
     {
-        return iceI_ice_idsAsync(context, progress, cancel, false);
+        return iceI_ice_idsAsync(context, synchronous: false, progress, cancel);
     }
 
     private Task<string[]> iceI_ice_idsAsync(
         Dictionary<string, string>? context,
+        bool synchronous,
         IProgress<bool>? progress,
-        CancellationToken cancel,
-        bool synchronous)
+        CancellationToken cancel)
     {
         iceCheckTwowayOnly(_ice_ids_name);
         var completed = new OperationTaskCompletionCallback<string[]>(progress, cancel);
@@ -742,7 +742,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         try
         {
-            return iceI_ice_idAsync(context, null, CancellationToken.None, true).Result;
+            return iceI_ice_idAsync(context, synchronous: true, progress: null, CancellationToken.None).Result;
         }
         catch (AggregateException ex)
         {
@@ -761,11 +761,11 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
                                     IProgress<bool>? progress = null,
                                     CancellationToken cancel = default)
     {
-        return iceI_ice_idAsync(context, progress, cancel, false);
+        return iceI_ice_idAsync(context, synchronous: false, progress, cancel);
     }
 
     private Task<string>
-    iceI_ice_idAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
+    iceI_ice_idAsync(Dictionary<string, string>? context, bool synchronous, IProgress<bool>? progress, CancellationToken cancel)
     {
         iceCheckTwowayOnly(_ice_id_name);
         var completed = new OperationTaskCompletionCallback<string>(progress, cancel);
@@ -809,7 +809,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         try
         {
-            var result = iceI_ice_invokeAsync(operation, mode, inEncaps, context, null, CancellationToken.None, true).Result;
+            var result = iceI_ice_invokeAsync(operation, mode, inEncaps, context, synchronous: true, progress: null, CancellationToken.None).Result;
             outEncaps = result.outEncaps;
             return result.returnValue;
         }
@@ -837,7 +837,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
                     IProgress<bool>? progress = null,
                     CancellationToken cancel = default)
     {
-        return iceI_ice_invokeAsync(operation, mode, inEncaps, context, progress, cancel, false);
+        return iceI_ice_invokeAsync(operation, mode, inEncaps, context, synchronous: false, progress, cancel);
     }
 
     private Task<Object_Ice_invokeResult>
@@ -845,9 +845,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
                          OperationMode mode,
                          byte[] inEncaps,
                          Dictionary<string, string>? context,
+                         bool synchronous,
                          IProgress<bool>? progress,
-                         CancellationToken cancel,
-                         bool synchronous)
+                         CancellationToken cancel)
     {
         var completed = new InvokeTaskCompletionCallback(progress, cancel);
         iceI_ice_invoke(operation, mode, inEncaps, context, completed, synchronous);
@@ -1649,7 +1649,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
         if (_reference.getInstance().cacheMessageBuffers() > 0)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_streamCache != null && _streamCache.Count > 0)
                 {
@@ -1769,7 +1769,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
         if (_reference.getInstance().cacheMessageBuffers() > 0)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_streamCache != null && _streamCache.Count > 0)
                 {
@@ -1793,7 +1793,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     internal void cacheMessageBuffers(InputStream iss, OutputStream os)
     {
-        lock (this)
+        lock (_mutex)
         {
             _streamCache ??= new LinkedList<(InputStream, OutputStream)>();
             _streamCache.AddLast((iss, os));
@@ -1813,6 +1813,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     private readonly Reference _reference;
     private readonly RequestHandlerCache _requestHandlerCache;
     private LinkedList<(InputStream iss, OutputStream os)>? _streamCache;
+    private readonly object _mutex = new();
 }
 
 /// <summary>

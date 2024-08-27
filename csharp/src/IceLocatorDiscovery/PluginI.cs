@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 
 namespace IceLocatorDiscovery;
+
 public sealed class PluginFactory : Ice.PluginFactory
 {
     public Ice.Plugin
@@ -204,7 +205,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     public override Task<Ice.Object_Ice_invokeResult>
     ice_invokeAsync(byte[] inParams, Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             var request = new Request(this, current.operation, current.mode, inParams, current.ctx);
             invoke(null, request);
@@ -212,13 +213,12 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
         }
     }
 
-    public List<Ice.LocatorPrx>
-    getLocators(String instanceName, int waitTime)
+    public List<Ice.LocatorPrx> getLocators(string instanceName, int waitTime)
     {
         //
         // Clear locators from previous search.
         //
-        lock (this)
+        lock (_mutex)
         {
             _locators.Clear();
         }
@@ -237,11 +237,11 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
         }
         else
         {
-            lock (this)
+            lock (_mutex)
             {
                 while (!_locators.ContainsKey(instanceName) && _pending)
                 {
-                    Monitor.Wait(this, waitTime);
+                    Monitor.Wait(_mutex, waitTime);
                 }
             }
         }
@@ -249,7 +249,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
         //
         // Return found locators
         //
-        lock (this)
+        lock (_mutex)
         {
             return new List<Ice.LocatorPrx>(_locators.Values);
         }
@@ -258,7 +258,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     public void
     foundLocator(Ice.LocatorPrx locator)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (locator == null)
             {
@@ -370,7 +370,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             if (_pendingRequests.Count == 0)
             {
                 _locators[locator.ice_getIdentity().category] = l;
-                Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
             else
             {
@@ -395,7 +395,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     public void
     invoke(Ice.LocatorPrx locator, Request request)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (request != null && _locator != null && _locator != locator)
             {
@@ -479,7 +479,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
     private void exception(Exception ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (++_failureCount == _lookups.Count && _pending)
             {
@@ -515,7 +515,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                 if (_pendingRequests.Count == 0)
                 {
-                    Monitor.Pulse(this);
+                    Monitor.Pulse(_mutex);
                 }
                 else
                 {
@@ -531,7 +531,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
     public void runTimerTask()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (!_pending)
             {
@@ -597,7 +597,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
             if (_pendingRequests.Count == 0)
             {
-                Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
             else
             {
@@ -631,7 +631,8 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     private bool _warnOnce = true;
     private List<Request> _pendingRequests = new List<Request>();
     private long _nextRetry;
-};
+    private readonly object _mutex = new();
+}
 
 internal class LookupReplyI : LookupReplyDisp_
 {

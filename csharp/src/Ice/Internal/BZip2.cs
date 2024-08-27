@@ -102,6 +102,7 @@ internal delegate int DecompressBuffer(byte[] dest,
                               int sourceLen,
                               int small,
                               int verbosity);
+
 public static class BZip2
 {
     static BZip2()
@@ -150,7 +151,7 @@ public static class BZip2
         catch (BadImageFormatException ex)
         {
             string lib = _bzlibName;
-            if (!String.IsNullOrEmpty(ex.FileName))
+            if (!string.IsNullOrEmpty(ex.FileName))
             {
                 lib = ex.FileName; // Future-proof: we'll do the right thing if the FileName member is non-empty.
             }

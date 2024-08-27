@@ -2624,9 +2624,14 @@ public class InputStream
     private object? _closure;
     private byte[]? _stringBytes; // Reusable array for reading strings.
 
-    private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
+    private enum SliceType
+    {
+        NoSlice,
+        ValueSlice,
+        ExceptionSlice
+    }
 
-    abstract private class EncapsDecoder
+    private abstract class EncapsDecoder
     {
         protected struct PatchEntry
         {
@@ -2652,12 +2657,17 @@ public class InputStream
         }
 
         internal abstract void readValue(System.Action<Value?> cb);
+
         internal abstract void throwException(UserExceptionFactory? factory);
 
         internal abstract void startInstance(SliceType type);
+
         internal abstract SlicedData? endInstance();
+
         internal abstract string startSlice();
+
         internal abstract void endSlice();
+
         internal abstract void skipSlice();
 
         internal virtual bool readOptional(int tag, OptionalFormat format)
@@ -3816,7 +3826,7 @@ public abstract class ValueReader : Value
     /// <param name="inStream">The input stream to read from.</param>
     public abstract void read(InputStream inStream);
 
-    public override void iceWrite(OutputStream os)
+    public override void iceWrite(OutputStream ostr)
     {
         Debug.Assert(false);
     }

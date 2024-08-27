@@ -41,17 +41,17 @@ public abstract class IPEndpointI : EndpointI
             _endpoint = e;
         }
 
-        override public short type()
+        public override short type()
         {
             return _endpoint.type();
         }
 
-        override public bool datagram()
+        public override bool datagram()
         {
             return _endpoint.datagram();
         }
 
-        override public bool secure()
+        public override bool secure()
         {
             return _endpoint.secure();
         }
@@ -121,7 +121,7 @@ public abstract class IPEndpointI : EndpointI
         return endps;
     }
 
-    public override List<EndpointI> expandHost(out EndpointI publish)
+    public override List<EndpointI> expandHost(out EndpointI publishedEndpoint)
     {
         //
         // If this endpoint has an empty host (wildcard address), don't expand, just return
@@ -130,7 +130,7 @@ public abstract class IPEndpointI : EndpointI
         var endpoints = new List<EndpointI>();
         if (host_.Length == 0)
         {
-            publish = null;
+            publishedEndpoint = null;
             endpoints.Add(this);
             return endpoints;
         }
@@ -140,7 +140,7 @@ public abstract class IPEndpointI : EndpointI
         // access the returned endpoints. Otherwise, we'll publish each individual expanded
         // endpoint.
         //
-        publish = port_ > 0 ? this : null;
+        publishedEndpoint = port_ > 0 ? this : null;
 
         List<EndPoint> addresses = Network.getAddresses(host_,
                                                         port_,
@@ -304,7 +304,7 @@ public abstract class IPEndpointI : EndpointI
 
     public virtual void initWithOptions(List<string> args, bool oaEndpoint)
     {
-        base.initWithOptions(args);
+        initWithOptions(args);
 
         if (host_ == null || host_.Length == 0)
         {
@@ -392,6 +392,7 @@ public abstract class IPEndpointI : EndpointI
     }
 
     protected abstract Connector createConnector(EndPoint addr, NetworkProxy proxy);
+
     protected abstract IPEndpointI createEndpoint(string host, int port, string connectionId);
 
     protected ProtocolInstance instance_;

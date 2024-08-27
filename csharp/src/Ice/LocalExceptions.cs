@@ -17,7 +17,9 @@ namespace Ice;
 public class RequestFailedException : LocalException
 {
     public Identity id { get; }
+
     public string facet { get; }
+
     public string operation { get; }
 
     protected RequestFailedException(string typeName, Identity id, string facet, string operation)
@@ -367,6 +369,7 @@ public sealed class ConnectionRefusedException : ConnectFailedException
 public sealed class AlreadyRegisteredException : LocalException
 {
     public string kindOfObject { get; }
+
     public string id { get; }
 
     public AlreadyRegisteredException(string kindOfObject, string id)
@@ -499,6 +502,7 @@ public sealed class NoEndpointException : LocalException
 public sealed class NotRegisteredException : LocalException
 {
     public string kindOfObject { get; }
+
     public string id { get; }
 
     public NotRegisteredException(string kindOfObject, string id)

@@ -18,6 +18,7 @@ public sealed class Properties
     private class PropertyValue
     {
         public string value { get; set; }
+
         public bool used { get; set; }
 
         public PropertyValue(string value, bool used)
@@ -32,7 +33,9 @@ public sealed class Properties
     /// <summary>
     /// Creates a new empty property set.
     /// </summary>
-    public Properties() { }
+    public Properties()
+    {
+    }
 
     /// <summary>
     /// Creates a property set initialized from an argument vector.
@@ -116,7 +119,7 @@ public sealed class Properties
     ///  </returns>
     public string getProperty(string key)
     {
-        lock (this)
+        lock (_mutex)
         {
             string result = "";
             if (_properties.TryGetValue(key, out PropertyValue? pv))
@@ -150,7 +153,7 @@ public sealed class Properties
     ///  </returns>
     public string getPropertyWithDefault(string key, string val)
     {
-        lock (this)
+        lock (_mutex)
         {
             string result = val;
             if (_properties.TryGetValue(key, out PropertyValue? pv))
@@ -204,7 +207,7 @@ public sealed class Properties
     ///  </returns>
     public int getPropertyAsIntWithDefault(string key, int val)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (!_properties.TryGetValue(key, out PropertyValue? pv))
             {
@@ -276,7 +279,7 @@ public sealed class Properties
     {
         val ??= [];
 
-        lock (this)
+        lock (_mutex)
         {
             if (!_properties.TryGetValue(key, out PropertyValue? pv))
             {
@@ -309,7 +312,7 @@ public sealed class Properties
     /// <returns>The matching property set.</returns>
     public Dictionary<string, string> getPropertiesForPrefix(string prefix)
     {
-        lock (this)
+        lock (_mutex)
         {
             var result = new Dictionary<string, string>();
 
@@ -358,7 +361,7 @@ public sealed class Properties
             Util.getProcessLogger().warning("setting deprecated property: " + key);
         }
 
-        lock (this)
+        lock (_mutex)
         {
             // Set or clear the property.
             if (val != null && val.Length > 0)
@@ -388,7 +391,7 @@ public sealed class Properties
     ///  <returns>The command line options for this property set.</returns>
     public string[] getCommandLineOptions()
     {
-        lock (this)
+        lock (_mutex)
         {
             string[] result = new string[_properties.Count];
             int i = 0;
@@ -488,7 +491,7 @@ public sealed class Properties
     public Properties Clone()
     {
         var clonedProperties = new Properties();
-        lock (this)
+        lock (_mutex)
         {
             foreach ((string key, PropertyValue value) in _properties)
             {
@@ -507,7 +510,7 @@ public sealed class Properties
 
     public List<string> getUnusedProperties()
     {
-        lock (this)
+        lock (_mutex)
         {
             var unused = new List<string>();
             foreach ((string key, PropertyValue value) in _properties)
@@ -519,6 +522,93 @@ public sealed class Properties
             }
             return unused;
         }
+    }
+
+    /// <summary>
+    ///  Find a property in the Ice property set.
+    /// </summary>
+    /// <param name="key">The property's key.</param>
+    /// <param name="logWarnings">Whether to log relevant warnings.</param>
+    /// <returns>The found property</returns>
+    private static Property? findProperty(string key, bool logWarnings)
+    {
+        // Check if the property is a known Ice property and log warnings if necessary
+        Logger logger = Util.getProcessLogger();
+        int dotPos = key.IndexOf('.', StringComparison.Ordinal);
+
+        // If the key doesn't contain a dot, it's not a valid Ice property
+        if (dotPos == -1)
+        {
+            return null;
+        }
+
+        string prefix = key.Substring(0, dotPos);
+
+        Property[]? propertyArray = null;
+
+        // Search for the property list that matches the prefix
+        foreach (Property[]? validProps in PropertyNames.validProps)
+        {
+            string pattern = validProps[0].pattern;
+            dotPos = pattern.IndexOf('.', StringComparison.Ordinal);
+
+            // Each top level prefix describes a non-empty
+            // namespace. Having a string without a prefix followed by a
+            // dot is an error.
+            Debug.Assert(dotPos != -1);
+
+            // Trim any leading/trailing ^, $, or \ characters from the prefix
+            string propPrefix = pattern.Substring(0, dotPos).TrimStart(['^', '$', '\\']);
+
+            if (propPrefix == prefix)
+            {
+                // We found the property list that matches the prefix
+                propertyArray = validProps;
+                break;
+            }
+
+            // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
+            // Otherwise no other warning is issued.
+            if (logWarnings && propPrefix.Equals(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                logger.warning("unknown property: `" + key + "'; did you mean `" + propPrefix + "'?");
+                return null;
+            }
+        }
+
+        if (propertyArray == null)
+        {
+            // The prefix is not a valid Ice property
+            return null;
+        }
+
+        foreach (var prop in propertyArray)
+        {
+            if (prop.usesRegex ? Regex.IsMatch(key, prop.pattern) : key == prop.pattern)
+            {
+                return prop;
+            }
+        }
+
+        // If we get here, the prefix is valid but the property is unknown
+        if (logWarnings)
+        {
+            logger.warning("unknown property: " + key);
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Gets the default value for a given Ice property.
+    /// </summary>
+    /// <param name="key">The Ice property key</param>
+    /// <returns>The default property value, or an empty string the default is unspecified.</returns>
+    /// <exception cref="ArgumentException"></exception>
+    private static string getDefaultProperty(string key)
+    {
+        // Find the property, don't log any warnings.
+        Property? prop = findProperty(key, false) ?? throw new ArgumentException("unknown Ice property: " + key);
+        return prop.defaultValue;
     }
 
     private void parse(StreamReader input)
@@ -732,92 +822,6 @@ public sealed class Properties
         }
     }
 
-    /// <summary>
-    ///  Find a property in the Ice property set.
-    /// </summary>
-    /// <param name="key">The property's key.</param>
-    /// <param name="logWarnings">Whether to log relevant warnings.</param>
-    /// <returns>The found property</returns>
-    private static Property? findProperty(string key, bool logWarnings)
-    {
-        // Check if the property is a known Ice property and log warnings if necessary
-        Logger logger = Util.getProcessLogger();
-        int dotPos = key.IndexOf('.', StringComparison.Ordinal);
-
-        // If the key doesn't contain a dot, it's not a valid Ice property
-        if (dotPos == -1)
-        {
-            return null;
-        }
-
-        string prefix = key.Substring(0, dotPos);
-
-        Property[]? propertyArray = null;
-
-        // Search for the property list that matches the prefix
-        foreach (Property[]? validProps in PropertyNames.validProps)
-        {
-            string pattern = validProps[0].pattern;
-            dotPos = pattern.IndexOf('.', StringComparison.Ordinal);
-
-            // Each top level prefix describes a non-empty
-            // namespace. Having a string without a prefix followed by a
-            // dot is an error.
-            Debug.Assert(dotPos != -1);
-
-            // Trim any leading/trailing ^, $, or \ characters from the prefix
-            string propPrefix = pattern.Substring(0, dotPos).TrimStart(['^', '$', '\\']);
-
-            if (propPrefix == prefix)
-            {
-                // We found the property list that matches the prefix
-                propertyArray = validProps;
-                break;
-            }
-
-            // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
-            // Otherwise no other warning is issued.
-            if (logWarnings && propPrefix.Equals(prefix, StringComparison.OrdinalIgnoreCase))
-            {
-                logger.warning("unknown property: `" + key + "'; did you mean `" + propPrefix + "'?");
-                return null;
-            }
-        }
-
-        if (propertyArray == null)
-        {
-            // The prefix is not a valid Ice property
-            return null;
-        }
-
-        foreach (var prop in propertyArray)
-        {
-            if (prop.usesRegex ? Regex.IsMatch(key, prop.pattern) : key == prop.pattern)
-            {
-                return prop;
-            }
-        }
-
-        // If we get here, the prefix is valid but the property is unknown
-        if (logWarnings)
-        {
-            logger.warning("unknown property: " + key);
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// Gets the default value for a given Ice property.
-    /// </summary>
-    /// <param name="key">The Ice property key</param>
-    /// <returns>The default property value, or an empty string the default is unspecified.</returns>
-    /// <exception cref="ArgumentException"></exception>
-    private static string getDefaultProperty(string key)
-    {
-        // Find the property, don't log any warnings.
-        Property? prop = findProperty(key, false) ?? throw new ArgumentException("unknown Ice property: " + key);
-        return prop.defaultValue;
-    }
-
     private readonly Dictionary<string, PropertyValue> _properties = [];
+    private readonly object _mutex = new();
 }

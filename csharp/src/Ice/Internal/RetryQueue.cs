@@ -69,7 +69,7 @@ public class RetryQueue
 
     public void add(ProxyOutgoingAsyncBase outAsync, int interval)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_instance == null)
             {
@@ -84,7 +84,7 @@ public class RetryQueue
 
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             Dictionary<RetryTask, object> keep = new Dictionary<RetryTask, object>();
             foreach (RetryTask task in _requests.Keys)
@@ -102,21 +102,21 @@ public class RetryQueue
             _instance = null;
             while (_requests.Count > 0)
             {
-                System.Threading.Monitor.Wait(this);
+                System.Threading.Monitor.Wait(_mutex);
             }
         }
     }
 
     public void remove(RetryTask task)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_requests.Remove(task))
             {
                 if (_instance == null && _requests.Count == 0)
                 {
                     // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
-                    System.Threading.Monitor.Pulse(this);
+                    System.Threading.Monitor.Pulse(_mutex);
                 }
             }
         }
@@ -124,7 +124,7 @@ public class RetryQueue
 
     public bool cancel(RetryTask task)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_requests.Remove(task))
             {
@@ -135,7 +135,7 @@ public class RetryQueue
                 else if (_requests.Count == 0)
                 {
                     // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
-                    System.Threading.Monitor.Pulse(this);
+                    System.Threading.Monitor.Pulse(_mutex);
                 }
             }
             return false;
@@ -144,4 +144,5 @@ public class RetryQueue
 
     private Instance _instance;
     private Dictionary<RetryTask, object> _requests = new();
+    private readonly object _mutex = new();
 }
