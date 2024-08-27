@@ -298,8 +298,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    internal int sendAsyncRequest(OutgoingAsyncBase og, bool compress, bool response,
-                                int batchRequestCount)
+    internal int sendAsyncRequest(
+        OutgoingAsyncBase og,
+        bool compress,
+        bool response,
+        int batchRequestCount)
     {
         OutputStream os = og.getOs();
 
@@ -433,7 +436,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         {
                             _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
                         }
-                    }, this);
+                    },
+                    this);
                 }
             }
             else
@@ -2174,8 +2178,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 //
                 // Do compression.
                 //
-                Ice.Internal.Buffer cbuf = BZip2.compress(uncompressed.getBuffer(), Protocol.headerSize,
-                                                         _compressionLevel);
+                Ice.Internal.Buffer cbuf = BZip2.compress(
+                    uncompressed.getBuffer(),
+                    Protocol.headerSize,
+                    _compressionLevel);
                 if (cbuf is not null)
                 {
                     OutputStream cstream = new OutputStream(new Internal.Buffer(cbuf, true), uncompressed.getEncoding());
@@ -2252,8 +2258,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 if (_compressionSupported)
                 {
-                    Ice.Internal.Buffer ubuf = BZip2.uncompress(info.stream.getBuffer(), Protocol.headerSize,
-                                                               _messageSizeMax);
+                    Ice.Internal.Buffer ubuf = BZip2.uncompress(
+                        info.stream.getBuffer(),
+                        Protocol.headerSize,
+                        _messageSizeMax);
                     info.stream = new InputStream(info.stream.instance(), info.stream.getEncoding(), ubuf, true);
                 }
                 else
@@ -2298,9 +2306,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     if (_state >= StateClosing)
                     {
-                        TraceUtil.trace("received request during closing\n" +
-                                        "(ignored by server, client will retry)", info.stream, _logger,
-                                        _traceLevels);
+                        TraceUtil.trace(
+                            "received request during closing\n(ignored by server, client will retry)",
+                            info.stream,
+                            _logger,
+                            _traceLevels);
                     }
                     else
                     {
@@ -2320,9 +2330,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     if (_state >= StateClosing)
                     {
-                        TraceUtil.trace("received batch request during closing\n" +
-                                        "(ignored by server, client will retry)", info.stream, _logger,
-                                        _traceLevels);
+                        TraceUtil.trace(
+                            "received batch request during closing\n(ignored by server, client will retry)",
+                            info.stream,
+                            _logger,
+                            _traceLevels);
                     }
                     else
                     {
@@ -2386,8 +2398,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                 default:
                 {
-                    TraceUtil.trace("received unknown message\n(invalid, closing connection)",
-                                    info.stream, _logger, _traceLevels);
+                    TraceUtil.trace(
+                        "received unknown message\n(invalid, closing connection)",
+                        info.stream,
+                        _logger,
+                        _traceLevels);
 
                     throw new ProtocolException($"Received Ice protocol message with unknown type: {messageType}");
                 }

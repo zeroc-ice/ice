@@ -19,8 +19,13 @@ internal sealed class TcpConnector : Connector
     //
     // Only for use by TcpEndpoint
     //
-    internal TcpConnector(ProtocolInstance instance, EndPoint addr, NetworkProxy proxy, EndPoint sourceAddr,
-                          int timeout, string connectionId)
+    internal TcpConnector(
+        ProtocolInstance instance,
+        EndPoint addr,
+        NetworkProxy proxy,
+        EndPoint sourceAddr,
+        int timeout,
+        string connectionId)
     {
         _instance = instance;
         _addr = addr;
@@ -53,7 +58,7 @@ internal sealed class TcpConnector : Connector
             return false;
         }
 
-        if (!_connectionId.Equals(p._connectionId))
+        if (!_connectionId.Equals(p._connectionId, StringComparison.Ordinal))
         {
             return false;
         }

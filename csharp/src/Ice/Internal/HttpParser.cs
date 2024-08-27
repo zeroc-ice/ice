@@ -7,8 +7,8 @@ namespace Ice.Internal;
 
 public sealed class WebSocketException : System.Exception
 {
-    public WebSocketException(string message) :
-        base(message, null)
+    public WebSocketException(string message)
+        : base(message, null)
     {
     }
 }
@@ -308,7 +308,7 @@ internal sealed class HttpParser
                         {
                             str.Append((char)raw[i]);
                         }
-                        _headerName = str.ToString().ToLower();
+                        _headerName = str.ToString().ToLowerInvariant();
                         //
                         // Add a placeholder entry if necessary.
                         //
@@ -675,9 +675,9 @@ internal sealed class HttpParser
     internal string getHeader(string name, bool toLower)
     {
         string s = null;
-        if (_headers.TryGetValue(name.ToLower(), out s))
+        if (_headers.TryGetValue(name.ToLowerInvariant(), out s))
         {
-            return toLower ? s.Trim().ToLower() : s.Trim();
+            return toLower ? s.Trim().ToLowerInvariant() : s.Trim();
         }
 
         return null;

@@ -109,7 +109,7 @@ internal sealed class WSEndpoint : EndpointI
 
     public override EndpointI connectionId(string connectionId)
     {
-        if (connectionId.Equals(_delegate.connectionId()))
+        if (connectionId.Equals(_delegate.connectionId(), StringComparison.Ordinal))
         {
             return this;
         }
@@ -262,7 +262,7 @@ internal sealed class WSEndpoint : EndpointI
         if (_resource != null && _resource.Length > 0)
         {
             s += " -r ";
-            bool addQuote = _resource.Contains(':');
+            bool addQuote = _resource.Contains(':', StringComparison.Ordinal);
             if (addQuote)
             {
                 s += "\"";

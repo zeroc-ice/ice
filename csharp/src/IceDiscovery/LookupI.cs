@@ -140,17 +140,19 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
-        lookup.findAdapterByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
-        {
-            try
+        lookup.findAdapterByIdAsync(domainId, _id, lookupReply).ContinueWith(
+            task =>
             {
-                task.Wait();
-            }
-            catch (AggregateException ex)
-            {
-                lookup_.adapterRequestException(this, ex.InnerException);
-            }
-        }, lookup.ice_scheduler());
+                try
+                {
+                    task.Wait();
+                }
+                catch (AggregateException ex)
+                {
+                    lookup_.adapterRequestException(this, ex.InnerException);
+                }
+            },
+            lookup.ice_scheduler());
     }
 
     private void sendResponse(Ice.ObjectPrx proxy)
@@ -199,17 +201,19 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
-        lookup.findObjectByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
-        {
-            try
+        lookup.findObjectByIdAsync(domainId, _id, lookupReply).ContinueWith(
+            task =>
             {
-                task.Wait();
-            }
-            catch (AggregateException ex)
-            {
-                lookup_.objectRequestException(this, ex.InnerException);
-            }
-        }, lookup.ice_scheduler());
+                try
+                {
+                    task.Wait();
+                }
+                catch (AggregateException ex)
+                {
+                    lookup_.objectRequestException(this, ex.InnerException);
+                }
+            },
+            lookup.ice_scheduler());
     }
 };
 
@@ -252,7 +256,8 @@ internal class LookupI : LookupDisp_
                 foreach (var q in lookupReply.ice_getEndpoints())
                 {
                     var r = q.getInfo();
-                    if (r is Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface))
+                    if (r is Ice.IPEndpointInfo &&
+                        ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface, StringComparison.Ordinal))
                     {
                         single[0] = q;
                         _lookups[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
@@ -268,10 +273,9 @@ internal class LookupI : LookupDisp_
         }
     }
 
-    public override void findObjectById(string domainId, Ice.Identity id, LookupReplyPrx reply,
-                                        Ice.Current current)
+    public override void findObjectById(string domainId, Ice.Identity id, LookupReplyPrx reply, Ice.Current current)
     {
-        if (!domainId.Equals(_domainId))
+        if (!domainId.Equals(_domainId, StringComparison.Ordinal))
         {
             return; // Ignore
         }
@@ -293,10 +297,9 @@ internal class LookupI : LookupDisp_
         }
     }
 
-    public override void findAdapterById(string domainId, string adapterId, LookupReplyPrx reply,
-                                         Ice.Current current)
+    public override void findAdapterById(string domainId, string adapterId, LookupReplyPrx reply, Ice.Current current)
     {
-        if (!domainId.Equals(_domainId))
+        if (!domainId.Equals(_domainId, StringComparison.Ordinal))
         {
             return; // Ignore
         }

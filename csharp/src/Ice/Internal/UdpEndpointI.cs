@@ -9,9 +9,17 @@ namespace Ice.Internal;
 
 internal sealed class UdpEndpointI : IPEndpointI
 {
-    public UdpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint sourceAddr, string mcastInterface,
-                        int mttl, bool conn, string conId, bool co) :
-        base(instance, ho, po, sourceAddr, conId)
+    public UdpEndpointI(
+        ProtocolInstance instance,
+        string ho,
+        int po,
+        EndPoint sourceAddr,
+        string mcastInterface,
+        int mttl,
+        bool conn,
+        string conId,
+        bool co)
+        : base(instance, ho, po, sourceAddr, conId)
     {
         _mcastInterface = mcastInterface;
         _mcastTtl = mttl;
@@ -19,15 +27,15 @@ internal sealed class UdpEndpointI : IPEndpointI
         _compress = co;
     }
 
-    public UdpEndpointI(ProtocolInstance instance) :
-        base(instance)
+    public UdpEndpointI(ProtocolInstance instance)
+        : base(instance)
     {
         _connect = false;
         _compress = false;
     }
 
-    public UdpEndpointI(ProtocolInstance instance, Ice.InputStream s) :
-        base(instance, s)
+    public UdpEndpointI(ProtocolInstance instance, Ice.InputStream s)
+        : base(instance, s)
     {
         if (s.getEncoding().Equals(Ice.Util.Encoding_1_0))
         {
@@ -118,8 +126,16 @@ internal sealed class UdpEndpointI : IPEndpointI
         }
         else
         {
-            return new UdpEndpointI(instance_, host_, port_, sourceAddr_, _mcastInterface, _mcastTtl, _connect,
-                                    connectionId_, compress);
+            return new UdpEndpointI(
+                instance_,
+                host_,
+                port_,
+                sourceAddr_,
+                _mcastInterface,
+                _mcastTtl,
+                _connect,
+                connectionId_,
+                compress);
         }
     }
 
@@ -176,8 +192,16 @@ internal sealed class UdpEndpointI : IPEndpointI
         }
         else
         {
-            return new UdpEndpointI(instance_, host_, port, sourceAddr_, _mcastInterface, _mcastTtl, _connect,
-                                    connectionId_, _compress);
+            return new UdpEndpointI(
+                instance_,
+                host_,
+                port,
+                sourceAddr_,
+                _mcastInterface,
+                _mcastTtl,
+                _connect,
+                connectionId_,
+                _compress);
         }
     }
 
@@ -194,7 +218,7 @@ internal sealed class UdpEndpointI : IPEndpointI
 
         if (_mcastInterface.Length != 0)
         {
-            bool addQuote = _mcastInterface.Contains(':');
+            bool addQuote = _mcastInterface.Contains(':', StringComparison.Ordinal);
             s += " --interface ";
             if (addQuote)
             {
@@ -397,8 +421,16 @@ internal sealed class UdpEndpointI : IPEndpointI
 
     protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
     {
-        return new UdpEndpointI(instance_, host, port, sourceAddr_, _mcastInterface, _mcastTtl, _connect,
-                                connectionId, _compress);
+        return new UdpEndpointI(
+            instance_,
+            host,
+            port,
+            sourceAddr_,
+            _mcastInterface,
+            _mcastTtl,
+            _connect,
+            connectionId,
+            _compress);
     }
 
     private string _mcastInterface = "";

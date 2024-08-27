@@ -95,7 +95,7 @@ public sealed class Options
                         }
                         default:
                         {
-                            if (IFS.Contains(l[i]))
+                            if (IFS.Contains(l[i], StringComparison.Ordinal))
                             {
                                 vec.Add(arg);
                                 arg = "";
@@ -103,7 +103,7 @@ public sealed class Options
                                 //
                                 // Move to start of next argument.
                                 //
-                                while (++i < l.Length && IFS.Contains(l[i]))
+                                while (++i < l.Length && IFS.Contains(l[i], StringComparison.Ordinal))
                                 {
                                     ;
                                 }
@@ -248,7 +248,7 @@ public sealed class Options
                                     const string octalDigits = "01234567";
                                     short s = 0;
                                     int j;
-                                    for (j = i; j < i + 3 && j < l.Length && octalDigits.Contains(c = l[j]); ++j)
+                                    for (j = i; j < i + 3 && j < l.Length && octalDigits.Contains(c = l[j], StringComparison.Ordinal); ++j)
                                     {
                                         s = (short)(s * 8 + c - '0');
                                     }
@@ -263,7 +263,7 @@ public sealed class Options
                                 case 'x':
                                 {
                                     const string hexDigits = "0123456789abcdefABCDEF";
-                                    if (i < l.Length - 1 && !hexDigits.Contains(l[i + 1]))
+                                    if (i < l.Length - 1 && !hexDigits.Contains(l[i + 1], StringComparison.Ordinal))
                                     {
                                         arg += '\\';
                                         arg += 'x';
@@ -273,7 +273,7 @@ public sealed class Options
                                     short s = 0;
                                     int j;
                                     for (j = i + 1;
-                                        j < i + 3 && j < l.Length && hexDigits.Contains(c = l[j]);
+                                        j < i + 3 && j < l.Length && hexDigits.Contains(c = l[j], StringComparison.Ordinal);
                                         ++j)
                                     {
                                         s *= 16;

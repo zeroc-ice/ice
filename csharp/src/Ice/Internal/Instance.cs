@@ -646,7 +646,7 @@ public sealed class Instance
                     }
                     if (stdErr.Length > 0)
                     {
-                        if (stdErr.Equals(stdOut))
+                        if (stdErr.Equals(stdOut, StringComparison.Ordinal))
                         {
                             Console.SetError(outStream);
                         }

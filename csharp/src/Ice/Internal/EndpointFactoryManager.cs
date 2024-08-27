@@ -78,7 +78,7 @@ public sealed class EndpointFactoryManager
             for (int i = 0; i < _factories.Count; i++)
             {
                 EndpointFactory f = _factories[i];
-                if (f.protocol().Equals(protocol))
+                if (f.protocol().Equals(protocol, StringComparison.Ordinal))
                 {
                     factory = f;
                 }

@@ -56,7 +56,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             for (i = 0; i < _services.Count; ++i)
             {
                 info = _services[i];
-                if (info.name.Equals(name))
+                if (info.name.Equals(name, StringComparison.Ordinal))
                 {
                     if (_services[i].status != ServiceStatus.Stopped)
                     {
@@ -77,8 +77,10 @@ internal class ServiceManagerI : ServiceManagerDisp_
         bool started = false;
         try
         {
-            info.service.start(info.name, info.communicator == null ? _sharedCommunicator : info.communicator,
-                               info.args);
+            info.service.start(
+                info.name,
+                info.communicator == null ? _sharedCommunicator : info.communicator,
+                info.args);
             started = true;
         }
         catch (Exception e)
@@ -92,7 +94,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             for (i = 0; i < _services.Count; ++i)
             {
                 info = _services[i];
-                if (info.name.Equals(name))
+                if (info.name.Equals(name, StringComparison.Ordinal))
                 {
                     if (started)
                     {
@@ -128,7 +130,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             for (i = 0; i < _services.Count; ++i)
             {
                 info = _services[i];
-                if (info.name.Equals(name))
+                if (info.name.Equals(name, StringComparison.Ordinal))
                 {
                     if (info.status != ServiceStatus.Started)
                     {
@@ -163,7 +165,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             for (i = 0; i < _services.Count; ++i)
             {
                 info = _services[i];
-                if (info.name.Equals(name))
+                if (info.name.Equals(name, StringComparison.Ordinal))
                 {
                     if (stopped)
                     {
@@ -415,13 +417,13 @@ internal class ServiceManagerI : ServiceManagerDisp_
             // Extract the assembly name and the class name.
             //
             string err = "ServiceManager: unable to load service '" + entryPoint + "': ";
-            int sepPos = entryPoint.IndexOf(':');
+            int sepPos = entryPoint.IndexOf(':', StringComparison.Ordinal);
             if (sepPos != -1)
             {
                 const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if (entryPoint.Length > 3 &&
                    sepPos == 1 &&
-                   driveLetters.Contains(entryPoint[0]) &&
+                   driveLetters.Contains(entryPoint[0], StringComparison.Ordinal) &&
                    (entryPoint[2] == '\\' || entryPoint[2] == '/'))
                 {
                     sepPos = entryPoint.IndexOf(':', 3);

@@ -105,8 +105,12 @@ public class ProtocolInstance
         return instance_.messageSizeMax();
     }
 
-    public void resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpointI endpt,
-                        EndpointI_connectors callback)
+    public void resolve(
+        string host,
+        int port,
+        Ice.EndpointSelectionType type,
+        IPEndpointI endpt,
+        EndpointI_connectors callback)
     {
         instance_.endpointHostResolver().resolve(host, port, type, endpt, callback);
     }

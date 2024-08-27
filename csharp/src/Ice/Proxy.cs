@@ -36,10 +36,11 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task<bool> ice_isAAsync(string id,
-                            Dictionary<string, string>? context = null,
-                            IProgress<bool>? progress = null,
-                            CancellationToken cancel = default);
+    Task<bool> ice_isAAsync(
+        string id,
+        Dictionary<string, string>? context = null,
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Tests whether the target object of this proxy can be reached.
@@ -54,9 +55,10 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task ice_pingAsync(Dictionary<string, string>? context = null,
-                       IProgress<bool>? progress = null,
-                       CancellationToken cancel = default);
+    Task ice_pingAsync(
+        Dictionary<string, string>? context = null,
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -73,9 +75,10 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task<string[]> ice_idsAsync(Dictionary<string, string>? context = null,
-                                IProgress<bool>? progress = null,
-                                CancellationToken cancel = default);
+    Task<string[]> ice_idsAsync(
+        Dictionary<string, string>? context = null,
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -91,9 +94,10 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task<string> ice_idAsync(Dictionary<string, string>? context = null,
-                             IProgress<bool>? progress = null,
-                             CancellationToken cancel = default);
+    Task<string> ice_idAsync(
+        Dictionary<string, string>? context = null,
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Invokes an operation dynamically.
@@ -109,8 +113,12 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// the return value is false; in this case, outEncaps
     /// contains the encoded user exception. If the operation raises a run-time exception,
     /// it throws it directly.</returns>
-    bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
-                    Dictionary<string, string>? context = null);
+    bool ice_invoke(
+        string operation,
+        OperationMode mode,
+        byte[] inEncaps,
+        out byte[] outEncaps,
+        Dictionary<string, string>? context = null);
 
     /// <summary>
     /// Invokes an operation dynamically.
@@ -123,12 +131,13 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
     Task<Object_Ice_invokeResult>
-    ice_invokeAsync(string operation,
-                    OperationMode mode,
-                    byte[] inEncaps,
-                    Dictionary<string, string>? context = null,
-                    IProgress<bool>? progress = null,
-                    CancellationToken cancel = default);
+    ice_invokeAsync(
+        string operation,
+        OperationMode mode,
+        byte[] inEncaps,
+        Dictionary<string, string>? context = null,
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Returns the identity embedded in this proxy.
@@ -471,8 +480,9 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task ice_flushBatchRequestsAsync(IProgress<bool>? progress = null,
-                                     CancellationToken cancel = default);
+    Task ice_flushBatchRequestsAsync(
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Write a proxy to the output stream.
@@ -568,17 +578,22 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    public Task<bool> ice_isAAsync(string id,
-                                   Dictionary<string, string>? context = null,
-                                   IProgress<bool>? progress = null,
-                                   CancellationToken cancel = default)
+    public Task<bool> ice_isAAsync(
+        string id,
+        Dictionary<string, string>? context = null,
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default)
     {
         return iceI_ice_isAAsync(id, context, progress, cancel, false);
     }
 
     private Task<bool>
-    iceI_ice_isAAsync(string id, Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel,
-                      bool synchronous)
+    iceI_ice_isAAsync(
+        string id,
+        Dictionary<string, string>? context,
+        IProgress<bool>? progress,
+        CancellationToken cancel,
+        bool synchronous)
     {
         iceCheckTwowayOnly(_ice_isA_name);
         var completed = new OperationTaskCompletionCallback<bool>(progress, cancel);
@@ -588,10 +603,11 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     private const string _ice_isA_name = "ice_isA";
 
-    private void iceI_ice_isA(string id,
-                              Dictionary<string, string>? context,
-                              OutgoingAsyncCompletionCallback completed,
-                              bool synchronous)
+    private void iceI_ice_isA(
+        string id,
+        Dictionary<string, string>? context,
+        OutgoingAsyncCompletionCallback completed,
+        bool synchronous)
     {
         iceCheckAsyncTwowayOnly(_ice_isA_name);
         getOutgoingAsync<bool>(completed).invoke(_ice_isA_name,
@@ -644,8 +660,10 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     private const string _ice_ping_name = "ice_ping";
 
-    private void iceI_ice_ping(Dictionary<string, string>? context, OutgoingAsyncCompletionCallback completed,
-                                   bool synchronous)
+    private void iceI_ice_ping(
+        Dictionary<string, string>? context,
+        OutgoingAsyncCompletionCallback completed,
+        bool synchronous)
     {
         getOutgoingAsync<object>(completed).invoke(_ice_ping_name,
                                                    OperationMode.Idempotent,
@@ -687,8 +705,11 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         return iceI_ice_idsAsync(context, progress, cancel, false);
     }
 
-    private Task<string[]> iceI_ice_idsAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel,
-                                             bool synchronous)
+    private Task<string[]> iceI_ice_idsAsync(
+        Dictionary<string, string>? context,
+        IProgress<bool>? progress,
+        CancellationToken cancel,
+        bool synchronous)
     {
         iceCheckTwowayOnly(_ice_ids_name);
         var completed = new OperationTaskCompletionCallback<string[]>(progress, cancel);
@@ -698,16 +719,19 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     private const string _ice_ids_name = "ice_ids";
 
-    private void iceI_ice_ids(Dictionary<string, string>? context, OutgoingAsyncCompletionCallback completed,
-                              bool synchronous)
+    private void iceI_ice_ids(
+        Dictionary<string, string>? context,
+        OutgoingAsyncCompletionCallback completed,
+        bool synchronous)
     {
         iceCheckAsyncTwowayOnly(_ice_ids_name);
-        getOutgoingAsync<string[]>(completed).invoke(_ice_ids_name,
-                                                     OperationMode.Idempotent,
-                                                     FormatType.CompactFormat,
-                                                     context,
-                                                     synchronous,
-                                                     read: (InputStream iss) => { return iss.readStringSeq(); });
+        getOutgoingAsync<string[]>(completed).invoke(
+            _ice_ids_name,
+            OperationMode.Idempotent,
+            FormatType.CompactFormat,
+            context,
+            synchronous,
+            read: (InputStream iss) => { return iss.readStringSeq(); });
     }
 
     /// <summary>
@@ -1656,8 +1680,12 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         {
         }
 
-        public void invoke(string operation, OperationMode mode, byte[] inParams,
-                           Dictionary<string, string>? context, bool synchronous)
+        public void invoke(
+            string operation,
+            OperationMode mode,
+            byte[] inParams,
+            Dictionary<string, string>? context,
+            bool synchronous)
         {
             try
             {
@@ -1705,13 +1733,16 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     private class InvokeTaskCompletionCallback : TaskCompletionCallback<Object_Ice_invokeResult>
     {
-        public InvokeTaskCompletionCallback(IProgress<bool>? progress, CancellationToken cancellationToken) :
-            base(progress, cancellationToken)
+        public InvokeTaskCompletionCallback(IProgress<bool>? progress, CancellationToken cancellationToken)
+            : base(progress, cancellationToken)
         {
         }
 
-        public override void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
-                                              OutgoingAsyncBase og)
+        public override void handleInvokeSent(
+            bool sentSynchronously,
+            bool done,
+            bool alreadySent,
+            OutgoingAsyncBase og)
         {
             if (progress_ != null && !alreadySent)
             {

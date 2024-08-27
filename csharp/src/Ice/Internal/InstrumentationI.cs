@@ -686,8 +686,8 @@ public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
 
     private static AttributeResolver _attributes = new AttributeResolverI();
 
-    public RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size) :
-        base(_attributes)
+    public RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size)
+        : base(_attributes)
     {
         _connectionInfo = con;
         _endpoint = endpt;
@@ -779,8 +779,8 @@ public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
 
     private static AttributeResolver _attributes = new AttributeResolverI();
 
-    public CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size) :
-        base(_attributes)
+    public CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size)
+        : base(_attributes)
     {
         _id = adapter.getName();
         _requestId = requestId;
@@ -939,8 +939,11 @@ public class InvocationObserverI : ObserverWithDelegate<InvocationMetrics, Ice.I
         }
     }
 
-    public Ice.Instrumentation.RemoteObserver getRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint endpt,
-                                                                int requestId, int size)
+    public Ice.Instrumentation.RemoteObserver getRemoteObserver(
+        Ice.ConnectionInfo con,
+        Ice.Endpoint endpt,
+        int requestId,
+        int size)
     {
         Ice.Instrumentation.RemoteObserver del = null;
         if (delegate_ != null)
@@ -1127,9 +1130,11 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         return null;
     }
 
-    public Ice.Instrumentation.ThreadObserver getThreadObserver(string parent, string id,
-                                                                Ice.Instrumentation.ThreadState s,
-                                                                Ice.Instrumentation.ThreadObserver obsv)
+    public Ice.Instrumentation.ThreadObserver getThreadObserver(
+        string parent,
+        string id,
+        Ice.Instrumentation.ThreadState s,
+        Ice.Instrumentation.ThreadObserver obsv)
     {
         if (_threads.isEnabled())
         {
@@ -1151,8 +1156,10 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         return null;
     }
 
-    public Ice.Instrumentation.InvocationObserver getInvocationObserver(Ice.ObjectPrx prx, string operation,
-                                                                        Dictionary<string, string> ctx)
+    public Ice.Instrumentation.InvocationObserver getInvocationObserver(
+        Ice.ObjectPrx prx,
+        string operation,
+        Dictionary<string, string> ctx)
     {
         if (_invocations.isEnabled())
         {

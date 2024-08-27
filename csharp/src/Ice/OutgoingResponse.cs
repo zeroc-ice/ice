@@ -65,8 +65,8 @@ public sealed class OutgoingResponse
     /// Constructs an OutgoingResponse object with the <see cref="ReplyStatus.Ok"/> status.
     /// </summary>
     /// <param name="outputStream">The output stream that holds the response.</param>
-    public OutgoingResponse(OutputStream outputStream) :
-        this(ReplyStatus.Ok, exceptionId: null, exceptionDetails: null, outputStream)
+    public OutgoingResponse(OutputStream outputStream)
+        : this(ReplyStatus.Ok, exceptionId: null, exceptionDetails: null, outputStream)
     {
     }
 }

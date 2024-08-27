@@ -186,8 +186,11 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
                                 }
                                 if (ae.InnerException is Ice.LocalException)
                                 {
-                                    _loggerAdmin.deadRemoteLogger(p, _localLogger,
-                                                                  (Ice.LocalException)ae.InnerException, "log");
+                                    _loggerAdmin.deadRemoteLogger(
+                                        p,
+                                        _localLogger,
+                                        (Ice.LocalException)ae.InnerException,
+                                        "log");
                                 }
                             }
                         });

@@ -470,7 +470,7 @@ public sealed class Util
 
     static private void stringToMajorMinor(string str, out byte major, out byte minor)
     {
-        int pos = str.IndexOf('.');
+        int pos = str.IndexOf('.', StringComparison.Ordinal);
         if (pos == -1)
         {
             throw new ParseException($"malformed version value in '{str}'");

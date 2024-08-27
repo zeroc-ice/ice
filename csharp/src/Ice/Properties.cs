@@ -73,7 +73,7 @@ public sealed class Properties
             if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
             {
                 string line = args[i];
-                if (!line.Contains('='))
+                if (!line.Contains('=', StringComparison.Ordinal))
                 {
                     line += "=1";
                 }
@@ -425,7 +425,7 @@ public sealed class Properties
             string opt = options[i];
             if (opt.StartsWith(pfx, StringComparison.Ordinal))
             {
-                if (!opt.Contains('='))
+                if (!opt.Contains('=', StringComparison.Ordinal))
                 {
                     opt += "=1";
                 }
@@ -742,7 +742,7 @@ public sealed class Properties
     {
         // Check if the property is a known Ice property and log warnings if necessary
         Logger logger = Util.getProcessLogger();
-        int dotPos = key.IndexOf('.');
+        int dotPos = key.IndexOf('.', StringComparison.Ordinal);
 
         // If the key doesn't contain a dot, it's not a valid Ice property
         if (dotPos == -1)
@@ -758,7 +758,7 @@ public sealed class Properties
         foreach (Property[]? validProps in PropertyNames.validProps)
         {
             string pattern = validProps[0].pattern;
-            dotPos = pattern.IndexOf('.');
+            dotPos = pattern.IndexOf('.', StringComparison.Ordinal);
 
             // Each top level prefix describes a non-empty
             // namespace. Having a string without a prefix followed by a
@@ -777,7 +777,7 @@ public sealed class Properties
 
             // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
             // Otherwise no other warning is issued.
-            if (logWarnings && propPrefix.ToUpper().Equals(prefix.ToUpper()))
+            if (logWarnings && propPrefix.Equals(prefix, StringComparison.OrdinalIgnoreCase))
             {
                 logger.warning("unknown property: `" + key + "'; did you mean `" + propPrefix + "'?");
                 return null;

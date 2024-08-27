@@ -405,17 +405,11 @@ dotnet_diagnostic.SA1407.severity = none
 # SA1005: Single line comment should begin with a space
 dotnet_diagnostic.SA1005.severity = none
 
-# SA1117: The parameters should all be placed on the same line or each parameter should be placed on its own line
-dotnet_diagnostic.SA1117.severity = none
-
 # SA1128: Put constructor initializers on their own line
 dotnet_diagnostic.SA1128.severity = none
 
 # SA1116: The parameters should begin on the line after the declaration
 dotnet_diagnostic.SA1116.severity = none
-
-# SA1003: Operator ':' should not appear at the end of a line.
-dotnet_diagnostic.SA1003.severity = none
 
 # SA1516: Elements should be separated by blank line
 dotnet_diagnostic.SA1516.severity = none
@@ -459,17 +453,11 @@ dotnet_diagnostic.CA1304.severity = none
 # CA1305: Specify IFormatProvider
 dotnet_diagnostic.CA1305.severity = none
 
-# CA1307: Specify StringComparison for clarity
-dotnet_diagnostic.CA1307.severity = none
-
 # CA1309: Use ordinal StringComparison
 dotnet_diagnostic.CA1309.severity = none
 
 # CA1310: Specify StringComparison for correctness
 dotnet_diagnostic.CA1310.severity = none
-
-# CA1311: Specify a culture or use an invariant version
-dotnet_diagnostic.CA1311.severity = none
 
 # CA1710: Identifiers should have correct suffix
 dotnet_diagnostic.CA1710.severity = none

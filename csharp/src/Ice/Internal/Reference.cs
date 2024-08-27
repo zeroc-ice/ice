@@ -1432,8 +1432,11 @@ public class RoutableReference : Reference
             // Get an existing connection or create one if there's no
             // existing connection to one of the given endpoints.
             //
-            factory.create(endpoints.ToList(), false, getEndpointSelection(),
-                           new CreateConnectionCallback(this, null, callback));
+            factory.create(
+                endpoints.ToList(),
+                false,
+                getEndpointSelection(),
+                new CreateConnectionCallback(this, null, callback));
         }
         else
         {
@@ -1445,8 +1448,11 @@ public class RoutableReference : Reference
             // connection for one of the endpoints.
             //
 
-            factory.create(new List<EndpointI> { endpoints[0] }, true, getEndpointSelection(),
-                           new CreateConnectionCallback(this, endpoints, callback));
+            factory.create(
+                new List<EndpointI> { endpoints[0] },
+                true,
+                getEndpointSelection(),
+                new CreateConnectionCallback(this, endpoints, callback));
         }
     }
 

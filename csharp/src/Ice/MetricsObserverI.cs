@@ -106,8 +106,10 @@ public class MetricsHelper<T> where T : Metrics
 
         private class MemberFieldResolverI : Resolver
         {
-            internal MemberFieldResolverI(string name, System.Reflection.MethodInfo method,
-                                          System.Reflection.FieldInfo field)
+            internal MemberFieldResolverI(
+                string name,
+                System.Reflection.MethodInfo method,
+                System.Reflection.FieldInfo field)
                 : base(name)
             {
                 Debug.Assert(method != null && field != null);
@@ -152,8 +154,10 @@ public class MetricsHelper<T> where T : Metrics
 
         private class MemberMethodResolverI : Resolver
         {
-            internal MemberMethodResolverI(string name, System.Reflection.MethodInfo method,
-                                           System.Reflection.MethodInfo subMeth)
+            internal MemberMethodResolverI(
+                string name,
+                System.Reflection.MethodInfo method,
+                System.Reflection.MethodInfo subMeth)
                 : base(name)
             {
                 Debug.Assert(method != null && subMeth != null);

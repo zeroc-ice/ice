@@ -981,7 +981,8 @@ public sealed class ObjectAdapter
             // Proxy is local if the reference adapter id matches this
             // adapter id or replica group id.
             //
-            return r.getAdapterId().Equals(_id) || r.getAdapterId().Equals(_replicaGroupId);
+            return r.getAdapterId().Equals(_id, StringComparison.Ordinal) ||
+                r.getAdapterId().Equals(_replicaGroupId, StringComparison.Ordinal);
         }
         else
         {
@@ -1707,7 +1708,7 @@ public sealed class ObjectAdapter
             bool valid = false;
             for (int i = 0; i < _suffixes.Length; ++i)
             {
-                if (prop.Equals(prefix + _suffixes[i]))
+                if (prop.Equals(prefix + _suffixes[i], StringComparison.Ordinal))
                 {
                     noProps = false;
                     valid = true;

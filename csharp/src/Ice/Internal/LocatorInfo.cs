@@ -42,8 +42,10 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
                     //
                     if (_ref.getInstance().traceLevels().location >= 1)
                     {
-                        locatorInfo.trace("retrieved adapter for well-known object from locator, " +
-                                          "adding to locator cache", _ref, r);
+                        locatorInfo.trace(
+                            "retrieved adapter for well-known object from locator, adding to locator cache",
+                            _ref,
+                            r);
                     }
                     locatorInfo.getEndpoints(r, _ref, _ttl, _callback);
                     return;
@@ -526,13 +528,17 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             {
                 if (@ref.isWellKnown())
                 {
-                    trace("retrieved endpoints for well-known proxy from locator, adding to locator cache",
-                          @ref, endpoints);
+                    trace(
+                        "retrieved endpoints for well-known proxy from locator, adding to locator cache",
+                        @ref,
+                        endpoints);
                 }
                 else
                 {
-                    trace("retrieved endpoints for adapter from locator, adding to locator cache",
-                          @ref, endpoints);
+                    trace(
+                        "retrieved endpoints for adapter from locator, adding to locator cache",
+                        @ref,
+                        endpoints);
                 }
             }
         }
