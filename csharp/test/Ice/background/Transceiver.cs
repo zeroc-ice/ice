@@ -5,9 +5,6 @@ using System.Net.Sockets;
 
 internal class Transceiver : Ice.Internal.Transceiver
 {
-    public bool isWaitingToBeRead =>
-        (_buffered && (_readBuffer.b.position() - _readBufferPos > 0)) || _transceiver.isWaitingToBeRead;
-
     public Socket fd()
     {
         return _transceiver.fd();
