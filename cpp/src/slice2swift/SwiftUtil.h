@@ -172,9 +172,7 @@ namespace Slice
                 const SyntaxTreeBasePtr&,
                 const StringList&,
                 const std::string&,
-                int,
-                bool local = false,
-                bool operationParameter = false);
+                int);
 
             typedef std::map<std::string, std::string> ModuleMap;
             typedef std::map<std::string, ModuleMap> ModulePrefix;
