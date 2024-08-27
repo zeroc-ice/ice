@@ -538,12 +538,12 @@ public class AllTests {
       map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("holding").current == 1);
 
+      // Wait for the connection closure thread to finish, so we're in a known state again.
+      controller.resume();
       try {
-        // Wait for the connection closure thread to finish, so we're in a known state again.
         closureThread.join();
       } catch (InterruptedException ex) {
       }
-      controller.resume();
 
       map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("holding").current == 0);
