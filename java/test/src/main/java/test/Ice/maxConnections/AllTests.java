@@ -19,7 +19,7 @@ public class AllTests {
 
     testCreateConnections(p, 100, helper.getWriter());
     testCreateConnectionsWithMax(pMax10, 10, helper.getWriter());
-    // testCreateConnectionsWithMaxAndRecovery(pMax10, 10, helper.getWriter());
+    testCreateConnectionsWithMaxAndRecovery(pMax10, 10, helper.getWriter());
 
     p.shutdown();
   }

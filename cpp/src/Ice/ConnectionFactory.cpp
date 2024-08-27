@@ -1386,6 +1386,28 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         {
             transceiver = _acceptor->accept();
 
+            if (_maxConnections > 0 && _connections.size() == static_cast<size_t>(_maxConnections))
+            {
+                // Can't accept more connections, so we abort this transport connection.
+
+                if (_instance->traceLevels()->network >= 2)
+                {
+                    Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                    out << "rejecting new " << _endpoint->protocol() << " connection\n"
+                        << transceiver->toString() << "\nbecause the maximum number of connections has been reached";
+                }
+
+                try
+                {
+                    transceiver->close();
+                }
+                catch (...)
+                {
+                    // Ignore.
+                }
+                return;
+            }
+
             if (_instance->traceLevels()->network >= 2)
             {
                 Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
@@ -1582,7 +1604,7 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
 //
 // COMPILERFIX: The ConnectionFactory setup is broken out into a separate initialize
 // function because when it was part of the constructor C++Builder 2007 apps would
-// crash if an execption was thrown from any calls within the constructor.
+// crash if an exception was thrown from any calls within the constructor.
 //
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
     const InstancePtr& instance,
@@ -1591,6 +1613,10 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
     const shared_ptr<ObjectAdapterI>& adapter)
     : _instance(instance),
       _connectionOptions(instance->serverConnectionOptions(adapter->getName())),
+      _maxConnections(
+          endpoint->datagram()
+              ? 0
+              : instance->initializationData().properties->getPropertyAsInt(adapter->getName() + ".MaxConnections")),
       _endpoint(endpoint),
       _publishedEndpoint(publishedEndpoint),
       _acceptorStarted(false),
@@ -1663,6 +1689,7 @@ IceInternal::IncomingConnectionFactory::initialize()
                 _connectionOptions));
             connection->startAsync(nullptr, nullptr);
             _connections.insert(connection);
+            assert(_maxConnections == 0); // UDP so no max connections
         }
         else
         {
