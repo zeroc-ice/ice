@@ -4,7 +4,6 @@ package test.Ice.maxConnections;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Connection;
-import com.zeroc.Ice.ConnectionClose;
 import java.io.PrintWriter;
 import test.Ice.maxConnections.Test.TestIntfPrx;
 
@@ -39,7 +38,7 @@ public class AllTests {
 
     // Close all connections
     for (int i = 0; i < connectionCount; i++) {
-      connectionList.get(i).close(ConnectionClose.GracefullyWithWait);
+      connectionList.get(i).close();
     }
 
     output.println("ok");
@@ -72,7 +71,7 @@ public class AllTests {
 
     // Close all connections
     for (int i = 0; i < max; i++) {
-      connectionList.get(i).close(ConnectionClose.GracefullyWithWait);
+      connectionList.get(i).close();
     }
 
     output.println("ok");
@@ -105,7 +104,7 @@ public class AllTests {
     }
 
     // Close one connection
-    connectionList.get(0).close(ConnectionClose.GracefullyWithWait);
+    connectionList.get(0).close();
     connectionList.remove(0);
 
     // Try again
@@ -114,7 +113,7 @@ public class AllTests {
 
     // Close all connections
     for (int i = 0; i < max; i++) {
-      connectionList.get(i).close(ConnectionClose.GracefullyWithWait);
+      connectionList.get(i).close();
     }
 
     output.println("ok");
