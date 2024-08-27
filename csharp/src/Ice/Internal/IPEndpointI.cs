@@ -88,7 +88,7 @@ public abstract class IPEndpointI : EndpointI
 
     public override EndpointI connectionId(string connectionId)
     {
-        if (connectionId.Equals(connectionId_))
+        if (connectionId.Equals(connectionId_, StringComparison.Ordinal))
         {
             return this;
         }
@@ -172,7 +172,9 @@ public abstract class IPEndpointI : EndpointI
             return false;
         }
         IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
-        return ipEndpointI.type() == type() && ipEndpointI.host_.Equals(host_) && ipEndpointI.port_ == port_ &&
+        return ipEndpointI.type() == type() &&
+            ipEndpointI.host_.Equals(host_, StringComparison.Ordinal) &&
+            ipEndpointI.port_ == port_ &&
             Network.addressEquals(ipEndpointI.sourceAddr_, sourceAddr_);
     }
 
@@ -200,7 +202,7 @@ public abstract class IPEndpointI : EndpointI
         if (host_ != null && host_.Length > 0)
         {
             s += " -h ";
-            bool addQuote = host_.Contains(':');
+            bool addQuote = host_.Contains(':', StringComparison.Ordinal);
             if (addQuote)
             {
                 s += "\"";
@@ -217,7 +219,7 @@ public abstract class IPEndpointI : EndpointI
         if (sourceAddr_ != null)
         {
             string sourceAddr = Network.endpointAddressToString(sourceAddr_);
-            bool addQuote = sourceAddr.Contains(':');
+            bool addQuote = sourceAddr.Contains(':', StringComparison.Ordinal);
             s += " --sourceAddress ";
             if (addQuote)
             {
@@ -275,8 +277,10 @@ public abstract class IPEndpointI : EndpointI
             return 1;
         }
 
-        int rc = string.Compare(Network.endpointAddressToString(sourceAddr_),
-                                Network.endpointAddressToString(p.sourceAddr_), StringComparison.Ordinal);
+        int rc = string.Compare(
+            Network.endpointAddressToString(sourceAddr_),
+            Network.endpointAddressToString(p.sourceAddr_),
+            StringComparison.Ordinal);
         if (rc != 0)
         {
             return rc;

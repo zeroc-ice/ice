@@ -298,8 +298,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    internal int sendAsyncRequest(OutgoingAsyncBase og, bool compress, bool response,
-                                int batchRequestCount)
+    internal int sendAsyncRequest(
+        OutgoingAsyncBase og,
+        bool compress,
+        bool response,
+        int batchRequestCount)
     {
         OutputStream os = og.getOs();
 
@@ -433,7 +436,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         {
                             _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
                         }
-                    }, this);
+                    },
+                    this);
                 }
             }
             else
@@ -1391,6 +1395,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _closeTimeout = options.closeTimeout; // not used for datagram connections
         // suppress inactivity timeout for datagram connections
         _inactivityTimeout = endpoint.datagram() ? TimeSpan.Zero : options.inactivityTimeout;
+        _maxDispatches = options.maxDispatches;
         _removeFromFactory = removeFromFactory;
         _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _warnUdp = initData.properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
@@ -1417,11 +1422,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         if (options.idleTimeout > TimeSpan.Zero && !endpoint.datagram())
         {
-            transceiver = new IdleTimeoutTransceiverDecorator(
+            _idleTimeoutTransceiver = new IdleTimeoutTransceiverDecorator(
                 transceiver,
                 this,
                 options.idleTimeout,
                 options.enableIdleCheck);
+            transceiver = _idleTimeoutTransceiver;
         }
         _transceiver = transceiver;
 
@@ -1447,42 +1453,28 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    /// <summary>Aborts the connection with a <see cref="ConnectionAbortedException" /> if the connection is active or
-    /// holding.</summary>
-    internal void idleCheck(TimeSpan idleTimeout, Action rescheduleTimer)
+    /// <summary>Aborts the connection with a <see cref="ConnectionAbortedException" /> if the connection is active and
+    /// does not receive a byte for some time. See the IdleTimeoutTransceiverDecorator.</summary>
+    internal void idleCheck(TimeSpan idleTimeout)
     {
         lock (this)
         {
-            if (_state == StateActive || _state == StateHolding)
+            if (_state == StateActive && _idleTimeoutTransceiver!.idleCheckEnabled)
             {
                 int idleTimeoutInSeconds = (int)idleTimeout.TotalSeconds;
 
-                if (_transceiver.isWaitingToBeRead)
+                if (_instance.traceLevels().network >= 1)
                 {
-                    rescheduleTimer();
-
-                    if (_instance.traceLevels().network >= 3)
-                    {
-                        _instance.initializationData().logger.trace(
-                            _instance.traceLevels().networkCat,
-                            $"the idle check scheduled a new idle check in {idleTimeoutInSeconds}s because the connection is waiting to be read\n{_transceiver.toDetailedString()}");
-                    }
+                    _instance.initializationData().logger.trace(
+                        _instance.traceLevels().networkCat,
+                        $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
                 }
-                else
-                {
-                    if (_instance.traceLevels().network >= 1)
-                    {
-                        _instance.initializationData().logger.trace(
-                            _instance.traceLevels().networkCat,
-                            $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
-                    }
 
-                    setState(
-                        StateClosed,
-                        new ConnectionAbortedException(
-                            $"Connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s.",
-                            closedByApplication: false));
-                }
+                setState(
+                    StateClosed,
+                    new ConnectionAbortedException(
+                        $"Connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s.",
+                        closedByApplication: false));
             }
             // else nothing to do
         }
@@ -1661,31 +1653,40 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 case StateActive:
                 {
                     //
-                    // Can only switch from holding or not validated to
-                    // active.
+                    // Can only switch to active from holding or not validated.
                     //
                     if (_state != StateHolding && _state != StateNotValidated)
                     {
                         return;
                     }
-                    _threadPool.register(this, SocketOperation.Read);
+
+                    if (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)
+                    {
+                        _threadPool.register(this, SocketOperation.Read);
+                        _idleTimeoutTransceiver?.enableIdleCheck();
+                    }
+                    // else don't resume reading since we're at or over the _maxDispatches limit.
+
                     break;
                 }
 
                 case StateHolding:
                 {
                     //
-                    // Can only switch from active or not validated to
-                    // holding.
+                    // Can only switch to holding from active or not validated.
                     //
                     if (_state != StateActive && _state != StateNotValidated)
                     {
                         return;
                     }
-                    if (_state == StateActive)
+
+                    if (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)
                     {
                         _threadPool.unregister(this, SocketOperation.Read);
+                        _idleTimeoutTransceiver?.disableIdleCheck();
                     }
+                    // else reads are already disabled because the _maxDispatches limit is reached or exceeded.
+
                     break;
                 }
 
@@ -2180,8 +2181,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 //
                 // Do compression.
                 //
-                Ice.Internal.Buffer cbuf = BZip2.compress(uncompressed.getBuffer(), Protocol.headerSize,
-                                                         _compressionLevel);
+                Ice.Internal.Buffer cbuf = BZip2.compress(
+                    uncompressed.getBuffer(),
+                    Protocol.headerSize,
+                    _compressionLevel);
                 if (cbuf is not null)
                 {
                     OutputStream cstream = new OutputStream(new Internal.Buffer(cbuf, true), uncompressed.getEncoding());
@@ -2258,8 +2261,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 if (_compressionSupported)
                 {
-                    Ice.Internal.Buffer ubuf = BZip2.uncompress(info.stream.getBuffer(), Protocol.headerSize,
-                                                               _messageSizeMax);
+                    Ice.Internal.Buffer ubuf = BZip2.uncompress(
+                        info.stream.getBuffer(),
+                        Protocol.headerSize,
+                        _messageSizeMax);
                     info.stream = new InputStream(info.stream.instance(), info.stream.getEncoding(), ubuf, true);
                 }
                 else
@@ -2304,9 +2309,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     if (_state >= StateClosing)
                     {
-                        TraceUtil.trace("received request during closing\n" +
-                                        "(ignored by server, client will retry)", info.stream, _logger,
-                                        _traceLevels);
+                        TraceUtil.trace(
+                            "received request during closing\n(ignored by server, client will retry)",
+                            info.stream,
+                            _logger,
+                            _traceLevels);
                     }
                     else
                     {
@@ -2326,9 +2333,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     if (_state >= StateClosing)
                     {
-                        TraceUtil.trace("received batch request during closing\n" +
-                                        "(ignored by server, client will retry)", info.stream, _logger,
-                                        _traceLevels);
+                        TraceUtil.trace(
+                            "received batch request during closing\n(ignored by server, client will retry)",
+                            info.stream,
+                            _logger,
+                            _traceLevels);
                     }
                     else
                     {
@@ -2392,8 +2401,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                 default:
                 {
-                    TraceUtil.trace("received unknown message\n(invalid, closing connection)",
-                                    info.stream, _logger, _traceLevels);
+                    TraceUtil.trace(
+                        "received unknown message\n(invalid, closing connection)",
+                        info.stream,
+                        _logger,
+                        _traceLevels);
 
                     throw new ProtocolException($"Received Ice protocol message with unknown type: {messageType}");
                 }
@@ -2414,7 +2426,22 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
         }
 
-        return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
+        if (_state == StateHolding)
+        {
+            // Don't continue reading if the connection is in the holding state.
+            return SocketOperation.None;
+        }
+        else if (_maxDispatches > 0 && _dispatchCount >= _maxDispatches)
+        {
+            // Don't continue reading if the _maxDispatches limit is reached or exceeded.
+            _idleTimeoutTransceiver?.disableIdleCheck();
+            return SocketOperation.None;
+        }
+        else
+        {
+            // Continue reading.
+            return SocketOperation.Read;
+        }
     }
 
     private void dispatchAll(
@@ -2518,6 +2545,14 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     if (isTwoWay)
                     {
                         sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
+                    }
+
+                    if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches)
+                    {
+                        // Resume reading if the connection is active and the dispatch count is about to be less than
+                        // _maxDispatches.
+                        _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
+                        _idleTimeoutTransceiver?.enableIdleCheck();
                     }
 
                     --_dispatchCount;
@@ -2863,6 +2898,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private Instance _instance;
     private readonly Transceiver _transceiver;
+    private readonly IdleTimeoutTransceiverDecorator _idleTimeoutTransceiver; // can be null
+
     private string _desc;
     private string _type;
     private Connector _connector;
@@ -2921,7 +2958,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private int _upcallCount;
 
     // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
+    // _dispatchCount can be greater than a non-0 _maxDispatches when a receive a batch with multiples requests.
     private int _dispatchCount;
+
+    // When we dispatch _maxDispatches concurrent requests, we stop reading the connection to back-pressure the peer.
+    // _maxDispatches <= 0 means no limit.
+    private readonly int _maxDispatches;
 
     private int _state; // The current state.
     private bool _shutdownInitiated;

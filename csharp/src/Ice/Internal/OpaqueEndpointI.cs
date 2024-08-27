@@ -61,8 +61,8 @@ internal sealed class OpaqueEndpointI : EndpointI
 
     private sealed class InfoI : Ice.OpaqueEndpointInfo
     {
-        public InfoI(short type, Ice.EncodingVersion rawEncoding, byte[] rawBytes) :
-            base(null, -1, false, rawEncoding, rawBytes)
+        public InfoI(short type, Ice.EncodingVersion rawEncoding, byte[] rawBytes)
+            : base(null, -1, false, rawEncoding, rawBytes)
         {
             _type = type;
         }

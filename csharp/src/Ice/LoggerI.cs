@@ -128,8 +128,8 @@ internal sealed class FileLoggerI : LoggerI
         _writer.Flush();
     }
 
-    internal FileLoggerI(string prefix, string file) :
-        base(prefix)
+    internal FileLoggerI(string prefix, string file)
+        : base(prefix)
     {
         _file = file;
         _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));

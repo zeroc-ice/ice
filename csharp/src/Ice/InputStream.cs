@@ -52,8 +52,8 @@ public class InputStream
         _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(Ice.Internal.Buffer buf) :
-        this(buf, false)
+    public InputStream(Ice.Internal.Buffer buf)
+        : this(buf, false)
     {
     }
 
@@ -90,8 +90,8 @@ public class InputStream
         _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(Communicator communicator, Ice.Internal.Buffer buf) :
-        this(communicator, buf, false)
+    public InputStream(Communicator communicator, Ice.Internal.Buffer buf)
+        : this(communicator, buf, false)
     {
     }
 
@@ -128,8 +128,8 @@ public class InputStream
         _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(EncodingVersion encoding, Ice.Internal.Buffer buf) :
-        this(encoding, buf, false)
+    public InputStream(EncodingVersion encoding, Ice.Internal.Buffer buf)
+        : this(encoding, buf, false)
     {
     }
 
@@ -168,8 +168,8 @@ public class InputStream
         _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.Buffer buf) :
-        this(communicator, encoding, buf, false)
+    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.Buffer buf)
+        : this(communicator, encoding, buf, false)
     {
     }
 
@@ -197,8 +197,8 @@ public class InputStream
         _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf) :
-        this(instance, encoding, buf, false)
+    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf)
+        : this(instance, encoding, buf, false)
     {
     }
 

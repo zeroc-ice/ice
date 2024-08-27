@@ -7,8 +7,12 @@ namespace Ice.Internal;
 internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 {
     public override void
-    attachRemoteLogger(Ice.RemoteLoggerPrx prx, Ice.LogMessageType[] messageTypes, string[] categories,
-                       int messageMax, Ice.Current current)
+    attachRemoteLogger(
+        Ice.RemoteLoggerPrx prx,
+        Ice.LogMessageType[] messageTypes,
+        string[] categories,
+        int messageMax,
+        Ice.Current current)
     {
         if (prx == null)
         {
@@ -126,8 +130,12 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
     }
 
     public override Ice.LogMessage[]
-    getLog(Ice.LogMessageType[] messageTypes, string[] categories, int messageMax, out string prefix,
-           Ice.Current current)
+    getLog(
+        Ice.LogMessageType[] messageTypes,
+        string[] categories,
+        int messageMax,
+        out string prefix,
+        Ice.Current current)
     {
         LinkedList<Ice.LogMessage> logMessages = null;
         lock (this)
@@ -283,8 +291,8 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         }
     }
 
-    internal void deadRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Logger logger, Ice.LocalException ex,
-                                   string operation)
+    internal void
+    deadRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Logger logger, Ice.LocalException ex, string operation)
     {
         //
         // No need to convert remoteLogger as we only use its identity
@@ -312,9 +320,11 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         }
     }
 
-    private static void filterLogMessages(LinkedList<Ice.LogMessage> logMessages,
-                                          HashSet<Ice.LogMessageType> messageTypes,
-                                          HashSet<string> traceCategories, int messageMax)
+    private static void filterLogMessages(
+        LinkedList<Ice.LogMessage> logMessages,
+        HashSet<Ice.LogMessageType> messageTypes,
+        HashSet<string> traceCategories,
+        int messageMax)
     {
         Debug.Assert(logMessages.Count > 0 && messageMax != 0);
 

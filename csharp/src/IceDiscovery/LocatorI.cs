@@ -28,8 +28,11 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
     }
 
     public override Task
-    setReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, Ice.ObjectPrx proxy,
-                                         Ice.Current current)
+    setReplicatedAdapterDirectProxyAsync(
+        string adapterId,
+        string replicaGroupId,
+        Ice.ObjectPrx proxy,
+        Ice.Current current)
     {
         lock (this)
         {

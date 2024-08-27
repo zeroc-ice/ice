@@ -495,7 +495,7 @@ public class AllTests {
     out.flush();
     hello = HelloPrx.checkedCast(communicator.stringToProxy("hello"));
     obj.migrateHello();
-    hello.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+    hello.ice_getConnection().close();
     hello.sayHello();
     obj.migrateHello();
     hello.sayHello();

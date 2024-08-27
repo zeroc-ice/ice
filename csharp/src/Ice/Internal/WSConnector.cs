@@ -40,7 +40,7 @@ internal sealed class WSConnector : Connector
             return false;
         }
 
-        if (!_resource.Equals(p._resource))
+        if (!_resource.Equals(p._resource, StringComparison.Ordinal))
         {
             return false;
         }

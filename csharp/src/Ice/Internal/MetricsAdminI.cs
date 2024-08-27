@@ -431,7 +431,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         //
         lock (this)
         {
-            if (previous != null && previous.getId().Equals(key))
+            if (previous != null && previous.getId().Equals(key, StringComparison.Ordinal))
             {
                 Debug.Assert(_objects[key] == previous);
                 return previous;
@@ -537,8 +537,11 @@ internal class MetricsViewI
         _name = name;
     }
 
-    internal bool addOrUpdateMap(Ice.Properties properties, string mapName, IMetricsMapFactory factory,
-                               Ice.Logger logger)
+    internal bool addOrUpdateMap(
+        Ice.Properties properties,
+        string mapName,
+        IMetricsMapFactory factory,
+        Ice.Logger logger)
     {
         //
         // Add maps to views configured with the given map.
@@ -742,7 +745,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
             foreach (KeyValuePair<string, string> e in viewsProps)
             {
                 string viewName = e.Key.Substring(viewsPrefix.Length);
-                int dotPos = viewName.IndexOf('.');
+                int dotPos = viewName.IndexOf('.', StringComparison.Ordinal);
                 if (dotPos > 0)
                 {
                     viewName = viewName.Substring(0, dotPos);
@@ -837,8 +840,8 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
         updateViews();
     }
 
-    override public Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, out long timestamp,
-                                                                       Ice.Current current)
+    override public Dictionary<string, IceMX.Metrics[]>
+    getMetricsView(string viewName, out long timestamp, Ice.Current current)
     {
         lock (this)
         {
@@ -865,8 +868,11 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
         }
     }
 
-    override public IceMX.MetricsFailures getMetricsFailures(string viewName, string mapName, string id,
-                                                             Ice.Current c)
+    override public IceMX.MetricsFailures getMetricsFailures(
+        string viewName,
+        string mapName,
+        string id,
+        Ice.Current c)
     {
         lock (this)
         {

@@ -7,8 +7,8 @@ namespace Ice.SSL;
 
 internal class Instance : Ice.Internal.ProtocolInstance
 {
-    internal Instance(SSLEngine engine, short type, string protocol) :
-        base(engine.communicator(), type, protocol, true) => _engine = engine;
+    internal Instance(SSLEngine engine, short type, string protocol)
+        : base(engine.communicator(), type, protocol, true) => _engine = engine;
 
     internal SSLEngine engine() => _engine;
 

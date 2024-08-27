@@ -224,8 +224,11 @@ public abstract class OutgoingAsyncBase
         return synchronous_;
     }
 
-    protected OutgoingAsyncBase(Instance instance, OutgoingAsyncCompletionCallback completionCallback,
-                                Ice.OutputStream os = null, Ice.InputStream iss = null)
+    protected OutgoingAsyncBase(
+        Instance instance,
+        OutgoingAsyncCompletionCallback completionCallback,
+        Ice.OutputStream os = null,
+        Ice.InputStream iss = null)
     {
         instance_ = instance;
         sentSynchronously_ = false;
@@ -487,11 +490,12 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         }
     }
 
-    protected ProxyOutgoingAsyncBase(Ice.ObjectPrxHelperBase prx,
-                                     OutgoingAsyncCompletionCallback completionCallback,
-                                     Ice.OutputStream os = null,
-                                     Ice.InputStream iss = null) :
-        base(prx.iceReference().getInstance(), completionCallback, os, iss)
+    protected ProxyOutgoingAsyncBase(
+        Ice.ObjectPrxHelperBase prx,
+        OutgoingAsyncCompletionCallback completionCallback,
+        Ice.OutputStream os = null,
+        Ice.InputStream iss = null)
+        : base(prx.iceReference().getInstance(), completionCallback, os, iss)
     {
         proxy_ = prx;
         mode_ = Ice.OperationMode.Normal;
@@ -819,9 +823,12 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
 //
 public class OutgoingAsync : ProxyOutgoingAsyncBase
 {
-    public OutgoingAsync(Ice.ObjectPrxHelperBase prx, OutgoingAsyncCompletionCallback completionCallback,
-                         Ice.OutputStream os = null, Ice.InputStream iss = null) :
-        base(prx, completionCallback, os, iss)
+    public OutgoingAsync(
+        Ice.ObjectPrxHelperBase prx,
+        OutgoingAsyncCompletionCallback completionCallback,
+        Ice.OutputStream os = null,
+        Ice.InputStream iss = null)
+        : base(prx, completionCallback, os, iss)
     {
         encoding_ = Protocol.getCompatibleEncoding(proxy_.iceReference().getEncoding());
         synchronous_ = false;
@@ -1134,11 +1141,12 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
 public class OutgoingAsyncT<T> : OutgoingAsync
 {
-    public OutgoingAsyncT(Ice.ObjectPrxHelperBase prx,
-                          OutgoingAsyncCompletionCallback completionCallback,
-                          Ice.OutputStream os = null,
-                          Ice.InputStream iss = null) :
-        base(prx, completionCallback, os, iss)
+    public OutgoingAsyncT(
+        Ice.ObjectPrxHelperBase prx,
+        OutgoingAsyncCompletionCallback completionCallback,
+        Ice.OutputStream os = null,
+        Ice.InputStream iss = null)
+        : base(prx, completionCallback, os, iss)
     {
     }
 
@@ -1206,8 +1214,8 @@ public class OutgoingAsyncT<T> : OutgoingAsync
 //
 internal class ProxyFlushBatchAsync : ProxyOutgoingAsyncBase
 {
-    public ProxyFlushBatchAsync(Ice.ObjectPrxHelperBase prx, OutgoingAsyncCompletionCallback completionCallback) :
-        base(prx, completionCallback)
+    public ProxyFlushBatchAsync(Ice.ObjectPrxHelperBase prx, OutgoingAsyncCompletionCallback completionCallback)
+        : base(prx, completionCallback)
     {
     }
 
@@ -1266,8 +1274,8 @@ internal class ProxyFlushBatchAsync : ProxyOutgoingAsyncBase
 //
 internal class ProxyGetConnection : ProxyOutgoingAsyncBase
 {
-    public ProxyGetConnection(Ice.ObjectPrxHelperBase prx, OutgoingAsyncCompletionCallback completionCallback) :
-        base(prx, completionCallback)
+    public ProxyGetConnection(Ice.ObjectPrxHelperBase prx, OutgoingAsyncCompletionCallback completionCallback)
+        : base(prx, completionCallback)
     {
     }
 
@@ -1305,10 +1313,11 @@ internal class ProxyGetConnection : ProxyOutgoingAsyncBase
 
 internal class ConnectionFlushBatchAsync : OutgoingAsyncBase
 {
-    public ConnectionFlushBatchAsync(Ice.ConnectionI connection,
-                                     Instance instance,
-                                     OutgoingAsyncCompletionCallback completionCallback) :
-        base(instance, completionCallback)
+    public ConnectionFlushBatchAsync(
+        Ice.ConnectionI connection,
+        Instance instance,
+        OutgoingAsyncCompletionCallback completionCallback)
+        : base(instance, completionCallback)
     {
         _connection = connection;
     }
@@ -1387,9 +1396,11 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
 {
     private class FlushBatch : OutgoingAsyncBase
     {
-        public FlushBatch(CommunicatorFlushBatchAsync outAsync,
-                          Instance instance,
-                          Ice.Instrumentation.InvocationObserver observer) : base(instance, null)
+        public FlushBatch(
+            CommunicatorFlushBatchAsync outAsync,
+            Instance instance,
+            Ice.Instrumentation.InvocationObserver observer)
+            : base(instance, null)
         {
             _outAsync = outAsync;
             _observer = observer;
@@ -1430,8 +1441,8 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
         private Ice.Instrumentation.InvocationObserver _observer;
     };
 
-    public CommunicatorFlushBatchAsync(Instance instance, OutgoingAsyncCompletionCallback callback) :
-        base(instance, callback)
+    public CommunicatorFlushBatchAsync(Instance instance, OutgoingAsyncCompletionCallback callback)
+        : base(instance, callback)
     {
         //
         // _useCount is initialized to 1 to prevent premature callbacks.
@@ -1609,8 +1620,8 @@ public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, Outgo
 
 public class OperationTaskCompletionCallback<T> : TaskCompletionCallback<T>
 {
-    public OperationTaskCompletionCallback(System.IProgress<bool> progress, CancellationToken cancellationToken) :
-        base(progress, cancellationToken)
+    public OperationTaskCompletionCallback(System.IProgress<bool> progress, CancellationToken cancellationToken)
+        : base(progress, cancellationToken)
     {
     }
 
@@ -1622,9 +1633,10 @@ public class OperationTaskCompletionCallback<T> : TaskCompletionCallback<T>
 
 public class FlushBatchTaskCompletionCallback : TaskCompletionCallback<object>
 {
-    public FlushBatchTaskCompletionCallback(System.IProgress<bool> progress = null,
-                                            CancellationToken cancellationToken = default) :
-        base(progress, cancellationToken)
+    public FlushBatchTaskCompletionCallback(
+        IProgress<bool> progress = null,
+        CancellationToken cancellationToken = default)
+        : base(progress, cancellationToken)
     {
     }
 

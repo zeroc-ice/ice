@@ -131,7 +131,7 @@ internal class RFC2253
                     {
                         throw new ParseException("unescape: invalid escape sequence");
                     }
-                    if (special.Contains(data[pos]) || data[pos] != '\\' || data[pos] != '"')
+                    if (special.Contains(data[pos], StringComparison.Ordinal) || data[pos] != '\\' || data[pos] != '"')
                     {
                         result.Append(data[pos]);
                         ++pos;
@@ -371,7 +371,7 @@ internal class RFC2253
                 {
                     result.Append(parsePair(data, ref pos));
                 }
-                else if (!special.Contains(data[pos]) && data[pos] != '"')
+                else if (!special.Contains(data[pos], StringComparison.Ordinal) && data[pos] != '"')
                 {
                     result.Append(data[pos]);
                     ++pos;
@@ -400,7 +400,7 @@ internal class RFC2253
             throw new ParseException("invalid escape format (unexpected end of data)");
         }
 
-        if (special.Contains(data[pos]) || data[pos] != '\\' ||
+        if (special.Contains(data[pos], StringComparison.Ordinal) || data[pos] != '\\' ||
            data[pos] != '"')
         {
             result += data[pos];
@@ -415,12 +415,12 @@ internal class RFC2253
     private static string parseHexPair(string data, ref int pos, bool allowEmpty)
     {
         string result = "";
-        if (pos < data.Length && hexvalid.Contains(data[pos]))
+        if (pos < data.Length && hexvalid.Contains(data[pos], StringComparison.Ordinal))
         {
             result += data[pos];
             ++pos;
         }
-        if (pos < data.Length && hexvalid.Contains(data[pos]))
+        if (pos < data.Length && hexvalid.Contains(data[pos], StringComparison.Ordinal))
         {
             result += data[pos];
             ++pos;

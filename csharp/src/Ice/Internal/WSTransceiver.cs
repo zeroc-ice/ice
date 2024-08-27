@@ -9,8 +9,6 @@ namespace Ice.Internal;
 
 internal sealed class WSTransceiver : Transceiver
 {
-    public bool isWaitingToBeRead => _readBuffer.b.position() > _readBufferPos || _delegate.isWaitingToBeRead;
-
     public Socket fd()
     {
         return _delegate.fd();
@@ -566,8 +564,11 @@ internal sealed class WSTransceiver : Transceiver
         postRead(buf);
     }
 
-    public bool startWrite(Buffer buf, AsyncCallback callback, object state,
-                           out bool completed)
+    public bool startWrite(
+        Buffer buf,
+        AsyncCallback callback,
+        object state,
+        out bool completed)
     {
         _writePending = true;
         if (_state < StateOpened)
@@ -801,7 +802,7 @@ internal sealed class WSTransceiver : Transceiver
             }
             foreach (string p in protocols)
             {
-                if (!p.Trim().Equals(_iceProtocol))
+                if (!p.Trim().Equals(_iceProtocol, StringComparison.Ordinal))
                 {
                     throw new WebSocketException("unknown value `" + p + "' for WebSocket protocol");
                 }
@@ -935,7 +936,7 @@ internal sealed class WSTransceiver : Transceiver
         //  the WebSocket Connection_."
         //
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
-        if (val != null && !val.Equals(_iceProtocol))
+        if (val != null && !val.Equals(_iceProtocol, StringComparison.Ordinal))
         {
             throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
         }
@@ -957,7 +958,7 @@ internal sealed class WSTransceiver : Transceiver
 
         string input = _key + _wsUUID;
         byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
-        if (!val.Equals(Convert.ToBase64String(hash)))
+        if (!val.Equals(Convert.ToBase64String(hash), StringComparison.Ordinal))
         {
             throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
         }
@@ -1191,8 +1192,12 @@ internal sealed class WSTransceiver : Transceiver
                 if (_readPayloadLength > 0 && _readOpCode == OP_PING)
                 {
                     _pingPayload = new byte[_readPayloadLength];
-                    System.Buffer.BlockCopy(_readBuffer.b.rawBytes(), _readBufferPos, _pingPayload, 0,
-                                            _readPayloadLength);
+                    System.Buffer.BlockCopy(
+                        _readBuffer.b.rawBytes(),
+                        _readBufferPos,
+                        _pingPayload,
+                        0,
+                        _readPayloadLength);
                 }
 
                 _readBufferPos += _readPayloadLength;
@@ -1237,8 +1242,12 @@ internal sealed class WSTransceiver : Transceiver
                 }
                 if (n > 0)
                 {
-                    System.Buffer.BlockCopy(_readBuffer.b.rawBytes(), _readBufferPos, buf.b.rawBytes(),
-                                            buf.b.position(), n);
+                    System.Buffer.BlockCopy(
+                        _readBuffer.b.rawBytes(),
+                        _readBufferPos,
+                        buf.b.rawBytes(),
+                        buf.b.position(),
+                        n);
                     buf.b.position(buf.b.position() + n);
                     _readBufferPos += n;
                 }

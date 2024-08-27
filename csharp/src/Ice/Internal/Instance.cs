@@ -646,7 +646,7 @@ public sealed class Instance
                     }
                     if (stdErr.Length > 0)
                     {
-                        if (stdErr.Equals(stdOut))
+                        if (stdErr.Equals(stdOut, StringComparison.Ordinal))
                         {
                             Console.SetError(outStream);
                         }
@@ -702,8 +702,7 @@ public sealed class Instance
             _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
 
             {
-                int num =
-                    _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
+                int num = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
                 if (num < 1 || num > 0x7fffffff / 1024)
                 {
                     _messageSizeMax = 0x7fffffff;
@@ -1429,7 +1428,11 @@ public sealed class Instance
 
             inactivityTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
                 $"{propertyPrefix}.InactivityTimeout",
-                (int)_serverConnectionOptions.inactivityTimeout.TotalSeconds)));
+                (int)_serverConnectionOptions.inactivityTimeout.TotalSeconds)),
+
+            maxDispatches: properties.getPropertyAsIntWithDefault(
+                $"{propertyPrefix}.MaxDispatches",
+                _serverConnectionOptions.maxDispatches));
     }
 
     internal ConnectionOptions clientConnectionOptions { get; private set; } = null!; // set in initialize
@@ -1472,7 +1475,9 @@ public sealed class Instance
             closeTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.CloseTimeout")),
             idleTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.IdleTimeout")),
             enableIdleCheck: properties.getIcePropertyAsInt($"{propertyPrefix}.EnableIdleCheck") > 0,
-            inactivityTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.InactivityTimeout")));
+            inactivityTimeout:
+                TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.InactivityTimeout")),
+            maxDispatches: properties.getIcePropertyAsInt($"{propertyPrefix}.MaxDispatches"));
     }
 
     private const int StateActive = 0;

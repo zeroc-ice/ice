@@ -58,7 +58,7 @@ internal sealed class EndpointI : Ice.Internal.EndpointI
 
     public override Ice.Internal.EndpointI connectionId(string connectionId)
     {
-        if (connectionId.Equals(_delegate.connectionId()))
+        if (connectionId.Equals(_delegate.connectionId(), StringComparison.Ordinal))
         {
             return this;
         }
