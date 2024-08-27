@@ -202,7 +202,7 @@ public class AllTests {
     @Override
     public void run() {
       if (proxy.ice_getCachedConnection() != null) {
-        proxy.ice_getCachedConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+        proxy.ice_getCachedConnection().close();
       }
 
       try {
@@ -211,7 +211,7 @@ public class AllTests {
       }
 
       if (proxy.ice_getCachedConnection() != null) {
-        proxy.ice_getCachedConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+        proxy.ice_getCachedConnection().close();
       }
     }
 
@@ -407,11 +407,8 @@ public class AllTests {
     test(r.returnValue.get("Dispatch")[0].id.indexOf("[ice_ping]") > 0);
 
     if (!collocated) {
-      metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
-      metrics
-          .ice_connectionId("Con1")
-          .ice_getConnection()
-          .close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+      metrics.ice_getConnection().close();
+      metrics.ice_connectionId("Con1").ice_getConnection().close();
 
       waitForCurrent(clientMetrics, "View", "Connection", 0);
       waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -527,14 +524,26 @@ public class AllTests {
       map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("holding").current == 1);
 
-      metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+      // `close` blocks the calling thread until the connection closure is complete.
+      // So, to test the `Closing` state, we call `close` in a new thread, and wait a little.
+      var closureThread = new Thread(() -> metrics.ice_getConnection().close());
+      closureThread.start();
+      try {
+        Thread.sleep(50);
+      } catch (InterruptedException ex) {
+      }
 
       map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("closing").current == 1);
       map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("holding").current == 1);
 
+      // Wait for the connection closure thread to finish, so we're in a known state again.
       controller.resume();
+      try {
+        closureThread.join();
+      } catch (InterruptedException ex) {
+      }
 
       map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("holding").current == 0);
@@ -542,14 +551,7 @@ public class AllTests {
       props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "none");
       updateProps(clientProps, serverProps, props, "Connection");
 
-      metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
-
-      // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the
-      // connection.
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException ex) {
-      }
+      metrics.ice_getConnection().close();
 
       MetricsPrx m = metrics.ice_connectionId("Con1");
       m.ice_ping();
@@ -577,7 +579,7 @@ public class AllTests {
       testAttribute(clientMetrics, clientProps, "Connection", "mcastHost", "", out);
       testAttribute(clientMetrics, clientProps, "Connection", "mcastPort", "", out);
 
-      m.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+      m.ice_getConnection().close();
 
       waitForCurrent(clientMetrics, "View", "Connection", 0);
       waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -602,7 +604,7 @@ public class AllTests {
           clientMetrics.getMetricsView("View").returnValue.get("ConnectionEstablishment")[0];
       test(m1.current == 0 && m1.total == 1 && m1.id.equals(hostAndPort));
 
-      metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+      metrics.ice_getConnection().close();
       controller.hold();
       try {
         communicator.stringToProxy("test:" + endpoint).ice_connectionId("con2").ice_ping();
@@ -693,7 +695,7 @@ public class AllTests {
               "metrics:" + protocol + " -p " + port + " -h localhost -t 500");
       try {
         prx.ice_ping();
-        prx.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+        prx.ice_getConnection().close();
       } catch (com.zeroc.Ice.LocalException ex) {
       }
 
