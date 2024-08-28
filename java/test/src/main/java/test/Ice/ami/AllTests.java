@@ -958,21 +958,36 @@ public class AllTests {
         // side. There will be no retry and we expect the invocation to fail with
         // ConnectionAbortedException.
         //
+        try { out.println("=== 1 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
         p.ice_ping();
+        try { out.println("=== 2 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
         com.zeroc.Ice.Connection con = p.ice_getConnection();
+        try { out.println("=== 3 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
         CompletableFuture<Void> f = p.startDispatchAsync();
+        try { out.println("=== 4 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
         Util.getInvocationFuture(f)
             .waitForSent(); // Ensure the request was sent before we close the connection
+        try { out.println("=== 5 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
         con.abort();
+        try { out.println("=== 6 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
         try {
+          try { out.println("=== 7 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
           f.join();
+          try { out.println("=== 8 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
           test(false);
+          try { out.println("=== 9 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
         } catch (CompletionException ex) {
+          try { out.println("=== 10 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex1) {ex1.printStackTrace(); }
           test(ex.getCause() instanceof com.zeroc.Ice.ConnectionAbortedException);
+          try { out.println("=== 11 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex1) {ex1.printStackTrace(); }
           test(((com.zeroc.Ice.ConnectionAbortedException) ex.getCause()).closedByApplication);
+          try { out.println("=== 12 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex1) {ex1.printStackTrace(); }
         } catch (Throwable ex) {
+          try { out.println("=== 13 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex1) {ex1.printStackTrace(); }
           test(false);
+          try { out.println("=== 14 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex1) {ex1.printStackTrace(); }
         }
+        try { out.println("=== 15 ==="); out.flush(); Thread.sleep(100); } catch (Exception ex) {ex.printStackTrace(); }
         p.finishDispatch();
 
         //

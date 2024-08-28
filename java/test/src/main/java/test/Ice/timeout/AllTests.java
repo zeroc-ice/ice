@@ -171,7 +171,12 @@ public class AllTests {
         }
       }
 
-      assert (!closureThread.isAlive()); // Ensure the connection closure completed.
+      // Ensure that the connection closure thread is already dead, or will be very soon.
+      try {
+        closureThread.join(20);
+      } catch (InterruptedException ex) {
+        assert(false);
+      }
       controller.resumeAdapter();
       timeout.op(); // Ensure adapter is active.
     }

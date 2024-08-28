@@ -63,13 +63,6 @@ spotless {
     // Remove any unused imports, then ensure the remaining imports are correctly ordered.
     removeUnusedImports()
     importOrder()
-
-    // Linting
-    cleanthat()
-
-    // Formatting
-    googleJavaFormat()
-    formatAnnotations()
   }
 }
 

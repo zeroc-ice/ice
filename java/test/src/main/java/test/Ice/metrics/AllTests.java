@@ -524,13 +524,15 @@ public class AllTests {
       map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("holding").current == 1);
 
-      // `close` blocks the calling thread until the connection closure is complete.
-      // So, to test the `Closing` state, we call `close` in a new thread, and wait a little.
-      var closureThread = new Thread(() -> metrics.ice_getConnection().close());
-      closureThread.start();
+      // Calling `close` on a Connection blocks the calling thread until the closure is complete.
+      // At which point the connection is in the `Closed` state. So to test the `Closing` state,
+      // we directly call `doApplicationClose` to _initiate_ a closure, without having to wait.
       try {
-        Thread.sleep(50);
-      } catch (InterruptedException ex) {
+        var method = com.zeroc.Ice.ConnectionI.class.getDeclaredMethod("doApplicationClose");
+        method.setAccessible(true); // Transform a `private` method into a `public` one.
+        method.invoke(metrics.ice_getConnection());
+      } catch (ReflectiveOperationException | SecurityException ex) {
+        assert(false);
       }
 
       map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));
@@ -538,12 +540,7 @@ public class AllTests {
       map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("holding").current == 1);
 
-      // Wait for the connection closure thread to finish, so we're in a known state again.
       controller.resume();
-      try {
-        closureThread.join();
-      } catch (InterruptedException ex) {
-      }
 
       map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("holding").current == 0);

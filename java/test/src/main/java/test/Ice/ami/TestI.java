@@ -152,15 +152,22 @@ public class TestI implements TestIntf {
   @Override
   public synchronized CompletionStage<Void> startDispatchAsync(com.zeroc.Ice.Current current) {
     if (_shutdown) {
+      System.err.println("----- 1 -----");
       // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
       // before start dispatch.
       CompletableFuture<Void> v = new CompletableFuture<>();
+      System.err.println("----- 2 -----");
       v.complete(null);
+      System.err.println("----- 3 -----");
       return v;
     } else if (_pending != null) {
+      System.err.println("----- 4 -----");
       _pending.complete(null);
+      System.err.println("----- 5 -----");
     }
+    System.err.println("----- 6 -----");
     _pending = new CompletableFuture<>();
+    System.err.println("----- 7 -----");
     return _pending;
   }
 
