@@ -251,14 +251,14 @@ public abstract class IPEndpointI : EndpointI
         return hash.ToHashCode();
     }
 
-    public override int CompareTo(EndpointI obj)
+    public override int CompareTo(EndpointI other)
     {
-        if (!(obj is IPEndpointI))
+        if (!(other is IPEndpointI))
         {
-            return type() < obj.type() ? -1 : 1;
+            return type() < other.type() ? -1 : 1;
         }
 
-        IPEndpointI p = (IPEndpointI)obj;
+        IPEndpointI p = (IPEndpointI)other;
         if (this == p)
         {
             return 0;

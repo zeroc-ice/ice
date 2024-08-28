@@ -517,10 +517,10 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
     /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
     /// </summary>
-    /// <param name="obj">The proxy to compare this proxy with.</param>
+    /// <param name="other">The proxy to compare this proxy with.</param>
     /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
-    public bool Equals(ObjectPrx? obj) =>
-        obj is not null && _reference == ((ObjectPrxHelperBase)obj)._reference;
+    public bool Equals(ObjectPrx? other) =>
+        other is not null && _reference == ((ObjectPrxHelperBase)other)._reference;
 
     public override bool Equals(object? obj) => Equals(obj as ObjectPrx);
 

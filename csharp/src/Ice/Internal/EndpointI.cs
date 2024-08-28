@@ -152,7 +152,7 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
     //
     public abstract bool equivalent(EndpointI endpoint);
 
-    public abstract int CompareTo(EndpointI obj);
+    public abstract int CompareTo(EndpointI other);
 
     public abstract string options();
 

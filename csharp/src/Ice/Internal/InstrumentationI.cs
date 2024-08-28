@@ -700,9 +700,9 @@ public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
         _size = size;
     }
 
-    public override void initMetrics(RemoteMetrics v)
+    public override void initMetrics(RemoteMetrics metrics)
     {
-        v.size += _size;
+        metrics.size += _size;
     }
 
     public string getId()
@@ -792,9 +792,9 @@ public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
         _size = size;
     }
 
-    public override void initMetrics(CollocatedMetrics v)
+    public override void initMetrics(CollocatedMetrics metrics)
     {
-        v.size += _size;
+        metrics.size += _size;
     }
 
     public string getId()
