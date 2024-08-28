@@ -2,6 +2,7 @@
 
 from Util import (
     ClientServerTestCase,
+    TestSuite,
 )
 
 # Enable some tracing to allow investigating test failures
