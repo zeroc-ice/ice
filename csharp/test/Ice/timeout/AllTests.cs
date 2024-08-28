@@ -156,22 +156,20 @@ public class AllTests : global::Test.AllTests
             {
                 test(false);
             }
-            while (true)
-            {
-                try
-                {
-                    connection.getInfo();
-                    Thread.Sleep(10);
-                }
-                catch (CloseTimeoutException)
-                {
-                    // Expected.
-                    break;
-                }
-            }
+
             try
             {
-                await closeTask;
+                await closeTask; // wait for close to complete
+                test(false);
+            }
+            catch (CloseTimeoutException)
+            {
+                // Expected.
+            }
+
+            try
+            {
+                connection.getInfo();
                 test(false);
             }
             catch (CloseTimeoutException)

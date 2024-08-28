@@ -2459,7 +2459,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   private synchronized void closeTimedOut() {
     if (_state < StateClosed) {
-      setState(StateClosed, new CloseTimeoutException());
+      // We don't use setState(state, exception) because we want to overwrite the exception set by a
+      // graceful closure.
+      _exception = new CloseTimeoutException();
+      setState(StateClosed);
     }
     // else ignore since we're already closed.
   }

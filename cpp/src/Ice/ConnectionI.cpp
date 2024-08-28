@@ -2363,7 +2363,10 @@ Ice::ConnectionI::closeTimedOut() noexcept
     std::lock_guard lock(_mutex);
     if (_state < StateClosed)
     {
-        setState(StateClosed, make_exception_ptr(CloseTimeoutException(__FILE__, __LINE__)));
+        // We don't use setState(state, exception) because we want to overwrite the exception set by a
+        // graceful closure.
+        _exception = make_exception_ptr(CloseTimeoutException{__FILE__, __LINE__});
+        setState(StateClosed);
     }
     // else ignore since we're already closed.
 }

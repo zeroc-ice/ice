@@ -142,7 +142,17 @@ public class AllTests {
       controller.holdAdapter(-1);
 
       // Initiate the connection closure.
-      var closureThread = new Thread(() -> connection.close());
+      var closureThread =
+          new Thread(
+              () -> {
+                try {
+                  connection.close();
+                  test(false);
+                } catch (com.zeroc.Ice.CloseTimeoutException ex) {
+                  // Expected.
+                }
+              });
+
       closureThread.start();
       try {
         Thread.sleep(50);
@@ -156,22 +166,17 @@ public class AllTests {
         test(false);
       }
 
-      // We wait for the connection closure to timeout, at which point `getInfo` will throw.
-      while (true) {
-        try {
-          connection.getInfo();
-          try {
-            Thread.sleep(10);
-          } catch (java.lang.InterruptedException ex) {
-          }
-        } catch (com.zeroc.Ice.ConnectionClosedException ex) {
-          // Expected.
-          test(ex.closedByApplication);
-          break;
-        }
+      try {
+        closureThread.join(); // Ensure the connection closure completed.
+      } catch (java.lang.InterruptedException ex) {
       }
 
-      assert (!closureThread.isAlive()); // Ensure the connection closure completed.
+      try {
+        connection.getInfo();
+      } catch (com.zeroc.Ice.CloseTimeoutException ex) {
+        // Expected.
+      }
+
       controller.resumeAdapter();
       timeout.op(); // Ensure adapter is active.
     }
