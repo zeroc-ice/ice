@@ -97,7 +97,16 @@ testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max)
     connectionList.pop_back();
 
     // Try again
-    p->ice_ping();
+    try
+    {
+        p->ice_ping();
+    }
+    catch (const Ice::ConnectionLostException& ex)
+    {
+        cout << "Unexpected exception: " << ex << endl;
+        test(false);
+    }
+
     connectionList.push_back(p->ice_getCachedConnection());
 
     // Close all connections
