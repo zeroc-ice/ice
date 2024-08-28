@@ -181,7 +181,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             connection->getInfo();
             test(false);
         }
-        catch (const Ice::CloseTimeoutException& ex)
+        catch (const Ice::CloseTimeoutException&)
         {
             // Expected.
         }
