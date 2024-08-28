@@ -25,6 +25,12 @@ runs:
       shell: powershell
       if: runner.os == 'Windows'
 
+    - name: Upload test logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-logs
+        path: ${{ inputs.working_directory }}/**/*.log
+
     - name: Test Summary
       uses: test-summary/action@v2
       with:
