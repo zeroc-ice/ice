@@ -484,12 +484,6 @@ Ice::SSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
     return IceInternal::SocketOperationNone;
 }
 
-bool
-Ice::SSL::SecureTransport::TransceiverI::isWaitingToBeRead() const noexcept
-{
-    return _delegate->isWaitingToBeRead();
-}
-
 string
 Ice::SSL::SecureTransport::TransceiverI::protocol() const
 {

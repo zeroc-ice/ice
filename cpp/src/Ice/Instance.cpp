@@ -514,6 +514,10 @@ IceInternal::Instance::serverConnectionOptions(const string& adapterName) const
         propertyPrefix + ".InactivityTimeout",
         static_cast<int>(_serverConnectionOptions.inactivityTimeout.count())));
 
+    connectionOptions.maxDispatches = properties->getPropertyAsIntWithDefault(
+        propertyPrefix + ".MaxDispatches",
+        _serverConnectionOptions.maxDispatches);
+
     return connectionOptions;
 }
 
@@ -1851,6 +1855,8 @@ IceInternal::Instance::readConnectionOptions(const string& propertyPrefix) const
 
     connectionOptions.inactivityTimeout =
         chrono::seconds(properties->getIcePropertyAsInt(propertyPrefix + ".InactivityTimeout"));
+
+    connectionOptions.maxDispatches = properties->getIcePropertyAsInt(propertyPrefix + ".MaxDispatches");
 
     return connectionOptions;
 }

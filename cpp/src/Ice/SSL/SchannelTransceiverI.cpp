@@ -909,12 +909,6 @@ Schannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
     }
 }
 
-bool
-Schannel::TransceiverI::isWaitingToBeRead() const noexcept
-{
-    return _delegate->isWaitingToBeRead();
-}
-
 string
 Schannel::TransceiverI::protocol() const
 {

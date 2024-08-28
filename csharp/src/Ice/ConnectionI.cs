@@ -1674,7 +1674,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         return;
                     }
 
-                    if (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)
+                    if (_state == StateActive && (_maxDispatches <= 0 || _dispatchCount < _maxDispatches))
                     {
                         _threadPool.unregister(this, SocketOperation.Read);
                         _idleTimeoutTransceiver?.disableIdleCheck();

@@ -21,11 +21,9 @@ namespace IceInternal
         IdleTimeoutTransceiverDecorator(
             const TransceiverPtr& decoratee,
             const std::chrono::seconds& idleTimeout,
-            bool enableIdleCheck,
             const Ice::TimerPtr& timer)
             : _decoratee(decoratee),
               _idleTimeout(idleTimeout),
-              _enableIdleCheck(enableIdleCheck),
               _timer(timer)
         {
             assert(_decoratee->protocol() != "udp");
@@ -34,7 +32,7 @@ namespace IceInternal
         ~IdleTimeoutTransceiverDecorator();
 
         // Set the timer tasks immediately after construction. Must be called only once.
-        void decoratorInit(const Ice::ConnectionIPtr&);
+        void decoratorInit(const Ice::ConnectionIPtr& connection, bool enableIdleCheck);
 
         NativeInfoPtr getNativeInfo() final { return _decoratee->getNativeInfo(); }
 
@@ -59,7 +57,6 @@ namespace IceInternal
         void finishRead(Buffer& buf) final;
 #endif
 
-        bool isWaitingToBeRead() const noexcept final { return _decoratee->isWaitingToBeRead(); }
         std::string protocol() const final { return _decoratee->protocol(); }
         std::string toString() const final { return _decoratee->toString(); }
         std::string toDetailedString() const final { return _decoratee->toDetailedString(); }
@@ -67,11 +64,16 @@ namespace IceInternal
         void checkSendSize(const Buffer& buf) final { _decoratee->checkSendSize(buf); };
         void setBufferSize(int rcvSize, int sndSize) final { _decoratee->setBufferSize(rcvSize, sndSize); }
 
+        bool idleCheckEnabled() const noexcept { return _idleCheckEnabled; }
+        void enableIdleCheck();
+        void disableIdleCheck();
+
     private:
         const TransceiverPtr _decoratee;
         const std::chrono::seconds _idleTimeout;
-        const bool _enableIdleCheck;
         const Ice::TimerPtr _timer;
+
+        bool _idleCheckEnabled = false;
 
         // Set by decoratorInit
         Ice::TimerTaskPtr _heartbeatTimerTask;
