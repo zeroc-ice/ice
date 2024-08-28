@@ -75,8 +75,9 @@ public sealed class PluginI : Ice.Plugin
 
         if (properties.getIceProperty("IceDiscovery.Reply.Endpoints").Length == 0)
         {
-            properties.setProperty("IceDiscovery.Reply.Endpoints",
-                                   "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
+            properties.setProperty(
+                "IceDiscovery.Reply.Endpoints",
+                "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
         }
 
         if (properties.getIceProperty("IceDiscovery.Locator.Endpoints").Length == 0)

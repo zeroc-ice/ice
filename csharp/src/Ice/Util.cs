@@ -513,8 +513,9 @@ public sealed class Util
         new ProtocolVersion(Ice.Internal.Protocol.protocolMajor, Ice.Internal.Protocol.protocolMinor);
 
     public static readonly EncodingVersion currentProtocolEncoding =
-        new EncodingVersion(Ice.Internal.Protocol.protocolEncodingMajor,
-                            Ice.Internal.Protocol.protocolEncodingMinor);
+        new EncodingVersion(
+            Ice.Internal.Protocol.protocolEncodingMajor,
+            Ice.Internal.Protocol.protocolEncodingMinor);
 
     public static readonly EncodingVersion currentEncoding =
         new EncodingVersion(Ice.Internal.Protocol.encodingMajor, Ice.Internal.Protocol.encodingMinor);

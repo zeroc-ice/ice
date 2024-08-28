@@ -74,7 +74,8 @@ public class MetricsHelper<T> where T : Metrics
 
         private class FieldResolverI : Resolver
         {
-            internal FieldResolverI(string name, System.Reflection.FieldInfo field) : base(name)
+            internal FieldResolverI(string name, System.Reflection.FieldInfo field)
+                : base(name)
             {
                 Debug.Assert(field != null);
                 _field = field;
@@ -90,7 +91,8 @@ public class MetricsHelper<T> where T : Metrics
 
         private class MethodResolverI : Resolver
         {
-            internal MethodResolverI(string name, System.Reflection.MethodInfo method) : base(name)
+            internal MethodResolverI(string name, System.Reflection.MethodInfo method)
+                : base(name)
             {
                 Debug.Assert(method != null);
                 _method = method;

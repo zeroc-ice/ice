@@ -21,11 +21,12 @@ public interface Plugin : Ice.Plugin
 
 internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
 {
-    public Request(LocatorI locator,
-                   string operation,
-                   Ice.OperationMode mode,
-                   byte[] inParams,
-                   Dictionary<string, string> context)
+    public Request(
+        LocatorI locator,
+        string operation,
+        Ice.OperationMode mode,
+        byte[] inParams,
+        Dictionary<string, string> context)
     {
         _locator = locator;
         _operation = operation;
@@ -264,8 +265,9 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             {
                 if (_traceLevel > 2)
                 {
-                    _lookup.ice_getCommunicator().getLogger().trace("Lookup",
-                                                                    "ignoring locator reply: (null locator)");
+                    _lookup.ice_getCommunicator().getLogger().trace(
+                        "Lookup",
+                        "ignoring locator reply: (null locator)");
                 }
                 return;
             }
@@ -695,8 +697,9 @@ internal class PluginI : Ice.Plugin
 
         if (properties.getProperty(_name + ".Reply.Endpoints").Length == 0)
         {
-            properties.setProperty(_name + ".Reply.Endpoints",
-                                   "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
+            properties.setProperty(
+                _name + ".Reply.Endpoints",
+                "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
         }
 
         if (properties.getProperty(_name + ".Locator.Endpoints").Length == 0)

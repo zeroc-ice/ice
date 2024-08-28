@@ -11,97 +11,107 @@ internal static class SafeNativeMethods
     internal static extern IntPtr windowsBZ2_bzlibVersion();
 
     [DllImport("bzip2.dll", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
-    internal static extern int windowsBZ2_bzBuffToBuffCompress(byte[] dest,
-                                                               ref int destLen,
-                                                               byte[] source,
-                                                               int sourceLen,
-                                                               int blockSize100k,
-                                                               int verbosity,
-                                                               int workFactor);
+    internal static extern int windowsBZ2_bzBuffToBuffCompress(
+        byte[] dest,
+        ref int destLen,
+        byte[] source,
+        int sourceLen,
+        int blockSize100k,
+        int verbosity,
+        int workFactor);
 
     [DllImport("bzip2.dll", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-    internal static extern int windowsBZ2_bzBuffToBuffDecompress(byte[] dest,
-                                                                 ref int destLen,
-                                                                 byte[] source,
-                                                                 int sourceLen,
-                                                                 int small,
-                                                                 int verbosity);
+    internal static extern int windowsBZ2_bzBuffToBuffDecompress(
+        byte[] dest,
+        ref int destLen,
+        byte[] source,
+        int sourceLen,
+        int small,
+        int verbosity);
 
     [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
     internal static extern IntPtr unixBZ2_1_bzlibVersion();
 
     [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
-    internal static extern int unixBZ2_1_bzBuffToBuffCompress(byte[] dest,
-                                                              ref int destLen,
-                                                              byte[] source,
-                                                              int sourceLen,
-                                                              int blockSize100k,
-                                                              int verbosity,
-                                                              int workFactor);
+    internal static extern int unixBZ2_1_bzBuffToBuffCompress(
+        byte[] dest,
+        ref int destLen,
+        byte[] source,
+        int sourceLen,
+        int blockSize100k,
+        int verbosity,
+        int workFactor);
 
     [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-    internal static extern int unixBZ2_1_bzBuffToBuffDecompress(byte[] dest,
-                                                                ref int destLen,
-                                                                byte[] source,
-                                                                int sourceLen,
-                                                                int small,
-                                                                int verbosity);
+    internal static extern int unixBZ2_1_bzBuffToBuffDecompress(
+        byte[] dest,
+        ref int destLen,
+        byte[] source,
+        int sourceLen,
+        int small,
+        int verbosity);
 
     [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
     internal static extern IntPtr unixBZ2_10_bzlibVersion();
 
     [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
-    internal static extern int unixBZ2_10_bzBuffToBuffCompress(byte[] dest,
-                                                               ref int destLen,
-                                                               byte[] source,
-                                                               int sourceLen,
-                                                               int blockSize100k,
-                                                               int verbosity,
-                                                               int workFactor);
+    internal static extern int unixBZ2_10_bzBuffToBuffCompress(
+        byte[] dest,
+        ref int destLen,
+        byte[] source,
+        int sourceLen,
+        int blockSize100k,
+        int verbosity,
+        int workFactor);
 
     [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-    internal static extern int unixBZ2_10_bzBuffToBuffDecompress(byte[] dest,
-                                                                 ref int destLen,
-                                                                 byte[] source,
-                                                                 int sourceLen,
-                                                                 int small,
-                                                                 int verbosity);
+    internal static extern int unixBZ2_10_bzBuffToBuffDecompress(
+        byte[] dest,
+        ref int destLen,
+        byte[] source,
+        int sourceLen,
+        int small,
+        int verbosity);
 
     [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
     internal static extern IntPtr macOSBZ2_bzlibVersion();
 
     [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
-    internal static extern int macOSBZ2_bzBuffToBuffCompress(byte[] dest,
-                                                             ref int destLen,
-                                                             byte[] source,
-                                                             int sourceLen,
-                                                             int blockSize100k,
-                                                             int verbosity,
-                                                             int workFactor);
+    internal static extern int macOSBZ2_bzBuffToBuffCompress(
+        byte[] dest,
+        ref int destLen,
+        byte[] source,
+        int sourceLen,
+        int blockSize100k,
+        int verbosity,
+        int workFactor);
 
     [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-    internal static extern int macOSBZ2_bzBuffToBuffDecompress(byte[] dest,
-                                                               ref int destLen,
-                                                               byte[] source,
-                                                               int sourceLen,
-                                                               int small,
-                                                               int verbosity);
+    internal static extern int macOSBZ2_bzBuffToBuffDecompress(
+        byte[] dest,
+        ref int destLen,
+        byte[] source,
+        int sourceLen,
+        int small,
+        int verbosity);
 }
 
-internal delegate int CompressBuffer(byte[] dest,
-                            ref int destLen,
-                            byte[] source,
-                            int sourceLen,
-                            int blockSize100k,
-                            int verbosity,
-                            int workFactor);
+internal delegate int CompressBuffer(
+    byte[] dest,
+    ref int destLen,
+    byte[] source,
+    int sourceLen,
+    int blockSize100k,
+    int verbosity,
+    int workFactor);
 
-internal delegate int DecompressBuffer(byte[] dest,
-                              ref int destLen,
-                              byte[] source,
-                              int sourceLen,
-                              int small,
-                              int verbosity);
+internal delegate int DecompressBuffer(
+    byte[] dest,
+    ref int destLen,
+    byte[] source,
+    int sourceLen,
+    int small,
+    int verbosity);
 
 public static class BZip2
 {

@@ -147,10 +147,11 @@ public sealed class Timer
         lock (_mutex)
         {
             Debug.Assert(obsv != null);
-            _observer = obsv.getThreadObserver("Communicator",
-                                               _thread.Name,
-                                               Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                               _observer);
+            _observer = obsv.getThreadObserver(
+                "Communicator",
+                _thread.Name,
+                Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                _observer);
             if (_observer != null)
             {
                 _observer.attach();
@@ -238,16 +239,18 @@ public sealed class Timer
                     Ice.Instrumentation.ThreadObserver threadObserver = _observer;
                     if (threadObserver != null)
                     {
-                        threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                                    Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                        threadObserver.stateChanged(
+                            Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                            Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                         try
                         {
                             token.task.runTimerTask();
                         }
                         finally
                         {
-                            threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
-                                                        Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                            threadObserver.stateChanged(
+                                Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                                Ice.Instrumentation.ThreadState.ThreadStateIdle);
                         }
                     }
                     else

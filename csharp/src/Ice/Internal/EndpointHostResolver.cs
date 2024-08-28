@@ -118,8 +118,9 @@ public class EndpointHostResolver
 
             if (threadObserver != null)
             {
-                threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                            Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                threadObserver.stateChanged(
+                    Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                    Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
             }
 
             try
@@ -158,8 +159,9 @@ public class EndpointHostResolver
             {
                 if (threadObserver != null)
                 {
-                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
-                                                Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                    threadObserver.stateChanged(
+                        Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                        Ice.Instrumentation.ThreadState.ThreadStateIdle);
                 }
             }
         }
@@ -190,10 +192,11 @@ public class EndpointHostResolver
             Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
             if (obsv != null)
             {
-                _observer = obsv.getThreadObserver("Communicator",
-                                                   _thread.getName(),
-                                                   Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                                   _observer);
+                _observer = obsv.getThreadObserver(
+                    "Communicator",
+                    _thread.getName(),
+                    Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                    _observer);
                 if (_observer != null)
                 {
                     _observer.attach();

@@ -50,8 +50,9 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                 throw new Ice.RemoteLoggerAlreadyAttachedException();
             }
 
-            _remoteLoggerMap.Add(remoteLoggerId,
-                                 new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
+            _remoteLoggerMap.Add(
+                remoteLoggerId,
+                new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
 
             if (messageMax != 0)
             {
@@ -412,7 +413,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             for (int i = 0; i < extraProps.Length; ++i)
             {
                 string p = extraProps[i];
-                if (!p.StartsWith("--"))
+                if (!p.StartsWith("--", StringComparison.Ordinal))
                 {
                     extraProps[i] = "--" + p;
                 }

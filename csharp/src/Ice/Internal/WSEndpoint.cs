@@ -329,7 +329,8 @@ internal sealed class WSEndpoint : EndpointI
 
 public class WSEndpointFactory : EndpointFactoryWithUnderlying
 {
-    public WSEndpointFactory(ProtocolInstance instance, short type) : base(instance, type)
+    public WSEndpointFactory(ProtocolInstance instance, short type)
+        : base(instance, type)
     {
     }
 

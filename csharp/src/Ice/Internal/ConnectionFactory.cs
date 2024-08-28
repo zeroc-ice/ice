@@ -499,10 +499,11 @@ public sealed class OutgoingConnectionFactory
         }
     }
 
-    private void finishGetConnection(List<ConnectorInfo> connectors,
-                                     ConnectorInfo ci,
-                                     Ice.ConnectionI connection,
-                                     ConnectCallback cb)
+    private void finishGetConnection(
+        List<ConnectorInfo> connectors,
+        ConnectorInfo ci,
+        Ice.ConnectionI connection,
+        ConnectCallback cb)
     {
         HashSet<ConnectCallback> connectionCallbacks = new HashSet<ConnectCallback>();
         if (cb != null)
@@ -959,8 +960,9 @@ public sealed class OutgoingConnectionFactory
                     Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
                     if (obsv != null)
                     {
-                        _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
-                                                                            _current.connector.ToString());
+                        _observer = obsv.getConnectionEstablishmentObserver(
+                            _current.endpoint,
+                            _current.connector.ToString());
                         if (_observer != null)
                         {
                             _observer.attach();

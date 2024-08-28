@@ -283,10 +283,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
 
             Debug.Assert(_instance.initializationData().observer is not null);
-            _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(),
-                                                                                      _endpoint,
-                                                                                      toConnectionState(_state),
-                                                                                      _observer);
+            _observer = _instance.initializationData().observer.getConnectionObserver(
+                initConnectionInfo(),
+                _endpoint,
+                toConnectionState(_state),
+                _observer);
             if (_observer is not null)
             {
                 _observer.attach();
@@ -407,9 +408,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public Task flushBatchRequestsAsync(CompressBatch compress,
-                                        IProgress<bool> progress = null,
-                                        CancellationToken cancel = default)
+    public Task flushBatchRequestsAsync(
+        CompressBatch compress,
+        IProgress<bool> progress = null,
+        CancellationToken cancel = default)
     {
         var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
         var outgoing = new ConnectionFlushBatchAsync(this, _instance, completed);
@@ -427,18 +429,19 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 if (callback is not null)
                 {
-                    _threadPool.execute(() =>
-                    {
-                        try
+                    _threadPool.execute(
+                        () =>
                         {
-                            callback(this);
-                        }
-                        catch (System.Exception ex)
-                        {
-                            _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
-                        }
-                    },
-                    this);
+                            try
+                            {
+                                callback(this);
+                            }
+                            catch (System.Exception ex)
+                            {
+                                _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
+                            }
+                        },
+                        this);
                 }
             }
             else
@@ -1735,10 +1738,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             ConnectionState newState = toConnectionState(state);
             if (oldState != newState)
             {
-                _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(),
-                                                                                          _endpoint,
-                                                                                          newState,
-                                                                                          _observer);
+                _observer = _instance.initializationData().observer.getConnectionObserver(
+                    initConnectionInfo(),
+                    _endpoint,
+                    newState,
+                    _observer);
                 if (_observer is not null)
                 {
                     _observer.attach();

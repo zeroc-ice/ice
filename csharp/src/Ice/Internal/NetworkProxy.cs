@@ -136,12 +136,13 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
     public NetworkProxy resolveHost(int protocolSupport)
     {
         Debug.Assert(_host != null);
-        return new SOCKSNetworkProxy(Network.getAddresses(_host,
-                                                          _port,
-                                                          protocolSupport,
-                                                          Ice.EndpointSelectionType.Random,
-                                                          false,
-                                                          true)[0]);
+        return new SOCKSNetworkProxy(Network.getAddresses(
+            _host,
+            _port,
+            protocolSupport,
+            Ice.EndpointSelectionType.Random,
+            false,
+            true)[0]);
     }
 
     public EndPoint getAddress()
@@ -249,13 +250,15 @@ public sealed class HTTPNetworkProxy : NetworkProxy
     public NetworkProxy resolveHost(int protocolSupport)
     {
         Debug.Assert(_host != null);
-        return new HTTPNetworkProxy(Network.getAddresses(_host,
-                                                         _port,
-                                                         protocolSupport,
-                                                         Ice.EndpointSelectionType.Random,
-                                                         false,
-                                                         true)[0],
-                                    protocolSupport);
+        return new HTTPNetworkProxy(
+            Network.getAddresses(
+                _host,
+                _port,
+                protocolSupport,
+                Ice.EndpointSelectionType.Random,
+                false,
+                true)[0],
+            protocolSupport);
     }
 
     public EndPoint getAddress()

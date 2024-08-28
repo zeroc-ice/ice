@@ -535,8 +535,7 @@ public sealed class StringUtil
             {
                 if (special[i] < 32 || special[i] > 126)
                 {
-                    throw new System.ArgumentException("special characters must be in ASCII range 32-126",
-                                                       nameof(special));
+                    throw new ArgumentException("special characters must be in ASCII range 32-126", nameof(special));
                 }
             }
         }

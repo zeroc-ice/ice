@@ -210,8 +210,9 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
                 if (_traceServiceObserver >= 1)
                 {
-                    _logger.trace("IceBox.ServiceObserver",
-                                  "Added service observer " + _communicator.proxyToString(observer));
+                    _logger.trace(
+                        "IceBox.ServiceObserver",
+                        "Added service observer " + _communicator.proxyToString(observer));
                 }
 
                 foreach (ServiceInfo info in _services)
@@ -785,9 +786,10 @@ internal class ServiceManagerI : ServiceManagerDisp_
             //
             if (!(ex is Ice.CommunicatorDestroyedException))
             {
-                _logger.trace("IceBox.ServiceObserver",
-                              "Removed service observer " + _communicator.proxyToString(observer)
-                              + "\nafter catching " + ex.ToString());
+                _logger.trace(
+                    "IceBox.ServiceObserver",
+                    "Removed service observer " + _communicator.proxyToString(observer)
+                    + "\nafter catching " + ex.ToString());
             }
         }
     }
@@ -925,7 +927,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             List<string> facetNames = new List<string>();
             foreach (string p in _adminFacetFilter)
             {
-                if (p.StartsWith(prefix))
+                if (p.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     facetNames.Add(p.Substring(prefix.Length));
                 }
@@ -952,7 +954,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
         {
             foreach (string p in _communicator.findAllAdminFacets().Keys)
             {
-                if (p.StartsWith(prefix))
+                if (p.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     _communicator.removeAdminFacet(p);
                 }

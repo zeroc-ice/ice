@@ -428,17 +428,18 @@ public abstract class Reference : IEquatable<Reference>
     private int _invocationTimeout;
     private bool? _compress;
 
-    protected Reference(Instance instance,
-                        Ice.Communicator communicator,
-                        Ice.Identity identity,
-                        string facet,
-                        Mode mode,
-                        bool secure,
-                        bool? compress,
-                        Ice.ProtocolVersion protocol,
-                        Ice.EncodingVersion encoding,
-                        int invocationTimeout,
-                        Dictionary<string, string> context)
+    protected Reference(
+        Instance instance,
+        Ice.Communicator communicator,
+        Ice.Identity identity,
+        string facet,
+        Mode mode,
+        bool secure,
+        bool? compress,
+        Ice.ProtocolVersion protocol,
+        Ice.EncodingVersion encoding,
+        int invocationTimeout,
+        Dictionary<string, string> context)
     {
         // Validate string arguments.
         Debug.Assert(facet != null);
@@ -463,18 +464,19 @@ public class FixedReference : Reference
 {
     internal override BatchRequestQueue batchRequestQueue => _fixedConnection.getBatchRequestQueue();
 
-    public FixedReference(Instance instance,
-                          Ice.Communicator communicator,
-                          Ice.Identity identity,
-                          string facet,
-                          Mode mode,
-                          bool secure,
-                          bool? compress,
-                          Ice.ProtocolVersion protocol,
-                          Ice.EncodingVersion encoding,
-                          Ice.ConnectionI connection,
-                          int invocationTimeout,
-                          Dictionary<string, string> context)
+    public FixedReference(
+        Instance instance,
+        Ice.Communicator communicator,
+        Ice.Identity identity,
+        string facet,
+        Mode mode,
+        bool secure,
+        bool? compress,
+        Ice.ProtocolVersion protocol,
+        Ice.EncodingVersion encoding,
+        Ice.ConnectionI connection,
+        int invocationTimeout,
+        Dictionary<string, string> context)
     : base(instance, communicator, identity, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context)
     {
         _fixedConnection = connection;
@@ -874,18 +876,19 @@ public class RoutableReference : Reference
 
     public override Reference changeConnection(Ice.ConnectionI connection)
     {
-        return new FixedReference(getInstance(),
-                                  getCommunicator(),
-                                  getIdentity(),
-                                  getFacet(),
-                                  getMode(),
-                                  getSecure(),
-                                  getCompress(),
-                                  getProtocol(),
-                                  getEncoding(),
-                                  connection,
-                                  getInvocationTimeout(),
-                                  getContext());
+        return new FixedReference(
+            getInstance(),
+            getCommunicator(),
+            getIdentity(),
+            getFacet(),
+            getMode(),
+            getSecure(),
+            getCompress(),
+            getProtocol(),
+            getEncoding(),
+            connection,
+            getInvocationTimeout(),
+            getContext());
     }
 
     public override bool isIndirect()
@@ -1201,27 +1204,39 @@ public class RoutableReference : Reference
         }
     }
 
-    public RoutableReference(Instance instance,
-                             Ice.Communicator communicator,
-                             Ice.Identity identity,
-                             string facet,
-                             Mode mode,
-                             bool secure,
-                             bool? compress,
-                             Ice.ProtocolVersion protocol,
-                             Ice.EncodingVersion encoding,
-                             EndpointI[] endpoints,
-                             string adapterId,
-                             LocatorInfo locatorInfo,
-                             RouterInfo routerInfo,
-                             bool collocationOptimized,
-                             bool cacheConnection,
-                             bool preferSecure,
-                             Ice.EndpointSelectionType endpointSelection,
-                             int locatorCacheTimeout,
-                             int invocationTimeout,
-                             Dictionary<string, string> context)
-    : base(instance, communicator, identity, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context)
+    public RoutableReference(
+        Instance instance,
+        Ice.Communicator communicator,
+        Ice.Identity identity,
+        string facet,
+        Mode mode,
+        bool secure,
+        bool? compress,
+        Ice.ProtocolVersion protocol,
+        Ice.EncodingVersion encoding,
+        EndpointI[] endpoints,
+        string adapterId,
+        LocatorInfo locatorInfo,
+        RouterInfo routerInfo,
+        bool collocationOptimized,
+        bool cacheConnection,
+        bool preferSecure,
+        Ice.EndpointSelectionType endpointSelection,
+        int locatorCacheTimeout,
+        int invocationTimeout,
+        Dictionary<string, string> context)
+    : base(
+        instance,
+        communicator,
+        identity,
+        facet,
+        mode,
+        secure,
+        compress,
+        protocol,
+        encoding,
+        invocationTimeout,
+        context)
     {
         _endpoints = endpoints;
         _adapterId = adapterId;

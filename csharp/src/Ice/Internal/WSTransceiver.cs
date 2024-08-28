@@ -209,7 +209,8 @@ internal sealed class WSTransceiver : Transceiver
         {
             if (_instance.traceLevel() >= 2)
             {
-                _instance.logger().trace(_instance.traceCategory(),
+                _instance.logger().trace(
+                    _instance.traceCategory(),
                     protocol() + " connection HTTP upgrade request failed\n" + ToString() + "\n" + ex);
             }
             throw;
@@ -219,12 +220,14 @@ internal sealed class WSTransceiver : Transceiver
         {
             if (_incoming)
             {
-                _instance.logger().trace(_instance.traceCategory(),
+                _instance.logger().trace(
+                    _instance.traceCategory(),
                     "accepted " + protocol() + " connection HTTP upgrade request\n" + ToString());
             }
             else
             {
-                _instance.logger().trace(_instance.traceCategory(),
+                _instance.logger().trace(
+                    _instance.traceCategory(),
                     protocol() + " connection HTTP upgrade request accepted\n" + ToString());
             }
         }
@@ -236,7 +239,8 @@ internal sealed class WSTransceiver : Transceiver
     {
         if (_instance.traceLevel() >= 1)
         {
-            _instance.logger().trace(_instance.traceCategory(),
+            _instance.logger().trace(
+                _instance.traceCategory(),
                 "gracefully closing " + protocol() + " connection\n" + ToString());
         }
 
@@ -1104,10 +1108,11 @@ internal sealed class WSTransceiver : Transceiver
                     {
                         if (_instance.traceLevel() >= 2)
                         {
-                            _instance.logger().trace(_instance.traceCategory(), "received " + protocol() +
-                                                     (_readOpCode == OP_DATA ? " data" : " continuation") +
-                                                     " frame with payload length of " + _readPayloadLength +
-                                                     " bytes\n" + ToString());
+                            _instance.logger().trace(
+                                _instance.traceCategory(), "received " + protocol() +
+                                (_readOpCode == OP_DATA ? " data" : " continuation") +
+                                " frame with payload length of " + _readPayloadLength +
+                                " bytes\n" + ToString());
                         }
 
                         if (_readPayloadLength <= 0)
@@ -1123,7 +1128,8 @@ internal sealed class WSTransceiver : Transceiver
                     {
                         if (_instance.traceLevel() >= 2)
                         {
-                            _instance.logger().trace(_instance.traceCategory(),
+                            _instance.logger().trace(
+                                _instance.traceCategory(),
                                 "received " + protocol() + " connection close frame\n" + ToString());
                         }
 
@@ -1159,7 +1165,8 @@ internal sealed class WSTransceiver : Transceiver
                     {
                         if (_instance.traceLevel() >= 2)
                         {
-                            _instance.logger().trace(_instance.traceCategory(),
+                            _instance.logger().trace(
+                                _instance.traceCategory(),
                                 "received " + protocol() + " connection ping frame\n" + ToString());
                         }
                         _readState = ReadStateControlFrame;
@@ -1169,7 +1176,8 @@ internal sealed class WSTransceiver : Transceiver
                     {
                         if (_instance.traceLevel() >= 2)
                         {
-                            _instance.logger().trace(_instance.traceCategory(),
+                            _instance.logger().trace(
+                                _instance.traceCategory(),
                                 "received " + protocol() + " connection pong frame\n" + ToString());
                         }
                         _readState = ReadStateControlFrame;
@@ -1437,7 +1445,8 @@ internal sealed class WSTransceiver : Transceiver
                 {
                     if (_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(_instance.traceCategory(),
+                        _instance.logger().trace(
+                            _instance.traceCategory(),
                             "sent " + protocol() + " connection ping frame\n" + ToString());
                     }
                 }
@@ -1445,7 +1454,8 @@ internal sealed class WSTransceiver : Transceiver
                 {
                     if (_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(_instance.traceCategory(),
+                        _instance.logger().trace(
+                            _instance.traceCategory(),
                             "sent " + protocol() + " connection pong frame\n" + ToString());
                     }
                 }
@@ -1454,7 +1464,8 @@ internal sealed class WSTransceiver : Transceiver
                 {
                     if (_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(_instance.traceCategory(),
+                        _instance.logger().trace(
+                            _instance.traceCategory(),
                             "sent " + protocol() + " connection close frame\n" + ToString());
                     }
 

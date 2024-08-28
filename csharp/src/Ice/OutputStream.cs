@@ -32,7 +32,8 @@ public sealed class OutputStream
     /// </summary>
     /// <param name="communicator">The communicator that provides the encoding version and class format.</param>
     public OutputStream(Communicator communicator)
-        : this(communicator.instance.defaultsAndOverrides().defaultEncoding,
+        : this(
+            communicator.instance.defaultsAndOverrides().defaultEncoding,
             communicator.instance.defaultsAndOverrides().defaultFormat)
     {
     }
@@ -1839,7 +1840,8 @@ public sealed class OutputStream
 
     private sealed class EncapsEncoder10 : EncapsEncoder
     {
-        internal EncapsEncoder10(OutputStream stream, Encaps encaps) : base(stream, encaps)
+        internal EncapsEncoder10(OutputStream stream, Encaps encaps)
+            : base(stream, encaps)
         {
             _sliceType = SliceType.NoSlice;
             _valueIdIndex = 0;
@@ -2015,7 +2017,8 @@ public sealed class OutputStream
 
     private sealed class EncapsEncoder11 : EncapsEncoder
     {
-        internal EncapsEncoder11(OutputStream stream, Encaps encaps) : base(stream, encaps)
+        internal EncapsEncoder11(OutputStream stream, Encaps encaps)
+            : base(stream, encaps)
         {
             _current = null;
             _valueIdIndex = 1;

@@ -49,7 +49,7 @@ public abstract class IPEndpointInfo : EndpointInfo
 
     public string sourceAddress;
 
-    protected IPEndpointInfo() : base()
+    protected IPEndpointInfo()
     {
         this.host = "";
         this.sourceAddress = "";
@@ -66,7 +66,7 @@ public abstract class IPEndpointInfo : EndpointInfo
 
 public abstract class TCPEndpointInfo : IPEndpointInfo
 {
-    protected TCPEndpointInfo() : base()
+    protected TCPEndpointInfo()
     {
     }
 
@@ -82,7 +82,7 @@ public abstract class UDPEndpointInfo : IPEndpointInfo
 
     public int mcastTtl;
 
-    protected UDPEndpointInfo() : base()
+    protected UDPEndpointInfo()
     {
         this.mcastInterface = "";
     }
@@ -99,12 +99,13 @@ public abstract class WSEndpointInfo : EndpointInfo
 {
     public string resource;
 
-    protected WSEndpointInfo() : base()
+    protected WSEndpointInfo()
     {
         resource = "";
     }
 
-    protected WSEndpointInfo(EndpointInfo underlying, int timeout, bool compress, string resource) : base(underlying, timeout, compress)
+    protected WSEndpointInfo(EndpointInfo underlying, int timeout, bool compress, string resource)
+        : base(underlying, timeout, compress)
     {
         this.resource = resource;
     }
@@ -116,7 +117,7 @@ public abstract class OpaqueEndpointInfo : EndpointInfo
 
     public byte[] rawBytes;
 
-    protected OpaqueEndpointInfo() : base()
+    protected OpaqueEndpointInfo()
     {
         rawEncoding = new EncodingVersion();
         rawBytes = [];

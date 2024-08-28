@@ -60,8 +60,9 @@ public sealed class BatchRequestQueue
         _maxSize = instance.batchAutoFlushSize();
         if (_maxSize > 0 && datagram)
         {
-            int udpSndSize = initData.properties.getPropertyAsIntWithDefault("Ice.UDP.SndSize",
-                                                                             65535 - _udpOverhead);
+            int udpSndSize = initData.properties.getPropertyAsIntWithDefault(
+                "Ice.UDP.SndSize",
+                65535 - _udpOverhead);
             if (udpSndSize < _maxSize)
             {
                 _maxSize = udpSndSize;

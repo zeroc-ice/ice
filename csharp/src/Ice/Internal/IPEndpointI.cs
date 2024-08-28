@@ -7,7 +7,7 @@ namespace Ice.Internal;
 
 public abstract class IPEndpointI : EndpointI
 {
-    public IPEndpointI(ProtocolInstance instance, string host, int port, EndPoint sourceAddr, string connectionId)
+    protected IPEndpointI(ProtocolInstance instance, string host, int port, EndPoint sourceAddr, string connectionId)
     {
         instance_ = instance;
         host_ = host;
@@ -16,7 +16,7 @@ public abstract class IPEndpointI : EndpointI
         connectionId_ = connectionId;
     }
 
-    public IPEndpointI(ProtocolInstance instance)
+    protected IPEndpointI(ProtocolInstance instance)
     {
         instance_ = instance;
         host_ = null;
@@ -25,7 +25,7 @@ public abstract class IPEndpointI : EndpointI
         connectionId_ = "";
     }
 
-    public IPEndpointI(ProtocolInstance instance, Ice.InputStream s)
+    protected IPEndpointI(ProtocolInstance instance, Ice.InputStream s)
     {
         instance_ = instance;
         host_ = s.readString();
@@ -142,12 +142,13 @@ public abstract class IPEndpointI : EndpointI
         //
         publishedEndpoint = port_ > 0 ? this : null;
 
-        List<EndPoint> addresses = Network.getAddresses(host_,
-                                                        port_,
-                                                        instance_.protocolSupport(),
-                                                        Ice.EndpointSelectionType.Ordered,
-                                                        instance_.preferIPv6(),
-                                                        true);
+        List<EndPoint> addresses = Network.getAddresses(
+            host_,
+            port_,
+            instance_.protocolSupport(),
+            Ice.EndpointSelectionType.Ordered,
+            instance_.preferIPv6(),
+            true);
 
         if (addresses.Count == 1)
         {
@@ -157,9 +158,10 @@ public abstract class IPEndpointI : EndpointI
         {
             foreach (EndPoint addr in addresses)
             {
-                endpoints.Add(createEndpoint(Network.endpointAddressToString(addr),
-                                             Network.endpointPort(addr),
-                                             connectionId_));
+                endpoints.Add(createEndpoint(
+                    Network.endpointAddressToString(addr),
+                    Network.endpointPort(addr),
+                    connectionId_));
             }
         }
         return endpoints;

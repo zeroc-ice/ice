@@ -23,7 +23,7 @@ public interface EndpointFactory
 
 public abstract class EndpointFactoryWithUnderlying : EndpointFactory
 {
-    public EndpointFactoryWithUnderlying(ProtocolInstance instance, short type)
+    protected EndpointFactoryWithUnderlying(ProtocolInstance instance, short type)
     {
         instance_ = instance;
         _type = type;

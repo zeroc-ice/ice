@@ -1077,12 +1077,13 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
         invokeImpl(true); // userThread = true
     }
 
-    public void invoke(string operation,
-                       Ice.OperationMode mode,
-                       Ice.FormatType? format,
-                       Dictionary<string, string> context,
-                       bool synchronous,
-                       System.Action<Ice.OutputStream> write)
+    public void invoke(
+        string operation,
+        Ice.OperationMode mode,
+        Ice.FormatType? format,
+        Dictionary<string, string> context,
+        bool synchronous,
+        System.Action<Ice.OutputStream> write)
     {
         try
         {
@@ -1164,14 +1165,15 @@ public class OutgoingAsyncT<T> : OutgoingAsync
     {
     }
 
-    public void invoke(string operation,
-                       Ice.OperationMode mode,
-                       Ice.FormatType? format,
-                       Dictionary<string, string> context,
-                       bool synchronous,
-                       System.Action<Ice.OutputStream> write = null,
-                       System.Action<Ice.UserException> userException = null,
-                       System.Func<Ice.InputStream, T> read = null)
+    public void invoke(
+        string operation,
+        Ice.OperationMode mode,
+        Ice.FormatType? format,
+        Dictionary<string, string> context,
+        bool synchronous,
+        System.Action<Ice.OutputStream> write = null,
+        System.Action<Ice.UserException> userException = null,
+        System.Func<Ice.InputStream, T> read = null)
     {
         read_ = read;
         userException_ = userException;
@@ -1546,7 +1548,7 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
 
 public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, OutgoingAsyncCompletionCallback
 {
-    public TaskCompletionCallback(System.IProgress<bool> progress, CancellationToken cancellationToken)
+    protected TaskCompletionCallback(System.IProgress<bool> progress, CancellationToken cancellationToken)
     {
         progress_ = progress;
         _cancellationToken = cancellationToken;

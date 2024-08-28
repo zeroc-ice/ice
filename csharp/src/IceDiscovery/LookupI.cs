@@ -38,9 +38,10 @@ internal abstract class Request<T>
         Ice.Identity id = new Ice.Identity(_requestId, "");
         foreach (var entry in lookups)
         {
-            invokeWithLookup(domainId,
-                             entry.Key,
-                             LookupReplyPrxHelper.uncheckedCast(entry.Value.ice_identity(id)));
+            invokeWithLookup(
+                domainId,
+                entry.Key,
+                LookupReplyPrxHelper.uncheckedCast(entry.Value.ice_identity(id)));
         }
     }
 
@@ -76,7 +77,8 @@ internal abstract class Request<T>
 
 internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 {
-    public AdapterRequest(LookupI lookup, string id, int retryCount) : base(lookup, id, retryCount)
+    public AdapterRequest(LookupI lookup, string id, int retryCount)
+        : base(lookup, id, retryCount)
     {
         _start = DateTime.Now.Ticks;
     }
@@ -176,7 +178,8 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 
 internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
 {
-    public ObjectRequest(LookupI lookup, Ice.Identity id, int retryCount) : base(lookup, id, retryCount)
+    public ObjectRequest(LookupI lookup, Ice.Identity id, int retryCount)
+        : base(lookup, id, retryCount)
     {
     }
 

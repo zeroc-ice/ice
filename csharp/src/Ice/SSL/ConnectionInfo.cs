@@ -26,7 +26,8 @@ public class ConnectionInfo : Ice.ConnectionInfo
         string connectionId,
         string cipher,
         X509Certificate2[] certs,
-        bool verified) : base(underlying, incoming, adapterName, connectionId)
+        bool verified)
+        : base(underlying, incoming, adapterName, connectionId)
     {
         this.cipher = cipher;
         this.certs = certs;

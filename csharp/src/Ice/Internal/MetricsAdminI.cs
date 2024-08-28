@@ -971,7 +971,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
     {
         foreach (KeyValuePair<string, string> e in changes)
         {
-            if (e.Key.StartsWith("IceMX."))
+            if (e.Key.StartsWith("IceMX.", StringComparison.Ordinal))
             {
                 // Update the metrics views using the new configuration.
                 try

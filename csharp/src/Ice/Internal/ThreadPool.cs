@@ -729,7 +729,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         private Ice.Instrumentation.ThreadObserver _observer;
         private Ice.Instrumentation.ThreadState _state;
 
-        internal WorkerThread(ThreadPool threadPool, string name) : base()
+        internal WorkerThread(ThreadPool threadPool, string name)
         {
             _threadPool = threadPool;
             _name = name;

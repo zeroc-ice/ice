@@ -33,8 +33,9 @@ public class RetryTask : TimerTask, CancellationHandler
         {
             if (_instance.traceLevels().retry >= 1)
             {
-                _instance.initializationData().logger.trace(_instance.traceLevels().retryCat,
-                                                            string.Format("operation retry canceled\n{0}", ex));
+                _instance.initializationData().logger.trace(
+                    _instance.traceLevels().retryCat,
+                    $"operation retry canceled\n{ex}");
             }
             if (_outAsync.exception(ex))
             {

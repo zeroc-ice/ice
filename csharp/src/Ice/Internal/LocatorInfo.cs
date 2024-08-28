@@ -184,7 +184,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
     private class ObjectRequest : Request
     {
-        public ObjectRequest(LocatorInfo locatorInfo, Reference @ref) : base(locatorInfo, @ref)
+        public ObjectRequest(LocatorInfo locatorInfo, Reference reference)
+            : base(locatorInfo, reference)
         {
         }
 
@@ -210,7 +211,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
     private class AdapterRequest : Request
     {
-        public AdapterRequest(LocatorInfo locatorInfo, Reference @ref) : base(locatorInfo, @ref)
+        public AdapterRequest(LocatorInfo locatorInfo, Reference reference)
+            : base(locatorInfo, reference)
         {
         }
 

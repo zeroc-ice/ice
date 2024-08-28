@@ -91,8 +91,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
                 try
                 {
                     var r = t.Result;
-                    callback.setEndpoints(setClientEndpoints(r.returnValue,
-                                                r.hasRoutingTable.HasValue ? r.hasRoutingTable.Value : true));
+                    callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable ?? true));
                 }
                 catch (System.AggregateException ae)
                 {
