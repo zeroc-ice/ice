@@ -176,9 +176,7 @@ public class AllTests {
         if ((i % 100) == 0) {
           f.waitForSent();
           holdSerialized.ice_ping(); // Ensure everything's dispatched
-          holdSerialized
-              .ice_getConnection()
-              .close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+          holdSerialized.ice_getConnection().close();
         }
       }
       r.join();

@@ -2,6 +2,7 @@
 
 #nullable enable
 
+using System.Collections;
 using System.Diagnostics;
 using System.Net.Sockets;
 
@@ -9,12 +10,13 @@ namespace Ice.Internal;
 
 internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 {
-    public bool isWaitingToBeRead => _decoratee.isWaitingToBeRead;
-
     private readonly Transceiver _decoratee;
     private readonly TimeSpan _idleTimeout;
     private readonly System.Threading.Timer? _readTimer;
     private readonly System.Threading.Timer _writeTimer;
+
+    // Called by ConnectionI with its mutex locked.
+    internal bool idleCheckEnabled { get; private set; }
 
     public override string ToString() => _decoratee.ToString()!;
 
@@ -24,7 +26,7 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
     public void close()
     {
-        cancelReadTimer();
+        disableIdleCheck();
         cancelWriteTimer();
         _decoratee.close();
     }
@@ -33,7 +35,7 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
     public void destroy()
     {
-        cancelReadTimer();
+        disableIdleCheck();
         cancelWriteTimer();
         _decoratee.destroy();
         _readTimer?.Dispose();
@@ -60,7 +62,6 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
         if (op == SocketOperation.None) // connected
         {
-            rescheduleReadTimer();
             rescheduleWriteTimer();
         }
 
@@ -108,13 +109,32 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
         if (enableIdleCheck)
         {
-            _readTimer = new System.Threading.Timer(_ => connection.idleCheck(_idleTimeout, rescheduleReadTimer));
+            _readTimer = new System.Threading.Timer(_ => connection.idleCheck(_idleTimeout));
         }
+        idleCheckEnabled = enableIdleCheck;
 
         _writeTimer = new System.Threading.Timer(_ => connection.sendHeartbeat());
     }
 
-    private void cancelReadTimer() => _readTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+    internal void enableIdleCheck()
+    {
+        if (!idleCheckEnabled && _readTimer is not null)
+        {
+            rescheduleReadTimer();
+            idleCheckEnabled = true;
+        }
+    }
+
+    internal void disableIdleCheck()
+    {
+        if (idleCheckEnabled && _readTimer is not null)
+        {
+            cancelReadTimer();
+            idleCheckEnabled = false;
+        }
+    }
+
+    private void cancelReadTimer() => _readTimer!.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
     private void cancelWriteTimer() => _writeTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 

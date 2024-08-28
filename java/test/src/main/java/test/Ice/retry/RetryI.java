@@ -14,7 +14,7 @@ public final class RetryI implements Retry {
   public void op(boolean kill, com.zeroc.Ice.Current current) {
     if (kill) {
       if (current.con != null) {
-        current.con.close(com.zeroc.Ice.ConnectionClose.Forcefully);
+        current.con.abort();
       } else {
         throw new ConnectionLostException();
       }

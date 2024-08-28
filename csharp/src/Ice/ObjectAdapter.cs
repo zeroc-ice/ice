@@ -1650,6 +1650,7 @@ public sealed class ObjectAdapter
         "Connection.EnableIdleCheck",
         "Connection.IdleTimeout",
         "Connection.InactivityTimeout",
+        "Connection.MaxDispatches",
         "Endpoints",
         "Locator",
         "Locator.EncodingVersion",

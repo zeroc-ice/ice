@@ -701,8 +701,7 @@ public sealed class Instance
             clientConnectionOptions = readConnectionOptions("Ice.Connection.Client");
             _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
 
-            int messageSizeMax =
-                _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
+            int messageSizeMax = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
             if (messageSizeMax < 1 || messageSizeMax > 0x7fffffff / 1024)
             {
                 _messageSizeMax = 0x7fffffff;
@@ -722,31 +721,30 @@ public sealed class Instance
             }
             else
             {
-                int num = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
-                if (num < 1)
+                int batchAutoFlushSize = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
+                if (batchAutoFlushSize < 1)
                 {
-                    _batchAutoFlushSize = num;
+                    _batchAutoFlushSize = batchAutoFlushSize;
                 }
-                else if (num > 0x7fffffff / 1024)
+                else if (batchAutoFlushSize > 0x7fffffff / 1024)
                 {
                     _batchAutoFlushSize = 0x7fffffff;
                 }
                 else
                 {
-                    _batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
+                    // Property is in kilobytes, _batchAutoFlushSize in bytes
+                    _batchAutoFlushSize = batchAutoFlushSize * 1024;
                 }
             }
 
+            var classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
+            if (classGraphDepthMax < 1 || classGraphDepthMax > 0x7fffffff)
             {
-                var num = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
-                if (num < 1 || num > 0x7fffffff)
-                {
-                    _classGraphDepthMax = 0x7fffffff;
-                }
-                else
-                {
-                    _classGraphDepthMax = num;
-                }
+                _classGraphDepthMax = 0x7fffffff;
+            }
+            else
+            {
+                _classGraphDepthMax = classGraphDepthMax;
             }
 
             string toStringModeStr = _initData.properties.getIceProperty("Ice.ToStringMode");
@@ -1427,7 +1425,11 @@ public sealed class Instance
 
             inactivityTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
                 $"{propertyPrefix}.InactivityTimeout",
-                (int)_serverConnectionOptions.inactivityTimeout.TotalSeconds)));
+                (int)_serverConnectionOptions.inactivityTimeout.TotalSeconds)),
+
+            maxDispatches: properties.getPropertyAsIntWithDefault(
+                $"{propertyPrefix}.MaxDispatches",
+                _serverConnectionOptions.maxDispatches));
     }
 
     internal ConnectionOptions clientConnectionOptions { get; private set; } = null!; // set in initialize
@@ -1470,7 +1472,9 @@ public sealed class Instance
             closeTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.CloseTimeout")),
             idleTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.IdleTimeout")),
             enableIdleCheck: properties.getIcePropertyAsInt($"{propertyPrefix}.EnableIdleCheck") > 0,
-            inactivityTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.InactivityTimeout")));
+            inactivityTimeout:
+                TimeSpan.FromSeconds(properties.getIcePropertyAsInt($"{propertyPrefix}.InactivityTimeout")),
+            maxDispatches: properties.getIcePropertyAsInt($"{propertyPrefix}.MaxDispatches"));
     }
 
     private static bool _printProcessIdDone;
@@ -1519,5 +1523,5 @@ public sealed class Instance
     private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
     private ConnectionOptions _serverConnectionOptions; // set in initialize
     private Ice.SSL.SSLEngine _sslEngine;
-    private readonly object _mutex = new();
+    private readonly object _mutex = new object();
 }

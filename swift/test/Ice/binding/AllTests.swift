@@ -22,17 +22,26 @@ func deactivate(communicator: RemoteCommunicatorPrx, adapters: [RemoteObjectAdap
 }
 
 func allTests(_ helper: TestHelper) async throws {
+    let com = try makeProxy(
+        communicator: helper.communicator(),
+        proxyString: "communicator:\(helper.getTestEndpoint(num: 0))",
+        type: RemoteCommunicatorPrx.self)
+
+    try await testBinding(helper: helper, com: com)
+    try await testEndpointSelection(helper: helper, com: com)
+    try await testPerRequestBindingAndSelection(helper: helper, com: com)
+    try await testEndpointFiltering(helper: helper, com: com)
+    try await testSecureEndpoints(helper: helper, com: com)
+    try await testConnections(helper: helper, com: com)
+    try await com.shutdown()
+}
+
+func testBinding(helper: TestHelper, com: RemoteCommunicatorPrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
 
-    let communicator = helper.communicator()
     let output = helper.getWriter()
-
-    let com = try makeProxy(
-        communicator: communicator,
-        proxyString: "communicator:\(helper.getTestEndpoint(num: 0))",
-        type: RemoteCommunicatorPrx.self)
 
     output.write("testing binding with single endpoint... ")
 
@@ -212,94 +221,14 @@ func allTests(_ helper: TestHelper) async throws {
         }
     }
     output.writeLine("ok")
+}
 
-    output.write("testing binding with multiple endpoints and AMI... ")
-    do {
-        let adapters = try await [
-            com.createObjectAdapter(name: "AdapterAMI11", endpoints: "default")!,
-            com.createObjectAdapter(name: "AdapterAMI12", endpoints: "default")!,
-            com.createObjectAdapter(name: "AdapterAMI13", endpoints: "default")!,
-        ]
-
-        //
-        // Ensure that when a connection is opened it's reused for new
-        // proxies and that all endpoints are eventually tried.
-        //
-        var names = ["AdapterAMI11", "AdapterAMI12", "AdapterAMI13"]
-        while names.count > 0 {
-            var adpts = adapters
-
-            let test1 = try await createTestIntfPrx(adpts)
-            adpts.shuffle()
-            let test2 = try await createTestIntfPrx(adpts)
-            adpts.shuffle()
-            let test3 = try await createTestIntfPrx(adpts)
-            try await test1.ice_ping()
-            try await test(test1.ice_getConnection() === test2.ice_getConnection())
-            try await test(test2.ice_getConnection() === test3.ice_getConnection())
-
-            let adapterName = try await test1.getAdapterName()
-            names.removeAll(where: { $0 == adapterName })
-            try await test1.ice_getConnection()!.close()
-        }
-
-        //
-        // Ensure that the proxy correctly caches the connection(we
-        // always send the request over the same connection.)
-        //
-        do {
-            for adpt in adapters {
-                try await adpt.getTestIntf()!.ice_ping()
-            }
-
-            let t = try await createTestIntfPrx(adapters)
-            let name = try await t.getAdapterName()
-            let nRetry = 10
-            var i = 0
-            while i < nRetry, try await t.getAdapterName() == name {
-                i += 1
-            }
-            try test(i == nRetry)
-
-            for adpt in adapters {
-                try await adpt.getTestIntf()!.ice_getConnection()!.close()
-            }
-        }
-
-        //
-        // Deactivate an adapter and ensure that we can still
-        // establish the connection to the remaining adapters.
-        //
-        try await com.deactivateObjectAdapter(adapters[0])
-        names.append("AdapterAMI12")
-        names.append("AdapterAMI13")
-        while names.count > 0 {
-            var adpts = adapters
-            let test1 = try await createTestIntfPrx(adpts)
-            adpts.shuffle()
-            let test2 = try await createTestIntfPrx(adpts)
-            adpts.shuffle()
-            let test3 = try await createTestIntfPrx(adpts)
-
-            try await test(test1.ice_getConnection() === test2.ice_getConnection())
-            try await test(test2.ice_getConnection() === test3.ice_getConnection())
-
-            let adapterName = try await test1.getAdapterName()
-            names.removeAll(where: { $0 == adapterName })
-            try await test1.ice_getConnection()!.close()
-        }
-
-        //
-        // Deactivate an adapter and ensure that we can still
-        // establish the connection to the remaining adapter.
-        //
-        try await com.deactivateObjectAdapter(adapters[2])
-        let obj = try await createTestIntfPrx(adapters)
-        try await test(obj.getAdapterName() == "AdapterAMI12")
-
-        try await deactivate(communicator: com, adapters: adapters)
+func testEndpointSelection(helper: TestHelper, com: RemoteCommunicatorPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
     }
-    output.writeLine("ok")
+
+    let output = helper.getWriter()
 
     output.write("testing random endpoint selection... ")
     do {
@@ -419,6 +348,14 @@ func allTests(_ helper: TestHelper) async throws {
         try await deactivate(communicator: com, adapters: adapters)
     }
     output.writeLine("ok")
+}
+
+func testPerRequestBindingAndSelection(helper: TestHelper, com: RemoteCommunicatorPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+
+    let output = helper.getWriter()
 
     output.write("testing per request binding with single endpoint... ")
     do {
@@ -476,40 +413,6 @@ func allTests(_ helper: TestHelper) async throws {
         try await com.deactivateObjectAdapter(adapters[2])
 
         try await test(obj.getAdapterName() == "Adapter52")
-
-        try await deactivate(communicator: com, adapters: adapters)
-    }
-    output.writeLine("ok")
-
-    output.write("testing per request binding with multiple endpoints and AMI... ")
-    do {
-        let adapters = try await [
-            com.createObjectAdapter(name: "AdapterAMI51", endpoints: "default")!,
-            com.createObjectAdapter(name: "AdapterAMI52", endpoints: "default")!,
-            com.createObjectAdapter(name: "AdapterAMI53", endpoints: "default")!,
-        ]
-
-        let obj = try await createTestIntfPrx(adapters).ice_connectionCached(false)
-        try test(!obj.ice_isConnectionCached())
-
-        var names = ["AdapterAMI51", "AdapterAMI52", "AdapterAMI53"]
-        while names.count > 0 {
-            let adapterName = try await obj.getAdapterName()
-            names.removeAll(where: { adapterName == $0 })
-        }
-
-        try await com.deactivateObjectAdapter(adapters[0])
-
-        names.append("AdapterAMI52")
-        names.append("AdapterAMI53")
-        while names.count > 0 {
-            let adapterName = try await obj.getAdapterName()
-            names.removeAll(where: { adapterName == $0 })
-        }
-
-        try await com.deactivateObjectAdapter(adapters[2])
-
-        try await test(obj.getAdapterName() == "AdapterAMI52")
 
         try await deactivate(communicator: com, adapters: adapters)
     }
@@ -598,89 +501,14 @@ func allTests(_ helper: TestHelper) async throws {
     }
     output.writeLine("ok")
 
-    output.write("testing per request binding and ordered endpoint selection and AMI... ")
-    do {
-        var adapters = try await [
-            com.createObjectAdapter(name: "AdapterAMI61", endpoints: "default")!,
-            com.createObjectAdapter(name: "AdapterAMI62", endpoints: "default")!,
-            com.createObjectAdapter(name: "AdapterAMI63", endpoints: "default")!,
-        ]
+}
 
-        var obj = try await createTestIntfPrx(adapters)
-        obj = obj.ice_endpointSelection(.Ordered)
-        try test(obj.ice_getEndpointSelection() == .Ordered)
-        obj = obj.ice_connectionCached(false)
-        try test(!obj.ice_isConnectionCached())
-
-        let nRetry = 3
-        var i = 0
-
-        //
-        // Ensure that endpoints are tried in order by deactivating the adapters
-        // one after the other.
-        //
-        while i < nRetry, try await obj.getAdapterName() == "AdapterAMI61" {
-            i += 1
-        }
-        try test(i == nRetry)
-        try await com.deactivateObjectAdapter(adapters[0])
-
-        while i < nRetry, try await obj.getAdapterName() == "AdapterAMI62" {
-            i += 1
-        }
-        try test(i == nRetry)
-        try await com.deactivateObjectAdapter(adapters[1])
-
-        i = 0
-        while i < nRetry, try await obj.getAdapterName() == "AdapterAMI63" {
-            i += 1
-        }
-        try test(i == nRetry)
-        try await com.deactivateObjectAdapter(adapters[2])
-
-        do {
-            _ = try await obj.getAdapterName()
-        } catch is Ice.ConnectFailedException {
-            // expected
-        } catch is Ice.ConnectTimeoutException {
-            // expected
-        }
-
-        let endpoints = obj.ice_getEndpoints()
-
-        adapters.removeAll()
-
-        //
-        // Now, re-activate the adapters with the same endpoints in the opposite
-        // order.
-        //
-        try await adapters.append(
-            com.createObjectAdapter(name: "AdapterAMI66", endpoints: endpoints[2].toString())!)
-        i = 0
-        while i < nRetry, try await obj.getAdapterName() == "AdapterAMI66" {
-            i += 1
-        }
-        try test(i == nRetry)
-
-        try await adapters.append(
-            com.createObjectAdapter(name: "AdapterAMI65", endpoints: endpoints[1].toString())!)
-        i = 0
-        while i < nRetry, try await obj.getAdapterName() == "AdapterAMI65" {
-            i += 1
-        }
-        try test(i == nRetry)
-
-        try await adapters.append(
-            com.createObjectAdapter(name: "AdapterAMI64", endpoints: endpoints[0].toString())!)
-        i = 0
-        while i < nRetry, try await obj.getAdapterName() == "AdapterAMI64" {
-            i += 1
-        }
-        try test(i == nRetry)
-
-        try await deactivate(communicator: com, adapters: adapters)
+func testEndpointFiltering(helper: TestHelper, com: RemoteCommunicatorPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
     }
-    output.writeLine("ok")
+
+    let output = helper.getWriter()
 
     output.write("testing endpoint mode filtering... ")
     do {
@@ -699,8 +527,16 @@ func allTests(_ helper: TestHelper) async throws {
         } catch is Ice.TwowayOnlyException {}
     }
     output.writeLine("ok")
+}
 
-    if communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl" {
+func testSecureEndpoints(helper: TestHelper, com: RemoteCommunicatorPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+
+    let output = helper.getWriter()
+
+    if helper.communicator().getProperties().getProperty("Ice.Default.Protocol") == "ssl" {
         output.write("testing unsecure vs. secure endpoints... ")
         do {
             let adapters = try await [
@@ -752,6 +588,14 @@ func allTests(_ helper: TestHelper) async throws {
         }
         output.writeLine("ok")
     }
+}
+
+func testConnections(helper: TestHelper, com: RemoteCommunicatorPrx) async throws {
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        try helper.test(value, file: file, line: line)
+    }
+
+    let output = helper.getWriter()
 
     do {
         output.write("testing ipv4 & ipv6 connections... ")
@@ -867,6 +711,5 @@ func allTests(_ helper: TestHelper) async throws {
         }
 
         output.writeLine("ok")
-        try await com.shutdown()
     }
 }

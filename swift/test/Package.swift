@@ -7,60 +7,47 @@ let defaultSliceFiles = ["Test.ice"]
 let defaultSources = ["Client.swift", "AllTests.swift", "Server.swift", "TestI.swift"]
 
 struct TestConfig {
-    var dependencies: [Target.Dependency] = []
-
-    var collocated = true
+    var collocated = false
 
     var sources = defaultSources
 
     var sliceFiles = defaultSliceFiles
 
     var resources: [Resource] = []
-
-    var sourceFiles: [String] {
-        sources + (collocated ? ["Collocated.swift"] : [])
-    }
-
-    var exclude: [String] {
-        return sliceFiles
-    }
 }
 
 let testDirectories: [String: TestConfig] = [
-    "Ice/adapterDeactivation": TestConfig(),
-    "Ice/admin": TestConfig(collocated: false),
-    "Ice/ami": TestConfig(),
-    "Ice/binding": TestConfig(collocated: false),
+    "Ice/adapterDeactivation": TestConfig(collocated: true),
+    "Ice/admin": TestConfig(),
+    "Ice/ami": TestConfig(collocated: true),
+    "Ice/binding": TestConfig(),
     "Ice/defaultServant": TestConfig(
-        collocated: false,
         sources: ["Client.swift", "AllTests.swift"]
     ),
     "Ice/defaultValue": TestConfig(
-        collocated: false,
         sources: ["Client.swift", "AllTests.swift"]
     ),
-    "Ice/enums": TestConfig(collocated: false),
-    "Ice/exceptions": TestConfig(),
-    "Ice/facets": TestConfig(),
-    "Ice/hold": TestConfig(collocated: false),
-    "Ice/info": TestConfig(collocated: false),
-    "Ice/inheritance": TestConfig(),
-    "Ice/invoke": TestConfig(collocated: false),
-    "Ice/location": TestConfig(collocated: false),
-    "Ice/middleware": TestConfig(collocated: false, sources: ["Client.swift", "AllTests.swift"]),
+    "Ice/enums": TestConfig(),
+    "Ice/exceptions": TestConfig(collocated: true),
+    "Ice/facets": TestConfig(collocated: true),
+    "Ice/hold": TestConfig(),
+    "Ice/info": TestConfig(),
+    "Ice/inheritance": TestConfig(collocated: true),
+    "Ice/invoke": TestConfig(),
+    "Ice/location": TestConfig(),
+    "Ice/middleware": TestConfig(sources: ["Client.swift", "AllTests.swift"]),
     "Ice/objects": TestConfig(
+        collocated: true,
         sliceFiles: defaultSliceFiles + ["Derived.ice", "DerivedEx.ice", "Forward.ice"]
     ),
     "Ice/operations": TestConfig(
+        collocated: true,
         sources: defaultSources + [
             "BatchOneways.swift", "Oneways.swift", "Twoways.swift",
         ]
     ),
-    "Ice/optional": TestConfig(
-        collocated: false
-    ),
+    "Ice/optional": TestConfig(),
     "Ice/properties": TestConfig(
-        collocated: false,
         sources: ["Client.swift"],
         sliceFiles: [],
         resources: [
@@ -71,31 +58,24 @@ let testDirectories: [String: TestConfig] = [
             .copy("config/configPath"),
         ]
     ),
-    "Ice/proxy": TestConfig(),
-    "Ice/retry": TestConfig(),
-    "Ice/scope": TestConfig(collocated: false),
+    "Ice/proxy": TestConfig(collocated: true),
+    "Ice/retry": TestConfig(collocated: true),
+    "Ice/scope": TestConfig(),
     "Ice/servantLocator": TestConfig(
+        collocated: true,
         sources: defaultSources + ["ServantLocatorI.swift"]
     ),
-    "Ice/services": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: []),
+    "Ice/services": TestConfig(sources: ["Client.swift"], sliceFiles: []),
     "Ice/slicing/exceptions": TestConfig(
-        collocated: false,
         sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"]
     ),
     "Ice/slicing/objects": TestConfig(
-        collocated: false,
         sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"]
     ),
-    "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
-    "Ice/timeout": TestConfig(collocated: false),
-    "Ice/udp": TestConfig(collocated: false),
-    "IceSSL/configuration": TestConfig(
-        collocated: false,
-        resources: [
-            .copy("certs")
-        ]
-    ),
-    "Slice/escape": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: ["Clash.ice", "Key.ice"]),
+    "Ice/stream": TestConfig(sources: ["Client.swift"]),
+    "Ice/timeout": TestConfig(),
+    "Ice/udp": TestConfig(),
+    "Slice/escape": TestConfig(sources: ["Client.swift"], sliceFiles: ["Clash.ice", "Key.ice"]),
 ]
 
 func testPathToTargetName(_ path: String) -> String {
@@ -124,16 +104,23 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
     }
 
     let name = testPathToTargetName("\(testPath)")
+
+    var sources = testConfig.sources
+
+    if testConfig.collocated {
+        sources += ["Collocated.swift"]
+    }
+
     targets.append(
         Target.target(
             name: name,
             dependencies: dependencies,
             path: testPath,
-            exclude: testConfig.exclude,
-            sources: testConfig.sourceFiles,
+            sources: sources,
             resources: resources,
             plugins: plugins
         ))
+
     testDriverDependencies.append(Target.Dependency(stringLiteral: name))
 
     return targets
