@@ -532,7 +532,7 @@ public class AllTests {
         method.setAccessible(true); // Transform a `private` method into a `public` one.
         method.invoke(metrics.ice_getConnection());
       } catch (ReflectiveOperationException | SecurityException ex) {
-        assert(false);
+        assert (false);
       }
 
       map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));
