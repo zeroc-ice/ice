@@ -15,13 +15,13 @@ runs:
   steps:
     - name: Test
       working-directory: ${{ inputs.working_directory }}
-      run: python3 allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+      run: python3 allTests.py --debug --all --continue --export-xml=test-report.xml ${{ inputs.flags }}
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Test
       working-directory: ${{ inputs.working_directory }}
-      run: python allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+      run: python allTests.py --debug --all --continue --export-xml=test-report.xml ${{ inputs.flags }}
       shell: powershell
       if: runner.os == 'Windows'
 
