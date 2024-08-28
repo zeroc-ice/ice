@@ -411,14 +411,8 @@ dotnet_diagnostic.CA1036.severity = none
 # CA1066: Implement IEquatable when overriding Equals
 dotnet_diagnostic.CA1066.severity = none
 
-# CA1304: Specify CultureInfo
-dotnet_diagnostic.CA1304.severity = none
-
 # CA1305: Specify IFormatProvider
 dotnet_diagnostic.CA1305.severity = none
-
-# CA1309: Use ordinal StringComparison
-dotnet_diagnostic.CA1309.severity = none
 
 # CA1310: Specify StringComparison for correctness
 dotnet_diagnostic.CA1310.severity = none
@@ -437,9 +431,6 @@ dotnet_diagnostic.CA2000.severity = none
 
 # CA2008: Do not create tasks without passing a TaskScheduler
 dotnet_diagnostic.CA2008.severity = none
-
-# CA2225: Operator overloads have named alternates
-dotnet_diagnostic.CA2225.severity = none
 
 # CA5350: Do Not Use Weak Cryptographic Algorithms
 dotnet_diagnostic.CA5350.severity = none

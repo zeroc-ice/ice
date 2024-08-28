@@ -737,7 +737,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         MessageInfo info = new MessageInfo();
         int upcallCount = 0;
 
-        using ThreadPoolMessage msg = new ThreadPoolMessage(current, this);
+        using ThreadPoolMessage msg = new ThreadPoolMessage(current, _mutex);
         lock (_mutex)
         {
             try
