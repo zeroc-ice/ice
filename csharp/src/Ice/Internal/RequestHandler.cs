@@ -11,7 +11,7 @@ public interface CancellationHandler
 
 public interface RequestHandler : CancellationHandler
 {
-    int sendAsyncRequest(ProxyOutgoingAsyncBase @out);
+    int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync);
 
     ConnectionI? getConnection();
 }

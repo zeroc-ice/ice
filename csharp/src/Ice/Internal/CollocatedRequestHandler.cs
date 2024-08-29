@@ -27,7 +27,7 @@ public class CollocatedRequestHandler : RequestHandler
 
     public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             int requestId;
             if (_sendAsyncRequests.TryGetValue(outAsync, out requestId))
@@ -77,7 +77,7 @@ public class CollocatedRequestHandler : RequestHandler
         int requestId = 0;
         try
         {
-            lock (this)
+            lock (_mutex)
             {
                 outAsync.cancelable(this); // This will throw if the request is canceled
 
@@ -134,7 +134,7 @@ public class CollocatedRequestHandler : RequestHandler
 
     private bool sentAsync(OutgoingAsyncBase outAsync)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (!_sendAsyncRequests.Remove(outAsync))
             {
@@ -246,7 +246,7 @@ public class CollocatedRequestHandler : RequestHandler
         {
             OutgoingAsyncBase outAsync;
             OutputStream outputStream = response.outputStream;
-            lock (this)
+            lock (_mutex)
             {
                 if (_traceLevels.protocol >= 1)
                 {
@@ -307,7 +307,7 @@ public class CollocatedRequestHandler : RequestHandler
         }
 
         OutgoingAsyncBase outAsync;
-        lock (this)
+        lock (_mutex)
         {
             if (_asyncRequests.TryGetValue(requestId, out outAsync))
             {
@@ -348,4 +348,5 @@ public class CollocatedRequestHandler : RequestHandler
 
     private Dictionary<OutgoingAsyncBase, int> _sendAsyncRequests = new Dictionary<OutgoingAsyncBase, int>();
     private Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
+    private readonly object _mutex = new();
 }

@@ -26,21 +26,27 @@ public abstract class ImplicitContextI : ImplicitContext
     }
 
     public abstract Dictionary<string, string> getContext();
+
     public abstract void setContext(Dictionary<string, string> newContext);
+
     public abstract bool containsKey(string key);
+
     public abstract string get(string key);
+
     public abstract string put(string key, string value);
+
     public abstract string remove(string key);
 
-    abstract public void write(Dictionary<string, string> prxContext, OutputStream os);
-    abstract internal Dictionary<string, string> combine(Dictionary<string, string> prxContext);
+    public abstract void write(Dictionary<string, string> prxContext, OutputStream os);
+
+    internal abstract Dictionary<string, string> combine(Dictionary<string, string> prxContext);
 }
 
 internal class SharedImplicitContext : ImplicitContextI
 {
     public override Dictionary<string, string> getContext()
     {
-        lock (this)
+        lock (_mutex)
         {
             return new Dictionary<string, string>(_context);
         }
@@ -48,7 +54,7 @@ internal class SharedImplicitContext : ImplicitContextI
 
     public override void setContext(Dictionary<string, string> context)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (context != null && context.Count != 0)
             {
@@ -63,7 +69,7 @@ internal class SharedImplicitContext : ImplicitContextI
 
     public override bool containsKey(string key)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (key == null)
             {
@@ -76,7 +82,7 @@ internal class SharedImplicitContext : ImplicitContextI
 
     public override string get(string key)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (key == null)
             {
@@ -94,7 +100,7 @@ internal class SharedImplicitContext : ImplicitContextI
 
     public override string put(string key, string value)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (key == null)
             {
@@ -119,7 +125,7 @@ internal class SharedImplicitContext : ImplicitContextI
 
     public override string remove(string key)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (key == null)
             {
@@ -145,7 +151,7 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         if (prxContext.Count == 0)
         {
-            lock (this)
+            lock (_mutex)
             {
                 ContextHelper.write(os, _context);
             }
@@ -153,7 +159,7 @@ internal class SharedImplicitContext : ImplicitContextI
         else
         {
             Dictionary<string, string> ctx = null;
-            lock (this)
+            lock (_mutex)
             {
                 ctx = _context.Count == 0 ? prxContext : combine(prxContext);
             }
@@ -163,7 +169,7 @@ internal class SharedImplicitContext : ImplicitContextI
 
     internal override Dictionary<string, string> combine(Dictionary<string, string> prxContext)
     {
-        lock (this)
+        lock (_mutex)
         {
             Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
             foreach (KeyValuePair<string, string> e in _context)
@@ -182,6 +188,7 @@ internal class SharedImplicitContext : ImplicitContextI
     }
 
     private Dictionary<string, string> _context = new Dictionary<string, string>();
+    private readonly object _mutex = new();
 }
 
 internal class PerThreadImplicitContext : ImplicitContextI
@@ -190,7 +197,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
     {
         Dictionary<string, string> threadContext = null;
         Thread currentThread = Thread.CurrentThread;
-        lock (this)
+        lock (_mutex)
         {
             if (_map.TryGetValue(currentThread, out Dictionary<string, string> value))
             {
@@ -209,7 +216,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
     {
         if (context == null || context.Count == 0)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _map.Remove(Thread.CurrentThread);
             }
@@ -218,7 +225,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
         {
             Dictionary<string, string> threadContext = new Dictionary<string, string>(context);
 
-            lock (this)
+            lock (_mutex)
             {
                 _map.Add(Thread.CurrentThread, threadContext);
             }
@@ -233,7 +240,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
         }
 
         Dictionary<string, string> threadContext = null;
-        lock (this)
+        lock (_mutex)
         {
             if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
             {
@@ -252,7 +259,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
         }
 
         Dictionary<string, string> threadContext = null;
-        lock (this)
+        lock (_mutex)
         {
             if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
             {
@@ -280,7 +287,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
         }
 
         Dictionary<string, string> threadContext = null;
-        lock (this)
+        lock (_mutex)
         {
             if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
             {
@@ -307,7 +314,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
         }
 
         Dictionary<string, string> threadContext = null;
-        lock (this)
+        lock (_mutex)
         {
             if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
             {
@@ -330,7 +337,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
     public override void write(Dictionary<string, string> prxContext, OutputStream os)
     {
         Dictionary<string, string> threadContext = null;
-        lock (this)
+        lock (_mutex)
         {
             _map.TryGetValue(Thread.CurrentThread, out threadContext);
         }
@@ -364,7 +371,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
     internal override Dictionary<string, string> combine(Dictionary<string, string> prxContext)
     {
         Dictionary<string, string> threadContext = null;
-        lock (this)
+        lock (_mutex)
         {
             if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
             {
@@ -384,4 +391,5 @@ internal class PerThreadImplicitContext : ImplicitContextI
     //  map Thread -> Context
     //
     private Dictionary<Thread, Dictionary<string, string>> _map = new();
+    private readonly object _mutex = new();
 }

@@ -535,8 +535,7 @@ public sealed class StringUtil
             {
                 if (special[i] < 32 || special[i] > 126)
                 {
-                    throw new System.ArgumentException("special characters must be in ASCII range 32-126",
-                                                       nameof(special));
+                    throw new ArgumentException("special characters must be in ASCII range 32-126", nameof(special));
                 }
             }
         }
@@ -566,7 +565,7 @@ public sealed class StringUtil
     //
     // Split string helper; returns null for unmatched quotes
     //
-    static public string[] splitString(string str, string delim)
+    public static string[] splitString(string str, string delim)
     {
         List<string> l = new List<string>();
         char[] arr = new char[str.Length];
@@ -718,5 +717,6 @@ public sealed class StringUtil
             return string.CompareOrdinal(l, r);
         }
     }
+
     public static IComparer<string> OrdinalStringComparer = new OrdinalStringComparerImpl();
 }

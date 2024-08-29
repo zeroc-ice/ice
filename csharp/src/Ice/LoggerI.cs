@@ -82,12 +82,11 @@ internal abstract class LoggerI : Logger
         return s.ToString();
     }
 
+    internal static object _globalMutex = new object();
     internal readonly string _prefix;
     internal readonly string? _formattedPrefix;
     internal string _date;
     internal string _time;
-
-    internal static object _globalMutex = new object();
 }
 
 internal sealed class ConsoleLoggerI : LoggerI

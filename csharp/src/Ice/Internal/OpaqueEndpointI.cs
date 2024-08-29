@@ -67,17 +67,17 @@ internal sealed class OpaqueEndpointI : EndpointI
             _type = type;
         }
 
-        override public short type()
+        public override short type()
         {
             return _type;
         }
 
-        override public bool datagram()
+        public override bool datagram()
         {
             return false;
         }
 
-        override public bool secure()
+        public override bool secure()
         {
             return false;
         }
@@ -346,7 +346,7 @@ internal sealed class OpaqueEndpointI : EndpointI
                 int t;
                 try
                 {
-                    t = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                    t = int.Parse(argument, CultureInfo.InvariantCulture);
                 }
                 catch (FormatException ex)
                 {

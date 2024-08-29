@@ -61,7 +61,7 @@ namespace Test
             return getTestEndpoint(_communicator.getProperties(), num, protocol);
         }
 
-        static public string getTestEndpoint(Ice.Properties properties, int num = 0, string protocol = "")
+        public static string getTestEndpoint(Ice.Properties properties, int num = 0, string protocol = "")
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(protocol.Length == 0 ? properties.getPropertyWithDefault("Ice.Default.Protocol", "default") :
@@ -76,7 +76,7 @@ namespace Test
             return getTestHost(_communicator.getProperties());
         }
 
-        static public string getTestHost(Ice.Properties properties)
+        public static string getTestHost(Ice.Properties properties)
         {
             return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
         }
@@ -86,7 +86,7 @@ namespace Test
             return getTestProtocol(_communicator.getProperties());
         }
 
-        static public String getTestProtocol(Ice.Properties properties)
+        public static String getTestProtocol(Ice.Properties properties)
         {
             return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         }
@@ -96,7 +96,7 @@ namespace Test
             return getTestPort(_communicator.getProperties(), num);
         }
 
-        static public int getTestPort(Ice.Properties properties, int num)
+        public static int getTestPort(Ice.Properties properties, int num)
         {
             return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
         }

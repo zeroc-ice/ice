@@ -57,17 +57,17 @@ internal sealed class UdpEndpointI : IPEndpointI
             _endpoint = e;
         }
 
-        override public short type()
+        public override short type()
         {
             return _endpoint.type();
         }
 
-        override public bool datagram()
+        public override bool datagram()
         {
             return _endpoint.datagram();
         }
 
-        override public bool secure()
+        public override bool secure()
         {
             return _endpoint.secure();
         }

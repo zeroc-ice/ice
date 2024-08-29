@@ -10,7 +10,7 @@ namespace Ice
             {
             }
 
-            override public void op(Ice.Current current)
+            public override void op(Ice.Current current)
             {
             }
         }

@@ -594,7 +594,7 @@ namespace Ice
 
             private class RemoteLoggerI : Ice.RemoteLoggerDisp_
             {
-                override public void init(string prefix, Ice.LogMessage[] messages, Ice.Current current)
+                public override void init(string prefix, Ice.LogMessage[] messages, Ice.Current current)
                 {
                     lock (this)
                     {
@@ -608,7 +608,7 @@ namespace Ice
                     }
                 }
 
-                override public void log(Ice.LogMessage message, Ice.Current current)
+                public override void log(Ice.LogMessage message, Ice.Current current)
                 {
                     lock (this)
                     {

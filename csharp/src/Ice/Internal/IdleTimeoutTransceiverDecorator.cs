@@ -135,7 +135,10 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
     }
 
     private void cancelReadTimer() => _readTimer!.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+
     private void cancelWriteTimer() => _writeTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+
     private void rescheduleReadTimer() => _readTimer?.Change(_idleTimeout, Timeout.InfiniteTimeSpan);
+
     private void rescheduleWriteTimer() => _writeTimer.Change(_idleTimeout / 2, Timeout.InfiniteTimeSpan);
 }

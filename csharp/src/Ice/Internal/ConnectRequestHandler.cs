@@ -14,7 +14,7 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
 
     public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (!_initialized)
             {
@@ -32,7 +32,7 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
 
     public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_exception != null)
             {
@@ -63,7 +63,7 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
 
     public Ice.ConnectionI getConnection()
     {
-        lock (this)
+        lock (_mutex)
         {
             //
             // First check for the connection, it's important otherwise the user could first get a connection
@@ -88,7 +88,7 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
 
     public void setConnection(Ice.ConnectionI connection, bool compress)
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(!_flushing && _exception == null && _connection == null);
             _connection = connection;
@@ -113,7 +113,7 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
 
     public void setException(Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(!_flushing && !_initialized && _exception == null);
             _exception = ex;
@@ -129,10 +129,10 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
         }
         _requests.Clear();
 
-        lock (this)
+        lock (_mutex)
         {
             _flushing = false;
-            Monitor.PulseAll(this);
+            Monitor.PulseAll(_mutex);
         }
     }
 
@@ -159,7 +159,7 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
         {
             while (_flushing)
             {
-                Monitor.Wait(this);
+                Monitor.Wait(_mutex);
             }
 
             if (_exception != null)
@@ -185,7 +185,7 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
 
     private void flushRequests()
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(_connection != null && !_initialized);
 
@@ -223,13 +223,13 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
         }
         _requests.Clear();
 
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(!_initialized);
             _exception = exception;
             _initialized = _exception == null;
             _flushing = false;
-            Monitor.PulseAll(this);
+            Monitor.PulseAll(_mutex);
         }
     }
 
@@ -243,4 +243,5 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
     private bool _flushing;
 
     private readonly LinkedList<ProxyOutgoingAsyncBase> _requests = new();
+    private readonly object _mutex = new();
 }
