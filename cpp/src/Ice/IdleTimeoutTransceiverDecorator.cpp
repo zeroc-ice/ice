@@ -159,7 +159,7 @@ IdleTimeoutTransceiverDecorator::enableIdleCheck()
 {
     if (!_idleCheckEnabled && _idleCheckTimerTask)
     {
-        _timer->reschedule(_idleCheckTimerTask, _idleTimeout);
+        _timer->schedule(_idleCheckTimerTask, _idleTimeout);
         _idleCheckEnabled = true;
     }
 }
