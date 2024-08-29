@@ -30,6 +30,7 @@ runs:
       with:
         name: test-logs
         path: ${{ inputs.working_directory }}/**/*.log
+      if: always()
 
     - name: Test Summary
       uses: test-summary/action@v2
