@@ -223,8 +223,8 @@ namespace Ice
 
         void closeCallback(const CloseCallback&);
 
-        /// Aborts the connection with a ConnectionAbortedException if the connection is activate and did not receive
-        /// a bute for some time. See the IdleTimeoutTransceiverDecorator.
+        /// Aborts the connection with a ConnectionAbortedException if the connection is active and did not receive
+        /// a byte for some time. See the IdleTimeoutTransceiverDecorator.
         void idleCheck(const std::chrono::seconds& idleTimeout) noexcept;
 
         /// Shuts down the connection gracefully if it's at rest when this function is called.
