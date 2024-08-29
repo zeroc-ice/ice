@@ -15,7 +15,6 @@ import com.zeroc.IceInternal.TraceUtil;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
@@ -1152,49 +1151,27 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return _threadPool;
   }
 
-  public synchronized void idleCheck(
-      int idleTimeout, BooleanSupplier isTimerTaskStarted, Runnable rescheduleTimer) {
-    // If isTimerTaskStarted returns false, it means that while we were waiting to acquire the
-    // lock, a read went through and rescheduled the read timer task. This means "this" task was
-    // canceled so we don't do anything.
-    if ((_state == StateActive || _state == StateHolding) && isTimerTaskStarted.getAsBoolean()) {
-      if (_transceiver.isWaitingToBeRead()) {
-        // Bytes are available for reading but the thread pool is exhausted. We don't want to abort
-        // the connection in this situation.
-        rescheduleTimer.run();
-
-        if (_instance.traceLevels().network >= 3) {
-          _instance
-              .initializationData()
-              .logger
-              .trace(
-                  _instance.traceLevels().networkCat,
-                  "the idle check scheduled a new idle check in "
-                      + idleTimeout
-                      + "s because the connection is waiting to be read\n"
-                      + _transceiver.toDetailedString());
-        }
-      } else {
-        if (_instance.traceLevels().network >= 1) {
-          _instance
-              .initializationData()
-              .logger
-              .trace(
-                  _instance.traceLevels().networkCat,
-                  "connection aborted by the idle check because it did not receive any bytes for "
-                      + idleTimeout
-                      + "s\n"
-                      + _transceiver.toDetailedString());
-        }
-
-        setState(
-            StateClosed,
-            new ConnectionAbortedException(
-                "Connection aborted by the idle check because it did not receive any bytes for "
+  public synchronized void idleCheck(int idleTimeout) {
+    if (_state == StateActive && _idleTimeoutTransceiver.isIdleCheckEnabled()) {
+      if (_instance.traceLevels().network >= 1) {
+        _instance
+            .initializationData()
+            .logger
+            .trace(
+                _instance.traceLevels().networkCat,
+                "connection aborted by the idle check because it did not receive any bytes for "
                     + idleTimeout
-                    + "s.",
-                false));
+                    + "s\n"
+                    + _transceiver.toDetailedString());
       }
+
+      setState(
+          StateClosed,
+          new ConnectionAbortedException(
+              "Connection aborted by the idle check because it did not receive any bytes for "
+                  + idleTimeout
+                  + "s.",
+              false));
     }
     // else nothing to do
   }
@@ -1276,6 +1253,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _closeTimeout = options.closeTimeout(); // not used for datagram connections
     // suppress inactivity timeout for datagram connections
     _inactivityTimeout = endpoint.datagram() ? 0 : options.inactivityTimeout();
+    _maxDispatches = options.maxDispatches();
     _timer = instance.timer();
     _removeFromFactory = removeFromFactory;
     _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
@@ -1302,14 +1280,18 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _compressionLevel = compressionLevel;
 
     if (options.idleTimeout() > 0 && !endpoint.datagram()) {
-      transceiver =
+      _idleTimeoutTransceiver =
           new IdleTimeoutTransceiverDecorator(
               transceiver,
               this,
               options.idleTimeout(),
               options.enableIdleCheck(),
               _instance.timer());
+      transceiver = _idleTimeoutTransceiver;
+    } else {
+      _idleTimeoutTransceiver = null;
     }
+
     _transceiver = transceiver;
 
     if (adapter != null) {
@@ -1453,6 +1435,15 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             if (_state != StateHolding && _state != StateNotValidated) {
               return;
             }
+
+            if (_maxDispatches <= 0 || _dispatchCount < _maxDispatches) {
+              _threadPool.register(this, SocketOperation.Read);
+              if (_idleTimeoutTransceiver != null) {
+                _idleTimeoutTransceiver.enableIdleCheck();
+              }
+            }
+            // else don't resume reading since we're at or over the _maxDispatches limit.
+
             _threadPool.register(this, SocketOperation.Read);
             break;
           }
@@ -1466,9 +1457,14 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             if (_state != StateActive && _state != StateNotValidated) {
               return;
             }
-            if (_state == StateActive) {
+            if (_state == StateActive && (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)) {
               _threadPool.unregister(this, SocketOperation.Read);
+              if (_idleTimeoutTransceiver != null) {
+                _idleTimeoutTransceiver.disableIdleCheck();
+              }
             }
+            // else reads are already disabled because the _maxDispatches limit is reached or
+            // exceeded.
             break;
           }
 
@@ -2162,7 +2158,19 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       }
     }
 
-    return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
+    if (_state == StateHolding) {
+      // Don't continue reading if the connection is in the holding state.
+      return SocketOperation.None;
+    } else if (_maxDispatches > 0 && _dispatchCount >= _maxDispatches) {
+      // Don't continue reading if the _maxDispatches limit is reached or exceeded.
+      if (_idleTimeoutTransceiver != null) {
+        _idleTimeoutTransceiver.disableIdleCheck();
+      }
+      return SocketOperation.None;
+    } else {
+      // Continue reading.
+      return SocketOperation.Read;
+    }
   }
 
   private void dispatchAll(
@@ -2289,6 +2297,14 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
           if (isTwoWay) {
             sendMessage(new OutgoingMessage(outputStream, compress != 0, true));
+          }
+
+          if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches) {
+            // Resume reading if the connection is active and the dispatch count is about to be less
+            // than
+            // _maxDispatches.
+            _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
+            _idleTimeoutTransceiver.enableIdleCheck();
           }
 
           --_dispatchCount;
@@ -2568,6 +2584,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private Communicator _communicator;
   private final com.zeroc.IceInternal.Instance _instance;
   private final com.zeroc.IceInternal.Transceiver _transceiver;
+  private final com.zeroc.IceInternal.IdleTimeoutTransceiverDecorator
+      _idleTimeoutTransceiver; // can be null
   private String _desc;
   private final String _type;
   private final com.zeroc.IceInternal.Connector _connector;
@@ -2635,6 +2653,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   // The number of outstanding dispatches. Maintained only while state is StateActive or
   // StateHolding.
   private int _dispatchCount;
+
+  // When we dispatch _maxDispatches concurrent requests, we stop reading the connection to
+  // back-pressure the peer.
+  // _maxDispatches <= 0 means no limit.
+  private final int _maxDispatches;
 
   private int _state; // The current state.
   private boolean _shutdownInitiated = false;
