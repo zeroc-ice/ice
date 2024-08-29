@@ -12,13 +12,10 @@ import {
     ConnectTimeoutException,
     ConnectionLostException,
     CloseTimeoutException,
-    SocketException,
     FeatureNotSupportedException,
     UnknownException,
     ObjectNotExistException,
 } from "./LocalExceptions.js";
-
-import { ConnectionClose } from "./Connection.js";
 
 import { BatchRequestQueue } from "./BatchRequestQueue.js";
 import { InputStream } from "./InputStream.js";
@@ -58,6 +55,16 @@ class MessageInfo {
         this.adapter = null;
         this.outAsync = null;
         this.upcallCount = 0;
+    }
+}
+
+function scheduleCloseTimeout(connection) {
+    if (connection._closeTimeout > 0 && connection._closeTimeoutId === undefined) {
+        // Schedules a one-time check.
+        connection._closeTimeoutId = connection._timer.schedule(
+            () => connection.closeTimedOut(),
+            connection._closeTimeout,
+        );
     }
 }
 
@@ -117,7 +124,7 @@ export class ConnectionI {
         this._exception = null;
 
         this._startPromise = null;
-        this._closePromises = [];
+        this._closed = undefined;
         this._finishedPromises = [];
 
         if (options.idleTimeout > 0) {
@@ -201,31 +208,26 @@ export class ConnectionI {
         }
     }
 
-    close(mode) {
-        const promise = new Promise();
+    abort() {
+        this.setState(
+            StateClosed,
+            new ConnectionAbortedException("The connection was aborted by the application.", true),
+        );
+    }
 
-        if (mode == ConnectionClose.Forcefully) {
-            this.setState(
-                StateClosed,
-                new ConnectionAbortedException("The connection was aborted by the application.", true),
-            );
-            promise.resolve();
-        } else if (mode == ConnectionClose.Gracefully) {
+    close() {
+        if (this._closed === undefined) {
+            this._closed = new Promise();
+        }
+        if (this._asyncRequests.size === 0) {
             this.setState(
                 StateClosing,
                 new ConnectionClosedException("The connection was closed gracefully by the application.", true),
             );
-            promise.resolve();
         } else {
-            Debug.assert(mode == ConnectionClose.GracefullyWithWait);
-
-            //
-            // Wait until all outstanding requests have been completed.
-            //
-            this._closePromises.push(promise);
-            this.checkClose();
+            scheduleCloseTimeout(this);
         }
-        return promise;
+        return this._closed;
     }
 
     checkClose() {
@@ -234,7 +236,7 @@ export class ConnectionI {
         // requests have completed and we can transition to StateClosing. We also
         // complete outstanding promises.
         //
-        if (this._asyncRequests.size === 0 && this._closePromises.length > 0) {
+        if (this._asyncRequests.size === 0 && this._closed !== undefined) {
             //
             // The caller doesn't expect the state of the connection to change when this is called so we queue the
             // check in the event loop an return control to the caller. This is consistent with other implementations
@@ -243,10 +245,8 @@ export class ConnectionI {
             Timer.setImmediate(() => {
                 this.setState(
                     StateClosing,
-                    new ConnectionClosedException("Connection closed gracefully by the application.", true),
+                    new ConnectionClosedException("The connection was closed gracefully by the application.", true),
                 );
-                this._closePromises.forEach(p => p.resolve());
-                this._closePromises = [];
             });
         }
     }
@@ -612,15 +612,8 @@ export class ConnectionI {
                 }
             }
         } catch (ex) {
-            if (ex instanceof SocketException) {
-                this.setState(StateClosed, ex);
-                return;
-            } else if (ex instanceof LocalException) {
-                this.setState(StateClosed, ex);
-                return;
-            } else {
-                throw ex;
-            }
+            this.setState(StateClosed, ex);
+            return;
         }
 
         this.upcall(info);
@@ -693,6 +686,7 @@ export class ConnectionI {
 
         if (this._closeTimeoutId !== undefined) {
             this._timer.cancel(this._closeTimeoutId);
+            this._closeTimeoutId = undefined;
         }
 
         const traceLevels = this._traceLevels;
@@ -776,6 +770,20 @@ export class ConnectionI {
         this._readStream.buffer.clear();
         this._writeStream.clear();
         this._writeStream.buffer.clear();
+
+        if (this._closed !== undefined) {
+            if (
+                this._exception instanceof ConnectionClosedException ||
+                this._exception instanceof CloseConnectionException ||
+                this._exception instanceof CommunicatorDestroyedException ||
+                this._exception instanceof ObjectAdapterDeactivatedException
+            ) {
+                this._closed.resolve();
+            } else {
+                Debug.assert(this._exception !== null);
+                this._closed.reject(this._exception);
+            }
+        }
 
         if (this._closeCallback !== null) {
             try {
@@ -1060,10 +1068,7 @@ export class ConnectionI {
         os.writeByte(0); // compression status: always report 0 for CloseConnection.
         os.writeInt(Protocol.headerSize); // Message size.
 
-        if (this._closeTimeout > 0) {
-            // Schedules a one-time check.
-            this._closeTimeoutId = this._timer.schedule(() => this.closeTimedOut(), this._closeTimeout);
-        }
+        scheduleCloseTimeout(this);
         this.sendMessage(OutgoingMessage.createForStream(os, false));
     }
 

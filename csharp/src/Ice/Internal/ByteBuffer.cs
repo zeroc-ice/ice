@@ -6,28 +6,9 @@ namespace Ice.Internal;
 
 public class ByteBuffer
 {
-
-    public ByteBuffer()
-    {
-        _order = ByteOrder.BigEndian;
-    }
-
-    public enum ByteOrder { BigEndian, LittleEndian };
-
     public static ByteOrder nativeOrder()
     {
         return NativeOrder._o;
-    }
-
-    public ByteOrder order()
-    {
-        return _order;
-    }
-
-    public ByteBuffer order(ByteOrder bo)
-    {
-        _order = bo;
-        return this;
     }
 
     public static ByteBuffer allocate(int capacity)
@@ -54,6 +35,28 @@ public class ByteBuffer
         ret._bytes = bytes;
         ret._valBytes = new ValBytes();
         return ret;
+    }
+
+    public ByteBuffer()
+    {
+        _order = ByteOrder.BigEndian;
+    }
+
+    public enum ByteOrder
+    {
+        BigEndian,
+        LittleEndian
+    }
+
+    public ByteOrder order()
+    {
+        return _order;
+    }
+
+    public ByteBuffer order(ByteOrder bo)
+    {
+        _order = bo;
+        return this;
     }
 
     public int position()
@@ -872,6 +875,7 @@ public class ByteBuffer
         {
             _o = BitConverter.IsLittleEndian ? ByteOrder.LittleEndian : ByteOrder.BigEndian;
         }
+
         internal static readonly ByteOrder _o;
 
         private NativeOrder()

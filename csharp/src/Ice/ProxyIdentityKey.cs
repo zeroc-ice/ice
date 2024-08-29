@@ -19,15 +19,15 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     public int GetHashCode(object obj) => ((ObjectPrx)obj).ice_getIdentity().GetHashCode();
 
     /// Compares two proxies for equality.
-    /// <param name="obj1">A proxy to compare.</param>
-    /// <param name="obj2">A proxy to compare.</param>
+    /// <param name="x">A proxy to compare.</param>
+    /// <param name="y">A proxy to compare.</param>
     /// <returns>True if the passed proxies have the same object
     /// identity; false, otherwise.</returns>
-    public new bool Equals(object? obj1, object? obj2)
+    public new bool Equals(object? x, object? y)
     {
         try
         {
-            return Compare(obj1, obj2) == 0;
+            return Compare(x, y) == 0;
         }
         catch (System.Exception)
         {
@@ -36,22 +36,22 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     }
 
     /// Compares two proxies using the object identity for comparison.
-    /// <param name="obj1">A proxy to compare.</param>
-    /// <param name="obj2">A proxy to compare.</param>
-    /// <returns>&lt; 0 if obj1 is less than obj2; &gt; 0 if obj1 is greater than obj2;
+    /// <param name="x">A proxy to compare.</param>
+    /// <param name="y">A proxy to compare.</param>
+    /// <returns>&lt; 0 if x is less than y; &gt; 0 if x is greater than y;
     /// 0, otherwise.</returns>
-    public int Compare(object? obj1, object? obj2)
+    public int Compare(object? x, object? y)
     {
-        ObjectPrx? proxy1 = obj1 as ObjectPrx;
-        if (obj1 is not null && proxy1 is null)
+        ObjectPrx? proxy1 = x as ObjectPrx;
+        if (x is not null && proxy1 is null)
         {
-            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
+            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(x));
         }
 
-        ObjectPrx? proxy2 = obj2 as ObjectPrx;
-        if (obj2 is not null && proxy2 is null)
+        ObjectPrx? proxy2 = y as ObjectPrx;
+        if (y is not null && proxy2 is null)
         {
-            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));
+            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(y));
         }
         return Util.proxyIdentityCompare(proxy1, proxy2);
     }
@@ -76,15 +76,15 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     }
 
     /// Compares two proxies for equality.
-    /// <param name="obj1">A proxy to compare.</param>
-    /// <param name="obj2">A proxy to compare.</param>
+    /// <param name="x">A proxy to compare.</param>
+    /// <param name="y">A proxy to compare.</param>
     /// <returns>True if the passed proxies have the same object
     /// identity and facet; false, otherwise.</returns>
-    public new bool Equals(object? obj1, object? obj2)
+    public new bool Equals(object? x, object? y)
     {
         try
         {
-            return Compare(obj1, obj2) == 0;
+            return Compare(x, y) == 0;
         }
         catch (System.Exception)
         {
@@ -93,22 +93,22 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     }
 
     /// Compares two proxies using the object identity and facet for comparison.
-    /// <param name="obj1">A proxy to compare.</param>
-    /// <param name="obj2">A proxy to compare.</param>
-    /// <returns>&lt; 0 if obj1 is less than obj2; &gt; 0 if obj1 is greater than obj2;
+    /// <param name="x">A proxy to compare.</param>
+    /// <param name="y">A proxy to compare.</param>
+    /// <returns>&lt; 0 if x is less than y; &gt; 0 if x is greater than y;
     /// 0, otherwise.</returns>
-    public int Compare(object? obj1, object? obj2)
+    public int Compare(object? x, object? y)
     {
-        ObjectPrx? proxy1 = obj1 as ObjectPrx;
-        if (obj1 is not null && proxy1 is null)
+        ObjectPrx? proxy1 = x as ObjectPrx;
+        if (x is not null && proxy1 is null)
         {
-            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
+            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(x));
         }
 
-        ObjectPrx? proxy2 = obj2 as ObjectPrx;
-        if (obj2 is not null && proxy2 is null)
+        ObjectPrx? proxy2 = y as ObjectPrx;
+        if (y is not null && proxy2 is null)
         {
-            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));
+            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(y));
         }
         return Util.proxyIdentityAndFacetCompare(proxy1, proxy2);
     }

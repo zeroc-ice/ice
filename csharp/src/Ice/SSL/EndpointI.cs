@@ -215,7 +215,8 @@ internal sealed class EndpointI : Ice.Internal.EndpointI
 
 internal sealed class EndpointFactoryI : Ice.Internal.EndpointFactoryWithUnderlying
 {
-    public EndpointFactoryI(Instance instance, short type) : base(instance, type) => _instance = instance;
+    public EndpointFactoryI(Instance instance, short type)
+        : base(instance, type) => _instance = instance;
 
     public override Ice.Internal.EndpointFactory
     cloneWithUnderlying(Ice.Internal.ProtocolInstance instance, short underlying) =>

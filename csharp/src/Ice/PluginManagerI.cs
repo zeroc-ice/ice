@@ -96,7 +96,7 @@ internal sealed class PluginManagerI : PluginManager
 
     public string[] getPlugins()
     {
-        lock (this)
+        lock (_mutex)
         {
             ArrayList names = new ArrayList();
             foreach (PluginInfo p in _plugins)
@@ -109,7 +109,7 @@ internal sealed class PluginManagerI : PluginManager
 
     public Plugin getPlugin(string name)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_communicator is null)
             {
@@ -128,7 +128,7 @@ internal sealed class PluginManagerI : PluginManager
 
     public void addPlugin(string name, Plugin plugin)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_communicator is null)
             {
@@ -146,7 +146,7 @@ internal sealed class PluginManagerI : PluginManager
 
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_communicator is not null)
             {
@@ -501,10 +501,10 @@ internal sealed class PluginManagerI : PluginManager
 
     internal record class PluginInfo(string name, Plugin plugin);
 
+    private static Dictionary<string, PluginFactory> _factories = new Dictionary<string, PluginFactory>();
+    private static List<string> _loadOnInitialization = new List<string>();
     private Communicator? _communicator;
     private ArrayList _plugins;
     private bool _initialized;
-
-    private static Dictionary<string, PluginFactory> _factories = new Dictionary<string, PluginFactory>();
-    private static List<string> _loadOnInitialization = new List<string>();
+    private readonly object _mutex = new();
 }

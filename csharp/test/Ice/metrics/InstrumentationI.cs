@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 public class ObserverI : Ice.Instrumentation.Observer
 {
-    virtual public void
+    public virtual void
     reset()
     {
         lock (this)
@@ -75,7 +75,7 @@ public class ObserverI : Ice.Instrumentation.Observer
 
 public class ChildInvocationObserverI : ObserverI, Ice.Instrumentation.ChildInvocationObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)
@@ -107,7 +107,7 @@ public class CollocatedObserverI : ChildInvocationObserverI, Ice.Instrumentation
 
 public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)
@@ -181,7 +181,7 @@ public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObse
 
 public class DispatchObserverI : ObserverI, Ice.Instrumentation.DispatchObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)
@@ -216,7 +216,7 @@ public class DispatchObserverI : ObserverI, Ice.Instrumentation.DispatchObserver
 
 public class ConnectionObserverI : ObserverI, Ice.Instrumentation.ConnectionObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)
@@ -251,7 +251,7 @@ public class ConnectionObserverI : ObserverI, Ice.Instrumentation.ConnectionObse
 
 public class ThreadObserverI : ObserverI, Ice.Instrumentation.ThreadObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)

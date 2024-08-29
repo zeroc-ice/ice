@@ -21,7 +21,7 @@ public sealed class Timer
 {
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_instance == null)
             {
@@ -29,7 +29,7 @@ public sealed class Timer
             }
 
             _instance = null;
-            Monitor.Pulse(this);
+            Monitor.Pulse(_mutex);
 
             _tokens.Clear();
             _tasks.Clear();
@@ -40,7 +40,7 @@ public sealed class Timer
 
     public void schedule(TimerTask task, long delay)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_instance == null)
             {
@@ -61,14 +61,14 @@ public sealed class Timer
 
             if (token.scheduledTime < _wakeUpTime)
             {
-                Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
         }
     }
 
     public void scheduleRepeated(TimerTask task, long period)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_instance == null)
             {
@@ -89,14 +89,14 @@ public sealed class Timer
 
             if (token.scheduledTime < _wakeUpTime)
             {
-                Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
         }
     }
 
     public bool cancel(TimerTask task)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_instance == null)
             {
@@ -144,13 +144,14 @@ public sealed class Timer
 
     internal void updateObserver(Ice.Instrumentation.CommunicatorObserver obsv)
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(obsv != null);
-            _observer = obsv.getThreadObserver("Communicator",
-                                               _thread.Name,
-                                               Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                               _observer);
+            _observer = obsv.getThreadObserver(
+                "Communicator",
+                _thread.Name,
+                Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                _observer);
             if (_observer != null)
             {
                 _observer.attach();
@@ -163,7 +164,7 @@ public sealed class Timer
         Token token = null;
         while (true)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_instance != null)
                 {
@@ -190,7 +191,7 @@ public sealed class Timer
                 if (_tokens.Count == 0)
                 {
                     _wakeUpTime = long.MaxValue;
-                    Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 if (_instance == null)
@@ -222,7 +223,7 @@ public sealed class Timer
                     }
 
                     _wakeUpTime = first.scheduledTime;
-                    Monitor.Wait(this, (int)(first.scheduledTime - now));
+                    Monitor.Wait(_mutex, (int)(first.scheduledTime - now));
                 }
 
                 if (_instance == null)
@@ -238,16 +239,18 @@ public sealed class Timer
                     Ice.Instrumentation.ThreadObserver threadObserver = _observer;
                     if (threadObserver != null)
                     {
-                        threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                                    Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                        threadObserver.stateChanged(
+                            Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                            Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                         try
                         {
                             token.task.runTimerTask();
                         }
                         finally
                         {
-                            threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
-                                                        Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                            threadObserver.stateChanged(
+                                Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                                Ice.Instrumentation.ThreadState.ThreadStateIdle);
                         }
                     }
                     else
@@ -257,7 +260,7 @@ public sealed class Timer
                 }
                 catch (System.Exception ex)
                 {
-                    lock (this)
+                    lock (_mutex)
                     {
                         if (_instance != null)
                         {
@@ -326,6 +329,7 @@ public sealed class Timer
         public TimerTask task;
     }
 
+    private readonly object _mutex = new object();
     private IDictionary<Token, object> _tokens = new SortedDictionary<Token, object>();
     private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
     private Instance _instance;

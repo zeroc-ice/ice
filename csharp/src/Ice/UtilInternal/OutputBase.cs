@@ -42,13 +42,13 @@ public class OutputBase
         separator_ = true;
     }
 
-    virtual public void
+    public virtual void
     setIndent(int indentSize)
     {
         indentSize_ = indentSize;
     }
 
-    virtual public void
+    public virtual void
     setUseTab(bool useTab)
     {
         useTab_ = useTab;
