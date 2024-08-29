@@ -760,6 +760,8 @@ namespace Ice
                             {
                                 await q;
                             }
+                            // Wait until the connection is closed.
+                            await p.ice_getCachedConnection().closeAsync();
                         }
                     }
                     output.WriteLine("ok");
