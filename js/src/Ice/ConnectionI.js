@@ -216,14 +216,17 @@ export class ConnectionI {
     }
 
     close() {
-        //
-        // Wait until all outstanding requests have been completed.
-        //
         if (this._closed === undefined) {
             this._closed = new Promise();
         }
-        this.checkClose();
-        scheduleCloseTimeout(this);
+        if (this._asyncRequests.size === 0) {
+            this.setState(
+                StateClosing,
+                new ConnectionClosedException("The connection was closed gracefully by the application.", true),
+            );
+        } else {
+            scheduleCloseTimeout(this);
+        }
         return this._closed;
     }
 
