@@ -177,6 +177,11 @@ public class AllTests {
         // Expected.
       }
 
+      try {
+        closureThread.join(); // Ensure the connection closure thread completed.
+      } catch (java.lang.InterruptedException ex) {
+      }
+
       controller.resumeAdapter();
       timeout.op(); // Ensure adapter is active.
     }
