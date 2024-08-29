@@ -112,7 +112,7 @@ export class Client extends TestHelper {
                 }
 
                 const conn = await test1.ice_getConnection();
-                await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                await conn.close();
             }
             //
             // Ensure that the proxy correctly caches the connection (we
@@ -137,7 +137,7 @@ export class Client extends TestHelper {
                 for (const adpt of adapters) {
                     const prx = await adpt.getTestIntf();
                     const conn = await prx.ice_getConnection();
-                    await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                    await conn.close();
                 }
             }
             //
@@ -164,7 +164,7 @@ export class Client extends TestHelper {
                     names.splice(index, 1);
                 }
                 const conn = await test1.ice_getConnection();
-                await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                await conn.close();
             }
             //
             // Deactivate an adapter and ensure that we can still
@@ -240,7 +240,7 @@ export class Client extends TestHelper {
                     try {
                         const prx = await a.getTestIntf();
                         const conn = await prx.ice_getConnection();
-                        await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                        await conn.close();
                     } catch (ex) {
                         // Expected if adapter is down.
                         test(ex instanceof Ice.LocalException, ex);
@@ -272,7 +272,7 @@ export class Client extends TestHelper {
                     names.splice(index, 1);
                 }
                 const conn = await obj.ice_getConnection();
-                await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                await conn.close();
             }
 
             obj = Test.TestIntfPrx.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Random));
@@ -285,7 +285,7 @@ export class Client extends TestHelper {
                     names.splice(index, 1);
                 }
                 const conn = await obj.ice_getConnection();
-                await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                await conn.close();
             }
 
             await deactivate(com, adapters);
@@ -346,12 +346,12 @@ export class Client extends TestHelper {
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter36"; i++);
             test(i == nRetry);
             let conn = await obj.ice_getConnection();
-            await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+            await conn.close();
             adapters.push(await com.createObjectAdapter("Adapter35", endpoints[1].toString()));
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter35"; i++);
             test(i == nRetry);
             conn = await obj.ice_getConnection();
-            await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+            await conn.close();
             adapters.push(await com.createObjectAdapter("Adapter34", endpoints[0].toString()));
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter34"; i++);
             test(i == nRetry);

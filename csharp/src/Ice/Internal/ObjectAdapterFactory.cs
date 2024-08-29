@@ -3,12 +3,13 @@
 using System.Net.Security;
 
 namespace Ice.Internal;
+
 public sealed class ObjectAdapterFactory
 {
     public void shutdown()
     {
         List<Ice.ObjectAdapter> adapters;
-        lock (this)
+        lock (_mutex)
         {
             //
             // Ignore shutdown requests if the object adapter factory has
@@ -24,7 +25,7 @@ public sealed class ObjectAdapterFactory
             _instance = null;
             _communicator = null;
 
-            System.Threading.Monitor.PulseAll(this);
+            System.Threading.Monitor.PulseAll(_mutex);
         }
 
         //
@@ -40,14 +41,14 @@ public sealed class ObjectAdapterFactory
     public void waitForShutdown()
     {
         List<Ice.ObjectAdapter> adapters;
-        lock (this)
+        lock (_mutex)
         {
             //
             // First we wait for the shutdown of the factory itself.
             //
             while (_instance != null)
             {
-                System.Threading.Monitor.Wait(this);
+                System.Threading.Monitor.Wait(_mutex);
             }
 
             adapters = new List<Ice.ObjectAdapter>(_adapters);
@@ -64,7 +65,7 @@ public sealed class ObjectAdapterFactory
 
     public bool isShutdown()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _instance == null;
         }
@@ -78,7 +79,7 @@ public sealed class ObjectAdapterFactory
         waitForShutdown();
 
         List<Ice.ObjectAdapter> adapters;
-        lock (this)
+        lock (_mutex)
         {
             adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
@@ -88,7 +89,7 @@ public sealed class ObjectAdapterFactory
             adapter.destroy();
         }
 
-        lock (this)
+        lock (_mutex)
         {
             _adapters.Clear();
         }
@@ -98,7 +99,7 @@ public sealed class ObjectAdapterFactory
     updateConnectionObservers()
     {
         List<Ice.ObjectAdapter> adapters;
-        lock (this)
+        lock (_mutex)
         {
             adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
@@ -113,7 +114,7 @@ public sealed class ObjectAdapterFactory
     updateThreadObservers()
     {
         List<Ice.ObjectAdapter> adapters;
-        lock (this)
+        lock (_mutex)
         {
             adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
@@ -129,7 +130,7 @@ public sealed class ObjectAdapterFactory
         Ice.RouterPrx router,
         SslServerAuthenticationOptions serverAuthenticationOptions)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_instance == null)
             {
@@ -176,7 +177,7 @@ public sealed class ObjectAdapterFactory
                     serverAuthenticationOptions);
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_instance == null)
                 {
@@ -197,7 +198,7 @@ public sealed class ObjectAdapterFactory
         {
             if (name.Length > 0)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _adapterNamesInUse.Remove(name);
                 }
@@ -211,7 +212,7 @@ public sealed class ObjectAdapterFactory
     public Ice.ObjectAdapter findObjectAdapter(Reference reference)
     {
         List<Ice.ObjectAdapter> adapters;
-        lock (this)
+        lock (_mutex)
         {
             if (_instance == null)
             {
@@ -241,7 +242,7 @@ public sealed class ObjectAdapterFactory
 
     public void removeObjectAdapter(Ice.ObjectAdapter adapter)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_instance == null)
             {
@@ -256,7 +257,7 @@ public sealed class ObjectAdapterFactory
     public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
     {
         List<Ice.ObjectAdapter> adapters;
-        lock (this)
+        lock (_mutex)
         {
             adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
@@ -282,4 +283,5 @@ public sealed class ObjectAdapterFactory
     private Ice.Communicator _communicator;
     private HashSet<string> _adapterNamesInUse;
     private List<Ice.ObjectAdapter> _adapters;
+    private readonly object _mutex = new();
 }

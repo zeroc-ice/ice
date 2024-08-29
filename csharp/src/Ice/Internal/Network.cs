@@ -94,7 +94,8 @@ public sealed class Network
         // exception's message, but that is fragile due to localization issues. We
         // resort to extracting the value of the protected HResult member via reflection.
         //
-        int hr = (int)ex.GetType().GetProperty("HResult",
+        int hr = (int)ex.GetType().GetProperty(
+            "HResult",
             System.Reflection.BindingFlags.Instance |
             System.Reflection.BindingFlags.NonPublic |
             System.Reflection.BindingFlags.Public).GetValue(ex, null);
@@ -1415,6 +1416,6 @@ public sealed class Network
         private bool _ipv6;
     }
 
-    private readonly static EndPointComparator _preferIPv4Comparator = new EndPointComparator(false);
-    private readonly static EndPointComparator _preferIPv6Comparator = new EndPointComparator(true);
+    private static readonly EndPointComparator _preferIPv4Comparator = new EndPointComparator(false);
+    private static readonly EndPointComparator _preferIPv6Comparator = new EndPointComparator(true);
 }

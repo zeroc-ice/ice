@@ -438,6 +438,7 @@ public sealed class StreamSocket
         }
         return sent;
     }
+
     private void ioCompleted(object sender, SocketAsyncEventArgs e)
     {
         switch (e.LastOperation)

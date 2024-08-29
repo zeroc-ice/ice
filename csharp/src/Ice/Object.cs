@@ -120,17 +120,17 @@ public interface Object
 public abstract class ObjectImpl : Object
 {
     /// <summary>
+    /// Returns the Slice type ID of the interface supported by this object.
+    /// </summary>
+    /// <returns>The return value is always ::Ice::Object.</returns>
+    public static string ice_staticId() => "::Ice::Object";
+
+    /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     /// </summary>
     /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The return value is always ::Ice::Object.</returns>
     public virtual string ice_id(Current current) => ice_staticId();
-
-    /// <summary>
-    /// Returns the Slice type ID of the interface supported by this object.
-    /// </summary>
-    /// <returns>The return value is always ::Ice::Object.</returns>
-    public static string ice_staticId() => "::Ice::Object";
 
     public virtual ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
         request.current.operation switch

@@ -16,13 +16,13 @@ public class TestI : TestIntfDisp_
     {
     }
 
-    override public void
+    public override void
     op(Ice.Current current)
     {
         test(Executor.isExecutorThread());
     }
 
-    override public void
+    public override void
     opWithPayload(byte[] seq, Ice.Current current)
     {
         test(Executor.isExecutorThread());
@@ -33,7 +33,7 @@ public class TestI : TestIntfDisp_
         Thread.Sleep(to);
     }
 
-    override public void
+    public override void
     shutdown(Ice.Current current)
     {
         test(Executor.isExecutorThread());
@@ -51,14 +51,14 @@ public class TestControllerI : TestIntfControllerDisp_
         }
     }
 
-    override public void
+    public override void
     holdAdapter(Ice.Current current)
     {
         test(Executor.isExecutorThread());
         _adapter.hold();
     }
 
-    override public void
+    public override void
     resumeAdapter(Ice.Current current)
     {
         test(Executor.isExecutorThread());

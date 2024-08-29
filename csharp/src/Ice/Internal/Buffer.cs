@@ -8,7 +8,8 @@ using System.Diagnostics;
 // This class wraps a ByteBuffer and supports reallocation.
 public class Buffer
 {
-    public Buffer() : this(ByteBuffer.ByteOrder.LittleEndian)
+    public Buffer()
+        : this(ByteBuffer.ByteOrder.LittleEndian)
     {
     }
 
@@ -20,7 +21,8 @@ public class Buffer
         _order = order;
     }
 
-    public Buffer(byte[] data) : this(data, ByteBuffer.ByteOrder.LittleEndian)
+    public Buffer(byte[] data)
+        : this(data, ByteBuffer.ByteOrder.LittleEndian)
     {
     }
 
@@ -33,7 +35,8 @@ public class Buffer
         _order = order;
     }
 
-    public Buffer(ByteBuffer data) : this(data, ByteBuffer.ByteOrder.LittleEndian)
+    public Buffer(ByteBuffer data)
+        : this(data, ByteBuffer.ByteOrder.LittleEndian)
     {
     }
 

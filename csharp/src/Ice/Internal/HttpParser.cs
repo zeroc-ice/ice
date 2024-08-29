@@ -745,5 +745,6 @@ internal sealed class HttpParser
         ResponseLF,
         Complete
     };
+
     private State _state;
 }

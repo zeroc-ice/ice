@@ -171,7 +171,7 @@ public class AllTests : Test.AllTests
         return Test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort).ToString();
     }
 
-    static private Dictionary<string, string>
+    private static Dictionary<string, string>
     getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.getPropertiesForPrefix("IceMX.Metrics");
@@ -194,7 +194,7 @@ public class AllTests : Test.AllTests
         return props;
     }
 
-    static private Dictionary<string, string>
+    private static Dictionary<string, string>
     getServerProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.getPropertiesForPrefix("IceMX.Metrics");

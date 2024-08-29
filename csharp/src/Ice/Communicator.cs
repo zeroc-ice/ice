@@ -110,7 +110,7 @@ public sealed class Communicator : IDisposable
     /// configure local settings for the proxy, such as MyProxy.PreferSecure=1. The "Properties" appendix in the Ice
     /// manual describes each of the supported proxy properties.
     /// </summary>
-    ///  <param name="property">The base property name.</param>
+    /// <param name="property">The base property name.</param>
     /// <returns>The proxy.</returns>
     public ObjectPrx? propertyToProxy(string property)
     {
@@ -242,7 +242,7 @@ public sealed class Communicator : IDisposable
     /// that this method has no effect on existing proxies. You can also set a router for an individual proxy by calling
     /// <see cref="ObjectPrx.ice_router(RouterPrx?)" /> on the proxy.
     /// </summary>
-    ///  <param name="router">The default router to use for this communicator.</param>
+    /// <param name="router">The default router to use for this communicator.</param>
     public void setDefaultRouter(RouterPrx? router) => instance.setDefaultRouter(router);
 
     /// <summary>
@@ -257,7 +257,7 @@ public sealed class Communicator : IDisposable
     /// can be used. Note that this method has no effect on existing proxies or object adapters.
     /// You can also set a locator for an individual proxy by calling <see cref="ObjectPrx.ice_locator(LocatorPrx?) "/>
     /// on the proxy, or for an object adapter by calling <see cref="ObjectAdapter.setLocator(LocatorPrx)" /> on the
-    ///  object adapter.
+    /// object adapter.
     /// </summary>
     /// <param name="locator">The default locator to use for this communicator.</param>
     public void setDefaultLocator(LocatorPrx? locator) => instance.setDefaultLocator(locator);
@@ -344,7 +344,7 @@ public sealed class Communicator : IDisposable
     /// Removes the following facet to the Admin object.
     /// Removing a facet that was not previously registered throws <see cref="NotRegisteredException" />
     /// </summary>
-    ///  <param name="facet">The name of the Admin facet.</param>
+    /// <param name="facet">The name of the Admin facet.</param>
     /// <returns>The servant associated with this Admin facet.</returns>
     public Object removeAdminFacet(string facet) => instance.removeAdminFacet(facet);
 
@@ -385,31 +385,30 @@ public sealed class Communicator : IDisposable
 /// <summary>
 /// The output mode for xxxToString method such as identityToString and proxyToString.
 /// The actual encoding format for
-///  the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
-///  string.
+/// the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
+/// string.
 /// </summary>
 public enum ToStringMode
 {
     /// <summary>
     /// Characters with ordinal values greater than 127 are kept as-is in the resulting string.
     /// Non-printable ASCII
-    ///  characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
+    /// characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
     /// </summary>
-
     Unicode,
+
     /// <summary>
     /// Characters with ordinal values greater than 127 are encoded as universal character names in the resulting
-    ///  string: \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters.
+    /// string: \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters.
     /// Non-printable ASCII characters
-    ///  with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
+    /// with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
     /// </summary>
-
     ASCII,
+
     /// <summary>
     /// Characters with ordinal values greater than 127 are encoded as a sequence of UTF-8 bytes using octal escapes.
     /// Characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or an octal escape. Use this mode
-    ///  to generate strings compatible with Ice 3.6 and earlier.
+    /// to generate strings compatible with Ice 3.6 and earlier.
     /// </summary>
-
     Compat
 }

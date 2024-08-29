@@ -47,7 +47,7 @@ export async function batchOneways(prx: Test.MyClassPrx) {
         batch1.ice_ping();
         batch2.ice_ping();
         await batch1.ice_flushBatchRequests();
-        await batch1.ice_getConnection().then((c) => c.close(Ice.ConnectionClose.GracefullyWithWait));
+        await batch1.ice_getConnection().then((c) => c.close());
         batch1.ice_ping();
         batch2.ice_ping();
 
@@ -55,7 +55,7 @@ export async function batchOneways(prx: Test.MyClassPrx) {
         await batch2.ice_getConnection();
 
         batch1.ice_ping();
-        await batch1.ice_getConnection().then((c) => c.close(Ice.ConnectionClose.GracefullyWithWait));
+        await batch1.ice_getConnection().then((c) => c.close());
 
         batch1.ice_ping();
         batch2.ice_ping();

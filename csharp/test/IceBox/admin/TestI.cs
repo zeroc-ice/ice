@@ -8,7 +8,7 @@ public class TestFacetI : TestFacetDisp_
     {
     }
 
-    override public Dictionary<string, string> getChanges(Ice.Current current)
+    public override Dictionary<string, string> getChanges(Ice.Current current)
     {
         return _changes;
     }
