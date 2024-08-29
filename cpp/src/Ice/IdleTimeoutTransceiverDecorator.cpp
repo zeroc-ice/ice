@@ -31,7 +31,7 @@ namespace
         const weak_ptr<ConnectionI> _connection;
     };
 
-    class IdleCheckTimerTask final : public Ice::TimerTask, public enable_shared_from_this<IdleCheckTimerTask>
+    class IdleCheckTimerTask final : public Ice::TimerTask
     {
     public:
         IdleCheckTimerTask(const ConnectionIPtr& connection, const chrono::seconds& idleTimeout)
@@ -44,7 +44,7 @@ namespace
         {
             if (auto connection = _connection.lock())
             {
-                connection->idleCheck(shared_from_this(), _idleTimeout);
+                connection->idleCheck(_idleTimeout);
             }
             // else nothing to do, the connection is already gone.
         }
@@ -56,10 +56,10 @@ namespace
 }
 
 void
-IdleTimeoutTransceiverDecorator::decoratorInit(const ConnectionIPtr& connection)
+IdleTimeoutTransceiverDecorator::decoratorInit(const ConnectionIPtr& connection, bool enableIdleCheck)
 {
     _heartbeatTimerTask = make_shared<HeartbeatTimerTask>(connection);
-    if (_enableIdleCheck)
+    if (enableIdleCheck)
     {
         _idleCheckTimerTask = make_shared<IdleCheckTimerTask>(connection, _idleTimeout);
     }
@@ -74,11 +74,6 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
     {
         // reschedule because Ice often writes to a client connection before it's connected.
         _timer->reschedule(_heartbeatTimerTask, chrono::milliseconds(_idleTimeout) / 2);
-        if (_enableIdleCheck)
-        {
-            // reschedule because with SSL, the connection is connected after a read.
-            _timer->reschedule(_idleCheckTimerTask, _idleTimeout);
-        }
     }
 
     return op;
@@ -89,21 +84,14 @@ IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator()
     // Since ConnectionI is noexcept, decoratorInit always sets _heartbeatTimerTask.
     assert(_heartbeatTimerTask);
     _timer->cancel(_heartbeatTimerTask);
-
-    if (_idleCheckTimerTask)
-    {
-        _timer->cancel(_idleCheckTimerTask);
-    }
+    disableIdleCheck();
 }
 
 void
 IdleTimeoutTransceiverDecorator::close()
 {
     _timer->cancel(_heartbeatTimerTask);
-    if (_enableIdleCheck)
-    {
-        _timer->cancel(_idleCheckTimerTask);
-    }
+    disableIdleCheck();
     _decoratee->close();
 }
 
@@ -145,12 +133,11 @@ IdleTimeoutTransceiverDecorator::startRead(Buffer& buf)
 void
 IdleTimeoutTransceiverDecorator::finishRead(Buffer& buf)
 {
-    if (_enableIdleCheck)
+    if (_idleCheckEnabled)
     {
         // We don't want the idle check to run while we're reading, so we reschedule it before reading.
         _timer->reschedule(_idleCheckTimerTask, _idleTimeout);
     }
-
     _decoratee->finishRead(buf);
 }
 
@@ -159,10 +146,30 @@ IdleTimeoutTransceiverDecorator::finishRead(Buffer& buf)
 SocketOperation
 IdleTimeoutTransceiverDecorator::read(Buffer& buf)
 {
-    if (_enableIdleCheck)
+    if (_idleCheckEnabled)
     {
         // We don't want the idle check to run while we're reading, so we reschedule it before reading.
         _timer->reschedule(_idleCheckTimerTask, _idleTimeout);
     }
     return _decoratee->read(buf);
+}
+
+void
+IdleTimeoutTransceiverDecorator::enableIdleCheck()
+{
+    if (!_idleCheckEnabled && _idleCheckTimerTask)
+    {
+        _timer->schedule(_idleCheckTimerTask, _idleTimeout);
+        _idleCheckEnabled = true;
+    }
+}
+
+void
+IdleTimeoutTransceiverDecorator::disableIdleCheck()
+{
+    if (_idleCheckEnabled && _idleCheckTimerTask)
+    {
+        _timer->cancel(_idleCheckTimerTask);
+        _idleCheckEnabled = false;
+    }
 }

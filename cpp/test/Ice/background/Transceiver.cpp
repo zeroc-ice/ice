@@ -212,12 +212,6 @@ Transceiver::finishRead(IceInternal::Buffer& buf)
 }
 #endif
 
-bool
-Transceiver::isWaitingToBeRead() const noexcept
-{
-    return _transceiver->isWaitingToBeRead();
-}
-
 string
 Transceiver::protocol() const
 {

@@ -1857,6 +1857,7 @@ Ice::ConnectionI::ConnectionI(
     : _communicator(communicator),
       _instance(instance),
       _transceiver(transceiver),
+      _idleTimeoutTransceiver(dynamic_pointer_cast<IdleTimeoutTransceiverDecorator>(transceiver)),
       _desc(transceiver->toString()),
       _type(transceiver->protocol()),
       _connector(connector),
@@ -1882,6 +1883,7 @@ Ice::ConnectionI::ConnectionI(
       _readStream(_instance.get(), Ice::currentProtocolEncoding),
       _readHeader(false),
       _upcallCount(0),
+      _maxDispatches(options.maxDispatches),
       _state(StateNotInitialized),
       _shutdownInitiated(false),
       _initialized(false),
@@ -1915,11 +1917,8 @@ Ice::ConnectionI::create(
     shared_ptr<IdleTimeoutTransceiverDecorator> decoratedTransceiver;
     if (options.idleTimeout > chrono::milliseconds::zero() && !endpoint->datagram())
     {
-        decoratedTransceiver = make_shared<IdleTimeoutTransceiverDecorator>(
-            transceiver,
-            options.idleTimeout,
-            options.enableIdleCheck,
-            instance->timer());
+        decoratedTransceiver =
+            make_shared<IdleTimeoutTransceiverDecorator>(transceiver, options.idleTimeout, instance->timer());
     }
 
     Ice::ConnectionIPtr connection(new ConnectionI(
@@ -1939,7 +1938,7 @@ Ice::ConnectionI::create(
 
     if (decoratedTransceiver)
     {
-        decoratedTransceiver->decoratorInit(connection);
+        decoratedTransceiver->decoratorInit(connection, options.enableIdleCheck);
     }
 
     if (adapter)
@@ -2089,34 +2088,42 @@ Ice::ConnectionI::setState(State state)
 
             case StateActive:
             {
-                //
-                // Can only switch from holding or not validated to
-                // active.
-                //
+                // Can only switch from holding or not validated to active.
                 if (_state != StateHolding && _state != StateNotValidated)
                 {
                     return;
                 }
 
-                _threadPool->_register(shared_from_this(), SocketOperationRead);
+                if (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)
+                {
+                    _threadPool->_register(shared_from_this(), SocketOperationRead);
+                    if (_idleTimeoutTransceiver)
+                    {
+                        _idleTimeoutTransceiver->enableIdleCheck();
+                    }
+                }
+                // else don't resume reading since we're at or over the _maxDispatches limit.
+
                 break;
             }
 
             case StateHolding:
             {
-                //
-                // Can only switch from active or not validated to
-                // holding.
-                //
+                // Can only switch from active or not validated to holding.
                 if (_state != StateActive && _state != StateNotValidated)
                 {
                     return;
                 }
 
-                if (_state == StateActive)
+                if (_state == StateActive && (_maxDispatches <= 0 || _dispatchCount < _maxDispatches))
                 {
                     _threadPool->unregister(shared_from_this(), SocketOperationRead);
+                    if (_idleTimeoutTransceiver)
+                    {
+                        _idleTimeoutTransceiver->disableIdleCheck();
+                    }
                 }
+                // else reads are already disabled because the _maxDispatches limit is reached or exceeded.
                 break;
             }
 
@@ -2278,45 +2285,27 @@ Ice::ConnectionI::initiateShutdown()
 }
 
 void
-Ice::ConnectionI::idleCheck(const Ice::TimerTaskPtr& idleCheckTimerTask, const chrono::seconds& idleTimeout) noexcept
+Ice::ConnectionI::idleCheck(const chrono::seconds& idleTimeout) noexcept
 {
     std::lock_guard lock(_mutex);
-    // When _timer->isScheduled(idleCheckTimerTask) returns true, it means a read rescheduled the
-    // timer task while we were waiting to lock _mutex. We don't do anything in this case.
-    if ((_state == StateActive || _state == StateHolding) && !_timer->isScheduled(idleCheckTimerTask))
+    if (_state == StateActive && _idleTimeoutTransceiver->idleCheckEnabled())
     {
-        if (_transceiver->isWaitingToBeRead())
+        if (_instance->traceLevels()->network >= 1)
         {
-            // Schedule timer task.
-            _timer->reschedule(idleCheckTimerTask, idleTimeout);
-
-            if (_instance->traceLevels()->network >= 3)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-                out << "the idle check scheduled a new idle check in " << idleTimeout.count()
-                    << "s because the connection is waiting to be read\n";
-                out << _transceiver->toDetailedString();
-            }
+            Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+            out << "connection aborted by the idle check because it did not receive any bytes for "
+                << idleTimeout.count() << "s\n";
+            out << _transceiver->toDetailedString();
         }
-        else
-        {
-            if (_instance->traceLevels()->network >= 1)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-                out << "connection aborted by the idle check because it did not receive any bytes for "
-                    << idleTimeout.count() << "s\n";
-                out << _transceiver->toDetailedString();
-            }
 
-            setState(
-                StateClosed,
-                make_exception_ptr(ConnectionAbortedException{
-                    __FILE__,
-                    __LINE__,
-                    "connection aborted by the idle check because it did not receive any bytes for " +
-                        to_string(idleTimeout.count()) + "s",
-                    false})); // closedByApplication: false
-        }
+        setState(
+            StateClosed,
+            make_exception_ptr(ConnectionAbortedException{
+                __FILE__,
+                __LINE__,
+                "connection aborted by the idle check because it did not receive any bytes for " +
+                    to_string(idleTimeout.count()) + "s",
+                false})); // closedByApplication: false
     }
     // else, nothing to do
 }
@@ -2475,6 +2464,17 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
             {
                 OutgoingMessage message(&response.outputStream(), compress > 0);
                 sendMessage(message);
+            }
+
+            if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches)
+            {
+                // Resume reading if the connection is active and the dispatch count is about to be less than
+                // _maxDispatches.
+                _threadPool->update(shared_from_this(), SocketOperationNone, SocketOperationRead);
+                if (_idleTimeoutTransceiver)
+                {
+                    _idleTimeoutTransceiver->enableIdleCheck();
+                }
             }
 
             --_dispatchCount;
@@ -3362,7 +3362,25 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
         }
     }
 
-    return _state == StateHolding ? SocketOperationNone : SocketOperationRead;
+    if (_state == StateHolding)
+    {
+        // Don't continue reading if the connection is in the holding state.
+        return SocketOperationNone;
+    }
+    else if (_maxDispatches > 0 && _dispatchCount >= _maxDispatches)
+    {
+        // Don't continue reading if the _maxDispatches limit is reached or exceeded.
+        if (_idleTimeoutTransceiver)
+        {
+            _idleTimeoutTransceiver->disableIdleCheck();
+        }
+        return SocketOperationNone;
+    }
+    else
+    {
+        // Continue reading.
+        return SocketOperationRead;
+    }
 }
 
 void

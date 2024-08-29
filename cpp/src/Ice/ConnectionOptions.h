@@ -17,6 +17,7 @@ namespace Ice
         std::chrono::seconds idleTimeout;
         bool enableIdleCheck;
         std::chrono::seconds inactivityTimeout;
+        int maxDispatches;
     };
 }
 

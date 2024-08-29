@@ -19,7 +19,7 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
     output.write("testing connection not aborted by idle check... ");
 
     // The server has 1s idle timeout, and disabled idle check.
-    const proxyString = `test-bidir: ${helper.getTestEndpoint(2)}`;
+    const proxyString = `test-bidir: ${helper.getTestEndpoint(3)}`;
 
     const completedPromise = new Ice.Promise<void>();
 
@@ -67,7 +67,7 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
     output.write("testing connection aborted by idle check... ");
 
     // The server has 3s idle timeout, and disabled idle check.
-    const proxyString = `test-bidir: ${helper.getTestEndpoint(3)}`;
+    const proxyString = `test-bidir: ${helper.getTestEndpoint(4)}`;
 
     const completedPromise = new Ice.Promise<void>();
 
@@ -117,7 +117,7 @@ async function testServerWithEnableDisableIdleCheck(
     output.write(`testing with server idle check ${enabledString}... `);
 
     // The server has 3s idle timeout, and enabled idle check.
-    const proxyString3s = `test: ${helper.getTestEndpoint(1)}`;
+    const proxyString3s = `test: ${helper.getTestEndpoint(2)}`;
 
     // Create a new communicator with the desired properties.
     properties = properties.clone();

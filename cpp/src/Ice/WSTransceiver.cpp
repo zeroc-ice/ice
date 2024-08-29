@@ -767,12 +767,6 @@ IceInternal::WSTransceiver::finishRead(Buffer& buf)
 }
 #endif
 
-bool
-IceInternal::WSTransceiver::isWaitingToBeRead() const noexcept
-{
-    return _delegate->isWaitingToBeRead();
-}
-
 string
 IceInternal::WSTransceiver::protocol() const
 {

@@ -39,6 +39,8 @@
 
 namespace IceInternal
 {
+    class IdleTimeoutTransceiverDecorator;
+
     template<typename T> class ThreadPoolMessage;
 }
 
@@ -221,12 +223,9 @@ namespace Ice
 
         void closeCallback(const CloseCallback&);
 
-        /// Aborts the connection with a ConnectionAbortedException unless any of the following is true:
-        /// - the connection is no longer active
-        /// - its transceiver is waiting to be read
-        /// - the idle check timer task has been rescheduled by a concurrent read
-        /// In the two latter cases, this function reschedules the idle check timer task in idle timeout.
-        void idleCheck(const Ice::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
+        /// Aborts the connection with a ConnectionAbortedException if the connection is active and did not receive
+        /// a byte for some time. See the IdleTimeoutTransceiverDecorator.
+        void idleCheck(const std::chrono::seconds& idleTimeout) noexcept;
 
         /// Shuts down the connection gracefully if it's at rest when this function is called.
         void inactivityCheck() noexcept;
@@ -331,6 +330,8 @@ namespace Ice
         Ice::CommunicatorPtr _communicator;
         const IceInternal::InstancePtr _instance;
         const IceInternal::TransceiverPtr _transceiver;
+        const std::shared_ptr<IceInternal::IdleTimeoutTransceiverDecorator> _idleTimeoutTransceiver; // can be null
+
         const std::string _desc;
         const std::string _type;
         const IceInternal::ConnectorPtr _connector;
@@ -397,6 +398,10 @@ namespace Ice
 
         // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
         int _dispatchCount = 0;
+
+        // When we dispatch _maxDispatches concurrent requests, we stop reading the connection to back-pressure the
+        // peer. _maxDispatches <= 0 means no limit.
+        int _maxDispatches;
 
         State _state; // The current state.
         bool _shutdownInitiated;
