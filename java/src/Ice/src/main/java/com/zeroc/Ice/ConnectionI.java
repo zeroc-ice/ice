@@ -2282,16 +2282,12 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             notifyAll();
           }
 
-          if (_state >= StateClosed) {
-            assert (_exception != null);
-            throw (LocalException) _exception.fillInStackTrace();
+          if (_state < StateClosed) {
+            if (isTwoWay) {
+              sendMessage(new OutgoingMessage(outputStream, compress != 0, true));
+            }
+            --_dispatchCount;
           }
-
-          if (isTwoWay) {
-            sendMessage(new OutgoingMessage(outputStream, compress != 0, true));
-          }
-
-          --_dispatchCount;
 
           if (_state == StateClosing && _upcallCount == 0) {
             //
