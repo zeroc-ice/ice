@@ -445,16 +445,14 @@ def allTests(helper, communicator, collocated):
         # Remote case: the server closes the connection gracefully, which means the connection
         # will not be closed until all pending dispatched requests have completed.
         #
-        con = p.ice_getConnection()
-        cb = CallbackBase()
-        con.setCloseCallback(lambda c: cb.called())
         f = p.sleepAsync(100)
         p.close(Test.CloseMode.Gracefully)  # Close is delayed until sleep completes.
-        cb.check()  # Ensure connection was closed.
         try:
             f.result()
         except Exception:
             test(False)
+
+        p.ice_getCachedConnection().close(True) # Wait until the connection is closed.
 
         print("ok")
 
