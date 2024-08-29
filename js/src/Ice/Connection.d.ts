@@ -62,8 +62,8 @@ declare module "ice" {
             abort(): void;
 
             /**
-             * Manually closes the connection, the connection is closed gracefully and wait for all pending invocations
-             * to complete before closing the connection.
+             * Manually closes the connection gracefully after waiting for all pending invocations
+             * to complete.
              *
              * @returns A promise that resolves when the close operation is complete.
              */
