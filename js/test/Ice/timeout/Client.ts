@@ -87,7 +87,7 @@ export class Client extends TestHelper {
         {
             const connection = await timeout.ice_getConnection();
             await controller.holdAdapter(-1);
-            await connection.close(Ice.ConnectionClose.GracefullyWithWait);
+            const closed = connection.close();
 
             try {
                 connection.getInfo(); // getInfo() doesn't throw in the closing state
@@ -107,6 +107,12 @@ export class Client extends TestHelper {
                 await controller.resumeAdapter();
             }
             await timeout.op();
+
+            try {
+                await closed;
+            } catch (ex) {
+                test(false, ex);
+            }
         }
         controller.shutdown();
         out.writeLine("ok");
