@@ -22,7 +22,7 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .macOS(.v14),
-        .iOS(.v12),
+        .iOS(.v17),
     ],
     products: [
         .library(name: "Ice", targets: ["Ice"]),
@@ -66,7 +66,12 @@ let package = Package(
         ),
         .target(
             name: "IceImpl",
-            dependencies: ["IceCpp", "IceDiscoveryCpp", "IceLocatorDiscoveryCpp"],
+            dependencies: [
+                "IceCpp",
+                "IceDiscoveryCpp",
+                "IceLocatorDiscoveryCpp",
+                .target(name:"IceIAPCpp", condition: .when(platforms: [.iOS]))
+            ],
             path: "swift/src/IceImpl",
             cxxSettings: [
                 // We rely on a few private headers from Ice
@@ -90,6 +95,10 @@ let package = Package(
             name: "IceLocatorDiscoveryCpp",
             path: "cpp/lib/IceLocatorDiscovery.xcframework"
 
+        ),
+        .binaryTarget(
+            name: "IceIAPCpp",
+            path: "cpp/lib/IceIAP.xcframework"
         ),
         .executableTarget(
             name: "slice2swift",

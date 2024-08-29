@@ -17,12 +17,14 @@ $1:: test/ios/TestDriverApp.xcodeproj
 		-project test/ios/TestDriverApp.xcodeproj \
 		-scheme TestDriverApp \
 		-configuration $(CONFIG) \
+		-arch arm64 \
 		-sdk $2 $3
+
 endef
 
 all:: tests
 
-srcs:
+srcs::
 	$(Q)swift build $(SWIFT_BUILD_FLAGS)
 
 tests::
@@ -32,13 +34,14 @@ install::
 	@echo nothing to install
 
 clean::
-	$(Q)rm -rf .build
+	$(Q)rm -rf ../.build
 	$(Q)rm -rf test/.build
 
 distclean:: clean
 
-# test-app-platforms ?= iphonesimulator iphoneos
+# We just build the test app for the iphonesimulator platform by default
+test-app-platforms ?= $(filter iphonesimulator, $(platforms))
 
-# $(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,tests,$p,build)))
-# $(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,clean,$p,clean)))
-# $(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,distclean,$p,clean)))
+$(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,tests,$p,build)))
+$(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,clean,$p,clean)))
+$(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,distclean,$p,clean)))

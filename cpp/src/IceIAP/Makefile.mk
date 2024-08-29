@@ -4,7 +4,7 @@
 
 $(project)_libraries    = IceIAP
 
-IceIAP_configs          := xcodesdk
+IceIAP_configs          := static
 IceIAP_platforms        := iphoneos iphonesimulator
 
 IceIAP_targetdir        := $(libdir)

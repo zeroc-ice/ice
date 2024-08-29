@@ -46,6 +46,7 @@ class ProcessControllerI: CommonProcessController {
         _ipv4 = ipv4
         _ipv6 = ipv6
 
+        //TODO: remove the queues
         _serverDispatchQueue = DispatchQueue(label: "Server", qos: .background)
         _clientDispatchQueue = DispatchQueue(label: "Client", qos: .background)
     }
@@ -197,7 +198,7 @@ class ControllerHelperI: ControllerHelper, TextWriter {
 
         let className = "\(_testName).\(_exe)"
 
-        _queue.async {
+        Task {
             do {
                 let testHelper = TestBundle.getTestHelper(name: className)
                 testHelper.setControllerHelper(controllerHelper: self)

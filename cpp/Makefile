@@ -25,6 +25,10 @@ include $(foreach p,$(load_first),src/$p/Makefile.mk)
 include $(filter-out $(foreach p,$(load_first),%/src/$p/Makefile.mk),$(shell find $(lang_srcdir)/src -name Makefile.mk))
 $(call make-projects,$(projects),make-cpp-src-project,,$(filter all cpp,$(ICE_BIN_DIST)))
 
+ifeq ($(os),Darwin)
+$(call make-xcframeworks)
+endif
+
 #
 # Now, create and load test projects.
 #
