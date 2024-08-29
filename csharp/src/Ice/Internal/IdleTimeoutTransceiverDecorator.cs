@@ -46,8 +46,11 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
     public void finishRead(Buffer buf)
     {
-        // We don't want the idle check to run while we're reading, so we reschedule it before reading.
-        rescheduleReadTimer();
+        if (idleCheckEnabled)
+        {
+            // We don't want the idle check to run while we're reading, so we reschedule it before reading.
+            rescheduleReadTimer();
+        }
         _decoratee.finishRead(buf);
     }
 
@@ -73,7 +76,10 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
     public int read(Buffer buf, ref bool hasMoreData)
     {
         // We don't want the idle check to run while we're reading, so we reschedule it before reading.
-        rescheduleReadTimer();
+        if (idleCheckEnabled)
+        {
+            rescheduleReadTimer();
+        }
         return _decoratee.read(buf, ref hasMoreData);
     }
 

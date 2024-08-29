@@ -96,18 +96,6 @@ IceBT::TransceiverI::read(IceInternal::Buffer& buf)
     return _stream->read(buf);
 }
 
-bool
-IceBT::TransceiverI::isWaitingToBeRead() const noexcept
-{
-    SOCKET fd = _stream->fd();
-    if (fd == INVALID_SOCKET)
-    {
-        // See comment in read().
-        return true;
-    }
-    return IceInternal::hasBytesAvailable(fd);
-}
-
 string
 IceBT::TransceiverI::protocol() const
 {

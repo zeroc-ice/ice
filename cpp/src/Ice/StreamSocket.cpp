@@ -55,15 +55,6 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd)
       _write(SocketOperationWrite)
 #endif
 {
-#if defined(ICE_USE_IOCP)
-    // For the implementation of isWaitingToBeRead.
-    _read.hEvent = WSACreateEvent();
-    if (_read.hEvent == WSA_INVALID_EVENT)
-    {
-        throw Ice::SocketException(__FILE__, __LINE__, WSAGetLastError());
-    }
-#endif
-
     init();
     try
     {
@@ -76,13 +67,7 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd)
     }
 }
 
-StreamSocket::~StreamSocket()
-{
-    assert(_fd == INVALID_SOCKET);
-#if defined(ICE_USE_IOCP)
-    WSACloseEvent(_read.hEvent);
-#endif
-}
+StreamSocket::~StreamSocket() { assert(_fd == INVALID_SOCKET); }
 
 SocketOperation
 StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
@@ -336,18 +321,6 @@ StreamSocket::write(const char* buf, size_t length)
     return sent;
 }
 
-bool
-StreamSocket::isWaitingToBeRead() const noexcept
-{
-#if defined(ICE_USE_IOCP)
-    // Check if the event on the _read overlapped structure is signaled.
-    return WaitForSingleObject(_read.hEvent, 0) == WAIT_OBJECT_0 // 0ms means don't wait
-           || hasBytesAvailable(_fd);                            // needed for ws
-#else
-    return hasBytesAvailable(_fd);
-#endif
-}
-
 #if defined(ICE_USE_IOCP)
 AsyncInfo*
 StreamSocket::getAsyncInfo(SocketOperation op)
@@ -460,8 +433,6 @@ StreamSocket::finishRead(Buffer& buf)
     {
         return;
     }
-
-    WSAResetEvent(_read.hEvent);
 
     if (_read.error != ERROR_SUCCESS)
     {
