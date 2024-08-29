@@ -61,7 +61,10 @@ class MessageInfo {
 function scheduleCloseTimeout(connection) {
     if (connection._closeTimeout > 0 && connection._closeTimeoutId === undefined) {
         // Schedules a one-time check.
-        connection._closeTimeoutId = connection._timer.schedule(() => connection.closeTimedOut(), connection._closeTimeout);
+        connection._closeTimeoutId = connection._timer.schedule(
+            () => connection.closeTimedOut(),
+            connection._closeTimeout,
+        );
     }
 }
 
@@ -217,7 +220,7 @@ export class ConnectionI {
         // Wait until all outstanding requests have been completed.
         //
         if (this._closed === undefined) {
-            this._closed = new Promise;
+            this._closed = new Promise();
         }
         this.checkClose();
         scheduleCloseTimeout(this);
