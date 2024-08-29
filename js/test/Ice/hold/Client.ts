@@ -180,7 +180,7 @@ export class Client extends TestHelper {
                     }
                     await holdSerialized.ice_ping(); // Ensure everything's dispatched.
                     const conn = await holdSerialized.ice_getConnection();
-                    await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                    await conn.close();
                 }
             }
             await Promise.all(results);

@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { defineEnum } from "./EnumBase.js";
 import { defineDictionary } from "./HashMap.js";
 import { StreamHelpers } from "./StreamHelpers.js";
 
@@ -17,15 +16,6 @@ export class ConnectionInfo {
         this.connectionId = connectionId;
     }
 }
-
-/**
- *  Determines the behavior when manually closing a connection.
- **/
-export const ConnectionClose = defineEnum([
-    ["Forcefully", 0],
-    ["Gracefully", 1],
-    ["GracefullyWithWait", 2],
-]);
 
 /**
  *  Provides access to the connection details of an IP connection
