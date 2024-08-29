@@ -947,6 +947,8 @@ public class AllTests {
             q.join();
           }
         }
+        // Make sure the connection is closed.
+        p.ice_getConnection().close();
       }
       out.println("ok");
 
