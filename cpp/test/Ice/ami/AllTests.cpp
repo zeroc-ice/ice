@@ -1172,6 +1172,8 @@ allTests(TestHelper* helper, bool collocated)
                             test(false);
                         }
                     }
+                    // Wait until the connection is closed.
+                    p->ice_getCachedConnection()->close().get();
                 }
             }
             cout << "ok" << endl;

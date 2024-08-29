@@ -171,7 +171,11 @@ public class AllTests {
         }
       }
 
-      assert (!closureThread.isAlive()); // Ensure the connection closure completed.
+      try {
+        closureThread.join(); // Ensure the connection closure completed.
+      } catch (java.lang.InterruptedException ex) {
+      }
+
       controller.resumeAdapter();
       timeout.op(); // Ensure adapter is active.
     }
