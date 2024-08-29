@@ -8,7 +8,7 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            override public void run(string[] args)
+            public override void run(string[] args)
             {
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Dispatch", "0");

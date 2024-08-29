@@ -130,7 +130,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   }
 
   @Override
-  public void close(final ConnectionClose mode) {
+  public void abort() {
     if (Thread.interrupted()) {
       throw new OperationInterruptedException();
     }
@@ -142,41 +142,68 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                  closeImpl(mode);
+                  abortImpl();
                   return null;
                 }
               });
     } else {
-      closeImpl(mode);
+      abortImpl();
     }
   }
 
-  private synchronized void closeImpl(ConnectionClose mode) {
-    if (mode == ConnectionClose.Forcefully) {
-      setState(
-          StateClosed,
-          new ConnectionAbortedException("connection aborted by the application", true));
-    } else if (mode == ConnectionClose.Gracefully) {
-      setState(
-          StateClosing,
-          new ConnectionClosedException("connection closed gracefully by the application", true));
+  @Override
+  public void close() {
+    if (Thread.interrupted()) {
+      throw new OperationInterruptedException();
+    }
+
+    if (_instance.queueRequests()) {
+      _instance
+          .getQueueExecutor()
+          .executeNoThrow(
+              new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                  closeImpl();
+                  return null;
+                }
+              });
     } else {
-      assert (mode == ConnectionClose.GracefullyWithWait);
+      closeImpl();
+    }
+  }
 
-      //
-      // Wait until all outstanding requests have been completed.
-      //
-      while (!_asyncRequests.isEmpty()) {
-        try {
-          wait();
-        } catch (InterruptedException ex) {
-          throw new OperationInterruptedException(ex);
-        }
+  private synchronized void abortImpl() {
+    setState(
+        StateClosed, new ConnectionAbortedException("connection aborted by the application", true));
+  }
+
+  private synchronized void closeImpl() {
+    if (_state < StateClosing) {
+      if (_asyncRequests.isEmpty()) {
+        doApplicationClose();
+      } else {
+        _closeRequested = true;
+        scheduleCloseTimer(); // we don't wait forever for outstanding invocations to complete
       }
+    }
+    // else nothing else to do, already closing or closed.
 
-      setState(
-          StateClosing,
-          new ConnectionClosedException("Connection closed gracefully by the application.", true));
+    // Wait until the connection has been closed.
+    while (_state < StateClosed) {
+      try {
+        wait();
+      } catch (InterruptedException ex) {
+        throw new OperationInterruptedException(ex);
+      }
+    }
+
+    if (!(_exception instanceof ConnectionClosedException
+        || _exception instanceof CloseConnectionException
+        || _exception instanceof CommunicatorDestroyedException
+        || _exception instanceof ObjectAdapterDeactivatedException)) {
+      assert (_exception != null);
+      throw _exception;
     }
   }
 
@@ -1552,10 +1579,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       // CloseConnection in Java.
       os.writeInt(Protocol.headerSize); // Message size.
 
-      if (_closeTimeout > 0) {
-        // Schedules a one-time check.
-        _timer.schedule(this::closeTimedOut, _closeTimeout, TimeUnit.SECONDS);
-      }
+      scheduleCloseTimer();
 
       if ((sendMessage(new OutgoingMessage(os, false, false)) & AsyncStatus.Sent) > 0) {
         setState(StateClosingPending);
@@ -2039,10 +2063,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               //
               int op = _transceiver.closing(false, _exception);
               if (op != 0) {
-                if (_closeTimeout > 0) {
-                  // Schedules a one-time check.
-                  _timer.schedule(this::closeTimedOut, _closeTimeout, TimeUnit.SECONDS);
-                }
+                scheduleCloseTimer();
                 return op;
               }
               setState(StateClosed);
@@ -2108,7 +2129,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               info.outAsync = outAsync;
               ++info.messageDispatchCount;
             }
-            notifyAll(); // Notify threads blocked in close(false)
+            if (_closeRequested && _state < StateClosing && _asyncRequests.isEmpty()) {
+              doApplicationClose();
+            }
             break;
           }
 
@@ -2477,6 +2500,20 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
   }
 
+  private void scheduleCloseTimer() {
+    if (_closeTimeout > 0) {
+      // Schedules a one-time check.
+      _timer.schedule(this::closeTimedOut, _closeTimeout, TimeUnit.SECONDS);
+    }
+  }
+
+  private synchronized void doApplicationClose() {
+    assert (_state < StateClosing);
+    setState(
+        StateClosing,
+        new ConnectionClosedException("connection closed gracefully by the application", true));
+  }
+
   private static class OutgoingMessage {
     OutgoingMessage(OutputStream stream, boolean compress, boolean adopt) {
       this.stream = stream;
@@ -2603,6 +2640,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private boolean _shutdownInitiated = false;
   private boolean _initialized = false;
   private boolean _validated = false;
+
+  // When true, the application called close and Connection must close the connection when it
+  // receives the reply for the last outstanding invocation.
+  private boolean _closeRequested;
 
   private ProtocolVersion _readProtocol = new ProtocolVersion();
   private EncodingVersion _readProtocolEncoding = new EncodingVersion();

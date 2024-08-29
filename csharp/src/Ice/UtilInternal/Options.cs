@@ -7,9 +7,15 @@ namespace Ice.UtilInternal;
 
 public sealed class Options
 {
-    private enum State { Normal, DoubleQuote, SingleQuote, ANSIQuote };
+    private enum State
+    {
+        Normal,
+        DoubleQuote,
+        SingleQuote,
+        ANSIQuote
+    }
 
-    static public string[]
+    public static string[]
     split(string line)
     {
         string IFS = " \t\n";

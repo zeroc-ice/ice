@@ -95,7 +95,7 @@ public final class OutgoingConnectionFactory {
           //
           for (java.util.List<ConnectionI> l : connections.values()) {
             for (ConnectionI c : l) {
-              c.close(com.zeroc.Ice.ConnectionClose.Forcefully);
+              c.abort();
             }
           }
           throw new com.zeroc.Ice.OperationInterruptedException();

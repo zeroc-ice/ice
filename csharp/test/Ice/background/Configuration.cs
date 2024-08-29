@@ -149,7 +149,7 @@ internal class Configuration
         return _buffered;
     }
 
-    static public Configuration getInstance()
+    public static Configuration getInstance()
     {
         return _instance;
     }

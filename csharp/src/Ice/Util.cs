@@ -468,7 +468,7 @@ public sealed class Util
         return majorMinorToString(v.major, v.minor);
     }
 
-    static private void stringToMajorMinor(string str, out byte major, out byte minor)
+    private static void stringToMajorMinor(string str, out byte major, out byte minor)
     {
         int pos = str.IndexOf('.', StringComparison.Ordinal);
         if (pos == -1)
@@ -499,7 +499,7 @@ public sealed class Util
         minor = (byte)minVersion;
     }
 
-    static private string majorMinorToString(byte major, byte minor)
+    private static string majorMinorToString(byte major, byte minor)
     {
         return string.Format("{0}.{1}", major, minor);
     }
@@ -513,8 +513,9 @@ public sealed class Util
         new ProtocolVersion(Ice.Internal.Protocol.protocolMajor, Ice.Internal.Protocol.protocolMinor);
 
     public static readonly EncodingVersion currentProtocolEncoding =
-        new EncodingVersion(Ice.Internal.Protocol.protocolEncodingMajor,
-                            Ice.Internal.Protocol.protocolEncodingMinor);
+        new EncodingVersion(
+            Ice.Internal.Protocol.protocolEncodingMajor,
+            Ice.Internal.Protocol.protocolEncodingMinor);
 
     public static readonly EncodingVersion currentEncoding =
         new EncodingVersion(Ice.Internal.Protocol.encodingMajor, Ice.Internal.Protocol.encodingMinor);

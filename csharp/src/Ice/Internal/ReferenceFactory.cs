@@ -628,7 +628,7 @@ public class ReferenceFactory
         _communicator = communicator;
     }
 
-    static private readonly string[] _suffixes =
+    private static readonly string[] _suffixes =
     {
         "EndpointSelection",
         "ConnectionCached",
@@ -691,15 +691,16 @@ public class ReferenceFactory
         }
     }
 
-    private Reference create(Ice.Identity ident,
-                             string facet,
-                             Reference.Mode mode,
-                             bool secure,
-                             Ice.ProtocolVersion protocol,
-                             Ice.EncodingVersion encoding,
-                             EndpointI[] endpoints,
-                             string adapterId,
-                             string propertyPrefix)
+    private Reference create(
+        Ice.Identity ident,
+        string facet,
+        Reference.Mode mode,
+        bool secure,
+        Ice.ProtocolVersion protocol,
+        Ice.EncodingVersion encoding,
+        EndpointI[] endpoints,
+        string adapterId,
+        string propertyPrefix)
     {
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
@@ -854,26 +855,27 @@ public class ReferenceFactory
         //
         // Create new reference
         //
-        return new RoutableReference(_instance,
-                                     _communicator,
-                                     ident,
-                                     facet,
-                                     mode,
-                                     secure,
-                                     compress: null,
-                                     protocol,
-                                     encoding,
-                                     endpoints,
-                                     adapterId,
-                                     locatorInfo,
-                                     routerInfo,
-                                     collocOptimized,
-                                     cacheConnection,
-                                     preferSecure,
-                                     endpointSelection,
-                                     locatorCacheTimeout,
-                                     invocationTimeout,
-                                     context);
+        return new RoutableReference(
+            _instance,
+            _communicator,
+            ident,
+            facet,
+            mode,
+            secure,
+            compress: null,
+            protocol,
+            encoding,
+            endpoints,
+            adapterId,
+            locatorInfo,
+            routerInfo,
+            collocOptimized,
+            cacheConnection,
+            preferSecure,
+            endpointSelection,
+            locatorCacheTimeout,
+            invocationTimeout,
+            context);
     }
 
     private Instance _instance;

@@ -15,6 +15,7 @@ exception TestIntfException
 {
 }
 
+// TODO: remove this enum from all tests once the new connection closure API is implemented in JS.
 enum CloseMode
 {
     Forcefully,

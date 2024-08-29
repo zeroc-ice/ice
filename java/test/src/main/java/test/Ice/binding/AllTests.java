@@ -110,7 +110,7 @@ public class AllTests {
         test(test2.ice_getConnection() == test3.ice_getConnection());
 
         names.remove(test1.getAdapterName());
-        test1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+        test1.ice_getConnection().close();
       }
 
       //
@@ -131,9 +131,7 @@ public class AllTests {
         test(i == nRetry);
 
         for (RemoteObjectAdapterPrx p : adapters) {
-          p.getTestIntf()
-              .ice_getConnection()
-              .close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+          p.getTestIntf().ice_getConnection().close();
         }
       }
 
@@ -157,7 +155,7 @@ public class AllTests {
         test(test2.ice_getConnection() == test3.ice_getConnection());
 
         names.remove(test1.getAdapterName());
-        test1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+        test1.ice_getConnection().close();
       }
 
       //
@@ -237,9 +235,7 @@ public class AllTests {
 
         for (RemoteObjectAdapterPrx a : adapters) {
           try {
-            a.getTestIntf()
-                .ice_getConnection()
-                .close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+            a.getTestIntf().ice_getConnection().close();
           } catch (com.zeroc.Ice.LocalException ex) {
             // Expected if adapter is down.
           }
@@ -277,7 +273,7 @@ public class AllTests {
         test(test2.ice_getConnection() == test3.ice_getConnection());
 
         names.remove(getAdapterNameWithAMI(test1));
-        test1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+        test1.ice_getConnection().close();
       }
 
       //
@@ -298,9 +294,7 @@ public class AllTests {
         test(i == nRetry);
 
         for (RemoteObjectAdapterPrx p : adapters) {
-          p.getTestIntf()
-              .ice_getConnection()
-              .close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+          p.getTestIntf().ice_getConnection().close();
         }
       }
 
@@ -324,7 +318,7 @@ public class AllTests {
         test(test2.ice_getConnection() == test3.ice_getConnection());
 
         names.remove(getAdapterNameWithAMI(test1));
-        test1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+        test1.ice_getConnection().close();
       }
 
       //
@@ -356,7 +350,7 @@ public class AllTests {
       names.add("Adapter23");
       while (!names.isEmpty()) {
         names.remove(test.getAdapterName());
-        test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+        test.ice_getConnection().close();
       }
 
       test = test.ice_endpointSelection(EndpointSelectionType.Random);
@@ -367,7 +361,7 @@ public class AllTests {
       names.add("Adapter23");
       while (!names.isEmpty()) {
         names.remove(test.getAdapterName());
-        test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+        test.ice_getConnection().close();
       }
 
       deactivate(rcom, adapters);
@@ -430,12 +424,12 @@ public class AllTests {
       for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter36"); i++)
         ;
       test(i == nRetry);
-      test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+      test.ice_getConnection().close();
       adapters.add(rcom.createObjectAdapter("Adapter35", endpoints[1].toString()));
       for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter35"); i++)
         ;
       test(i == nRetry);
-      test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+      test.ice_getConnection().close();
       adapters.add(rcom.createObjectAdapter("Adapter34", endpoints[0].toString()));
       for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter34"); i++)
         ;
@@ -721,7 +715,7 @@ public class AllTests {
         int i;
         for (i = 0; i < 5; i++) {
           test(test.getAdapterName().equals("Adapter82"));
-          test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+          test.ice_getConnection().close();
         }
 
         TestIntfPrx testSecure = test.ice_secure(true);
@@ -736,7 +730,7 @@ public class AllTests {
 
         for (i = 0; i < 5; i++) {
           test(test.getAdapterName().equals("Adapter81"));
-          test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+          test.ice_getConnection().close();
         }
 
         rcom.createObjectAdapter(
@@ -744,7 +738,7 @@ public class AllTests {
 
         for (i = 0; i < 5; i++) {
           test(test.getAdapterName().equals("Adapter83"));
-          test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
+          test.ice_getConnection().close();
         }
 
         rcom.deactivateObjectAdapter(adapters.get(0));

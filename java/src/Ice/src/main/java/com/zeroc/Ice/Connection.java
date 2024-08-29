@@ -17,13 +17,15 @@ package com.zeroc.Ice;
 
 /** The user-level interface to a connection. */
 public interface Connection {
+  /** Aborts this connection. */
+  void abort();
+
   /**
-   * Manually close the connection using the specified closure mode.
-   *
-   * @param mode Determines how the connection will be closed.
-   * @see ConnectionClose
+   * Closes the connection gracefully after waiting for all outstanding invocations to complete.
+   * This method blocks until the connection has been closed, or if it takes longer than the
+   * configured close timeout, the connection is aborted with a {@link CloseTimeoutException}.
    */
-  void close(ConnectionClose mode);
+  void close();
 
   /**
    * Create a special proxy that always uses this connection. This can be used for callbacks from a

@@ -30,12 +30,12 @@ namespace Ice
                 return null;
             }
 
-            override public void shutdown(Ice.Current current)
+            public override void shutdown(Ice.Current current)
             {
                 current.adapter.getCommunicator().shutdown();
             }
 
-            override public Dictionary<string, string> getEndpointInfoAsContext(Ice.Current c)
+            public override Dictionary<string, string> getEndpointInfoAsContext(Ice.Current c)
             {
                 Dictionary<string, string> ctx = new Dictionary<string, string>();
                 Ice.EndpointInfo info = c.con.getEndpoint().getInfo();
@@ -59,7 +59,7 @@ namespace Ice
                 return ctx;
             }
 
-            override public Dictionary<string, string> getConnectionInfoAsContext(Ice.Current c)
+            public override Dictionary<string, string> getConnectionInfoAsContext(Ice.Current c)
             {
                 Dictionary<string, string> ctx = new Dictionary<string, string>();
                 Ice.ConnectionInfo info = c.con.getInfo();

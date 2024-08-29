@@ -324,25 +324,6 @@ internal class SSLEngine
         return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
     }
 
-    private bool checkPath(ref string path)
-    {
-        if (File.Exists(path))
-        {
-            return true;
-        }
-
-        if (_defaultDir.Length > 0 && !isAbsolutePath(path))
-        {
-            string s = _defaultDir + Path.DirectorySeparatorChar + path;
-            if (File.Exists(s))
-            {
-                path = s;
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static X509Certificate2Collection findCertificates(
         string prop,
         StoreLocation storeLocation,
@@ -526,6 +507,25 @@ internal class SSLEngine
             result.AppendChar(ch);
         }
         return result;
+    }
+
+    private bool checkPath(ref string path)
+    {
+        if (File.Exists(path))
+        {
+            return true;
+        }
+
+        if (_defaultDir.Length > 0 && !isAbsolutePath(path))
+        {
+            string s = _defaultDir + Path.DirectorySeparatorChar + path;
+            if (File.Exists(s))
+            {
+                path = s;
+                return true;
+            }
+        }
+        return false;
     }
 
     private readonly Ice.Communicator _communicator;

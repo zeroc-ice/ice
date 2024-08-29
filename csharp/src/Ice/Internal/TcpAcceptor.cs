@@ -108,7 +108,7 @@ internal class TcpAcceptor : Acceptor
         if (intfs.Count != 0)
         {
             s.Append("\nlocal interfaces = ");
-            s.Append(String.Join(", ", intfs.ToArray()));
+            s.Append(string.Join(", ", intfs.ToArray()));
         }
         return s.ToString();
     }

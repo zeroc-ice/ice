@@ -406,7 +406,7 @@ export class Client extends TestHelper {
         hello = await Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"));
         await obj!.migrateHello();
         const conn = await hello!.ice_getConnection();
-        await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+        await conn.close();
         await hello!.sayHello();
         await obj!.migrateHello();
         await hello!.sayHello();

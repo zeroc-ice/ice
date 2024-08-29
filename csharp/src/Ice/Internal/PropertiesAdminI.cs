@@ -25,7 +25,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
     public override void
     setProperties(Dictionary<string, string> props, Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             var old = _properties.getPropertiesForPrefix("");
             int traceLevel = _properties.getPropertyAsInt("Ice.Trace.Admin.Properties");
@@ -199,7 +199,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
 
     public void addUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
     {
-        lock (this)
+        lock (_mutex)
         {
             _deprecatedUpdateCallbacks.Add(cb);
         }
@@ -207,7 +207,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
 
     public void removeUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
     {
-        lock (this)
+        lock (_mutex)
         {
             _deprecatedUpdateCallbacks.Remove(cb);
         }
@@ -215,7 +215,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
 
     public void addUpdateCallback(System.Action<Dictionary<string, string>> cb)
     {
-        lock (this)
+        lock (_mutex)
         {
             _updateCallbacks.Add(cb);
         }
@@ -223,7 +223,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
 
     public void removeUpdateCallback(Action<Dictionary<string, string>> cb)
     {
-        lock (this)
+        lock (_mutex)
         {
             _updateCallbacks.Remove(cb);
         }
@@ -235,4 +235,5 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
     private readonly List<Action<Dictionary<string, string>>> _updateCallbacks = new();
 
     private const string _traceCategory = "Admin.Properties";
+    private readonly object _mutex = new();
 }

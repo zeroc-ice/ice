@@ -24,7 +24,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         Filters filters = new Filters(messageTypes, categories);
         LinkedList<Ice.LogMessage> initLogMessages = null;
 
-        lock (this)
+        lock (_mutex)
         {
             if (_sendLogCommunicator == null)
             {
@@ -50,8 +50,9 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                 throw new Ice.RemoteLoggerAlreadyAttachedException();
             }
 
-            _remoteLoggerMap.Add(remoteLoggerId,
-                                 new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
+            _remoteLoggerMap.Add(
+                remoteLoggerId,
+                new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
 
             if (messageMax != 0)
             {
@@ -138,7 +139,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         Ice.Current current)
     {
         LinkedList<Ice.LogMessage> logMessages = null;
-        lock (this)
+        lock (_mutex)
         {
             if (messageMax != 0)
             {
@@ -172,7 +173,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
     {
         Ice.Communicator sendLogCommunicator = null;
 
-        lock (this)
+        lock (_mutex)
         {
             if (!_destroyed)
             {
@@ -194,7 +195,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
     internal List<Ice.RemoteLoggerPrx> log(Ice.LogMessage logMessage)
     {
-        lock (this)
+        lock (_mutex)
         {
             List<Ice.RemoteLoggerPrx> remoteLoggers = null;
 
@@ -312,14 +313,6 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         return _traceLevel;
     }
 
-    private bool removeRemoteLogger(Ice.RemoteLoggerPrx remoteLogger)
-    {
-        lock (this)
-        {
-            return _remoteLoggerMap.Remove(remoteLogger.ice_getIdentity());
-        }
-    }
-
     private static void filterLogMessages(
         LinkedList<Ice.LogMessage> logMessages,
         HashSet<Ice.LogMessageType> messageTypes,
@@ -420,7 +413,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             for (int i = 0; i < extraProps.Length; ++i)
             {
                 string p = extraProps[i];
-                if (!p.StartsWith("--"))
+                if (!p.StartsWith("--", StringComparison.Ordinal))
                 {
                     extraProps[i] = "--" + p;
                 }
@@ -428,6 +421,14 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             initData.properties.parseCommandLineOptions("", extraProps);
         }
         return Ice.Util.initialize(initData);
+    }
+
+    private bool removeRemoteLogger(Ice.RemoteLoggerPrx remoteLogger)
+    {
+        lock (_mutex)
+        {
+            return _remoteLoggerMap.Remove(remoteLogger.ice_getIdentity());
+        }
     }
 
     private readonly LinkedList<Ice.LogMessage> _queue = new LinkedList<Ice.LogMessage>();
@@ -439,6 +440,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
     private LinkedListNode<Ice.LogMessage> _oldestTrace;
     private LinkedListNode<Ice.LogMessage> _oldestLog;
+    private readonly object _mutex = new();
 
     private class Filters
     {

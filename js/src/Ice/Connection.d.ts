@@ -53,49 +53,21 @@ declare module "ice" {
         type CloseCallback = (connection: Ice.Connection) => void;
 
         /**
-         * Determines the behavior when manually closing a connection.
-         */
-        class ConnectionClose extends Ice.EnumBase {
-            /**
-             * Closes the connection immediately without sending a close connection protocol message to the peer and
-             * without waiting for the peer to acknowledge it.
-             */
-            static readonly Forcefully: ConnectionClose;
-
-            /**
-             * Closes the connection by notifying the peer but does not wait for pending outgoing invocations to
-             * complete. On the server side, the connection will not be closed until all incoming invocations have
-             * completed.
-             */
-            static readonly Gracefully: ConnectionClose;
-
-            /**
-             * Waits for all pending invocations to complete before closing the connection.
-             */
-            static readonly GracefullyWithWait: ConnectionClose;
-
-            /**
-             * Returns the enumerator corresponding to the given value.
-             *
-             * @param value - The numeric value of the enumerator.
-             * @returns The enumerator corresponding to the given value.
-             */
-            static valueOf(value: number): ConnectionClose;
-        }
-
-        /**
          * The user-level interface to a connection.
          */
         interface Connection {
             /**
-             * Manually closes the connection using the specified closure mode.
-             *
-             * @param mode - The mode that determines how the connection will be closed.
-             * @returns A promise that resolves when the close operation is complete.
-             *
-             * @see {@link ConnectionClose}
+             * Manually aborts the connection.
              */
-            close(mode: ConnectionClose): Promise<void>;
+            abort(): void;
+
+            /**
+             * Manually closes the connection gracefully after waiting for all pending invocations
+             * to complete.
+             *
+             * @returns A promise that resolves when the close operation is complete.
+             */
+            close(): Promise<void>;
 
             /**
              * Creates a special proxy that always uses this connection. This is useful for callbacks from a server to a

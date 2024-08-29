@@ -12,17 +12,16 @@ namespace Ice
         /// <summary>
         /// Compress the batch requests.
         /// </summary>
-
         Yes,
+
         /// <summary>
         /// Don't compress the batch requests.
         /// </summary>
-
         No,
+
         /// <summary>
         /// Compress the batch requests if at least one request was made on a compressed proxy.
         /// </summary>
-
         BasedOnProxy
     }
 
@@ -68,33 +67,33 @@ namespace Ice
         /// <summary>
         /// Create a special proxy that always uses this connection.
         /// This can be used for callbacks from a server to a
-        ///  client if the server cannot directly establish a connection to the client, for example because of firewalls. In
-        ///  this case, the server would create a proxy using an already established connection from the client.
+        /// client if the server cannot directly establish a connection to the client, for example because of firewalls. In
+        /// this case, the server would create a proxy using an already established connection from the client.
         /// </summary>
-        ///  <param name="id">The identity for which a proxy is to be created.
-        ///  </param>
+        /// <param name="id">The identity for which a proxy is to be created.
+        /// </param>
         /// <returns>A proxy that matches the given identity and uses this connection.
-        ///  </returns>
+        /// </returns>
         ObjectPrx createProxy(Identity id);
 
         /// <summary>
         /// Explicitly set an object adapter that dispatches requests that are received over this connection.
         /// A client can
-        ///  invoke an operation on a server using a proxy, and then set an object adapter for the outgoing connection that
-        ///  is used by the proxy in order to receive callbacks. This is useful if the server cannot establish a connection
-        ///  back to the client, for example because of firewalls.
+        /// invoke an operation on a server using a proxy, and then set an object adapter for the outgoing connection that
+        /// is used by the proxy in order to receive callbacks. This is useful if the server cannot establish a connection
+        /// back to the client, for example because of firewalls.
         /// </summary>
-        ///  <param name="adapter">The object adapter that should be used by this connection to dispatch requests. The object
-        ///  adapter must be activated. When the object adapter is deactivated, it is automatically removed from the
-        ///  connection. Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException
-        ///  </param>
+        /// <param name="adapter">The object adapter that should be used by this connection to dispatch requests. The object
+        /// adapter must be activated. When the object adapter is deactivated, it is automatically removed from the
+        /// connection. Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException
+        /// </param>
         void setAdapter(ObjectAdapter adapter);
 
         /// <summary>
         /// Get the object adapter that dispatches requests for this connection.
         /// </summary>
         /// <returns>The object adapter that dispatches requests for the connection, or null if no adapter is set.
-        ///  </returns>
+        /// </returns>
         ObjectAdapter getAdapter();
 
         /// <summary>
@@ -106,10 +105,10 @@ namespace Ice
         /// <summary>
         /// Flush any pending batch requests for this connection.
         /// This means all batch requests invoked on fixed proxies
-        ///  associated with the connection.
+        /// associated with the connection.
         /// </summary>
-        ///  <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent over
-        ///  the wire.</param>
+        /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent over
+        /// the wire.</param>
         void flushBatchRequests(CompressBatch compress);
 
         System.Threading.Tasks.Task flushBatchRequestsAsync(
@@ -120,17 +119,17 @@ namespace Ice
         /// <summary>
         /// Set a close callback on the connection.
         /// The callback is called by the connection when it's closed. The callback
-        ///  is called from the Ice thread pool associated with the connection. If the callback needs more information about
-        ///  the closure, it can call Connection.throwException.
+        /// is called from the Ice thread pool associated with the connection. If the callback needs more information about
+        /// the closure, it can call Connection.throwException.
         /// </summary>
-        ///  <param name="callback">The close callback object.</param>
+        /// <param name="callback">The close callback object.</param>
         void setCloseCallback(CloseCallback callback);
 
         /// <summary>
         /// Return the connection type.
         /// This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
         /// </summary>
-        ///  <returns>The type of the connection.</returns>
+        /// <returns>The type of the connection.</returns>
         string type();
 
         /// <summary>
@@ -143,16 +142,16 @@ namespace Ice
         /// Set the connection buffer receive/send size.
         /// </summary>
         /// <param name="rcvSize">The connection receive buffer size.
-        ///  </param>
+        /// </param>
         /// <param name="sndSize">The connection send buffer size.</param>
         void setBufferSize(int rcvSize, int sndSize);
 
         /// <summary>
         /// Throw an exception indicating the reason for connection closure.
         /// For example,
-        ///  CloseConnectionException is raised if the connection was closed gracefully, whereas
-        ///  ConnectionAbortedException/ConnectionClosedException is raised if the connection was manually closed by
-        ///  the application. This operation does nothing if the connection is not yet closed.
+        /// CloseConnectionException is raised if the connection was closed gracefully, whereas
+        /// ConnectionAbortedException/ConnectionClosedException is raised if the connection was manually closed by
+        /// the application. This operation does nothing if the connection is not yet closed.
         /// </summary>
         void throwException();
     }
@@ -164,7 +163,7 @@ namespace Ice
         public string remoteAddress;
         public int remotePort;
 
-        public IPConnectionInfo() : base()
+        public IPConnectionInfo()
         {
             localAddress = "";
             localPort = -1;
@@ -172,7 +171,16 @@ namespace Ice
             remotePort = -1;
         }
 
-        public IPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId, string localAddress, int localPort, string remoteAddress, int remotePort) : base(underlying, incoming, adapterName, connectionId)
+        public IPConnectionInfo(
+            ConnectionInfo underlying,
+            bool incoming,
+            string adapterName,
+            string connectionId,
+            string localAddress,
+            int localPort,
+            string remoteAddress,
+            int remotePort)
+            : base(underlying, incoming, adapterName, connectionId)
         {
             this.localAddress = localAddress;
             this.localPort = localPort;
@@ -186,7 +194,7 @@ namespace Ice
         public int rcvSize;
         public int sndSize;
 
-        public TCPConnectionInfo() : base()
+        public TCPConnectionInfo()
         {
             rcvSize = 0;
             sndSize = 0;
@@ -217,7 +225,7 @@ namespace Ice
         public int rcvSize;
         public int sndSize;
 
-        public UDPConnectionInfo() : base()
+        public UDPConnectionInfo()
         {
             mcastAddress = "";
             mcastPort = -1;
@@ -251,7 +259,7 @@ namespace Ice
     {
         public Dictionary<string, string> headers;
 
-        public WSConnectionInfo() : base()
+        public WSConnectionInfo()
         {
             headers = [];
         }

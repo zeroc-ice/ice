@@ -13,7 +13,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
     public override Task
     setAdapterDirectProxyAsync(string adapterId, Ice.ObjectPrx proxy, Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (proxy != null)
             {
@@ -34,7 +34,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
         Ice.ObjectPrx proxy,
         Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (proxy != null)
             {
@@ -72,7 +72,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
 
     internal Ice.ObjectPrx findObject(Ice.Identity id)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (id.name.Length == 0)
             {
@@ -119,7 +119,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
 
     internal Ice.ObjectPrx findAdapter(string adapterId, out bool isReplicaGroup)
     {
-        lock (this)
+        lock (_mutex)
         {
             Ice.ObjectPrx result = null;
             if (_adapters.TryGetValue(adapterId, out result))
@@ -163,6 +163,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
     private readonly Ice.ObjectPrx _wellKnownProxy;
     private Dictionary<string, Ice.ObjectPrx> _adapters = new Dictionary<string, Ice.ObjectPrx>();
     private Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
+    private readonly object _mutex = new();
 };
 
 internal class LocatorI : Ice.LocatorDisp_

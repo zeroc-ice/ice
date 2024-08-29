@@ -9,11 +9,15 @@ public interface OutgoingAsyncCompletionCallback
     void init(OutgoingAsyncBase og);
 
     bool handleSent(bool done, bool alreadySent, OutgoingAsyncBase og);
+
     bool handleException(Ice.Exception ex, OutgoingAsyncBase og);
+
     bool handleResponse(bool userThread, bool ok, OutgoingAsyncBase og);
 
     void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent, OutgoingAsyncBase og);
+
     void handleInvokeException(Ice.Exception ex, OutgoingAsyncBase og);
+
     void handleInvokeResponse(bool ok, OutgoingAsyncBase og);
 }
 
@@ -86,6 +90,7 @@ public abstract class OutgoingAsyncBase
             observer_ = null;
         }
     }
+
     public void invokeException()
     {
         try
@@ -151,7 +156,7 @@ public abstract class OutgoingAsyncBase
 
     public virtual void cancelable(CancellationHandler handler)
     {
-        lock (this)
+        lock (mutex_)
         {
             if (_cancellationException != null)
             {
@@ -168,6 +173,7 @@ public abstract class OutgoingAsyncBase
             _cancellationHandler = handler;
         }
     }
+
     public void cancel()
     {
         cancel(new Ice.InvocationCanceledException());
@@ -247,7 +253,7 @@ public abstract class OutgoingAsyncBase
 
     protected virtual bool sentImpl(bool done)
     {
-        lock (this)
+        lock (mutex_)
         {
             _alreadySent = (state_ & StateSent) > 0;
             state_ |= StateSent;
@@ -283,7 +289,7 @@ public abstract class OutgoingAsyncBase
 
     protected virtual bool exceptionImpl(Ice.Exception ex)
     {
-        lock (this)
+        lock (mutex_)
         {
             _ex = ex;
             if (childObserver_ != null)
@@ -307,9 +313,10 @@ public abstract class OutgoingAsyncBase
             return invoke;
         }
     }
+
     protected virtual bool responseImpl(bool userThread, bool ok, bool invoke)
     {
-        lock (this)
+        lock (mutex_)
         {
             if (ok)
             {
@@ -340,7 +347,7 @@ public abstract class OutgoingAsyncBase
     {
         CancellationHandler handler;
         {
-            lock (this)
+            lock (mutex_)
             {
                 if (_cancellationHandler == null)
                 {
@@ -365,7 +372,7 @@ public abstract class OutgoingAsyncBase
     // This virtual method is necessary for the communicator flush
     // batch requests implementation.
     //
-    virtual protected Ice.Instrumentation.InvocationObserver getObserver()
+    protected virtual Ice.Instrumentation.InvocationObserver getObserver()
     {
         return observer_;
     }
@@ -386,6 +393,8 @@ public abstract class OutgoingAsyncBase
 
     protected Ice.OutputStream os_;
     protected Ice.InputStream is_;
+
+    protected readonly object mutex_ = new();
 
     private bool _doneInSent;
     private bool _alreadySent;
@@ -414,13 +423,14 @@ public abstract class OutgoingAsyncBase
 public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
 {
     public abstract int invokeRemote(Ice.ConnectionI connection, bool compress, bool response);
+
     public abstract int invokeCollocated(CollocatedRequestHandler handler);
 
-    public override bool exception(Ice.Exception exc)
+    public override bool exception(Ice.Exception ex)
     {
         if (childObserver_ != null)
         {
-            childObserver_.failed(exc.ice_id());
+            childObserver_.failed(ex.ice_id());
             childObserver_.detach();
             childObserver_ = null;
         }
@@ -438,12 +448,12 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
             // the retry interval is 0. This method can be called with the
             // connection locked so we can't just retry here.
             //
-            instance_.retryQueue().add(this, handleRetryAfterException(exc));
+            instance_.retryQueue().add(this, handleRetryAfterException(ex));
             return false;
         }
-        catch (Ice.Exception ex)
+        catch (Ice.Exception retryEx)
         {
-            return exceptionImpl(ex); // No retries, we're done
+            return exceptionImpl(retryEx); // No retries, we're done
         }
     }
 
@@ -472,6 +482,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
     {
         invokeImpl(false);
     }
+
     public void abort(Ice.Exception ex)
     {
         Debug.Assert(childObserver_ == null);
@@ -589,6 +600,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
             }
         }
     }
+
     protected override bool sentImpl(bool done)
     {
         _sent = true;
@@ -601,6 +613,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         }
         return base.sentImpl(done);
     }
+
     protected override bool exceptionImpl(Ice.Exception ex)
     {
         if (proxy_.iceReference().getInvocationTimeout() != -1)
@@ -902,9 +915,10 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
             }
         }
     }
+
     public override bool sent()
     {
-        return base.sentImpl(!proxy_.ice_isTwoway()); // done = true if it's not a two-way proxy
+        return sentImpl(!proxy_.ice_isTwoway()); // done = true if it's not a two-way proxy
     }
 
     public override bool response()
@@ -1063,12 +1077,13 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
         invokeImpl(true); // userThread = true
     }
 
-    public void invoke(string operation,
-                       Ice.OperationMode mode,
-                       Ice.FormatType? format,
-                       Dictionary<string, string> context,
-                       bool synchronous,
-                       System.Action<Ice.OutputStream> write)
+    public void invoke(
+        string operation,
+        Ice.OperationMode mode,
+        Ice.FormatType? format,
+        Dictionary<string, string> context,
+        bool synchronous,
+        System.Action<Ice.OutputStream> write)
     {
         try
         {
@@ -1113,7 +1128,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
     {
         if (proxy_.iceReference().getInstance().cacheMessageBuffers() > 0)
         {
-            lock (this)
+            lock (mutex_)
             {
                 if ((state_ & StateCachedBuffers) > 0)
                 {
@@ -1150,14 +1165,15 @@ public class OutgoingAsyncT<T> : OutgoingAsync
     {
     }
 
-    public void invoke(string operation,
-                       Ice.OperationMode mode,
-                       Ice.FormatType? format,
-                       Dictionary<string, string> context,
-                       bool synchronous,
-                       System.Action<Ice.OutputStream> write = null,
-                       System.Action<Ice.UserException> userException = null,
-                       System.Func<Ice.InputStream, T> read = null)
+    public void invoke(
+        string operation,
+        Ice.OperationMode mode,
+        Ice.FormatType? format,
+        Dictionary<string, string> context,
+        bool synchronous,
+        System.Action<Ice.OutputStream> write = null,
+        System.Action<Ice.UserException> userException = null,
+        System.Func<Ice.InputStream, T> read = null)
     {
         read_ = read;
         userException_ = userException;
@@ -1454,7 +1470,7 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
 
     public void flushConnection(Ice.ConnectionI con, Ice.CompressBatch compressBatch)
     {
-        lock (this)
+        lock (mutex_)
         {
             ++_useCount;
         }
@@ -1504,7 +1520,7 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
 
     public void check(bool userThread)
     {
-        lock (this)
+        lock (mutex_)
         {
             Debug.Assert(_useCount > 0);
             if (--_useCount > 0)
@@ -1532,17 +1548,17 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
 
 public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, OutgoingAsyncCompletionCallback
 {
-    public TaskCompletionCallback(System.IProgress<bool> progress, CancellationToken cancellationToken)
+    protected TaskCompletionCallback(System.IProgress<bool> progress, CancellationToken cancellationToken)
     {
         progress_ = progress;
         _cancellationToken = cancellationToken;
     }
 
-    public void init(OutgoingAsyncBase outgoing)
+    public void init(OutgoingAsyncBase og)
     {
         if (_cancellationToken.CanBeCanceled)
         {
-            _cancellationToken.Register(outgoing.cancel);
+            _cancellationToken.Register(og.cancel);
         }
     }
 
@@ -1611,7 +1627,7 @@ public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, Outgo
         SetException(ex);
     }
 
-    abstract public void handleInvokeResponse(bool ok, OutgoingAsyncBase og);
+    public abstract void handleInvokeResponse(bool ok, OutgoingAsyncBase og);
 
     private readonly CancellationToken _cancellationToken;
 

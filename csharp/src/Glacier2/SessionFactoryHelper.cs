@@ -70,7 +70,7 @@ public class SessionFactoryHelper
     public void
     setRouterIdentity(Ice.Identity identity)
     {
-        lock (this)
+        lock (_mutex)
         {
             _identity = identity;
         }
@@ -83,7 +83,7 @@ public class SessionFactoryHelper
     public Ice.Identity
     getRouterIdentity()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _identity;
         }
@@ -96,7 +96,7 @@ public class SessionFactoryHelper
     public void
     setRouterHost(string hostname)
     {
-        lock (this)
+        lock (_mutex)
         {
             _routerHost = hostname;
         }
@@ -109,7 +109,7 @@ public class SessionFactoryHelper
     public string
     getRouterHost()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _routerHost;
         }
@@ -145,7 +145,7 @@ public class SessionFactoryHelper
     public void
     setProtocol(string protocol)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (protocol == null)
             {
@@ -170,7 +170,7 @@ public class SessionFactoryHelper
     public string
     getProtocol()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _protocol;
         }
@@ -184,7 +184,7 @@ public class SessionFactoryHelper
     public void
     setPort(int port)
     {
-        lock (this)
+        lock (_mutex)
         {
             _port = port;
         }
@@ -197,7 +197,7 @@ public class SessionFactoryHelper
     public int
     getPort()
     {
-        lock (this)
+        lock (_mutex)
         {
             return getPortInternal();
         }
@@ -218,7 +218,7 @@ public class SessionFactoryHelper
     public Ice.InitializationData
     getInitializationData()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _initData;
         }
@@ -231,7 +231,7 @@ public class SessionFactoryHelper
     public void
     setConnectContext(Dictionary<string, string> context)
     {
-        lock (this)
+        lock (_mutex)
         {
             _context = context;
         }
@@ -245,7 +245,7 @@ public class SessionFactoryHelper
     public void
     setUseCallbacks(bool useCallbacks)
     {
-        lock (this)
+        lock (_mutex)
         {
             _useCallbacks = useCallbacks;
         }
@@ -259,7 +259,7 @@ public class SessionFactoryHelper
     public bool
     getUseCallbacks()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _useCallbacks;
         }
@@ -276,7 +276,7 @@ public class SessionFactoryHelper
     public SessionHelper
     connect()
     {
-        lock (this)
+        lock (_mutex)
         {
             SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
             session.connect(_context);
@@ -297,7 +297,7 @@ public class SessionFactoryHelper
     public SessionHelper
     connect(string username, string password)
     {
-        lock (this)
+        lock (_mutex)
         {
             SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
             session.connect(username, password, _context);
@@ -349,6 +349,8 @@ public class SessionFactoryHelper
         _initData.properties.setProperty("Ice.RetryIntervals", "-1");
     }
 
+    private static int GLACIER2_SSL_PORT = 4064;
+    private static int GLACIER2_TCP_PORT = 4063;
     private SessionCallback _callback;
     private string _routerHost = "localhost";
     private Ice.InitializationData _initData;
@@ -357,6 +359,5 @@ public class SessionFactoryHelper
     private int _port;
     private Dictionary<string, string> _context;
     private bool _useCallbacks = true;
-    private static int GLACIER2_SSL_PORT = 4064;
-    private static int GLACIER2_TCP_PORT = 4063;
+    private object _mutex = new();
 }

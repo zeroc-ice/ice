@@ -31,16 +31,17 @@ internal abstract class Request<T>
         return --retryCount_ >= 0;
     }
 
-    public void invoke(String domainId, Dictionary<LookupPrx, LookupReplyPrx> lookups)
+    public void invoke(string domainId, Dictionary<LookupPrx, LookupReplyPrx> lookups)
     {
         _lookupCount = lookups.Count;
         _failureCount = 0;
         Ice.Identity id = new Ice.Identity(_requestId, "");
         foreach (var entry in lookups)
         {
-            invokeWithLookup(domainId,
-                             entry.Key,
-                             LookupReplyPrxHelper.uncheckedCast(entry.Value.ice_identity(id)));
+            invokeWithLookup(
+                domainId,
+                entry.Key,
+                LookupReplyPrxHelper.uncheckedCast(entry.Value.ice_identity(id)));
         }
     }
 
@@ -59,9 +60,9 @@ internal abstract class Request<T>
         return _requestId;
     }
 
-    abstract public void finished(Ice.ObjectPrx proxy);
+    public abstract void finished(Ice.ObjectPrx proxy);
 
-    abstract protected void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
+    protected abstract void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
 
     private string _requestId;
 
@@ -76,7 +77,8 @@ internal abstract class Request<T>
 
 internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 {
-    public AdapterRequest(LookupI lookup, string id, int retryCount) : base(lookup, id, retryCount)
+    public AdapterRequest(LookupI lookup, string id, int retryCount)
+        : base(lookup, id, retryCount)
     {
         _start = DateTime.Now.Ticks;
     }
@@ -176,7 +178,8 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 
 internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
 {
-    public ObjectRequest(LookupI lookup, Ice.Identity id, int retryCount) : base(lookup, id, retryCount)
+    public ObjectRequest(LookupI lookup, Ice.Identity id, int retryCount)
+        : base(lookup, id, retryCount)
     {
     }
 
@@ -324,7 +327,7 @@ internal class LookupI : LookupDisp_
 
     internal Task<Ice.ObjectPrx> findObject(Ice.Identity id)
     {
-        lock (this)
+        lock (_mutex)
         {
             ObjectRequest request;
             if (!_objectRequests.TryGetValue(id, out request))
@@ -353,7 +356,7 @@ internal class LookupI : LookupDisp_
 
     internal Task<Ice.ObjectPrx> findAdapter(string adapterId)
     {
-        lock (this)
+        lock (_mutex)
         {
             AdapterRequest request;
             if (!_adapterRequests.TryGetValue(adapterId, out request))
@@ -382,7 +385,7 @@ internal class LookupI : LookupDisp_
 
     internal void foundObject(Ice.Identity id, string requestId, Ice.ObjectPrx proxy)
     {
-        lock (this)
+        lock (_mutex)
         {
             ObjectRequest request;
             if (_objectRequests.TryGetValue(id, out request) && request.getRequestId() == requestId)
@@ -397,7 +400,7 @@ internal class LookupI : LookupDisp_
 
     internal void foundAdapter(string adapterId, string requestId, Ice.ObjectPrx proxy, bool isReplicaGroup)
     {
-        lock (this)
+        lock (_mutex)
         {
             AdapterRequest request;
             if (_adapterRequests.TryGetValue(adapterId, out request) && request.getRequestId() == requestId)
@@ -414,7 +417,7 @@ internal class LookupI : LookupDisp_
 
     internal void objectRequestTimedOut(ObjectRequest request)
     {
-        lock (this)
+        lock (_mutex)
         {
             ObjectRequest r;
             if (!_objectRequests.TryGetValue(request.getId(), out r) || r != request)
@@ -443,7 +446,7 @@ internal class LookupI : LookupDisp_
 
     internal void objectRequestException(ObjectRequest request, Exception ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             ObjectRequest r;
             if (!_objectRequests.TryGetValue(request.getId(), out r) || r != request)
@@ -473,7 +476,7 @@ internal class LookupI : LookupDisp_
 
     internal void adapterRequestTimedOut(AdapterRequest request)
     {
-        lock (this)
+        lock (_mutex)
         {
             AdapterRequest r;
             if (!_adapterRequests.TryGetValue(request.getId(), out r) || r != request)
@@ -502,7 +505,7 @@ internal class LookupI : LookupDisp_
 
     internal void adapterRequestException(AdapterRequest request, Exception ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             AdapterRequest r;
             if (!_adapterRequests.TryGetValue(request.getId(), out r) || r != request)
@@ -552,6 +555,7 @@ internal class LookupI : LookupDisp_
     private bool _warnOnce = true;
     private Dictionary<Ice.Identity, ObjectRequest> _objectRequests = new Dictionary<Ice.Identity, ObjectRequest>();
     private Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
+    private readonly object _mutex = new();
 };
 
 internal class LookupReplyI : LookupReplyDisp_

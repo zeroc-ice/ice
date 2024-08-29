@@ -7,19 +7,19 @@ public abstract class EventHandler
     //
     // Called to start a new asynchronous read or write operation.
     //
-    abstract public bool startAsync(int op, AsyncCallback cb);
+    public abstract bool startAsync(int operation, AsyncCallback completedCallback);
 
-    abstract public bool finishAsync(int op);
+    public abstract bool finishAsync(int operation);
 
     //
     // Called when there's a message ready to be processed.
     //
-    abstract public void message(ThreadPoolCurrent op);
+    public abstract void message(ThreadPoolCurrent current);
 
     //
     // Called when the event handler is unregistered.
     //
-    abstract public void finished(ThreadPoolCurrent op);
+    public abstract void finished(ThreadPoolCurrent current);
 
     internal int _ready;
     internal int _pending;

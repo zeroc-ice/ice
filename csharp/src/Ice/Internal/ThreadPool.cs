@@ -5,6 +5,7 @@ using System.Diagnostics;
 namespace Ice.Internal;
 
 public delegate void ThreadPoolWorkItem(ThreadPoolCurrent current);
+
 public delegate void AsyncCallback(object state);
 
 //
@@ -261,20 +262,20 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_destroyed)
             {
                 return;
             }
             _destroyed = true;
-            Monitor.PulseAll(this);
+            Monitor.PulseAll(_mutex);
         }
     }
 
     public void updateObservers()
     {
-        lock (this)
+        lock (_mutex)
         {
             foreach (WorkerThread t in _threads)
             {
@@ -300,7 +301,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     public void update(EventHandler handler, int remove, int add)
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(!_destroyed);
 
@@ -338,7 +339,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     public void finish(EventHandler handler)
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(!_destroyed);
 
@@ -355,7 +356,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                         current._handler = handler;
                         handler.finished(current);
                     });
-                Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
             else
             {
@@ -388,7 +389,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     public void execute(Action workItem, Ice.Connection connection)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_destroyed)
             {
@@ -399,7 +400,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                     current.ioCompleted();
                     executeFromThisThread(workItem, connection);
                 });
-            Monitor.Pulse(this);
+            Monitor.Pulse(_mutex);
         }
     }
 
@@ -454,7 +455,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     private void queueReadyForIOHandler(EventHandler handler, int operation)
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(!_destroyed);
             _workItems.Enqueue(current =>
@@ -472,7 +473,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                         _instance.initializationData().logger.error(s);
                     }
                 });
-            Monitor.Pulse(this);
+            Monitor.Pulse(_mutex);
         }
     }
 
@@ -482,7 +483,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         while (true)
         {
             ThreadPoolWorkItem workItem = null;
-            lock (this)
+            lock (_mutex)
             {
                 while (_workItems.Count == 0)
                 {
@@ -493,7 +494,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
                     if (_threadIdleTime != Timeout.InfiniteTimeSpan)
                     {
-                        if (!Monitor.Wait(this, _threadIdleTime) && _workItems.Count == 0) // If timeout
+                        if (!Monitor.Wait(_mutex, _threadIdleTime) && _workItems.Count == 0) // If timeout
                         {
                             if (_destroyed)
                             {
@@ -515,7 +516,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                                         // a new thread to be started).
                                         thread.join();
                                     });
-                                Monitor.Pulse(this);
+                                Monitor.Pulse(_mutex);
                                 return;
                             }
                             else if (_inUse > 0)
@@ -529,7 +530,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                             }
 
                             Debug.Assert(_threads.Count == 1);
-                            if (!Monitor.Wait(this, _serverIdleTime) && !_destroyed)
+                            if (!Monitor.Wait(_mutex, _serverIdleTime) && !_destroyed)
                             {
                                 _workItems.Enqueue(c =>
                                     {
@@ -547,7 +548,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                     }
                     else
                     {
-                        Monitor.Wait(this);
+                        Monitor.Wait(_mutex);
                     }
                 }
 
@@ -568,7 +569,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                 _instance.initializationData().logger.error(s);
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_sizeMax > 1 && current._ioCompleted)
                 {
@@ -582,7 +583,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     public bool ioCompleted(ThreadPoolCurrent current)
     {
-        lock (this)
+        lock (_mutex)
         {
             current._ioCompleted = true; // Set the IO completed flag to specify that ioCompleted() has been called.
 
@@ -720,13 +721,15 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
     private readonly string _prefix;
     private readonly string _threadPrefix;
 
+    private readonly object _mutex = new object();
+
     internal sealed class WorkerThread
     {
         private ThreadPool _threadPool;
         private Ice.Instrumentation.ThreadObserver _observer;
         private Ice.Instrumentation.ThreadState _state;
 
-        internal WorkerThread(ThreadPool threadPool, string name) : base()
+        internal WorkerThread(ThreadPool threadPool, string name)
         {
             _threadPool = threadPool;
             _name = name;

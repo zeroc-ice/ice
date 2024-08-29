@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 
 namespace Ice.Internal;
+
 internal sealed class TraceUtil
 {
     internal static void traceSend(Ice.OutputStream str, Instance instance, Ice.Logger logger, TraceLevels tl)

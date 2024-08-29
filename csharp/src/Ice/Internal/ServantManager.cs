@@ -14,6 +14,7 @@ internal sealed class ServantManager : Object
     private readonly Dictionary<string, Object> _defaultServantMap = [];
     private readonly Dictionary<string, ServantLocator> _locatorMap = [];
     private bool _isDestroyed;
+    private readonly object _mutex = new();
 
     public async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
     {
@@ -77,7 +78,7 @@ internal sealed class ServantManager : Object
 
     internal void addServant(Object servant, Identity ident, string facet)
     {
-        lock (this)
+        lock (_mutex)
         {
             facet ??= "";
 
@@ -105,7 +106,7 @@ internal sealed class ServantManager : Object
 
     internal void addDefaultServant(Object servant, string category)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_defaultServantMap.TryGetValue(category, out Object? obj))
             {
@@ -118,7 +119,7 @@ internal sealed class ServantManager : Object
 
     internal Object removeServant(Identity ident, string facet)
     {
-        lock (this)
+        lock (_mutex)
         {
             facet ??= "";
 
@@ -147,7 +148,7 @@ internal sealed class ServantManager : Object
 
     internal Object removeDefaultServant(string category)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (!_defaultServantMap.TryGetValue(category, out Object? obj))
             {
@@ -161,7 +162,7 @@ internal sealed class ServantManager : Object
 
     internal Dictionary<string, Object> removeAllFacets(Identity ident)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (!_servantMapMap.TryGetValue(ident, out Dictionary<string, Object>? m))
             {
@@ -175,7 +176,7 @@ internal sealed class ServantManager : Object
 
     internal Object? findServant(Identity ident, string facet)
     {
-        lock (this)
+        lock (_mutex)
         {
             facet ??= "";
 
@@ -199,7 +200,7 @@ internal sealed class ServantManager : Object
 
     internal Object? findDefaultServant(string category)
     {
-        lock (this)
+        lock (_mutex)
         {
             return _defaultServantMap.TryGetValue(category, out Object? obj) ? obj : null;
         }
@@ -207,7 +208,7 @@ internal sealed class ServantManager : Object
 
     internal Dictionary<string, Object> findAllFacets(Identity ident)
     {
-        lock (this)
+        lock (_mutex)
         {
             Dictionary<string, Object>? m = _servantMapMap[ident];
             if (m is not null)
@@ -221,7 +222,7 @@ internal sealed class ServantManager : Object
 
     internal bool hasServant(Identity ident)
     {
-        lock (this)
+        lock (_mutex)
         {
             return _servantMapMap.TryGetValue(ident, out Dictionary<string, Object>? m) ? m.Count != 0 : false;
         }
@@ -229,7 +230,7 @@ internal sealed class ServantManager : Object
 
     internal void addServantLocator(ServantLocator locator, string category)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_locatorMap.TryGetValue(category, out ServantLocator? l))
             {
@@ -244,7 +245,7 @@ internal sealed class ServantManager : Object
 
     internal ServantLocator removeServantLocator(string category)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (!_locatorMap.TryGetValue(category, out ServantLocator? l))
             {
@@ -259,7 +260,7 @@ internal sealed class ServantManager : Object
 
     internal ServantLocator? findServantLocator(string category)
     {
-        lock (this)
+        lock (_mutex)
         {
             return _locatorMap.TryGetValue(category, out ServantLocator? result) ? result : null;
         }
@@ -280,7 +281,7 @@ internal sealed class ServantManager : Object
     internal void destroy()
     {
         Dictionary<string, ServantLocator> locatorMap;
-        lock (this)
+        lock (_mutex)
         {
             if (_isDestroyed)
             {
