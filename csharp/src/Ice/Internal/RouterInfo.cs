@@ -9,12 +9,14 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
     public interface GetClientEndpointsCallback
     {
         void setEndpoints(EndpointI[] endpoints);
+
         void setException(Ice.LocalException ex);
     }
 
     public interface AddProxyCallback
     {
         void addedProxy();
+
         void setException(Ice.LocalException ex);
     }
 
@@ -27,7 +29,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             _clientEndpoints = [];
             _adapter = null;
@@ -36,6 +38,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
     }
 
     public static bool operator ==(RouterInfo lhs, RouterInfo rhs) => lhs is not null ? lhs.Equals(rhs) : rhs is null;
+
     public static bool operator !=(RouterInfo lhs, RouterInfo rhs) => !(lhs == rhs);
 
     public bool Equals(RouterInfo other) =>
@@ -55,7 +58,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public EndpointI[] getClientEndpoints()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_clientEndpoints != null) // Lazy initialization.
             {
@@ -71,7 +74,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
     public void getClientEndpoints(GetClientEndpointsCallback callback)
     {
         EndpointI[] clientEndpoints = null;
-        lock (this)
+        lock (_mutex)
         {
             clientEndpoints = _clientEndpoints;
         }
@@ -88,8 +91,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
                 try
                 {
                     var r = t.Result;
-                    callback.setEndpoints(setClientEndpoints(r.returnValue,
-                                                r.hasRoutingTable.HasValue ? r.hasRoutingTable.Value : true));
+                    callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable ?? true));
                 }
                 catch (System.AggregateException ae)
                 {
@@ -115,7 +117,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
     {
         Identity identity = reference.getIdentity();
 
-        lock (this)
+        lock (_mutex)
         {
             if (!_hasRoutingTable)
             {
@@ -149,7 +151,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public void setAdapter(Ice.ObjectAdapter adapter)
     {
-        lock (this)
+        lock (_mutex)
         {
             _adapter = adapter;
         }
@@ -157,7 +159,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public Ice.ObjectAdapter getAdapter()
     {
-        lock (this)
+        lock (_mutex)
         {
             return _adapter;
         }
@@ -165,7 +167,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public void clearCache(Reference @ref)
     {
-        lock (this)
+        lock (_mutex)
         {
             _identities.Remove(@ref.getIdentity());
         }
@@ -173,7 +175,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     private EndpointI[] setClientEndpoints(Ice.ObjectPrx clientProxy, bool hasRoutingTable)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_clientEndpoints is null)
             {
@@ -188,7 +190,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     private void addAndEvictProxies(Identity identity, Ice.ObjectPrx[] evictedProxies)
     {
-        lock (this)
+        lock (_mutex)
         {
             //
             // Check if the proxy hasn't already been evicted by a
@@ -233,6 +235,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
     private HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
     private List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
     private bool _hasRoutingTable;
+    private readonly object _mutex = new();
 }
 
 public sealed class RouterManager
@@ -244,7 +247,7 @@ public sealed class RouterManager
 
     internal void destroy()
     {
-        lock (this)
+        lock (_mutex)
         {
             foreach (RouterInfo i in _table.Values)
             {
@@ -270,7 +273,7 @@ public sealed class RouterManager
         //
         Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
 
-        lock (this)
+        lock (_mutex)
         {
             RouterInfo info = null;
             if (!_table.TryGetValue(router, out info))
@@ -297,7 +300,7 @@ public sealed class RouterManager
             //
             Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_table.TryGetValue(router, out info))
                 {
@@ -309,4 +312,5 @@ public sealed class RouterManager
     }
 
     private Dictionary<Ice.RouterPrx, RouterInfo> _table;
+    private readonly object _mutex = new();
 }

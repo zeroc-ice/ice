@@ -7,18 +7,23 @@ using System.Collections.Generic;
 public interface EndpointFactory
 {
     void initialize();
+
     short type();
+
     string protocol();
+
     EndpointI create(List<string> args, bool oaEndpoint);
+
     EndpointI read(Ice.InputStream s);
+
     void destroy();
 
     EndpointFactory clone(ProtocolInstance instance);
 }
 
-abstract public class EndpointFactoryWithUnderlying : EndpointFactory
+public abstract class EndpointFactoryWithUnderlying : EndpointFactory
 {
-    public EndpointFactoryWithUnderlying(ProtocolInstance instance, short type)
+    protected EndpointFactoryWithUnderlying(ProtocolInstance instance, short type)
     {
         instance_ = instance;
         _type = type;
@@ -80,10 +85,11 @@ abstract public class EndpointFactoryWithUnderlying : EndpointFactory
         return cloneWithUnderlying(instance, _type);
     }
 
-    abstract public EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short type);
+    public abstract EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying);
 
-    abstract protected EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint);
-    abstract protected EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s);
+    protected abstract EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint);
+
+    protected abstract EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s);
 
     protected ProtocolInstance instance_;
 

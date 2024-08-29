@@ -7,6 +7,7 @@ namespace Ice.Internal;
 internal interface LoggerAdminLogger : Ice.Logger
 {
     Ice.Object getFacet();
+
     void destroy();
 }
 
@@ -58,14 +59,14 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
     public void destroy()
     {
         Thread thread = null;
-        lock (this)
+        lock (_mutex)
         {
             if (_sendLogThread != null)
             {
                 thread = _sendLogThread;
                 _sendLogThread = null;
                 _destroyed = true;
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
 
             Ice.FileLoggerI fileLoger = _localLogger as Ice.FileLoggerI;
@@ -112,7 +113,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         {
             Debug.Assert(remoteLoggers.Count > 0);
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_sendLogThread == null)
                 {
@@ -123,9 +124,15 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 }
 
                 _jobQueue.Enqueue(new Job(remoteLoggers, logMessage));
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
         }
+    }
+
+    private static long now()
+    {
+        TimeSpan t = DateTime.UtcNow - _unixEpoch;
+        return Convert.ToInt64(t.TotalMilliseconds * 1000);
     }
 
     private void run()
@@ -138,11 +145,11 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         for (; ; )
         {
             Job job = null;
-            lock (this)
+            lock (_mutex)
             {
                 while (!_destroyed && _jobQueue.Count == 0)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 if (_destroyed)
@@ -208,12 +215,6 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         }
     }
 
-    static private long now()
-    {
-        TimeSpan t = DateTime.UtcNow - _unixEpoch;
-        return Convert.ToInt64(t.TotalMilliseconds * 1000);
-    }
-
     private class Job
     {
         internal Job(List<Ice.RemoteLoggerPrx> r, Ice.LogMessage l)
@@ -226,12 +227,12 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         internal readonly Ice.LogMessage logMessage;
     }
 
+    private static readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     private readonly Ice.Logger _localLogger;
     private readonly LoggerAdminI _loggerAdmin;
     private bool _destroyed;
     private Thread _sendLogThread;
     private readonly Queue<Job> _jobQueue = new Queue<Job>();
-
-    static private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     private const string _traceCategory = "Admin.Logger";
+    private readonly object _mutex = new();
 }

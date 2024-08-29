@@ -60,7 +60,7 @@ namespace Ice
                 }
 
             };
-            static private Ice.Instrumentation.InvocationObserver invocationObserver = new InvocationObserverI();
+            private static Ice.Instrumentation.InvocationObserver invocationObserver = new InvocationObserverI();
 
             private class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
             {
@@ -112,15 +112,15 @@ namespace Ice
                 }
             };
 
-            static private Ice.Instrumentation.CommunicatorObserver communicatorObserver = new CommunicatorObserverI();
+            private static Ice.Instrumentation.CommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 
-            static public Ice.Instrumentation.CommunicatorObserver
+            public static Ice.Instrumentation.CommunicatorObserver
             getObserver()
             {
                 return communicatorObserver;
             }
 
-            static private void
+            private static void
             testEqual(ref int value, int expected)
             {
                 if (expected < 0)
@@ -150,25 +150,25 @@ namespace Ice
                 value = 0;
             }
 
-            static public void
+            public static void
             testRetryCount(int expected)
             {
                 testEqual(ref nRetry, expected);
             }
 
-            static public void
+            public static void
             testFailureCount(int expected)
             {
                 testEqual(ref nFailure, expected);
             }
 
-            static public void
+            public static void
             testInvocationCount(int expected)
             {
                 testEqual(ref nInvocation, expected);
             }
 
-            static public void
+            public static void
             testInvocationReset()
             {
                 nRetry = 0;
@@ -176,9 +176,9 @@ namespace Ice
                 nInvocation = 0;
             }
 
-            static private int nRetry = 0;
-            static private int nFailure = 0;
-            static private int nInvocation = 0;
+            private static int nRetry = 0;
+            private static int nFailure = 0;
+            private static int nInvocation = 0;
         }
     }
 }

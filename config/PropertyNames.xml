@@ -355,7 +355,7 @@ generated from the section label.
         <property name="Timeout" default="300" />
         <property name="RetryCount" default="3" />
         <property name="LatencyMultiplier" default="1" />
-        <!-- We dont' set a default for Address as it depends on Ice.IPV4 and Ice.PreferIPv6Address -->
+        <!-- We don't set a default for Address as it depends on Ice.IPV4 and Ice.PreferIPv6Address -->
         <property name="Address"/>
         <property name="Port" default="4061"/>
         <property name="Interface"/>

@@ -8,8 +8,6 @@ namespace Ice.Internal;
 
 internal sealed class TcpTransceiver : Transceiver
 {
-    public bool isWaitingToBeRead => _stream.isWaitingToBeRead;
-
     public Socket fd()
     {
         return _stream.fd();

@@ -70,7 +70,7 @@ public class Executor
         }
     }
 
-    static public void terminate()
+    public static void terminate()
     {
         lock (_m)
         {
@@ -81,7 +81,7 @@ public class Executor
         _instance._thread.Join();
     }
 
-    static public bool isExecutorThread()
+    public static bool isExecutorThread()
     {
         return Thread.CurrentThread == _instance._thread;
     }

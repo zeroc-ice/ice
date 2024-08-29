@@ -26,15 +26,15 @@ public interface Service
     /// <summary>
     /// Start the service.
     /// The given communicator is created by the ServiceManager for use by the service. This
-    ///  communicator may also be used by other services, depending on the service configuration.
-    ///  &lt;p class="Note"&gt;The ServiceManager owns this communicator, and is responsible for destroying it.
+    /// communicator may also be used by other services, depending on the service configuration.
+    /// &lt;p class="Note"&gt;The ServiceManager owns this communicator, and is responsible for destroying it.
     /// </summary>
-    ///  <param name="name">The service's name, as determined by the configuration.
-    ///  </param>
+    /// <param name="name">The service's name, as determined by the configuration.
+    /// </param>
     /// <param name="communicator">A communicator for use by the service.
-    ///  </param>
+    /// </param>
     /// <param name="args">The service arguments that were not converted into properties.
-    ///  </param>
+    /// </param>
     /// <exception name="FailureException">Raised if start failed.</exception>
     void start(string name, Ice.Communicator communicator, string[] args);
 

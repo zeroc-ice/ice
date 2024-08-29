@@ -53,7 +53,7 @@ export class Client extends TestHelper {
             test((await p.opBatchCount()) == 0);
             const b1 = p.ice_batchOneway();
             await b1.opBatch();
-            await b1.ice_getConnection().then((conn) => conn.close(Ice.ConnectionClose.GracefullyWithWait));
+            await b1.ice_getConnection().then((conn) => conn.close());
             await b1.ice_flushBatchRequests();
             test(await p.waitForBatch(1));
         }
@@ -84,7 +84,7 @@ export class Client extends TestHelper {
                 await p.ice_getConnection().then((c) => c.createProxy(p.ice_getIdentity()).ice_batchOneway()),
             );
             await b1.opBatch();
-            await b1.ice_getConnection().then((c) => c.close(Ice.ConnectionClose.GracefullyWithWait));
+            await b1.ice_getConnection().then((c) => c.close());
 
             await communicator.flushBatchRequests();
             test((await p.opBatchCount()) == 0);
@@ -135,7 +135,7 @@ export class Client extends TestHelper {
             await b2.ice_getConnection(); // Ensure connection is established.
             await b1.opBatch();
             await b2.opBatch();
-            await b1.ice_getConnection().then((c) => c.close(Ice.ConnectionClose.GracefullyWithWait));
+            await b1.ice_getConnection().then((c) => c.close());
 
             await communicator.flushBatchRequests();
             test(await p.waitForBatch(1));
@@ -160,8 +160,8 @@ export class Client extends TestHelper {
             await b2.ice_getConnection(); // Ensure connection is established.
             await b1.opBatch();
             await b2.opBatch();
-            await b1.ice_getConnection().then((c) => c.close(Ice.ConnectionClose.GracefullyWithWait));
-            await b2.ice_getConnection().then((c) => c.close(Ice.ConnectionClose.GracefullyWithWait));
+            await b1.ice_getConnection().then((c) => c.close());
+            await b2.ice_getConnection().then((c) => c.close());
 
             await communicator.flushBatchRequests();
             test((await p.opBatchCount()) === 0);

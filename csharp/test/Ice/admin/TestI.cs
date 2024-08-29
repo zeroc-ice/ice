@@ -8,7 +8,7 @@ namespace Ice
     {
         public class TestFacetI : Test.TestFacetDisp_
         {
-            override public void op(Ice.Current current)
+            public override void op(Ice.Current current)
             {
             }
         }
@@ -20,12 +20,12 @@ namespace Ice
                 _communicator = communicator;
             }
 
-            override public Ice.ObjectPrx getAdmin(Ice.Current current)
+            public override Ice.ObjectPrx getAdmin(Ice.Current current)
             {
                 return _communicator.getAdmin();
             }
 
-            override public Dictionary<string, string> getChanges(Ice.Current current)
+            public override Dictionary<string, string> getChanges(Ice.Current current)
             {
                 lock (this)
                 {
@@ -33,32 +33,32 @@ namespace Ice
                 }
             }
 
-            override public void print(string message, Ice.Current current)
+            public override void print(string message, Ice.Current current)
             {
                 _communicator.getLogger().print(message);
             }
 
-            override public void trace(string category, string message, Ice.Current current)
+            public override void trace(string category, string message, Ice.Current current)
             {
                 _communicator.getLogger().trace(category, message);
             }
 
-            override public void warning(string message, Ice.Current current)
+            public override void warning(string message, Ice.Current current)
             {
                 _communicator.getLogger().warning(message);
             }
 
-            override public void error(string message, Ice.Current current)
+            public override void error(string message, Ice.Current current)
             {
                 _communicator.getLogger().error(message);
             }
 
-            override public void shutdown(Ice.Current current)
+            public override void shutdown(Ice.Current current)
             {
                 _communicator.shutdown();
             }
 
-            override public void waitForShutdown(Ice.Current current)
+            public override void waitForShutdown(Ice.Current current)
             {
                 //
                 // Note that we are executing in a thread of the *main* communicator,
@@ -67,7 +67,7 @@ namespace Ice
                 _communicator.waitForShutdown();
             }
 
-            override public void destroy(Ice.Current current)
+            public override void destroy(Ice.Current current)
             {
                 _communicator.destroy();
             }
@@ -86,7 +86,7 @@ namespace Ice
 
         public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
         {
-            override public Test.RemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Ice.Current current)
+            public override Test.RemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Ice.Current current)
             {
                 //
                 // Prepare the property set using the given properties.
@@ -131,7 +131,7 @@ namespace Ice
                 return Test.RemoteCommunicatorPrxHelper.uncheckedCast(proxy);
             }
 
-            override public void shutdown(Ice.Current current)
+            public override void shutdown(Ice.Current current)
             {
                 current.adapter.getCommunicator().shutdown();
             }

@@ -6,7 +6,7 @@ public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
 {
     public void add(Ice.ValueFactory factory, string id)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_factoryMap.ContainsKey(id))
             {
@@ -18,7 +18,7 @@ public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
 
     public Ice.ValueFactory find(string id)
     {
-        lock (this)
+        lock (_mutex)
         {
             Ice.ValueFactory factory = null;
             _factoryMap.TryGetValue(id, out factory);
@@ -27,4 +27,5 @@ public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
     }
 
     private Dictionary<string, Ice.ValueFactory> _factoryMap = new();
+    private readonly object _mutex = new();
 }

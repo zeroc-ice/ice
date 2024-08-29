@@ -8,7 +8,7 @@ namespace Ice
         {
             public sealed class TestActivationI : Test.TestActivationDisp_
             {
-                override public void activateServantLocator(bool activate, Ice.Current current)
+                public override void activateServantLocator(bool activate, Ice.Current current)
                 {
                     if (activate)
                     {

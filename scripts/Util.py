@@ -3530,8 +3530,6 @@ class Driver:
         # initData.properties.setProperty("Ice.Trace.Protocol", "1")
         # initData.properties.setProperty("Ice.Trace.Network", "2")
         # initData.properties.setProperty("Ice.StdErr", "allTests.log")
-        initData.properties.setProperty("Ice.Override.Timeout", "10000")
-        initData.properties.setProperty("Ice.Override.ConnectTimeout", "10000")
         self.communicator = Ice.initialize(initData)
 
     def getProcessController(self, current, process=None):
