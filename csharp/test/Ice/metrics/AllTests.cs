@@ -303,15 +303,16 @@ public class AllTests : Test.AllTests
         }
     }
 
-    private static void
-    testAttribute(IceMX.MetricsAdminPrx metrics,
-                  Ice.PropertiesAdminPrx props,
-                  UpdateCallbackI update,
-                  string map,
-                  string attr,
-                  string value,
-                  System.Action func,
-                  TextWriter output)
+    private static async Task
+    testAttributeAsync(
+        IceMX.MetricsAdminPrx metrics,
+        Ice.PropertiesAdminPrx props,
+        UpdateCallbackI update,
+        string map,
+        string attr,
+        string value,
+        System.Func<Task> func,
+        TextWriter output)
     {
         Dictionary<string, string> dict = new Dictionary<string, string>();
         dict.Add("IceMX.Metrics.View.Map." + map + ".GroupBy", attr);
@@ -326,7 +327,7 @@ public class AllTests : Test.AllTests
             props.setProperties(new Dictionary<string, string>());
         }
 
-        func();
+        await func();
         long timestamp;
         Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView("View", out timestamp);
         if (!view.ContainsKey(map) || view[map].Length == 0)
@@ -356,7 +357,7 @@ public class AllTests : Test.AllTests
         }
     }
 
-    private static async void connect(Ice.ObjectPrx proxy)
+    private static async Task connectAsync(Ice.ObjectPrx proxy)
     {
         if (proxy.ice_getCachedConnection() != null)
         {
@@ -377,16 +378,16 @@ public class AllTests : Test.AllTests
         }
     }
 
-    private static void invokeOp(MetricsPrx proxy)
+    private static Task invokeOpAsync(MetricsPrx proxy)
     {
         Dictionary<string, string> ctx = new Dictionary<string, string>();
         ctx.Add("entry1", "test");
         ctx.Add("entry2", "");
-        proxy.op(ctx);
+        return proxy.opAsync(context: ctx);
     }
 
-    private static void
-    testAttribute(IceMX.MetricsAdminPrx metrics,
+    private static Task
+    testAttributeAsync(IceMX.MetricsAdminPrx metrics,
                   Ice.PropertiesAdminPrx props,
                   UpdateCallbackI update,
                   string map,
@@ -394,7 +395,7 @@ public class AllTests : Test.AllTests
                   string value,
                   TextWriter output)
     {
-        testAttribute(metrics, props, update, map, attr, value, () => { }, output);
+        return testAttributeAsync(metrics, props, update, map, attr, value, () => Task.CompletedTask, output);
     }
 
     private static void
@@ -705,28 +706,28 @@ public class AllTests : Test.AllTests
             MetricsPrx m = (MetricsPrx)metrics.ice_connectionId("Con1");
             m.ice_ping();
 
-            testAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
-            //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
+            //await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "id", "");
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpoint",
                           endpoint + " -t infinite", output);
 
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointType", type, output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "False", output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", isSecure, output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "-1", output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointCompress", "False", output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", host, output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointPort", port, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointType", type, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "False", output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", isSecure, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "-1", output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointCompress", "False", output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointHost", host, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointPort", port, output);
 
-            testAttribute(clientMetrics, clientProps, update, "Connection", "incoming", "False", output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "adapterName", "", output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "connectionId", "Con1", output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "localHost", host, output);
-            //testAttribute(clientMetrics, clientProps, update, "Connection", "localPort", "", output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "remoteHost", host, output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "remotePort", port, output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "", output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "incoming", "False", output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "adapterName", "", output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "connectionId", "Con1", output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "localHost", host, output);
+            //await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "localPort", "", output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "remoteHost", host, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "remotePort", port, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "mcastHost", "", output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "mcastPort", "", output);
 
             await m.ice_getConnection().closeAsync();
 
@@ -769,22 +770,22 @@ public class AllTests : Test.AllTests
 
             checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "::Ice::ConnectTimeoutException", 2, output);
 
-            System.Action c = () => { connect(metrics); };
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, output);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort, c, output);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
+            System.Func<Task> c = () => connectAsync(metrics);
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
                           endpoint + " -t " + defaultTimeout, c, output);
 
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", type, c, output);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", type, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
                           c, output);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", isSecure,
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", isSecure,
                           c, output);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", defaultTimeout, c, output);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False",
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", defaultTimeout, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False",
                           c, output);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", host, c, output);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", port, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", host, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", port, c, output);
 
             output.WriteLine("ok");
 
@@ -837,20 +838,20 @@ public class AllTests : Test.AllTests
                 checkFailure(clientMetrics, "EndpointLookup", m1.id, "::Ice::DNSException", 2, output);
             }
 
-            c = () => { connect(prx); };
+            c = () => connectAsync(prx);
 
             string expected = $"{protocol} -h localhost -p {port} -t 500";
 
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", expected, c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", expected, c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", type, c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure, c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "500", c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "False", c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", port, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "id", expected, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", expected, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", type, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "500", c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "False", c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", port, c, output);
 
             output.WriteLine("ok");
         }
@@ -933,52 +934,53 @@ public class AllTests : Test.AllTests
         checkFailure(serverMetrics, "Dispatch", dm1.id, "System.ArgumentOutOfRangeException", 1, output);
         test(dm1.size == 41 && dm1.replySize > 7); // Reply contains the exception stack depending on the OS.
 
-        System.Action op = () => { invokeOp(metrics); };
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op, output);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", op, output);
+        System.Func<Task> op = () => invokeOpAsync(metrics);
+
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op, output);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", op, output);
 
         if (!collocated)
         {
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint",
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpoint",
                           endpoint + " -t 60000", op, output);
-            //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
+            //await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointType", type, op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "False", op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", isSecure, op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "60000", op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "False", op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", host, op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointPort", port, op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointType", type, op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "False", op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", isSecure, op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "60000", op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "False", op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointHost", host, op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointPort", port, op, output);
 
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "incoming", "True", op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "adapterName", "TestAdapter", op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "connectionId", "", op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "localHost", host, op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "localPort", port, op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "remoteHost", host, op, output);
-            //testAttribute(serverMetrics, serverProps, update, "Dispatch", "remotePort", port, op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "", op, output);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "", op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "incoming", "True", op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "adapterName", "TestAdapter", op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "connectionId", "", op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "localHost", host, op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "localPort", port, op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "remoteHost", host, op, output);
+            //await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "remotePort", port, op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "", op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "", op, output);
         }
 
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "operation", "op", op, output);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "identity", "metrics", op, output);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "facet", "", op, output);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "mode", "twoway", op, output);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "operation", "op", op, output);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "identity", "metrics", op, output);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "facet", "", op, output);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "mode", "twoway", op, output);
 
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry1", "test", op, output);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry2", "", op, output);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry3", "", op, output);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "context.entry1", "test", op, output);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "context.entry2", "", op, output);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "context.entry3", "", op, output);
 
         output.WriteLine("ok");
 
         output.Write("testing dispatch metrics with forwarding object adapter... ");
         output.Flush();
         MetricsPrx indirectMetrics = MetricsPrxHelper.createProxy(communicator, "metrics:" + forwardingEndpoint);
-        System.Action secondOp = () => invokeOp(indirectMetrics);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "ForwardingAdapter", secondOp, output);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", secondOp, output);
+        System.Func<Task> secondOp = () => invokeOpAsync(indirectMetrics);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "parent", "ForwardingAdapter", secondOp, output);
+        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", secondOp, output);
         output.WriteLine("ok");
 
         output.Write("testing invocation metrics... ");
@@ -1142,20 +1144,20 @@ public class AllTests : Test.AllTests
             checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ConnectionLostException", 2, output);
         }
 
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -e 1.1 [op]", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -e 1.1 [op]", op, output);
 
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "facet", "", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "facet", "", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "proxy",
                       "metrics -t -e 1.1:" + endpoint + " -t " + defaultTimeout, op, output);
 
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op, output);
 
         //
         // Oneway tests
@@ -1179,8 +1181,8 @@ public class AllTests : Test.AllTests
         test(rim1.current <= 1 && rim1.total == 2 && rim1.failures == 0);
         test(rim1.size == 42 && rim1.replySize == 0);
 
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",
-                      () => { invokeOp(metricsOneway); }, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",
+                      () => invokeOpAsync(metricsOneway), output);
 
         //
         // Batch oneway tests
@@ -1200,8 +1202,8 @@ public class AllTests : Test.AllTests
         test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(im1.remotes.Length == 0);
 
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway",
-                      () => { invokeOp(metricsBatchOneway); }, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway",
+                      () => invokeOpAsync(metricsBatchOneway), output);
 
         //
         // Tests flushBatchRequests
