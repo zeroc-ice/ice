@@ -8,10 +8,9 @@ public class Server extends test.TestHelper {
   public void run(String[] args) {
     var properties = createTestProperties(args);
     properties.setProperty("Ice.Package.Test", "test.Ice.idleTimeout");
-    properties.setProperty("Ice.Warn.Connections", "0");
     properties.setProperty("TestAdapter.Connection.IdleTimeout", "1"); // 1 second
-    properties.setProperty(
-        "TestAdapter.ThreadPool.Size", "1"); // dedicated thread pool with a single thread
+    properties.setProperty("TestAdapter.Connection.MaxDispatches", "1");
+    properties.setProperty("Ice.Warn.Connections", "0");
 
     try (var communicator = initialize(properties)) {
       communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
@@ -19,7 +18,15 @@ public class Server extends test.TestHelper {
       adapter.add(new TestIntfI(), new Identity("test", ""));
       adapter.activate();
 
-      communicator.getProperties().setProperty("TestAdapter3s.Endpoints", getTestEndpoint(1));
+      communicator
+          .getProperties()
+          .setProperty("TestAdapterDefaultMax.Endpoints", getTestEndpoint(1));
+      communicator.getProperties().setProperty("TestAdapterDefaultMax.Connection.IdleTimeout", "1");
+      var adapterDefaultMax = communicator.createObjectAdapter("TestAdapterDefaultMax");
+      adapterDefaultMax.add(new TestIntfI(), new Identity("test", ""));
+      adapterDefaultMax.activate();
+
+      communicator.getProperties().setProperty("TestAdapter3s.Endpoints", getTestEndpoint(2));
       communicator.getProperties().setProperty("TestAdapter3s.Connection.IdleTimeout", "3");
       var adapter3s = communicator.createObjectAdapter("TestAdapter3s");
       adapter3s.add(new TestIntfI(), new Identity("test", ""));

@@ -197,15 +197,6 @@ final class TransceiverI implements Transceiver {
   }
 
   @Override
-  public synchronized boolean isWaitingToBeRead() {
-    try {
-      return _readBuffer.b.position() > 0 || _socket.getInputStream().available() > 0;
-    } catch (java.io.IOException ex) {
-      return false;
-    }
-  }
-
-  @Override
   public String protocol() {
     return _instance.protocol();
   }

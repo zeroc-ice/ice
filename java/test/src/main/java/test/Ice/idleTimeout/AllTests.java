@@ -17,10 +17,12 @@ public class AllTests {
     String proxyString = "test: " + helper.getTestEndpoint();
     var p = TestIntfPrx.createProxy(communicator, proxyString);
 
-    String proxyString3s = "test: " + helper.getTestEndpoint(1);
+    String proxyStringDefaultMax = "test: " + helper.getTestEndpoint(1);
+    String proxyString3s = "test: " + helper.getTestEndpoint(2);
 
-    testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(p, helper.getWriter());
-    testConnectionAbortedByIdleCheck(proxyString, communicator.getProperties(), helper.getWriter());
+    testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
+    testConnectionAbortedByIdleCheck(
+        proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
     testEnableDisableIdleCheck(
         true, proxyString3s, communicator.getProperties(), helper.getWriter());
     testEnableDisableIdleCheck(
@@ -28,17 +30,15 @@ public class AllTests {
     p.shutdown();
   }
 
-  // The client and server have the same idle timeout (1s) and the server enables connection idle
-  // checks (the default).
-  // We verify that the server's idle check does not abort the connection as long as this connection
-  // receives heartbeats, even when the heartbeats are not read off the connection in a timely
-  // manner.
-  // To verify this situation, we use an OA with a 1-thread thread pool and use this unique thread
-  // for a long synchronous dispatch (sleep).
-  private static void testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(
+  // The client and server have the same idle timeout (1s) and both side enable the idle check (the
+  // default). We verify that the server's idle check does not abort the connection as long as this
+  // connection receives heartbeats, even when the heartbeats are not read off the connection in a
+  // timely manner.
+  // To verify this situation, we use an OA with a MaxDispatches = 1 to back-pressure the
+  // connection.
+  private static void testIdleCheckDoesNotAbortBackPressuredConnection(
       TestIntfPrx p, PrintWriter output) {
-    output.write(
-        "testing that the idle check does not abort a connection that receives heartbeats... ");
+    output.write("testing that the idle check does not abort a back-pressured connection... ");
     output.flush();
 
     // Establish connection.
