@@ -85,7 +85,7 @@ export class Client extends TestHelper {
 
         out.write("testing close timeout... ");
         {
-            try{
+            try {
                 const connection = await timeout.ice_getConnection();
                 await controller.holdAdapter(-1);
                 const closed = connection.close();
