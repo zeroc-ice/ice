@@ -4,7 +4,7 @@
 
 supported-platforms             = macosx iphoneos iphonesimulator
 
-xcframeworks                    = Ice IceDiscovery IceLocatorDiscovery IceIAP
+xcframeworks                    = Ice IceDiscovery IceLocatorDiscovery
 
 macosx_ar                       = libtool
 macosx_cppflags                 = -mmacosx-version-min=12.00

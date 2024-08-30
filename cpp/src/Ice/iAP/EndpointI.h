@@ -5,9 +5,9 @@
 #ifndef ICE_IAP_ENDPOINT_I_H
 #define ICE_IAP_ENDPOINT_I_H
 
-#include "../Ice/EndpointFactory.h"
-#include "../Ice/EndpointI.h"
-#include "../Ice/ProtocolInstanceF.h"
+#include "../EndpointFactory.h"
+#include "../EndpointI.h"
+#include "../ProtocolInstanceF.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
 
 #include <optional>

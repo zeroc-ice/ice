@@ -5,10 +5,10 @@
 #ifndef ICE_IAP_TRANSCEIVER_H
 #define ICE_IAP_TRANSCEIVER_H
 
-#include "../Ice/Network.h"
-#include "../Ice/ProtocolInstanceF.h"
-#include "../Ice/Selector.h"
-#include "../Ice/Transceiver.h"
+#include "../Network.h"
+#include "../ProtocolInstanceF.h"
+#include "../Selector.h"
+#include "../Transceiver.h"
 
 #import <ExternalAccessory/ExternalAccessory.h>
 #import <Foundation/Foundation.h>

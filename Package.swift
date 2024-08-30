@@ -70,7 +70,6 @@ let package = Package(
                 "IceCpp",
                 "IceDiscoveryCpp",
                 "IceLocatorDiscoveryCpp",
-                .target(name:"IceIAPCpp", condition: .when(platforms: [.iOS]))
             ],
             path: "swift/src/IceImpl",
             cxxSettings: [
@@ -95,10 +94,6 @@ let package = Package(
             name: "IceLocatorDiscoveryCpp",
             path: "cpp/lib/IceLocatorDiscovery.xcframework"
 
-        ),
-        .binaryTarget(
-            name: "IceIAPCpp",
-            path: "cpp/lib/IceIAP.xcframework"
         ),
         .executableTarget(
             name: "slice2swift",

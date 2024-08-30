@@ -6,13 +6,7 @@
 #endif
 
 #ifdef __cplusplus
-
 #    include <Ice/Ice.h>
-
-#    if TARGET_OS_IPHONE
-#        include <IceIAP/IceIAP.h>
-#    endif
-
 #endif
 
 #define ICE_SWIFT_UNAVAILABLE(msg) __attribute__((unavailable(msg)))

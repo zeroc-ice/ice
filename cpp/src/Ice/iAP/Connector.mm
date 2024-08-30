@@ -6,7 +6,7 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "../Ice/ProtocolInstance.h"
+#    include "../ProtocolInstance.h"
 #    include "Connector.h"
 #    include "EndpointI.h"
 #    include "Transceiver.h"

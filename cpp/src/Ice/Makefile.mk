@@ -28,7 +28,8 @@ endif
 endif
 
 Ice[iphoneos]_excludes                  := $(wildcard src/Ice/CtrlCHandler.cpp $(addprefix $(currentdir)/,Tcp*.cpp Service.cpp))
-Ice[iphoneos]_extra_sources             := $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
+Ice[iphoneos]_extra_sources             := $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))\
+                                           $(wildcard $(addprefix $(currentdir)/iAP/,*.cpp *.mm))
 Ice[iphonesimulator]_excludes           = $(Ice[iphoneos]_excludes)
 Ice[iphonesimulator]_extra_sources      = $(Ice[iphoneos]_extra_sources)
 

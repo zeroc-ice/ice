@@ -5,10 +5,10 @@
 #ifndef ICE_IAP_CONNECTOR_H
 #define ICE_IAP_CONNECTOR_H
 
-#include "../Ice/Connector.h"
-#include "../Ice/ProtocolInstanceF.h"
-#include "../Ice/TraceLevelsF.h"
-#include "../Ice/TransceiverF.h"
+#include "../Connector.h"
+#include "../ProtocolInstanceF.h"
+#include "../TraceLevelsF.h"
+#include "../TransceiverF.h"
 #include "Ice/Logger.h"
 
 #import <ExternalAccessory/ExternalAccessory.h>
