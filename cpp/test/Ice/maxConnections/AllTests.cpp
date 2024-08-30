@@ -27,7 +27,7 @@ testCreateConnections(TestIntfPrx p, int connectionCount)
     // Close all connections
     for (auto& connection : connectionList)
     {
-        connection->close();
+        connection->close().get();
     }
     cout << "ok" << endl;
 }
@@ -61,7 +61,7 @@ testCreateConnectionsWithMax(TestIntfPrx p, int max)
     // Close all connections
     for (auto& connection : connectionList)
     {
-        connection->close();
+        connection->close().get();
     }
     cout << "ok" << endl;
 }
@@ -112,7 +112,7 @@ testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max)
     // Close all connections
     for (auto& connection : connectionList)
     {
-        connection->close();
+        connection->close().get();
     }
     cout << "ok" << endl;
 }
