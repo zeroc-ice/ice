@@ -24,7 +24,6 @@ public class AllTests {
     var pSerialize = TestIntfPrx.createProxy(communicator, proxyStringSerialize);
 
     testMaxDispatches(p, 100, helper.getWriter());
-
     testMaxDispatches(pMax10, 10, helper.getWriter());
     testMaxDispatches(pMax1, 1, helper.getWriter());
 
@@ -50,6 +49,9 @@ public class AllTests {
     }
 
     int maxConcurrentDispatches = p.resetMaxConcurrentDispatches();
+    if (maxConcurrentDispatches != maxCount) {
+      output.println("failed: max count = " + maxConcurrentDispatches);
+    }
     test(maxConcurrentDispatches == maxCount);
     output.println("ok");
   }

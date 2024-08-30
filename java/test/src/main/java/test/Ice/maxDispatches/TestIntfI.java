@@ -25,12 +25,10 @@ class TestIntfI implements TestIntf {
 
     var future = new CompletableFuture<Void>();
 
-    // Decrement dispatchCount in 50ms
+    // Decrement dispatchCount in 50 ms
     _scheduledExecutorService.schedule(
         () -> {
-          synchronized (this) {
-            _dispatchCount--;
-          }
+          decDispatchCount();
           future.complete(null);
         },
         50,
@@ -49,5 +47,9 @@ class TestIntfI implements TestIntf {
   @Override
   public void shutdown(Current current) {
     current.adapter.getCommunicator().shutdown();
+  }
+
+  private synchronized void decDispatchCount() {
+    _dispatchCount--;
   }
 }
