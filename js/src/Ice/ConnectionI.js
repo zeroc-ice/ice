@@ -218,14 +218,13 @@ export class ConnectionI {
     close() {
         if (this._closed === undefined) {
             this._closed = new Promise();
-        }
-        if (this._asyncRequests.size === 0) {
-            this.setState(
-                StateClosing,
-                new ConnectionClosedException("The connection was closed gracefully by the application.", true),
-            );
-        } else {
             scheduleCloseTimeout(this);
+            if (this._asyncRequests.size === 0) {
+                this.setState(
+                    StateClosing,
+                    new ConnectionClosedException("The connection was closed gracefully by the application.", true),
+                );
+            }
         }
         return this._closed;
     }
@@ -1525,7 +1524,10 @@ export class ConnectionI {
 
     closeTimedOut() {
         if (this._state < StateClosed) {
-            this.setState(StateClosed, new CloseTimeoutException());
+            // We don't use setState(state, exception) because we want to overwrite the exception set by a
+            // graceful closure.
+            this._exception = new CloseTimeoutException();
+            this.setState(StateClosed);
         }
         // else ignore since we're already closed.
     }

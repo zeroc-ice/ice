@@ -1366,7 +1366,9 @@ public final class Instance implements java.util.function.Function<String, Class
                 _serverConnectionOptions.enableIdleCheck() ? 1 : 0)
             > 0,
         properties.getPropertyAsIntWithDefault(
-            propertyPrefix + ".InactivityTimeout", _serverConnectionOptions.inactivityTimeout()));
+            propertyPrefix + ".InactivityTimeout", _serverConnectionOptions.inactivityTimeout()),
+        properties.getPropertyAsIntWithDefault(
+            propertyPrefix + ".MaxDispatches", _serverConnectionOptions.maxDispatches()));
   }
 
   private void updateConnectionObservers() {
@@ -1522,7 +1524,8 @@ public final class Instance implements java.util.function.Function<String, Class
         properties.getIcePropertyAsInt(propertyPrefix + ".CloseTimeout"),
         properties.getIcePropertyAsInt(propertyPrefix + ".IdleTimeout"),
         properties.getIcePropertyAsInt(propertyPrefix + ".EnableIdleCheck") > 0,
-        properties.getIcePropertyAsInt(propertyPrefix + ".InactivityTimeout"));
+        properties.getIcePropertyAsInt(propertyPrefix + ".InactivityTimeout"),
+        properties.getIcePropertyAsInt(propertyPrefix + ".MaxDispatches"));
   }
 
   private static final int StateActive = 0;

@@ -30,6 +30,8 @@ task testSliceTask {
                                                      'Ice/interrupt/*.ice',
                                                      'Ice/invoke/*.ice',
                                                      'Ice/location/*.ice',
+                                                     'Ice/maxConnections/*.ice',
+                                                     'Ice/maxDispatches/*.ice',
                                                      'Ice/metrics/*.ice',
                                                      'Ice/middleware/*.ice',
                                                      'Ice/networkProxy/*.ice',

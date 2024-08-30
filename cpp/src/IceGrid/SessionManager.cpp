@@ -49,7 +49,13 @@ SessionManager::findAllQueryObjects(bool cached)
             auto connection = queryObject->ice_getCachedConnection();
             if (connection)
             {
-                connection->close();
+                try
+                {
+                    connection->close().get();
+                }
+                catch (...)
+                {
+                }
             }
         }
         queryObjects.clear();

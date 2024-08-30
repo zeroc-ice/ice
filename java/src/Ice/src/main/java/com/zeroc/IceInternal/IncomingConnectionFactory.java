@@ -184,6 +184,27 @@ public final class IncomingConnectionFactory extends EventHandler
       try {
         transceiver = _acceptor.accept();
 
+        if (_maxConnections > 0 && _connections.size() == _maxConnections) {
+          // Can't accept more connections, so we abort this transport connection.
+          if (_instance.traceLevels().network >= 2) {
+            StringBuffer s = new StringBuffer("rejecting new ");
+            s.append(_endpoint.protocol());
+            s.append(" connection\n");
+            s.append(transceiver.toString());
+            s.append("\nbecause the maximum number of connections has been reached");
+            _instance
+                .initializationData()
+                .logger
+                .trace(_instance.traceLevels().networkCat, s.toString());
+          }
+          try {
+            transceiver.close();
+          } catch (com.zeroc.Ice.SocketException ex) {
+            // Ignore
+          }
+          return;
+        }
+
         if (_instance.traceLevels().network >= 2) {
           StringBuffer s = new StringBuffer("trying to accept ");
           s.append(_endpoint.protocol());
@@ -335,6 +356,16 @@ public final class IncomingConnectionFactory extends EventHandler
       com.zeroc.Ice.ObjectAdapter adapter) {
     _instance = instance;
     _connectionOptions = instance.serverConnectionOptions(adapter.getName());
+
+    // Meaningful only for non-datagram (non-UDP) connections.
+    _maxConnections =
+        endpoint.datagram()
+            ? 0
+            : instance
+                .initializationData()
+                .properties
+                .getPropertyAsInt(adapter.getName() + ".MaxConnections");
+
     _endpoint = endpoint;
     _publishedEndpoint = publish;
     _adapter = adapter;
@@ -366,7 +397,7 @@ public final class IncomingConnectionFactory extends EventHandler
         }
         _endpoint = _transceiver.bind();
 
-        ConnectionI connection =
+        var connection =
             new ConnectionI(
                 _adapter.getCommunicator(),
                 _instance,
@@ -379,6 +410,7 @@ public final class IncomingConnectionFactory extends EventHandler
         connection.startAndWait();
 
         _connections.add(connection);
+        assert _maxConnections == 0; // UDP so no max connections
       } else {
         createAcceptor();
       }
@@ -464,6 +496,7 @@ public final class IncomingConnectionFactory extends EventHandler
             return;
           }
           if (_acceptor != null) {
+            // Stop accepting new connections.
             if (_instance.traceLevels().network >= 1) {
               StringBuffer s = new StringBuffer("holding ");
               s.append(_endpoint.protocol());
@@ -591,6 +624,8 @@ public final class IncomingConnectionFactory extends EventHandler
 
   private final Instance _instance;
   private final ConnectionOptions _connectionOptions;
+
+  private final int _maxConnections;
 
   private Acceptor _acceptor;
   private Transceiver _transceiver;
