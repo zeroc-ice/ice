@@ -93,7 +93,7 @@ testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max)
     }
 
     // Close one connection
-    connectionList.front()->close();
+    connectionList.front()->close().get();
     connectionList.erase(connectionList.begin());
 
     // Try again
