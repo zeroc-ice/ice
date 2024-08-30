@@ -124,23 +124,27 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         let to = timeout
         let connection = try await connect(to)
         try await controller.holdAdapter(-1)
-        async let _ = connection.close()
+        async let closed: () = connection.close()
         do {
             _ = try connection.getInfo()  // getInfo() doesn't throw in the closing state.
         } catch is Ice.LocalException {
             try test(false)
         }
 
-        while true {
-            do {
-                _ = try connection.getInfo()
-                try await Task.sleep(for: .milliseconds(10))
-            } catch let ex as Ice.ConnectionClosedException {
-                // Expected.
-                try test(ex.closedByApplication)
-                break
-            }
+        do {
+            try await closed  // wait for the closure to complete
+            try test(false)
+        } catch is Ice.CloseTimeoutException {
+            // Expected.
         }
+
+        do {
+            _ = try connection.getInfo()
+            try test(false)
+        } catch is Ice.CloseTimeoutException {
+            // Expected.
+        }
+
         try await controller.resumeAdapter()
         try await timeout.op()  // Ensure adapter is active.
     }
