@@ -1288,7 +1288,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                         completedCallback(this);
                     }
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     _acceptorException = ex;
                     completedCallback(this);
@@ -1309,7 +1309,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             }
             _acceptor.finishAccept();
         }
-        catch (Ice.LocalException ex)
+        catch (System.Exception ex)
         {
             _acceptorException = null;
 
@@ -1409,7 +1409,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                     // Ignore socket exceptions.
                     return;
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     // Warn about other Ice local exceptions.
                     if (_warn)
@@ -1787,7 +1787,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         }
     }
 
-    private void warning(Ice.LocalException ex)
+    private void warning(System.Exception ex)
     {
         _instance.initializationData().logger.warning("connection exception:\n" + ex + '\n' + _acceptor.ToString());
     }
@@ -1810,6 +1810,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
     private int _state;
     private bool _acceptorStarted;
-    private Ice.LocalException _acceptorException;
+
+    private System.Exception _acceptorException;
     private readonly object _mutex = new();
 }
