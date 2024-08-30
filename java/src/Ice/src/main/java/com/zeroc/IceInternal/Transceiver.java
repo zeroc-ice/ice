@@ -37,14 +37,6 @@ public interface Transceiver {
 
   int read(Buffer buf);
 
-  /**
-   * Checks if this transceiver is waiting to be read, typically because it has bytes readily
-   * available for reading.
-   *
-   * @return true if this transceiver is waiting to be read, false otherwise.
-   */
-  boolean isWaitingToBeRead();
-
   String protocol();
 
   @Override

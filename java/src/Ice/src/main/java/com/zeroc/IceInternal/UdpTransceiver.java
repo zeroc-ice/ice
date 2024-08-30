@@ -187,12 +187,6 @@ final class UdpTransceiver implements Transceiver {
   }
 
   @Override
-  public boolean isWaitingToBeRead() {
-    assert false; // not implemented for UDP
-    return false;
-  }
-
-  @Override
   public String protocol() {
     return _instance.protocol();
   }

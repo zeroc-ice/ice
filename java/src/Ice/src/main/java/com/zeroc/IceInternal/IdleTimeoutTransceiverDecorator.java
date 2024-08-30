@@ -16,6 +16,9 @@ public class IdleTimeoutTransceiverDecorator implements Transceiver {
   private final int _idleTimeout;
   private final ScheduledExecutorService _scheduledExecutorService;
 
+  // Protected by ConnectionI's mutex.
+  private boolean _idleCheckEnabled = false;
+
   private final Runnable _idleCheck;
   private final Runnable _sendHeartbeat;
 
@@ -38,7 +41,6 @@ public class IdleTimeoutTransceiverDecorator implements Transceiver {
     int op = _decoratee.initialize(readBuffer, writeBuffer);
 
     if (op == SocketOperation.None) { // connected
-      rescheduleReadTimer();
       rescheduleWriteTimer();
     }
 
@@ -52,7 +54,7 @@ public class IdleTimeoutTransceiverDecorator implements Transceiver {
 
   @Override
   public void close() {
-    cancelReadTimer();
+    disableIdleCheck();
     cancelWriteTimer();
     _decoratee.close();
   }
@@ -74,14 +76,12 @@ public class IdleTimeoutTransceiverDecorator implements Transceiver {
 
   @Override
   public int read(Buffer buf) {
-    // We don't want the idle check to run while we're reading, so we reschedule it before reading.
-    rescheduleReadTimer();
+    if (_idleCheckEnabled) {
+      // We don't want the idle check to run while we're reading, so we reschedule it before
+      // reading.
+      rescheduleReadTimer();
+    }
     return _decoratee.read(buf);
-  }
-
-  @Override
-  public boolean isWaitingToBeRead() {
-    return _decoratee.isWaitingToBeRead();
   }
 
   @Override
@@ -124,13 +124,26 @@ public class IdleTimeoutTransceiverDecorator implements Transceiver {
     _idleTimeout = idleTimeout;
     _scheduledExecutorService = scheduledExecutorService;
 
-    _idleCheck =
-        enableIdleCheck
-            ? () ->
-                connection.idleCheck(
-                    idleTimeout, this::isReadTimerTaskStarted, this::rescheduleReadTimer)
-            : null;
+    _idleCheck = enableIdleCheck ? () -> connection.idleCheck(idleTimeout) : null;
     _sendHeartbeat = () -> connection.sendHeartbeat();
+  }
+
+  public boolean isIdleCheckEnabled() {
+    return _idleCheckEnabled;
+  }
+
+  public void enableIdleCheck() {
+    if (!_idleCheckEnabled && _idleCheck != null) {
+      rescheduleReadTimer();
+      _idleCheckEnabled = true;
+    }
+  }
+
+  public void disableIdleCheck() {
+    if (_idleCheckEnabled && _idleCheck != null) {
+      cancelReadTimer();
+      _idleCheckEnabled = false;
+    }
   }
 
   private void cancelReadTimer() {
@@ -138,10 +151,6 @@ public class IdleTimeoutTransceiverDecorator implements Transceiver {
       _readTimerFuture.cancel(false);
       _readTimerFuture = null;
     }
-  }
-
-  private boolean isReadTimerTaskStarted() {
-    return _readTimerFuture != null && _readTimerFuture.getDelay(TimeUnit.NANOSECONDS) <= 0;
   }
 
   private void cancelWriteTimer() {
