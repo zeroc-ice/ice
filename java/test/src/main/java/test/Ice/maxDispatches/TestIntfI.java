@@ -25,13 +25,13 @@ class TestIntfI implements TestIntf {
 
     var future = new CompletableFuture<Void>();
 
-    // Decrement dispatchCount in 50 ms
+    // Decrement dispatchCount in 70 ms
     _scheduledExecutorService.schedule(
         () -> {
           decDispatchCount();
           future.complete(null);
         },
-        50,
+        70,
         java.util.concurrent.TimeUnit.MILLISECONDS);
 
     return future;

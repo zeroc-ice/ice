@@ -2299,7 +2299,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               // Resume reading if the connection is active and the dispatch count is about to be
               // less than _maxDispatches.
               _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
-              _idleTimeoutTransceiver.enableIdleCheck();
+              if (_idleTimeoutTransceiver != null) {
+                _idleTimeoutTransceiver.enableIdleCheck();
+              }
             }
 
             --_dispatchCount;
