@@ -156,7 +156,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
     {
         Ice::ConnectionPtr connection = connect(timeout);
         controller->holdAdapter(-1);
-        connection->close(nullptr, nullptr);
+        std::future<void> closeFuture = connection->close();
         try
         {
             connection->getInfo(); // getInfo() doesn't throw in the closing state.
@@ -165,19 +165,25 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         {
             test(false);
         }
-        while (true)
+
+        try
         {
-            try
-            {
-                connection->getInfo();
-                this_thread::sleep_for(chrono::milliseconds(10));
-            }
-            catch (const Ice::ConnectionClosedException& ex)
-            {
-                // Expected.
-                test(ex.closedByApplication());
-                break;
-            }
+            closeFuture.get(); // Wait for close to complete.
+            test(false);
+        }
+        catch (const Ice::CloseTimeoutException&)
+        {
+            // Expected.
+        }
+
+        try
+        {
+            connection->getInfo();
+            test(false);
+        }
+        catch (const Ice::CloseTimeoutException&)
+        {
+            // Expected.
         }
         controller->resumeAdapter();
         timeout->op(); // Ensure adapter is active.

@@ -9,15 +9,14 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-// The client and server have the same idle timeout (1s) and the server enables connection idle checks (the default).
-// We verify that the server's idle check does not abort the connection as long as this connection receives heartbeats,
-// even when the heartbeats are not read off the connection in a timely manner.
-// To verify this situation, we use an OA with a 1-thread thread pool and use this unique thread for a long synchronous
-// dispatch (sleep).
+// The client and server have the same idle timeout (1s) and both side enable the idle check (the default)
+// We verify that the server's idle check does not abort the connection as long as this connection receives
+// heartbeats, even when the heartbeats are not read off the connection in a timely manner.
+// To verify this situation, we use an OA with a MaxDispatches = 1 to back-pressure the connection.
 void
-testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(const TestIntfPrx& p)
+testIdleCheckDoesNotAbortBackPressuredConnection(const TestIntfPrx& p)
 {
-    cout << "testing that the idle check does not abort a connection that receives heartbeats... " << flush;
+    cout << "testing that the idle check does not abort a back-pressured connection... " << flush;
     p->ice_ping();
     ConnectionPtr connection = p->ice_getCachedConnection();
     test(connection);
@@ -97,10 +96,11 @@ allTests(TestHelper* helper)
     string proxyString = "test: " + helper->getTestEndpoint();
     TestIntfPrx p(communicator, proxyString);
 
-    string proxyString3s = "test: " + helper->getTestEndpoint(1);
+    string proxyStringDefaultMax = "test: " + helper->getTestEndpoint(1);
+    string proxyString3s = "test: " + helper->getTestEndpoint(2);
 
-    testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(p);
-    testConnectionAbortedByIdleCheck(proxyString, communicator->getProperties());
+    testIdleCheckDoesNotAbortBackPressuredConnection(p);
+    testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator->getProperties());
     testEnableDisableIdleCheck(true, proxyString3s, communicator->getProperties());
     testEnableDisableIdleCheck(false, proxyString3s, communicator->getProperties());
 

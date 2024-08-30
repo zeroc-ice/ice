@@ -1501,21 +1501,6 @@ IceInternal::getRecvBufferSize(SOCKET fd)
     return sz;
 }
 
-bool
-IceInternal::hasBytesAvailable(SOCKET fd) noexcept
-{
-#ifdef _WIN32
-    unsigned long bytesAvailable = 0;
-    int rs = ioctlsocket(fd, FIONREAD, &bytesAvailable);
-    assert(rs == 0);
-#else
-    int bytesAvailable = 0;
-    int rs = ioctl(fd, FIONREAD, &bytesAvailable);
-    assert(rs == 0);
-#endif
-    return rs == 0 && bytesAvailable > 0;
-}
-
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {

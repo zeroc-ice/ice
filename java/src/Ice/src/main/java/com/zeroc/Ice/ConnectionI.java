@@ -2290,24 +2290,20 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             notifyAll();
           }
 
-          if (_state >= StateClosed) {
-            assert (_exception != null);
-            throw (LocalException) _exception.fillInStackTrace();
-          }
+          if (_state < StateClosed) {
+            if (isTwoWay) {
+              sendMessage(new OutgoingMessage(outputStream, compress != 0, true));
+            }
 
-          if (isTwoWay) {
-            sendMessage(new OutgoingMessage(outputStream, compress != 0, true));
-          }
+            if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches) {
+              // Resume reading if the connection is active and the dispatch count is about to be
+              // less than _maxDispatches.
+              _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
+              _idleTimeoutTransceiver.enableIdleCheck();
+            }
 
-          if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches) {
-            // Resume reading if the connection is active and the dispatch count is about to be less
-            // than
-            // _maxDispatches.
-            _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
-            _idleTimeoutTransceiver.enableIdleCheck();
+            --_dispatchCount;
           }
-
-          --_dispatchCount;
 
           if (_state == StateClosing && _upcallCount == 0) {
             //
@@ -2475,7 +2471,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   private synchronized void closeTimedOut() {
     if (_state < StateClosed) {
-      setState(StateClosed, new CloseTimeoutException());
+      // We don't use setState(state, exception) because we want to overwrite the exception set by a
+      // graceful closure.
+      _exception = new CloseTimeoutException();
+      setState(StateClosed);
     }
     // else ignore since we're already closed.
   }

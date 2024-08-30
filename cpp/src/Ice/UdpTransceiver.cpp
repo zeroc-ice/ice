@@ -469,14 +469,6 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
 }
 #endif
 
-bool
-IceInternal::UdpTransceiver::isWaitingToBeRead() const noexcept
-{
-    // isWaitingToBeRead is used only by the idle check, and the idle check is not used for UDP.
-    assert(false);
-    return false;
-}
-
 string
 IceInternal::UdpTransceiver::protocol() const
 {
