@@ -579,12 +579,6 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
     return IceInternal::SocketOperationNone;
 }
 
-bool
-OpenSSL::TransceiverI::isWaitingToBeRead() const noexcept
-{
-    return _delegate->isWaitingToBeRead();
-}
-
 string
 OpenSSL::TransceiverI::protocol() const
 {

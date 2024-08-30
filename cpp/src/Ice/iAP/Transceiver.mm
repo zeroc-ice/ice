@@ -361,12 +361,6 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
     return SocketOperationNone;
 }
 
-bool
-IceObjC::iAPTransceiver::isWaitingToBeRead() const noexcept
-{
-    return [_readStream hasBytesAvailable];
-}
-
 string
 IceObjC::iAPTransceiver::protocol() const
 {

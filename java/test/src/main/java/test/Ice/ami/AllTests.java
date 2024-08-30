@@ -947,6 +947,8 @@ public class AllTests {
             q.join();
           }
         }
+        // Wait until the connection is closed.
+        p.ice_getCachedConnection().close();
       }
       out.println("ok");
 

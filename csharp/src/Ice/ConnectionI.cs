@@ -1683,7 +1683,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         return;
                     }
 
-                    if (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)
+                    if (_state == StateActive && (_maxDispatches <= 0 || _dispatchCount < _maxDispatches))
                     {
                         _threadPool.unregister(this, SocketOperation.Read);
                         _idleTimeoutTransceiver?.disableIdleCheck();
@@ -2655,7 +2655,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (_state < StateClosed)
             {
-                setState(StateClosed, new CloseTimeoutException());
+                // We don't use setState(state, exception) because we want to overwrite the exception set by a
+                // graceful closure.
+                _exception = new CloseTimeoutException();
+                setState(StateClosed);
             }
         }
         // else ignore since we're already closed.

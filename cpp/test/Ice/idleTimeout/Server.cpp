@@ -20,7 +20,8 @@ Server::run(int argc, char** argv)
     initData.properties = createTestProperties(argc, argv);
     initData.properties->setProperty("Ice.Warn.Connections", "0");
     initData.properties->setProperty("TestAdapter.Connection.IdleTimeout", "1"); // 1 second
-    initData.properties->setProperty("TestAdapter.ThreadPool.Size", "1"); // dedicated thread pool with a single thread
+    // Serialize dispatches on each incoming connection.
+    initData.properties->setProperty("TestAdapter.Connection.MaxDispatches", "1");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
@@ -28,14 +29,20 @@ Server::run(int argc, char** argv)
     adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
     adapter->activate();
 
-    communicator->getProperties()->setProperty("TestAdapter3s.Endpoints", getTestEndpoint(1));
+    communicator->getProperties()->setProperty("TestAdapterDefaultMax.Endpoints", getTestEndpoint(1));
+    communicator->getProperties()->setProperty("TestAdapterDefaultMax.Connection.IdleTimeout", "1");
+    adapter = communicator->createObjectAdapter("TestAdapterDefaultMax");
+    adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
+    adapter->activate();
+
+    communicator->getProperties()->setProperty("TestAdapter3s.Endpoints", getTestEndpoint(2));
     communicator->getProperties()->setProperty("TestAdapter3s.Connection.IdleTimeout", "3");
     adapter = communicator->createObjectAdapter("TestAdapter3s");
     adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
     adapter->activate();
 
     // Used by the JavaScript tests
-    communicator->getProperties()->setProperty("TestAdapterNoIdleCheck.Endpoints", getTestEndpoint(2));
+    communicator->getProperties()->setProperty("TestAdapterNoIdleCheck.Endpoints", getTestEndpoint(3));
     communicator->getProperties()->setProperty("TestAdapterNoIdleCheck.Connection.IdleTimeout", "1");
     communicator->getProperties()->setProperty("TestAdapterNoIdleCheck.Connection.EnableIdleCheck", "0");
     adapter = communicator->createObjectAdapter("TestAdapterNoIdleCheck");
@@ -44,7 +51,7 @@ Server::run(int argc, char** argv)
     adapter->activate();
 
     // Used by the JavaScript tests
-    communicator->getProperties()->setProperty("TestAdapterNoIdleCheck3s.Endpoints", getTestEndpoint(3));
+    communicator->getProperties()->setProperty("TestAdapterNoIdleCheck3s.Endpoints", getTestEndpoint(4));
     communicator->getProperties()->setProperty("TestAdapterNoIdleCheck3s.Connection.IdleTimeout", "3");
     communicator->getProperties()->setProperty("TestAdapterNoIdleCheck3s.Connection.EnableIdleCheck", "0");
     adapter = communicator->createObjectAdapter("TestAdapterNoIdleCheck3s");

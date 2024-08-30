@@ -8,8 +8,7 @@ public class Client : global::Test.TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        var properties = createTestProperties(ref args);
-        using var communicator = initialize(properties);
+        using var communicator = initialize(ref args);
         await AllTests.allTests(this);
     }
 

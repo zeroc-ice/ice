@@ -34,12 +34,6 @@ namespace IceInternal
         virtual void finishRead(Buffer&) = 0;
 #endif
 
-        /// Checks if this transceiver is waiting to be read, typically because it has bytes readily available for
-        /// reading.
-        /// @return true if this transceiver is waiting to be read, false otherwise.
-        /// @remark The caller must ensure the transceiver is not closed when calling this function.
-        virtual bool isWaitingToBeRead() const noexcept = 0;
-
         virtual std::string protocol() const = 0;
         virtual std::string toString() const = 0;
         virtual std::string toDetailedString() const = 0;
