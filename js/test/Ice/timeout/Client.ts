@@ -85,33 +85,31 @@ export class Client extends TestHelper {
 
         out.write("testing close timeout... ");
         {
-            const connection = await timeout.ice_getConnection();
-            await controller.holdAdapter(-1);
-            const closed = connection.close();
+            try{
+                const connection = await timeout.ice_getConnection();
+                await controller.holdAdapter(-1);
+                const closed = connection.close();
 
-            try {
-                connection.getInfo(); // getInfo() doesn't throw in the closing state
-                while (true) {
-                    try {
-                        connection.getInfo();
-                        await Ice.Promise.delay(10);
-                    } catch (ex) {
-                        test(ex instanceof Ice.ConnectionClosedException, ex); // Expected
-                        test(ex.closedByApplication);
-                        break;
-                    }
+                try {
+                    connection.getInfo(); // getInfo() doesn't throw in the closing state
+                } catch (ex) {
+                    test(false, ex);
                 }
-            } catch (ex) {
-                test(false, ex);
+
+                try {
+                    await closed;
+                    test(false);
+                } catch (ex) {
+                    test(ex instanceof Ice.CloseTimeoutException, ex);
+                }
+
+                try {
+                    connection.getInfo();
+                } catch (ex) {
+                    test(ex instanceof Ice.CloseTimeoutException, ex);
+                }
             } finally {
                 await controller.resumeAdapter();
-            }
-            await timeout.op();
-
-            try {
-                await closed;
-            } catch (ex) {
-                test(false, ex);
             }
         }
         controller.shutdown();
