@@ -237,6 +237,8 @@ namespace IceInternal
         const InstancePtr _instance;
         const Ice::ConnectionOptions _connectionOptions;
 
+        const int _maxConnections;
+
         AcceptorPtr _acceptor;
         const TransceiverPtr _transceiver;
         EndpointIPtr _endpoint;

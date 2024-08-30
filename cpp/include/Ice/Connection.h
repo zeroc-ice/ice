@@ -145,7 +145,7 @@ namespace Ice
          * Starts a graceful closure of this connection once all outstanding invocations have completed.
          * @return A future that completes then the connection is closed.
          */
-        std::future<void> close();
+        [[nodiscard]] std::future<void> close();
 
         /**
          * Create a special proxy that always uses this connection. This can be used for callbacks from a server to a
