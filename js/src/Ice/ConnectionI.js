@@ -1526,8 +1526,8 @@ export class ConnectionI {
         if (this._state < StateClosed) {
             // We don't use setState(state, exception) because we want to overwrite the exception set by a
             // graceful closure.
-            _exception = new CloseTimeoutException();
-            setState(StateClosed);
+            this._exception = new CloseTimeoutException();
+            this.setState(StateClosed);
         }
         // else ignore since we're already closed.
     }
