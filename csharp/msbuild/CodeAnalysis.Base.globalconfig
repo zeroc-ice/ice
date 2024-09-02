@@ -274,12 +274,6 @@ dotnet_diagnostic.SA1513.severity = none
 # SA1515: Single-line comment should be preceded by blank line
 dotnet_diagnostic.SA1515.severity = none
 
-# SA1625: Element documentation should not be copied and pasted
-dotnet_diagnostic.SA1625.severity = none
-
-# SA1642: Element should be documented
-dotnet_diagnostic.SA1642.severity = none
-
 # SA1649: File name should match first type name
 dotnet_diagnostic.SA1649.severity = none
 
@@ -353,9 +347,6 @@ dotnet_diagnostic.SA1408.severity = none
 
 # SA1025: Code should not contain multiple whitespace characters in a row
 dotnet_diagnostic.SA1025.severity = none
-
-# SA1005: Single line comment should begin with a space
-dotnet_diagnostic.SA1005.severity = none
 
 # SA1202: 'public' members should come before 'private' members
 dotnet_diagnostic.SA1202.severity = none

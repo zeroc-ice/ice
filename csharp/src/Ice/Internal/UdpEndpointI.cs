@@ -45,7 +45,7 @@ internal sealed class UdpEndpointI : IPEndpointI
             s.readByte();
         }
         // Not transmitted.
-        //_connect = s.readBool();
+        // _connect = s.readBool();
         _connect = false;
         _compress = s.readBool();
     }
@@ -313,7 +313,7 @@ internal sealed class UdpEndpointI : IPEndpointI
             Ice.Util.Encoding_1_0.ice_writeMembers(s);
         }
         // Not transmitted.
-        //s.writeBool(_connect);
+        // s.writeBool(_connect);
         s.writeBool(_compress);
     }
 

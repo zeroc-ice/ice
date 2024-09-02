@@ -14,8 +14,7 @@ public abstract class Reference : IEquatable<Reference>
         ModeOneway,
         ModeBatchOneway,
         ModeDatagram,
-        ModeBatchDatagram,
-        ModeLast = ModeBatchDatagram
+        ModeBatchDatagram
     }
 
     public interface GetConnectionCallback

@@ -543,7 +543,7 @@ public class ReferenceFactory
         }
 
         int mode = s.readByte();
-        if (mode < 0 || mode > (int)Reference.Mode.ModeLast)
+        if (mode < 0 || mode > (int)Reference.Mode.ModeBatchDatagram)
         {
             throw new MarshalException($"Received invalid proxy mode {mode}");
         }
