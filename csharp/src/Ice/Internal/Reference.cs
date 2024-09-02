@@ -16,7 +16,7 @@ public abstract class Reference : IEquatable<Reference>
         ModeDatagram,
         ModeBatchDatagram,
         ModeLast = ModeBatchDatagram
-    };
+    }
 
     public interface GetConnectionCallback
     {

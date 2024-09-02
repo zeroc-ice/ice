@@ -193,7 +193,7 @@ public sealed class Network
     {
         try
         {
-            Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            using Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
             closeSocketNoThrow(socket);
             return true;
         }
@@ -511,7 +511,6 @@ public sealed class Network
 
     public static void doListen(Socket socket, int backlog)
     {
-
     repeatListen:
 
         try

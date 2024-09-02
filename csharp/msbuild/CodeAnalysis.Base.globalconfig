@@ -190,6 +190,9 @@ dotnet_diagnostic.SA1014.severity = warning
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = none
 
+# SA1108: Block statements should not contain embedded comments
+dotnet_diagnostic.SA1108.severity = none
+
 # SA1118: The parameter spans multiple lines
 dotnet_diagnostic.SA1118.severity = none
 
@@ -306,9 +309,6 @@ dotnet_diagnostic.SA1136.severity = none
 # SA1514: Element documentation header should be preceded by blank line
 dotnet_diagnostic.SA1514.severity = none
 
-# SA1505: An opening brace should not be followed by a blank line
-dotnet_diagnostic.SA1505.severity = none
-
 # SA1600: Elements should be documented
 dotnet_diagnostic.SA1600.severity = none
 
@@ -333,9 +333,6 @@ dotnet_diagnostic.SA1618.severity = none
 # SA1623: The property's documentation summary text should begin with: 'Gets or sets'
 dotnet_diagnostic.SA1623.severity = none
 
-# SA1626: Single-line comments should not use documentation style slashes
-dotnet_diagnostic.SA1626.severity = none
-
 # SA1627: The documentation text within the 'exception' tag should not be empty
 dotnet_diagnostic.SA1627.severity = none
 
@@ -345,20 +342,8 @@ dotnet_diagnostic.SA1629.severity = none
 # SA1636: The file header copyright text should match the copyright text from the settings.
 dotnet_diagnostic.SA1636.severity = none
 
-# SA1106: Code should not contain empty statements
-dotnet_diagnostic.SA1106.severity = none
-
-# SA1009: Closing parenthesis should not be preceded by a space
-dotnet_diagnostic.SA1009.severity = none
-
-# SA1503: Braces should not be omitted
-dotnet_diagnostic.SA1503.severity = none
-
 # SA1131: Constant values should appear on the right-hand side of comparisons
 dotnet_diagnostic.SA1131.severity = none
-
-# SA1119: Statement should not use unnecessary parenthesis
-dotnet_diagnostic.SA1119.severity = none
 
 # SA1314: Type parameter names should begin with T
 dotnet_diagnostic.SA1314.severity = none
@@ -368,15 +353,6 @@ dotnet_diagnostic.SA1408.severity = none
 
 # SA1025: Code should not contain multiple whitespace characters in a row
 dotnet_diagnostic.SA1025.severity = none
-
-# SA1108: Block statements should not contain embedded comments
-dotnet_diagnostic.SA1108.severity = none
-
-# SA1508: A closing brace should not be preceded by a blank line
-dotnet_diagnostic.SA1508.severity = none
-
-# SA1407: Arithmetic expressions should declare precedence
-dotnet_diagnostic.SA1407.severity = none
 
 # SA1005: Single line comment should begin with a space
 dotnet_diagnostic.SA1005.severity = none
@@ -390,44 +366,23 @@ dotnet_diagnostic.SA1203.severity = none
 # SA1120 The C# comment does not contain any comment text.
 dotnet_diagnostic.SA1120.severity = none
 
-# CA1001: Types that own disposable fields should be disposable
-dotnet_diagnostic.CA1001.severity = none
-
-# CA1027: Mark enums with FlagsAttribute
-dotnet_diagnostic.CA1027.severity = none
-
 # CA1036: Override methods on comparable types
 dotnet_diagnostic.CA1036.severity = none
 
 # CA1066: Implement IEquatable when overriding Equals
 dotnet_diagnostic.CA1066.severity = none
 
-# CA1305: Specify IFormatProvider
-dotnet_diagnostic.CA1305.severity = none
-
 # CA1810: Initialize reference type static fields inline
 dotnet_diagnostic.CA1810.severity = none
-
-# CA1815: Override equals and operator equals on value types
-dotnet_diagnostic.CA1815.severity = none
 
 # CA1822: Mark members as static
 dotnet_diagnostic.CA1822.severity = none
 
-# CA2000: Dispose objects before losing scope
-dotnet_diagnostic.CA2000.severity = none
-
 # CA2008: Do not create tasks without passing a TaskScheduler
 dotnet_diagnostic.CA2008.severity = none
-
-# CA5350: Do Not Use Weak Cryptographic Algorithms
-dotnet_diagnostic.CA5350.severity = none
 
 # CA5392: Use DefaultDllImportSearchPaths attribute for P/Invokes
 dotnet_diagnostic.CA5392.severity = none
 
 # CA5394: Do not use insecure randomness
 dotnet_diagnostic.CA5394.severity = none
-
-# CA5397: Do not use deprecated SslProtocols values
-dotnet_diagnostic.CA5397.severity = none

@@ -8,7 +8,9 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Ice.SSL;
 
+#pragma warning disable CA1001 // _sslStream is disposed by destroy.
 internal sealed class TransceiverI : Ice.Internal.Transceiver
+#pragma warning restore CA1001
 {
     public Socket fd() => _delegate.fd();
 
@@ -89,6 +91,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     public void destroy()
     {
         _delegate.destroy();
+        _sslStream?.Dispose();
     }
 
     public int write(Ice.Internal.Buffer buf) =>

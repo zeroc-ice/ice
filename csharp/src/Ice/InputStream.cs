@@ -22,7 +22,6 @@ public delegate void UserExceptionFactory(string id);
 /// </summary>
 public class InputStream
 {
-
     /// <summary>
     /// Constructing an InputStream without providing a communicator means the stream will
     /// use the default encoding version. A communicator is required in order to unmarshal
@@ -2643,7 +2642,7 @@ public class InputStream
 
             public System.Action<Value> cb;
             public int classGraphDepth;
-        };
+        }
 
         internal EncapsDecoder(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
         {

@@ -305,7 +305,7 @@ public sealed class Instance
 
     public Ice.ObjectPrx createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
     {
-        bool createAdapter = (adminAdapter == null);
+        bool createAdapter = adminAdapter == null;
 
         lock (_mutex)
         {

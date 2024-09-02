@@ -142,7 +142,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
             _localLogger.trace(_traceCategory, "send log thread started");
         }
 
-        for (; ; )
+        while (true)
         {
             Job job = null;
             lock (_mutex)

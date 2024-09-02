@@ -6,7 +6,9 @@ using System.Net.Sockets;
 
 namespace Ice.Internal;
 
+#pragma warning disable CA1001 // _readEventArgs and _writeEventArgs are disposed by destroy.
 public sealed class StreamSocket
+#pragma warning restore CA1001
 {
     public StreamSocket(ProtocolInstance instance, NetworkProxy proxy, EndPoint addr, EndPoint sourceAddr)
     {

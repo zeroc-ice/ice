@@ -111,7 +111,6 @@ public sealed class Options
                                 //
                                 while (++i < l.Length && IFS.Contains(l[i], StringComparison.Ordinal))
                                 {
-                                    ;
                                 }
                                 --i;
                             }
@@ -256,7 +255,7 @@ public sealed class Options
                                     int j;
                                     for (j = i; j < i + 3 && j < l.Length && octalDigits.Contains(c = l[j], StringComparison.Ordinal); ++j)
                                     {
-                                        s = (short)(s * 8 + c - '0');
+                                        s = (short)((s * 8) + c - '0');
                                     }
                                     i = j - 1;
                                     arg += (char)s;

@@ -649,7 +649,7 @@ public class ReferenceFactory
         //
         foreach (string name in PropertyNames.clPropNames)
         {
-            if (prefix.StartsWith(string.Format("{0}.", name), StringComparison.Ordinal))
+            if (prefix.StartsWith($"{name}.", StringComparison.Ordinal))
             {
                 return;
             }

@@ -859,7 +859,10 @@ internal sealed class WSTransceiver : Transceiver
         //
         @out.Append("Sec-WebSocket-Accept: ");
         string input = key + _wsUUID;
-        byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
+#pragma warning disable CA5350 // SHA1 is used for compatibility with the WebSocket protocol
+        using SHA1 sha1 = SHA1.Create();
+        byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
+#pragma warning restore CA5350
         @out.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
 
         byte[] bytes = _utf8.GetBytes(@out.ToString());
@@ -961,7 +964,10 @@ internal sealed class WSTransceiver : Transceiver
         }
 
         string input = _key + _wsUUID;
-        byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
+#pragma warning disable CA5350 // SHA1 is used for compatibility with the WebSocket protocol
+        using SHA1 sha1 = SHA1.Create();
+        byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
+#pragma warning restore CA5350
         if (!val.Equals(Convert.ToBase64String(hash), StringComparison.Ordinal))
         {
             throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
@@ -1031,7 +1037,7 @@ internal sealed class WSTransceiver : Transceiver
                 // 126:   The subsequent two bytes contain the payload length
                 // 127:   The subsequent eight bytes contain the payload length
                 //
-                _readPayloadLength = (ch & 0x7f);
+                _readPayloadLength = ch & 0x7f;
                 if (_readPayloadLength < 126)
                 {
                     _readHeaderLength = 0;

@@ -403,7 +403,7 @@ public static class BZip2
         //
         int uncompressedLen = buf.size() - headerSize;
         byte[] data = buf.b.rawBytes(headerSize, uncompressedLen);
-        int compressedLen = (int)(uncompressedLen * 1.01 + 600);
+        int compressedLen = (int)((uncompressedLen * 1.01) + 600);
         byte[] compressed = new byte[compressedLen];
 
         int rc = _compressBuffer(compressed, ref compressedLen, data, uncompressedLen, compressionLevel, 0, 0);
