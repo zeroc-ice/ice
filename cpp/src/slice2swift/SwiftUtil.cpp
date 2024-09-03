@@ -1799,7 +1799,7 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
         else if (current->second != swiftModule)
         {
             ostringstream os;
-            os << "invalid module mapping:\n Slice module `" << p->scoped() << "' should be map to Swift module `"
+            os << "invalid module mapping:\n Slice module `" << p->scoped() << "' should map to Swift module `"
                << current->second << "'" << endl;
             unit->error(p->file(), p->line(), os.str());
         }
@@ -2502,7 +2502,7 @@ bool
 SwiftGenerator::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
-    for (auto& member : p->dataMembers())
+    for (const auto& member : p->dataMembers())
     {
         member->setMetadata(validate(member->type(), member->getMetadata(), p->file(), member->line()));
     }
@@ -2536,7 +2536,7 @@ SwiftGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
         }
     }
     p->setMetadata(validate(p, metadata, p->file(), p->line()));
-    for (auto& param : p->parameters())
+    for (const auto& param : p->parameters())
     {
         param->setMetadata(validate(param->type(), param->getMetadata(), param->file(), param->line()));
     }
@@ -2546,7 +2546,7 @@ bool
 SwiftGenerator::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
-    for (auto& member : p->dataMembers())
+    for (const auto& member : p->dataMembers())
     {
         member->setMetadata(validate(member->type(), member->getMetadata(), member->file(), member->line()));
     }
@@ -2557,7 +2557,7 @@ bool
 SwiftGenerator::MetadataVisitor::visitStructStart(const StructPtr& p)
 {
     p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
-    for (auto& member : p->dataMembers())
+    for (const auto& member : p->dataMembers())
     {
         member->setMetadata(validate(member->type(), member->getMetadata(), member->file(), member->line()));
     }
@@ -2590,7 +2590,7 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
             InvalidMetadata,
             p->file(),
             p->line(),
-            "ignoring invalid metadata `" + s + "' for dictionary key type");
+            "ignoring invalid metadata '" + s + "' for dictionary key type");
     }
 
     newMetadata = p->valueMetadata();
@@ -2607,7 +2607,7 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
             InvalidMetadata,
             p->file(),
             p->line(),
-            "ignoring invalid metadata `" + s + "' for dictionary value type");
+            "ignoring invalid metadata '" + s + "' for dictionary value type");
     }
 
     p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
