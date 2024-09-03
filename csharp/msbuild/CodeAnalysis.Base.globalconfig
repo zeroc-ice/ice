@@ -377,3 +377,8 @@ dotnet_diagnostic.CA5392.severity = none
 
 # CA5394: Do not use insecure randomness
 dotnet_diagnostic.CA5394.severity = none
+
+dotnet_diagnostic.SA1009.severity = none
+dotnet_diagnostic.SA1625.severity = none
+dotnet_diagnostic.SA1626.severity = none
+dotnet_diagnostic.SA1642.severity = none
