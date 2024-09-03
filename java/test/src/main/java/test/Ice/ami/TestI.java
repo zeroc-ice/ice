@@ -130,7 +130,6 @@ public class TestI implements TestIntf {
     // So instead we just initiate the closure by running `close` in a separate thread.
     var closureThread = new Thread(() -> current.con.close());
     closureThread.start();
-    break;
   }
 
   @Override
