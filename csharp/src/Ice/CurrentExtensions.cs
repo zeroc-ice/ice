@@ -256,9 +256,8 @@ public static class CurrentExtensions
     /// Starts the output stream for a reply, with everything up to and including the reply status. When the request ID
     /// is 0 (one-way request), the returned output stream is empty.
     /// </summary>
-    /// <param name="communicator">The communicator.</param>
-    /// <param name="requestId">The request ID.</param>
-    /// <param name="replyStatus">The reply status</param>
+    /// <param name="current">The current object of the corresponding incoming request.</param>
+    /// <param name="replyStatus">The reply status.</param>
     /// <returns>The new output stream.</returns>
     public static OutputStream startReplyStream(this Current current, ReplyStatus replyStatus = ReplyStatus.Ok)
     {

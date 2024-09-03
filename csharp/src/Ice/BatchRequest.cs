@@ -4,10 +4,13 @@
 
 namespace Ice;
 
+/// <summary>
+/// Represents an invocation on a proxy configured for batch-oneway or batch-datagram.
+/// </summary>
 public interface BatchRequest
 {
     /// <summary>
-    /// Confirms the queuing of the batch request.
+    /// Queues the request for an eventual flush.
     /// </summary>
     void enqueue();
 
@@ -18,7 +21,7 @@ public interface BatchRequest
     int getSize();
 
     /// <summary>
-    /// Get the name of the operation
+    /// Gets the name of the operation.
     /// </summary>
     /// <returns>The request operation.</returns>
     string getOperation();

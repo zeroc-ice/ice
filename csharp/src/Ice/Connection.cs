@@ -25,19 +25,48 @@ namespace Ice
         BasedOnProxy
     }
 
+    /// <summary>
+    ///  Base class providing access to the connection details.
+    /// </summary>
     public class ConnectionInfo
     {
+        /// <summary>
+        /// The underlying connection information.
+        /// </summary>
         public ConnectionInfo? underlying;
+
+        /// <summary>
+        /// Whether the connection is an incoming connection (<c>true</c>) or an outgoing connection (<c>false</c>).
+        /// </summary>
         public bool incoming;
+
+        /// <summary>
+        /// The name of the adapter associated with the connection.
+        /// </summary>
         public string adapterName;
+
+        /// <summary>
+        /// The connection id.
+        /// </summary>
         public string connectionId;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.
+        /// </summary>
         public ConnectionInfo()
         {
             adapterName = "";
             connectionId = "";
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.
+        /// </summary>
+        /// <param name="underlying">The underlying connection information.</param>
+        /// <param name="incoming">Whether the connection is an incoming connection (<c>true</c>) or an outgoing
+        /// connection (<c>false</c>).</param>
+        /// <param name="adapterName">The name of the adapter associated with the connection.</param>
+        /// <param name="connectionId">The connection id.</param>
         public ConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId)
         {
             this.underlying = underlying;
@@ -49,6 +78,9 @@ namespace Ice
 
     public delegate void CloseCallback(Connection con);
 
+    /// <summary>
+    /// The user-level interface to a connection.
+    /// </summary>
     public interface Connection
     {
         /// <summary>
@@ -70,10 +102,8 @@ namespace Ice
         /// client if the server cannot directly establish a connection to the client, for example because of firewalls. In
         /// this case, the server would create a proxy using an already established connection from the client.
         /// </summary>
-        /// <param name="id">The identity for which a proxy is to be created.
-        /// </param>
-        /// <returns>A proxy that matches the given identity and uses this connection.
-        /// </returns>
+        /// <param name="id">The identity for which a proxy is to be created.</param>
+        /// <returns>A proxy that matches the given identity and uses this connection.</returns>
         ObjectPrx createProxy(Identity id);
 
         /// <summary>
@@ -85,8 +115,7 @@ namespace Ice
         /// </summary>
         /// <param name="adapter">The object adapter that should be used by this connection to dispatch requests. The object
         /// adapter must be activated. When the object adapter is deactivated, it is automatically removed from the
-        /// connection. Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException
-        /// </param>
+        /// connection. Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException.</param>
         void setAdapter(ObjectAdapter adapter);
 
         /// <summary>
@@ -104,8 +133,7 @@ namespace Ice
 
         /// <summary>
         /// Flush any pending batch requests for this connection.
-        /// This means all batch requests invoked on fixed proxies
-        /// associated with the connection.
+        /// This means all batch requests invoked on fixed proxies associated with the connection.
         /// </summary>
         /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent over
         /// the wire.</param>
@@ -141,8 +169,7 @@ namespace Ice
         /// <summary>
         /// Set the connection buffer receive/send size.
         /// </summary>
-        /// <param name="rcvSize">The connection receive buffer size.
-        /// </param>
+        /// <param name="rcvSize">The connection receive buffer size.</param>
         /// <param name="sndSize">The connection send buffer size.</param>
         void setBufferSize(int rcvSize, int sndSize);
 

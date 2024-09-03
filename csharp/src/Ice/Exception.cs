@@ -16,7 +16,7 @@ public abstract class Exception : System.Exception
     public abstract string ice_id();
 
     /// <summary>
-    /// Constructs an Ice exception.
+    /// Initializes a new instance of the <see cref="Exception" /> class.
     /// </summary>
     /// <param name="message">The exception message.</param>
     /// <param name="innerException">The inner exception.</param>

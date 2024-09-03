@@ -16,7 +16,7 @@ public interface Object
     /// <summary>
     /// Dispatches an incoming request and returns the corresponding outgoing response.
     /// </summary>
-    /// <param name="request">The incoming request</param>
+    /// <param name="request">The incoming request.</param>
     /// <returns>A value task that holds the outgoing response.</returns>
     /// <remarks>Ice marshals any exception thrown by this method into the response.</remarks>
     ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request);

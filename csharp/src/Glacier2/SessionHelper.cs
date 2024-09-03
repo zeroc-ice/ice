@@ -10,12 +10,10 @@ namespace Glacier2;
 public class SessionHelper
 {
     /// <summary>
-    /// Creates a Glacier2 session.
+    /// Initializes a new instance of the <see cref="SessionHelper" /> class.
     /// </summary>
-    /// <param name="callback">The callback for notifications about session
-    /// establishment.</param>
-    /// <param name="initData">The Ice.InitializationData for initializing
-    /// the communicator.</param>
+    /// <param name="callback">The callback for notifications about session establishment.</param>
+    /// <param name="initData">The Ice.InitializationData for initializing the communicator.</param>
     /// <param name="finderStr">The stringified Ice.RouterFinder proxy.</param>
     /// <param name="useCallbacks">True if the session should create an object adapter for receiving callbacks.</param>
     internal SessionHelper(SessionCallback callback, Ice.InitializationData initData, string finderStr, bool useCallbacks)
@@ -83,8 +81,8 @@ public class SessionHelper
     /// for the router to forward callback requests to the intended
     /// client.
     /// </summary>
-    /// <returns>The category. Throws SessionNotExistException
-    /// No session exists</returns>
+    /// <returns>The category.</returns>
+    /// <exception cref="SessionNotExistException">If no session exists.</exception>
     public string
     categoryForClient()
     {
@@ -150,10 +148,9 @@ public class SessionHelper
     /// <summary>
     /// Returns an object adapter for callback objects, creating it if necessary.
     /// </summary>
-    /// <return>The object adapter. Throws SessionNotExistException
-    /// if no session exists.</return>
-    public Ice.ObjectAdapter
-    objectAdapter()
+    /// <returns>The object adapter.</returns>
+    /// <exception cref="SessionNotExistException">If no session exists.</exception>
+    public Ice.ObjectAdapter objectAdapter()
     {
         return internalObjectAdapter();
     }

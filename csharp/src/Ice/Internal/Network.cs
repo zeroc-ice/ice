@@ -14,36 +14,17 @@ public sealed class Network
     public const int EnableIPv6 = 1;
     public const int EnableBoth = 2;
 
-    public static SocketError socketErrorCode(System.Net.Sockets.SocketException ex)
+    internal static SocketError socketErrorCode(System.Net.Sockets.SocketException ex)
     {
         return ex.SocketErrorCode;
     }
 
-    public static bool interrupted(System.Net.Sockets.SocketException ex)
+    internal static bool interrupted(System.Net.Sockets.SocketException ex)
     {
         return socketErrorCode(ex) == SocketError.Interrupted;
     }
 
-    public static bool acceptInterrupted(System.Net.Sockets.SocketException ex)
-    {
-        if (interrupted(ex))
-        {
-            return true;
-        }
-        SocketError error = socketErrorCode(ex);
-        return error == SocketError.ConnectionAborted ||
-               error == SocketError.ConnectionReset ||
-               error == SocketError.TimedOut;
-    }
-
-    public static bool noBuffers(System.Net.Sockets.SocketException ex)
-    {
-        SocketError error = socketErrorCode(ex);
-        return error == SocketError.NoBufferSpaceAvailable ||
-               error == SocketError.Fault;
-    }
-
-    public static bool wouldBlock(System.Net.Sockets.SocketException ex)
+    internal static bool wouldBlock(System.Net.Sockets.SocketException ex)
     {
         return socketErrorCode(ex) == SocketError.WouldBlock;
     }

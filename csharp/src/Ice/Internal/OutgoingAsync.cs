@@ -1570,7 +1570,7 @@ public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, Outgo
             handleInvokeSent(false, done, alreadySent, og);
             return false;
         }
-        return done || progress_ != null && !alreadySent; // Invoke the sent callback only if not already invoked.
+        return done || (progress_ != null && !alreadySent); // Invoke the sent callback only if not already invoked.
     }
 
     public bool handleException(Ice.Exception ex, OutgoingAsyncBase og)

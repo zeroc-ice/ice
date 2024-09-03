@@ -43,7 +43,7 @@ public sealed class OutgoingResponse
     public int size => outputStream.isEmpty() ? 0 : outputStream.size() - Protocol.headerSize - 4;
 
     /// <summary>
-    /// Constructs an OutgoingResponse object.
+    /// Initializes a new instance of the <see cref="OutgoingResponse" /> class.
     /// </summary>
     /// <param name="replyStatus">The reply status.</param>
     /// <param name="exceptionId">The ID of the exception, when the response carries an exception.</param>
@@ -62,7 +62,8 @@ public sealed class OutgoingResponse
     }
 
     /// <summary>
-    /// Constructs an OutgoingResponse object with the <see cref="ReplyStatus.Ok"/> status.
+    /// Initializes a new instance of the <see cref="OutgoingResponse" /> class with the <see cref="ReplyStatus.Ok" />
+    /// status.
     /// </summary>
     /// <param name="outputStream">The output stream that holds the response.</param>
     public OutgoingResponse(OutputStream outputStream)

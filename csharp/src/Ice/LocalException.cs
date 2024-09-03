@@ -10,7 +10,7 @@ namespace Ice;
 public class LocalException : Ice.Exception
 {
     /// <summary>
-    /// Constructs a LocalException.
+    /// Initializes a new instance of the <see cref="LocalException" /> class.
     /// </summary>
     /// <param name="message">The exception message.</param>
     /// <param name="innerException">The inner exception.</param>

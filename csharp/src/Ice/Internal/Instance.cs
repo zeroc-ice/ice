@@ -101,7 +101,7 @@ public sealed class Instance
         }
     }
 
-    public ReferenceFactory referenceFactory()
+    internal ReferenceFactory referenceFactory()
     {
         lock (_mutex)
         {

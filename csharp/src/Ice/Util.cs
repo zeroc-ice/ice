@@ -13,51 +13,54 @@ namespace Ice;
 public sealed record class InitializationData
 {
     /// <summary>
-    /// The properties for the communicator.
+    /// Gets or sets the properties for the communicator.
     /// </summary>
     public Properties? properties { get; set; }
 
     /// <summary>
-    /// The logger for the communicator.
+    /// Gets or sets the logger for the communicator.
     /// </summary>
     public Logger? logger { get; set; }
 
     /// <summary>
-    /// The communicator observer used by the Ice run-time.
+    /// Gets or sets the communicator observer used by the Ice run-time.
     /// </summary>
     public Instrumentation.CommunicatorObserver? observer { get; set; }
 
     /// <summary>
-    /// The thread start hook for the communicator. The Ice run time
-    /// calls this hook for each new thread it creates. The call is
-    /// made by the newly-started thread.
+    /// Gets or sets the thread start hook for the communicator.
     /// </summary>
+    /// <value>
+    /// The Ice run time calls this hook for each new thread it creates. The call is made by the newly-started thread.
+    /// </value>
     public Action? threadStart { get; set; }
 
     /// <summary>
-    /// The thread stop hook for the communicator. The Ice run time
-    /// calls stop before it destroys a thread. The call is made by
-    /// thread that is about to be destroyed.
+    /// Gets or sets the thread stop hook for the communicator.
     /// </summary>
+    /// <value>
+    /// The Ice run time calls stop before it destroys a thread. The call is made by thread that is about to be
+    /// destroyed.
+    /// </value>
     public Action? threadStop { get; set; }
 
     /// <summary>
-    /// The executor for the communicator.
+    /// Gets or sets the executor for the communicator.
     /// </summary>
     public Action<Action, Connection?>? executor { get; set; }
 
     /// <summary>
-    /// The batch request interceptor.
+    /// Gets or sets the batch request interceptor.
     /// </summary>
     public Action<BatchRequest, int, int>? batchRequestInterceptor { get; set; }
 
     /// <summary>
-    /// The value factory manager.
+    /// Gets or sets the value factory manager.
     /// </summary>
     public ValueFactoryManager? valueFactoryManager { get; set; }
 
     /// <summary>
-    /// The <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.
+    /// Gets or sets the <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.
     /// </summary>
     public SslClientAuthenticationOptions? clientAuthenticationOptions { get; set; }
 }
@@ -275,6 +278,7 @@ public sealed class Util
     /// <summary>
     /// This method is deprecated. Use System.Guid instead.
     /// </summary>
+    /// <returns>A new UUID.</returns>
     [Obsolete("This method is deprecated. Use System.Guid instead.")]
     public static string generateUUID()
     {
@@ -284,11 +288,10 @@ public sealed class Util
     /// <summary>
     /// Compares the object identities of two proxies.
     /// </summary>
-    /// <param name="lhs">A proxy.</param>
-    /// <param name="rhs">A proxy.</param>
-    /// <returns>-1 if the identity in lhs compares
-    /// less than the identity in rhs; 0 if the identities
-    /// compare equal; 1, otherwise.</returns>
+    /// <param name="lhs">The first proxy to compare.</param>
+    /// <param name="rhs">The second proxy to compare.</param>
+    /// <returns>-1 if the identity in lhs compares less than the identity in rhs; 0 if the identities compare equal;
+    /// 1, otherwise.</returns>
     public static int proxyIdentityCompare(ObjectPrx? lhs, ObjectPrx? rhs)
     {
         if (lhs == null && rhs == null)
@@ -320,8 +323,8 @@ public sealed class Util
     /// <summary>
     /// Compares the object identities and facets of two proxies.
     /// </summary>
-    /// <param name="lhs">A proxy.</param>
-    /// <param name="rhs">A proxy.</param>
+    /// <param name="lhs">The first proxy to compare.</param>
+    /// <param name="rhs">The second proxy to compare.</param>
     /// <returns>-1 if the identity and facet in lhs compare
     /// less than the identity and facet in rhs; 0 if the identities
     /// and facets compare equal; 1, otherwise.</returns>

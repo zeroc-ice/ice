@@ -8,12 +8,34 @@ namespace Ice.Internal;
 
 public abstract class Reference : IEquatable<Reference>
 {
+    /// <summary>
+    /// Represents the invocation mode of a proxy.
+    /// </summary>
     public enum Mode
     {
+        /// <summary>
+        /// A two-way invocation that always expects a response.
+        /// </summary>
         ModeTwoway,
+
+        /// <summary>
+        /// A one-way invocation that does not expect a response and completes as soon as the request is sent.
+        /// </summary>
         ModeOneway,
+
+        /// <summary>
+        /// A batch one-way invocation that allows grouping several one-way invocations into a single batch.
+        /// </summary>
         ModeBatchOneway,
+
+        /// <summary>
+        /// A datagram invocation that does not expect a response and is sent using UDP.
+        /// </summary>
         ModeDatagram,
+
+        /// <summary>
+        /// A batch datagram invocation that allows grouping several datagram invocations into a single batch.
+        /// </summary>
         ModeBatchDatagram
     }
 
