@@ -100,7 +100,6 @@ TestIntfI::close(const Ice::Current& current)
     current.con->close(nullptr, nullptr);
 }
 
-
 void
 TestIntfI::abort(const Ice::Current& current)
 {
