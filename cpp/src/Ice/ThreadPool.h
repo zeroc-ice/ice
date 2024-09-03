@@ -196,124 +196,46 @@ namespace IceInternal
 // the event handler implementations. Only event handler implementation that
 // require IO need to use this class.
 //
-// An instance of the IOScope subclass must be created within the synchronization
-// of the event handler. It takes care of calling startMessage/finishMessage for
-// the IOCP implementation and ensures that finishMessage isn't called multiple
-// times.
-//
-#if !defined(ICE_USE_IOCP)
-    template<class T> class ThreadPoolMessage
+class ThreadPoolMessage
+{
+public:
+
+    ThreadPoolMessage(ThreadPoolCurrent& current) :
+        _current(current)
     {
-    public:
-        class IOScope
-        {
-        public:
-            IOScope(ThreadPoolMessage<T>& message) : _message(message)
-            {
-                // Nothing to do.
-            }
-
-            ~IOScope()
-            {
-                // Nothing to do.
-            }
-
-            operator bool()
-            {
-                return _message._current.ioReady(); // Ensure the handler is still interested in the operation.
-            }
-
-            void completed() { _message._current.ioCompleted(); }
-
-        private:
-            ThreadPoolMessage<T>& _message;
-        };
-        friend class IOScope;
-
-        ThreadPoolMessage(ThreadPoolCurrent& current, const T&) : _current(current) {}
-
-        ~ThreadPoolMessage()
-        {
-            // Nothing to do.
-        }
-
-    private:
-        ThreadPoolCurrent& _current;
-    };
-
-#else
-
-    template<class T> class ThreadPoolMessage
-    {
-    public:
-        class IOScope
-        {
-        public:
-            IOScope(ThreadPoolMessage& message) : _message(message)
-            {
-                // This must be called with the handler locked.
-                _finish = _message._current.startMessage();
-            }
-
-            ~IOScope()
-            {
-                if (_finish)
-                {
-                    // This must be called with the handler locked.
-                    _message._current.finishMessage();
-                }
-            }
-
-            operator bool() { return _finish; }
-
-            void completed()
-            {
-                //
-                // Call finishMessage once IO is completed only if serialization is not enabled.
-                // Otherwise, finishMessage will be called when the event handler is done with
-                // the message (it will be called from ~ThreadPoolMessage below).
-                //
-                assert(_finish);
-                if (_message._current.ioCompleted())
-                {
-                    _finish = false;
-                    _message._finish = true;
-                }
-            }
-
-        private:
-            ThreadPoolMessage& _message;
-            bool _finish;
-        };
-        friend class IOScope;
-
-        ThreadPoolMessage(ThreadPoolCurrent& current, const T& eventHandler)
-            : _current(current),
-              _eventHandler(eventHandler),
-              _finish(false)
-        {
-        }
-
-        ~ThreadPoolMessage()
-        {
-            if (_finish)
-            {
-                //
-                // A ThreadPoolMessage instance must be created outside the synchronization
-                // of the event handler. We need to lock the event handler here to call
-                // finishMessage.
-                //
-                std::lock_guard lock(_eventHandler._mutex);
-                _current.finishMessage();
-            }
-        }
-
-    private:
-        ThreadPoolCurrent& _current;
-        const T& _eventHandler;
-        bool _finish;
-    };
+#if defined(ICE_USE_IOCP)
+        _ioReady = _current.startMessage();
 #endif
+    }
+
+    ~ThreadPoolMessage()
+    {
+#if defined(ICE_USE_IOCP)
+        if(_ioReady)
+        {
+            _current.finishMessage();
+        }
+#endif
+    }
+
+    void ioCompleted() { _current.ioCompleted(); }
+
+    bool ioReady()
+    {
+#if defined(ICE_USE_IOCP)
+        return _ioReady;
+#else
+        return _current.ioReady();
+#endif
+    }
+
+private:
+    ThreadPoolCurrent& _current;
+#if defined(ICE_USE_IOCP)
+    bool _ioReady;
+#endif
+};
+
 
 };
 

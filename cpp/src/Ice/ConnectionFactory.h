@@ -38,7 +38,7 @@ namespace IceInternal
     class CommunicatorFlushBatchAsync;
     using CommunicatorFlushBatchAsyncPtr = std::shared_ptr<CommunicatorFlushBatchAsync>;
 
-    template<typename T> class ThreadPoolMessage;
+    class ThreadPoolMessage;
 
     class OutgoingConnectionFactory final : public std::enable_shared_from_this<OutgoingConnectionFactory>
     {
@@ -257,9 +257,6 @@ namespace IceInternal
 #endif
         mutable std::mutex _mutex;
         mutable std::condition_variable _conditionVariable;
-
-        // For locking the _mutex
-        template<typename T> friend class IceInternal::ThreadPoolMessage;
     };
 }
 

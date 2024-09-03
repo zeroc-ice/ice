@@ -744,294 +744,287 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         MessageInfo info = new MessageInfo();
         int upcallCount = 0;
 
-        using ThreadPoolMessage msg = new ThreadPoolMessage(current, _mutex);
         lock (_mutex)
         {
+            using ThreadPoolMessage msg = new ThreadPoolMessage(current);
+            if (!msg.ioReady())
+            {
+                return;
+            }
+
+            if (_state >= StateClosed)
+            {
+                return;
+            }
+
             try
             {
-                if (!msg.startIOScope())
-                {
-                    return;
-                }
+                int writeOp = SocketOperation.None;
+                int readOp = SocketOperation.None;
 
-                if (_state >= StateClosed)
+                // If writes are ready, write the data from the connection's write buffer (_writeStream)
+                if ((current.operation & SocketOperation.Write) != 0)
                 {
-                    return;
-                }
-
-                try
-                {
-                    int writeOp = SocketOperation.None;
-                    int readOp = SocketOperation.None;
-
-                    // If writes are ready, write the data from the connection's write buffer (_writeStream)
-                    if ((current.operation & SocketOperation.Write) != 0)
+                    if (_observer is not null)
                     {
-                        if (_observer is not null)
-                        {
-                            observerStartWrite(_writeStream.getBuffer());
-                        }
-                        writeOp = write(_writeStream.getBuffer());
-                        if (_observer is not null && (writeOp & SocketOperation.Write) == 0)
-                        {
-                            observerFinishWrite(_writeStream.getBuffer());
-                        }
+                        observerStartWrite(_writeStream.getBuffer());
                     }
-
-                    // If reads are ready, read the data into the connection's read buffer (_readStream). The data is
-                    // read until:
-                    // - the full message is read (the transport read returns SocketOperationNone) and
-                    //   the read buffer is fully filled
-                    // - the read operation on the transport can't continue without blocking
-                    if ((current.operation & SocketOperation.Read) != 0)
+                    writeOp = write(_writeStream.getBuffer());
+                    if (_observer is not null && (writeOp & SocketOperation.Write) == 0)
                     {
-                        while (true)
+                        observerFinishWrite(_writeStream.getBuffer());
+                    }
+                }
+
+                // If reads are ready, read the data into the connection's read buffer (_readStream). The data is
+                // read until:
+                // - the full message is read (the transport read returns SocketOperationNone) and
+                //   the read buffer is fully filled
+                // - the read operation on the transport can't continue without blocking
+                if ((current.operation & SocketOperation.Read) != 0)
+                {
+                    while (true)
+                    {
+                        Ice.Internal.Buffer buf = _readStream.getBuffer();
+
+                        if (_observer is not null && !_readHeader)
                         {
-                            Ice.Internal.Buffer buf = _readStream.getBuffer();
+                            observerStartRead(buf);
+                        }
 
-                            if (_observer is not null && !_readHeader)
-                            {
-                                observerStartRead(buf);
-                            }
-
-                            readOp = read(buf);
-                            if ((readOp & SocketOperation.Read) != 0)
-                            {
-                                // Can't continue without blocking, exit out of the loop.
-                                break;
-                            }
-                            if (_observer is not null && !_readHeader)
-                            {
-                                Debug.Assert(!buf.b.hasRemaining());
-                                observerFinishRead(buf);
-                            }
-
-                            // If read header is true, we're reading a new Ice protocol message and we need to read
-                            // the message header.
-                            if (_readHeader)
-                            {
-                                // The next read will read the remainder of the message.
-                                _readHeader = false;
-
-                                if (_observer is not null)
-                                {
-                                    _observer.receivedBytes(Protocol.headerSize);
-                                }
-
-                                //
-                                // Connection is validated on first message. This is only used by
-                                // setState() to check wether or not we can print a connection
-                                // warning (a client might close the connection forcefully if the
-                                // connection isn't validated, we don't want to print a warning
-                                // in this case).
-                                //
-                                _validated = true;
-
-                                // Full header should be read because the size of _readStream is always headerSize (14)
-                                // when reading a new message (see the code that sets _readHeader = true).
-                                int pos = _readStream.pos();
-                                if (pos < Protocol.headerSize)
-                                {
-                                    //
-                                    // This situation is possible for small UDP packets.
-                                    //
-                                    throw new MarshalException("Received Ice message with too few bytes in header.");
-                                }
-
-                                // Decode the header.
-                                _readStream.pos(0);
-                                byte[] m = new byte[4];
-                                m[0] = _readStream.readByte();
-                                m[1] = _readStream.readByte();
-                                m[2] = _readStream.readByte();
-                                m[3] = _readStream.readByte();
-                                if (m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
-                                m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
-                                {
-                                    throw new ProtocolException(
-                                        $"Bad magic in message header: {m[0]:X2} {m[1]:X2} {m[2]:X2} {m[3]:X2}");
-                                }
-
-                                var pv = new ProtocolVersion(_readStream);
-                                if (pv != Util.currentProtocol)
-                                {
-                                    throw new MarshalException(
-                                        $"Invalid protocol version in message header: {pv.major}.{pv.minor}");
-                                }
-                                var ev = new EncodingVersion(_readStream);
-                                if (ev != Util.currentProtocolEncoding)
-                                {
-                                    throw new MarshalException(
-                                        $"Invalid protocol encoding version in message header: {ev.major}.{ev.minor}");
-                                }
-
-                                _readStream.readByte(); // messageType
-                                _readStream.readByte(); // compress
-                                int size = _readStream.readInt();
-                                if (size < Protocol.headerSize)
-                                {
-                                    throw new MarshalException($"Received Ice message with unexpected size {size}.");
-                                }
-
-                                // Resize the read buffer to the message size.
-                                if (size > _messageSizeMax)
-                                {
-                                    Ex.throwMemoryLimitException(size, _messageSizeMax);
-                                }
-                                if (size > _readStream.size())
-                                {
-                                    _readStream.resize(size);
-                                }
-                                _readStream.pos(pos);
-                            }
-
-                            if (buf.b.hasRemaining())
-                            {
-                                if (_endpoint.datagram())
-                                {
-                                    throw new DatagramLimitException(); // The message was truncated.
-                                }
-                                continue;
-                            }
+                        readOp = read(buf);
+                        if ((readOp & SocketOperation.Read) != 0)
+                        {
+                            // Can't continue without blocking, exit out of the loop.
                             break;
                         }
-                    }
-
-                    // readOp and writeOp are set to the operations that the transport read or write calls from above
-                    // returned. They indicate which operations will need to be monitored by the thread pool's selector
-                    // when this method returns.
-                    int newOp = readOp | writeOp;
-
-                    // Operations that are ready. For example, if message was called with SocketOperationRead and the
-                    // transport read returned SocketOperationNone, reads are considered done: there's no additional
-                    // data to read.
-                    int readyOp = current.operation & ~newOp;
-
-                    if (_state <= StateNotValidated)
-                    {
-                        // If the connection is still not validated and there's still data to read or write, continue
-                        // waiting for data to read or write.
-                        if (newOp != 0)
+                        if (_observer is not null && !_readHeader)
                         {
-                            _threadPool.update(this, current.operation, newOp);
-                            return;
+                            Debug.Assert(!buf.b.hasRemaining());
+                            observerFinishRead(buf);
                         }
 
-                        // Initialize the connection if it's not initialized yet.
-                        if (_state == StateNotInitialized && !initialize(current.operation))
+                        // If read header is true, we're reading a new Ice protocol message and we need to read
+                        // the message header.
+                        if (_readHeader)
                         {
-                            return;
-                        }
+                            // The next read will read the remainder of the message.
+                            _readHeader = false;
 
-                        // Validate the connection if it's not validated yet.
-                        if (_state <= StateNotValidated && !validate(current.operation))
-                        {
-                            return;
-                        }
-
-                        // The connection is validated and doesn't need additional data to be read or written. So
-                        // unregister it from the thread pool's selector.
-                        _threadPool.unregister(this, current.operation);
-
-                        //
-                        // We start out in holding state.
-                        //
-                        setState(StateHolding);
-                        if (_startCallback is not null)
-                        {
-                            startCB = _startCallback;
-                            _startCallback = null;
-                            if (startCB is not null)
+                            if (_observer is not null)
                             {
-                                ++upcallCount;
+                                _observer.receivedBytes(Protocol.headerSize);
                             }
-                        }
-                    }
-                    else
-                    {
-                        Debug.Assert(_state <= StateClosingPending);
 
-                        //
-                        // We parse messages first, if we receive a close
-                        // connection message we won't send more messages.
-                        //
-                        if ((readyOp & SocketOperation.Read) != 0)
-                        {
-                            // At this point, the protocol message is fully read and can therefore be decoded by
-                            // parseMessage. parseMessage returns the operation to wait for readiness next.
-                            newOp |= parseMessage(ref info);
-                            upcallCount += info.upcallCount;
-                        }
+                            //
+                            // Connection is validated on first message. This is only used by
+                            // setState() to check wether or not we can print a connection
+                            // warning (a client might close the connection forcefully if the
+                            // connection isn't validated, we don't want to print a warning
+                            // in this case).
+                            //
+                            _validated = true;
 
-                        if ((readyOp & SocketOperation.Write) != 0)
-                        {
-                            // At this point the message from _writeStream is fully written and the next message can be
-                            // written.
-
-                            newOp |= sendNextMessage(out sentCBs);
-                            if (sentCBs is not null)
+                            // Full header should be read because the size of _readStream is always headerSize (14)
+                            // when reading a new message (see the code that sets _readHeader = true).
+                            int pos = _readStream.pos();
+                            if (pos < Protocol.headerSize)
                             {
-                                ++upcallCount;
+                                //
+                                // This situation is possible for small UDP packets.
+                                //
+                                throw new MarshalException("Received Ice message with too few bytes in header.");
                             }
+
+                            // Decode the header.
+                            _readStream.pos(0);
+                            byte[] m = new byte[4];
+                            m[0] = _readStream.readByte();
+                            m[1] = _readStream.readByte();
+                            m[2] = _readStream.readByte();
+                            m[3] = _readStream.readByte();
+                            if (m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
+                            m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
+                            {
+                                throw new ProtocolException(
+                                    $"Bad magic in message header: {m[0]:X2} {m[1]:X2} {m[2]:X2} {m[3]:X2}");
+                            }
+
+                            var pv = new ProtocolVersion(_readStream);
+                            if (pv != Util.currentProtocol)
+                            {
+                                throw new MarshalException(
+                                    $"Invalid protocol version in message header: {pv.major}.{pv.minor}");
+                            }
+                            var ev = new EncodingVersion(_readStream);
+                            if (ev != Util.currentProtocolEncoding)
+                            {
+                                throw new MarshalException(
+                                    $"Invalid protocol encoding version in message header: {ev.major}.{ev.minor}");
+                            }
+
+                            _readStream.readByte(); // messageType
+                            _readStream.readByte(); // compress
+                            int size = _readStream.readInt();
+                            if (size < Protocol.headerSize)
+                            {
+                                throw new MarshalException($"Received Ice message with unexpected size {size}.");
+                            }
+
+                            // Resize the read buffer to the message size.
+                            if (size > _messageSizeMax)
+                            {
+                                Ex.throwMemoryLimitException(size, _messageSizeMax);
+                            }
+                            if (size > _readStream.size())
+                            {
+                                _readStream.resize(size);
+                            }
+                            _readStream.pos(pos);
                         }
 
-                        // If the connection is not closed yet, we can update the thread pool selector to wait for
-                        // readiness of read, write or both operations.
-                        if (_state < StateClosed)
+                        if (buf.b.hasRemaining())
                         {
-                            _threadPool.update(this, current.operation, newOp);
+                            if (_endpoint.datagram())
+                            {
+                                throw new DatagramLimitException(); // The message was truncated.
+                            }
+                            continue;
                         }
+                        break;
                     }
-
-                    if (upcallCount == 0)
-                    {
-                        return; // Nothing to dispatch we're done!
-                    }
-
-                    _upcallCount += upcallCount;
-
-                    // There's something to dispatch so we mark IO as completed to elect a new leader thread and let IO
-                    // be performed on this new leader thread while this thread continues with dispatching the up-calls.
-                    msg.ioCompleted();
                 }
-                catch (DatagramLimitException) // Expected.
+
+                // readOp and writeOp are set to the operations that the transport read or write calls from above
+                // returned. They indicate which operations will need to be monitored by the thread pool's selector
+                // when this method returns.
+                int newOp = readOp | writeOp;
+
+                // Operations that are ready. For example, if message was called with SocketOperationRead and the
+                // transport read returned SocketOperationNone, reads are considered done: there's no additional
+                // data to read.
+                int readyOp = current.operation & ~newOp;
+
+                if (_state <= StateNotValidated)
                 {
-                    if (_warnUdp)
+                    // If the connection is still not validated and there's still data to read or write, continue
+                    // waiting for data to read or write.
+                    if (newOp != 0)
                     {
-                        _logger.warning($"maximum datagram size of {_readStream.pos()} exceeded");
+                        _threadPool.update(this, current.operation, newOp);
+                        return;
+                    }
+
+                    // Initialize the connection if it's not initialized yet.
+                    if (_state == StateNotInitialized && !initialize(current.operation))
+                    {
+                        return;
+                    }
+
+                    // Validate the connection if it's not validated yet.
+                    if (_state <= StateNotValidated && !validate(current.operation))
+                    {
+                        return;
+                    }
+
+                    // The connection is validated and doesn't need additional data to be read or written. So
+                    // unregister it from the thread pool's selector.
+                    _threadPool.unregister(this, current.operation);
+
+                    //
+                    // We start out in holding state.
+                    //
+                    setState(StateHolding);
+                    if (_startCallback is not null)
+                    {
+                        startCB = _startCallback;
+                        _startCallback = null;
+                        if (startCB is not null)
+                        {
+                            ++upcallCount;
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.Assert(_state <= StateClosingPending);
+
+                    //
+                    // We parse messages first, if we receive a close
+                    // connection message we won't send more messages.
+                    //
+                    if ((readyOp & SocketOperation.Read) != 0)
+                    {
+                        // At this point, the protocol message is fully read and can therefore be decoded by
+                        // parseMessage. parseMessage returns the operation to wait for readiness next.
+                        newOp |= parseMessage(ref info);
+                        upcallCount += info.upcallCount;
+                    }
+
+                    if ((readyOp & SocketOperation.Write) != 0)
+                    {
+                        // At this point the message from _writeStream is fully written and the next message can be
+                        // written.
+
+                        newOp |= sendNextMessage(out sentCBs);
+                        if (sentCBs is not null)
+                        {
+                            ++upcallCount;
+                        }
+                    }
+
+                    // If the connection is not closed yet, we can update the thread pool selector to wait for
+                    // readiness of read, write or both operations.
+                    if (_state < StateClosed)
+                    {
+                        _threadPool.update(this, current.operation, newOp);
+                    }
+                }
+
+                if (upcallCount == 0)
+                {
+                    return; // Nothing to dispatch we're done!
+                }
+
+                _upcallCount += upcallCount;
+
+                // There's something to dispatch so we mark IO as completed to elect a new leader thread and let IO
+                // be performed on this new leader thread while this thread continues with dispatching the up-calls.
+                msg.ioCompleted();
+            }
+            catch (DatagramLimitException) // Expected.
+            {
+                if (_warnUdp)
+                {
+                    _logger.warning($"maximum datagram size of {_readStream.pos()} exceeded");
+                }
+                _readStream.resize(Protocol.headerSize);
+                _readStream.pos(0);
+                _readHeader = true;
+                return;
+            }
+            catch (SocketException ex)
+            {
+                setState(StateClosed, ex);
+                return;
+            }
+            catch (LocalException ex)
+            {
+                if (_endpoint.datagram())
+                {
+                    if (_warn)
+                    {
+                        _logger.warning($"datagram connection exception:\n{ex}\n{_desc}");
                     }
                     _readStream.resize(Protocol.headerSize);
                     _readStream.pos(0);
                     _readHeader = true;
-                    return;
                 }
-                catch (SocketException ex)
+                else
                 {
                     setState(StateClosed, ex);
-                    return;
                 }
-                catch (LocalException ex)
-                {
-                    if (_endpoint.datagram())
-                    {
-                        if (_warn)
-                        {
-                            _logger.warning($"datagram connection exception:\n{ex}\n{_desc}");
-                        }
-                        _readStream.resize(Protocol.headerSize);
-                        _readStream.pos(0);
-                        _readHeader = true;
-                    }
-                    else
-                    {
-                        setState(StateClosed, ex);
-                    }
-                    return;
-                }
-            }
-            finally
-            {
-                msg.finishIOScope();
+                return;
             }
         }
 

@@ -41,7 +41,7 @@ namespace IceInternal
 {
     class IdleTimeoutTransceiverDecorator;
 
-    template<typename T> class ThreadPoolMessage;
+    class ThreadPoolMessage;
 }
 
 namespace Ice
@@ -417,9 +417,6 @@ namespace Ice
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _conditionVariable;
-
-        // For locking the _mutex
-        template<typename T> friend class IceInternal::ThreadPoolMessage;
     };
 }
 

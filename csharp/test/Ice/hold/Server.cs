@@ -18,7 +18,6 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
                     communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
                     communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
-                    communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Serialize", "0");
                     Ice.ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
                     adapter1.add(new HoldI(timer, adapter1), Ice.Util.stringToIdentity("hold"));
 
@@ -26,7 +25,7 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Size", "5");
                     communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
                     communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
-                    communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Serialize", "1");
+                    communicator.getProperties().setProperty("TestAdapter1.Connection.MaxDispatches", "1");
                     Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
                     adapter2.add(new HoldI(timer, adapter2), Ice.Util.stringToIdentity("hold"));
 

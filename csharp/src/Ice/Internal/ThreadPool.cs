@@ -50,66 +50,34 @@ internal sealed class ThreadPoolSynchronizationContext : SynchronizationContext
     private ThreadPool _threadPool;
 }
 
-internal class ThreadPoolMessage : IDisposable
+internal struct ThreadPoolMessage : IDisposable
 {
-    public ThreadPoolMessage(ThreadPoolCurrent current, object mutex)
+    public ThreadPoolMessage(ThreadPoolCurrent current)
     {
         _current = current;
-        _mutex = mutex;
-        _finish = false;
-        _finishWithIO = false;
+        _ioReady = _current.startMessage();
     }
 
-    public bool startIOScope()
+    public bool ioReady()
     {
-        // This must be called with the handler locked.
-        _finishWithIO = _current.startMessage();
-        return _finishWithIO;
-    }
-
-    public void finishIOScope()
-    {
-        if (_finishWithIO)
-        {
-            // This must be called with the handler locked.
-            _current.finishMessage();
-        }
+        return _ioReady;
     }
 
     public void ioCompleted()
     {
-        //
-        // Call finishMessage once IO is completed only if serialization is not enabled.
-        // Otherwise, finishMessage will be called when the event handler is done with
-        // the message (it will be called from Dispose below).
-        //
-        Debug.Assert(_finishWithIO);
-        if (_current.ioCompleted())
-        {
-            _finishWithIO = false;
-            _finish = true;
-        }
+        _current.ioCompleted();
     }
 
     public void Dispose()
     {
-        if (_finish)
+        if (_ioReady)
         {
-            //
-            // A ThreadPoolMessage instance must be created outside the synchronization of the event handler. We
-            // need to lock the event handler here to call finishMessage.
-            //
-            lock (_mutex)
-            {
-                _current.finishMessage();
-            }
+            _current.finishMessage();
         }
     }
 
     private ThreadPoolCurrent _current;
-    private object _mutex;
-    private bool _finish;
-    private bool _finishWithIO;
+    private bool _ioReady;
 }
 
 public class ThreadPoolCurrent
