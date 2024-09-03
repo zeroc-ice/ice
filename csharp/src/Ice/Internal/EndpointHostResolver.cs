@@ -125,7 +125,6 @@ public class EndpointHostResolver
 
             try
             {
-
                 NetworkProxy networkProxy = _instance.networkProxy();
                 int protocol = _protocol;
                 if (networkProxy != null)

@@ -438,7 +438,7 @@ public class SessionHelper
     {
         if (_initData.executor != null)
         {
-            EventWaitHandle h = new ManualResetEvent(false);
+            using EventWaitHandle h = new ManualResetEvent(false);
             _initData.executor(
                 () =>
                 {

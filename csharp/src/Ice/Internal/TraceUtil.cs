@@ -315,13 +315,13 @@ internal sealed class TraceUtil
             str.readByte();
             /* byte pMinor = */
             str.readByte();
-            //s.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
+            // s.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
 
             /* byte eMajor = */
             str.readByte();
             /* byte eMinor = */
             str.readByte();
-            //s.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
+            // s.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
 
             byte type = str.readByte();
             s.Write("\nmessage type = " + (int)type + " (" + getMessageTypeAsString(type) + ')');

@@ -171,7 +171,7 @@ internal class RFC2253
         {
             throw new ParseException("unescape: invalid hex pair");
         }
-        return (char)(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
+        return (char)((hexToInt(data[pos]) * 16) + hexToInt(data[pos + 1]));
     }
 
     private static RDNPair parseNameComponent(string data, ref int pos)

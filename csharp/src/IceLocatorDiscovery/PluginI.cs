@@ -124,7 +124,7 @@ internal class VoidLocatorI : Ice.LocatorDisp_
     {
         return null;
     }
-};
+}
 
 internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 {
@@ -304,7 +304,6 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                     "This is typically the case if multiple Ice locators with different " +
                     "instance names are deployed and the property `IceLocatorDiscovery.InstanceName'" +
                     "is not set.");
-
                 }
                 return;
             }

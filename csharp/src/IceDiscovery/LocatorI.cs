@@ -164,7 +164,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
     private Dictionary<string, Ice.ObjectPrx> _adapters = new Dictionary<string, Ice.ObjectPrx>();
     private Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
     private readonly object _mutex = new();
-};
+}
 
 internal class LocatorI : Ice.LocatorDisp_
 {
@@ -193,4 +193,4 @@ internal class LocatorI : Ice.LocatorDisp_
 
     private LookupI _lookup;
     private Ice.LocatorRegistryPrx _registry;
-};
+}

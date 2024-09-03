@@ -300,7 +300,6 @@ internal sealed class PluginManagerI : PluginManager
                     loadPlugin(name, val, ref cmdArgs);
                     plugins.Remove(key);
                     plugins.Remove("Ice.Plugin." + name);
-
                 }
                 else
                 {

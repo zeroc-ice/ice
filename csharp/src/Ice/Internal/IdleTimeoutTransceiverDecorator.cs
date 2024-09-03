@@ -8,7 +8,9 @@ using System.Net.Sockets;
 
 namespace Ice.Internal;
 
+#pragma warning disable CA1001 // _readTimer and _writeTimer are disposed by destroy.
 internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
+#pragma warning restore CA1001
 {
     private readonly Transceiver _decoratee;
     private readonly TimeSpan _idleTimeout;

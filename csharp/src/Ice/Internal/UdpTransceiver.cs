@@ -7,7 +7,9 @@ using System.Text;
 
 namespace Ice.Internal;
 
+#pragma warning disable CA1001 // _readEventArgs and _writeEventArgs are disposed by destroy.
 internal sealed class UdpTransceiver : Transceiver
+#pragma warning restore CA1001
 {
     public Socket fd()
     {

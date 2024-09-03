@@ -7,4 +7,4 @@ namespace Ice;
 public interface MarshaledResult
 {
     OutputStream outputStream { get; }
-};
+}

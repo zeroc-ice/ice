@@ -346,7 +346,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 2;
+                int index = _position + (i * 2);
                 _valBytes.b1 = _bytes[index];
                 _valBytes.b0 = _bytes[index + 1];
                 seq[i] = _valBytes.shortVal;
@@ -385,7 +385,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 2;
+                int index = _position + (i * 2);
                 _valBytes.shortVal = seq[i];
                 _bytes[index + 1] = _valBytes.b0;
                 _bytes[index] = _valBytes.b1;
@@ -428,7 +428,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 4;
+                int index = _position + (i * 4);
                 _valBytes.b3 = _bytes[index];
                 _valBytes.b2 = _bytes[index + 1];
                 _valBytes.b1 = _bytes[index + 2];
@@ -486,7 +486,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 4;
+                int index = _position + (i * 4);
                 _valBytes.intVal = seq[i];
                 _bytes[index + 3] = _valBytes.b0;
                 _bytes[index + 2] = _valBytes.b1;
@@ -545,7 +545,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 8;
+                int index = _position + (i * 8);
                 _valBytes.b7 = _bytes[index];
                 _valBytes.b6 = _bytes[index + 1];
                 _valBytes.b5 = _bytes[index + 2];
@@ -602,7 +602,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 8;
+                int index = _position + (i * 8);
                 _valBytes.longVal = seq[i];
                 _bytes[index + 7] = _valBytes.b0;
                 _bytes[index + 6] = _valBytes.b1;
@@ -651,7 +651,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 4;
+                int index = _position + (i * 4);
                 _valBytes.b3 = _bytes[index];
                 _valBytes.b2 = _bytes[index + 1];
                 _valBytes.b1 = _bytes[index + 2];
@@ -696,7 +696,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 4;
+                int index = _position + (i * 4);
                 _valBytes.floatVal = seq[i];
                 _bytes[index + 3] = _valBytes.b0;
                 _bytes[index + 2] = _valBytes.b1;
@@ -749,7 +749,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 8;
+                int index = _position + (i * 8);
                 _valBytes.b7 = _bytes[index];
                 _valBytes.b6 = _bytes[index + 1];
                 _valBytes.b5 = _bytes[index + 2];
@@ -806,7 +806,7 @@ public class ByteBuffer
         {
             for (int i = 0; i < seq.Length; ++i)
             {
-                int index = _position + i * 8;
+                int index = _position + (i * 8);
                 _valBytes.doubleVal = seq[i];
                 _bytes[index + 7] = _valBytes.b0;
                 _bytes[index + 6] = _valBytes.b1;

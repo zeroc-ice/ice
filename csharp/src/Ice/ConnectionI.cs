@@ -7,7 +7,9 @@ using System.Text;
 
 namespace Ice;
 
+#pragma warning disable CA1001 // _inactivityTimer is disposed by cancelInactivityTimer.
 public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Connection
+#pragma warning restore CA1001
 {
     internal interface StartCallback
     {
@@ -35,10 +37,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     if (_connectTimeout > TimeSpan.Zero)
                     {
+#pragma warning disable CA2000 // connectTimer is disposed by connectTimedOut.
                         var connectTimer = new System.Threading.Timer(
                             timerObj => connectTimedOut((System.Threading.Timer)timerObj));
                         // schedule timer to run once; connectTimedOut disposes the timer too.
                         connectTimer.Change(_connectTimeout, Timeout.InfiniteTimeSpan);
+#pragma warning restore CA2000
                     }
 
                     _startCallback = callback;
@@ -994,7 +998,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     if (_warnUdp)
                     {
-                        _logger.warning(string.Format("maximum datagram size of {0} exceeded", _readStream.pos()));
+                        _logger.warning($"maximum datagram size of {_readStream.pos()} exceeded");
                     }
                     _readStream.resize(Protocol.headerSize);
                     _readStream.pos(0);
@@ -1012,7 +1016,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     {
                         if (_warn)
                         {
-                            _logger.warning(string.Format("datagram connection exception:\n{0}\n{1}", ex, _desc));
+                            _logger.warning($"datagram connection exception:\n{ex}\n{_desc}");
                         }
                         _readStream.resize(Protocol.headerSize);
                         _readStream.pos(0);
@@ -2812,10 +2816,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         if (_closeTimeout > TimeSpan.Zero)
         {
+#pragma warning disable CA2000 // closeTimer is disposed by closeTimedOut.
             var closeTimer = new System.Threading.Timer(
                 timerObj => closeTimedOut((System.Threading.Timer)timerObj));
             // schedule timer to run once; closeTimedOut disposes the timer too.
             closeTimer.Change(_closeTimeout, Timeout.InfiniteTimeSpan);
+#pragma warning restore CA2000
         }
     }
 

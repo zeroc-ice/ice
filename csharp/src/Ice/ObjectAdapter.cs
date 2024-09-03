@@ -1108,7 +1108,6 @@ public sealed class ObjectAdapter
         {
             return _instance.serverThreadPool();
         }
-
     }
 
     internal void setAdapterOnConnection(Ice.ConnectionI connection)
@@ -1441,7 +1440,7 @@ public sealed class ObjectAdapter
                 throw new ParseException("invalid empty object adapter endpoint");
             }
 
-            string s = endpts.Substring(beg, (end) - (beg));
+            string s = endpts.Substring(beg, end - beg);
             EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
             if (endp is null)
             {
@@ -1694,10 +1693,10 @@ public sealed class ObjectAdapter
         // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
         //
         bool addUnknown = true;
-        string prefix = _name + ".";
-        foreach (var propertyName in PropertyNames.clPropNames)
+        string prefix = $"{_name}.";
+        foreach (string propertyName in PropertyNames.clPropNames)
         {
-            if (prefix.StartsWith(string.Format("{0}.", propertyName), StringComparison.Ordinal))
+            if (prefix.StartsWith($"{propertyName}.", StringComparison.Ordinal))
             {
                 addUnknown = false;
                 break;

@@ -109,7 +109,9 @@ internal sealed class ConsoleLoggerI : LoggerI
     }
 }
 
+#pragma warning disable CA1001 // _writer is disposed by destroy.
 internal sealed class FileLoggerI : LoggerI
+#pragma warning restore CA1001
 {
     public override Logger cloneWithPrefix(string prefix)
     {
@@ -119,6 +121,7 @@ internal sealed class FileLoggerI : LoggerI
     public void destroy()
     {
         _writer.Close();
+        _writer.Dispose();
     }
 
     protected override void write(string message)

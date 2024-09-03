@@ -655,10 +655,8 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 {
                     destroyServiceCommunicator(service, info.communicator);
                 }
-
                 throw;
             }
-
         }
     }
 

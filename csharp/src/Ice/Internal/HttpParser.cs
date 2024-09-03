@@ -29,7 +29,7 @@ internal sealed class HttpParser
         Unknown,
         Request,
         Response
-    };
+    }
 
     internal int isCompleteMessage(ByteBuffer buf, int begin, int end)
     {
@@ -520,7 +520,7 @@ internal sealed class HttpParser
                         _versionMinor = 0;
                     }
                     _versionMinor *= 10;
-                    _versionMinor += (c - '0');
+                    _versionMinor += c - '0';
                     break;
                 }
                 case State.Response:
@@ -578,7 +578,7 @@ internal sealed class HttpParser
                         _status = 0;
                     }
                     _status *= 10;
-                    _status += (c - '0');
+                    _status += c - '0';
                     break;
                 }
                 case State.ResponseReasonStart:
@@ -744,7 +744,7 @@ internal sealed class HttpParser
         ResponseReason,
         ResponseLF,
         Complete
-    };
+    }
 
     private State _state;
 }

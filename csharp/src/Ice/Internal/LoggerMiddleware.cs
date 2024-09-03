@@ -71,13 +71,14 @@ internal sealed class LoggerMiddleware : Object
 
     private void warning(string? exceptionDetails, Current current)
     {
-        using var sw = new StringWriter(CultureInfo.CurrentCulture);
-        var output = new Ice.UtilInternal.OutputBase(sw);
-        output.setUseTab(false);
-        output.print("dispatch exception:");
-        output.print("\nidentity: " + Ice.Util.identityToString(current.id, _toStringMode));
-        output.print("\nfacet: " + Ice.UtilInternal.StringUtil.escapeString(current.facet, "", _toStringMode));
-        output.print("\noperation: " + current.operation);
+        var sb = new System.Text.StringBuilder();
+        sb.Append("dispatch exception:");
+        sb.AppendLine("identity: ");
+        sb.Append(Ice.Util.identityToString(current.id, _toStringMode));
+        sb.AppendLine("facet: ");
+        sb.Append(Ice.UtilInternal.StringUtil.escapeString(current.facet, "", _toStringMode));
+        sb.AppendLine("operation: ");
+        sb.Append(current.operation);
         if (current.con is not null)
         {
             try
@@ -86,7 +87,10 @@ internal sealed class LoggerMiddleware : Object
                 {
                     if (p is IPConnectionInfo ipInfo)
                     {
-                        output.print("\nremote host: " + ipInfo.remoteAddress + " remote port: " + ipInfo.remotePort);
+                        sb.AppendLine("remote host: ");
+                        sb.Append(ipInfo.remoteAddress);
+                        sb.Append(" remote port: ");
+                        sb.Append(ipInfo.remotePort);
                         break;
                     }
                 }
@@ -94,12 +98,12 @@ internal sealed class LoggerMiddleware : Object
             catch (Ice.LocalException)
             {
             }
+
             if (exceptionDetails is not null)
             {
-                output.print("\n");
-                output.print(exceptionDetails);
+                sb.AppendLine(exceptionDetails);
             }
-            _logger.warning(sw.ToString());
+            _logger.warning(sb.ToString());
         }
     }
 }
