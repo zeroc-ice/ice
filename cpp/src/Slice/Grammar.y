@@ -236,7 +236,7 @@ definitions
     {
         contained->setMetadata(metadata->v);
     }
-    unit->setSeenDefinition();
+    currentUnit->setSeenDefinition();
 }
 | %empty
 {
