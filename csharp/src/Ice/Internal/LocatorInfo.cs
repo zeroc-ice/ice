@@ -192,7 +192,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         protected override void
         send()
         {
-            _ = Task.Run(async () =>
+            _ = Task.Run(
+                async () =>
                 {
                     try
                     {
@@ -205,7 +206,6 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
                         exception(ex);
                     }
                 });
-
         }
     }
 
@@ -219,19 +219,20 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         protected override void
         send()
         {
-            _ = Task.Run(async () =>
-            {
-                try
+            _ = Task.Run(
+                async () =>
                 {
-                    var locator = _locatorInfo.getLocator();
-                    var proxy = await locator.findAdapterByIdAsync(_ref.getAdapterId()).ConfigureAwait(false);
-                    response(proxy);
-                }
-                catch (Ice.Exception ex)
-                {
-                    exception(ex);
-                }
-            });
+                    try
+                    {
+                        var locator = _locatorInfo.getLocator();
+                        var proxy = await locator.findAdapterByIdAsync(_ref.getAdapterId()).ConfigureAwait(false);
+                        response(proxy);
+                    }
+                    catch (Ice.Exception ex)
+                    {
+                        exception(ex);
+                    }
+                });
         }
     }
 
@@ -817,7 +818,6 @@ internal sealed class LocatorTable
             {
                 cached = checkTTL(entry.time, ttl);
                 return entry.endpoints;
-
             }
             cached = false;
             return null;

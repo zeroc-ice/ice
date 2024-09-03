@@ -1406,7 +1406,7 @@ internal class ConnectionFlushBatchAsync : OutgoingAsyncBase
     }
 
     private readonly Ice.ConnectionI _connection;
-};
+}
 
 public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
 {
@@ -1455,7 +1455,7 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
 
         private CommunicatorFlushBatchAsync _outAsync;
         private Ice.Instrumentation.InvocationObserver _observer;
-    };
+    }
 
     public CommunicatorFlushBatchAsync(Instance instance, OutgoingAsyncCompletionCallback callback)
         : base(instance, callback)
@@ -1544,7 +1544,7 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
     }
 
     private int _useCount;
-};
+}
 
 public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, OutgoingAsyncCompletionCallback
 {

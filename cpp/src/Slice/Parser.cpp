@@ -39,12 +39,6 @@ compareTag(const T& lhs, const T& rhs)
     return lhs->tag() < rhs->tag();
 }
 
-const char*
-Slice::CompilerException::ice_id() const noexcept
-{
-    return "::Slice::CompilerException";
-}
-
 // Forward declare things from Bison and Flex the parser can use.
 extern int slice_parse();
 extern int slice_lineno;
@@ -178,13 +172,6 @@ Slice::DefinitionContext::warning(WarningCategory category, const string& file, 
     {
         emitWarning(file, line, msg);
     }
-}
-
-void
-Slice::DefinitionContext::error(const string& file, int line, const string& msg) const
-{
-    emitError(file, line, msg);
-    throw CompilerException(__FILE__, __LINE__, msg);
 }
 
 bool
@@ -4867,9 +4854,15 @@ Slice::Unit::setSeenDefinition()
 }
 
 void
-Slice::Unit::error(const string& s)
+Slice::Unit::error(const string& message)
 {
-    emitError(currentFile(), currentLine(), s);
+    error(currentFile(), currentLine(), message);
+}
+
+void
+Slice::Unit::error(const string& file, int line, const string& message)
+{
+    emitError(file, line, message);
     _errors++;
 }
 

@@ -373,7 +373,7 @@ public sealed class StringUtil
                 case 'U':
                 {
                     int codePoint = 0;
-                    bool inBMP = (c == 'u');
+                    bool inBMP = c == 'u';
                     int size = inBMP ? 4 : 8;
                     ++start;
                     while (size > 0 && start < end)
@@ -396,7 +396,7 @@ public sealed class StringUtil
                         {
                             break; // while
                         }
-                        codePoint = codePoint * 16 + charVal;
+                        codePoint = (codePoint * 16) + charVal;
                         --size;
                     }
                     if (size > 0)
@@ -461,7 +461,7 @@ public sealed class StringUtil
                                     --start; // move back
                                     break; // while
                                 }
-                                val = val * 16 + charVal;
+                                val = (val * 16) + charVal;
                                 --size;
                             }
                             if (size == 2)
@@ -480,7 +480,7 @@ public sealed class StringUtil
                                     Debug.Assert(j != 0); // must be at least one digit
                                     break; // for
                                 }
-                                val = val * 8 + charVal;
+                                val = (val * 8) + charVal;
                             }
                             if (val > 255)
                             {
@@ -613,7 +613,6 @@ public sealed class StringUtil
             {
                 arr[n++] = str[pos++];
             }
-
         }
 
         if (n > 0)

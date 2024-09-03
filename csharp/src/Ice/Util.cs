@@ -146,7 +146,6 @@ public sealed class Util
     /// <returns>The initialized communicator.</returns>
     public static Communicator initialize(InitializationData? initData = null)
     {
-
         initData = initData is null ? new InitializationData() : initData with { };
         // TODO: some tests rely on updating the properties after initialize.
         // initData.properties = initData.properties?.Clone();
@@ -476,8 +475,8 @@ public sealed class Util
             throw new ParseException($"malformed version value in '{str}'");
         }
 
-        string majStr = str.Substring(0, (pos) - (0));
-        string minStr = str.Substring(pos + 1, (str.Length) - (pos + 1));
+        string majStr = str.Substring(0, pos - 0);
+        string minStr = str.Substring(pos + 1, str.Length - (pos + 1));
         int majVersion;
         int minVersion;
         try
@@ -501,7 +500,7 @@ public sealed class Util
 
     private static string majorMinorToString(byte major, byte minor)
     {
-        return string.Format("{0}.{1}", major, minor);
+        return $"{major}.{minor}";
     }
 
     public static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit)

@@ -543,7 +543,7 @@ public class ReferenceFactory
         }
 
         int mode = s.readByte();
-        if (mode < 0 || mode > (int)Reference.Mode.ModeLast)
+        if (mode < 0 || mode > (int)Reference.Mode.ModeBatchDatagram)
         {
             throw new MarshalException($"Received invalid proxy mode {mode}");
         }
@@ -649,7 +649,7 @@ public class ReferenceFactory
         //
         foreach (string name in PropertyNames.clPropNames)
         {
-            if (prefix.StartsWith(string.Format("{0}.", name), StringComparison.Ordinal))
+            if (prefix.StartsWith($"{name}.", StringComparison.Ordinal))
             {
                 return;
             }

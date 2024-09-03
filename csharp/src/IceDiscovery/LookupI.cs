@@ -73,7 +73,7 @@ internal abstract class Request<T>
     protected List<TaskCompletionSource<Ice.ObjectPrx>> callbacks_ = new List<TaskCompletionSource<Ice.ObjectPrx>>();
 
     protected T _id;
-};
+}
 
 internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 {
@@ -174,7 +174,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
     private HashSet<Ice.ObjectPrx> _proxies = new HashSet<Ice.ObjectPrx>();
     private long _start;
     private long _latency;
-};
+}
 
 internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
 {
@@ -218,7 +218,7 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
             },
             lookup.ice_scheduler());
     }
-};
+}
 
 internal class LookupI : LookupDisp_
 {
@@ -556,7 +556,7 @@ internal class LookupI : LookupDisp_
     private Dictionary<Ice.Identity, ObjectRequest> _objectRequests = new Dictionary<Ice.Identity, ObjectRequest>();
     private Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
     private readonly object _mutex = new();
-};
+}
 
 internal class LookupReplyI : LookupReplyDisp_
 {
@@ -576,4 +576,4 @@ internal class LookupReplyI : LookupReplyDisp_
     }
 
     private LookupI _lookup;
-};
+}
