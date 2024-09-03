@@ -25,7 +25,7 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Size", "5");
                     communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
                     communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
-                    communicator.getProperties().setProperty("TestAdapter1.Connection.MaxDispatches", "1");
+                    communicator.getProperties().setProperty("TestAdapter2.Connection.MaxDispatches", "1");
                     Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
                     adapter2.add(new HoldI(timer, adapter2), Ice.Util.stringToIdentity("hold"));
 
