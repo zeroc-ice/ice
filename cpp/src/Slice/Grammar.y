@@ -236,7 +236,6 @@ definitions
     {
         contained->setMetadata(metadata->v);
     }
-    currentUnit->setSeenDefinition();
 }
 | %empty
 {
@@ -350,6 +349,8 @@ module_def
 // ----------------------------------------------------------------------
 : ICE_MODULE ICE_IDENTIFIER
 {
+    currentUnit->setSeenDefinition();
+
     auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
     ModulePtr module = cont->createModule(ident->v);
@@ -378,6 +379,8 @@ module_def
 }
 | ICE_MODULE ICE_SCOPED_IDENTIFIER
 {
+    currentUnit->setSeenDefinition();
+
     auto ident = dynamic_pointer_cast<StringTok>($2);
 
     // Reject scoped identifiers starting with "::". This is generally indicates global scope, but is invalid here.
