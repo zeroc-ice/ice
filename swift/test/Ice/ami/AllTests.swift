@@ -354,7 +354,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             // will not retry.
             //
             do {
-                try await p.close(.Forcefully)
+                try await p.abort()
                 try test(false)
             } catch is Ice.ConnectionLostException {}  // Expected.
         }

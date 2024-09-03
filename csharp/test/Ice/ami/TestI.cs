@@ -77,17 +77,14 @@ namespace Ice
                 }
             }
 
-            public override void close(Test.CloseMode mode, Ice.Current current)
+            public override void close(Ice.Current current)
             {
-                switch (mode)
-                {
-                    case Test.CloseMode.Forcefully:
-                        abortConnection(current);
-                        break;
-                    default:
-                        closeConnection(current);
-                        break;
-                }
+                closeConnection(current);
+            }
+
+            public override void abort(Ice.Current current)
+            {
+                abortConnection(current);
             }
 
             public void abortConnection(Ice.Current current) => current.con.abort();

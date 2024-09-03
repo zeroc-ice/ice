@@ -15,14 +15,6 @@ exception TestIntfException
 {
 }
 
-// TODO: remove only all mappings are fixed
-enum CloseMode
-{
-    Forcefully,
-    Gracefully,
-    GracefullyWithWait
-}
-
 interface PingReply
 {
     void reply();
@@ -39,8 +31,8 @@ interface TestIntf
     int opBatchCount();
     bool waitForBatch(int count);
 
-    // TODO: remove only all mappings are fixed
-    void close(CloseMode mode);
+    void close();
+    void abort();
     void sleep(int ms);
     ["amd"] void startDispatch();
     void finishDispatch();

@@ -136,14 +136,12 @@ class TestI: TestIntf {
         return result
     }
 
-    func close(mode: CloseMode, current: Current) async throws {
-        if let con = current.con {
-            if mode == .Forcefully {
-                con.abort()
-            } else {
-                async let _ = con.close()
-            }
-        }
+    func close(current: Current) async throws {
+        async let _ = con.close()
+    }
+
+    func abort(current: Current) async throws {
+        con.abort()
     }
 
     func sleep(ms: Int32, current _: Current) async throws {

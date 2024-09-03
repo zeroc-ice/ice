@@ -14,7 +14,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.PingReplyPrx;
 import test.Ice.ami.Test.TestIntfControllerPrx;
 import test.Ice.ami.Test.TestIntfException;
@@ -929,7 +928,7 @@ public class AllTests {
           for (int i = 0; i < maxQueue; ++i) {
             results.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
           }
-          if (!Util.getInvocationFuture(p.closeAsync(CloseMode.GracefullyWithWait)).isSent()) {
+          if (!Util.getInvocationFuture(p.closeAsync()).isSent()) {
             for (int i = 0; i < maxQueue; i++) {
               InvocationFuture<Void> r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
               results.add(r);
@@ -983,7 +982,7 @@ public class AllTests {
         // will not retry.
         //
         try {
-          p.close(CloseMode.Forcefully);
+          p.abort();
           test(false);
         } catch (com.zeroc.Ice.ConnectionLostException ex) {
           // Expected.

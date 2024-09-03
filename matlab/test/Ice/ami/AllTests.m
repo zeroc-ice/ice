@@ -201,7 +201,7 @@ classdef AllTests
                 % will not retry.
                 %
                 try
-                    p.close(CloseMode.Forcefully);
+                    p.abort();
                     assert(false);
                 catch ex
                     % Expected.

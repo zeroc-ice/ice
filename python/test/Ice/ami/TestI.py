@@ -44,11 +44,11 @@ class TestIntfI(Test.TestIntf):
             self._batchCount = 0
             return result
 
-    def close(self, mode, current):
-        if mode == Test.CloseMode.Forcefully:
-            current.con.abort()
-        else:
-            current.con.close(False)
+    def close(self, current):
+        current.con.close(False)
+
+    def abort(self, current):
+        current.con.abort()
 
     def sleep(self, ms, current):
         time.sleep(ms / 1000.0)

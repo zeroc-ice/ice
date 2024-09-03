@@ -15,14 +15,6 @@ exception TestIntfException
 {
 }
 
-// TODO: remove this enum from all tests once the new connection closure API is implemented in JS.
-enum CloseMode
-{
-    Forcefully,
-    Gracefully,
-    GracefullyWithWait
-}
-
 interface PingReply
 {
     void reply();
@@ -38,7 +30,8 @@ interface TestIntf
     void opBatch();
     int opBatchCount();
     bool waitForBatch(int count);
-    void close(CloseMode mode);
+    void close();
+    void abort();
     void sleep(int ms);
     ["amd"] void startDispatch();
     void finishDispatch();
