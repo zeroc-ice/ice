@@ -56,7 +56,17 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         controller->holdAdapter(-1);
         try
         {
-            timeout->op();
+            timeout->ice_connectionId("connection-1")->op();
+            test(false);
+        }
+        catch (const Ice::ConnectTimeoutException&)
+        {
+            // Expected.
+        }
+
+        try
+        {
+            timeout->ice_connectionId("connection-2")->op();
             test(false);
         }
         catch (const Ice::ConnectTimeoutException&)
@@ -64,7 +74,8 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             // Expected.
         }
         controller->resumeAdapter();
-        timeout->op(); // Ensure adapter is active.
+        // Retrying with a new connection.
+        timeout->ice_connectionId("connection-3")->op();
     }
     {
         //

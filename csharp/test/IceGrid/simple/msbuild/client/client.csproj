@@ -30,11 +30,11 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../lib/net8.0/Ice.dll" />
-        <Reference Include="../../../../../lib/net8.0/Glacier2.dll" />
-        <Reference Include="../../../../../lib/net8.0/IceGrid.dll" />
-        <Reference Include="../../../../../lib/net8.0/IceLocatorDiscovery.dll" />
-        <Reference Include="../../../../../lib/net8.0/IceDiscovery.dll" />
+        <ProjectReference Include="../../../../../src/Ice/Ice.csproj" />
+        <ProjectReference Include="../../../../../src/Glacier2/Glacier2.csproj" />
+        <ProjectReference Include="../../../../../src/IceGrid/IceGrid.csproj" />
+        <ProjectReference Include="../../../../../src/IceLocatorDiscovery/IceLocatorDiscovery.csproj" />
+        <ProjectReference Include="../../../../../src/IceDiscovery/IceDiscovery.csproj" />
       </ItemGroup>
     </Otherwise>
   </Choose>

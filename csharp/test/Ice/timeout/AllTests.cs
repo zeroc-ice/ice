@@ -61,15 +61,30 @@ public class AllTests : global::Test.AllTests
             controller.holdAdapter(-1);
             try
             {
-                timeout.op();
+                Test.TimeoutPrxHelper.uncheckedCast(timeout.ice_connectionId("connection-1")).op();
                 test(false);
             }
             catch (ConnectTimeoutException)
             {
                 // Expected.
             }
+
+            if (!Ice.Internal.AssemblyUtil.isMacOS)
+            {
+                // Workaround for macOS bug
+                // See: https://github.com/dotnet/runtime/issues/102663
+                try
+                {
+                    Test.TimeoutPrxHelper.uncheckedCast(timeout.ice_connectionId("connection-2")).op();
+                    test(false);
+                }
+                catch (ConnectTimeoutException)
+                {
+                    // Expected.
+                }
+            }
             controller.resumeAdapter();
-            timeout.op(); // Ensure adapter is active.
+            Test.TimeoutPrxHelper.uncheckedCast(timeout.ice_connectionId("connection-3")).op(); // Ensure adapter is active.
         }
         {
             //

@@ -50,13 +50,21 @@ public class AllTests {
       //
       controller.holdAdapter(-1);
       try {
-        timeout.op();
+        TimeoutPrx.uncheckedCast(timeout.ice_connectionId("connection-1")).op();
+        test(false);
+      } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
+        // Expected.
+      }
+
+      try {
+        TimeoutPrx.uncheckedCast(timeout.ice_connectionId("connection-2")).op();
         test(false);
       } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
         // Expected.
       }
       controller.resumeAdapter();
-      timeout.op(); // Ensure adapter is active.
+      // Retrying with a new connection.
+      TimeoutPrx.uncheckedCast(timeout.ice_connectionId("connection-3")).op();
     }
     {
       //
