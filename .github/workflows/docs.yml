@@ -1,4 +1,4 @@
-name: Generate documentation
+name: Generate API Reference
 
 on:
   workflow_dispatch:
@@ -10,7 +10,6 @@ on:
 
 jobs:
   ci:
-    name: Build documentation
 
     runs-on: macos-14
     steps:
@@ -28,33 +27,33 @@ jobs:
       - name: Install doxygen and graphviz (a dependency of Doxygen for generating diagrams)
         run: brew install doxygen graphviz || true
 
-      - name: Install virtualenv for Python docs
+      - name: Install virtualenv for Python
         run: pipx install virtualenv
 
-      - name: Install docfx for C# docs
+      - name: Install docfx for C# API reference
         run: brew install docfx
 
       - name: Build C++
         working-directory: ./cpp
         run: make V=1 srcs
 
-      - name: Generate Doxygen Documentation for Slice
+      - name: Generate Doxygen API reference for Slice
         working-directory: ./doxygen
         run: doxygen
 
-      - name: Generate Doxygen Documentation for C++
+      - name: Generate Doxygen API reference for C++
         working-directory: ./cpp
         run: |
           make generate-srcs
           cd doxygen
           doxygen
 
-      - name: Generate TypeDoc Documentation for JavaScript
+      - name: Generate TypeDoc API reference for JavaScript
         working-directory: ./js
         run: |
           make doc
 
-      - name: Generate docfx Documentation for C#
+      - name: Generate docfx API reference for C#
         working-directory: ./csharp/docfx
         run: |
           make -C ../../cpp slice2cs
@@ -62,7 +61,7 @@ jobs:
           docfx metadata --property Configuration=Release
           docfx build
 
-      - name: Generate Python Documentation
+      - name: Generate Python API reference
         working-directory: ./python/docs
         run: |
           make -C ../../cpp slice2py Ice IceDiscovery IceLocatorDiscovery
@@ -73,7 +72,7 @@ jobs:
           make html
           deactivate
 
-      - name: Generate Documentation for Swift
+      - name: Generate API reference for Swift
         run: |
           mkdir ./swift/docs
 
