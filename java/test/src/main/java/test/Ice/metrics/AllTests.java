@@ -527,13 +527,7 @@ public class AllTests {
       // Calling `close` on a Connection blocks the calling thread until the closure is complete.
       // At which point the connection is in the `Closed` state. So to test the `Closing` state,
       // we directly call `doApplicationClose` to _initiate_ a closure, without having to wait.
-      try {
-        var method = com.zeroc.Ice.ConnectionI.class.getDeclaredMethod("doApplicationClose");
-        method.setAccessible(true); // Transform a `private` method into a `public` one.
-        method.invoke(metrics.ice_getConnection());
-      } catch (ReflectiveOperationException | SecurityException ex) {
-        assert (false);
-      }
+      ((com.zeroc.Ice.ConnectionI) metrics.ice_getConnection()).doApplicationClose();
 
       map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));
       test(map.get("closing").current == 1);
