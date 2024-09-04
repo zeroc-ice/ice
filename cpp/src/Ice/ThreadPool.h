@@ -199,11 +199,15 @@ namespace IceInternal
     class ThreadPoolMessage
     {
     public:
-        ThreadPoolMessage(ThreadPoolCurrent& current) : _current(current)
-        {
+        ThreadPoolMessage(ThreadPoolCurrent& current)
+            :
 #if defined(ICE_USE_IOCP)
-            _ioReady = _current.startMessage();
+              _current(current),
+              _ioReady(_current.startMessage())
+#else
+              _current(current)
 #endif
+        {
         }
 
         ~ThreadPoolMessage()
