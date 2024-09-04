@@ -37,8 +37,8 @@ public:
         std::int32_t&,
         const Ice::Current&) final;
     bool waitForBatch(std::int32_t, const Ice::Current&) final;
-    void close(const Ice::Current&) final;
-    void abort(const Ice::Current&) final;
+    void closeConnection(const Ice::Current&) final;
+    void abortConnection(const Ice::Current&) final;
     void sleep(std::int32_t, const Ice::Current&) final;
     void startDispatchAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
     void finishDispatch(const Ice::Current&) final;

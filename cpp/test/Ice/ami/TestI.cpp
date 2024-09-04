@@ -95,13 +95,13 @@ TestIntfI::waitForBatch(int32_t count, const Ice::Current&)
 }
 
 void
-TestIntfI::close(const Ice::Current& current)
+TestIntfI::closeConnection(const Ice::Current& current)
 {
     current.con->close(nullptr, nullptr);
 }
 
 void
-TestIntfI::abort(const Ice::Current& current)
+TestIntfI::abortConnection(const Ice::Current& current)
 {
     current.con->abort();
 }

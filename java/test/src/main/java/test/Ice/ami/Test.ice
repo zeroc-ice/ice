@@ -30,8 +30,8 @@ interface TestIntf
     void opBatch();
     int opBatchCount();
     bool waitForBatch(int count);
-    void close();
-    void abort();
+    void closeConnection();
+    void abortConnection();
     void sleep(int ms);
     ["amd"] void startDispatch();
     void finishDispatch();

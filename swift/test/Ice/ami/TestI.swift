@@ -136,11 +136,11 @@ class TestI: TestIntf {
         return result
     }
 
-    func close(current: Current) async throws {
+    func closeConnection(current: Current) async throws {
         async let _ = current.con!.close()
     }
 
-    func abort(current: Current) async throws {
+    func abortConnection(current: Current) async throws {
         current.con!.abort()
     }
 

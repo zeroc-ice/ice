@@ -44,10 +44,10 @@ class TestIntfI(Test.TestIntf):
             self._batchCount = 0
             return result
 
-    def close(self, current):
+    def closeConnection(self, current):
         current.con.close(False)
 
-    def abort(self, current):
+    def abortConnection(self, current):
         current.con.abort()
 
     def sleep(self, ms, current):

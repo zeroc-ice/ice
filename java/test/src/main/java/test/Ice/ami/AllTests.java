@@ -928,7 +928,7 @@ public class AllTests {
           for (int i = 0; i < maxQueue; ++i) {
             results.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
           }
-          if (!Util.getInvocationFuture(p.closeAsync()).isSent()) {
+          if (!Util.getInvocationFuture(p.closeConnectionAsync()).isSent()) {
             for (int i = 0; i < maxQueue; i++) {
               InvocationFuture<Void> r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
               results.add(r);
@@ -982,7 +982,7 @@ public class AllTests {
         // will not retry.
         //
         try {
-          p.abort();
+          p.abortConnection();
           test(false);
         } catch (com.zeroc.Ice.ConnectionLostException ex) {
           // Expected.

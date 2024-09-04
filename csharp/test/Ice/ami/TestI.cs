@@ -77,23 +77,15 @@ namespace Ice
                 }
             }
 
-            public override void close(Ice.Current current)
+            public override void closeConnection(Ice.Current current)
             {
-                closeConnection(current);
-            }
-
-            public override void abort(Ice.Current current)
-            {
-                abortConnection(current);
-            }
-
-            public void abortConnection(Ice.Current current) => current.con.abort();
-
-            public void closeConnection(Ice.Current current)
-            {
-                // We can't wait for the connection to be closed - it would self-deadlock. So we just initiate the
-                // closure.
+                // We can't wait for the connection to close - it would self-deadlock. So we just initiate the closure.
                 _ = current.con.closeAsync();
+            }
+
+            public override void abortConnection(Ice.Current current)
+            {
+                current.con.abort();
             }
 
             public override void

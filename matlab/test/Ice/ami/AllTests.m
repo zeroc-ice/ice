@@ -201,7 +201,7 @@ classdef AllTests
                 % will not retry.
                 %
                 try
-                    p.abort();
+                    p.abortConnection();
                     assert(false);
                 catch ex
                     % Expected.
