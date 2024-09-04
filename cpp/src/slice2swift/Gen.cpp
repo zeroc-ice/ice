@@ -489,7 +489,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
-    bool legalKeyType = Dictionary::legalKeyType(p);
+    bool isLegalKeyType = Dictionary::isLegalKeyType(p);
     const DataMemberList members = p->dataMembers();
     const string optionalFormat = getOptionalFormat(p);
 
@@ -500,7 +500,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "public " << (usesClasses ? "class " : "struct ") << name;
 
     // Only generate Hashable if this struct is a legal dictionary key type.
-    if (legalKeyType)
+    if (isLegalKeyType)
     {
         out << ": Swift.Hashable";
     }
