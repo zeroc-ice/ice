@@ -5,7 +5,7 @@
 #ifndef ICE_IAP_CONNECTION_INFO_H
 #define ICE_IAP_CONNECTION_INFO_H
 
-#include "Ice/Connection.h"
+#include "../Connection.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
@@ -19,7 +19,7 @@ namespace IceIAP
 {
     /**
      * Provides access to the connection details of an IAP connection
-     * \headerfile IceIAP/IceIAP.h
+     * \headerfile Ice/Ice.h
      */
     class ConnectionInfo : public Ice::ConnectionInfo
     {

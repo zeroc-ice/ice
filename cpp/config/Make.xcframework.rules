@@ -1,21 +1,34 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
-# Creates a xcframework from a static component and its headers
-# $1: The name of the framework (Ice, IceDiscovery, etc.)
-# $2: The platform
-# $3: Output path
-define create-xcframework-from-library
+# Gets the library path for a platform (macosx does not have a platform directory)
+# $(call xcframework-library,Ice,macosx) => lib/Ice/libIce.a
+# $(call xcframework-library,Ice,iphoneos) => lib/iphoneos/libIce.a
+xcframework-library = lib/$(if $(filter macosx,$2),,$2/)lib$1.a
 
-lib/$1.xcframework: lib/lib$1.a
-	$(E) Creating lib/$1.xcframework
+# Gets a list of library paths for a component for all platforms
+xcframework-libraries = $(foreach p,$($1_platforms),$(call xcframework-library,$1,$p))
+
+# Gets a list of component flags used when generating an xcframework. One set of flags per platform.
+xcframework-flags     = $(foreach p,$($1_platforms),-library $(call xcframework-library,$1,$p) $(if $2,-headers include/$1))
+
+# Creates a xcframework from a static component and its headers
+# Note: Th headers are coppied into the root of the Headers directory. We move the headers into Header/$1 so that we can
+# include Ice as <Ice/Ice.h>. We also copy the generated headers into the Headers/$1 directory.
+#
+# $(call create-xcframework,$1=framework-name)
+define create-xcframework
+
+lib/$1.xcframework: $(call xcframework-libraries,$1)
+	$(E) Creating lib/$1.xcframework from $(call xcframework-libraries,$1)
 	$(Q)$(RM) -r lib/$1.xcframework
 	$(Q)if [ -d include/$1 ]; then \
-		xcodebuild -create-xcframework -library lib/lib$1.a -headers include/$1 -output lib/$1.xcframework ; \
-		mkdir -p lib/$1.xcframework/macos-arm64/Headers/$1 ; \
-		find lib/$1.xcframework/macos-arm64/Headers/* -prune ! -name $1 -exec mv {} lib/$1.xcframework/macos-arm64/Headers/$1 \; ; \
-		cp include/generated/$1/*.h lib/$1.xcframework/macos-arm64/Headers/$1 ; \
+		xcodebuild -create-xcframework $(call xcframework-flags,$1,true) -output lib/$1.xcframework ; \
+		find lib/$1.xcframework -name Headers -prune -exec mv {} {}_$1 \; -exec mkdir {} \; -exec mv {}_$1 {}/$1 \; ; \
+		if [ -d include/generated/$1 ]; then \
+			find lib/$1.xcframework -name Headers -prune -exec cp -r include/generated/$1/* {}/$1 \; ; \
+		fi \
 	else \
-		xcodebuild -create-xcframework -library lib/lib$1.a -output lib/$1.xcframework; \
+		xcodebuild -create-xcframework $(call xcframework-flags,$1) -output lib/$1.xcframework; \
 	fi
 
 srcs all:: lib/$1.xcframework
@@ -23,15 +36,13 @@ srcs all:: lib/$1.xcframework
 clean::
 	$(E) Cleaning lib/$1.xcframework
 	$(Q)$(RM) -r lib/$1.xcframework
-
 endef
 
-ifeq ($(filter $(CONFIGS),static),)
-Ice_always_enable_configs := static
-IceDiscovery_always_enable_configs := static
-IceLocatorDiscovery_always_enable_configs := static
+ifeq ($(filter $(config),static),)
+$(foreach f, $(xcframeworks), $(eval $f_always_enable_configs := static))
 endif
 
-$(eval $(call create-xcframework-from-library,Ice))
-$(eval $(call create-xcframework-from-library,IceDiscovery))
-$(eval $(call create-xcframework-from-library,IceLocatorDiscovery))
+define make-xcframeworks
+$(foreach f, $(xcframeworks),\
+    $(if $($f_platforms),$(eval $(call create-xcframework,$f))))
+endef

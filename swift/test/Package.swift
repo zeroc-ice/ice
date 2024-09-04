@@ -131,7 +131,7 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .macOS(.v14),
-        .iOS(.v12),
+        .iOS(.v17),
     ],
     products: [
         .library(name: "TestCommon", targets: ["TestCommon"]),

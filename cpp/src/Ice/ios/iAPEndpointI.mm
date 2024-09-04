@@ -6,22 +6,22 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "../Ice/DefaultsAndOverrides.h"
-#    include "../Ice/EndpointFactoryManager.h"
-#    include "../Ice/HashUtil.h"
-#    include "../Ice/Network.h"
-#    include "../Ice/ProtocolInstance.h"
-#    include "../Ice/ProtocolPluginFacade.h"
-#    include "Connector.h"
-#    include "EndpointI.h"
+#    include "../DefaultsAndOverrides.h"
+#    include "../EndpointFactoryManager.h"
+#    include "../HashUtil.h"
+#    include "../Network.h"
+#    include "../ProtocolInstance.h"
+#    include "../ProtocolPluginFacade.h"
 #    include "Ice/Initialize.h"
 #    include "Ice/InputStream.h"
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/OutputStream.h"
 #    include "Ice/Properties.h"
 #    include "Ice/RegisterPlugins.h"
-#    include "IceIAP/ConnectionInfo.h"
-#    include "IceIAP/EndpointInfo.h"
+#    include "Ice/ios/iAPConnectionInfo.h"
+#    include "Ice/ios/iAPEndpointInfo.h"
+#    include "iAPConnector.h"
+#    include "iAPEndpointI.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 

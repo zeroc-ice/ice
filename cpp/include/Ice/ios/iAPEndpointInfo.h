@@ -5,7 +5,7 @@
 #ifndef ICE_IAP_ENDPOINT_INFO_H
 #define ICE_IAP_ENDPOINT_INFO_H
 
-#include "Ice/Endpoint.h"
+#include "../Endpoint.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
@@ -19,7 +19,7 @@ namespace IceIAP
 {
     /**
      * Provides access to an IAP endpoint information.
-     * \headerfile IceIAP/IceIAP.h
+     * \headerfile Ice/Ice.h
      */
     class EndpointInfo : public Ice::EndpointInfo
     {
