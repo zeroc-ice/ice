@@ -39,7 +39,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../lib/net8.0/Ice.dll" />
+        <ProjectReference Include="../../../../../src/Ice/Ice.csproj" />
       </ItemGroup>
     </Otherwise>
   </Choose>

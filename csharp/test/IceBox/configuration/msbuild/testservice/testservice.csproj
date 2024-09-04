@@ -28,8 +28,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../lib/net8.0/Ice.dll" />
-        <Reference Include="../../../../../lib/net8.0/IceBox.dll" />
+        <ProjectReference Include="../../../../../src/Ice/Ice.csproj" />
+        <ProjectReference Include="../../../../../src/IceBox/IceBox.csproj" />
       </ItemGroup>
     </Otherwise>
   </Choose>

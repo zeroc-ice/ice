@@ -37,68 +37,35 @@
               Condition="'$(OS)' != 'Windows_NT'"/>
     </Target>
 
-    <ItemGroup>
+    <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
         <!-- .NET Solution files -->
-        <DistSolution Include="ice.sln">
+        <SolutionFile Include="ice.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
-        </DistSolution>
-
-        <TestSolution Include="ice.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
-        </TestSolution>
+        </SolutionFile>
     </ItemGroup>
 
-    <Target Name="NuGetRestoreDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
-        <MSBuild Projects="@(DistSolution)"
+    <Target Name="NuGetRestore">
+        <MSBuild Projects="@(SolutionFile)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Restore"/>
     </Target>
 
-    <Target Name="BuildDist"
-            DependsOnTargets="SliceCompilers;NuGetRestoreDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all'">
-
-        <MSBuild Projects="@(DistSolution)"
+    <Target Name="Build"
+            DependsOnTargets="SliceCompilers;NuGetRestore">
+        <MSBuild Projects="@(SolutionFile)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
-
     </Target>
 
-    <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
-
-        <MSBuild Projects="@(DistSolution)"
+    <Target Name="Clean">
+        <MSBuild Projects="@(SolutionFile)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Clean" />
-
     </Target>
 
-    <Target Name="NuGetRestore" DependsOnTargets="NuGetRestoreDist">
-        <MSBuild Projects="@(TestSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Restore"/>
-    </Target>
-
-    <Target Name="Build" DependsOnTargets="BuildDist;NuGetRestore">
-
-        <MSBuild Projects="@(TestSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"/>
-
-    </Target>
-
-    <Target Name="Clean" DependsOnTargets="CleanDist">
-
-        <MSBuild Projects="@(TestSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Clean" />
-
-    </Target>
-
-    <Target Name="WindowsNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
+    <Target Name="WindowsNuGetPack" DependsOnTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
 
         <!-- Build iceboxnet with net8.0 target framework (default) -->
@@ -139,7 +106,7 @@
               WorkingDirectory="zeroc.ice.net"/>
     </Target>
 
-    <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
+    <Target Name="UnixNuGetPack" DependsOnTargets="Build" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
         <!-- Build iceboxnet with net8.0 target framework (default) -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj"
