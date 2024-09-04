@@ -730,8 +730,7 @@ namespace Ice
                             }
 
                             bool sentSynchronously = true;
-                            _ = p.closeAsync(
-                                Test.CloseMode.GracefullyWithWait,
+                            _ = p.closeConnectionAsync(
                                 progress: new Progress<bool>(value => sentSynchronously = value));
 
                             if (!sentSynchronously)
@@ -798,7 +797,7 @@ namespace Ice
                         //
                         try
                         {
-                            p.close(Test.CloseMode.Forcefully);
+                            p.abortConnection();
                             test(false);
                         }
                         catch (Ice.ConnectionLostException)

@@ -11,13 +11,6 @@ exception TestIntfException
 {
 }
 
-enum CloseMode
-{
-    Forcefully,
-    Gracefully,
-    GracefullyWithWait
-}
-
 interface PingReply
 {
     void reply();
@@ -38,7 +31,8 @@ interface TestIntf
                     out int eight, out int nine, out int ten, out int eleven);
     int opBatchCount();
     bool waitForBatch(int count);
-    void close(CloseMode mode);
+    void closeConnection();
+    void abortConnection();
     void sleep(int ms);
     ["amd"] void startDispatch();
     void finishDispatch();

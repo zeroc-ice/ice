@@ -1129,11 +1129,7 @@ allTests(TestHelper* helper, bool collocated)
                         results.push_back(s->get_future());
                     }
                     atomic_flag sent = ATOMIC_FLAG_INIT;
-                    p->closeAsync(
-                        CloseMode::GracefullyWithWait,
-                        nullptr,
-                        nullptr,
-                        [&sent](bool) { sent.test_and_set(); });
+                    p->closeConnectionAsync(nullptr, nullptr, [&sent](bool) { sent.test_and_set(); });
                     if (!sent.test_and_set())
                     {
                         for (int i = 0; i < maxQueue; i++)
@@ -1213,7 +1209,7 @@ allTests(TestHelper* helper, bool collocated)
                 //
                 try
                 {
-                    p->close(CloseMode::Forcefully);
+                    p->abortConnection();
                     test(false);
                 }
                 catch (const ConnectionLostException&)

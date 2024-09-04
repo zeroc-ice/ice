@@ -95,17 +95,15 @@ TestIntfI::waitForBatch(int32_t count, const Ice::Current&)
 }
 
 void
-TestIntfI::close(Test::CloseMode mode, const Ice::Current& current)
+TestIntfI::closeConnection(const Ice::Current& current)
 {
-    switch (mode)
-    {
-        case Test::CloseMode::Forcefully:
-            current.con->abort();
-            break;
-        default:
-            current.con->close(nullptr, nullptr);
-            break;
-    }
+    current.con->close(nullptr, nullptr);
+}
+
+void
+TestIntfI::abortConnection(const Ice::Current& current)
+{
+    current.con->abort();
 }
 
 void

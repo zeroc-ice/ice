@@ -446,7 +446,7 @@ def allTests(helper, communicator, collocated):
         # will not be closed until all pending dispatched requests have completed.
         #
         f = p.sleepAsync(100)
-        p.close(Test.CloseMode.Gracefully)  # Close is delayed until sleep completes.
+        p.closeConnection()  # Close is delayed until sleep completes.
         try:
             f.result()
         except Exception:
@@ -481,7 +481,7 @@ def allTests(helper, communicator, collocated):
         # will not retry.
         #
         try:
-            p.close(Test.CloseMode.Forcefully)
+            p.abortConnection()
             test(False)
         except Ice.ConnectionLostException:
             # Expected.
