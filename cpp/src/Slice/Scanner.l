@@ -92,7 +92,6 @@ namespace
 
   /* List of start-condition states the scanner can be in. This lets the scanning be context dependent. */
 %x C_COMMENT
-%s PRE_SLICE
 %s SLICE
 %x PREPROCESS
 %x METADATA
@@ -409,16 +408,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
 "[[" {
     yy_push_state(METADATA);
-
-    // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
-    if (yy_top_state() == PRE_SLICE)
-    {
-        return ICE_FILE_METADATA_OPEN;
-    }
-    else
-    {
-        return ICE_FILE_METADATA_IGNORE;
-    }
+    return ICE_FILE_METADATA_OPEN;
 }
 
   /* Matches the start of a metadata string, then switches the scanner into STRING_LITERAL mode. */
@@ -678,7 +668,7 @@ namespace
         // function being called means a match has already been made, so we switch states since BOMs are no longer valid.
         if (YY_START == INITIAL)
         {
-            BEGIN(PRE_SLICE);
+            BEGIN(SLICE);
         }
     }
 

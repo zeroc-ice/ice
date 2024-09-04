@@ -165,7 +165,6 @@ slice_error(const char* s)
 %token ICE_METADATA_OPEN
 %token ICE_METADATA_CLOSE
 %token ICE_FILE_METADATA_OPEN
-%token ICE_FILE_METADATA_IGNORE
 %token ICE_FILE_METADATA_CLOSE
 
 // Here 'OPEN' means these tokens end with an open parenthesis.
@@ -202,11 +201,6 @@ file_metadata
 : ICE_FILE_METADATA_OPEN string_list ICE_FILE_METADATA_CLOSE
 {
     $$ = $2;
-}
-| ICE_FILE_METADATA_IGNORE string_list ICE_FILE_METADATA_CLOSE
-{
-    currentUnit->error("file metadata must appear before any definitions");
-    $$ = $2; // Dummy
 }
 ;
 
@@ -355,6 +349,8 @@ module_def
 // ----------------------------------------------------------------------
 : ICE_MODULE ICE_IDENTIFIER
 {
+    currentUnit->setSeenDefinition();
+
     auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
     ModulePtr module = cont->createModule(ident->v);
@@ -383,6 +379,8 @@ module_def
 }
 | ICE_MODULE ICE_SCOPED_IDENTIFIER
 {
+    currentUnit->setSeenDefinition();
+
     auto ident = dynamic_pointer_cast<StringTok>($2);
 
     // Reject scoped identifiers starting with "::". This is generally indicates global scope, but is invalid here.
