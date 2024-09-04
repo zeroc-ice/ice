@@ -314,7 +314,7 @@ Slice::JsVisitor::writeMarshalDataMembers(
     const ContainedPtr& contained)
 {
     bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
-    bool isLegalKeyType = Dictionary::legalKeyType(dynamic_pointer_cast<Struct>(contained));
+    bool isLegalKeyType = Dictionary::isLegalKeyType(dynamic_pointer_cast<Struct>(contained));
 
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -346,7 +346,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(
     const ContainedPtr& contained)
 {
     bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
-    bool isLegalKeyType = Dictionary::legalKeyType(dynamic_pointer_cast<Struct>(contained));
+    bool isLegalKeyType = Dictionary::isLegalKeyType(dynamic_pointer_cast<Struct>(contained));
 
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -375,7 +375,7 @@ void
 Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers, const ContainedPtr& contained)
 {
     bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
-    bool isLegalKeyType = Dictionary::legalKeyType(dynamic_pointer_cast<Struct>(contained));
+    bool isLegalKeyType = Dictionary::isLegalKeyType(dynamic_pointer_cast<Struct>(contained));
 
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -1815,7 +1815,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     //
     // Only generate hashCode if this structure type is a legal dictionary key type.
     //
-    bool legalKeyType = Dictionary::legalKeyType(p);
+    bool legalKeyType = Dictionary::isLegalKeyType(p);
 
     _out << sp;
     _out << nl << "Ice.defineStruct(" << localScope << '.' << name << ", " << (legalKeyType ? "true" : "false") << ", "
@@ -2907,7 +2907,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     //
     // Only generate hashCode if this structure type is a legal dictionary key type.
     //
-    bool isLegalKeyType = Dictionary::legalKeyType(p);
+    bool isLegalKeyType = Dictionary::isLegalKeyType(p);
     if (isLegalKeyType)
     {
         _out << sp;

@@ -63,9 +63,6 @@ namespace Slice
     class Enumerator;
     class Const;
     class Unit;
-    class CICompare;
-    class DerivedToBaseCompare;
-    class ModulePartialCompare;
 
     using GrammarBasePtr = std::shared_ptr<GrammarBase>;
     using SyntaxTreeBasePtr = std::shared_ptr<SyntaxTreeBase>;
@@ -121,7 +118,7 @@ namespace Slice
     class CICompare
     {
     public:
-        bool operator()(const std::string&, const std::string&) const;
+        bool operator()(const std::string& lhs, const std::string& rhs) const;
     };
 
     // ----------------------------------------------------------------------
@@ -132,7 +129,7 @@ namespace Slice
     class DerivedToBaseCompare
     {
     public:
-        bool operator()(const ExceptionPtr&, const ExceptionPtr&) const;
+        bool operator()(const ExceptionPtr& lhs, const ExceptionPtr& rhs) const;
     };
 
     // ----------------------------------------------------------------------
@@ -143,27 +140,27 @@ namespace Slice
     {
     public:
         virtual ~ParserVisitor() {}
-        virtual bool visitUnitStart(const UnitPtr&) { return true; }
-        virtual void visitUnitEnd(const UnitPtr&) {}
-        virtual bool visitModuleStart(const ModulePtr&) { return true; }
-        virtual void visitModuleEnd(const ModulePtr&) {}
-        virtual void visitClassDecl(const ClassDeclPtr&) {}
-        virtual bool visitClassDefStart(const ClassDefPtr&) { return true; }
-        virtual void visitClassDefEnd(const ClassDefPtr&) {}
-        virtual void visitInterfaceDecl(const InterfaceDeclPtr&) {}
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&) { return true; }
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&) {}
-        virtual bool visitExceptionStart(const ExceptionPtr&) { return true; }
-        virtual void visitExceptionEnd(const ExceptionPtr&) {}
-        virtual bool visitStructStart(const StructPtr&) { return true; }
-        virtual void visitStructEnd(const StructPtr&) {}
-        virtual void visitOperation(const OperationPtr&) {}
-        virtual void visitParamDecl(const ParamDeclPtr&) {}
-        virtual void visitDataMember(const DataMemberPtr&) {}
-        virtual void visitSequence(const SequencePtr&) {}
-        virtual void visitDictionary(const DictionaryPtr&) {}
-        virtual void visitEnum(const EnumPtr&) {}
-        virtual void visitConst(const ConstPtr&) {}
+        virtual bool visitUnitStart(const UnitPtr& /*unit*/) { return true; }
+        virtual void visitUnitEnd(const UnitPtr& /*unit*/) {}
+        virtual bool visitModuleStart(const ModulePtr& /*module*/) { return true; }
+        virtual void visitModuleEnd(const ModulePtr& /*module*/) {}
+        virtual void visitClassDecl(const ClassDeclPtr& /*classDecl*/) {}
+        virtual bool visitClassDefStart(const ClassDefPtr& /*classDef*/) { return true; }
+        virtual void visitClassDefEnd(const ClassDefPtr& /*classDef*/) {}
+        virtual void visitInterfaceDecl(const InterfaceDeclPtr& /*interfaceDecl*/) {}
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr& /*interfaceDef*/) { return true; }
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr& /*interfaceDef*/) {}
+        virtual bool visitExceptionStart(const ExceptionPtr& /*exceptionDef*/) { return true; }
+        virtual void visitExceptionEnd(const ExceptionPtr& /*exceptionDef*/) {}
+        virtual bool visitStructStart(const StructPtr& /*structDef*/) { return true; }
+        virtual void visitStructEnd(const StructPtr& /*structDef*/) {}
+        virtual void visitOperation(const OperationPtr& /*operation*/) {}
+        virtual void visitParamDecl(const ParamDeclPtr& /*parameter*/) {}
+        virtual void visitDataMember(const DataMemberPtr& /*member*/) {}
+        virtual void visitSequence(const SequencePtr& /*sequence*/) {}
+        virtual void visitDictionary(const DictionaryPtr& /*dictionary*/) {}
+        virtual void visitEnum(const EnumPtr& /*enumDef*/) {}
+        virtual void visitConst(const ConstPtr& /*constDef*/) {}
 
         virtual bool shouldVisitIncludedDefinitions() const { return false; }
     };
@@ -175,27 +172,25 @@ namespace Slice
     class DefinitionContext final
     {
     public:
-        DefinitionContext(int, const StringList&);
+        DefinitionContext(int includeLevel, const StringList& metadata);
 
         std::string filename() const;
         int includeLevel() const;
         bool seenDefinition() const;
 
-        void setFilename(const std::string&);
+        void setFilename(const std::string& filename);
         void setSeenDefinition();
 
-        bool hasMetadata(const std::string&) const;
-        void setMetadata(const StringList&);
-        std::string findMetadata(const std::string&) const;
+        bool hasMetadata(const std::string& directive) const;
+        void setMetadata(const StringList& metadata);
+        std::string findMetadata(const std::string& prefix) const;
         StringList getMetadata() const;
 
-        //
-        // Emit warning unless filtered out by [["suppress-warning"]]
-        //
-        void warning(WarningCategory, const std::string&, int, const std::string&) const;
+        /// Emits a warning unless it should be filtered out by a [["suppress-warning"]].
+        void warning(WarningCategory category, const std::string& file, int line, const std::string& message) const;
 
     private:
-        bool suppressWarning(WarningCategory) const;
+        bool shouldSuppressWarning(WarningCategory category) const;
         void initSuppressedWarnings();
 
         int _includeLevel;
@@ -216,15 +211,19 @@ namespace Slice
         bool isDeprecated() const;
         StringList deprecated() const;
 
-        StringList overview() const; // Contains all introductory lines up to the first tag.
-        StringList misc() const;     // Contains unrecognized tags.
-        StringList seeAlso() const;  // Targets of @see tags.
+        /// Contains all introductory lines up to the first tag.
+        StringList overview() const;
+        /// Contains unrecognized tags.
+        StringList misc() const;
+        /// Targets of @see tags.
+        StringList seeAlso() const;
 
-        StringList returns() const; // Description of an operation's return value.
-        std::map<std::string, StringList>
-        parameters() const; // Parameter descriptions for an op. Key is parameter name.
-        std::map<std::string, StringList>
-        exceptions() const; // Exception descriptions for an op. Key is exception name.
+        /// Description of an operation's return value.
+        StringList returns() const;
+        /// Parameter descriptions for an op. Key is parameter name.
+        std::map<std::string, StringList> parameters() const;
+        /// Exception descriptions for an op. Key is exception name.
+        std::map<std::string, StringList> exceptions() const;
 
     private:
         bool _isDeprecated;
@@ -258,11 +257,11 @@ namespace Slice
     class SyntaxTreeBase : public GrammarBase
     {
     public:
-        SyntaxTreeBase(const UnitPtr&);
+        SyntaxTreeBase(const UnitPtr& unit);
         virtual void destroy();
         UnitPtr unit() const;
         DefinitionContextPtr definitionContext() const; // May be nil
-        virtual void visit(ParserVisitor*);
+        virtual void visit(ParserVisitor* visitor);
 
     protected:
         UnitPtr _unit;
@@ -276,7 +275,7 @@ namespace Slice
     class Type : public virtual SyntaxTreeBase
     {
     public:
-        Type(const UnitPtr&);
+        Type(const UnitPtr& unit);
         virtual std::string typeId() const = 0;
         virtual bool isClassType() const;
         virtual bool usesClasses() const;
@@ -307,7 +306,7 @@ namespace Slice
             KindValue
         };
 
-        Builtin(const UnitPtr&, Kind);
+        Builtin(const UnitPtr& unit, Kind kind);
 
         std::string typeId() const final;
         bool isClassType() const final;
@@ -320,7 +319,7 @@ namespace Slice
 
         Kind kind() const;
         std::string kindAsString() const;
-        static std::optional<Kind> kindFromString(std::string_view);
+        static std::optional<Kind> kindFromString(std::string_view str);
 
         inline static const std::array<std::string, 11> builtinTable =
             {"byte", "bool", "short", "int", "long", "float", "double", "string", "Object", "Object*", "Value"};
@@ -338,7 +337,7 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
-        Contained(const ContainerPtr&, const std::string&);
+        Contained(const ContainerPtr& container, const std::string& name);
         virtual void init();
         ContainerPtr container() const;
         std::string name() const;
@@ -347,18 +346,19 @@ namespace Slice
         std::string flattenedScope() const;
         std::string file() const;
         int line() const;
+
         std::string comment() const;
-        CommentPtr parseComment(const std::string&, bool) const;
-        CommentPtr parseComment(bool) const;
+        CommentPtr parseComment(bool stripMarkup) const;
+        CommentPtr parseComment(const std::string& text, bool stripMarkup) const;
 
         int includeLevel() const;
 
-        bool hasMetadata(const std::string&) const;
-        bool findMetadata(const std::string&, std::string&) const;
+        bool hasMetadata(const std::string& directive) const;
+        bool findMetadata(const std::string& prefix, std::string& output) const;
         std::list<std::string> getMetadata() const;
-        void setMetadata(const std::list<std::string>&);
+        void setMetadata(const std::list<std::string>& metadata);
 
-        static std::optional<FormatType> parseFormatMetadata(const std::list<std::string>&);
+        static std::optional<FormatType> parseFormatMetadata(const std::list<std::string>& metadata);
 
         /// Returns true if this item is deprecated (due to the presence of 'deprecated' metadata).
         /// @param checkParent If true, this item's immediate container will also be checked for 'deprecated' metadata.
@@ -394,35 +394,35 @@ namespace Slice
     class Container : public virtual SyntaxTreeBase
     {
     public:
-        Container(const UnitPtr&);
+        Container(const UnitPtr& unit);
         void destroy() override;
-        ModulePtr createModule(const std::string&);
-        ClassDefPtr createClassDef(const std::string&, int, const ClassDefPtr&);
-        ClassDeclPtr createClassDecl(const std::string&);
-        InterfaceDefPtr createInterfaceDef(const std::string&, const InterfaceList&);
-        InterfaceDeclPtr createInterfaceDecl(const std::string&);
-        ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real);
-        StructPtr createStruct(const std::string&, NodeType = Real);
-        SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real);
+        ModulePtr createModule(const std::string& name);
+        ClassDefPtr createClassDef(const std::string& name, int id, const ClassDefPtr& base);
+        ClassDeclPtr createClassDecl(const std::string& name);
+        InterfaceDefPtr createInterfaceDef(const std::string& name, const InterfaceList& bases);
+        InterfaceDeclPtr createInterfaceDecl(const std::string& name);
+        ExceptionPtr createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
+        StructPtr createStruct(const std::string& name, NodeType nodeType = Real);
+        SequencePtr createSequence(const std::string& name, const TypePtr& type, const StringList& metadata, NodeType nodeType = Real);
         DictionaryPtr createDictionary(
-            const std::string&,
-            const TypePtr&,
-            const StringList&,
-            const TypePtr&,
-            const StringList&,
-            NodeType = Real);
-        EnumPtr createEnum(const std::string&, NodeType = Real);
+            const std::string& name,
+            const TypePtr& keyType,
+            const StringList& keyMetadata,
+            const TypePtr& valueType,
+            const StringList& valueMetadata,
+            NodeType nodeType = Real);
+        EnumPtr createEnum(const std::string& name, NodeType nodeType = Real);
         ConstPtr createConst(
-            const std::string,
-            const TypePtr&,
-            const StringList&,
-            const SyntaxTreeBasePtr&,
-            const std::string&,
-            NodeType = Real);
-        TypeList lookupType(const std::string&, bool = true);
-        TypeList lookupTypeNoBuiltin(const std::string&, bool = true, bool = false);
-        ContainedList lookupContained(const std::string&, bool = true);
-        ExceptionPtr lookupException(const std::string&, bool = true);
+            const std::string name,
+            const TypePtr& constType,
+            const StringList& metadata,
+            const SyntaxTreeBasePtr& valueType,
+            const std::string& value,
+            NodeType nodeType = Real);
+        TypeList lookupType(const std::string& identifier, bool emitErrors = true);
+        TypeList lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors = true, bool ignoreUndefined = false);
+        ContainedList lookupContained(const std::string& identifier, bool emitErrors = true);
+        ExceptionPtr lookupException(const std::string& identifier, bool emitErrors = true);
         UnitPtr unit() const;
         ModuleList modules() const;
         ClassList classes() const;
@@ -433,14 +433,14 @@ namespace Slice
         DictionaryList dictionaries() const;
         EnumList enums() const;
         EnumeratorList enumerators() const;
-        EnumeratorList enumerators(const std::string&) const;
+        EnumeratorList enumerators(const std::string& identifier) const;
         ConstList consts() const;
         ContainedList contents() const;
         std::string thisScope() const;
-        void visit(ParserVisitor*) override;
+        void visit(ParserVisitor* visitor) override;
 
-        bool checkIntroduced(const std::string&, ContainedPtr = 0);
-        bool checkForGlobalDef(const std::string&, const char*);
+        bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = 0);
+        bool checkForGlobalDef(const std::string& name, const char* definitionKind);
 
         /// Returns true if this contains elements of the specified type.
         /// This check is recursive, so it will still return true even if the type is only contained indirectly.
@@ -462,7 +462,7 @@ namespace Slice
         }
 
     protected:
-        bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
+        bool validateConstant(const std::string& name, const TypePtr& type, SyntaxTreeBasePtr& valueType, const std::string& valueString, bool isConstant);
 
         ContainedList _contents;
         std::map<std::string, ContainedPtr, CICompare> _introducedMap;
@@ -475,9 +475,9 @@ namespace Slice
     class Module final : public virtual Container, public virtual Contained
     {
     public:
-        Module(const ContainerPtr&, const std::string&);
+        Module(const ContainerPtr& container, const std::string& name);
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
         friend class Container;
     };
@@ -489,7 +489,7 @@ namespace Slice
     class Constructed : public virtual Type, public virtual Contained
     {
     public:
-        Constructed(const ContainerPtr&, const std::string&);
+        Constructed(const ContainerPtr& container, const std::string& name);
         std::string typeId() const override;
     };
 
@@ -500,14 +500,14 @@ namespace Slice
     class ClassDecl final : public virtual Constructed
     {
     public:
-        ClassDecl(const ContainerPtr&, const std::string&);
+        ClassDecl(const ContainerPtr& container, const std::string& name);
         void destroy() final;
         ClassDefPtr definition() const;
         bool isClassType() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
         std::string kindOf() const final;
 
     protected:
@@ -531,15 +531,15 @@ namespace Slice
     class ClassDef final : public virtual Container, public virtual Contained
     {
     public:
-        ClassDef(const ContainerPtr&, const std::string&, int, const ClassDefPtr&);
+        ClassDef(const ContainerPtr& container, const std::string& name, int id, const ClassDefPtr& base);
         void destroy() final;
         DataMemberPtr createDataMember(
-            const std::string&,
-            const TypePtr&,
-            bool,
-            int,
-            const SyntaxTreeBasePtr&,
-            const std::string& defaultValue);
+            const std::string& name,
+            const TypePtr& type,
+            bool isOptional,
+            int tag,
+            const SyntaxTreeBasePtr& defaultValueType,
+            const std::string& defaultValueString);
         ClassDeclPtr declaration() const;
         ClassDefPtr base() const;
         ClassList allBases() const;
@@ -549,9 +549,9 @@ namespace Slice
         DataMemberList classDataMembers() const;
         DataMemberList allClassDataMembers() const;
         bool canBeCyclic() const;
-        bool inheritsMetadata(const std::string&) const;
+        bool inheritsMetadata(const std::string& metadata) const;
         bool hasBaseDataMembers() const;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
         int compactId() const;
         std::string kindOf() const final;
 
@@ -570,16 +570,16 @@ namespace Slice
     class InterfaceDecl final : public virtual Constructed
     {
     public:
-        InterfaceDecl(const ContainerPtr&, const std::string&);
+        InterfaceDecl(const ContainerPtr& container, const std::string& name);
         void destroy() final;
         InterfaceDefPtr definition() const;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
         std::string kindOf() const final;
 
-        static void checkBasesAreLegal(const std::string&, const InterfaceList&, const UnitPtr&);
+        static void checkBasesAreLegal(const std::string& name, const InterfaceList& bases, const UnitPtr& unit);
 
     protected:
         friend class Container;
@@ -591,10 +591,10 @@ namespace Slice
         typedef std::list<InterfaceList> GraphPartitionList;
         typedef std::list<StringList> StringPartitionList;
 
-        static bool isInList(const GraphPartitionList&, const InterfaceDefPtr&);
-        static void addPartition(GraphPartitionList&, GraphPartitionList::reverse_iterator, const InterfaceDefPtr&);
-        static StringPartitionList toStringPartitionList(const GraphPartitionList&);
-        static void checkPairIntersections(const StringPartitionList&, const std::string&, const UnitPtr&);
+        static bool isInList(const GraphPartitionList& gpl, const InterfaceDefPtr& interfaceDef);
+        static void addPartition(GraphPartitionList& gpl, GraphPartitionList::reverse_iterator tail, const InterfaceDefPtr& base);
+        static StringPartitionList toStringPartitionList(const GraphPartitionList& gpl);
+        static void checkPairIntersections(const StringPartitionList& list, const std::string& name, const UnitPtr& unit);
     };
 
     // ----------------------------------------------------------------------
@@ -621,14 +621,14 @@ namespace Slice
         int returnTag() const;
         Mode mode() const;
         bool hasMarshaledResult() const;
-        ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool, bool, int);
+        ParamDeclPtr createParamDecl(const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
         ParamDeclList parameters() const;
         ParamDeclList inParameters() const;
-        void inParameters(ParamDeclList&, ParamDeclList&) const;
+        void inParameters(ParamDeclList& required, ParamDeclList& optional) const;
         ParamDeclList outParameters() const;
-        void outParameters(ParamDeclList&, ParamDeclList&) const;
+        void outParameters(ParamDeclList& required, ParamDeclList& optional) const;
         ExceptionList throws() const;
-        void setExceptionList(const ExceptionList&);
+        void setExceptionList(const ExceptionList& exceptions);
         bool sendsClasses() const;
         bool returnsClasses() const;
         bool returnsData() const;
@@ -636,7 +636,7 @@ namespace Slice
         bool sendsOptionals() const;
         std::optional<FormatType> format() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
     protected:
         friend class InterfaceDef;
@@ -662,10 +662,9 @@ namespace Slice
     class InterfaceDef final : public virtual Container, public virtual Contained
     {
     public:
-        InterfaceDef(const ContainerPtr&, const std::string&, const InterfaceList&);
+        InterfaceDef(const ContainerPtr& container, const std::string& name, const InterfaceList& bases);
         void destroy() final;
-        OperationPtr
-        createOperation(const std::string&, const TypePtr&, bool, int, Operation::Mode = Operation::Normal);
+        OperationPtr createOperation(const std::string& name, const TypePtr& returnType, bool isOptional, int tag, Operation::Mode mode = Operation::Normal);
 
         InterfaceDeclPtr declaration() const;
         InterfaceList bases() const;
@@ -673,9 +672,9 @@ namespace Slice
         OperationList operations() const;
         OperationList allOperations() const;
         bool hasOperations() const;
-        bool inheritsMetadata(const std::string&) const;
+        bool inheritsMetadata(const std::string& metadata) const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
         // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
         StringList ids() const;
@@ -696,15 +695,15 @@ namespace Slice
     class Exception final : public virtual Container, public virtual Contained
     {
     public:
-        Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&);
+        Exception(const ContainerPtr& container, const std::string& name, const ExceptionPtr& base);
         void destroy() final;
         DataMemberPtr createDataMember(
-            const std::string&,
-            const TypePtr&,
-            bool,
-            int,
-            const SyntaxTreeBasePtr&,
-            const std::string& defaultValue);
+            const std::string& name,
+            const TypePtr& type,
+            bool isOptional,
+            int tag,
+            const SyntaxTreeBasePtr& defaultValueType,
+            const std::string& defaultValueString);
         DataMemberList dataMembers() const;
         DataMemberList orderedOptionalDataMembers() const;
         DataMemberList allDataMembers() const;
@@ -712,12 +711,12 @@ namespace Slice
         DataMemberList allClassDataMembers() const;
         ExceptionPtr base() const;
         ExceptionList allBases() const;
-        bool isBaseOf(const ExceptionPtr&) const;
+        bool isBaseOf(const ExceptionPtr& otherException) const;
         bool usesClasses() const;
-        bool inheritsMetadata(const std::string&) const;
+        bool inheritsMetadata(const std::string& metadata) const;
         bool hasBaseDataMembers() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
     protected:
         friend class Container;
@@ -732,14 +731,14 @@ namespace Slice
     class Struct final : public virtual Container, public virtual Constructed
     {
     public:
-        Struct(const ContainerPtr&, const std::string&);
+        Struct(const ContainerPtr& container, const std::string& name);
         DataMemberPtr createDataMember(
-            const std::string&,
-            const TypePtr&,
-            bool,
-            int,
-            const SyntaxTreeBasePtr&,
-            const std::string& defaultValue);
+            const std::string& name,
+            const TypePtr& type,
+            bool isOptional,
+            int tag,
+            const SyntaxTreeBasePtr& defaultValueType,
+            const std::string& defaultValueString);
         DataMemberList dataMembers() const;
         DataMemberList classDataMembers() const;
         bool usesClasses() const final;
@@ -747,7 +746,7 @@ namespace Slice
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
         friend class Container;
     };
@@ -759,7 +758,7 @@ namespace Slice
     class Sequence final : public virtual Constructed
     {
     public:
-        Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&);
+        Sequence(const ContainerPtr& container, const std::string& name, const TypePtr& type, const StringList& typeMetadata);
         TypePtr type() const;
         StringList typeMetadata() const;
         bool usesClasses() const final;
@@ -767,7 +766,7 @@ namespace Slice
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
     protected:
         friend class Container;
@@ -784,12 +783,12 @@ namespace Slice
     {
     public:
         Dictionary(
-            const ContainerPtr&,
-            const std::string&,
-            const TypePtr&,
-            const StringList&,
-            const TypePtr&,
-            const StringList&);
+            const ContainerPtr& container,
+            const std::string& name,
+            const TypePtr& keyType,
+            const StringList& keyMetadata,
+            const TypePtr& valueType,
+            const StringList& valueMetadata);
         TypePtr keyType() const;
         TypePtr valueType() const;
         StringList keyMetadata() const;
@@ -799,9 +798,9 @@ namespace Slice
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
-        static bool legalKeyType(const TypePtr&);
+        static bool isLegalKeyType(const TypePtr& type);
 
     protected:
         friend class Container;
@@ -819,9 +818,9 @@ namespace Slice
     class Enum final : public virtual Container, public virtual Constructed
     {
     public:
-        Enum(const ContainerPtr&, const std::string&);
+        Enum(const ContainerPtr& container, const std::string& name);
         void destroy() final;
-        EnumeratorPtr createEnumerator(const std::string&, std::optional<int>);
+        EnumeratorPtr createEnumerator(const std::string& name, std::optional<int> explicitValue);
         bool hasExplicitValues() const;
         int minValue() const;
         int maxValue() const;
@@ -829,7 +828,7 @@ namespace Slice
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
     protected:
         friend class Container;
@@ -848,7 +847,7 @@ namespace Slice
     class Enumerator final : public virtual Contained
     {
     public:
-        Enumerator(const ContainerPtr&, const std::string&, int, bool);
+        Enumerator(const ContainerPtr& container, const std::string& name, int value, bool hasExplicitValue);
         EnumPtr type() const;
         std::string kindOf() const final;
 
@@ -870,18 +869,18 @@ namespace Slice
     {
     public:
         Const(
-            const ContainerPtr&,
-            const std::string&,
-            const TypePtr&,
-            const StringList&,
-            const SyntaxTreeBasePtr&,
-            const std::string&);
+            const ContainerPtr& container,
+            const std::string& name,
+            const TypePtr& type,
+            const StringList& typeMetadata,
+            const SyntaxTreeBasePtr& valueType,
+            const std::string& valueString);
         TypePtr type() const;
         StringList typeMetadata() const;
         SyntaxTreeBasePtr valueType() const;
         std::string value() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
     protected:
         friend class Container;
@@ -899,13 +898,13 @@ namespace Slice
     class ParamDecl final : public virtual Contained
     {
     public:
-        ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, bool, int);
+        ParamDecl(const ContainerPtr& container, const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
         TypePtr type() const;
         bool isOutParam() const;
         bool optional() const;
         int tag() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
     protected:
         friend class Operation;
@@ -924,20 +923,20 @@ namespace Slice
     {
     public:
         DataMember(
-            const ContainerPtr&,
-            const std::string&,
-            const TypePtr&,
-            bool,
-            int,
-            const SyntaxTreeBasePtr&,
-            const std::string&);
+            const ContainerPtr& container,
+            const std::string& name,
+            const TypePtr& type,
+            bool isOptional,
+            int tag,
+            const SyntaxTreeBasePtr& defaultValueType,
+            const std::string& defaultValueString);
         TypePtr type() const;
         bool optional() const;
         int tag() const;
         std::string defaultValue() const;
         SyntaxTreeBasePtr defaultValueType() const;
         std::string kindOf() const final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
     protected:
         friend class ClassDef;
@@ -958,55 +957,51 @@ namespace Slice
     class Unit final : public virtual Container
     {
     public:
-        static UnitPtr createUnit(bool, const StringList& = StringList());
+        static UnitPtr createUnit(bool all, const StringList& defaultFileMetadata = StringList());
 
-        Unit(bool, const StringList&);
+        Unit(bool all, const StringList& defaultFileMetadata);
 
-        void setComment(const std::string&);
-        void addToComment(const std::string&);
+        void setComment(const std::string& comment);
+        void addToComment(const std::string& comment);
         std::string currentComment(); // Not const, as this function removes the current comment.
         std::string currentFile() const;
         std::string topLevelFile() const;
         int currentLine() const;
 
-        int setCurrentFile(const std::string&, int);
+        int setCurrentFile(const std::string& currentFile, int lineNumber);
         int currentIncludeLevel() const;
 
-        void addFileMetadata(const StringList&);
+        void addFileMetadata(const StringList& metadata);
 
         void setSeenDefinition();
 
         void error(const std::string& message);
         void error(const std::string& file, int line, const std::string& message);
-        void warning(WarningCategory, const std::string&) const;
+        void warning(WarningCategory category, const std::string& message) const;
 
         ContainerPtr currentContainer() const;
-        void pushContainer(const ContainerPtr&);
+        void pushContainer(const ContainerPtr& container);
         void popContainer();
 
         DefinitionContextPtr currentDefinitionContext() const;
-        DefinitionContextPtr findDefinitionContext(const std::string&) const;
+        DefinitionContextPtr findDefinitionContext(const std::string& file) const;
 
-        void addContent(const ContainedPtr&);
-        ContainedList findContents(const std::string&) const;
+        void addContent(const ContainedPtr& contained);
+        ContainedList findContents(const std::string& scopedName) const;
 
-        void addTypeId(int, const std::string&);
-        std::string getTypeId(int) const;
+        void addTypeId(int compactId, const std::string& typeId);
+        std::string getTypeId(int compactId) const;
 
-        //
         // Returns the path names of the files included directly by the top-level file.
-        //
         StringList includeFiles() const;
 
-        //
         // Returns the path names of all files parsed by this unit.
-        //
         StringList allFiles() const;
 
-        int parse(const std::string&, FILE*, bool);
+        int parse(const std::string& filename, FILE* file, bool debugMode);
 
         void destroy() final;
-        void visit(ParserVisitor*) final;
+        void visit(ParserVisitor* visitor) final;
 
         // Not const, as builtins are created on the fly. (Lazy initialization.)
         BuiltinPtr createBuiltin(Builtin::Kind kind);
