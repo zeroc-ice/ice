@@ -410,41 +410,31 @@ public sealed class ObjectAdapter
     /// objects by registering the servant with multiple identities. Adding a servant with an identity that is in the
     /// map already throws AlreadyRegisteredException.
     /// </summary>
-    /// <param name="servant">The servant to add.
-    /// </param>
-    /// <param name="id">The identity of the Ice object that is implemented by the servant.
-    /// </param>
-    /// <returns>A proxy that matches the given identity and this object adapter.
-    /// </returns>
-    public ObjectPrx add(Object obj, Identity id) => addFacet(obj, id, "");
+    /// <param name="servant">The servant to add.</param>
+    /// <param name="id">The identity of the Ice object that is implemented by the servant.</param>
+    /// <returns>A proxy that matches the given identity and this object adapter.</returns>
+    public ObjectPrx add(Object servant, Identity id) => addFacet(servant, id, "");
 
     /// <summary>
     /// Like add, but with a facet.
     /// Calling add(servant, id) is equivalent to calling
     /// addFacet with an empty facet.
     /// </summary>
-    /// <param name="servant">The servant to add.
-    /// </param>
-    /// <param name="id">The identity of the Ice object that is implemented by the servant.
-    /// </param>
-    /// <param name="facet">The facet. An empty facet means the default facet.
-    /// </param>
-    /// <returns>A proxy that matches the given identity, facet, and this object adapter.
-    /// </returns>
-    public ObjectPrx addFacet(Object obj, Identity ident, string facet)
+    /// <param name="servant">The servant to add.</param>
+    /// <param name="identity">The identity of the Ice object that is implemented by the servant.</param>
+    /// <param name="facet">The facet. An empty facet means the default facet.</param>
+    /// <returns>A proxy that matches the given identity, facet, and this object adapter.</returns>
+    public ObjectPrx addFacet(Object servant, Identity identity, string facet)
     {
         lock (_mutex)
         {
             checkForDeactivation();
-            checkIdentity(ident);
-            ArgumentNullException.ThrowIfNull(obj);
+            checkIdentity(identity);
+            ArgumentNullException.ThrowIfNull(servant);
 
-            //
-            // Create a copy of the Identity argument, in case the caller
-            // reuses it.
-            //
-            var id = new Identity(ident.name, ident.category);
-            _servantManager.addServant(obj, id, facet);
+            // Create a copy of the Identity argument, in case the caller reuses it.
+            var id = new Identity(identity.name, identity.category);
+            _servantManager.addServant(servant, id, facet);
 
             return newProxy(id, facet);
         }
@@ -452,14 +442,10 @@ public sealed class ObjectAdapter
 
     /// <summary>
     /// Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
-    /// identity.
-    /// Note that the generated UUID identity can be accessed using the proxy's ice_getIdentity
-    /// operation.
+    /// identity. Note that the generated UUID identity can be accessed using the proxy's ice_getIdentity operation.
     /// </summary>
-    /// <param name="servant">The servant to add.
-    /// </param>
-    /// <returns>A proxy that matches the generated UUID identity and this object adapter.
-    /// </returns>
+    /// <param name="servant">The servant to add.</param>
+    /// <returns>A proxy that matches the generated UUID identity and this object adapter.</returns>
     public ObjectPrx addWithUUID(Object servant) => addFacetWithUUID(servant, "");
 
     /// <summary>
@@ -467,12 +453,9 @@ public sealed class ObjectAdapter
     /// Calling addWithUUID(servant) is equivalent to calling
     /// addFacetWithUUID with an empty facet.
     /// </summary>
-    /// <param name="servant">The servant to add.
-    /// </param>
-    /// <param name="facet">The facet. An empty facet means the default facet.
-    /// </param>
-    /// <returns>A proxy that matches the generated UUID identity, facet, and this object adapter.
-    /// </returns>
+    /// <param name="servant">The servant to add.</param>
+    /// <param name="facet">The facet. An empty facet means the default facet.</param>
+    /// <returns>A proxy that matches the generated UUID identity, facet, and this object adapter.</returns>
     public ObjectPrx addFacetWithUUID(Object servant, string facet)
     {
         var ident = new Identity(Guid.NewGuid().ToString(), "");
@@ -493,13 +476,10 @@ public sealed class ObjectAdapter
     /// servant for an empty category, regardless of the category contained in the identity.
     /// If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
     /// receives ObjectNotExistException or FacetNotExistException.
-    ///
     /// </summary>
-    /// <param name="servant">The default servant.
-    /// </param>
-    /// <param name="category">The category for which the default servant is registered. An empty category means it will
-    /// handle all categories.
-    /// </param>
+    /// <param name="servant">The default servant.</param>
+    /// <param name="category">The category for which the default servant is registered. An empty category means it
+    /// will handle all categories.</param>
     public void addDefaultServant(Ice.Object servant, string category)
     {
         ArgumentNullException.ThrowIfNull(servant);
@@ -517,10 +497,8 @@ public sealed class ObjectAdapter
     /// </summary>
     /// <param name="id">The identity of the Ice object that is implemented by the servant. If the servant implements multiple
     /// Ice objects, remove has to be called for all those Ice objects. Removing an identity that is not in
-    /// the map throws NotRegisteredException.
-    /// </param>
-    /// <returns>The removed servant.
-    /// </returns>
+    /// the map throws NotRegisteredException.</param>
+    /// <returns>The removed servant.</returns>
     public Object remove(Identity id) => removeFacet(id, "");
 
     /// <summary>
@@ -528,12 +506,9 @@ public sealed class ObjectAdapter
     /// Calling remove(id) is equivalent to calling
     /// removeFacet with an empty facet.
     /// </summary>
-    /// <param name="id">The identity of the Ice object that is implemented by the servant.
-    /// </param>
-    /// <param name="facet">The facet. An empty facet means the default facet.
-    /// </param>
-    /// <returns>The removed servant.
-    /// </returns>
+    /// <param name="id">The identity of the Ice object that is implemented by the servant.</param>
+    /// <param name="facet">The facet. An empty facet means the default facet.</param>
+    /// <returns>The removed servant.</returns>
     public Object removeFacet(Identity id, string facet)
     {
         lock (_mutex)
@@ -551,10 +526,8 @@ public sealed class ObjectAdapter
     /// object, including its default facet. Removing an identity that is not in the map throws
     /// NotRegisteredException.
     /// </summary>
-    /// <param name="id">The identity of the Ice object to be removed.
-    /// </param>
-    /// <returns>A collection containing all the facet names and servants of the removed Ice object.
-    /// </returns>
+    /// <param name="id">The identity of the Ice object to be removed.</param>
+    /// <returns>A collection containing all the facet names and servants of the removed Ice object.</returns>
     public Dictionary<string, Object> removeAllFacets(Identity id)
     {
         lock (_mutex)
@@ -571,10 +544,8 @@ public sealed class ObjectAdapter
     /// Attempting to remove a default servant for a category that
     /// is not registered throws NotRegisteredException.
     /// </summary>
-    /// <param name="category">The category of the default servant to remove.
-    /// </param>
-    /// <returns>The default servant.
-    /// </returns>
+    /// <param name="category">The category of the default servant to remove.</param>
+    /// <returns>The default servant.</returns>
     public Object removeDefaultServant(string category)
     {
         lock (_mutex)
@@ -587,14 +558,12 @@ public sealed class ObjectAdapter
 
     /// <summary>
     /// Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it implements.
-    /// &lt;p class="Note"&gt;This operation only tries to look up a servant in the Active Servant Map. It does not attempt
-    /// to find a servant by using any installed ServantLocator.
+    /// This operation only tries to look up a servant in the Active Servant Map. It does not attempt to find a servant
+    /// by using any installed ServantLocator.
     /// </summary>
-    /// <param name="id">The identity of the Ice object for which the servant should be returned.
-    /// </param>
-    /// <returns>The servant that implements the Ice object with the given identity, or null if no such servant has been
-    /// found.
-    /// </returns>
+    /// <param name="id">The identity of the Ice object for which the servant should be returned.</param>
+    /// <returns>The servant that implements the Ice object with the given identity, or null if no such servant has
+    /// been found.</returns>
     public Object? find(Identity id) => findFacet(id, "");
 
     /// <summary>
@@ -602,13 +571,10 @@ public sealed class ObjectAdapter
     /// Calling find(id) is equivalent to calling findFacet
     /// with an empty facet.
     /// </summary>
-    /// <param name="id">The identity of the Ice object for which the servant should be returned.
-    /// </param>
-    /// <param name="facet">The facet. An empty facet means the default facet.
-    /// </param>
+    /// <param name="id">The identity of the Ice object for which the servant should be returned.</param>
+    /// <param name="facet">The facet. An empty facet means the default facet.</param>
     /// <returns>The servant that implements the Ice object with the given identity and facet, or null if no such
-    /// servant has been found.
-    /// </returns>
+    /// servant has been found.</returns>
     public Object? findFacet(Identity id, string facet)
     {
         lock (_mutex)
@@ -623,11 +589,9 @@ public sealed class ObjectAdapter
     /// <summary>
     /// Find all facets with the given identity in the Active Servant Map.
     /// </summary>
-    /// <param name="id">The identity of the Ice object for which the facets should be returned.
-    /// </param>
+    /// <param name="id">The identity of the Ice object for which the facets should be returned.</param>
     /// <returns>A collection containing all the facet names and servants that have been found, or an empty map if there
-    /// is no facet for the given identity.
-    /// </returns>
+    /// is no facet for the given identity.</returns>
     public Dictionary<string, Object> findAllFacets(Identity id)
     {
         lock (_mutex)
@@ -641,13 +605,10 @@ public sealed class ObjectAdapter
 
     /// <summary>
     /// Look up a servant in this object adapter's Active Servant Map, given a proxy.
-    /// &lt;p class="Note"&gt;This operation only tries to lookup a servant in the Active Servant Map. It does not attempt to
-    /// find a servant by using any installed ServantLocator.
-    /// </summary>
-    /// <param name="proxy">The proxy for which the servant should be returned.
-    /// </param>
-    /// <returns>The servant that matches the proxy, or null if no such servant has been found.
-    /// </returns>
+    /// This operation only tries to lookup a servant in the Active Servant Map. It does not attempt to find a servant
+    /// by using any installed ServantLocator.</summary>
+    /// <param name="proxy">The proxy for which the servant should be returned.</param>
+    /// <returns>The servant that matches the proxy, or null if no such servant has been found.</returns>
     public Object? findByProxy(ObjectPrx proxy)
     {
         lock (_mutex)
@@ -661,10 +622,10 @@ public sealed class ObjectAdapter
 
     /// <summary>
     /// Add a Servant Locator to this object adapter.
-    /// Adding a servant locator for a category for which a servant
-    /// locator is already registered throws AlreadyRegisteredException. To dispatch operation calls on
-    /// servants, the object adapter tries to find a servant for a given Ice object identity and facet in the following
-    /// order:
+    ///
+    /// Adding a servant locator for a category for which a servant locator is already registered throws
+    /// <see cref="AlreadyRegisteredException" />. To dispatch operation calls on servants, the object adapter tries to
+    /// find a servant for a given Ice object identity and facet in the following order:
     ///
     /// The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
     /// If no servant has been found in the Active Servant Map, the object adapter tries to find a servant locator
@@ -674,22 +635,18 @@ public sealed class ObjectAdapter
     /// an empty category, regardless of the category contained in the identity. If a locator is found, the object
     /// adapter tries to find a servant using this locator.
     /// If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-    /// receives ObjectNotExistException or FacetNotExistException.
-    ///
-    /// &lt;p class="Note"&gt;Only one locator for the empty category can be installed.
+    /// receives <see cref="ObjectNotExistException" /> or <see cref="FacetNotExistException" />.
     /// </summary>
-    /// <param name="locator">The locator to add.
-    /// </param>
+    /// <param name="locator">The locator to add.</param>
     /// <param name="category">The category for which the Servant Locator can locate servants, or an empty string if the
-    /// Servant Locator does not belong to any specific category.
-    /// </param>
-    public void addServantLocator(ServantLocator locator, string prefix)
+    /// Servant Locator does not belong to any specific category.</param>
+    public void addServantLocator(ServantLocator locator, string category)
     {
         lock (_mutex)
         {
             checkForDeactivation();
 
-            _servantManager.addServantLocator(locator, prefix);
+            _servantManager.addServantLocator(locator, category);
         }
     }
 
@@ -697,18 +654,16 @@ public sealed class ObjectAdapter
     /// Remove a Servant Locator from this object adapter.
     /// </summary>
     /// <param name="category">The category for which the Servant Locator can locate servants, or an empty string if the
-    /// Servant Locator does not belong to any specific category.
-    /// </param>
-    /// <returns>The Servant Locator, or throws NotRegisteredException if no Servant Locator was found for the
-    /// given category.
-    /// </returns>
-    public ServantLocator removeServantLocator(string prefix)
+    /// servant locator does not belong to any specific category.</param>
+    /// <returns>The Servant Locator, or throws <see cref="NotRegisteredException"/> if no Servant Locator was found
+    /// for the given category.</returns>
+    public ServantLocator removeServantLocator(string category)
     {
         lock (_mutex)
         {
             checkForDeactivation();
 
-            return _servantManager.removeServantLocator(prefix);
+            return _servantManager.removeServantLocator(category);
         }
     }
 
@@ -718,25 +673,22 @@ public sealed class ObjectAdapter
     /// <param name="category">The category for which the Servant Locator can locate servants, or an empty string if the
     /// Servant Locator does not belong to any specific category.
     /// </param>
-    /// <returns>The Servant Locator, or null if no Servant Locator was found for the given category.
-    /// </returns>
-    public ServantLocator? findServantLocator(string prefix)
+    /// <returns>The servant locator, or null if no servant locator was found for the given category.</returns>
+    public ServantLocator? findServantLocator(string category)
     {
         lock (_mutex)
         {
             checkForDeactivation();
 
-            return _servantManager.findServantLocator(prefix);
+            return _servantManager.findServantLocator(category);
         }
     }
 
     /// <summary>
     /// Find the default servant for a specific category.
     /// </summary>
-    /// <param name="category">The category of the default servant to find.
-    /// </param>
-    /// <returns>The default servant or null if no default servant was registered for the category.
-    /// </returns>
+    /// <param name="category">The category of the default servant to find.</param>
+    /// <returns>The default servant or null if no default servant was registered for the category.</returns>
     public Object? findDefaultServant(string category)
     {
         lock (_mutex)
@@ -760,18 +712,16 @@ public sealed class ObjectAdapter
     /// return value is an indirect proxy that refers to the replica group id. Otherwise, if no adapter id is defined,
     /// the return value is a direct proxy containing this object adapter's published endpoints.
     /// </summary>
-    /// <param name="id">The object's identity.
-    /// </param>
-    /// <returns>A proxy for the object with the given identity.
-    /// </returns>
-    public ObjectPrx createProxy(Identity ident)
+    /// <param name="id">The object's identity.</param>
+    /// <returns>A proxy for the object with the given identity.</returns>
+    public ObjectPrx createProxy(Identity id)
     {
         lock (_mutex)
         {
             checkForDeactivation();
-            checkIdentity(ident);
+            checkIdentity(id);
 
-            return newProxy(ident, "");
+            return newProxy(id, "");
         }
     }
 
@@ -780,18 +730,16 @@ public sealed class ObjectAdapter
     /// The returned proxy contains this object adapter's
     /// published endpoints.
     /// </summary>
-    /// <param name="id">The object's identity.
-    /// </param>
-    /// <returns>A proxy for the object with the given identity.
-    /// </returns>
-    public ObjectPrx createDirectProxy(Identity ident)
+    /// <param name="id">The object's identity.</param>
+    /// <returns>A proxy for the object with the given identity.</returns>
+    public ObjectPrx createDirectProxy(Identity id)
     {
         lock (_mutex)
         {
             checkForDeactivation();
-            checkIdentity(ident);
+            checkIdentity(id);
 
-            return newDirectProxy(ident, "");
+            return newDirectProxy(id, "");
         }
     }
 
@@ -801,18 +749,16 @@ public sealed class ObjectAdapter
     /// adapter id, the return value refers to the adapter id. Otherwise, the return value contains only the object
     /// identity.
     /// </summary>
-    /// <param name="id">The object's identity.
-    /// </param>
-    /// <returns>A proxy for the object with the given identity.
-    /// </returns>
-    public ObjectPrx createIndirectProxy(Identity ident)
+    /// <param name="id">The object's identity.</param>
+    /// <returns>A proxy for the object with the given identity.</returns>
+    public ObjectPrx createIndirectProxy(Identity id)
     {
         lock (_mutex)
         {
             checkForDeactivation();
-            checkIdentity(ident);
+            checkIdentity(id);
 
-            return newIndirectProxy(ident, "", _id);
+            return newIndirectProxy(id, "", _id);
         }
     }
 
@@ -823,8 +769,7 @@ public sealed class ObjectAdapter
     /// adapter will contain the adapter identifier instead of its endpoints. The adapter identifier must be configured
     /// using the AdapterId property.
     /// </summary>
-    /// <param name="locator">The locator used by this object adapter.
-    /// </param>
+    /// <param name="locator">The locator used by this object adapter.</param>
     public void setLocator(LocatorPrx? locator)
     {
         lock (_mutex)
@@ -852,8 +797,7 @@ public sealed class ObjectAdapter
     /// <summary>
     /// Get the set of endpoints configured with this object adapter.
     /// </summary>
-    /// <returns>The set of endpoints.
-    /// </returns>
+    /// <returns>The set of endpoints.</returns>
     public Endpoint[] getEndpoints()
     {
         lock (_mutex)

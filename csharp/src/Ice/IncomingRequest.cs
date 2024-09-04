@@ -27,13 +27,14 @@ public sealed class IncomingRequest
     public int size { get; }
 
     /// <summary>
-    /// Constructs an incoming request.
+    /// Initializes a new instance of the <see cref="IncomingRequest" /> class.
     /// </summary>
     /// <param name="requestId">The request ID. It's 0 for oneway requests.</param>
     /// <param name="connection">The connection that received the request. It's null for collocated invocations.</param>
     /// <param name="adapter">The object adapter to set in current.</param>
     /// <param name="inputStream">The input stream buffer over the incoming Ice protocol request message. The stream is
-    /// positioned at the beginning of the request header - the next data to read is the identity of the target </param>
+    /// positioned at the beginning of the request header - the next data to read is the identity of the target object.
+    /// </param>
     public IncomingRequest(int requestId, Connection? connection, ObjectAdapter adapter, InputStream inputStream)
     {
         this.inputStream = inputStream;

@@ -18,11 +18,12 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     /// <returns>The hash value for the proxy based on the identity.</returns>
     public int GetHashCode(object obj) => ((ObjectPrx)obj).ice_getIdentity().GetHashCode();
 
+    /// <summary>
     /// Compares two proxies for equality.
-    /// <param name="x">A proxy to compare.</param>
-    /// <param name="y">A proxy to compare.</param>
-    /// <returns>True if the passed proxies have the same object
-    /// identity; false, otherwise.</returns>
+    /// </summary>
+    /// <param name="x">The first proxy to compare.</param>
+    /// <param name="y">The second proxy to compare.</param>
+    /// <returns>True if the passed proxies have the same object identity; false, otherwise.</returns>
     public new bool Equals(object? x, object? y)
     {
         try
@@ -35,11 +36,12 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
         }
     }
 
+    /// <summary>
     /// Compares two proxies using the object identity for comparison.
-    /// <param name="x">A proxy to compare.</param>
-    /// <param name="y">A proxy to compare.</param>
-    /// <returns>&lt; 0 if x is less than y; &gt; 0 if x is greater than y;
-    /// 0, otherwise.</returns>
+    /// </summary>
+    /// <param name="x">The first proxy to compare.</param>
+    /// <param name="y">The second proxy to compare.</param>
+    /// <returns>Less than zero if x is less than y; greater than zero if x is greater than y; otherwise zero.</returns>
     public int Compare(object? x, object? y)
     {
         ObjectPrx? proxy1 = x as ObjectPrx;
@@ -75,9 +77,11 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
         return HashCode.Combine(o.ice_getIdentity(), o.ice_getFacet());
     }
 
+    /// <summary>
     /// Compares two proxies for equality.
-    /// <param name="x">A proxy to compare.</param>
-    /// <param name="y">A proxy to compare.</param>
+    /// </summary>
+    /// <param name="x">The first proxy to compare.</param>
+    /// <param name="y">The second proxy to compare.</param>
     /// <returns>True if the passed proxies have the same object
     /// identity and facet; false, otherwise.</returns>
     public new bool Equals(object? x, object? y)
@@ -92,9 +96,11 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
         }
     }
 
+    /// <summary>
     /// Compares two proxies using the object identity and facet for comparison.
-    /// <param name="x">A proxy to compare.</param>
-    /// <param name="y">A proxy to compare.</param>
+    /// </summary>
+    /// <param name="x">The first proxy to compare.</param>
+    /// <param name="y">The second proxy to compare.</param>
     /// <returns>&lt; 0 if x is less than y; &gt; 0 if x is greater than y;
     /// 0, otherwise.</returns>
     public int Compare(object? x, object? y)

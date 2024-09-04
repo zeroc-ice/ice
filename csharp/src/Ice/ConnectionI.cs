@@ -1314,16 +1314,19 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
         return _desc; // No mutex lock, _desc is immutable.
     }
 
+    /// <inheritdoc/>
     public string type()
     {
         return _type; // No mutex lock, _type is immutable.
     }
 
+    /// <inheritdoc/>
     public ConnectionInfo getInfo()
     {
         lock (_mutex)
@@ -1336,6 +1339,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
+    /// <inheritdoc/>
     public void setBufferSize(int rcvSize, int sndSize)
     {
         lock (_mutex)

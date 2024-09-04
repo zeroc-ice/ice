@@ -10,7 +10,8 @@ namespace Ice;
 public class LoggerPlugin : Plugin
 {
     /// <summary>
-    /// Installs a custom logger for a communicator.
+    /// Initializes a new instance of the <see cref="LoggerPlugin" /> class. This constructor installs a custom
+    /// logger to the given communicator.
     /// </summary>
     /// <param name="communicator">The communicator using the custom logger.</param>
     /// <param name="logger">The custom logger for the communicator.</param>

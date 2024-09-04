@@ -274,13 +274,6 @@ compile(const vector<string>& argv)
                         status = EXIT_FAILURE;
                         break;
                     }
-                    catch (const Slice::CompilerException&)
-                    {
-                        FileTracker::instance()->cleanup();
-                        u->destroy();
-                        status = EXIT_FAILURE;
-                        break;
-                    }
                 }
 
                 u->destroy();

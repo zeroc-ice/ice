@@ -6,9 +6,9 @@ using System.Text.RegularExpressions;
 
 namespace Ice.Internal;
 
-public class ReferenceFactory
+internal class ReferenceFactory
 {
-    public Reference
+    internal Reference
     create(Ice.Identity ident, string facet, Reference tmpl, EndpointI[] endpoints)
     {
         if (ident.name.Length == 0 && ident.category.Length == 0)
@@ -28,7 +28,7 @@ public class ReferenceFactory
             null);
     }
 
-    public Reference
+    internal Reference
     create(Ice.Identity ident, string facet, Reference tmpl, string adapterId)
     {
         if (ident.name.Length == 0 && ident.category.Length == 0)
@@ -51,7 +51,7 @@ public class ReferenceFactory
             null);
     }
 
-    public Reference create(Ice.Identity ident, Ice.ConnectionI connection)
+    internal Reference create(Ice.Identity ident, Ice.ConnectionI connection)
     {
         if (ident.name.Length == 0 && ident.category.Length == 0)
         {
@@ -76,7 +76,7 @@ public class ReferenceFactory
             null);
     }
 
-    public Reference copy(Reference r)
+    internal Reference copy(Reference r)
     {
         Ice.Identity ident = r.getIdentity();
         if (ident.name.Length == 0 && ident.category.Length == 0)
@@ -86,7 +86,7 @@ public class ReferenceFactory
         return r.Clone();
     }
 
-    public Reference create(string s, string propertyPrefix)
+    internal Reference create(string s, string propertyPrefix)
     {
         if (s.Length == 0)
         {
@@ -512,7 +512,7 @@ public class ReferenceFactory
         throw new ParseException($"malformed proxy string '{s}'");
     }
 
-    public Reference create(Ice.Identity ident, Ice.InputStream s)
+    internal Reference create(Ice.Identity ident, Ice.InputStream s)
     {
         //
         // Don't read the identity here. Operations calling this
@@ -583,7 +583,7 @@ public class ReferenceFactory
         return create(ident, facet, (Reference.Mode)mode, secure, protocol, encoding, endpoints, adapterId, null);
     }
 
-    public ReferenceFactory setDefaultRouter(Ice.RouterPrx defaultRouter)
+    internal ReferenceFactory setDefaultRouter(Ice.RouterPrx defaultRouter)
     {
         if (_defaultRouter == null ? defaultRouter == null : _defaultRouter.Equals(defaultRouter))
         {
@@ -596,12 +596,12 @@ public class ReferenceFactory
         return factory;
     }
 
-    public Ice.RouterPrx getDefaultRouter()
+    internal Ice.RouterPrx getDefaultRouter()
     {
         return _defaultRouter;
     }
 
-    public ReferenceFactory setDefaultLocator(Ice.LocatorPrx defaultLocator)
+    internal ReferenceFactory setDefaultLocator(Ice.LocatorPrx defaultLocator)
     {
         if (_defaultLocator == null ? defaultLocator == null : _defaultLocator.Equals(defaultLocator))
         {
@@ -614,7 +614,7 @@ public class ReferenceFactory
         return factory;
     }
 
-    public Ice.LocatorPrx getDefaultLocator()
+    internal Ice.LocatorPrx getDefaultLocator()
     {
         return _defaultLocator;
     }

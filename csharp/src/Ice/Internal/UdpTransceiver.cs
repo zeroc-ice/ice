@@ -218,7 +218,7 @@ internal sealed class UdpTransceiver : Transceiver
 
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                 if (_state == StateConnected ||
-                   AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
+                   (AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                 {
                     ret = _fd.Receive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None);
                 }
@@ -306,7 +306,7 @@ internal sealed class UdpTransceiver : Transceiver
         {
             // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
             if (_state == StateConnected ||
-               AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
+               (AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
             {
                 _readCallback = callback;
                 _readEventArgs.UserToken = state;

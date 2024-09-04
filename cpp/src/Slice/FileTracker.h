@@ -3,6 +3,7 @@
 #ifndef FILE_TRACKER_H
 #define FILE_TRACKER_H
 
+#include "Ice/LocalException.h"
 #include "Parser.h"
 
 namespace Slice

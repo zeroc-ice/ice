@@ -15,7 +15,7 @@ namespace Ice;
 public sealed class OutputStream
 {
     /// <summary>
-    /// Constructs an empty output stream.
+    /// Initializes a new instance of the <see cref="OutputStream" /> class. The output stream is initially empty.
     /// </summary>
     /// <param name="encoding">The encoding version. null is equivalent to encoding 1.1.</param>
     /// <param name="format">The class format.</param>
@@ -27,8 +27,8 @@ public sealed class OutputStream
     }
 
     /// <summary>
-    /// Constructs an empty output stream that uses the communicator's default encoding version and default class
-    /// format.
+    /// Initializes a new instance of the <see cref="OutputStream" /> class. The output stream is initially empty,
+    /// and uses the communicator's default encoding version and default class format.
     /// </summary>
     /// <param name="communicator">The communicator that provides the encoding version and class format.</param>
     public OutputStream(Communicator communicator)
@@ -355,6 +355,7 @@ public sealed class OutputStream
     /// <summary>
     /// Returns the current position and allocates four bytes for a fixed-length (32-bit) size value.
     /// </summary>
+    /// <returns>The position at which to store the size value.</returns>
     public int startSize()
     {
         int pos = _buf.b.position();
@@ -408,6 +409,8 @@ public sealed class OutputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="format">The optional format of the value.</param>
+    /// <returns><c>true</c> if the encoding supports optional values and the header information was written to the stream;
+    /// <c>false</c> otherwise.</returns>
     public bool writeOptional(int tag, OptionalFormat format)
     {
         Debug.Assert(_encapsStack != null);

@@ -75,6 +75,9 @@ dotnet_diagnostic.CA1812.severity = none
 # CA1819: Properties should not return arrays
 dotnet_diagnostic.CA1819.severity = none
 
+# CA1822: Mark members as static
+dotnet_diagnostic.CA1822.severity = none
+
 # CA1847: Use char literal for a single character lookup
 dotnet_diagnostic.CA1847.severity = warning
 
@@ -86,6 +89,9 @@ dotnet_diagnostic.CA1851.severity = none
 
 # CA1852: Seal internal types
 dotnet_diagnostic.CA1852.severity = none
+
+# CA1859: use concrete types when possible for improved performance
+dotnet_diagnostic.CA1859.severity = none
 
 # CA2000: Dispose objects before losing scope
 dotnet_diagnostic.CA2000.severity = warning
@@ -187,6 +193,12 @@ dotnet_diagnostic.SA1013.severity = warning
 # SA1014: Opening generic brackets should not be preceded by a space
 dotnet_diagnostic.SA1014.severity = warning
 
+# CA1024: Use properties where appropriate. Fixing this would require changes to public APIs.
+dotnet_diagnostic.CA1024.severity = none
+
+# SA1025: Code should not contain multiple whitespace characters in a row
+dotnet_diagnostic.SA1025.severity = none
+
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = none
 
@@ -247,6 +259,9 @@ dotnet_diagnostic.SA1311.severity = none
 # SA1312: Variable should begin with lower-case letter
 dotnet_diagnostic.SA1312.severity = none
 
+# SA1314: Type parameter names should begin with T
+dotnet_diagnostic.SA1314.severity = none
+
 # SA1316: Tuple element names should use correct casing
 dotnet_diagnostic.SA1316.severity = none
 
@@ -280,73 +295,13 @@ dotnet_diagnostic.SA1649.severity = none
 # VSSpell001: VSSpell analyzer produces many false positives
 dotnet_diagnostic.VSSpell001.severity = none
 
-# Use primary constructor
-dotnet_diagnostic.IDE0290.severity = none
-
-# CA1859: use concrete types when possible for improved performance
-dotnet_diagnostic.CA1859.severity = none
-
-# CA1024: Use properties where appropriate. Fixing this would require changes to public APIs.
-dotnet_diagnostic.CA1024.severity = none
-
 # TODO review rules below
 
-# SA0001: XML comment analysis is disabled due to project configuration
-dotnet_diagnostic.SA0001.severity = none
-
-# SA1606: Element documentation should have summary text
-dotnet_diagnostic.SA1606.severity = none
-
-# SA1136: Enum values should be on separate lines
-dotnet_diagnostic.SA1136.severity = none
-
-# SA1514: Element documentation header should be preceded by blank line
-dotnet_diagnostic.SA1514.severity = none
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
 
 # SA1600: Elements should be documented
 dotnet_diagnostic.SA1600.severity = none
-
-# SA1602: Enumeration items should be documented
-dotnet_diagnostic.SA1602.severity = none
-
-# SA1604: Element documentation should have summary
-dotnet_diagnostic.SA1604.severity = none
-
-# SA1611 The documentation for parameter is missing
-dotnet_diagnostic.SA1611.severity = none
-
-# SA1612: The parameter does not exist
-dotnet_diagnostic.SA1612.severity = none
-
-# SA1615: Element return value should be documented
-dotnet_diagnostic.SA1615.severity = none
-
-# SA1618: The documentation for type parameter 'TKey' is missing
-dotnet_diagnostic.SA1618.severity = none
-
-# SA1623: The property's documentation summary text should begin with: 'Gets or sets'
-dotnet_diagnostic.SA1623.severity = none
-
-# SA1627: The documentation text within the 'exception' tag should not be empty
-dotnet_diagnostic.SA1627.severity = none
-
-# SA1629: Documentation text should end with a period
-dotnet_diagnostic.SA1629.severity = none
-
-# SA1636: The file header copyright text should match the copyright text from the settings.
-dotnet_diagnostic.SA1636.severity = none
-
-# SA1131: Constant values should appear on the right-hand side of comparisons
-dotnet_diagnostic.SA1131.severity = none
-
-# SA1314: Type parameter names should begin with T
-dotnet_diagnostic.SA1314.severity = none
-
-# SA1408: Conditional expressions should declare precedence
-dotnet_diagnostic.SA1408.severity = none
-
-# SA1025: Code should not contain multiple whitespace characters in a row
-dotnet_diagnostic.SA1025.severity = none
 
 # SA1202: 'public' members should come before 'private' members
 dotnet_diagnostic.SA1202.severity = none
@@ -366,9 +321,6 @@ dotnet_diagnostic.CA1066.severity = none
 # CA1810: Initialize reference type static fields inline
 dotnet_diagnostic.CA1810.severity = none
 
-# CA1822: Mark members as static
-dotnet_diagnostic.CA1822.severity = none
-
 # CA2008: Do not create tasks without passing a TaskScheduler
 dotnet_diagnostic.CA2008.severity = none
 
@@ -377,8 +329,3 @@ dotnet_diagnostic.CA5392.severity = none
 
 # CA5394: Do not use insecure randomness
 dotnet_diagnostic.CA5394.severity = none
-
-dotnet_diagnostic.SA1009.severity = none
-dotnet_diagnostic.SA1625.severity = none
-dotnet_diagnostic.SA1626.severity = none
-dotnet_diagnostic.SA1642.severity = none
