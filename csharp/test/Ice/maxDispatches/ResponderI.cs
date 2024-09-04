@@ -14,14 +14,14 @@ internal sealed class ResponderI : Test.ResponderDisp_
     {
         List<Action> responses;
 
-        lock(_mutex)
+        lock (_mutex)
         {
             _started = true;
             responses = new List<Action>(_responses);
             _responses.Clear();
         }
 
-        foreach(var response in responses)
+        foreach (var response in responses)
         {
             response();
         }
@@ -29,7 +29,7 @@ internal sealed class ResponderI : Test.ResponderDisp_
 
     public override void stop(Current current)
     {
-        lock(_mutex)
+        lock (_mutex)
         {
             _started = false;
         }
@@ -37,7 +37,7 @@ internal sealed class ResponderI : Test.ResponderDisp_
 
     public override int pendingResponseCount(Current current)
     {
-        lock(_mutex)
+        lock (_mutex)
         {
             return _responses.Count;
         }
@@ -47,7 +47,7 @@ internal sealed class ResponderI : Test.ResponderDisp_
     {
         bool queued = false;
 
-        lock(_mutex)
+        lock (_mutex)
         {
             if (!_started)
             {

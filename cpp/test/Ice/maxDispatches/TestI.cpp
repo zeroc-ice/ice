@@ -17,7 +17,7 @@ ResponderI::start(const Ice::Current&)
         responses.swap(_responses);
     }
 
-    for(auto& response : responses)
+    for (auto& response : responses)
     {
         response();
     }
@@ -67,11 +67,12 @@ TestIntfI::opAsync(function<void()> response, function<void(std::exception_ptr)>
         }
     }
 
-    _responder->queueResponse([this, response = std::move(response)]()
-    {
-        decDispatchCount();
-        response();
-    });
+    _responder->queueResponse(
+        [this, response = std::move(response)]()
+        {
+            decDispatchCount();
+            response();
+        });
 }
 
 int32_t
@@ -89,10 +90,7 @@ TestIntfI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-TestIntfI::TestIntfI(shared_ptr<ResponderI> responder) :
-    _responder(std::move(responder))
-{
-}
+TestIntfI::TestIntfI(shared_ptr<ResponderI> responder) : _responder(std::move(responder)) {}
 
 void
 TestIntfI::decDispatchCount()
