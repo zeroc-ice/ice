@@ -72,13 +72,17 @@ internal sealed class LoggerMiddleware : Object
     private void warning(string? exceptionDetails, Current current)
     {
         var sb = new System.Text.StringBuilder();
-        sb.Append("dispatch exception:");
-        sb.AppendLine("identity: ");
-        sb.Append(Ice.Util.identityToString(current.id, _toStringMode));
-        sb.AppendLine("facet: ");
-        sb.Append(Ice.UtilInternal.StringUtil.escapeString(current.facet, "", _toStringMode));
-        sb.AppendLine("operation: ");
-        sb.Append(current.operation);
+        sb.AppendLine("dispatch exception:");
+
+        sb.Append("identity: ");
+        sb.AppendLine(Ice.Util.identityToString(current.id, _toStringMode));
+
+        sb.Append("facet: ");
+        sb.AppendLine(Ice.UtilInternal.StringUtil.escapeString(current.facet, "", _toStringMode));
+
+        sb.Append("operation: ");
+        sb.AppendLine(current.operation);
+
         if (current.con is not null)
         {
             try
@@ -87,10 +91,10 @@ internal sealed class LoggerMiddleware : Object
                 {
                     if (p is IPConnectionInfo ipInfo)
                     {
-                        sb.AppendLine("remote host: ");
+                        sb.Append("remote host: ");
                         sb.Append(ipInfo.remoteAddress);
                         sb.Append(" remote port: ");
-                        sb.Append(ipInfo.remotePort);
+                        sb.AppendLine(ipInfo.remotePort.ToString(CultureInfo.InvariantCulture));
                         break;
                     }
                 }
@@ -101,7 +105,8 @@ internal sealed class LoggerMiddleware : Object
 
             if (exceptionDetails is not null)
             {
-                sb.AppendLine(exceptionDetails);
+                sb.AppendLine();
+                sb.Append(exceptionDetails);
             }
             _logger.warning(sb.ToString());
         }
