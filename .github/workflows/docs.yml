@@ -31,6 +31,9 @@ jobs:
       - name: Install virtualenv for Python docs
         run: pipx install virtualenv
 
+      - name: Install docfx for C# docs
+        run: brew install docfx
+
       - name: Build C++
         working-directory: ./cpp
         run: make V=1 srcs
@@ -50,6 +53,14 @@ jobs:
         working-directory: ./js
         run: |
           make doc
+
+      - name: Generate docfx Documentation for C#
+        working-directory: ./csharp/docfx
+        run: |
+          make -C ../../cpp slice2cs
+          make -C ../
+          docfx metadata --property Configuration=Release
+          docfx build
 
       - name: Generate Python Documentation
         working-directory: ./python/docs
@@ -83,6 +94,8 @@ jobs:
 
           aws s3 sync ./cpp/doxygen/cpp s3://${AWS_S3_DOC_BUCKET}/api/ice/main/cpp --delete
           aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_DOC_BUCKET}/api/ice/main/icecpp.tag
+
+          aws s3 sync ./csharp/docfx/_site s3://${AWS_S3_DOC_BUCKET}/api/ice/main/csharp --delete
 
           aws s3 sync ./js/docs s3://${AWS_S3_DOC_BUCKET}/api/ice/main/js --delete
 

@@ -1,0 +1,43 @@
+/* Copyright (c) Microsoft Corporation. All Rights Reserved. Licensed under the MIT License. See License.txt in the project root for license information. */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+/* Checkout https://getbootstrap.com/docs/5.3/customize/color/ for more customization options */
+body {
+  --bs-link-color-rgb: 69, 161, 247 !important;
+  --bs-link-hover-color-rgb: 63, 151, 234 !important;
+  max-width: 1600px;
+  margin: 0 auto;
+  font-family: "Inter", sans-serif;
+}
+
+nav {
+  --bs-navbar-nav-link-padding-x: 1rem !important;
+  --bs-navbar-toggler-padding-x: 1rem !important;
+  --bs-nav-link-font-size: 14px !important;
+}
+
+/* Logo styling */
+nav img {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  margin-left: 5px;
+}
+
+.navbar .navbar-brand {
+  font-weight: bold;
+  margin: 0 25px;
+}
+
+.navbar #navbar form.icons {
+  margin-left: 10px;
+}
+
+/* Change the dark mode background color of the body and navbar to match our documentation. */
+[data-bs-theme="dark"] {
+  --bs-body-bg: #1a1c21;
+  .navbar {
+    background-color: #1a1c21;
+  }
+}
