@@ -137,11 +137,11 @@ class TestI: TestIntf {
     }
 
     func close(current: Current) async throws {
-        async let _ = current!.con.close()
+        async let _ = current.con!.close()
     }
 
     func abort(current: Current) async throws {
-        current!.con.abort()
+        current.con!.abort()
     }
 
     func sleep(ms: Int32, current _: Current) async throws {
