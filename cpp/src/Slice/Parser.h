@@ -403,7 +403,11 @@ namespace Slice
         InterfaceDeclPtr createInterfaceDecl(const std::string& name);
         ExceptionPtr createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
         StructPtr createStruct(const std::string& name, NodeType nodeType = Real);
-        SequencePtr createSequence(const std::string& name, const TypePtr& type, const StringList& metadata, NodeType nodeType = Real);
+        SequencePtr createSequence(
+            const std::string& name,
+            const TypePtr& type,
+            const StringList& metadata,
+            NodeType nodeType = Real);
         DictionaryPtr createDictionary(
             const std::string& name,
             const TypePtr& keyType,
@@ -419,10 +423,10 @@ namespace Slice
             const SyntaxTreeBasePtr& valueType,
             const std::string& value,
             NodeType nodeType = Real);
-        TypeList lookupType(const std::string& identifier, bool emitErrors = true);
-        TypeList lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors = true, bool ignoreUndefined = false);
-        ContainedList lookupContained(const std::string& identifier, bool emitErrors = true);
-        ExceptionPtr lookupException(const std::string& identifier, bool emitErrors = true);
+        TypeList lookupType(const std::string& identifier);
+        TypeList lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
+        ContainedList lookupContained(const std::string& identifier, bool emitErrors);
+        ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
         UnitPtr unit() const;
         ModuleList modules() const;
         ClassList classes() const;
@@ -462,7 +466,12 @@ namespace Slice
         }
 
     protected:
-        bool validateConstant(const std::string& name, const TypePtr& type, SyntaxTreeBasePtr& valueType, const std::string& valueString, bool isConstant);
+        bool validateConstant(
+            const std::string& name,
+            const TypePtr& type,
+            SyntaxTreeBasePtr& valueType,
+            const std::string& valueString,
+            bool isConstant);
 
         ContainedList _contents;
         std::map<std::string, ContainedPtr, CICompare> _introducedMap;
@@ -592,9 +601,16 @@ namespace Slice
         typedef std::list<StringList> StringPartitionList;
 
         static bool isInList(const GraphPartitionList& gpl, const InterfaceDefPtr& interfaceDef);
-        static void addPartition(GraphPartitionList& gpl, GraphPartitionList::reverse_iterator tail, const InterfaceDefPtr& base);
-        static StringPartitionList toStringPartitionList(const GraphPartitionList& gpl);
-        static void checkPairIntersections(const StringPartitionList& list, const std::string& name, const UnitPtr& unit);
+
+        static void addPartition(
+            GraphPartitionList& partitions,
+            GraphPartitionList::reverse_iterator tail,
+            const InterfaceDefPtr& base);
+        static StringPartitionList toStringPartitionList(const GraphPartitionList& partitions);
+        static void checkPairIntersections(
+            const StringPartitionList& stringPartitions,
+            const std::string& name,
+            const UnitPtr& unit);
     };
 
     // ----------------------------------------------------------------------
@@ -621,7 +637,10 @@ namespace Slice
         int returnTag() const;
         Mode mode() const;
         bool hasMarshaledResult() const;
-        ParamDeclPtr createParamDecl(const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
+
+        ParamDeclPtr
+        createParamDecl(const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
+
         ParamDeclList parameters() const;
         ParamDeclList inParameters() const;
         void inParameters(ParamDeclList& required, ParamDeclList& optional) const;
@@ -664,7 +683,12 @@ namespace Slice
     public:
         InterfaceDef(const ContainerPtr& container, const std::string& name, const InterfaceList& bases);
         void destroy() final;
-        OperationPtr createOperation(const std::string& name, const TypePtr& returnType, bool isOptional, int tag, Operation::Mode mode = Operation::Normal);
+        OperationPtr createOperation(
+            const std::string& name,
+            const TypePtr& returnType,
+            bool isOptional,
+            int tag,
+            Operation::Mode mode = Operation::Normal);
 
         InterfaceDeclPtr declaration() const;
         InterfaceList bases() const;
@@ -758,7 +782,11 @@ namespace Slice
     class Sequence final : public virtual Constructed
     {
     public:
-        Sequence(const ContainerPtr& container, const std::string& name, const TypePtr& type, const StringList& typeMetadata);
+        Sequence(
+            const ContainerPtr& container,
+            const std::string& name,
+            const TypePtr& type,
+            const StringList& typeMetadata);
         TypePtr type() const;
         StringList typeMetadata() const;
         bool usesClasses() const final;
@@ -898,7 +926,13 @@ namespace Slice
     class ParamDecl final : public virtual Contained
     {
     public:
-        ParamDecl(const ContainerPtr& container, const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
+        ParamDecl(
+            const ContainerPtr& container,
+            const std::string& name,
+            const TypePtr& type,
+            bool isOutParam,
+            bool isOptional,
+            int tag);
         TypePtr type() const;
         bool isOutParam() const;
         bool optional() const;

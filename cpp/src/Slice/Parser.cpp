@@ -1629,7 +1629,7 @@ Slice::Container::createConst(
 }
 
 TypeList
-Slice::Container::lookupType(const string& identifier, bool emitErrors)
+Slice::Container::lookupType(const string& identifier)
 {
     // Remove whitespace.
     string sc = identifier;
@@ -1647,7 +1647,7 @@ Slice::Container::lookupType(const string& identifier, bool emitErrors)
     }
 
     // Not a builtin type, try to look up a constructed type.
-    return lookupTypeNoBuiltin(identifier, emitErrors);
+    return lookupTypeNoBuiltin(identifier, true);
 }
 
 TypeList
@@ -2321,7 +2321,8 @@ Slice::Container::validateConstant(
                 if (l < numeric_limits<int32_t>::min() || l > numeric_limits<int32_t>::max())
                 {
                     ostringstream os;
-                    os << "initializer `" << valueString << "' for " + desc << " `" << name << "' out of range for type int";
+                    os << "initializer `" << valueString << "' for " + desc << " `" << name
+                       << "' out of range for type int";
                     _unit->error(os.str());
                     return false;
                 }
@@ -2377,7 +2378,8 @@ Slice::Container::validateConstant(
                 string::size_type lastColon = valueString.rfind(':');
                 if (lastColon != string::npos && lastColon + 1 < valueString.length())
                 {
-                    newVal = valueString.substr(0, lastColon + 1) + e->name() + "::" + valueString.substr(lastColon + 1);
+                    newVal =
+                        valueString.substr(0, lastColon + 1) + e->name() + "::" + valueString.substr(lastColon + 1);
                 }
 
                 ContainedList clist = e->lookupContained(newVal, false);
@@ -2900,12 +2902,12 @@ Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDef
 
 void
 Slice::InterfaceDecl::addPartition(
-    GraphPartitionList& gpl,
+    GraphPartitionList& partitions,
     GraphPartitionList::reverse_iterator tail,
     const InterfaceDefPtr& base)
 {
     // If this base is on one of the partition lists already, do nothing.
-    if (isInList(gpl, base))
+    if (isInList(partitions, base))
     {
         return;
     }
@@ -2917,7 +2919,7 @@ Slice::InterfaceDecl::addPartition(
     // partition.
     if (base->bases().size())
     {
-        addPartition(gpl, tail, *(base->bases().begin()));
+        addPartition(partitions, tail, *(base->bases().begin()));
     }
 
     // If the base has multiple bases, each of the "grandbases" except for the left-most (which we just dealt with)
@@ -2929,8 +2931,8 @@ Slice::InterfaceDecl::addPartition(
         while (++i != grandBases.end())
         {
             InterfaceList cl;
-            gpl.push_back(cl);
-            addPartition(gpl, gpl.rbegin(), *i);
+            partitions.push_back(cl);
+            addPartition(partitions, partitions.rbegin(), *i);
         }
     }
 }
@@ -2941,10 +2943,10 @@ Slice::InterfaceDecl::addPartition(
 // names defined by the interfaces in each partition.
 //
 Slice::InterfaceDecl::StringPartitionList
-Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& gpl)
+Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& partitions)
 {
     StringPartitionList spl;
-    for (const auto& interfaces : gpl)
+    for (const auto& interfaces : partitions)
     {
         StringList sl;
         for (const auto& interfaceDefinition : interfaces)
@@ -2964,14 +2966,17 @@ Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& gpl)
 // in the other and, if so, complain.
 //
 void
-Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& list, const string& name, const UnitPtr& unit)
+Slice::InterfaceDecl::checkPairIntersections(
+    const StringPartitionList& stringPartitions,
+    const string& name,
+    const UnitPtr& unit)
 {
     set<string> reported;
-    for (StringPartitionList::const_iterator i = list.begin(); i != list.end(); ++i)
+    for (StringPartitionList::const_iterator i = stringPartitions.begin(); i != stringPartitions.end(); ++i)
     {
         StringPartitionList::const_iterator cursor = i;
         ++cursor;
-        for (StringPartitionList::const_iterator j = cursor; j != list.end(); ++j)
+        for (StringPartitionList::const_iterator j = cursor; j != stringPartitions.end(); ++j)
         {
             for (StringList::const_iterator s1 = i->begin(); s1 != i->end(); ++s1)
             {

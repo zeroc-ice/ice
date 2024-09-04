@@ -516,7 +516,7 @@ exception_extends
 {
     auto scoped = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    ContainedPtr contained = cont->lookupException(scoped->v);
+    ContainedPtr contained = cont->lookupException(scoped->v, true);
     cont->checkIntroduced(scoped->v);
     $$ = contained;
 }
@@ -1515,7 +1515,7 @@ exception
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
     ContainerPtr cont = currentUnit->currentContainer();
-    ExceptionPtr exception = cont->lookupException(scoped->v);
+    ExceptionPtr exception = cont->lookupException(scoped->v, true);
     if (!exception)
     {
         exception = cont->createException(Ice::generateUUID(), 0, Dummy); // Dummy
@@ -1722,7 +1722,7 @@ enumerator_initializer
 | scoped_name
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v);
+    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v, true);
     IntegerTokPtr tok;
     if (!cl.empty())
     {

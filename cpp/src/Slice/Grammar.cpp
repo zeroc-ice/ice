@@ -2158,7 +2158,7 @@ yyreduce:
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
-    ContainedPtr contained = cont->lookupException(scoped->v);
+    ContainedPtr contained = cont->lookupException(scoped->v, true);
     cont->checkIntroduced(scoped->v);
     yyval = contained;
 }
@@ -3280,7 +3280,7 @@ yyreduce:
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
-    ExceptionPtr exception = cont->lookupException(scoped->v);
+    ExceptionPtr exception = cont->lookupException(scoped->v, true);
     if (!exception)
     {
         exception = cont->createException(Ice::generateUUID(), 0, Dummy); // Dummy
@@ -3527,7 +3527,7 @@ yyreduce:
 #line 1723 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v);
+    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v, true);
     IntegerTokPtr tok;
     if (!cl.empty())
     {
