@@ -255,7 +255,7 @@ public sealed class Communicator : IDisposable
     /// Sets a default Ice locator for this communicator.
     /// All newly created proxy and object adapters will use this default locator. To disable the default locator, null
     /// can be used. Note that this method has no effect on existing proxies or object adapters.
-    /// You can also set a locator for an individual proxy by calling <see cref="ObjectPrx.ice_locator(LocatorPrx?) "/>
+    /// You can also set a locator for an individual proxy by calling <see cref="ObjectPrx.ice_locator(LocatorPrx?)" />
     /// on the proxy, or for an object adapter by calling <see cref="ObjectAdapter.setLocator(LocatorPrx)" /> on the
     /// object adapter.
     /// </summary>
@@ -342,7 +342,7 @@ public sealed class Communicator : IDisposable
 
     /// <summary>
     /// Removes the following facet to the Admin object.
-    /// Removing a facet that was not previously registered throws <see cref="NotRegisteredException" />
+    /// Removing a facet that was not previously registered throws <see cref="NotRegisteredException" />.
     /// </summary>
     /// <param name="facet">The name of the Admin facet.</param>
     /// <returns>The servant associated with this Admin facet.</returns>
@@ -351,7 +351,7 @@ public sealed class Communicator : IDisposable
     /// <summary>
     /// Returns a facet of the Admin object.
     /// </summary>
-    /// <param name="facet">The name of the Admin facet./param>
+    /// <param name="facet">The name of the Admin facet.</param>
     /// <returns>The servant associated with this Admin facet, or null if no facet is registered with the given name.
     /// </returns>
     public Object? findAdminFacet(string facet) => instance.findAdminFacet(facet);

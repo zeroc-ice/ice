@@ -15,7 +15,7 @@ namespace Glacier2;
 public class SessionFactoryHelper
 {
     /// <summary>
-    /// Creates a SessionFactory object.
+    /// Initializes a new instance of the <see cref="SessionFactoryHelper" /> class.
     /// </summary>
     /// <param name="callback">The callback object for notifications.</param>
     public
@@ -28,7 +28,7 @@ public class SessionFactoryHelper
     }
 
     /// <summary>
-    /// Creates a SessionFactory object.
+    /// Initializes a new instance of the <see cref="SessionFactoryHelper" /> class.
     /// </summary>
     /// <param name="initData">The initialization data to use when creating the communicator.</param>
     /// <param name="callback">The callback object for notifications.</param>
@@ -45,7 +45,7 @@ public class SessionFactoryHelper
     }
 
     /// <summary>
-    /// Creates a SessionFactory object.
+    /// Initializes a new instance of the <see cref="SessionFactoryHelper" /> class.
     /// </summary>
     /// <param name="properties">The properties to use when creating the communicator.</param>
     /// <param name="callback">The callback object for notifications.</param>
@@ -210,11 +210,10 @@ public class SessionFactoryHelper
                               _protocol == "wss") ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
     }
 
-    /**
-     * Returns the initialization data used to initialize the communicator.
-     *
-     * @return The initialization data.
-     */
+    /// <summary>
+    /// Returns the initialization data used to initialize the communicator.
+    /// </summary>
+    /// <returns>The initialization data.</returns>
     public Ice.InitializationData
     getInitializationData()
     {

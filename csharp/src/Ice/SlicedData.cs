@@ -26,7 +26,7 @@ public sealed record class SliceInfo(
     bool isLastSlice)
 {
     /// <summary>
-    /// The class instances referenced by this slice.
+    /// Gets or sets the class instances referenced by this slice.
     /// </summary>
     public Value[] instances { get; set; } = [];
 }

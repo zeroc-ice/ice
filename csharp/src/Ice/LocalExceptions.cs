@@ -16,12 +16,28 @@ namespace Ice;
 /// </summary>
 public class RequestFailedException : LocalException
 {
+    /// <summary>
+    /// Gets the identity of the Ice Object to which the request was sent.
+    /// </summary>
     public Identity id { get; }
 
+    /// <summary>
+    /// Gets the facet to which the request was sent.
+    /// </summary>
     public string facet { get; }
 
+    /// <summary>
+    /// Gets the operation name of the request.
+    /// </summary>
     public string operation { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RequestFailedException" /> class.
+    /// </summary>
+    /// <param name="typeName">The type name of the exception used to construct the exception message.</param>
+    /// <param name="id">The identity of the Ice Object to which the request was sent.</param>
+    /// <param name="facet">The facet to which the request was sent.</param>
+    /// <param name="operation">The operation name of the request.</param>
     protected RequestFailedException(string typeName, Identity id, string facet, string operation)
         : base(createMessage(typeName, id, facet, operation))
     {
@@ -30,6 +46,10 @@ public class RequestFailedException : LocalException
         this.operation = operation;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RequestFailedException" /> class.
+    /// </summary>
+    /// <param name="typeName">The type name of the exception used to construct the exception message.</param>
     protected RequestFailedException(string typeName)
         : base($"Dispatch failed with {typeName}.")
     {
@@ -47,16 +67,26 @@ public class RequestFailedException : LocalException
 /// </summary>
 public sealed class ObjectNotExistException : RequestFailedException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectNotExistException" /> class.
+    /// </summary>
     public ObjectNotExistException()
         : base(nameof(ObjectNotExistException))
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectNotExistException" /> class.
+    /// </summary>
+    /// <param name="id">The identity of the Ice Object to which the request was sent.</param>
+    /// <param name="facet">The facet to which the request was sent.</param>
+    /// <param name="operation">The operation name of the request.</param>
     public ObjectNotExistException(Identity id, string facet, string operation)
         : base(nameof(ObjectNotExistException), id, facet, operation)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ObjectNotExistException";
 }
 
@@ -65,16 +95,26 @@ public sealed class ObjectNotExistException : RequestFailedException
 /// </summary>
 public sealed class FacetNotExistException : RequestFailedException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FacetNotExistException" /> class.
+    /// </summary>
     public FacetNotExistException()
         : base(nameof(FacetNotExistException))
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FacetNotExistException" /> class.
+    /// </summary>
+    /// <param name="id">The identity of the Ice Object to which the request was sent.</param>
+    /// <param name="facet">The facet to which the request was sent.</param>
+    /// <param name="operation">The operation name of the request.</param>
     public FacetNotExistException(Identity id, string facet, string operation)
         : base(nameof(FacetNotExistException), id, facet, operation)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::FacetNotExistException";
 }
 
@@ -84,16 +124,26 @@ public sealed class FacetNotExistException : RequestFailedException
 /// </summary>
 public sealed class OperationNotExistException : RequestFailedException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OperationNotExistException" /> class.
+    /// </summary>
     public OperationNotExistException()
         : base(nameof(OperationNotExistException))
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OperationNotExistException" /> class.
+    /// </summary>
+    /// <param name="id">The identity of the Ice Object to which the request was sent.</param>
+    /// <param name="facet">The facet to which the request was sent.</param>
+    /// <param name="operation">The operation name of the request.</param>
     public OperationNotExistException(Identity id, string facet, string operation)
         : base(nameof(OperationNotExistException), id, facet, operation)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::OperationNotExistException";
 }
 
@@ -102,11 +152,16 @@ public sealed class OperationNotExistException : RequestFailedException
 /// </summary>
 public class UnknownException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UnknownException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
     public UnknownException(string message)
         : base(message)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::UnknownException";
 }
 
@@ -116,11 +171,16 @@ public class UnknownException : LocalException
 /// </summary>
 public sealed class UnknownLocalException : UnknownException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UnknownLocalException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
     public UnknownLocalException(string message)
         : base(message)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::UnknownLocalException";
 }
 
@@ -130,14 +190,24 @@ public sealed class UnknownLocalException : UnknownException
 /// </summary>
 public sealed class UnknownUserException : UnknownException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UnknownUserException" /> class from a user exception type ID.
+    /// </summary>
+    /// <param name="typeId">The type ID of the user exception.</param>
+    /// <returns>The new instance of the <see cref="UnknownUserException" /> class.</returns>
     public static UnknownUserException fromTypeId(string typeId) =>
         new($"The reply carries a user exception that does not conform to the operation's exception specification: {typeId}");
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UnknownUserException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
     public UnknownUserException(string message)
         : base(message)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::UnknownUserException";
 }
 
@@ -150,11 +220,17 @@ public sealed class UnknownUserException : UnknownException
 /// </summary>
 public class ProtocolException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProtocolException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
     public ProtocolException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ProtocolException";
 }
 
@@ -167,11 +243,15 @@ public class ProtocolException : LocalException
 /// </summary>
 public sealed class CloseConnectionException : ProtocolException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CloseConnectionException" /> class.
+    /// </summary>
     public CloseConnectionException()
         : base("Connection closed by the peer.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::CloseConnectionException";
 }
 
@@ -182,11 +262,15 @@ public sealed class CloseConnectionException : ProtocolException
 /// </summary>
 public sealed class DatagramLimitException : ProtocolException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DatagramLimitException" /> class.
+    /// </summary>
     public DatagramLimitException()
         : base("Datagram limit exceeded.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::DatagramLimitException";
 }
 
@@ -195,11 +279,17 @@ public sealed class DatagramLimitException : ProtocolException
 /// </summary>
 public sealed class MarshalException : ProtocolException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MarshalException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
     public MarshalException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::MarshalException";
 }
 
@@ -210,22 +300,31 @@ public sealed class MarshalException : ProtocolException
 /// <summary>This exception indicates a timeout condition.</summary>
 public class TimeoutException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TimeoutException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message or null to use the default message.</param>
     public TimeoutException(string? message = null)
         : base(message ?? "Operation timed out.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::TimeoutException";
 }
 
 /// <summary>This exception indicates a connection closure timeout condition.</summary>
 public sealed class CloseTimeoutException : TimeoutException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CloseTimeoutException" /> class.
+    /// </summary>
     public CloseTimeoutException()
         : base("Close timed out.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::CloseTimeoutException";
 }
 
@@ -234,11 +333,15 @@ public sealed class CloseTimeoutException : TimeoutException
 /// </summary>
 public sealed class ConnectTimeoutException : TimeoutException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConnectTimeoutException" /> class.
+    /// </summary>
     public ConnectTimeoutException()
         : base("Connect timed out.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ConnectTimeoutException";
 }
 
@@ -247,11 +350,15 @@ public sealed class ConnectTimeoutException : TimeoutException
 /// </summary>
 public sealed class InvocationTimeoutException : TimeoutException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InvocationTimeoutException" /> class.
+    /// </summary>
     public InvocationTimeoutException()
         : base("Invocation timed out.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::InvocationTimeoutException";
 }
 
@@ -264,16 +371,26 @@ public sealed class InvocationTimeoutException : TimeoutException
 /// </summary>
 public class SyscallException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SyscallException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
     public SyscallException(string? message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SyscallException" /> class.
+    /// </summary>
+    /// <param name="innerException">The inner exception.</param>
     public SyscallException(System.Exception innerException)
         : this(message: null, innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::SyscallException";
 }
 
@@ -282,22 +399,34 @@ public class SyscallException : LocalException
 /// </summary>
 public sealed class DNSException : SyscallException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DNSException" /> class.
+    /// </summary>
+    /// <param name="host">The host name that could not be resolved.</param>
+    /// <param name="innerException">The inner exception.</param>
     public DNSException(string host, System.Exception? innerException = null)
         : base($"Cannot resolve host '{host}'", innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::DNSException";
 }
 
 /// <summary>This exception indicates a file error occurred.</summary>
 public sealed class FileException : SyscallException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
     public FileException(string message, System.Exception innerException)
         : base(message, innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::FileException";
 }
 
@@ -310,11 +439,16 @@ public sealed class FileException : SyscallException
 /// </summary>
 public class SocketException : SyscallException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SocketException" /> class.
+    /// </summary>
+    /// <param name="innerException">The inner exception.</param>
     public SocketException(System.Exception? innerException = null)
         : base(message: null, innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::SocketException";
 }
 
@@ -323,11 +457,16 @@ public class SocketException : SyscallException
 /// </summary>
 public class ConnectFailedException : SocketException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConnectFailedException" /> class.
+    /// </summary>
+    /// <param name="innerException">The inner exception.</param>
     public ConnectFailedException(System.Exception? innerException = null)
         : base(innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ConnectFailedException";
 }
 
@@ -336,11 +475,16 @@ public class ConnectFailedException : SocketException
 /// </summary>
 public sealed class ConnectionLostException : SocketException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConnectionLostException" /> class.
+    /// </summary>
+    /// <param name="innerException">The inner exception.</param>
     public ConnectionLostException(System.Exception? innerException = null)
         : base(innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ConnectionLostException";
 }
 
@@ -349,11 +493,16 @@ public sealed class ConnectionLostException : SocketException
 /// </summary>
 public sealed class ConnectionRefusedException : ConnectFailedException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConnectionRefusedException" /> class.
+    /// </summary>
+    /// <param name="innerException">The inner exception.</param>
     public ConnectionRefusedException(System.Exception? innerException = null)
         : base(innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ConnectionRefusedException";
 }
 
@@ -368,10 +517,21 @@ public sealed class ConnectionRefusedException : ConnectFailedException
 /// </summary>
 public sealed class AlreadyRegisteredException : LocalException
 {
+    /// <summary>
+    /// Gets the kind of object that was already registered.
+    /// </summary>
     public string kindOfObject { get; }
 
+    /// <summary>
+    /// Gets the ID or name of the object that was already registered.
+    /// </summary>
     public string id { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AlreadyRegisteredException" /> class.
+    /// </summary>
+    /// <param name="kindOfObject">The kind of object that was already registered.</param>
+    /// <param name="id">The ID or name of the object that was already registered.</param>
     public AlreadyRegisteredException(string kindOfObject, string id)
         : base($"Another {kindOfObject} is already registered with ID '{id}'.")
     {
@@ -379,6 +539,7 @@ public sealed class AlreadyRegisteredException : LocalException
         this.id = id;
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::AlreadyRegisteredException";
 }
 
@@ -387,11 +548,15 @@ public sealed class AlreadyRegisteredException : LocalException
 /// </summary>
 public sealed class CommunicatorDestroyedException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CommunicatorDestroyedException" /> class.
+    /// </summary>
     public CommunicatorDestroyedException()
         : base("Communicator destroyed.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::CommunicatorDestroyedException";
 }
 
@@ -400,12 +565,23 @@ public sealed class CommunicatorDestroyedException : LocalException
 /// </summary>
 public sealed class ConnectionAbortedException : LocalException
 {
+    /// <summary>
+    /// Gets a value indicating whether the connection was aborted by the application.
+    /// </summary>
+    /// <value><c>true</c> if the connection was aborted by the application; otherwise, <c>false</c>.</value>
     public bool closedByApplication { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConnectionAbortedException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="closedByApplication">A value indicating whether the connection was aborted by the application.
+    /// </param>
     public ConnectionAbortedException(string message, bool closedByApplication)
         : base(message) =>
         this.closedByApplication = closedByApplication;
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ConnectionAbortedException";
 }
 
@@ -414,12 +590,23 @@ public sealed class ConnectionAbortedException : LocalException
 /// </summary>
 public sealed class ConnectionClosedException : LocalException
 {
+    /// <summary>
+    /// Gets a value indicating whether the connection was closed by the application.
+    /// </summary>
+    /// <value><c>true</c> if the connection was closed by the application; otherwise, <c>false</c>.</value>
     public bool closedByApplication { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConnectionClosedException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="closedByApplication">A value indicating whether the connection was closed by the application.
+    /// </param>
     public ConnectionClosedException(string message, bool closedByApplication)
         : base(message) =>
         this.closedByApplication = closedByApplication;
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ConnectionClosedException";
 }
 
@@ -428,11 +615,16 @@ public sealed class ConnectionClosedException : LocalException
 /// </summary>
 public sealed class FeatureNotSupportedException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FeatureNotSupportedException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
     public FeatureNotSupportedException(string message)
         : base(message)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::FeatureNotSupportedException";
 }
 
@@ -441,11 +633,15 @@ public sealed class FeatureNotSupportedException : LocalException
 /// </summary>
 public sealed class FixedProxyException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FixedProxyException" /> class.
+    /// </summary>
     public FixedProxyException()
         : base("Cannot change the connection properties of a fixed proxy.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::FixedProxyException";
 }
 
@@ -454,11 +650,17 @@ public sealed class FixedProxyException : LocalException
 /// </summary>
 public sealed class InitializationException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InitializationException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
     public InitializationException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::InitializationException";
 }
 
@@ -467,11 +669,15 @@ public sealed class InitializationException : LocalException
 /// </summary>
 public sealed class InvocationCanceledException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InvocationCanceledException" /> class.
+    /// </summary>
     public InvocationCanceledException()
         : base("Invocation canceled.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::InvocationCanceledException";
 }
 
@@ -480,16 +686,25 @@ public sealed class InvocationCanceledException : LocalException
 /// </summary>
 public sealed class NoEndpointException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NoEndpointException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
     public NoEndpointException(string message)
         : base(message)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NoEndpointException" /> class.
+    /// </summary>
+    /// <param name="proxy">The proxy for which no suitable endpoint is available.</param>
     public NoEndpointException(ObjectPrx proxy)
         : base($"No suitable endpoint available for proxy '{proxy}'.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::NoEndpointException";
 }
 
@@ -501,10 +716,21 @@ public sealed class NoEndpointException : LocalException
 /// </summary>
 public sealed class NotRegisteredException : LocalException
 {
+    /// <summary>
+    /// Gets the kind of object that was not registered.
+    /// </summary>
     public string kindOfObject { get; }
 
+    /// <summary>
+    /// Gets the ID or name of the object that was not registered.
+    /// </summary>
     public string id { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NotRegisteredException" /> class.
+    /// </summary>
+    /// <param name="kindOfObject">The kind of object that was not registered.</param>
+    /// <param name="id">The ID or name of the object that was not registered.</param>
     public NotRegisteredException(string kindOfObject, string id)
        : base($"No {kindOfObject} is registered with ID '{id}'.")
     {
@@ -512,6 +738,7 @@ public sealed class NotRegisteredException : LocalException
         this.id = id;
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::NotRegisteredException";
 }
 
@@ -520,11 +747,16 @@ public sealed class NotRegisteredException : LocalException
 /// </summary>
 public sealed class ObjectAdapterDeactivatedException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectAdapterDeactivatedException" /> class.
+    /// </summary>
+    /// <param name="name">The name of the object adapter that is deactivated.</param>
     public ObjectAdapterDeactivatedException(string name)
         : base($"Object adapter '{name}' is deactivated.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ObjectAdapterDeactivatedException";
 }
 
@@ -534,11 +766,16 @@ public sealed class ObjectAdapterDeactivatedException : LocalException
 /// </summary>
 public sealed class ObjectAdapterIdInUseException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectAdapterIdInUseException" /> class.
+    /// </summary>
+    /// <param name="adapterId">The adapter ID that is already in use.</param>
     public ObjectAdapterIdInUseException(string adapterId)
         : base($"An object adapter with adapter ID '{adapterId}' is already active.")
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ObjectAdapterIdInUseException";
 }
 
@@ -547,11 +784,17 @@ public sealed class ObjectAdapterIdInUseException : LocalException
 /// </summary>
 public sealed class ParseException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ParseException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
     public ParseException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::ParseException";
 }
 
@@ -560,11 +803,17 @@ public sealed class ParseException : LocalException
 /// </summary>
 public sealed class PluginInitializationException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PluginInitializationException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
     public PluginInitializationException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::PluginInitializationException";
 }
 
@@ -573,11 +822,17 @@ public sealed class PluginInitializationException : LocalException
 /// </summary>
 public sealed class SecurityException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SecurityException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
     public SecurityException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
+    /// <inheritdoc/>
     public override string ice_id() => "::Ice::SecurityException";
 }
 
@@ -589,6 +844,10 @@ public sealed class SecurityException : LocalException
 /// </summary>
 public sealed class TwowayOnlyException : LocalException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TwowayOnlyException" /> class.
+    /// </summary>
+    /// <param name="operation">The operation name.</param>
     public TwowayOnlyException(string operation)
         : base($"Cannot invoke operation '{operation}' with a oneway, batchOneway, datagram, or batchDatagram proxy.")
     {

@@ -10,7 +10,7 @@ namespace Ice;
 public sealed class UnknownSlicedValue : Value
 {
     /// <summary>
-    /// Represents an instance of a Slice class type having the given Slice type.
+    /// Initializes a new instance of the <see cref="UnknownSlicedValue" /> class.
     /// </summary>
     /// <param name="unknownTypeId">The Slice type ID of the unknown object.</param>
     public UnknownSlicedValue(string unknownTypeId)

@@ -13,7 +13,8 @@ namespace Ice;
 public class ThreadHookPlugin : Plugin
 {
     /// <summary>
-    /// Installs thread hooks for a communicator.
+    /// Initializes a new instance of the <see cref="ThreadHookPlugin" /> class. Installs the provided thread hooks for
+    /// a communicator.
     /// </summary>
     /// <param name="communicator">The communicator using the thread notification hook.</param>
     /// <param name="threadStart">The start thread notification hook for the communicator.</param>

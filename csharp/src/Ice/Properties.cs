@@ -10,8 +10,8 @@ using System.Text.RegularExpressions;
 namespace Ice;
 
 /// <summary>
-// A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
-// values being strings.
+/// A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
+/// values being strings.
 /// </summary>
 public sealed class Properties
 {
@@ -31,25 +31,22 @@ public sealed class Properties
     }
 
     /// <summary>
-    /// Creates a new empty property set.
+    /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initially empty.
     /// </summary>
     public Properties()
     {
     }
 
     /// <summary>
-    /// Creates a property set initialized from an argument vector.
+    /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initialized from the
+    /// provided argument vector.
     /// </summary>
-    /// <param name="args">A command-line argument vector, possibly containing
-    /// options to set properties. If the command-line options include
-    /// a --Ice.Config option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the argument vector, the argument vector takes precedence.
+    /// <param name="args">A command-line argument vector, possibly containing options to set properties. If the
+    /// command-line options include a --Ice.Config option, the corresponding configuration files are parsed. If the
+    /// same property is set in a configuration file and in the argument vector, the argument vector takes precedence.
     /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <param name="defaults">Default values for the property set. Settings in configuration
-    /// files and args override these defaults. May be null.</param>
-    /// <returns>A property set initialized with the property settings
-    /// that were removed from args.</returns>
+    /// <param name="defaults">Default values for the property set. Settings in configuration files and args override
+    /// these defaults. May be null.</param>
     public Properties(ref string[] args, Properties? defaults = null)
     {
         if (defaults is not null)
@@ -113,10 +110,8 @@ public sealed class Properties
     /// Get a property by key.
     /// If the property is not set, an empty string is returned.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <returns>The property value.
-    /// </returns>
+    /// <param name="key">The property key.</param>
+    /// <returns>The property value.</returns>
     public string getProperty(string key)
     {
         lock (_mutex)
@@ -135,27 +130,22 @@ public sealed class Properties
     /// Get an Ice property by key.
     /// If the property is not set, its default value is returned.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <returns>The property value or the default value.
-    /// </returns>
+    /// <param name="key">The property key.</param>
+    /// <returns>The property value or the default value.</returns>
     public string getIceProperty(string key) => getPropertyWithDefault(key, getDefaultProperty(key));
 
     /// <summary>
     /// Get a property by key.
     /// If the property is not set, the given default value is returned.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <param name="value">The default value to use if the property does not exist.
-    /// </param>
-    /// <returns>The property value or the default value.
-    /// </returns>
-    public string getPropertyWithDefault(string key, string val)
+    /// <param name="key">The property key.</param>
+    /// <param name="value">The default value to use if the property does not exist.</param>
+    /// <returns>The property value or the default value.</returns>
+    public string getPropertyWithDefault(string key, string value)
     {
         lock (_mutex)
         {
-            string result = val;
+            string result = value;
             if (_properties.TryGetValue(key, out PropertyValue? pv))
             {
                 pv.used = true;
@@ -169,20 +159,16 @@ public sealed class Properties
     /// Get a property as an integer.
     /// If the property is not set, 0 is returned.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <returns>The property value interpreted as an integer.
-    /// </returns>
+    /// <param name="key">The property key.</param>
+    /// <returns>The property value interpreted as an integer.</returns>
     public int getPropertyAsInt(string key) => getPropertyAsIntWithDefault(key, 0);
 
     /// <summary>
     /// Get an Ice property as an integer.
     /// If the property is not set, its default value is returned.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <returns>The property value interpreted as an integer, or the default value.
-    /// </returns>
+    /// <param name="key">The property key.</param>
+    /// <returns>The property value interpreted as an integer, or the default value.</returns>
     public int getIcePropertyAsInt(string key)
     {
         string defaultValueString = getDefaultProperty(key);
@@ -199,19 +185,16 @@ public sealed class Properties
     /// Get a property as an integer.
     /// If the property is not set, the given default value is returned.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <param name="value">The default value to use if the property does not exist.
-    /// </param>
-    /// <returns>The property value interpreted as an integer, or the default value.
-    /// </returns>
-    public int getPropertyAsIntWithDefault(string key, int val)
+    /// <param name="key">The property key.</param>
+    /// <param name="value">The default value to use if the property does not exist.</param>
+    /// <returns>The property value interpreted as an integer, or the default value.</returns>
+    public int getPropertyAsIntWithDefault(string key, int value)
     {
         lock (_mutex)
         {
             if (!_properties.TryGetValue(key, out PropertyValue? pv))
             {
-                return val;
+                return value;
             }
             pv.used = true;
             try
@@ -220,9 +203,8 @@ public sealed class Properties
             }
             catch (FormatException)
             {
-                Util.getProcessLogger().warning("numeric property " + key +
-                                                " set to non-numeric value, defaulting to " + val);
-                return val;
+                Util.getProcessLogger().warning($"numeric property {key} set to non-numeric value, defaulting to {value}");
+                return value;
             }
         }
     }
@@ -235,10 +217,8 @@ public sealed class Properties
     /// or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
     /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <returns>The property value interpreted as a list of strings.
-    /// </returns>
+    /// <param name="key">The property key.</param>
+    /// <returns>The property value interpreted as a list of strings.</returns>
     public string[] getPropertyAsList(string key) => getPropertyAsListWithDefault(key, []);
 
     /// <summary>
@@ -249,12 +229,8 @@ public sealed class Properties
     /// quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
     /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <param name="value">The default value to use if the property is not set.
-    /// </param>
-    /// <returns>The property value interpreted as list of strings, or the default value.
-    /// </returns>
+    /// <param name="key">The property key.</param>
+    /// <returns>The property value interpreted as list of strings, or the default value.</returns>
     public string[] getIcePropertyAsList(string key)
     {
         string[] defaultList = UtilInternal.StringUtil.splitString(getDefaultProperty(key), ", \t\r\n");
@@ -269,21 +245,18 @@ public sealed class Properties
     /// quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
     /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <param name="value">The default value to use if the property is not set.
-    /// </param>
-    /// <returns>The property value interpreted as list of strings, or the default value.
-    /// </returns>
-    public string[] getPropertyAsListWithDefault(string key, string[] val)
+    /// <param name="key">The property key.</param>
+    /// <param name="value">The default value to use if the property is not set.</param>
+    /// <returns>The property value interpreted as list of strings, or the default value.</returns>
+    public string[] getPropertyAsListWithDefault(string key, string[] value)
     {
-        val ??= [];
+        value ??= [];
 
         lock (_mutex)
         {
             if (!_properties.TryGetValue(key, out PropertyValue? pv))
             {
-                return val;
+                return value;
             }
 
             pv.used = true;
@@ -291,9 +264,9 @@ public sealed class Properties
             string[] result = Ice.UtilInternal.StringUtil.splitString(pv.value, ", \t\r\n");
             if (result == null)
             {
-                Util.getProcessLogger().warning("mismatched quotes in property " + key
-                                                + "'s value, returning default value");
-                return val;
+                Util.getProcessLogger().warning(
+                    $"mismatched quotes in property {key}'s value, returning default value");
+                return value;
             }
             else
             {
@@ -307,8 +280,7 @@ public sealed class Properties
     /// If prefix is an empty string, then all
     /// properties are returned.
     /// </summary>
-    /// <param name="prefix">The prefix to search for (empty string if none).
-    /// </param>
+    /// <param name="prefix">The prefix to search for (empty string if none).</param>
     /// <returns>The matching property set.</returns>
     public Dictionary<string, string> getPropertiesForPrefix(string prefix)
     {
@@ -333,11 +305,9 @@ public sealed class Properties
     /// Set a property.
     /// To unset a property, set it to the empty string.
     /// </summary>
-    /// <param name="key">The property key.
-    /// </param>
-    /// <param name="value">The property value.
-    /// </param>
-    public void setProperty(string key, string val)
+    /// <param name="key">The property key.</param>
+    /// <param name="value">The property value.</param>
+    public void setProperty(string key, string value)
     {
         //
         // Trim whitespace
@@ -358,21 +328,21 @@ public sealed class Properties
         // If the property is deprecated, log a warning.
         if (prop is not null && prop.deprecated)
         {
-            Util.getProcessLogger().warning("setting deprecated property: " + key);
+            Util.getProcessLogger().warning($"setting deprecated property: {key}");
         }
 
         lock (_mutex)
         {
             // Set or clear the property.
-            if (val != null && val.Length > 0)
+            if (value is not null && value.Length > 0)
             {
                 if (_properties.TryGetValue(key, out PropertyValue? pv))
                 {
-                    pv.value = val;
+                    pv.value = value;
                 }
                 else
                 {
-                    pv = new PropertyValue(val, false);
+                    pv = new PropertyValue(value, false);
                 }
                 _properties[key] = pv;
             }
@@ -409,24 +379,22 @@ public sealed class Properties
     /// --prefix. are converted into properties. If the prefix is empty, all options that begin with
     /// -- are converted to properties.
     /// </summary>
-    /// <param name="prefix">The property prefix, or an empty string to convert all options starting with --.
-    /// </param>
-    /// <param name="options">The command-line options.
-    /// </param>
+    /// <param name="prefix">The property prefix, or an empty string to convert all options starting with --.</param>
+    /// <param name="options">The command-line options.</param>
     /// <returns>The command-line options that do not start with the specified prefix, in their original order.</returns>
-    public string[] parseCommandLineOptions(string pfx, string[] options)
+    public string[] parseCommandLineOptions(string prefix, string[] options)
     {
-        if (pfx.Length > 0 && pfx[^1] != '.')
+        if (prefix.Length > 0 && prefix[^1] != '.')
         {
-            pfx += '.';
+            prefix += '.';
         }
-        pfx = "--" + pfx;
+        prefix = "--" + prefix;
 
         List<string> result = [];
         for (int i = 0; i < options.Length; i++)
         {
             string opt = options[i];
-            if (opt.StartsWith(pfx, StringComparison.Ordinal))
+            if (opt.StartsWith(prefix, StringComparison.Ordinal))
             {
                 if (!opt.Contains('=', StringComparison.Ordinal))
                 {
@@ -454,9 +422,9 @@ public sealed class Properties
     /// prefixes are converted into properties: --Ice, --IceBox, --IceGrid,
     /// --IceSSL, --IceStorm, --Freeze, and --Glacier2.
     /// </summary>
-    /// <param name="options">The command-line options.
-    /// </param>
-    /// <returns>The command-line options that do not start with one of the listed prefixes, in their original order.</returns>
+    /// <param name="options">The command-line options.</param>
+    /// <returns>The command-line options that do not start with one of the listed prefixes, in their original order.
+    /// </returns>
     public string[] parseIceCommandLineOptions(string[] options)
     {
         string[] args = options;
@@ -508,6 +476,10 @@ public sealed class Properties
     [Obsolete("Use Clone instead.")]
     public Properties ice_clone_() => Clone();
 
+    /// <summary>
+    /// Get the unused properties in the property set.
+    /// </summary>
+    /// <returns>A list containing the names of the unused properties in this property set.</returns>
     public List<string> getUnusedProperties()
     {
         lock (_mutex)
@@ -529,7 +501,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property's key.</param>
     /// <param name="logWarnings">Whether to log relevant warnings.</param>
-    /// <returns>The found property</returns>
+    /// <returns>The found property or null if the property with the given key doesn't exists.</returns>
     private static Property? findProperty(string key, bool logWarnings)
     {
         // Check if the property is a known Ice property and log warnings if necessary
@@ -601,13 +573,14 @@ public sealed class Properties
     /// <summary>
     /// Gets the default value for a given Ice property.
     /// </summary>
-    /// <param name="key">The Ice property key</param>
+    /// <param name="key">The Ice property key.</param>
     /// <returns>The default property value, or an empty string the default is unspecified.</returns>
-    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentException">Thrown if the given key doesn't represent the name of an Ice property.
+    /// </exception>
     private static string getDefaultProperty(string key)
     {
         // Find the property, don't log any warnings.
-        Property? prop = findProperty(key, false) ?? throw new ArgumentException("unknown Ice property: " + key);
+        Property? prop = findProperty(key, false) ?? throw new ArgumentException($"unknown Ice property: {key}");
         return prop.defaultValue;
     }
 

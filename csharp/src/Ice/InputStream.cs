@@ -23,9 +23,9 @@ public delegate void UserExceptionFactory(string id);
 public class InputStream
 {
     /// <summary>
-    /// Constructing an InputStream without providing a communicator means the stream will
-    /// use the default encoding version. A communicator is required in order to unmarshal
-    /// proxies. You can supply a communicator later by calling initialize().
+    /// Initializes a new instance of the <see cref="InputStream" /> class. Constructing an InputStream without
+    /// providing a communicator means the stream will use the default encoding version. A communicator is required in
+    /// order to unmarshal proxies. You can supply a communicator later by calling initialize().
     /// </summary>
     public InputStream()
     {
@@ -34,9 +34,9 @@ public class InputStream
     }
 
     /// <summary>
-    /// Constructing an InputStream without providing a communicator means the stream will
-    /// use the default encoding version. A communicator is required in order to unmarshal
-    /// proxies. You can supply a communicator later by calling initialize().
+    /// Initializes a new instance of the <see cref="InputStream" /> class. Constructing an InputStream without
+    /// providing a communicator means the stream will use the default encoding version. A communicator is required in
+    /// order to unmarshal proxies. You can supply a communicator later by calling initialize().
     /// </summary>
     /// <param name="data">The byte array containing encoded Slice types.</param>
     public InputStream(byte[] data)
@@ -63,7 +63,8 @@ public class InputStream
     }
 
     /// <summary>
-    /// This constructor uses the communicator's default encoding version.
+    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the communicator's
+    /// default encoding version.
     /// </summary>
     /// <param name="communicator">The communicator to use when initializing the stream.</param>
     public InputStream(Communicator communicator)
@@ -73,7 +74,8 @@ public class InputStream
     }
 
     /// <summary>
-    /// This constructor uses the communicator's default encoding version.
+    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the communicator's
+    /// default encoding version.
     /// </summary>
     /// <param name="communicator">The communicator to use when initializing the stream.</param>
     /// <param name="data">The byte array containing encoded Slice types.</param>
@@ -101,7 +103,8 @@ public class InputStream
     }
 
     /// <summary>
-    /// This constructor uses the given encoding version.
+    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
+    /// version.
     /// </summary>
     /// <param name="encoding">The desired encoding version.</param>
     public InputStream(EncodingVersion encoding)
@@ -111,7 +114,8 @@ public class InputStream
     }
 
     /// <summary>
-    /// This constructor uses the given encoding version.
+    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
+    /// version.
     /// </summary>
     /// <param name="encoding">The desired encoding version.</param>
     /// <param name="data">The byte array containing encoded Slice types.</param>
@@ -139,7 +143,8 @@ public class InputStream
     }
 
     /// <summary>
-    /// This constructor uses the given encoding version.
+    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
+    /// version.
     /// </summary>
     /// <param name="communicator">The communicator to use when initializing the stream.</param>
     /// <param name="encoding">The desired encoding version.</param>
@@ -150,7 +155,8 @@ public class InputStream
     }
 
     /// <summary>
-    /// This constructor uses the given encoding version.
+    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
+    /// version.
     /// </summary>
     /// <param name="communicator">The communicator to use when initializing the stream.</param>
     /// <param name="encoding">The desired encoding version.</param>
@@ -748,6 +754,7 @@ public class InputStream
     /// <summary>
     /// Reads and validates a sequence size.
     /// </summary>
+    /// <param name="minSize">The minimum size required to encode a sequence element.</param>
     /// <returns>The extracted size.</returns>
     public int readAndCheckSeqSize(int minSize)
     {
@@ -2375,6 +2382,7 @@ public class InputStream
     /// <summary>
     /// Extracts the index of a Slice value from the stream.
     /// </summary>
+    /// <typeparam name="T">The type of the Slice value to extract.</typeparam>
     /// <param name="cb">The callback to notify the application when the extracted instance is available.
     /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
     /// corresponding instance has been fully unmarshaled.</param>
@@ -2426,7 +2434,7 @@ public class InputStream
     /// <summary>
     /// Skip the given number of bytes.
     /// </summary>
-    /// <param name="size">The number of bytes to skip</param>
+    /// <param name="size">The number of bytes to skip.</param>
     public void skip(int size)
     {
         if (size < 0 || size > _buf.b.remaining())

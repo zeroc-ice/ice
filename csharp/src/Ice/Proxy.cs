@@ -499,7 +499,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
 }
 
 /// <summary>
-/// Represent the result of the ice_invokeAsync operation
+/// Represent the result of the ice_invokeAsync operation.
 /// </summary>
 public record struct Object_Ice_invokeResult(bool returnValue, byte[] outEncaps);
 
@@ -745,6 +745,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
     /// </summary>
+    /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
     public string ice_id(Dictionary<string, string>? context = null)
     {
@@ -892,15 +893,16 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     /// <summary>
     /// Returns the identity embedded in this proxy.
-    /// <returns>The identity of the target object.</returns>
     /// </summary>
+    /// <returns>The identity of the target object.</returns>
     public Identity ice_getIdentity() => _reference.getIdentity() with { };
 
     /// <summary>
-    /// Creates a new proxy that is identical to this proxy, except for the per-proxy context.
-    /// <param name="newIdentity">The identity for the new proxy.</param>
-    /// <returns>The proxy with the new identity.</returns>
+    /// Creates a new proxy that is identical to this proxy, except for the proxy identity.
     /// </summary>
+    /// <param name="newIdentity">The identity for the new proxy.</param>
+    /// <returns>The new proxy with the specified identity.</returns>
+    /// <exception cref="ArgumentException">If the name of the new identity is empty.</exception>
     public ObjectPrx ice_identity(Identity newIdentity)
     {
         if (newIdentity.name.Length == 0)
@@ -980,7 +982,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Creates a new proxy that is identical to this proxy, except for the adapter ID.
     /// </summary>
     /// <param name="newAdapterId">The adapter ID for the new proxy.</param>
-    /// <returns>The proxy with the new adapter ID.</returns>
+    /// <returns>The new proxy with the specified adapter ID.</returns>
     public ObjectPrx ice_adapterId(string newAdapterId)
     {
         newAdapterId ??= "";
@@ -1008,7 +1010,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Creates a new proxy that is identical to this proxy, except for the endpoints.
     /// </summary>
     /// <param name="newEndpoints">The endpoints for the new proxy.</param>
-    /// <returns>The proxy with the new endpoints.</returns>
+    /// <returns>The new proxy with the specified endpoints.</returns>
     public ObjectPrx ice_endpoints(Endpoint[] newEndpoints)
     {
         newEndpoints ??= [];
@@ -1041,6 +1043,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
     /// </summary>
     /// <param name="newTimeout">The new locator cache timeout (in seconds).</param>
+    /// <returns>The new proxy with the specified locator cache timeout.</returns>
     public ObjectPrx ice_locatorCacheTimeout(int newTimeout)
     {
         if (newTimeout < -1)
@@ -1070,6 +1073,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
     /// <param name="newTimeout">The new invocation timeout (in seconds).</param>
+    /// <returns>The new proxy with the specified invocation timeout.</returns>
     public ObjectPrx ice_invocationTimeout(int newTimeout)
     {
         if (newTimeout < 1 && newTimeout != -1)
@@ -1829,6 +1833,10 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectPrxHelperBase" /> class.
+    /// </summary>
+    /// <param name="reference">The reference for the new proxy.</param>
     [EditorBrowsable(EditorBrowsableState.Never)]
     protected ObjectPrxHelperBase(Reference reference)
     {
@@ -1836,6 +1844,11 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         _requestHandlerCache = new RequestHandlerCache(reference);
     }
 
+    /// <summary>
+    /// Constructs a new proxy instance.
+    /// </summary>
+    /// <param name="reference">The reference for the new proxy.</param>
+    /// <returns>The new proxy instance.</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
     protected abstract ObjectPrxHelperBase iceNewInstance(Reference reference);
 
@@ -1851,8 +1864,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 public class ObjectPrxHelper : ObjectPrxHelperBase
 {
     /// <summary>
-    /// Creates a new proxy that implements <see cref="ObjectPrx" />
-    /// <summary>
+    /// Creates a new proxy that implements <see cref="ObjectPrx" />.
+    /// </summary>
     /// <param name="communicator">The communicator of the new proxy.</param>
     /// <param name="proxyString">The string representation of the proxy.</param>
     /// <returns>The new proxy.</returns>
@@ -1867,12 +1880,13 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
             throw new ParseException("Invalid empty proxy string.");
     }
 
+    /// <summary>
     /// Casts a proxy to <see cref="ObjectPrx" />. This call contacts
     /// the server and throws an Ice run-time exception if the target
     /// object does not exist or the server cannot be reached.
     /// </summary>
     /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
-    /// <param name="ctx">The Context map for the invocation.</param>
+    /// <param name="context">The Context map for the invocation.</param>
     /// <returns>proxy.</returns>
     public static ObjectPrx? checkedCast(ObjectPrx? proxy, Dictionary<string, string>? context = null) =>
         proxy is not null && proxy.ice_isA("::Ice::Object", context) ? proxy : null;
