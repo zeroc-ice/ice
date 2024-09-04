@@ -191,52 +191,48 @@ namespace IceInternal
         std::list<std::function<void(ThreadPoolCurrent&)>> _workItems;
     };
 
-//
-// The ThreadPoolMessage class below hides the IOCP implementation details from
-// the event handler implementations. Only event handler implementation that
-// require IO need to use this class.
-//
-class ThreadPoolMessage
-{
-public:
-
-    ThreadPoolMessage(ThreadPoolCurrent& current) :
-        _current(current)
+    //
+    // The ThreadPoolMessage class below hides the IOCP implementation details from
+    // the event handler implementations. Only event handler implementation that
+    // require IO need to use this class.
+    //
+    class ThreadPoolMessage
     {
-#if defined(ICE_USE_IOCP)
-        _ioReady = _current.startMessage();
-#endif
-    }
-
-    ~ThreadPoolMessage()
-    {
-#if defined(ICE_USE_IOCP)
-        if(_ioReady)
+    public:
+        ThreadPoolMessage(ThreadPoolCurrent& current) : _current(current)
         {
-            _current.finishMessage();
+#if defined(ICE_USE_IOCP)
+            _ioReady = _current.startMessage();
+#endif
         }
-#endif
-    }
 
-    void ioCompleted() { _current.ioCompleted(); }
-
-    bool ioReady()
-    {
+        ~ThreadPoolMessage()
+        {
 #if defined(ICE_USE_IOCP)
-        return _ioReady;
+            if (_ioReady)
+            {
+                _current.finishMessage();
+            }
+#endif
+        }
+
+        void ioCompleted() { _current.ioCompleted(); }
+
+        bool ioReady()
+        {
+#if defined(ICE_USE_IOCP)
+            return _ioReady;
 #else
-        return _current.ioReady();
+            return _current.ioReady();
 #endif
-    }
+        }
 
-private:
-    ThreadPoolCurrent& _current;
+    private:
+        ThreadPoolCurrent& _current;
 #if defined(ICE_USE_IOCP)
-    bool _ioReady;
+        bool _ioReady;
 #endif
-};
-
-
-};
+    };
+}
 
 #endif
