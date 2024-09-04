@@ -12,8 +12,6 @@
 #    include "../Network.h"
 #    include "../ProtocolInstance.h"
 #    include "../ProtocolPluginFacade.h"
-#    include "iAPConnector.h"
-#    include "iAPEndpointI.h"
 #    include "Ice/Initialize.h"
 #    include "Ice/InputStream.h"
 #    include "Ice/LocalExceptions.h"
@@ -22,6 +20,8 @@
 #    include "Ice/RegisterPlugins.h"
 #    include "Ice/ios/iAPConnectionInfo.h"
 #    include "Ice/ios/iAPEndpointInfo.h"
+#    include "iAPConnector.h"
+#    include "iAPEndpointI.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 
