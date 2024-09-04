@@ -5,28 +5,56 @@
 #include "TestI.h"
 #include "TestHelper.h"
 
-#include <chrono>
-#include <thread>
-
 using namespace std;
 
-class OpTimerTask final : public Ice::TimerTask
+void
+ResponderI::start(const Ice::Current&)
 {
-public:
-    OpTimerTask(TestIntfI* servant, function<void()> response) : _servant(servant), _response(std::move(response)) {}
-
-    void runTimerTask() override
+    vector<std::function<void()>> responses;
     {
-        _servant->decDispatchCount();
-        _response();
+        lock_guard<mutex> lock(_mutex);
+        _started = true;
+        responses.swap(_responses);
     }
 
-private:
-    TestIntfI* _servant;
-    std::function<void()> _response;
-};
+    for(auto& response : responses)
+    {
+        response();
+    }
+}
 
-TestIntfI::~TestIntfI() { _timer.destroy(); }
+void
+ResponderI::stop(const Ice::Current&)
+{
+    lock_guard<mutex> lock(_mutex);
+    _started = false;
+}
+
+int32_t
+ResponderI::pendingResponseCount(const Ice::Current&)
+{
+    lock_guard<mutex> lock(_mutex);
+    return static_cast<int32_t>(_responses.size());
+}
+
+void
+ResponderI::queueResponse(std::function<void()> response)
+{
+    bool queued = false;
+    {
+        lock_guard<mutex> lock(_mutex);
+        if (!_started)
+        {
+            _responses.push_back(std::move(response));
+            queued = true;
+        }
+    }
+
+    if (!queued)
+    {
+        response();
+    }
+}
 
 void
 TestIntfI::opAsync(function<void()> response, function<void(std::exception_ptr)>, const Ice::Current&)
@@ -39,8 +67,11 @@ TestIntfI::opAsync(function<void()> response, function<void(std::exception_ptr)>
         }
     }
 
-    // We use a timer to make this implementation very lightweight.
-    _timer.schedule(make_shared<OpTimerTask>(this, std::move(response)), chrono::milliseconds(50));
+    _responder->queueResponse([this, response = std::move(response)]()
+    {
+        decDispatchCount();
+        response();
+    });
 }
 
 int32_t
@@ -56,6 +87,11 @@ void
 TestIntfI::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
+}
+
+TestIntfI::TestIntfI(shared_ptr<ResponderI> responder) :
+    _responder(std::move(responder))
+{
 }
 
 void

@@ -11,9 +11,11 @@ using namespace Test;
 
 // Verifies max dispatches is implemented correctly.
 void
-testMaxDispatches(const TestIntfPrx& p, int maxCount)
+testMaxDispatches(const TestIntfPrx& p, const ResponderPrx responder, int maxCount)
 {
     cout << "testing max dispatches max = " << maxCount << "... " << flush;
+    // responder is stopped at this point.
+
     std::vector<std::future<void>> futureList;
 
     for (int i = 0; i < maxCount + 20; ++i)
@@ -21,6 +23,13 @@ testMaxDispatches(const TestIntfPrx& p, int maxCount)
         futureList.push_back(p->opAsync());
     }
 
+    // Wait until the responder gets at least maxCount responses.
+    while (responder->pendingResponseCount() < maxCount)
+    {
+        this_thread::sleep_for(10ms);
+    }
+
+    responder->start();
     for (auto& future : futureList)
     {
         future.get();
@@ -28,6 +37,7 @@ testMaxDispatches(const TestIntfPrx& p, int maxCount)
 
     int maxConcurrentDispatches = p->resetMaxConcurrentDispatches();
     test(maxConcurrentDispatches == maxCount);
+    responder->stop();
     cout << "ok" << endl;
 }
 
@@ -38,21 +48,24 @@ allTests(TestHelper* helper)
     string proxyString = "test: " + helper->getTestEndpoint();
     TestIntfPrx p(communicator, proxyString);
 
-    string proxyStringMax10 = "test: " + helper->getTestEndpoint(1);
+    string responderString = "responder: " + helper->getTestEndpoint(1);
+    ResponderPrx responder(communicator, responderString);
+
+    string proxyStringMax10 = "test: " + helper->getTestEndpoint(2);
     TestIntfPrx pMax10{communicator, proxyStringMax10};
 
-    string proxyStringMax1 = "test: " + helper->getTestEndpoint(2);
+    string proxyStringMax1 = "test: " + helper->getTestEndpoint(3);
     TestIntfPrx pMax1{communicator, proxyStringMax1};
 
-    string proxyStringSerialize = "test: " + helper->getTestEndpoint(3);
+    string proxyStringSerialize = "test: " + helper->getTestEndpoint(4);
     TestIntfPrx pSerialize{communicator, proxyStringSerialize};
 
-    testMaxDispatches(p, 100);
-    testMaxDispatches(pMax10, 10);
-    testMaxDispatches(pMax1, 1);
+    testMaxDispatches(p, responder, 100);
+    testMaxDispatches(pMax10, responder, 10);
+    testMaxDispatches(pMax1, responder, 1);
 
     // Serialize does not limit dispatches with "true" AMD.
-    testMaxDispatches(pSerialize, 100);
+    testMaxDispatches(pSerialize, responder, 100);
 
     p->shutdown();
 }

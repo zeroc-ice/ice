@@ -6,6 +6,7 @@ import com.zeroc.Ice.Communicator;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import test.Ice.maxDispatches.Test.ResponderPrx;
 import test.Ice.maxDispatches.Test.TestIntfPrx;
 
 public class AllTests {
@@ -14,29 +15,34 @@ public class AllTests {
     String proxyString = "test: " + helper.getTestEndpoint();
     var p = TestIntfPrx.createProxy(communicator, proxyString);
 
-    String proxyStringMax10 = "test: " + helper.getTestEndpoint(1);
+    String responderString = "responder: " + helper.getTestEndpoint(1);
+    var responder = ResponderPrx.createProxy(communicator, responderString);
+
+    String proxyStringMax10 = "test: " + helper.getTestEndpoint(2);
     var pMax10 = TestIntfPrx.createProxy(communicator, proxyStringMax10);
 
-    String proxyStringMax1 = "test: " + helper.getTestEndpoint(2);
+    String proxyStringMax1 = "test: " + helper.getTestEndpoint(3);
     var pMax1 = TestIntfPrx.createProxy(communicator, proxyStringMax1);
 
-    String proxyStringSerialize = "test: " + helper.getTestEndpoint(3);
+    String proxyStringSerialize = "test: " + helper.getTestEndpoint(4);
     var pSerialize = TestIntfPrx.createProxy(communicator, proxyStringSerialize);
 
-    testMaxDispatches(p, 100, helper.getWriter());
-    testMaxDispatches(pMax10, 10, helper.getWriter());
-    testMaxDispatches(pMax1, 1, helper.getWriter());
+    testMaxDispatches(p, responder, 100, helper.getWriter());
+    testMaxDispatches(pMax10, responder, 10, helper.getWriter());
+    testMaxDispatches(pMax1, responder, 1, helper.getWriter());
 
     // Serialize does not limit dispatches with "true" AMD.
-    testMaxDispatches(pSerialize, 100, helper.getWriter());
+    testMaxDispatches(pSerialize, responder, 100, helper.getWriter());
 
     p.shutdown();
   }
 
   // Verifies max dispatches is implemented correctly.
-  private static void testMaxDispatches(TestIntfPrx p, int maxCount, PrintWriter output) {
+  private static void testMaxDispatches(
+      TestIntfPrx p, ResponderPrx responder, int maxCount, PrintWriter output) {
     output.write("testing max dispatches max " + maxCount + "... ");
     output.flush();
+    // responder is stopped at this point.
 
     var futureList = new ArrayList<CompletableFuture<Void>>();
 
@@ -44,15 +50,24 @@ public class AllTests {
       futureList.add(p.opAsync());
     }
 
+    // Wait until the responder gets at least maxCount responses.
+    while (responder.pendingResponseCount() < maxCount) {
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    responder.start();
+
     for (int i = 0; i < maxCount + 20; ++i) {
       futureList.get(i).join();
     }
 
     int maxConcurrentDispatches = p.resetMaxConcurrentDispatches();
-    if (maxConcurrentDispatches != maxCount) {
-      output.println("failed: max count = " + maxConcurrentDispatches);
-    }
     test(maxConcurrentDispatches == maxCount);
+    responder.stop();
     output.println("ok");
   }
 
