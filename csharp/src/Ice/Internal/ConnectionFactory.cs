@@ -1331,7 +1331,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
         lock (_mutex)
         {
-            using ThreadPoolMessage msg = new ThreadPoolMessage(current);
+            using var msg = new ThreadPoolMessage(current);
             if (!msg.ioReady())
             {
                 return;

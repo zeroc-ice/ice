@@ -746,7 +746,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         lock (_mutex)
         {
-            using ThreadPoolMessage msg = new ThreadPoolMessage(current);
+            using var msg = new ThreadPoolMessage(current);
             if (!msg.ioReady())
             {
                 return;

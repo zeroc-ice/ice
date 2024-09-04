@@ -50,23 +50,10 @@ internal sealed class ThreadPoolSynchronizationContext : SynchronizationContext
     private ThreadPool _threadPool;
 }
 
-internal struct ThreadPoolMessage : IDisposable
+internal readonly struct ThreadPoolMessage : IDisposable
 {
-    public ThreadPoolMessage(ThreadPoolCurrent current)
-    {
-        _current = current;
-        _ioReady = _current.startMessage();
-    }
-
-    public bool ioReady()
-    {
-        return _ioReady;
-    }
-
-    public void ioCompleted()
-    {
-        _current.ioCompleted();
-    }
+    private readonly ThreadPoolCurrent _current;
+    private readonly bool _ioReady;
 
     public void Dispose()
     {
@@ -76,8 +63,18 @@ internal struct ThreadPoolMessage : IDisposable
         }
     }
 
-    private ThreadPoolCurrent _current;
-    private bool _ioReady;
+    internal ThreadPoolMessage(ThreadPoolCurrent current)
+    {
+        _current = current;
+        _ioReady = _current.startMessage();
+    }
+
+    internal bool ioReady() => _ioReady;
+
+    internal void ioCompleted()
+    {
+        _current.ioCompleted();
+    }
 }
 
 public class ThreadPoolCurrent

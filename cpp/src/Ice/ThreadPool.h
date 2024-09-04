@@ -230,7 +230,7 @@ namespace IceInternal
     private:
         ThreadPoolCurrent& _current;
 #if defined(ICE_USE_IOCP)
-        bool _ioReady;
+        const bool _ioReady;
 #endif
     };
 }

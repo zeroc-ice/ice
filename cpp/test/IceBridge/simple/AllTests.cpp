@@ -124,14 +124,12 @@ allTests(Test::TestHelper* helper)
     cout << "testing ordering... " << flush;
     {
         //
-        // Make sure ordering is preserved on connection establishemnt.
+        // Make sure ordering is preserved on each connection.
         //
         int counter = 0;
         for (int i = 0; i < 10; ++i)
         {
-            ostringstream os;
-            os << i;
-            auto p = cl->ice_connectionId(os.str());
+            auto p = cl->ice_connectionId(to_string(i));
             for (int j = 0; j < 20; ++j)
             {
                 p->incCounterAsync(++counter, nullptr);
@@ -141,9 +139,7 @@ allTests(Test::TestHelper* helper)
         }
         for (int i = 0; i < 10; ++i)
         {
-            ostringstream os;
-            os << i;
-            auto p = cl->ice_connectionId(os.str())->ice_oneway();
+            auto p = cl->ice_connectionId(to_string(i))->ice_oneway();
             for (int j = 0; j < 20; ++j)
             {
                 p->incCounterAsync(++counter, nullptr);
