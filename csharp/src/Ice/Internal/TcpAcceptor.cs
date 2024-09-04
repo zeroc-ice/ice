@@ -52,7 +52,7 @@ internal class TcpAcceptor : Acceptor
                 },
                 state);
         }
-        catch (System.Net.Sockets.SocketException ex)
+        catch (System.Exception ex)
         {
             throw new Ice.SocketException(ex);
         }
@@ -68,9 +68,9 @@ internal class TcpAcceptor : Acceptor
             {
                 _acceptFd = _fd.EndAccept(_result);
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (System.Exception ex)
             {
-                _acceptError = ex;
+                _acceptError = new Ice.SocketException(ex);
             }
         }
     }
@@ -143,7 +143,7 @@ internal class TcpAcceptor : Acceptor
     private ProtocolInstance _instance;
     private Socket _fd;
     private Socket _acceptFd;
-    private System.Exception _acceptError;
+    private Ice.SocketException _acceptError;
     private int _backlog;
     private IPEndPoint _addr;
     private IAsyncResult _result;
