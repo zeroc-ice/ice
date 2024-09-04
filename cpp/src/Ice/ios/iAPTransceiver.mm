@@ -6,10 +6,10 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "EndpointI.h"
-#    include "Transceiver.h"
+#    include "iAPEndpointI.h"
+#    include "iAPTransceiver.h"
 
-#    include "Ice/iAP/ConnectionInfo.h"
+#    include "Ice/ios/iAPConnectionInfo.h"
 
 #    include "../ProtocolInstance.h"
 #    include "Ice/Buffer.h"

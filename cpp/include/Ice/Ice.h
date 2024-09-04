@@ -59,8 +59,8 @@
 
 // Include Apple iAP headers if building for iOS
 #    if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-#        include "iAP/ConnectionInfo.h"
-#        include "iAP/EndpointInfo.h"
+#        include "ios/iAPConnectionInfo.h"
+#        include "ios/iAPEndpointInfo.h"
 #    endif
 #endif
 

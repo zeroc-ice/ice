@@ -7,9 +7,9 @@
 #if TARGET_OS_IPHONE != 0
 
 #    include "../ProtocolInstance.h"
-#    include "Connector.h"
-#    include "EndpointI.h"
-#    include "Transceiver.h"
+#    include "iAPConnector.h"
+#    include "iAPEndpointI.h"
+#    include "iAPTransceiver.h"
 
 using namespace std;
 using namespace Ice;
