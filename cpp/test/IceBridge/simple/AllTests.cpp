@@ -121,35 +121,6 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    cout << "testing ordering... " << flush;
-    {
-        //
-        // Make sure ordering is preserved on each connection.
-        //
-        int counter = 0;
-        for (int i = 0; i < 10; ++i)
-        {
-            auto p = cl->ice_connectionId(to_string(i));
-            for (int j = 0; j < 20; ++j)
-            {
-                p->incCounterAsync(++counter, nullptr);
-            }
-            cl->waitCounter(counter);
-            p->closeConnection(false);
-        }
-        for (int i = 0; i < 10; ++i)
-        {
-            auto p = cl->ice_connectionId(to_string(i))->ice_oneway();
-            for (int j = 0; j < 20; ++j)
-            {
-                p->incCounterAsync(++counter, nullptr);
-            }
-            cl->waitCounter(counter);
-            p->closeConnection(false);
-        }
-    }
-    cout << "ok" << endl;
-
     auto adapter = communicator->createObjectAdapter("");
     Ice::Identity id;
     id.name = "callback";

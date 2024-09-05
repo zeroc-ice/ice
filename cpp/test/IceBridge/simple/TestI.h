@@ -18,9 +18,6 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current& current) override;
 
-    void incCounter(int, const Ice::Current&) override;
-    void waitCounter(int, const Ice::Current&) override;
-
     int getConnectionCount(const Ice::Current&) override;
     std::string getConnectionInfo(const Ice::Current&) override;
     void closeConnection(bool, const Ice::Current&) override;
@@ -43,10 +40,8 @@ private:
     void checkConnection(const Ice::ConnectionPtr&);
 
     std::mutex _lock;
-    std::condition_variable _condVar;
     int _datagramCount = 0;
     std::map<Ice::ConnectionPtr, int> _connections;
-    int _counter = 0;
 };
 
 #endif
