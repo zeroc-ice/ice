@@ -5,16 +5,12 @@ package test.Ice.maxDispatches;
 import com.zeroc.Ice.Current;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import test.Ice.maxDispatches.Test.TestIntf;
 
 class TestIntfI implements TestIntf {
   private int _dispatchCount;
   private int _maxDispatchCount;
-
-  private final ScheduledExecutorService _scheduledExecutorService =
-      new ScheduledThreadPoolExecutor(1);
+  private final ResponderI _responder;
 
   @Override
   public CompletionStage<Void> opAsync(Current current) {
@@ -25,14 +21,11 @@ class TestIntfI implements TestIntf {
 
     var future = new CompletableFuture<Void>();
 
-    // Decrement dispatchCount in 70 ms
-    _scheduledExecutorService.schedule(
+    _responder.queueResponse(
         () -> {
           decDispatchCount();
           future.complete(null);
-        },
-        70,
-        java.util.concurrent.TimeUnit.MILLISECONDS);
+        });
 
     return future;
   }
@@ -47,6 +40,10 @@ class TestIntfI implements TestIntf {
   @Override
   public void shutdown(Current current) {
     current.adapter.getCommunicator().shutdown();
+  }
+
+  TestIntfI(ResponderI responder) {
+    _responder = responder;
   }
 
   private synchronized void decDispatchCount() {

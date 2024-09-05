@@ -11,4 +11,11 @@ module Test
         int resetMaxConcurrentDispatches();
         void shutdown();
     }
+
+    interface Responder
+    {
+        void start();
+        void stop();
+        int pendingResponseCount();
+    }
 }
