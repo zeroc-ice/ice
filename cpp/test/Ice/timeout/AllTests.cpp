@@ -196,6 +196,10 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         {
             // Expected.
         }
+
+        // Verify closing a closed connection is fine.
+        connection->close(nullptr, nullptr);
+
         controller->resumeAdapter();
         timeout->op(); // Ensure adapter is active.
     }
