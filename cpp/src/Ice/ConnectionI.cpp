@@ -512,31 +512,46 @@ Ice::ConnectionI::close(function<void()> response, function<void(std::exception_
         }
     }
 
-    if (closeException) // already closed
+    if ((response || exception) && closeException) // already closed
     {
+        bool success = false;
         try
         {
             rethrow_exception(closeException);
         }
         catch (const ConnectionClosedException&)
         {
-            response();
+            success = true;
         }
         catch (const CloseConnectionException&)
         {
-            response();
+            success = true;
         }
         catch (const CommunicatorDestroyedException&)
         {
-            response();
+            success = true;
         }
         catch (const ObjectAdapterDeactivatedException&)
         {
-            response();
+            success = true;
         }
         catch (...)
         {
-            exception(closeException);
+        }
+
+        if (success)
+        {
+            if (response)
+            {
+                response();
+            }
+        }
+        else
+        {
+            if (exception)
+            {
+                exception(closeException);
+            }
         }
     }
 }
