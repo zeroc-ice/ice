@@ -109,3 +109,10 @@ jobs:
           flags: "--rfilter=IceGrid/replication ${{ matrix.test_flags }}"
         # Don't test matlab on Windows (see setup-dependencies/action.yml)
         if: matrix.config != 'matlab' || runner.os != 'Windows'
+
+      - name: Upload test logs after failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: ${{ github.workspace }}/**/*.log
