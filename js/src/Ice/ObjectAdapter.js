@@ -57,7 +57,6 @@ const _suffixes = [
     "Router.LocatorCacheTimeout",
     "Router.InvocationTimeout",
     "ProxyOptions",
-    "ThreadPool.Serialize",
     "ThreadPool.Size",
     "ThreadPool.SizeMax",
     "ThreadPool.SizeWarn",

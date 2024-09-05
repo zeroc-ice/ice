@@ -21,15 +21,9 @@ internal class AllTests : global::Test.AllTests
         string proxyStringMax1 = $"test: {helper.getTestEndpoint(3)}";
         Test.TestIntfPrx pMax1 = Test.TestIntfPrxHelper.createProxy(communicator, proxyStringMax1);
 
-        string proxyStringSerialize = $"test: {helper.getTestEndpoint(4)}";
-        Test.TestIntfPrx pSerialize = Test.TestIntfPrxHelper.createProxy(communicator, proxyStringSerialize);
-
         await testMaxDispatches(p, responder, 100, helper.getWriter());
         await testMaxDispatches(pMax10, responder, 10, helper.getWriter());
         await testMaxDispatches(pMax1, responder, 1, helper.getWriter());
-
-        // Serialize does not limit dispatches with "true" AMD.
-        await testMaxDispatches(pSerialize, responder, 100, helper.getWriter());
 
         await p.shutdownAsync();
     }

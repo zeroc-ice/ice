@@ -675,7 +675,6 @@ class Mapping(object):
                     "compress",
                     "ipv6",
                     "no-ipv6",
-                    "serialize",
                     "mx",
                     "cprops=",
                     "sprops=",
@@ -693,7 +692,6 @@ class Mapping(object):
             print("--protocol=<prot>     Run with the given protocol.")
             print("--compress            Run the tests with protocol compression.")
             print("--ipv6                Use IPv6 addresses.")
-            print("--serialize           Run with connection serialization.")
             print("--mx                  Run with metrics enabled.")
             print(
                 "--cprops=<properties> Specifies a list of additional client properties."
@@ -722,7 +720,6 @@ class Mapping(object):
             self.pathOverride = ""
             self.protocol = "tcp"
             self.compress = False
-            self.serialize = False
             self.ipv6 = False
             self.mx = False
             self.cprops = []
@@ -755,7 +752,7 @@ class Mapping(object):
 
         def getAll(self, current, testcase, rand=False):
             #
-            # A generator to generate combinations of options (e.g.: tcp/compress/mx, ssl/ipv6/serialize, etc)
+            # A generator to generate combinations of options (e.g.: tcp/compress/mx)
             #
             def gen(supportedOptions):
                 if not supportedOptions:
@@ -881,8 +878,6 @@ class Mapping(object):
                     props["Ice.Default.Protocol"] = self.protocol
                 if self.compress:
                     props["Ice.Override.Compress"] = "1"
-                if self.serialize:
-                    props["Ice.ThreadPool.Server.Serialize"] = "1"
                 props["Ice.IPv6"] = self.ipv6
                 if self.ipv6:
                     props["Ice.PreferIPv6Address"] = True
@@ -4303,7 +4298,6 @@ class JavaScriptMixin:
             "protocol": ["ws", "wss"] if current.config.browser else ["tcp"],
             "compress": [False],
             "ipv6": [False],
-            "serialize": [False],
             "mx": [False],
         }
         return options

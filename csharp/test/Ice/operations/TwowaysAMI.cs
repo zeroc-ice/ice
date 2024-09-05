@@ -86,21 +86,15 @@ namespace Ice
                     test(ret.p3.ice_getIdentity().Equals(Util.stringToIdentity("noSuchIdentity")));
                     test(ret.returnValue.ice_getIdentity().Equals(Util.stringToIdentity("test")));
 
-                    //
-                    // We can't do the callbacks below in connection serialization mode.
-                    //
-                    if (communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+                    ret.returnValue.opVoid();
+                    ret.p2.opVoid();
+                    try
                     {
-                        ret.returnValue.opVoid();
-                        ret.p2.opVoid();
-                        try
-                        {
-                            ret.p3.opVoid();
-                            test(false);
-                        }
-                        catch (ObjectNotExistException)
-                        {
-                        }
+                        ret.p3.opVoid();
+                        test(false);
+                    }
+                    catch (ObjectNotExistException)
+                    {
                     }
                 }
 
@@ -121,13 +115,7 @@ namespace Ice
                     test(ret.p3.e == Test.MyEnum.enum3);
                     test(ret.p3.s.s == "a new string");
 
-                    //
-                    // We can't do the callbacks below in connection serialization mode.
-                    //
-                    if (communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
-                    {
-                        ret.p3.p.opVoid();
-                    }
+                    ret.p3.p.opVoid();
                 }
 
                 {

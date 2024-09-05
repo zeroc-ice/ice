@@ -56,30 +56,6 @@ public final class Selector {
     checkReady(handler);
   }
 
-  void enable(EventHandler handler, int status) {
-    if ((handler._disabled & status) == 0) {
-      return;
-    }
-    handler._disabled = handler._disabled & ~status;
-
-    if (handler._key != null && (handler._registered & status) != 0) {
-      updateImpl(handler); // If registered with the selector, update the registration.
-    }
-    checkReady(handler);
-  }
-
-  void disable(EventHandler handler, int status) {
-    if ((handler._disabled & status) != 0) {
-      return;
-    }
-    handler._disabled = handler._disabled | status;
-
-    if (handler._key != null && (handler._registered & status) != 0) {
-      updateImpl(handler); // If registered with the selector, update the registration.
-    }
-    checkReady(handler);
-  }
-
   boolean finish(EventHandler handler, boolean closeNow) {
     handler._registered = 0;
     if (handler._key != null) {
@@ -164,7 +140,7 @@ public final class Selector {
     }
 
     for (EventHandler handler : _readyHandlers) {
-      int op = handler._ready & ~handler._disabled & handler._registered;
+      int op = handler._ready & handler._registered;
       if (handler._key != null && _keys.contains(handler._key)) {
         op |= fromJavaOps(handler._key.readyOps() & handler._key.interestOps());
       }
@@ -240,7 +216,7 @@ public final class Selector {
 
   private void updateSelector() {
     for (EventHandler handler : _changes) {
-      int status = handler._registered & ~handler._disabled;
+      int status = handler._registered;
       int ops = toJavaOps(handler, status);
       if (handler._key == null) {
         if (handler._registered != 0) {
@@ -258,7 +234,7 @@ public final class Selector {
   }
 
   private void checkReady(EventHandler handler) {
-    if ((handler._ready & ~handler._disabled & handler._registered) != 0) {
+    if ((handler._ready & handler._registered) != 0) {
       _readyHandlers.add(handler);
       if (_selecting) {
         wakeup();

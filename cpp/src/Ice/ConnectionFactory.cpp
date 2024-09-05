@@ -1352,13 +1352,11 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 {
     ConnectionIPtr connection;
 
-    ThreadPoolMessage<IncomingConnectionFactory> msg(current, *this);
-
     {
         lock_guard lock(_mutex);
 
-        ThreadPoolMessage<IncomingConnectionFactory>::IOScope io(msg);
-        if (!io)
+        ThreadPoolMessage msg(current);
+        if (!msg.ioReady())
         {
             return;
         }

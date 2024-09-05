@@ -141,21 +141,15 @@ namespace
             test(c2->ice_getIdentity() == stringToIdentity("noSuchIdentity"));
             test(r->ice_getIdentity() == stringToIdentity("test"));
 
-            //
-            // We can't do the callbacks below in connection serialization mode.
-            //
-            if (_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+            r->opVoid();
+            c1->opVoid();
+            try
             {
-                r->opVoid();
-                c1->opVoid();
-                try
-                {
-                    c2->opVoid();
-                    test(false);
-                }
-                catch (const ObjectNotExistException&)
-                {
-                }
+                c2->opVoid();
+                test(false);
+            }
+            catch (const ObjectNotExistException&)
+            {
             }
             called();
         }
@@ -168,13 +162,7 @@ namespace
             test(so.e == MyEnum::enum3);
             test(so.s.s == "a new string");
 
-            //
-            // We can't do the callbacks below in connection serialization mode.
-            //
-            if (_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
-            {
-                so.p->opVoid();
-            }
+            so.p->opVoid();
             called();
         }
 

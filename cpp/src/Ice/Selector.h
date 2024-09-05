@@ -88,8 +88,6 @@ namespace IceInternal
             // Nothing to do
         }
         void update(EventHandler*, SocketOperation, SocketOperation);
-        void enable(EventHandler*, SocketOperation);
-        void disable(EventHandler*, SocketOperation);
         bool finish(EventHandler*, bool);
 
         void ready(EventHandler*, SocketOperation, bool);
@@ -198,8 +196,6 @@ namespace IceInternal
 
         void initialize(EventHandler*);
         void update(EventHandler*, SocketOperation, SocketOperation);
-        void enable(EventHandler*, SocketOperation);
-        void disable(EventHandler*, SocketOperation);
         bool finish(EventHandler*, bool);
 
         void ready(EventHandler*, SocketOperation, bool);

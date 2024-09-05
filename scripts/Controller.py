@@ -162,7 +162,6 @@ class ControllerDriver(Driver):
                 attrs = [
                     "protocol",
                     "mx",
-                    "serialize",
                     "compress",
                     "ipv6",
                     "cprops",

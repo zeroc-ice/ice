@@ -1443,8 +1443,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               }
             }
             // else don't resume reading since we're at or over the _maxDispatches limit.
-
-            _threadPool.register(this, SocketOperation.Read);
             break;
           }
 

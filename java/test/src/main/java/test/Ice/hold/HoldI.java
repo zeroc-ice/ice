@@ -80,6 +80,9 @@ public final class HoldI implements Hold {
 
   @Override
   public synchronized void setOneway(int value, int expected, com.zeroc.Ice.Current current) {
+    if (_last != expected) {
+      System.err.println("setOneway: expected " + expected + " got " + _last);
+    }
     test(_last == expected);
     _last = value;
   }

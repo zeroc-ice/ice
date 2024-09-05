@@ -22,4 +22,4 @@ if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "serveramd"):
         ),
     ]
 
-TestSuite(__name__, testcases, options={"serialize": [False]})
+TestSuite(__name__, testcases)

@@ -60,15 +60,9 @@ allTests(TestHelper* helper)
     string proxyStringMax1 = "test: " + helper->getTestEndpoint(3);
     TestIntfPrx pMax1{communicator, proxyStringMax1};
 
-    string proxyStringSerialize = "test: " + helper->getTestEndpoint(4);
-    TestIntfPrx pSerialize{communicator, proxyStringSerialize};
-
     testMaxDispatches(p, responder, 100);
     testMaxDispatches(pMax10, responder, 10);
     testMaxDispatches(pMax1, responder, 1);
-
-    // Serialize does not limit dispatches with "true" AMD.
-    testMaxDispatches(pSerialize, responder, 100);
 
     p->shutdown();
 }

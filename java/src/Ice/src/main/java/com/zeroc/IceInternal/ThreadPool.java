@@ -76,7 +76,6 @@ public final class ThreadPool implements java.util.concurrent.Executor {
     _inUse = 0;
     _inUseIO = 0;
     _promote = true;
-    _serialize = properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
     _serverIdleTime = timeout;
     _threadPrefix = Util.createThreadName(properties, _prefix);
 
@@ -371,13 +370,6 @@ public final class ThreadPool implements java.util.concurrent.Executor {
             //
             --_inUseIO;
           } else {
-            //
-            // If the handler called ioCompleted(), we re-enable the handler in
-            // case it was disabled and we decrease the number of thread in use.
-            //
-            if (_serialize) {
-              _selector.enable(current._handler, current.operation);
-            }
             assert (_inUse > 0);
             --_inUse;
           }
@@ -393,7 +385,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
         current._handler = null;
         while (_nextHandler.hasNext()) {
           EventHandlerOpPair n = _nextHandler.next();
-          int op = n.op & ~n.handler._disabled & n.handler._registered;
+          int op = n.op & n.handler._registered;
           if (op != 0) {
             current._ioCompleted = false;
             current._handler = n.handler;
@@ -408,7 +400,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
           // If there are no more ready handlers and there are still threads busy performing
           // IO, we give up leadership and promote another follower (which will perform the
           // select() only once all the IOs are completed). Otherwise, if there's no more
-          // threads peforming IOs, it's time to do another select().
+          // threads performing IOs, it's time to do another select().
           //
           if (_inUseIO > 0) {
             promoteFollower(current);
@@ -440,12 +432,6 @@ public final class ThreadPool implements java.util.concurrent.Executor {
 
     if (_sizeMax > 1) {
       --_inUseIO;
-
-      if (!_destroyed) {
-        if (_serialize) {
-          _selector.disable(current._handler, current.operation);
-        }
-      }
 
       if (current._leader) {
         //
@@ -660,9 +646,9 @@ public final class ThreadPool implements java.util.concurrent.Executor {
   private final int _size; // Number of threads that are pre-created.
   private final int _sizeIO; // Number of threads that can concurrently perform IO.
   private final int _sizeMax; // Maximum number of threads.
-  private final int
-      _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
-  private final boolean _serialize; // True if requests need to be serialized over the connection.
+
+  // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+  private final int _sizeWarn;
   private final int _priority;
   private final boolean _hasPriority;
   private final long _serverIdleTime;

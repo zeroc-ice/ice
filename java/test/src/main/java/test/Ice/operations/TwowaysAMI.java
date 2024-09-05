@@ -215,16 +215,13 @@ class TwowaysAMI {
                         .returnValue
                         .ice_getIdentity()
                         .equals(com.zeroc.Ice.Util.stringToIdentity("test")));
-                // We can't do the callbacks below in connection serialization mode.
-                if (communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize")
-                    == 0) {
-                  result.returnValue.opVoid();
-                  result.p2.opVoid();
-                  try {
-                    result.p3.opVoid();
-                    test(false);
-                  } catch (com.zeroc.Ice.ObjectNotExistException e) {
-                  }
+
+                result.returnValue.opVoid();
+                result.p2.opVoid();
+                try {
+                  result.p3.opVoid();
+                  test(false);
+                } catch (com.zeroc.Ice.ObjectNotExistException e) {
                 }
                 cb.called();
               });
@@ -253,11 +250,7 @@ class TwowaysAMI {
                 test(result.returnValue.s.s.equals("def"));
                 test(result.p3.e == MyEnum.enum3);
                 test(result.p3.s.s.equals("a new string"));
-                // We can't do the callbacks below in connection serialization mode.
-                if (communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize")
-                    == 0) {
-                  result.p3.p.opVoid();
-                }
+                result.p3.p.opVoid();
                 cb.called();
               });
       cb.check();

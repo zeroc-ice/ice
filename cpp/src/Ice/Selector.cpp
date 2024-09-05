@@ -278,115 +278,6 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
     }
 }
 
-void
-Selector::enable(EventHandler* handler, SocketOperation status)
-{
-    if (!(handler->_disabled & status))
-    {
-        return;
-    }
-    handler->_disabled = static_cast<SocketOperation>(handler->_disabled & ~status);
-    checkReady(handler);
-
-    NativeInfoPtr nativeInfo = handler->getNativeInfo();
-    if (!nativeInfo || nativeInfo->fd() == INVALID_SOCKET)
-    {
-        return;
-    }
-
-    if (handler->_registered & status)
-    {
-#    if defined(ICE_USE_EPOLL)
-        SOCKET fd = nativeInfo->fd();
-        SocketOperation previous = static_cast<SocketOperation>(handler->_registered & ~(handler->_disabled | status));
-        SocketOperation newStatus = static_cast<SocketOperation>(handler->_registered & ~handler->_disabled);
-        epoll_event event;
-        memset(&event, 0, sizeof(epoll_event));
-        event.data.ptr = handler;
-        if (newStatus & SocketOperationRead)
-        {
-            event.events |= EPOLLIN;
-        }
-        if (newStatus & SocketOperationWrite)
-        {
-            event.events |= EPOLLOUT;
-        }
-        if (epoll_ctl(_queueFd, previous ? EPOLL_CTL_MOD : EPOLL_CTL_ADD, fd, &event) != 0)
-        {
-            Ice::Error out(_instance->initializationData().logger);
-            out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
-        }
-#    elif defined(ICE_USE_KQUEUE)
-        struct kevent ev;
-        SOCKET fd = handler->getNativeInfo()->fd();
-        EV_SET(&ev, fd, status == SocketOperationRead ? EVFILT_READ : EVFILT_WRITE, EV_ENABLE, 0, 0, handler);
-        _changes.push_back(ev);
-        if (_selecting)
-        {
-            updateSelector();
-        }
-#    else
-        _changes.push_back(
-            make_pair(handler, static_cast<SocketOperation>(handler->_registered & ~handler->_disabled)));
-        wakeup();
-#    endif
-    }
-}
-
-void
-Selector::disable(EventHandler* handler, SocketOperation status)
-{
-    if (handler->_disabled & status)
-    {
-        return;
-    }
-    handler->_disabled = static_cast<SocketOperation>(handler->_disabled | status);
-    checkReady(handler);
-
-    NativeInfoPtr nativeInfo = handler->getNativeInfo();
-    if (!nativeInfo || nativeInfo->fd() == INVALID_SOCKET)
-    {
-        return;
-    }
-
-    if (handler->_registered & status)
-    {
-#    if defined(ICE_USE_EPOLL)
-        SOCKET fd = nativeInfo->fd();
-        SocketOperation newStatus = static_cast<SocketOperation>(handler->_registered & ~handler->_disabled);
-        epoll_event event;
-        memset(&event, 0, sizeof(epoll_event));
-        event.data.ptr = handler;
-        if (newStatus & SocketOperationRead)
-        {
-            event.events |= EPOLLIN;
-        }
-        if (newStatus & SocketOperationWrite)
-        {
-            event.events |= EPOLLOUT;
-        }
-        if (epoll_ctl(_queueFd, newStatus ? EPOLL_CTL_MOD : EPOLL_CTL_DEL, fd, &event) != 0)
-        {
-            Ice::Error out(_instance->initializationData().logger);
-            out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
-        }
-#    elif defined(ICE_USE_KQUEUE)
-        SOCKET fd = nativeInfo->fd();
-        struct kevent ev;
-        EV_SET(&ev, fd, status == SocketOperationRead ? EVFILT_READ : EVFILT_WRITE, EV_DISABLE, 0, 0, handler);
-        _changes.push_back(ev);
-        if (_selecting)
-        {
-            updateSelector();
-        }
-#    else
-        _changes.push_back(
-            make_pair(handler, static_cast<SocketOperation>(handler->_registered & ~handler->_disabled)));
-        wakeup();
-#    endif
-    }
-}
-
 bool
 Selector::finish(EventHandler* handler, bool closeNow)
 {
@@ -586,7 +477,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
     {
         pair<EventHandler*, SocketOperation> p;
         p.first = q->first.get();
-        p.second = static_cast<SocketOperation>(p.first->_ready & ~p.first->_disabled & p.first->_registered);
+        p.second = static_cast<SocketOperation>(p.first->_ready & p.first->_registered);
         p.second = static_cast<SocketOperation>(p.second | q->second);
         if (p.second)
         {
@@ -674,7 +565,7 @@ Selector::select(int timeout)
 void
 Selector::checkReady(EventHandler* handler)
 {
-    if (handler->_ready & ~handler->_disabled & handler->_registered)
+    if (handler->_ready & handler->_registered)
     {
         _readyHandlers.insert(make_pair(handler->shared_from_this(), SocketOperationNone));
         wakeup();
@@ -798,11 +689,6 @@ Selector::updateSelectorForEventHandler(
     memset(&event, 0, sizeof(epoll_event));
     event.data.ptr = handler;
     SocketOperation status = handler->_registered;
-    if (handler->_disabled)
-    {
-        status = static_cast<SocketOperation>(status & ~handler->_disabled);
-        previous = static_cast<SocketOperation>(previous & ~handler->_disabled);
-    }
     if (status & SocketOperationRead)
     {
         event.events |= EPOLLIN;
@@ -851,27 +737,13 @@ Selector::updateSelectorForEventHandler(
     if (add & SocketOperationRead)
     {
         struct kevent ev;
-        EV_SET(
-            &ev,
-            fd,
-            EVFILT_READ,
-            EV_ADD | (handler->_disabled & SocketOperationRead ? EV_DISABLE : 0),
-            0,
-            0,
-            handler);
+        EV_SET(&ev, fd, EVFILT_READ, EV_ADD, 0, 0, handler);
         _changes.push_back(ev);
     }
     if (add & SocketOperationWrite)
     {
         struct kevent ev;
-        EV_SET(
-            &ev,
-            fd,
-            EVFILT_WRITE,
-            EV_ADD | (handler->_disabled & SocketOperationWrite ? EV_DISABLE : 0),
-            0,
-            0,
-            handler);
+        EV_SET(&ev, fd, EVFILT_WRITE, EV_ADD, 0, 0, handler);
         _changes.push_back(ev);
     }
     if (_selecting)
@@ -879,7 +751,7 @@ Selector::updateSelectorForEventHandler(
         updateSelector();
     }
 #    else
-    _changes.push_back(make_pair(handler, static_cast<SocketOperation>(handler->_registered & ~handler->_disabled)));
+    _changes.push_back(make_pair(handler, static_cast<SocketOperation>(handler->_registered)));
     wakeup();
 #    endif
     checkReady(handler);
@@ -1058,7 +930,7 @@ EventHandlerWrapper::ready(SocketOperation op, int error)
 bool
 EventHandlerWrapper::checkReady()
 {
-    if ((_ready | _handler->_ready) & ~_handler->_disabled & _handler->_registered)
+    if ((_ready | _handler->_ready) & _handler->_registered)
     {
         _selector.addReadyHandler(shared_from_this());
         return false;
@@ -1073,7 +945,7 @@ SocketOperation
 EventHandlerWrapper::readyOp()
 {
     assert(!(~_handler->_registered & _ready));
-    SocketOperation op = static_cast<SocketOperation>(~_handler->_disabled & (_ready | _handler->_ready));
+    SocketOperation op = static_cast<SocketOperation>(_ready | _handler->_ready);
     _ready = static_cast<SocketOperation>(~op & _ready);
     return op;
 }
@@ -1186,33 +1058,6 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
         _changes.insert(wrapper);
         _conditionVariable.notify_one();
     }
-}
-
-void
-Selector::enable(EventHandler* handler, SocketOperation op)
-{
-    lock_guard lock(_mutex);
-    if (!(handler->_disabled & op))
-    {
-        return;
-    }
-    handler->_disabled = static_cast<SocketOperation>(handler->_disabled & ~op);
-
-    if (handler->_registered & op)
-    {
-        _wrappers[handler]->checkReady();
-    }
-}
-
-void
-Selector::disable(EventHandler* handler, SocketOperation op)
-{
-    lock_guard lock(_mutex);
-    if (handler->_disabled & op)
-    {
-        return;
-    }
-    handler->_disabled = static_cast<SocketOperation>(handler->_disabled | op);
 }
 
 bool

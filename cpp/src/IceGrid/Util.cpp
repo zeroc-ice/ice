@@ -252,12 +252,7 @@ IceGrid::toObjectInfo(
 }
 
 void
-IceGrid::setupThreadPool(
-    const Ice::PropertiesPtr& properties,
-    const string& name,
-    int size,
-    int sizeMax,
-    bool serialize)
+IceGrid::setupThreadPool(const Ice::PropertiesPtr& properties, const string& name, int size, int sizeMax)
 {
     if (properties->getPropertyAsIntWithDefault(name + ".Size", 0) < size)
     {
@@ -280,11 +275,6 @@ IceGrid::setupThreadPool(
         ostringstream os;
         os << sizeMax;
         properties->setProperty(name + ".SizeMax", os.str());
-    }
-
-    if (serialize)
-    {
-        properties->setProperty(name + ".Serialize", "1");
     }
 }
 

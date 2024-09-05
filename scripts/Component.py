@@ -16,7 +16,6 @@ class Ice(Util.Component):
         "protocol": ["tcp", "ssl", "wss", "ws"],
         "compress": [False, True],
         "ipv6": [False, True],
-        "serialize": [False, True],
         "mx": [False, True],
     }
 
@@ -25,7 +24,6 @@ class Ice(Util.Component):
         "protocol": ["ssl", "ws"],
         "compress": [False, True],
         "ipv6": [False, True],
-        "serialize": [False, True],
         "mx": [False, True],
     }
 
@@ -34,7 +32,6 @@ class Ice(Util.Component):
         "protocol": ["ssl"],
         "compress": [False],
         "ipv6": [False],
-        "serialize": [False],
         "mx": [True],
     }
 

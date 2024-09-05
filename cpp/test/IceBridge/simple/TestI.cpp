@@ -39,32 +39,6 @@ MyClassI::getCallbackCountAsync(
         [error = std::move(error)](exception_ptr e) { error(e); });
 }
 
-void
-MyClassI::incCounter(int expected, const Ice::Current& current)
-{
-    checkConnection(current.con);
-
-    {
-        lock_guard<mutex> lg(_lock);
-        if (_counter + 1 != expected)
-        {
-            cout << _counter << " " << expected << endl;
-        }
-        test(++_counter == expected);
-    }
-    _condVar.notify_all();
-}
-
-void
-MyClassI::waitCounter(int value, const Ice::Current&)
-{
-    unique_lock<mutex> lock(_lock);
-    while (_counter != value)
-    {
-        _condVar.wait(lock);
-    }
-}
-
 int
 MyClassI::getConnectionCount(const Ice::Current& current)
 {

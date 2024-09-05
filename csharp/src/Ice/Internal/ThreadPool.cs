@@ -50,66 +50,31 @@ internal sealed class ThreadPoolSynchronizationContext : SynchronizationContext
     private ThreadPool _threadPool;
 }
 
-internal class ThreadPoolMessage : IDisposable
+internal readonly struct ThreadPoolMessage : IDisposable
 {
-    public ThreadPoolMessage(ThreadPoolCurrent current, object mutex)
-    {
-        _current = current;
-        _mutex = mutex;
-        _finish = false;
-        _finishWithIO = false;
-    }
+    private readonly ThreadPoolCurrent _current;
+    private readonly bool _ioReady;
 
-    public bool startIOScope()
+    public void Dispose()
     {
-        // This must be called with the handler locked.
-        _finishWithIO = _current.startMessage();
-        return _finishWithIO;
-    }
-
-    public void finishIOScope()
-    {
-        if (_finishWithIO)
+        if (_ioReady)
         {
-            // This must be called with the handler locked.
             _current.finishMessage();
         }
     }
 
-    public void ioCompleted()
+    internal ThreadPoolMessage(ThreadPoolCurrent current)
     {
-        //
-        // Call finishMessage once IO is completed only if serialization is not enabled.
-        // Otherwise, finishMessage will be called when the event handler is done with
-        // the message (it will be called from Dispose below).
-        //
-        Debug.Assert(_finishWithIO);
-        if (_current.ioCompleted())
-        {
-            _finishWithIO = false;
-            _finish = true;
-        }
+        _current = current;
+        _ioReady = _current.startMessage();
     }
 
-    public void Dispose()
-    {
-        if (_finish)
-        {
-            //
-            // A ThreadPoolMessage instance must be created outside the synchronization of the event handler. We
-            // need to lock the event handler here to call finishMessage.
-            //
-            lock (_mutex)
-            {
-                _current.finishMessage();
-            }
-        }
-    }
+    internal bool ioReady() => _ioReady;
 
-    private ThreadPoolCurrent _current;
-    private object _mutex;
-    private bool _finish;
-    private bool _finishWithIO;
+    internal void ioCompleted()
+    {
+        _current.ioCompleted();
+    }
 }
 
 public class ThreadPoolCurrent
@@ -122,9 +87,9 @@ public class ThreadPoolCurrent
 
     public int operation;
 
-    public bool ioCompleted()
+    public void ioCompleted()
     {
-        return _threadPool.ioCompleted(this);
+        _threadPool.ioCompleted(this);
     }
 
     public bool startMessage()
@@ -155,7 +120,6 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         _prefix = prefix;
         _threadIndex = 0;
         _inUse = 0;
-        _serialize = properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
         _serverIdleTime = timeout <= 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);
 
         string programName = properties.getIceProperty("Ice.ProgramName");
@@ -423,11 +387,6 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         return _prefix;
     }
 
-    public bool serialize()
-    {
-        return _serialize;
-    }
-
     protected sealed override void QueueTask(System.Threading.Tasks.Task task)
     {
         execute(() => { TryExecuteTask(task); }, null);
@@ -581,7 +540,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         }
     }
 
-    public bool ioCompleted(ThreadPoolCurrent current)
+    public void ioCompleted(ThreadPoolCurrent current)
     {
         lock (_mutex)
         {
@@ -623,7 +582,6 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                 }
             }
         }
-        return _serialize;
     }
 
     public bool startMessage(ThreadPoolCurrent current)
@@ -849,7 +807,6 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
     private readonly int _size; // Number of threads that are pre-created.
     private readonly int _sizeMax; // Maximum number of threads.
     private readonly int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
-    private readonly bool _serialize; // True if requests need to be serialized over the connection.
     private readonly ThreadPriority _priority;
     private readonly TimeSpan _serverIdleTime;
     private readonly TimeSpan _threadIdleTime;

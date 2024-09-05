@@ -337,7 +337,6 @@ class RemoteTestCaseRunner(TestCaseRunner):
         return Test.Common.Config(
             current.config.protocol,
             current.config.mx,
-            current.config.serialize,
             current.config.compress,
             current.config.ipv6,
             current.config.cprops,

@@ -17,13 +17,7 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-    auto properties = createTestProperties(argc, argv);
-    properties->setProperty("Ice.Warn.Dispatch", "0");
-
-    // Make sure requests are serialized, this is required for the ordering test.
-    properties->setProperty("Ice.ThreadPool.Server.Serialize", "1");
-
-    Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv, properties);
+    Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
     communicatorHolder->getProperties()->setProperty(
         "TestAdapter.Endpoints",
         getTestEndpoint() + ":" + getTestEndpoint("udp"));

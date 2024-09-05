@@ -1329,133 +1329,125 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     {
         Ice.ConnectionI connection = null;
 
-        using ThreadPoolMessage msg = new ThreadPoolMessage(current, this);
-
         lock (_mutex)
         {
-            if (!msg.startIOScope())
+            using var msg = new ThreadPoolMessage(current);
+            if (!msg.ioReady())
             {
                 return;
             }
 
+            if (_state >= StateClosed)
+            {
+                return;
+            }
+            else if (_state == StateHolding)
+            {
+                return;
+            }
+
+            if (!_acceptorStarted)
+            {
+                return;
+            }
+
+            //
+            // Now accept a new connection.
+            //
+            Transceiver transceiver = null;
             try
             {
-                if (_state >= StateClosed)
+                transceiver = _acceptor.accept();
+
+                if (_maxConnections > 0 && _connections.Count == _maxConnections)
                 {
-                    return;
-                }
-                else if (_state == StateHolding)
-                {
-                    return;
-                }
-
-                if (!_acceptorStarted)
-                {
-                    return;
-                }
-
-                //
-                // Now accept a new connection.
-                //
-                Transceiver transceiver = null;
-                try
-                {
-                    transceiver = _acceptor.accept();
-
-                    if (_maxConnections > 0 && _connections.Count == _maxConnections)
-                    {
-                        // Can't accept more connections, so we abort this transport connection.
-
-                        if (_instance.traceLevels().network >= 2)
-                        {
-                            _instance.initializationData().logger.trace(
-                                _instance.traceLevels().networkCat,
-                                $"rejecting new {_endpoint.protocol()} connection\n{transceiver}\nbecause the maximum number of connections has been reached");
-                        }
-
-                        try
-                        {
-                            transceiver.close();
-                        }
-                        catch
-                        {
-                            // Ignore
-                        }
-                        transceiver.destroy();
-                        return;
-                    }
+                    // Can't accept more connections, so we abort this transport connection.
 
                     if (_instance.traceLevels().network >= 2)
                     {
-                        StringBuilder s = new StringBuilder("trying to accept ");
-                        s.Append(_endpoint.protocol());
-                        s.Append(" connection\n");
-                        s.Append(transceiver.ToString());
-                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
-                    }
-                }
-                catch (Ice.SocketException ex)
-                {
-                    if (Network.noMoreFds(ex.InnerException))
-                    {
-                        string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
-                        _instance.initializationData().logger.error(s);
-                        Debug.Assert(_acceptorStarted);
-                        _acceptorStarted = false;
-                        _adapter.getThreadPool().finish(this);
-                        closeAcceptor();
+                        _instance.initializationData().logger.trace(
+                            _instance.traceLevels().networkCat,
+                            $"rejecting new {_endpoint.protocol()} connection\n{transceiver}\nbecause the maximum number of connections has been reached");
                     }
 
-                    // Ignore socket exceptions.
-                    return;
-                }
-                catch (Ice.LocalException ex)
-                {
-                    // Warn about other Ice local exceptions.
-                    if (_warn)
-                    {
-                        warning(ex);
-                    }
-                    return;
-                }
-
-                Debug.Assert(transceiver != null);
-
-                try
-                {
-                    connection = new Ice.ConnectionI(
-                        _instance,
-                        transceiver,
-                        null,
-                        _endpoint,
-                        _adapter,
-                        removeConnection,
-                        _connectionOptions);
-                }
-                catch (Ice.LocalException ex)
-                {
                     try
                     {
                         transceiver.close();
                     }
-                    catch (Ice.LocalException)
+                    catch
                     {
                         // Ignore
                     }
-
-                    if (_warn)
-                    {
-                        warning(ex);
-                    }
+                    transceiver.destroy();
                     return;
                 }
 
-                _connections.Add(connection);
+                if (_instance.traceLevels().network >= 2)
+                {
+                    StringBuilder s = new StringBuilder("trying to accept ");
+                    s.Append(_endpoint.protocol());
+                    s.Append(" connection\n");
+                    s.Append(transceiver.ToString());
+                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                }
             }
-            finally
+            catch (Ice.SocketException ex)
             {
-                msg.finishIOScope();
+                if (Network.noMoreFds(ex.InnerException))
+                {
+                    string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
+                    _instance.initializationData().logger.error(s);
+                    Debug.Assert(_acceptorStarted);
+                    _acceptorStarted = false;
+                    _adapter.getThreadPool().finish(this);
+                    closeAcceptor();
+                }
+
+                // Ignore socket exceptions.
+                return;
             }
+            catch (Ice.LocalException ex)
+            {
+                // Warn about other Ice local exceptions.
+                if (_warn)
+                {
+                    warning(ex);
+                }
+                return;
+            }
+
+            Debug.Assert(transceiver != null);
+
+            try
+            {
+                connection = new Ice.ConnectionI(
+                    _instance,
+                    transceiver,
+                    null,
+                    _endpoint,
+                    _adapter,
+                    removeConnection,
+                    _connectionOptions);
+            }
+            catch (Ice.LocalException ex)
+            {
+                try
+                {
+                    transceiver.close();
+                }
+                catch (Ice.LocalException)
+                {
+                    // Ignore
+                }
+
+                if (_warn)
+                {
+                    warning(ex);
+                }
+                return;
+            }
+
+            _connections.Add(connection);
         }
 
         Debug.Assert(connection != null);

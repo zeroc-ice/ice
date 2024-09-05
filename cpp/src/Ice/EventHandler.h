@@ -56,8 +56,6 @@ namespace IceInternal
         SocketOperation _started;
         SocketOperation _completed;
         bool _finish;
-#else
-        SocketOperation _disabled;
 #endif
         SocketOperation _ready;
         SocketOperation _registered;

@@ -12,7 +12,6 @@ class Config
 {
     optional(1) string protocol;
     optional(2) bool mx;
-    optional(3) bool serialize;
     optional(4) bool compress;
     optional(5) bool ipv6;
     optional(6) StringSeq cprops;
@@ -23,7 +22,6 @@ class OptionOverrides
 {
     optional(1) StringSeq protocol;
     optional(2) BoolSeq mx;
-    optional(3) BoolSeq serialize;
     optional(4) BoolSeq compress;
     optional(5) BoolSeq ipv6;
 }

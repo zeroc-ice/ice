@@ -13,13 +13,12 @@ public class Server extends test.TestHelper {
       communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
       communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
       communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
-      communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Serialize", "0");
 
       communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
       communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Size", "5");
       communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
       communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
-      communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Serialize", "1");
+      communicator.getProperties().setProperty("TestAdapter2.Connection.MaxDispatches", "1");
 
       java.util.Timer timer = new java.util.Timer();
 

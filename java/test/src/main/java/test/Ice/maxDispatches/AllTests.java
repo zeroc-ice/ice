@@ -24,15 +24,9 @@ public class AllTests {
     String proxyStringMax1 = "test: " + helper.getTestEndpoint(3);
     var pMax1 = TestIntfPrx.createProxy(communicator, proxyStringMax1);
 
-    String proxyStringSerialize = "test: " + helper.getTestEndpoint(4);
-    var pSerialize = TestIntfPrx.createProxy(communicator, proxyStringSerialize);
-
     testMaxDispatches(p, responder, 100, helper.getWriter());
     testMaxDispatches(pMax10, responder, 10, helper.getWriter());
     testMaxDispatches(pMax1, responder, 1, helper.getWriter());
-
-    // Serialize does not limit dispatches with "true" AMD.
-    testMaxDispatches(pSerialize, responder, 100, helper.getWriter());
 
     p.shutdown();
   }

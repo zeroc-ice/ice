@@ -1427,7 +1427,6 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "Router.LocatorCacheTimeout",
         "Router.InvocationTimeout",
         "ProxyOptions",
-        "ThreadPool.Serialize",
         "ThreadPool.Size",
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",

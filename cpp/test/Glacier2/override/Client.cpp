@@ -26,7 +26,6 @@ CallbackClient::run(int argc, char** argv)
 {
     auto properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.Warn.Connections", "0");
-    properties->setProperty("Ice.ThreadPool.Client.Serialize", "1");
 
     Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
     auto communicator = ich.communicator();

@@ -242,7 +242,7 @@ RegistryI::startImpl()
     }
 
     setupThreadPool(properties, "IceGrid.Registry.Client.ThreadPool", 1, 10);
-    setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10, true); // Serialize for admin callbacks
+    setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.SessionManager.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.AdminSessionManager.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Internal.ThreadPool", 1, 100);

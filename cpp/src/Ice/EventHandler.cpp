@@ -16,8 +16,6 @@ IceInternal::EventHandler::EventHandler()
       _started(SocketOperationNone),
       _completed(SocketOperationNone),
       _finish(false),
-#else
-      _disabled(SocketOperationNone),
 #endif
       _ready(SocketOperationNone),
       _registered(SocketOperationNone)

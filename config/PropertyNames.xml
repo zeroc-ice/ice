@@ -220,7 +220,6 @@ generated from the section label.
         <suffix name="SizeMax" />
         <suffix name="SizeWarn" default="0" />
         <suffix name="StackSize" default="0" />
-        <suffix name="Serialize" default="0" />
         <suffix name="ThreadIdleTime" default="60" />
         <suffix name="ThreadPriority" />
     </class>

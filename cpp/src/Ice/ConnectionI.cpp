@@ -1133,12 +1133,11 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     function<bool(InputStream&)> messageUpcall;
     InputStream messageStream(_instance.get(), currentProtocolEncoding);
 
-    ThreadPoolMessage<ConnectionI> msg(current, *this);
     {
         std::lock_guard lock(_mutex);
 
-        ThreadPoolMessage<ConnectionI>::IOScope io(msg);
-        if (!io)
+        ThreadPoolMessage msg(current);
+        if (!msg.ioReady())
         {
             return;
         }
@@ -1387,7 +1386,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
             // There's something to dispatch so we mark IO as completed to elect a new leader thread and let IO be
             // performed on this new leader thread while this thread continues with dispatching the up-calls.
-            io.completed();
+            msg.ioCompleted();
         }
         catch (const DatagramLimitException&) // Expected.
         {

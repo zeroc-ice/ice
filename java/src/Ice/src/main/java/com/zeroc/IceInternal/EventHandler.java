@@ -31,7 +31,6 @@ public abstract class EventHandler {
   //
   public abstract void setReadyCallback(ReadyCallback callback);
 
-  public int _disabled = 0;
   public int _registered = 0;
   public int _ready = 0;
   public java.nio.channels.SelectionKey _key = null;

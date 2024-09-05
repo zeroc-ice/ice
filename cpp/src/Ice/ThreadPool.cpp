@@ -157,7 +157,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
       _sizeIO(0),
       _sizeMax(0),
       _sizeWarn(0),
-      _serialize(_instance->initializationData().properties->getPropertyAsInt(_prefix + ".Serialize") > 0),
       _hasPriority(false),
       _priority(0),
       _serverIdleTime(timeout),
@@ -593,14 +592,6 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 }
                 else
                 {
-                    //
-                    // If the handler called ioCompleted(), we re-enable the handler in
-                    // case it was disabled and we decrease the number of thread in use.
-                    //
-                    if (_serialize && current._handler.get() != _workQueue.get())
-                    {
-                        _selector.enable(current._handler.get(), current.operation);
-                    }
                     assert(_inUse > 0);
                     --_inUse;
                 }
@@ -614,8 +605,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             //
             // Get the next ready handler.
             //
-            while (_nextHandler != _handlers.end() &&
-                   !(_nextHandler->second & ~_nextHandler->first->_disabled & _nextHandler->first->_registered))
+            while (_nextHandler != _handlers.end() && !(_nextHandler->second & _nextHandler->first->_registered))
             {
                 ++_nextHandler;
             }
@@ -773,7 +763,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 #endif
 }
 
-bool
+void
 IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 {
     lock_guard lock(_mutex);
@@ -786,14 +776,6 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
     {
 #if !defined(ICE_USE_IOCP)
         --_inUseIO;
-
-        if (!_destroyed)
-        {
-            if (_serialize && current._handler.get() != _workQueue.get())
-            {
-                _selector.disable(current._handler.get(), current.operation);
-            }
-        }
 
         if (current._leader)
         {
@@ -845,8 +827,6 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
             }
         }
     }
-
-    return _serialize && current._handler.get() != _workQueue.get();
 }
 
 #if defined(ICE_USE_IOCP)

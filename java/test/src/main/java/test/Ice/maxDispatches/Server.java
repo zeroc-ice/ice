@@ -38,15 +38,6 @@ public class Server extends test.TestHelper {
       adapter.add(testIntf, new Identity("test", ""));
       adapter.activate();
 
-      communicator
-          .getProperties()
-          .setProperty("TestAdapterSerialize.Endpoints", getTestEndpoint(4));
-      communicator.getProperties().setProperty("TestAdapterSerialize.ThreadPool.Size", "10");
-      communicator.getProperties().setProperty("TestAdapterSerialize.ThreadPool.Serialize", "1");
-      adapter = communicator.createObjectAdapter("TestAdapterSerialize");
-      adapter.add(testIntf, new Identity("test", ""));
-      adapter.activate();
-
       serverReady();
       communicator.waitForShutdown();
     }
