@@ -7,10 +7,11 @@ namespace Ice.maxDispatches;
 internal sealed class TestIntfI : Test.TestIntfDisp_
 {
     private readonly object _mutex = new();
+    private readonly ResponderI _responder;
     private int _dispatchCount;
     private int _maxDispatchCount;
 
-    public override async Task opAsync(Current current)
+    public override Task opAsync(Current current)
     {
         lock (_mutex)
         {
@@ -19,11 +20,16 @@ internal sealed class TestIntfI : Test.TestIntfDisp_
                 _maxDispatchCount = _dispatchCount;
             }
         }
-        await Task.Delay(TimeSpan.FromMilliseconds(50));
-        lock (_mutex)
+
+        var tcs = new TaskCompletionSource(); // continuation can run synchronously
+
+        _responder.queueResponse(() =>
         {
-            --_dispatchCount;
-        }
+            decDispatchCount();
+            tcs.SetResult();
+        });
+
+        return tcs.Task;
     }
 
     public override int resetMaxConcurrentDispatches(Current current)
@@ -37,4 +43,14 @@ internal sealed class TestIntfI : Test.TestIntfDisp_
     }
 
     public override void shutdown(Current current) => current.adapter.getCommunicator().shutdown();
+
+    internal TestIntfI(ResponderI responder) => _responder = responder;
+
+    private void decDispatchCount()
+    {
+        lock (_mutex)
+        {
+            --_dispatchCount;
+        }
+    }
 }
