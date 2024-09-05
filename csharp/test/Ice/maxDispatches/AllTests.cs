@@ -43,7 +43,11 @@ internal class AllTests : global::Test.AllTests
     {
         output.Write($"testing max dispatches max = {maxCount}... ");
         output.Flush();
-        // responder is stopped at this point.
+
+        // Make sure we start fresh
+        await responder.stopAsync();
+        test(await responder.pendingResponseCountAsync() == 0);
+        _ = await p.resetMaxConcurrentDispatchesAsync();
 
         var taskList = new List<Task>();
 
@@ -63,7 +67,6 @@ internal class AllTests : global::Test.AllTests
 
         int maxConcurrentDispatches = await p.resetMaxConcurrentDispatchesAsync();
         test(maxConcurrentDispatches == maxCount);
-        await responder.stopAsync();
         output.WriteLine("ok");
     }
 }

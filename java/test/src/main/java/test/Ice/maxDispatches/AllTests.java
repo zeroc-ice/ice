@@ -42,7 +42,11 @@ public class AllTests {
       TestIntfPrx p, ResponderPrx responder, int maxCount, PrintWriter output) {
     output.write("testing max dispatches max " + maxCount + "... ");
     output.flush();
-    // responder is stopped at this point.
+
+    // Make sure we start fresh
+    responder.stop();
+    test(responder.pendingResponseCount() == 0);
+    p.resetMaxConcurrentDispatches();
 
     var futureList = new ArrayList<CompletableFuture<Void>>();
 
@@ -67,7 +71,6 @@ public class AllTests {
 
     int maxConcurrentDispatches = p.resetMaxConcurrentDispatches();
     test(maxConcurrentDispatches == maxCount);
-    responder.stop();
     output.println("ok");
   }
 

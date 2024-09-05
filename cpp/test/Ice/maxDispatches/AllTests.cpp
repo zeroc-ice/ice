@@ -14,7 +14,11 @@ void
 testMaxDispatches(const TestIntfPrx& p, const ResponderPrx responder, int maxCount)
 {
     cout << "testing max dispatches max = " << maxCount << "... " << flush;
-    // responder is stopped at this point.
+
+    // Make sure we start fresh
+    responder->stop();
+    test(responder->pendingResponseCount() == 0);
+    p->resetMaxConcurrentDispatches();
 
     std::vector<std::future<void>> futureList;
 
@@ -37,7 +41,6 @@ testMaxDispatches(const TestIntfPrx& p, const ResponderPrx responder, int maxCou
 
     int maxConcurrentDispatches = p->resetMaxConcurrentDispatches();
     test(maxConcurrentDispatches == maxCount);
-    responder->stop();
     cout << "ok" << endl;
 }
 
