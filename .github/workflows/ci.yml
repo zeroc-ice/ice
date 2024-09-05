@@ -114,5 +114,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-logs
+          name: test-${{ matrix.config }}-${{ matrix.os }}-logs
           path: ${{ github.workspace }}/**/*.log
