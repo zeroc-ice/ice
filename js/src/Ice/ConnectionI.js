@@ -220,34 +220,18 @@ export class ConnectionI {
             this._closed = new Promise();
             scheduleCloseTimeout(this);
             if (this._asyncRequests.size === 0) {
-                this.setState(
-                    StateClosing,
-                    new ConnectionClosedException("The connection was closed gracefully by the application.", true),
-                );
+                this.doApplicationClose();
             }
         }
         return this._closed;
     }
 
-    checkClose() {
-        //
-        // If close(GracefullyWithWait) has been called, then we need to check if all
-        // requests have completed and we can transition to StateClosing. We also
-        // complete outstanding promises.
-        //
-        if (this._asyncRequests.size === 0 && this._closed !== undefined) {
-            //
-            // The caller doesn't expect the state of the connection to change when this is called so we queue the
-            // check in the event loop an return control to the caller. This is consistent with other implementations
-            // as well.
-            //
-            Timer.setImmediate(() => {
-                this.setState(
-                    StateClosing,
-                    new ConnectionClosedException("The connection was closed gracefully by the application.", true),
-                );
-            });
-        }
+    doApplicationClose() {
+        Debug.assert(this._state < StateClosing);
+        this.setState(
+            StateClosing,
+            new ConnectionClosedException("The connection was closed gracefully by the application.", true),
+        );
     }
 
     isActiveOrHolding() {
@@ -388,7 +372,10 @@ export class ConnectionI {
                     this._sendStreams.splice(i, 1);
                 }
                 outAsync.completedEx(ex);
-                this.checkClose();
+
+                if (this._closed !== undefined && this._state < StateClosing && this._asyncRequests.size === 0) {
+                    this.doApplicationClose();
+                }
                 return; // We're done.
             }
         }
@@ -398,7 +385,10 @@ export class ConnectionI {
                 if (value === outAsync) {
                     this._asyncRequests.delete(key);
                     outAsync.completedEx(ex);
-                    this.checkClose();
+
+                    if (this._closed !== undefined && this._state < StateClosing && this._asyncRequests.size === 0) {
+                        this.doApplicationClose();
+                    }
                     return; // We're done.
                 }
             }
@@ -760,7 +750,6 @@ export class ConnectionI {
             value.completedEx(this._exception);
         }
         this._asyncRequests.clear();
-        this.checkClose();
 
         //
         // Don't wait to be reaped to reclaim memory allocated by read/write streams.
@@ -1426,7 +1415,10 @@ export class ConnectionI {
                     } else {
                         info = null;
                     }
-                    this.checkClose();
+
+                    if (this._closed !== undefined && this._state < StateClosing && this._asyncRequests.size === 0) {
+                        this.doApplicationClose();
+                    }
                     break;
                 }
 
