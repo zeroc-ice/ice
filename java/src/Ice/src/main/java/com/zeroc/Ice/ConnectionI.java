@@ -422,6 +422,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             outAsync.invokeCompletedAsync();
           }
         }
+
+        if (_closeRequested && _state < StateClosing && _asyncRequests.isEmpty()) {
+          doApplicationClose();
+        }
         return;
       }
     }
@@ -437,6 +441,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             if (outAsync.completed(ex)) {
               outAsync.invokeCompletedAsync();
             }
+          }
+
+          if (_closeRequested && _state < StateClosing && _asyncRequests.isEmpty()) {
+            doApplicationClose();
           }
           return;
         }
@@ -2120,7 +2128,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
             info.requestId = info.stream.readInt();
 
-            OutgoingAsyncBase outAsync = _asyncRequests.remove(info.requestId);
+            var outAsync = _asyncRequests.remove(info.requestId);
             if (outAsync != null && outAsync.completed(info.stream)) {
               info.outAsync = outAsync;
               ++info.messageDispatchCount;

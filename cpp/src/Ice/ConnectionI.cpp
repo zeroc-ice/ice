@@ -872,6 +872,11 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                     outAsync->invokeExceptionAsync();
                 }
             }
+
+            if (_closeRequested && _state < StateClosing && _asyncRequests.empty())
+            {
+                doApplicationClose();
+            }
             return;
         }
     }
@@ -899,6 +904,11 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                     {
                         outAsync->invokeExceptionAsync();
                     }
+                }
+
+                if (_closeRequested && _state < StateClosing && _asyncRequests.empty())
+                {
+                    doApplicationClose();
                 }
                 return;
             }
