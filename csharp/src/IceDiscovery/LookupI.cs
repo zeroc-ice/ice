@@ -336,7 +336,7 @@ internal class LookupI : LookupDisp_
                 _objectRequests.Add(id, request);
             }
 
-            var task = new TaskCompletionSource<Ice.ObjectPrx>();
+            var task = new TaskCompletionSource<Ice.ObjectPrx>(TaskCreationOptions.RunContinuationsAsynchronously);
             if (request.addCallback(task))
             {
                 try
@@ -365,7 +365,7 @@ internal class LookupI : LookupDisp_
                 _adapterRequests.Add(adapterId, request);
             }
 
-            var task = new TaskCompletionSource<Ice.ObjectPrx>();
+            var task = new TaskCompletionSource<Ice.ObjectPrx>(TaskCreationOptions.RunContinuationsAsynchronously);
             if (request.addCallback(task))
             {
                 try

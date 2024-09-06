@@ -130,11 +130,10 @@ namespace Ice
             public override async Task<int>
             opWithResultAsyncDispatchAsync(Ice.Current current)
             {
+                test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
                 await Task.Delay(10);
-                test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-                var r = await self(current).opWithResultAsync();
-                test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-                return r;
+                test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+                return await self(current).opWithResultAsync();
             }
 
             public override async Task
@@ -142,7 +141,7 @@ namespace Ice
             {
                 test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
                 await Task.Delay(10);
-                test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+                test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
                 await self(current).opWithUEAsync();
             }
 
