@@ -276,56 +276,43 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             await cb.value
         }
 
-        // TODO: Update to use async/await
-        //     do {
-        //         //
-        //         // Remote case.
-        //         //
-        //         let seq = ByteSeq(repeating: 0, count: 1024 * 10)
+        do {
+            //
+            // Remote case.
+            //
+            let seq = ByteSeq(repeating: 0, count: 1024 * 10)
 
-        //         //
-        //         // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
-        //         // The goal is to make sure that none of the opWithPayload fail even if the server closes
-        //         // the connection gracefully in between.
-        //         //
-        //         var maxQueue = 2
-        //         var done = false
-        //         while !done, maxQueue < 50 {
-        //             done = true
-        //             try p.ice_ping()
-        //             var results: [Promise<Void>] = []
-        //             for _ in 0..<maxQueue {
-        //                 results.append(p.opWithPayload(seq))
-        //             }
+            //
+            // Send multiple opWithPayload, followed by a close and followed by multiple opWithPayload.
+            // The goal is to make sure that none of the opWithPayload fail even if the server closes
+            // the connection gracefully in between.
+            //
+            var maxQueue = 2
+            while maxQueue < 50 {
+                try await p.ice_ping()
 
-        //             var cb = Promise<Bool> { seal in
-        //                 _ = p.close() {
-        //                     seal.fulfill($0)
-        //                 }
-        //             }
+                try await withThrowingTaskGroup(of: Void.self) { group in
+                    for _ in 0..<maxQueue {
+                        group.addTask {
+                            try await p.opWithPayload(seq)
+                        }
+                    }
 
-        //             if try !cb.isResolved || cb.wait() {
-        //                 for _ in 0..<maxQueue {
-        //                     cb = Promise<Bool> { seal in
-        //                         results.append(p.opWithPayload(seq) { seal.fulfill($0) })
-        //                     }
+                    Task { try await p.closeConnection() }
 
-        //                     if try cb.isResolved && cb.wait() {
-        //                         done = false
-        //                         maxQueue *= 2
-        //                         break
-        //                     }
-        //                 }
-        //             } else {
-        //                 maxQueue *= 2
-        //                 done = false
-        //             }
+                    for _ in 0..<maxQueue {
+                        group.addTask {
+                            try await p.opWithPayload(seq)
+                        }
+                    }
 
-        //             for p in results {
-        //                 try p.wait()
-        //             }
-        //         }
-        //     }
+                    try await group.waitForAll()
+
+                    maxQueue *= 2
+                }
+            }
+        }
+
         output.writeLine("ok")
 
         output.write("testing connection abort... ")
