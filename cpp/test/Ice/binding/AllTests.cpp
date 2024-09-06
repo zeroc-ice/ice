@@ -217,7 +217,7 @@ allTests(Test::TestHelper* helper)
 
             for (i = 0; i < proxies.size(); i++)
             {
-                proxies[i]->getAdapterNameAsync();
+                proxies[i]->getAdapterNameAsync(nullptr);
             }
             for (i = 0; i < proxies.size(); i++)
             {

@@ -322,7 +322,7 @@ namespace Ice
          * over the wire.
          * @return The future object for the invocation.
          */
-        std::future<void> flushBatchRequestsAsync(CompressBatch compress);
+        [[nodiscard]] std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
         /**
          * Add the Admin object with all its facets to the provided object adapter. If <code>Ice.Admin.ServerId</code>

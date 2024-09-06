@@ -34,7 +34,7 @@ namespace
 
             if (_size + request.getSize() > 25000)
             {
-                request.getProxy()->ice_flushBatchRequestsAsync();
+                request.getProxy()->ice_flushBatchRequestsAsync(nullptr);
                 _size = 18; // header
             }
 

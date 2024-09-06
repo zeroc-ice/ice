@@ -1745,7 +1745,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
 
     //
-    // Promise based asynchronous operation
+    // Promise-based asynchronous operation
     //
     H << sp;
     if (comment)
@@ -1756,7 +1756,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
 
-    H << nl << deprecatedSymbol << "::std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
+    H << nl << deprecatedSymbol << "[[nodiscard]] ::std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
       << contextDecl << epar << " const;";
 
     C << sp;

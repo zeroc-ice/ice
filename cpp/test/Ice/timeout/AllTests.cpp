@@ -238,7 +238,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         batchTimeout->ice_ping();
 
         // Keep the server thread pool busy.
-        timeout->ice_invocationTimeout(-1)->sleepAsync(500);
+        timeout->ice_invocationTimeout(-1)->sleepAsync(500, nullptr); // don't wait
         try
         {
             batchTimeout->ice_flushBatchRequestsAsync().get();
