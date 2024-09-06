@@ -298,7 +298,9 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
                         }
                     }
 
-                    Task { try await p.closeConnection() }
+                    group.addTask {
+                        try await p.closeConnection()
+                    }
 
                     for _ in 0..<maxQueue {
                         group.addTask {
