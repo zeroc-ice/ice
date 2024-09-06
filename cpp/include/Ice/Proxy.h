@@ -353,8 +353,8 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        [[nodiscard]] std::future<std::vector<std::string>> ice_idsAsync(
-            const Ice::Context& context = Ice::noExplicitContext) const;
+        [[nodiscard]] std::future<std::vector<std::string>>
+        ice_idsAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
         void _iceI_ids(

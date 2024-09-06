@@ -1756,8 +1756,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
 
-    H << nl << deprecatedSymbol << "[[nodiscard]] ::std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
-      << contextDecl << epar << " const;";
+    H << nl << deprecatedSymbol << "[[nodiscard]] ::std::future<" << futureT << "> " << name << "Async" << spar
+      << inParamsDecl << contextDecl << epar << " const;";
 
     C << sp;
     C << nl << "::std::future<" << futureTAbsolute << ">";
