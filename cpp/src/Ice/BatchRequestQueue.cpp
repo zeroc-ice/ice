@@ -97,7 +97,7 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrx& pr
 
         if (_maxSize > 0 && _batchStream.b.size() >= _maxSize)
         {
-            proxy->ice_flushBatchRequestsAsync();
+            proxy->ice_flushBatchRequestsAsync(nullptr); // auto-flush, don't wait for response
         }
 
         assert(_batchMarker < _batchStream.b.size());

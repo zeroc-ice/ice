@@ -60,7 +60,7 @@ TestIntfI::pingBiDir(Identity id, const Current& current)
         //
         // Send the reply through the incoming connection.
         //
-        current.con->createProxy<PingReplyPrx>(id)->replyAsync();
+        current.con->createProxy<PingReplyPrx>(id)->replyAsync(nullptr); // don't wait for the response
     }
     catch (const Exception& ex)
     {

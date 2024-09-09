@@ -216,7 +216,7 @@ namespace Ice
          * over the wire.
          * @return The future object for the invocation.
          */
-        std::future<void> flushBatchRequestsAsync(CompressBatch compress);
+        [[nodiscard]] std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
         /**
          * Set a close callback on the connection. The callback is called by the connection when it's closed. The

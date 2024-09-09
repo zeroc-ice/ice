@@ -259,7 +259,7 @@ namespace IceInternal
     template<typename R> class PromiseInvoke : public virtual OutgoingAsyncCompletionCallback
     {
     public:
-        std::future<R> getFuture() { return _promise.get_future(); }
+        [[nodiscard]] std::future<R> getFuture() { return _promise.get_future(); }
 
     protected:
         bool handleSent(bool, bool) noexcept override { return false; }
@@ -479,7 +479,7 @@ namespace IceInternal
     };
 
     template<typename R, typename Obj, typename Fn, typename... Args>
-    inline std::future<R> makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args)
+    [[nodiscard]] inline std::future<R> makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args)
     {
         auto outAsync = std::make_shared<PromiseOutgoing<R>>(*obj, sync);
         (obj->*fn)(outAsync, std::forward<Args>(args)...);
@@ -487,7 +487,7 @@ namespace IceInternal
     }
 
     template<typename R, typename Re, typename E, typename S, typename Obj, typename Fn, typename... Args>
-    inline std::function<void()> makeLambdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
+    [[nodiscard]] inline std::function<void()> makeLambdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
     {
         auto outAsync = std::make_shared<LambdaOutgoing<R>>(*obj, std::move(r), std::move(e), std::move(s));
         (obj->*fn)(outAsync, std::forward<Args>(args)...);
