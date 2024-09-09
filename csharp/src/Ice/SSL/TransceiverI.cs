@@ -382,20 +382,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             _writeResult.ContinueWith(
                 task =>
                 {
-                    try
-                    {
-                        // If authentication fails, AuthenticateAsServerAsync throws AuthenticationException,
-                        // and the task won't complete successfully.
-                        _verified = task.IsCompletedSuccessfully;
-                        if (_verified)
-                        {
-                            _cipher = _sslStream.CipherAlgorithm.ToString();
-                        }
-                    }
-                    finally
-                    {
-                        callback(state);
-                    }
+                    callback(state);
                 },
                 TaskScheduler.Default);
         }
@@ -428,7 +415,10 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         {
             try
             {
+                // If authentication fails the task throws AuthenticationException.
                 _writeResult.Wait();
+                _verified = true;
+                _cipher = _sslStream.CipherAlgorithm.ToString();
             }
             catch (AggregateException ex)
             {

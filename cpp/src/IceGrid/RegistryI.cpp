@@ -74,7 +74,7 @@ namespace
                     Trace out(_traceLevels->logger, _traceLevels->discoveryCat);
                     out << "replying to discovery lookup:\nreply = " << reply;
                 }
-                reply->foundLocatorAsync(_wellKnownObjects->getLocator());
+                reply->foundLocatorAsync(_wellKnownObjects->getLocator(), nullptr); // don't wait for response
             }
         }
 

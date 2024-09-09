@@ -9,7 +9,6 @@ class HoldI: Hold {
     var _adapter: Ice.ObjectAdapter
     var _helper: TestHelper
     var _last: Int32 = 0
-    var _lock = os_unfair_lock()
     var _queue = DispatchQueue(label: "ice.hold.Server")
 
     init(adapter: Ice.ObjectAdapter, helper: TestHelper) {
@@ -47,22 +46,6 @@ class HoldI: Hold {
                 //
                 preconditionFailure()
             }
-        }
-    }
-
-    func set(value: Int32, delay: Int32, current _: Ice.Current) async throws -> Int32 {
-        try await Task.sleep(for: .milliseconds(Int(delay)))
-        return withLock(&_lock) {
-            let tmp = _last
-            _last = value
-            return tmp
-        }
-    }
-
-    func setOneway(value: Int32, expected: Int32, current _: Ice.Current) async throws {
-        try withLock(&_lock) {
-            try self._helper.test(_last == expected)
-            _last = value
         }
     }
 

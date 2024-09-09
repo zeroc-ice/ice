@@ -241,10 +241,10 @@ LookupI::findObjectById(string domainId, Ice::Identity id, optional<LookupReplyP
     optional<Ice::ObjectPrx> proxy = _registry->findObject(id);
     if (proxy)
     {
-        // Reply to the mulicast request using the given proxy.
+        // Reply to the multicast request using the given proxy.
         try
         {
-            reply->foundObjectByIdAsync(id, proxy);
+            reply->foundObjectByIdAsync(id, proxy, nullptr); // ignore response
         }
         catch (const Ice::LocalException&)
         {
@@ -270,7 +270,7 @@ LookupI::findAdapterById(string domainId, string adapterId, optional<LookupReply
         //
         try
         {
-            reply->foundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
+            reply->foundAdapterByIdAsync(adapterId, proxy, isReplicaGroup, nullptr); // ignore response
         }
         catch (const Ice::LocalException&)
         {

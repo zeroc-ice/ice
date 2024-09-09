@@ -500,6 +500,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         outAsync.invokeExceptionAsync();
                     }
                 }
+
+                if (_closeRequested && _state < StateClosing && _asyncRequests.Count == 0)
+                {
+                    doApplicationClose();
+                }
                 return;
             }
 
@@ -520,6 +525,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                             {
                                 outAsync.invokeExceptionAsync();
                             }
+                        }
+
+                        if (_closeRequested && _state < StateClosing && _asyncRequests.Count == 0)
+                        {
+                            doApplicationClose();
                         }
                         return;
                     }

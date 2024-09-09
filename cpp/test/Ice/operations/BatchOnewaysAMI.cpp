@@ -64,12 +64,12 @@ batchOnewaysAMI(const Test::MyClassPrx& p)
     Ice::Identity identity;
     identity.name = "invalid";
     auto batch3 = batch->ice_identity(identity);
-    batch3->ice_pingAsync();
+    batch3->ice_pingAsync(nullptr);
     batch3->ice_flushBatchRequestsAsync().get();
 
     // Make sure that a bogus batch request doesn't cause troubles to other ones.
-    batch3->ice_pingAsync();
-    batch->ice_pingAsync();
+    batch3->ice_pingAsync(nullptr);
+    batch->ice_pingAsync(nullptr);
     batch->ice_flushBatchRequestsAsync().get();
-    batch->ice_pingAsync();
+    batch->ice_pingAsync().get();
 }
