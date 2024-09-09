@@ -200,6 +200,12 @@ Slice sequences, enabled by the `cpp:array` metadata directive, and a compatible
 earlier releases, this unaligned unmarshaling was turned on automatically on x86 and x64 CPUs, and turned off on all
 other CPUs.
 
+## C# Changes
+
+- The thread pools created by Ice no longer set a synchronization context. As a result, the continuation from an async
+invocation made from an Ice thread pool thread executes in a .NET thread pool thread; previously, this continuation
+was executed in a thread managed by the same Ice thread pool unless you specified `.ConfigureAwait(false)`.
+
 ## Objective-C Changes
 
 - The Objective-C mapping was removed.
