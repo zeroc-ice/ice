@@ -3012,6 +3012,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private ConnectionInfo _info;
 
     private CloseCallback _closeCallback;
-    private readonly TaskCompletionSource _closed = new(); // can run synchronously
+
+    // We need to run the continuation asynchronously since it can be completed by an Ice thread pool thread.
+    private readonly TaskCompletionSource _closed = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly object _mutex = new();
 }

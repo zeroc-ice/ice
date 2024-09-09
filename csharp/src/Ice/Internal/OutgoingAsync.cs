@@ -1549,6 +1549,7 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
 public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, OutgoingAsyncCompletionCallback
 {
     protected TaskCompletionCallback(System.IProgress<bool> progress, CancellationToken cancellationToken)
+        : base(TaskCreationOptions.RunContinuationsAsynchronously)
     {
         progress_ = progress;
         _cancellationToken = cancellationToken;

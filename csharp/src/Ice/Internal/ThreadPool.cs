@@ -8,48 +8,6 @@ public delegate void ThreadPoolWorkItem(ThreadPoolCurrent current);
 
 public delegate void AsyncCallback(object state);
 
-//
-// Thread pool threads set a custom synchronization context to ensure that
-// continuations from awaited methods continue executing on the thread pool
-// and not on the thread that notifies the awaited task.
-//
-internal sealed class ThreadPoolSynchronizationContext : SynchronizationContext
-{
-    public ThreadPoolSynchronizationContext(ThreadPool threadPool)
-    {
-        _threadPool = threadPool;
-    }
-
-    public override void Post(SendOrPostCallback d, object state)
-    {
-        //
-        // Execute the continuation on the thread pool if this isn't called
-        // already from a thread pool thread. We don't use the executor
-        // for the continuations, the executor is only used when the
-        // call is initially invoked (e.g.: a servant dispatch after being
-        // received is dispatched using the executor which might execute
-        // the call on the UI thread which will then use its own synchronization
-        // context to execute continuations).
-        //
-        var ctx = Current as ThreadPoolSynchronizationContext;
-        if (ctx != this)
-        {
-            _threadPool.execute(() => { d(state); }, null);
-        }
-        else
-        {
-            d(state);
-        }
-    }
-
-    public override void Send(SendOrPostCallback d, object state)
-    {
-        throw new System.NotSupportedException("the thread pool doesn't support synchronous calls");
-    }
-
-    private ThreadPool _threadPool;
-}
-
 internal class ThreadPoolMessage : IDisposable
 {
     public ThreadPoolMessage(ThreadPoolCurrent current, object mutex)
@@ -792,12 +750,6 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
         public void Run()
         {
-            //
-            // Set the default synchronization context to allow async/await to run
-            // continuations on the thread pool.
-            //
-            SynchronizationContext.SetSynchronizationContext(new ThreadPoolSynchronizationContext(_threadPool));
-
             if (_threadPool._instance.initializationData().threadStart is not null)
             {
                 try
