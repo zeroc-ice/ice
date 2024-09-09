@@ -2532,7 +2532,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
   }
 
-  private synchronized void doApplicationClose() {
+  // Only public so that tests can initiate a closure without blocking on it to complete.
+  public synchronized void doApplicationClose() {
     assert (_state < StateClosing);
     setState(
         StateClosing,
