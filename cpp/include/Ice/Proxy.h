@@ -288,7 +288,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        std::future<bool>
+        [[nodiscard]] std::future<bool>
         ice_isAAsync(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
@@ -321,7 +321,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        std::future<void> ice_pingAsync(const Ice::Context& context = Ice::noExplicitContext) const;
+        [[nodiscard]] std::future<void> ice_pingAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
         void _iceI_ping(const std::shared_ptr<IceInternal::OutgoingAsyncT<void>>&, const Ice::Context&) const;
@@ -353,7 +353,8 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        std::future<std::vector<std::string>> ice_idsAsync(const Ice::Context& context = Ice::noExplicitContext) const;
+        [[nodiscard]] std::future<std::vector<std::string>>
+        ice_idsAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
         void _iceI_ids(
@@ -387,7 +388,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        std::future<std::string> ice_idAsync(const Ice::Context& context = Ice::noExplicitContext) const;
+        [[nodiscard]] std::future<std::string> ice_idAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
         void _iceI_id(const std::shared_ptr<IceInternal::OutgoingAsyncT<std::string>>&, const Ice::Context&) const;
@@ -420,7 +421,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
+        [[nodiscard]] std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
             const std::vector<std::byte>& inParams,
@@ -473,7 +474,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
+        [[nodiscard]] std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
             std::pair<const std::byte*, const std::byte*> inParams,
@@ -524,7 +525,7 @@ namespace Ice
          * it first attempts to create a connection.
          * @return The future object for the invocation.
          */
-        std::future<Ice::ConnectionPtr> ice_getConnectionAsync() const;
+        [[nodiscard]] std::future<Ice::ConnectionPtr> ice_getConnectionAsync() const;
 
         /// \cond INTERNAL
         void _iceI_getConnection(const std::shared_ptr<IceInternal::ProxyGetConnection>&) const;
@@ -557,7 +558,7 @@ namespace Ice
          * Flushes asynchronously any pending batched requests for this communicator.
          * @return The future object for the invocation.
          */
-        std::future<void> ice_flushBatchRequestsAsync() const;
+        [[nodiscard]] std::future<void> ice_flushBatchRequestsAsync() const;
 
         /**
          * Obtains the identity embedded in this proxy.

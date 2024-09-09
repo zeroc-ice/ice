@@ -139,7 +139,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_isAAsync(Test::MyClass::ice_staticId());
+            p->ice_isAAsync(Test::MyClass::ice_staticId(), nullptr);
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)
@@ -150,7 +150,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_idAsync();
+            p->ice_idAsync(nullptr);
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)
@@ -161,7 +161,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_idsAsync();
+            p->ice_idsAsync(nullptr);
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)

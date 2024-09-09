@@ -137,7 +137,7 @@ class TestI: TestIntf {
     }
 
     func closeConnection(current: Current) async throws {
-        async let _ = current.con!.close()
+        Task { try await current.con!.close() }
     }
 
     func abortConnection(current: Current) async throws {

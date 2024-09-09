@@ -27,6 +27,7 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
         Ice.OperationMode mode,
         byte[] inParams,
         Dictionary<string, string> context)
+        : base(TaskCreationOptions.RunContinuationsAsynchronously)
     {
         _locator = locator;
         _operation = operation;

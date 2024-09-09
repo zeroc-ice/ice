@@ -518,7 +518,7 @@ allTests(TestHelper* helper, bool collocated)
 
             try
             {
-                p2->opAsync();
+                [[maybe_unused]] auto f = p2->opAsync();
                 test(false);
             }
             catch (const CommunicatorDestroyedException&)

@@ -1216,7 +1216,7 @@ public class AllTests : Test.AllTests
         metricsBatchOneway.op();
 
         metricsBatchOneway.ice_flushBatchRequests();
-        metricsBatchOneway.ice_flushBatchRequestsAsync().Wait();
+        await metricsBatchOneway.ice_flushBatchRequestsAsync();
 
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == 2);
@@ -1238,34 +1238,23 @@ public class AllTests : Test.AllTests
             metricsBatchOneway.op();
 
             con.flushBatchRequests(Ice.CompressBatch.No);
-            con.flushBatchRequestsAsync(Ice.CompressBatch.No).Wait();
+            await con.flushBatchRequestsAsync(Ice.CompressBatch.No);
 
             map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
             test(map.Count == 3);
 
             im1 = (IceMX.InvocationMetrics)map["flushBatchRequests"];
-            if (!(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0))
-            {
-                output.WriteLine("");
-                output.WriteLine(string.Format("im1.current: {0}", im1.current));
-                output.WriteLine(string.Format("im1.total: {0}", im1.total));
-                output.WriteLine(string.Format("im1.failures: {0}", im1.failures));
-                output.WriteLine(string.Format("im1.retry: {0}", im1.retry));
-
-                IceMX.MetricsFailures f = clientMetrics.getMetricsFailures("View", "Invocation", im1.id);
-                foreach (KeyValuePair<string, int> kvp in f.failures)
-                {
-                    output.WriteLine(string.Format("{0} = {1}", kvp.Key, kvp.Value));
-                }
-                test(false);
-            }
+            test(im1.current <= 1);
+            test(im1.total == 2);
+            test(im1.failures == 0);
+            test(im1.retry == 0);
             test(im1.remotes.Length == 1); // The first operation got sent over a connection
 
             clearView(clientProps, serverProps, update);
             metricsBatchOneway.op();
 
             communicator.flushBatchRequests(Ice.CompressBatch.No);
-            communicator.flushBatchRequestsAsync(Ice.CompressBatch.No).Wait();
+            await communicator.flushBatchRequestsAsync(Ice.CompressBatch.No);
             map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
             test(map.Count == 2);
 

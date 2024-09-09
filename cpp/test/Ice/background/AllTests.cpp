@@ -46,7 +46,7 @@ namespace
                         count = 0;
                         _background->ice_twoway()->ice_ping();
                     }
-                    _background->opAsync();
+                    _background->opAsync(nullptr); // don't wait
                     this_thread::sleep_for(chrono::milliseconds(1));
                 }
                 catch (const Ice::LocalException&)
@@ -203,9 +203,9 @@ allTests(TestHelper* helper)
 
         configuration->buffered(true);
         backgroundController->buffered(true);
-        background->opAsync();
+        background->opAsync(nullptr);
         background->ice_getCachedConnection()->abort();
-        background->opAsync();
+        background->opAsync(nullptr);
 
         vector<future<void>> results;
         for (int i = 0; i < 10000; ++i)
@@ -838,7 +838,7 @@ validationTests(
     backgroundBatchOneway->op();
     backgroundBatchOneway->op();
     ctl->resumeAdapter();
-    backgroundBatchOneway->ice_flushBatchRequestsAsync();
+    backgroundBatchOneway->ice_flushBatchRequestsAsync(nullptr);
     backgroundBatchOneway->ice_getConnection()->close().get();
 
     ctl->holdAdapter();

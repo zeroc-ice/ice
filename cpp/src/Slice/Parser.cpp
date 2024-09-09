@@ -1125,7 +1125,7 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         return nullptr;
     }
 
-    if (!checkIdentifier(name) || !checkForGlobalDef(name, "class"))
+    if (!checkIdentifier(name) || !checkForGlobalDefinition("classes"))
     {
         return nullptr;
     }
@@ -1190,7 +1190,7 @@ Slice::Container::createClassDecl(const string& name)
         return nullptr;
     }
 
-    if (!checkIdentifier(name) || !checkForGlobalDef(name, "class"))
+    if (!checkIdentifier(name) || !checkForGlobalDefinition("classes"))
     {
         return nullptr;
     }
@@ -1276,7 +1276,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         return nullptr;
     }
 
-    if (!checkIdentifier(name) || !checkForGlobalDef(name, "interface"))
+    if (!checkIdentifier(name) || !checkForGlobalDefinition("interfaces"))
     {
         return nullptr;
     }
@@ -1343,7 +1343,7 @@ Slice::Container::createInterfaceDecl(const string& name)
         return nullptr;
     }
 
-    if (!checkIdentifier(name) || !checkForGlobalDef(name, "interface"))
+    if (!checkIdentifier(name) || !checkForGlobalDefinition("interfaces"))
     {
         return nullptr;
     }
@@ -1404,7 +1404,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 
     if (nodeType == Real)
     {
-        checkForGlobalDef(name, "exception"); // Don't return here -- we create the exception anyway
+        checkForGlobalDefinition("exceptions"); // Don't return here -- we create the exception anyway
     }
 
     ExceptionPtr p = make_shared<Exception>(dynamic_pointer_cast<Container>(shared_from_this()), name, base);
@@ -1439,7 +1439,7 @@ Slice::Container::createStruct(const string& name, NodeType nodeType)
 
     if (nodeType == Real)
     {
-        checkForGlobalDef(name, "structure"); // Don't return here -- we create the struct anyway.
+        checkForGlobalDefinition("structs"); // Don't return here -- we create the struct anyway.
     }
 
     StructPtr p = make_shared<Struct>(dynamic_pointer_cast<Container>(shared_from_this()), name);
@@ -1474,7 +1474,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
 
     if (nodeType == Real)
     {
-        checkForGlobalDef(name, "sequence"); // Don't return here -- we create the sequence anyway.
+        checkForGlobalDefinition("sequences"); // Don't return here -- we create the sequence anyway.
     }
 
     SequencePtr p = make_shared<Sequence>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, metadata);
@@ -1515,7 +1515,7 @@ Slice::Container::createDictionary(
 
     if (nodeType == Real)
     {
-        checkForGlobalDef(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
+        checkForGlobalDefinition("dictionaries"); // Don't return here -- we create the dictionary anyway.
 
         if (!Dictionary::isLegalKeyType(keyType))
         {
@@ -1564,7 +1564,7 @@ Slice::Container::createEnum(const string& name, NodeType nodeType)
 
     if (nodeType == Real)
     {
-        checkForGlobalDef(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
+        checkForGlobalDefinition("enums"); // Don't return here -- we create the enumeration anyway.
     }
 
     EnumPtr p = make_shared<Enum>(dynamic_pointer_cast<Container>(shared_from_this()), name);
@@ -1605,7 +1605,7 @@ Slice::Container::createConst(
 
     if (nodeType == Real)
     {
-        checkForGlobalDef(name, "constant"); // Don't return here -- we create the constant anyway.
+        checkForGlobalDefinition("constants"); // Don't return here -- we create the constant anyway.
     }
 
     SyntaxTreeBasePtr resolvedValueType = valueType;
@@ -2164,12 +2164,12 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
 }
 
 bool
-Slice::Container::checkForGlobalDef(const string& name, const char* definitionKind)
+Slice::Container::checkForGlobalDefinition(const char* definitionKindPlural)
 {
-    if (dynamic_cast<Unit*>(this) && strcmp(definitionKind, "module"))
+    if (dynamic_cast<Unit*>(this))
     {
         ostringstream os;
-        os << "`" << name << "': " << prependA(definitionKind) << " can be defined only at module scope";
+        os << definitionKindPlural << " can only be defined within a module";
         _unit->error(os.str());
         return false;
     }

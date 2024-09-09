@@ -430,7 +430,7 @@ CreateSession::sessionCreated(const optional<SessionPrx>& session)
     {
         if (session)
         {
-            session->destroyAsync();
+            session->destroyAsync(nullptr); // don't wait for response
         }
         unexpectedCreateSessionException(current_exception());
         return;
