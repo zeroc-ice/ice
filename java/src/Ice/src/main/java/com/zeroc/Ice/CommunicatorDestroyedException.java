@@ -8,13 +8,13 @@ package com.zeroc.Ice;
  * @see Communicator#destroy
  */
 public final class CommunicatorDestroyedException extends LocalException {
-  public CommunicatorDestroyedException() {
-    super("communicator destroyed");
-  }
+    public CommunicatorDestroyedException() {
+        super("communicator destroyed");
+    }
 
-  public String ice_id() {
-    return "::Ice::CommunicatorDestroyedException";
-  }
+    public String ice_id() {
+        return "::Ice::CommunicatorDestroyedException";
+    }
 
-  private static final long serialVersionUID = 752535633703849L;
+    private static final long serialVersionUID = 752535633703849L;
 }

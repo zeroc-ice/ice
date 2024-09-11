@@ -8,17 +8,17 @@ package com.zeroc.Ice;
  * (65507 bytes).
  */
 public final class DatagramLimitException extends ProtocolException {
-  public DatagramLimitException() {
-    super("Datagram limit exceeded");
-  }
+    public DatagramLimitException() {
+        super("Datagram limit exceeded");
+    }
 
-  public DatagramLimitException(String reason) {
-    super("Datagram limit exceeded: " + reason);
-  }
+    public DatagramLimitException(String reason) {
+        super("Datagram limit exceeded: " + reason);
+    }
 
-  public String ice_id() {
-    return "::Ice::DatagramLimitException";
-  }
+    public String ice_id() {
+        return "::Ice::DatagramLimitException";
+    }
 
-  private static final long serialVersionUID = -783492847222783613L;
+    private static final long serialVersionUID = -783492847222783613L;
 }

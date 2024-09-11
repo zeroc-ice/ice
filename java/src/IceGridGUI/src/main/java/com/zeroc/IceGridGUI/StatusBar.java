@@ -1,11 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.IceGridGUI;
 
-public interface StatusBar {
-  void setText(String text);
-
-  void setConnected(boolean connected);
+public interface StatusBar
+{
+    void setText(String text);
+    void setConnected(boolean connected);
 }

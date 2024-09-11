@@ -5,5 +5,5 @@
 package com.zeroc.IceInternal;
 
 public interface ThreadPoolWorkItem {
-  void execute(ThreadPoolCurrent current);
+    void execute(ThreadPoolCurrent current);
 }

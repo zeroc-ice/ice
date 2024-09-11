@@ -7,17 +7,17 @@ package com.zeroc.Ice;
  * {@link Locator} detects another active {@link ObjectAdapter} with the same adapter id.
  */
 public final class ObjectAdapterIdInUseException extends LocalException {
-  public ObjectAdapterIdInUseException(String id) {
-    super("An object adapter with adapter ID '" + id + "' is already active.");
-    this.id = id;
-  }
+    public ObjectAdapterIdInUseException(String id) {
+        super("An object adapter with adapter ID '" + id + "' is already active.");
+        this.id = id;
+    }
 
-  public String ice_id() {
-    return "::Ice::ObjectAdapterIdInUseException";
-  }
+    public String ice_id() {
+        return "::Ice::ObjectAdapterIdInUseException";
+    }
 
-  /** Adapter ID. */
-  public final String id;
+    /** Adapter ID. */
+    public final String id;
 
-  private static final long serialVersionUID = 609699148378869554L;
+    private static final long serialVersionUID = 609699148378869554L;
 }

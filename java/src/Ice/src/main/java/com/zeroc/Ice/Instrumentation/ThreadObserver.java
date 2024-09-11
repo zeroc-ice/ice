@@ -20,11 +20,11 @@ package com.zeroc.Ice.Instrumentation;
  * pool or utility threads used by the Ice core.
  */
 public interface ThreadObserver extends Observer {
-  /**
-   * Notification of thread state change.
-   *
-   * @param oldState The previous thread state.
-   * @param newState The new thread state.
-   */
-  void stateChanged(ThreadState oldState, ThreadState newState);
+    /**
+     * Notification of thread state change.
+     *
+     * @param oldState The previous thread state.
+     * @param newState The new thread state.
+     */
+    void stateChanged(ThreadState oldState, ThreadState newState);
 }

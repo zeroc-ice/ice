@@ -1,31 +1,35 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package test.Ice.plugin.plugins;
 
-public class PluginInitializeFailFactory implements com.zeroc.Ice.PluginFactory {
-  @Override
-  public com.zeroc.Ice.Plugin create(
-      com.zeroc.Ice.Communicator communicator, String name, String[] args) {
-    return new PluginInitializeFail();
-  }
-
-  static class PluginInitializeFail implements com.zeroc.Ice.Plugin {
+public class PluginInitializeFailFactory implements com.zeroc.Ice.PluginFactory
+{
     @Override
-    public void initialize() {
-      throw new PluginInitializeFailException();
+    public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
+    {
+        return new PluginInitializeFail();
     }
 
-    @Override
-    public void destroy() {
-      test(false);
-    }
+    static class PluginInitializeFail implements com.zeroc.Ice.Plugin
+    {
+        @Override
+        public void initialize()
+        {
+            throw new PluginInitializeFailException();
+        }
 
-    private static void test(boolean b) {
-      if (!b) {
-        throw new RuntimeException();
-      }
+        @Override
+        public void destroy()
+        {
+            test(false);
+        }
+
+        private static void test(boolean b)
+        {
+            if(!b)
+            {
+                throw new RuntimeException();
+            }
+        }
     }
-  }
 }

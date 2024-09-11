@@ -5,44 +5,44 @@
 package com.zeroc.IceInternal;
 
 public class ProtocolPluginFacadeI implements ProtocolPluginFacade {
-  public ProtocolPluginFacadeI(com.zeroc.Ice.Communicator communicator) {
-    _communicator = communicator;
-    _instance = communicator.getInstance();
-  }
+    public ProtocolPluginFacadeI(com.zeroc.Ice.Communicator communicator) {
+        _communicator = communicator;
+        _instance = communicator.getInstance();
+    }
 
-  //
-  // Get the Communicator instance with which this facade is
-  // associated.
-  //
-  @Override
-  public com.zeroc.Ice.Communicator getCommunicator() {
-    return _communicator;
-  }
+    //
+    // Get the Communicator instance with which this facade is
+    // associated.
+    //
+    @Override
+    public com.zeroc.Ice.Communicator getCommunicator() {
+        return _communicator;
+    }
 
-  //
-  // Register an EndpointFactory.
-  //
-  @Override
-  public void addEndpointFactory(EndpointFactory factory) {
-    _instance.endpointFactoryManager().add(factory);
-  }
+    //
+    // Register an EndpointFactory.
+    //
+    @Override
+    public void addEndpointFactory(EndpointFactory factory) {
+        _instance.endpointFactoryManager().add(factory);
+    }
 
-  //
-  // Register an EndpointFactory.
-  //
-  @Override
-  public EndpointFactory getEndpointFactory(short type) {
-    return _instance.endpointFactoryManager().get(type);
-  }
+    //
+    // Register an EndpointFactory.
+    //
+    @Override
+    public EndpointFactory getEndpointFactory(short type) {
+        return _instance.endpointFactoryManager().get(type);
+    }
 
-  //
-  // Look up a Java class by name.
-  //
-  @Override
-  public Class<?> findClass(String className) {
-    return _instance.findClass(className);
-  }
+    //
+    // Look up a Java class by name.
+    //
+    @Override
+    public Class<?> findClass(String className) {
+        return _instance.findClass(className);
+    }
 
-  private Instance _instance;
-  private com.zeroc.Ice.Communicator _communicator;
+    private Instance _instance;
+    private com.zeroc.Ice.Communicator _communicator;
 }

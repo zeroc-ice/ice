@@ -11,21 +11,21 @@ package com.zeroc.IceInternal;
 // executed by a thread pool thread (after promoting a follower thread).
 //
 public abstract class RunnableThreadPoolWorkItem implements ThreadPoolWorkItem, Runnable {
-  public RunnableThreadPoolWorkItem() {}
+    public RunnableThreadPoolWorkItem() {}
 
-  public RunnableThreadPoolWorkItem(com.zeroc.Ice.Connection connection) {
-    _connection = connection;
-  }
+    public RunnableThreadPoolWorkItem(com.zeroc.Ice.Connection connection) {
+        _connection = connection;
+    }
 
-  @Override
-  public final void execute(ThreadPoolCurrent current) {
-    current.ioCompleted(); // Promote a follower
-    current.executeFromThisThread(this);
-  }
+    @Override
+    public final void execute(ThreadPoolCurrent current) {
+        current.ioCompleted(); // Promote a follower
+        current.executeFromThisThread(this);
+    }
 
-  public com.zeroc.Ice.Connection getConnection() {
-    return _connection;
-  }
+    public com.zeroc.Ice.Connection getConnection() {
+        return _connection;
+    }
 
-  private com.zeroc.Ice.Connection _connection;
+    private com.zeroc.Ice.Connection _connection;
 }

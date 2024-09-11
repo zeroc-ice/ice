@@ -1,21 +1,13 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import com.jgoodies.forms.builder.ButtonBarBuilder;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.util.LayoutStyle;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BoxLayout;
+
 import javax.swing.ButtonGroup;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -28,139 +20,156 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-class WriteMessageDialog extends JDialog {
-  WriteMessageDialog(final Root root) {
-    super(root.getCoordinator().getMainFrame(), "Write Message - IceGrid GUI", true);
-    setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.builder.ButtonBarBuilder;
+import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.util.LayoutStyle;
 
-    _mainFrame = root.getCoordinator().getMainFrame();
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 
-    _stdOut = new JRadioButton("Write to stdout");
-    _stdOut.setSelected(true);
-    JRadioButton stdErr = new JRadioButton("Write to stderr");
-    ButtonGroup bg = new ButtonGroup();
-    bg.add(_stdOut);
-    bg.add(stdErr);
+class WriteMessageDialog extends JDialog
+{
+    WriteMessageDialog(final Root root)
+    {
+        super(root.getCoordinator().getMainFrame(), "Write Message - IceGrid GUI", true);
+        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
-    JButton okButton = new JButton("OK");
-    ActionListener okListener =
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            final Coordinator c = root.getCoordinator();
+        _mainFrame = root.getCoordinator().getMainFrame();
 
-            AdminPrx admin = c.getAdmin();
-            if (admin == null) {
-              JOptionPane.showMessageDialog(
-                  _mainFrame,
-                  "No longer connected to IceGrid Registry",
-                  "Writing message to server '" + _target + "' failed",
-                  JOptionPane.ERROR_MESSAGE);
-            } else {
-              com.zeroc.Ice.Identity adminId =
-                  new com.zeroc.Ice.Identity(_target, c.getServerAdminCategory());
+        _stdOut = new JRadioButton("Write to stdout");
+        _stdOut.setSelected(true);
+        JRadioButton stdErr = new JRadioButton("Write to stderr");
+        ButtonGroup bg = new ButtonGroup();
+        bg.add(_stdOut);
+        bg.add(stdErr);
 
-              final com.zeroc.Ice.ProcessPrx process =
-                  com.zeroc.Ice.ProcessPrx.uncheckedCast(
-                      admin.ice_identity(adminId).ice_facet("Process"));
+        JButton okButton = new JButton("OK");
+        ActionListener okListener = new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    final Coordinator c = root.getCoordinator();
 
-              final String prefix = "Writing message to server '" + _target + "'...";
-              c.getStatusBar().setText(prefix);
+                    AdminPrx admin = c.getAdmin();
+                    if(admin == null)
+                    {
+                        JOptionPane.showMessageDialog(
+                            _mainFrame,
+                            "No longer connected to IceGrid Registry",
+                            "Writing message to server '" + _target + "' failed",
+                            JOptionPane.ERROR_MESSAGE);
+                    }
+                    else
+                    {
+                        com.zeroc.Ice.Identity adminId =
+                            new com.zeroc.Ice.Identity(_target, c.getServerAdminCategory());
 
-              try {
-                process
-                    .writeMessageAsync(_message.getText(), _stdOut.isSelected() ? 1 : 2)
-                    .whenComplete(
-                        (result, ex) -> {
-                          if (ex == null) {
-                            SwingUtilities.invokeLater(
-                                () -> {
-                                  c.getStatusBar().setText(prefix + "done.");
-                                });
-                          } else {
-                            SwingUtilities.invokeLater(
-                                () -> {
-                                  c.getStatusBar().setText(prefix + "failed!");
+                        final com.zeroc.Ice.ProcessPrx process = com.zeroc.Ice.ProcessPrx.uncheckedCast(
+                            admin.ice_identity(adminId).ice_facet("Process"));
 
-                                  JOptionPane.showMessageDialog(
-                                      _mainFrame,
-                                      "Communication exception: " + ex.toString(),
-                                      "Writing message to server '"
-                                          + process.ice_getIdentity().name
-                                          + "' failed",
-                                      JOptionPane.ERROR_MESSAGE);
-                                });
-                          }
-                        });
+                        final String prefix = "Writing message to server '" + _target + "'...";
+                        c.getStatusBar().setText(prefix);
 
-              } catch (com.zeroc.Ice.LocalException ex) {
-                c.getStatusBar().setText(prefix + "failed.");
-                JOptionPane.showMessageDialog(
-                    _mainFrame,
-                    "Communication exception: " + ex.toString(),
-                    "Writing message to server '" + _target + "' failed",
-                    JOptionPane.ERROR_MESSAGE);
+                        try
+                        {
+                            process.writeMessageAsync(_message.getText(), _stdOut.isSelected() ? 1 : 2).  whenComplete(
+                                (result, ex) ->
+                                    {
+                                        if(ex == null)
+                                        {
+                                            SwingUtilities.invokeLater(() ->
+                                                {
+                                                    c.getStatusBar().setText(prefix + "done.");
+                                                });
+                                        }
+                                        else
+                                        {
+                                            SwingUtilities.invokeLater(() ->
+                                                {
+                                                    c.getStatusBar().setText(prefix + "failed!");
 
-                return;
-              }
-            }
+                                                    JOptionPane.showMessageDialog(
+                                                        _mainFrame,
+                                                        "Communication exception: " + ex.toString(),
+                                                        "Writing message to server '" +
+                                                        process.ice_getIdentity().name + "' failed",
+                                                        JOptionPane.ERROR_MESSAGE);
+                                                });
+                                        }
+                                    });
 
-            setVisible(false);
-          }
-        };
-    okButton.addActionListener(okListener);
-    getRootPane().setDefaultButton(okButton);
+                        }
+                        catch(com.zeroc.Ice.LocalException ex)
+                        {
+                            c.getStatusBar().setText(prefix + "failed.");
+                            JOptionPane.showMessageDialog(
+                                _mainFrame,
+                                "Communication exception: " + ex.toString(),
+                                "Writing message to server '" + _target + "' failed",
+                                JOptionPane.ERROR_MESSAGE);
 
-    JButton cancelButton = new JButton("Cancel");
-    ActionListener cancelListener =
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            setVisible(false);
-          }
-        };
-    cancelButton.addActionListener(cancelListener);
+                            return;
+                        }
+                    }
 
-    FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
-    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-    builder.border(Borders.DIALOG);
-    builder.rowGroupingEnabled(true);
-    builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
+                    setVisible(false);
+                }
+            };
+        okButton.addActionListener(okListener);
+        getRootPane().setDefaultButton(okButton);
 
-    _message.setLineWrap(true);
-    JScrollPane scrollPane =
-        new JScrollPane(
-            _message,
-            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-    builder.append(scrollPane, 3);
-    builder.nextLine();
-    builder.append(_stdOut);
-    builder.append(stdErr);
-    builder.nextLine();
+        JButton cancelButton = new JButton("Cancel");
+        ActionListener cancelListener = new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    setVisible(false);
+                }
+            };
+        cancelButton.addActionListener(cancelListener);
 
-    JComponent buttonBar =
-        new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
-    buttonBar.setBorder(Borders.DIALOG);
+        FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.border(Borders.DIALOG);
+        builder.rowGroupingEnabled(true);
+        builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
-    Container contentPane = getContentPane();
-    contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-    contentPane.add(builder.getPanel());
-    contentPane.add(buttonBar);
+        _message.setLineWrap(true);
+        JScrollPane scrollPane = new JScrollPane(_message,
+                                                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        builder.append(scrollPane, 3);
+        builder.nextLine();
+        builder.append(_stdOut);
+        builder.append(stdErr);
+        builder.nextLine();
 
-    pack();
-    setResizable(false);
-  }
+        JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+        buttonBar.setBorder(Borders.DIALOG);
 
-  void showDialog(String serverId) {
-    _target = serverId;
-    _message.setText("");
-    setLocationRelativeTo(_mainFrame);
-    setVisible(true);
-  }
+        Container contentPane = getContentPane();
+        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+        contentPane.add(builder.getPanel());
+        contentPane.add(buttonBar);
 
-  private JRadioButton _stdOut;
-  private JTextArea _message = new JTextArea(3, 40);
-  private String _target;
-  private JFrame _mainFrame;
+        pack();
+        setResizable(false);
+    }
+
+    void showDialog(String serverId)
+    {
+        _target = serverId;
+        _message.setText("");
+        setLocationRelativeTo(_mainFrame);
+        setVisible(true);
+    }
+
+    private JRadioButton _stdOut;
+    private JTextArea _message = new JTextArea(3, 40);
+    private String _target;
+    private JFrame _mainFrame;
 }

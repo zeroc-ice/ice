@@ -20,22 +20,22 @@ package com.zeroc.Ice.Instrumentation;
  * existence.
  */
 public interface Observer {
-  /**
-   * This method is called when the instrumented object is created or when the observer is attached
-   * to an existing object.
-   */
-  void attach();
+    /**
+     * This method is called when the instrumented object is created or when the observer is
+     * attached to an existing object.
+     */
+    void attach();
 
-  /**
-   * This method is called when the instrumented object is destroyed and as a result the observer
-   * detached from the object.
-   */
-  void detach();
+    /**
+     * This method is called when the instrumented object is destroyed and as a result the observer
+     * detached from the object.
+     */
+    void detach();
 
-  /**
-   * Notification of a failure.
-   *
-   * @param exceptionName The name of the exception.
-   */
-  void failed(String exceptionName);
+    /**
+     * Notification of a failure.
+     *
+     * @param exceptionName The name of the exception.
+     */
+    void failed(String exceptionName);
 }

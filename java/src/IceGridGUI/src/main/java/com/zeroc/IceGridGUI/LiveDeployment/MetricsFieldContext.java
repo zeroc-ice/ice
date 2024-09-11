@@ -1,9 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-public interface MetricsFieldContext {
-  public int getRefreshPeriod();
+public interface MetricsFieldContext
+{
+    public int getRefreshPeriod();
 }

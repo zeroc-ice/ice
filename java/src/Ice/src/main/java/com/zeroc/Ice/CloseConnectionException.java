@@ -11,13 +11,13 @@ package com.zeroc.Ice;
  * application code.
  */
 public final class CloseConnectionException extends ProtocolException {
-  public CloseConnectionException() {
-    super("Connection closed by the peer.");
-  }
+    public CloseConnectionException() {
+        super("Connection closed by the peer.");
+    }
 
-  public String ice_id() {
-    return "::Ice::CloseConnectionException";
-  }
+    public String ice_id() {
+        return "::Ice::CloseConnectionException";
+    }
 
-  private static final long serialVersionUID = 4166975853591251903L;
+    private static final long serialVersionUID = 4166975853591251903L;
 }

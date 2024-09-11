@@ -1,44 +1,53 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package test.Ice.plugin.plugins;
 
-public class PluginThreeFailFactory implements com.zeroc.Ice.PluginFactory {
-  @Override
-  public com.zeroc.Ice.Plugin create(
-      com.zeroc.Ice.Communicator communicator, String name, String[] args) {
-    return new PluginThreeFail(communicator);
-  }
-
-  public class PluginThreeFail extends BasePluginFail {
-    public PluginThreeFail(com.zeroc.Ice.Communicator communicator) {
-      super(communicator);
+public class PluginThreeFailFactory implements com.zeroc.Ice.PluginFactory
+{
+    @Override
+    public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
+    {
+        return new PluginThreeFail(communicator);
     }
 
-    @Override
-    public void initialize() {
-      throw new PluginInitializeFailException();
-    }
-
-    @Override
-    public void destroy() {
-      test(false);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    protected void finalize() throws Throwable {
-      try {
-        if (_initialized) {
-          System.out.println(getClass().getName() + " was initialized");
+    public class PluginThreeFail extends BasePluginFail
+    {
+        public PluginThreeFail(com.zeroc.Ice.Communicator communicator)
+        {
+            super(communicator);
         }
-        if (_destroyed) {
-          System.out.println(getClass().getName() + " was destroyed");
+
+        @Override
+        public void initialize()
+        {
+            throw new PluginInitializeFailException();
         }
-      } finally {
-        super.finalize();
-      }
+
+        @Override
+        public void destroy()
+        {
+            test(false);
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        protected void finalize() throws Throwable
+        {
+            try
+            {
+                if(_initialized)
+                {
+                    System.out.println(getClass().getName() + " was initialized");
+                }
+                if(_destroyed)
+                {
+                    System.out.println(getClass().getName() + " was destroyed");
+                }
+            }
+            finally
+            {
+                super.finalize();
+            }
+        }
     }
-  }
 }

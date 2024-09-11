@@ -11,29 +11,29 @@ package com.zeroc.IceInternal;
 //
 
 public class ObjectInputStream extends java.io.ObjectInputStream {
-  public ObjectInputStream(Instance instance, java.io.InputStream in) throws java.io.IOException {
-    super(in);
-    _instance = instance;
-  }
-
-  @Override
-  protected Class<?> resolveClass(java.io.ObjectStreamClass cls)
-      throws java.io.IOException, ClassNotFoundException {
-    if (_instance == null) {
-      throw new com.zeroc.Ice.MarshalException(
-          "cannot unmarshal a serializable without a communicator");
+    public ObjectInputStream(Instance instance, java.io.InputStream in) throws java.io.IOException {
+        super(in);
+        _instance = instance;
     }
 
-    try {
-      Class<?> c = _instance.findClass(cls.getName());
-      if (c != null) {
-        return c;
-      }
-      throw new ClassNotFoundException("unable to resolve class" + cls.getName());
-    } catch (Exception ex) {
-      throw new ClassNotFoundException("unable to resolve class " + cls.getName(), ex);
-    }
-  }
+    @Override
+    protected Class<?> resolveClass(java.io.ObjectStreamClass cls)
+            throws java.io.IOException, ClassNotFoundException {
+        if (_instance == null) {
+            throw new com.zeroc.Ice.MarshalException(
+                    "cannot unmarshal a serializable without a communicator");
+        }
 
-  private Instance _instance;
+        try {
+            Class<?> c = _instance.findClass(cls.getName());
+            if (c != null) {
+                return c;
+            }
+            throw new ClassNotFoundException("unable to resolve class" + cls.getName());
+        } catch (Exception ex) {
+            throw new ClassNotFoundException("unable to resolve class " + cls.getName(), ex);
+        }
+    }
+
+    private Instance _instance;
 }

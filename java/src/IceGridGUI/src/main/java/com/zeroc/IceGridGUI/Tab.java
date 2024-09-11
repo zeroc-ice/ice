@@ -1,27 +1,21 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.IceGridGUI;
 
-public interface Tab {
-  void selected();
+public interface Tab
+{
+    void selected();
 
-  void showNode(TreeNodeBase node);
+    void showNode(TreeNodeBase node);
+    void refresh();
 
-  void refresh();
+    void back();
+    void forward();
 
-  void back();
+    boolean close();
 
-  void forward();
-
-  boolean close();
-
-  void save();
-
-  void saveToRegistry(boolean restart);
-
-  void saveToFile();
-
-  void discardUpdates();
+    void save();
+    void saveToRegistry(boolean restart);
+    void saveToFile();
+    void discardUpdates();
 }

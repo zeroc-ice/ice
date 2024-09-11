@@ -1,60 +1,65 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package test.IceSSL.configuration;
 
-import test.IceSSL.configuration.Test.ServerFactory;
 import test.IceSSL.configuration.Test.ServerPrx;
+import test.IceSSL.configuration.Test.ServerFactory;
 
-class ServerFactoryI implements ServerFactory {
-  private static void test(boolean b) {
-    if (!b) {
-      throw new RuntimeException();
+class ServerFactoryI implements ServerFactory
+{
+    private static void test(boolean b)
+    {
+        if(!b)
+        {
+            throw new RuntimeException();
+        }
     }
-  }
 
-  public ServerFactoryI(String defaultDir) {
-    _defaultDir = defaultDir;
-  }
-
-  @Override
-  public ServerPrx createServer(
-      java.util.Map<String, String> props, com.zeroc.Ice.Current current) {
-    com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-    initData.properties = new com.zeroc.Ice.Properties();
-    for (java.util.Map.Entry<String, String> i : props.entrySet()) {
-      initData.properties.setProperty(i.getKey(), i.getValue());
+    public ServerFactoryI(String defaultDir)
+    {
+        _defaultDir = defaultDir;
     }
-    initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
-    com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(initData);
-    com.zeroc.Ice.ObjectAdapter adapter =
-        communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
-    ServerI server = new ServerI(communicator);
-    com.zeroc.Ice.ObjectPrx obj = adapter.addWithUUID(server);
-    _servers.put(obj.ice_getIdentity(), server);
-    adapter.activate();
 
-    return ServerPrx.uncheckedCast(obj);
-  }
+    @Override
+    public ServerPrx createServer(java.util.Map<String, String> props, com.zeroc.Ice.Current current)
+    {
+        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        initData.properties = new com.zeroc.Ice.Properties();
+        for(java.util.Map.Entry<String, String> i : props.entrySet())
+        {
+            initData.properties.setProperty(i.getKey(), i.getValue());
+        }
+        initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
+        com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(initData);
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
+        ServerI server = new ServerI(communicator);
+        com.zeroc.Ice.ObjectPrx obj = adapter.addWithUUID(server);
+        _servers.put(obj.ice_getIdentity(), server);
+        adapter.activate();
 
-  @Override
-  public void destroyServer(ServerPrx srv, com.zeroc.Ice.Current current) {
-    com.zeroc.Ice.Identity key = srv.ice_getIdentity();
-    if (_servers.containsKey(key)) {
-      ServerI server = _servers.get(key);
-      server.destroy();
-      _servers.remove(key);
+        return ServerPrx.uncheckedCast(obj);
     }
-  }
 
-  @Override
-  public void shutdown(com.zeroc.Ice.Current current) {
-    test(_servers.isEmpty());
-    current.adapter.getCommunicator().shutdown();
-  }
+    @Override
+    public void destroyServer(ServerPrx srv, com.zeroc.Ice.Current current)
+    {
+        com.zeroc.Ice.Identity key = srv.ice_getIdentity();
+        if(_servers.containsKey(key))
+        {
+            ServerI server = _servers.get(key);
+            server.destroy();
+            _servers.remove(key);
+        }
+    }
 
-  private String _defaultDir;
-  private java.util.Map<com.zeroc.Ice.Identity, ServerI> _servers =
-      new java.util.HashMap<com.zeroc.Ice.Identity, ServerI>();
+    @Override
+    public void shutdown(com.zeroc.Ice.Current current)
+    {
+        test(_servers.isEmpty());
+        current.adapter.getCommunicator().shutdown();
+    }
+
+    private String _defaultDir;
+    private java.util.Map<com.zeroc.Ice.Identity, ServerI> _servers =
+        new java.util.HashMap<com.zeroc.Ice.Identity, ServerI>();
 }

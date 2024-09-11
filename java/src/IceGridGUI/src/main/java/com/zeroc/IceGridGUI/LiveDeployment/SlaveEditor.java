@@ -1,39 +1,44 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.zeroc.IceGrid.*;
 import javax.swing.JTextField;
 
-class SlaveEditor extends CommunicatorEditor {
-  SlaveEditor() {
-    _hostname.setEditable(false);
-  }
+import com.jgoodies.forms.builder.DefaultFormBuilder;
 
-  void show(Slave slave) {
-    Slave previous = (Slave) _target;
-    _target = slave;
+import com.zeroc.IceGrid.*;
 
-    _hostname.setText(slave.getInfo().hostname);
-    showRuntimeProperties(previous);
-  }
+class SlaveEditor extends CommunicatorEditor
+{
+    SlaveEditor()
+    {
+        _hostname.setEditable(false);
+    }
 
-  @Override
-  protected void appendProperties(DefaultFormBuilder builder) {
-    builder.append("Hostname");
-    builder.append(_hostname, 3);
-    builder.nextLine();
-    appendRuntimeProperties(builder);
-  }
+    void show(Slave slave)
+    {
+        Slave previous = (Slave)_target;
+        _target = slave;
 
-  @Override
-  protected void buildPropertiesPanel() {
-    super.buildPropertiesPanel();
-    _propertiesPanel.setName("Slave Registry Properties");
-  }
+        _hostname.setText(slave.getInfo().hostname);
+        showRuntimeProperties(previous);
+    }
 
-  private JTextField _hostname = new JTextField(20);
+    @Override
+    protected void appendProperties(DefaultFormBuilder builder)
+    {
+        builder.append("Hostname" );
+        builder.append(_hostname, 3);
+        builder.nextLine();
+        appendRuntimeProperties(builder);
+    }
+
+    @Override
+    protected void buildPropertiesPanel()
+    {
+        super.buildPropertiesPanel();
+        _propertiesPanel.setName("Slave Registry Properties");
+    }
+
+    private JTextField _hostname = new JTextField(20);
 }

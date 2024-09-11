@@ -8,25 +8,25 @@ package com.zeroc.Ice;
  * plug-in, object adapter, object, or user exception factory more than once for the same ID.
  */
 public final class AlreadyRegisteredException extends LocalException {
-  public AlreadyRegisteredException(String kindOfObject, String id) {
-    super("Another " + kindOfObject + " is already registered with ID '" + id + "'.");
-    this.kindOfObject = kindOfObject;
-    this.id = id;
-  }
+    public AlreadyRegisteredException(String kindOfObject, String id) {
+        super("Another " + kindOfObject + " is already registered with ID '" + id + "'.");
+        this.kindOfObject = kindOfObject;
+        this.id = id;
+    }
 
-  public String ice_id() {
-    return "::Ice::AlreadyRegisteredException";
-  }
+    public String ice_id() {
+        return "::Ice::AlreadyRegisteredException";
+    }
 
-  /**
-   * The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-   * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
-   * "replica group".
-   */
-  public final String kindOfObject;
+    /**
+     * The kind of object that could not be removed: "servant", "facet", "object", "default
+     * servant", "servant locator", "value factory", "plugin", "object adapter", "object adapter
+     * with router", "replica group".
+     */
+    public final String kindOfObject;
 
-  /** The ID (or name) of the object that is registered already. */
-  public final String id;
+    /** The ID (or name) of the object that is registered already. */
+    public final String id;
 
-  private static final long serialVersionUID = 392587231034664196L;
+    private static final long serialVersionUID = 392587231034664196L;
 }

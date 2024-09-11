@@ -10,25 +10,25 @@ package com.zeroc.Ice;
  * adapter when resolving an indirect proxy or when an object adapter is activated.
  */
 public final class NotRegisteredException extends LocalException {
-  public NotRegisteredException(String kindOfObject, String id) {
-    super("No " + kindOfObject + " is registered with ID '" + id + "'.");
-    this.kindOfObject = kindOfObject;
-    this.id = id;
-  }
+    public NotRegisteredException(String kindOfObject, String id) {
+        super("No " + kindOfObject + " is registered with ID '" + id + "'.");
+        this.kindOfObject = kindOfObject;
+        this.id = id;
+    }
 
-  public String ice_id() {
-    return "::Ice::NotRegisteredException";
-  }
+    public String ice_id() {
+        return "::Ice::NotRegisteredException";
+    }
 
-  /**
-   * The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-   * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
-   * "replica group".
-   */
-  public final String kindOfObject;
+    /**
+     * The kind of object that could not be removed: "servant", "facet", "object", "default
+     * servant", "servant locator", "value factory", "plugin", "object adapter", "object adapter
+     * with router", "replica group".
+     */
+    public final String kindOfObject;
 
-  /** The ID (or name) of the object that could not be removed. */
-  public final String id;
+    /** The ID (or name) of the object that could not be removed. */
+    public final String id;
 
-  private static final long serialVersionUID = 3335358291266771447L;
+    private static final long serialVersionUID = 3335358291266771447L;
 }

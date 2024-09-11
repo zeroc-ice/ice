@@ -7,17 +7,17 @@ package com.zeroc.Ice;
  * not find a servant for the identity + facet carried by the request.
  */
 public final class FacetNotExistException extends RequestFailedException {
-  public FacetNotExistException() {
-    super("FacetNotExistException");
-  }
+    public FacetNotExistException() {
+        super("FacetNotExistException");
+    }
 
-  public FacetNotExistException(Identity id, String facet, String operation) {
-    super("FacetNotExistException", id, facet, operation);
-  }
+    public FacetNotExistException(Identity id, String facet, String operation) {
+        super("FacetNotExistException", id, facet, operation);
+    }
 
-  public String ice_id() {
-    return "::Ice::FacetNotExistException";
-  }
+    public String ice_id() {
+        return "::Ice::FacetNotExistException";
+    }
 
-  private static final long serialVersionUID = -584705670010603188L;
+    private static final long serialVersionUID = -584705670010603188L;
 }

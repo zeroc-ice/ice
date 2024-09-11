@@ -1,7 +1,7 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package Test;
 
-public class CustomList<E> extends java.util.ArrayList<E> {}
+public class CustomList<E> extends java.util.ArrayList<E>
+{
+}

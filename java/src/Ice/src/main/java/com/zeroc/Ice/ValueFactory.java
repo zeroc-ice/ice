@@ -22,15 +22,15 @@ package com.zeroc.Ice;
  */
 @FunctionalInterface
 public interface ValueFactory {
-  /**
-   * Create a new value for a given value type. The type is the absolute Slice type id, i.e., the id
-   * relative to the unnamed top-level Slice module. For example, the absolute Slice type id for an
-   * interface <code>Bar</code> in the module <code>Foo</code> is <code>"::Foo::Bar"</code>. Note
-   * that the leading "<code>::</code>" is required.
-   *
-   * @param type The value type.
-   * @return The value created for the given type, or nil if the factory is unable to create the
-   *     value.
-   */
-  Value create(String type);
+    /**
+     * Create a new value for a given value type. The type is the absolute Slice type id, i.e., the
+     * id relative to the unnamed top-level Slice module. For example, the absolute Slice type id
+     * for an interface <code>Bar</code> in the module <code>Foo</code> is <code>"::Foo::Bar"</code>
+     * . Note that the leading "<code>::</code>" is required.
+     *
+     * @param type The value type.
+     * @return The value created for the given type, or nil if the factory is unable to create the
+     *     value.
+     */
+    Value create(String type);
 }
