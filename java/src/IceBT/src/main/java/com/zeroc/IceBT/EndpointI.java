@@ -442,7 +442,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
             }
         } else if (option.equals("-z")) {
             if (argument != null) {
-                throw new EndpointParseException(
+                throw new ParseException(
                         "unexpected argument `"
                                 + argument
                                 + "' provided for -z option in "
@@ -452,7 +452,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
             _compress = true;
         } else if (option.equals("--name")) {
             if (argument == null) {
-                throw new EndpointParseException(
+                throw new ParseException(
                         "no argument provided for --name option in endpoint " + endpoint);
             }
 

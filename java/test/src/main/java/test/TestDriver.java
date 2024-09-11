@@ -17,10 +17,7 @@ public class TestDriver {
                     (Thread t, Throwable e) -> {
                         PrintWriter out = helper.getWriter();
                         out.println(
-                                "!!!!!!!!!!! unhandled exception in thread "
-                                        + t.getName()
-                                        + ": "
-                                        + e);
+                                "!!!!!!! unhandled exception in thread " + t.getName() + ": " + e);
                         e.printStackTrace(out);
                         out.flush();
                         System.exit(1);
