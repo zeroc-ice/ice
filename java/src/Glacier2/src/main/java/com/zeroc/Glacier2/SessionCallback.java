@@ -3,11 +3,10 @@
 package com.zeroc.Glacier2;
 
 /**
- * A callback class to get notifications of status changes in the Glacier2 session.
- * All callbacks on the <code>Callback</code> interface occur in the main swing thread.
+ * A callback class to get notifications of status changes in the Glacier2 session. All callbacks on
+ * the <code>Callback</code> interface occur in the main swing thread.
  */
-public interface SessionCallback
-{
+public interface SessionCallback {
     /**
      * Notifies the application that the communicator was created.
      *
@@ -19,11 +18,9 @@ public interface SessionCallback
      * Notifies the application that the Glacier2 session has been established.
      *
      * @param session The established session.
-     *
      * @throws SessionNotExistException If the session no longer exists.
      */
-    void connected(SessionHelper session)
-        throws SessionNotExistException;
+    void connected(SessionHelper session) throws SessionNotExistException;
 
     /**
      * Notifies the application that the Glacier2 session has been disconnected.
