@@ -4,6 +4,4 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.IceGridGUI.*;
 
-public abstract class Editor extends EditorBase
-{
-}
+public abstract class Editor extends EditorBase {}

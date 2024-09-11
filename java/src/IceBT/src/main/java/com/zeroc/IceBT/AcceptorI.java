@@ -2,109 +2,85 @@
 
 package com.zeroc.IceBT;
 
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
+import com.zeroc.Ice.SocketException;
 import com.zeroc.IceInternal.Acceptor;
 import com.zeroc.IceInternal.ReadyCallback;
 import com.zeroc.IceInternal.SocketOperation;
 import com.zeroc.IceInternal.Transceiver;
-import com.zeroc.Ice.SocketException;
-
-import android.bluetooth.BluetoothSocket;
-import android.bluetooth.BluetoothServerSocket;
 import java.util.UUID;
 
-final class AcceptorI implements Acceptor
-{
+final class AcceptorI implements Acceptor {
     @Override
-    public java.nio.channels.ServerSocketChannel fd()
-    {
+    public java.nio.channels.ServerSocketChannel fd() {
         return null;
     }
 
     @Override
-    public synchronized void setReadyCallback(ReadyCallback callback)
-    {
+    public synchronized void setReadyCallback(ReadyCallback callback) {
         _readyCallback = callback;
         notify(); // Notify the acceptor thread
     }
 
     @Override
-    public void close()
-    {
-        synchronized(this)
-        {
+    public void close() {
+        synchronized (this) {
             _closed = true;
         }
 
-        if(_socket != null)
-        {
-            try
-            {
+        if (_socket != null) {
+            try {
                 _socket.close(); // Wakes up the thread blocked in accept().
-            }
-            catch(Exception ex)
-            {
+            } catch (Exception ex) {
                 // Ignore.
             }
         }
-        if(_thread != null)
-        {
-            try
-            {
+        if (_thread != null) {
+            try {
                 _thread.join();
-            }
-            catch(Exception ex)
-            {
+            } catch (Exception ex) {
                 // Ignore.
             }
         }
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI listen()
-    {
+    public com.zeroc.IceInternal.EndpointI listen() {
         UUID uuid = null;
-        try
-        {
+        try {
             uuid = UUID.fromString(_uuid);
-        }
-        catch(IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             throw new SocketException(ex);
         }
 
-        try
-        {
+        try {
             // We always listen using the "secure" method.
             _socket = _instance.bluetoothAdapter().listenUsingRfcommWithServiceRecord(_name, uuid);
-        }
-        catch(java.io.IOException ex)
-        {
+        } catch (java.io.IOException ex) {
             throw new SocketException(ex);
         }
 
         // Use a helper thread to perform the blocking accept() calls.
-        _thread = new Thread()
-        {
-            public void run()
-            {
-                runAccept();
-            }
-        };
+        _thread =
+                new Thread() {
+                    public void run() {
+                        runAccept();
+                    }
+                };
         _thread.start();
 
         return _endpoint;
     }
 
     @Override
-    public synchronized Transceiver accept()
-    {
-        if(_exception != null)
-        {
+    public synchronized Transceiver accept() {
+        if (_exception != null) {
             throw new SocketException(_exception);
         }
 
         // accept() should only be called when we have at least one socket ready.
-        assert(!_pending.isEmpty());
+        assert (!_pending.isEmpty());
 
         BluetoothSocket socket = _pending.pop();
 
@@ -115,39 +91,33 @@ final class AcceptorI implements Acceptor
     }
 
     @Override
-    public String protocol()
-    {
+    public String protocol() {
         return _instance.protocol();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuffer s = new StringBuffer("local address = ");
         s.append(_instance.bluetoothAdapter().getAddress());
         return s.toString();
     }
 
     @Override
-    public String toDetailedString()
-    {
+    public String toDetailedString() {
         StringBuffer s = new StringBuffer(toString());
-        if(!_name.isEmpty())
-        {
+        if (!_name.isEmpty()) {
             s.append("\nservice name = '");
             s.append(_name);
             s.append("'");
         }
-        if(!_uuid.isEmpty())
-        {
+        if (!_uuid.isEmpty()) {
             s.append("\nservice uuid = ");
             s.append(_uuid);
         }
         return s.toString();
     }
 
-    AcceptorI(EndpointI endpoint, Instance instance, String adapterName, String uuid, String name)
-    {
+    AcceptorI(EndpointI endpoint, Instance instance, String adapterName, String uuid, String name) {
         _endpoint = endpoint;
         _instance = instance;
         _adapterName = adapterName;
@@ -158,43 +128,31 @@ final class AcceptorI implements Acceptor
         _closed = false;
     }
 
-    private void runAccept()
-    {
-        synchronized(this)
-        {
+    private void runAccept() {
+        synchronized (this) {
             // Wait for the ready callback to be set by the selector.
-            while(_readyCallback == null)
-            {
-                try
-                {
+            while (_readyCallback == null) {
+                try {
                     wait();
-                }
-                catch(InterruptedException ex)
-                {
+                } catch (InterruptedException ex) {
                 }
             }
         }
 
-        while(true)
-        {
-            try
-            {
+        while (true) {
+            try {
                 BluetoothSocket socket = _socket.accept();
-                synchronized(this)
-                {
+                synchronized (this) {
                     _pending.push(socket);
 
-                    // Notify the thread pool that we are ready to "read". The thread pool will invoke accept()
+                    // Notify the thread pool that we are ready to "read". The thread pool will
+                    // invoke accept()
                     // and we can return a new transceiver.
                     _readyCallback.ready(SocketOperation.Read, true);
                 }
-            }
-            catch(Exception ex)
-            {
-                synchronized(this)
-                {
-                    if(_closed)
-                    {
+            } catch (Exception ex) {
+                synchronized (this) {
+                    if (_closed) {
                         break;
                     }
                     _exception = ex;
@@ -204,14 +162,10 @@ final class AcceptorI implements Acceptor
         }
 
         // Close any remaining incoming sockets that haven't been accepted yet.
-        for(BluetoothSocket s : _pending)
-        {
-            try
-            {
+        for (BluetoothSocket s : _pending) {
+            try {
                 s.close();
-            }
-            catch(Exception ex)
-            {
+            } catch (Exception ex) {
                 // Ignore.
             }
         }

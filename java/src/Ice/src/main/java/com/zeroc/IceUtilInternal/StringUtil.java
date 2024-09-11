@@ -2,15 +2,12 @@
 
 package com.zeroc.IceUtilInternal;
 
-public final class StringUtil
-{
+public final class StringUtil {
     /**
-     * Returns the index of the first character in str to appear in match, starting from 0.
-     * Returns -1 if none is found.
+     * Returns the index of the first character in str to appear in match, starting from 0. Returns
+     * -1 if none is found.
      */
-    public static int
-    findFirstOf(String str, String match)
-    {
+    public static int findFirstOf(String str, String match) {
         return findFirstOf(str, match, 0);
     }
 
@@ -18,15 +15,11 @@ public final class StringUtil
      * Return the index of the first character in str to appear in match, starting from start.
      * Returns -1 if none is found.
      */
-    public static int
-    findFirstOf(String str, String match, int start)
-    {
+    public static int findFirstOf(String str, String match, int start) {
         final int len = str.length();
-        for(int i = start; i < len; i++)
-        {
+        for (int i = start; i < len; i++) {
             char ch = str.charAt(i);
-            if(match.indexOf(ch) != -1)
-            {
+            if (match.indexOf(ch) != -1) {
                 return i;
             }
         }
@@ -35,28 +28,22 @@ public final class StringUtil
     }
 
     /**
-     * Return the index of the first character in str which does not appear in match, starting from 0.
-     * Returns -1 if none is found.
+     * Return the index of the first character in str which does not appear in match, starting from
+     * 0. Returns -1 if none is found.
      */
-    public static int
-    findFirstNotOf(String str, String match)
-    {
+    public static int findFirstNotOf(String str, String match) {
         return findFirstNotOf(str, match, 0);
     }
 
     /**
-     * Return the index of the first character in str which does not appear in match, starting from start.
-     * Returns -1 if none is found.
+     * Return the index of the first character in str which does not appear in match, starting from
+     * start. Returns -1 if none is found.
      */
-    public static int
-    findFirstNotOf(String str, String match, int start)
-    {
+    public static int findFirstNotOf(String str, String match, int start) {
         final int len = str.length();
-        for(int i = start; i < len; i++)
-        {
+        for (int i = start; i < len; i++) {
             char ch = str.charAt(i);
-            if(match.indexOf(ch) == -1)
-            {
+            if (match.indexOf(ch) == -1) {
                 return i;
             }
         }
@@ -64,204 +51,169 @@ public final class StringUtil
         return -1;
     }
 
-    private static void
-    encodeChar(char c, StringBuilder sb, String special, com.zeroc.Ice.ToStringMode toStringMode)
-    {
-        switch(c)
-        {
+    private static void encodeChar(
+            char c, StringBuilder sb, String special, com.zeroc.Ice.ToStringMode toStringMode) {
+        switch (c) {
             case '\\':
-            {
-                sb.append("\\\\");
-                break;
-            }
+                {
+                    sb.append("\\\\");
+                    break;
+                }
             case '\'':
-            {
-                sb.append("\\'");
-                break;
-            }
+                {
+                    sb.append("\\'");
+                    break;
+                }
             case '"':
-            {
-                sb.append("\\\"");
-                break;
-            }
+                {
+                    sb.append("\\\"");
+                    break;
+                }
             case '\007':
-            {
-                if(toStringMode == com.zeroc.Ice.ToStringMode.Compat)
                 {
-                    // Octal escape for compatibility with 3.6 and earlier
-                    sb.append("\\007");
+                    if (toStringMode == com.zeroc.Ice.ToStringMode.Compat) {
+                        // Octal escape for compatibility with 3.6 and earlier
+                        sb.append("\\007");
+                    } else {
+                        sb.append("\\a");
+                    }
+                    break;
                 }
-                else
-                {
-                    sb.append("\\a");
-                }
-                break;
-            }
             case '\b':
-            {
-                sb.append("\\b");
-                break;
-            }
+                {
+                    sb.append("\\b");
+                    break;
+                }
             case '\f':
-            {
-                sb.append("\\f");
-                break;
-            }
+                {
+                    sb.append("\\f");
+                    break;
+                }
             case '\n':
-            {
-                sb.append("\\n");
-                break;
-            }
+                {
+                    sb.append("\\n");
+                    break;
+                }
             case '\r':
-            {
-                sb.append("\\r");
-                break;
-            }
+                {
+                    sb.append("\\r");
+                    break;
+                }
             case '\t':
-            {
-                sb.append("\\t");
-                break;
-            }
+                {
+                    sb.append("\\t");
+                    break;
+                }
             case '\013':
-            {
-                if(toStringMode == com.zeroc.Ice.ToStringMode.Compat)
                 {
-                    // Octal escape for compatibility with 3.6 and earlier
-                    sb.append("\\013");
+                    if (toStringMode == com.zeroc.Ice.ToStringMode.Compat) {
+                        // Octal escape for compatibility with 3.6 and earlier
+                        sb.append("\\013");
+                    } else {
+                        sb.append("\\v");
+                    }
+                    break;
                 }
-                else
-                {
-                    sb.append("\\v");
-                }
-                break;
-            }
             default:
-            {
-                if(special != null && special.indexOf(c) != -1)
                 {
-                    sb.append('\\');
-                    sb.append(c);
-                }
-                else
-                {
-                    if(c < 32 || c > 126)
-                    {
-                        if(toStringMode == com.zeroc.Ice.ToStringMode.Compat)
-                        {
-                            // When ToStringMode=Compat, c is a UTF-8 byte
-                            assert(c < 256);
+                    if (special != null && special.indexOf(c) != -1) {
+                        sb.append('\\');
+                        sb.append(c);
+                    } else {
+                        if (c < 32 || c > 126) {
+                            if (toStringMode == com.zeroc.Ice.ToStringMode.Compat) {
+                                // When ToStringMode=Compat, c is a UTF-8 byte
+                                assert (c < 256);
 
-                            sb.append('\\');
-                            String octal = Integer.toOctalString(c);
+                                sb.append('\\');
+                                String octal = Integer.toOctalString(c);
 
-                            // Add leading zeroes so that we avoid problems during
-                            // decoding. For example, consider the encoded string
-                            // \0013 (i.e., a character with value 1 followed by
-                            // the character '3'). If the leading zeroes were omitted,
-                            // the result would be incorrectly interpreted by the
-                            // decoder as a single character with value 11.
-                            for(int j = octal.length(); j < 3; j++)
-                            {
-                                sb.append('0');
+                                // Add leading zeroes so that we avoid problems during
+                                // decoding. For example, consider the encoded string
+                                // \0013 (i.e., a character with value 1 followed by
+                                // the character '3'). If the leading zeroes were omitted,
+                                // the result would be incorrectly interpreted by the
+                                // decoder as a single character with value 11.
+                                for (int j = octal.length(); j < 3; j++) {
+                                    sb.append('0');
+                                }
+                                sb.append(octal);
+                            } else if (c < 32
+                                    || c == 127
+                                    || toStringMode == com.zeroc.Ice.ToStringMode.ASCII) {
+                                // append \\unnnn
+                                sb.append("\\u");
+                                String hex = Integer.toHexString(c);
+                                for (int j = hex.length(); j < 4; j++) {
+                                    sb.append('0');
+                                }
+                                sb.append(hex);
+                            } else {
+                                // keep as is
+                                sb.append(c);
                             }
-                            sb.append(octal);
-                        }
-                        else if(c < 32 || c == 127 || toStringMode == com.zeroc.Ice.ToStringMode.ASCII)
-                        {
-                            // append \\unnnn
-                            sb.append("\\u");
-                            String hex = Integer.toHexString(c);
-                            for(int j = hex.length(); j < 4; j++)
-                            {
-                                sb.append('0');
-                            }
-                            sb.append(hex);
-                        }
-                        else
-                        {
-                            // keep as is
+                        } else {
+                            // printable ASCII character
                             sb.append(c);
                         }
                     }
-                    else
-                    {
-                        // printable ASCII character
-                        sb.append(c);
-                    }
+                    break;
                 }
-                break;
-            }
         }
     }
 
     /**
-     * Add escape sequences (like "\n" to the input string).
-     * The second parameter adds characters to escape, and can be empty.
+     * Add escape sequences (like "\n" to the input string). The second parameter adds characters to
+     * escape, and can be empty.
      */
-    public static String
-    escapeString(String s, String special, com.zeroc.Ice.ToStringMode toStringMode)
-    {
-        if(special != null)
-        {
-            for(int i = 0; i < special.length(); ++i)
-            {
-                if(special.charAt(i) < 32 || special.charAt(i) > 126)
-                {
-                    throw new IllegalArgumentException("special characters must be in ASCII range 32-126");
+    public static String escapeString(
+            String s, String special, com.zeroc.Ice.ToStringMode toStringMode) {
+        if (special != null) {
+            for (int i = 0; i < special.length(); ++i) {
+                if (special.charAt(i) < 32 || special.charAt(i) > 126) {
+                    throw new IllegalArgumentException(
+                            "special characters must be in ASCII range 32-126");
                 }
             }
         }
 
-        if(toStringMode == com.zeroc.Ice.ToStringMode.Compat)
-        {
+        if (toStringMode == com.zeroc.Ice.ToStringMode.Compat) {
             // Encode UTF-8 bytes
 
             byte[] bytes = null;
-            try
-            {
+            try {
                 bytes = s.getBytes("UTF8");
-            }
-            catch(java.io.UnsupportedEncodingException ex)
-            {
-                assert(false);
+            } catch (java.io.UnsupportedEncodingException ex) {
+                assert (false);
                 return null;
             }
 
             StringBuilder result = new StringBuilder(bytes.length);
-            for(int i = 0; i < bytes.length; i++)
-            {
-                encodeChar((char)(bytes[i] & 0xFF), result, special, toStringMode);
+            for (int i = 0; i < bytes.length; i++) {
+                encodeChar((char) (bytes[i] & 0xFF), result, special, toStringMode);
             }
 
             return result.toString();
-        }
-        else
-        {
+        } else {
             StringBuilder result = new StringBuilder(s.length());
 
-            for(int i = 0; i < s.length(); i++)
-            {
+            for (int i = 0; i < s.length(); i++) {
                 char c = s.charAt(i);
-                if(toStringMode == com.zeroc.Ice.ToStringMode.Unicode || !Character.isSurrogate(c))
-                {
+                if (toStringMode == com.zeroc.Ice.ToStringMode.Unicode
+                        || !Character.isSurrogate(c)) {
                     encodeChar(c, result, special, toStringMode);
-                }
-                else
-                {
-                    assert(toStringMode == com.zeroc.Ice.ToStringMode.ASCII && Character.isSurrogate(c));
-                    if(i + 1 == s.length())
-                    {
+                } else {
+                    assert (toStringMode == com.zeroc.Ice.ToStringMode.ASCII
+                            && Character.isSurrogate(c));
+                    if (i + 1 == s.length()) {
                         throw new IllegalArgumentException("High surrogate without low surrogate");
-                    }
-                    else
-                    {
+                    } else {
                         i++;
                         int codePoint = Character.toCodePoint(c, s.charAt(i));
                         // append \Unnnnnnnn
                         result.append("\\U");
                         String hex = Integer.toHexString(codePoint);
-                        for(int j = hex.length(); j < 8; j++)
-                        {
+                        for (int j = hex.length(); j < 8; j++) {
                             result.append('0');
                         }
                         result.append(hex);
@@ -273,22 +225,16 @@ public final class StringUtil
         }
     }
 
-    private static char
-    checkChar(String s, int pos)
-    {
+    private static char checkChar(String s, int pos) {
         char c = s.charAt(pos);
-        if(c < 32 || c == 127)
-        {
+        if (c < 32 || c == 127) {
             String msg;
-            if(pos > 0)
-            {
+            if (pos > 0) {
                 msg = "character after `" + s.substring(0, pos) + "'";
-            }
-            else
-            {
+            } else {
                 msg = "first character";
             }
-            msg += " has invalid ordinal value " + (int)c;
+            msg += " has invalid ordinal value " + (int) c;
             throw new IllegalArgumentException(msg);
         }
         return c;
@@ -299,126 +245,108 @@ public final class StringUtil
      *
      * @return the index of the first character following the decoded character or escape sequence.
      */
-    private static int
-    decodeChar(String s, int start, int end, String special, StringBuilder result)
-    {
-        assert(start >= 0);
-        assert(start < end);
-        assert(end <= s.length());
+    private static int decodeChar(
+            String s, int start, int end, String special, StringBuilder result) {
+        assert (start >= 0);
+        assert (start < end);
+        assert (end <= s.length());
 
-        if(s.charAt(start) != '\\')
-        {
+        if (s.charAt(start) != '\\') {
             result.append(checkChar(s, start++));
-        }
-        else if(start + 1 == end)
-        {
+        } else if (start + 1 == end) {
             ++start;
             result.append('\\');
-        }
-        else
-        {
+        } else {
             char c = s.charAt(++start);
 
-            switch(c)
-            {
+            switch (c) {
                 case '\\':
                 case '\'':
                 case '"':
                 case '?':
-                {
-                    ++start;
-                    result.append(c);
-                    break;
-                }
+                    {
+                        ++start;
+                        result.append(c);
+                        break;
+                    }
                 case 'a':
-                {
-                    ++start;
-                    result.append('\u0007');
-                    break;
-                }
+                    {
+                        ++start;
+                        result.append('\u0007');
+                        break;
+                    }
                 case 'b':
-                {
-                    ++start;
-                    result.append('\b');
-                    break;
-                }
+                    {
+                        ++start;
+                        result.append('\b');
+                        break;
+                    }
                 case 'f':
-                {
-                    ++start;
-                    result.append('\f');
-                    break;
-                }
+                    {
+                        ++start;
+                        result.append('\f');
+                        break;
+                    }
                 case 'n':
-                {
-                    ++start;
-                    result.append('\n');
-                    break;
-                }
+                    {
+                        ++start;
+                        result.append('\n');
+                        break;
+                    }
                 case 'r':
-                {
-                    ++start;
-                    result.append('\r');
-                    break;
-                }
+                    {
+                        ++start;
+                        result.append('\r');
+                        break;
+                    }
                 case 't':
-                {
-                    ++start;
-                    result.append('\t');
-                    break;
-                }
+                    {
+                        ++start;
+                        result.append('\t');
+                        break;
+                    }
                 case 'v':
-                {
-                    ++start;
-                    result.append('\u000b');
-                }
+                    {
+                        ++start;
+                        result.append('\u000b');
+                    }
                 case 'u':
                 case 'U':
-                {
-                    int codePoint = 0;
-                    boolean inBMP = (c == 'u');
-                    int size = inBMP ? 4 : 8;
-                    ++start;
-                    while(size > 0 && start < end)
                     {
-                        c = s.charAt(start++);
-                        int charVal = 0;
-                        if(c >= '0' && c <= '9')
-                        {
-                            charVal = c - '0';
+                        int codePoint = 0;
+                        boolean inBMP = (c == 'u');
+                        int size = inBMP ? 4 : 8;
+                        ++start;
+                        while (size > 0 && start < end) {
+                            c = s.charAt(start++);
+                            int charVal = 0;
+                            if (c >= '0' && c <= '9') {
+                                charVal = c - '0';
+                            } else if (c >= 'a' && c <= 'f') {
+                                charVal = 10 + (c - 'a');
+                            } else if (c >= 'A' && c <= 'F') {
+                                charVal = 10 + (c - 'A');
+                            } else {
+                                break; // while
+                            }
+                            codePoint = codePoint * 16 + charVal;
+                            --size;
                         }
-                        else if(c >= 'a' && c <= 'f')
-                        {
-                            charVal = 10 + (c - 'a');
+                        if (size > 0) {
+                            throw new IllegalArgumentException(
+                                    "Invalid universal character name: too few hex digits");
                         }
-                        else if(c >= 'A' && c <= 'F')
-                        {
-                            charVal = 10 + (c - 'A');
+                        if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
+                            throw new IllegalArgumentException(
+                                    "A universal character name cannot designate a surrogate");
                         }
-                        else
-                        {
-                            break; // while
+                        if (inBMP || Character.isBmpCodePoint(codePoint)) {
+                            result.append((char) codePoint);
+                        } else {
+                            result.append(Character.toChars(codePoint));
                         }
-                        codePoint = codePoint * 16 + charVal;
-                        --size;
+                        break;
                     }
-                    if(size > 0)
-                    {
-                        throw new IllegalArgumentException("Invalid universal character name: too few hex digits");
-                    }
-                    if(codePoint >= 0xD800 && codePoint <= 0xDFFF)
-                    {
-                        throw new IllegalArgumentException("A universal character name cannot designate a surrogate");
-                    }
-                    if(inBMP || Character.isBmpCodePoint(codePoint))
-                    {
-                        result.append((char)codePoint);
-                    }
-                    else
-                    {
-                        result.append(Character.toChars(codePoint));
-                    }
-                    break;
-                }
 
                 case '0':
                 case '1':
@@ -429,102 +357,86 @@ public final class StringUtil
                 case '6':
                 case '7':
                 case 'x':
-                {
-                    // UTF-8 byte sequence encoded with octal or hex escapes
-
-                    byte[] arr = new byte[end - start];
-                    int i = 0;
-                    boolean more = true;
-                    while(more)
                     {
-                        int val = 0;
-                        if(c == 'x')
-                        {
-                            int size = 2;
-                            ++start;
-                            while(size > 0 && start < end)
-                            {
-                                c = s.charAt(start++);
-                                int charVal = 0;
-                                if(c >= '0' && c <= '9')
-                                {
-                                    charVal = c - '0';
+                        // UTF-8 byte sequence encoded with octal or hex escapes
+
+                        byte[] arr = new byte[end - start];
+                        int i = 0;
+                        boolean more = true;
+                        while (more) {
+                            int val = 0;
+                            if (c == 'x') {
+                                int size = 2;
+                                ++start;
+                                while (size > 0 && start < end) {
+                                    c = s.charAt(start++);
+                                    int charVal = 0;
+                                    if (c >= '0' && c <= '9') {
+                                        charVal = c - '0';
+                                    } else if (c >= 'a' && c <= 'f') {
+                                        charVal = 10 + (c - 'a');
+                                    } else if (c >= 'A' && c <= 'F') {
+                                        charVal = 10 + (c - 'A');
+                                    } else {
+                                        --start; // move back
+                                        break; // while
+                                    }
+                                    val = val * 16 + charVal;
+                                    --size;
                                 }
-                                else if(c >= 'a' && c <= 'f')
-                                {
-                                    charVal = 10 + (c - 'a');
+                                if (size == 2) {
+                                    throw new IllegalArgumentException(
+                                            "Invalid \\x escape sequence: no hex digit");
                                 }
-                                else if(c >= 'A' && c <= 'F')
-                                {
-                                    charVal = 10 + (c - 'A');
+                            } else {
+                                for (int j = 0; j < 3 && start < end; ++j) {
+                                    int charVal = s.charAt(start++) - '0';
+                                    if (charVal < 0 || charVal > 7) {
+                                        --start; // move back
+                                        assert (j != 0); // must be at least one digit
+                                        break; // for
+                                    }
+                                    val = val * 8 + charVal;
                                 }
-                                else
-                                {
-                                    --start; // move back
-                                    break; // while
+                                if (val > 255) {
+                                    String msg =
+                                            "octal value \\"
+                                                    + Integer.toOctalString(val)
+                                                    + " ("
+                                                    + val
+                                                    + ") is out of range";
+                                    throw new IllegalArgumentException(msg);
                                 }
-                                val = val * 16 + charVal;
-                                --size;
                             }
-                            if(size == 2)
-                            {
-                                throw new IllegalArgumentException("Invalid \\x escape sequence: no hex digit");
+
+                            arr[i++] = (byte) val;
+
+                            more = false;
+
+                            if ((start + 1 < end) && s.charAt(start) == '\\') {
+                                c = s.charAt(start + 1);
+                                if (c == 'x' || (c >= '0' && c <= '9')) {
+                                    start++;
+                                    more = true;
+                                }
                             }
                         }
-                        else
-                        {
-                            for(int j = 0; j < 3 && start < end; ++j)
-                            {
-                                int charVal = s.charAt(start++) - '0';
-                                if(charVal < 0 || charVal > 7)
-                                {
-                                    --start; // move back
-                                    assert(j != 0); // must be at least one digit
-                                    break; // for
-                                }
-                                val = val * 8 + charVal;
-                            }
-                            if(val > 255)
-                            {
-                                String msg = "octal value \\" + Integer.toOctalString(val) + " (" + val + ") is out of range";
-                                throw new IllegalArgumentException(msg);
-                            }
+
+                        try {
+                            result.append(new String(arr, 0, i, "UTF8"));
+                        } catch (java.io.UnsupportedEncodingException ex) {
+                            throw new IllegalArgumentException("unsupported encoding", ex);
                         }
-
-                        arr[i++] = (byte)val;
-
-                        more = false;
-
-                        if((start + 1 < end) && s.charAt(start) == '\\')
-                        {
-                            c = s.charAt(start + 1);
-                            if(c == 'x' || (c >= '0' && c <= '9'))
-                            {
-                                start++;
-                                more = true;
-                            }
-                        }
+                        break;
                     }
-
-                    try
-                    {
-                        result.append(new String(arr, 0, i, "UTF8"));
-                    }
-                    catch(java.io.UnsupportedEncodingException ex)
-                    {
-                        throw new IllegalArgumentException("unsupported encoding", ex);
-                    }
-                    break;
-                }
                 default:
-                {
-                    if(special == null || special.isEmpty() || special.indexOf(c) == -1)
                     {
-                        result.append('\\'); // not in special, so we keep the backslash
+                        if (special == null || special.isEmpty() || special.indexOf(c) == -1) {
+                            result.append('\\'); // not in special, so we keep the backslash
+                        }
+                        result.append(checkChar(s, start++));
+                        break;
                     }
-                    result.append(checkChar(s, start++));
-                    break;
-                }
             }
         }
 
@@ -536,38 +448,29 @@ public final class StringUtil
      *
      * @throws IllegalArgumentException for an invalid input string.
      */
-    public static String
-    unescapeString(String s, int start, int end, String special)
-    {
-        assert(start >= 0 && start <= end && end <= s.length());
+    public static String unescapeString(String s, int start, int end, String special) {
+        assert (start >= 0 && start <= end && end <= s.length());
 
-        if(special != null)
-        {
-            for(int i = 0; i < special.length(); ++i)
-            {
-                if(special.charAt(i) < 32 || special.charAt(i) > 126)
-                {
-                    throw new IllegalArgumentException("special characters must be in ASCII range 32-126");
+        if (special != null) {
+            for (int i = 0; i < special.length(); ++i) {
+                if (special.charAt(i) < 32 || special.charAt(i) > 126) {
+                    throw new IllegalArgumentException(
+                            "special characters must be in ASCII range 32-126");
                 }
             }
         }
 
         // Optimization for strings without escapes
         int p = s.indexOf('\\', start);
-        if(p == -1 || p >= end)
-        {
+        if (p == -1 || p >= end) {
             p = start;
-            while(p < end)
-            {
+            while (p < end) {
                 checkChar(s, p++);
             }
             return s.substring(start, end);
-        }
-        else
-        {
+        } else {
             StringBuilder sb = new StringBuilder(end - start);
-            while(start < end)
-            {
+            while (start < end) {
                 start = decodeChar(s, start, end, special, sb);
             }
             return sb.toString();
@@ -575,45 +478,35 @@ public final class StringUtil
     }
 
     /** Split string helper; returns null for unmatched quotes */
-    static public String[]
-    splitString(String str, String delim)
-    {
+    public static String[] splitString(String str, String delim) {
         java.util.List<String> l = new java.util.ArrayList<>();
         char[] arr = new char[str.length()];
         int pos = 0;
 
         int n = 0;
         char quoteChar = '\0';
-        while(pos < str.length())
-        {
-            if(quoteChar == '\0' && (str.charAt(pos) == '"' || str.charAt(pos) == '\''))
-            {
+        while (pos < str.length()) {
+            if (quoteChar == '\0' && (str.charAt(pos) == '"' || str.charAt(pos) == '\'')) {
                 quoteChar = str.charAt(pos++);
                 continue; // Skip the quote.
-            }
-            else if(quoteChar == '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() &&
-                    (str.charAt(pos + 1) == '"' || str.charAt(pos + 1) == '\''))
-            {
+            } else if (quoteChar == '\0'
+                    && str.charAt(pos) == '\\'
+                    && pos + 1 < str.length()
+                    && (str.charAt(pos + 1) == '"' || str.charAt(pos + 1) == '\'')) {
                 ++pos; // Skip the backslash
-            }
-            else if(quoteChar != '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() &&
-                    str.charAt(pos + 1) == quoteChar)
-            {
+            } else if (quoteChar != '\0'
+                    && str.charAt(pos) == '\\'
+                    && pos + 1 < str.length()
+                    && str.charAt(pos + 1) == quoteChar) {
                 ++pos; // Skip the backslash
-            }
-            else if(quoteChar != '\0' && str.charAt(pos) == quoteChar)
-            {
+            } else if (quoteChar != '\0' && str.charAt(pos) == quoteChar) {
                 ++pos;
                 quoteChar = '\0';
                 continue; // Skip the quote.
-            }
-            else if(delim.indexOf(str.charAt(pos)) != -1)
-            {
-                if(quoteChar == '\0')
-                {
+            } else if (delim.indexOf(str.charAt(pos)) != -1) {
+                if (quoteChar == '\0') {
                     ++pos;
-                    if(n > 0)
-                    {
+                    if (n > 0) {
                         l.add(new String(arr, 0, n));
                         n = 0;
                     }
@@ -621,41 +514,33 @@ public final class StringUtil
                 }
             }
 
-            if(pos < str.length())
-            {
+            if (pos < str.length()) {
                 arr[n++] = str.charAt(pos++);
             }
         }
 
-        if(n > 0)
-        {
+        if (n > 0) {
             l.add(new String(arr, 0, n));
         }
-        if(quoteChar != '\0')
-        {
+        if (quoteChar != '\0') {
             return null; // Unmatched quote.
         }
         return l.toArray(new String[0]);
     }
 
     /**
-     * If a single or double quotation mark is found at the start position, then the position of the matching closing
-     * quote is returned. If no quotation mark is found at the start position, then 0 is returned.
-     * If no matching closing quote is found, then -1 is returned.
+     * If a single or double quotation mark is found at the start position, then the position of the
+     * matching closing quote is returned. If no quotation mark is found at the start position, then
+     * 0 is returned. If no matching closing quote is found, then -1 is returned.
      */
-    public static int
-    checkQuote(String s, int start)
-    {
+    public static int checkQuote(String s, int start) {
         char quoteChar = s.charAt(start);
-        if(quoteChar == '"' || quoteChar == '\'')
-        {
+        if (quoteChar == '"' || quoteChar == '\'') {
             start++;
             final int len = s.length();
             int pos;
-            while(start < len && (pos = s.indexOf(quoteChar, start)) != -1)
-            {
-                if(s.charAt(pos - 1) != '\\')
-                {
+            while (start < len && (pos = s.indexOf(quoteChar, start)) != -1) {
+                if (s.charAt(pos - 1) != '\\') {
                     return pos;
                 }
                 start = pos + 1;
@@ -665,46 +550,39 @@ public final class StringUtil
         return 0; // Not quoted
     }
 
-    public static boolean
-    match(String s, String pat, boolean emptyMatch)
-    {
-        assert(!s.isEmpty());
-        assert(!pat.isEmpty());
+    public static boolean match(String s, String pat, boolean emptyMatch) {
+        assert (!s.isEmpty());
+        assert (!pat.isEmpty());
 
         // If pattern does not contain a wildcard just compare strings.
         int beginIndex = pat.indexOf('*');
-        if(beginIndex < 0)
-        {
+        if (beginIndex < 0) {
             return s.equals(pat);
         }
 
         // Make sure start of the strings match
-        if(beginIndex > s.length() || !s.substring(0, beginIndex).equals(pat.substring(0, beginIndex)))
-        {
+        if (beginIndex > s.length()
+                || !s.substring(0, beginIndex).equals(pat.substring(0, beginIndex))) {
             return false;
         }
 
         // Make sure there is something present in the middle to match the wildcard.
         // If emptyMatch is true, allow a match of "".
         int endLength = pat.length() - beginIndex - 1;
-        if(endLength == 0)
-        {
+        if (endLength == 0) {
             return true;
         }
-        if(endLength > s.length())
-        {
+        if (endLength > s.length()) {
             return false;
         }
         int endIndex = s.length() - endLength;
-        if(endIndex < beginIndex || (!emptyMatch && endIndex == beginIndex))
-        {
+        if (endIndex < beginIndex || (!emptyMatch && endIndex == beginIndex)) {
             return false;
         }
 
         // Make sure end of the strings match
-        if(!s.substring(endIndex, s.length() - endIndex).equals(
-               pat.substring(beginIndex + 1, pat.length() - beginIndex - 1)))
-        {
+        if (!s.substring(endIndex, s.length() - endIndex)
+                .equals(pat.substring(beginIndex + 1, pat.length() - beginIndex - 1))) {
             return false;
         }
 

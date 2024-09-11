@@ -2,54 +2,41 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.JComponent;
-import javax.swing.JComboBox;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 @SuppressWarnings("unchecked")
-class ApplicationEditor extends Editor
-{
+class ApplicationEditor extends Editor {
     @Override
-    protected boolean applyUpdate(boolean refresh)
-    {
-        Root root = (Root)_target;
+    protected boolean applyUpdate(boolean refresh) {
+        Root root = (Root) _target;
         MainPane mainPane = _target.getCoordinator().getMainPane();
 
         root.disableSelectionListener();
-        try
-        {
-            if(isSimpleUpdate())
-            {
+        try {
+            if (isSimpleUpdate()) {
                 writeDescriptor();
                 root.updated();
                 root.getEditable().markModified();
-            }
-            else
-            {
+            } else {
                 // Save to be able to rollback
                 ApplicationDescriptor savedDescriptor = root.saveDescriptor();
                 writeDescriptor();
-                try
-                {
+                try {
                     root.rebuild();
-                }
-                catch(UpdateFailedException e)
-                {
+                } catch (UpdateFailedException e) {
                     root.restoreDescriptor(savedDescriptor);
                     JOptionPane.showMessageDialog(
-                        root.getCoordinator().getMainFrame(),
-                        e.toString(),
-                        "Apply failed",
-                        JOptionPane.ERROR_MESSAGE);
+                            root.getCoordinator().getMainFrame(),
+                            e.toString(),
+                            "Apply failed",
+                            JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -57,8 +44,7 @@ class ApplicationEditor extends Editor
                 root.updated();
                 root.getEditable().markModified();
 
-                if(!savedDescriptor.name.equals(root.getId()))
-                {
+                if (!savedDescriptor.name.equals(root.getId())) {
                     mainPane.resetTitle(root);
                     root.getTreeModel().nodeChanged(root);
                 }
@@ -67,15 +53,12 @@ class ApplicationEditor extends Editor
             _applyButton.setEnabled(false);
             _discardButton.setEnabled(false);
             return true;
-        }
-        finally
-        {
+        } finally {
             root.enableSelectionListener();
         }
     }
 
-    ApplicationEditor()
-    {
+    ApplicationEditor() {
         _name.getDocument().addDocumentListener(_updateListener);
         _description.getDocument().addDocumentListener(_updateListener);
 
@@ -84,8 +67,7 @@ class ApplicationEditor extends Editor
     }
 
     @Override
-    protected void appendProperties(DefaultFormBuilder builder)
-    {
+    protected void appendProperties(DefaultFormBuilder builder) {
         builder.append("Name");
         builder.append(_name, 3);
 
@@ -114,41 +96,37 @@ class ApplicationEditor extends Editor
     }
 
     @Override
-    protected void buildPropertiesPanel()
-    {
+    protected void buildPropertiesPanel() {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Application Properties");
     }
 
-    boolean isSimpleUpdate()
-    {
-        ApplicationDescriptor descriptor = (ApplicationDescriptor)_target.getDescriptor();
-        return descriptor.name.equals(_name.getText().trim()) && _variables.get().equals(descriptor.variables);
+    boolean isSimpleUpdate() {
+        ApplicationDescriptor descriptor = (ApplicationDescriptor) _target.getDescriptor();
+        return descriptor.name.equals(_name.getText().trim())
+                && _variables.get().equals(descriptor.variables);
     }
 
-    void writeDescriptor()
-    {
-        ApplicationDescriptor descriptor = (ApplicationDescriptor)_target.getDescriptor();
+    void writeDescriptor() {
+        ApplicationDescriptor descriptor = (ApplicationDescriptor) _target.getDescriptor();
         descriptor.name = _name.getText().trim();
         descriptor.variables = _variables.get();
         descriptor.description = _description.getText();
     }
 
     @Override
-    protected boolean validate()
-    {
-        return check(new String[]{"Name", _name.getText().trim()});
+    protected boolean validate() {
+        return check(new String[] {"Name", _name.getText().trim()});
     }
 
-    void show(Root root)
-    {
+    void show(Root root) {
         detectUpdates(false);
         _target = root;
 
         Utils.Resolver resolver = getDetailResolver();
         boolean isEditable = (resolver == null);
 
-        ApplicationDescriptor descriptor = (ApplicationDescriptor)root.getDescriptor();
+        ApplicationDescriptor descriptor = (ApplicationDescriptor) root.getDescriptor();
 
         _name.setText(descriptor.name);
         _name.setEditable(!root.isLive() && isEditable);
@@ -166,14 +144,10 @@ class ApplicationEditor extends Editor
     }
 
     @Override
-    Utils.Resolver getDetailResolver()
-    {
-        if(_target.getCoordinator().substitute())
-        {
+    Utils.Resolver getDetailResolver() {
+        if (_target.getCoordinator().substitute()) {
             return _target.getResolver();
-        }
-        else
-        {
+        } else {
             return null;
         }
     }

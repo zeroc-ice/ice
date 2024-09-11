@@ -1,43 +1,33 @@
-//Copyright (c) ZeroC, Inc.
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-public class Service extends Communicator
-{
+public class Service extends Communicator {
     // Actions
     @Override
-    public boolean[] getAvailableActions()
-    {
+    public boolean[] getAvailableActions() {
         boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
 
-        ServerState serverState = ((Server)_parent).getState();
+        ServerState serverState = ((Server) _parent).getState();
 
-        if(serverState != null)
-        {
+        if (serverState != null) {
             actions[RETRIEVE_LOG_FILE] = _serviceDescriptor.logs.length > 0;
         }
-        if(serverState == ServerState.Active)
-        {
+        if (serverState == ServerState.Active) {
             actions[RETRIEVE_ICE_LOG] = serverState == ServerState.Active;
-            if(((Server)_parent).hasServiceObserver())
-            {
+            if (((Server) _parent).hasServiceObserver()) {
                 actions[START] = !_started;
                 actions[STOP] = _started;
-            }
-            else
-            {
+            } else {
                 actions[START] = true;
                 actions[STOP] = true;
             }
@@ -47,162 +37,160 @@ public class Service extends Communicator
     }
 
     @Override
-    public void start()
-    {
-        com.zeroc.IceBox.ServiceManagerPrx serviceManager = ((Server)_parent).getServiceManager();
+    public void start() {
+        com.zeroc.IceBox.ServiceManagerPrx serviceManager = ((Server) _parent).getServiceManager();
 
-        if(serviceManager != null)
-        {
+        if (serviceManager != null) {
             final String prefix = "Starting service '" + _id + "'...";
             getCoordinator().getStatusBar().setText(prefix);
 
-            try
-            {
-                serviceManager.startServiceAsync(_id).whenComplete((result, ex) ->
-                    {
-                        if(ex == null || ex instanceof com.zeroc.IceBox.AlreadyStartedException)
-                        {
-                            amiSuccess(prefix);
-                        }
-                        else
-                        {
-                            amiFailure(prefix, "Failed to start service " + _id, ex.toString());
-                        }
-                    });
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
+            try {
+                serviceManager
+                        .startServiceAsync(_id)
+                        .whenComplete(
+                                (result, ex) -> {
+                                    if (ex == null
+                                            || ex
+                                                    instanceof
+                                                    com.zeroc.IceBox.AlreadyStartedException) {
+                                        amiSuccess(prefix);
+                                    } else {
+                                        amiFailure(
+                                                prefix,
+                                                "Failed to start service " + _id,
+                                                ex.toString());
+                                    }
+                                });
+            } catch (com.zeroc.Ice.LocalException e) {
                 failure(prefix, "Failed to start service " + _id, e.toString());
             }
         }
     }
 
     @Override
-    public void stop()
-    {
-        com.zeroc.IceBox.ServiceManagerPrx serviceManager = ((Server)_parent).getServiceManager();
+    public void stop() {
+        com.zeroc.IceBox.ServiceManagerPrx serviceManager = ((Server) _parent).getServiceManager();
 
-        if(serviceManager != null)
-        {
+        if (serviceManager != null) {
             final String prefix = "Stopping service '" + _id + "'...";
             getCoordinator().getStatusBar().setText(prefix);
 
-            try
-            {
-                serviceManager.stopServiceAsync(_id).whenComplete((result, ex) ->
-                    {
-                        if(ex == null || ex instanceof com.zeroc.IceBox.AlreadyStoppedException)
-                        {
-                            amiSuccess(prefix);
-                        }
-                        else
-                        {
-                            amiFailure(prefix, "Failed to stop service " + _id, ex.toString());
-                        }
-                    });
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
+            try {
+                serviceManager
+                        .stopServiceAsync(_id)
+                        .whenComplete(
+                                (result, ex) -> {
+                                    if (ex == null
+                                            || ex
+                                                    instanceof
+                                                    com.zeroc.IceBox.AlreadyStoppedException) {
+                                        amiSuccess(prefix);
+                                    } else {
+                                        amiFailure(
+                                                prefix,
+                                                "Failed to stop service " + _id,
+                                                ex.toString());
+                                    }
+                                });
+            } catch (com.zeroc.Ice.LocalException e) {
                 failure(prefix, "Failed to stop service " + _id, e.toString());
             }
         }
     }
 
     @Override
-    public void retrieveLogFile()
-    {
+    public void retrieveLogFile() {
         assert _serviceDescriptor.logs.length > 0;
 
         String path = null;
 
-        if(_serviceDescriptor.logs.length == 1)
-        {
+        if (_serviceDescriptor.logs.length == 1) {
             path = _resolver.substitute(_serviceDescriptor.logs[0]);
-        }
-        else
-        {
+        } else {
             Object[] pathArray = new Object[_serviceDescriptor.logs.length];
             int i = 0;
-            for(String log : _serviceDescriptor.logs)
-            {
+            for (String log : _serviceDescriptor.logs) {
                 pathArray[i++] = _resolver.substitute(log);
             }
 
-            path = (String)JOptionPane.showInputDialog(
-                getCoordinator().getMainFrame(),
-                "Which log file do you want to retrieve?",
-                "Retrieve Log File",
-                JOptionPane.QUESTION_MESSAGE, null,
-                pathArray, pathArray[0]);
+            path =
+                    (String)
+                            JOptionPane.showInputDialog(
+                                    getCoordinator().getMainFrame(),
+                                    "Which log file do you want to retrieve?",
+                                    "Retrieve Log File",
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    pathArray,
+                                    pathArray[0]);
         }
 
-        if(path != null)
-        {
+        if (path != null) {
             final String fPath = path;
 
-            getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
-                {
-                    @Override
-                    public FileIteratorPrx open(int count)
-                        throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException,
-                        DeploymentException
-                    {
-                        AdminSessionPrx session = getRoot().getCoordinator().getSession();
-                        return session.openServerLog(_parent.getId(), fPath, count);
-                    }
+            getRoot()
+                    .openShowLogFileDialog(
+                            new ShowLogFileDialog.FileIteratorFactory() {
+                                @Override
+                                public FileIteratorPrx open(int count)
+                                        throws FileNotAvailableException,
+                                                ServerNotExistException,
+                                                NodeUnreachableException,
+                                                DeploymentException {
+                                    AdminSessionPrx session =
+                                            getRoot().getCoordinator().getSession();
+                                    return session.openServerLog(_parent.getId(), fPath, count);
+                                }
 
-                    @Override
-                    public String getTitle()
-                    {
-                        return "Service " + _parent.getId() + "/" + _id + " " + new java.io.File(fPath).getName();
-                    }
+                                @Override
+                                public String getTitle() {
+                                    return "Service "
+                                            + _parent.getId()
+                                            + "/"
+                                            + _id
+                                            + " "
+                                            + new java.io.File(fPath).getName();
+                                }
 
-                    @Override
-                    public String getDefaultFilename()
-                    {
-                        return new java.io.File(fPath).getName();
-                    }
-                });
+                                @Override
+                                public String getDefaultFilename() {
+                                    return new java.io.File(fPath).getName();
+                                }
+                            });
         }
     }
 
     @Override
     public Component getTreeCellRendererComponent(
-        JTree tree,
-        Object value,
-        boolean sel,
-        boolean expanded,
-        boolean leaf,
-        int row,
-        boolean hasFocus)
-    {
-        if(_cellRenderer == null)
-        {
+            JTree tree,
+            Object value,
+            boolean sel,
+            boolean expanded,
+            boolean leaf,
+            int row,
+            boolean hasFocus) {
+        if (_cellRenderer == null) {
             _cellRenderer = new DefaultTreeCellRenderer();
 
             _startedIcon = Utils.getIcon("/icons/16x16/service_running.png");
             _stoppedIcon = Utils.getIcon("/icons/16x16/service.png");
         }
 
-        Icon icon = _started ?  _startedIcon : _stoppedIcon;
+        Icon icon = _started ? _startedIcon : _stoppedIcon;
 
-        if(expanded)
-        {
+        if (expanded) {
             _cellRenderer.setOpenIcon(icon);
-        }
-        else
-        {
+        } else {
             _cellRenderer.setClosedIcon(icon);
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(
+                tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     @Override
-    public Editor getEditor()
-    {
-        if(_editor == null)
-        {
+    public Editor getEditor() {
+        if (_editor == null) {
             _editor = new ServiceEditor(getCoordinator());
         }
         _editor.show(this);
@@ -210,12 +198,10 @@ public class Service extends Communicator
     }
 
     @Override
-    public JPopupMenu getPopupMenu()
-    {
+    public JPopupMenu getPopupMenu() {
         LiveActions la = getCoordinator().getLiveActionsForPopup();
 
-        if(_popup == null)
-        {
+        if (_popup == null) {
             _popup = new JPopupMenu();
             _popup.add(la.get(START));
             _popup.add(la.get(STOP));
@@ -233,58 +219,55 @@ public class Service extends Communicator
     //
 
     @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
-    {
-        return java.util.concurrent.CompletableFuture.completedFuture(((Server)_parent).getAdmin());
+    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync() {
+        return java.util.concurrent.CompletableFuture.completedFuture(
+                ((Server) _parent).getAdmin());
     }
 
     @Override
-    protected com.zeroc.Ice.ObjectPrx getAdminFacet(com.zeroc.Ice.ObjectPrx admin, String facet)
-    {
+    protected com.zeroc.Ice.ObjectPrx getAdminFacet(com.zeroc.Ice.ObjectPrx admin, String facet) {
         String facetName = "IceBox.Service." + _id + "." + facet;
 
-        try
-        {
-            if(Integer.valueOf(((Server)_parent).getProperties().get("IceBox.UseSharedCommunicator." + _id)) > 0)
-            {
+        try {
+            if (Integer.valueOf(
+                            ((Server) _parent)
+                                    .getProperties()
+                                    .get("IceBox.UseSharedCommunicator." + _id))
+                    > 0) {
                 facetName = "IceBox.SharedCommunicator." + facet;
             }
-        }
-        catch(NumberFormatException ex)
-        {
+        } catch (NumberFormatException ex) {
         }
 
-        if (admin != null)
-        {
+        if (admin != null) {
             return admin.ice_facet(facetName);
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
     @Override
-    protected String getServerDisplayName()
-    {
+    protected String getServerDisplayName() {
         return "Server " + _parent.getId();
     }
 
     @Override
-    protected String getDisplayName()
-    {
+    protected String getDisplayName() {
         return "Service " + _parent.getId() + "/" + _id;
     }
 
     @Override
-    protected String getDefaultFileName()
-    {
+    protected String getDefaultFileName() {
         return _parent.getId() + "-" + _id;
     }
 
-    Service(Server parent, String serviceName, Utils.Resolver resolver, ServiceInstanceDescriptor descriptor,
-            ServiceDescriptor serviceDescriptor, PropertySetDescriptor serverInstancePSDescriptor)
-    {
+    Service(
+            Server parent,
+            String serviceName,
+            Utils.Resolver resolver,
+            ServiceInstanceDescriptor descriptor,
+            ServiceDescriptor serviceDescriptor,
+            PropertySetDescriptor serverInstancePSDescriptor) {
         super(parent, serviceName, 2);
         _resolver = resolver;
 
@@ -298,75 +281,58 @@ public class Service extends Communicator
         createAdapters();
     }
 
-    void stopShowIceLogDialog()
-    {
-        if(_showIceLogDialog != null)
-        {
+    void stopShowIceLogDialog() {
+        if (_showIceLogDialog != null) {
             _showIceLogDialog.stopped();
         }
     }
 
-    boolean updateAdapter(AdapterDynamicInfo info)
-    {
-        for(Adapter p : _adapters)
-        {
-            if(p.update(info))
-            {
+    boolean updateAdapter(AdapterDynamicInfo info) {
+        for (Adapter p : _adapters) {
+            if (p.update(info)) {
                 return true;
             }
         }
         return false;
     }
 
-    int updateAdapters(java.util.List<AdapterDynamicInfo> infoList)
-    {
+    int updateAdapters(java.util.List<AdapterDynamicInfo> infoList) {
         int result = 0;
         java.util.Iterator<Adapter> p = _adapters.iterator();
-        while(p.hasNext() && result < infoList.size())
-        {
+        while (p.hasNext() && result < infoList.size()) {
             Adapter adapter = p.next();
-            if(adapter.update(infoList))
-            {
+            if (adapter.update(infoList)) {
                 result++;
             }
         }
         return result;
     }
 
-    void nodeDown()
-    {
-        for(Adapter p : _adapters)
-        {
-            p.update((AdapterDynamicInfo)null);
+    void nodeDown() {
+        for (Adapter p : _adapters) {
+            p.update((AdapterDynamicInfo) null);
         }
     }
 
-    boolean isStarted()
-    {
+    boolean isStarted() {
         return _started;
     }
 
-    void started()
-    {
-        if(!_started)
-        {
+    void started() {
+        if (!_started) {
             _started = true;
-            if(getRoot().getTree().isExpanded(getPath()))
-            {
+            if (getRoot().getTree().isExpanded(getPath())) {
                 fetchMetricsViewNames();
             }
             getRoot().getTreeModel().nodeChanged(this);
         }
     }
 
-    void stopped()
-    {
-        if(_started)
-        {
+    void stopped() {
+        if (_started) {
             _started = false;
             _metricsRetrieved = false;
-            if(!_metrics.isEmpty())
-            {
+            if (!_metrics.isEmpty()) {
                 _metrics.clear();
                 rebuild(this);
             }
@@ -374,63 +340,55 @@ public class Service extends Communicator
         }
     }
 
-    Utils.Resolver getResolver()
-    {
+    Utils.Resolver getResolver() {
         return _resolver;
     }
 
-    ServiceDescriptor getServiceDescriptor()
-    {
+    ServiceDescriptor getServiceDescriptor() {
         return _serviceDescriptor;
     }
 
-    ServiceInstanceDescriptor getInstanceDescriptor()
-    {
+    ServiceInstanceDescriptor getInstanceDescriptor() {
         return _instanceDescriptor;
     }
 
-    java.util.SortedMap<String, String> getProperties()
-    {
+    java.util.SortedMap<String, String> getProperties() {
         java.util.List<Utils.ExpandedPropertySet> psList = new java.util.LinkedList<>();
-        Node node = (Node)_parent.getParent();
+        Node node = (Node) _parent.getParent();
 
-        String applicationName = ((Server)_parent).getApplication().name;
+        String applicationName = ((Server) _parent).getApplication().name;
 
         psList.add(node.expand(_serviceDescriptor.propertySet, applicationName, _resolver));
 
-        if(_instanceDescriptor != null)
-        {
+        if (_instanceDescriptor != null) {
             psList.add(node.expand(_instanceDescriptor.propertySet, applicationName, _resolver));
         }
 
-        if(_serverInstancePSDescriptor != null)
-        {
+        if (_serverInstancePSDescriptor != null) {
             psList.add(node.expand(_serverInstancePSDescriptor, applicationName, _resolver));
-
         }
 
         return Utils.propertySetsToMap(psList, _resolver);
     }
 
-    private void createAdapters()
-    {
-        for(AdapterDescriptor p : _serviceDescriptor.adapters)
-        {
+    private void createAdapters() {
+        for (AdapterDescriptor p : _serviceDescriptor.adapters) {
             String adapterName = Utils.substitute(p.name, _resolver);
 
             String adapterId = Utils.substitute(p.id, _resolver);
             com.zeroc.Ice.ObjectPrx proxy = null;
-            if(!adapterId.isEmpty())
-            {
-                proxy = ((Node)_parent.getParent()).getProxy(adapterId);
+            if (!adapterId.isEmpty()) {
+                proxy = ((Node) _parent.getParent()).getProxy(adapterId);
             }
 
-            insertSortedChild(new Adapter(this, adapterName, _resolver, adapterId, p, proxy), _adapters, null);
+            insertSortedChild(
+                    new Adapter(this, adapterName, _resolver, adapterId, p, proxy),
+                    _adapters,
+                    null);
         }
     }
 
-    void rebuild(Service service)
-    {
+    void rebuild(Service service) {
         _adapters = service._adapters;
         _metrics = service._metrics;
 
@@ -438,13 +396,11 @@ public class Service extends Communicator
         _childrenArray[1] = _adapters;
 
         // Need to re-parent all the children
-        for(Adapter adapter: _adapters)
-        {
+        for (Adapter adapter : _adapters) {
             adapter.reparent(this);
         }
 
-        for(MetricsView metrics: _metrics)
-        {
+        for (MetricsView metrics : _metrics) {
             metrics.reparent(this);
         }
         getRoot().getTreeModel().nodeStructureChanged(this);
@@ -459,9 +415,9 @@ public class Service extends Communicator
 
     private boolean _started = false;
 
-    static private ServiceEditor _editor;
-    static private DefaultTreeCellRenderer _cellRenderer;
-    static private JPopupMenu _popup;
-    static private Icon _startedIcon;
-    static private Icon _stoppedIcon;
+    private static ServiceEditor _editor;
+    private static DefaultTreeCellRenderer _cellRenderer;
+    private static JPopupMenu _popup;
+    private static Icon _startedIcon;
+    private static Icon _stoppedIcon;
 }

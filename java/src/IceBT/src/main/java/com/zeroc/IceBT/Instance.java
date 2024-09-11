@@ -2,42 +2,33 @@
 
 package com.zeroc.IceBT;
 
+import android.bluetooth.BluetoothAdapter;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.PluginInitializationException;
 
-import android.bluetooth.BluetoothAdapter;
-
-class Instance extends com.zeroc.IceInternal.ProtocolInstance
-{
-    Instance(Communicator communicator, short type, String protocol)
-    {
+class Instance extends com.zeroc.IceInternal.ProtocolInstance {
+    Instance(Communicator communicator, short type, String protocol) {
         super(communicator, type, protocol, type == com.zeroc.Ice.BTSEndpointType.value);
 
         _communicator = communicator;
 
         _bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(_bluetoothAdapter == null)
-        {
+        if (_bluetoothAdapter == null) {
             throw new PluginInitializationException("bluetooth adapter not available");
-        }
-        else if(!_bluetoothAdapter.isEnabled())
-        {
+        } else if (!_bluetoothAdapter.isEnabled()) {
             throw new PluginInitializationException("bluetooth is not enabled");
         }
     }
 
-    void destroy()
-    {
+    void destroy() {
         _communicator = null;
     }
 
-    Communicator communicator()
-    {
+    Communicator communicator() {
         return _communicator;
     }
 
-    BluetoothAdapter bluetoothAdapter()
-    {
+    BluetoothAdapter bluetoothAdapter() {
         return _bluetoothAdapter;
     }
 

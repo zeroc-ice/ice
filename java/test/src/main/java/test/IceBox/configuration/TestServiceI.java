@@ -2,11 +2,9 @@
 
 package test.IceBox.configuration;
 
-public class TestServiceI implements com.zeroc.IceBox.Service
-{
+public class TestServiceI implements com.zeroc.IceBox.Service {
     @Override
-    public void start(String name, com.zeroc.Ice.Communicator communicator, String[] args)
-    {
+    public void start(String name, com.zeroc.Ice.Communicator communicator, String[] args) {
         communicator.getProperties().setProperty("Ice.Package.Test", "test.IceBox.configuration");
 
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
@@ -15,7 +13,5 @@ public class TestServiceI implements com.zeroc.IceBox.Service
     }
 
     @Override
-    public void stop()
-    {
-    }
+    public void stop() {}
 }

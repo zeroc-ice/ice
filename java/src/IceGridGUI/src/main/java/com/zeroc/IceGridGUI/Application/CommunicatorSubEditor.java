@@ -2,18 +2,15 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
-class CommunicatorSubEditor
-{
-    CommunicatorSubEditor(Editor mainEditor)
-    {
+class CommunicatorSubEditor {
+    CommunicatorSubEditor(Editor mainEditor) {
         _mainEditor = mainEditor;
 
         _description.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
@@ -27,8 +24,7 @@ class CommunicatorSubEditor
         _logFiles.setToolTipText("Log files used by this server or service");
     }
 
-    void appendProperties(DefaultFormBuilder builder)
-    {
+    void appendProperties(DefaultFormBuilder builder) {
         builder.append("Description");
         builder.nextLine();
         builder.append("");
@@ -69,8 +65,7 @@ class CommunicatorSubEditor
         builder.nextLine();
     }
 
-    void writeDescriptor(CommunicatorDescriptor descriptor)
-    {
+    void writeDescriptor(CommunicatorDescriptor descriptor) {
         descriptor.propertySet.references = _propertySets.getList().toArray(new String[0]);
         descriptor.propertySet.properties = _properties.getProperties();
         descriptor.description = _description.getText();
@@ -79,39 +74,42 @@ class CommunicatorSubEditor
         descriptor.logs = new String[tm.size()];
         int i = 0;
 
-        for(java.util.Map.Entry<String, String> p : tm.entrySet())
-        {
+        for (java.util.Map.Entry<String, String> p : tm.entrySet()) {
             String path = p.getKey();
             String prop = p.getValue().trim();
 
             descriptor.logs[i++] = path;
-            if(!prop.isEmpty())
-            {
-                setProperty((java.util.LinkedList<PropertyDescriptor>)descriptor.propertySet.properties, prop, path);
+            if (!prop.isEmpty()) {
+                setProperty(
+                        (java.util.LinkedList<PropertyDescriptor>)
+                                descriptor.propertySet.properties,
+                        prop,
+                        path);
             }
         }
     }
 
-    void show(CommunicatorDescriptor descriptor, boolean isEditable)
-    {
+    void show(CommunicatorDescriptor descriptor, boolean isEditable) {
         Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
         isEditable = isEditable && (detailResolver == null);
 
         // Note that we don't substitute in the lookup
         java.util.Map<String, String> map = new java.util.TreeMap<>();
-        for(String log : descriptor.logs)
-        {
+        for (String log : descriptor.logs) {
             String prop = lookupKey(descriptor.propertySet.properties, log);
             map.put(log, prop);
         }
         _logFiles.set(map, detailResolver, isEditable);
 
-        _propertySets.setList(java.util.Arrays.asList(descriptor.propertySet.references), detailResolver);
+        _propertySets.setList(
+                java.util.Arrays.asList(descriptor.propertySet.references), detailResolver);
         _propertySets.setEditable(isEditable);
-        _properties.setProperties(descriptor.propertySet.properties,
-                                  descriptor.adapters,
-                                  descriptor.logs,
-                                  detailResolver, isEditable);
+        _properties.setProperties(
+                descriptor.propertySet.properties,
+                descriptor.adapters,
+                descriptor.logs,
+                detailResolver,
+                isEditable);
 
         _description.setText(Utils.substitute(descriptor.description, detailResolver));
         _description.setEditable(isEditable);
@@ -119,32 +117,26 @@ class CommunicatorSubEditor
     }
 
     // Returns first key matching this value, if there is one
-    private String lookupKey(java.util.List<PropertyDescriptor> props, String value)
-    {
-        for(PropertyDescriptor p : props)
-        {
-            if(p.value.equals(value))
-            {
+    private String lookupKey(java.util.List<PropertyDescriptor> props, String value) {
+        for (PropertyDescriptor p : props) {
+            if (p.value.equals(value)) {
                 return p.name;
             }
         }
         return "";
     }
 
-    private void setProperty(java.util.LinkedList<PropertyDescriptor> props, String key, String newValue)
-    {
+    private void setProperty(
+            java.util.LinkedList<PropertyDescriptor> props, String key, String newValue) {
         removeProperty(props, key);
         props.addFirst(new PropertyDescriptor(key, newValue));
     }
 
-    private void removeProperty(java.util.List<PropertyDescriptor> props, String key)
-    {
+    private void removeProperty(java.util.List<PropertyDescriptor> props, String key) {
         java.util.Iterator<PropertyDescriptor> p = props.iterator();
-        while(p.hasNext())
-        {
+        while (p.hasNext()) {
             PropertyDescriptor pd = p.next();
-            if(pd.name.equals(key))
-            {
+            if (pd.name.equals(key)) {
                 p.remove();
             }
         }

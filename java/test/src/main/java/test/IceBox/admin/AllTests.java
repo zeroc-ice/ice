@@ -4,18 +4,14 @@ package test.IceBox.admin;
 
 import test.IceBox.admin.Test.*;
 
-public class AllTests
-{
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
+public class AllTests {
+    private static void test(boolean b) {
+        if (!b) {
             throw new RuntimeException();
         }
     }
 
-    public static void allTests(test.TestHelper helper)
-    {
+    public static void allTests(test.TestHelper helper) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
 
         String ref = "DemoIceBox/admin:default -p 9996 -t 10000";
@@ -36,7 +32,8 @@ public class AllTests
         System.out.flush();
         {
             com.zeroc.Ice.PropertiesAdminPrx pa =
-                com.zeroc.Ice.PropertiesAdminPrx.checkedCast(admin, "IceBox.Service.TestService.Properties");
+                    com.zeroc.Ice.PropertiesAdminPrx.checkedCast(
+                            admin, "IceBox.Service.TestService.Properties");
 
             // Test: PropertiesAdmin::getProperty()
             test(pa.getProperty("Prop1").equals("1"));
@@ -84,10 +81,12 @@ public class AllTests
         System.out.flush();
         {
             com.zeroc.Ice.IceMX.MetricsAdminPrx ma =
-                com.zeroc.Ice.IceMX.MetricsAdminPrx.checkedCast(admin, "IceBox.Service.TestService.Metrics");
+                    com.zeroc.Ice.IceMX.MetricsAdminPrx.checkedCast(
+                            admin, "IceBox.Service.TestService.Metrics");
 
             com.zeroc.Ice.PropertiesAdminPrx pa =
-                com.zeroc.Ice.PropertiesAdminPrx.checkedCast(admin, "IceBox.Service.TestService.Properties");
+                    com.zeroc.Ice.PropertiesAdminPrx.checkedCast(
+                            admin, "IceBox.Service.TestService.Properties");
 
             com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewNamesResult r = ma.getMetricsViewNames();
             test(r.returnValue.length == 0);
@@ -103,8 +102,12 @@ public class AllTests
             test(r.returnValue.length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(com.zeroc.Ice.IceMX.MetricsAdminPrx.checkedCast(admin, "Metrics").
-                 getMetricsViewNames().returnValue.length == 0);
+            test(
+                    com.zeroc.Ice.IceMX.MetricsAdminPrx.checkedCast(admin, "Metrics")
+                                    .getMetricsViewNames()
+                                    .returnValue
+                                    .length
+                            == 0);
         }
         System.out.println("ok");
     }

@@ -3,13 +3,11 @@
 package test.Slice.macros;
 
 import test.Slice.macros.Test.Default;
-import test.Slice.macros.Test.NoDefault;
 import test.Slice.macros.Test.JavaOnly;
+import test.Slice.macros.Test.NoDefault;
 
-public class Client extends test.TestHelper
-{
-    public void run(String[] args)
-    {
+public class Client extends test.TestHelper {
+    public void run(String[] args) {
         System.out.print("testing Slice predefined macros... ");
         Default d = new Default();
         test(d.x == 10);

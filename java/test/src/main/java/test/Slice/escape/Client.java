@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 package test.Slice.escape;
+
 import test.Slice.escape._abstract._assert;
 import test.Slice.escape._abstract._break;
 import test.Slice.escape._abstract._catch;
@@ -15,78 +16,66 @@ import test.Slice.escape._abstract.catchPrx;
 import test.Slice.escape._abstract.defaultPrx;
 import test.Slice.escape._abstract.finalizePrx;
 
-public class Client extends test.TestHelper
-{
-    static public class catchI implements _catch
-    {
-        public catchI()
-        {
-        }
+public class Client extends test.TestHelper {
+    public static class catchI implements _catch {
+        public catchI() {}
 
         @Override
-        public java.util.concurrent.CompletionStage<Integer> checkedCastAsync(int _clone, com.zeroc.Ice.Current current)
-        {
+        public java.util.concurrent.CompletionStage<Integer> checkedCastAsync(
+                int _clone, com.zeroc.Ice.Current current) {
             int _continue = 0;
             return java.util.concurrent.CompletableFuture.completedFuture(_continue);
         }
     }
 
-    static public class defaultI implements _default
-    {
-        public defaultI()
-        {
-        }
+    public static class defaultI implements _default {
+        public defaultI() {}
 
         @Override
-        public void _do(com.zeroc.Ice.Current current)
-        {
+        public void _do(com.zeroc.Ice.Current current) {
             assert current.operation.equals("do");
         }
     }
 
-    static public class elseI extends _else
-    {
-        public elseI()
-        {
-        }
+    public static class elseI extends _else {
+        public elseI() {}
     }
 
-    static public class newI implements _new
-    {
-        public newI()
-        {
-        }
+    public static class newI implements _new {
+        public newI() {}
 
         @Override
-        public _assert _notify(_break _notifyAll, _else _null, finalizePrx _package,
-                               catchPrx _public, defaultPrx _return, int _static, int _strictfp, int _super,
-                               com.zeroc.Ice.Current current)
-            throws _hashCode, _import
-        {
+        public _assert _notify(
+                _break _notifyAll,
+                _else _null,
+                finalizePrx _package,
+                catchPrx _public,
+                defaultPrx _return,
+                int _static,
+                int _strictfp,
+                int _super,
+                com.zeroc.Ice.Current current)
+                throws _hashCode, _import {
             return null;
         }
     }
 
-    static public class finalizeServantI implements _finalize
-    {
+    public static class finalizeServantI implements _finalize {
         @Override
-        public java.util.concurrent.CompletionStage<Integer> checkedCastAsync(int _clone, com.zeroc.Ice.Current current)
-        {
+        public java.util.concurrent.CompletionStage<Integer> checkedCastAsync(
+                int _clone, com.zeroc.Ice.Current current) {
             int _continue = 0;
             return java.util.concurrent.CompletableFuture.completedFuture(_continue);
         }
 
         @Override
-        public void _do(com.zeroc.Ice.Current current)
-        {
-        }
+        public void _do(com.zeroc.Ice.Current current) {}
     }
 
     // This section of the test is present to ensure that the C++ types are named correctly.
     // It is not expected to run.
-    @SuppressWarnings({ "unused", "null" })
-    private static void testtypes()
-    {
+    @SuppressWarnings({"unused", "null"})
+    private static void testtypes() {
         _assert v = _assert._boolean;
         _break b = new _break();
         b._case = 0;
@@ -115,8 +104,7 @@ public class Client extends test.TestHelper
         assert _switch.value == 0;
     }
 
-    public void run(String[] args)
-    {
+    public void run(String[] args) {
         // In this test, we need at least two threads in the client side thread pool for nested AMI.
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package._abstract", "test.Slice.escape");
@@ -127,15 +115,16 @@ public class Client extends test.TestHelper
         // We must set MessageSizeMax to an explicit value,
         // because we run tests to check whether Ice.MarshalException is raised as expected.
         properties.setProperty("Ice.MessageSizeMax", "100");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
-        {
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new defaultI(), com.zeroc.Ice.Util.stringToIdentity("test"));
             adapter.activate();
 
             System.out.print("Testing operation name... ");
             System.out.flush();
-            defaultPrx p = defaultPrx.uncheckedCast(adapter.createProxy(com.zeroc.Ice.Util.stringToIdentity("test")));
+            defaultPrx p =
+                    defaultPrx.uncheckedCast(
+                            adapter.createProxy(com.zeroc.Ice.Util.stringToIdentity("test")));
             p._do();
             System.out.println("ok");
         }

@@ -2,31 +2,23 @@
 
 package com.zeroc.IceGridGUI;
 
-import javax.swing.SwingUtilities;
 import com.zeroc.IceGrid.*;
+import javax.swing.SwingUtilities;
 
-class ObjectObserverI implements ObjectObserver
-{
-    ObjectObserverI(Coordinator coordinator)
-    {
+class ObjectObserverI implements ObjectObserver {
+    ObjectObserverI(Coordinator coordinator) {
         _coordinator = coordinator;
         _trace = coordinator.traceObservers();
     }
 
     @Override
-    public synchronized void objectInit(final ObjectInfo[] objects, com.zeroc.Ice.Current current)
-    {
-        if(_trace)
-        {
-            if(objects.length == 0)
-            {
+    public synchronized void objectInit(final ObjectInfo[] objects, com.zeroc.Ice.Current current) {
+        if (_trace) {
+            if (objects.length == 0) {
                 _coordinator.traceObserver("objectInit (no object)");
-            }
-            else
-            {
+            } else {
                 String names = "";
-                for(ObjectInfo obj : objects)
-                {
+                for (ObjectInfo obj : objects) {
                     names += " " + obj.proxy.toString();
                 }
 
@@ -38,10 +30,8 @@ class ObjectObserverI implements ObjectObserver
     }
 
     @Override
-    public void objectAdded(final ObjectInfo info, com.zeroc.Ice.Current current)
-    {
-        if(_trace)
-        {
+    public void objectAdded(final ObjectInfo info, com.zeroc.Ice.Current current) {
+        if (_trace) {
             _coordinator.traceObserver("objectAdded for object " + info.proxy.toString());
         }
 
@@ -49,10 +39,8 @@ class ObjectObserverI implements ObjectObserver
     }
 
     @Override
-    public void objectUpdated(final ObjectInfo info, com.zeroc.Ice.Current current)
-    {
-        if(_trace)
-        {
+    public void objectUpdated(final ObjectInfo info, com.zeroc.Ice.Current current) {
+        if (_trace) {
             _coordinator.traceObserver("objectUpdated for object " + info.proxy.toString());
         }
 
@@ -60,11 +48,11 @@ class ObjectObserverI implements ObjectObserver
     }
 
     @Override
-    public void objectRemoved(final com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
-    {
-        if(_trace)
-        {
-            _coordinator.traceObserver("objectRemoved for object " + _coordinator.getCommunicator().identityToString(id));
+    public void objectRemoved(final com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current) {
+        if (_trace) {
+            _coordinator.traceObserver(
+                    "objectRemoved for object "
+                            + _coordinator.getCommunicator().identityToString(id));
         }
 
         SwingUtilities.invokeLater(() -> _coordinator.objectRemoved(id));

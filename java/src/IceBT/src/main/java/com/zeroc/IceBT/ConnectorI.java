@@ -6,32 +6,25 @@ import com.zeroc.IceInternal.Connector;
 import com.zeroc.IceInternal.HashUtil;
 import com.zeroc.IceInternal.Transceiver;
 
-final class ConnectorI implements Connector
-{
+final class ConnectorI implements Connector {
     @Override
-    public Transceiver connect()
-    {
+    public Transceiver connect() {
         return new TransceiverI(_instance, _addr, _uuid, _connectionId);
     }
 
     @Override
-    public short type()
-    {
+    public short type() {
         return _instance.type();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuffer buf = new StringBuffer();
-        if(!_addr.isEmpty())
-        {
+        if (!_addr.isEmpty()) {
             buf.append(_addr);
         }
-        if(!_uuid.isEmpty())
-        {
-            if(!_addr.isEmpty())
-            {
+        if (!_uuid.isEmpty()) {
+            if (!_addr.isEmpty()) {
                 buf.append(';');
             }
             buf.append(_uuid);
@@ -40,8 +33,7 @@ final class ConnectorI implements Connector
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int h = 5381;
         h = HashUtil.hashAdd(h, _addr);
         h = HashUtil.hashAdd(h, _uuid);
@@ -51,8 +43,7 @@ final class ConnectorI implements Connector
     }
 
     // Only for use by EndpointI.
-    ConnectorI(Instance instance, String addr, String uuid, int timeout, String connectionId)
-    {
+    ConnectorI(Instance instance, String addr, String uuid, int timeout, String connectionId) {
         _instance = instance;
         _addr = addr;
         _uuid = uuid;
@@ -61,31 +52,25 @@ final class ConnectorI implements Connector
     }
 
     @Override
-    public boolean equals(java.lang.Object obj)
-    {
-        if(!(obj instanceof ConnectorI))
-        {
+    public boolean equals(java.lang.Object obj) {
+        if (!(obj instanceof ConnectorI)) {
             return false;
         }
 
-        if(this == obj)
-        {
+        if (this == obj) {
             return true;
         }
 
-        ConnectorI p = (ConnectorI)obj;
-        if(!_uuid.equals(p._uuid))
-        {
+        ConnectorI p = (ConnectorI) obj;
+        if (!_uuid.equals(p._uuid)) {
             return false;
         }
 
-        if(_timeout != p._timeout)
-        {
+        if (_timeout != p._timeout) {
             return false;
         }
 
-        if(!_connectionId.equals(p._connectionId))
-        {
+        if (!_connectionId.equals(p._connectionId)) {
             return false;
         }
 

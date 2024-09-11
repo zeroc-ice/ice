@@ -2,67 +2,54 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.JOptionPane;
 import com.zeroc.IceGrid.*;
+import javax.swing.JOptionPane;
 
 /** Base class for ServerEditor and ServerInstanceEditor */
-abstract class AbstractServerEditor extends Editor
-{
-    abstract protected void writeDescriptor();
-    abstract protected boolean isSimpleUpdate();
+abstract class AbstractServerEditor extends Editor {
+    protected abstract void writeDescriptor();
+
+    protected abstract boolean isSimpleUpdate();
 
     @Override
-    protected void buildPropertiesPanel()
-    {
+    protected void buildPropertiesPanel() {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Server Properties");
     }
 
     @Override
-    protected boolean applyUpdate(boolean refresh)
-    {
+    protected boolean applyUpdate(boolean refresh) {
         Root root = _target.getRoot();
-        Server server = (Server)_target;
+        Server server = (Server) _target;
 
         root.disableSelectionListener();
-        try
-        {
-            if(_target.isEphemeral())
-            {
-                Node node = (Node)_target.getParent();
+        try {
+            if (_target.isEphemeral()) {
+                Node node = (Node) _target.getParent();
                 writeDescriptor();
 
                 _target.destroy(); // just removes the child
 
-                try
-                {
-                    if(server instanceof PlainServer)
-                    {
-                        node.tryAdd((ServerDescriptor)server.getDescriptor(), true);
+                try {
+                    if (server instanceof PlainServer) {
+                        node.tryAdd((ServerDescriptor) server.getDescriptor(), true);
+                    } else {
+                        node.tryAdd((ServerInstanceDescriptor) server.getDescriptor(), true);
                     }
-                    else
-                    {
-                        node.tryAdd((ServerInstanceDescriptor)server.getDescriptor(), true);
-                    }
-                }
-                catch(UpdateFailedException e)
-                {
+                } catch (UpdateFailedException e) {
                     // Add back ephemeral child
-                    try
-                    {
+                    try {
                         node.insertServer(_target, true);
-                    }
-                    catch(UpdateFailedException die)
-                    {
+                    } catch (UpdateFailedException die) {
                         assert false;
                     }
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                        root.getCoordinator().getMainFrame(),
-                        e.toString(),
-                        "Apply failed",
-                        JOptionPane.ERROR_MESSAGE);
+                            root.getCoordinator().getMainFrame(),
+                            e.toString(),
+                            "Apply failed",
+                            JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -70,82 +57,67 @@ abstract class AbstractServerEditor extends Editor
                 _target = node.findChildWithDescriptor(server.getDescriptor());
                 root.updated();
 
-                if(refresh)
-                {
+                if (refresh) {
                     root.setSelectedNode(_target);
                 }
 
-            }
-            else if(isSimpleUpdate())
-            {
+            } else if (isSimpleUpdate()) {
                 writeDescriptor();
                 root.updated();
                 server.getEditable().markModified();
-            }
-            else
-            {
+            } else {
                 // Save to be able to rollback
                 Object savedDescriptor = server.saveDescriptor();
-                Node node = (Node)_target.getParent();
+                Node node = (Node) _target.getParent();
                 writeDescriptor();
 
                 node.removeServer(_target);
 
-                try
-                {
-                    if(server instanceof PlainServer)
-                    {
-                        node.tryAdd((ServerDescriptor)server.getDescriptor(), false);
+                try {
+                    if (server instanceof PlainServer) {
+                        node.tryAdd((ServerDescriptor) server.getDescriptor(), false);
+                    } else {
+                        node.tryAdd((ServerInstanceDescriptor) server.getDescriptor(), false);
                     }
-                    else
-                    {
-                        node.tryAdd((ServerInstanceDescriptor)server.getDescriptor(), false);
-                    }
-                }
-                catch(UpdateFailedException e)
-                {
+                } catch (UpdateFailedException e) {
                     // Restore
-                    try
-                    {
+                    try {
                         node.insertServer(_target, true);
-                    }
-                    catch(UpdateFailedException die)
-                    {
+                    } catch (UpdateFailedException die) {
                         assert false;
                     }
                     server.restoreDescriptor(savedDescriptor);
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                        root.getCoordinator().getMainFrame(),
-                        e.toString(),
-                        "Apply failed",
-                        JOptionPane.ERROR_MESSAGE);
+                            root.getCoordinator().getMainFrame(),
+                            e.toString(),
+                            "Apply failed",
+                            JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
                 // Success
-                node.getEditable().removeElement(_target.getId(), server.getEditable(),
-                                                 Server.class); // replaced by brand new Server
+                node.getEditable()
+                        .removeElement(
+                                _target.getId(),
+                                server.getEditable(),
+                                Server.class); // replaced by brand new Server
 
                 _target = node.findChildWithDescriptor(server.getDescriptor());
                 root.updated();
-                if(refresh)
-                {
+                if (refresh) {
                     root.setSelectedNode(_target);
                 }
             }
 
-            if(refresh)
-            {
+            if (refresh) {
                 root.getCoordinator().getCurrentTab().showNode(_target);
             }
             _applyButton.setEnabled(false);
             _discardButton.setEnabled(false);
             return true;
-        }
-        finally
-        {
+        } finally {
             root.enableSelectionListener();
         }
     }

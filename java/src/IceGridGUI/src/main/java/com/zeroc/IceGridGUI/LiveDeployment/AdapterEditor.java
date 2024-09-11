@@ -2,21 +2,17 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import javax.swing.JCheckBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-class AdapterEditor extends Editor
-{
-    AdapterEditor()
-    {
+class AdapterEditor extends Editor {
+    AdapterEditor() {
         _currentStatus.setEditable(false);
         _currentEndpoints.setEditable(false);
         _description.setEditable(false);
@@ -30,8 +26,7 @@ class AdapterEditor extends Editor
         _serverLifetime.setEnabled(false);
     }
 
-    void show(Adapter adapter)
-    {
+    void show(Adapter adapter) {
         AdapterDescriptor descriptor = adapter.getDescriptor();
         Utils.Resolver resolver = adapter.getResolver();
 
@@ -39,13 +34,10 @@ class AdapterEditor extends Editor
 
         String currentEndpoints = adapter.getCurrentEndpoints();
 
-        if(currentEndpoints == null)
-        {
+        if (currentEndpoints == null) {
             _currentStatus.setText("Inactive");
             _currentEndpoints.setText("");
-        }
-        else
-        {
+        } else {
             _currentStatus.setText("Active");
             _currentEndpoints.setText(currentEndpoints);
         }
@@ -59,7 +51,7 @@ class AdapterEditor extends Editor
         // getId() returns the name of the adapter!
         _endpoints.setText(resolver.substitute(properties.get(adapter.getId() + ".Endpoints")));
         _publishedEndpoints.setText(
-            resolver.substitute(properties.get(adapter.getId() + ".PublishedEndpoints")));
+                resolver.substitute(properties.get(adapter.getId() + ".PublishedEndpoints")));
 
         _registerProcess.setSelected(descriptor.registerProcess);
         _serverLifetime.setSelected(descriptor.serverLifetime);
@@ -69,15 +61,14 @@ class AdapterEditor extends Editor
     }
 
     @Override
-    protected void appendProperties(DefaultFormBuilder builder)
-    {
+    protected void appendProperties(DefaultFormBuilder builder) {
         builder.appendSeparator("Runtime Status");
 
-        builder.append("Status" );
+        builder.append("Status");
         builder.append(_currentStatus, 3);
         builder.nextLine();
 
-        builder.append("Published Endpoints" );
+        builder.append("Published Endpoints");
         builder.append(_currentEndpoints, 3);
         builder.nextLine();
 
@@ -146,8 +137,7 @@ class AdapterEditor extends Editor
     }
 
     @Override
-    protected void buildPropertiesPanel()
-    {
+    protected void buildPropertiesPanel() {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Adapter Properties");
     }
@@ -160,7 +150,7 @@ class AdapterEditor extends Editor
     private JTextField _replicaGroupId = new JTextField(20);
     private JTextField _priority = new JTextField(20);
     private JTextField _endpoints = new JTextField(20);
-    private JTextField _publishedEndpoints  = new JTextField(20);
+    private JTextField _publishedEndpoints = new JTextField(20);
 
     private JCheckBox _registerProcess = new JCheckBox("Register Process");
     private JCheckBox _serverLifetime = new JCheckBox("Server Lifetime");

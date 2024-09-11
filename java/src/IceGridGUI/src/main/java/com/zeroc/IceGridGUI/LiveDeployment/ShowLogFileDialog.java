@@ -2,12 +2,16 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.jgoodies.looks.BorderStyle;
+import com.jgoodies.looks.HeaderStyle;
+import com.jgoodies.looks.Options;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-
 import java.util.prefs.Preferences;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -26,71 +30,48 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import com.jgoodies.looks.BorderStyle;
-import com.jgoodies.looks.HeaderStyle;
-import com.jgoodies.looks.Options;
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-class ShowLogFileDialog extends JDialog
-{
-    static interface FileIteratorFactory
-    {
-        FileIteratorPrx open(int count)
-            throws com.zeroc.Ice.UserException;
+class ShowLogFileDialog extends JDialog {
+    static interface FileIteratorFactory {
+        FileIteratorPrx open(int count) throws com.zeroc.Ice.UserException;
 
         String getTitle();
 
         String getDefaultFilename();
     }
 
-    private class FIFOTextArea extends JTextArea
-    {
-        FIFOTextArea(int rows, int colums)
-        {
+    private class FIFOTextArea extends JTextArea {
+        FIFOTextArea(int rows, int colums) {
             super(rows, colums);
             setEditable(false);
             setLineWrap(true);
         }
 
-        void appendLines(final String[] lines, final int maxLines, final int maxSize)
-        {
-            SwingUtilities.invokeLater(() ->
-                {
-                    for(int i = 0; i < lines.length; ++i)
-                    {
-                        // The last line is always incomplete
-                        if(i + 1 != lines.length)
-                        {
-                            append(lines[i] + "\n");
+        void appendLines(final String[] lines, final int maxLines, final int maxSize) {
+            SwingUtilities.invokeLater(
+                    () -> {
+                        for (int i = 0; i < lines.length; ++i) {
+                            // The last line is always incomplete
+                            if (i + 1 != lines.length) {
+                                append(lines[i] + "\n");
+                            } else {
+                                append(lines[i]);
+                            }
+                            removeLines(maxLines, maxSize);
                         }
-                        else
-                        {
-                            append(lines[i]);
-                        }
-                        removeLines(maxLines, maxSize);
-                    }
-                });
+                    });
         }
 
-        void removeLines(int maxLines, int maxSize)
-        {
+        void removeLines(int maxLines, int maxSize) {
             javax.swing.text.Document doc = getDocument();
             javax.swing.text.Element rootElt = doc.getDefaultRootElement();
 
             // We keep at least one line, no matter its length
             int lineCount = getLineCount();
-            while(lineCount > 1 && (doc.getLength() > maxSize || (lineCount > maxLines)))
-            {
+            while (lineCount > 1 && (doc.getLength() > maxSize || (lineCount > maxLines))) {
                 javax.swing.text.Element firstLine = rootElt.getElement(0);
-                try
-                {
+                try {
                     doc.remove(0, firstLine.getEndOffset());
-                }
-                catch(javax.swing.text.BadLocationException ble)
-                {
+                } catch (javax.swing.text.BadLocationException ble) {
                     assert false;
                 }
                 lineCount--;
@@ -99,10 +80,8 @@ class ShowLogFileDialog extends JDialog
         }
     }
 
-    private class ReaderThread extends Thread
-    {
-        ReaderThread()
-        {
+    private class ReaderThread extends Thread {
+        ReaderThread() {
             _threadMaxLines = _maxLines;
             _threadMaxSize = _maxSize;
             _threadInitialLines = _initialLines;
@@ -114,103 +93,73 @@ class ShowLogFileDialog extends JDialog
             _pause.setEnabled(true);
         }
 
-        private void openError(final String message)
-        {
-            SwingUtilities.invokeLater(() ->
-                {
-                    if(_textArea.getText() == null || _textArea.getText().isEmpty())
-                    {
-                        close(true);
-                    }
-                    else
-                    {
-                        stopReading();
-                    }
+        private void openError(final String message) {
+            SwingUtilities.invokeLater(
+                    () -> {
+                        if (_textArea.getText() == null || _textArea.getText().isEmpty()) {
+                            close(true);
+                        } else {
+                            stopReading();
+                        }
 
-                    JOptionPane.showMessageDialog(
-                        ShowLogFileDialog.this,
-                        message,
-                        _factory.getTitle() + ": cannot open file",
-                        JOptionPane.ERROR_MESSAGE);
-                });
+                        JOptionPane.showMessageDialog(
+                                ShowLogFileDialog.this,
+                                message,
+                                _factory.getTitle() + ": cannot open file",
+                                JOptionPane.ERROR_MESSAGE);
+                    });
         }
 
         @Override
-        public void run()
-        {
+        public void run() {
             // Open file
             int initialLines;
 
-            synchronized(this)
-            {
+            synchronized (this) {
                 initialLines = _threadInitialLines;
             }
 
-            try
-            {
+            try {
                 _p = _factory.open(initialLines);
-            }
-            catch(com.zeroc.Ice.UserException e)
-            {
+            } catch (com.zeroc.Ice.UserException e) {
                 openError(e.toString());
                 return;
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
+            } catch (com.zeroc.Ice.LocalException e) {
                 openError(e.toString());
                 return;
             }
 
-            SwingUtilities.invokeLater(() ->
-                {
-                    if(isVisible())
-                    {
-                        _textArea.setText(null);
-                    }
-                    else
-                    {
-                        setVisible(true);
-                    }
-                });
+            SwingUtilities.invokeLater(
+                    () -> {
+                        if (isVisible()) {
+                            _textArea.setText(null);
+                        } else {
+                            setVisible(true);
+                        }
+                    });
 
             boolean firstRun = true;
-            for(;;)
-            {
-                synchronized(this)
-                {
-                    if(!_done)
-                    {
-                        if(_paused)
-                        {
-                            while(_paused && !_done)
-                            {
-                                try
-                                {
+            for (; ; ) {
+                synchronized (this) {
+                    if (!_done) {
+                        if (_paused) {
+                            while (_paused && !_done) {
+                                try {
                                     wait();
-                                }
-                                catch(InterruptedException e)
-                                {
+                                } catch (InterruptedException e) {
                                 }
                             }
-                        }
-                        else if(!firstRun)
-                        {
-                            try
-                            {
+                        } else if (!firstRun) {
+                            try {
                                 wait(_threadPeriod);
+                            } catch (InterruptedException e) {
                             }
-                            catch(InterruptedException e)
-                            {
-                            }
-                        }
-                        else
-                        {
+                        } else {
                             firstRun = false;
                         }
                     }
 
-                    if(_done)
-                    {
+                    if (_done) {
                         cleanupIterator();
                         return;
                     }
@@ -218,16 +167,13 @@ class ShowLogFileDialog extends JDialog
 
                 boolean eofEncountered = false;
 
-                while(!eofEncountered)
-                {
+                while (!eofEncountered) {
                     int maxLines;
                     int maxSize;
                     int maxReadSize;
 
-                    synchronized(this)
-                    {
-                        if(_done || _paused)
-                        {
+                    synchronized (this) {
+                        if (_done || _paused) {
                             break; // while(!eofEncountered)
                         }
 
@@ -238,31 +184,30 @@ class ShowLogFileDialog extends JDialog
 
                     FileIterator.ReadResult r = null;
 
-                    try
-                    {
+                    try {
                         r = _p.read(maxReadSize);
                         eofEncountered = r.returnValue;
-                    }
-                    catch(com.zeroc.IceGrid.FileNotAvailableException e)
-                    {
-                        _textArea.appendLines(new String[]
-                            {
-                                "---------------------------",
-                                "IceGrid GUI caught: " + e.toString(),
-                                "---------------------------"
-                            }, maxLines, maxSize);
+                    } catch (com.zeroc.IceGrid.FileNotAvailableException e) {
+                        _textArea.appendLines(
+                                new String[] {
+                                    "---------------------------",
+                                    "IceGrid GUI caught: " + e.toString(),
+                                    "---------------------------"
+                                },
+                                maxLines,
+                                maxSize);
                         SwingUtilities.invokeLater(() -> stopReading());
                         cleanupIterator();
                         return;
-                    }
-                    catch(com.zeroc.Ice.LocalException e)
-                    {
-                        _textArea.appendLines(new String[]
-                            {
-                                "---------------------------",
-                                "IceGrid GUI caught: " + e.toString(),
-                                "---------------------------"
-                            }, maxLines, maxSize);
+                    } catch (com.zeroc.Ice.LocalException e) {
+                        _textArea.appendLines(
+                                new String[] {
+                                    "---------------------------",
+                                    "IceGrid GUI caught: " + e.toString(),
+                                    "---------------------------"
+                                },
+                                maxLines,
+                                maxSize);
                         SwingUtilities.invokeLater(() -> stopReading());
                         return;
                     }
@@ -272,47 +217,36 @@ class ShowLogFileDialog extends JDialog
             }
         }
 
-        private void cleanupIterator()
-        {
-            try
-            {
+        private void cleanupIterator() {
+            try {
                 _p.destroy();
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
+            } catch (com.zeroc.Ice.LocalException e) {
                 // Ignored, maybe should log warning
             }
         }
 
-        synchronized void pause()
-        {
-            if(!_paused)
-            {
+        synchronized void pause() {
+            if (!_paused) {
                 _paused = true;
                 notify();
             }
         }
 
-        synchronized void terminate()
-        {
-            if(!_done)
-            {
+        synchronized void terminate() {
+            if (!_done) {
                 _done = true;
                 notify();
             }
         }
 
-        synchronized void play()
-        {
-            if(_paused)
-            {
+        synchronized void play() {
+            if (_paused) {
                 _paused = false;
                 notify();
             }
         }
 
-        synchronized void setPrefs()
-        {
+        synchronized void setPrefs() {
             _threadMaxLines = _maxLines;
             _threadMaxSize = _maxSize;
             _threadInitialLines = _initialLines;
@@ -331,10 +265,8 @@ class ShowLogFileDialog extends JDialog
         private int _threadPeriod;
     }
 
-    private class MenuBar extends JMenuBar
-    {
-        private MenuBar()
-        {
+    private class MenuBar extends JMenuBar {
+        private MenuBar() {
             putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
             putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
 
@@ -358,134 +290,118 @@ class ShowLogFileDialog extends JDialog
             bg.add(_stopItem);
             fileMenu.addSeparator();
 
-            Action save = new AbstractAction("Save As...")
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        JFileChooser fileChooser = _root.getCoordinator().getSaveLogFileChooser();
+            Action save =
+                    new AbstractAction("Save As...") {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            JFileChooser fileChooser =
+                                    _root.getCoordinator().getSaveLogFileChooser();
 
-                        fileChooser.setSelectedFile(new java.io.File(fileChooser.getCurrentDirectory(),
-                                                                     _factory.getDefaultFilename()));
+                            fileChooser.setSelectedFile(
+                                    new java.io.File(
+                                            fileChooser.getCurrentDirectory(),
+                                            _factory.getDefaultFilename()));
 
-                        java.io.File file = null;
+                            java.io.File file = null;
 
-                        while(file == null)
-                        {
-                            int result = fileChooser.showSaveDialog(ShowLogFileDialog.this);
-                            if(result == JFileChooser.APPROVE_OPTION)
-                            {
-                                file = fileChooser.getSelectedFile();
+                            while (file == null) {
+                                int result = fileChooser.showSaveDialog(ShowLogFileDialog.this);
+                                if (result == JFileChooser.APPROVE_OPTION) {
+                                    file = fileChooser.getSelectedFile();
 
-                                if(file != null)
-                                {
-                                    if(!file.exists() && file.getName().indexOf('.') == -1)
-                                    {
-                                        file = new java.io.File(file.getAbsolutePath() + ".log");
-                                    }
-
-                                    java.io.OutputStreamWriter os = null;
-
-                                    try
-                                    {
-                                        os = new java.io.OutputStreamWriter(new java.io.FileOutputStream(file));
-                                        String txt = _textArea.getText();
-                                        if(txt == null)
-                                        {
-                                            txt = "";
+                                    if (file != null) {
+                                        if (!file.exists() && file.getName().indexOf('.') == -1) {
+                                            file =
+                                                    new java.io.File(
+                                                            file.getAbsolutePath() + ".log");
                                         }
-                                        os.write(txt, 0, txt.length());
-                                    }
-                                    catch(java.io.IOException io)
-                                    {
-                                        JOptionPane.showMessageDialog(
-                                            ShowLogFileDialog.this,
-                                            io.toString(),
-                                            "Cannot write file",
-                                            JOptionPane.ERROR_MESSAGE);
-                                    }
-                                    finally
-                                    {
-                                        if(os != null)
-                                        {
-                                            try
-                                            {
-                                                os.close();
+
+                                        java.io.OutputStreamWriter os = null;
+
+                                        try {
+                                            os =
+                                                    new java.io.OutputStreamWriter(
+                                                            new java.io.FileOutputStream(file));
+                                            String txt = _textArea.getText();
+                                            if (txt == null) {
+                                                txt = "";
                                             }
-                                            catch(java.io.IOException io)
-                                            {
+                                            os.write(txt, 0, txt.length());
+                                        } catch (java.io.IOException io) {
+                                            JOptionPane.showMessageDialog(
+                                                    ShowLogFileDialog.this,
+                                                    io.toString(),
+                                                    "Cannot write file",
+                                                    JOptionPane.ERROR_MESSAGE);
+                                        } finally {
+                                            if (os != null) {
+                                                try {
+                                                    os.close();
+                                                } catch (java.io.IOException io) {
+                                                }
                                             }
                                         }
                                     }
+                                } else {
+                                    break; // while
                                 }
                             }
-                            else
-                            {
-                                break; // while
-                            }
                         }
-                    }
-                };
+                    };
             save.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, MENU_MASK));
             save.putValue(Action.SHORT_DESCRIPTION, "Save As...");
             fileMenu.add(save);
             fileMenu.addSeparator();
 
-            fileMenu.add(new AbstractAction("Close")
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        close(true);
-                    }
-                });
+            fileMenu.add(
+                    new AbstractAction("Close") {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            close(true);
+                        }
+                    });
             JMenu editMenu = new JMenu("Edit");
             editMenu.setMnemonic(java.awt.event.KeyEvent.VK_E);
             add(editMenu);
 
-            Action copy = new AbstractAction("Copy")
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        _textArea.copy();
-                    }
-
-                };
+            Action copy =
+                    new AbstractAction("Copy") {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            _textArea.copy();
+                        }
+                    };
             copy.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
             copy.putValue(Action.SHORT_DESCRIPTION, "Copy");
             editMenu.add(copy);
 
             editMenu.addSeparator();
-            Action selectAll = new AbstractAction("Select All")
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        _textArea.grabFocus();
-                        _textArea.selectAll();
-                    }
-                };
-            selectAll.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, MENU_MASK));
+            Action selectAll =
+                    new AbstractAction("Select All") {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            _textArea.grabFocus();
+                            _textArea.selectAll();
+                        }
+                    };
+            selectAll.putValue(
+                    Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, MENU_MASK));
             selectAll.putValue(Action.SHORT_DESCRIPTION, "Select All");
 
             editMenu.add(selectAll);
             editMenu.addSeparator();
-            editMenu.add(new AbstractAction("Preferences...")
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        new LogPrefsDialog(ShowLogFileDialog.this);
-                    }
-                });
+            editMenu.add(
+                    new AbstractAction("Preferences...") {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            new LogPrefsDialog(ShowLogFileDialog.this);
+                        }
+                    });
         }
     }
 
-    private class ToolBar extends JToolBar
-    {
-        private ToolBar()
-        {
+    private class ToolBar extends JToolBar {
+        private ToolBar() {
             putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
             putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
             setFloatable(false);
@@ -511,9 +427,14 @@ class ShowLogFileDialog extends JDialog
         }
     }
 
-    ShowLogFileDialog(Root root, FileIteratorFactory factory, int maxLines, int maxSize, int initialLines,
-                      int maxReadSize, int period)
-    {
+    ShowLogFileDialog(
+            Root root,
+            FileIteratorFactory factory,
+            int maxLines,
+            int maxSize,
+            int initialLines,
+            int maxReadSize,
+            int period) {
         super(root.getCoordinator().getMainFrame(), factory.getTitle() + " - IceGrid GUI", false);
 
         _maxLines = maxLines;
@@ -526,77 +447,70 @@ class ShowLogFileDialog extends JDialog
         _preferences = Coordinator.getPreferences().node("LiveDeployment");
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new java.awt.event.WindowAdapter()
-            {
-                @Override
-                public void windowClosing(java.awt.event.WindowEvent e)
-                {
-                    close(true);
-                }
-            });
+        addWindowListener(
+                new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        close(true);
+                    }
+                });
 
-        _pause = new AbstractAction("Pause")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    pause();
-                }
-            };
+        _pause =
+                new AbstractAction("Pause") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        pause();
+                    }
+                };
 
-        _play = new AbstractAction("Play")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    play();
-                }
-            };
+        _play =
+                new AbstractAction("Play") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        play();
+                    }
+                };
 
-        _stop = new AbstractAction("Stop")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    stopReading();
-                }
-            };
+        _stop =
+                new AbstractAction("Stop") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        stopReading();
+                    }
+                };
 
         setJMenuBar(new MenuBar());
         getContentPane().add(new ToolBar(), BorderLayout.PAGE_START);
 
-        JScrollPane scrollPane = new JScrollPane(_textArea,
-                                                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scrollPane =
+                new JScrollPane(
+                        _textArea,
+                        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         getContentPane().add(scrollPane);
 
         setResizable(true);
         pack();
-        Utils.restoreWindowBounds(this, _preferences, "LogFileDialog", _root.getCoordinator().getMainFrame());
+        Utils.restoreWindowBounds(
+                this, _preferences, "LogFileDialog", _root.getCoordinator().getMainFrame());
 
         play();
     }
 
-    void pause()
-    {
+    void pause() {
         _thread.pause();
         _pauseItem.setSelected(true);
         _pauseButton.setSelected(true);
     }
 
-    void stopReading()
-    {
-        if(_thread != null)
-        {
+    void stopReading() {
+        if (_thread != null) {
             _thread.terminate();
 
-            try
-            {
+            try {
                 _thread.join();
-            }
-            catch(InterruptedException e)
-            {
+            } catch (InterruptedException e) {
             }
 
             _thread = null;
@@ -606,97 +520,76 @@ class ShowLogFileDialog extends JDialog
         }
     }
 
-    void play()
-    {
-        if(_thread != null)
-        {
+    void play() {
+        if (_thread != null) {
             _thread.play();
             _playItem.setSelected(true);
             _playButton.setSelected(true);
             _pause.setEnabled(true);
-        }
-        else
-        {
+        } else {
             _thread = new ReaderThread();
             _thread.start();
         }
     }
 
-    int getMaxLines()
-    {
+    int getMaxLines() {
         return _maxLines;
     }
 
-    int getMaxSize()
-    {
+    int getMaxSize() {
         return _maxSize;
     }
 
-    int getInitialLines()
-    {
+    int getInitialLines() {
         return _initialLines;
     }
 
-    int getMaxReadSize()
-    {
+    int getMaxReadSize() {
         return _maxReadSize;
     }
 
-    int getPeriod()
-    {
+    int getPeriod() {
         return _period;
     }
 
-    void setPrefs(int maxLines, int maxSize, int initialLines, int maxReadSize, int period)
-    {
-        if(maxLines < 50)
-        {
+    void setPrefs(int maxLines, int maxSize, int initialLines, int maxReadSize, int period) {
+        if (maxLines < 50) {
             maxLines = 50;
         }
         _maxLines = maxLines;
 
-        if(maxSize < 1000)
-        {
+        if (maxSize < 1000) {
             maxSize = 1000;
         }
         _maxSize = maxSize;
 
         _initialLines = initialLines;
 
-        if(maxReadSize < 100)
-        {
+        if (maxReadSize < 100) {
             maxReadSize = 100;
-        }
-        else if(maxReadSize + 512 > _root.getMessageSizeMax())
-        {
-            maxReadSize =  _root.getMessageSizeMax() - 512;
+        } else if (maxReadSize + 512 > _root.getMessageSizeMax()) {
+            maxReadSize = _root.getMessageSizeMax() - 512;
         }
         _maxReadSize = maxReadSize;
 
-        if(period < 200)
-        {
+        if (period < 200) {
             period = 200;
-        }
-        else if(period > 5000)
-        {
+        } else if (period > 5000) {
             period = 5000;
         }
         _period = period;
 
-        if(_thread != null)
-        {
+        if (_thread != null) {
             _thread.setPrefs();
         }
 
         _root.setLogPrefs(_maxLines, _maxSize, _initialLines, _maxReadSize, _period);
     }
 
-    void close(boolean notifyRoot)
-    {
+    void close(boolean notifyRoot) {
         stopReading();
 
-        if(notifyRoot)
-        {
+        if (notifyRoot) {
             _root.removeShowLogFileDialog(_factory.getTitle());
         }
 

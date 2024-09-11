@@ -2,22 +2,19 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import java.awt.Cursor;
-
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
 
-class Slave extends Communicator
-{
+class Slave extends Communicator {
     // Actions
     @Override
-    public boolean[] getAvailableActions()
-    {
+    public boolean[] getAvailableActions() {
         boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_REGISTRY] = true;
         actions[RETRIEVE_ICE_LOG] = true;
@@ -27,75 +24,70 @@ class Slave extends Communicator
     }
 
     @Override
-    public void shutdownRegistry()
-    {
+    public void shutdownRegistry() {
         final String prefix = "Shutting down registry '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
 
-        try
-        {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        try {
+            getCoordinator()
+                    .getMainFrame()
+                    .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            getCoordinator().getAdmin().shutdownRegistryAsync(_id).whenComplete((result, ex) ->
-                {
-                    amiComplete(prefix, "Failed to shutdown " + _id, ex);
-                });
+            getCoordinator()
+                    .getAdmin()
+                    .shutdownRegistryAsync(_id)
+                    .whenComplete(
+                            (result, ex) -> {
+                                amiComplete(prefix, "Failed to shutdown " + _id, ex);
+                            });
 
-        }
-        catch(com.zeroc.Ice.LocalException e)
-        {
+        } catch (com.zeroc.Ice.LocalException e) {
             failure(prefix, "Failed to shutdown " + _id, e.toString());
-        }
-        finally
-        {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        } finally {
+            getCoordinator()
+                    .getMainFrame()
+                    .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
     @Override
-    public void retrieveOutput(final boolean stdout)
-    {
-        getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
-            {
-                @Override
-                public FileIteratorPrx open(int count)
-                    throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException
-                {
-                    AdminSessionPrx session = getCoordinator().getSession();
+    public void retrieveOutput(final boolean stdout) {
+        getRoot()
+                .openShowLogFileDialog(
+                        new ShowLogFileDialog.FileIteratorFactory() {
+                            @Override
+                            public FileIteratorPrx open(int count)
+                                    throws FileNotAvailableException,
+                                            RegistryNotExistException,
+                                            RegistryUnreachableException {
+                                AdminSessionPrx session = getCoordinator().getSession();
 
-                    FileIteratorPrx result;
-                    if(stdout)
-                    {
-                        result = session.openRegistryStdOut(_id, count);
-                    }
-                    else
-                    {
-                        result = session.openRegistryStdErr(_id, count);
-                    }
-                    return result;
-                }
+                                FileIteratorPrx result;
+                                if (stdout) {
+                                    result = session.openRegistryStdOut(_id, count);
+                                } else {
+                                    result = session.openRegistryStdErr(_id, count);
+                                }
+                                return result;
+                            }
 
-                @Override
-                public String getTitle()
-                {
-                    return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
-                }
+                            @Override
+                            public String getTitle() {
+                                return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
+                            }
 
-                @Override
-                public String getDefaultFilename()
-                {
-                    return _id + (stdout ? ".out" : ".err");
-                }
-            });
+                            @Override
+                            public String getDefaultFilename() {
+                                return _id + (stdout ? ".out" : ".err");
+                            }
+                        });
     }
 
     @Override
-    public JPopupMenu getPopupMenu()
-    {
+    public JPopupMenu getPopupMenu() {
         LiveActions la = getCoordinator().getLiveActionsForPopup();
 
-        if(_popup == null)
-        {
+        if (_popup == null) {
             _popup = new JPopupMenu();
             _popup.add(la.get(RETRIEVE_ICE_LOG));
             _popup.add(la.get(RETRIEVE_STDOUT));
@@ -109,10 +101,8 @@ class Slave extends Communicator
     }
 
     @Override
-    public Editor getEditor()
-    {
-        if(_editor == null)
-        {
+    public Editor getEditor() {
+        if (_editor == null) {
             _editor = new SlaveEditor();
         }
         _editor.show(this);
@@ -121,35 +111,30 @@ class Slave extends Communicator
 
     // Communicator overrides
     @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
-    {
+    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync() {
         return getRoot().getCoordinator().getAdmin().getRegistryAdminAsync(_id);
     }
 
     @Override
-    protected String getDisplayName()
-    {
+    protected String getDisplayName() {
         return "Registry Slave " + _id;
     }
 
     @Override
-    protected String getDefaultFileName()
-    {
+    protected String getDefaultFileName() {
         return "registry-" + _instanceName + "-" + _id;
     }
 
     @Override
     public Component getTreeCellRendererComponent(
-        JTree tree,
-        Object value,
-        boolean sel,
-        boolean expanded,
-        boolean leaf,
-        int row,
-        boolean hasFocus)
-    {
-        if(_cellRenderer == null)
-        {
+            JTree tree,
+            Object value,
+            boolean sel,
+            boolean expanded,
+            boolean leaf,
+            int row,
+            boolean hasFocus) {
+        if (_cellRenderer == null) {
             // TODO: separate icon for master
             _cellRenderer = new DefaultTreeCellRenderer();
 
@@ -158,17 +143,15 @@ class Slave extends Communicator
             _cellRenderer.setClosedIcon(icon);
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(
+                tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    RegistryInfo
-    getInfo()
-    {
+    RegistryInfo getInfo() {
         return _info;
     }
 
-    Slave(TreeNode parent, RegistryInfo info, String instanceName)
-    {
+    Slave(TreeNode parent, RegistryInfo info, String instanceName) {
         super(parent, info.name, 1);
         _childrenArray[0] = _metrics;
         _info = info;
@@ -180,7 +163,7 @@ class Slave extends Communicator
     private final String _title;
     private final String _instanceName;
 
-    static private DefaultTreeCellRenderer _cellRenderer;
-    static private SlaveEditor _editor;
-    static private JPopupMenu _popup;
+    private static DefaultTreeCellRenderer _cellRenderer;
+    private static SlaveEditor _editor;
+    private static JPopupMenu _popup;
 }

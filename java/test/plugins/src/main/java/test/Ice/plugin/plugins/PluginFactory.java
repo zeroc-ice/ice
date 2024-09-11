@@ -2,24 +2,20 @@
 
 package test.Ice.plugin.plugins;
 
-public class PluginFactory implements com.zeroc.Ice.PluginFactory
-{
+public class PluginFactory implements com.zeroc.Ice.PluginFactory {
     @Override
-    public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
-    {
+    public com.zeroc.Ice.Plugin create(
+            com.zeroc.Ice.Communicator communicator, String name, String[] args) {
         return new Plugin(args);
     }
 
-    static class Plugin implements com.zeroc.Ice.Plugin
-    {
-        public Plugin(String[] args)
-        {
+    static class Plugin implements com.zeroc.Ice.Plugin {
+        public Plugin(String[] args) {
             _args = args;
         }
 
         @Override
-        public void initialize()
-        {
+        public void initialize() {
             _initialized = true;
             test(_args.length == 3);
             test(_args[0].equals("C:\\Program Files\\"));
@@ -28,36 +24,27 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory
         }
 
         @Override
-        public void destroy()
-        {
+        public void destroy() {
             _destroyed = true;
         }
 
         @SuppressWarnings("deprecation")
         @Override
-        protected void finalize() throws Throwable
-        {
-            try
-            {
-                if(!_initialized)
-                {
+        protected void finalize() throws Throwable {
+            try {
+                if (!_initialized) {
                     System.out.println("test.Ice.plugin.plugins.Plugin not initialized");
                 }
-                if(!_destroyed)
-                {
+                if (!_destroyed) {
                     System.out.println("test.Ice.plugin.plugins.Plugin not destroyed");
                 }
-            }
-            finally
-            {
+            } finally {
                 super.finalize();
             }
         }
 
-        private static void test(boolean b)
-        {
-            if(!b)
-            {
+        private static void test(boolean b) {
+            if (!b) {
                 throw new RuntimeException();
             }
         }

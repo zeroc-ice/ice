@@ -2,42 +2,33 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.looks.BorderStyle;
+import com.jgoodies.looks.HeaderStyle;
+import com.jgoodies.looks.Options;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.jgoodies.looks.Options;
-import com.jgoodies.looks.HeaderStyle;
-import com.jgoodies.looks.BorderStyle;
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-class ServerEditor extends CommunicatorEditor
-{
+class ServerEditor extends CommunicatorEditor {
     @Override
-    public JToolBar getToolBar()
-    {
-        if(_toolBar == null)
-        {
+    public JToolBar getToolBar() {
+        if (_toolBar == null) {
             _toolBar = new ToolBar();
         }
         return _toolBar;
     }
 
-    ServerEditor(Coordinator c)
-    {
+    ServerEditor(Coordinator c) {
         _coordinator = c;
         _currentState.setEditable(false);
         _enabled.setEnabled(false);
@@ -55,56 +46,45 @@ class ServerEditor extends CommunicatorEditor
         _user.setEditable(false);
         _allocatable.setEnabled(false);
 
-        Action gotoApplication = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png"))
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    ((Server)_target).openDefinition();
-                }
-            };
+        Action gotoApplication =
+                new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ((Server) _target).openDefinition();
+                    }
+                };
         gotoApplication.putValue(Action.SHORT_DESCRIPTION, "View/Edit this application");
         _gotoApplication = new JButton(gotoApplication);
     }
 
-    void show(Server server)
-    {
-        Server previousServer = (Server)_target;
+    void show(Server server) {
+        Server previousServer = (Server) _target;
         _target = server;
 
         ServerState state = server.getState();
         ServerDescriptor descriptor = server.getServerDescriptor();
         final Utils.Resolver resolver = server.getResolver();
 
-        if(state == null)
-        {
+        if (state == null) {
             _currentState.setText("Unknown");
             _enabled.setSelected(false);
             _currentPid.setText("");
             clearRuntimeProperties("Unknown");
-        }
-        else
-        {
+        } else {
             _currentState.setText(state.toString());
             _enabled.setSelected(server.isEnabled());
 
             int pid = server.getPid();
-            if(pid == 0)
-            {
+            if (pid == 0) {
                 _currentPid.setText("");
-            }
-            else
-            {
+            } else {
                 _currentPid.setText(Integer.toString(pid));
             }
 
             int iceIntVersion = server.getIceVersion();
-            if(state == ServerState.Active && (iceIntVersion == 0 || iceIntVersion >= 30300))
-            {
+            if (state == ServerState.Active && (iceIntVersion == 0 || iceIntVersion >= 30300)) {
                 showRuntimeProperties(previousServer);
-            }
-            else
-            {
+            } else {
                 clearRuntimeProperties("");
             }
         }
@@ -117,14 +97,13 @@ class ServerEditor extends CommunicatorEditor
         _iceVersion.setText(resolver.substitute(descriptor.iceVersion));
         _pwd.setText(resolver.substitute(descriptor.pwd));
 
-        Utils.Stringifier stringifier =  new Utils.Stringifier()
-            {
-                @Override
-                public String toString(Object obj)
-                {
-                    return resolver.substitute((String)obj);
-                }
-            };
+        Utils.Stringifier stringifier =
+                new Utils.Stringifier() {
+                    @Override
+                    public String toString(Object obj) {
+                        return resolver.substitute((String) obj);
+                    }
+                };
 
         Utils.StringifyResult r = Utils.stringify(descriptor.options, stringifier, " ");
         _options.setText(r.returnValue);
@@ -142,8 +121,7 @@ class ServerEditor extends CommunicatorEditor
     }
 
     @Override
-    protected void appendProperties(DefaultFormBuilder builder)
-    {
+    protected void appendProperties(DefaultFormBuilder builder) {
         builder.appendSeparator("Runtime Status");
 
         builder.append("State");
@@ -209,16 +187,13 @@ class ServerEditor extends CommunicatorEditor
     }
 
     @Override
-    protected void buildPropertiesPanel()
-    {
+    protected void buildPropertiesPanel() {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Server Properties");
     }
 
-    private class ToolBar extends JToolBar
-    {
-        private ToolBar()
-        {
+    private class ToolBar extends JToolBar {
+        private ToolBar() {
             putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
             putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
             setFloatable(false);

@@ -4,12 +4,10 @@ package test.IceDiscovery.simple;
 
 import test.IceDiscovery.simple.Test.*;
 
-public final class ControllerI implements Controller
-{
+public final class ControllerI implements Controller {
     @Override
-    public void activateObjectAdapter(String name, String adapterId, String replicaGroupId,
-                                      com.zeroc.Ice.Current current)
-    {
+    public void activateObjectAdapter(
+            String name, String adapterId, String replicaGroupId, com.zeroc.Ice.Current current) {
         com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
         com.zeroc.Ice.Properties properties = communicator.getProperties();
         properties.setProperty(name + ".AdapterId", adapterId);
@@ -21,36 +19,32 @@ public final class ControllerI implements Controller
     }
 
     @Override
-    public void deactivateObjectAdapter(String name, com.zeroc.Ice.Current current)
-    {
+    public void deactivateObjectAdapter(String name, com.zeroc.Ice.Current current) {
         _adapters.get(name).destroy();
         _adapters.remove(name);
     }
 
     @Override
-    public void addObject(String oaName, String id, com.zeroc.Ice.Current current)
-    {
-        assert(_adapters.containsKey(oaName));
+    public void addObject(String oaName, String id, com.zeroc.Ice.Current current) {
+        assert (_adapters.containsKey(oaName));
         com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
         identity.name = id;
         _adapters.get(oaName).add(new TestIntfI(), identity);
     }
 
     @Override
-    public void removeObject(String oaName, String id, com.zeroc.Ice.Current current)
-    {
-        assert(_adapters.containsKey(oaName));
+    public void removeObject(String oaName, String id, com.zeroc.Ice.Current current) {
+        assert (_adapters.containsKey(oaName));
         com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
         identity.name = id;
         _adapters.get(oaName).remove(identity);
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
+    public void shutdown(com.zeroc.Ice.Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 
     private final java.util.Map<String, com.zeroc.Ice.ObjectAdapter> _adapters =
-        new java.util.HashMap<String, com.zeroc.Ice.ObjectAdapter>();
+            new java.util.HashMap<String, com.zeroc.Ice.ObjectAdapter>();
 }

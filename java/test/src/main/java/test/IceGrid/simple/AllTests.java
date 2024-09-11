@@ -3,21 +3,16 @@
 package test.IceGrid.simple;
 
 import java.io.PrintWriter;
-
 import test.IceGrid.simple.Test.TestIntfPrx;
 
-public class AllTests
-{
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
+public class AllTests {
+    private static void test(boolean b) {
+        if (!b) {
             throw new RuntimeException();
         }
     }
 
-    public static void allTests(test.TestHelper helper)
-    {
+    public static void allTests(test.TestHelper helper) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
@@ -49,8 +44,9 @@ public class AllTests
         com.zeroc.Ice.Identity finderId = new com.zeroc.Ice.Identity();
         finderId.category = "Ice";
         finderId.name = "LocatorFinder";
-        com.zeroc.Ice.LocatorFinderPrx finder = com.zeroc.Ice.LocatorFinderPrx.checkedCast(
-            communicator.getDefaultLocator().ice_identity(finderId));
+        com.zeroc.Ice.LocatorFinderPrx finder =
+                com.zeroc.Ice.LocatorFinderPrx.checkedCast(
+                        communicator.getDefaultLocator().ice_identity(finderId));
         test(finder.getLocator() != null);
         out.println("ok");
 
@@ -58,18 +54,19 @@ public class AllTests
         out.flush();
         {
             // Add test well-known object
-            com.zeroc.IceGrid.RegistryPrx registry = com.zeroc.IceGrid.RegistryPrx.checkedCast(
-                communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
+            com.zeroc.IceGrid.RegistryPrx registry =
+                    com.zeroc.IceGrid.RegistryPrx.checkedCast(
+                            communicator.stringToProxy(
+                                    communicator.getDefaultLocator().ice_getIdentity().category
+                                            + "/Registry"));
             test(registry != null);
 
-            try
-            {
-                com.zeroc.IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
+            try {
+                com.zeroc.IceGrid.AdminSessionPrx session =
+                        registry.createAdminSession("foo", "bar");
                 session.getAdmin().addObjectWithType(base, "::Test");
                 session.destroy();
-            }
-            catch(com.zeroc.Ice.UserException ex)
-            {
+            } catch (com.zeroc.Ice.UserException ex) {
                 test(false);
             }
 
@@ -78,10 +75,13 @@ public class AllTests
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "IceLocatorDiscovery:com.zeroc.IceLocatorDiscovery.PluginFactory");
-            initData.properties.setProperty("IceLocatorDiscovery.Port", Integer.toString(helper.getTestPort(99)));
-            initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
+            initData.properties.setProperty(
+                    "Ice.Plugin.IceLocatorDiscovery",
+                    "IceLocatorDiscovery:com.zeroc.IceLocatorDiscovery.PluginFactory");
+            initData.properties.setProperty(
+                    "IceLocatorDiscovery.Port", Integer.toString(helper.getTestPort(99)));
+            initData.properties.setProperty(
+                    "AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
             com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(initData);
@@ -90,42 +90,42 @@ public class AllTests
             comm.stringToProxy("test").ice_ping();
 
             test(comm.getDefaultLocator().getRegistry() != null);
-            test(com.zeroc.IceGrid.LocatorPrx.uncheckedCast(comm.getDefaultLocator()).getLocalRegistry() != null);
-            test(com.zeroc.IceGrid.LocatorPrx.uncheckedCast(comm.getDefaultLocator()).getLocalQuery() != null);
+            test(
+                    com.zeroc.IceGrid.LocatorPrx.uncheckedCast(comm.getDefaultLocator())
+                                    .getLocalRegistry()
+                            != null);
+            test(
+                    com.zeroc.IceGrid.LocatorPrx.uncheckedCast(comm.getDefaultLocator())
+                                    .getLocalQuery()
+                            != null);
 
-            com.zeroc.Ice.ObjectAdapter adapter = comm.createObjectAdapter("AdapterForDiscoveryTest");
+            com.zeroc.Ice.ObjectAdapter adapter =
+                    comm.createObjectAdapter("AdapterForDiscoveryTest");
             adapter.activate();
             adapter.deactivate();
             comm.destroy();
 
-            // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator.
+            // Now, ensure that the IceGrid discovery locator correctly handles failure to find a
+            // locator.
             initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");
             comm = com.zeroc.Ice.Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
-            try
-            {
+            try {
                 comm.stringToProxy("test @ TestAdapter").ice_ping();
+            } catch (com.zeroc.Ice.NoEndpointException ex) {
             }
-            catch(com.zeroc.Ice.NoEndpointException ex)
-            {
-            }
-            try
-            {
+            try {
                 comm.stringToProxy("test").ice_ping();
-            }
-            catch(com.zeroc.Ice.NoEndpointException ex)
-            {
+            } catch (com.zeroc.Ice.NoEndpointException ex) {
             }
             test(comm.getDefaultLocator().getRegistry() == null);
             test(com.zeroc.IceGrid.LocatorPrx.checkedCast(comm.getDefaultLocator()) == null);
-            try
-            {
-                com.zeroc.IceGrid.LocatorPrx.uncheckedCast(comm.getDefaultLocator()).getLocalQuery();
-            }
-            catch(com.zeroc.Ice.OperationNotExistException ex)
-            {
+            try {
+                com.zeroc.IceGrid.LocatorPrx.uncheckedCast(comm.getDefaultLocator())
+                        .getLocalQuery();
+            } catch (com.zeroc.Ice.OperationNotExistException ex) {
             }
 
             adapter = comm.createObjectAdapter("AdapterForDiscoveryTest");
@@ -135,77 +135,74 @@ public class AllTests
             comm.destroy();
 
             String multicast;
-            if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
-            {
+            if (communicator.getProperties().getProperty("Ice.IPv6").equals("1")) {
                 multicast = "\"ff15::1\"";
-            }
-            else
-            {
+            } else {
                 multicast = "239.255.0.1";
             }
 
             // Test invalid lookup endpoints
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "com.zeroc.IceLocatorDiscovery.PluginFactory");
-            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
-                                             "udp -h " + multicast + " --interface unknown");
+            initData.properties.setProperty(
+                    "Ice.Plugin.IceLocatorDiscovery",
+                    "com.zeroc.IceLocatorDiscovery.PluginFactory");
+            initData.properties.setProperty(
+                    "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
             comm = com.zeroc.Ice.Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
-            try
-            {
+            try {
                 comm.stringToProxy("test @ TestAdapter").ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.NoEndpointException ex)
-            {
+            } catch (com.zeroc.Ice.NoEndpointException ex) {
             }
             comm.destroy();
 
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "com.zeroc.IceLocatorDiscovery.PluginFactory");
-            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
-                                             "udp -h " + multicast + " --interface unknown");
+            initData.properties.setProperty(
+                    "Ice.Plugin.IceLocatorDiscovery",
+                    "com.zeroc.IceLocatorDiscovery.PluginFactory");
+            initData.properties.setProperty(
+                    "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
             comm = com.zeroc.Ice.Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
-            try
-            {
+            try {
                 comm.stringToProxy("test @ TestAdapter").ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.NoEndpointException ex)
-            {
+            } catch (com.zeroc.Ice.NoEndpointException ex) {
             }
             comm.destroy();
 
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "com.zeroc.IceLocatorDiscovery.PluginFactory");
+            initData.properties.setProperty(
+                    "Ice.Plugin.IceLocatorDiscovery",
+                    "com.zeroc.IceLocatorDiscovery.PluginFactory");
             {
                 String intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
-                if(!intf.isEmpty())
-                {
+                if (!intf.isEmpty()) {
                     intf = " --interface \"" + intf + "\"";
                 }
                 String port = Integer.toString(helper.getTestPort(99));
-                initData.properties.setProperty("IceLocatorDiscovery.Lookup",
-                                                 "udp -h " + multicast + " --interface unknown:" +
-                                                 "udp -h " + multicast + " -p " + port + intf);
+                initData.properties.setProperty(
+                        "IceLocatorDiscovery.Lookup",
+                        "udp -h "
+                                + multicast
+                                + " --interface unknown:"
+                                + "udp -h "
+                                + multicast
+                                + " -p "
+                                + port
+                                + intf);
             }
             comm = com.zeroc.Ice.Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
-            try
-            {
+            try {
                 comm.stringToProxy("test @ TestAdapter").ice_ping();
-            }
-            catch(com.zeroc.Ice.NoEndpointException ex)
-            {
+            } catch (com.zeroc.Ice.NoEndpointException ex) {
                 test(false);
             }
             comm.destroy();
@@ -218,8 +215,7 @@ public class AllTests
         out.println("ok");
     }
 
-    public static void allTestsWithDeploy(test.TestHelper helper)
-    {
+    public static void allTestsWithDeploy(test.TestHelper helper) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
@@ -253,21 +249,15 @@ public class AllTests
         test(base10 != null);
         com.zeroc.Ice.ObjectPrx base102 = communicator.stringToProxy("test10");
         test(base102 != null);
-        try
-        {
+        try {
             base10.ice_ping();
             test(false);
+        } catch (com.zeroc.Ice.NoEndpointException ex) {
         }
-        catch(com.zeroc.Ice.NoEndpointException ex)
-        {
-        }
-        try
-        {
+        try {
             base102.ice_ping();
             test(false);
-        }
-        catch(com.zeroc.Ice.NoEndpointException ex)
-        {
+        } catch (com.zeroc.Ice.NoEndpointException ex) {
         }
         base10 = base10.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
         base102 = base102.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
@@ -277,13 +267,10 @@ public class AllTests
 
         out.print("testing reference with unknown identity... ");
         out.flush();
-        try
-        {
+        try {
             communicator.stringToProxy("unknown/unknown").ice_ping();
             test(false);
-        }
-        catch(com.zeroc.Ice.NotRegisteredException ex)
-        {
+        } catch (com.zeroc.Ice.NotRegisteredException ex) {
             test(ex.kindOfObject.equals("object"));
             test(ex.id.equals("unknown/unknown"));
         }
@@ -291,128 +278,88 @@ public class AllTests
 
         out.print("testing reference with unknown adapter... ");
         out.flush();
-        try
-        {
+        try {
             communicator.stringToProxy("test @ TestAdapterUnknown").ice_ping();
             test(false);
-        }
-        catch(com.zeroc.Ice.NotRegisteredException ex)
-        {
+        } catch (com.zeroc.Ice.NotRegisteredException ex) {
             test(ex.kindOfObject.equals("object adapter"));
             test(ex.id.equals("TestAdapterUnknown"));
         }
         out.println("ok");
 
-        com.zeroc.IceGrid.RegistryPrx registry = com.zeroc.IceGrid.RegistryPrx.checkedCast(
-            communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
+        com.zeroc.IceGrid.RegistryPrx registry =
+                com.zeroc.IceGrid.RegistryPrx.checkedCast(
+                        communicator.stringToProxy(
+                                communicator.getDefaultLocator().ice_getIdentity().category
+                                        + "/Registry"));
         test(registry != null);
         com.zeroc.IceGrid.AdminSessionPrx session = null;
-        try
-        {
+        try {
             session = registry.createAdminSession("foo", "bar");
-        }
-        catch(com.zeroc.IceGrid.PermissionDeniedException e)
-        {
+        } catch (com.zeroc.IceGrid.PermissionDeniedException e) {
             test(false);
         }
 
         com.zeroc.IceGrid.AdminPrx admin = session.getAdmin();
         test(admin != null);
 
-        try
-        {
+        try {
             admin.enableServer("server", false);
             admin.stopServer("server");
-        }
-        catch(com.zeroc.IceGrid.ServerNotExistException ex)
-        {
+        } catch (com.zeroc.IceGrid.ServerNotExistException ex) {
             test(false);
-        }
-        catch(com.zeroc.IceGrid.ServerStopException ex)
-        {
+        } catch (com.zeroc.IceGrid.ServerStopException ex) {
             test(false);
-        }
-        catch(com.zeroc.IceGrid.NodeUnreachableException ex)
-        {
+        } catch (com.zeroc.IceGrid.NodeUnreachableException ex) {
             test(false);
-        }
-        catch(com.zeroc.IceGrid.DeploymentException ex)
-        {
+        } catch (com.zeroc.IceGrid.DeploymentException ex) {
             test(false);
         }
 
         out.print("testing whether server is still reachable... ");
         out.flush();
-        try
-        {
+        try {
             obj = TestIntfPrx.checkedCast(base);
             test(false);
+        } catch (com.zeroc.Ice.NoEndpointException ex) {
         }
-        catch(com.zeroc.Ice.NoEndpointException ex)
-        {
-        }
-        try
-        {
+        try {
             obj2 = TestIntfPrx.checkedCast(base2);
             test(false);
-        }
-        catch(com.zeroc.Ice.NoEndpointException ex)
-        {
+        } catch (com.zeroc.Ice.NoEndpointException ex) {
         }
 
-        try
-        {
+        try {
             admin.enableServer("server", true);
-        }
-        catch(com.zeroc.IceGrid.ServerNotExistException ex)
-        {
+        } catch (com.zeroc.IceGrid.ServerNotExistException ex) {
             test(false);
-        }
-        catch(com.zeroc.IceGrid.NodeUnreachableException ex)
-        {
+        } catch (com.zeroc.IceGrid.NodeUnreachableException ex) {
             test(false);
-        }
-        catch(com.zeroc.IceGrid.DeploymentException ex)
-        {
+        } catch (com.zeroc.IceGrid.DeploymentException ex) {
             test(false);
         }
 
-        try
-        {
+        try {
             obj = TestIntfPrx.checkedCast(base);
-        }
-        catch(com.zeroc.Ice.NoEndpointException ex)
-        {
+        } catch (com.zeroc.Ice.NoEndpointException ex) {
             test(false);
         }
-        try
-        {
+        try {
             obj2 = TestIntfPrx.checkedCast(base2);
-        }
-        catch(com.zeroc.Ice.NoEndpointException ex)
-        {
+        } catch (com.zeroc.Ice.NoEndpointException ex) {
             test(false);
         }
         out.println("ok");
 
-        try
-        {
+        try {
             admin.stopServer("server");
-        }
-        catch(com.zeroc.IceGrid.ServerNotExistException ex)
-        {
+        } catch (com.zeroc.IceGrid.ServerNotExistException ex) {
             test(false);
-        }
-        catch(com.zeroc.IceGrid.ServerStopException ex)
-        {
+        } catch (com.zeroc.IceGrid.ServerStopException ex) {
             test(false);
-        }
-        catch(com.zeroc.IceGrid.NodeUnreachableException ex)
-        {
+        } catch (com.zeroc.IceGrid.NodeUnreachableException ex) {
             test(false);
-        }
-        catch(com.zeroc.IceGrid.DeploymentException ex)
-        {
+        } catch (com.zeroc.IceGrid.DeploymentException ex) {
             test(false);
         }
 

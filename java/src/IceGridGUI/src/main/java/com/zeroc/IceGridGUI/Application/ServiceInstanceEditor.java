@@ -2,8 +2,11 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -12,31 +15,20 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 @SuppressWarnings("unchecked")
-class ServiceInstanceEditor extends CommunicatorChildEditor
-{
-    ServiceInstanceEditor()
-    {
+class ServiceInstanceEditor extends CommunicatorChildEditor {
+    ServiceInstanceEditor() {
         // Template
-        Action gotoTemplate = new AbstractAction(
-            "", Utils.getIcon("/icons/16x16/goto.png"))
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    TreeNode t = (TreeNode)_template.getSelectedItem();
-                    if(t != null)
-                    {
-                        t.getRoot().setSelectedNode(t);
+        Action gotoTemplate =
+                new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        TreeNode t = (TreeNode) _template.getSelectedItem();
+                        if (t != null) {
+                            t.getRoot().setSelectedNode(t);
+                        }
                     }
-                }
-            };
+                };
         gotoTemplate.putValue(Action.SHORT_DESCRIPTION, "Goto this service template");
         _templateButton = new JButton(gotoTemplate);
 
@@ -47,31 +39,25 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         _properties = new PropertiesField(this);
     }
 
-    ServiceInstanceDescriptor getDescriptor()
-    {
-        return (ServiceInstanceDescriptor)_target.getDescriptor();
+    ServiceInstanceDescriptor getDescriptor() {
+        return (ServiceInstanceDescriptor) _target.getDescriptor();
     }
 
     // From Editor:
     @Override
-    Utils.Resolver getDetailResolver()
-    {
-        ServiceInstance service = (ServiceInstance)_target;
-        if(service.getCoordinator().substitute())
-        {
+    Utils.Resolver getDetailResolver() {
+        ServiceInstance service = (ServiceInstance) _target;
+        if (service.getCoordinator().substitute()) {
             return service.getResolver();
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
     @Override
-    void writeDescriptor()
-    {
+    void writeDescriptor() {
         ServiceInstanceDescriptor descriptor = getDescriptor();
-        descriptor.template = ((ServiceTemplate)_template.getSelectedItem()).getId();
+        descriptor.template = ((ServiceTemplate) _template.getSelectedItem()).getId();
         descriptor.parameterValues = _parameters.getValues();
 
         descriptor.propertySet.references = _propertySets.getList().toArray(new String[0]);
@@ -79,23 +65,21 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
     }
 
     @Override
-    boolean isSimpleUpdate()
-    {
+    boolean isSimpleUpdate() {
         ServiceInstanceDescriptor descriptor = getDescriptor();
-        ServiceTemplate t = (ServiceTemplate)_template.getSelectedItem();
+        ServiceTemplate t = (ServiceTemplate) _template.getSelectedItem();
 
-        return descriptor.template.equals(t.getId()) && descriptor.parameterValues.equals(_parameters.getValues());
+        return descriptor.template.equals(t.getId())
+                && descriptor.parameterValues.equals(_parameters.getValues());
     }
 
     @Override
-    Communicator.ChildList getChildList()
-    {
-        return ((Communicator)_target.getParent()).getServices();
+    Communicator.ChildList getChildList() {
+        return ((Communicator) _target.getParent()).getServices();
     }
 
     @Override
-    protected void appendProperties(DefaultFormBuilder builder)
-    {
+    protected void appendProperties(DefaultFormBuilder builder) {
         builder.append("Template", _template);
         builder.append(_templateButton);
         builder.nextLine();
@@ -137,25 +121,24 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
     }
 
     @Override
-    protected void buildPropertiesPanel()
-    {
+    protected void buildPropertiesPanel() {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Service Properties");
     }
 
-    void show(ServiceInstance service)
-    {
+    void show(ServiceInstance service) {
         detectUpdates(false);
         _target = service;
 
         // If it's not a template instance, it's shown using `ServiceEditor.show()`
         assert getDescriptor().template.length() > 0;
 
-        ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)service.getDescriptor();
+        ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor) service.getDescriptor();
         Coordinator coordinator = service.getCoordinator();
         boolean isEditable = service.isEphemeral() || !coordinator.substitute();
 
-        Utils.Resolver resolver = isEditable ? null : ((TreeNode)service.getParent()).getResolver();
+        Utils.Resolver resolver =
+                isEditable ? null : ((TreeNode) service.getParent()).getResolver();
 
         // Need to make control enabled before changing it
         _template.setEnabled(true);
@@ -163,54 +146,53 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         ServiceTemplates serviceTemplates = service.getRoot().getServiceTemplates();
         _template.setModel(serviceTemplates.createComboBoxModel());
 
-        ServiceTemplate t = (ServiceTemplate)serviceTemplates.findChild(descriptor.template);
+        ServiceTemplate t = (ServiceTemplate) serviceTemplates.findChild(descriptor.template);
         assert t != null;
         _template.setSelectedItem(t);
 
-        ListDataListener templateListener = new ListDataListener()
-            {
-                @Override
-                public void contentsChanged(ListDataEvent e)
-                {
-                    updated();
+        ListDataListener templateListener =
+                new ListDataListener() {
+                    @Override
+                    public void contentsChanged(ListDataEvent e) {
+                        updated();
 
-                    ServiceTemplate t = (ServiceTemplate)_template.getModel().getSelectedItem();
+                        ServiceTemplate t =
+                                (ServiceTemplate) _template.getModel().getSelectedItem();
 
-                    TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
+                        TemplateDescriptor td = (TemplateDescriptor) t.getDescriptor();
 
-                    // Replace parameters but keep existing values
-                    _parameters.set(td.parameters,
-                                    makeParameterValues(_parameters.getValues(), td.parameters),
-                                    td.parameterDefaults, null);
-                }
+                        // Replace parameters but keep existing values
+                        _parameters.set(
+                                td.parameters,
+                                makeParameterValues(_parameters.getValues(), td.parameters),
+                                td.parameterDefaults,
+                                null);
+                    }
 
-                @Override
-                public void intervalAdded(ListDataEvent e)
-                {
-                }
+                    @Override
+                    public void intervalAdded(ListDataEvent e) {}
 
-                @Override
-                public void intervalRemoved(ListDataEvent e)
-                {
-                }
-            };
+                    @Override
+                    public void intervalRemoved(ListDataEvent e) {}
+                };
 
         _template.getModel().addListDataListener(templateListener);
         _template.setEnabled(isEditable);
 
-        TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
+        TemplateDescriptor td = (TemplateDescriptor) t.getDescriptor();
         _parameters.set(td.parameters, descriptor.parameterValues, td.parameterDefaults, resolver);
 
-        _propertySets.setList(java.util.Arrays.asList(descriptor.propertySet.references), getDetailResolver());
+        _propertySets.setList(
+                java.util.Arrays.asList(descriptor.propertySet.references), getDetailResolver());
         _propertySets.setEditable(isEditable);
 
-        _properties.setProperties(descriptor.propertySet.properties, null, null, getDetailResolver(), isEditable);
+        _properties.setProperties(
+                descriptor.propertySet.properties, null, null, getDetailResolver(), isEditable);
 
         _applyButton.setEnabled(service.isEphemeral());
         _discardButton.setEnabled(service.isEphemeral());
         detectUpdates(true);
-        if(service.isEphemeral())
-        {
+        if (service.isEphemeral()) {
             updated();
         }
     }

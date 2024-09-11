@@ -9,15 +9,15 @@ import test.Ice.inheritance.Test.MB.IB2;
 import test.Ice.inheritance.Test.MB.IB2Prx;
 
 public final class IB2I implements IB2 {
-  public IB2I() {}
+    public IB2I() {}
 
-  @Override
-  public IAPrx iaop(IAPrx p, com.zeroc.Ice.Current current) {
-    return p;
-  }
+    @Override
+    public IAPrx iaop(IAPrx p, com.zeroc.Ice.Current current) {
+        return p;
+    }
 
-  @Override
-  public IB2Prx ib2op(IB2Prx p, com.zeroc.Ice.Current current) {
-    return p;
-  }
+    @Override
+    public IB2Prx ib2op(IB2Prx p, com.zeroc.Ice.Current current) {
+        return p;
+    }
 }

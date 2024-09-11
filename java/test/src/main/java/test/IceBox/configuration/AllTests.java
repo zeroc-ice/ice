@@ -3,21 +3,16 @@
 package test.IceBox.configuration;
 
 import java.io.PrintWriter;
-
 import test.IceBox.configuration.Test.TestIntfPrx;
 
-public class AllTests
-{
-    private static void test(boolean b)
-    {
-        if (!b)
-        {
+public class AllTests {
+    private static void test(boolean b) {
+        if (!b) {
             throw new RuntimeException();
         }
     }
 
-    public static void allTests(test.TestHelper helper)
-    {
+    public static void allTests(test.TestHelper helper) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         var service1 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(0));
@@ -25,8 +20,7 @@ public class AllTests
         var service3 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(2));
         var service4 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(3));
 
-        if(service1.getProperty("IceBox.InheritProperties").isEmpty())
-        {
+        if (service1.getProperty("IceBox.InheritProperties").isEmpty()) {
             out.print("testing service properties... ");
             out.flush();
 
@@ -68,9 +62,7 @@ public class AllTests
             test(java.util.Arrays.equals(service4.getArgs(), args4));
 
             out.println("ok");
-        }
-        else
-        {
+        } else {
             out.print("testing property inheritance... ");
             out.flush();
 

@@ -2,19 +2,15 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-class PlainService extends Communicator implements Service, Cloneable
-{
-    static public ServiceDescriptor
-    copyDescriptor(ServiceDescriptor sd)
-    {
+class PlainService extends Communicator implements Service, Cloneable {
+    public static ServiceDescriptor copyDescriptor(ServiceDescriptor sd) {
         ServiceDescriptor copy = sd.clone();
         copy.adapters = Adapter.copyDescriptors(copy.adapters);
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
@@ -23,45 +19,41 @@ class PlainService extends Communicator implements Service, Cloneable
 
     @Override
     public Component getTreeCellRendererComponent(
-        JTree tree,
-        Object value,
-        boolean sel,
-        boolean expanded,
-        boolean leaf,
-        int row,
-        boolean hasFocus)
-    {
-        if(_cellRenderer == null)
-        {
+            JTree tree,
+            Object value,
+            boolean sel,
+            boolean expanded,
+            boolean leaf,
+            int row,
+            boolean hasFocus) {
+        if (_cellRenderer == null) {
             _cellRenderer = new DefaultTreeCellRenderer();
             _cellRenderer.setOpenIcon(Utils.getIcon("/icons/16x16/service.png"));
 
             _cellRenderer.setClosedIcon(Utils.getIcon("/icons/16x16/service.png"));
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(
+                tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
     @Override
-    public boolean[] getAvailableActions()
-    {
+    public boolean[] getAvailableActions() {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
 
         Object clipboard = getCoordinator().getClipboard();
-        if(clipboard != null &&
-           (clipboard instanceof ServiceInstanceDescriptor
-            || clipboard instanceof Adapter.AdapterCopy))
-        {
+        if (clipboard != null
+                && (clipboard instanceof ServiceInstanceDescriptor
+                        || clipboard instanceof Adapter.AdapterCopy)) {
             actions[PASTE] = true;
         }
 
         actions[DELETE] = true;
         actions[NEW_ADAPTER] = !_ephemeral;
 
-        if(_parent instanceof Server && !_ephemeral)
-        {
+        if (_parent instanceof Server && !_ephemeral) {
             actions[SHOW_VARS] = true;
             actions[SUBSTITUTE_VARS] = true;
         }
@@ -72,11 +64,9 @@ class PlainService extends Communicator implements Service, Cloneable
     }
 
     @Override
-    public JPopupMenu getPopupMenu()
-    {
+    public JPopupMenu getPopupMenu() {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
-        if(_popup == null)
-        {
+        if (_popup == null) {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_ADAPTER));
             _popup.addSeparator();
@@ -88,40 +78,34 @@ class PlainService extends Communicator implements Service, Cloneable
     }
 
     @Override
-    public void copy()
-    {
+    public void copy() {
         getCoordinator().setClipboard(ServiceInstance.copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
     @Override
-    public void moveUp()
-    {
+    public void moveUp() {
         move(true);
     }
 
     @Override
-    public void moveDown()
-    {
+    public void moveDown() {
         move(false);
     }
 
     @Override
-    public Object getDescriptor()
-    {
+    public Object getDescriptor() {
         return _descriptor;
     }
 
     @Override
-    public Object saveDescriptor()
-    {
+    public Object saveDescriptor() {
         return _descriptor.clone();
     }
 
     @Override
-    public void restoreDescriptor(Object savedDescriptor)
-    {
-        ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor)savedDescriptor;
+    public void restoreDescriptor(Object savedDescriptor) {
+        ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor) savedDescriptor;
 
         _descriptor.descriptor.propertySet = sid.descriptor.propertySet;
         _descriptor.descriptor.description = sid.descriptor.description;
@@ -130,70 +114,55 @@ class PlainService extends Communicator implements Service, Cloneable
     }
 
     @Override
-    public void destroy()
-    {
-        ((Communicator)_parent).getServices().destroyChild(this);
+    public void destroy() {
+        ((Communicator) _parent).getServices().destroyChild(this);
     }
 
     @Override
-    public Editor getEditor()
-    {
-        if(_editor == null)
-        {
-            _editor = (PlainServiceEditor)getRoot().getEditor(PlainServiceEditor.class, this);
+    public Editor getEditor() {
+        if (_editor == null) {
+            _editor = (PlainServiceEditor) getRoot().getEditor(PlainServiceEditor.class, this);
         }
         _editor.show(this);
         return _editor;
     }
 
     @Override
-    protected Editor createEditor()
-    {
+    protected Editor createEditor() {
         return new PlainServiceEditor();
     }
 
     @Override
-    Editable getEnclosingEditable()
-    {
-        return ((Communicator)_parent).getEnclosingEditable();
+    Editable getEnclosingEditable() {
+        return ((Communicator) _parent).getEnclosingEditable();
     }
 
-    private boolean canMove(boolean up)
-    {
-        if(_ephemeral)
-        {
+    private boolean canMove(boolean up) {
+        if (_ephemeral) {
             return false;
-        }
-        else
-        {
-            return ((Communicator)_parent).getServices().canMove(this, up);
+        } else {
+            return ((Communicator) _parent).getServices().canMove(this, up);
         }
     }
 
-    private void move(boolean up)
-    {
+    private void move(boolean up) {
         assert canMove(up);
-        ((Communicator)_parent).getServices().move(this, up);
+        ((Communicator) _parent).getServices().move(this, up);
     }
 
     @Override
-    public Object rebuild(java.util.List<Editable> editables)
-        throws UpdateFailedException
-    {
-        Communicator communicator = (Communicator)_parent;
+    public Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException {
+        Communicator communicator = (Communicator) _parent;
         Services services = communicator.getServices();
         PlainService newService = null;
 
-        newService = (PlainService)services.createChild(_descriptor);
+        newService = (PlainService) services.createChild(_descriptor);
 
         Object backup = null;
 
-        try
-        {
+        try {
             backup = clone();
-        }
-        catch(CloneNotSupportedException e)
-        {
+        } catch (CloneNotSupportedException e) {
             assert false;
         }
 
@@ -203,14 +172,12 @@ class PlainService extends Communicator implements Service, Cloneable
     }
 
     @Override
-    public void restore(Object backupObj)
-    {
-        reset((PlainService)backupObj);
+    public void restore(Object backupObj) {
+        reset((PlainService) backupObj);
         getRoot().getTreeModel().nodeChanged(this);
     }
 
-    private void reset(PlainService from)
-    {
+    private void reset(PlainService from) {
         _id = from._id;
         assert _parent == from._parent;
 
@@ -222,9 +189,12 @@ class PlainService extends Communicator implements Service, Cloneable
         _resolver = from._resolver;
     }
 
-    PlainService(Communicator parent, String name, ServiceInstanceDescriptor descriptor, Utils.Resolver resolver)
-        throws UpdateFailedException
-    {
+    PlainService(
+            Communicator parent,
+            String name,
+            ServiceInstanceDescriptor descriptor,
+            Utils.Resolver resolver)
+            throws UpdateFailedException {
         super(parent, name);
         _descriptor = descriptor;
         _ephemeral = false;
@@ -234,15 +204,13 @@ class PlainService extends Communicator implements Service, Cloneable
     }
 
     // New temporary object
-    PlainService(Communicator parent, ServiceInstanceDescriptor descriptor)
-    {
+    PlainService(Communicator parent, ServiceInstanceDescriptor descriptor) {
         super(parent, descriptor.descriptor.name);
         _descriptor = descriptor;
         _ephemeral = true;
     }
 
-    static java.util.List<String[]> createAttributes(ServiceDescriptor descriptor)
-    {
+    static java.util.List<String[]> createAttributes(ServiceDescriptor descriptor) {
         java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
         attributes.add(createAttribute("name", descriptor.name));
         attributes.add(createAttribute("entry", descriptor.entry));
@@ -250,21 +218,23 @@ class PlainService extends Communicator implements Service, Cloneable
     }
 
     @Override
-    void write(XMLWriter writer)
-        throws java.io.IOException
-    {
-        if(!_ephemeral)
-        {
+    void write(XMLWriter writer) throws java.io.IOException {
+        if (!_ephemeral) {
             writer.writeStartTag("service", createAttributes(_descriptor.descriptor));
 
-            if(_descriptor.descriptor.description.length() > 0)
-            {
+            if (_descriptor.descriptor.description.length() > 0) {
                 writer.writeElement("description", _descriptor.descriptor.description);
             }
 
-            writePropertySet(writer,  _descriptor.descriptor.propertySet,
-                             _descriptor.descriptor.adapters, _descriptor.descriptor.logs);
-            writeLogs(writer, _descriptor.descriptor.logs, _descriptor.descriptor.propertySet.properties);
+            writePropertySet(
+                    writer,
+                    _descriptor.descriptor.propertySet,
+                    _descriptor.descriptor.adapters,
+                    _descriptor.descriptor.logs);
+            writeLogs(
+                    writer,
+                    _descriptor.descriptor.logs,
+                    _descriptor.descriptor.propertySet.properties);
 
             _adapters.write(writer, _descriptor.descriptor.propertySet.properties);
             writer.writeEndTag("service");
@@ -272,20 +242,17 @@ class PlainService extends Communicator implements Service, Cloneable
     }
 
     @Override
-    CommunicatorDescriptor getCommunicatorDescriptor()
-    {
+    CommunicatorDescriptor getCommunicatorDescriptor() {
         return _descriptor.descriptor;
     }
 
     @Override
-    Utils.Resolver getResolver()
-    {
+    Utils.Resolver getResolver() {
         return _resolver;
     }
 
     @Override
-    public boolean isEphemeral()
-    {
+    public boolean isEphemeral() {
         return _ephemeral;
     }
 
@@ -296,6 +263,6 @@ class PlainService extends Communicator implements Service, Cloneable
     private Utils.Resolver _resolver;
     private PlainServiceEditor _editor;
 
-    static private DefaultTreeCellRenderer _cellRenderer;
-    static private JPopupMenu _popup;
+    private static DefaultTreeCellRenderer _cellRenderer;
+    private static JPopupMenu _popup;
 }

@@ -4,116 +4,94 @@ package com.zeroc.IceGridGUI.Application;
 
 import javax.swing.JOptionPane;
 
-abstract class CommunicatorChildEditor extends Editor
-{
+abstract class CommunicatorChildEditor extends Editor {
     abstract void writeDescriptor();
+
     abstract boolean isSimpleUpdate();
+
     abstract Communicator.ChildList getChildList();
 
-    void postUpdate()
-    {
-    }
+    void postUpdate() {}
 
     @Override
     @SuppressWarnings("unchecked")
-    protected boolean applyUpdate(boolean refresh)
-    {
+    protected boolean applyUpdate(boolean refresh) {
         Root root = _target.getRoot();
         root.disableSelectionListener();
-        try
-        {
-            if(_target.isEphemeral())
-            {
+        try {
+            if (_target.isEphemeral()) {
                 Communicator.ChildList childList = getChildList();
 
                 writeDescriptor();
                 Object descriptor = _target.getDescriptor();
                 _target.destroy(); // just removes the child
 
-                try
-                {
-                    //@SuppressWarnings("unchecked")
+                try {
+                    // @SuppressWarnings("unchecked")
                     childList.tryAdd(descriptor);
-                }
-                catch(UpdateFailedException e)
-                {
+                } catch (UpdateFailedException e) {
                     // Restore ephemeral
-                    try
-                    {
+                    try {
                         childList.addChild(_target, true);
-                    }
-                    catch(UpdateFailedException die)
-                    {
+                    } catch (UpdateFailedException die) {
                         assert false;
                     }
 
                     JOptionPane.showMessageDialog(
-                        root.getCoordinator().getMainFrame(),
-                        e.toString(),
-                        "Apply failed",
-                        JOptionPane.ERROR_MESSAGE);
+                            root.getCoordinator().getMainFrame(),
+                            e.toString(),
+                            "Apply failed",
+                            JOptionPane.ERROR_MESSAGE);
 
                     root.setSelectedNode(_target);
                     return false;
                 }
 
                 // Success
-                //@SuppressWarnings("unchecked")
+                // @SuppressWarnings("unchecked")
                 _target = childList.findChildWithDescriptor(descriptor);
                 root.updated();
-                if(refresh)
-                {
+                if (refresh) {
                     root.setSelectedNode(_target);
                 }
-            }
-            else if(isSimpleUpdate())
-            {
+            } else if (isSimpleUpdate()) {
                 writeDescriptor();
                 root.updated();
-                ((Communicator)_target.getParent()).getEnclosingEditable().markModified();
-            }
-            else
-            {
+                ((Communicator) _target.getParent()).getEnclosingEditable().markModified();
+            } else {
                 // Save to be able to rollback
-                Object savedDescriptor = ((DescriptorHolder)_target).saveDescriptor();
+                Object savedDescriptor = ((DescriptorHolder) _target).saveDescriptor();
                 Communicator.ChildList childList = getChildList();
                 writeDescriptor();
-                try
-                {
+                try {
                     childList.tryUpdate(_target);
-                }
-                catch(UpdateFailedException e)
-                {
-                    ((DescriptorHolder)_target).restoreDescriptor(savedDescriptor);
+                } catch (UpdateFailedException e) {
+                    ((DescriptorHolder) _target).restoreDescriptor(savedDescriptor);
                     JOptionPane.showMessageDialog(
-                        root.getCoordinator().getMainFrame(),
-                        e.toString(),
-                        "Apply failed",
-                        JOptionPane.ERROR_MESSAGE);
+                            root.getCoordinator().getMainFrame(),
+                            e.toString(),
+                            "Apply failed",
+                            JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
                 // Success
                 _target = childList.findChildWithDescriptor(_target.getDescriptor());
                 root.updated();
-                if(refresh)
-                {
+                if (refresh) {
                     root.setSelectedNode(_target);
                 }
             }
 
             postUpdate();
 
-            if(refresh)
-            {
+            if (refresh) {
                 root.getCoordinator().getCurrentTab().showNode(_target);
             }
             _applyButton.setEnabled(false);
             _discardButton.setEnabled(false);
             return true;
-        }
-        finally
-        {
+        } finally {
             root.enableSelectionListener();
         }
     }

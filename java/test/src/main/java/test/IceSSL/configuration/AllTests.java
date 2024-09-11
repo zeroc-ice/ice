@@ -2,103 +2,87 @@
 
 package test.IceSSL.configuration;
 
-import java.io.PrintWriter;
-
-import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.Util;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectionLostException;
-
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.Util;
+import java.io.PrintWriter;
 import test.IceSSL.configuration.Test.ServerFactoryPrx;
 import test.IceSSL.configuration.Test.ServerPrx;
 
 // NOTE: This test is not interoperable with other language mappings.
 
-public class AllTests
-{
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
+public class AllTests {
+    private static void test(boolean b) {
+        if (!b) {
             throw new RuntimeException();
         }
     }
 
-    private static java.security.cert.X509Certificate loadCertificate(String path, String alias)
-    {
-        try
-        {
+    private static java.security.cert.X509Certificate loadCertificate(String path, String alias) {
+        try {
             java.security.KeyStore keystore = java.security.KeyStore.getInstance("JKS");
             keystore.load(new java.io.FileInputStream(path), "password".toCharArray());
-            return (java.security.cert.X509Certificate)keystore.getCertificate(alias);
-        }
-        catch(Exception ex)
-        {
+            return (java.security.cert.X509Certificate) keystore.getCertificate(alias);
+        } catch (Exception ex) {
             test(false);
             return null;
         }
     }
 
-    private static InitializationData createClientProps(com.zeroc.Ice.Properties defaultProperties)
-    {
+    private static InitializationData createClientProps(
+            com.zeroc.Ice.Properties defaultProperties) {
         InitializationData initData = new com.zeroc.Ice.InitializationData();
         initData.properties = new com.zeroc.Ice.Properties();
-        initData.properties.setProperty("IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
-        initData.properties.setProperty("Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
-        if(defaultProperties.getProperty("Ice.IPv6").length() > 0)
-        {
+        initData.properties.setProperty(
+                "IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
+        initData.properties.setProperty(
+                "Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
+        if (defaultProperties.getProperty("Ice.IPv6").length() > 0) {
             initData.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
         }
         initData.properties.setProperty("Ice.RetryIntervals", "-1");
         return initData;
     }
 
-    private static InitializationData createClientProps(com.zeroc.Ice.Properties defaultProperties, String ks,
-                                                        String ts)
-    {
+    private static InitializationData createClientProps(
+            com.zeroc.Ice.Properties defaultProperties, String ks, String ts) {
         InitializationData initData = createClientProps(defaultProperties);
-        if(!ks.isEmpty())
-        {
+        if (!ks.isEmpty()) {
             initData.properties.setProperty("IceSSL.Keystore", ks + ".jks");
         }
-        if(!ts.isEmpty())
-        {
+        if (!ts.isEmpty()) {
             initData.properties.setProperty("IceSSL.Truststore", ts + ".jks");
         }
         initData.properties.setProperty("IceSSL.Password", "password");
         return initData;
     }
 
-    private static java.util.Map<String, String> createServerProps(com.zeroc.Ice.Properties defaultProperties)
-    {
+    private static java.util.Map<String, String> createServerProps(
+            com.zeroc.Ice.Properties defaultProperties) {
         java.util.Map<String, String> result = new java.util.HashMap<>();
         result.put("IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
         result.put("Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
-        if(defaultProperties.getProperty("Ice.IPv6").length() > 0)
-        {
+        if (defaultProperties.getProperty("Ice.IPv6").length() > 0) {
             result.put("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
         }
         return result;
     }
 
-    private static java.util.Map<String, String> createServerProps(com.zeroc.Ice.Properties defaultProperties,
-                                                                   String ks, String ts)
-    {
+    private static java.util.Map<String, String> createServerProps(
+            com.zeroc.Ice.Properties defaultProperties, String ks, String ts) {
         java.util.Map<String, String> d = createServerProps(defaultProperties);
-        if(!ks.isEmpty())
-        {
+        if (!ks.isEmpty()) {
             d.put("IceSSL.Keystore", ks + ".jks");
         }
-        if(!ts.isEmpty())
-        {
+        if (!ts.isEmpty()) {
             d.put("IceSSL.Truststore", ts + ".jks");
         }
         d.put("IceSSL.Password", "password");
         return d;
     }
 
-    public static ServerFactoryPrx allTests(test.TestHelper helper, String testDir)
-    {
+    public static ServerFactoryPrx allTests(test.TestHelper helper, String testDir) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
@@ -120,7 +104,8 @@ public class AllTests
             java.util.Map<String, String> d;
             InitializationData initData;
 
-            // Test Ice.SSL.VerifyPeer=0. Client does not have a certificate, but it still verifies the server's.
+            // Test Ice.SSL.VerifyPeer=0. Client does not have a certificate, but it still verifies
+            // the server's.
             initData = createClientProps(defaultProperties, "", "cacert1");
             Communicator comm = Util.initialize(args, initData);
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -128,13 +113,12 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca1", "");
             d.put("IceSSL.VerifyPeer", "0");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.noCert();
-                test(((com.zeroc.Ice.SSL.ConnectionInfo)server.ice_getConnection().getInfo()).verified);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+                test(
+                        ((com.zeroc.Ice.SSL.ConnectionInfo) server.ice_getConnection().getInfo())
+                                .verified);
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -149,36 +133,27 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca1", "");
             d.put("IceSSL.VerifyPeer", "1");
             server = fact.createServer(d);
-            try
-            {
+            try {
                 server.noCert();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
 
-            // Test Ice.SSL.VerifyPeer=2. This should fail because the client does not supply a certificate.
+            // Test Ice.SSL.VerifyPeer=2. This should fail because the client does not supply a
+            // certificate.
             d = createServerProps(defaultProperties, "s_rsa_ca1", "");
             d.put("IceSSL.VerifyPeer", "2");
             server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.SecurityException ex)
-            {
+            } catch (com.zeroc.Ice.SecurityException ex) {
                 // Expected.
-            }
-            catch(ConnectionLostException ex)
-            {
+            } catch (ConnectionLostException ex) {
                 // Expected.
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -198,25 +173,24 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "1");
             server = fact.createServer(d);
-            try
-            {
-                java.security.cert.X509Certificate clientCert = loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
+            try {
+                java.security.cert.X509Certificate clientCert =
+                        loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
                 server.checkCert(
-                    clientCert.getSubjectX500Principal().toString(),
-                    clientCert.getIssuerX500Principal().toString());
+                        clientCert.getSubjectX500Principal().toString(),
+                        clientCert.getIssuerX500Principal().toString());
 
-                java.security.cert.X509Certificate serverCert = loadCertificate(defaultDir + "/s_rsa_ca1.jks", "cert");
+                java.security.cert.X509Certificate serverCert =
+                        loadCertificate(defaultDir + "/s_rsa_ca1.jks", "cert");
 
                 com.zeroc.Ice.SSL.ConnectionInfo info =
-                    (com.zeroc.Ice.SSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                        (com.zeroc.Ice.SSL.ConnectionInfo) server.ice_getConnection().getInfo();
 
                 test(info.certs.length == 1);
                 test(info.verified);
 
                 test(serverCert.equals(info.certs[0]));
-            }
-            catch(Exception ex)
-            {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -226,15 +200,13 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
             server = fact.createServer(d);
-            try
-            {
-                java.security.cert.X509Certificate clientCert = loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
+            try {
+                java.security.cert.X509Certificate clientCert =
+                        loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
                 server.checkCert(
-                    clientCert.getSubjectX500Principal().toString(),
-                    clientCert.getIssuerX500Principal().toString());
-            }
-            catch(Exception ex)
-            {
+                        clientCert.getSubjectX500Principal().toString(),
+                        clientCert.getIssuerX500Principal().toString());
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -242,7 +214,8 @@ public class AllTests
 
             comm.destroy();
 
-            // Test Ice.SSL.VerifyPeer=1. This should fail because the client doesn't trust the server's CA.
+            // Test Ice.SSL.VerifyPeer=1. This should fail because the client doesn't trust the
+            // server's CA.
             initData = createClientProps(defaultProperties, "", "");
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
             comm = Util.initialize(args, initData);
@@ -251,17 +224,12 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "0");
             server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.SecurityException ex)
-            {
+            } catch (com.zeroc.Ice.SecurityException ex) {
                 // Expected.
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -269,7 +237,8 @@ public class AllTests
 
             comm.destroy();
 
-            // Test Ice.SSL.VerifyPeer=1. This should fail because the server doesn't trust the client's CA.
+            // Test Ice.SSL.VerifyPeer=1. This should fail because the server doesn't trust the
+            // client's CA.
             initData = createClientProps(defaultProperties, "c_rsa_ca2", "");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
             comm = Util.initialize(args, initData);
@@ -278,28 +247,22 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca1", "");
             d.put("IceSSL.VerifyPeer", "1");
             server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.SecurityException ex)
-            {
+            } catch (com.zeroc.Ice.SecurityException ex) {
                 // Expected.
-            }
-            catch(ConnectionLostException ex)
-            {
+            } catch (ConnectionLostException ex) {
                 // Expected.
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
             comm.destroy();
 
-            // This should succeed because the self signed certificate used by the server is trusted.
+            // This should succeed because the self signed certificate used by the server is
+            // trusted.
             initData = createClientProps(defaultProperties, "", "cacert2");
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
             comm = Util.initialize(args, initData);
@@ -308,19 +271,17 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_cacert2", "");
             d.put("IceSSL.VerifyPeer", "0");
             server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
             comm.destroy();
 
-            // This should fail because the self signed certificate used by the server is not trusted.
+            // This should fail because the self signed certificate used by the server is not
+            // trusted.
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
             comm = Util.initialize(args, initData);
@@ -329,17 +290,12 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_cacert2", "");
             d.put("IceSSL.VerifyPeer", "0");
             server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.SecurityException ex)
-            {
+            } catch (com.zeroc.Ice.SecurityException ex) {
                 // Expected.
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -355,12 +311,9 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.CheckCertName", "1");
             server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -369,8 +322,7 @@ public class AllTests
 
             // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1
             // as that is the IP address used in the test certificates.
-            if(defaultHost.equals("127.0.0.1"))
-            {
+            if (defaultHost.equals("127.0.0.1")) {
                 // Test using localhost as target host
                 com.zeroc.Ice.Properties props = defaultProperties._clone();
                 props.setProperty("Ice.Default.Host", "localhost");
@@ -384,12 +336,9 @@ public class AllTests
                     test(fact != null);
                     d = createServerProps(props, "s_rsa_ca1_cn1", "cacert1");
                     server = fact.createServer(d);
-                    try
-                    {
+                    try {
                         server.ice_ping();
-                    }
-                    catch(com.zeroc.Ice.LocalException ex)
-                    {
+                    } catch (com.zeroc.Ice.LocalException ex) {
                         ex.printStackTrace();
                         test(false);
                     }
@@ -407,13 +356,10 @@ public class AllTests
                     test(fact != null);
                     d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1");
                     server = fact.createServer(d);
-                    try
-                    {
+                    try {
                         server.ice_ping();
                         test(false);
-                    }
-                    catch(com.zeroc.Ice.SecurityException ex)
-                    {
+                    } catch (com.zeroc.Ice.SecurityException ex) {
                         // Expected
                     }
                     fact.destroyServer(server);
@@ -431,12 +377,9 @@ public class AllTests
                     test(fact != null);
                     d = createServerProps(props, "s_rsa_ca1_cn3", "cacert1");
                     server = fact.createServer(d);
-                    try
-                    {
+                    try {
                         server.ice_ping();
-                    }
-                    catch(com.zeroc.Ice.LocalException ex)
-                    {
+                    } catch (com.zeroc.Ice.LocalException ex) {
                         ex.printStackTrace();
                         test(false);
                     }
@@ -444,7 +387,8 @@ public class AllTests
                     comm.destroy();
                 }
 
-                // Target host does not match the certificate Common Name and the certificate does not
+                // Target host does not match the certificate Common Name and the certificate does
+                // not
                 // include a DNS altName
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -455,13 +399,10 @@ public class AllTests
                     test(fact != null);
                     d = createServerProps(props, "s_rsa_ca1_cn4", "cacert1");
                     server = fact.createServer(d);
-                    try
-                    {
+                    try {
                         server.ice_ping();
                         test(false);
-                    }
-                    catch(com.zeroc.Ice.SecurityException ex)
-                    {
+                    } catch (com.zeroc.Ice.SecurityException ex) {
                         // Expected
                     }
                     fact.destroyServer(server);
@@ -479,13 +420,10 @@ public class AllTests
                     test(fact != null);
                     d = createServerProps(props, "s_rsa_ca1_cn5", "cacert1");
                     server = fact.createServer(d);
-                    try
-                    {
+                    try {
                         server.ice_ping();
                         test(false);
-                    }
-                    catch(com.zeroc.Ice.SecurityException ex)
-                    {
+                    } catch (com.zeroc.Ice.SecurityException ex) {
                         // Expected
                     }
                     fact.destroyServer(server);
@@ -504,12 +442,9 @@ public class AllTests
                     test(fact != null);
                     d = createServerProps(defaultProperties, "s_rsa_ca1_cn6", "cacert1");
                     server = fact.createServer(d);
-                    try
-                    {
+                    try {
                         server.ice_ping();
-                    }
-                    catch(com.zeroc.Ice.LocalException ex)
-                    {
+                    } catch (com.zeroc.Ice.LocalException ex) {
                         ex.printStackTrace();
                         test(false);
                     }
@@ -527,13 +462,10 @@ public class AllTests
                     test(fact != null);
                     d = createServerProps(defaultProperties, "s_rsa_ca1_cn7", "cacert1");
                     server = fact.createServer(d);
-                    try
-                    {
+                    try {
                         server.ice_ping();
                         test(false);
-                    }
-                    catch(com.zeroc.Ice.SecurityException ex)
-                    {
+                    } catch (com.zeroc.Ice.SecurityException ex) {
                         // Expected
                     }
                     fact.destroyServer(server);
@@ -551,13 +483,10 @@ public class AllTests
                     test(fact != null);
                     d = createServerProps(defaultProperties, "s_rsa_ca1_cn8", "cacert1");
                     server = fact.createServer(d);
-                    try
-                    {
+                    try {
                         server.ice_ping();
                         test(false);
-                    }
-                    catch(com.zeroc.Ice.SecurityException ex)
-                    {
+                    } catch (com.zeroc.Ice.SecurityException ex) {
                         // Expected
                     }
                     fact.destroyServer(server);
@@ -575,12 +504,9 @@ public class AllTests
                     test(fact != null);
                     d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1");
                     server = fact.createServer(d);
-                    try
-                    {
+                    try {
                         server.ice_ping();
-                    }
-                    catch(com.zeroc.Ice.LocalException ex)
-                    {
+                    } catch (com.zeroc.Ice.LocalException ex) {
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -604,17 +530,12 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca1_exp", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.SecurityException ex)
-            {
+            } catch (com.zeroc.Ice.SecurityException ex) {
                 // Expected.
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -630,21 +551,14 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
             server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(ConnectionLostException ex)
-            {
+            } catch (ConnectionLostException ex) {
                 // Expected.
-            }
-            catch(com.zeroc.Ice.SecurityException ex)
-            {
+            } catch (com.zeroc.Ice.SecurityException ex) {
                 // Expected.
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -663,12 +577,9 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_ca2", "cacerts");
             d.put("IceSSL.VerifyPeer", "2");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -684,17 +595,12 @@ public class AllTests
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
             // Don't specify the password.
-            try
-            {
+            try {
                 Util.initialize(args, initData);
                 test(false);
-            }
-            catch (com.zeroc.Ice.InitializationException ex)
-            {
+            } catch (com.zeroc.Ice.InitializationException ex) {
                 // Expected.
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -705,20 +611,18 @@ public class AllTests
         out.flush();
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            initData.properties.setProperty("IceSSL.TrustOnly",
-                "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            initData.properties.setProperty(
+                    "IceSSL.TrustOnly",
+                    "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -727,63 +631,37 @@ public class AllTests
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            initData.properties.setProperty("IceSSL.TrustOnly",
-                "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            initData.properties.setProperty(
+                    "IceSSL.TrustOnly",
+                    "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            initData.properties.setProperty("IceSSL.TrustOnly",
-                "C=US, ST=Florida, O=\"ZeroC, Inc.\", OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            initData.properties.setProperty(
+                    "IceSSL.TrustOnly",
+                    "C=US, ST=Florida, O=\"ZeroC, Inc.\", OU=Ice, emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            fact.destroyServer(server);
-            comm.destroy();
-        }
-        {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Communicator comm = Util.initialize(args, initData);
-
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
-            test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
-            d.put("IceSSL.TrustOnly",
-                  "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
-            ServerPrx server = fact.createServer(d);
-            try
-            {
-                server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -797,16 +675,34 @@ public class AllTests
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
-            d.put("IceSSL.TrustOnly",
-                  "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+            d.put(
+                    "IceSSL.TrustOnly",
+                    "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
+            } catch (com.zeroc.Ice.LocalException ex) {
+                ex.printStackTrace();
                 test(false);
             }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            fact.destroyServer(server);
+            comm.destroy();
+        }
+        {
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            Communicator comm = Util.initialize(args, initData);
+
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
+            test(fact != null);
+            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d.put(
+                    "IceSSL.TrustOnly",
+                    "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+            ServerPrx server = fact.createServer(d);
+            try {
+                server.ice_ping();
+                test(false);
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -820,12 +716,9 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -841,13 +734,10 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -861,12 +751,9 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "CN=Client");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -882,13 +769,10 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "!CN=Client");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -902,13 +786,10 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -922,13 +803,10 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "CN=Server");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -942,13 +820,10 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -962,12 +837,9 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -983,12 +855,9 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1004,32 +873,27 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            initData.properties.setProperty("IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
+            initData.properties.setProperty(
+                    "IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1045,12 +909,9 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "!CN=Client1"); // Should not match "Client"
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1067,13 +928,10 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -1088,13 +946,10 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "ST=Florida;!CN=Client;C=US");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -1105,23 +960,22 @@ public class AllTests
         out.flush();
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            initData.properties.setProperty("IceSSL.TrustOnly.Client",
-                "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            initData.properties.setProperty(
+                    "IceSSL.TrustOnly.Client",
+                    "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             // Should have no effect.
-            d.put("IceSSL.TrustOnly.Client",
-                "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            d.put(
+                    "IceSSL.TrustOnly.Client",
+                    "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1130,21 +984,19 @@ public class AllTests
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            initData.properties.setProperty("IceSSL.TrustOnly.Client",
-                "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            initData.properties.setProperty(
+                    "IceSSL.TrustOnly.Client",
+                    "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -1159,12 +1011,9 @@ public class AllTests
             // Should have no effect.
             d.put("IceSSL.TrustOnly.Client", "CN=Client");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1180,13 +1029,10 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -1200,12 +1046,9 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1219,22 +1062,21 @@ public class AllTests
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             // Should have no effect.
-            initData.properties.setProperty("IceSSL.TrustOnly.Server",
-                "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+            initData.properties.setProperty(
+                    "IceSSL.TrustOnly.Server",
+                    "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
-            d.put("IceSSL.TrustOnly.Server",
-                "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+            d.put(
+                    "IceSSL.TrustOnly.Server",
+                    "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1248,16 +1090,14 @@ public class AllTests
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
-            d.put("IceSSL.TrustOnly.Server",
-                  "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+            d.put(
+                    "IceSSL.TrustOnly.Server",
+                    "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -1272,12 +1112,9 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1293,13 +1130,10 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "CN=Server");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -1313,13 +1147,10 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "!CN=Client");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -1336,15 +1167,13 @@ public class AllTests
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "CN=bogus");
-            d.put("IceSSL.TrustOnly.Server.ServerAdapter",
-                "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+            d.put(
+                    "IceSSL.TrustOnly.Server.ServerAdapter",
+                    "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1358,16 +1187,14 @@ public class AllTests
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
-            d.put("IceSSL.TrustOnly.Server.ServerAdapter",
-                  "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+            d.put(
+                    "IceSSL.TrustOnly.Server.ServerAdapter",
+                    "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -1381,13 +1208,10 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server.ServerAdapter", "CN=bogus");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
                 test(false);
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
             }
             fact.destroyServer(server);
             comm.destroy();
@@ -1400,12 +1224,9 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server.ServerAdapter", "!CN=bogus");
             ServerPrx server = fact.createServer(d);
-            try
-            {
+            try {
                 server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
+            } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1424,35 +1245,26 @@ public class AllTests
 
             initData = createClientProps(defaultProperties);
             com.zeroc.Ice.Communicator comm = Util.initialize(initData);
-            com.zeroc.Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-            while(true)
-            {
-                try
-                {
+            com.zeroc.Ice.ObjectPrx p =
+                    comm.stringToProxy(
+                            "dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
+            while (true) {
+                try {
                     p.ice_ping();
                     test(false);
-                }
-                catch(com.zeroc.Ice.SecurityException ex)
-                {
+                } catch (com.zeroc.Ice.SecurityException ex) {
                     // Expected, by default we don't check for system CAs.
                     break;
-                }
-                catch(com.zeroc.Ice.LocalException ex)
-                {
-                    if((ex instanceof com.zeroc.Ice.ConnectTimeoutException) ||
-                       (ex instanceof com.zeroc.Ice.SocketException) ||
-                       (ex instanceof com.zeroc.Ice.DNSException))
-                    {
-                        if(++retryCount < retryMax)
-                        {
+                } catch (com.zeroc.Ice.LocalException ex) {
+                    if ((ex instanceof com.zeroc.Ice.ConnectTimeoutException)
+                            || (ex instanceof com.zeroc.Ice.SocketException)
+                            || (ex instanceof com.zeroc.Ice.DNSException)) {
+                        if (++retryCount < retryMax) {
                             out.print("retrying... ");
                             out.flush();
-                            try
-                            {
+                            try {
                                 Thread.sleep(retryDelay);
-                            }
-                            catch(InterruptedException e)
-                            {
+                            } catch (InterruptedException e) {
                                 break;
                             }
                             continue;
@@ -1471,32 +1283,24 @@ public class AllTests
             initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
             comm = Util.initialize(initData);
             p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-            while(true)
-            {
-                try
-                {
+            while (true) {
+                try {
                     com.zeroc.Ice.WSConnectionInfo info =
-                        (com.zeroc.Ice.WSConnectionInfo)p.ice_getConnection().getInfo();
-                    com.zeroc.Ice.SSL.ConnectionInfo sslinfo = (com.zeroc.Ice.SSL.ConnectionInfo)info.underlying;
+                            (com.zeroc.Ice.WSConnectionInfo) p.ice_getConnection().getInfo();
+                    com.zeroc.Ice.SSL.ConnectionInfo sslinfo =
+                            (com.zeroc.Ice.SSL.ConnectionInfo) info.underlying;
                     test(sslinfo.verified);
                     break;
-                }
-                catch(com.zeroc.Ice.LocalException ex)
-                {
-                    if((ex instanceof com.zeroc.Ice.ConnectTimeoutException) ||
-                       (ex instanceof com.zeroc.Ice.SocketException) ||
-                       (ex instanceof com.zeroc.Ice.DNSException))
-                    {
-                        if(++retryCount < retryMax)
-                        {
+                } catch (com.zeroc.Ice.LocalException ex) {
+                    if ((ex instanceof com.zeroc.Ice.ConnectTimeoutException)
+                            || (ex instanceof com.zeroc.Ice.SocketException)
+                            || (ex instanceof com.zeroc.Ice.DNSException)) {
+                        if (++retryCount < retryMax) {
                             out.print("retrying... ");
                             out.flush();
-                            try
-                            {
+                            try {
                                 Thread.sleep(retryDelay);
-                            }
-                            catch(InterruptedException e)
-                            {
+                            } catch (InterruptedException e) {
                                 break;
                             }
                             continue;

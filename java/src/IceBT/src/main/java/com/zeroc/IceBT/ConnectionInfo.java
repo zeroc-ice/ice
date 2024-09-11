@@ -3,10 +3,8 @@
 package com.zeroc.IceBT;
 
 /** Provides access to the details of a Bluetooth connection. */
-public class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo
-{
-    public ConnectionInfo()
-    {
+public class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo {
+    public ConnectionInfo() {
         super();
         this.localAddress = "";
         this.localChannel = -1;
@@ -17,8 +15,18 @@ public class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo
         this.sndSize = 0;
     }
 
-    public ConnectionInfo(com.zeroc.Ice.ConnectionInfo underlying, boolean incoming, String adapterName, String connectionId, String localAddress, int localChannel, String remoteAddress, int remoteChannel, String uuid, int rcvSize, int sndSize)
-    {
+    public ConnectionInfo(
+            com.zeroc.Ice.ConnectionInfo underlying,
+            boolean incoming,
+            String adapterName,
+            String connectionId,
+            String localAddress,
+            int localChannel,
+            String remoteAddress,
+            int remoteChannel,
+            String uuid,
+            int rcvSize,
+            int sndSize) {
         super(underlying, incoming, adapterName, connectionId);
         this.localAddress = localAddress;
         this.localChannel = localChannel;
@@ -41,17 +49,16 @@ public class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo
     /** The remote RFCOMM channel. */
     public int remoteChannel;
 
-    /**  The UUID of the service being offered (in a server) or targeted (in a client). */
+    /** The UUID of the service being offered (in a server) or targeted (in a client). */
     public String uuid;
 
     /** The connection buffer receive size. */
     public int rcvSize;
 
-    /**  The connection buffer send size. */
+    /** The connection buffer send size. */
     public int sndSize;
 
-    public ConnectionInfo clone()
-    {
-        return (ConnectionInfo)super.clone();
+    public ConnectionInfo clone() {
+        return (ConnectionInfo) super.clone();
     }
 }

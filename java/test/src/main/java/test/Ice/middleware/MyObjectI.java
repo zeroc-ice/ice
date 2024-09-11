@@ -7,8 +7,8 @@ import java.util.concurrent.CompletionStage;
 import test.Ice.middleware.Test.*;
 
 final class MyObjectI implements MyObject {
-  @Override
-  public CompletionStage<String> getNameAsync(com.zeroc.Ice.Current current) {
-    return CompletableFuture.completedFuture("Foo");
-  }
+    @Override
+    public CompletionStage<String> getNameAsync(com.zeroc.Ice.Current current) {
+        return CompletableFuture.completedFuture("Foo");
+    }
 }

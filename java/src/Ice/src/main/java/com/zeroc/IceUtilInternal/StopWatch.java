@@ -2,32 +2,23 @@
 
 package com.zeroc.IceUtilInternal;
 
-public class StopWatch
-{
-    public void
-    start()
-    {
+public class StopWatch {
+    public void start() {
         _s = System.nanoTime();
     }
 
-    public long
-    stop()
-    {
-        assert(isStarted());
+    public long stop() {
+        assert (isStarted());
         long d = (System.nanoTime() - _s) / 1000;
         _s = 0;
         return d;
     }
 
-    public boolean
-    isStarted()
-    {
+    public boolean isStarted() {
         return _s != 0;
     }
 
-    public long
-    delay()
-    {
+    public long delay() {
         return (System.nanoTime() - _s) / 1000;
     }
 

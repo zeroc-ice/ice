@@ -3,78 +3,63 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
-class PlainServiceEditor extends CommunicatorChildEditor
-{
-    PlainServiceEditor()
-    {
+class PlainServiceEditor extends CommunicatorChildEditor {
+    PlainServiceEditor() {
         _subEditor = new ServiceSubEditor(this);
     }
 
     // From Editor:
     @Override
-    Utils.Resolver getDetailResolver()
-    {
-        PlainService service = (PlainService)_target;
-        if(service.getCoordinator().substitute())
-        {
+    Utils.Resolver getDetailResolver() {
+        PlainService service = (PlainService) _target;
+        if (service.getCoordinator().substitute()) {
             return service.getResolver();
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
     @Override
-    protected void appendProperties(DefaultFormBuilder builder)
-    {
+    protected void appendProperties(DefaultFormBuilder builder) {
         _subEditor.appendProperties(builder);
     }
 
     @Override
-    protected void buildPropertiesPanel()
-    {
+    protected void buildPropertiesPanel() {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Service Properties");
     }
 
     @Override
-    protected boolean validate()
-    {
+    protected boolean validate() {
         return _subEditor.validate();
     }
 
     @Override
-    void writeDescriptor()
-    {
+    void writeDescriptor() {
         _subEditor.writeDescriptor();
     }
 
     @Override
-    boolean isSimpleUpdate()
-    {
+    boolean isSimpleUpdate() {
         return _subEditor.isSimpleUpdate();
     }
 
     @Override
-    Communicator.ChildList getChildList()
-    {
-        return ((Communicator)_target.getParent()).getServices();
+    Communicator.ChildList getChildList() {
+        return ((Communicator) _target.getParent()).getServices();
     }
 
     @Override
-    Object getSubDescriptor()
-    {
-        ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor)_target.getDescriptor();
+    Object getSubDescriptor() {
+        ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor) _target.getDescriptor();
         return sid.descriptor;
     }
 
-    void show(PlainService service)
-    {
+    void show(PlainService service) {
         detectUpdates(false);
         _target = service;
 
@@ -83,8 +68,7 @@ class PlainServiceEditor extends CommunicatorChildEditor
         _applyButton.setEnabled(service.isEphemeral());
         _discardButton.setEnabled(service.isEphemeral());
         detectUpdates(true);
-        if(service.isEphemeral())
-        {
+        if (service.isEphemeral()) {
             updated();
         }
     }

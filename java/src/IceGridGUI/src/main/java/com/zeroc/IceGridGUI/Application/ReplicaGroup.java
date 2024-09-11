@@ -2,55 +2,47 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-class ReplicaGroup extends TreeNode
-{
-    static public ReplicaGroupDescriptor
-    copyDescriptor(ReplicaGroupDescriptor d)
-    {
+class ReplicaGroup extends TreeNode {
+    public static ReplicaGroupDescriptor copyDescriptor(ReplicaGroupDescriptor d) {
         return d.clone();
     }
 
     @Override
     public Component getTreeCellRendererComponent(
-        JTree tree,
-        Object value,
-        boolean sel,
-        boolean expanded,
-        boolean leaf,
-        int row,
-        boolean hasFocus)
-    {
-        if(_cellRenderer == null)
-        {
+            JTree tree,
+            Object value,
+            boolean sel,
+            boolean expanded,
+            boolean leaf,
+            int row,
+            boolean hasFocus) {
+        if (_cellRenderer == null) {
             _cellRenderer = new DefaultTreeCellRenderer();
             _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/replica_group.png"));
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(
+                tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
     @Override
-    public boolean[] getAvailableActions()
-    {
+    public boolean[] getAvailableActions() {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
 
-        if(((TreeNode)_parent).getAvailableActions()[PASTE])
-        {
+        if (((TreeNode) _parent).getAvailableActions()[PASTE]) {
             actions[PASTE] = true;
         }
         actions[DELETE] = true;
 
-        if(!_ephemeral)
-        {
+        if (!_ephemeral) {
             actions[SHOW_VARS] = true;
             actions[SUBSTITUTE_VARS] = true;
         }
@@ -58,26 +50,22 @@ class ReplicaGroup extends TreeNode
     }
 
     @Override
-    public void copy()
-    {
+    public void copy() {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
-
-    }
-    @Override
-    public void paste()
-    {
-        ((TreeNode)_parent).paste();
     }
 
     @Override
-    public void destroy()
-    {
-        ReplicaGroups replicaGroups = (ReplicaGroups)_parent;
+    public void paste() {
+        ((TreeNode) _parent).paste();
+    }
+
+    @Override
+    public void destroy() {
+        ReplicaGroups replicaGroups = (ReplicaGroups) _parent;
         replicaGroups.removeChild(this);
 
-        if(!_ephemeral)
-        {
+        if (!_ephemeral) {
             replicaGroups.removeDescriptor(_descriptor);
             replicaGroups.getEditable().removeElement(_id, _editable, ReplicaGroup.class);
             getRoot().updated();
@@ -85,42 +73,35 @@ class ReplicaGroup extends TreeNode
     }
 
     @Override
-    public Editor getEditor()
-    {
-        if(_editor == null)
-        {
-            _editor = (ReplicaGroupEditor)getRoot().getEditor(ReplicaGroupEditor.class, this);
+    public Editor getEditor() {
+        if (_editor == null) {
+            _editor = (ReplicaGroupEditor) getRoot().getEditor(ReplicaGroupEditor.class, this);
         }
         _editor.show(this);
         return _editor;
     }
 
     @Override
-    protected Editor createEditor()
-    {
+    protected Editor createEditor() {
         return new ReplicaGroupEditor();
     }
 
     @Override
-    public boolean isEphemeral()
-    {
+    public boolean isEphemeral() {
         return _ephemeral;
     }
 
     @Override
-    Object getDescriptor()
-    {
+    Object getDescriptor() {
         return _descriptor;
     }
 
-    Object saveDescriptor()
-    {
+    Object saveDescriptor() {
         return _descriptor.clone();
     }
 
-    void restoreDescriptor(Object savedDescriptor)
-    {
-        ReplicaGroupDescriptor clone = (ReplicaGroupDescriptor)savedDescriptor;
+    void restoreDescriptor(Object savedDescriptor) {
+        ReplicaGroupDescriptor clone = (ReplicaGroupDescriptor) savedDescriptor;
         _descriptor.id = clone.id;
         _descriptor.description = clone.description;
         _descriptor.objects = clone.objects;
@@ -128,26 +109,22 @@ class ReplicaGroup extends TreeNode
         _descriptor.proxyOptions = clone.proxyOptions;
     }
 
-    void commit()
-    {
+    void commit() {
         _editable.commit();
     }
 
-    Editable getEditable()
-    {
+    Editable getEditable() {
         return _editable;
     }
 
-    ReplicaGroup(boolean brandNew, TreeNode parent, ReplicaGroupDescriptor descriptor)
-    {
+    ReplicaGroup(boolean brandNew, TreeNode parent, ReplicaGroupDescriptor descriptor) {
         super(parent, descriptor.id);
         _ephemeral = false;
         _editable = new Editable(brandNew);
         rebuild(descriptor);
     }
 
-    ReplicaGroup(TreeNode parent, ReplicaGroupDescriptor descriptor)
-    {
+    ReplicaGroup(TreeNode parent, ReplicaGroupDescriptor descriptor) {
         super(parent, descriptor.id);
         _ephemeral = true;
         _editable = null;
@@ -155,51 +132,37 @@ class ReplicaGroup extends TreeNode
     }
 
     @Override
-    void write(XMLWriter writer)
-        throws java.io.IOException
-    {
-        if(!_ephemeral)
-        {
+    void write(XMLWriter writer) throws java.io.IOException {
+        if (!_ephemeral) {
             java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("id", _descriptor.id));
-            if(_descriptor.proxyOptions.length() > 0)
-            {
+            if (_descriptor.proxyOptions.length() > 0) {
                 attributes.add(createAttribute("proxy-options", _descriptor.proxyOptions));
             }
 
-            if(_descriptor.loadBalancing == null &&
-               _descriptor.description.isEmpty() &&
-               _descriptor.objects.isEmpty())
-            {
+            if (_descriptor.loadBalancing == null
+                    && _descriptor.description.isEmpty()
+                    && _descriptor.objects.isEmpty()) {
                 writer.writeElement("replica-group", attributes);
-            }
-            else
-            {
+            } else {
                 writer.writeStartTag("replica-group", attributes);
 
-                if(_descriptor.description.length() > 0)
-                {
+                if (_descriptor.description.length() > 0) {
                     writer.writeElement("description", _descriptor.description);
                 }
                 assert _descriptor.loadBalancing != null;
 
                 attributes.clear();
-                if(_descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
-                {
+                if (_descriptor.loadBalancing instanceof RandomLoadBalancingPolicy) {
                     attributes.add(createAttribute("type", "random"));
-                }
-                else if(_descriptor.loadBalancing instanceof OrderedLoadBalancingPolicy)
-                {
+                } else if (_descriptor.loadBalancing instanceof OrderedLoadBalancingPolicy) {
                     attributes.add(createAttribute("type", "ordered"));
-                }
-                else if(_descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy)
-                {
+                } else if (_descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy) {
                     attributes.add(createAttribute("type", "round-robin"));
-                }
-                else if(_descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy)
-                {
+                } else if (_descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy) {
                     attributes.add(createAttribute("type", "adaptive"));
-                    AdaptiveLoadBalancingPolicy policy = (AdaptiveLoadBalancingPolicy)_descriptor.loadBalancing;
+                    AdaptiveLoadBalancingPolicy policy =
+                            (AdaptiveLoadBalancingPolicy) _descriptor.loadBalancing;
                     attributes.add(createAttribute("load-sample", policy.loadSample));
                 }
                 attributes.add(createAttribute("n-replicas", _descriptor.loadBalancing.nReplicas));
@@ -211,8 +174,7 @@ class ReplicaGroup extends TreeNode
         }
     }
 
-    void rebuild(ReplicaGroupDescriptor descriptor)
-    {
+    void rebuild(ReplicaGroupDescriptor descriptor) {
         _descriptor = descriptor;
         // And that's it since there is no children
     }
@@ -222,5 +184,5 @@ class ReplicaGroup extends TreeNode
     private final Editable _editable;
     private ReplicaGroupEditor _editor;
 
-    static private DefaultTreeCellRenderer _cellRenderer;
+    private static DefaultTreeCellRenderer _cellRenderer;
 }

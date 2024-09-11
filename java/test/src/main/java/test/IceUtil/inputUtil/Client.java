@@ -6,16 +6,13 @@ import com.zeroc.Ice.ParseException;
 import com.zeroc.IceUtilInternal.Options;
 import com.zeroc.IceUtilInternal.StringUtil;
 
-public class Client extends test.TestHelper
-{
-    public void run(String[] argvs)
-    {
+public class Client extends test.TestHelper {
+    public void run(String[] argvs) {
         System.out.print("testing string to command line arguments... ");
         System.out.flush();
         String[] args;
 
-        try
-        {
+        try {
             test(Options.split("").length == 0);
 
             args = Options.split("\"\"");
@@ -26,40 +23,77 @@ public class Client extends test.TestHelper
             test(args.length == 1 && args[0].isEmpty());
 
             args = Options.split("-a -b -c");
-            test(args.length == 3 && args[0].equals("-a") && args[1].equals("-b") && args[2].equals("-c"));
+            test(
+                    args.length == 3
+                            && args[0].equals("-a")
+                            && args[1].equals("-b")
+                            && args[2].equals("-c"));
             args = Options.split("\"-a\" '-b' $'-c'");
-            test(args.length == 3 && args[0].equals("-a") && args[1].equals("-b") && args[2].equals("-c"));
+            test(
+                    args.length == 3
+                            && args[0].equals("-a")
+                            && args[1].equals("-b")
+                            && args[2].equals("-c"));
             args = Options.split("  '-b' \"-a\" $'-c' ");
-            test(args.length == 3 && args[0].equals("-b") && args[1].equals("-a") && args[2].equals("-c"));
+            test(
+                    args.length == 3
+                            && args[0].equals("-b")
+                            && args[1].equals("-a")
+                            && args[2].equals("-c"));
             args = Options.split(" $'-c' '-b' \"-a\"  ");
-            test(args.length == 3 && args[0].equals("-c") && args[1].equals("-b") && args[2].equals("-a"));
+            test(
+                    args.length == 3
+                            && args[0].equals("-c")
+                            && args[1].equals("-b")
+                            && args[2].equals("-a"));
 
             // Testing single quote
             args = Options.split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
-            test(args.length == 1 && args[0].equals("-Dir=C:\\\\test\\\\file")); // -Dir=C:\\test\\file
+            test(
+                    args.length == 1
+                            && args[0].equals("-Dir=C:\\\\test\\\\file")); // -Dir=C:\\test\\file
             args = Options.split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = Options.split("-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
-            test(args.length == 1 && args[0].equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
+            args =
+                    Options.split(
+                            "-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
+            test(
+                    args.length == 1
+                            && args[0].equals(
+                                    "-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
 
             // Testing double quote
             args = Options.split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-                 args = Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
-                 test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = Options.split("-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
-            test(args.length == 1 && args[0].equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
+            args = Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
+            test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+            args =
+                    Options.split(
+                            "-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
+            test(
+                    args.length == 1
+                            && args[0].equals(
+                                    "-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
 
             // Testing ANSI quote
             args = Options.split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
             args = Options.split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
             test(args.length == 1 && args[0].equals("-Dir=C:\\oest\\oile")); // -Dir=C:\oest\oile
-            args = Options.split("-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
-            test(args.length == 1 && args[0].equals("-Dir=C:\\oest\\oilewith\"quote")); // -Dir=C:\oest\oilewith"quote
-            args = Options.split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
+            args =
+                    Options.split(
+                            "-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
+            test(
+                    args.length == 1
+                            && args[0].equals(
+                                    "-Dir=C:\\oest\\oilewith\"quote")); // -Dir=C:\oest\oilewith"quote
+            args =
+                    Options.split(
+                            "-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = Options.split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
+            args =
+                    Options.split(
+                            "-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
             args = Options.split("-Dir=$'\\cM\\c_'"); // Control characters
             test(args.length == 1 && args[0].equals("-Dir=\015\037"));
@@ -67,9 +101,7 @@ public class Client extends test.TestHelper
             test(args.length == 1 && args[0].equals("-Dir=C:\\ff\015i"));
             args = Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
             test(args.length == 1 && args[0].equals("-Dir=C:\\\015ffi"));
-        }
-        catch(ParseException ex)
-        {
+        } catch (ParseException ex) {
             test(false);
         }
 
@@ -80,15 +112,11 @@ public class Client extends test.TestHelper
         parseExceptionCommands[3] = "-Dir=\"test";
         parseExceptionCommands[4] = "-Dir='test";
         parseExceptionCommands[5] = "-Dir=$'test";
-        for(int i = 0; i < 6; ++i)
-        {
-            try
-            {
+        for (int i = 0; i < 6; ++i) {
+            try {
                 Options.split(parseExceptionCommands[i]);
                 test(false);
-            }
-            catch(ParseException ex)
-            {
+            } catch (ParseException ex) {
             }
         }
 

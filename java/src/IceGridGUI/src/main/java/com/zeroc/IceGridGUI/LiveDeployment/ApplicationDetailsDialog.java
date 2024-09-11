@@ -2,23 +2,19 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.util.LayoutStyle;
+import com.zeroc.IceGrid.*;
 import java.awt.Container;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.util.LayoutStyle;
-
-import com.zeroc.IceGrid.*;
-
-class ApplicationDetailsDialog extends JDialog
-{
-    ApplicationDetailsDialog(final Root root)
-    {
+class ApplicationDetailsDialog extends JDialog {
+    ApplicationDetailsDialog(final Root root) {
         super(root.getCoordinator().getMainFrame(), "Application Details - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();
@@ -59,13 +55,16 @@ class ApplicationDetailsDialog extends JDialog
         setResizable(false);
     }
 
-    void showDialog(ApplicationInfo info)
-    {
+    void showDialog(ApplicationInfo info) {
         _name.setText(info.descriptor.name);
         _uuid.setText(info.uuid);
-        _createTime.setText(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(info.createTime)));
+        _createTime.setText(
+                java.text.DateFormat.getDateTimeInstance()
+                        .format(new java.util.Date(info.createTime)));
         _createUser.setText(info.createUser);
-        _updateTime.setText(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(info.updateTime)));
+        _updateTime.setText(
+                java.text.DateFormat.getDateTimeInstance()
+                        .format(new java.util.Date(info.updateTime)));
         _updateUser.setText(info.updateUser);
         _revision.setText(Integer.toString(info.revision));
 

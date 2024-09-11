@@ -2,142 +2,114 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-class NodeEditor extends Editor
-{
+class NodeEditor extends Editor {
     @Override
-    protected void buildPropertiesPanel()
-    {
+    protected void buildPropertiesPanel() {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Node Properties");
     }
 
     @Override
-    protected boolean applyUpdate(boolean refresh)
-    {
+    protected boolean applyUpdate(boolean refresh) {
         Root root = _target.getRoot();
 
         root.disableSelectionListener();
-        try
-        {
-            if(_target.isEphemeral())
-            {
-                Nodes nodes = (Nodes)_target.getParent();
+        try {
+            if (_target.isEphemeral()) {
+                Nodes nodes = (Nodes) _target.getParent();
                 writeDescriptor();
-                NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
+                NodeDescriptor descriptor = (NodeDescriptor) _target.getDescriptor();
                 _target.destroy(); // just removes the child
-                try
-                {
+                try {
                     nodes.tryAdd(_name.getText().trim(), descriptor);
-                }
-                catch(UpdateFailedException e)
-                {
+                } catch (UpdateFailedException e) {
                     // Add back ephemeral child
-                    try
-                    {
+                    try {
                         nodes.insertChild(_target, true);
-                    }
-                    catch(UpdateFailedException die)
-                    {
+                    } catch (UpdateFailedException die) {
                         assert false;
                     }
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                        root.getCoordinator().getMainFrame(),
-                        e.toString(),
-                        "Apply failed",
-                        JOptionPane.ERROR_MESSAGE);
+                            root.getCoordinator().getMainFrame(),
+                            e.toString(),
+                            "Apply failed",
+                            JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
                 // Success
                 _target = nodes.findChildWithDescriptor(descriptor);
                 root.updated();
-                if(refresh)
-                {
+                if (refresh) {
                     root.setSelectedNode(_target);
                 }
-            }
-            else if(isSimpleUpdate())
-            {
+            } else if (isSimpleUpdate()) {
                 writeDescriptor();
                 root.updated();
-                ((Node)_target).getEditable().markModified();
-            }
-            else
-            {
+                ((Node) _target).getEditable().markModified();
+            } else {
                 // Save to be able to rollback
-                NodeDescriptor savedDescriptor = ((Node)_target).saveDescriptor();
+                NodeDescriptor savedDescriptor = ((Node) _target).saveDescriptor();
                 writeDescriptor();
 
                 // Rebuild node; don't need the backup since it's just one node
                 java.util.List<Editable> editables = new java.util.LinkedList<>();
 
-                try
-                {
-                    ((Node)_target).rebuild(editables);
-                }
-                catch(UpdateFailedException e)
-                {
-                    ((Node)_target).restoreDescriptor(savedDescriptor);
+                try {
+                    ((Node) _target).rebuild(editables);
+                } catch (UpdateFailedException e) {
+                    ((Node) _target).restoreDescriptor(savedDescriptor);
                     JOptionPane.showMessageDialog(
-                        root.getCoordinator().getMainFrame(),
-                        e.toString(),
-                        "Apply failed",
-                        JOptionPane.ERROR_MESSAGE);
+                            root.getCoordinator().getMainFrame(),
+                            e.toString(),
+                            "Apply failed",
+                            JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
-                for(Editable p : editables)
-                {
+                for (Editable p : editables) {
                     p.markModified();
                 }
 
-                ((Node)_target).getEditable().markModified();
+                ((Node) _target).getEditable().markModified();
                 root.updated();
             }
 
-            if(refresh)
-            {
+            if (refresh) {
                 root.getCoordinator().getCurrentTab().showNode(_target);
             }
             _applyButton.setEnabled(false);
             _discardButton.setEnabled(false);
             return true;
-        }
-        finally
-        {
+        } finally {
             root.enableSelectionListener();
         }
     }
 
     @Override
-    Utils.Resolver getDetailResolver()
-    {
-        if(_target.getCoordinator().substitute())
-        {
+    Utils.Resolver getDetailResolver() {
+        if (_target.getCoordinator().substitute()) {
             return _target.getResolver();
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    NodeEditor()
-    {
+    NodeEditor() {
         _name.getDocument().addDocumentListener(_updateListener);
-        _name.setToolTipText("Must match the IceGrid.Node.Name property of the desired icegridnode process");
+        _name.setToolTipText(
+                "Must match the IceGrid.Node.Name property of the desired icegridnode process");
         _description.getDocument().addDocumentListener(_updateListener);
         _description.setToolTipText("An optional description for this node");
 
@@ -145,15 +117,15 @@ class NodeEditor extends Editor
         _variables = new SimpleMapField(this, false, "Name", "Value");
 
         _loadFactor.getDocument().addDocumentListener(_updateListener);
-        _loadFactor.setToolTipText("<html>A floating point value.<br>"
-                                   + "When not specified, IceGrid uses 1.0 divided by the<br>"
-                                   + "<i>number of threads</i> on all platforms except Windows;<br>"
-                                   + "on Windows, IceGrid uses 1.0.<html>");
+        _loadFactor.setToolTipText(
+                "<html>A floating point value.<br>"
+                        + "When not specified, IceGrid uses 1.0 divided by the<br>"
+                        + "<i>number of threads</i> on all platforms except Windows;<br>"
+                        + "on Windows, IceGrid uses 1.0.<html>");
     }
 
     @Override
-    protected void appendProperties(DefaultFormBuilder builder)
-    {
+    protected void appendProperties(DefaultFormBuilder builder) {
         builder.append("Name");
         builder.append(_name, 3);
         builder.nextLine();
@@ -186,28 +158,24 @@ class NodeEditor extends Editor
         builder.nextLine();
     }
 
-    boolean isSimpleUpdate()
-    {
-        NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
+    boolean isSimpleUpdate() {
+        NodeDescriptor descriptor = (NodeDescriptor) _target.getDescriptor();
         return (_variables.get().equals(descriptor.variables));
     }
 
-    void writeDescriptor()
-    {
-        NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
+    void writeDescriptor() {
+        NodeDescriptor descriptor = (NodeDescriptor) _target.getDescriptor();
         descriptor.description = _description.getText();
         descriptor.variables = _variables.get();
         descriptor.loadFactor = _loadFactor.getText().trim();
     }
 
     @Override
-    protected boolean validate()
-    {
-        return check(new String[]{"Name", _name.getText().trim()});
+    protected boolean validate() {
+        return check(new String[] {"Name", _name.getText().trim()});
     }
 
-    void show(Node node)
-    {
+    void show(Node node) {
         detectUpdates(false);
         _target = node;
 
@@ -217,7 +185,7 @@ class NodeEditor extends Editor
         _name.setText(_target.getId());
         _name.setEditable(_target.isEphemeral());
 
-        NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
+        NodeDescriptor descriptor = (NodeDescriptor) _target.getDescriptor();
 
         _description.setText(Utils.substitute(descriptor.description, resolver));
         _description.setEditable(isEditable);
@@ -231,8 +199,7 @@ class NodeEditor extends Editor
         _applyButton.setEnabled(node.isEphemeral());
         _discardButton.setEnabled(node.isEphemeral());
         detectUpdates(true);
-        if(node.isEphemeral())
-        {
+        if (node.isEphemeral()) {
             updated();
         }
     }

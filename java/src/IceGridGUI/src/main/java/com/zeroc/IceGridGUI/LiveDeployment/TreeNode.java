@@ -2,24 +2,20 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import javax.swing.SwingUtilities;
-import javax.swing.JOptionPane;
-
 import com.zeroc.IceGridGUI.*;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
-public abstract class TreeNode extends TreeNodeBase
-{
+public abstract class TreeNode extends TreeNodeBase {
     public abstract Editor getEditor();
 
-    TreeNode(TreeNode parent, String id)
-    {
+    TreeNode(TreeNode parent, String id) {
         super(parent, id);
     }
 
-    Root getRoot()
-    {
+    Root getRoot() {
         assert _parent != null;
-        return ((TreeNode)_parent).getRoot();
+        return ((TreeNode) _parent).getRoot();
     }
 
     // Actions
@@ -58,77 +54,75 @@ public abstract class TreeNode extends TreeNodeBase
 
     public static final int ACTION_COUNT = 24;
 
-    public boolean[] getAvailableActions()
-    {
+    public boolean[] getAvailableActions() {
         return new boolean[ACTION_COUNT];
     }
 
-    public void start()
-    {
+    public void start() {
         assert false;
     }
-    public void stop()
-    {
+
+    public void stop() {
         assert false;
     }
-    public void enable()
-    {
+
+    public void enable() {
         assert false;
     }
-    public void disable()
-    {
+
+    public void disable() {
         assert false;
     }
-    public void writeMessage()
-    {
+
+    public void writeMessage() {
         assert false;
     }
-    public void retrieveIceLog()
-    {
+
+    public void retrieveIceLog() {
         assert false;
     }
-    public void retrieveOutput(boolean stdout)
-    {
+
+    public void retrieveOutput(boolean stdout) {
         assert false;
     }
-    public void retrieveLogFile()
-    {
+
+    public void retrieveLogFile() {
         assert false;
     }
-    public void signal(String s)
-    {
+
+    public void signal(String s) {
         assert false;
     }
-    public void shutdownNode()
-    {
+
+    public void shutdownNode() {
         assert false;
     }
-    public void shutdownRegistry()
-    {
+
+    public void shutdownRegistry() {
         assert false;
     }
-    public void addObject()
-    {
+
+    public void addObject() {
         assert false;
     }
-    public void openDefinition()
-    {
+
+    public void openDefinition() {
         assert false;
     }
-    public void enableMetricsView(boolean enabled)
-    {
+
+    public void enableMetricsView(boolean enabled) {
         assert false;
     }
-    public void startAllServers()
-    {
+
+    public void startAllServers() {
         assert false;
     }
-    public void stopAllServers()
-    {
+
+    public void stopAllServers() {
         assert false;
     }
-    public void clearShowIceLogDialog()
-    {
+
+    public void clearShowIceLogDialog() {
         assert false;
     }
 
@@ -136,103 +130,84 @@ public abstract class TreeNode extends TreeNodeBase
     // Helpers
     //
 
-    protected void amiComplete(final String prefix, final String title, final Throwable ex)
-    {
-        if(ex == null)
-        {
+    protected void amiComplete(final String prefix, final String title, final Throwable ex) {
+        if (ex == null) {
             amiSuccess(prefix);
-        }
-        else if(ex instanceof com.zeroc.Ice.UserException)
-        {
-            amiFailure(prefix, title, (com.zeroc.Ice.UserException)ex);
-        }
-        else
-        {
+        } else if (ex instanceof com.zeroc.Ice.UserException) {
+            amiFailure(prefix, title, (com.zeroc.Ice.UserException) ex);
+        } else {
             amiFailure(prefix, title, ex.toString());
         }
     }
 
-    protected void amiSuccess(final String prefix)
-    {
+    protected void amiSuccess(final String prefix) {
         SwingUtilities.invokeLater(() -> success(prefix));
     }
 
-    protected void amiSuccess(final String prefix, final String detail)
-    {
+    protected void amiSuccess(final String prefix, final String detail) {
         SwingUtilities.invokeLater(() -> success(prefix, detail));
     }
 
-    protected void amiFailure(String prefix, String title, Throwable e)
-    {
-        if(e instanceof com.zeroc.IceGrid.ServerNotExistException)
-        {
-            com.zeroc.IceGrid.ServerNotExistException sne = (com.zeroc.IceGrid.ServerNotExistException)e;
+    protected void amiFailure(String prefix, String title, Throwable e) {
+        if (e instanceof com.zeroc.IceGrid.ServerNotExistException) {
+            com.zeroc.IceGrid.ServerNotExistException sne =
+                    (com.zeroc.IceGrid.ServerNotExistException) e;
 
-            amiFailure(prefix, title, "Server '" + sne.id + "' was not registered with the IceGrid Registry");
-        }
-        else if(e instanceof com.zeroc.IceGrid.ServerStartException)
-        {
-            com.zeroc.IceGrid.ServerStartException ste = (com.zeroc.IceGrid.ServerStartException)e;
+            amiFailure(
+                    prefix,
+                    title,
+                    "Server '" + sne.id + "' was not registered with the IceGrid Registry");
+        } else if (e instanceof com.zeroc.IceGrid.ServerStartException) {
+            com.zeroc.IceGrid.ServerStartException ste = (com.zeroc.IceGrid.ServerStartException) e;
             amiFailure(prefix, title, "Server '" + ste.id + "' did not start: " + ste.reason);
-        }
-        else if(e instanceof com.zeroc.IceGrid.ApplicationNotExistException)
-        {
-            amiFailure(prefix, title, "This application was not registered with the IceGrid Registry");
-        }
-        else if(e instanceof com.zeroc.IceGrid.NodeNotExistException)
-        {
-            com.zeroc.IceGrid.NodeNotExistException nnee = (com.zeroc.IceGrid.NodeNotExistException)e;
+        } else if (e instanceof com.zeroc.IceGrid.ApplicationNotExistException) {
+            amiFailure(
+                    prefix, title, "This application was not registered with the IceGrid Registry");
+        } else if (e instanceof com.zeroc.IceGrid.NodeNotExistException) {
+            com.zeroc.IceGrid.NodeNotExistException nnee =
+                    (com.zeroc.IceGrid.NodeNotExistException) e;
 
-            amiFailure(prefix, title, "Node '" + nnee.name + " 'was not registered with the IceGrid Registry.");
-        }
-        else if(e instanceof com.zeroc.IceGrid.NodeUnreachableException)
-        {
-            com.zeroc.IceGrid.NodeUnreachableException nue = (com.zeroc.IceGrid.NodeUnreachableException)e;
+            amiFailure(
+                    prefix,
+                    title,
+                    "Node '" + nnee.name + " 'was not registered with the IceGrid Registry.");
+        } else if (e instanceof com.zeroc.IceGrid.NodeUnreachableException) {
+            com.zeroc.IceGrid.NodeUnreachableException nue =
+                    (com.zeroc.IceGrid.NodeUnreachableException) e;
             amiFailure(prefix, title, "Node '" + nue.name + "' is unreachable: " + nue.reason);
-        }
-        else if(e instanceof com.zeroc.IceGrid.DeploymentException)
-        {
-            com.zeroc.IceGrid.DeploymentException de = (com.zeroc.IceGrid.DeploymentException)e;
+        } else if (e instanceof com.zeroc.IceGrid.DeploymentException) {
+            com.zeroc.IceGrid.DeploymentException de = (com.zeroc.IceGrid.DeploymentException) e;
             amiFailure(prefix, title, "Deployment exception: " + de.reason);
-        }
-        else if(e instanceof com.zeroc.Ice.ObjectNotExistException)
-        {
-            SwingUtilities.invokeLater(() -> { getCoordinator().getSessionKeeper().sessionLost(); });
-        }
-        else
-        {
+        } else if (e instanceof com.zeroc.Ice.ObjectNotExistException) {
+            SwingUtilities.invokeLater(
+                    () -> {
+                        getCoordinator().getSessionKeeper().sessionLost();
+                    });
+        } else {
             amiFailure(prefix, title, title + ":\n" + e.toString());
         }
     }
 
-    protected void amiFailure(final String prefix, final String title, final String message)
-    {
+    protected void amiFailure(final String prefix, final String title, final String message) {
         SwingUtilities.invokeLater(() -> failure(prefix, title, message));
     }
 
-    protected void failure(String prefix, String title, String message)
-    {
+    protected void failure(String prefix, String title, String message) {
         getCoordinator().getStatusBar().setText(prefix + " failed!");
 
         JOptionPane.showMessageDialog(
-            getCoordinator().getMainFrame(),
-            message,
-            title,
-            JOptionPane.ERROR_MESSAGE);
+                getCoordinator().getMainFrame(), message, title, JOptionPane.ERROR_MESSAGE);
     }
 
-    protected void success(String prefix, String detail)
-    {
+    protected void success(String prefix, String detail) {
         getCoordinator().getStatusBar().setText(prefix + " done (" + detail + ").");
     }
 
-    protected void success(String prefix)
-    {
+    protected void success(String prefix) {
         getCoordinator().getStatusBar().setText(prefix + " done.");
     }
 
-    void reparent(TreeNode newParent)
-    {
+    void reparent(TreeNode newParent) {
         assert newParent != null;
         _parent = newParent;
     }

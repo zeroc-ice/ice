@@ -4,52 +4,42 @@
 
 package android.bluetooth;
 
-public final class BluetoothAdapter
-{
-    public boolean cancelDiscovery()
-    {
+public final class BluetoothAdapter {
+    public boolean cancelDiscovery() {
         return false;
     }
 
-    public boolean isEnabled()
-    {
+    public boolean isEnabled() {
         return false;
     }
 
-    public String getAddress()
-    {
+    public String getAddress() {
         return "";
     }
 
-    public static boolean checkBluetoothAddress(String address)
-    {
+    public static boolean checkBluetoothAddress(String address) {
         return false;
     }
 
-    public static BluetoothAdapter getDefaultAdapter()
-    {
+    public static BluetoothAdapter getDefaultAdapter() {
         return null;
     }
 
-    public BluetoothDevice getRemoteDevice(byte[] address)
-    {
+    public BluetoothDevice getRemoteDevice(byte[] address) {
         return null;
     }
 
-    public BluetoothDevice getRemoteDevice(String address)
-    {
+    public BluetoothDevice getRemoteDevice(String address) {
         return null;
     }
 
-    public BluetoothServerSocket listenUsingInsecureRfcommWithServiceRecord(String name, java.util.UUID uuid)
-        throws java.io.IOException
-    {
+    public BluetoothServerSocket listenUsingInsecureRfcommWithServiceRecord(
+            String name, java.util.UUID uuid) throws java.io.IOException {
         return null;
     }
 
-    public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, java.util.UUID uuid)
-        throws java.io.IOException
-    {
+    public BluetoothServerSocket listenUsingRfcommWithServiceRecord(
+            String name, java.util.UUID uuid) throws java.io.IOException {
         return null;
     }
 }

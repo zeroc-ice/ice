@@ -5,11 +5,12 @@ package com.zeroc.Glacier2;
 import com.zeroc.Ice.InitializationData;
 
 /** A helper class for using Glacier2 with GUI applications. */
-public class SessionHelper
-{
-    SessionHelper(SessionCallback callback, InitializationData initData, String finderStr,
-                  boolean useCallbacks)
-    {
+public class SessionHelper {
+    SessionHelper(
+            SessionCallback callback,
+            InitializationData initData,
+            String finderStr,
+            boolean useCallbacks) {
         _callback = callback;
         _initData = initData;
         _finderStr = finderStr;
@@ -19,45 +20,44 @@ public class SessionHelper
     /**
      * Destroys the Glacier2 session.
      *
-     * Once the session has been destroyed, {@link SessionCallback#disconnected}
-     * is called on the associated callback object.
+     * <p>Once the session has been destroyed, {@link SessionCallback#disconnected} is called on the
+     * associated callback object.
      */
-    public void destroy()
-    {
-        synchronized(this)
-        {
-            if(_destroy)
-            {
+    public void destroy() {
+        synchronized (this) {
+            if (_destroy) {
                 return;
             }
             _destroy = true;
-            if(!_connected)
-            {
+            if (!_connected) {
                 // In this case a connecting session is being destroyed.
                 // We destroy the communicator to trigger the immediate
                 // failure of the connection establishment.
-                new Thread(()-> { destroyCommunicator(); }).start();
+                new Thread(
+                                () -> {
+                                    destroyCommunicator();
+                                })
+                        .start();
                 return;
             }
             _session = null;
             _connected = false;
 
-            try
-            {
+            try {
                 Runtime.getRuntime().removeShutdownHook(_shutdownHook);
-            }
-            catch(IllegalStateException ex)
-            {
+            } catch (IllegalStateException ex) {
                 // Ignore
-            }
-            catch(SecurityException ex)
-            {
+            } catch (SecurityException ex) {
                 // Ignore
             }
         }
 
         // Run destroyInternal in a thread because it makes remote invocations.
-        new Thread(()-> { destroyInternal(); }).start();
+        new Thread(
+                        () -> {
+                            destroyInternal();
+                        })
+                .start();
     }
 
     /**
@@ -65,24 +65,20 @@ public class SessionHelper
      *
      * @return The communicator.
      */
-    synchronized public com.zeroc.Ice.Communicator communicator()
-    {
+    public synchronized com.zeroc.Ice.Communicator communicator() {
         return _communicator;
     }
 
     /**
-     * Returns the category to be used in the identities of all of the client's
-     * callback objects. Clients must use this category for the router to
-     * forward callback requests to the intended client.
+     * Returns the category to be used in the identities of all of the client's callback objects.
+     * Clients must use this category for the router to forward callback requests to the intended
+     * client.
      *
      * @return The category.
      * @throws SessionNotExistException No session exists.
      */
-    synchronized public String categoryForClient()
-        throws SessionNotExistException
-    {
-        if(_router == null)
-        {
+    public synchronized String categoryForClient() throws SessionNotExistException {
+        if (_router == null) {
             throw new SessionNotExistException();
         }
 
@@ -96,25 +92,25 @@ public class SessionHelper
      * @return The proxy for the servant.
      * @throws SessionNotExistException No session exists.
      */
-    synchronized public com.zeroc.Ice.ObjectPrx addWithUUID(com.zeroc.Ice.Object servant)
-        throws SessionNotExistException
-    {
-        if(_router == null)
-        {
+    public synchronized com.zeroc.Ice.ObjectPrx addWithUUID(com.zeroc.Ice.Object servant)
+            throws SessionNotExistException {
+        if (_router == null) {
             throw new SessionNotExistException();
         }
-        return internalObjectAdapter().add(servant, new com.zeroc.Ice.Identity(java.util.UUID.randomUUID().toString(),
-                                                                               _category));
+        return internalObjectAdapter()
+                .add(
+                        servant,
+                        new com.zeroc.Ice.Identity(
+                                java.util.UUID.randomUUID().toString(), _category));
     }
 
     /**
-     * Returns the Glacier2 session proxy, or null if the session hasn't been established yet
-     * or the session has already been destroyed.
+     * Returns the Glacier2 session proxy, or null if the session hasn't been established yet or the
+     * session has already been destroyed.
      *
      * @return The session proxy, or null if no session exists.
      */
-    synchronized public SessionPrx session()
-    {
+    public synchronized SessionPrx session() {
         return _session;
     }
 
@@ -123,8 +119,7 @@ public class SessionHelper
      *
      * @return <code>true</code>if session exists or false if no session exists.
      */
-    synchronized public boolean isConnected()
-    {
+    public synchronized boolean isConnected() {
         return _connected;
     }
 
@@ -134,100 +129,88 @@ public class SessionHelper
      * @return The object adapter.
      * @throws SessionNotExistException No session exists.
      */
-    synchronized public com.zeroc.Ice.ObjectAdapter objectAdapter()
-        throws SessionNotExistException
-    {
+    public synchronized com.zeroc.Ice.ObjectAdapter objectAdapter()
+            throws SessionNotExistException {
         return internalObjectAdapter();
     }
 
     // Only call this method when the calling thread owns the lock
-    private com.zeroc.Ice.ObjectAdapter internalObjectAdapter()
-        throws SessionNotExistException
-    {
-        if(_router == null)
-        {
+    private com.zeroc.Ice.ObjectAdapter internalObjectAdapter() throws SessionNotExistException {
+        if (_router == null) {
             throw new SessionNotExistException();
         }
-        if(!_useCallbacks)
-        {
+        if (!_useCallbacks) {
             throw new com.zeroc.Ice.InitializationException(
-                "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
+                    "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
         }
         return _adapter;
     }
 
-    private interface ConnectStrategy
-    {
+    private interface ConnectStrategy {
         SessionPrx connect(RouterPrx router)
-            throws CannotCreateSessionException, PermissionDeniedException;
+                throws CannotCreateSessionException, PermissionDeniedException;
     }
 
-    synchronized protected void connect(final java.util.Map<String, String> context)
-    {
-        connectImpl(new ConnectStrategy()
-                            {
-                                @Override
-                                public SessionPrx connect(RouterPrx router)
-                                    throws CannotCreateSessionException, PermissionDeniedException
-                                {
-                                    return router.createSessionFromSecureConnection(context);
-                                }
-                            });
+    protected synchronized void connect(final java.util.Map<String, String> context) {
+        connectImpl(
+                new ConnectStrategy() {
+                    @Override
+                    public SessionPrx connect(RouterPrx router)
+                            throws CannotCreateSessionException, PermissionDeniedException {
+                        return router.createSessionFromSecureConnection(context);
+                    }
+                });
     }
 
-    synchronized protected void connect(final String username, final String password,
-                                        final java.util.Map<String, String> context)
-    {
-        connectImpl(new ConnectStrategy()
-                            {
-                                @Override
-                                public SessionPrx connect(RouterPrx router)
-                                    throws CannotCreateSessionException, PermissionDeniedException
-                                {
-                                    return router.createSession(username, password, context);
-                                }
-                            });
+    protected synchronized void connect(
+            final String username,
+            final String password,
+            final java.util.Map<String, String> context) {
+        connectImpl(
+                new ConnectStrategy() {
+                    @Override
+                    public SessionPrx connect(RouterPrx router)
+                            throws CannotCreateSessionException, PermissionDeniedException {
+                        return router.createSession(username, password, context);
+                    }
+                });
     }
 
-    private void connected(RouterPrx router, SessionPrx session)
-    {
+    private void connected(RouterPrx router, SessionPrx session) {
         // Remote invocation should be done without acquiring a mutex lock.
-        assert(router != null);
+        assert (router != null);
         com.zeroc.Ice.Connection conn = router.ice_getCachedConnection();
         String category = router.getCategoryForClient();
         int remoteIdleTimeout = 0;
-        try
-        {
+        try {
             remoteIdleTimeout = router.getACMTimeout();
-        }
-        catch(com.zeroc.Ice.OperationNotExistException ex)
-        {
+        } catch (com.zeroc.Ice.OperationNotExistException ex) {
         }
 
-        if(remoteIdleTimeout <= 0)
-        {
-            remoteIdleTimeout = (int)router.getSessionTimeout();
+        if (remoteIdleTimeout <= 0) {
+            remoteIdleTimeout = (int) router.getSessionTimeout();
         }
 
         // We create the callback object adapter here because createObjectAdapter internally
         // makes synchronous RPCs to the router. We can't create the OA on-demand when the
         // client calls objectAdapter() or addWithUUID() because they can be called from the
         // GUI thread.
-        if(_useCallbacks)
-        {
-            assert(_adapter == null);
+        if (_useCallbacks) {
+            assert (_adapter == null);
             _adapter = _communicator.createObjectAdapterWithRouter("", router);
             _adapter.activate();
         }
 
-        synchronized(this)
-        {
+        synchronized (this) {
             _router = router;
 
-            if(_destroy)
-            {
+            if (_destroy) {
                 // Run destroyInternal in a thread because it makes remote invocations.
-                new Thread(()-> { destroyInternal(); }).start();
+                new Thread(
+                                () -> {
+                                    destroyInternal();
+                                })
+                        .start();
                 return;
             }
 
@@ -244,50 +227,40 @@ public class SessionHelper
             assert (connection != null);
             connection.setCloseCallback(con -> destroy());
 
-            _shutdownHook = new Thread("Shutdown hook")
-            {
-                @Override
-                public void run()
-                {
-                    SessionHelper.this.destroy();
-                }
-            };
+            _shutdownHook =
+                    new Thread("Shutdown hook") {
+                        @Override
+                        public void run() {
+                            SessionHelper.this.destroy();
+                        }
+                    };
 
-            try
-            {
+            try {
                 Runtime.getRuntime().addShutdownHook(_shutdownHook);
-            }
-            catch(IllegalStateException e)
-            {
+            } catch (IllegalStateException e) {
                 // Shutdown in progress, ignored
-            }
-            catch(SecurityException ex)
-            {
+            } catch (SecurityException ex) {
                 // Ignore. Unsigned applets cannot registered shutdown hooks.
             }
         }
 
-        dispatchCallback(() -> {
-                try
-                {
-                    _callback.connected(SessionHelper.this);
-                }
-                catch(SessionNotExistException ex)
-                {
-                    SessionHelper.this.destroy();
-                }
-            }, conn);
+        dispatchCallback(
+                () -> {
+                    try {
+                        _callback.connected(SessionHelper.this);
+                    } catch (SessionNotExistException ex) {
+                        SessionHelper.this.destroy();
+                    }
+                },
+                conn);
     }
 
-    private void destroyInternal()
-    {
+    private void destroyInternal() {
         assert _destroy;
         RouterPrx router = null;
         com.zeroc.Ice.Communicator communicator = null;
-        synchronized(this)
-        {
-            if(_router == null)
-            {
+        synchronized (this) {
+            if (_router == null) {
                 return;
             }
 
@@ -299,127 +272,128 @@ public class SessionHelper
 
         assert communicator != null;
 
-        try
-        {
+        try {
             router.destroySession();
-        }
-        catch(com.zeroc.Ice.ConnectionLostException e)
-        {
+        } catch (com.zeroc.Ice.ConnectionLostException e) {
             // Expected if another thread invoked on an object from the session concurrently.
-        }
-        catch(SessionNotExistException e)
-        {
+        } catch (SessionNotExistException e) {
             // This can also occur.
-        }
-        catch(Throwable e)
-        {
+        } catch (Throwable e) {
             // Not expected.
-            communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
+            communicator
+                    .getLogger()
+                    .warning(
+                            "SessionHelper: unexpected exception when destroying the session:\n"
+                                    + e);
         }
 
         communicator.destroy();
 
         // Notify the callback that the session is gone.
-        dispatchCallback(() -> { _callback.disconnected(SessionHelper.this); }, null);
+        dispatchCallback(
+                () -> {
+                    _callback.disconnected(SessionHelper.this);
+                },
+                null);
     }
 
-    private void destroyCommunicator()
-    {
+    private void destroyCommunicator() {
         com.zeroc.Ice.Communicator communicator = null;
-        synchronized(this)
-        {
+        synchronized (this) {
             communicator = _communicator;
         }
 
-        if(communicator != null)
-        {
+        if (communicator != null) {
             communicator.destroy();
         }
     }
 
-    private void connectImpl(final ConnectStrategy factory)
-    {
+    private void connectImpl(final ConnectStrategy factory) {
         assert !_destroy;
-        new Thread(() ->
-                   {
-                       try
-                       {
-                           synchronized(SessionHelper.this)
-                           {
-                               _communicator = com.zeroc.Ice.Util.initialize(_initData);
-                           }
-                       }
-                       catch(final com.zeroc.Ice.LocalException ex)
-                       {
-                           synchronized(SessionHelper.this)
-                           {
-                               _destroy = true;
-                           }
-                           dispatchCallback(() -> { _callback.connectFailed(SessionHelper.this, ex); }, null);
-                           return;
-                       }
-                       if(_communicator.getDefaultRouter() == null)
-                       {
-                           com.zeroc.Ice.RouterFinderPrx finder = null;
-                           try
-                           {
-                               finder = com.zeroc.Ice.RouterFinderPrx.createProxy(_communicator, _finderStr);
-                               _communicator.setDefaultRouter(finder.getRouter());
-                           }
-                           catch(final com.zeroc.Ice.CommunicatorDestroyedException ex)
-                           {
-                               dispatchCallback(() -> { _callback.connectFailed(SessionHelper.this, ex); }, null);
-                               return;
-                           }
-                           catch(Exception ex)
-                           {
-                               // In case of error getting router identity from RouterFinder use default identity.
-                               com.zeroc.Ice.Identity ident = new com.zeroc.Ice.Identity("router", "Glacier2");
-                               _communicator.setDefaultRouter(
-                                   com.zeroc.Ice.RouterPrx.uncheckedCast(finder.ice_identity(ident)));
-                           }
-                       }
+        new Thread(
+                        () -> {
+                            try {
+                                synchronized (SessionHelper.this) {
+                                    _communicator = com.zeroc.Ice.Util.initialize(_initData);
+                                }
+                            } catch (final com.zeroc.Ice.LocalException ex) {
+                                synchronized (SessionHelper.this) {
+                                    _destroy = true;
+                                }
+                                dispatchCallback(
+                                        () -> {
+                                            _callback.connectFailed(SessionHelper.this, ex);
+                                        },
+                                        null);
+                                return;
+                            }
+                            if (_communicator.getDefaultRouter() == null) {
+                                com.zeroc.Ice.RouterFinderPrx finder = null;
+                                try {
+                                    finder =
+                                            com.zeroc.Ice.RouterFinderPrx.createProxy(
+                                                    _communicator, _finderStr);
+                                    _communicator.setDefaultRouter(finder.getRouter());
+                                } catch (final com.zeroc.Ice.CommunicatorDestroyedException ex) {
+                                    dispatchCallback(
+                                            () -> {
+                                                _callback.connectFailed(SessionHelper.this, ex);
+                                            },
+                                            null);
+                                    return;
+                                } catch (Exception ex) {
+                                    // In case of error getting router identity from RouterFinder
+                                    // use default identity.
+                                    com.zeroc.Ice.Identity ident =
+                                            new com.zeroc.Ice.Identity("router", "Glacier2");
+                                    _communicator.setDefaultRouter(
+                                            com.zeroc.Ice.RouterPrx.uncheckedCast(
+                                                    finder.ice_identity(ident)));
+                                }
+                            }
 
-                       try
-                       {
-                           dispatchCallbackAndWait(() -> { _callback.createdCommunicator(SessionHelper.this); });
+                            try {
+                                dispatchCallbackAndWait(
+                                        () -> {
+                                            _callback.createdCommunicator(SessionHelper.this);
+                                        });
 
-                           RouterPrx routerPrx = RouterPrx.uncheckedCast(_communicator.getDefaultRouter());
-                           SessionPrx session = factory.connect(routerPrx);
-                           connected(routerPrx, session);
-                       }
-                       catch(final Exception ex)
-                       {
-                           _communicator.destroy();
+                                RouterPrx routerPrx =
+                                        RouterPrx.uncheckedCast(_communicator.getDefaultRouter());
+                                SessionPrx session = factory.connect(routerPrx);
+                                connected(routerPrx, session);
+                            } catch (final Exception ex) {
+                                _communicator.destroy();
 
-                           dispatchCallback(() -> { _callback.connectFailed(SessionHelper.this, ex); }, null);
-                       }
-                   }
-            ).start();
+                                dispatchCallback(
+                                        () -> {
+                                            _callback.connectFailed(SessionHelper.this, ex);
+                                        },
+                                        null);
+                            }
+                        })
+                .start();
     }
 
-    private void dispatchCallback(Runnable runnable, com.zeroc.Ice.Connection conn)
-    {
-        if(_initData.executor != null)
-        {
+    private void dispatchCallback(Runnable runnable, com.zeroc.Ice.Connection conn) {
+        if (_initData.executor != null) {
             _initData.executor.accept(runnable, conn);
-        }
-        else
-        {
+        } else {
             runnable.run();
         }
     }
 
-    private void dispatchCallbackAndWait(final Runnable runnable)
-    {
-        if(_initData.executor != null)
-        {
+    private void dispatchCallbackAndWait(final Runnable runnable) {
+        if (_initData.executor != null) {
             final java.util.concurrent.Semaphore sem = new java.util.concurrent.Semaphore(0);
-            _initData.executor.accept(()-> { runnable.run(); sem.release(); }, null);
+            _initData.executor.accept(
+                    () -> {
+                        runnable.run();
+                        sem.release();
+                    },
+                    null);
             sem.acquireUninterruptibly();
-        }
-        else
-        {
+        } else {
             runnable.run();
         }
     }
