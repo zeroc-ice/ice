@@ -8,10 +8,10 @@ import test.Ice.inheritance.Test.MA.IA;
 import test.Ice.inheritance.Test.MA.IAPrx;
 
 public final class IAI implements IA {
-  public IAI() {}
+    public IAI() {}
 
-  @Override
-  public IAPrx iaop(IAPrx p, com.zeroc.Ice.Current current) {
-    return p;
-  }
+    @Override
+    public IAPrx iaop(IAPrx p, com.zeroc.Ice.Current current) {
+        return p;
+    }
 }

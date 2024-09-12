@@ -1,9 +1,7 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 module com.zeroc.icebt {
-  requires transitive com.zeroc.ice;
+    exports com.zeroc.IceBT;
 
-  exports com.zeroc.IceBT;
+    requires transitive com.zeroc.ice;
 }

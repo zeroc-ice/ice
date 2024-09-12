@@ -10,116 +10,117 @@ import test.Ice.classLoader.Test.E;
 import test.Ice.classLoader.Test.InitialPrx;
 
 public class AllTests {
-  private static class MyClassLoader extends ClassLoader {
-    MyClassLoader(ClassLoader parent) {
-      super(parent);
+    private static class MyClassLoader extends ClassLoader {
+        MyClassLoader(ClassLoader parent) {
+            super(parent);
+        }
+
+        @Override
+        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            _names.add(name);
+            return super.loadClass(name, resolve);
+        }
+
+        void reset() {
+            _names.clear();
+        }
+
+        boolean check(String name) {
+            return _names.contains(name);
+        }
+
+        private java.util.List<String> _names = new java.util.LinkedList<>();
     }
 
-    @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-      _names.add(name);
-      return super.loadClass(name, resolve);
+    private static void test(boolean b) {
+        if (!b) {
+            throw new RuntimeException();
+        }
     }
 
-    void reset() {
-      _names.clear();
-    }
-
-    boolean check(String name) {
-      return _names.contains(name);
-    }
-
-    private java.util.List<String> _names = new java.util.LinkedList<>();
-  }
-
-  private static void test(boolean b) {
-    if (!b) {
-      throw new RuntimeException();
-    }
-  }
-
-  public static void allTests(test.TestHelper helper, boolean collocated) {
-    com.zeroc.Ice.Communicator communicator = helper.communicator();
-    PrintWriter out = helper.getWriter();
-
-    //
-    // Verify that the class loader is used for Slice packages.
-    //
-    {
-      out.print("testing package... ");
-      out.flush();
-      com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-      initData.properties = communicator.getProperties()._clone();
-      MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
-      initData.classLoader = classLoader;
-      try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
-        test(classLoader.check("test.Ice.classLoader.Test._Marker"));
-        out.println("ok");
-      }
-    }
-
-    //
-    // Verify that the class loader is used for Ice plug-ins.
-    //
-    {
-      out.print("testing plug-in... ");
-      out.flush();
-      com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-      initData.properties = communicator.getProperties()._clone();
-      initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
-      MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
-      initData.classLoader = classLoader;
-      try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
-        test(classLoader.check("test.Ice.classLoader.PluginFactoryI"));
-        out.println("ok");
-      }
-    }
-
-    //
-    // Marshaling tests.
-    //
-    {
-      com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-      initData.properties = communicator.getProperties()._clone();
-      MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
-      initData.classLoader = classLoader;
-      try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
-        String ref = "initial:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = ic.stringToProxy(ref);
-        test(base != null);
-
-        InitialPrx initial = InitialPrx.checkedCast(base);
-        test(initial != null);
+    public static void allTests(test.TestHelper helper, boolean collocated) {
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
         //
-        // Verify that the class loader is used for concrete classes.
+        // Verify that the class loader is used for Slice packages.
         //
         {
-          out.print("testing concrete class... ");
-          out.flush();
-          ConcreteClass cc = initial.getConcreteClass();
-          test(cc != null);
-          test(classLoader.check("test.Ice.classLoader.Test.ConcreteClass"));
-          classLoader.reset();
-          out.println("ok");
+            out.print("testing package... ");
+            out.flush();
+            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
+            initData.classLoader = classLoader;
+            try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
+                test(classLoader.check("test.Ice.classLoader.Test._Marker"));
+                out.println("ok");
+            }
         }
 
         //
-        // Verify that the class loader is used for user exceptions.
+        // Verify that the class loader is used for Ice plug-ins.
         //
-        out.print("testing user exception... ");
-        out.flush();
-        try {
-          initial.throwException();
-          test(false);
-        } catch (E ex) {
+        {
+            out.print("testing plug-in... ");
+            out.flush();
+            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty(
+                    "Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
+            MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
+            initData.classLoader = classLoader;
+            try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
+                test(classLoader.check("test.Ice.classLoader.PluginFactoryI"));
+                out.println("ok");
+            }
         }
-        test(classLoader.check("test.Ice.classLoader.Test.E"));
-        out.println("ok");
 
-        initial.shutdown();
-        ic.destroy();
-      }
+        //
+        // Marshaling tests.
+        //
+        {
+            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
+            initData.classLoader = classLoader;
+            try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
+                String ref = "initial:" + helper.getTestEndpoint(0);
+                com.zeroc.Ice.ObjectPrx base = ic.stringToProxy(ref);
+                test(base != null);
+
+                InitialPrx initial = InitialPrx.checkedCast(base);
+                test(initial != null);
+
+                //
+                // Verify that the class loader is used for concrete classes.
+                //
+                {
+                    out.print("testing concrete class... ");
+                    out.flush();
+                    ConcreteClass cc = initial.getConcreteClass();
+                    test(cc != null);
+                    test(classLoader.check("test.Ice.classLoader.Test.ConcreteClass"));
+                    classLoader.reset();
+                    out.println("ok");
+                }
+
+                //
+                // Verify that the class loader is used for user exceptions.
+                //
+                out.print("testing user exception... ");
+                out.flush();
+                try {
+                    initial.throwException();
+                    test(false);
+                } catch (E ex) {
+                }
+                test(classLoader.check("test.Ice.classLoader.Test.E"));
+                out.println("ok");
+
+                initial.shutdown();
+                ic.destroy();
+            }
+        }
     }
-  }
 }

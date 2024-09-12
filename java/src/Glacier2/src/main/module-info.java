@@ -1,10 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 module com.zeroc.glacier2 {
-  exports com.zeroc.Glacier2;
-  exports com.zeroc.Glacier2.IceMX;
+    exports com.zeroc.Glacier2;
+    exports com.zeroc.Glacier2.IceMX;
 
-  requires transitive com.zeroc.ice;
+    requires transitive com.zeroc.ice;
 }

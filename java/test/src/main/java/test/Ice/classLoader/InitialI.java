@@ -9,24 +9,24 @@ import test.Ice.classLoader.Test.E;
 import test.Ice.classLoader.Test.Initial;
 
 public final class InitialI implements Initial {
-  public InitialI(com.zeroc.Ice.ObjectAdapter adapter) {
-    _adapter = adapter;
-  }
+    public InitialI(com.zeroc.Ice.ObjectAdapter adapter) {
+        _adapter = adapter;
+    }
 
-  @Override
-  public ConcreteClass getConcreteClass(com.zeroc.Ice.Current current) {
-    return new ConcreteClass();
-  }
+    @Override
+    public ConcreteClass getConcreteClass(com.zeroc.Ice.Current current) {
+        return new ConcreteClass();
+    }
 
-  @Override
-  public void throwException(com.zeroc.Ice.Current current) throws E {
-    throw new E();
-  }
+    @Override
+    public void throwException(com.zeroc.Ice.Current current) throws E {
+        throw new E();
+    }
 
-  @Override
-  public void shutdown(com.zeroc.Ice.Current current) {
-    _adapter.getCommunicator().shutdown();
-  }
+    @Override
+    public void shutdown(com.zeroc.Ice.Current current) {
+        _adapter.getCommunicator().shutdown();
+    }
 
-  private com.zeroc.Ice.ObjectAdapter _adapter;
+    private com.zeroc.Ice.ObjectAdapter _adapter;
 }

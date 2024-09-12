@@ -8,17 +8,17 @@ package com.zeroc.IceBox;
  * service executable.
  */
 public final class FailureException extends com.zeroc.Ice.LocalException {
-  public FailureException(String message) {
-    super(message);
-  }
+    public FailureException(String message) {
+        super(message);
+    }
 
-  public FailureException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public FailureException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public String ice_id() {
-    return "::IceBox::FailureException";
-  }
+    public String ice_id() {
+        return "::IceBox::FailureException";
+    }
 
-  private static final long serialVersionUID = -7740030157337496059L;
+    private static final long serialVersionUID = -7740030157337496059L;
 }

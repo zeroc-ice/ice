@@ -11,25 +11,25 @@ import test.Ice.inheritance.Test.MB.IB1Prx;
 import test.Ice.inheritance.Test.MB.IB2Prx;
 
 public final class ICI implements IC {
-  public ICI() {}
+    public ICI() {}
 
-  @Override
-  public IAPrx iaop(IAPrx p, com.zeroc.Ice.Current current) {
-    return p;
-  }
+    @Override
+    public IAPrx iaop(IAPrx p, com.zeroc.Ice.Current current) {
+        return p;
+    }
 
-  @Override
-  public ICPrx icop(ICPrx p, com.zeroc.Ice.Current current) {
-    return p;
-  }
+    @Override
+    public ICPrx icop(ICPrx p, com.zeroc.Ice.Current current) {
+        return p;
+    }
 
-  @Override
-  public IB1Prx ib1op(IB1Prx p, com.zeroc.Ice.Current current) {
-    return p;
-  }
+    @Override
+    public IB1Prx ib1op(IB1Prx p, com.zeroc.Ice.Current current) {
+        return p;
+    }
 
-  @Override
-  public IB2Prx ib2op(IB2Prx p, com.zeroc.Ice.Current current) {
-    return p;
-  }
+    @Override
+    public IB2Prx ib2op(IB2Prx p, com.zeroc.Ice.Current current) {
+        return p;
+    }
 }

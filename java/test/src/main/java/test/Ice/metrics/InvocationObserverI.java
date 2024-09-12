@@ -5,53 +5,53 @@
 package test.Ice.metrics;
 
 class InvocationObserverI extends ObserverI
-    implements com.zeroc.Ice.Instrumentation.InvocationObserver {
-  @Override
-  public synchronized void reset() {
-    super.reset();
-    retriedCount = 0;
-    userExceptionCount = 0;
-    if (remoteObserver != null) {
-      remoteObserver.reset();
+        implements com.zeroc.Ice.Instrumentation.InvocationObserver {
+    @Override
+    public synchronized void reset() {
+        super.reset();
+        retriedCount = 0;
+        userExceptionCount = 0;
+        if (remoteObserver != null) {
+            remoteObserver.reset();
+        }
+        if (collocatedObserver != null) {
+            collocatedObserver.reset();
+        }
     }
-    if (collocatedObserver != null) {
-      collocatedObserver.reset();
+
+    @Override
+    public synchronized void retried() {
+        ++retriedCount;
     }
-  }
 
-  @Override
-  public synchronized void retried() {
-    ++retriedCount;
-  }
-
-  @Override
-  public synchronized void userException() {
-    ++userExceptionCount;
-  }
-
-  @Override
-  public synchronized com.zeroc.Ice.Instrumentation.RemoteObserver getRemoteObserver(
-      com.zeroc.Ice.ConnectionInfo c, com.zeroc.Ice.Endpoint e, int a, int b) {
-    if (remoteObserver == null) {
-      remoteObserver = new RemoteObserverI();
-      remoteObserver.reset();
+    @Override
+    public synchronized void userException() {
+        ++userExceptionCount;
     }
-    return remoteObserver;
-  }
 
-  @Override
-  public synchronized com.zeroc.Ice.Instrumentation.CollocatedObserver getCollocatedObserver(
-      com.zeroc.Ice.ObjectAdapter adapter, int a, int b) {
-    if (collocatedObserver == null) {
-      collocatedObserver = new CollocatedObserverI();
-      collocatedObserver.reset();
+    @Override
+    public synchronized com.zeroc.Ice.Instrumentation.RemoteObserver getRemoteObserver(
+            com.zeroc.Ice.ConnectionInfo c, com.zeroc.Ice.Endpoint e, int a, int b) {
+        if (remoteObserver == null) {
+            remoteObserver = new RemoteObserverI();
+            remoteObserver.reset();
+        }
+        return remoteObserver;
     }
-    return collocatedObserver;
-  }
 
-  int userExceptionCount;
-  int retriedCount;
+    @Override
+    public synchronized com.zeroc.Ice.Instrumentation.CollocatedObserver getCollocatedObserver(
+            com.zeroc.Ice.ObjectAdapter adapter, int a, int b) {
+        if (collocatedObserver == null) {
+            collocatedObserver = new CollocatedObserverI();
+            collocatedObserver.reset();
+        }
+        return collocatedObserver;
+    }
 
-  RemoteObserverI remoteObserver = null;
-  CollocatedObserverI collocatedObserver = null;
+    int userExceptionCount;
+    int retriedCount;
+
+    RemoteObserverI remoteObserver = null;
+    CollocatedObserverI collocatedObserver = null;
 }

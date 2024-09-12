@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 /**
  * IceStorm APIs. IceStorm is a broker-based pub/sub service, where subscribers connect to

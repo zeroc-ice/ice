@@ -8,17 +8,17 @@ package com.zeroc.Ice;
  * newer than the server's.
  */
 public final class OperationNotExistException extends RequestFailedException {
-  public OperationNotExistException() {
-    super("OperationNotExistException");
-  }
+    public OperationNotExistException() {
+        super("OperationNotExistException");
+    }
 
-  public OperationNotExistException(Identity id, String facet, String operation) {
-    super("OperationNotExistException", id, facet, operation);
-  }
+    public OperationNotExistException(Identity id, String facet, String operation) {
+        super("OperationNotExistException", id, facet, operation);
+    }
 
-  public String ice_id() {
-    return "::Ice::OperationNotExistException";
-  }
+    public String ice_id() {
+        return "::Ice::OperationNotExistException";
+    }
 
-  private static final long serialVersionUID = 3973646568523472620L;
+    private static final long serialVersionUID = 3973646568523472620L;
 }

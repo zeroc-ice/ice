@@ -7,21 +7,21 @@ package com.zeroc.Ice;
  * any exception which does not derive from {@link LocalException} or {@link UserException}.
  */
 public class UnknownException extends LocalException {
-  public UnknownException(Throwable cause) {
-    super(null, cause);
-  }
+    public UnknownException(Throwable cause) {
+        super(null, cause);
+    }
 
-  public UnknownException(String message) {
-    super(message);
-  }
+    public UnknownException(String message) {
+        super(message);
+    }
 
-  public UnknownException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public UnknownException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::UnknownException";
-  }
+    public String ice_id() {
+        return "::Ice::UnknownException";
+    }
 
-  private static final long serialVersionUID = 4845487294380422868L;
+    private static final long serialVersionUID = 4845487294380422868L;
 }

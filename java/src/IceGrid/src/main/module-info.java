@@ -1,9 +1,7 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 module com.zeroc.icegrid {
-  exports com.zeroc.IceGrid;
+    exports com.zeroc.IceGrid;
 
-  requires transitive com.zeroc.glacier2;
+    requires transitive com.zeroc.glacier2;
 }

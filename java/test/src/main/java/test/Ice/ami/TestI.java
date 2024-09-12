@@ -11,178 +11,178 @@ import test.Ice.ami.Test.TestIntf;
 import test.Ice.ami.Test.TestIntfException;
 
 public class TestI implements TestIntf {
-  private static void test(boolean b) {
-    if (!b) {
-      new Throwable().printStackTrace();
-      //
-      // Exceptions raised by callbacks are swallowed by CompletableFuture.
-      //
-      throw new RuntimeException();
+    private static void test(boolean b) {
+        if (!b) {
+            new Throwable().printStackTrace();
+            //
+            // Exceptions raised by callbacks are swallowed by CompletableFuture.
+            //
+            throw new RuntimeException();
+        }
     }
-  }
 
-  TestI() {}
+    TestI() {}
 
-  @Override
-  public void op(com.zeroc.Ice.Current current) {}
+    @Override
+    public void op(com.zeroc.Ice.Current current) {}
 
-  @Override
-  public int opWithResult(com.zeroc.Ice.Current current) {
-    return 15;
-  }
-
-  @Override
-  public void opWithUE(com.zeroc.Ice.Current current) throws TestIntfException {
-    throw new TestIntfException();
-  }
-
-  @Override
-  public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current) {}
-
-  @Override
-  public synchronized void opBatch(com.zeroc.Ice.Current current) {
-    ++_batchCount;
-    notify();
-  }
-
-  @Override
-  public synchronized int opBatchCount(com.zeroc.Ice.Current current) {
-    return _batchCount;
-  }
-
-  @Override
-  public boolean supportsAMD(com.zeroc.Ice.Current current) {
-    return true;
-  }
-
-  @Override
-  public boolean supportsFunctionalTests(com.zeroc.Ice.Current current) {
-    return true;
-  }
-
-  @Override
-  public boolean opBool(boolean b, com.zeroc.Ice.Current current) {
-    return b;
-  }
-
-  @Override
-  public byte opByte(byte b, com.zeroc.Ice.Current current) {
-    return b;
-  }
-
-  @Override
-  public short opShort(short s, com.zeroc.Ice.Current current) {
-    return s;
-  }
-
-  @Override
-  public int opInt(int i, com.zeroc.Ice.Current current) {
-    return i;
-  }
-
-  @Override
-  public long opLong(long l, com.zeroc.Ice.Current current) {
-    return l;
-  }
-
-  @Override
-  public float opFloat(float f, com.zeroc.Ice.Current current) {
-    return f;
-  }
-
-  @Override
-  public double opDouble(double d, com.zeroc.Ice.Current current) {
-    return d;
-  }
-
-  @Override
-  public void pingBiDir(PingReplyPrx reply, com.zeroc.Ice.Current current) {
-    reply = reply.ice_fixed(current.con);
-    final Thread dispatchThread = Thread.currentThread();
-    reply
-        .replyAsync()
-        .whenCompleteAsync(
-            (result, ex) -> {
-              Thread callbackThread = Thread.currentThread();
-              test(callbackThread != dispatchThread);
-              test(callbackThread.getName().indexOf("Ice.ThreadPool.Server") != -1);
-            },
-            reply.ice_executor())
-        .join();
-  }
-
-  @Override
-  public synchronized boolean waitForBatch(int count, com.zeroc.Ice.Current current) {
-    while (_batchCount < count) {
-      try {
-        wait(5000);
-      } catch (InterruptedException ex) {
-      }
+    @Override
+    public int opWithResult(com.zeroc.Ice.Current current) {
+        return 15;
     }
-    boolean result = count == _batchCount;
-    _batchCount = 0;
-    return result;
-  }
 
-  @Override
-  public void closeConnection(com.zeroc.Ice.Current current) {
-    // We can't wait for the connection to be closed - this would cause a self dead-lock.
-    // So instead we just initiate the closure by running `close` in a separate thread.
-    var closureThread = new Thread(() -> current.con.close());
-    closureThread.start();
-  }
-
-  @Override
-  public void abortConnection(com.zeroc.Ice.Current current) {
-    current.con.abort();
-  }
-
-  @Override
-  public void sleep(int ms, com.zeroc.Ice.Current current) {
-    try {
-      Thread.sleep(ms);
-    } catch (InterruptedException ex) {
+    @Override
+    public void opWithUE(com.zeroc.Ice.Current current) throws TestIntfException {
+        throw new TestIntfException();
     }
-  }
 
-  @Override
-  public synchronized CompletionStage<Void> startDispatchAsync(com.zeroc.Ice.Current current) {
-    if (_shutdown) {
-      // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
-      // before start dispatch.
-      CompletableFuture<Void> v = new CompletableFuture<>();
-      v.complete(null);
-      return v;
-    } else if (_pending != null) {
-      _pending.complete(null);
+    @Override
+    public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current) {}
+
+    @Override
+    public synchronized void opBatch(com.zeroc.Ice.Current current) {
+        ++_batchCount;
+        notify();
     }
-    _pending = new CompletableFuture<>();
-    return _pending;
-  }
 
-  @Override
-  public synchronized void finishDispatch(com.zeroc.Ice.Current current) {
-    if (_shutdown) {
-      return;
-    } else if (_pending
-        != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
-    {
-      _pending.complete(null);
-      _pending = null;
+    @Override
+    public synchronized int opBatchCount(com.zeroc.Ice.Current current) {
+        return _batchCount;
     }
-  }
 
-  @Override
-  public synchronized void shutdown(com.zeroc.Ice.Current current) {
-    _shutdown = true;
-    if (_pending != null) {
-      _pending.complete(null);
-      _pending = null;
+    @Override
+    public boolean supportsAMD(com.zeroc.Ice.Current current) {
+        return true;
     }
-    current.adapter.getCommunicator().shutdown();
-  }
 
-  private int _batchCount;
-  private boolean _shutdown = false;
-  private CompletableFuture<Void> _pending = null;
+    @Override
+    public boolean supportsFunctionalTests(com.zeroc.Ice.Current current) {
+        return true;
+    }
+
+    @Override
+    public boolean opBool(boolean b, com.zeroc.Ice.Current current) {
+        return b;
+    }
+
+    @Override
+    public byte opByte(byte b, com.zeroc.Ice.Current current) {
+        return b;
+    }
+
+    @Override
+    public short opShort(short s, com.zeroc.Ice.Current current) {
+        return s;
+    }
+
+    @Override
+    public int opInt(int i, com.zeroc.Ice.Current current) {
+        return i;
+    }
+
+    @Override
+    public long opLong(long l, com.zeroc.Ice.Current current) {
+        return l;
+    }
+
+    @Override
+    public float opFloat(float f, com.zeroc.Ice.Current current) {
+        return f;
+    }
+
+    @Override
+    public double opDouble(double d, com.zeroc.Ice.Current current) {
+        return d;
+    }
+
+    @Override
+    public void pingBiDir(PingReplyPrx reply, com.zeroc.Ice.Current current) {
+        reply = reply.ice_fixed(current.con);
+        final Thread dispatchThread = Thread.currentThread();
+        reply.replyAsync()
+                .whenCompleteAsync(
+                        (result, ex) -> {
+                            Thread callbackThread = Thread.currentThread();
+                            test(callbackThread != dispatchThread);
+                            test(callbackThread.getName().indexOf("Ice.ThreadPool.Server") != -1);
+                        },
+                        reply.ice_executor())
+                .join();
+    }
+
+    @Override
+    public synchronized boolean waitForBatch(int count, com.zeroc.Ice.Current current) {
+        while (_batchCount < count) {
+            try {
+                wait(5000);
+            } catch (InterruptedException ex) {
+            }
+        }
+        boolean result = count == _batchCount;
+        _batchCount = 0;
+        return result;
+    }
+
+    @Override
+    public void closeConnection(com.zeroc.Ice.Current current) {
+        // We can't wait for the connection to be closed - this would cause a self dead-lock.
+        // So instead we just initiate the closure by running `close` in a separate thread.
+        var closureThread = new Thread(() -> current.con.close());
+        closureThread.start();
+    }
+
+    @Override
+    public void abortConnection(com.zeroc.Ice.Current current) {
+        current.con.abort();
+    }
+
+    @Override
+    public void sleep(int ms, com.zeroc.Ice.Current current) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ex) {
+        }
+    }
+
+    @Override
+    public synchronized CompletionStage<Void> startDispatchAsync(com.zeroc.Ice.Current current) {
+        if (_shutdown) {
+            // Ignore, this can occur with the forcefull connection close test, shutdown can be
+            // dispatch
+            // before start dispatch.
+            CompletableFuture<Void> v = new CompletableFuture<>();
+            v.complete(null);
+            return v;
+        } else if (_pending != null) {
+            _pending.complete(null);
+        }
+        _pending = new CompletableFuture<>();
+        return _pending;
+    }
+
+    @Override
+    public synchronized void finishDispatch(com.zeroc.Ice.Current current) {
+        if (_shutdown) {
+            return;
+        } else if (_pending
+                != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+        {
+            _pending.complete(null);
+            _pending = null;
+        }
+    }
+
+    @Override
+    public synchronized void shutdown(com.zeroc.Ice.Current current) {
+        _shutdown = true;
+        if (_pending != null) {
+            _pending.complete(null);
+            _pending = null;
+        }
+        current.adapter.getCommunicator().shutdown();
+    }
+
+    private int _batchCount;
+    private boolean _shutdown = false;
+    private CompletableFuture<Void> _pending = null;
 }

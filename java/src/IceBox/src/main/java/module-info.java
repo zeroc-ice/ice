@@ -1,9 +1,7 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 module com.zeroc.icebox {
-  exports com.zeroc.IceBox;
+    exports com.zeroc.IceBox;
 
-  requires transitive com.zeroc.ice;
+    requires transitive com.zeroc.ice;
 }

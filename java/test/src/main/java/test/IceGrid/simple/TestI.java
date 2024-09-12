@@ -1,16 +1,14 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package test.IceGrid.simple;
 
 import test.IceGrid.simple.Test.TestIntf;
 
 public class TestI implements TestIntf {
-  public TestI() {}
+    public TestI() {}
 
-  @Override
-  public void shutdown(com.zeroc.Ice.Current current) {
-    current.adapter.getCommunicator().shutdown();
-  }
+    @Override
+    public void shutdown(com.zeroc.Ice.Current current) {
+        current.adapter.getCommunicator().shutdown();
+    }
 }

@@ -10,20 +10,20 @@ package com.zeroc.Ice;
  * from java.lang.Exception.
  */
 public abstract class Exception extends RuntimeException {
-  public Exception(String message) {
-    super(message);
-  }
+    public Exception(String message) {
+        super(message);
+    }
 
-  public Exception(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public Exception(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  /**
-   * Returns the type ID of this exception.
-   *
-   * @return The type ID of this exception.
-   */
-  public abstract String ice_id();
+    /**
+     * Returns the type ID of this exception.
+     *
+     * @return The type ID of this exception.
+     */
+    public abstract String ice_id();
 
-  private static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 0L;
 }

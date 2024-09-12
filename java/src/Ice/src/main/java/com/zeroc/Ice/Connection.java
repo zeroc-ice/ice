@@ -17,125 +17,125 @@ package com.zeroc.Ice;
 
 /** The user-level interface to a connection. */
 public interface Connection {
-  /** Aborts this connection. */
-  void abort();
+    /** Aborts this connection. */
+    void abort();
 
-  /**
-   * Closes the connection gracefully after waiting for all outstanding invocations to complete.
-   * This method blocks until the connection has been closed, or if it takes longer than the
-   * configured close timeout, the connection is aborted with a {@link CloseTimeoutException}.
-   */
-  void close();
+    /**
+     * Closes the connection gracefully after waiting for all outstanding invocations to complete.
+     * This method blocks until the connection has been closed, or if it takes longer than the
+     * configured close timeout, the connection is aborted with a {@link CloseTimeoutException}.
+     */
+    void close();
 
-  /**
-   * Create a special proxy that always uses this connection. This can be used for callbacks from a
-   * server to a client if the server cannot directly establish a connection to the client, for
-   * example because of firewalls. In this case, the server would create a proxy using an already
-   * established connection from the client.
-   *
-   * @param id The identity for which a proxy is to be created.
-   * @return A proxy that matches the given identity and uses this connection.
-   * @see #setAdapter
-   */
-  ObjectPrx createProxy(Identity id);
+    /**
+     * Create a special proxy that always uses this connection. This can be used for callbacks from
+     * a server to a client if the server cannot directly establish a connection to the client, for
+     * example because of firewalls. In this case, the server would create a proxy using an already
+     * established connection from the client.
+     *
+     * @param id The identity for which a proxy is to be created.
+     * @return A proxy that matches the given identity and uses this connection.
+     * @see #setAdapter
+     */
+    ObjectPrx createProxy(Identity id);
 
-  /**
-   * Explicitly set an object adapter that dispatches requests that are received over this
-   * connection. A client can invoke an operation on a server using a proxy, and then set an object
-   * adapter for the outgoing connection that is used by the proxy in order to receive callbacks.
-   * This is useful if the server cannot establish a connection back to the client, for example
-   * because of firewalls.
-   *
-   * @param adapter The object adapter that should be used by this connection to dispatch requests.
-   *     The object adapter must be activated. When the object adapter is deactivated, it is
-   *     automatically removed from the connection. Attempts to use a deactivated object adapter
-   *     raise {@link ObjectAdapterDeactivatedException}
-   * @see #createProxy
-   * @see #getAdapter
-   */
-  void setAdapter(ObjectAdapter adapter);
+    /**
+     * Explicitly set an object adapter that dispatches requests that are received over this
+     * connection. A client can invoke an operation on a server using a proxy, and then set an
+     * object adapter for the outgoing connection that is used by the proxy in order to receive
+     * callbacks. This is useful if the server cannot establish a connection back to the client, for
+     * example because of firewalls.
+     *
+     * @param adapter The object adapter that should be used by this connection to dispatch
+     *     requests. The object adapter must be activated. When the object adapter is deactivated,
+     *     it is automatically removed from the connection. Attempts to use a deactivated object
+     *     adapter raise {@link ObjectAdapterDeactivatedException}
+     * @see #createProxy
+     * @see #getAdapter
+     */
+    void setAdapter(ObjectAdapter adapter);
 
-  /**
-   * Get the object adapter that dispatches requests for this connection.
-   *
-   * @return The object adapter that dispatches requests for the connection, or null if no adapter
-   *     is set.
-   * @see #setAdapter
-   */
-  ObjectAdapter getAdapter();
+    /**
+     * Get the object adapter that dispatches requests for this connection.
+     *
+     * @return The object adapter that dispatches requests for the connection, or null if no adapter
+     *     is set.
+     * @see #setAdapter
+     */
+    ObjectAdapter getAdapter();
 
-  /**
-   * Get the endpoint from which the connection was created.
-   *
-   * @return The endpoint from which the connection was created.
-   */
-  Endpoint getEndpoint();
+    /**
+     * Get the endpoint from which the connection was created.
+     *
+     * @return The endpoint from which the connection was created.
+     */
+    Endpoint getEndpoint();
 
-  /**
-   * Flush any pending batch requests for this connection. This means all batch requests invoked on
-   * fixed proxies associated with the connection.
-   *
-   * @param compress Specifies whether or not the queued batch requests should be compressed before
-   *     being sent over the wire.
-   */
-  void flushBatchRequests(CompressBatch compress);
+    /**
+     * Flush any pending batch requests for this connection. This means all batch requests invoked
+     * on fixed proxies associated with the connection.
+     *
+     * @param compress Specifies whether or not the queued batch requests should be compressed
+     *     before being sent over the wire.
+     */
+    void flushBatchRequests(CompressBatch compress);
 
-  /**
-   * Flush any pending batch requests for this connection. This means all batch requests invoked on
-   * fixed proxies associated with the connection.
-   *
-   * @param compress Specifies whether or not the queued batch requests should be compressed before
-   *     being sent over the wire.
-   * @return A future that will be completed when the invocation completes.
-   */
-  java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compress);
+    /**
+     * Flush any pending batch requests for this connection. This means all batch requests invoked
+     * on fixed proxies associated with the connection.
+     *
+     * @param compress Specifies whether or not the queued batch requests should be compressed
+     *     before being sent over the wire.
+     * @return A future that will be completed when the invocation completes.
+     */
+    java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compress);
 
-  /**
-   * Set a close callback on the connection. The callback is called by the connection when it's
-   * closed. The callback is called from the Ice thread pool associated with the connection. If the
-   * callback needs more information about the closure, it can call {@link
-   * Connection#throwException}.
-   *
-   * @param callback The close callback object.
-   */
-  void setCloseCallback(CloseCallback callback);
+    /**
+     * Set a close callback on the connection. The callback is called by the connection when it's
+     * closed. The callback is called from the Ice thread pool associated with the connection. If
+     * the callback needs more information about the closure, it can call {@link
+     * Connection#throwException}.
+     *
+     * @param callback The close callback object.
+     */
+    void setCloseCallback(CloseCallback callback);
 
-  /**
-   * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
-   *
-   * @return The type of the connection.
-   */
-  String type();
+    /**
+     * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
+     *
+     * @return The type of the connection.
+     */
+    String type();
 
-  /**
-   * Return a description of the connection as human readable text, suitable for logging or error
-   * messages.
-   *
-   * @return The description of the connection as human readable text.
-   */
-  String _toString();
+    /**
+     * Return a description of the connection as human readable text, suitable for logging or error
+     * messages.
+     *
+     * @return The description of the connection as human readable text.
+     */
+    String _toString();
 
-  /**
-   * Returns the connection information.
-   *
-   * @return The connection information.
-   */
-  ConnectionInfo getInfo();
+    /**
+     * Returns the connection information.
+     *
+     * @return The connection information.
+     */
+    ConnectionInfo getInfo();
 
-  /**
-   * Set the connection buffer receive/send size.
-   *
-   * @param rcvSize The connection receive buffer size.
-   * @param sndSize The connection send buffer size.
-   */
-  void setBufferSize(int rcvSize, int sndSize);
+    /**
+     * Set the connection buffer receive/send size.
+     *
+     * @param rcvSize The connection receive buffer size.
+     * @param sndSize The connection send buffer size.
+     */
+    void setBufferSize(int rcvSize, int sndSize);
 
-  /**
-   * Throw an exception indicating the reason for connection closure. For example, {@link
-   * CloseConnectionException} is raised if the connection was closed gracefully, whereas {@link
-   * ConnectionAbortedException}/{@link ConnectionClosedException} is raised if the connection was
-   * manually closed by the application. This operation does nothing if the connection is not yet
-   * closed.
-   */
-  void throwException();
+    /**
+     * Throw an exception indicating the reason for connection closure. For example, {@link
+     * CloseConnectionException} is raised if the connection was closed gracefully, whereas {@link
+     * ConnectionAbortedException}/{@link ConnectionClosedException} is raised if the connection was
+     * manually closed by the application. This operation does nothing if the connection is not yet
+     * closed.
+     */
+    void throwException();
 }

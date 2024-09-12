@@ -7,13 +7,13 @@ package com.zeroc.Ice;
  * fixed proxy.
  */
 public final class FixedProxyException extends LocalException {
-  public FixedProxyException() {
-    super("Cannot change the connection properties of a fixed proxy.");
-  }
+    public FixedProxyException() {
+        super("Cannot change the connection properties of a fixed proxy.");
+    }
 
-  public String ice_id() {
-    return "::Ice::FixedProxyException";
-  }
+    public String ice_id() {
+        return "::Ice::FixedProxyException";
+    }
 
-  private static final long serialVersionUID = 3198117120780643493L;
+    private static final long serialVersionUID = 3198117120780643493L;
 }

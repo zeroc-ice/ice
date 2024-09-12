@@ -5,16 +5,16 @@
 package com.zeroc.IceInternal;
 
 public interface Connector {
-  Transceiver connect();
+    Transceiver connect();
 
-  short type();
+    short type();
 
-  @Override
-  String toString();
+    @Override
+    String toString();
 
-  //
-  // Compare connectors for sorting process.
-  //
-  @Override
-  boolean equals(java.lang.Object obj);
+    //
+    // Compare connectors for sorting process.
+    //
+    @Override
+    boolean equals(java.lang.Object obj);
 }

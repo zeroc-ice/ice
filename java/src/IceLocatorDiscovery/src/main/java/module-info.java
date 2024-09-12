@@ -1,9 +1,7 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 module com.zeroc.icelocatordiscovery {
-  exports com.zeroc.IceLocatorDiscovery;
+    exports com.zeroc.IceLocatorDiscovery;
 
-  requires transitive com.zeroc.ice;
+    requires transitive com.zeroc.ice;
 }

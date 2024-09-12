@@ -1,9 +1,7 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 module com.zeroc.icediscovery {
-  requires transitive com.zeroc.ice;
+    exports com.zeroc.IceDiscovery;
 
-  exports com.zeroc.IceDiscovery;
+    requires transitive com.zeroc.ice;
 }

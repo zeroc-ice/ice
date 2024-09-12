@@ -9,20 +9,20 @@ package com.zeroc.Ice;
  * out-parameters, or an exception specification.
  */
 public final class TwowayOnlyException extends LocalException {
-  public TwowayOnlyException(String operation) {
-    super(
-        "Cannot invoke operation '"
-            + operation
-            + "' with a oneway, batchOneway, datagram, of batchDatagram proxy.");
-    this.operation = operation;
-  }
+    public TwowayOnlyException(String operation) {
+        super(
+                "Cannot invoke operation '"
+                        + operation
+                        + "' with a oneway, batchOneway, datagram, of batchDatagram proxy.");
+        this.operation = operation;
+    }
 
-  public String ice_id() {
-    return "::Ice::TwowayOnlyException";
-  }
+    public String ice_id() {
+        return "::Ice::TwowayOnlyException";
+    }
 
-  /** The name of the operation that was invoked. */
-  public final String operation;
+    /** The name of the operation that was invoked. */
+    public final String operation;
 
-  private static final long serialVersionUID = -7036652448391478186L;
+    private static final long serialVersionUID = -7036652448391478186L;
 }
