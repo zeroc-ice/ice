@@ -63,17 +63,19 @@ $(project)_programs             = icegridnode icegridregistry icegridadmin
 $(project)_dependencies         := IceGrid Glacier2 Ice
 $(project)_targetdir            := $(bindir)
 
+# This is not necessary for the icegridadmin sources. However, we want to build all objects with the same flags to
+# reuse common object files in the different programs.
+$(project)_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
+
 icegridnode_sources             := $(addprefix $(currentdir)/,$(local_node_srcs) $(local_registry_srcs) IceGridNode.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice
 icegridnode_dependencies        := IceBox IceStormService IceStorm IceXML IceDB
-icegridnode_cppflags            := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
 icegridregistry_sources         := $(addprefix $(currentdir)/,$(local_registry_srcs) IceGridRegistry.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice
 icegridregistry_dependencies    := IceBox IceStormService IceStorm IceXML IceDB $(local_dependencies)
-icegridregistry_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
-icegridadmin_dependencies       := IceBox IceXML IceLocatorDiscovery
 icegridadmin_sources            := $(addprefix $(currentdir)/,$(local_admin_srcs))
+icegridadmin_dependencies       := IceBox IceXML IceLocatorDiscovery
 
 projects += $(project)
