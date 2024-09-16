@@ -1185,7 +1185,7 @@ public class Coordinator {
             final SessionKeeper.ConnectionInfo info,
             final JDialog parent) {
         //
-        // Keep certificates arround for connection retry
+        // Keep certificates around for connection retry
         //
         _transientCert = null;
         _liveDeploymentRoot.clear();

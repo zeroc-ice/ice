@@ -40,8 +40,8 @@ class ShowLogFileDialog extends JDialog {
     }
 
     private class FIFOTextArea extends JTextArea {
-        FIFOTextArea(int rows, int colums) {
-            super(rows, colums);
+        FIFOTextArea(int rows, int columns) {
+            super(rows, columns);
             setEditable(false);
             setLineWrap(true);
         }

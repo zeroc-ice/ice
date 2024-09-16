@@ -31,14 +31,14 @@ public interface InvocationObserver extends Observer {
      * Get a remote observer for this invocation.
      *
      * @param con The connection information.
-     * @param endpt The connection endpoint.
+     * @param endpoint The connection endpoint.
      * @param requestId The ID of the invocation.
      * @param size The size of the invocation.
      * @return The observer to instrument the remote invocation.
      */
     RemoteObserver getRemoteObserver(
             com.zeroc.Ice.ConnectionInfo con,
-            com.zeroc.Ice.Endpoint endpt,
+            com.zeroc.Ice.Endpoint endpoint,
             int requestId,
             int size);
 

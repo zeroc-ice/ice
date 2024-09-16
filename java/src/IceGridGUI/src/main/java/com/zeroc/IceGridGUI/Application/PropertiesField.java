@@ -107,7 +107,7 @@ public class PropertiesField extends JTable {
                     _hiddenProperties.add(p);
                 }
 
-                // We hide only the first occurence
+                // We hide only the first occurrence
                 hiddenPropertyNames.remove(p.name);
             } else if (hiddenPropertyValues.contains(p.value)) {
                 // We keep them at the top of the list
@@ -115,7 +115,7 @@ public class PropertiesField extends JTable {
                     _hiddenProperties.add(p);
                 }
 
-                // We hide only the first occurence
+                // We hide only the first occurrence
                 hiddenPropertyValues.remove(p.value);
             } else {
                 java.util.Vector<String> row = new java.util.Vector<>(2);

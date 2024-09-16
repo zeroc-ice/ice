@@ -219,7 +219,7 @@ class LookupI implements Lookup {
     }
 
     void setLookupReply(LookupReplyPrx lookupReply) {
-        // Use a lookup reply proxy whose adress matches the interface used to send multicast
+        // Use a lookup reply proxy whose address matches the interface used to send multicast
         // datagrams.
         com.zeroc.Ice.Endpoint[] single = new com.zeroc.Ice.Endpoint[1];
         for (Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet()) {
@@ -256,7 +256,7 @@ class LookupI implements Lookup {
 
         com.zeroc.Ice.ObjectPrx proxy = _registry.findObject(id);
         if (proxy != null) {
-            // Reply to the mulicast request using the given proxy.
+            // Reply to the multicast request using the given proxy.
             try {
                 reply.foundObjectByIdAsync(id, proxy);
             } catch (com.zeroc.Ice.LocalException ex) {

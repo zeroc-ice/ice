@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+// cspell:words transferable
+
 package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.IceGridGUI.*;

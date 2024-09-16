@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+// cspell:words Genymotion gphone
+
 package com.zeroc.testcontroller;
 
 import java.io.*;

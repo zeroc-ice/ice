@@ -1378,7 +1378,7 @@ public class SessionKeeper {
                         new JLabel(
                                 "<html>Corresponds to the client endpoints of the IceGrid registry.<br/>"
                                         + "For example: tcp -h registry.domain.com -p 4061</html>"));
-                _cardPanel.add(builder.getPanel(), WizardStep.DirectCustomEnpointStep.toString());
+                _cardPanel.add(builder.getPanel(), WizardStep.DirectCustomEndpointStep.toString());
             }
 
             // Routed Custom Endpoint panel
@@ -1417,7 +1417,7 @@ public class SessionKeeper {
                         new JLabel(
                                 "<html>Corresponds to the client endpoints of the Glacier2 router.<br/>"
                                         + "For example: tcp -h router.domain.com -p 4063</html>"));
-                _cardPanel.add(builder.getPanel(), WizardStep.RoutedCustomEnpointStep.toString());
+                _cardPanel.add(builder.getPanel(), WizardStep.RoutedCustomEndpointStep.toString());
             }
 
             // X509Certificate panel
@@ -1816,8 +1816,8 @@ public class SessionKeeper {
 
                                             _cardLayout.show(
                                                     _cardPanel,
-                                                    WizardStep.DirectCustomEnpointStep.toString());
-                                            _wizardSteps.push(WizardStep.DirectCustomEnpointStep);
+                                                    WizardStep.DirectCustomEndpointStep.toString());
+                                            _wizardSteps.push(WizardStep.DirectCustomEndpointStep);
                                         }
                                         break;
                                     }
@@ -1833,8 +1833,8 @@ public class SessionKeeper {
                                         } else {
                                             _cardLayout.show(
                                                     _cardPanel,
-                                                    WizardStep.DirectCustomEnpointStep.toString());
-                                            _wizardSteps.push(WizardStep.DirectCustomEnpointStep);
+                                                    WizardStep.DirectCustomEndpointStep.toString());
+                                            _wizardSteps.push(WizardStep.DirectCustomEndpointStep);
                                         }
                                         break;
                                     }
@@ -1850,8 +1850,8 @@ public class SessionKeeper {
                                         } else {
                                             _cardLayout.show(
                                                     _cardPanel,
-                                                    WizardStep.RoutedCustomEnpointStep.toString());
-                                            _wizardSteps.push(WizardStep.RoutedCustomEnpointStep);
+                                                    WizardStep.RoutedCustomEndpointStep.toString());
+                                            _wizardSteps.push(WizardStep.RoutedCustomEndpointStep);
                                         }
                                         break;
                                     }
@@ -1912,7 +1912,7 @@ public class SessionKeeper {
                                         break;
                                     }
 
-                                case DirectCustomEnpointStep:
+                                case DirectCustomEndpointStep:
                                     {
                                         try {
                                             com.zeroc.Ice.Identity id =
@@ -1971,7 +1971,7 @@ public class SessionKeeper {
                                         }
                                         break;
                                     }
-                                case RoutedCustomEnpointStep:
+                                case RoutedCustomEndpointStep:
                                     {
                                         try {
                                             com.zeroc.Ice.Identity id =
@@ -2311,7 +2311,7 @@ public class SessionKeeper {
                         _directDefaultEndpointHost.requestFocusInWindow();
                         break;
                     }
-                case DirectCustomEnpointStep:
+                case DirectCustomEndpointStep:
                     {
                         _directCustomEndpointValue.requestFocusInWindow();
                         break;
@@ -2331,7 +2331,7 @@ public class SessionKeeper {
                         _routedDefaultEndpointHost.requestFocusInWindow();
                         break;
                     }
-                case RoutedCustomEnpointStep:
+                case RoutedCustomEndpointStep:
                     {
                         _routedCustomEndpointValue.requestFocusInWindow();
                         break;
@@ -2440,7 +2440,7 @@ public class SessionKeeper {
                         }
                         break;
                     }
-                case DirectCustomEnpointStep:
+                case DirectCustomEndpointStep:
                     {
                         validated =
                                 _directCustomEndpointValue.getText() != null
@@ -2468,7 +2468,7 @@ public class SessionKeeper {
                         }
                         break;
                     }
-                case RoutedCustomEnpointStep:
+                case RoutedCustomEndpointStep:
                     {
                         validated =
                                 _routedCustomEndpointValue.getText() != null
@@ -2534,7 +2534,7 @@ public class SessionKeeper {
                         return false;
                     }
                 } else {
-                    if (!validateWizardStep(WizardStep.DirectCustomEnpointStep)) {
+                    if (!validateWizardStep(WizardStep.DirectCustomEndpointStep)) {
                         return false;
                     }
                 }
@@ -2545,7 +2545,7 @@ public class SessionKeeper {
                         return false;
                     }
                 } else {
-                    if (!validateWizardStep(WizardStep.RoutedCustomEnpointStep)) {
+                    if (!validateWizardStep(WizardStep.RoutedCustomEndpointStep)) {
                         return false;
                     }
                 }
@@ -2829,10 +2829,10 @@ public class SessionKeeper {
         DirectDiscoveryChooseStep,
         DirectEndpointStep,
         DirectDefaultEndpointStep,
-        DirectCustomEnpointStep,
+        DirectCustomEndpointStep,
         RoutedEndpointStep,
         RoutedDefaultEndpointStep,
-        RoutedCustomEnpointStep,
+        RoutedCustomEndpointStep,
         X509CertificateStep,
         DirectX509CredentialsStep,
         RoutedX509CredentialsStep,
@@ -3742,7 +3742,7 @@ public class SessionKeeper {
                                 if (index != -1) {
                                     if (JOptionPane.showConfirmDialog(
                                                     KeyStorePanel.this,
-                                                    "Do you want to remove the certficate with alias `"
+                                                    "Do you want to remove the certificate with alias `"
                                                             + _aliases.get(index)
                                                             + "'?",
                                                     "Remove Certificate - IceGrid GUI",

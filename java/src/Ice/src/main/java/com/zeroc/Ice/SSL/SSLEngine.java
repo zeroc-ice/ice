@@ -192,7 +192,7 @@ public class SSLEngine {
                         //
                         if (!keys.isKeyEntry(alias)) {
                             throw new InitializationException(
-                                    "SSL trasnsport: keystore does not contain an entry with alias `"
+                                    "SSL transport: keystore does not contain an entry with alias `"
                                             + alias
                                             + "'");
                         }
@@ -438,7 +438,7 @@ public class SSLEngine {
         if (!info.incoming) {
             if (_verifyPeer > 0 && !info.verified) {
                 throw new com.zeroc.Ice.SecurityException(
-                        "SSL trasnsport: server did not supply a certificate");
+                        "SSL transport: server did not supply a certificate");
             }
         }
 

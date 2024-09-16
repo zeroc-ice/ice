@@ -2,15 +2,30 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "apos",            // For &apos;
+        "Blobject",
+        "cacerts",
         "datagram",
+        "datagrams",
         "decoratee",
+        "DTLS",
+        "finalizer",
+        "finalizers",
         "icegrid",
-        "ICESTORM",
-        "nohup",
+        "icegridadmin",
+        "icegridnode",
+        "icestorm",
+        "jgoodies",        // Common Java library
+        "nohup",           // Ice property name
         "nullopt",
         "oneway",
+        "PKCS",
         "Postamble",
+        "reloadable",
+        "RFCOMM",          // Bluetooth protocol
+        "Stringifier",
         "Syscall",
+        "Truststore",
         "twoway",
         "unmarshal",
         "unmarshaling",

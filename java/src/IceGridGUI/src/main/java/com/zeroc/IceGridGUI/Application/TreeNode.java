@@ -142,7 +142,7 @@ public abstract class TreeNode extends TreeNodeBase {
 
             for (PropertyDescriptor p : psd.properties) {
                 if (hiddenPropertyNames.contains(p.name)) {
-                    // We hide only the first occurence
+                    // We hide only the first occurrence
                     hiddenPropertyNames.remove(p.name);
                 } else if (hiddenPropertyValues.contains(p.value)) {
                     hiddenPropertyValues.remove(p.value);

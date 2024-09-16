@@ -164,7 +164,7 @@ public class AllTests {
             // Test Ice.SSL.VerifyPeer=1. Client has a certificate.
             //
             // Provide "cacert1" to the client to verify the server
-            // certificate (without this the client connection wouln't be
+            // certificate (without this the client connection wouldn't be
             // able to provide the certificate chain).
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             comm = Util.initialize(args, initData);
@@ -472,7 +472,7 @@ public class AllTests {
                     comm.destroy();
                 }
 
-                // Target host is an IP addres that matches the CN and the certificate doesn't
+                // Target host is an IP address that matches the CN and the certificate doesn't
                 // include an IP altName
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");

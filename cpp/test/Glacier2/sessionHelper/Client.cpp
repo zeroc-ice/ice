@@ -399,7 +399,7 @@ Client::run(int argc, char** argv)
     _factory = make_shared<Glacier2::SessionFactoryHelper>(_initData, make_shared<AfterShutdownSessionCallback>());
 
     //
-    // Wait a bit to ensure glaci2router has been shutdown.
+    // Wait a bit to ensure the glacier2 router has been shutdown.
     //
     this_thread::sleep_for(100ms);
 

@@ -248,7 +248,7 @@ internal class LookupI : LookupDisp_
     public void setLookupReply(LookupReplyPrx lookupReply)
     {
         //
-        // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+        // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
         //
         var single = new Ice.Endpoint[1];
         foreach (var key in new List<LookupPrx>(_lookups.Keys))
@@ -287,7 +287,7 @@ internal class LookupI : LookupDisp_
         if (proxy != null)
         {
             //
-            // Reply to the mulicast request using the given proxy.
+            // Reply to the multicast request using the given proxy.
             //
             try
             {
