@@ -337,7 +337,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                 _styles.remove(seriesClass);
                                             }
                                             // Don't remove the XYChart.Series object here, to avoid
-                                            // the series style classes getting reassigned by JavaFX.
+                                            // the series style classes getting reassigned by
+                                            // JavaFX.
                                             //
                                             // TODO: _chart.getData().remove(row.series);
                                             try {
