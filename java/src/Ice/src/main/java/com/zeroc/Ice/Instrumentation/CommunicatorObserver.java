@@ -26,12 +26,12 @@ public interface CommunicatorObserver {
      * This method should return an observer for the given endpoint information and connector. The
      * Ice run-time calls this method for each connection establishment attempt.
      *
-     * @param endpt The endpoint.
+     * @param endpoint The endpoint.
      * @param connector The description of the connector. For IP transports, this is typically the
      *     IP address to connect to.
      * @return The observer to instrument the connection establishment.
      */
-    Observer getConnectionEstablishmentObserver(com.zeroc.Ice.Endpoint endpt, String connector);
+    Observer getConnectionEstablishmentObserver(com.zeroc.Ice.Endpoint endpoint, String connector);
 
     /**
      * This method should return an observer for the given endpoint information. The Ice run-time
@@ -39,10 +39,10 @@ public interface CommunicatorObserver {
      * this typically involves doing a DNS lookup to obtain the IP addresses associated with the DNS
      * name.
      *
-     * @param endpt The endpoint.
+     * @param endpoint The endpoint.
      * @return The observer to instrument the endpoint lookup.
      */
-    Observer getEndpointLookupObserver(com.zeroc.Ice.Endpoint endpt);
+    Observer getEndpointLookupObserver(com.zeroc.Ice.Endpoint endpoint);
 
     /**
      * This method should return a connection observer for the given connection. The Ice run-time

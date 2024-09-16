@@ -267,9 +267,8 @@ class TrustManager {
                 v.append('=');
                 v.append(pair.value);
             }
-            javax.security.auth.x500.X500Principal princ =
-                    new javax.security.auth.x500.X500Principal(v.toString());
-            String subjectName = princ.getName(javax.security.auth.x500.X500Principal.RFC2253);
+            var principal = new javax.security.auth.x500.X500Principal(v.toString());
+            String subjectName = principal.getName(javax.security.auth.x500.X500Principal.RFC2253);
             if (e.negate) {
                 reject.add(RFC2253.parseStrict(subjectName));
             } else {

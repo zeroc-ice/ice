@@ -8,6 +8,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -375,7 +376,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         private double _max;
     }
 
-    class Transferable implements java.awt.datatransfer.Transferable {
+    class Transferable implements Transferable {
         public Transferable(MetricsViewTransferableData data) {
             _data = data;
             try {

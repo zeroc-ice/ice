@@ -155,11 +155,11 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
                 this, _instance, _delegate.acceptor(adapterName, null), adapterName, factory);
     }
 
-    public EndpointI endpoint(com.zeroc.IceInternal.EndpointI delEndpt) {
-        if (delEndpt == _delegate) {
+    public EndpointI endpoint(com.zeroc.IceInternal.EndpointI delEndpoint) {
+        if (delEndpoint == _delegate) {
             return this;
         } else {
-            return new EndpointI(_instance, delEndpt);
+            return new EndpointI(_instance, delEndpoint);
         }
     }
 

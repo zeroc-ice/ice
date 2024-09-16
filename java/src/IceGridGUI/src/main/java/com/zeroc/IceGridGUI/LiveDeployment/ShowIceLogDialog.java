@@ -15,6 +15,7 @@ import com.zeroc.IceGridGUI.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.prefs.Preferences;
@@ -181,8 +182,7 @@ class ShowIceLogDialog extends JDialog {
                                                 + "\n";
                             }
 
-                            java.awt.datatransfer.StringSelection ss =
-                                    new java.awt.datatransfer.StringSelection(txt);
+                            var ss = new StringSelection(txt);
 
                             java.awt.Toolkit.getDefaultToolkit()
                                     .getSystemClipboard()
