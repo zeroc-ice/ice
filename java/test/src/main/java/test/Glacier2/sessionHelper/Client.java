@@ -347,7 +347,7 @@ public class Client extends test.TestHelper {
                                 }
                             });
 
-            // Wait a bit to ensure glaci2router has been shutdown.
+            // Wait a bit to ensure the glacier2 router has been shutdown.
             while (true) {
                 try {
                     Thread.sleep(100);

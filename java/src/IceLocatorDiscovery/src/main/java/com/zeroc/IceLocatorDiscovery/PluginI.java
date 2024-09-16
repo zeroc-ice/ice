@@ -143,7 +143,7 @@ class PluginI implements Plugin {
         }
 
         public void setLookupReply(LookupReplyPrx lookupReply) {
-            // Use a lookup reply proxy whose adress matches the interface used to send multicast
+            // Use a lookup reply proxy whose address matches the interface used to send multicast
             // datagrams.
             com.zeroc.Ice.Endpoint[] single = new com.zeroc.Ice.Endpoint[1];
             for (Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet()) {

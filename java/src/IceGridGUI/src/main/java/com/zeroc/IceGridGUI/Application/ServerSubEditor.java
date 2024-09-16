@@ -45,7 +45,7 @@ class ServerSubEditor extends CommunicatorSubEditor {
         _options.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _options.setToolTipText(
                 "<html>Command-line arguments for this server.<br>"
-                        + "Use whitespace as separator; use double-quotes around arguments containing whitespaces</html>");
+                        + "Use whitespace as separator; use double-quotes around arguments containing whitespace</html>");
 
         _user.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _user.setToolTipText(

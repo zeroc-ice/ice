@@ -337,8 +337,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                 _styles.remove(seriesClass);
                                             }
                                             // Don't remove the XYChart.Series object here, to avoid
-                                            // the series
-                                            // style classes to be reasign by JavaFX.
+                                            // the series style classes getting reassigned by JavaFX.
                                             //
                                             // TODO: _chart.getData().remove(row.series);
                                             try {
@@ -685,14 +684,14 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
     // Added a new chart series to an existing row, the graph series will use the
     // same configuration, the row cell field must be reset so calculations doesn't
-    // take into account previous data. If we don't reset fields here caculations
+    // take into account previous data. If we don't reset fields here, calculations
     // can be bogus in case the view was disabled and the data in the view was reset.
     void addSeries(final MetricsRow row) {
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         row.series.push(series);
         _chart.getData().add(series);
 
-        // Retrieve the style class asigned by JavaFX to this series, and set the same style
+        // Retrieve the style class assigned by JavaFX to this series, and set the same style
         String styleClass = getSeriesClass(series);
         addStyle(series, styleClass, row.color);
         setNodesStyle(styleClass);

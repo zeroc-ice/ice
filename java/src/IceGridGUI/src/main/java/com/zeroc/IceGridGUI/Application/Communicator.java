@@ -408,7 +408,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
             String newName = makeNewChildId(descriptor.name);
 
             if (!newName.equals(descriptor.name) && parentProperties != null) {
-                // Adjust Endpoints and PublishedEnpoints
+                // Adjust Endpoints and PublishedEndpoints
 
                 String key = descriptor.name + ".Endpoints";
                 String val = parentProperties.remove(key);

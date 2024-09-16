@@ -410,7 +410,7 @@ public class ServiceManagerI implements ServiceManager {
         // communicator for the service. The communicator inherits
         // from the shared communicator properties. If it's not
         // defined, add the service properties to the shared
-        // commnunicator property set.
+        // communicator property set.
         com.zeroc.Ice.Communicator communicator;
         if (_communicator
                         .getProperties()

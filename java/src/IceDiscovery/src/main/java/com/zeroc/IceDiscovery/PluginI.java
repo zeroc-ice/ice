@@ -61,7 +61,7 @@ class PluginI implements com.zeroc.Ice.Plugin {
         _replyAdapter = _communicator.createObjectAdapter("IceDiscovery.Reply");
         _locatorAdapter = _communicator.createObjectAdapter("IceDiscovery.Locator");
 
-        // Setup locatory registry.
+        // Setup locator registry.
         LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
         com.zeroc.Ice.LocatorRegistryPrx locatorRegistryPrx =
                 com.zeroc.Ice.LocatorRegistryPrx.uncheckedCast(

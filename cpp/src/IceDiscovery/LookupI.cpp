@@ -209,7 +209,7 @@ LookupI::setLookupReply(const LookupReplyPrx& lookupReply)
     // endpoint.
     for (const auto& lookupEndpoint : _lookup->ice_getEndpoints())
     {
-        // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+        // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
         LookupReplyPrx reply = lookupReply;
         auto info = dynamic_pointer_cast<UDPEndpointInfo>(lookupEndpoint->getInfo());
         if (info && !info->mcastInterface.empty())
