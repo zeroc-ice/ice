@@ -2,8 +2,8 @@
 
 package test.IceUtil.inputUtil;
 
-import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.Options;
+import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.StringUtil;
 
 public class Client extends test.TestHelper {

@@ -2,10 +2,8 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.ParseException;
-
 /**
- * @hidden
+ * @hidden Kept public because it's used by IceBox.
  */
 public final class Options {
     public static String[] split(String line) throws ParseException {

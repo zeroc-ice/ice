@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden
+ * @hidden Kept public because it's used by IceGridGUI.
  */
 public final class StringUtil {
     /**
