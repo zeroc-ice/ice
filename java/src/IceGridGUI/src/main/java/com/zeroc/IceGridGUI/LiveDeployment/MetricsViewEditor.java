@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+// cspell:words transferable
+
 package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.IceGridGUI.*;
@@ -8,7 +10,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -376,7 +377,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         private double _max;
     }
 
-    class Transferable implements Transferable {
+    class Transferable implements java.awt.datatransfer.Transferable {
         public Transferable(MetricsViewTransferableData data) {
             _data = data;
             try {
