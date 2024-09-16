@@ -125,10 +125,7 @@ public final class ServantManager implements Object {
             if (m.containsKey(facet)) {
                 String id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
                 if (!facet.isEmpty()) {
-                    id +=
-                            " -f "
-                                    + com.zeroc.IceUtilInternal.StringUtil.escapeString(
-                                            facet, "", _instance.toStringMode());
+                    id += " -f " + StringUtil.escapeString(facet, "", _instance.toStringMode());
                 }
                 throw new com.zeroc.Ice.AlreadyRegisteredException("servant", id);
             }
@@ -160,10 +157,7 @@ public final class ServantManager implements Object {
         if (m == null || (obj = m.remove(facet)) == null) {
             String id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
             if (!facet.isEmpty()) {
-                id +=
-                        " -f "
-                                + com.zeroc.IceUtilInternal.StringUtil.escapeString(
-                                        facet, "", _instance.toStringMode());
+                id += " -f " + StringUtil.escapeString(facet, "", _instance.toStringMode());
             }
             throw new com.zeroc.Ice.NotRegisteredException("servant", id);
         }
@@ -267,9 +261,7 @@ public final class ServantManager implements Object {
 
         ServantLocator l = _locatorMap.get(category);
         if (l != null) {
-            final String id =
-                    com.zeroc.IceUtilInternal.StringUtil.escapeString(
-                            category, "", _instance.toStringMode());
+            final String id = StringUtil.escapeString(category, "", _instance.toStringMode());
             throw new com.zeroc.Ice.AlreadyRegisteredException("servant locator", id);
         }
 
@@ -282,9 +274,7 @@ public final class ServantManager implements Object {
 
         l = _locatorMap.remove(category);
         if (l == null) {
-            final String id =
-                    com.zeroc.IceUtilInternal.StringUtil.escapeString(
-                            category, "", _instance.toStringMode());
+            final String id = StringUtil.escapeString(category, "", _instance.toStringMode());
             throw new com.zeroc.Ice.NotRegisteredException("servant locator", id);
         }
         return l;

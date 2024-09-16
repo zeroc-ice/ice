@@ -4,8 +4,6 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.IceUtilInternal.StringUtil;
-
 /** Utility methods for the Ice run time. */
 public final class Util {
     /**

@@ -1,7 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.IceUtilInternal;
+package com.zeroc.Ice;
 
+/**
+ * @hidden
+ */
 public final class StringUtil {
     /**
      * Returns the index of the first character in str to appear in match, starting from 0. Returns

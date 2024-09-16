@@ -1334,11 +1334,11 @@ public final class ObjectAdapter {
                         .logger
                         .warning("object adapter `" + getName() + "' has not been destroyed");
             } else {
-                com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
+                Assert.FinalizerAssert(_threadPool == null);
                 // Not cleared, it needs to be immutable.
-                // com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_servantManager == null);
-                // com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
-                com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
+                // Assert.FinalizerAssert(_servantManager == null);
+                // Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
+                Assert.FinalizerAssert(_directCount == 0);
             }
         } catch (java.lang.Exception ex) {
         } finally {
@@ -1395,7 +1395,7 @@ public final class ObjectAdapter {
 
         List<com.zeroc.IceInternal.EndpointI> endpoints = new ArrayList<>();
         while (end < endpts.length()) {
-            beg = com.zeroc.IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
+            beg = StringUtil.findFirstNotOf(endpts, delim, end);
             if (beg == -1) {
                 if (!endpoints.isEmpty()) {
                     throw new ParseException("invalid empty object adapter endpoint");

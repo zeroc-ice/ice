@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.IceUtilInternal;
+package com.zeroc.Ice;
 
-public class OutputBase {
+final class OutputBase {
     public OutputBase() {
         _out = null;
         _pos = 0;

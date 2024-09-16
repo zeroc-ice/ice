@@ -144,7 +144,7 @@ public abstract class EndpointI implements com.zeroc.Ice.Endpoint, java.lang.Com
 
         String str = "`" + protocol() + " ";
         for (String p : args) {
-            if (com.zeroc.IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1) {
+            if (StringUtil.findFirstOf(p, " \t\n\r") != -1) {
                 str += " \"" + p + "\"";
             } else {
                 str += " " + p;

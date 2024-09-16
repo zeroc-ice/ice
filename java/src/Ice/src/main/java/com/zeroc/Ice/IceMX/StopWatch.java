@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.IceUtilInternal;
+package com.zeroc.Ice.IceMX;
 
-public class StopWatch {
+class StopWatch {
     public void start() {
         _s = System.nanoTime();
     }

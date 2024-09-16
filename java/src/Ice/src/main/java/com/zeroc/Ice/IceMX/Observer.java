@@ -6,7 +6,7 @@ package com.zeroc.Ice.IceMX;
 
 import com.zeroc.IceInternal.MetricsMap;
 
-public class Observer<T extends Metrics> extends com.zeroc.IceUtilInternal.StopWatch
+public class Observer<T extends Metrics> extends StopWatch
         implements com.zeroc.Ice.Instrumentation.Observer {
     public interface MetricsUpdate<T> {
         void update(T m);

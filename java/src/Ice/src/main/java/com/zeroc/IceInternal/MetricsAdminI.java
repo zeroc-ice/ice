@@ -17,7 +17,7 @@ public class MetricsAdminI
         for (String prop : props.keySet()) {
             boolean valid = false;
             for (String suffix : suffixes) {
-                if (com.zeroc.IceUtilInternal.StringUtil.match(prop, prefix + suffix, false)) {
+                if (StringUtil.match(prop, prefix + suffix, false)) {
                     valid = true;
                     break;
                 }

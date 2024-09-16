@@ -14,7 +14,6 @@ import com.zeroc.Ice.RequestFailedException;
 import com.zeroc.Ice.ToStringMode;
 import com.zeroc.Ice.UserException;
 import com.zeroc.Ice.Util;
-import com.zeroc.IceUtilInternal.StringUtil;
 import java.util.concurrent.CompletionStage;
 
 public final class LoggerMiddleware implements Object {
@@ -77,9 +76,9 @@ public final class LoggerMiddleware implements Object {
     }
 
     private void warning(String exceptionDetails, Current current) {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        com.zeroc.IceUtilInternal.OutputBase out = new com.zeroc.IceUtilInternal.OutputBase(pw);
+        var sw = new java.io.StringWriter();
+        var pw = new java.io.PrintWriter(sw);
+        var out = new OutputBase(pw);
         out.setUseTab(false);
         out.print("dispatch exception:");
         out.print("\nidentity: " + Util.identityToString(current.id, _toStringMode));

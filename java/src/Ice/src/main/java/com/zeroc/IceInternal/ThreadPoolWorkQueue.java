@@ -16,7 +16,7 @@ final class ThreadPoolWorkQueue extends EventHandler {
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_destroyed);
+            Assert.FinalizerAssert(_destroyed);
         } catch (java.lang.Exception ex) {
         } finally {
             super.finalize();

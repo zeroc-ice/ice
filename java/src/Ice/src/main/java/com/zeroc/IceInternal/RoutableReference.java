@@ -257,10 +257,8 @@ public class RoutableReference extends Reference {
             // the adapter id string in quotes.
             //
 
-            String a =
-                    com.zeroc.IceUtilInternal.StringUtil.escapeString(
-                            _adapterId, null, getInstance().toStringMode());
-            if (com.zeroc.IceUtilInternal.StringUtil.findFirstOf(a, " :@") != -1) {
+            String a = StringUtil.escapeString(_adapterId, null, getInstance().toStringMode());
+            if (StringUtil.findFirstOf(a, " :@") != -1) {
                 s.append('"');
                 s.append(a);
                 s.append('"');

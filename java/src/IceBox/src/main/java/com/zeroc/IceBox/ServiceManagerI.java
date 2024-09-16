@@ -721,7 +721,7 @@ public class ServiceManagerI implements ServiceManager {
             // "<path with spaces>:<class-name>" [args]
 
             try {
-                args = com.zeroc.IceUtilInternal.Options.split(value);
+                args = com.zeroc.Ice.Options.split(value);
             } catch (com.zeroc.Ice.ParseException ex) {
                 throw new FailureException(
                         "ServiceManager: invalid arguments for service `" + name + "'", ex);

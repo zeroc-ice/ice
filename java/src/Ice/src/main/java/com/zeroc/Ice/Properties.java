@@ -274,9 +274,7 @@ public final class Properties {
      * @see #setProperty
      */
     public synchronized String[] getIcePropertyAsList(String key) {
-        String[] defaultList =
-                com.zeroc.IceUtilInternal.StringUtil.splitString(
-                        getDefaultProperty(key), ", \t\r\n");
+        String[] defaultList = StringUtil.splitString(getDefaultProperty(key), ", \t\r\n");
         return getPropertyAsListWithDefault(key, defaultList);
     }
 
@@ -302,8 +300,7 @@ public final class Properties {
         if (pv != null) {
             pv.used = true;
 
-            String[] result =
-                    com.zeroc.IceUtilInternal.StringUtil.splitString(pv.value, ", \t\r\n");
+            String[] result = StringUtil.splitString(pv.value, ", \t\r\n");
             if (result == null) {
                 Util.getProcessLogger()
                         .warning(

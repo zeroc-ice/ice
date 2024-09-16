@@ -249,11 +249,11 @@ public final class OutgoingConnectionFactory {
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_destroyed);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_connectionsByEndpoint.isEmpty());
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_pendingConnectCount == 0);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_pending.isEmpty());
+            Assert.FinalizerAssert(_destroyed);
+            Assert.FinalizerAssert(_connections.isEmpty());
+            Assert.FinalizerAssert(_connectionsByEndpoint.isEmpty());
+            Assert.FinalizerAssert(_pendingConnectCount == 0);
+            Assert.FinalizerAssert(_pending.isEmpty());
         } catch (java.lang.Exception ex) {
         } finally {
             super.finalize();

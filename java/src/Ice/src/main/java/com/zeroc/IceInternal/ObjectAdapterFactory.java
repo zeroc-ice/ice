@@ -229,9 +229,9 @@ public final class ObjectAdapterFactory {
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_instance == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_adapters.isEmpty());
+            Assert.FinalizerAssert(_instance == null);
+            Assert.FinalizerAssert(_communicator == null);
+            Assert.FinalizerAssert(_adapters.isEmpty());
         } catch (java.lang.Exception ex) {
         } finally {
             super.finalize();

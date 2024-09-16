@@ -189,7 +189,7 @@ public final class PluginManagerI implements PluginManager {
 
         String[] args;
         try {
-            args = com.zeroc.IceUtilInternal.Options.split(pluginSpec);
+            args = Options.split(pluginSpec);
         } catch (ParseException ex) {
             throw new PluginInitializationException(
                     "invalid arguments for plug-in `" + name + "'", ex);

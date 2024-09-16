@@ -36,7 +36,7 @@ public final class EndpointFactoryManager {
     }
 
     public synchronized EndpointI create(String str, boolean oaEndpoint) {
-        String[] arr = com.zeroc.IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
+        String[] arr = StringUtil.splitString(str, " \t\r\n");
         if (arr == null) {
             throw new ParseException("Failed to parse endpoint '" + str + "': mismatched quote");
         }

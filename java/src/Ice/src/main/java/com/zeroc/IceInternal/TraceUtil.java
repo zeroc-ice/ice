@@ -156,9 +156,7 @@ public final class TraceUtil {
             String[] facet = stream.readStringSeq();
             out.write("\nfacet = ");
             if (facet.length > 0) {
-                out.write(
-                        com.zeroc.IceUtilInternal.StringUtil.escapeString(
-                                facet[0], "", toStringMode));
+                out.write(StringUtil.escapeString(facet[0], "", toStringMode));
             }
 
             String operation = stream.readString();

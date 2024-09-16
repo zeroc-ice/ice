@@ -1,9 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.IceUtilInternal;
+package com.zeroc.Ice;
 
 import com.zeroc.Ice.ParseException;
 
+/**
+ * @hidden
+ */
 public final class Options {
     public static String[] split(String line) throws ParseException {
         final String IFS = " \t\n";

@@ -314,7 +314,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_socket == null);
+            Assert.FinalizerAssert(_socket == null);
         } catch (java.lang.Exception ex) {
         } finally {
             super.finalize();

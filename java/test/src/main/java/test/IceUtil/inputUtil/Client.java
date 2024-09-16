@@ -3,8 +3,8 @@
 package test.IceUtil.inputUtil;
 
 import com.zeroc.Ice.ParseException;
-import com.zeroc.IceUtilInternal.Options;
-import com.zeroc.IceUtilInternal.StringUtil;
+import com.zeroc.Ice.Options;
+import com.zeroc.Ice.StringUtil;
 
 public class Client extends test.TestHelper {
     public void run(String[] argvs) {

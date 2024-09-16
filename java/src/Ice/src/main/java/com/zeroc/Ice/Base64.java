@@ -1,11 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.IceUtilInternal;
+package com.zeroc.Ice;
 
 // We would prefer to use java.util.Base64 but unfortunately that class isn't supported in Android
 // until
 // Android O, so we are using our own implementation.
-public class Base64 {
+final class Base64 {
     public static String encode(byte[] plainSeq) {
         if (plainSeq == null || plainSeq.length == 0) {
             return "";

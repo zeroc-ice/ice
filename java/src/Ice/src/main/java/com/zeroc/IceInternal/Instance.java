@@ -962,19 +962,19 @@ public final class Instance implements java.util.function.Function<String, Class
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_state == StateDestroyed);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_referenceFactory == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_objectAdapterFactory == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_clientThreadPool == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_serverThreadPool == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_endpointHostResolver == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_timer == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_routerManager == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_locatorManager == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_endpointFactoryManager == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_pluginManager == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_retryQueue == null);
+            Assert.FinalizerAssert(_state == StateDestroyed);
+            Assert.FinalizerAssert(_referenceFactory == null);
+            Assert.FinalizerAssert(_outgoingConnectionFactory == null);
+            Assert.FinalizerAssert(_objectAdapterFactory == null);
+            Assert.FinalizerAssert(_clientThreadPool == null);
+            Assert.FinalizerAssert(_serverThreadPool == null);
+            Assert.FinalizerAssert(_endpointHostResolver == null);
+            Assert.FinalizerAssert(_timer == null);
+            Assert.FinalizerAssert(_routerManager == null);
+            Assert.FinalizerAssert(_locatorManager == null);
+            Assert.FinalizerAssert(_endpointFactoryManager == null);
+            Assert.FinalizerAssert(_pluginManager == null);
+            Assert.FinalizerAssert(_retryQueue == null);
         } catch (java.lang.Exception ex) {
         } finally {
             super.finalize();

@@ -1342,11 +1342,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_startCallback == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_upcallCount == 0);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_sendStreams.isEmpty());
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_asyncRequests.isEmpty());
+            Assert.FinalizerAssert(_startCallback == null);
+            Assert.FinalizerAssert(_state == StateFinished);
+            Assert.FinalizerAssert(_upcallCount == 0);
+            Assert.FinalizerAssert(_sendStreams.isEmpty());
+            Assert.FinalizerAssert(_asyncRequests.isEmpty());
         } catch (java.lang.Exception ex) {
         } finally {
             super.finalize();

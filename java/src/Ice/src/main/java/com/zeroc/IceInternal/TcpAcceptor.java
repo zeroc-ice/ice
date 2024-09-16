@@ -107,7 +107,7 @@ class TcpAcceptor implements Acceptor {
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_fd == null);
+            Assert.FinalizerAssert(_fd == null);
         } catch (java.lang.Exception ex) {
         } finally {
             super.finalize();

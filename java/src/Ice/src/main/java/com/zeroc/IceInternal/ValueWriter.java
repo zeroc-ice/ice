@@ -5,7 +5,7 @@
 package com.zeroc.IceInternal;
 
 public final class ValueWriter {
-    public static void write(java.lang.Object obj, com.zeroc.IceUtilInternal.OutputBase out) {
+    public static void write(java.lang.Object obj, OutputBase out) {
         writeValue(null, obj, null, out);
     }
 
@@ -13,7 +13,7 @@ public final class ValueWriter {
             String name,
             java.lang.Object value,
             java.util.Map<java.lang.Object, java.lang.Object> objectTable,
-            com.zeroc.IceUtilInternal.OutputBase out) {
+            OutputBase out) {
         if (value == null) {
             writeName(name, out);
             out.print("(null)");
@@ -99,7 +99,7 @@ public final class ValueWriter {
             java.lang.Object obj,
             Class<?> c,
             java.util.Map<java.lang.Object, java.lang.Object> objectTable,
-            com.zeroc.IceUtilInternal.OutputBase out) {
+            OutputBase out) {
         if (!c.equals(java.lang.Object.class)) {
             //
             // Write the superclass first.
@@ -144,7 +144,7 @@ public final class ValueWriter {
         }
     }
 
-    private static void writeName(String name, com.zeroc.IceUtilInternal.OutputBase out) {
+    private static void writeName(String name, OutputBase out) {
         if (name != null) {
             out.nl();
             out.print(name + " = ");

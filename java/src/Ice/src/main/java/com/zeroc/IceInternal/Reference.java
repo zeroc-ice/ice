@@ -266,7 +266,7 @@ public abstract class Reference implements Cloneable {
         // the identity string in quotes.
         //
 
-        if (com.zeroc.IceUtilInternal.StringUtil.findFirstOf(id, separators) != -1) {
+        if (findFirstOf(id, separators) != -1) {
             s.append('"');
             s.append(id);
             s.append('"');
@@ -281,8 +281,8 @@ public abstract class Reference implements Cloneable {
             // the facet string in quotes.
             //
             s.append(" -f ");
-            String fs = com.zeroc.IceUtilInternal.StringUtil.escapeString(_facet, "", toStringMode);
-            if (com.zeroc.IceUtilInternal.StringUtil.findFirstOf(fs, separators) != -1) {
+            String fs = escapeString(_facet, "", toStringMode);
+            if (findFirstOf(fs, separators) != -1) {
                 s.append('"');
                 s.append(fs);
                 s.append('"');

@@ -6,7 +6,6 @@ package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
-import com.zeroc.IceUtilInternal.Base64;
 
 final class OpaqueEndpointI extends EndpointI {
     public OpaqueEndpointI(java.util.ArrayList<String> args) {

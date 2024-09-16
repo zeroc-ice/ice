@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.IceUtilInternal;
+package com.zeroc.Ice;
 
-public final class Assert {
+final class Assert {
     // The JVM ignores exceptions raised in finalizers, therefore finalizers
     // that use assertions should call this method instead of assert().
     public static void FinalizerAssert(boolean b) {

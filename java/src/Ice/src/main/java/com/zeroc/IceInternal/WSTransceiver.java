@@ -5,7 +5,6 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ProtocolException;
-import com.zeroc.IceUtilInternal.Base64;
 import java.security.*;
 
 final class WSTransceiver implements Transceiver {
@@ -537,7 +536,7 @@ final class WSTransceiver implements Transceiver {
         boolean addProtocol = false;
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
         if (val != null) {
-            String[] protocols = com.zeroc.IceUtilInternal.StringUtil.splitString(val, ",");
+            String[] protocols = StringUtil.splitString(val, ",");
             if (protocols == null) {
                 throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
             }

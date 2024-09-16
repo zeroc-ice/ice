@@ -450,8 +450,8 @@ public final class IncomingConnectionFactory extends EventHandler
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
+            Assert.FinalizerAssert(_state == StateFinished);
+            Assert.FinalizerAssert(_connections.isEmpty());
         } catch (java.lang.Exception ex) {
         } finally {
             super.finalize();

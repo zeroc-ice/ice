@@ -5,7 +5,6 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ParseException;
-import com.zeroc.IceUtilInternal.StringUtil;
 
 public final class ReferenceFactory {
     public Reference create(
