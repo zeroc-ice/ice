@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /** Concrete proxy implementation. */
-public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
+class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     public _ObjectPrxI(Reference ref) {
         _reference = ref;
         _requestHandlerCache = new RequestHandlerCache(ref);
@@ -593,7 +593,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         }
     }
 
-    public static class StreamPair {
+    static class StreamPair {
         StreamPair(InputStream is, OutputStream os) {
             this.is = is;
             this.os = os;

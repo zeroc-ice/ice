@@ -6,7 +6,7 @@ package com.zeroc.Ice;
 
 import java.net.URLEncoder;
 
-public final class PluginManagerI implements PluginManager {
+final class PluginManagerI implements PluginManager {
     private static String _kindOfObject = "plugin";
 
     @Override

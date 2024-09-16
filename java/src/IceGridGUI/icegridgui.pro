@@ -50,8 +50,6 @@
 -dontnote com.zeroc.Ice.InputStream$EncapsDecoder
 -dontnote com.zeroc.Ice.InputStream$EncapsDecoder11
 -dontnote com.zeroc.Ice.ObjectPrx
--dontnote com.zeroc.Ice.PluginManagerI
--dontnote com.zeroc.Ice._ObjectPrxI
 -dontnote com.zeroc.IceInternal.MetricsMap
 -dontnote com.zeroc.Ice.IceMX.Observer
 -dontnote com.zeroc.Ice.IceMX.ObserverFactory

@@ -17,6 +17,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+/**
+ * @hidden Kept public because it's used by the 'Ice\metrics' test.
+ */
 public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         implements Connection, com.zeroc.IceInternal.CancellationHandler {
     public interface StartCallback {
