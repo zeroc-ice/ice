@@ -1467,7 +1467,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
              connectionStartCompleted = std::move(connectionStartCompleted),
              sentCBs = std::move(sentCBs),
              messageUpcall = std::move(messageUpcall),
-             stream]() {
+             stream]()
+            {
                 self->upcall(
                     std::move(connectionStartCompleted),
                     std::move(sentCBs),

@@ -70,14 +70,12 @@ ICEIMPL_API @protocol ICEEndpointInfoFactory
 
 #ifdef __cplusplus
 
-@interface
-ICEEndpoint ()
+@interface ICEEndpoint ()
 @property(nonatomic, readonly) std::shared_ptr<Ice::Endpoint> endpoint;
 + (nullable ICEEndpointInfo*)createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr NS_RETURNS_RETAINED;
 @end
 
-@interface
-ICEEndpointInfo ()
+@interface ICEEndpointInfo ()
 @property(nonatomic, readonly) std::shared_ptr<Ice::EndpointInfo> info;
 @end
 

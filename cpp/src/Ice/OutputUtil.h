@@ -69,14 +69,10 @@ namespace IceInternal
         bool _separator;
     };
 
-    class ICE_API NextLine
-    {
-    };
+    class ICE_API NextLine{};
     extern ICE_API NextLine nl;
 
-    class ICE_API Separator
-    {
-    };
+    class ICE_API Separator{};
     extern ICE_API Separator sp;
 
     // ----------------------------------------------------------------------
@@ -136,9 +132,7 @@ namespace IceInternal
         return o;
     }
 
-    class ICE_API StartBlock
-    {
-    };
+    class ICE_API StartBlock{};
     extern ICE_API StartBlock sb;
 
     template<> inline Output& operator<<(Output& o, const StartBlock&)
@@ -147,9 +141,7 @@ namespace IceInternal
         return o;
     }
 
-    class ICE_API EndBlock
-    {
-    };
+    class ICE_API EndBlock{};
     extern ICE_API EndBlock eb;
 
     template<> inline Output& operator<<(Output& o, const EndBlock&)
@@ -158,9 +150,7 @@ namespace IceInternal
         return o;
     }
 
-    class ICE_API StartPar
-    {
-    };
+    class ICE_API StartPar{};
     extern ICE_API StartPar spar;
 
     template<> inline Output& operator<<(Output& o, const StartPar&)
@@ -169,9 +159,7 @@ namespace IceInternal
         return o;
     }
 
-    class ICE_API EndPar
-    {
-    };
+    class ICE_API EndPar{};
     extern ICE_API EndPar epar;
 
     template<> inline Output& operator<<(Output& o, const EndPar&)
@@ -180,9 +168,7 @@ namespace IceInternal
         return o;
     }
 
-    class ICE_API StartAbrk
-    {
-    };
+    class ICE_API StartAbrk{};
     extern ICE_API StartAbrk sabrk;
 
     template<> inline Output& operator<<(Output& o, const StartAbrk&)
@@ -191,9 +177,7 @@ namespace IceInternal
         return o;
     }
 
-    class ICE_API EndAbrk
-    {
-    };
+    class ICE_API EndAbrk{};
     extern ICE_API EndAbrk eabrk;
 
     template<> inline Output& operator<<(Output& o, const EndAbrk&)
@@ -259,9 +243,7 @@ namespace IceInternal
         return o;
     }
 
-    class ICE_API EndElement
-    {
-    };
+    class ICE_API EndElement{};
     extern ICE_API EndElement ee;
 
     template<> inline XMLOutput& operator<<(XMLOutput& o, const EndElement&)
@@ -310,14 +292,10 @@ namespace IceInternal
         return o;
     }
 
-    class ICE_API StartEscapes
-    {
-    };
+    class ICE_API StartEscapes{};
     extern ICE_API StartEscapes startEscapes;
 
-    class ICE_API EndEscapes
-    {
-    };
+    class ICE_API EndEscapes{};
     extern ICE_API EndEscapes endEscapes;
 
     template<> inline XMLOutput& operator<<(XMLOutput& o, const StartEscapes&)
