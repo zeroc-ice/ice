@@ -996,7 +996,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
                 throw InitializationException{
                     __FILE__,
                     __LINE__,
-                     "an object adapter with a router cannot accept incoming connections"};
+                    "an object adapter with a router cannot accept incoming connections"};
             }
 
             //
