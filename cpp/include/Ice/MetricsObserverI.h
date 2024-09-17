@@ -110,7 +110,7 @@ namespace IceMX
 
             void setDefault(std::string (Helper::*memberFn)(const std::string&) const) { _default = memberFn; }
 
-            template<typename Y> void add(const std::string& name, Y Helper::*member)
+            template<typename Y> void add(const std::string& name, Y Helper::* member)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
                     name,
@@ -125,7 +125,7 @@ namespace IceMX
             }
 
             template<typename I, typename O, typename Y>
-            void add(const std::string& name, O (Helper::*getFn)() const, Y I::*member)
+            void add(const std::string& name, O (Helper::*getFn)() const, Y I::* member)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
                     name,
@@ -156,12 +156,12 @@ namespace IceMX
             template<typename Y> class HelperMemberResolver : public Resolver
             {
             public:
-                HelperMemberResolver(const std::string& name, Y Helper::*member) : Resolver(name), _member(member) {}
+                HelperMemberResolver(const std::string& name, Y Helper::* member) : Resolver(name), _member(member) {}
 
                 virtual std::string operator()(const Helper* r) const { return toString(r->*_member); }
 
             private:
-                Y Helper::*_member;
+                Y Helper::* _member;
             };
 
             template<typename Y> class HelperMemberFunctionResolver : public Resolver
@@ -182,7 +182,7 @@ namespace IceMX
             template<typename I, typename O, typename Y> class MemberResolver : public Resolver
             {
             public:
-                MemberResolver(const std::string& name, O (Helper::*getFn)() const, Y I::*member)
+                MemberResolver(const std::string& name, O (Helper::*getFn)() const, Y I::* member)
                     : Resolver(name),
                       _getFn(getFn),
                       _member(member)
@@ -205,7 +205,7 @@ namespace IceMX
 
             private:
                 O (Helper::*_getFn)() const;
-                Y I::*_member;
+                Y I::* _member;
             };
 
             template<typename I, typename O, typename Y> class MemberFunctionResolver : public Resolver
@@ -521,7 +521,7 @@ namespace IceMX
         }
 
         template<typename SubMapMetricsType>
-        void registerSubMap(const std::string& subMap, MetricsMap MetricsType::*member)
+        void registerSubMap(const std::string& subMap, MetricsMap MetricsType::* member)
         {
             assert(_metrics);
             _metrics->registerSubMap<SubMapMetricsType>(_name, subMap, member);

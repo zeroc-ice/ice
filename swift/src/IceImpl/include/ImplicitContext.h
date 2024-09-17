@@ -14,8 +14,7 @@ ICEIMPL_API @interface ICEImplicitContext : ICELocalObject
 
 #ifdef __cplusplus
 
-@interface
-ICEImplicitContext ()
+@interface ICEImplicitContext ()
 @property(nonatomic, readonly) std::shared_ptr<Ice::ImplicitContext> implicitContext;
 @end
 

@@ -107,7 +107,7 @@ namespace IceInternal
         using TPtr = std::shared_ptr<MetricsType>;
         using MetricsMapTPtr = std::shared_ptr<MetricsMapT>;
 
-        typedef IceMX::MetricsMap MetricsType::*SubMapMember;
+        typedef IceMX::MetricsMap MetricsType::* SubMapMember;
 
         class EntryT;
         using EntryTPtr = std::shared_ptr<EntryT>;
@@ -488,7 +488,7 @@ namespace IceInternal
         }
 
         template<class SubMapMetricsType>
-        void registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::*member)
+        void registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
         {
             _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*, MetricsMapFactoryPtr>(
                 member,
@@ -554,7 +554,7 @@ namespace IceInternal
         }
 
         template<class MemberMetricsType, class MetricsType>
-        void registerSubMap(const std::string& map, const std::string& subMap, IceMX::MetricsMap MetricsType::*member)
+        void registerSubMap(const std::string& map, const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
         {
             bool updated;
             std::shared_ptr<MetricsMapFactoryT<MetricsType>> factory;

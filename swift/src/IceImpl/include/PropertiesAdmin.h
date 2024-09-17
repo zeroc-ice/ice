@@ -12,8 +12,7 @@ ICEIMPL_API @interface ICEPropertiesAdmin : ICELocalObject
 
 #ifdef __cplusplus
 
-@interface
-ICEPropertiesAdmin ()
+@interface ICEPropertiesAdmin ()
 @property(nonatomic, readonly) std::shared_ptr<Ice::PropertiesAdmin> propertiesAdmin;
 @end
 

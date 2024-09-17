@@ -23,8 +23,7 @@ ICEIMPL_API @interface ICELogger : ICELocalObject<ICELoggerProtocol>
 
 #ifdef __cplusplus
 
-@interface
-ICELogger ()
+@interface ICELogger ()
 @property(nonatomic, readonly) std::shared_ptr<Ice::Logger> logger;
 @end
 

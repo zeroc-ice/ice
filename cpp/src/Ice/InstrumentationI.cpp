@@ -20,7 +20,7 @@ using namespace IceMX;
 
 namespace
 {
-    int ThreadMetrics::*getThreadStateMetric(ThreadState s)
+    int ThreadMetrics::* getThreadStateMetric(ThreadState s)
     {
         switch (s)
         {

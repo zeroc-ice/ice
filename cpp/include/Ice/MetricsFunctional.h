@@ -44,12 +44,12 @@ namespace IceMX
     /// \cond INTERNAL
     template<class T, typename Y, typename Func> struct ApplyOnMember
     {
-        ApplyOnMember(Y T::*m, Func f) : func(f), member(m) {}
+        ApplyOnMember(Y T::* m, Func f) : func(f), member(m) {}
 
         template<typename R> void operator()(const R& v) { func(IceInternal::ReferenceWrapper<R>::get(v)->*member); }
 
         Func func;
-        Y T::*member;
+        Y T::* member;
     };
 
     template<typename T> struct Decrement
@@ -71,22 +71,22 @@ namespace IceMX
         T value;
     };
 
-    template<class T, typename Y, typename F> ApplyOnMember<T, Y, F> applyOnMember(Y T::*member, F func)
+    template<class T, typename Y, typename F> ApplyOnMember<T, Y, F> applyOnMember(Y T::* member, F func)
     {
         return ApplyOnMember<T, Y, F>(member, func);
     }
 
-    template<class T, typename Y, typename V> ApplyOnMember<T, Y, Add<V>> add(Y T::*member, V value)
+    template<class T, typename Y, typename V> ApplyOnMember<T, Y, Add<V>> add(Y T::* member, V value)
     {
         return applyOnMember(member, Add<V>(value));
     }
 
-    template<class T, typename Y> ApplyOnMember<T, Y, Increment<Y>> inc(Y T::*member)
+    template<class T, typename Y> ApplyOnMember<T, Y, Increment<Y>> inc(Y T::* member)
     {
         return applyOnMember(member, Increment<Y>());
     }
 
-    template<class T, typename Y> ApplyOnMember<T, Y, Decrement<Y>> dec(Y T::*member)
+    template<class T, typename Y> ApplyOnMember<T, Y, Decrement<Y>> dec(Y T::* member)
     {
         return applyOnMember(member, Decrement<Y>());
     }
