@@ -148,6 +148,17 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::ConnectTimeoutException&)
         {
         }
+
+        try
+        {
+            router = Ice::RouterPrx(communicator, "test:" + helper->getTestEndpoint(1));
+            communicator->getProperties()->setProperty("AdapterWithRouter.Endpoints", "tcp -h 127.0.0.1");
+            communicator->createObjectAdapterWithRouter("AdapterWithRouter", router);
+            test(false);
+        }
+        catch (const Ice::InitializationException&)
+        {
+        }
     }
     cout << "ok" << endl;
 
