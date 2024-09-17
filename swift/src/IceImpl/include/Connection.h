@@ -96,8 +96,7 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
 
 id createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo>);
 
-@interface
-ICEConnection ()
+@interface ICEConnection ()
 @property(nonatomic, readonly) std::shared_ptr<Ice::Connection> connection;
 @end
 

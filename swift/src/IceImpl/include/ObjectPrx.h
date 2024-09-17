@@ -110,8 +110,7 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
 
 #ifdef __cplusplus
 
-@interface
-ICEObjectPrx ()
+@interface ICEObjectPrx ()
 // prx is always set; we just need a field with a default constructor.
 @property(nonatomic, readonly) std::optional<Ice::ObjectPrx> prx;
 - (nonnull instancetype)initWithCppObjectPrx:(const Ice::ObjectPrx&)prx;

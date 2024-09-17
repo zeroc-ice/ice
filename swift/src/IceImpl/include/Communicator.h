@@ -60,8 +60,7 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
 
 #ifdef __cplusplus
 
-@interface
-ICECommunicator ()
+@interface ICECommunicator ()
 @property(nonatomic, readonly) std::shared_ptr<Ice::Communicator> communicator;
 @end
 

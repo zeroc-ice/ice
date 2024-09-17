@@ -10,8 +10,7 @@ ICEIMPL_API @interface ICEProcess : ICELocalObject
 
 #ifdef __cplusplus
 
-@interface
-ICEProcess ()
+@interface ICEProcess ()
 @property(nonatomic, readonly) std::shared_ptr<Ice::Process> process;
 @end
 
