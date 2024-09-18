@@ -2,9 +2,8 @@
 
 package com.zeroc.IceBT;
 
-import com.zeroc.IceInternal.Connector;
-import com.zeroc.IceInternal.HashUtil;
-import com.zeroc.IceInternal.Transceiver;
+import com.zeroc.Ice.Connector;
+import com.zeroc.Ice.Transceiver;
 
 final class ConnectorI implements Connector {
     @Override

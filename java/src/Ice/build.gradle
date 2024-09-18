@@ -15,7 +15,7 @@ slice {
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"
 
-// TODO this process can probably be simplified when we finish merging IceInternal into Ice.
+// TODO this might not be necessary anymore now that IceInternal was merged into Ice.
 //
 // Unfortunately we can't simply process Ice classes through javadoc as
 // they use various public IceInternal classes. So
@@ -27,6 +27,4 @@ javadoc.dependsOn(compileJava)
 
 javadoc {
     classpath = project.sourceSets.main.output
-    // TODO: excluding this files results in errors when building the docs.
-    // excludes = ["**/IceInternal/*.java", "**/Ice/*I.java"]
 }

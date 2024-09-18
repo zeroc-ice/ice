@@ -4,10 +4,10 @@
 
 package test.Ice.background;
 
-final class EndpointI extends com.zeroc.IceInternal.EndpointI {
+final class EndpointI extends com.zeroc.Ice.EndpointI {
     static final short TYPE_BASE = 100;
 
-    public EndpointI(Configuration configuration, com.zeroc.IceInternal.EndpointI endpoint) {
+    public EndpointI(Configuration configuration, com.zeroc.Ice.EndpointI endpoint) {
         _endpoint = endpoint;
         _configuration = configuration;
     }
@@ -44,8 +44,8 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI timeout(int timeout) {
-        com.zeroc.IceInternal.EndpointI endpoint = _endpoint.timeout(timeout);
+    public com.zeroc.Ice.EndpointI timeout(int timeout) {
+        com.zeroc.Ice.EndpointI endpoint = _endpoint.timeout(timeout);
         if (endpoint == _endpoint) {
             return this;
         } else {
@@ -59,8 +59,8 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI connectionId(String connectionId) {
-        com.zeroc.IceInternal.EndpointI endpoint = _endpoint.connectionId(connectionId);
+    public com.zeroc.Ice.EndpointI connectionId(String connectionId) {
+        com.zeroc.Ice.EndpointI endpoint = _endpoint.connectionId(connectionId);
         if (endpoint == _endpoint) {
             return this;
         } else {
@@ -74,8 +74,8 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI compress(boolean compress) {
-        com.zeroc.IceInternal.EndpointI endpoint = _endpoint.compress(compress);
+    public com.zeroc.Ice.EndpointI compress(boolean compress) {
+        com.zeroc.Ice.EndpointI endpoint = _endpoint.compress(compress);
         if (endpoint == _endpoint) {
             return this;
         } else {
@@ -94,8 +94,8 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public com.zeroc.IceInternal.Transceiver transceiver() {
-        com.zeroc.IceInternal.Transceiver transceiver = _endpoint.transceiver();
+    public com.zeroc.Ice.Transceiver transceiver() {
+        com.zeroc.Ice.Transceiver transceiver = _endpoint.transceiver();
         if (transceiver != null) {
             return new Transceiver(_configuration, transceiver);
         } else {
@@ -106,13 +106,12 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     @Override
     public void connectors_async(
             com.zeroc.Ice.EndpointSelectionType selType,
-            final com.zeroc.IceInternal.EndpointI_connectors cb) {
-        class Callback implements com.zeroc.IceInternal.EndpointI_connectors {
+            final com.zeroc.Ice.EndpointI_connectors cb) {
+        class Callback implements com.zeroc.Ice.EndpointI_connectors {
             @Override
-            public void connectors(java.util.List<com.zeroc.IceInternal.Connector> cons) {
-                java.util.List<com.zeroc.IceInternal.Connector> connectors =
-                        new java.util.ArrayList<com.zeroc.IceInternal.Connector>();
-                for (com.zeroc.IceInternal.Connector p : cons) {
+            public void connectors(java.util.List<com.zeroc.Ice.Connector> cons) {
+                java.util.List<com.zeroc.Ice.Connector> connectors = new java.util.ArrayList<>();
+                for (com.zeroc.Ice.Connector p : cons) {
                     connectors.add(new Connector(_configuration, p));
                 }
                 cb.connectors(connectors);
@@ -133,13 +132,13 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public com.zeroc.IceInternal.Acceptor acceptor(
+    public com.zeroc.Ice.Acceptor acceptor(
             String adapterName, com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory) {
         return new Acceptor(
                 this, _configuration, _endpoint.acceptor(adapterName, sslEngineFactory));
     }
 
-    public EndpointI endpoint(com.zeroc.IceInternal.EndpointI delEndp) {
+    public EndpointI endpoint(com.zeroc.Ice.EndpointI delEndp) {
         if (delEndp == _endpoint) {
             return this;
         } else {
@@ -148,19 +147,19 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public java.util.List<com.zeroc.IceInternal.EndpointI> expandIfWildcard() {
-        java.util.List<com.zeroc.IceInternal.EndpointI> endps = new java.util.ArrayList<>();
-        for (com.zeroc.IceInternal.EndpointI endpt : _endpoint.expandIfWildcard()) {
+    public java.util.List<com.zeroc.Ice.EndpointI> expandIfWildcard() {
+        java.util.List<com.zeroc.Ice.EndpointI> endps = new java.util.ArrayList<>();
+        for (com.zeroc.Ice.EndpointI endpt : _endpoint.expandIfWildcard()) {
             endps.add(endpt == _endpoint ? this : new EndpointI(_configuration, endpt));
         }
         return endps;
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI.ExpandHostResult expandHost() {
-        com.zeroc.IceInternal.EndpointI.ExpandHostResult result = _endpoint.expandHost();
-        java.util.List<com.zeroc.IceInternal.EndpointI> l = new java.util.ArrayList<>();
-        for (com.zeroc.IceInternal.EndpointI e : result.endpoints) {
+    public com.zeroc.Ice.EndpointI.ExpandHostResult expandHost() {
+        com.zeroc.Ice.EndpointI.ExpandHostResult result = _endpoint.expandHost();
+        java.util.List<com.zeroc.Ice.EndpointI> l = new java.util.ArrayList<>();
+        for (com.zeroc.Ice.EndpointI e : result.endpoints) {
             l.add(e == _endpoint ? this : new EndpointI(_configuration, e));
         }
         result.endpoints = l;
@@ -174,7 +173,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public boolean equivalent(com.zeroc.IceInternal.EndpointI endpoint) {
+    public boolean equivalent(com.zeroc.Ice.EndpointI endpoint) {
         EndpointI testEndpoint = null;
         try {
             testEndpoint = (EndpointI) endpoint;
@@ -200,7 +199,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     @Override
     public boolean equals(java.lang.Object obj) {
         try {
-            return compareTo((com.zeroc.IceInternal.EndpointI) obj) == 0;
+            return compareTo((com.zeroc.Ice.EndpointI) obj) == 0;
         } catch (ClassCastException ee) {
             assert (false);
             return false;
@@ -208,7 +207,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public int compareTo(com.zeroc.IceInternal.EndpointI obj) {
+    public int compareTo(com.zeroc.Ice.EndpointI obj) {
         EndpointI p = null;
         try {
             p = (EndpointI) obj;
@@ -223,10 +222,10 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
         return _endpoint.compareTo(p._endpoint);
     }
 
-    public com.zeroc.IceInternal.EndpointI delegate() {
+    public com.zeroc.Ice.EndpointI delegate() {
         return _endpoint;
     }
 
-    private com.zeroc.IceInternal.EndpointI _endpoint;
+    private com.zeroc.Ice.EndpointI _endpoint;
     private Configuration _configuration;
 }

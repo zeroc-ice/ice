@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceInternal;
+package com.zeroc.Ice;
 
-public class ConnectionObserverI
-        extends com.zeroc.Ice.IceMX.ObserverWithDelegate<
-                com.zeroc.Ice.IceMX.ConnectionMetrics,
-                com.zeroc.Ice.Instrumentation.ConnectionObserver>
-        implements com.zeroc.Ice.Instrumentation.ConnectionObserver {
+import com.zeroc.Ice.IceMX.ConnectionMetrics;
+import com.zeroc.Ice.IceMX.ObserverWithDelegate;
+import com.zeroc.Ice.Instrumentation.ConnectionObserver;
+
+class ConnectionObserverI extends ObserverWithDelegate<ConnectionMetrics, ConnectionObserver> implements ConnectionObserver {
     @Override
     public void sentBytes(final int num) {
         _sentBytes = num;
@@ -27,18 +27,18 @@ public class ConnectionObserverI
         }
     }
 
-    private MetricsUpdate<com.zeroc.Ice.IceMX.ConnectionMetrics> _sentBytesUpdate =
-            new MetricsUpdate<com.zeroc.Ice.IceMX.ConnectionMetrics>() {
+    private MetricsUpdate<ConnectionMetrics> _sentBytesUpdate =
+            new MetricsUpdate<ConnectionMetrics>() {
                 @Override
-                public void update(com.zeroc.Ice.IceMX.ConnectionMetrics v) {
+                public void update(ConnectionMetrics v) {
                     v.sentBytes += _sentBytes;
                 }
             };
 
-    private MetricsUpdate<com.zeroc.Ice.IceMX.ConnectionMetrics> _receivedBytesUpdate =
-            new MetricsUpdate<com.zeroc.Ice.IceMX.ConnectionMetrics>() {
+    private MetricsUpdate<ConnectionMetrics> _receivedBytesUpdate =
+            new MetricsUpdate<ConnectionMetrics>() {
                 @Override
-                public void update(com.zeroc.Ice.IceMX.ConnectionMetrics v) {
+                public void update(ConnectionMetrics v) {
                     v.receivedBytes += _receivedBytes;
                 }
             };

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceInternal;
+package com.zeroc.Ice;
 
-public interface CancellationHandler {
-    void asyncRequestCanceled(OutgoingAsyncBase outAsync, com.zeroc.Ice.LocalException ex);
+interface CancellationHandler {
+    void asyncRequestCanceled(OutgoingAsyncBase outAsync, LocalException ex);
 }

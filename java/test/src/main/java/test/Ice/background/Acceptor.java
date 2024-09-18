@@ -4,14 +4,14 @@
 
 package test.Ice.background;
 
-class Acceptor implements com.zeroc.IceInternal.Acceptor {
+class Acceptor implements com.zeroc.Ice.Acceptor {
     @Override
     public java.nio.channels.ServerSocketChannel fd() {
         return _acceptor.fd();
     }
 
     @Override
-    public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback) {
+    public void setReadyCallback(ReadyCallback callback) {
         // No need to for the ready callback.
     }
 
@@ -21,13 +21,13 @@ class Acceptor implements com.zeroc.IceInternal.Acceptor {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI listen() {
+    public com.zeroc.Ice.EndpointI listen() {
         _endpoint = _endpoint.endpoint(_acceptor.listen());
         return _endpoint;
     }
 
     @Override
-    public com.zeroc.IceInternal.Transceiver accept() {
+    public com.zeroc.Ice.Transceiver accept() {
         return new Transceiver(_configuration, _acceptor.accept());
     }
 
@@ -46,20 +46,17 @@ class Acceptor implements com.zeroc.IceInternal.Acceptor {
         return _acceptor.toDetailedString();
     }
 
-    public com.zeroc.IceInternal.Acceptor delegate() {
+    public com.zeroc.Ice.Acceptor delegate() {
         return _acceptor;
     }
 
-    Acceptor(
-            EndpointI endpoint,
-            Configuration configuration,
-            com.zeroc.IceInternal.Acceptor acceptor) {
+    Acceptor(EndpointI endpoint, Configuration configuration, com.zeroc.Ice.Acceptor acceptor) {
         _endpoint = endpoint;
         _configuration = configuration;
         _acceptor = acceptor;
     }
 
     private EndpointI _endpoint;
-    private final com.zeroc.IceInternal.Acceptor _acceptor;
+    private final com.zeroc.Ice.Acceptor _acceptor;
     private Configuration _configuration;
 }

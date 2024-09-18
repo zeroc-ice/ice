@@ -72,9 +72,7 @@ public final class SysLoggerI implements Logger {
         // syslog daemon.
         //
         try {
-            _host =
-                    com.zeroc.IceInternal.Network.getLocalAddress(
-                            com.zeroc.IceInternal.Network.EnableBoth);
+            _host = Network.getLocalAddress(Network.EnableBoth);
             _socket = new DatagramSocket();
             _socket.connect(_host, _port);
         } catch (IOException ex) {

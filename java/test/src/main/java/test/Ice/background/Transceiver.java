@@ -4,23 +4,22 @@
 
 package test.Ice.background;
 
-import com.zeroc.IceInternal.SocketOperation;
+import com.zeroc.Ice.SocketOperation;
 
-final class Transceiver implements com.zeroc.IceInternal.Transceiver {
+final class Transceiver implements com.zeroc.Ice.Transceiver {
     @Override
     public java.nio.channels.SelectableChannel fd() {
         return _transceiver.fd();
     }
 
     @Override
-    public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback) {
+    public void setReadyCallback(ReadyCallback callback) {
         _transceiver.setReadyCallback(callback);
         _readyCallback = callback;
     }
 
     @Override
-    public int initialize(
-            com.zeroc.IceInternal.Buffer readBuffer, com.zeroc.IceInternal.Buffer writeBuffer) {
+    public int initialize(Buffer readBuffer, Buffer writeBuffer) {
         int status = _configuration.initializeSocketStatus();
         if (status == SocketOperation.Connect) {
             return status;
@@ -59,12 +58,12 @@ final class Transceiver implements com.zeroc.IceInternal.Transceiver {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI bind() {
+    public com.zeroc.Ice.EndpointI bind() {
         return _transceiver.bind();
     }
 
     @Override
-    public int write(com.zeroc.IceInternal.Buffer buf) {
+    public int write(Buffer buf) {
         if (!_configuration.writeReady() && buf.b.hasRemaining()) {
             return SocketOperation.Write;
         }
@@ -74,7 +73,7 @@ final class Transceiver implements com.zeroc.IceInternal.Transceiver {
     }
 
     @Override
-    public int read(com.zeroc.IceInternal.Buffer buf) {
+    public int read(Buffer buf) {
         if (!_configuration.readReady() && buf.b.hasRemaining()) {
             return SocketOperation.Read;
         }
@@ -137,7 +136,7 @@ final class Transceiver implements com.zeroc.IceInternal.Transceiver {
     }
 
     @Override
-    public void checkSendSize(com.zeroc.IceInternal.Buffer buf) {
+    public void checkSendSize(Buffer buf) {
         _transceiver.checkSendSize(buf);
     }
 
@@ -146,28 +145,28 @@ final class Transceiver implements com.zeroc.IceInternal.Transceiver {
         _transceiver.setBufferSize(rcvSize, sndSize);
     }
 
-    public com.zeroc.IceInternal.Transceiver delegate() {
+    public com.zeroc.Ice.Transceiver delegate() {
         return _transceiver;
     }
 
     //
     // Only for use by Connector, Acceptor
     //
-    Transceiver(Configuration configuration, com.zeroc.IceInternal.Transceiver transceiver) {
+    Transceiver(Configuration configuration, com.zeroc.Ice.Transceiver transceiver) {
         _transceiver = transceiver;
         _configuration = configuration;
         _initialized = false;
         _buffered = _configuration.buffered();
-        _readBuffer = new com.zeroc.IceInternal.Buffer(false);
+        _readBuffer = new Buffer(false);
         _readBuffer.resize(1024 * 8, true); // 8KB buffer
         _readBufferPos = 0;
     }
 
-    private final com.zeroc.IceInternal.Transceiver _transceiver;
+    private final com.zeroc.Ice.Transceiver _transceiver;
     private final Configuration _configuration;
-    private com.zeroc.IceInternal.ReadyCallback _readyCallback;
+    private ReadyCallback _readyCallback;
     private boolean _initialized;
     private final boolean _buffered;
-    private com.zeroc.IceInternal.Buffer _readBuffer;
+    private Buffer _readBuffer;
     private int _readBufferPos;
 }

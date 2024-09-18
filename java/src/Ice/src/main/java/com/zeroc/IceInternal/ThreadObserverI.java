@@ -2,16 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceInternal;
+package com.zeroc.Ice;
 
-public class ThreadObserverI
-        extends com.zeroc.Ice.IceMX.ObserverWithDelegate<
-                com.zeroc.Ice.IceMX.ThreadMetrics, com.zeroc.Ice.Instrumentation.ThreadObserver>
-        implements com.zeroc.Ice.Instrumentation.ThreadObserver {
+import com.zeroc.Ice.IceMX.ThreadMetrics;
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
+import com.zeroc.Ice.Instrumentation.ThreadState;
+
+class ThreadObserverI
+        extends com.zeroc.Ice.IceMX.ObserverWithDelegate<ThreadMetrics, ThreadObserver>
+        implements ThreadObserver {
     @Override
-    public void stateChanged(
-            final com.zeroc.Ice.Instrumentation.ThreadState oldState,
-            final com.zeroc.Ice.Instrumentation.ThreadState newState) {
+    public void stateChanged(final ThreadState oldState, final ThreadState newState) {
         _oldState = oldState;
         _newState = newState;
         forEach(_threadStateUpdate);
@@ -20,41 +21,39 @@ public class ThreadObserverI
         }
     }
 
-    private com.zeroc.Ice.IceMX.Observer.MetricsUpdate<com.zeroc.Ice.IceMX.ThreadMetrics>
-            _threadStateUpdate =
-                    new com.zeroc.Ice.IceMX.Observer.MetricsUpdate<
-                            com.zeroc.Ice.IceMX.ThreadMetrics>() {
-                        @Override
-                        public void update(com.zeroc.Ice.IceMX.ThreadMetrics v) {
-                            switch (_oldState) {
-                                case ThreadStateInUseForIO:
-                                    --v.inUseForIO;
-                                    break;
-                                case ThreadStateInUseForUser:
-                                    --v.inUseForUser;
-                                    break;
-                                case ThreadStateInUseForOther:
-                                    --v.inUseForOther;
-                                    break;
-                                default:
-                                    break;
-                            }
-                            switch (_newState) {
-                                case ThreadStateInUseForIO:
-                                    ++v.inUseForIO;
-                                    break;
-                                case ThreadStateInUseForUser:
-                                    ++v.inUseForUser;
-                                    break;
-                                case ThreadStateInUseForOther:
-                                    ++v.inUseForOther;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    };
+    private com.zeroc.Ice.IceMX.Observer.MetricsUpdate<ThreadMetrics> _threadStateUpdate =
+            new com.zeroc.Ice.IceMX.Observer.MetricsUpdate<ThreadMetrics>() {
+                @Override
+                public void update(ThreadMetrics v) {
+                    switch (_oldState) {
+                        case ThreadStateInUseForIO:
+                            --v.inUseForIO;
+                            break;
+                        case ThreadStateInUseForUser:
+                            --v.inUseForUser;
+                            break;
+                        case ThreadStateInUseForOther:
+                            --v.inUseForOther;
+                            break;
+                        default:
+                            break;
+                    }
+                    switch (_newState) {
+                        case ThreadStateInUseForIO:
+                            ++v.inUseForIO;
+                            break;
+                        case ThreadStateInUseForUser:
+                            ++v.inUseForUser;
+                            break;
+                        case ThreadStateInUseForOther:
+                            ++v.inUseForOther;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            };
 
-    private com.zeroc.Ice.Instrumentation.ThreadState _oldState;
-    private com.zeroc.Ice.Instrumentation.ThreadState _newState;
+    private ThreadState _oldState;
+    private ThreadState _newState;
 }

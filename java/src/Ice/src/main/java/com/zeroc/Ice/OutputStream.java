@@ -27,10 +27,10 @@ public class OutputStream {
      * @param direct Indicates whether to use a direct buffer.
      */
     public OutputStream(boolean direct) {
-        _buf = new com.zeroc.IceInternal.Buffer(direct);
+        _buf = new Buffer(direct);
         _instance = null;
         _closure = null;
-        _encoding = com.zeroc.IceInternal.Protocol.currentEncoding;
+        _encoding = Protocol.currentEncoding;
         _format = FormatType.CompactFormat;
     }
 
@@ -41,7 +41,7 @@ public class OutputStream {
      */
     public OutputStream(Communicator communicator) {
         assert (communicator != null);
-        final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
+        final Instance instance = communicator.getInstance();
         initialize(
                 instance,
                 instance.defaultsAndOverrides().defaultEncoding,
@@ -56,7 +56,7 @@ public class OutputStream {
      */
     public OutputStream(Communicator communicator, boolean direct) {
         assert (communicator != null);
-        final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
+        final Instance instance = communicator.getInstance();
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding, direct);
     }
 
@@ -68,7 +68,7 @@ public class OutputStream {
      */
     public OutputStream(Communicator communicator, EncodingVersion encoding) {
         assert (communicator != null);
-        final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
+        final Instance instance = communicator.getInstance();
         initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
     }
 
@@ -81,25 +81,20 @@ public class OutputStream {
      */
     public OutputStream(Communicator communicator, EncodingVersion encoding, boolean direct) {
         assert (communicator != null);
-        final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
+        final Instance instance = communicator.getInstance();
         initialize(instance, encoding, direct);
     }
 
-    public OutputStream(com.zeroc.IceInternal.Instance instance, EncodingVersion encoding) {
+    public OutputStream(Instance instance, EncodingVersion encoding) {
         initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
     }
 
-    public OutputStream(
-            com.zeroc.IceInternal.Instance instance, EncodingVersion encoding, boolean direct) {
+    public OutputStream(Instance instance, EncodingVersion encoding, boolean direct) {
         initialize(instance, encoding, direct);
     }
 
-    public OutputStream(
-            com.zeroc.IceInternal.Instance instance,
-            EncodingVersion encoding,
-            com.zeroc.IceInternal.Buffer buf,
-            boolean adopt) {
-        initialize(instance, encoding, new com.zeroc.IceInternal.Buffer(buf, adopt));
+    public OutputStream(Instance instance, EncodingVersion encoding, Buffer buf, boolean adopt) {
+        initialize(instance, encoding, new Buffer(buf, adopt));
     }
 
     /**
@@ -110,7 +105,7 @@ public class OutputStream {
      */
     public void initialize(Communicator communicator) {
         assert (communicator != null);
-        final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
+        final Instance instance = communicator.getInstance();
         initialize(
                 instance,
                 instance.defaultsAndOverrides().defaultEncoding,
@@ -126,19 +121,15 @@ public class OutputStream {
      */
     public void initialize(Communicator communicator, EncodingVersion encoding) {
         assert (communicator != null);
-        final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
+        final Instance instance = communicator.getInstance();
         initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
     }
 
-    private void initialize(
-            com.zeroc.IceInternal.Instance instance, EncodingVersion encoding, boolean direct) {
-        initialize(instance, encoding, new com.zeroc.IceInternal.Buffer(direct));
+    private void initialize(Instance instance, EncodingVersion encoding, boolean direct) {
+        initialize(instance, encoding, new Buffer(direct));
     }
 
-    private void initialize(
-            com.zeroc.IceInternal.Instance instance,
-            EncodingVersion encoding,
-            com.zeroc.IceInternal.Buffer buf) {
+    private void initialize(Instance instance, EncodingVersion encoding, Buffer buf) {
         assert (instance != null);
 
         _instance = instance;
@@ -176,7 +167,7 @@ public class OutputStream {
         }
     }
 
-    public com.zeroc.IceInternal.Instance instance() {
+    public Instance instance() {
         return _instance;
     }
 
@@ -216,7 +207,7 @@ public class OutputStream {
      * @return The byte sequence containing the encoded data.
      */
     public byte[] finished() {
-        com.zeroc.IceInternal.Buffer buf = prepareWrite();
+        Buffer buf = prepareWrite();
         byte[] result = new byte[buf.b.limit()];
         buf.b.get(result);
         return result;
@@ -230,7 +221,7 @@ public class OutputStream {
     public void swap(OutputStream other) {
         assert (_instance == other._instance);
 
-        com.zeroc.IceInternal.Buffer tmpBuf = other._buf;
+        Buffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
 
@@ -270,7 +261,7 @@ public class OutputStream {
      *
      * @return The internal buffer.
      */
-    public com.zeroc.IceInternal.Buffer prepareWrite() {
+    public Buffer prepareWrite() {
         _buf.limit(_buf.size());
         _buf.position(0);
         return _buf;
@@ -281,7 +272,7 @@ public class OutputStream {
      *
      * @return The buffer.
      */
-    public com.zeroc.IceInternal.Buffer getBuffer() {
+    public Buffer getBuffer() {
         return _buf;
     }
 
@@ -335,7 +326,7 @@ public class OutputStream {
      * @param format Specify the compact or sliced format, or null.
      */
     public void startEncapsulation(EncodingVersion encoding, FormatType format) {
-        com.zeroc.IceInternal.Protocol.checkSupportedEncoding(encoding);
+        Protocol.checkSupportedEncoding(encoding);
 
         Encaps curr = _encapsCache;
         if (curr != null) {
@@ -377,7 +368,7 @@ public class OutputStream {
      * @param encoding The desired encoding version.
      */
     public void writeEmptyEncapsulation(EncodingVersion encoding) {
-        com.zeroc.IceInternal.Protocol.checkSupportedEncoding(encoding);
+        Protocol.checkSupportedEncoding(encoding);
         writeInt(6); // Size
         encoding.ice_writeMembers(this);
     }
@@ -640,8 +631,7 @@ public class OutputStream {
             return;
         }
         try {
-            com.zeroc.IceInternal.OutputStreamWrapper w =
-                    new com.zeroc.IceInternal.OutputStreamWrapper(this);
+            var w = new OutputStreamWrapper(this);
             java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(w);
             out.writeObject(o);
             out.close();
@@ -1523,8 +1513,8 @@ public class OutputStream {
         _buf.expand(n);
     }
 
-    private com.zeroc.IceInternal.Instance _instance;
-    private com.zeroc.IceInternal.Buffer _buf;
+    private Instance _instance;
+    private Buffer _buf;
     private Object _closure;
     private FormatType _format;
     private byte[] _stringBytes; // Reusable array for string operations.
@@ -1701,9 +1691,7 @@ public class OutputStream {
                     try {
                         p.getKey().ice_preMarshal();
                     } catch (java.lang.Exception ex) {
-                        String s =
-                                "exception raised by ice_preMarshal:\n"
-                                        + com.zeroc.IceInternal.Ex.toString(ex);
+                        String s = "exception raised by ice_preMarshal:\n" + Ex.toString(ex);
                         _stream.instance().initializationData().logger.warning(s);
                     }
 
@@ -1828,12 +1816,10 @@ public class OutputStream {
             _current.sliceFlags = (byte) 0;
             if (_encaps.format == FormatType.SlicedFormat) {
                 // Encode the slice size if using the sliced format.
-                _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_SLICE_SIZE;
+                _current.sliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE;
             }
             if (last) {
-                _current.sliceFlags |=
-                        com.zeroc.IceInternal.Protocol
-                                .FLAG_IS_LAST_SLICE; // This is the last slice.
+                _current.sliceFlags |= Protocol.FLAG_IS_LAST_SLICE; // This is the last slice.
             }
 
             _stream.writeByte((byte) 0); // Placeholder for the slice flags
@@ -1850,18 +1836,15 @@ public class OutputStream {
                 //
                 if (_encaps.format == FormatType.SlicedFormat || _current.firstSlice) {
                     if (compactId >= 0) {
-                        _current.sliceFlags |=
-                                com.zeroc.IceInternal.Protocol.FLAG_HAS_TYPE_ID_COMPACT;
+                        _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
                         _stream.writeSize(compactId);
                     } else {
                         int index = registerTypeId(typeId);
                         if (index < 0) {
-                            _current.sliceFlags |=
-                                    com.zeroc.IceInternal.Protocol.FLAG_HAS_TYPE_ID_STRING;
+                            _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_STRING;
                             _stream.writeString(typeId);
                         } else {
-                            _current.sliceFlags |=
-                                    com.zeroc.IceInternal.Protocol.FLAG_HAS_TYPE_ID_INDEX;
+                            _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_INDEX;
                             _stream.writeSize(index);
                         }
                     }
@@ -1870,7 +1853,7 @@ public class OutputStream {
                 _stream.writeString(typeId);
             }
 
-            if ((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_SLICE_SIZE) != 0) {
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0) {
                 _stream.writeInt(0); // Placeholder for the slice length.
             }
 
@@ -1885,15 +1868,14 @@ public class OutputStream {
             // were encoded. Note that the optional members are encoded before
             // the indirection table and are included in the slice size.
             //
-            if ((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
-                    != 0) {
-                _stream.writeByte((byte) com.zeroc.IceInternal.Protocol.OPTIONAL_END_MARKER);
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0) {
+                _stream.writeByte((byte) Protocol.OPTIONAL_END_MARKER);
             }
 
             //
             // Write the slice length if necessary.
             //
-            if ((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_SLICE_SIZE) != 0) {
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0) {
                 final int sz = _stream.pos() - _current.writeSlice + 4;
                 _stream.rewriteInt(sz, _current.writeSlice - 4);
             }
@@ -1903,7 +1885,7 @@ public class OutputStream {
             //
             if (_current.indirectionTable != null && !_current.indirectionTable.isEmpty()) {
                 assert (_encaps.format == FormatType.SlicedFormat);
-                _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_INDIRECTION_TABLE;
+                _current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
                 //
                 // Write the indirection instance table.
@@ -1928,7 +1910,7 @@ public class OutputStream {
                 return _stream.writeOptionalImpl(tag, format);
             } else {
                 if (_stream.writeOptionalImpl(tag, format)) {
-                    _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
+                    _current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
                     return true;
                 } else {
                     return false;
@@ -1958,7 +1940,7 @@ public class OutputStream {
                 _stream.writeBlob(info.bytes);
 
                 if (info.hasOptionalMembers) {
-                    _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
+                    _current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
                 }
 
                 //
@@ -2000,9 +1982,7 @@ public class OutputStream {
             try {
                 v.ice_preMarshal();
             } catch (java.lang.Exception ex) {
-                String s =
-                        "exception raised by ice_preMarshal:\n"
-                                + com.zeroc.IceInternal.Ex.toString(ex);
+                String s = "exception raised by ice_preMarshal:\n" + Ex.toString(ex);
                 _stream.instance().initializationData().logger.warning(s);
             }
 

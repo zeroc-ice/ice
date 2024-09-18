@@ -2,12 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceInternal;
+package com.zeroc.Ice;
 
-public class DispatchObserverI
-        extends com.zeroc.Ice.IceMX.ObserverWithDelegate<
-                com.zeroc.Ice.IceMX.DispatchMetrics, com.zeroc.Ice.Instrumentation.DispatchObserver>
-        implements com.zeroc.Ice.Instrumentation.DispatchObserver {
+import com.zeroc.Ice.IceMX.ObserverWithDelegate;
+import com.zeroc.Ice.IceMX.DispatchMetrics;
+import com.zeroc.Ice.Instrumentation.DispatchObserver;
+
+class DispatchObserverI extends ObserverWithDelegate<DispatchMetrics, DispatchObserver> implements DispatchObserver {
     @Override
     public void userException() {
         forEach(_userException);
@@ -19,9 +20,9 @@ public class DispatchObserverI
     @Override
     public void reply(final int size) {
         forEach(
-                new MetricsUpdate<com.zeroc.Ice.IceMX.DispatchMetrics>() {
+                new MetricsUpdate<DispatchMetrics>() {
                     @Override
-                    public void update(com.zeroc.Ice.IceMX.DispatchMetrics v) {
+                    public void update(DispatchMetrics v) {
                         v.replySize += size;
                     }
                 });
@@ -30,10 +31,10 @@ public class DispatchObserverI
         }
     }
 
-    private final MetricsUpdate<com.zeroc.Ice.IceMX.DispatchMetrics> _userException =
-            new MetricsUpdate<com.zeroc.Ice.IceMX.DispatchMetrics>() {
+    private final MetricsUpdate<DispatchMetrics> _userException =
+            new MetricsUpdate<DispatchMetrics>() {
                 @Override
-                public void update(com.zeroc.Ice.IceMX.DispatchMetrics v) {
+                public void update(DispatchMetrics v) {
                     ++v.userException;
                 }
             };

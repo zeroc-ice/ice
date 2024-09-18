@@ -4,8 +4,8 @@
 
 package test.Ice.background;
 
-final class EndpointFactory implements com.zeroc.IceInternal.EndpointFactory {
-    EndpointFactory(Configuration configuration, com.zeroc.IceInternal.EndpointFactory factory) {
+final class EndpointFactory implements com.zeroc.Ice.EndpointFactory {
+    EndpointFactory(Configuration configuration, com.zeroc.Ice.EndpointFactory factory) {
         _configuration = configuration;
         _factory = factory;
     }
@@ -21,18 +21,18 @@ final class EndpointFactory implements com.zeroc.IceInternal.EndpointFactory {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI create(
+    public com.zeroc.Ice.EndpointI create(
             java.util.ArrayList<String> args, boolean server) {
         return new EndpointI(_configuration, _factory.create(args, server));
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI read(com.zeroc.Ice.InputStream s) {
+    public com.zeroc.Ice.EndpointI read(com.zeroc.Ice.InputStream s) {
         short type = s.readShort();
         assert (type == _factory.type());
 
         s.startEncapsulation();
-        com.zeroc.IceInternal.EndpointI endpoint = new EndpointI(_configuration, _factory.read(s));
+        com.zeroc.Ice.EndpointI endpoint = new EndpointI(_configuration, _factory.read(s));
         s.endEncapsulation();
         return endpoint;
     }
@@ -41,11 +41,10 @@ final class EndpointFactory implements com.zeroc.IceInternal.EndpointFactory {
     public void destroy() {}
 
     @Override
-    public com.zeroc.IceInternal.EndpointFactory clone(
-            com.zeroc.IceInternal.ProtocolInstance instance) {
+    public com.zeroc.Ice.EndpointFactory clone(com.zeroc.Ice.ProtocolInstance instance) {
         return this;
     }
 
     private Configuration _configuration;
-    private com.zeroc.IceInternal.EndpointFactory _factory;
+    private com.zeroc.Ice.EndpointFactory _factory;
 }

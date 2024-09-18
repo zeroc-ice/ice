@@ -26,7 +26,7 @@ public final class Configuration {
     }
 
     public synchronized void initializeSocketStatus(int status) {
-        if (status == com.zeroc.IceInternal.SocketOperation.None) {
+        if (status == com.zeroc.Ice.SocketOperation.None) {
             _initializeResetCount = 0;
             return;
         }
@@ -40,7 +40,7 @@ public final class Configuration {
 
     public synchronized int initializeSocketStatus() {
         if (_initializeResetCount == 0) {
-            return com.zeroc.IceInternal.SocketOperation.None;
+            return com.zeroc.Ice.SocketOperation.None;
         }
         --_initializeResetCount;
         return _initializeSocketStatus;

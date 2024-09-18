@@ -4,9 +4,6 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.IceInternal.Buffer;
-import com.zeroc.IceInternal.Instance;
-import com.zeroc.IceInternal.Protocol;
 import java.io.IOException;
 
 /**
@@ -903,11 +900,10 @@ public class InputStream {
         if (sz == 0) {
             return null;
         }
-        com.zeroc.IceInternal.ObjectInputStream in = null;
+        ObjectInputStreamWrapper in = null;
         try {
-            com.zeroc.IceInternal.InputStreamWrapper w =
-                    new com.zeroc.IceInternal.InputStreamWrapper(sz, _buf.b);
-            in = new com.zeroc.IceInternal.ObjectInputStream(_instance, w);
+            var w = new InputStreamWrapper(sz, _buf.b);
+            in = new ObjectInputStreamWrapper(_instance, w);
             return cl.cast(in.readObject());
         } catch (LocalException ex) {
             throw ex;
@@ -1607,7 +1603,7 @@ public class InputStream {
                     if (v == null || cls.isInstance(v)) {
                         cb.accept(cls.cast(v));
                     } else {
-                        com.zeroc.IceInternal.Ex.throwUOE(cls, v);
+                        Ex.throwUOE(cls, v);
                     }
                 });
     }
@@ -2046,9 +2042,7 @@ public class InputStream {
                 try {
                     v.ice_postUnmarshal();
                 } catch (java.lang.Exception ex) {
-                    String s =
-                            "exception raised by ice_postUnmarshal:\n"
-                                    + com.zeroc.IceInternal.Ex.toString(ex);
+                    String s = "exception raised by ice_postUnmarshal:\n" + Ex.toString(ex);
                     _stream.instance().initializationData().logger.warning(s);
                 }
             } else {
@@ -2069,9 +2063,7 @@ public class InputStream {
                         try {
                             p.ice_postUnmarshal();
                         } catch (java.lang.Exception ex) {
-                            String s =
-                                    "exception raised by ice_postUnmarshal:\n"
-                                            + com.zeroc.IceInternal.Ex.toString(ex);
+                            String s = "exception raised by ice_postUnmarshal:\n" + Ex.toString(ex);
                             _stream.instance().initializationData().logger.warning(s);
                         }
                     }
@@ -2974,12 +2966,45 @@ public class InputStream {
 
     private void traceSkipSlice(String typeId, SliceType sliceType) {
         if (_traceSlicing && _logger != null) {
-            com.zeroc.IceInternal.TraceUtil.traceSlicing(
+            TraceUtil.traceSlicing(
                     sliceType == SliceType.ExceptionSlice ? "exception" : "object",
                     typeId,
                     "Slicing",
                     _logger);
         }
+    }
+
+    /**
+     * We need to override the resolveClass method of ObjectInputStream so
+     * that we can use the same class-lookup mechanism as elsewhere in the
+     * Ice run time.
+     */
+    private class ObjectInputStreamWrapper extends java.io.ObjectInputStream {
+        public ObjectInputStreamWrapper(Instance instance, java.io.InputStream in) throws IOException {
+            super(in);
+            _instance = instance;
+        }
+
+        @Override
+        protected Class<?> resolveClass(java.io.ObjectStreamClass cls)
+                throws IOException, ClassNotFoundException {
+            if (_instance == null) {
+                throw new com.zeroc.Ice.MarshalException(
+                        "cannot unmarshal a serializable without a communicator");
+            }
+
+            try {
+                Class<?> c = _instance.findClass(cls.getName());
+                if (c != null) {
+                    return c;
+                }
+                throw new ClassNotFoundException("unable to resolve class" + cls.getName());
+            } catch (Exception ex) {
+                throw new ClassNotFoundException("unable to resolve class " + cls.getName(), ex);
+            }
+        }
+
+        private Instance _instance;
     }
 
     /**

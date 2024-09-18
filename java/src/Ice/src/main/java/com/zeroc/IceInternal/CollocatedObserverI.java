@@ -2,19 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceInternal;
+package com.zeroc.Ice;
 
-public class CollocatedObserverI
-        extends com.zeroc.Ice.IceMX.ObserverWithDelegate<
-                com.zeroc.Ice.IceMX.CollocatedMetrics,
-                com.zeroc.Ice.Instrumentation.CollocatedObserver>
-        implements com.zeroc.Ice.Instrumentation.CollocatedObserver {
+import com.zeroc.Ice.IceMX.CollocatedMetrics;
+import com.zeroc.Ice.Instrumentation.CollocatedObserver;
+
+class CollocatedObserverI extends com.zeroc.Ice.IceMX.ObserverWithDelegate<CollocatedMetrics, CollocatedObserver> implements CollocatedObserver {
     @Override
     public void reply(final int size) {
         forEach(
-                new MetricsUpdate<com.zeroc.Ice.IceMX.CollocatedMetrics>() {
+                new MetricsUpdate<CollocatedMetrics>() {
                     @Override
-                    public void update(com.zeroc.Ice.IceMX.CollocatedMetrics v) {
+                    public void update(CollocatedMetrics v) {
                         v.replySize += size;
                     }
                 });

@@ -10,7 +10,7 @@ package com.zeroc.Ice;
  */
 @SuppressWarnings("unchecked")
 public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _ObjectPrxI {
-    protected _ObjectPrxFactoryMethods(com.zeroc.IceInternal.Reference ref) {
+    protected _ObjectPrxFactoryMethods(Reference ref) {
         super(ref);
     }
 

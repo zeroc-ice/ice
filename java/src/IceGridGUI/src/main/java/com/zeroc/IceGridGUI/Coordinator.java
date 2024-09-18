@@ -2862,16 +2862,14 @@ public class Coordinator {
 
     public IGraphView createGraphView() {
         IGraphView view = null;
-        Class<?> c1 =
-                com.zeroc.IceInternal.Util.findClass(
-                        "com.zeroc.IceGridGUI.LiveDeployment.GraphView", null);
+        Class<?> c1 = com.zeroc.Ice.Util.findClass("com.zeroc.IceGridGUI.LiveDeployment.GraphView", null);
         if (c1 == null) {
             JOptionPane.showMessageDialog(
                     _mainFrame,
                     "IceGrid GUI was built without Metrics Graph Support",
                     "IceGrid GUI Info",
                     JOptionPane.INFORMATION_MESSAGE);
-        } else if (com.zeroc.IceInternal.Util.findClass("javafx.embed.swing.JFXPanel", null)
+        } else if (com.zeroc.Ice.Util.findClass("javafx.embed.swing.JFXPanel", null)
                 == null) {
             JOptionPane.showMessageDialog(
                     _mainFrame,

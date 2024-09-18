@@ -4,10 +4,6 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.IceInternal.CancellationHandler;
-import com.zeroc.IceInternal.Ex;
-import com.zeroc.IceInternal.Instance;
-import com.zeroc.IceInternal.RunnableThreadPoolWorkItem;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
@@ -420,7 +416,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
             }
             handler = _cancellationHandler;
         }
-        handler.asyncRequestCanceled((com.zeroc.IceInternal.OutgoingAsyncBase) this, ex);
+        handler.asyncRequestCanceled((OutgoingAsyncBase) this, ex);
     }
 
     protected com.zeroc.Ice.Instrumentation.InvocationObserver getObserver() {

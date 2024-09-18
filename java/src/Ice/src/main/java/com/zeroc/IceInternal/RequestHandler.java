@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceInternal;
+package com.zeroc.Ice;
 
-public interface RequestHandler extends CancellationHandler {
+interface RequestHandler extends CancellationHandler {
     int sendAsyncRequest(ProxyOutgoingAsyncBase out) throws RetryException;
 
-    com.zeroc.Ice.ConnectionI getConnection();
+    ConnectionI getConnection();
 }

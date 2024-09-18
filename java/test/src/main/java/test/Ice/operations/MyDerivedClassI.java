@@ -22,7 +22,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public boolean supportsCompress(Current current) {
-        return com.zeroc.IceInternal.BZip2.supported();
+        return com.zeroc.Ice.BZip2.supported();
     }
 
     @Override

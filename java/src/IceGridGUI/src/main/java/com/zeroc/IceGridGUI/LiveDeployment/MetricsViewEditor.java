@@ -276,8 +276,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
         @Override
         public int hashCode() {
-            int h = com.zeroc.IceInternal.HashUtil.hashAdd(5381, component);
-            return com.zeroc.IceInternal.HashUtil.hashAdd(h, view);
+            int h = com.zeroc.Ice.HashUtil.hashAdd(5381, component);
+            return com.zeroc.Ice.HashUtil.hashAdd(h, view);
         }
 
         public String component;
@@ -315,8 +315,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
         @Override
         public int hashCode() {
-            int h = com.zeroc.IceInternal.HashUtil.hashAdd(5381, _id);
-            return com.zeroc.IceInternal.HashUtil.hashAdd(h, _field.getFieldName());
+            int h = com.zeroc.Ice.HashUtil.hashAdd(5381, _id);
+            return com.zeroc.Ice.HashUtil.hashAdd(h, _field.getFieldName());
         }
 
         public double getScaleFactor() {
@@ -739,7 +739,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             className = "com.zeroc." + className;
         }
 
-        Class<?> cls = com.zeroc.IceInternal.Util.findClass(className, null);
+        Class<?> cls = com.zeroc.Ice.Util.findClass(className, null);
         if (cls == null) {
             System.err.println("Could not find class " + className);
             return null;

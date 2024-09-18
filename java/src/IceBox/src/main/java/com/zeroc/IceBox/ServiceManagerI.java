@@ -394,7 +394,7 @@ public class ServiceManagerI implements ServiceManager {
                 // Ignored
             }
         } else {
-            c = com.zeroc.IceInternal.Util.findClass(className, null);
+            c = com.zeroc.Ice.Util.findClass(className, null);
         }
 
         if (c == null) {

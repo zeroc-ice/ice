@@ -4,9 +4,6 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.IceInternal.OutgoingAsync;
-import com.zeroc.IceInternal.Reference;
-import com.zeroc.IceInternal.RequestHandlerCache;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -142,14 +139,13 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         return _iceI_ice_invokeAsync(operation, mode, inParams, context, false);
     }
 
-    private com.zeroc.IceInternal.ProxyIceInvoke _iceI_ice_invokeAsync(
+    private ProxyIceInvoke _iceI_ice_invokeAsync(
             String operation,
             OperationMode mode,
             byte[] inParams,
             Map<String, String> context,
             boolean sync) {
-        com.zeroc.IceInternal.ProxyIceInvoke f =
-                new com.zeroc.IceInternal.ProxyIceInvoke(this, operation, mode, sync);
+        ProxyIceInvoke f = new ProxyIceInvoke(this, operation, mode, sync);
         f.invoke(inParams, context);
         return f;
     }
@@ -219,7 +215,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     }
 
     public boolean ice_isFixed() {
-        return _reference instanceof com.zeroc.IceInternal.FixedReference;
+        return _reference instanceof FixedReference;
     }
 
     public boolean ice_isSecure() {
@@ -235,12 +231,12 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     }
 
     public RouterPrx ice_getRouter() {
-        com.zeroc.IceInternal.RouterInfo ri = _reference.getRouterInfo();
+        RouterInfo ri = _reference.getRouterInfo();
         return ri != null ? ri.getRouter() : null;
     }
 
     public LocatorPrx ice_getLocator() {
-        com.zeroc.IceInternal.LocatorInfo ri = _reference.getLocatorInfo();
+        LocatorInfo ri = _reference.getLocatorInfo();
         return ri != null ? ri.getLocator() : null;
     }
 
@@ -280,9 +276,8 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         return _iceI_ice_getConnectionAsync();
     }
 
-    private com.zeroc.IceInternal.ProxyGetConnection _iceI_ice_getConnectionAsync() {
-        com.zeroc.IceInternal.ProxyGetConnection r =
-                new com.zeroc.IceInternal.ProxyGetConnection(this);
+    private ProxyGetConnection _iceI_ice_getConnectionAsync() {
+        ProxyGetConnection r = new ProxyGetConnection(this);
         r.invoke();
         return r;
     }
@@ -299,8 +294,8 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         return _iceI_ice_flushBatchRequestsAsync();
     }
 
-    private com.zeroc.IceInternal.ProxyFlushBatch _iceI_ice_flushBatchRequestsAsync() {
-        com.zeroc.IceInternal.ProxyFlushBatch f = new com.zeroc.IceInternal.ProxyFlushBatch(this);
+    private ProxyFlushBatch _iceI_ice_flushBatchRequestsAsync() {
+        ProxyFlushBatch f = new ProxyFlushBatch(this);
         try {
             f.invoke();
         } catch (Exception ex) {
@@ -366,8 +361,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         if (java.util.Arrays.equals(newEndpoints, _reference.getEndpoints())) {
             return this;
         } else {
-            com.zeroc.IceInternal.EndpointI[] edpts =
-                    new com.zeroc.IceInternal.EndpointI[newEndpoints.length];
+            EndpointI[] edpts = new EndpointI[newEndpoints.length];
             edpts = java.util.Arrays.asList(newEndpoints).toArray(edpts);
             return _newInstance(_reference.changeEndpoints(edpts));
         }
@@ -462,7 +456,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
     @Override
     public ObjectPrx ice_router(RouterPrx newRouter) {
-        com.zeroc.IceInternal.RouterInfo routerInfo = _reference.getRouterInfo();
+        RouterInfo routerInfo = _reference.getRouterInfo();
         RouterPrx router = routerInfo != null ? routerInfo.getRouter() : null;
         if (router == newRouter || (router != null && router.equals(newRouter))) {
             return this;
@@ -473,7 +467,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
     @Override
     public ObjectPrx ice_locator(LocatorPrx newLocator) {
-        com.zeroc.IceInternal.LocatorInfo locatorInfo = _reference.getLocatorInfo();
+        LocatorInfo locatorInfo = _reference.getLocatorInfo();
         LocatorPrx locator = locatorInfo != null ? locatorInfo.getLocator() : null;
         if (locator == newLocator || (locator != null && locator.equals(newLocator))) {
             return this;

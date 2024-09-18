@@ -121,7 +121,7 @@ final class PluginManagerI implements PluginManager {
         }
     }
 
-    public PluginManagerI(Communicator communicator, com.zeroc.IceInternal.Instance instance) {
+    public PluginManagerI(Communicator communicator, Instance instance) {
         _communicator = communicator;
         _instance = instance;
         _initialized = false;
@@ -391,7 +391,7 @@ final class PluginManagerI implements PluginManager {
     }
 
     private Communicator _communicator;
-    private com.zeroc.IceInternal.Instance _instance;
+    private Instance _instance;
     private java.util.List<PluginInfo> _plugins = new java.util.ArrayList<>();
     private boolean _initialized;
     private java.util.Map<String, ClassLoader> _classLoaders;

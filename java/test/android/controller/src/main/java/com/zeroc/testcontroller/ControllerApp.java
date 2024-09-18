@@ -9,7 +9,7 @@ import java.util.*;
 
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Communicator;
-import com.zeroc.IceInternal.Time;
+import com.zeroc.Ice.Time;
 
 import android.os.Build;
 import android.util.Log;

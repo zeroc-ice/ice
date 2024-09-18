@@ -4,7 +4,7 @@
 
 package com.zeroc.Ice.IceMX;
 
-import com.zeroc.IceInternal.MetricsMap;
+import com.zeroc.Ice.MetricsMap;
 
 public class Observer<T extends Metrics> extends StopWatch
         implements com.zeroc.Ice.Instrumentation.Observer {

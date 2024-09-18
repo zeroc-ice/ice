@@ -16,7 +16,7 @@ import com.zeroc.Ice.SSL.SSLEngineFactory;
  */
 public final class Communicator implements AutoCloseable {
 
-    private com.zeroc.IceInternal.Instance _instance;
+    private Instance _instance;
 
     /**
      * Destroy the communicator. This Java-only method overrides close in java.lang.AutoCloseable
@@ -425,14 +425,12 @@ public final class Communicator implements AutoCloseable {
         return _iceI_flushBatchRequestsAsync(compressBatch);
     }
 
-    private com.zeroc.IceInternal.CommunicatorFlushBatch _iceI_flushBatchRequestsAsync(
-            CompressBatch compressBatch) {
+    private CommunicatorFlushBatch _iceI_flushBatchRequestsAsync(CompressBatch compressBatch) {
         //
         // This callback object receives the results of all invocations
         // of Connection.begin_flushBatchRequests.
         //
-        com.zeroc.IceInternal.CommunicatorFlushBatch f =
-                new com.zeroc.IceInternal.CommunicatorFlushBatch(this, _instance);
+        var f = CommunicatorFlushBatch(this, _instance);
         f.invoke(compressBatch);
         return f;
     }
@@ -514,7 +512,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     Communicator(InitializationData initData) {
-        _instance = new com.zeroc.IceInternal.Instance();
+        _instance = new Instance();
         _instance.initialize(this, initData);
     }
 
@@ -546,7 +544,7 @@ public final class Communicator implements AutoCloseable {
         }
     }
 
-    public com.zeroc.IceInternal.Instance getInstance() {
+    public Instance getInstance() {
         return _instance;
     }
 }

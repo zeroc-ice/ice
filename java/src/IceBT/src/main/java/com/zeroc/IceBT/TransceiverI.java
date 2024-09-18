@@ -6,11 +6,10 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ReadyCallback;
 import com.zeroc.Ice.SocketException;
-import com.zeroc.IceInternal.Buffer;
-import com.zeroc.IceInternal.ReadyCallback;
-import com.zeroc.IceInternal.SocketOperation;
-import com.zeroc.IceInternal.Transceiver;
+import com.zeroc.Ice.SocketOperation;
+import com.zeroc.Ice.Transceiver;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.UUID;
@@ -97,7 +96,7 @@ final class TransceiverI implements Transceiver {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI bind() {
+    public com.zeroc.Ice.EndpointI bind() {
         assert (false);
         return null;
     }
@@ -315,7 +314,7 @@ final class TransceiverI implements Transceiver {
             exception(new com.zeroc.Ice.SocketException(ex));
         } finally {
             // This causes the Ice run time to invoke initialize() again.
-            _readyCallback.ready(com.zeroc.IceInternal.SocketOperation.Read, true);
+            _readyCallback.ready(com.zeroc.Ice.SocketOperation.Read, true);
         }
     }
 

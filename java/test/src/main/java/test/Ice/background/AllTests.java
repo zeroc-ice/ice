@@ -6,6 +6,7 @@ package test.Ice.background;
 
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.SocketOperation;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
@@ -368,7 +369,7 @@ public class AllTests {
             if (i == 0 || i == 2) {
                 configuration.initializeException(new com.zeroc.Ice.SocketException());
             } else {
-                configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.Write);
+                configuration.initializeSocketStatus(SocketOperation.Write);
                 configuration.initializeException(new com.zeroc.Ice.SocketException());
             }
             BackgroundPrx prx = (i == 1 || i == 3) ? background : background.ice_oneway();
@@ -393,37 +394,37 @@ public class AllTests {
             if (i == 0 || i == 2) {
                 configuration.initializeException(null);
             } else {
-                configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
+                configuration.initializeSocketStatus(SocketOperation.None);
                 configuration.initializeException(null);
             }
         }
 
         try {
-            configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.Connect);
+            configuration.initializeSocketStatus(SocketOperation.Connect);
             background.op();
-            configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
+            configuration.initializeSocketStatus(SocketOperation.None);
         } catch (com.zeroc.Ice.LocalException ex) {
             test(false);
         }
         background.ice_getConnection().close();
 
         try {
-            configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.Write);
+            configuration.initializeSocketStatus(SocketOperation.Write);
             background.op();
-            configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
+            configuration.initializeSocketStatus(SocketOperation.None);
         } catch (com.zeroc.Ice.LocalException ex) {
             test(false);
         }
         background.ice_getConnection().close();
 
         try {
-            configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.Write);
+            configuration.initializeSocketStatus(SocketOperation.Write);
             configuration.initializeException(new com.zeroc.Ice.SocketException());
             background.op();
             test(false);
         } catch (com.zeroc.Ice.SocketException ex) {
             configuration.initializeException(null);
-            configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
+            configuration.initializeSocketStatus(SocketOperation.None);
         }
 
         //
@@ -441,25 +442,25 @@ public class AllTests {
         }
 
         try {
-            ctl.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.Write);
+            ctl.initializeSocketStatus(SocketOperation.Write);
             background.op();
-            ctl.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
+            ctl.initializeSocketStatus(SocketOperation.None);
         } catch (com.zeroc.Ice.LocalException ex) {
             test(false);
         }
         background.ice_getConnection().close();
 
         try {
-            ctl.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.Write);
+            ctl.initializeSocketStatus(SocketOperation.Write);
             ctl.initializeException(true);
             background.op();
             test(false);
         } catch (ConnectionLostException ex) {
             ctl.initializeException(false);
-            ctl.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
+            ctl.initializeSocketStatus(SocketOperation.None);
         } catch (com.zeroc.Ice.SecurityException ex) {
             ctl.initializeException(false);
-            ctl.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
+            ctl.initializeSocketStatus(SocketOperation.None);
         }
 
         OpThread thread1 = new OpThread(background);
@@ -491,7 +492,7 @@ public class AllTests {
                 test(false);
             }
 
-            configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.Write);
+            configuration.initializeSocketStatus(SocketOperation.Write);
             background.ice_getCachedConnection().abort();
 
             try {
@@ -501,7 +502,7 @@ public class AllTests {
                 test(false); // Something's wrong with retries.
             }
 
-            configuration.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
+            configuration.initializeSocketStatus(SocketOperation.None);
 
             ctl.initializeException(true);
             background.ice_getCachedConnection().abort();
@@ -522,10 +523,10 @@ public class AllTests {
             }
 
             try {
-                ctl.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.Write);
+                ctl.initializeSocketStatus(SocketOperation.Write);
                 background.ice_getCachedConnection().abort();
                 background.op();
-                ctl.initializeSocketStatus(com.zeroc.IceInternal.SocketOperation.None);
+                ctl.initializeSocketStatus(SocketOperation.None);
             } catch (com.zeroc.Ice.LocalException ex) {
                 ex.printStackTrace();
                 test(false);

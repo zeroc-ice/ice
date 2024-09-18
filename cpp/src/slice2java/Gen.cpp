@@ -810,8 +810,8 @@ Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const stri
     {
         clsName = getUnqualified(cl, package);
     }
-    out << nl << "final com.zeroc.IceInternal.Holder<" << clsName << "> " << name
-        << " = new com.zeroc.IceInternal.Holder<>();";
+    out << nl << "final com.zeroc.Ice.Holder<" << clsName << "> " << name
+        << " = new com.zeroc.Ice.Holder<>();";
 }
 
 string
@@ -854,11 +854,11 @@ Slice::JavaVisitor::getFutureImplType(const OperationPtr& op, const string& pack
 {
     if (op->returnType() || op->outParameters().size() > 0)
     {
-        return "com.zeroc.IceInternal.OutgoingAsync<" + getResultType(op, package, true, false) + ">";
+        return "com.zeroc.Ice.OutgoingAsync<" + getResultType(op, package, true, false) + ">";
     }
     else
     {
-        return "com.zeroc.IceInternal.OutgoingAsync<Void>";
+        return "com.zeroc.Ice.OutgoingAsync<Void>";
     }
 }
 
@@ -3145,12 +3145,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sp << nl << "public int hashCode()";
     out << sb;
     out << nl << "int h_ = 5381;";
-    out << nl << "h_ = com.zeroc.IceInternal.HashUtil.hashAdd(h_, \"" << p->scoped() << "\");";
+    out << nl << "h_ = com.zeroc.Ice.HashUtil.hashAdd(h_, \"" << p->scoped() << "\");";
     iter = 0;
     for (const auto& member : members)
     {
         string memberName = fixKwd(member->name());
-        out << nl << "h_ = com.zeroc.IceInternal.HashUtil.hashAdd(h_, " << memberName << ");";
+        out << nl << "h_ = com.zeroc.Ice.HashUtil.hashAdd(h_, " << memberName << ");";
     }
     out << nl << "return h_;";
     out << eb;
@@ -4247,7 +4247,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(out, "@hidden");
     out << nl << "@Override";
-    out << nl << "default " << prxName << " _newInstance(com.zeroc.IceInternal.Reference ref)";
+    out << nl << "default " << prxName << " _newInstance(com.zeroc.Ice.Reference ref)";
     out << sb;
     out << nl << "return new " << prxIName << "(ref);";
     out << eb;
@@ -4274,7 +4274,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     // Constructor which directly takes a Reference.
     outi << sp;
-    outi << nl << prxIName << "(com.zeroc.IceInternal.Reference ref)";
+    outi << nl << prxIName << "(com.zeroc.Ice.Reference ref)";
     outi << sb;
     outi << nl << "super(ref);";
     outi << eb;
@@ -4504,7 +4504,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         << getParamsProxy(p, package, false, true) << "java.util.Map<String, String> context"
         << "boolean sync" << epar;
     out << sb;
-    out << nl << futureImpl << " f = new com.zeroc.IceInternal.OutgoingAsync<>(this, \"" << p->name() << "\", "
+    out << nl << futureImpl << " f = new com.zeroc.Ice.OutgoingAsync<>(this, \"" << p->name() << "\", "
         << sliceModeToIceMode(p->mode()) << ", sync, " << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
 
     out << nl << "f.invoke(";
@@ -4593,7 +4593,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             << getParamsProxy(p, package, true, true) << "java.util.Map<String, String> context"
             << "boolean sync" << epar;
         out << sb;
-        out << nl << futureImpl << " f = new com.zeroc.IceInternal.OutgoingAsync<>(this, \"" << p->name() << "\", "
+        out << nl << futureImpl << " f = new com.zeroc.Ice.OutgoingAsync<>(this, \"" << p->name() << "\", "
             << sliceModeToIceMode(p->mode()) << ", sync, " << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
 
         out << nl << "f.invoke(";
