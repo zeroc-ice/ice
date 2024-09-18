@@ -2404,25 +2404,3 @@ public sealed class OutputStream
         }
     }
 }
-
-/// <summary>
-/// Base class for writing class instances to an output stream.
-/// </summary>
-public abstract class ValueWriter : Value
-{
-    /// <summary>
-    /// Writes the state of this Slice class instance to an output stream.
-    /// </summary>
-    /// <param name="outStream">The stream to write to.</param>
-    public abstract void write(OutputStream outStream);
-
-    public override void iceWrite(OutputStream ostr)
-    {
-        write(ostr);
-    }
-
-    public override void iceRead(InputStream istr)
-    {
-        Debug.Assert(false);
-    }
-}

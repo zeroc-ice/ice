@@ -1960,9 +1960,9 @@ namespace Ice
                 }
             }
 
-            private class TestValueReader : Ice.ValueReader
+            private class TestValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     @in.startValue();
                     @in.startSlice();
@@ -1971,9 +1971,9 @@ namespace Ice
                 }
             }
 
-            private class BValueReader : Ice.ValueReader
+            private class BValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     @in.startValue();
                     // ::Test::B
@@ -1988,9 +1988,9 @@ namespace Ice
                 }
             }
 
-            private class CValueReader : Ice.ValueReader
+            private class CValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     @in.startValue();
                     // ::Test::C
@@ -2008,9 +2008,9 @@ namespace Ice
                 }
             }
 
-            private class DValueWriter : Ice.ValueWriter
+            private class DValueWriter : Ice.Value
             {
-                public override void write(Ice.OutputStream @out)
+                public override void iceWrite(Ice.OutputStream @out)
                 {
                     @out.startValue(null);
                     // ::Test::D
@@ -2039,9 +2039,9 @@ namespace Ice
                 }
             }
 
-            private class DValueReader : Ice.ValueReader
+            private class DValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     @in.startValue();
                     // ::Test::D
@@ -2074,9 +2074,9 @@ namespace Ice
                 private ReadValueCallbackI a = new ReadValueCallbackI();
             }
 
-            private class FValueReader : Ice.ValueReader
+            private class FValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     _f = new Test.F();
                     @in.startValue();

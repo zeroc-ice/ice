@@ -3821,25 +3821,3 @@ public class InputStream
 
     private const string endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
 }
-
-/// <summary>
-/// Base class for extracting class instances from an input stream.
-/// </summary>
-public abstract class ValueReader : Value
-{
-    /// <summary>
-    /// Read the instance's data members.
-    /// </summary>
-    /// <param name="inStream">The input stream to read from.</param>
-    public abstract void read(InputStream inStream);
-
-    public override void iceWrite(OutputStream ostr)
-    {
-        Debug.Assert(false);
-    }
-
-    public override void iceRead(InputStream istr)
-    {
-        read(istr);
-    }
-}
