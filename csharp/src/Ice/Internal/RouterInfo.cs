@@ -90,7 +90,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         {
             try
             {
-                var r = await _router.getClientProxyAsync().ConfigureAwait(false);
+                var r = await router.getClientProxyAsync().ConfigureAwait(false);
                 callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable ?? true));
             }
             catch (Ice.LocalException ex)

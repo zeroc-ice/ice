@@ -426,7 +426,6 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                         foreach (var l in _lookups)
                         {
-                            // Send multicast request.
                             _ = preformFindLocatorAsync(l.Key, l.Value);
                         }
                         _timer.schedule(this, _timeout);

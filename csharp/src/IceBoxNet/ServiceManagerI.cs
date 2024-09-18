@@ -230,11 +230,11 @@ internal class ServiceManagerI : ServiceManagerDisp_
             _ = servicesStartedAsync(observer, activeServices.ToArray());
         }
 
-        async Task servicesStartedAsync(ServiceObserverPrx observer, string[] activeServices)
+        async Task servicesStartedAsync(ServiceObserverPrx observer, string[] services)
         {
             try
             {
-                await observer.servicesStartedAsync(activeServices).ConfigureAwait(false);
+                await observer.servicesStartedAsync(services).ConfigureAwait(false);
             }
             catch (System.Exception ex)
             {
@@ -748,11 +748,11 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
         }
 
-        async Task servicesStartedAsync(ServiceObserverPrx observer, string[] activeServices)
+        async Task servicesStartedAsync(ServiceObserverPrx observer, string[] services)
         {
             try
             {
-                await observer.servicesStartedAsync(activeServices).ConfigureAwait(false);
+                await observer.servicesStartedAsync(services).ConfigureAwait(false);
             }
             catch (System.Exception ex)
             {
@@ -777,11 +777,11 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
         }
 
-        async Task servicesStopedAsync(ServiceObserverPrx observer, string[] activeServices)
+        async Task servicesStopedAsync(ServiceObserverPrx observer, string[] services)
         {
             try
             {
-                await observer.servicesStoppedAsync(activeServices).ConfigureAwait(false);
+                await observer.servicesStoppedAsync(services).ConfigureAwait(false);
             }
             catch (System.Exception ex)
             {
