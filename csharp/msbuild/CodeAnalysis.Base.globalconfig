@@ -321,9 +321,6 @@ dotnet_diagnostic.CA1066.severity = none
 # CA1810: Initialize reference type static fields inline
 dotnet_diagnostic.CA1810.severity = none
 
-# CA2008: Do not create tasks without passing a TaskScheduler
-dotnet_diagnostic.CA2008.severity = none
-
 # CA5392: Use DefaultDllImportSearchPaths attribute for P/Invokes
 dotnet_diagnostic.CA5392.severity = none
 
