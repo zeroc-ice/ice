@@ -62,6 +62,11 @@ namespace Ice
                     this.obj = obj;
                 }
 
+                public override void iceRead(Ice.InputStream inS)
+                {
+                    Debug.Assert(false);
+                }
+
                 public override void iceWrite(Ice.OutputStream outS)
                 {
                     obj.iceWrite(outS);
@@ -79,6 +84,11 @@ namespace Ice
                     obj = new Test.MyClass();
                     obj.iceRead(inS);
                     called = true;
+                }
+
+                public override void iceWrite(Ice.OutputStream outS)
+                {
+                    Debug.Assert(false);
                 }
 
                 internal Test.MyClass obj;

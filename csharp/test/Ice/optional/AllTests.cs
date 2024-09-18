@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Diagnostics;
+
 namespace Ice
 {
     namespace optional
@@ -1969,6 +1971,11 @@ namespace Ice
                     @in.endSlice();
                     @in.endValue();
                 }
+
+                public override void iceWrite(Ice.OutputStream outS)
+                {
+                    Debug.Assert(false);
+                }
             }
 
             private class BValueReader : Ice.Value
@@ -1985,6 +1992,11 @@ namespace Ice
                     @in.readInt();
                     @in.endSlice();
                     @in.endValue();
+                }
+
+                public override void iceWrite(Ice.OutputStream outS)
+                {
+                    Debug.Assert(false);
                 }
             }
 
@@ -2006,10 +2018,20 @@ namespace Ice
                     @in.endSlice();
                     @in.endValue();
                 }
+
+                public override void iceWrite(Ice.OutputStream outS)
+                {
+                    Debug.Assert(false);
+                }
             }
 
             private class DValueWriter : Ice.Value
             {
+                public override void iceRead(Ice.InputStream @in)
+                {
+                    Debug.Assert(false);
+                }
+
                 public override void iceWrite(Ice.OutputStream @out)
                 {
                     @out.startValue(null);
@@ -2066,6 +2088,11 @@ namespace Ice
                     @in.endValue();
                 }
 
+                public override void iceWrite(Ice.OutputStream @out)
+                {
+                    Debug.Assert(false);
+                }
+
                 internal void check()
                 {
                     test(((Test.A)a.obj).mc.Value == 18);
@@ -2088,6 +2115,11 @@ namespace Ice
                     _f.fse = Test.FixedStruct.ice_read(@in);
                     @in.endSlice();
                     @in.endValue();
+                }
+
+                public override void iceWrite(Ice.OutputStream @out)
+                {
+                    Debug.Assert(false);
                 }
 
                 public Test.F getF()
