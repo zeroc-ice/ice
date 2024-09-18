@@ -55,7 +55,7 @@ class EndpointHostResolver {
         }
 
         final com.zeroc.Ice.Instrumentation.ThreadObserver threadObserver = _observer;
-        final com.zeroc.Ice.Instrumentation.Observer observer = getObserver(endpoint);
+        final Observer observer = getObserver(endpoint);
         if (observer != null) {
             observer.attach();
         }
@@ -78,7 +78,7 @@ class EndpointHostResolver {
                         threadObserver.stateChanged(ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
                     }
 
-                    com.zeroc.Ice.Instrumentation.Observer obsv = observer;
+                    Observer obsv = observer;
                     try {
                         int protocol = _protocol;
                         NetworkProxy np = _instance.networkProxy();
@@ -157,7 +157,7 @@ class EndpointHostResolver {
         }
     }
 
-    private com.zeroc.Ice.Instrumentation.Observer getObserver(IPEndpointI endpoint) {
+    private Observer getObserver(IPEndpointI endpoint) {
         com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv =
                 _instance.initializationData().observer;
         if (obsv != null) {
