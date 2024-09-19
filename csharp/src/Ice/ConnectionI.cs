@@ -2286,8 +2286,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
                 else
                 {
-                    string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
-                    throw new FeatureNotSupportedException($"Cannot decompress compressed message: {lib} not found");
+                    throw new FeatureNotSupportedException("Cannot decompress compressed message: BZip2 library is not loaded.");
                 }
             }
             info.stream.pos(Protocol.headerSize);

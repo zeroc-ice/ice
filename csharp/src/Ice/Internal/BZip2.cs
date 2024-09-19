@@ -95,10 +95,6 @@ public static class BZip2
     internal static Buffer? compress(Buffer buf, int headerSize, int compressionLevel)
     {
         Debug.Assert(isLoaded);
-
-        // Compress the message body, but not the header.
-        int decompressedLen = buf.size() - headerSize;
-
         // In the worst case, the compressed buffer will be 1% larger than the decompressed buffer plus 600 bytes
         // for the bzip2 header, plus 4 bytes for the decompressed size added by Ice protocol.
         int compressedLenMax = (int)((buf.size() * 1.01) + 600 + 4);
@@ -120,8 +116,10 @@ public static class BZip2
                 throw new ProtocolException($"Bzip2 compress init failed {rc}");
             }
 
-            byte[] data = buf.b.rawBytes();
-            var payload = new ArraySegment<byte>(data, headerSize, decompressedLen);
+            // Compress the message body, but not the header.
+            int decompressedLen = buf.size() - headerSize;
+            byte[] decompressed = buf.b.rawBytes();
+            var payload = new ArraySegment<byte>(decompressed, headerSize, decompressedLen);
 
             var payloadHandle = GCHandle.Alloc(payload.Array, GCHandleType.Pinned);
             bzStream.NextIn = payloadHandle.AddrOfPinnedObject() + payload.Offset;
@@ -164,7 +162,7 @@ public static class BZip2
             r.b.position(0);
 
             // Copy the header from the decompressed buffer to the compressed one.
-            r.b.put(buf.b.rawBytes(), 0, headerSize);
+            r.b.put(decompressed, 0, headerSize);
 
             // Add the size of the decompressed stream before the message body
             r.b.putInt(buf.size());
