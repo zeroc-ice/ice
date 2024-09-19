@@ -773,11 +773,11 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
             foreach (ServiceObserverPrx observer in observers)
             {
-                _ = servicesStopedAsync(observer, servicesArray);
+                _ = servicesStoppedAsync(observer, servicesArray);
             }
         }
 
-        async Task servicesStopedAsync(ServiceObserverPrx observer, string[] services)
+        async Task servicesStoppedAsync(ServiceObserverPrx observer, string[] services)
         {
             try
             {

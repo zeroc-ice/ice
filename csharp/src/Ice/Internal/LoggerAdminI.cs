@@ -74,21 +74,13 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
         }
 
-        try
-        {
-            _ = performInitAsync(remoteLogger, initLogMessages.ToArray());
-        }
-        catch (Ice.LocalException ex)
-        {
-            deadRemoteLogger(remoteLogger, _logger, ex, "init");
-            throw;
-        }
+        _ = performInitAsync();
 
-        async Task performInitAsync(Ice.RemoteLoggerPrx remoteLogger, Ice.LogMessage[] initLogMessages)
+        async Task performInitAsync()
         {
             try
             {
-                await remoteLogger.initAsync(_logger.getPrefix(), initLogMessages).ConfigureAwait(false);
+                await remoteLogger.initAsync(_logger.getPrefix(), initLogMessages.ToArray()).ConfigureAwait(false);
                 if (_traceLevel > 1)
                 {
                     _logger.trace(

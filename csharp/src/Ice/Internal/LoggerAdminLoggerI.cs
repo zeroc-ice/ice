@@ -165,20 +165,13 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
             {
                 if (_loggerAdmin.getTraceLevel() > 1)
                 {
-                    _localLogger.trace(_traceCategory, "sending log message to `" + p.ToString() + "'");
+                    _localLogger.trace(_traceCategory, $"sending log message to '{p}'");
                 }
 
-                try
-                {
-                    //
-                    // p is a proxy associated with the _sendLogCommunicator
-                    //
-                    _ = performLogAsync(p, job.logMessage);
-                }
-                catch (Ice.LocalException ex)
-                {
-                    _loggerAdmin.deadRemoteLogger(p, _localLogger, ex, "log");
-                }
+                //
+                // p is a proxy associated with the _sendLogCommunicator
+                //
+                _ = performLogAsync(p, job.logMessage);
             }
         }
 
@@ -194,7 +187,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 await logger.logAsync(logMessage).ConfigureAwait(false);
                 if (_loggerAdmin.getTraceLevel() > 1)
                 {
-                    _localLogger.trace(_traceCategory, $"log on `{logger}' completed successfully");
+                    _localLogger.trace(_traceCategory, $"log on '{logger}' completed successfully");
                 }
             }
             catch (Ice.CommunicatorDestroyedException)
