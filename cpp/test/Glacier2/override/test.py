@@ -15,7 +15,6 @@ routerProps = {
     "Ice.Warn.Connections": "0",
     "Ice.TCP.SndSize": "100000",
     "Ice.ThreadPool.Server.Serialize": "1",
-    "Ice.ThreadPool.Client.Serialize": "1",
     "Glacier2.Filter.Category.Accept": '"c"',
     "Glacier2.PermissionsVerifier": "Glacier2/NullPermissionsVerifier",
     "Glacier2.Client.ForwardContext": "1",
