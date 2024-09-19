@@ -555,9 +555,4 @@ generated from the section label.
         <property name="Trace.Session" default="0" />
     </section>
 
-    <section name="Glacier2CryptPermissionsVerifier">
-        <property name="[any].PermissionsVerifier" />
-        <property name="[any].AdminPermissionsVerifier" />
-    </section>
-
 </properties>
