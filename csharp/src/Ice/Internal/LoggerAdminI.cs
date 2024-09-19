@@ -74,31 +74,29 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
         }
 
-        try
+        _ = performInitAsync();
+
+        async Task performInitAsync()
         {
-            remoteLogger.initAsync(_logger.getPrefix(), initLogMessages.ToArray()).ContinueWith(
-                (t) =>
+            try
+            {
+                await remoteLogger.initAsync(_logger.getPrefix(), initLogMessages.ToArray()).ConfigureAwait(false);
+                if (_traceLevel > 1)
                 {
-                    try
-                    {
-                        t.Wait();
-                        if (_traceLevel > 1)
-                        {
-                            _logger.trace(_traceCategory, "init on `" + remoteLogger.ToString()
-                                          + "' completed successfully");
-                        }
-                    }
-                    catch (AggregateException ae)
-                    {
-                        Debug.Assert(ae.InnerException is Ice.LocalException);
-                        deadRemoteLogger(remoteLogger, _logger, (Ice.LocalException)ae.InnerException, "init");
-                    }
-                });
-        }
-        catch (Ice.LocalException ex)
-        {
-            deadRemoteLogger(remoteLogger, _logger, ex, "init");
-            throw;
+                    _logger.trace(
+                        _traceCategory,
+                        $"init on `{remoteLogger}' completed successfully");
+                }
+            }
+            catch (Ice.LocalException ex)
+            {
+                deadRemoteLogger(remoteLogger, _logger, ex, "init");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.Fail($"unexpected exception {ex}");
+                throw;
+            }
         }
     }
 

@@ -227,7 +227,19 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
         if (activeServices.Count > 0)
         {
-            observer.servicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => observerCompleted(observer, t));
+            _ = servicesStartedAsync(observer, activeServices.ToArray());
+        }
+
+        async Task servicesStartedAsync(ServiceObserverPrx observer, string[] services)
+        {
+            try
+            {
+                await observer.servicesStartedAsync(services).ConfigureAwait(false);
+            }
+            catch (System.Exception ex)
+            {
+                removeObserver(observer, ex);
+            }
         }
     }
 
@@ -732,7 +744,19 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
             foreach (ServiceObserverPrx observer in observers)
             {
-                observer.servicesStartedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t));
+                _ = servicesStartedAsync(observer, servicesArray);
+            }
+        }
+
+        async Task servicesStartedAsync(ServiceObserverPrx observer, string[] services)
+        {
+            try
+            {
+                await observer.servicesStartedAsync(services).ConfigureAwait(false);
+            }
+            catch (System.Exception ex)
+            {
+                removeObserver(observer, ex);
             }
         }
     }
@@ -749,26 +773,31 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
             foreach (ServiceObserverPrx observer in observers)
             {
-                observer.servicesStoppedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t));
+                _ = servicesStoppedAsync(observer, servicesArray);
+            }
+        }
+
+        async Task servicesStoppedAsync(ServiceObserverPrx observer, string[] services)
+        {
+            try
+            {
+                await observer.servicesStoppedAsync(services).ConfigureAwait(false);
+            }
+            catch (System.Exception ex)
+            {
+                removeObserver(observer, ex);
             }
         }
     }
 
     private void
-    observerCompleted(ServiceObserverPrx observer, Task t)
+    removeObserver(ServiceObserverPrx observer, System.Exception ex)
     {
-        try
+        lock (_mutex)
         {
-            t.Wait();
-        }
-        catch (AggregateException ae)
-        {
-            lock (_mutex)
+            if (_observers.Remove(observer))
             {
-                if (_observers.Remove(observer))
-                {
-                    observerRemoved(observer, ae.InnerException);
-                }
+                observerRemoved(observer, ex);
             }
         }
     }

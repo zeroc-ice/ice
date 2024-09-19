@@ -84,21 +84,25 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
             callback.setEndpoints(clientEndpoints);
             return;
         }
+        _ = performGetClientProxyAsync(_router);
 
-        _router.getClientProxyAsync().ContinueWith(
-            (t) =>
+        async Task performGetClientProxyAsync(RouterPrx router)
+        {
+            try
             {
-                try
-                {
-                    var r = t.Result;
-                    callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable ?? true));
-                }
-                catch (System.AggregateException ae)
-                {
-                    Debug.Assert(ae.InnerException is Ice.LocalException);
-                    callback.setException((Ice.LocalException)ae.InnerException);
-                }
-            });
+                var r = await router.getClientProxyAsync().ConfigureAwait(false);
+                callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable ?? true));
+            }
+            catch (Ice.LocalException ex)
+            {
+                callback.setException(ex);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.Fail($"unexpected exception: {ex}");
+                throw;
+            }
+        }
     }
 
     public EndpointI[] getServerEndpoints()
@@ -131,22 +135,27 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
                 return true;
             }
         }
-
-        _router.addProxiesAsync([new ObjectPrxHelper(reference)]).ContinueWith(
-            (t) =>
-            {
-                try
-                {
-                    addAndEvictProxies(identity, t.Result);
-                    callback.addedProxy();
-                }
-                catch (AggregateException ae)
-                {
-                    Debug.Assert(ae.InnerException is Ice.LocalException);
-                    callback.setException((Ice.LocalException)ae.InnerException);
-                }
-            });
+        _ = performAddProxiesAsync(_router, reference);
         return false;
+
+        async Task performAddProxiesAsync(RouterPrx router, Reference reference)
+        {
+            try
+            {
+                var evictedProxies = await router.addProxiesAsync([new ObjectPrxHelper(reference)]).ConfigureAwait(false);
+                addAndEvictProxies(identity, evictedProxies);
+                callback.addedProxy();
+            }
+            catch (Ice.LocalException ex)
+            {
+                callback.setException(ex);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.Fail($"unexpected exception: {ex}");
+                throw;
+            }
+        }
     }
 
     public void setAdapter(Ice.ObjectAdapter adapter)

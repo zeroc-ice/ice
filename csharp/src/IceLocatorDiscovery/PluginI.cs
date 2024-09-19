@@ -42,57 +42,47 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
         if (_locatorPrx == null || !_locatorPrx.Equals(l))
         {
             _locatorPrx = l;
-            l.ice_invokeAsync(_operation, _mode, _inParams, _context).ContinueWith(
-                (task) =>
-                {
-                    try
-                    {
-                        SetResult(task.Result);
-                    }
-                    catch (AggregateException ae)
-                    {
-                        exception(ae.InnerException);
-                    }
-                });
+            _ = performInvokeAsync(l);
         }
         else
         {
             Debug.Assert(_exception != null);
             throw _exception;
         }
-    }
 
-    private void
-    exception(Exception ex)
-    {
-        try
+        async Task performInvokeAsync(Ice.LocatorPrx locator)
         {
-            throw ex;
-        }
-        catch (Ice.RequestFailedException exc)
-        {
-            SetException(exc);
-        }
-        catch (Ice.UnknownException exc)
-        {
-            SetException(exc);
-        }
-        catch (Ice.NoEndpointException)
-        {
-            SetException(new Ice.ObjectNotExistException());
-        }
-        catch (Ice.ObjectAdapterDeactivatedException)
-        {
-            SetException(new Ice.ObjectNotExistException());
-        }
-        catch (Ice.CommunicatorDestroyedException)
-        {
-            SetException(new Ice.ObjectNotExistException());
-        }
-        catch (Exception exc)
-        {
-            _exception = exc;
-            _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
+            try
+            {
+                var result =
+                    await locator.ice_invokeAsync(_operation, _mode, _inParams, _context).ConfigureAwait(false);
+                SetResult(result);
+            }
+            catch (Ice.RequestFailedException exc)
+            {
+                SetException(exc);
+            }
+            catch (Ice.UnknownException exc)
+            {
+                SetException(exc);
+            }
+            catch (Ice.NoEndpointException)
+            {
+                SetException(new Ice.ObjectNotExistException());
+            }
+            catch (Ice.ObjectAdapterDeactivatedException)
+            {
+                SetException(new Ice.ObjectNotExistException());
+            }
+            catch (Ice.CommunicatorDestroyedException)
+            {
+                SetException(new Ice.ObjectNotExistException());
+            }
+            catch (Exception exc)
+            {
+                _exception = exc;
+                _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
+            }
         }
     }
 
@@ -436,19 +426,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                         foreach (var l in _lookups)
                         {
-                            l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(
-                                t =>
-                                {
-                                    try
-                                    {
-                                        t.Wait();
-                                    }
-                                    catch (AggregateException ex)
-                                    {
-                                        exception(ex.InnerException);
-                                    }
-                                },
-                                l.Key.ice_scheduler()); // Send multicast request.
+                            _ = preformFindLocatorAsync(l.Key, l.Value);
                         }
                         _timer.schedule(this, _timeout);
                     }
@@ -475,6 +453,19 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                         _pending = false;
                     }
                 }
+            }
+        }
+
+        async Task preformFindLocatorAsync(LookupPrx lookupPrx, LookupReplyPrx lookupReplyPrx)
+        {
+            // Send multicast request.
+            try
+            {
+                await lookupPrx.findLocatorAsync(_instanceName, lookupReplyPrx).ConfigureAwait(false);
+            }
+            catch (System.Exception ex)
+            {
+                exception(ex);
             }
         }
     }
