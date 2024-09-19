@@ -11,40 +11,22 @@ namespace Ice.Internal;
 
 // Map Bzip2 bz_stream struct to a C# struct for using with the Bzip2 low level API.
 [StructLayout(LayoutKind.Sequential)]
-internal struct BZStream
+internal struct BZStream(IntPtr nextOut, uint availOut)
 {
-    internal IntPtr NextIn;
-    internal uint AvailIn;
-    internal uint TotalInLo32;
-    internal uint TotalInHi32;
+    internal IntPtr NextIn = IntPtr.Zero;
+    internal uint AvailIn = 0;
+    internal uint TotalInLo32 = 0;
+    internal uint TotalInHi32 = 0;
 
-    internal IntPtr NextOut;
-    internal uint AvailOut;
-    internal uint TotalOutLo32;
-    internal uint TotalOutHi32;
+    internal IntPtr NextOut = nextOut;
+    internal uint AvailOut = availOut;
+    internal uint TotalOutLo32 = 0;
+    internal uint TotalOutHi32 = 0;
 
-    internal IntPtr State;
-    internal IntPtr BzAlloc;
-    internal IntPtr BzFree;
-    internal IntPtr Opaque;
-
-    public BZStream(IntPtr nextOut, uint availOut)
-    {
-        NextIn = IntPtr.Zero;
-        AvailIn = 0;
-        TotalInLo32 = 0;
-        TotalInHi32 = 0;
-
-        NextOut = nextOut;
-        AvailOut = availOut;
-        TotalOutLo32 = 0;
-        TotalOutHi32 = 0;
-
-        State = IntPtr.Zero;
-        BzAlloc = IntPtr.Zero;
-        BzFree = IntPtr.Zero;
-        Opaque = IntPtr.Zero;
-    }
+    internal IntPtr State = IntPtr.Zero;
+    internal IntPtr BzAlloc = IntPtr.Zero;
+    internal IntPtr BzFree = IntPtr.Zero;
+    internal IntPtr Opaque = IntPtr.Zero;
 }
 
 public static class BZip2
@@ -77,7 +59,7 @@ public static class BZip2
     public static bool isLoaded => _loaded.Value;
 
     private static readonly Lazy<bool> _loaded =
-        new Lazy<bool>(() =>
+        new(() =>
         {
             // Register a delegate to load native libraries used by Ice assembly.
             NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(BZip2))!, dllImportResolver);
@@ -126,7 +108,7 @@ public static class BZip2
         // Prevent GC from moving the byte array, this allow to take the object address and pass it to bzip2 calls.
         var compressedHandle = GCHandle.Alloc(compressed, GCHandleType.Pinned);
         var bzStream = new BZStream(
-            compressedHandle.AddrOfPinnedObject() + headerSize +  4,
+            compressedHandle.AddrOfPinnedObject() + headerSize + 4,
             (uint)(compressed.Length - headerSize - 4));
 
         BzStatus rc;
@@ -214,8 +196,6 @@ public static class BZip2
         }
 
         byte[] compressed = buf.b.rawBytes();
-        int compressedLen = buf.size() - headerSize - 4;
-        int decompressedLen = decompressedSize - headerSize;
 
         byte[] decompressed = new byte[decompressedSize];
         // Prevent GC from moving the byte array, this allow to take the object address and pass it to bzip2 calls.
@@ -303,15 +283,15 @@ public static class BZip2
     {
         if (AssemblyUtil.isWindows)
         {
-            return new string[] { "bzip2.dll" };
+            return ["bzip2.dll", "bzip2d.dll"];
         }
         else if (AssemblyUtil.isMacOS)
         {
-            return new string[] { "libbz2.dylib" };
+            return ["libbz2.dylib"];
         }
         else
         {
-            return new string[] { "libbz2.so.1.0", "libbz2.so.1", "libbz2.so" };
+            return ["libbz2.so.1.0", "libbz2.so.1", "libbz2.so"];
         }
     }
 }
