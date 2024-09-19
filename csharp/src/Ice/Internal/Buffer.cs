@@ -31,7 +31,7 @@ public class Buffer
         b = ByteBuffer.wrap(data);
         b.order(order);
         _size = data.Length;
-        _capacity = 0;
+        _capacity = b.capacity();
         _order = order;
     }
 

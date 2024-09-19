@@ -21,7 +21,7 @@ namespace Ice
 
             public override bool supportsCompress(Ice.Current current)
             {
-                return Ice.Internal.BZip2.supported();
+                return Ice.Internal.BZip2.isLoaded;
             }
 
             public override void opVoid(Ice.Current current)

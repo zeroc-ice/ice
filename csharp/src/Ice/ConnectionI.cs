@@ -1383,11 +1383,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return _threadPool;
     }
 
-    static ConnectionI()
-    {
-        _compressionSupported = BZip2.supported();
-    }
-
     internal ConnectionI(
         Instance instance,
         Transceiver transceiver,
@@ -1821,7 +1816,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             Util.currentProtocol.ice_writeMembers(os);
             Util.currentProtocolEncoding.ice_writeMembers(os);
             os.writeByte(Protocol.closeConnectionMsg);
-            os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
+            os.writeByte(BZip2.isLoaded ? (byte)1 : (byte)0);
             os.writeInt(Protocol.headerSize); // Message size.
 
             scheduleCloseTimer();
@@ -2194,22 +2189,22 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return OutgoingAsyncBase.AsyncStatusQueued;
     }
 
-    private OutputStream doCompress(OutputStream uncompressed, bool compress)
+    private OutputStream doCompress(OutputStream decompressed, bool compress)
     {
-        if (_compressionSupported)
+        if (BZip2.isLoaded)
         {
-            if (compress && uncompressed.size() >= 100)
+            if (compress && decompressed.size() >= 100)
             {
                 //
                 // Do compression.
                 //
                 Ice.Internal.Buffer cbuf = BZip2.compress(
-                    uncompressed.getBuffer(),
+                    decompressed.getBuffer(),
                     Protocol.headerSize,
                     _compressionLevel);
                 if (cbuf is not null)
                 {
-                    OutputStream cstream = new OutputStream(new Internal.Buffer(cbuf, true), uncompressed.getEncoding());
+                    OutputStream cstream = new OutputStream(new Internal.Buffer(cbuf, true), decompressed.getEncoding());
 
                     //
                     // Set compression status.
@@ -2225,27 +2220,27 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                     //
                     // Write the compression status and size of the compressed stream into the header of the
-                    // uncompressed stream -- we need this to trace requests correctly.
+                    // decompressed stream -- we need this to trace requests correctly.
                     //
-                    uncompressed.pos(9);
-                    uncompressed.writeByte(2);
-                    uncompressed.writeInt(cstream.size());
+                    decompressed.pos(9);
+                    decompressed.writeByte(2);
+                    decompressed.writeInt(cstream.size());
 
                     return cstream;
                 }
             }
         }
 
-        uncompressed.pos(9);
-        uncompressed.writeByte((byte)((_compressionSupported && compress) ? 1 : 0));
+        decompressed.pos(9);
+        decompressed.writeByte((byte)((BZip2.isLoaded && compress) ? 1 : 0));
 
         //
         // Not compressed, fill in the message size.
         //
-        uncompressed.pos(10);
-        uncompressed.writeInt(uncompressed.size());
+        decompressed.pos(10);
+        decompressed.writeInt(decompressed.size());
 
-        return uncompressed;
+        return decompressed;
     }
 
     private struct MessageInfo
@@ -2281,9 +2276,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             info.compress = info.stream.readByte();
             if (info.compress == 2)
             {
-                if (_compressionSupported)
+                if (BZip2.isLoaded)
                 {
-                    Ice.Internal.Buffer ubuf = BZip2.uncompress(
+                    Ice.Internal.Buffer ubuf = BZip2.decompress(
                         info.stream.getBuffer(),
                         Protocol.headerSize,
                         _messageSizeMax);
@@ -2291,8 +2286,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
                 else
                 {
-                    string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
-                    throw new FeatureNotSupportedException($"Cannot uncompress compressed message: {lib} not found");
+                    throw new FeatureNotSupportedException("Cannot decompress compressed message: BZip2 library is not loaded.");
                 }
             }
             info.stream.pos(Protocol.headerSize);
@@ -2917,8 +2911,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         internal bool invokeSent;
         internal bool receivedReply;
     }
-
-    private static bool _compressionSupported;
 
     private static ConnectionState[] connectionStateMap = [
         ConnectionState.ConnectionStateValidating,   // StateNotInitialized
