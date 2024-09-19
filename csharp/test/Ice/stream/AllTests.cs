@@ -55,14 +55,19 @@ namespace Ice
                 return true;
             }
 
-            private class TestValueWriter : Ice.ValueWriter
+            private class TestValueWriter : Ice.Value
             {
                 public TestValueWriter(Test.MyClass obj)
                 {
                     this.obj = obj;
                 }
 
-                public override void write(Ice.OutputStream outS)
+                public override void iceRead(Ice.InputStream inS)
+                {
+                    Debug.Assert(false);
+                }
+
+                public override void iceWrite(Ice.OutputStream outS)
                 {
                     obj.iceWrite(outS);
                     called = true;
@@ -72,13 +77,18 @@ namespace Ice
                 internal bool called = false;
             }
 
-            private class TestValueReader : Ice.ValueReader
+            private class TestValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream inS)
+                public override void iceRead(Ice.InputStream inS)
                 {
                     obj = new Test.MyClass();
                     obj.iceRead(inS);
                     called = true;
+                }
+
+                public override void iceWrite(Ice.OutputStream outS)
+                {
+                    Debug.Assert(false);
                 }
 
                 internal Test.MyClass obj;

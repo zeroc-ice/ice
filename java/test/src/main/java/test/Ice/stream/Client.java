@@ -10,13 +10,18 @@ import java.io.PrintWriter;
 import test.Ice.stream.Test.*;
 
 public class Client extends test.TestHelper {
-    private static class TestObjectWriter extends com.zeroc.Ice.ValueWriter {
+    private static class TestObjectWriter extends com.zeroc.Ice.Value {
         TestObjectWriter(MyClass obj) {
             this.obj = obj;
         }
 
         @Override
-        public void write(OutputStream out) {
+        public void _iceRead(InputStream in) {
+            assert (false);
+        }
+
+        @Override
+        public void _iceWrite(OutputStream out) {
             obj._iceWrite(out);
             called = true;
         }
@@ -25,12 +30,17 @@ public class Client extends test.TestHelper {
         boolean called = false;
     }
 
-    private static class TestObjectReader extends com.zeroc.Ice.ValueReader {
+    private static class TestObjectReader extends com.zeroc.Ice.Value {
         @Override
-        public void read(InputStream in) {
+        public void _iceRead(InputStream in) {
             obj = new MyClass();
             obj._iceRead(in);
             called = true;
+        }
+
+        @Override
+        public void _iceWrite(OutputStream out) {
+            assert (false);
         }
 
         MyClass obj;

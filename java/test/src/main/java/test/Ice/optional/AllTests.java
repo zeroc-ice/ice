@@ -1791,19 +1791,24 @@ public class AllTests {
         return initial;
     }
 
-    private static class TestObjectReader extends com.zeroc.Ice.ValueReader {
+    private static class TestObjectReader extends com.zeroc.Ice.Value {
         @Override
-        public void read(InputStream in) {
+        public void _iceRead(InputStream in) {
             in.startValue();
             in.startSlice();
             in.endSlice();
             in.endValue();
         }
+
+        @Override
+        public void _iceWrite(OutputStream out) {
+            assert (false);
+        }
     }
 
-    private static class BObjectReader extends com.zeroc.Ice.ValueReader {
+    private static class BObjectReader extends com.zeroc.Ice.Value {
         @Override
-        public void read(InputStream in) {
+        public void _iceRead(InputStream in) {
             in.startValue();
             // ::Test::B
             in.startSlice();
@@ -1815,11 +1820,16 @@ public class AllTests {
             in.endSlice();
             in.endValue();
         }
+
+        @Override
+        public void _iceWrite(OutputStream out) {
+            assert (false);
+        }
     }
 
-    private static class CObjectReader extends com.zeroc.Ice.ValueReader {
+    private static class CObjectReader extends com.zeroc.Ice.Value {
         @Override
-        public void read(InputStream in) {
+        public void _iceRead(InputStream in) {
             in.startValue();
             // ::Test::C
             in.startSlice();
@@ -1834,11 +1844,21 @@ public class AllTests {
             in.endSlice();
             in.endValue();
         }
+
+        @Override
+        public void _iceWrite(OutputStream out) {
+            assert (false);
+        }
     }
 
-    private static class DObjectWriter extends com.zeroc.Ice.ValueWriter {
+    private static class DObjectWriter extends com.zeroc.Ice.Value {
         @Override
-        public void write(OutputStream out) {
+        public void _iceRead(InputStream in) {
+            assert (false);
+        }
+
+        @Override
+        public void _iceWrite(OutputStream out) {
             out.startValue(null);
             // ::Test::D
             out.startSlice("::Test::D", -1, false);
@@ -1865,9 +1885,9 @@ public class AllTests {
         }
     }
 
-    private static class DObjectReader extends com.zeroc.Ice.ValueReader {
+    private static class DObjectReader extends com.zeroc.Ice.Value {
         @Override
-        public void read(InputStream in) {
+        public void _iceRead(InputStream in) {
             in.startValue();
             // ::Test::D
             in.startSlice();
@@ -1893,6 +1913,11 @@ public class AllTests {
             in.endValue();
         }
 
+        @Override
+        public void _iceWrite(OutputStream out) {
+            assert (false);
+        }
+
         void check() {
             test(a.value.getMc() == 18);
         }
@@ -1900,9 +1925,9 @@ public class AllTests {
         private Wrapper<A> a = new Wrapper<>();
     }
 
-    private static class FObjectReader extends com.zeroc.Ice.ValueReader {
+    private static class FObjectReader extends com.zeroc.Ice.Value {
         @Override
-        public void read(InputStream in) {
+        public void _iceRead(InputStream in) {
             _f = new F();
             in.startValue();
             in.startSlice();
@@ -1913,6 +1938,11 @@ public class AllTests {
             _f.fse = FixedStruct.ice_read(in);
             in.endSlice();
             in.endValue();
+        }
+
+        @Override
+        public void _iceWrite(OutputStream out) {
+            assert (false);
         }
 
         F getF() {

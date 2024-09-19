@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Diagnostics;
+
 namespace Ice
 {
     namespace optional
@@ -1960,20 +1962,25 @@ namespace Ice
                 }
             }
 
-            private class TestValueReader : Ice.ValueReader
+            private class TestValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     @in.startValue();
                     @in.startSlice();
                     @in.endSlice();
                     @in.endValue();
                 }
+
+                public override void iceWrite(Ice.OutputStream outS)
+                {
+                    Debug.Assert(false);
+                }
             }
 
-            private class BValueReader : Ice.ValueReader
+            private class BValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     @in.startValue();
                     // ::Test::B
@@ -1986,11 +1993,16 @@ namespace Ice
                     @in.endSlice();
                     @in.endValue();
                 }
+
+                public override void iceWrite(Ice.OutputStream outS)
+                {
+                    Debug.Assert(false);
+                }
             }
 
-            private class CValueReader : Ice.ValueReader
+            private class CValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     @in.startValue();
                     // ::Test::C
@@ -2006,11 +2018,21 @@ namespace Ice
                     @in.endSlice();
                     @in.endValue();
                 }
+
+                public override void iceWrite(Ice.OutputStream outS)
+                {
+                    Debug.Assert(false);
+                }
             }
 
-            private class DValueWriter : Ice.ValueWriter
+            private class DValueWriter : Ice.Value
             {
-                public override void write(Ice.OutputStream @out)
+                public override void iceRead(Ice.InputStream @in)
+                {
+                    Debug.Assert(false);
+                }
+
+                public override void iceWrite(Ice.OutputStream @out)
                 {
                     @out.startValue(null);
                     // ::Test::D
@@ -2039,9 +2061,9 @@ namespace Ice
                 }
             }
 
-            private class DValueReader : Ice.ValueReader
+            private class DValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     @in.startValue();
                     // ::Test::D
@@ -2066,6 +2088,11 @@ namespace Ice
                     @in.endValue();
                 }
 
+                public override void iceWrite(Ice.OutputStream @out)
+                {
+                    Debug.Assert(false);
+                }
+
                 internal void check()
                 {
                     test(((Test.A)a.obj).mc.Value == 18);
@@ -2074,9 +2101,9 @@ namespace Ice
                 private ReadValueCallbackI a = new ReadValueCallbackI();
             }
 
-            private class FValueReader : Ice.ValueReader
+            private class FValueReader : Ice.Value
             {
-                public override void read(Ice.InputStream @in)
+                public override void iceRead(Ice.InputStream @in)
                 {
                     _f = new Test.F();
                     @in.startValue();
@@ -2088,6 +2115,11 @@ namespace Ice
                     _f.fse = Test.FixedStruct.ice_read(@in);
                     @in.endSlice();
                     @in.endValue();
+                }
+
+                public override void iceWrite(Ice.OutputStream @out)
+                {
+                    Debug.Assert(false);
                 }
 
                 public Test.F getF()
