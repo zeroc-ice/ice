@@ -1,505 +1,317 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 
 namespace Ice.Internal;
 
-internal static class SafeNativeMethods
+// Map Bzip2 bz_stream struct to a C# struct for using with the Bzip2 low level API.
+[StructLayout(LayoutKind.Sequential)]
+internal struct BZStream
 {
-    [DllImport("bzip2.dll", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
-    internal static extern IntPtr windowsBZ2_bzlibVersion();
+    internal IntPtr NextIn;
+    internal uint AvailIn;
+    internal uint TotalInLo32;
+    internal uint TotalInHi32;
 
-    [DllImport("bzip2.dll", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
-    internal static extern int windowsBZ2_bzBuffToBuffCompress(
-        byte[] dest,
-        ref int destLen,
-        byte[] source,
-        int sourceLen,
-        int blockSize100k,
-        int verbosity,
-        int workFactor);
+    internal IntPtr NextOut;
+    internal uint AvailOut;
+    internal uint TotalOutLo32;
+    internal uint TotalOutHi32;
 
-    [DllImport("bzip2.dll", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-    internal static extern int windowsBZ2_bzBuffToBuffDecompress(
-        byte[] dest,
-        ref int destLen,
-        byte[] source,
-        int sourceLen,
-        int small,
-        int verbosity);
+    internal IntPtr State;
+    internal IntPtr BzAlloc;
+    internal IntPtr BzFree;
+    internal IntPtr Opaque;
 
-    [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
-    internal static extern IntPtr unixBZ2_1_bzlibVersion();
+    public BZStream(IntPtr nextOut, uint availOut)
+    {
+        NextIn = IntPtr.Zero;
+        AvailIn = 0;
+        TotalInLo32 = 0;
+        TotalInHi32 = 0;
 
-    [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
-    internal static extern int unixBZ2_1_bzBuffToBuffCompress(
-        byte[] dest,
-        ref int destLen,
-        byte[] source,
-        int sourceLen,
-        int blockSize100k,
-        int verbosity,
-        int workFactor);
+        NextOut = nextOut;
+        AvailOut = availOut;
+        TotalOutLo32 = 0;
+        TotalOutHi32 = 0;
 
-    [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-    internal static extern int unixBZ2_1_bzBuffToBuffDecompress(
-        byte[] dest,
-        ref int destLen,
-        byte[] source,
-        int sourceLen,
-        int small,
-        int verbosity);
-
-    [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
-    internal static extern IntPtr unixBZ2_10_bzlibVersion();
-
-    [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
-    internal static extern int unixBZ2_10_bzBuffToBuffCompress(
-        byte[] dest,
-        ref int destLen,
-        byte[] source,
-        int sourceLen,
-        int blockSize100k,
-        int verbosity,
-        int workFactor);
-
-    [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-    internal static extern int unixBZ2_10_bzBuffToBuffDecompress(
-        byte[] dest,
-        ref int destLen,
-        byte[] source,
-        int sourceLen,
-        int small,
-        int verbosity);
-
-    [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
-    internal static extern IntPtr macOSBZ2_bzlibVersion();
-
-    [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
-    internal static extern int macOSBZ2_bzBuffToBuffCompress(
-        byte[] dest,
-        ref int destLen,
-        byte[] source,
-        int sourceLen,
-        int blockSize100k,
-        int verbosity,
-        int workFactor);
-
-    [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-    internal static extern int macOSBZ2_bzBuffToBuffDecompress(
-        byte[] dest,
-        ref int destLen,
-        byte[] source,
-        int sourceLen,
-        int small,
-        int verbosity);
+        State = IntPtr.Zero;
+        BzAlloc = IntPtr.Zero;
+        BzFree = IntPtr.Zero;
+        Opaque = IntPtr.Zero;
+    }
 }
-
-internal delegate int CompressBuffer(
-    byte[] dest,
-    ref int destLen,
-    byte[] source,
-    int sourceLen,
-    int blockSize100k,
-    int verbosity,
-    int workFactor);
-
-internal delegate int DecompressBuffer(
-    byte[] dest,
-    ref int destLen,
-    byte[] source,
-    int sourceLen,
-    int small,
-    int verbosity);
 
 public static class BZip2
 {
-    static BZip2()
+    private enum BzAction
     {
-        //
-        // Simple trick to find out whether bzip2 is installed: Call the BZ2_bzlibVersion() function in the
-        // library. If we get an exception, the library is not available.
-        //
-        _bzlibInstalled = false;
-        _bzlibName = "";
+        Run = 0,
+        Flush = 1,
+        Finish = 2
+    }
+
+    private enum BzStatus
+    {
+        Ok = 0,
+        RunOk = 1,
+        FinishOk = 3,
+        StreamEnd = 4,
+
+        SequenceError = -1,
+        ParamError = -2,
+        MemError = -3,
+        DataError = -4,
+        DataErrorMagic = -5,
+        IoError = -6,
+        UnexpectedEof = -7,
+        OutbuffFull = -8,
+        ConfigError = -9
+    }
+
+    public static bool isLoaded => _loaded.Value;
+
+    private static readonly Lazy<bool> _loaded =
+        new Lazy<bool>(() =>
+        {
+            // Register a delegate to load native libraries used by Ice assembly.
+            NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(BZip2))!, dllImportResolver);
+            string libNames = string.Join(", ", getPlatformNativeLibraryNames()).TrimEnd();
+            bool loaded = false;
+            try
+            {
+                BZ2_bzLibVersion();
+                loaded = true;
+            }
+            catch (EntryPointNotFoundException)
+            {
+                Console.Error.WriteLine($"warning: found {libNames} but entry point BZ2_bzlibVersion is missing.");
+            }
+            catch (TypeLoadException)
+            {
+                // Expected -- bzip2 lib not installed or not in PATH.
+            }
+            catch (BadImageFormatException)
+            {
+                Console.Error.Write(
+                    $"warning: {libNames} could not be loaded (likely due to 32/64-bit mismatch).");
+                if (IntPtr.Size == 8)
+                {
+                    Console.Error.Write(
+                        $" Make sure the directory containing the 64-bit {libNames} is in your PATH.");
+                }
+                Console.Error.WriteLine();
+            }
+            return loaded;
+        });
+
+    internal static Buffer? compress(Buffer buf, int headerSize, int compressionLevel)
+    {
+        Debug.Assert(isLoaded);
+
+        // Compress the message body, but not the header.
+        int decompressedLen = buf.size() - headerSize;
+
+        // In the worst case, the compressed buffer will be 1% larger than the decompressed buffer plus 600 bytes
+        // for the bzip2 header, plus 4 bytes for the decompressed size added by Ice protocol.
+        int compressedLenMax = (int)((buf.size() * 1.01) + 600 + 4);
+
+        byte[] compressed = new byte[compressedLenMax];
+
+        // Prevent GC from moving the byte array, this allow to take the object address and pass it to bzip2 calls.
+        var compressedHandle = GCHandle.Alloc(compressed, GCHandleType.Pinned);
+        var bzStream = new BZStream(
+            compressedHandle.AddrOfPinnedObject() + headerSize +  4,
+            (uint)(compressed.Length - headerSize - 4));
+
+        BzStatus rc;
         try
         {
-            if (AssemblyUtil.isWindows)
+            rc = (BzStatus)BZ2_bzCompressInit(ref bzStream, compressionLevel, 0, 0);
+            if (rc != BzStatus.Ok)
             {
-                _bzlibName = "bzip2.dll";
-                SafeNativeMethods.windowsBZ2_bzlibVersion();
+                throw new ProtocolException($"Bzip2 compress init failed {rc}");
             }
-            else if (AssemblyUtil.isMacOS)
+
+            byte[] data = buf.b.rawBytes();
+            var payload = new ArraySegment<byte>(data, headerSize, decompressedLen);
+
+            var payloadHandle = GCHandle.Alloc(payload.Array, GCHandleType.Pinned);
+            bzStream.NextIn = payloadHandle.AddrOfPinnedObject() + payload.Offset;
+            bzStream.AvailIn = (uint)payload.Count;
+            Debug.Assert(bzStream.AvailIn > 0);
+
+            do
             {
-                _bzlibName = "libbz2.dylib";
-                SafeNativeMethods.macOSBZ2_bzlibVersion();
+                rc = (BzStatus)BZ2_bzCompress(ref bzStream, (int)BzAction.Run);
             }
-            else
+            while (rc == BzStatus.RunOk && bzStream.AvailIn > 0);
+            payloadHandle.Free();
+
+            if (rc != BzStatus.RunOk)
             {
-                try
-                {
-                    _bzlibName = "libbz2.so.1.0";
-                    SafeNativeMethods.unixBZ2_10_bzlibVersion();
-                }
-                catch (TypeLoadException)
-                {
-                    _bzlibName = "libbz2.so.1";
-                    SafeNativeMethods.unixBZ2_1_bzlibVersion();
-                }
+                throw new ProtocolException($"Bzip2 compress run failed {rc}");
             }
-            _bzlibInstalled = true;
+
+            do
+            {
+                rc = (BzStatus)BZ2_bzCompress(ref bzStream, (int)BzAction.Finish);
+            }
+            while (rc == BzStatus.FinishOk);
+
+            if (rc != BzStatus.StreamEnd)
+            {
+                throw new ProtocolException($"Bzip2 compress finish failed {rc}");
+            }
+
+            int compressedLen = compressed.Length - (int)bzStream.AvailOut;
+
+            // Don't bother if the compressed data is larger than the decompressed data.
+            if (compressedLen >= decompressedLen)
+            {
+                return null;
+            }
+
+            var r = new Buffer(compressed);
+            r.resize(compressedLen, false);
+            r.b.position(0);
+
+            // Copy the header from the decompressed buffer to the compressed one.
+            r.b.put(buf.b.rawBytes(), 0, headerSize);
+
+            // Add the size of the decompressed stream before the message body
+            r.b.putInt(buf.size());
+
+            r.b.position(compressedLen);
+            return r;
         }
-        catch (EntryPointNotFoundException)
+        finally
         {
-            Console.Error.WriteLine("warning: found " + _bzlibName + " but entry point BZ2_bzlibVersion is missing.");
+            rc = (BzStatus)BZ2_bzCompressEnd(ref bzStream);
+            Debug.Assert(rc == BzStatus.Ok);
+            compressedHandle.Free();
         }
-        catch (TypeLoadException)
+    }
+
+    internal static Buffer decompress(Buffer buf, int headerSize, int messageSizeMax)
+    {
+        Debug.Assert(isLoaded);
+
+        buf.b.position(headerSize);
+        int decompressedSize = buf.b.getInt();
+        if (decompressedSize <= headerSize)
         {
-            // Expected -- bzip2 lib not installed or not in PATH.
+            throw new MarshalException("compressed size <= header size");
         }
-        catch (BadImageFormatException ex)
+        if (decompressedSize > messageSizeMax)
         {
-            string lib = _bzlibName;
-            if (!string.IsNullOrEmpty(ex.FileName))
-            {
-                lib = ex.FileName; // Future-proof: we'll do the right thing if the FileName member is non-empty.
-            }
-            Console.Error.Write("warning: " + lib + " could not be loaded (likely due to 32/64-bit mismatch).");
-            if (IntPtr.Size == 8)
-            {
-                Console.Error.Write(" Make sure the directory containing the 64-bit " + lib + " is in your PATH.");
-            }
-            Console.Error.WriteLine();
+            Ex.throwMemoryLimitException(decompressedSize, messageSizeMax);
         }
 
+        byte[] compressed = buf.b.rawBytes();
+        int compressedLen = buf.size() - headerSize - 4;
+        int decompressedLen = decompressedSize - headerSize;
+
+        byte[] decompressed = new byte[decompressedSize];
+        // Prevent GC from moving the byte array, this allow to take the object address and pass it to bzip2 calls.
+        var decompressedHandle = GCHandle.Alloc(decompressed, GCHandleType.Pinned);
+        var compressedHandle = GCHandle.Alloc(compressed, GCHandleType.Pinned);
+        var bzStream = new BZStream(
+            decompressedHandle.AddrOfPinnedObject() + headerSize,
+            (uint)(decompressedSize - headerSize));
+
+        BzStatus rc;
+        try
+        {
+            rc = (BzStatus)BZ2_bzDecompressInit(ref bzStream, 0, 0);
+            if (rc != BzStatus.Ok)
+            {
+                throw new ProtocolException($"bzip2 decompression failed: {rc}");
+            }
+
+            bzStream.NextIn = compressedHandle.AddrOfPinnedObject() + headerSize + 4;
+            bzStream.AvailIn = (uint)(compressed.Length - headerSize - 4);
+            rc = (BzStatus)BZ2_bzDecompress(ref bzStream);
+            if (rc != BzStatus.StreamEnd)
+            {
+                throw new ProtocolException($"bzip2 decompression failed: {rc}");
+            }
+        }
+        finally
+        {
+            rc = (BzStatus)BZ2_bzDecompressEnd(ref bzStream);
+            Debug.Assert(rc == BzStatus.Ok);
+            decompressedHandle.Free();
+            compressedHandle.Free();
+        }
+        compressed.AsSpan(0, headerSize).CopyTo(decompressed);
+        return new Buffer(decompressed);
+    }
+
+    [DllImport("bzip2", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
+    private static extern IntPtr BZ2_bzLibVersion();
+
+    [DllImport("bzip2", EntryPoint = "BZ2_bzCompressInit", ExactSpelling = true)]
+    private static extern int BZ2_bzCompressInit(
+        ref BZStream stream,
+        int blockSize100k,
+        int verbosity,
+        int workFactor);
+
+    [DllImport("bzip2", EntryPoint = "BZ2_bzCompress", ExactSpelling = true)]
+    private static extern int BZ2_bzCompress(ref BZStream stream, int action);
+
+    [DllImport("bzip2", EntryPoint = "BZ2_bzCompressEnd", ExactSpelling = true)]
+    private static extern int BZ2_bzCompressEnd(ref BZStream stream);
+
+    [DllImport("bzip2", EntryPoint = "BZ2_bzDecompressInit", ExactSpelling = true)]
+    private static extern int BZ2_bzDecompressInit(ref BZStream stream, int verbosity, int small);
+
+    [DllImport("bzip2", EntryPoint = "BZ2_bzDecompress", ExactSpelling = true)]
+    private static extern int BZ2_bzDecompress(ref BZStream stream);
+
+    [DllImport("bzip2", EntryPoint = "BZ2_bzDecompressEnd", ExactSpelling = true)]
+    private static extern int BZ2_bzDecompressEnd(ref BZStream stream);
+
+    private static IntPtr dllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+    {
+        DllNotFoundException? failure = null;
+        Debug.Assert(libraryName == "bzip2");
+        foreach (string name in getPlatformNativeLibraryNames())
+        {
+            try
+            {
+                return NativeLibrary.Load(name, assembly, searchPath);
+            }
+            catch (DllNotFoundException ex)
+            {
+                failure = ex;
+            }
+        }
+        Debug.Assert(failure is not null);
+        ExceptionDispatchInfo.Throw(failure);
+        Debug.Assert(false);
+        return IntPtr.Zero;
+    }
+
+    private static string[] getPlatformNativeLibraryNames()
+    {
         if (AssemblyUtil.isWindows)
         {
-            _compressBuffer = (
-                byte[] dest,
-                ref int destLen,
-                byte[] source,
-                int sourceLen,
-                int blockSize100k,
-                int verbosity,
-                int workFactor) =>
-                {
-                    return SafeNativeMethods.windowsBZ2_bzBuffToBuffCompress(
-                        dest,
-                        ref destLen,
-                        source,
-                        sourceLen,
-                        blockSize100k,
-                        verbosity,
-                        workFactor);
-                };
-
-            _decompressBuffer = (
-                byte[] dest,
-                ref int destLen,
-                byte[] source,
-                int sourceLen,
-                int small,
-                int verbosity) =>
-                {
-                    return SafeNativeMethods.windowsBZ2_bzBuffToBuffDecompress(
-                        dest,
-                        ref destLen,
-                        source,
-                        sourceLen,
-                        small,
-                        verbosity);
-                };
+            return new string[] { "bzip2.dll" };
         }
         else if (AssemblyUtil.isMacOS)
         {
-            _compressBuffer = (
-                byte[] dest,
-                ref int destLen,
-                byte[] source,
-                int sourceLen,
-                int blockSize100k,
-                int verbosity,
-                int workFactor) =>
-                {
-                    return SafeNativeMethods.macOSBZ2_bzBuffToBuffCompress(
-                        dest,
-                        ref destLen,
-                        source,
-                        sourceLen,
-                        blockSize100k,
-                        verbosity,
-                        workFactor);
-                };
-
-            _decompressBuffer = (
-                byte[] dest,
-                ref int destLen,
-                byte[] source,
-                int sourceLen,
-                int small,
-                int verbosity) =>
-                {
-                    return SafeNativeMethods.macOSBZ2_bzBuffToBuffDecompress(
-                        dest,
-                        ref destLen,
-                        source,
-                        sourceLen,
-                        small,
-                        verbosity);
-                };
+            return new string[] { "libbz2.dylib" };
         }
         else
         {
-            if (_bzlibName == "libbz2.so.1.0")
-            {
-                _compressBuffer = (
-                    byte[] dest,
-                    ref int destLen,
-                    byte[] source,
-                    int sourceLen,
-                    int blockSize100k,
-                    int verbosity,
-                    int workFactor) =>
-                    {
-                        return SafeNativeMethods.unixBZ2_10_bzBuffToBuffCompress(
-                            dest,
-                            ref destLen,
-                            source,
-                            sourceLen,
-                            blockSize100k,
-                            verbosity,
-                            workFactor);
-                    };
-
-                _decompressBuffer = (
-                    byte[] dest,
-                    ref int destLen,
-                    byte[] source,
-                    int sourceLen,
-                    int small,
-                    int verbosity) =>
-                    {
-                        return SafeNativeMethods.unixBZ2_10_bzBuffToBuffDecompress(
-                            dest,
-                            ref destLen,
-                            source,
-                            sourceLen,
-                            small,
-                            verbosity);
-                    };
-            }
-            else
-            {
-                _compressBuffer = (
-                    byte[] dest,
-                    ref int destLen,
-                    byte[] source,
-                    int sourceLen,
-                    int blockSize100k,
-                    int verbosity,
-                    int workFactor) =>
-                    {
-                        return SafeNativeMethods.unixBZ2_1_bzBuffToBuffCompress(
-                            dest,
-                            ref destLen,
-                            source,
-                            sourceLen,
-                            blockSize100k,
-                            verbosity,
-                            workFactor);
-                    };
-
-                _decompressBuffer = (
-                    byte[] dest,
-                    ref int destLen,
-                    byte[] source,
-                    int sourceLen,
-                    int small,
-                    int verbosity) =>
-                    {
-                        return SafeNativeMethods.unixBZ2_1_bzBuffToBuffDecompress(
-                            dest,
-                            ref destLen,
-                            source,
-                            sourceLen,
-                            small,
-                            verbosity);
-                    };
-            }
+            return new string[] { "libbz2.so.1.0", "libbz2.so.1", "libbz2.so" };
         }
     }
-
-    private static string getBZ2Error(int error)
-    {
-        string rc;
-
-        switch (error)
-        {
-            case BZ_SEQUENCE_ERROR:
-            {
-                rc = "BZ_SEQUENCE_ERROR";
-                break;
-            }
-            case BZ_PARAM_ERROR:
-            {
-                rc = "BZ_PARAM_ERROR";
-                break;
-            }
-            case BZ_MEM_ERROR:
-            {
-                rc = "BZ_MEM_ERROR";
-                break;
-            }
-            case BZ_DATA_ERROR:
-            {
-                rc = "BZ_DATA_ERROR";
-                break;
-            }
-            case BZ_DATA_ERROR_MAGIC:
-            {
-                rc = "BZ_DATA_ERROR_MAGIC";
-                break;
-            }
-            case BZ_IO_ERROR:
-            {
-                rc = "BZ_IO_ERROR";
-                break;
-            }
-            case BZ_UNEXPECTED_EOF:
-            {
-                rc = "BZ_UNEXPECTED_EOF";
-                break;
-            }
-            case BZ_OUTBUFF_FULL:
-            {
-                rc = "BZ_OUTBUFF_FULL";
-                break;
-            }
-            case BZ_CONFIG_ERROR:
-            {
-                rc = "BZ_CONFIG_ERROR";
-                break;
-            }
-            default:
-            {
-                rc = "Unknown bzip2 error: " + error;
-                break;
-            }
-        }
-        return rc;
-    }
-
-    public static bool supported()
-    {
-        return _bzlibInstalled;
-    }
-
-    public static Buffer compress(Buffer buf, int headerSize, int compressionLevel)
-    {
-        Debug.Assert(supported());
-        //
-        // Compress the message body, but not the header.
-        //
-        int uncompressedLen = buf.size() - headerSize;
-        byte[] data = buf.b.rawBytes(headerSize, uncompressedLen);
-        int compressedLen = (int)((uncompressedLen * 1.01) + 600);
-        byte[] compressed = new byte[compressedLen];
-
-        int rc = _compressBuffer(compressed, ref compressedLen, data, uncompressedLen, compressionLevel, 0, 0);
-        if (rc == BZ_OUTBUFF_FULL)
-        {
-            return null;
-        }
-        else if (rc < 0)
-        {
-            throw new ProtocolException($"BZ2_bzBuffToBuffCompress failed: {getBZ2Error(rc)}");
-        }
-
-        //
-        // Don't bother if the compressed data is larger than the
-        // uncompressed data.
-        //
-        if (compressedLen >= uncompressedLen)
-        {
-            return null;
-        }
-
-        Buffer r = new Buffer();
-        r.resize(headerSize + 4 + compressedLen, false);
-        r.b.position(0);
-
-        //
-        // Copy the header from the uncompressed stream to the
-        // compressed one.
-        //
-        r.b.put(buf.b.rawBytes(0, headerSize));
-
-        //
-        // Add the size of the uncompressed stream before the
-        // message body.
-        //
-        r.b.putInt(buf.size());
-
-        //
-        // Add the compressed message body.
-        //
-        r.b.put(compressed, 0, compressedLen);
-
-        return r;
-    }
-
-    public static Buffer uncompress(Buffer buf, int headerSize, int messageSizeMax)
-    {
-        Debug.Assert(supported());
-
-        buf.b.position(headerSize);
-        int uncompressedSize = buf.b.getInt();
-        if (uncompressedSize <= headerSize)
-        {
-            throw new MarshalException($"Unexpected message size after uncompress: {uncompressedSize}");
-        }
-        if (uncompressedSize > messageSizeMax)
-        {
-            Ice.Internal.Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
-        }
-
-        int compressedLen = buf.size() - headerSize - 4;
-        byte[] compressed = buf.b.rawBytes(headerSize + 4, compressedLen);
-        int uncompressedLen = uncompressedSize - headerSize;
-
-        byte[] uncompressed = new byte[uncompressedLen];
-        int rc = _decompressBuffer(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
-        if (rc < 0)
-        {
-            throw new ProtocolException($"BZ2_bzBuffToBuffDecompress failed: {getBZ2Error(rc)}");
-        }
-
-        Buffer r = new Buffer();
-        r.resize(uncompressedSize, false);
-
-        //
-        // Copy the header from the compressed buffer to the uncompressed one.
-        //
-        r.b.position(0);
-        r.b.put(buf.b.rawBytes(), 0, headerSize);
-        r.b.put(uncompressed);
-
-        return r;
-    }
-
-    private static bool _bzlibInstalled;
-    private static string _bzlibName;
-
-    private static CompressBuffer _compressBuffer;
-    private static DecompressBuffer _decompressBuffer;
-    private const int BZ_SEQUENCE_ERROR = -1;
-    private const int BZ_PARAM_ERROR = -2;
-    private const int BZ_MEM_ERROR = -3;
-    private const int BZ_DATA_ERROR = -4;
-    private const int BZ_DATA_ERROR_MAGIC = -5;
-    private const int BZ_IO_ERROR = -6;
-    private const int BZ_UNEXPECTED_EOF = -7;
-    private const int BZ_OUTBUFF_FULL = -8;
-    private const int BZ_CONFIG_ERROR = -9;
 }
