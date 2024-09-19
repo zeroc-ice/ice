@@ -991,6 +991,14 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             _routerInfo = _instance->routerManager()->get(router.value());
             assert(_routerInfo);
 
+            if (!properties->getProperty(_name + ".Endpoints").empty())
+            {
+                throw InitializationException{
+                    __FILE__,
+                    __LINE__,
+                    "an object adapter with a router cannot accept incoming connections"};
+            }
+
             //
             // Make sure this router is not already registered with another adapter.
             //

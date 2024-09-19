@@ -158,6 +158,19 @@ namespace Ice
                     catch (Ice.ConnectFailedException)
                     {
                     }
+
+                    try
+                    {
+                        router = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
+                                                                                              helper.getTestEndpoint(1)));
+
+                        communicator.getProperties().setProperty("AdapterWithRouter.Endpoints", "tcp -h 127.0.0.1");
+                        communicator.createObjectAdapterWithRouter("AdapterWithRouter", router);
+                        test(false);
+                    }
+                    catch (Ice.InitializationException)
+                    {
+                    }
                 }
                 output.WriteLine("ok");
 

@@ -1197,6 +1197,12 @@ public sealed class ObjectAdapter
                 _routerInfo = _instance.routerManager().get(router);
                 Debug.Assert(_routerInfo is not null);
 
+                if (properties.getProperty($"{_name}.Endpoints").Length > 0)
+                {
+                    throw new InitializationException(
+                        "An object adapter with a router cannot accept incoming connections.");
+                }
+
                 //
                 // Make sure this router is not already registered with another adapter.
                 //
