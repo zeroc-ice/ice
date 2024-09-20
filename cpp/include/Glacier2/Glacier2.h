@@ -10,6 +10,5 @@
 #include "Glacier2/PermissionsVerifier.h"
 #include "Glacier2/Router.h"
 #include "Glacier2/Session.h"
-#include "SessionHelper.h"
 
 #endif

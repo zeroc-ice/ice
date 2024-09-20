@@ -54,7 +54,6 @@ task testSliceTask {
                                                      'Ice/scope/*.ice',
                                                      'Glacier2/application/*.ice',
                                                      'Glacier2/router/*.ice',
-                                                     'Glacier2/sessionHelper/*.ice',
                                                      'IceDiscovery/simple/*.ice',
                                                      'IceGrid/simple/*.ice',
                                                      'IceBox/admin/*.ice',

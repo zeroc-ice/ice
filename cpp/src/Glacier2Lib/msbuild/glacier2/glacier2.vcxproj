@@ -98,7 +98,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\NullPermissionsVerifier.cpp" />
-    <ClCompile Include="..\..\SessionHelper.cpp" />
     <ClCompile Include="Win32\Debug\Metrics.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -344,7 +343,6 @@
     <ClInclude Include="..\..\..\..\include\Glacier2\Config.h" />
     <ClInclude Include="..\..\..\..\include\Glacier2\Glacier2.h" />
     <ClInclude Include="..\..\..\..\include\Glacier2\NullPermissionsVerifier.h" />
-    <ClInclude Include="..\..\..\..\include\Glacier2\SessionHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\Glacier2.rc" />
