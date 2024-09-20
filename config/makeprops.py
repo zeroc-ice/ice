@@ -37,49 +37,45 @@ cppHeaderPreamble = (
 
 namespace IceInternal
 {
-
-struct Property
-{
-    const char* pattern;
-    bool usesRegex;
-    const char* defaultValue;
-    bool deprecated;
-
-    Property(const char* n, bool r, const char* dv, bool d) :
-        pattern(n),
-        usesRegex(r),
-        defaultValue(dv),
-        deprecated(d)
+    struct Property
     {
-    }
+        const char* pattern;
+        bool usesRegex;
+        const char* defaultValue;
+        bool deprecated;
 
-    Property() = delete;
-};
+        Property(const char* n, bool r, const char* dv, bool d) :
+            pattern(n),
+            usesRegex(r),
+            defaultValue(dv),
+            deprecated(d)
+        {
+        }
+    };
 
-struct PropertyArray
-{
-    const Property* properties;
-    const int length;
-
-    PropertyArray(const Property* p, size_t len) :
-        properties(p),
-        length(static_cast<int>(len))
+    struct PropertyArray
     {
-    }
-};
+        const Property* properties;
+        const int length;
 
-class PropertyNames
-{
-public:
+        PropertyArray(const Property* p, size_t len) :
+            properties(p),
+            length(static_cast<int>(len))
+        {
+        }
+    };
+
+    class PropertyNames
+    {
+    public:
 
 """
 )
 
 cppHeaderPostamble = """
-    static const PropertyArray validProps[];
-    static const char* clPropNames[];
-};
-
+        static const PropertyArray validProps[];
+        static const char* clPropNames[];
+    };
 }
 
 #endif
@@ -336,7 +332,7 @@ class CppPropertyHandler(PropertyHandler):
 
     def newSection(self):
         self.hFile.write(
-            "    static const PropertyArray %sProps;\n" % self.currentSection
+            "        static const PropertyArray %sProps;\n" % self.currentSection
         )
         self.cppFile.write(
             "const IceInternal::Property %sPropsData[] =\n" % self.currentSection
