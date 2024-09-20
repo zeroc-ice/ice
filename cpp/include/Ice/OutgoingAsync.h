@@ -21,6 +21,12 @@
 #include <exception>
 #include <string_view>
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+// See https://github.com/zeroc-ice/ice/issues/2747
+#    pragma clang diagnostic ignored "-Wshadow-uncaptured-local"
+#endif
+
 namespace IceInternal
 {
     class OutgoingAsyncBase;
@@ -494,5 +500,9 @@ namespace IceInternal
         return [outAsync]() { outAsync->cancel(); };
     }
 }
+
+#ifdef __clang__
+#    pragma clang diagnostic pop
+#endif
 
 #endif
