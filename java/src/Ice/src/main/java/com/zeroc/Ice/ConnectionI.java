@@ -2260,11 +2260,16 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                     }
                 } else {
                     // Received request on a connection without an object adapter.
+                    // TODO: fix #2595
+                    System.err.println(
+                            "*************** Received request on a connection without an object adapter.");
+                    /*
                     sendResponse(
                             request.current.createOutgoingResponse(
                                     new com.zeroc.Ice.ObjectNotExistException()),
                             isTwoWay,
                             (byte) 0);
+                    */
                 }
                 --requestCount;
             }

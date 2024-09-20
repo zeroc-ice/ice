@@ -57,7 +57,7 @@ import javax.swing.table.AbstractTableModel;
 public class SessionKeeper {
     // An AdminSessionPrx and various objects associated with that session
     private class Session {
-        Session(AdminSessionPrx session, int acmTimeout, boolean routed, final Component parent)
+        Session(AdminSessionPrx session, boolean routed, final Component parent)
                 throws java.lang.Throwable {
             _session = session;
             _routed = routed;
@@ -154,24 +154,20 @@ public class SessionKeeper {
                 throw e;
             }
 
-            if (acmTimeout > 0) {
-                // TODO: verify compatibility
-
-                _session.ice_getConnection()
-                        .setCloseCallback(
-                                con -> {
-                                    try {
-                                        con.throwException(); // This throws when the
-                                        // connection is closed.
-                                        assert (false);
-                                    } catch (final com.zeroc.Ice.LocalException ex) {
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    sessionLost();
-                                                });
-                                    }
-                                });
-            }
+            _session.ice_getConnection()
+                    .setCloseCallback(
+                            con -> {
+                                try {
+                                    con.throwException(); // This throws when the
+                                    // connection is closed.
+                                    assert (false);
+                                } catch (final com.zeroc.Ice.LocalException ex) {
+                                    SwingUtilities.invokeLater(
+                                            () -> {
+                                                sessionLost();
+                                            });
+                                }
+                            });
         }
 
         void logout(boolean destroySession) {
@@ -4633,7 +4629,6 @@ public class SessionKeeper {
 
     public void loginSuccess(
             final JDialog parent,
-            final int acmTimeout,
             final AdminSessionPrx adminSession,
             final String replicaName,
             final ConnectionInfo info) {
@@ -4672,11 +4667,7 @@ public class SessionKeeper {
                         () -> {
                             try {
                                 final Session session =
-                                        new Session(
-                                                adminSession,
-                                                acmTimeout,
-                                                !info.getDirect(),
-                                                parent);
+                                        new Session(adminSession, !info.getDirect(), parent);
                                 SwingUtilities.invokeAndWait(
                                         () -> {
                                             _session = session;

@@ -1553,10 +1553,6 @@ public class Coordinator {
                 return _session;
             }
 
-            public synchronized void setACMTimeout(int acmTimeout) {
-                _acmTimeout = acmTimeout;
-            }
-
             public synchronized void setReplicaName(String replicaName) {
                 _replicaName = replicaName;
             }
@@ -1571,7 +1567,7 @@ public class Coordinator {
                 _newApplicationWithDefaultTemplates.setEnabled(true);
                 _acquireExclusiveWriteAccess.setEnabled(true);
                 _mainPane.setSelectedComponent(_liveDeploymentPane);
-                _sessionKeeper.loginSuccess(parent, _acmTimeout, _session, _replicaName, info);
+                _sessionKeeper.loginSuccess(parent, _session, _replicaName, info);
                 getMainFrame()
                         .setTitle(info.getInstanceName() + " (" + _replicaName + ") - IceGrid GUI");
             }
@@ -1591,7 +1587,6 @@ public class Coordinator {
             }
 
             private AdminSessionPrx _session;
-            private int _acmTimeout = 0;
             private String _replicaName;
             private boolean _failed = false;
         }
@@ -1673,7 +1668,27 @@ public class Coordinator {
                                         }
                                     }
                                     cb.setSession(AdminSessionPrx.uncheckedCast(s));
-                                    cb.setACMTimeout(router.getACMTimeout());
+
+                                    int remoteIdleTimeout = router.getACMTimeout();
+
+                                    if (remoteIdleTimeout
+                                            != _communicator
+                                                    .getProperties()
+                                                    .getIcePropertyAsInt(
+                                                            "Ice.Connection.Client.IdleTimeout")) {
+                                        SwingUtilities.invokeLater(
+                                                () -> {
+                                                    JOptionPane.showMessageDialog(
+                                                            parent,
+                                                            "Could not create session: the idle timeout of the router is "
+                                                                    + remoteIdleTimeout
+                                                                    + " seconds",
+                                                            "Idle timeout mismatch",
+                                                            JOptionPane.ERROR_MESSAGE);
+                                                    cb.loginFailed();
+                                                });
+                                        return;
+                                    }
                                     cb.setReplicaName(cb.getSession().getReplicaName());
                                     SwingUtilities.invokeLater(() -> cb.loginSuccess());
                                 } catch (final com.zeroc.Glacier2.PermissionDeniedException e) {
@@ -1929,7 +1944,28 @@ public class Coordinator {
                                                                                 : ""));
                                                 assert cb.getSession() != null;
                                             }
-                                            cb.setACMTimeout(cb.getRegistry().getACMTimeout());
+
+                                            int remoteIdleTimeout =
+                                                    cb.getRegistry().getACMTimeout();
+
+                                            if (remoteIdleTimeout
+                                                    != _communicator
+                                                            .getProperties()
+                                                            .getIcePropertyAsInt(
+                                                                    "Ice.Connection.Client.IdleTimeout")) {
+                                                SwingUtilities.invokeLater(
+                                                        () -> {
+                                                            JOptionPane.showMessageDialog(
+                                                                    parent,
+                                                                    "Could not create session: the idle timeout of the registry is "
+                                                                            + remoteIdleTimeout
+                                                                            + " seconds",
+                                                                    "Idle timeout mismatch",
+                                                                    JOptionPane.ERROR_MESSAGE);
+                                                            cb.loginFailed();
+                                                        });
+                                                return;
+                                            }
                                         } catch (
                                                 final com.zeroc.IceGrid.PermissionDeniedException
                                                         e) {
@@ -2259,11 +2295,6 @@ public class Coordinator {
     private static com.zeroc.Ice.Properties createProperties(
             String[] args, java.util.List<String> rArgs) {
         com.zeroc.Ice.Properties properties = new com.zeroc.Ice.Properties();
-
-        //
-        // Set various default values
-        //
-        properties.setProperty("Ice.Override.ConnectTimeout", "5000");
 
         //
         // Disable retries
