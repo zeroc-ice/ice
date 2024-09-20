@@ -28,6 +28,8 @@ public:
 
     Ice::ObjectPrx _register(const SessionServantManagerPtr&, const Ice::ConnectionPtr&);
 
+    virtual void ice_ping(const Ice::Current&) const;
+
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
     virtual AdminPrx getAdmin(const Ice::Current&) const;
