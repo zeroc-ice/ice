@@ -30,7 +30,7 @@ runs:
       with:
         name: test-logs-${{ matrix.config }}-${{ matrix.os }}
         path: ${{ inputs.working_directory }}/**/*.log
-        if-no-files-found: ignore()
+        if-no-files-found: ignore
       if: always()
 
     - name: Test Summary
