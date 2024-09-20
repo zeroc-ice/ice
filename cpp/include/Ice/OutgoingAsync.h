@@ -23,7 +23,7 @@
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
-// See https://github.com/zeroc-ice/ice/issues/2747
+// See #2747
 #    pragma clang diagnostic ignored "-Wshadow-uncaptured-local"
 #endif
 
@@ -501,7 +501,7 @@ namespace IceInternal
     }
 }
 
-#ifdef __clang__
+#if defined(__clang__)
 #    pragma clang diagnostic pop
 #endif
 
