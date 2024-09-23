@@ -2,6 +2,7 @@
 
 package com.zeroc.IceLocatorDiscovery;
 
+import com.zeroc.Ice.Network;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

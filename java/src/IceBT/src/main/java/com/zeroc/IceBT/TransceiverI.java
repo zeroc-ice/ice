@@ -5,6 +5,7 @@ package com.zeroc.IceBT;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import com.zeroc.Ice.Buffer;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ReadyCallback;
 import com.zeroc.Ice.SocketException;

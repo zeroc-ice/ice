@@ -3,6 +3,7 @@
 package com.zeroc.IceBT;
 
 import com.zeroc.Ice.Connector;
+import com.zeroc.Ice.HashUtil;
 import com.zeroc.Ice.Transceiver;
 
 final class ConnectorI implements Connector {

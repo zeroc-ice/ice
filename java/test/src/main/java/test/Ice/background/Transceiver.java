@@ -4,6 +4,8 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.Buffer;
+import com.zeroc.Ice.ReadyCallback;
 import com.zeroc.Ice.SocketOperation;
 
 final class Transceiver implements com.zeroc.Ice.Transceiver {

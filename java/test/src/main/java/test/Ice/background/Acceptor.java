@@ -11,7 +11,7 @@ class Acceptor implements com.zeroc.Ice.Acceptor {
     }
 
     @Override
-    public void setReadyCallback(ReadyCallback callback) {
+    public void setReadyCallback(com.zeroc.Ice.ReadyCallback callback) {
         // No need to for the ready callback.
     }
 
