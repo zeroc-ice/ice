@@ -1669,26 +1669,6 @@ public class Coordinator {
                                     }
                                     cb.setSession(AdminSessionPrx.uncheckedCast(s));
 
-                                    int remoteIdleTimeout = router.getACMTimeout();
-
-                                    if (remoteIdleTimeout
-                                            != _communicator
-                                                    .getProperties()
-                                                    .getIcePropertyAsInt(
-                                                            "Ice.Connection.Client.IdleTimeout")) {
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    JOptionPane.showMessageDialog(
-                                                            parent,
-                                                            "Could not create session: the idle timeout of the router is "
-                                                                    + remoteIdleTimeout
-                                                                    + " seconds",
-                                                            "Idle timeout mismatch",
-                                                            JOptionPane.ERROR_MESSAGE);
-                                                    cb.loginFailed();
-                                                });
-                                        return;
-                                    }
                                     cb.setReplicaName(cb.getSession().getReplicaName());
                                     SwingUtilities.invokeLater(() -> cb.loginSuccess());
                                 } catch (final com.zeroc.Glacier2.PermissionDeniedException e) {
@@ -1943,28 +1923,6 @@ public class Coordinator {
                                                                                                 .getPassword())
                                                                                 : ""));
                                                 assert cb.getSession() != null;
-                                            }
-
-                                            int remoteIdleTimeout =
-                                                    cb.getRegistry().getACMTimeout();
-
-                                            if (remoteIdleTimeout
-                                                    != _communicator
-                                                            .getProperties()
-                                                            .getIcePropertyAsInt(
-                                                                    "Ice.Connection.Client.IdleTimeout")) {
-                                                SwingUtilities.invokeLater(
-                                                        () -> {
-                                                            JOptionPane.showMessageDialog(
-                                                                    parent,
-                                                                    "Could not create session: the idle timeout of the registry is "
-                                                                            + remoteIdleTimeout
-                                                                            + " seconds",
-                                                                    "Idle timeout mismatch",
-                                                                    JOptionPane.ERROR_MESSAGE);
-                                                            cb.loginFailed();
-                                                        });
-                                                return;
                                             }
                                         } catch (
                                                 final com.zeroc.IceGrid.PermissionDeniedException
