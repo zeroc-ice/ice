@@ -61,7 +61,6 @@ namespace Glacier2
     private:
         const std::shared_ptr<Instance> _instance;
         const std::shared_ptr<RoutingTable> _routingTable;
-        const std::optional<Ice::ObjectPrx> _clientProxy;
         const std::optional<Ice::ObjectPrx> _serverProxy;
         const std::shared_ptr<ClientBlobject> _clientBlobject;
         const std::shared_ptr<ServerBlobject> _serverBlobject;
