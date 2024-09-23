@@ -14,7 +14,6 @@ namespace Slice
 {
     const int TypeContextInParam = 1;
     const int TypeContextProtocol = 2;
-    const int TypeContextLocal = 32;
 
     std::string getSwiftModule(const ModulePtr&, std::string&);
     std::string getSwiftModule(const ModulePtr&);
@@ -78,19 +77,18 @@ namespace Slice
         void writeMemberDoc(IceInternal::Output&, const DataMemberPtr&);
 
         std::string paramLabel(const std::string&, const ParamDeclList&);
-        std::string operationReturnType(const OperationPtr&, int typeCtx = 0);
+        std::string operationReturnType(const OperationPtr&);
         bool operationReturnIsTuple(const OperationPtr&);
         std::string operationReturnDeclaration(const OperationPtr&);
         std::string operationInParamsDeclaration(const OperationPtr&);
 
-        ParamInfoList getAllInParams(const OperationPtr&, int = 0);
+        ParamInfoList getAllInParams(const OperationPtr&);
         void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
-        ParamInfoList getAllOutParams(const OperationPtr&, int = 0);
+        ParamInfoList getAllOutParams(const OperationPtr&);
         void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
-        std::string
-        typeToString(const TypePtr&, const ContainedPtr&, const StringList& = StringList(), bool = false, int = 0);
+        std::string typeToString(const TypePtr&, const ContainedPtr&, const StringList& = StringList(), bool = false);
 
         std::string getAbsolute(const TypePtr&);
         std::string getAbsolute(const ClassDeclPtr&);

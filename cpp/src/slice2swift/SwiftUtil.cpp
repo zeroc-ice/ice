@@ -681,9 +681,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         }
     }
 
-    int typeCtx = TypeContextInParam;
-
-    const ParamInfoList allInParams = getAllInParams(p, typeCtx);
+    const ParamInfoList allInParams = getAllInParams(p);
     for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
         out << nl << "///";
@@ -707,9 +705,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         out << nl << "/// - parameter context: `Ice.Context` - Optional request context.";
     }
 
-    typeCtx = 0;
-
-    const ParamInfoList allOutParams = getAllOutParams(p, typeCtx);
+    const ParamInfoList allOutParams = getAllOutParams(p);
     if (allOutParams.size() == 1)
     {
         ParamInfo ret = allOutParams.front();
@@ -736,7 +732,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     else if (allOutParams.size() > 1)
     {
         out << nl << "///";
-        out << nl << "/// - returns: `" << operationReturnType(p, typeCtx) << "`:";
+        out << nl << "/// - returns: `" << operationReturnType(p) << "`:";
         if (p->returnType())
         {
             ParamInfo ret = allOutParams.back();
@@ -1070,8 +1066,7 @@ SwiftGenerator::typeToString(
     const TypePtr& type,
     const ContainedPtr& toplevel,
     const StringList& metadata,
-    bool optional,
-    int typeCtx)
+    bool optional)
 {
     static const char* builtinTable[] = {
         "Swift.UInt8",
@@ -1102,7 +1097,7 @@ SwiftGenerator::typeToString(
 
     if (builtin)
     {
-        if (builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
+        if (builtin->kind() == Builtin::KindObject)
         {
             t = getUnqualified(builtinTable[Builtin::KindValue], currentModule);
         }
@@ -1423,9 +1418,7 @@ SwiftGenerator::writeMemberwiseInitializer(
         for (DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
         {
             DataMemberPtr m = *i;
-            out
-                << (fixIdent(m->name()) + ": " +
-                    typeToString(m->type(), p, m->getMetadata(), m->optional(), TypeContextInParam));
+            out << (fixIdent(m->name()) + ": " + typeToString(m->type(), p, m->getMetadata(), m->optional()));
         }
         out << epar;
         out << sb;
@@ -1467,7 +1460,7 @@ SwiftGenerator::writeMembers(
         const string defaultValue = member->defaultValue();
 
         const string memberName = fixIdent(member->name());
-        string memberType = typeToString(type, p, member->getMetadata(), member->optional(), typeCtx);
+        string memberType = typeToString(type, p, member->getMetadata(), member->optional());
 
         //
         // If the member type is equal to the member name, create a local type alias
@@ -1861,7 +1854,7 @@ SwiftGenerator::operationReturnIsTuple(const OperationPtr& op)
 }
 
 string
-SwiftGenerator::operationReturnType(const OperationPtr& op, int typeCtx)
+SwiftGenerator::operationReturnType(const OperationPtr& op)
 {
     ostringstream os;
     bool returnIsTuple = operationReturnIsTuple(op);
@@ -1878,7 +1871,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op, int typeCtx)
         {
             os << paramLabel("returnValue", outParams) << ": ";
         }
-        os << typeToString(returnType, op, op->getMetadata(), op->returnIsOptional(), typeCtx);
+        os << typeToString(returnType, op, op->getMetadata(), op->returnIsOptional());
     }
 
     for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
@@ -1893,7 +1886,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op, int typeCtx)
             os << (*q)->name() << ": ";
         }
 
-        os << typeToString((*q)->type(), *q, (*q)->getMetadata(), (*q)->optional(), typeCtx);
+        os << typeToString((*q)->type(), *q, (*q)->getMetadata(), (*q)->optional());
     }
 
     if (returnIsTuple)
@@ -1993,7 +1986,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 }
 
 ParamInfoList
-SwiftGenerator::getAllInParams(const OperationPtr& op, int typeCtx)
+SwiftGenerator::getAllInParams(const OperationPtr& op)
 {
     const ParamDeclList l = op->inParameters();
     ParamInfoList r;
@@ -2002,7 +1995,7 @@ SwiftGenerator::getAllInParams(const OperationPtr& op, int typeCtx)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetadata(), (*p)->optional(), typeCtx);
+        info.typeStr = typeToString(info.type, op, (*p)->getMetadata(), (*p)->optional());
         info.optional = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
@@ -2039,7 +2032,7 @@ SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& required, Par
 }
 
 ParamInfoList
-SwiftGenerator::getAllOutParams(const OperationPtr& op, int typeCtx)
+SwiftGenerator::getAllOutParams(const OperationPtr& op)
 {
     ParamDeclList params = op->outParameters();
     ParamInfoList l;
@@ -2049,7 +2042,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op, int typeCtx)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetadata(), (*p)->optional(), typeCtx);
+        info.typeStr = typeToString(info.type, op, (*p)->getMetadata(), (*p)->optional());
         info.optional = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
@@ -2061,7 +2054,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op, int typeCtx)
         ParamInfo info;
         info.name = paramLabel("returnValue", params);
         info.type = op->returnType();
-        info.typeStr = typeToString(info.type, op, op->getMetadata(), op->returnIsOptional(), typeCtx);
+        info.typeStr = typeToString(info.type, op, op->getMetadata(), op->returnIsOptional());
         info.optional = op->returnIsOptional();
         info.tag = op->returnTag();
         l.push_back(info);

@@ -606,7 +606,6 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
-    int typeCtx = 0;
 
     const TypePtr type = p->type();
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
@@ -621,7 +620,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << "[" << typeToString(p->type(), p, p->getMetadata(), false, typeCtx) << "]";
+        out << "[" << typeToString(p->type(), p, p->getMetadata(), false) << "]";
     }
 
     if (builtin && builtin->kind() <= Builtin::KindString)
@@ -764,10 +763,9 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
-    int typeCtx = 0;
 
-    const string keyType = typeToString(p->keyType(), p, p->keyMetadata(), false, typeCtx);
-    const string valueType = typeToString(p->valueType(), p, p->valueMetadata(), false, typeCtx);
+    const string keyType = typeToString(p->keyType(), p, p->keyMetadata(), false);
+    const string valueType = typeToString(p->valueType(), p, p->valueMetadata(), false);
     out << sp;
     writeDocSummary(out, p);
     out << nl << "public typealias " << fixIdent(name) << " = [" << keyType << ": " << valueType << "]";
