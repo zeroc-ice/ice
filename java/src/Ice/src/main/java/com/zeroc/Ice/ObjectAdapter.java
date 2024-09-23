@@ -1025,8 +1025,7 @@ public final class ObjectAdapter {
     }
 
     public void flushAsyncBatchRequests(
-            com.zeroc.Ice.CompressBatch compressBatch,
-            CommunicatorFlushBatch outAsync) {
+            com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         List<IncomingConnectionFactory> f;
         synchronized (this) {
             f = new ArrayList<>(_incomingConnectionFactories);

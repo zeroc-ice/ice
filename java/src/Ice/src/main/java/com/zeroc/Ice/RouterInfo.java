@@ -148,15 +148,14 @@ final class RouterInfo {
         _identities.remove(ref.getIdentity());
     }
 
-    private synchronized EndpointI[] setClientEndpoints(ObjectPrx clientProxy, boolean hasRoutingTable) {
+    private synchronized EndpointI[] setClientEndpoints(
+            ObjectPrx clientProxy, boolean hasRoutingTable) {
         if (_clientEndpoints == null) {
             _hasRoutingTable = hasRoutingTable;
             _clientEndpoints =
                     clientProxy == null
                             ? ((_ObjectPrxI) _router)._getReference().getEndpoints()
-                            : ((_ObjectPrxI) clientProxy)
-                                    ._getReference()
-                                    .getEndpoints();
+                            : ((_ObjectPrxI) clientProxy)._getReference().getEndpoints();
         }
         return _clientEndpoints;
     }

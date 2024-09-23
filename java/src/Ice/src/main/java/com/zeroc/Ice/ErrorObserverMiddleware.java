@@ -41,8 +41,7 @@ public final class ErrorObserverMiddleware implements Object {
                                     throw error;
                                 } else if (exception
                                                 instanceof CompletionException completionException
-                                        && completionException.getCause()
-                                                instanceof Error error) {
+                                        && completionException.getCause() instanceof Error error) {
                                     // This can occur when the closure of a parent completion stage
                                     // throws an error.
                                     _errorObserver.accept(error);

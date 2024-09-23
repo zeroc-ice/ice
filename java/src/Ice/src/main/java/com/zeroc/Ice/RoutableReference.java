@@ -458,7 +458,8 @@ class RoutableReference extends Reference {
                                     endpoints,
                                     new GetConnectionCallback() {
                                         @Override
-                                        public void setConnection(ConnectionI connection, boolean compress) {
+                                        public void setConnection(
+                                                ConnectionI connection, boolean compress) {
                                             callback.setConnection(connection, compress);
                                         }
 

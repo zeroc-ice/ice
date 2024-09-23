@@ -2975,12 +2975,12 @@ public class InputStream {
     }
 
     /**
-     * We need to override the resolveClass method of ObjectInputStream so
-     * that we can use the same class-lookup mechanism as elsewhere in the
-     * Ice run time.
+     * We need to override the resolveClass method of ObjectInputStream so that we can use the same
+     * class-lookup mechanism as elsewhere in the Ice run time.
      */
     private class ObjectInputStreamWrapper extends java.io.ObjectInputStream {
-        public ObjectInputStreamWrapper(Instance instance, java.io.InputStream in) throws IOException {
+        public ObjectInputStreamWrapper(Instance instance, java.io.InputStream in)
+                throws IOException {
             super(in);
             _instance = instance;
         }

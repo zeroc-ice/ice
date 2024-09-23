@@ -84,8 +84,7 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
                                         boolean comp = false;
                                         if (compressBatch == CompressBatch.Yes) {
                                             comp = true;
-                                        } else if (compressBatch
-                                                == CompressBatch.No) {
+                                        } else if (compressBatch == CompressBatch.No) {
                                             comp = false;
                                         } else {
                                             comp = r.compress;

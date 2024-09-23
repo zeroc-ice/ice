@@ -165,7 +165,8 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
         return _localLogger;
     }
 
-    void log(LogMessage logMessage) {java.util.List<RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
+    void log(LogMessage logMessage) {
+        java.util.List<RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
 
         if (remoteLoggers != null) {
             assert (!remoteLoggers.isEmpty());

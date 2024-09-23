@@ -24,12 +24,10 @@ final class ObserverHelper {
         return get(proxy, op, null);
     }
 
-    public static InvocationObserver get(ObjectPrx proxy, String op, java.util.Map<String, String> context) {
-        CommunicatorObserver obsv = ((_ObjectPrxI) proxy)
-                        ._getReference()
-                        .getInstance()
-                        .initializationData()
-                        .observer;
+    public static InvocationObserver get(
+            ObjectPrx proxy, String op, java.util.Map<String, String> context) {
+        CommunicatorObserver obsv =
+                ((_ObjectPrxI) proxy)._getReference().getInstance().initializationData().observer;
         if (obsv != null) {
             InvocationObserver observer;
             if (context == null) {

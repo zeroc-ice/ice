@@ -24,7 +24,8 @@ class ProxyFlushBatch extends ProxyOutgoingAsyncBase<Void> {
     }
 
     @Override
-    public int invokeRemote(ConnectionI connection, boolean compress, boolean response) throws RetryException {
+    public int invokeRemote(ConnectionI connection, boolean compress, boolean response)
+            throws RetryException {
         if (_batchRequestNum == 0) {
             return sent() ? AsyncStatus.Sent | AsyncStatus.InvokeSentCallback : AsyncStatus.Sent;
         }

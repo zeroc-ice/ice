@@ -8,7 +8,8 @@ import java.util.concurrent.CompletionStage;
 
 final class CollocatedRequestHandler implements RequestHandler {
     private class InvokeAllAsync extends RunnableThreadPoolWorkItem {
-        private InvokeAllAsync(OutgoingAsyncBase outAsync, OutputStream os, int requestId, int batchRequestNum) {
+        private InvokeAllAsync(
+                OutgoingAsyncBase outAsync, OutputStream os, int requestId, int batchRequestNum) {
             _outAsync = outAsync;
             _os = os;
             _requestId = requestId;

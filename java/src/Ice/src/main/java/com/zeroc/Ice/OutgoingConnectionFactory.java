@@ -207,7 +207,8 @@ final class OutgoingConnectionFactory {
         }
     }
 
-    public void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
+    public void flushAsyncBatchRequests(
+            CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         java.util.List<ConnectionI> c = new java.util.LinkedList<>();
 
         synchronized (this) {

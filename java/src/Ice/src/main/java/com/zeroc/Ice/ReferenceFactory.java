@@ -537,7 +537,8 @@ final class ReferenceFactory {
         String facet;
         if (facetPath.length > 0) {
             if (facetPath.length > 1) {
-                throw new MarshalException("Received invalid facet path with " + facetPath.length + " elements.");
+                throw new MarshalException(
+                        "Received invalid facet path with " + facetPath.length + " elements.");
             }
             facet = facetPath[0];
         } else {
@@ -699,10 +700,7 @@ final class ReferenceFactory {
         //
         LocatorInfo locatorInfo = null;
         if (_defaultLocator != null) {
-            if (!((_ObjectPrxI) _defaultLocator)
-                    ._getReference()
-                    .getEncoding()
-                    .equals(encoding)) {
+            if (!((_ObjectPrxI) _defaultLocator)._getReference().getEncoding().equals(encoding)) {
                 locatorInfo =
                         _instance
                                 .locatorManager()
@@ -738,10 +736,7 @@ final class ReferenceFactory {
             property = propertyPrefix + ".Locator";
             LocatorPrx locator = LocatorPrx.uncheckedCast(_communicator.propertyToProxy(property));
             if (locator != null) {
-                if (!((_ObjectPrxI) locator)
-                        ._getReference()
-                        .getEncoding()
-                        .equals(encoding)) {
+                if (!((_ObjectPrxI) locator)._getReference().getEncoding().equals(encoding)) {
                     locatorInfo =
                             _instance.locatorManager().get(locator.ice_encodingVersion(encoding));
                 } else {

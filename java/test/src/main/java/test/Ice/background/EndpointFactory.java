@@ -21,8 +21,7 @@ final class EndpointFactory implements com.zeroc.Ice.EndpointFactory {
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI create(
-            java.util.ArrayList<String> args, boolean server) {
+    public com.zeroc.Ice.EndpointI create(java.util.ArrayList<String> args, boolean server) {
         return new EndpointI(_configuration, _factory.create(args, server));
     }
 

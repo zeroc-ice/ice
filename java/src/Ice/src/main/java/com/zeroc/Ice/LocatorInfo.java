@@ -562,7 +562,8 @@ final class LocatorInfo {
         if (!ref.isWellKnown()) {
             if (proxy != null && !((_ObjectPrxI) proxy)._getReference().isIndirect()) {
                 // Cache the adapter endpoints.
-                _table.addAdapterEndpoints(ref.getAdapterId(), ((_ObjectPrxI) proxy)._getReference().getEndpoints());
+                _table.addAdapterEndpoints(
+                        ref.getAdapterId(), ((_ObjectPrxI) proxy)._getReference().getEndpoints());
             } else if (notRegistered) {
                 // If the adapter isn't registered anymore, remove it from the cache.
                 _table.removeAdapterEndpoints(ref.getAdapterId());

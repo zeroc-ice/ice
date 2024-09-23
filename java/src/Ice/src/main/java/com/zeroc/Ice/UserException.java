@@ -70,7 +70,7 @@ public abstract class UserException extends java.lang.Exception {
         public static void write(java.lang.Object obj, OutputBase out) {
             writeValue(null, obj, null, out);
         }
-    
+
         private static void writeValue(
                 String name,
                 java.lang.Object value,
@@ -139,7 +139,8 @@ public abstract class UserException extends java.lang.Exception {
                     } else {
                         if (objectTable == null) {
                             objectTable =
-                                    new java.util.IdentityHashMap<java.lang.Object, java.lang.Object>();
+                                    new java.util.IdentityHashMap<
+                                            java.lang.Object, java.lang.Object>();
                         }
                         objectTable.put(value, null);
                         writeFields(name, value, c, objectTable, out);
@@ -155,7 +156,7 @@ public abstract class UserException extends java.lang.Exception {
                 }
             }
         }
-    
+
         private static void writeFields(
                 String name,
                 java.lang.Object obj,
@@ -167,7 +168,7 @@ public abstract class UserException extends java.lang.Exception {
                 // Write the superclass first.
                 //
                 writeFields(name, obj, c.getSuperclass(), objectTable, out);
-    
+
                 //
                 // Write the declared fields of the given class. We prefer to use the declared
                 // fields because it includes protected fields that may have been defined using
@@ -194,7 +195,7 @@ public abstract class UserException extends java.lang.Exception {
                             && !java.lang.reflect.Modifier.isStatic(mods)) {
                         String fieldName =
                                 (name != null ? name + '.' + field.getName() : field.getName());
-    
+
                         try {
                             java.lang.Object value = field.get(obj);
                             writeValue(fieldName, value, objectTable, out);
@@ -205,7 +206,7 @@ public abstract class UserException extends java.lang.Exception {
                 }
             }
         }
-    
+
         private static void writeName(String name, OutputBase out) {
             if (name != null) {
                 out.nl();

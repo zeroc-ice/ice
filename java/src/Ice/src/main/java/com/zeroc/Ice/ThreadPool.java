@@ -418,8 +418,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
                         current._ioCompleted = false;
                         current._handler = n.handler;
                         current.operation = op;
-                        thread.setState(
-                                ThreadState.ThreadStateInUseForIO);
+                        thread.setState(ThreadState.ThreadStateInUseForIO);
                         break;
                     }
                 }

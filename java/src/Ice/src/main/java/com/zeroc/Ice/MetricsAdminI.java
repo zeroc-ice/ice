@@ -12,7 +12,8 @@ import com.zeroc.Ice.IceMX.UnknownMetricsView;
 /**
  * @hidden Kept public because it's used by IceMX.
  */
-public class MetricsAdminI implements MetricsAdmin, java.util.function.Consumer<java.util.Map<String, String>> {
+public class MetricsAdminI
+        implements MetricsAdmin, java.util.function.Consumer<java.util.Map<String, String>> {
     private static final String[] suffixes = {
         "Disabled", "GroupBy", "Accept.*", "Reject.*", "RetainDetached", "Map.*",
     };
@@ -62,7 +63,8 @@ public class MetricsAdminI implements MetricsAdmin, java.util.function.Consumer<
             return new MetricsMap<T>(mapPrefix, _class, properties, _subMaps);
         }
 
-        public <S extends Metrics> void registerSubMap(String subMap, Class<S> cl, java.lang.reflect.Field field) {
+        public <S extends Metrics> void registerSubMap(
+                String subMap, Class<S> cl, java.lang.reflect.Field field) {
             _subMaps.put(subMap, new MetricsMap.SubMapFactory<S>(cl, field));
         }
 
@@ -145,7 +147,8 @@ public class MetricsAdminI implements MetricsAdmin, java.util.function.Consumer<
     }
 
     @Override
-    public synchronized MetricsAdmin.GetMetricsViewNamesResult getMetricsViewNames(Current current) {
+    public synchronized MetricsAdmin.GetMetricsViewNamesResult getMetricsViewNames(
+            Current current) {
         MetricsAdmin.GetMetricsViewNamesResult r = new MetricsAdmin.GetMetricsViewNamesResult();
         r.disabledViews = _disabledViews.toArray(new String[_disabledViews.size()]);
         r.returnValue = _views.keySet().toArray(new String[_views.size()]);
@@ -171,8 +174,8 @@ public class MetricsAdminI implements MetricsAdmin, java.util.function.Consumer<
     }
 
     @Override
-    public synchronized MetricsAdmin.GetMetricsViewResult getMetricsView(String viewName, Current current)
-            throws UnknownMetricsView {
+    public synchronized MetricsAdmin.GetMetricsViewResult getMetricsView(
+            String viewName, Current current) throws UnknownMetricsView {
         MetricsAdmin.GetMetricsViewResult r = new MetricsAdmin.GetMetricsViewResult();
         MetricsViewI view = getMetricsView(viewName);
         r.timestamp = Time.currentMonotonicTimeMillis();
@@ -186,8 +189,7 @@ public class MetricsAdminI implements MetricsAdmin, java.util.function.Consumer<
 
     @Override
     public synchronized MetricsFailures[] getMapMetricsFailures(
-            String viewName, String mapName, Current current)
-            throws UnknownMetricsView {
+            String viewName, String mapName, Current current) throws UnknownMetricsView {
         MetricsViewI view = getMetricsView(viewName);
         if (view != null) {
             return view.getFailures(mapName);
@@ -197,8 +199,7 @@ public class MetricsAdminI implements MetricsAdmin, java.util.function.Consumer<
 
     @Override
     public synchronized MetricsFailures getMetricsFailures(
-            String viewName, String mapName, String id, Current current)
-            throws UnknownMetricsView {
+            String viewName, String mapName, String id, Current current) throws UnknownMetricsView {
         MetricsViewI view = getMetricsView(viewName);
         if (view != null) {
             return view.getFailures(mapName, id);
@@ -206,8 +207,7 @@ public class MetricsAdminI implements MetricsAdmin, java.util.function.Consumer<
         return new MetricsFailures();
     }
 
-    public <T extends Metrics> void registerMap(
-            String map, Class<T> cl, Runnable updater) {
+    public <T extends Metrics> void registerMap(String map, Class<T> cl, Runnable updater) {
         boolean updated;
         MetricsMapFactory<T> factory;
         synchronized (this) {
@@ -253,8 +253,7 @@ public class MetricsAdminI implements MetricsAdmin, java.util.function.Consumer<
         }
     }
 
-    public <T extends Metrics> java.util.List<MetricsMap<T>> getMaps(
-            String mapName, Class<T> cl) {
+    public <T extends Metrics> java.util.List<MetricsMap<T>> getMaps(String mapName, Class<T> cl) {
         java.util.List<MetricsMap<T>> maps = new java.util.ArrayList<>();
         for (MetricsViewI v : _views.values()) {
             MetricsMap<T> map = v.getMap(mapName, cl);

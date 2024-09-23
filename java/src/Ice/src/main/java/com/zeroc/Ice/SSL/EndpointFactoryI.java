@@ -11,7 +11,8 @@ public final class EndpointFactoryI extends com.zeroc.Ice.EndpointFactoryWithUnd
     }
 
     @Override
-    public com.zeroc.Ice.EndpointFactory cloneWithUnderlying(com.zeroc.Ice.ProtocolInstance instance, short underlying) {
+    public com.zeroc.Ice.EndpointFactory cloneWithUnderlying(
+            com.zeroc.Ice.ProtocolInstance instance, short underlying) {
         return new EndpointFactoryI(
                 new Instance(_instance.engine(), instance.type(), instance.protocol()), underlying);
     }

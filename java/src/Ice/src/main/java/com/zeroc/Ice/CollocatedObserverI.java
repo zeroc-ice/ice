@@ -7,7 +7,9 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.IceMX.CollocatedMetrics;
 import com.zeroc.Ice.Instrumentation.CollocatedObserver;
 
-class CollocatedObserverI extends com.zeroc.Ice.IceMX.ObserverWithDelegate<CollocatedMetrics, CollocatedObserver> implements CollocatedObserver {
+class CollocatedObserverI
+        extends com.zeroc.Ice.IceMX.ObserverWithDelegate<CollocatedMetrics, CollocatedObserver>
+        implements CollocatedObserver {
     @Override
     public void reply(final int size) {
         forEach(

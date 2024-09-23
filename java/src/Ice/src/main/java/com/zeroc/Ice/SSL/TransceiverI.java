@@ -56,8 +56,12 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
             // Require BIG_ENDIAN byte buffers. This is needed for Android >= 8.0 which can read
             // the SSL messages directly with these buffers.
             int bufSize = _engine.getSession().getPacketBufferSize() * 2;
-            _netInput = new com.zeroc.Ice.Buffer(ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
-            _netOutput = new com.zeroc.Ice.Buffer(ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
+            _netInput =
+                    new com.zeroc.Ice.Buffer(
+                            ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
+            _netOutput =
+                    new com.zeroc.Ice.Buffer(
+                            ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
         }
 
         int status = handshakeNonBlocking();

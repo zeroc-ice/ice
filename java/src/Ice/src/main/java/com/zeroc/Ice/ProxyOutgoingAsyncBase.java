@@ -11,7 +11,8 @@ package com.zeroc.Ice;
 // correctly canceled when the invocation completes.
 //
 abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
-    public abstract int invokeRemote(ConnectionI con, boolean compress, boolean response) throws RetryException;
+    public abstract int invokeRemote(ConnectionI con, boolean compress, boolean response)
+            throws RetryException;
 
     public abstract int invokeCollocated(CollocatedRequestHandler handler);
 
@@ -405,7 +406,8 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         }
 
         // Don't retry if the communicator is destroyed or object adapter is deactivated.
-        if (ex instanceof CommunicatorDestroyedException || ex instanceof ObjectAdapterDeactivatedException) {
+        if (ex instanceof CommunicatorDestroyedException
+                || ex instanceof ObjectAdapterDeactivatedException) {
             throw ex;
         }
 

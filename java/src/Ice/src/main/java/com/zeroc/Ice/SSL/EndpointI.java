@@ -127,8 +127,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         com.zeroc.Ice.EndpointI_connectors cb =
                 new com.zeroc.Ice.EndpointI_connectors() {
                     @Override
-                    public void connectors(
-                            java.util.List<com.zeroc.Ice.Connector> connectors) {
+                    public void connectors(java.util.List<com.zeroc.Ice.Connector> connectors) {
                         java.util.List<com.zeroc.Ice.Connector> l = new java.util.ArrayList<>();
                         for (com.zeroc.Ice.Connector c : connectors) {
                             l.add(new ConnectorI(_instance, c, host));

@@ -22,7 +22,8 @@ final class DefaultsAndOverrides {
         if (!value.isEmpty()) {
             defaultSourceAddress = Network.getNumericAddress(value);
             if (defaultSourceAddress == null) {
-                throw new InitializationException("invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
+                throw new InitializationException(
+                        "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
             }
         } else {
             defaultSourceAddress = null;
@@ -49,7 +50,8 @@ final class DefaultsAndOverrides {
             overrideSecure = java.util.Optional.empty();
         }
 
-        defaultCollocationOptimization = properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
+        defaultCollocationOptimization =
+                properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
 
         value = properties.getIceProperty("Ice.Default.EndpointSelection");
         if (value.equals("Random")) {
@@ -57,7 +59,10 @@ final class DefaultsAndOverrides {
         } else if (value.equals("Ordered")) {
             defaultEndpointSelection = EndpointSelectionType.Ordered;
         } else {
-            throw new ParseException("illegal value '" + value + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
+            throw new ParseException(
+                    "illegal value '"
+                            + value
+                            + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
@@ -86,7 +91,10 @@ final class DefaultsAndOverrides {
 
         defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
-        value = properties.getPropertyWithDefault("Ice.Default.EncodingVersion", Util.encodingVersionToString(Protocol.currentEncoding));
+        value =
+                properties.getPropertyWithDefault(
+                        "Ice.Default.EncodingVersion",
+                        Util.encodingVersionToString(Protocol.currentEncoding));
         defaultEncoding = Util.stringToEncodingVersion(value);
         Protocol.checkSupportedEncoding(defaultEncoding);
 

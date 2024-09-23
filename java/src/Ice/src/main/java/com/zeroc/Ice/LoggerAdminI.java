@@ -76,10 +76,7 @@ final class LoggerAdminI implements LoggerAdmin {
                                 if (ex != null) {
                                     if (ex instanceof LocalException) {
                                         deadRemoteLogger(
-                                                remoteLogger,
-                                                _logger,
-                                                (LocalException) ex,
-                                                "init");
+                                                remoteLogger, _logger, (LocalException) ex, "init");
                                     } else {
                                         deadRemoteLogger(
                                                 remoteLogger,
@@ -129,10 +126,7 @@ final class LoggerAdminI implements LoggerAdmin {
 
     @Override
     public LoggerAdmin.GetLogResult getLog(
-            LogMessageType[] messageTypes,
-            String[] categories,
-            int messageMax,
-            Current current) {
+            LogMessageType[] messageTypes, String[] categories, int messageMax, Current current) {
         LoggerAdmin.GetLogResult r = new LoggerAdmin.GetLogResult();
 
         java.util.List<LogMessage> logMessages = null;
@@ -261,7 +255,8 @@ final class LoggerAdminI implements LoggerAdmin {
         return remoteLoggers;
     }
 
-    void deadRemoteLogger(RemoteLoggerPrx remoteLogger, Logger logger, LocalException ex, String operation) {
+    void deadRemoteLogger(
+            RemoteLoggerPrx remoteLogger, Logger logger, LocalException ex, String operation) {
         //
         // No need to convert remoteLogger as we only use its identity
         //
@@ -334,7 +329,8 @@ final class LoggerAdminI implements LoggerAdmin {
     //
     // Change this proxy's communicator, while keeping its invocation timeout
     //
-    private static RemoteLoggerPrx changeCommunicator(RemoteLoggerPrx prx, Communicator communicator) {
+    private static RemoteLoggerPrx changeCommunicator(
+            RemoteLoggerPrx prx, Communicator communicator) {
         if (prx == null) {
             return null;
         }
@@ -351,7 +347,8 @@ final class LoggerAdminI implements LoggerAdmin {
         }
     }
 
-    private static Communicator createSendLogCommunicator(Communicator communicator, Logger logger) {
+    private static Communicator createSendLogCommunicator(
+            Communicator communicator, Logger logger) {
         InitializationData initData = new InitializationData();
         initData.logger = logger;
         initData.properties = new Properties();
@@ -405,7 +402,8 @@ final class LoggerAdminI implements LoggerAdmin {
         final Filters filters;
     }
 
-    private final java.util.Map<Identity, RemoteLoggerData> _remoteLoggerMap = new java.util.HashMap<>();
+    private final java.util.Map<Identity, RemoteLoggerData> _remoteLoggerMap =
+            new java.util.HashMap<>();
 
     private final LoggerAdminLoggerI _logger;
     private Communicator _sendLogCommunicator = null;

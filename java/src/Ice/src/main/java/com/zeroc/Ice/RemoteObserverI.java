@@ -7,7 +7,9 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.IceMX.RemoteMetrics;
 import com.zeroc.Ice.Instrumentation.RemoteObserver;
 
-class RemoteObserverI extends com.zeroc.Ice.IceMX.ObserverWithDelegate<RemoteMetrics, RemoteObserver> implements RemoteObserver {
+class RemoteObserverI
+        extends com.zeroc.Ice.IceMX.ObserverWithDelegate<RemoteMetrics, RemoteObserver>
+        implements RemoteObserver {
     @Override
     public void reply(final int size) {
         forEach(

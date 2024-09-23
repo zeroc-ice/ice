@@ -753,18 +753,21 @@ public final class Instance implements java.util.function.Function<String, Class
                 if (properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
                         && !System.getProperty("os.name").startsWith("Windows")) {
                     if (!logFile.isEmpty()) {
-                        throw new InitializationException("Both syslog and file logger cannot be enabled.");
+                        throw new InitializationException(
+                                "Both syslog and file logger cannot be enabled.");
                     }
                     _initData.logger =
                             new SysLoggerI(
                                     properties.getIceProperty("Ice.ProgramName"),
                                     properties.getIceProperty("Ice.SyslogFacility"));
                 } else if (!logFile.isEmpty()) {
-                    _initData.logger = new LoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
+                    _initData.logger =
+                            new LoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
                 } else {
                     _initData.logger = Util.getProcessLogger();
                     if (_initData.logger instanceof LoggerI) {
-                        _initData.logger = new LoggerI(properties.getIceProperty("Ice.ProgramName"), "");
+                        _initData.logger =
+                                new LoggerI(properties.getIceProperty("Ice.ProgramName"), "");
                     }
                 }
             }
@@ -827,10 +830,12 @@ public final class Instance implements java.util.function.Function<String, Class
             } else if (toStringModeStr.equals("Compat")) {
                 _toStringMode = ToStringMode.Compat;
             } else {
-                throw new InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+                throw new InitializationException(
+                        "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
             }
 
-            _implicitContext = ImplicitContextI.create(properties.getProperty("Ice.ImplicitContext"));
+            _implicitContext =
+                    ImplicitContextI.create(properties.getProperty("Ice.ImplicitContext"));
 
             _routerManager = new RouterManager();
 
@@ -858,28 +863,26 @@ public final class Instance implements java.util.function.Function<String, Class
             _sslEngine = new com.zeroc.Ice.SSL.SSLEngine(communicator);
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
-            ProtocolInstance tcpProtocol = new ProtocolInstance(this, TCPEndpointType.value, "tcp", false);
+            ProtocolInstance tcpProtocol =
+                    new ProtocolInstance(this, TCPEndpointType.value, "tcp", false);
             _endpointFactoryManager.add(new TcpEndpointFactory(tcpProtocol));
 
-            ProtocolInstance udpProtocol = new ProtocolInstance(this, UDPEndpointType.value, "udp", false);
+            ProtocolInstance udpProtocol =
+                    new ProtocolInstance(this, UDPEndpointType.value, "udp", false);
             _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocol));
 
             com.zeroc.Ice.SSL.Instance sslInstance =
-                    new com.zeroc.Ice.SSL.Instance(
-                            _sslEngine, SSLEndpointType.value, "ssl");
+                    new com.zeroc.Ice.SSL.Instance(_sslEngine, SSLEndpointType.value, "ssl");
             _endpointFactoryManager.add(
-                    new com.zeroc.Ice.SSL.EndpointFactoryI(
-                            sslInstance, TCPEndpointType.value));
+                    new com.zeroc.Ice.SSL.EndpointFactoryI(sslInstance, TCPEndpointType.value));
 
             ProtocolInstance wsProtocol =
                     new ProtocolInstance(this, WSEndpointType.value, "ws", false);
-            _endpointFactoryManager.add(
-                    new WSEndpointFactory(wsProtocol, TCPEndpointType.value));
+            _endpointFactoryManager.add(new WSEndpointFactory(wsProtocol, TCPEndpointType.value));
 
             ProtocolInstance wssProtocol =
                     new ProtocolInstance(this, WSSEndpointType.value, "wss", true);
-            _endpointFactoryManager.add(
-                    new WSEndpointFactory(wssProtocol, SSLEndpointType.value));
+            _endpointFactoryManager.add(new WSEndpointFactory(wssProtocol, SSLEndpointType.value));
 
             _pluginManager = new PluginManagerI(communicator, this);
 
@@ -1078,14 +1081,16 @@ public final class Instance implements java.util.function.Function<String, Class
         // Therefore we make sure it is not already set before checking the property.
         //
         if (_referenceFactory.getDefaultRouter() == null) {
-            RouterPrx router = RouterPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Router"));
+            RouterPrx router =
+                    RouterPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Router"));
             if (router != null) {
                 _referenceFactory = _referenceFactory.setDefaultRouter(router);
             }
         }
 
         if (_referenceFactory.getDefaultLocator() == null) {
-            LocatorPrx loc = LocatorPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Locator"));
+            LocatorPrx loc =
+                    LocatorPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Locator"));
             if (loc != null) {
                 _referenceFactory = _referenceFactory.setDefaultLocator(loc);
             }
@@ -1477,7 +1482,8 @@ public final class Instance implements java.util.function.Function<String, Class
                     _initData.logger.trace(_traceLevels.locationCat, s.toString());
                 }
 
-                throw new InitializationException("Locator knows nothing about server `" + serverId + "'");
+                throw new InitializationException(
+                        "Locator knows nothing about server `" + serverId + "'");
             } catch (LocalException ex) {
                 if (_traceLevels.location >= 1) {
                     StringBuilder s = new StringBuilder(128);

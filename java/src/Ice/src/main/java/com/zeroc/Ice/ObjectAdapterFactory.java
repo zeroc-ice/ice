@@ -107,7 +107,8 @@ final class ObjectAdapterFactory {
         }
     }
 
-    public ObjectAdapter createObjectAdapter(String name, RouterPrx router, SSLEngineFactory sslEngineFactory) {
+    public ObjectAdapter createObjectAdapter(
+            String name, RouterPrx router, SSLEngineFactory sslEngineFactory) {
         if (Thread.interrupted()) {
             throw new OperationInterruptedException();
         }
@@ -134,7 +135,8 @@ final class ObjectAdapterFactory {
             if (name.isEmpty()) {
                 String uuid = java.util.UUID.randomUUID().toString();
                 adapter =
-                        new ObjectAdapter(_instance, _communicator, this, uuid, null, true, sslEngineFactory);
+                        new ObjectAdapter(
+                                _instance, _communicator, this, uuid, null, true, sslEngineFactory);
             } else {
                 adapter =
                         new ObjectAdapter(
@@ -202,7 +204,8 @@ final class ObjectAdapterFactory {
         _adapterNamesInUse.remove(adapter.getName());
     }
 
-    public void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
+    public void flushAsyncBatchRequests(
+            CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         java.util.List<ObjectAdapter> adapters;
         synchronized (this) {
             adapters = new java.util.LinkedList<>(_adapters);

@@ -146,7 +146,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         return connections;
     }
 
-    public void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
+    public void flushAsyncBatchRequests(
+            CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         for (ConnectionI c :
                 connections()) // connections() is synchronized, no need to synchronize here.
         {
@@ -351,10 +352,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
     }
 
     public IncomingConnectionFactory(
-            Instance instance,
-            EndpointI endpoint,
-            EndpointI publish,
-            ObjectAdapter adapter) {
+            Instance instance, EndpointI endpoint, EndpointI publish, ObjectAdapter adapter) {
         _instance = instance;
         _connectionOptions = instance.serverConnectionOptions(adapter.getName());
 

@@ -87,7 +87,8 @@ public class BZip2 {
         buf.position(headerSize);
         int uncompressedSize = buf.b.getInt();
         if (uncompressedSize <= headerSize) {
-            throw new MarshalException("Unexpected message size after uncompress: " + uncompressedSize);
+            throw new MarshalException(
+                    "Unexpected message size after uncompress: " + uncompressedSize);
         }
         if (uncompressedSize > messageSizeMax) {
             Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);

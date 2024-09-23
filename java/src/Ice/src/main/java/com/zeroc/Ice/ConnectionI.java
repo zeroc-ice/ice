@@ -5,7 +5,6 @@
 package com.zeroc.Ice;
 
 import com.zeroc.Ice.Instrumentation.ConnectionState;
-import com.zeroc.Ice.TraceUtil;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -506,7 +505,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
     }
 
-    public synchronized void setAdapterAndServantManager(ObjectAdapter adapter, ServantManager servantManager) {
+    public synchronized void setAdapterAndServantManager(
+            ObjectAdapter adapter, ServantManager servantManager) {
         if (_state <= StateNotValidated || _state >= StateClosing) {
             return;
         }
@@ -1977,7 +1977,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             //
             // Do compression.
             //
-            Buffer cbuf = BZip2.compress(uncompressed.getBuffer(), Protocol.headerSize, _compressionLevel);
+            Buffer cbuf =
+                    BZip2.compress(
+                            uncompressed.getBuffer(), Protocol.headerSize, _compressionLevel);
             if (cbuf != null) {
                 OutputStream cstream =
                         new OutputStream(
@@ -2055,7 +2057,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             info.compress = info.stream.readByte();
             if (info.compress == (byte) 2) {
                 if (BZip2.supported()) {
-                    Buffer ubuf = BZip2.uncompress(info.stream.getBuffer(), Protocol.headerSize, _messageSizeMax);
+                    Buffer ubuf =
+                            BZip2.uncompress(
+                                    info.stream.getBuffer(), Protocol.headerSize, _messageSizeMax);
                     info.stream =
                             new InputStream(
                                     info.stream.instance(), info.stream.getEncoding(), ubuf, true);

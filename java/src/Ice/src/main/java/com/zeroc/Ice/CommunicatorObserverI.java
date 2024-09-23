@@ -9,10 +9,9 @@ import com.zeroc.Ice.IceMX.DispatchMetrics;
 import com.zeroc.Ice.IceMX.InvocationMetrics;
 import com.zeroc.Ice.IceMX.Metrics;
 import com.zeroc.Ice.IceMX.MetricsHelper;
-import com.zeroc.Ice.IceMX.ThreadMetrics;
 import com.zeroc.Ice.IceMX.ObserverFactoryWithDelegate;
 import com.zeroc.Ice.IceMX.ObserverWithDelegateI;
-
+import com.zeroc.Ice.IceMX.ThreadMetrics;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.Instrumentation.ConnectionObserver;
 import com.zeroc.Ice.Instrumentation.ConnectionState;
@@ -546,35 +545,24 @@ class CommunicatorObserverI implements CommunicatorObserver {
 
         _connections =
                 new ObserverFactoryWithDelegate<
-                        ConnectionMetrics,
-                        ConnectionObserverI,
-                        ConnectionObserver>(
+                        ConnectionMetrics, ConnectionObserverI, ConnectionObserver>(
                         _metrics, "Connection", ConnectionMetrics.class);
         _dispatch =
                 new ObserverFactoryWithDelegate<
-                        DispatchMetrics,
-                        DispatchObserverI,
-                        DispatchObserver>(
+                        DispatchMetrics, DispatchObserverI, DispatchObserver>(
                         _metrics, "Dispatch", DispatchMetrics.class);
         _invocations =
                 new ObserverFactoryWithDelegate<
-                        InvocationMetrics,
-                        InvocationObserverI,
-                        InvocationObserver>(
+                        InvocationMetrics, InvocationObserverI, InvocationObserver>(
                         _metrics, "Invocation", InvocationMetrics.class);
         _threads =
-                new ObserverFactoryWithDelegate<
-                        ThreadMetrics,
-                        ThreadObserverI,
-                        ThreadObserver>(
+                new ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI, ThreadObserver>(
                         _metrics, "Thread", ThreadMetrics.class);
         _connects =
-                new ObserverFactoryWithDelegate<
-                        Metrics, ObserverWithDelegateI, Observer>(
+                new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, Observer>(
                         _metrics, "ConnectionEstablishment", Metrics.class);
         _endpointLookups =
-                new ObserverFactoryWithDelegate<
-                        Metrics, ObserverWithDelegateI, Observer>(
+                new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, Observer>(
                         _metrics, "EndpointLookup", Metrics.class);
 
         try {
@@ -634,7 +622,8 @@ class CommunicatorObserverI implements CommunicatorObserver {
     }
 
     @Override
-    public ConnectionObserver getConnectionObserver(ConnectionInfo c, Endpoint e, ConnectionState s, ConnectionObserver observer) {
+    public ConnectionObserver getConnectionObserver(
+            ConnectionInfo c, Endpoint e, ConnectionState s, ConnectionObserver observer) {
         if (_connections.isEnabled()) {
             try {
                 ConnectionObserver delegate = null;
@@ -660,7 +649,8 @@ class CommunicatorObserverI implements CommunicatorObserver {
     }
 
     @Override
-    public ThreadObserver getThreadObserver(String parent, String id, ThreadState s, ThreadObserver observer) {
+    public ThreadObserver getThreadObserver(
+            String parent, String id, ThreadState s, ThreadObserver observer) {
         if (_threads.isEnabled()) {
             try {
                 ThreadObserver delegate = null;
@@ -755,10 +745,17 @@ class CommunicatorObserverI implements CommunicatorObserver {
 
     private final MetricsAdminI _metrics;
     private final CommunicatorObserver _delegate;
-    private final ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI, ConnectionObserver> _connections;
-    private final ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI, DispatchObserver> _dispatch;
-    private final ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI, InvocationObserver> _invocations;
-    private final ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI, ThreadObserver> _threads;
+    private final ObserverFactoryWithDelegate<
+                    ConnectionMetrics, ConnectionObserverI, ConnectionObserver>
+            _connections;
+    private final ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI, DispatchObserver>
+            _dispatch;
+    private final ObserverFactoryWithDelegate<
+                    InvocationMetrics, InvocationObserverI, InvocationObserver>
+            _invocations;
+    private final ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI, ThreadObserver>
+            _threads;
     private final ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, Observer> _connects;
-    private final ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, Observer> _endpointLookups;
+    private final ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, Observer>
+            _endpointLookups;
 }

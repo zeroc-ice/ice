@@ -5,8 +5,8 @@
 package com.zeroc.Ice;
 
 /**
- * The endpoint factory with underlying create endpoints that delegate to an underlying
- * endpoint (e.g.: the SSL/WS endpoints are endpoints with underlying endpoints).
+ * The endpoint factory with underlying create endpoints that delegate to an underlying endpoint
+ * (e.g.: the SSL/WS endpoints are endpoints with underlying endpoints).
  *
  * @hidden Kept public because it's used by SSL.
  */

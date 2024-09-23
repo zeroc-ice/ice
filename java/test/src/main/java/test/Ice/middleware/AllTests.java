@@ -19,7 +19,8 @@ public class AllTests {
         private final List<String> _inLog;
         private final List<String> _outLog;
 
-        Middleware(com.zeroc.Ice.Object next, String name, List<String> inLog, List<String> outLog) {
+        Middleware(
+                com.zeroc.Ice.Object next, String name, List<String> inLog, List<String> outLog) {
             _next = next;
             _name = name;
             _inLog = inLog;

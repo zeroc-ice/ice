@@ -86,12 +86,7 @@ final class HTTPNetworkProxy implements NetworkProxy {
         assert (_host != null);
         return new HTTPNetworkProxy(
                 Network.getAddresses(
-                                _host,
-                                _port,
-                                protocol,
-                                EndpointSelectionType.Random,
-                                false,
-                                true)
+                                _host, _port, protocol, EndpointSelectionType.Random, false, true)
                         .get(0),
                 protocol);
     }

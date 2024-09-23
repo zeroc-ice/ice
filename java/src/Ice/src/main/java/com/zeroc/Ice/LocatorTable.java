@@ -95,6 +95,5 @@ final class LocatorTable {
 
     private java.util.Map<String, EndpointTableEntry> _adapterEndpointsTable =
             new java.util.HashMap<>();
-    private java.util.Map<Identity, ReferenceTableEntry> _objectTable =
-            new java.util.HashMap<>();
+    private java.util.Map<Identity, ReferenceTableEntry> _objectTable = new java.util.HashMap<>();
 }

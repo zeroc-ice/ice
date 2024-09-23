@@ -90,8 +90,7 @@ class MetricsViewI {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Metrics> MetricsMap<T> getMap(
-            String mapName, Class<T> cl) {
+    public <T extends Metrics> MetricsMap<T> getMap(String mapName, Class<T> cl) {
         return (MetricsMap<T>) _maps.get(mapName);
     }
 

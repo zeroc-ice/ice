@@ -120,7 +120,8 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     }
 
     @Override
-    public int invokeRemote(ConnectionI connection, boolean compress, boolean response) throws RetryException {
+    public int invokeRemote(ConnectionI connection, boolean compress, boolean response)
+            throws RetryException {
         _cachedConnection = connection;
         return connection.sendAsyncRequest(this, compress, response, 0);
     }

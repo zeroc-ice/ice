@@ -5,7 +5,8 @@
 package com.zeroc.Ice;
 
 class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
-    public ProxyIceInvoke(ObjectPrx prx, String operation, OperationMode mode, boolean synchronous) {
+    public ProxyIceInvoke(
+            ObjectPrx prx, String operation, OperationMode mode, boolean synchronous) {
         super((_ObjectPrxI) prx, operation);
         _mode = mode == null ? OperationMode.Normal : mode;
         _synchronous = synchronous;
@@ -57,7 +58,8 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
     }
 
     @Override
-    public int invokeRemote(ConnectionI connection, boolean compress, boolean response) throws RetryException {
+    public int invokeRemote(ConnectionI connection, boolean compress, boolean response)
+            throws RetryException {
         _cachedConnection = connection;
         return connection.sendAsyncRequest(this, compress, response, 0);
     }

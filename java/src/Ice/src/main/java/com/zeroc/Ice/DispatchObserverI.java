@@ -4,11 +4,12 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.ObserverWithDelegate;
 import com.zeroc.Ice.IceMX.DispatchMetrics;
+import com.zeroc.Ice.IceMX.ObserverWithDelegate;
 import com.zeroc.Ice.Instrumentation.DispatchObserver;
 
-class DispatchObserverI extends ObserverWithDelegate<DispatchMetrics, DispatchObserver> implements DispatchObserver {
+class DispatchObserverI extends ObserverWithDelegate<DispatchMetrics, DispatchObserver>
+        implements DispatchObserver {
     @Override
     public void userException() {
         forEach(_userException);

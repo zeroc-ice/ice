@@ -4,10 +4,10 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.MetricsMap.SubMap;
 import com.zeroc.Ice.IceMX.Metrics;
 import com.zeroc.Ice.IceMX.MetricsFailures;
 import com.zeroc.Ice.IceMX.MetricsHelper;
+import com.zeroc.Ice.MetricsMap.SubMap;
 
 /**
  * @hidden Kept public because it's used by IceMX.
@@ -269,8 +269,7 @@ public class MetricsMap<T extends Metrics> {
     }
 
     @SuppressWarnings("unchecked")
-    public <S extends Metrics> SubMap<S> createSubMap(
-            String subMapName, Class<S> cl) {
+    public <S extends Metrics> SubMap<S> createSubMap(String subMapName, Class<S> cl) {
         if (_subMaps == null) {
             return null;
         }
@@ -372,7 +371,8 @@ public class MetricsMap<T extends Metrics> {
         _detachedQueue.add(entry);
     }
 
-    private java.util.Map<String, java.util.regex.Pattern> parseRule(Properties properties, String name) {
+    private java.util.Map<String, java.util.regex.Pattern> parseRule(
+            Properties properties, String name) {
         java.util.Map<String, java.util.regex.Pattern> pats = new java.util.HashMap<>();
         java.util.Map<String, String> rules = properties.getPropertiesForPrefix(name + '.');
         for (java.util.Map.Entry<String, String> e : rules.entrySet()) {

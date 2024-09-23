@@ -511,7 +511,8 @@ class PluginI implements Plugin {
                                 }
                                 _pendingRequests.clear();
                             }
-                            _nextRetry = com.zeroc.Ice.Time.currentMonotonicTimeMillis() + _retryDelay;
+                            _nextRetry =
+                                    com.zeroc.Ice.Time.currentMonotonicTimeMillis() + _retryDelay;
                         }
                     }
                 };

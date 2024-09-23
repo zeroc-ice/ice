@@ -5,10 +5,9 @@
 package com.zeroc.Ice;
 
 /**
- * The underlying endpoint factory creates endpoints with a factory of the given
- * type. If this factory is of the EndpointFactoryWithUnderlying type, it will
- * delegate to the given underlying factory (this is used by IceIAP/IceBT plugins
- * for the BTS/iAPS endpoint factories).
+ * The underlying endpoint factory creates endpoints with a factory of the given type. If this
+ * factory is of the EndpointFactoryWithUnderlying type, it will delegate to the given underlying
+ * factory (this is used by IceIAP/IceBT plugins for the BTS/iAPS endpoint factories).
  *
  * @hidden Kept public because it's used by IceBT.
  */

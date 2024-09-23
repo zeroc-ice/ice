@@ -108,7 +108,8 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public abstract void connectors_async(EndpointSelectionType selType, EndpointI_connectors callback);
+    public abstract void connectors_async(
+            EndpointSelectionType selType, EndpointI_connectors callback);
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors

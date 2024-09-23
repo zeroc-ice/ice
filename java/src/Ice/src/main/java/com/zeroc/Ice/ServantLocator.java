@@ -93,7 +93,8 @@ public interface ServantLocator {
      * @see Current
      * @see #locate
      */
-    void finished(Current curr, com.zeroc.Ice.Object servant, java.lang.Object cookie) throws UserException;
+    void finished(Current curr, com.zeroc.Ice.Object servant, java.lang.Object cookie)
+            throws UserException;
 
     /**
      * Called when the object adapter in which this servant locator is installed is destroyed.

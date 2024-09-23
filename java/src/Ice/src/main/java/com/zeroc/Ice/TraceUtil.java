@@ -68,7 +68,8 @@ final class TraceUtil {
 
     private static java.util.Set<String> slicingIds = new java.util.HashSet<>();
 
-    public static synchronized void traceSlicing(String kind, String typeId, String slicingCat, Logger logger) {
+    public static synchronized void traceSlicing(
+            String kind, String typeId, String slicingCat, Logger logger) {
         if (slicingIds.add(typeId)) {
             java.io.StringWriter s = new java.io.StringWriter();
             s.write("unknown " + kind + " type `" + typeId + "'");

@@ -570,8 +570,8 @@ public final class Util {
 
     /**
      * Given a path name, first try to open it as a class path resource (the path is treated as
-     * absolute). If that fails, fall back to the file system.
-     * Returns null if the file does not exist and raises IOException if an error occurs.
+     * absolute). If that fails, fall back to the file system. Returns null if the file does not
+     * exist and raises IOException if an error occurs.
      *
      * @hidden Kept public because it's used by SSL.
      */
@@ -701,8 +701,7 @@ public final class Util {
     }
 
     /**
-     * 
-     * @return true if we're running on Android.
+     * Returns true if we're running on Android.
      *
      * @hidden Kept public because it's used by the tests.
      */

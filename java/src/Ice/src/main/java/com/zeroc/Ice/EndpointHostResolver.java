@@ -75,7 +75,8 @@ class EndpointHostResolver {
                     }
 
                     if (threadObserver != null) {
-                        threadObserver.stateChanged(ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
+                        threadObserver.stateChanged(
+                                ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
                     }
 
                     Observer obsv = observer;
@@ -147,10 +148,7 @@ class EndpointHostResolver {
         if (obsv != null) {
             _observer =
                     obsv.getThreadObserver(
-                            "Communicator",
-                            _threadName,
-                            ThreadState.ThreadStateIdle,
-                            _observer);
+                            "Communicator", _threadName, ThreadState.ThreadStateIdle, _observer);
             if (_observer != null) {
                 _observer.attach();
             }

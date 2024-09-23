@@ -9,7 +9,8 @@ import com.zeroc.Ice.Instrumentation.CollocatedObserver;
 import com.zeroc.Ice.Instrumentation.InvocationObserver;
 import com.zeroc.Ice.Instrumentation.RemoteObserver;
 
-class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics, InvocationObserver> implements InvocationObserver {
+class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics, InvocationObserver>
+        implements InvocationObserver {
     public static final class RemoteInvocationHelper extends MetricsHelper<RemoteMetrics> {
         private static final AttributeResolver _attributes =
                 new AttributeResolver() {
@@ -149,7 +150,8 @@ class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics, Invoca
     }
 
     @Override
-    public RemoteObserver getRemoteObserver(ConnectionInfo con, Endpoint edpt, int requestId, int sz) {
+    public RemoteObserver getRemoteObserver(
+            ConnectionInfo con, Endpoint edpt, int requestId, int sz) {
         RemoteObserver delegate = null;
         if (_delegate != null) {
             delegate = _delegate.getRemoteObserver(con, edpt, requestId, sz);

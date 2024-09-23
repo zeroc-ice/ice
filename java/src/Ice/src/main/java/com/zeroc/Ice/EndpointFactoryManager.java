@@ -114,7 +114,9 @@ final class EndpointFactoryManager {
                 var os = new OutputStream(_instance, Protocol.currentProtocolEncoding, false);
                 os.writeShort(ue.type());
                 ue.streamWrite(os);
-                var is = new InputStream(_instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
+                var is =
+                        new InputStream(
+                                _instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
                 is.pos(0);
                 is.readShort(); // type
                 is.startEncapsulation();
