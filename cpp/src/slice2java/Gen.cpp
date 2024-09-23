@@ -810,8 +810,7 @@ Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const stri
     {
         clsName = getUnqualified(cl, package);
     }
-    out << nl << "final com.zeroc.Ice.Holder<" << clsName << "> " << name
-        << " = new com.zeroc.Ice.Holder<>();";
+    out << nl << "final com.zeroc.Ice.Holder<" << clsName << "> " << name << " = new com.zeroc.Ice.Holder<>();";
 }
 
 string

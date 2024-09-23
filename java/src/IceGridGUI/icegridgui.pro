@@ -42,7 +42,6 @@
     public **[] values();
 }
 
-
 -dontnote com.zeroc.IceSSL.SSLEngine
 -dontnote com.zeroc.Ice.CommunicatorObserverI*
 -dontnote com.zeroc.Ice.InputStream
