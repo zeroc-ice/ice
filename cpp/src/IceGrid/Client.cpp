@@ -299,7 +299,6 @@ run(const Ice::StringSeq& args)
     int status = 0;
     try
     {
-        [[maybe_unused]] int remoteIdleTimeout = 0;
         if (!communicator->getDefaultLocator() && !communicator->getDefaultRouter())
         {
             if (!host.empty())
@@ -438,16 +437,6 @@ run(const Ice::StringSeq& args)
                                << endl;
                     return 1;
                 }
-            }
-
-            try
-            {
-                remoteIdleTimeout = router->getACMTimeout();
-            }
-            catch (const Ice::OperationNotExistException&)
-            {
-                consoleErr << args[0] << ": can't talk to old Glacier2 router version" << endl;
-                return 1;
             }
         }
         else if (communicator->getDefaultLocator())
@@ -588,16 +577,6 @@ run(const Ice::StringSeq& args)
                     return 1;
                 }
             }
-
-            try
-            {
-                remoteIdleTimeout = registry->getACMTimeout();
-            }
-            catch (const Ice::OperationNotExistException&)
-            {
-                consoleErr << args[0] << ": can't talk to old IceGrid registry version" << endl;
-                return 1;
-            }
         }
         else // No default locator or router set.
         {
@@ -605,8 +584,6 @@ run(const Ice::StringSeq& args)
             consoleErr << "no default locator or router configured" << endl;
             return 1;
         }
-
-        // TODO: fail if the remote idle timeout is not compatible with the local idle timeout.
 
         {
             lock_guard lock(staticMutex);
