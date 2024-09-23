@@ -196,18 +196,8 @@ internal sealed class PluginManagerI : PluginManager
         //
         foreach (var name in _loadOnInitialization)
         {
-            string key = "Ice.Plugin." + name + ".clr";
+            string key = $"Ice.Plugin.{name}";
             plugins.TryGetValue(key, out string? r);
-            if (r is not null)
-            {
-                plugins.Remove("Ice.Plugin." + name);
-            }
-            else
-            {
-                key = "Ice.Plugin." + name;
-                plugins.TryGetValue(key, out r);
-            }
-
             if (r is not null)
             {
                 loadPlugin(name, r, ref cmdArgs);
@@ -224,7 +214,7 @@ internal sealed class PluginManagerI : PluginManager
         // with the prefix "Ice.Plugin.". These properties should
         // have the following format:
         //
-        // Ice.Plugin.name[.<language>]=entry_point [args]
+        // Ice.Plugin.<name>=entry_point [args]
         //
         // The code below is different from the Java/C++ algorithm
         // because C# must support full assembly names such as:
@@ -249,18 +239,8 @@ internal sealed class PluginManagerI : PluginManager
                 throw new PluginInitializationException($"Plug-in '{loadOrder[i]}' already loaded.");
             }
 
-            string key = "Ice.Plugin." + loadOrder[i] + ".clr";
+            string key = $"Ice.Plugin.{loadOrder[i]}";
             plugins.TryGetValue(key, out string? value);
-            if (value is not null)
-            {
-                plugins.Remove("Ice.Plugin." + loadOrder[i]);
-            }
-            else
-            {
-                key = "Ice.Plugin." + loadOrder[i];
-                plugins.TryGetValue(key, out value);
-            }
-
             if (value is not null)
             {
                 loadPlugin(loadOrder[i], value, ref cmdArgs);
@@ -275,56 +255,9 @@ internal sealed class PluginManagerI : PluginManager
         //
         // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
         //
-        while (plugins.Count > 0)
+        foreach (var entry in plugins)
         {
-            IEnumerator<KeyValuePair<string, string>> p = plugins.GetEnumerator();
-            p.MoveNext();
-            string key = p.Current.Key;
-            string val = p.Current.Value;
-            string name = key.Substring(prefix.Length);
-
-            int dotPos = name.LastIndexOf('.');
-            if (dotPos != -1)
-            {
-                string suffix = name.Substring(dotPos + 1);
-                if (suffix == "cpp" || suffix == "java")
-                {
-                    //
-                    // Ignored
-                    //
-                    plugins.Remove(key);
-                }
-                else if (suffix == "clr")
-                {
-                    name = name.Substring(0, dotPos);
-                    loadPlugin(name, val, ref cmdArgs);
-                    plugins.Remove(key);
-                    plugins.Remove("Ice.Plugin." + name);
-                }
-                else
-                {
-                    //
-                    // Name is just a regular name that happens to contain a dot
-                    //
-                    dotPos = -1;
-                }
-            }
-
-            if (dotPos == -1)
-            {
-                plugins.Remove(key);
-
-                //
-                // Is there a .clr entry?
-                //
-                string clrKey = "Ice.Plugin." + name + ".clr";
-                if (plugins.TryGetValue(clrKey, out string? value))
-                {
-                    val = value;
-                    plugins.Remove(clrKey);
-                }
-                loadPlugin(name, val, ref cmdArgs);
-            }
+            loadPlugin(entry.Key.Substring(prefix.Length), entry.Value, ref cmdArgs);
         }
     }
 
