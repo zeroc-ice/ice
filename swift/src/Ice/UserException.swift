@@ -1,7 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-/// Base class for Ice user exceptions.
-open class UserException: Exception {
+/// Base class for Ice user exceptions. User exceptions are marked as "@unchecked Sendable" as the error
+/// protocol requires them to be Sendable. However, the generated exception classes are not thread safe, and users
+/// should not share instances of user exceptions between threads.
+open class UserException: Exception, @unchecked Sendable {
     public required init() {}
 
     /// Gets the type ID of the class.
