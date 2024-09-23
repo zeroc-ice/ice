@@ -276,7 +276,7 @@ public class MetricsAdminI implements MetricsAdmin, java.util.function.Consumer<
                 // Update the metrics views using the new configuration.
                 try {
                     updateViews();
-                } catch (Exception ex) {
+                } catch (java.lang.Exception ex) {
                     _logger.warning(
                             "unexpected exception while updating metrics view configuration:\n"
                                     + ex.toString());

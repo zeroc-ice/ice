@@ -4,11 +4,15 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.ThreadState;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-final class Instance implements java.util.function.Function<String, Class<?>> {
+/**
+ * @hidden Kept public because it's used by SSL.
+ */
+public final class Instance implements java.util.function.Function<String, Class<?>> {
     private static class ThreadObserverHelper {
         ThreadObserverHelper(String threadName) {
             _threadName = threadName;
@@ -644,7 +648,7 @@ final class Instance implements java.util.function.Function<String, Class<?>> {
         if (c != null) {
             try {
                 return (String) c.getField("typeId").get(null);
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 assert (false);
             }
         }

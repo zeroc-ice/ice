@@ -5,7 +5,7 @@
 package com.zeroc.Ice;
 
 final class Selector {
-    static final class TimeoutException extends Exception {
+    static final class TimeoutException extends java.lang.Exception {
         private static final long serialVersionUID = 7885765825975312023L;
     }
 

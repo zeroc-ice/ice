@@ -143,7 +143,7 @@ final class OutgoingConnectionFactory {
                     .executeNoThrow(
                             new Callable<Void>() {
                                 @Override
-                                public Void call() throws Exception {
+                                public Void call() throws java.lang.Exception {
                                     cb.getConnectors();
                                     return null;
                                 }
@@ -624,7 +624,7 @@ final class OutgoingConnectionFactory {
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(java.lang.Object obj) {
             ConnectorInfo r = (ConnectorInfo) obj;
             return connector.equals(r.connector);
         }

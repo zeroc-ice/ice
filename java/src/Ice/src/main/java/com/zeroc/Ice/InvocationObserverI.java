@@ -21,7 +21,7 @@ class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics, Invoca
                             add("requestId", cl.getDeclaredMethod("getRequestId"));
                             CommunicatorObserverI.addConnectionAttributes(
                                     this, RemoteInvocationHelper.class);
-                        } catch (Exception ex) {
+                        } catch (java.lang.Exception ex) {
                             ex.printStackTrace();
                             assert (false);
                         }
@@ -96,7 +96,7 @@ class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics, Invoca
                             add("parent", cl.getDeclaredMethod("getParent"));
                             add("id", cl.getDeclaredMethod("getId"));
                             add("requestId", cl.getDeclaredMethod("getRequestId"));
-                        } catch (Exception ex) {
+                        } catch (java.lang.Exception ex) {
                             ex.printStackTrace();
                             assert (false);
                         }

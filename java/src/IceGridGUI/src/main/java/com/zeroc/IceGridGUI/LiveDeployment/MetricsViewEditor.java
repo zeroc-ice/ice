@@ -1157,7 +1157,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             return _cellRenderer;
         }
 
-        public void setScaleFactor(String scaleFactor) throws java.lang.NumberFormatException {
+        public void setScaleFactor(String scaleFactor) throws NumberFormatException {
             _scaleFactor = Double.parseDouble(scaleFactor);
         }
 
@@ -1219,7 +1219,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             _dataField = dataField;
         }
 
-        public void setScaleFactor(String scaleFactor) throws java.lang.NumberFormatException {
+        public void setScaleFactor(String scaleFactor) throws NumberFormatException {
             _scaleFactor = Double.parseDouble(scaleFactor);
         }
 

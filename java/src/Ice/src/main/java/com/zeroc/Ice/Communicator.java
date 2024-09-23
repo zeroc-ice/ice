@@ -430,7 +430,7 @@ public final class Communicator implements AutoCloseable {
         // This callback object receives the results of all invocations
         // of Connection.begin_flushBatchRequests.
         //
-        var f = CommunicatorFlushBatch(this, _instance);
+        var f = new CommunicatorFlushBatch(this, _instance);
         f.invoke(compressBatch);
         return f;
     }

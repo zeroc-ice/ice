@@ -216,12 +216,11 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
             if (_doneInSent) {
                 markCompleted();
             }
-        } catch (java.lang.RuntimeException ex) {
+        } catch (RuntimeException ex) {
             warning(ex);
-        } catch (java.lang.Error exc) {
+        } catch (Error exc) {
             error(exc);
-            if (!(exc instanceof java.lang.AssertionError
-                    || exc instanceof java.lang.OutOfMemoryError)) {
+            if (!(exc instanceof AssertionError || exc instanceof OutOfMemoryError)) {
                 throw exc;
             }
         }

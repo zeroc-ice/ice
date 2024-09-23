@@ -224,7 +224,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                             runWriteThread();
                         }
                     };
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             if (_socket != null) {
                 _socket.close();
             }

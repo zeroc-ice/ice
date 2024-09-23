@@ -7,7 +7,7 @@ package com.zeroc.Ice;
 final class LocatorManager {
     private static final class LocatorKey implements Cloneable {
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(java.lang.Object o) {
             assert (o instanceof LocatorKey);
             LocatorKey k = (LocatorKey) o;
             if (!k._id.equals(_id)) {

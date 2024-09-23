@@ -42,7 +42,7 @@ final class ObserverMiddleware implements Object {
                                     observer.detach();
                                     return response;
                                 });
-            } catch (UserException | RuntimeException | java.lang.Error ex) {
+            } catch (UserException | RuntimeException | Error ex) {
                 // Synchronous exception
                 OutgoingResponse response = request.current.createOutgoingResponse(ex);
                 observeResponse(response, observer, request.current.requestId != 0);

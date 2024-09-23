@@ -99,7 +99,7 @@ final class CollocatedRequestHandler implements RequestHandler {
 
                 _sendAsyncRequests.put(outAsync, requestId);
             }
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             _adapter.decDirectCount();
             throw ex;
         }
@@ -216,7 +216,7 @@ final class CollocatedRequestHandler implements RequestHandler {
             is.clear();
         } catch (LocalException ex) {
             dispatchException(ex, requestId, false); // Fatal dispatch exception
-        } catch (RuntimeException | java.lang.Error ex) {
+        } catch (RuntimeException | Error ex) {
             // A runtime exception or an error was thrown outside of servant code (i.e., by Ice
             // code).
             // Note that this code does NOT send a response to the client.

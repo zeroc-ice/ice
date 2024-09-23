@@ -45,7 +45,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     @Override
-    public Object getFacet() {
+    public com.zeroc.Ice.Object getFacet() {
         return _loggerAdmin;
     }
 

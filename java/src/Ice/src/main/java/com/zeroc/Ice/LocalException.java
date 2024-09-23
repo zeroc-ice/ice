@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /** Base class for Ice run-time exceptions. */
-public class LocalException extends Exception {
+public class LocalException extends com.zeroc.Ice.Exception {
     public LocalException(String message) {
         super(message);
     }

@@ -38,7 +38,7 @@ final class QueueExecutorService {
                 return callable.call();
             } catch (RuntimeException ex) {
                 throw ex;
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 // RetryException is the only checked exception that
                 // can be raised by Ice internals.
                 assert (ex instanceof RetryException);

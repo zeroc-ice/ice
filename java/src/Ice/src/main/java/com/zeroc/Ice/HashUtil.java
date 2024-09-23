@@ -76,7 +76,7 @@ public final class HashUtil {
         return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
     }
 
-    public static int hashAdd(int hashCode, Object[] arr) {
+    public static int hashAdd(int hashCode, java.lang.Object[] arr) {
         return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
     }
 

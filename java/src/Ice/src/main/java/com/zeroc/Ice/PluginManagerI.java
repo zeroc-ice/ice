@@ -323,7 +323,7 @@ final class PluginManagerI implements PluginManager {
                 } catch (java.io.IOException ex) {
                     throw new PluginInitializationException(
                             "invalid path in entry point `" + pluginSpec + "'", ex);
-                } catch (java.lang.ClassNotFoundException ex) {
+                } catch (ClassNotFoundException ex) {
                     // Ignored
                 }
             } else {

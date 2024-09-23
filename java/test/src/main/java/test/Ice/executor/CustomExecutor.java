@@ -27,7 +27,7 @@ public class CustomExecutor
                 if (!_terminated && _calls.isEmpty()) {
                     try {
                         wait();
-                    } catch (java.lang.InterruptedException ex) {
+                    } catch (InterruptedException ex) {
                     }
                 }
 
@@ -74,7 +74,7 @@ public class CustomExecutor
             try {
                 _thread.join();
                 break;
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
         }
     }

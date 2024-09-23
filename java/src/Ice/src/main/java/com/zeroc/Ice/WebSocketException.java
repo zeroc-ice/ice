@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 // TODO: should this derive from 'LocalException'?
-final class WebSocketException extends java.lang.RuntimeException {
+final class WebSocketException extends RuntimeException {
     public WebSocketException(String reason) {
         super(reason);
     }

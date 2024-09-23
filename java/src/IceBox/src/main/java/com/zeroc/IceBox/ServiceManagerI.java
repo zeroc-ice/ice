@@ -390,7 +390,7 @@ public class ServiceManagerI implements ServiceManager {
                 throw new FailureException(
                         "ServiceManager: invalid path in plug-in entry point `" + classDir + "'",
                         ex);
-            } catch (java.lang.ClassNotFoundException ex) {
+            } catch (ClassNotFoundException ex) {
                 // Ignored
             }
         } else {
@@ -573,7 +573,7 @@ public class ServiceManagerI implements ServiceManager {
         while (_pendingStatusChanges) {
             try {
                 wait();
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
         }
 

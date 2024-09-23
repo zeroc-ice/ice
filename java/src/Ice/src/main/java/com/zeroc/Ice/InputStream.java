@@ -2999,7 +2999,7 @@ public class InputStream {
                     return c;
                 }
                 throw new ClassNotFoundException("unable to resolve class" + cls.getName());
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 throw new ClassNotFoundException("unable to resolve class " + cls.getName(), ex);
             }
         }

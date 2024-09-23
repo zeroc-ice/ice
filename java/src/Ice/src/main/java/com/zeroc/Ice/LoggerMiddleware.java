@@ -57,7 +57,7 @@ final class LoggerMiddleware implements Object {
                 warning(ex.toString(), request.current);
             }
             throw ex;
-        } catch (RuntimeException | java.lang.Error ex) {
+        } catch (RuntimeException | Error ex) {
             warning(ex.toString(), request.current);
             throw ex;
         }

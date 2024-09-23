@@ -6,8 +6,7 @@ package com.zeroc.Ice;
 
 final class ValueFactoryManagerI implements ValueFactoryManager {
     public synchronized void add(ValueFactory factory, String id) {
-        Object o = _factoryMap.get(id);
-        if (o != null) {
+        if (_factoryMap.containsKey(id)) {
             throw new AlreadyRegisteredException("value factory", id);
         }
         _factoryMap.put(id, factory);

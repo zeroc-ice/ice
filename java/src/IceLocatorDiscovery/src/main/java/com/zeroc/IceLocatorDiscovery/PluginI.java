@@ -199,7 +199,7 @@ class PluginI implements Plugin {
                         }
                     }
                 }
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
                 throw new com.zeroc.Ice.OperationInterruptedException();
             }
 

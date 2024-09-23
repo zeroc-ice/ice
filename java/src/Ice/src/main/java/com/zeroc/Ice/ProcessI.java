@@ -4,7 +4,7 @@
 
 package com.zeroc.Ice;
 
-class ProcessI implements Process {
+class ProcessI implements com.zeroc.Ice.Process {
     public ProcessI(Communicator communicator) {
         _communicator = communicator;
     }

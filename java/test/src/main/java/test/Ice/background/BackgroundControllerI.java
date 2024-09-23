@@ -23,7 +23,7 @@ class BackgroundControllerI implements BackgroundController {
             try {
                 wait();
                 break;
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
         }
     }

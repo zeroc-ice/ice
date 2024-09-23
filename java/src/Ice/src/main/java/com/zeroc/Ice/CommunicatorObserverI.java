@@ -4,12 +4,27 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.*;
-import com.zeroc.Ice.Instrumentation.*;
+import com.zeroc.Ice.IceMX.ConnectionMetrics;
+import com.zeroc.Ice.IceMX.DispatchMetrics;
+import com.zeroc.Ice.IceMX.InvocationMetrics;
+import com.zeroc.Ice.IceMX.Metrics;
+import com.zeroc.Ice.IceMX.MetricsHelper;
+import com.zeroc.Ice.IceMX.ThreadMetrics;
+import com.zeroc.Ice.IceMX.ObserverFactoryWithDelegate;
+import com.zeroc.Ice.IceMX.ObserverWithDelegateI;
+
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
+import com.zeroc.Ice.Instrumentation.ConnectionObserver;
+import com.zeroc.Ice.Instrumentation.ConnectionState;
+import com.zeroc.Ice.Instrumentation.DispatchObserver;
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+import com.zeroc.Ice.Instrumentation.Observer;
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
+import com.zeroc.Ice.Instrumentation.ThreadState;
 
 class CommunicatorObserverI implements CommunicatorObserver {
     static void addEndpointAttributes(MetricsHelper.AttributeResolver r, Class<?> cl)
-            throws Exception {
+            throws java.lang.Exception {
         r.add("endpoint", cl.getDeclaredMethod("getEndpoint"));
 
         Class<?> cli = EndpointInfo.class;
@@ -46,7 +61,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
     }
 
     static void addConnectionAttributes(MetricsHelper.AttributeResolver r, Class<?> cl)
-            throws Exception {
+            throws java.lang.Exception {
         Class<?> cli = ConnectionInfo.class;
         r.add(
                 "incoming",
@@ -101,7 +116,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                             add("id", ConnectionHelper.class.getDeclaredMethod("getId"));
                             add("state", ConnectionHelper.class.getDeclaredMethod("getState"));
                             addConnectionAttributes(this, ConnectionHelper.class);
-                        } catch (Exception ex) {
+                        } catch (java.lang.Exception ex) {
                             ex.printStackTrace();
                             assert (false);
                         }
@@ -217,7 +232,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                                     cl.getDeclaredMethod("getCurrent"),
                                     clc.getDeclaredField("requestId"));
                             add("mode", cl.getDeclaredMethod("getMode"));
-                        } catch (Exception ex) {
+                        } catch (java.lang.Exception ex) {
                             ex.printStackTrace();
                             assert (false);
                         }
@@ -329,7 +344,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                             add("encoding", cl.getDeclaredMethod("getEncodingVersion"));
                             add("mode", cl.getDeclaredMethod("getMode"));
                             add("proxy", cl.getDeclaredMethod("getProxy"));
-                        } catch (Exception ex) {
+                        } catch (java.lang.Exception ex) {
                             ex.printStackTrace();
                             assert (false);
                         }
@@ -383,7 +398,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                                 .append(" [")
                                 .append(_operation)
                                 .append(']');
-                    } catch (Exception ex) {
+                    } catch (java.lang.Exception ex) {
                         // Either a fixed proxy or the communicator is destroyed.
                         os.append(
                                 _proxy.ice_getCommunicator()
@@ -437,7 +452,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                         try {
                             add("parent", ThreadHelper.class.getDeclaredField("_parent"));
                             add("id", ThreadHelper.class.getDeclaredField("_id"));
-                        } catch (Exception ex) {
+                        } catch (java.lang.Exception ex) {
                             assert (false);
                         }
                     }
@@ -480,7 +495,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                             add("parent", EndpointHelper.class.getDeclaredMethod("getParent"));
                             add("id", EndpointHelper.class.getDeclaredMethod("getId"));
                             addEndpointAttributes(this, EndpointHelper.class);
-                        } catch (Exception ex) {
+                        } catch (java.lang.Exception ex) {
                             ex.printStackTrace();
                             assert (false);
                         }
@@ -565,13 +580,13 @@ class CommunicatorObserverI implements CommunicatorObserver {
         try {
             _invocations.registerSubMap(
                     "Remote",
-                    RemoteMetrics.class,
+                    com.zeroc.Ice.IceMX.RemoteMetrics.class,
                     InvocationMetrics.class.getDeclaredField("remotes"));
             _invocations.registerSubMap(
                     "Collocated",
-                    CollocatedMetrics.class,
+                    com.zeroc.Ice.IceMX.CollocatedMetrics.class,
                     InvocationMetrics.class.getDeclaredField("collocated"));
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             assert (false);
         }
     }
@@ -588,7 +603,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                         new EndpointHelper(endpt, connector),
                         ObserverWithDelegateI.class,
                         delegate);
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 _metrics.getLogger()
                         .error(
                                 "unexpected exception trying to obtain observer:\n"
@@ -608,7 +623,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                 }
                 return _endpointLookups.getObserver(
                         new EndpointHelper(endpt), ObserverWithDelegateI.class, delegate);
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 _metrics.getLogger()
                         .error(
                                 "unexpected exception trying to obtain observer:\n"
@@ -634,7 +649,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                 }
                 return _connections.getObserver(
                         new ConnectionHelper(c, e, s), o, ConnectionObserverI.class, delegate);
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 _metrics.getLogger()
                         .error(
                                 "unexpected exception trying to obtain observer:\n"
@@ -658,7 +673,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                 }
                 return _threads.getObserver(
                         new ThreadHelper(parent, id, s), o, ThreadObserverI.class, delegate);
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 _metrics.getLogger()
                         .error(
                                 "unexpected exception trying to obtain observer:\n"
@@ -683,7 +698,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                         new InvocationHelper(prx, operation, ctx),
                         InvocationObserverI.class,
                         delegate);
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 _metrics.getLogger()
                         .error(
                                 "unexpected exception trying to obtain observer:\n"
@@ -703,7 +718,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
                 }
                 return _dispatch.getObserver(
                         new DispatchHelper(c, size), DispatchObserverI.class, delegate);
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 _metrics.getLogger()
                         .error(
                                 "unexpected exception trying to obtain observer:\n"
@@ -714,7 +729,7 @@ class CommunicatorObserverI implements CommunicatorObserver {
     }
 
     @Override
-    public void setObserverUpdater(final ObserverUpdater updater) {
+    public void setObserverUpdater(final com.zeroc.Ice.Instrumentation.ObserverUpdater updater) {
         if (updater == null) {
             _connections.setUpdater(null);
             _threads.setUpdater(null);

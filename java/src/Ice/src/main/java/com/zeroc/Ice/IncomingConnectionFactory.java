@@ -12,7 +12,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
         try {
             createAcceptor();
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             String s =
                     "acceptor creation failed:\n"
                             + ex.getCause().getMessage()
@@ -588,7 +588,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             }
 
             _acceptorStarted = true;
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             if (_acceptor != null) {
                 _acceptor.close();
             }

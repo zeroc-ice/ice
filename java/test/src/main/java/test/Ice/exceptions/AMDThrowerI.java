@@ -162,7 +162,7 @@ public final class AMDThrowerI implements Thrower {
 
     @Override
     public CompletionStage<Void> throwAssertExceptionAsync(com.zeroc.Ice.Current current) {
-        throw new java.lang.AssertionError();
+        throw new AssertionError();
     }
 
     @Override

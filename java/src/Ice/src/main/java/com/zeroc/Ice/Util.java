@@ -484,7 +484,7 @@ public final class Util {
      * @return The Ice encoding version.
      */
     public static EncodingVersion currentEncoding() {
-        return .Protocol.currentEncoding.clone();
+        return Protocol.currentEncoding.clone();
     }
 
     /**
@@ -640,7 +640,7 @@ public final class Util {
                 if (cl != null) {
                     c = loadClass(className, cl);
                 }
-            } catch (SecurityException ex) {
+            } catch (java.lang.SecurityException ex) {
             }
         }
 
@@ -664,7 +664,7 @@ public final class Util {
                 if (cl != null) {
                     c = loadClass(className, cl);
                 }
-            } catch (SecurityException ex) {
+            } catch (java.lang.SecurityException ex) {
             }
         }
 

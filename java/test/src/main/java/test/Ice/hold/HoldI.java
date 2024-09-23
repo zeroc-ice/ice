@@ -68,7 +68,7 @@ public final class HoldI implements Hold {
     public int set(int value, int delay, com.zeroc.Ice.Current current) {
         try {
             Thread.sleep(delay);
-        } catch (java.lang.InterruptedException ex) {
+        } catch (InterruptedException ex) {
         }
 
         synchronized (this) {

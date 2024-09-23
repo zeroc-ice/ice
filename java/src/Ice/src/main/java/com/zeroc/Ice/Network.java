@@ -67,7 +67,7 @@ public final class Network {
         return false;
     }
 
-    public static boolean noMoreFds(java.lang.Throwable ex) {
+    public static boolean noMoreFds(Throwable ex) {
         String msg = ex.getMessage();
         if (msg != null) {
             msg = msg.toLowerCase();
@@ -156,7 +156,7 @@ public final class Network {
             if (iface != null) {
                 return iface;
             }
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
         }
         try {
             iface =
@@ -165,7 +165,7 @@ public final class Network {
             if (iface != null) {
                 return iface;
             }
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
         }
         throw new IllegalArgumentException("couldn't find interface `" + intf + "'");
     }
@@ -173,7 +173,7 @@ public final class Network {
     public static void setMcastInterface(java.nio.channels.DatagramChannel fd, String intf) {
         try {
             fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_IF, getInterface(intf));
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             throw new SocketException(ex);
         }
     }
@@ -189,7 +189,7 @@ public final class Network {
                     fd.joinGroup(group, intf2);
                 }
             }
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             throw new SocketException(ex);
         }
     }
@@ -205,7 +205,7 @@ public final class Network {
                     fd.join(group.getAddress(), intf2);
                 }
             }
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             throw new SocketException(ex);
         }
     }
@@ -213,7 +213,7 @@ public final class Network {
     public static void setMcastTtl(java.nio.channels.DatagramChannel fd, int ttl) {
         try {
             fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_TTL, ttl);
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             throw new SocketException(ex);
         }
     }

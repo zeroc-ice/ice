@@ -2263,7 +2263,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
         } catch (LocalException ex) {
             dispatchException(ex, requestCount);
-        } catch (RuntimeException | java.lang.Error ex) {
+        } catch (RuntimeException | Error ex) {
             // A runtime exception or an error was thrown outside of servant code (i.e., by Ice
             // code).
             // Note that this code does NOT send a response to the client.

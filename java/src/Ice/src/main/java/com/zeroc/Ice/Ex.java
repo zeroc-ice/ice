@@ -19,7 +19,7 @@ class Ex {
         String expected;
         try {
             expected = (String) expectedType.getMethod("ice_staticId").invoke(null);
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             expected = "";
             assert (false);
         }
@@ -62,7 +62,7 @@ class Ex {
     //
     // A small utility to get the stack trace of the exception (which also includes toString()).
     //
-    public static String toString(java.lang.Throwable ex) {
+    public static String toString(Throwable ex) {
         java.io.StringWriter sw = new java.io.StringWriter();
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
         ex.printStackTrace(pw);

@@ -50,7 +50,7 @@ class MetricsViewI {
 
         try {
             _maps.put(mapName, factory.create(mapPrefix, properties));
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             logger.warning("unexpected exception while creating metrics map:\n" + ex);
             _maps.remove(mapName);
         }

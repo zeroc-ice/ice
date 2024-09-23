@@ -107,7 +107,7 @@ public class AllTests {
                     _background.op();
                     try {
                         Thread.sleep(1);
-                    } catch (java.lang.InterruptedException ex) {
+                    } catch (InterruptedException ex) {
                     }
                 } catch (com.zeroc.Ice.LocalException ex) {
                 }
@@ -336,7 +336,7 @@ public class AllTests {
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
             configuration.connectException(null);
             try {
@@ -478,7 +478,7 @@ public class AllTests {
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
             configuration.initializeException(null);
             try {
@@ -508,7 +508,7 @@ public class AllTests {
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
             ctl.initializeException(false);
             try {
@@ -1024,7 +1024,7 @@ public class AllTests {
 
             try {
                 Thread.sleep(10);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
             configuration.writeException(new com.zeroc.Ice.SocketException());
             try {
@@ -1035,14 +1035,14 @@ public class AllTests {
 
             try {
                 Thread.sleep(10);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
 
             background.ice_ping();
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
 
             background.ice_getCachedConnection().abort();

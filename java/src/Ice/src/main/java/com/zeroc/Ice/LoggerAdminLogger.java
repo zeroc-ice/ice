@@ -5,7 +5,7 @@
 package com.zeroc.Ice;
 
 interface LoggerAdminLogger extends Logger {
-    Object getFacet();
+    com.zeroc.Ice.Object getFacet();
 
     void destroy();
 }

@@ -7,7 +7,7 @@ package com.zeroc.Ice;
 /**
  * @hidden Kept public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */
-public abstract class EndpointI implements Endpoint, java.lang.Comparable<EndpointI> {
+public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
     public class ExpandHostResult {
         public EndpointI publish;
         public java.util.List<EndpointI> endpoints;

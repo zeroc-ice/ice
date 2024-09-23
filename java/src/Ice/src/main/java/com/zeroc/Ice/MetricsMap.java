@@ -4,6 +4,7 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.MetricsMap.SubMap;
 import com.zeroc.Ice.IceMX.Metrics;
 import com.zeroc.Ice.IceMX.MetricsFailures;
 import com.zeroc.Ice.IceMX.MetricsHelper;
@@ -117,7 +118,7 @@ public class MetricsMap<T extends Metrics> {
         public void addSubMapToMetrics(Metrics metrics) {
             try {
                 _field.set(metrics, _map.getMetrics());
-            } catch (Exception ex) {
+            } catch (java.lang.Exception ex) {
                 assert (false);
             }
         }
@@ -314,7 +315,7 @@ public class MetricsMap<T extends Metrics> {
                 }
                 key = os.toString();
             }
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             return null;
         }
 
@@ -334,7 +335,7 @@ public class MetricsMap<T extends Metrics> {
                     t.id = key;
                     e = new Entry(t);
                     _objects.put(key, e);
-                } catch (Exception ex) {
+                } catch (java.lang.Exception ex) {
                     assert (false);
                 }
             }
@@ -390,7 +391,7 @@ public class MetricsMap<T extends Metrics> {
         String value;
         try {
             value = helper.resolve(attribute);
-        } catch (Exception ex) {
+        } catch (java.lang.Exception ex) {
             return !reject;
         }
         return regex.matcher(value).matches();

@@ -412,7 +412,7 @@ public class ControllerApp extends Application
                         throw new Test.Common.ProcessFailedException("timed out waiting for the process to be ready");
                     }
                 }
-                catch(java.lang.InterruptedException ex)
+                catch(InterruptedException ex)
                 {
                     // Ignore and try again.
                 }
@@ -438,7 +438,7 @@ public class ControllerApp extends Application
                         throw new Test.Common.ProcessFailedException("timed out waiting for the process to be ready");
                     }
                 }
-                catch(java.lang.InterruptedException ex)
+                catch(InterruptedException ex)
                 {
                     // Ignore and try again.
                 }

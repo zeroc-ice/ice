@@ -4,7 +4,7 @@
 
 package com.zeroc.Ice;
 
-class RetryException extends Exception {
+class RetryException extends java.lang.Exception {
     public RetryException(LocalException ex) {
         _ex = ex;
     }
