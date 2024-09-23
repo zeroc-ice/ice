@@ -255,15 +255,9 @@ internal sealed class PluginManagerI : PluginManager
         //
         // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
         //
-        while (plugins.Count > 0)
+        foreach (var entry in plugins)
         {
-            IEnumerator<KeyValuePair<string, string>> p = plugins.GetEnumerator();
-            p.MoveNext();
-            string key = p.Current.Key;
-            string val = p.Current.Value;
-            string name = key.Substring(prefix.Length);
-            plugins.Remove(key);
-            loadPlugin(name, val, ref cmdArgs);
+            loadPlugin(entry.Key.Substring(prefix.Length), entry.Value, ref cmdArgs);
         }
     }
 

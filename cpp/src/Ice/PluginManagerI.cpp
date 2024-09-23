@@ -293,14 +293,10 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
     //
 
-    while (!plugins.empty())
+    for (const auto& [key, value] : plugins)
     {
-        PropertyDict::iterator p = plugins.begin();
-        string name = p->first.substr(prefix.size());
-        loadPlugin(name, p->second, cmdArgs);
-        plugins.erase(p);
+        loadPlugin(key.substr(prefix.size()), value, cmdArgs);
     }
-
     stringSeqToArgs(cmdArgs, argc, argv);
 }
 

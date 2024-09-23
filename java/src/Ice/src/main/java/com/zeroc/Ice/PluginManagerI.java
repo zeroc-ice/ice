@@ -165,15 +165,10 @@ public final class PluginManagerI implements PluginManager {
         //
         // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
         //
-        while (!plugins.isEmpty()) {
-            java.util.Iterator<java.util.Map.Entry<String, String>> p =
-                    plugins.entrySet().iterator();
-            java.util.Map.Entry<String, String> entry = p.next();
-
-            String name = entry.getKey().substring(prefix.length());
-            String value = entry.getValue();
-            p.remove();
-            cmdArgs = loadPlugin(name, value, cmdArgs);
+        for (var entry : plugins.entrySet()) {
+            cmdArgs =
+                    loadPlugin(
+                            entry.getKey().substring(prefix.length()), entry.getValue(), cmdArgs);
         }
 
         return cmdArgs;
