@@ -109,13 +109,9 @@ module IceGrid
         AdminSession* createAdminSessionFromSecureConnection()
             throws PermissionDeniedException;
 
-        /// Get the idle timeout used by IceGrid for its side of the connection.
-        /// @return The idle timeout (in seconds).
+        /// TODO: update description or remove operation
+        /// @return The session timeout (in seconds).
         ["cpp:const"] idempotent int getSessionTimeout();
-
-        /// Get the idle timeout used by IceGrid for its side of the connection.
-        /// @return The idle timeout (in seconds).
-        ["cpp:const"] idempotent int getACMTimeout();
     }
 
     /// The IceGrid locator interface provides access to the {@link Query} and {@link Registry} object of the IceGrid

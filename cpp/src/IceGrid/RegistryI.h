@@ -49,7 +49,6 @@ namespace IceGrid
         std::optional<AdminSessionPrx> createAdminSessionFromSecureConnection(const Ice::Current&) override;
 
         int getSessionTimeout(const Ice::Current&) const override;
-        int getACMTimeout(const Ice::Current&) const override;
 
         std::string getName() const;
         RegistryInfo getInfo() const;
