@@ -2,9 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Glacier2/NullPermissionsVerifier.h"
+#include "NullPermissionsVerifier.h"
 #include "Glacier2/PermissionsVerifier.h"
-#include "Ice/Ice.h"
 
 using namespace Ice;
 using namespace std;

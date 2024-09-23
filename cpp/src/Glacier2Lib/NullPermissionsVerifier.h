@@ -5,7 +5,7 @@
 #ifndef GLACIER2_NULL_PERMISSIONS_VERIFIER_H
 #define GLACIER2_NULL_PERMISSIONS_VERIFIER_H
 
-#include "Config.h"
+#include "Glacier2/Config.h"
 #include "Ice/Ice.h"
 
 #include <string>

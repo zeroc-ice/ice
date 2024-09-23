@@ -342,7 +342,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Glacier2\Config.h" />
     <ClInclude Include="..\..\..\..\include\Glacier2\Glacier2.h" />
-    <ClInclude Include="..\..\..\..\include\Glacier2\NullPermissionsVerifier.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\Glacier2.rc" />
