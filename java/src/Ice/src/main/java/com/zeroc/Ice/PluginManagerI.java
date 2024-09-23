@@ -135,7 +135,7 @@ public final class PluginManagerI implements PluginManager {
         // with the prefix "Ice.Plugin.". These properties should
         // have the following format:
         //
-        // Ice.Plugin.name[.<language>]=entry_point [args]
+        // Ice.Plugin.<name>=entry_point [args]
         //
         // If the Ice.PluginLoadOrder property is defined, load the
         // specified plug-ins in the specified order, then load any
@@ -151,15 +151,8 @@ public final class PluginManagerI implements PluginManager {
                 throw new PluginInitializationException("plug-in '" + name + "' already loaded");
             }
 
-            String key = "Ice.Plugin." + name + ".java";
+            String key = "Ice.Plugin." + name;
             boolean hasKey = plugins.containsKey(key);
-            if (hasKey) {
-                plugins.remove("Ice.Plugin." + name);
-            } else {
-                key = "Ice.Plugin." + name;
-                hasKey = plugins.containsKey(key);
-            }
-
             if (hasKey) {
                 final String value = plugins.get(key);
                 cmdArgs = loadPlugin(name, value, cmdArgs);
@@ -172,52 +165,10 @@ public final class PluginManagerI implements PluginManager {
         //
         // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
         //
-        while (!plugins.isEmpty()) {
-            java.util.Iterator<java.util.Map.Entry<String, String>> p =
-                    plugins.entrySet().iterator();
-            java.util.Map.Entry<String, String> entry = p.next();
-
-            String name = entry.getKey().substring(prefix.length());
-
-            int dotPos = name.lastIndexOf('.');
-            if (dotPos != -1) {
-                String suffix = name.substring(dotPos + 1);
-                if (suffix.equals("cpp") || suffix.equals("clr")) {
-                    //
-                    // Ignored
-                    //
-                    p.remove();
-                } else if (suffix.equals("java")) {
-                    name = name.substring(0, dotPos);
-                    cmdArgs = loadPlugin(name, entry.getValue(), cmdArgs);
-                    p.remove();
-
-                    //
-                    // Don't want to load this one if it's there!
-                    //
-                    plugins.remove("Ice.Plugin." + name);
-                } else {
-                    //
-                    // Name is just a regular name that happens to contain a dot
-                    //
-                    dotPos = -1;
-                }
-            }
-
-            if (dotPos == -1) {
-                //
-                // Is there a .java entry?
-                //
-                String value = entry.getValue();
-                p.remove();
-
-                String javaValue = plugins.remove("Ice.Plugin." + name + ".java");
-                if (javaValue != null) {
-                    value = javaValue;
-                }
-
-                cmdArgs = loadPlugin(name, value, cmdArgs);
-            }
+        for (var entry : plugins.entrySet()) {
+            cmdArgs =
+                    loadPlugin(
+                            entry.getKey().substring(prefix.length()), entry.getValue(), cmdArgs);
         }
 
         return cmdArgs;

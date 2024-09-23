@@ -242,16 +242,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         for (vector<string>::const_iterator p = loadOnInitialization->begin(); p != loadOnInitialization->end(); ++p)
         {
             string property = prefix + *p;
-            PropertyDict::iterator r = plugins.find(property + ".cpp");
-            if (r == plugins.end())
-            {
-                r = plugins.find(property);
-            }
-            else
-            {
-                plugins.erase(property);
-            }
-
+            PropertyDict::iterator r = plugins.find(property);
             if (r != plugins.end())
             {
                 loadPlugin(*p, r->second, cmdArgs);
@@ -269,7 +260,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // set with the prefix "Ice.Plugin.". These properties should have
     // the following format:
     //
-    // Ice.Plugin.name[.<language>]=entry_point [args]
+    // Ice.Plugin.<name>=entry_point [args]
     //
     // If the Ice.PluginLoadOrder property is defined, load the
     // specified plug-ins in the specified order, then load any
@@ -286,16 +277,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         }
 
         string property = prefix + name;
-        PropertyDict::iterator r = plugins.find(property + ".cpp");
-        if (r == plugins.end())
-        {
-            r = plugins.find(property);
-        }
-        else
-        {
-            plugins.erase(property);
-        }
-
+        PropertyDict::iterator r = plugins.find(property);
         if (r != plugins.end())
         {
             loadPlugin(name, r->second, cmdArgs);
@@ -311,57 +293,10 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
     //
 
-    while (!plugins.empty())
+    for (const auto& [key, value] : plugins)
     {
-        PropertyDict::iterator p = plugins.begin();
-
-        string name = p->first.substr(prefix.size());
-
-        size_t dotPos = name.find_last_of('.');
-        if (dotPos != string::npos)
-        {
-            string suffix = name.substr(dotPos + 1);
-            if (suffix == "java" || suffix == "clr")
-            {
-                //
-                // Ignored
-                //
-                plugins.erase(p);
-            }
-            else if (suffix == "cpp")
-            {
-                name = name.substr(0, dotPos);
-                loadPlugin(name, p->second, cmdArgs);
-                plugins.erase(p);
-
-                plugins.erase(prefix + name);
-            }
-            else
-            {
-                //
-                // Name is just a regular name that happens to contain a dot
-                //
-                dotPos = string::npos;
-            }
-        }
-
-        if (dotPos == string::npos)
-        {
-            //
-            // Is there a .cpp entry?
-            //
-            PropertyDict::iterator q = plugins.find(prefix + name + ".cpp");
-            if (q != plugins.end())
-            {
-                plugins.erase(p);
-                p = q;
-            }
-
-            loadPlugin(name, p->second, cmdArgs);
-            plugins.erase(p);
-        }
+        loadPlugin(key.substr(prefix.size()), value, cmdArgs);
     }
-
     stringSeqToArgs(cmdArgs, argc, argv);
 }
 

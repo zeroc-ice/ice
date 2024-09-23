@@ -1087,14 +1087,6 @@ RegistryI::getSessionTimeout(const Ice::Current&) const
     return secondsToInt(_sessionTimeout);
 }
 
-int
-RegistryI::getACMTimeout(const Ice::Current&) const
-{
-    auto properties = _communicator->getProperties();
-    int idleTimeout = properties->getIcePropertyAsInt("Ice.Connection.Server.IdleTimeout");
-    return properties->getPropertyAsIntWithDefault("IceGrid.Registry.Client.Connection.IdleTimeout", idleTimeout);
-}
-
 string
 RegistryI::getName() const
 {
