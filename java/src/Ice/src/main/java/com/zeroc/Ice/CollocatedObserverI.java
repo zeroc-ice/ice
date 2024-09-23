@@ -7,7 +7,10 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.IceMX.CollocatedMetrics;
 import com.zeroc.Ice.Instrumentation.CollocatedObserver;
 
-class CollocatedObserverI
+/**
+ * @hidden Kept public because it's used by IceMX (via reflection).
+ */
+public class CollocatedObserverI
         extends com.zeroc.Ice.IceMX.ObserverWithDelegate<CollocatedMetrics, CollocatedObserver>
         implements CollocatedObserver {
     @Override

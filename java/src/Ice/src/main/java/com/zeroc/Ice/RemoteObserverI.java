@@ -7,7 +7,10 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.IceMX.RemoteMetrics;
 import com.zeroc.Ice.Instrumentation.RemoteObserver;
 
-class RemoteObserverI
+/**
+ * @hidden Kept public because it's used by IceMX (via reflection).
+ */
+public class RemoteObserverI
         extends com.zeroc.Ice.IceMX.ObserverWithDelegate<RemoteMetrics, RemoteObserver>
         implements RemoteObserver {
     @Override

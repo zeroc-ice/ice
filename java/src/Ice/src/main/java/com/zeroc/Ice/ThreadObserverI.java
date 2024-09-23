@@ -8,7 +8,10 @@ import com.zeroc.Ice.IceMX.ThreadMetrics;
 import com.zeroc.Ice.Instrumentation.ThreadObserver;
 import com.zeroc.Ice.Instrumentation.ThreadState;
 
-class ThreadObserverI
+/**
+ * @hidden Kept public because it's used by IceMX (via reflection).
+ */
+public class ThreadObserverI
         extends com.zeroc.Ice.IceMX.ObserverWithDelegate<ThreadMetrics, ThreadObserver>
         implements ThreadObserver {
     @Override

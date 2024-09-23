@@ -8,7 +8,10 @@ import com.zeroc.Ice.IceMX.ConnectionMetrics;
 import com.zeroc.Ice.IceMX.ObserverWithDelegate;
 import com.zeroc.Ice.Instrumentation.ConnectionObserver;
 
-class ConnectionObserverI extends ObserverWithDelegate<ConnectionMetrics, ConnectionObserver>
+/**
+ * @hidden Kept public because it's used by IceMX (via reflection).
+ */
+public class ConnectionObserverI extends ObserverWithDelegate<ConnectionMetrics, ConnectionObserver>
         implements ConnectionObserver {
     @Override
     public void sentBytes(final int num) {

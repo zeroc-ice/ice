@@ -21,7 +21,10 @@ import com.zeroc.Ice.Instrumentation.Observer;
 import com.zeroc.Ice.Instrumentation.ThreadObserver;
 import com.zeroc.Ice.Instrumentation.ThreadState;
 
-class CommunicatorObserverI implements CommunicatorObserver {
+/**
+ * @hidden Kept public because it's used by IceMX (via reflection).
+ */
+public class CommunicatorObserverI implements CommunicatorObserver {
     static void addEndpointAttributes(MetricsHelper.AttributeResolver r, Class<?> cl)
             throws java.lang.Exception {
         r.add("endpoint", cl.getDeclaredMethod("getEndpoint"));

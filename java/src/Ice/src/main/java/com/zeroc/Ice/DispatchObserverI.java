@@ -8,7 +8,10 @@ import com.zeroc.Ice.IceMX.DispatchMetrics;
 import com.zeroc.Ice.IceMX.ObserverWithDelegate;
 import com.zeroc.Ice.Instrumentation.DispatchObserver;
 
-class DispatchObserverI extends ObserverWithDelegate<DispatchMetrics, DispatchObserver>
+/**
+ * @hidden Kept public because it's used by IceMX (via reflection).
+ */
+public class DispatchObserverI extends ObserverWithDelegate<DispatchMetrics, DispatchObserver>
         implements DispatchObserver {
     @Override
     public void userException() {
