@@ -19,8 +19,14 @@
 #include <Ice/LocalException.h>
 #include <Ice/UniquePtr.h>
 
-#ifndef ICE_CPP11_MAPPING
-#    include <Ice/AsyncResult.h>
+#ifdef ICE_CPP11_MAPPING
+#   ifdef __clang__
+#       pragma clang diagnostic push
+        // See #2747
+#       pragma clang diagnostic ignored "-Wshadow-uncaptured-local"
+#   endif
+#else
+#   include <Ice/AsyncResult.h>
 #endif
 
 #include <exception>
@@ -851,6 +857,12 @@ newCallback(T* instance,
 // Operation callbacks are specified in Proxy.h
 //
 
+#endif
+
+#ifdef ICE_CPP11_MAPPING
+#   ifdef __clang__
+#       pragma clang diagnostic pop
+#   endif
 #endif
 
 #endif
