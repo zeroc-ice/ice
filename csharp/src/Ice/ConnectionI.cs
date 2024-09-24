@@ -995,13 +995,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                     if (upcallCount == 0)
                     {
-                        return; // Nothing to dispatch we're done!
+                        return; // Nothing to execute, we're done!
                     }
 
                     _upcallCount += upcallCount;
 
-                    // There's something to dispatch so we mark IO as completed to elect a new leader thread and let IO
-                    // be performed on this new leader thread while this thread continues with dispatching the up-calls.
+                    // There's something to execute so we mark IO as completed to elect a new leader thread and let IO
+                    // be performed on this new leader thread while this thread continues with executing the upcalls.
                     msg.ioCompleted();
                 }
                 catch (DatagramLimitException) // Expected.
@@ -2980,7 +2980,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private int _readStreamPos;
     private int _writeStreamPos;
 
-    // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, etc.).
+    // An upcall corresponds to application code that the connection executes in a thread of its associated thread pool.
+    // While most upcalls complete synchronously, dispatches are upcalls that can complete asynchronously in another
+    // thread (typically not an Ice thread pool thread). Upcalls include dispatches, AMI (response) continuations,
+    // sent callbacks, and close callbacks.
     private int _upcallCount;
 
     // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.

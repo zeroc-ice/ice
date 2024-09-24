@@ -393,7 +393,10 @@ namespace Ice
 
         Observer _observer;
 
-        // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, ...)
+        // An upcall corresponds to application code that the connection executes in a thread of its associated thread
+        // pool. While most upcalls complete synchronously, dispatches are upcalls that can complete asynchronously in
+        // another thread (typically not an Ice thread pool thread). Upcalls include dispatches, AMI (response)
+        // continuations, sent callbacks, and close callbacks.
         int _upcallCount;
 
         // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.

@@ -5,6 +5,14 @@
 package com.zeroc.Ice;
 
 import com.zeroc.Ice.Instrumentation.ConnectionState;
+import com.zeroc.Ice.SSL.Instance;
+import com.zeroc.IceInternal.RetryException;
+import com.zeroc.IceInternal.RunnableThreadPoolWorkItem;
+import com.zeroc.IceInternal.SocketOperation;
+import com.zeroc.IceInternal.ThreadPool;
+import com.zeroc.IceInternal.TraceLevels;
+import com.zeroc.IceInternal.Transceiver;
+import com.zeroc.IceUtilInternal.Assert;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -2704,8 +2712,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     private int _readStreamPos;
     private int _writeStreamPos;
 
-    // The number of user calls currently executed by the thread-pool (servant dispatch, invocation
-    // response, etc.).
+    // An upcall corresponds to application code that the connection executes in a thread of its
+    // associated thread pool. While most upcalls complete synchronously, dispatches are upcalls
+    // that can complete asynchronously in another thread (typically not an Ice thread pool thread).
+    // Upcalls include dispatches, AMI (response) continuations, sent callbacks, and close
+    // callbacks.
     private int _upcallCount;
 
     // The number of outstanding dispatches. Maintained only while state is StateActive or
