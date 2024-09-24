@@ -90,24 +90,18 @@ namespace Slice
 
         std::string typeToString(const TypePtr&, const ContainedPtr&, const StringList& = StringList(), bool = false);
 
-        std::string getAbsolute(const TypePtr&);
-        std::string getAbsolute(const ClassDeclPtr&);
-        std::string getAbsolute(const ClassDefPtr&);
-        std::string getAbsolute(const InterfaceDeclPtr&);
-        std::string getAbsolute(const InterfaceDefPtr&);
-        std::string getAbsolute(const StructPtr&);
-        std::string getAbsolute(const ExceptionPtr&);
-        std::string getAbsolute(const EnumPtr&);
-        std::string getAbsolute(const ConstPtr&);
-        std::string getAbsolute(const SequencePtr&);
-        std::string getAbsolute(const DictionaryPtr&);
-
         std::string getUnqualified(const std::string&, const std::string&);
         std::string modeToString(Operation::Mode);
         std::string getOptionalFormat(const TypePtr&);
 
         static bool isNullableType(const TypePtr&);
         bool isProxyType(const TypePtr&);
+
+        /// Returns a string representing the Swift type `contained` maps to.
+        ///
+        /// If `currentModule` is _not_ provided, the type-string is fully qualified.
+        /// Otherwise, the type-string is qualified relative to `currentModule`.
+        std::string getRelativeTypeString(const ContainedPtr& contained, const std::string& currentModule = "");
 
         std::string getValue(const std::string&, const TypePtr&);
         void writeConstantValue(
