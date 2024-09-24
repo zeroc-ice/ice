@@ -1816,7 +1816,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             Util.currentProtocol.ice_writeMembers(os);
             Util.currentProtocolEncoding.ice_writeMembers(os);
             os.writeByte(Protocol.closeConnectionMsg);
-            os.writeByte(BZip2.isLoaded ? (byte)1 : (byte)0);
+            os.writeByte(BZip2.isLoaded(_logger) ? (byte)1 : (byte)0);
             os.writeInt(Protocol.headerSize); // Message size.
 
             scheduleCloseTimer();
@@ -2191,7 +2191,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private OutputStream doCompress(OutputStream decompressed, bool compress)
     {
-        if (BZip2.isLoaded)
+        if (BZip2.isLoaded(_logger))
         {
             if (compress && decompressed.size() >= 100)
             {
@@ -2232,7 +2232,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
 
         decompressed.pos(9);
-        decompressed.writeByte((byte)((BZip2.isLoaded && compress) ? 1 : 0));
+        decompressed.writeByte((byte)((BZip2.isLoaded(_logger) && compress) ? 1 : 0));
 
         //
         // Not compressed, fill in the message size.
@@ -2276,7 +2276,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             info.compress = info.stream.readByte();
             if (info.compress == 2)
             {
-                if (BZip2.isLoaded)
+                if (BZip2.isLoaded(_logger))
                 {
                     Ice.Internal.Buffer ubuf = BZip2.decompress(
                         info.stream.getBuffer(),
