@@ -150,7 +150,7 @@ public abstract class TestHelper {
     }
 
     public static boolean isAndroid() {
-        return com.zeroc.IceInternal.Util.isAndroid();
+        return com.zeroc.Ice.Util.isAndroid();
     }
 
     public void setWriter(java.io.Writer writer) {

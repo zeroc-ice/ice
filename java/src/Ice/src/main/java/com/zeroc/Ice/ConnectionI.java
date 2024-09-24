@@ -5,20 +5,15 @@
 package com.zeroc.Ice;
 
 import com.zeroc.Ice.Instrumentation.ConnectionState;
-import com.zeroc.IceInternal.AsyncStatus;
-import com.zeroc.IceInternal.Buffer;
-import com.zeroc.IceInternal.IdleTimeoutTransceiverDecorator;
-import com.zeroc.IceInternal.OutgoingAsyncBase;
-import com.zeroc.IceInternal.Protocol;
-import com.zeroc.IceInternal.SocketOperation;
-import com.zeroc.IceInternal.TraceUtil;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
-        implements Connection, com.zeroc.IceInternal.CancellationHandler {
+/**
+ * @hidden Public because it's used by the 'Ice\metrics' test.
+ */
+public final class ConnectionI extends EventHandler implements Connection, CancellationHandler {
     public interface StartCallback {
         void connectionStartCompleted(ConnectionI connection);
 
@@ -279,7 +274,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     public synchronized int sendAsyncRequest(
             OutgoingAsyncBase out, boolean compress, boolean response, int batchRequestNum)
-            throws com.zeroc.IceInternal.RetryException {
+            throws RetryException {
         final OutputStream os = out.getOs();
 
         if (_exception != null) {
@@ -288,8 +283,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             // to send our request, we always try to send the request
             // again.
             //
-            throw new com.zeroc.IceInternal.RetryException(
-                    (LocalException) _exception.fillInStackTrace());
+            throw new RetryException((LocalException) _exception.fillInStackTrace());
         }
 
         assert (_state > StateNotValidated);
@@ -351,7 +345,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         return status;
     }
 
-    public com.zeroc.IceInternal.BatchRequestQueue getBatchRequestQueue() {
+    public BatchRequestQueue getBatchRequestQueue() {
         return _batchRequestQueue;
     }
 
@@ -366,10 +360,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         return _iceI_flushBatchRequestsAsync(compressBatch);
     }
 
-    private com.zeroc.IceInternal.ConnectionFlushBatch _iceI_flushBatchRequestsAsync(
-            CompressBatch compressBatch) {
-        com.zeroc.IceInternal.ConnectionFlushBatch f =
-                new com.zeroc.IceInternal.ConnectionFlushBatch(this, _communicator, _instance);
+    private ConnectionFlushBatch _iceI_flushBatchRequestsAsync(CompressBatch compressBatch) {
+        var f = new ConnectionFlushBatch(this, _communicator, _instance);
         f.invoke(compressBatch);
         return f;
     }
@@ -379,7 +371,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         if (_state >= StateClosed) {
             if (callback != null) {
                 _threadPool.dispatch(
-                        new com.zeroc.IceInternal.RunnableThreadPoolWorkItem(this) {
+                        new RunnableThreadPoolWorkItem(this) {
                             @Override
                             public void run() {
                                 try {
@@ -437,7 +429,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             }
         }
 
-        if (outAsync instanceof com.zeroc.IceInternal.OutgoingAsync) {
+        if (outAsync instanceof OutgoingAsync) {
             java.util.Iterator<OutgoingAsyncBase> it2 = _asyncRequests.values().iterator();
             while (it2.hasNext()) {
                 if (it2.next() == outAsync) {
@@ -459,12 +451,12 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         }
     }
 
-    public com.zeroc.IceInternal.EndpointI endpoint() {
+    public EndpointI endpoint() {
         return _endpoint; // No mutex protection necessary, _endpoint is
         // immutable.
     }
 
-    public com.zeroc.IceInternal.Connector connector() {
+    public Connector connector() {
         return _connector; // No mutex protection necessary, _connector is
         // immutable.
     }
@@ -514,7 +506,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
 
     public synchronized void setAdapterAndServantManager(
-            ObjectAdapter adapter, com.zeroc.IceInternal.ServantManager servantManager) {
+            ObjectAdapter adapter, ServantManager servantManager) {
         if (_state <= StateNotValidated || _state >= StateClosing) {
             return;
         }
@@ -527,7 +519,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     // Operations from EventHandler
     //
     @Override
-    public void message(com.zeroc.IceInternal.ThreadPoolCurrent current) {
+    public void message(ThreadPoolCurrent current) {
         StartCallback startCB = null;
         java.util.List<OutgoingMessage> sentCBs = null;
         MessageInfo info = null;
@@ -651,8 +643,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
                             // Resize the read buffer to the message size.
                             if (size > _messageSizeMax) {
-                                com.zeroc.IceInternal.Ex.throwMemoryLimitException(
-                                        size, _messageSizeMax);
+                                Ex.throwMemoryLimitException(size, _messageSizeMax);
                             }
                             if (size > _readStream.size()) {
                                 _readStream.resize(size);
@@ -807,7 +798,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             final java.util.List<OutgoingMessage> finalSentCBs = sentCBs;
             final MessageInfo finalInfo = info;
             _threadPool.executeFromThisThread(
-                    new com.zeroc.IceInternal.RunnableThreadPoolWorkItem(this) {
+                    new RunnableThreadPoolWorkItem(this) {
                         @Override
                         public void run() {
                             upcall(finalStartCB, finalSentCBs, finalInfo);
@@ -923,7 +914,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
 
     @Override
-    public void finished(com.zeroc.IceInternal.ThreadPoolCurrent current, final boolean close) {
+    public void finished(ThreadPoolCurrent current, final boolean close) {
         // Lock the connection here to ensure setState() completes before
         // the code below is executed. This method can be called by the
         // thread pool as soon as setState() calls _threadPool->finish(...).
@@ -970,7 +961,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             finish(close);
         } else {
             _threadPool.executeFromThisThread(
-                    new com.zeroc.IceInternal.RunnableThreadPoolWorkItem(this) {
+                    new RunnableThreadPoolWorkItem(this) {
                         @Override
                         public void run() {
                             finish(close);
@@ -1132,7 +1123,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
 
     @Override
-    public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback) {
+    public void setReadyCallback(ReadyCallback callback) {
         _transceiver.setReadyCallback(callback);
     }
 
@@ -1167,7 +1158,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         setState(StateClosed, ex);
     }
 
-    public com.zeroc.IceInternal.ThreadPool getThreadPool() {
+    public ThreadPool getThreadPool() {
         return _threadPool;
     }
 
@@ -1253,10 +1244,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     public ConnectionI(
             Communicator communicator,
-            com.zeroc.IceInternal.Instance instance,
-            com.zeroc.IceInternal.Transceiver transceiver,
-            com.zeroc.IceInternal.Connector connector,
-            com.zeroc.IceInternal.EndpointI endpoint,
+            Instance instance,
+            Transceiver transceiver,
+            Connector connector,
+            EndpointI endpoint,
             ObjectAdapter adapter,
             Consumer<ConnectionI> removeFromFactory, // can be null
             ConnectionOptions options) {
@@ -1285,8 +1276,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                         > 0;
         _nextRequestId = 1;
         _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
-        _batchRequestQueue =
-                new com.zeroc.IceInternal.BatchRequestQueue(instance, _endpoint.datagram());
+        _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
         _readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
         _readHeader = false;
         _readStreamPos = -1;
@@ -1342,11 +1332,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_startCallback == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_upcallCount == 0);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_sendStreams.isEmpty());
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_asyncRequests.isEmpty());
+            Assert.FinalizerAssert(_startCallback == null);
+            Assert.FinalizerAssert(_state == StateFinished);
+            Assert.FinalizerAssert(_upcallCount == 0);
+            Assert.FinalizerAssert(_sendStreams.isEmpty());
+            Assert.FinalizerAssert(_asyncRequests.isEmpty());
         } catch (java.lang.Exception ex) {
         } finally {
             super.finalize();
@@ -1980,7 +1970,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             // Don't check whether compression support is available unless the
             // proxy is configured for compression.
             //
-            compressionSupported = com.zeroc.IceInternal.BZip2.supported();
+            compressionSupported = BZip2.supported();
         }
 
         if (compressionSupported && uncompressed.size() >= 100) {
@@ -1988,7 +1978,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             // Do compression.
             //
             Buffer cbuf =
-                    com.zeroc.IceInternal.BZip2.compress(
+                    BZip2.compress(
                             uncompressed.getBuffer(), Protocol.headerSize, _compressionLevel);
             if (cbuf != null) {
                 OutputStream cstream =
@@ -2041,7 +2031,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         int invokeNum;
         int requestId;
         byte compress;
-        com.zeroc.IceInternal.ServantManager servantManager;
+        ServantManager servantManager;
         ObjectAdapter adapter;
         OutgoingAsyncBase outAsync;
         int messageDispatchCount;
@@ -2066,9 +2056,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             byte messageType = info.stream.readByte();
             info.compress = info.stream.readByte();
             if (info.compress == (byte) 2) {
-                if (com.zeroc.IceInternal.BZip2.supported()) {
+                if (BZip2.supported()) {
                     Buffer ubuf =
-                            com.zeroc.IceInternal.BZip2.uncompress(
+                            BZip2.uncompress(
                                     info.stream.getBuffer(), Protocol.headerSize, _messageSizeMax);
                     info.stream =
                             new InputStream(
@@ -2219,7 +2209,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             int requestCount,
             int requestId,
             byte compress,
-            com.zeroc.IceInternal.ServantManager servantManager,
+            ServantManager servantManager,
             ObjectAdapter adapter) {
 
         // Note: In contrast to other private or protected methods, this method must be called
@@ -2277,7 +2267,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
         } catch (LocalException ex) {
             dispatchException(ex, requestCount);
-        } catch (RuntimeException | java.lang.Error ex) {
+        } catch (RuntimeException | Error ex) {
             // A runtime exception or an error was thrown outside of servant code (i.e., by Ice
             // code).
             // Note that this code does NOT send a response to the client.
@@ -2651,22 +2641,21 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
 
     private Communicator _communicator;
-    private final com.zeroc.IceInternal.Instance _instance;
-    private final com.zeroc.IceInternal.Transceiver _transceiver;
-    private final com.zeroc.IceInternal.IdleTimeoutTransceiverDecorator
-            _idleTimeoutTransceiver; // can be null
+    private final Instance _instance;
+    private final Transceiver _transceiver;
+    private final IdleTimeoutTransceiverDecorator _idleTimeoutTransceiver; // can be null
     private String _desc;
     private final String _type;
-    private final com.zeroc.IceInternal.Connector _connector;
-    private final com.zeroc.IceInternal.EndpointI _endpoint;
+    private final Connector _connector;
+    private final EndpointI _endpoint;
 
     private ObjectAdapter _adapter;
-    private com.zeroc.IceInternal.ServantManager _servantManager;
+    private ServantManager _servantManager;
 
     private final boolean _executor;
     private final Logger _logger;
-    private final com.zeroc.IceInternal.TraceLevels _traceLevels;
-    private final com.zeroc.IceInternal.ThreadPool _threadPool;
+    private final TraceLevels _traceLevels;
+    private final ThreadPool _threadPool;
 
     // All these timeouts are in seconds. A value <= 0 means infinite timeout.
     private final int _connectTimeout;
@@ -2693,7 +2682,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     private LocalException _exception;
 
     private final int _messageSizeMax;
-    private com.zeroc.IceInternal.BatchRequestQueue _batchRequestQueue;
+    private BatchRequestQueue _batchRequestQueue;
 
     private java.util.LinkedList<OutgoingMessage> _sendStreams = new java.util.LinkedList<>();
 

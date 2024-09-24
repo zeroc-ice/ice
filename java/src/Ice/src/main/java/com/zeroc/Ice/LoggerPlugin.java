@@ -28,7 +28,7 @@ public class LoggerPlugin implements Plugin {
             throw new PluginInitializationException("Logger cannot be null.");
         }
 
-        com.zeroc.IceInternal.Instance instance = communicator.getInstance();
+        Instance instance = communicator.getInstance();
         instance.setLogger(logger);
     }
 

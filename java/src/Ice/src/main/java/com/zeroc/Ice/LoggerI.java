@@ -4,6 +4,9 @@
 
 package com.zeroc.Ice;
 
+/**
+ * @hidden Public because it's used by IceGridGUI.
+ */
 public class LoggerI implements Logger {
     public LoggerI(String prefix, String file) {
         _prefix = prefix;

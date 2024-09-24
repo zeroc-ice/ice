@@ -92,9 +92,9 @@ cppSrcPreamble = (
 javaPreamble = (
     commonPreamble
     + """
-package com.zeroc.IceInternal;
+package com.zeroc.Ice;
 
-public final class PropertyNames
+final class PropertyNames
 {
 """
 )
@@ -432,7 +432,7 @@ class JavaPropertyHandler(PropertyHandler):
             "java",
             "com",
             "zeroc",
-            "IceInternal",
+            "Ice",
         )
         if os.path.exists(os.path.join(dest, "PropertyNames.java")):
             os.remove(os.path.join(dest, "PropertyNames.java"))

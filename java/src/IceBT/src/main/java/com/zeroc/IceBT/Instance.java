@@ -6,7 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.PluginInitializationException;
 
-class Instance extends com.zeroc.IceInternal.ProtocolInstance {
+class Instance extends com.zeroc.Ice.ProtocolInstance {
     Instance(Communicator communicator, short type, String protocol) {
         super(communicator, type, protocol, type == com.zeroc.Ice.BTSEndpointType.value);
 

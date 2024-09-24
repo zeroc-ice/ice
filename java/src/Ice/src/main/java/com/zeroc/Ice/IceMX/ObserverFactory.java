@@ -4,10 +4,10 @@
 
 package com.zeroc.Ice.IceMX;
 
-import com.zeroc.IceInternal.MetricsMap;
+import com.zeroc.Ice.MetricsMap;
 
 public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
-    public ObserverFactory(com.zeroc.IceInternal.MetricsAdminI metrics, String name, Class<T> cl) {
+    public ObserverFactory(com.zeroc.Ice.MetricsAdminI metrics, String name, Class<T> cl) {
         _metrics = metrics;
         _name = name;
         _class = cl;
@@ -94,7 +94,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
         _updater = updater;
     }
 
-    private final com.zeroc.IceInternal.MetricsAdminI _metrics;
+    private final com.zeroc.Ice.MetricsAdminI _metrics;
     private final String _name;
     private final Class<T> _class;
     private java.util.List<MetricsMap<T>> _maps = new java.util.ArrayList<>();

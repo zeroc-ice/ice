@@ -121,7 +121,7 @@ public final class ServantLocatorI implements ServantLocator {
         else if (current.operation.equals("localException")) {
             throw new SocketException();
         } else if (current.operation.equals("javaException")) {
-            throw new java.lang.RuntimeException("message");
+            throw new RuntimeException("message");
         } else if (current.operation.equals("unknownExceptionWithServantException")) {
             throw new UnknownException("reason");
         } else if (current.operation.equals("impossibleException")) {

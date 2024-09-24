@@ -802,7 +802,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                 .add(
                                                         new XYChart.Data<Number, Number>(
                                                                 timestamp, value));
-                                    } catch (java.lang.RuntimeException ex) {
+                                    } catch (RuntimeException ex) {
                                         ex.printStackTrace();
                                     }
                                 }
@@ -846,7 +846,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                 while (series.getData().size() > 0 && samples > n) {
                     try {
                         series.getData().remove(0);
-                    } catch (java.lang.NullPointerException ex) {
+                    } catch (NullPointerException ex) {
                         // JavaFX bug
                     }
                     samples--;

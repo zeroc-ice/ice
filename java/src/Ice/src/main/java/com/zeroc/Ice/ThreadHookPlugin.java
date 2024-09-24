@@ -25,7 +25,7 @@ public class ThreadHookPlugin implements Plugin {
             throw new PluginInitializationException("Communicator cannot be null.");
         }
 
-        com.zeroc.IceInternal.Instance instance = communicator.getInstance();
+        Instance instance = communicator.getInstance();
         instance.setThreadHooks(threadStart, threadStop);
     }
 

@@ -9,7 +9,7 @@ import java.util.*;
 
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Communicator;
-import com.zeroc.IceInternal.Time;
+import com.zeroc.Ice.Time;
 
 import android.os.Build;
 import android.util.Log;
@@ -412,7 +412,7 @@ public class ControllerApp extends Application
                         throw new Test.Common.ProcessFailedException("timed out waiting for the process to be ready");
                     }
                 }
-                catch(java.lang.InterruptedException ex)
+                catch(InterruptedException ex)
                 {
                     // Ignore and try again.
                 }
@@ -438,7 +438,7 @@ public class ControllerApp extends Application
                         throw new Test.Common.ProcessFailedException("timed out waiting for the process to be ready");
                     }
                 }
-                catch(java.lang.InterruptedException ex)
+                catch(InterruptedException ex)
                 {
                     // Ignore and try again.
                 }

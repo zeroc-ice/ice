@@ -23,7 +23,7 @@ public class TestI implements test.Ice.interrupt.Test.TestIntf {
         _controller.addUpcallThread();
         try {
             Thread.sleep(to);
-        } catch (InterruptedException ex) {
+        } catch (java.lang.InterruptedException ex) {
             throw new test.Ice.interrupt.Test.InterruptedException();
         } finally {
             _controller.removeUpcallThread();

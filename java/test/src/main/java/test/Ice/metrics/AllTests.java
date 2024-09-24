@@ -57,7 +57,7 @@ public class AllTests {
             if (observer.getCurrent() != value) {
                 try {
                     Thread.sleep(10);
-                } catch (java.lang.InterruptedException ex) {
+                } catch (InterruptedException ex) {
                 }
             } else {
                 break;

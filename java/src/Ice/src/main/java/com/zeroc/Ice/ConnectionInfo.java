@@ -16,7 +16,7 @@
 package com.zeroc.Ice;
 
 /** Base class providing access to the connection details. */
-public class ConnectionInfo implements java.lang.Cloneable {
+public class ConnectionInfo implements Cloneable {
     public ConnectionInfo() {
         this.adapterName = "";
         this.connectionId = "";

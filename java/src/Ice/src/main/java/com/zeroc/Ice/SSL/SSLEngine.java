@@ -484,7 +484,7 @@ public class SSLEngine {
         }
 
         java.io.InputStream stream =
-                com.zeroc.IceInternal.Util.openResource(getClass().getClassLoader(), path);
+                com.zeroc.Ice.Util.openResource(getClass().getClassLoader(), path);
 
         //
         // If the first attempt fails and IceSSL.DefaultDir is defined and the original
@@ -494,7 +494,7 @@ public class SSLEngine {
         //
         if (stream == null && !_defaultDir.isEmpty() && !isAbsolute) {
             stream =
-                    com.zeroc.IceInternal.Util.openResource(
+                    com.zeroc.Ice.Util.openResource(
                             getClass().getClassLoader(),
                             _defaultDir + java.io.File.separator + path);
         }

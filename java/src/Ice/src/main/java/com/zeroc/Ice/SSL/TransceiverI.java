@@ -5,26 +5,25 @@
 package com.zeroc.Ice.SSL;
 
 import com.zeroc.Ice.ConnectionLostException;
-import com.zeroc.IceInternal.SocketOperation;
+import com.zeroc.Ice.SocketOperation;
 import java.nio.*;
 import javax.net.ssl.*;
 import javax.net.ssl.SSLEngineResult.*;
 
-final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
+final class TransceiverI implements com.zeroc.Ice.Transceiver {
     @Override
     public java.nio.channels.SelectableChannel fd() {
         return _delegate.fd();
     }
 
     @Override
-    public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback) {
+    public void setReadyCallback(com.zeroc.Ice.ReadyCallback callback) {
         _readyCallback = callback;
         _delegate.setReadyCallback(callback);
     }
 
     @Override
-    public int initialize(
-            com.zeroc.IceInternal.Buffer readBuffer, com.zeroc.IceInternal.Buffer writeBuffer) {
+    public int initialize(com.zeroc.Ice.Buffer readBuffer, com.zeroc.Ice.Buffer writeBuffer) {
         if (!_isConnected) {
             int status = _delegate.initialize(readBuffer, writeBuffer);
             if (status != SocketOperation.None) {
@@ -58,10 +57,10 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
             // the SSL messages directly with these buffers.
             int bufSize = _engine.getSession().getPacketBufferSize() * 2;
             _netInput =
-                    new com.zeroc.IceInternal.Buffer(
+                    new com.zeroc.Ice.Buffer(
                             ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
             _netOutput =
-                    new com.zeroc.IceInternal.Buffer(
+                    new com.zeroc.Ice.Buffer(
                             ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
         }
 
@@ -149,13 +148,13 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI bind() {
+    public com.zeroc.Ice.EndpointI bind() {
         assert (false);
         return null;
     }
 
     @Override
-    public int write(com.zeroc.IceInternal.Buffer buf) {
+    public int write(com.zeroc.Ice.Buffer buf) {
         if (!_isConnected) {
             return _delegate.write(buf);
         }
@@ -166,7 +165,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
     }
 
     @Override
-    public int read(com.zeroc.IceInternal.Buffer buf) {
+    public int read(com.zeroc.Ice.Buffer buf) {
         if (!_isConnected) {
             return _delegate.read(buf);
         }
@@ -266,13 +265,13 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
     }
 
     @Override
-    public void checkSendSize(com.zeroc.IceInternal.Buffer buf) {
+    public void checkSendSize(com.zeroc.Ice.Buffer buf) {
         _delegate.checkSendSize(buf);
     }
 
     TransceiverI(
             Instance instance,
-            com.zeroc.IceInternal.Transceiver delegate,
+            com.zeroc.Ice.Transceiver delegate,
             String hostOrAdapterName,
             boolean incoming,
             SSLEngineFactory sslEngineFactory) {
@@ -492,7 +491,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
                 _appInput.get(arr, buf.arrayOffset() + buf.position(), bytesAvailable);
                 // Cast to java.nio.Buffer to avoid incompatible covariant
                 // return type used in Java 9 java.nio.ByteBuffer
-                ((Buffer) buf).position(buf.position() + bytesAvailable);
+                ((java.nio.Buffer) buf).position(buf.position() + bytesAvailable);
             } else if (_appInput.hasArray()) {
                 //
                 // Copy directly from the source buffer's backing array.
@@ -501,7 +500,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
                 buf.put(arr, _appInput.arrayOffset() + _appInput.position(), bytesAvailable);
                 // Cast to java.nio.Buffer to avoid incompatible covariant
                 // return type used in Java 9 java.nio.ByteBuffer
-                ((Buffer) _appInput).position(_appInput.position() + bytesAvailable);
+                ((java.nio.Buffer) _appInput).position(_appInput.position() + bytesAvailable);
             } else {
                 //
                 // Copy using a temporary array.
@@ -515,18 +514,17 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
     }
 
     private Instance _instance;
-    private com.zeroc.IceInternal.Transceiver _delegate;
+    private com.zeroc.Ice.Transceiver _delegate;
     private javax.net.ssl.SSLEngine _engine;
     private String _host = "";
     private String _adapterName = "";
     private boolean _incoming;
-    private com.zeroc.IceInternal.ReadyCallback _readyCallback;
+    private com.zeroc.Ice.ReadyCallback _readyCallback;
     private boolean _isConnected = false;
 
     private ByteBuffer _appInput; // Holds clear-text data to be read by the application.
-    private com.zeroc.IceInternal.Buffer _netInput; // Holds encrypted data read from the socket.
-    private com.zeroc.IceInternal.Buffer
-            _netOutput; // Holds encrypted data to be written to the socket.
+    private com.zeroc.Ice.Buffer _netInput; // Holds encrypted data read from the socket.
+    private com.zeroc.Ice.Buffer _netOutput; // Holds encrypted data to be written to the socket.
     private static ByteBuffer _emptyBuffer = ByteBuffer.allocate(0); // Used during handshaking.
 
     private String _cipher;

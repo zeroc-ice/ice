@@ -2,8 +2,8 @@
 
 package com.zeroc.IceBT;
 
-import com.zeroc.IceInternal.EndpointFactory;
-import com.zeroc.IceInternal.ProtocolInstance;
+import com.zeroc.Ice.EndpointFactory;
+import com.zeroc.Ice.ProtocolInstance;
 
 final class EndpointFactoryI implements EndpointFactory {
     EndpointFactoryI(Instance instance) {
@@ -21,15 +21,14 @@ final class EndpointFactoryI implements EndpointFactory {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI create(
-            java.util.ArrayList<String> args, boolean oaEndpoint) {
+    public com.zeroc.Ice.EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint) {
         EndpointI endpt = new EndpointI(_instance);
         endpt.initWithOptions(args, oaEndpoint);
         return endpt;
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI read(com.zeroc.Ice.InputStream s) {
+    public com.zeroc.Ice.EndpointI read(com.zeroc.Ice.InputStream s) {
         return new EndpointI(_instance, s);
     }
 

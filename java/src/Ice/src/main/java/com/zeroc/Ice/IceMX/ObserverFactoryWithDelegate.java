@@ -10,7 +10,7 @@ public class ObserverFactoryWithDelegate<
                 O extends com.zeroc.Ice.Instrumentation.Observer>
         extends ObserverFactory<T, OImpl> {
     public ObserverFactoryWithDelegate(
-            com.zeroc.IceInternal.MetricsAdminI metrics, String name, Class<T> cl) {
+            com.zeroc.Ice.MetricsAdminI metrics, String name, Class<T> cl) {
         super(metrics, name, cl);
     }
 

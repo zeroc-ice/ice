@@ -36,7 +36,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
             try {
                 _opVoidThread.join();
                 _opVoidThread = null;
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
         }
 
@@ -57,7 +57,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
             try {
                 _opVoidThread.join();
                 _opVoidThread = null;
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
         }
 

@@ -54,10 +54,7 @@ public final class OutgoingResponse {
         this.exceptionId = exceptionId;
         this.exceptionDetails = exceptionDetails;
         this.outputStream = outputStream;
-        this.size =
-                outputStream.isEmpty()
-                        ? 0
-                        : outputStream.size() - com.zeroc.IceInternal.Protocol.headerSize - 4;
+        this.size = outputStream.isEmpty() ? 0 : outputStream.size() - Protocol.headerSize - 4;
     }
 
     /**

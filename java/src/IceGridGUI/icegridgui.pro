@@ -42,24 +42,21 @@
     public **[] values();
 }
 
--dontnote com.zeroc.IceInternal.*ObserverI*
--dontnote com.zeroc.IceInternal.BasicStream
--dontnote com.zeroc.IceInternal.Network
 -dontnote com.zeroc.IceSSL.SSLEngine
+-dontnote com.zeroc.Ice.CommunicatorObserverI*
 -dontnote com.zeroc.Ice.InputStream
 -dontnote com.zeroc.Ice.InputStream$EncapsDecoder
 -dontnote com.zeroc.Ice.InputStream$EncapsDecoder11
+-dontnote com.zeroc.Ice.InvocationObserverI*
+-dontnote com.zeroc.Ice.MetricsMap
 -dontnote com.zeroc.Ice.ObjectPrx
 -dontnote com.zeroc.Ice.PluginManagerI
--dontnote com.zeroc.Ice._ObjectPrxI
--dontnote com.zeroc.IceInternal.MetricsMap
 -dontnote com.zeroc.Ice.IceMX.Observer
 -dontnote com.zeroc.Ice.IceMX.ObserverFactory
 
 -dontnote com.zeroc.IceBox.ServiceManagerI
 -dontnote com.zeroc.IceGridGUI.Coordinator
 -dontnote com.zeroc.IceGridGUI.LiveDeployment.MetricsView*
--dontnote com.zeroc.IceInternal*
 
 -dontnote com.jgoodies.**
 -dontnote com.javafx.**
