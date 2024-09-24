@@ -593,7 +593,7 @@ SecureTransport::SSLEngine::initialize()
             if (!checkPath(caFile, defaultDir, false, resolved))
             {
                 ostringstream os;
-                os << "SSL transport: CA certificate file not found: " << caFile << "'";
+                os << "SSL transport: CA certificate file not found: '" << caFile << "'";
                 throw InitializationException(__FILE__, __LINE__, os.str());
             }
             _certificateAuthorities.reset(loadCACertificates(resolved));
