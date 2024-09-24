@@ -1333,7 +1333,7 @@ public final class ObjectAdapter {
                 // Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
                 Assert.FinalizerAssert(_directCount == 0);
             }
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }

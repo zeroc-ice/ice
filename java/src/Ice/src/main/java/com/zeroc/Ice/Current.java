@@ -110,7 +110,7 @@ public final class Current implements Cloneable {
                 marshal.accept(ostr, result);
                 ostr.endEncapsulation();
                 return new OutgoingResponse(ostr);
-            } catch (java.lang.Exception exception) {
+            } catch (Exception exception) {
                 return createOutgoingResponse(exception);
             }
         } else {
@@ -129,7 +129,7 @@ public final class Current implements Cloneable {
         if (requestId != 0) {
             try {
                 ostr.writeEmptyEncapsulation(encoding);
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 return createOutgoingResponse(ex);
             }
         }
@@ -268,7 +268,7 @@ public final class Current implements Cloneable {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus.UnknownLocalException;
 
-        } else if (exc instanceof com.zeroc.Ice.Exception ex) {
+        } else if (exc instanceof LocalException ex) {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus.UnknownException;
 

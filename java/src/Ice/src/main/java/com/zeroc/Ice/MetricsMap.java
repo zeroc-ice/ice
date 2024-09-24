@@ -118,7 +118,7 @@ public class MetricsMap<T extends Metrics> {
         public void addSubMapToMetrics(Metrics metrics) {
             try {
                 _field.set(metrics, _map.getMetrics());
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 assert (false);
             }
         }
@@ -314,7 +314,7 @@ public class MetricsMap<T extends Metrics> {
                 }
                 key = os.toString();
             }
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             return null;
         }
 
@@ -334,7 +334,7 @@ public class MetricsMap<T extends Metrics> {
                     t.id = key;
                     e = new Entry(t);
                     _objects.put(key, e);
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     assert (false);
                 }
             }
@@ -391,7 +391,7 @@ public class MetricsMap<T extends Metrics> {
         String value;
         try {
             value = helper.resolve(attribute);
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             return !reject;
         }
         return regex.matcher(value).matches();

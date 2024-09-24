@@ -51,7 +51,7 @@ final class LocatorInfo {
             }
         }
 
-        public void exception(LocatorInfo locatorInfo, java.lang.Exception exc) {
+        public void exception(LocatorInfo locatorInfo, Exception exc) {
             try {
                 locatorInfo.getEndpointsException(_ref, exc); // This throws.
             } catch (LocalException ex) {
@@ -120,7 +120,7 @@ final class LocatorInfo {
             }
         }
 
-        protected void exception(java.lang.Exception ex) {
+        protected void exception(Exception ex) {
             synchronized (this) {
                 _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex instanceof UserException);
                 _exception = ex;
@@ -141,7 +141,7 @@ final class LocatorInfo {
         private boolean _sent;
         private boolean _response;
         private ObjectPrx _proxy;
-        private java.lang.Exception _exception;
+        private Exception _exception;
     }
 
     private class ObjectRequest extends Request {
@@ -170,7 +170,7 @@ final class LocatorInfo {
                                         response(proxy);
                                     }
                                 });
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 exception(ex);
             }
         }
@@ -202,7 +202,7 @@ final class LocatorInfo {
                                         response(proxy);
                                     }
                                 });
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 exception(ex);
             }
         }
@@ -401,7 +401,7 @@ final class LocatorInfo {
                 .trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
 
-    private void getEndpointsException(Reference ref, java.lang.Exception exc) {
+    private void getEndpointsException(Reference ref, Exception exc) {
         assert (ref.isIndirect());
 
         try {
@@ -455,7 +455,7 @@ final class LocatorInfo {
                         .trace(instance.traceLevels().locationCat, s.toString());
             }
             throw ex;
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             assert (false);
         }
     }

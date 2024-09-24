@@ -72,7 +72,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
                 // exception.
                 invokeImpl(true); // userThread = true
             }
-        } catch (com.zeroc.Ice.Exception ex) {
+        } catch (LocalException ex) {
             abort(ex);
         }
     }
@@ -139,7 +139,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     }
 
     @Override
-    public void abort(com.zeroc.Ice.Exception ex) {
+    public void abort(LocalException ex) {
         if (isBatch()) {
             //
             // If we didn't finish a batch oneway or datagram request, we

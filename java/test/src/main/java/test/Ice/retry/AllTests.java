@@ -155,7 +155,7 @@ public class AllTests {
             out.print("testing non-idempotent operation with bi-dir proxy... ");
             try {
                 ((RetryPrx) retry1.ice_fixed(retry1.ice_getCachedConnection())).opIdempotent(4);
-            } catch (com.zeroc.Ice.Exception ex) {
+            } catch (LocalException ex) {
             }
             instrumentation.testInvocationCount(1);
             instrumentation.testFailureCount(1);

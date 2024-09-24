@@ -77,7 +77,7 @@ class ConnectionFlushBatch extends OutgoingAsyncBase<Void> {
             if (completed(ex.get())) {
                 invokeCompletedAsync();
             }
-        } catch (com.zeroc.Ice.Exception ex) {
+        } catch (LocalException ex) {
             if (completed(ex)) {
                 invokeCompletedAsync();
             }

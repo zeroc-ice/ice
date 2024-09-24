@@ -2,8 +2,12 @@
 
 package com.zeroc.Ice;
 
-/** Base class for Ice run-time exceptions. */
-public class LocalException extends com.zeroc.Ice.Exception {
+/**
+ * Base class for Ice run-time exceptions. These exceptions are not checked so we inherit from
+ * java.lang.RuntimeException. User exceptions are checked exceptions and therefore inherit directly
+ * from java.lang.Exception.
+ */
+public class LocalException extends RuntimeException {
     public LocalException(String message) {
         super(message);
     }
@@ -12,7 +16,11 @@ public class LocalException extends com.zeroc.Ice.Exception {
         super(message, cause);
     }
 
-    @Override
+    /**
+     * Returns the type ID of this exception.
+     *
+     * @return The type ID of this exception.
+     */
     public String ice_id() {
         return "::Ice::LocalException";
     }

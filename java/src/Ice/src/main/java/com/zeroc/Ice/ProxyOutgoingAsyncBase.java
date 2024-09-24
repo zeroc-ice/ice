@@ -106,13 +106,13 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             }
 
             return finished(replyStatus == ReplyStatus.Ok, true);
-        } catch (com.zeroc.Ice.Exception ex) {
+        } catch (LocalException ex) {
             return completed(ex);
         }
     }
 
     @Override
-    public boolean completed(com.zeroc.Ice.Exception exc) {
+    public boolean completed(LocalException exc) {
         if (_childObserver != null) {
             _childObserver.failed(exc.ice_id());
             _childObserver.detach();
@@ -131,12 +131,12 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             // connection locked so we can't just retry here.
             _instance.retryQueue().add(this, handleRetryAfterException(exc));
             return false;
-        } catch (com.zeroc.Ice.Exception ex) {
+        } catch (LocalException ex) {
             return finished(ex); // No retries, we're done
         }
     }
 
-    public void retryException(com.zeroc.Ice.Exception ex) {
+    public void retryException(LocalException ex) {
         try {
             // Clear request handler and always retry.
             _proxy._getRequestHandlerCache().clearCachedRequestHandler(_handler);
@@ -145,7 +145,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             // require could end up waiting for the flush of the
             // connection to be done.
             _instance.retryQueue().add(this, 0);
-        } catch (com.zeroc.Ice.Exception exc) {
+        } catch (LocalException exc) {
             if (completed(exc)) {
                 invokeCompletedAsync();
             }
@@ -156,7 +156,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         invokeImpl(false);
     }
 
-    public void abort(com.zeroc.Ice.Exception ex) {
+    public void abort(LocalException ex) {
         assert (_childObserver == null);
         if (finished(ex)) {
             invokeCompletedAsync();
@@ -230,7 +230,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                 } catch (RetryException ex) {
                     // Clear request handler and always retry.
                     _proxy._getRequestHandlerCache().clearCachedRequestHandler(_handler);
-                } catch (com.zeroc.Ice.Exception ex) {
+                } catch (LocalException ex) {
                     if (_childObserver != null) {
                         _childObserver.failed(ex.ice_id());
                         _childObserver.detach();
@@ -245,7 +245,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                     }
                 }
             }
-        } catch (com.zeroc.Ice.Exception ex) {
+        } catch (LocalException ex) {
             //
             // If called from the user thread we re-throw, the exception
             // will be catch by the caller and abort() will be called.
@@ -272,7 +272,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
     }
 
     @Override
-    protected boolean finished(com.zeroc.Ice.Exception ex) {
+    protected boolean finished(LocalException ex) {
         if (_timerFuture != null) {
             _timerFuture.cancel(false);
             _timerFuture = null;
@@ -289,7 +289,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         return super.finished(ok, invoke);
     }
 
-    private int handleRetryAfterException(com.zeroc.Ice.Exception ex) {
+    private int handleRetryAfterException(LocalException ex) {
         // Clear the request handler
         _proxy._getRequestHandlerCache().clearCachedRequestHandler(_handler);
 

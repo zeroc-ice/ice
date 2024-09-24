@@ -275,7 +275,7 @@ public class MetricsAdminI
                 // Update the metrics views using the new configuration.
                 try {
                     updateViews();
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     _logger.warning(
                             "unexpected exception while updating metrics view configuration:\n"
                                     + ex.toString());

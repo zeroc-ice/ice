@@ -212,7 +212,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_destroyed);
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }
@@ -284,7 +284,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
         if (_executor != null) {
             try {
                 _executor.accept(workItem, workItem.getConnection());
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 if (_instance
                                 .initializationData()
                                 .properties
@@ -356,7 +356,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
                         thread.setState(ThreadState.ThreadStateIdle);
                     }
                     return;
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     String s = "exception in `" + _prefix + "':\n" + Ex.toString(ex);
                     s += "\nevent handler: " + current._handler.toString();
                     _instance.initializationData().logger.error(s);
@@ -651,7 +651,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
             if (_instance.initializationData().threadStart != null) {
                 try {
                     _instance.initializationData().threadStart.run();
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     String s = "threadStart method raised an unexpected exception in `";
                     s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
                     _instance.initializationData().logger.error(s);
@@ -660,7 +660,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
 
             try {
                 ThreadPool.this.run(this);
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 String s =
                         "exception in `" + _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
                 _instance.initializationData().logger.error(s);
@@ -673,7 +673,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
             if (_instance.initializationData().threadStop != null) {
                 try {
                     _instance.initializationData().threadStop.run();
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     String s = "threadStop method raised an unexpected exception in `";
                     s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
                     _instance.initializationData().logger.error(s);

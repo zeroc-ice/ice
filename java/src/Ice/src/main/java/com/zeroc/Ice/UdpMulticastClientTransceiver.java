@@ -224,7 +224,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                             runWriteThread();
                         }
                     };
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             if (_socket != null) {
                 _socket.close();
             }
@@ -314,7 +314,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_socket == null);
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }

@@ -78,7 +78,7 @@ public class AllTests {
                 try {
                     inS.throwException();
                 } catch (MyException ex) {
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     test(false);
                 }
                 inS.endEncapsulation();
@@ -129,7 +129,7 @@ public class AllTests {
                 try {
                     inS.throwException();
                 } catch (MyException ex) {
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     test(false);
                 }
                 inS.endEncapsulation();

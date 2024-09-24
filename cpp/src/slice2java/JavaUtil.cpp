@@ -483,7 +483,7 @@ namespace
                 //
                 if ((*i) == "java:getset" &&
                     (!dynamic_pointer_cast<ClassDef>(p) && !dynamic_pointer_cast<Struct>(p) &&
-                     !dynamic_pointer_cast<Slice::Exception>(p) && !dynamic_pointer_cast<DataMember>(p)))
+                     !dynamic_pointer_cast<Exception>(p) && !dynamic_pointer_cast<DataMember>(p)))
                 {
                     string str;
                     ContainedPtr cont = dynamic_pointer_cast<Contained>(p);
