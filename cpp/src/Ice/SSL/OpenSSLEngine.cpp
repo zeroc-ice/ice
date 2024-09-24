@@ -122,10 +122,9 @@ OpenSSL::SSLEngine::initialize()
 
                 if (!file && !dir)
                 {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: CA certificate path not found:\n" + path);
+                    ostringstream os;
+                    os << "IceSSL: CA certificate path not found: '" << path << "'";
+                    throw InitializationException(__FILE__, __LINE__, os.str());
                 }
             }
 
@@ -167,7 +166,7 @@ OpenSSL::SSLEngine::initialize()
             if (!checkPath(certFile, defaultDir, false, resolved))
             {
                 ostringstream os;
-                os << "IceSSL: certificate file not found `" << certFile << "'";
+                os << "IceSSL: certificate file not found '" << certFile << "'";
                 throw InitializationException(__FILE__, __LINE__, os.str());
             }
 
@@ -191,7 +190,7 @@ OpenSSL::SSLEngine::initialize()
                     if (!cert)
                     {
                         ostringstream os;
-                        os << "IceSSL: error loading SSL certificate from PKCS12 file `" << certFile << "':\n"
+                        os << "IceSSL: error loading SSL certificate from PKCS12 file '" << certFile << "':\n"
                            << "certificate not found";
                         throw InitializationException(__FILE__, __LINE__, os.str());
                     }
@@ -199,7 +198,7 @@ OpenSSL::SSLEngine::initialize()
                     if (!SSL_CTX_use_certificate(_ctx, cert))
                     {
                         ostringstream os;
-                        os << "IceSSL: error loading SSL certificate from PKCS12 file `" << certFile << "':\n"
+                        os << "IceSSL: error loading SSL certificate from PKCS12 file '" << certFile << "':\n"
                            << sslErrors();
                         throw InitializationException(__FILE__, __LINE__, os.str());
                     }
@@ -207,7 +206,7 @@ OpenSSL::SSLEngine::initialize()
                     if (!key)
                     {
                         ostringstream os;
-                        os << "IceSSL: error loading SSL private key from PKCS12 file `" << certFile << "':\n"
+                        os << "IceSSL: error loading SSL private key from PKCS12 file '" << certFile << "':\n"
                            << "key not found";
                         throw InitializationException(__FILE__, __LINE__, os.str());
                     }
@@ -215,7 +214,7 @@ OpenSSL::SSLEngine::initialize()
                     if (!SSL_CTX_use_PrivateKey(_ctx, key))
                     {
                         ostringstream os;
-                        os << "IceSSL: error loading SSL private key from PKCS12 file `" << certFile << "':\n"
+                        os << "IceSSL: error loading SSL private key from PKCS12 file '" << certFile << "':\n"
                            << sslErrors();
                         throw InitializationException(__FILE__, __LINE__, os.str());
                     }
@@ -276,7 +275,7 @@ OpenSSL::SSLEngine::initialize()
             if (!success)
             {
                 ostringstream os;
-                os << "IceSSL: unable to load certificate chain from file `" << certFile << "':\n" << sslErrors();
+                os << "IceSSL: unable to load certificate chain from file '" << certFile << "':\n" << sslErrors();
                 throw InitializationException(__FILE__, __LINE__, os.str());
             }
         }
@@ -292,7 +291,7 @@ OpenSSL::SSLEngine::initialize()
             if (!checkPath(keyFile, defaultDir, false, resolved))
             {
                 ostringstream os;
-                os << "IceSSL: key file not found: `" << keyFile << "'";
+                os << "IceSSL: key file not found: '" << keyFile << "'";
                 throw InitializationException(__FILE__, __LINE__, os.str());
             }
 
@@ -300,7 +299,7 @@ OpenSSL::SSLEngine::initialize()
             if (!SSL_CTX_use_PrivateKey_file(_ctx, resolved.c_str(), SSL_FILETYPE_PEM))
             {
                 ostringstream os;
-                os << "IceSSL: error loading SSL private key from `" << keyFile << "':\n" << sslErrors();
+                os << "IceSSL: error loading SSL private key from '" << keyFile << "':\n" << sslErrors();
                 throw InitializationException(__FILE__, __LINE__, os.str());
             }
             keyLoaded = true;
@@ -343,14 +342,14 @@ OpenSSL::SSLEngine::initialize()
                 if (!checkPath(crlFile, defaultDir, false, resolved))
                 {
                     ostringstream os;
-                    os << "IceSSL: CRL file not found `" << crlFile << "'";
+                    os << "IceSSL: CRL file not found '" << crlFile << "'";
                     throw InitializationException(__FILE__, __LINE__, os.str());
                 }
 
                 if (X509_LOOKUP_load_file(lookup, resolved.c_str(), X509_FILETYPE_PEM) == 0)
                 {
                     ostringstream os;
-                    os << "IceSSL: CRL load failure `" << crlFile << "'";
+                    os << "IceSSL: CRL load failure '" << crlFile << "'";
                     throw InitializationException(__FILE__, __LINE__, os.str());
                 }
             }
@@ -416,7 +415,7 @@ OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
                     if (!X509_VERIFY_PARAM_set1_ip_asc(param, host.c_str()))
                     {
                         ostringstream os;
-                        os << "IceSSL: error setting the expected IP address `" << host << "'";
+                        os << "IceSSL: error setting the expected IP address '" << host << "'";
                         throw SecurityException(__FILE__, __LINE__, os.str());
                     }
                 }
@@ -425,7 +424,7 @@ OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
                     if (!X509_VERIFY_PARAM_set1_host(param, host.c_str(), 0))
                     {
                         ostringstream os;
-                        os << "IceSSL: error setting the expected host name `" << host << "'";
+                        os << "IceSSL: error setting the expected host name '" << host << "'";
                         throw SecurityException(__FILE__, __LINE__, os.str());
                     }
                 }
