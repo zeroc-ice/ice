@@ -271,7 +271,7 @@ OpenSSL::SSLEngine::initialize()
             else
             {
                 // The certificate may be stored in an encrypted file.
-                success = SSL_CTX_use_certificate_chain_file(_ctx, resolved.c_str());
+                success = SSL_CTX_use_certificate_chain_file(_ctx, resolved.value().c_str());
             }
 
             if (!success)

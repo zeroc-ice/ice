@@ -97,7 +97,7 @@ Ice::SSL::readFile(const string& file, vector<char>& buffer)
     }
 }
 
-std::optional<string>
+optional<string>
 Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir)
 {
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS) || defined(ICE_SWIFT)

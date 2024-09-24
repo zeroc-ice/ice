@@ -9,6 +9,7 @@
 #include "Ice/SSL/Config.h"
 
 #include <functional>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
