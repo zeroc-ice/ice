@@ -175,19 +175,11 @@ def initPropertyClasses(filename):
 
 
 def handler(sigNum, frame):
-    """Installed as signal handler. Should cause an files that are in
+    """Installed as signal handler. Should cause any files that are in
     use to be closed and removed"""
     global contentHandler
     contentHandler.cleanup()
     sys.exit(128 + sigNum)
-
-
-class UnknownElementException(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
 
 
 class PropertyHandler(ContentHandler):
@@ -233,6 +225,14 @@ class PropertyHandler(ContentHandler):
     def handleProperty(self, propertyName, usesRegex, defaultValue, deprecated):
         self.propertyImpl(propertyName, usesRegex, defaultValue, deprecated)
 
+    def validateAttributes(self, validAttrs, attrs):
+        if "name" not in attrs:
+            print(sys.stderr, "missing name attribute")
+
+        for a in attrs.keys():
+            if a not in validAttrs:
+                print(sys.stderr, "invalid attribute '%s'" % a)
+
     def startElement(self, name, attrs):
         if name == "properties":
             self.start = True
@@ -243,10 +243,12 @@ class PropertyHandler(ContentHandler):
             return
 
         if name == "section":
+            self.validateAttributes(["name", "noCmdLine"], attrs)
             noCmdLine = attrs.get("noCmdLine", "false")
             self.handleNewSection(attrs.get("name"), noCmdLine)
 
         elif name == "property":
+            self.validateAttributes(["name", "class", "default", "deprecated"], attrs)
             propertyName = attrs.get("name", None)
             if "class" in attrs:
                 c = propertyClasses[attrs["class"]]
@@ -518,7 +520,7 @@ class JSPropertyHandler(PropertyHandler):
         self.srcFile.write("PropertyNames.validProps = new Map();\n")
         for s in self.sections:
             if s in self.validSections:
-                self.srcFile.write(f"PropertyNames.validProps.set(\"{s}\", {s}Props);\n")
+                self.srcFile.write(f'PropertyNames.validProps.set("{s}", {s}Props);\n')
 
         self.srcFile.write(jsEpilogue)
         self.srcFile.close()
@@ -529,7 +531,7 @@ class JSPropertyHandler(PropertyHandler):
     def propertyImpl(self, propertyName, usesRegex, defaultValue, deprecated):
         if self.currentSection in self.validSections:
             name = f"{self.currentSection}.{propertyName}"
-            line = 'new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated})'.format(
+            line = "new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated})".format(
                 pattern=f"/^{self.fix(name)}/" if usesRegex else f'"{name}"',
                 usesRegex="true" if usesRegex else "false",
                 defaultValue=f'"{defaultValue}"',
