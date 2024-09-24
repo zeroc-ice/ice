@@ -69,6 +69,7 @@ spotless {
 
     target project.fileTree("src/main/java") {
         include '**/*.java'
+        exclude 'com/zeroc/Ice/PropertyNames.java'
     }
 
     // Remove any unused imports, then ensure the remaining imports are correctly ordered.
