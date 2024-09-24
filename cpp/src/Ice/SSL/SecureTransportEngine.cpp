@@ -618,18 +618,17 @@ SecureTransport::SSLEngine::initialize()
 
     if (!certFile.empty())
     {
-        string keyFile = properties->getIceProperty("IceSSL.KeyFile");
-
         string resolved;
 
         if (!checkPath(certFile, defaultDir, false, resolved))
         {
             ostringstream os;
-            os << "SSL transport: certificate file not found: '" << file << "'";
+            os << "SSL transport: certificate file not found: '" << certFile << "'";
             throw InitializationException(__FILE__, __LINE__, os.str());
         }
         certFile = resolved;
 
+        string keyFile = properties->getIceProperty("IceSSL.KeyFile");
         if (!keyFile.empty())
         {
             if (!checkPath(keyFile, defaultDir, false, resolved))
@@ -644,7 +643,6 @@ SecureTransport::SSLEngine::initialize()
         try
         {
             _chain.reset(loadCertificateChain(certFile, keyFile, keychain, keychainPassword, password));
-            break;
         }
         catch (const CertificateReadException& ce)
         {
