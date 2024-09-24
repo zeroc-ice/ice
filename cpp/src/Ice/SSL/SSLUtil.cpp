@@ -97,8 +97,8 @@ Ice::SSL::readFile(const string& file, vector<char>& buffer)
     }
 }
 
-bool
-Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir, string& resolved)
+std::optional<string>
+Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir)
 {
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS) || defined(ICE_SWIFT)
     CFBundleRef bundle = CFBundleGetMainBundle();
@@ -114,8 +114,7 @@ Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir, stri
             string tmp = string(reinterpret_cast<char*>(filePath));
             if ((dir && IceInternal::directoryExists(tmp)) || (!dir && IceInternal::fileExists(tmp)))
             {
-                resolved = tmp;
-                return true;
+                return tmp;
             }
         }
     }
@@ -124,10 +123,9 @@ Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir, stri
     {
         if ((dir && IceInternal::directoryExists(path)) || (!dir && IceInternal::fileExists(path)))
         {
-            resolved = path;
-            return true;
+            return path;
         }
-        return false;
+        return std::nullopt;
     }
 
     //
@@ -145,10 +143,9 @@ Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir, stri
 
     if ((dir && IceInternal::directoryExists(tmp)) || (!dir && IceInternal::fileExists(tmp)))
     {
-        resolved = tmp;
-        return true;
+        return tmp;
     }
-    return false;
+    return std::nullopt;
 }
 
 namespace

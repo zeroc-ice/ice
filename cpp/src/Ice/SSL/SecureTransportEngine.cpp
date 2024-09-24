@@ -589,14 +589,15 @@ SecureTransport::SSLEngine::initialize()
         string caFile = properties->getIceProperty("IceSSL.CAs");
         if (!caFile.empty())
         {
-            string resolved;
-            if (!checkPath(caFile, defaultDir, false, resolved))
+            optional<string> resolved = checkPath(caFile, defaultDir, false);
+
+            if (!resolved)
             {
                 ostringstream os;
                 os << "SSL transport: CA certificate file not found: '" << caFile << "'";
                 throw InitializationException(__FILE__, __LINE__, os.str());
             }
-            _certificateAuthorities.reset(loadCACertificates(resolved));
+            _certificateAuthorities.reset(loadCACertificates(*resolved));
         }
         else if (properties->getIcePropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
         {
@@ -618,26 +619,27 @@ SecureTransport::SSLEngine::initialize()
 
     if (!certFile.empty())
     {
-        string resolved;
+        optional<string> resolved = checkPath(certFile, defaultDir, false);
 
-        if (!checkPath(certFile, defaultDir, false, resolved))
+        if (!resolved)
         {
             ostringstream os;
             os << "SSL transport: certificate file not found: '" << certFile << "'";
             throw InitializationException(__FILE__, __LINE__, os.str());
         }
-        certFile = resolved;
+        certFile = *resolved;
 
         string keyFile = properties->getIceProperty("IceSSL.KeyFile");
         if (!keyFile.empty())
         {
-            if (!checkPath(keyFile, defaultDir, false, resolved))
+            resolved = checkPath(keyFile, defaultDir, false);
+            if (!resolved)
             {
                 ostringstream os;
                 os << "SSL transport: key file not found: '" << keyFile << "'";
                 throw InitializationException(__FILE__, __LINE__, os.str());
             }
-            keyFile = resolved;
+            keyFile = *resolved;
         }
 
         try

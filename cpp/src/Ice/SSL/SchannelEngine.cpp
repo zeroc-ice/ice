@@ -771,15 +771,16 @@ Schannel::SSLEngine::initialize()
     }
     if (!caFile.empty())
     {
-        string resolved;
-        if (!checkPath(caFile, defaultDir, false, resolved))
+        optional<string> resolved = checkPath(caFile, defaultDir, false);
+
+        if (!resolved)
         {
             ostringstream os;
             os << "SSL transport: CA certificate file not found: '" << caFile << "'";
             throw InitializationException(__FILE__, __LINE__, os.str());
         }
 
-        addCertificatesToStore(resolved, _rootStore);
+        addCertificatesToStore(*resolved, _rootStore);
     }
 
     if (_rootStore)
@@ -820,14 +821,15 @@ Schannel::SSLEngine::initialize()
 
     if (!certFile.empty())
     {
-        string resolved;
-        if (!checkPath(certFile, defaultDir, false, resolved))
+        optional<string> resolved = checkPath(certFile, defaultDir, false);
+
+        if (!resolved)
         {
             ostringstream os;
             os << "SSL transport: certificate file not found: '" << certFile << "'";
             throw InitializationException(__FILE__, __LINE__, os.str());
         }
-        certFile = resolved;
+        certFile = *resolved;
 
         vector<char> buffer;
         readFile(certFile, buffer);
@@ -907,13 +909,14 @@ Schannel::SSLEngine::initialize()
 
             // Try to load certificate & key as PEM files.
             err = 0;
-            if (!checkPath(keyFile, defaultDir, false, resolved))
+            resolved = checkPath(certFile, defaultDir, false);
+            if (!resolved)
             {
                 ostringstream os;
                 os << "SSL transport: key file not found: '" << keyFile << "'";
                 throw InitializationException(__FILE__, __LINE__, os.str());
             }
-            keyFile = resolved;
+            keyFile = *resolved;
 
             readFile(keyFile, buffer);
             if (buffer.empty())

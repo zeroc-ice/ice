@@ -100,22 +100,24 @@ OpenSSL::SSLEngine::initialize()
         // Establish the location of CA certificates.
         {
             string path = properties->getIceProperty("IceSSL.CAs");
-            string resolved;
+            optional<string> resolved;
             const char* file = nullptr;
             const char* dir = nullptr;
             if (!path.empty())
             {
-                if (checkPath(path, defaultDir, false, resolved))
+                resolved = checkPath(path, defaultDir, false);
+                if (resolved)
                 {
-                    path = resolved;
+                    path = *resolved;
                     file = path.c_str();
                 }
 
                 if (!file)
                 {
-                    if (checkPath(path, defaultDir, true, resolved))
+                    resolved = checkPath(path, defaultDir, true);
+                    if (resolved)
                     {
-                        path = resolved;
+                        path = *resolved;
                         dir = path.c_str();
                     }
                 }
@@ -162,8 +164,8 @@ OpenSSL::SSLEngine::initialize()
 
         if (!certFile.empty())
         {
-            string resolved;
-            if (!checkPath(certFile, defaultDir, false, resolved))
+            optional<string> resolved = checkPath(certFile, defaultDir, false);
+            if (!resolved)
             {
                 ostringstream os;
                 os << "IceSSL: certificate file not found '" << certFile << "'";
@@ -172,7 +174,7 @@ OpenSSL::SSLEngine::initialize()
 
             // First we try to load the certificate using PKCS12 format if that fails we fallback to PEM format.
             vector<char> buffer;
-            readFile(resolved, buffer);
+            readFile(*resolved, buffer);
             int success = 0;
 
             const unsigned char* b = reinterpret_cast<unsigned char*>(&buffer[0]);
@@ -287,8 +289,8 @@ OpenSSL::SSLEngine::initialize()
 
         if (!keyLoaded && !keyFile.empty())
         {
-            string resolved;
-            if (!checkPath(keyFile, defaultDir, false, resolved))
+            optional<string> resolved = checkPath(keyFile, defaultDir, false);
+            if (!resolved)
             {
                 ostringstream os;
                 os << "IceSSL: key file not found: '" << keyFile << "'";
@@ -296,7 +298,7 @@ OpenSSL::SSLEngine::initialize()
             }
 
             // The private key may be stored in an encrypted file.
-            if (!SSL_CTX_use_PrivateKey_file(_ctx, resolved.c_str(), SSL_FILETYPE_PEM))
+            if (!SSL_CTX_use_PrivateKey_file(_ctx, resolved.value().c_str(), SSL_FILETYPE_PEM))
             {
                 ostringstream os;
                 os << "IceSSL: error loading SSL private key from '" << keyFile << "':\n" << sslErrors();
@@ -338,15 +340,15 @@ OpenSSL::SSLEngine::initialize()
 
             for (const string& crlFile : crlFiles)
             {
-                string resolved;
-                if (!checkPath(crlFile, defaultDir, false, resolved))
+                optional<string> resolved = checkPath(crlFile, defaultDir, false);
+                if (!resolved)
                 {
                     ostringstream os;
                     os << "IceSSL: CRL file not found '" << crlFile << "'";
                     throw InitializationException(__FILE__, __LINE__, os.str());
                 }
 
-                if (X509_LOOKUP_load_file(lookup, resolved.c_str(), X509_FILETYPE_PEM) == 0)
+                if (X509_LOOKUP_load_file(lookup, resolved.value().c_str(), X509_FILETYPE_PEM) == 0)
                 {
                     ostringstream os;
                     os << "IceSSL: CRL load failure '" << crlFile << "'";

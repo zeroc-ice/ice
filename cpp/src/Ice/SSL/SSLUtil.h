@@ -44,7 +44,7 @@ namespace Ice::SSL
     void readFile(const std::string&, std::vector<char>&);
 
     // Determine if a file or directory exists, with an optional default directory.
-    bool checkPath(const std::string&, const std::string&, bool, std::string&);
+    std::optional<std::string> checkPath(const std::string&, const std::string&, bool);
 
     bool parseBytes(const std::string&, std::vector<unsigned char>&);
 
