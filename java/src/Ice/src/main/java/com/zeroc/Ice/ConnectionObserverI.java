@@ -9,7 +9,7 @@ import com.zeroc.Ice.IceMX.ObserverWithDelegate;
 import com.zeroc.Ice.Instrumentation.ConnectionObserver;
 
 /**
- * @hidden Kept public because it's used by IceMX (via reflection).
+ * @hidden Public because it's used by IceMX (via reflection).
  */
 public class ConnectionObserverI extends ObserverWithDelegate<ConnectionMetrics, ConnectionObserver>
         implements ConnectionObserver {

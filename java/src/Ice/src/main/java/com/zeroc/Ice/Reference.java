@@ -5,7 +5,7 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden Kept public because it's used by the generated code.
+ * @hidden Public because it's used by the generated code.
  */
 public abstract class Reference implements Cloneable {
     public static final int ModeTwoway = 0;

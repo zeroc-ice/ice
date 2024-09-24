@@ -22,7 +22,7 @@ import com.zeroc.Ice.Instrumentation.ThreadObserver;
 import com.zeroc.Ice.Instrumentation.ThreadState;
 
 /**
- * @hidden Kept public because it's used by IceMX (via reflection).
+ * @hidden Public because it's used by IceMX (via reflection).
  */
 public class CommunicatorObserverI implements CommunicatorObserver {
     static void addEndpointAttributes(MetricsHelper.AttributeResolver r, Class<?> cl)

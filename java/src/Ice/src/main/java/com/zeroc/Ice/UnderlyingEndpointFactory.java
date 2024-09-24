@@ -9,7 +9,7 @@ package com.zeroc.Ice;
  * factory is of the EndpointFactoryWithUnderlying type, it will delegate to the given underlying
  * factory (this is used by IceIAP/IceBT plugins for the BTS/iAPS endpoint factories).
  *
- * @hidden Kept public because it's used by IceBT.
+ * @hidden Public because it's used by IceBT.
  */
 public class UnderlyingEndpointFactory implements EndpointFactory {
     public UnderlyingEndpointFactory(ProtocolInstance instance, short type, short underlying) {

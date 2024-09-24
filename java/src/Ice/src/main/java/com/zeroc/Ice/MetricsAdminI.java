@@ -10,7 +10,7 @@ import com.zeroc.Ice.IceMX.MetricsFailures;
 import com.zeroc.Ice.IceMX.UnknownMetricsView;
 
 /**
- * @hidden Kept public because it's used by IceMX.
+ * @hidden Public because it's used by IceMX.
  */
 public class MetricsAdminI
         implements MetricsAdmin, java.util.function.Consumer<java.util.Map<String, String>> {

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @hidden Kept public because it's used by SSL.
+ * @hidden Public because it's used by SSL.
  */
 public final class Instance implements java.util.function.Function<String, Class<?>> {
     private static class ThreadObserverHelper {

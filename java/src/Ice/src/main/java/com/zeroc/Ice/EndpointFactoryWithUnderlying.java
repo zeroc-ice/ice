@@ -8,7 +8,7 @@ package com.zeroc.Ice;
  * The endpoint factory with underlying create endpoints that delegate to an underlying endpoint
  * (e.g.: the SSL/WS endpoints are endpoints with underlying endpoints).
  *
- * @hidden Kept public because it's used by SSL.
+ * @hidden Public because it's used by SSL.
  */
 public abstract class EndpointFactoryWithUnderlying implements EndpointFactory {
     public EndpointFactoryWithUnderlying(ProtocolInstance instance, short type) {

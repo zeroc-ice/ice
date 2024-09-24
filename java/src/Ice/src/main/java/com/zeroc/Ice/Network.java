@@ -5,7 +5,7 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden Kept public because it's used by IceDiscovery and IceLocatorDiscovery.
+ * @hidden Public because it's used by IceDiscovery and IceLocatorDiscovery.
  */
 public final class Network {
     // ProtocolSupport

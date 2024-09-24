@@ -5,7 +5,7 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden Kept public because it's used by IceBT and the 'Ice/background' test.
+ * @hidden Public because it's used by IceBT and the 'Ice/background' test.
  */
 public interface ProtocolPluginFacade {
     //

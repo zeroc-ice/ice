@@ -5,7 +5,7 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden Kept public because it's used by the generated code.
+ * @hidden Public because it's used by the generated code.
  */
 public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     @FunctionalInterface

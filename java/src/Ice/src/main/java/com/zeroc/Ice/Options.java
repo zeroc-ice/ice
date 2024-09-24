@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden Kept public because it's used by IceBox.
+ * @hidden Public because it's used by IceBox.
  */
 public final class Options {
     public static String[] split(String line) throws ParseException {

@@ -10,7 +10,7 @@ import com.zeroc.Ice.IceMX.MetricsHelper;
 import com.zeroc.Ice.MetricsMap.SubMap;
 
 /**
- * @hidden Kept public because it's used by IceMX.
+ * @hidden Public because it's used by IceMX.
  */
 public class MetricsMap<T extends Metrics> {
     public class Entry {

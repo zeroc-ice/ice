@@ -7,7 +7,7 @@ package com.zeroc.Ice;
 import java.nio.channels.SelectionKey;
 
 /**
- * @hidden Kept public because it's used by IceBT, SSL, and the 'Ice/background' test.
+ * @hidden Public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */
 public class SocketOperation {
     public static final int None = 0;

@@ -4,14 +4,14 @@ package com.zeroc.Ice;
 
 import java.util.concurrent.CompletionStage;
 
-final class LoggerMiddleware implements Object {
-    private final Object _next;
+final class LoggerMiddleware implements com.zeroc.Ice.Object {
+    private final com.zeroc.Ice.Object _next;
     private final Logger _logger;
     private final int _warningLevel;
     private final ToStringMode _toStringMode;
 
     public LoggerMiddleware(
-            Object next, Logger logger, int warningLevel, ToStringMode toStringMode) {
+            com.zeroc.Ice.Object next, Logger logger, int warningLevel, ToStringMode toStringMode) {
         _next = next;
         _logger = logger;
         _warningLevel = warningLevel;

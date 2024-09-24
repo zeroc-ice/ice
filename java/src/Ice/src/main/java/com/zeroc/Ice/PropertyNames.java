@@ -6,7 +6,7 @@
 
 package com.zeroc.Ice;
 
-public final class PropertyNames {
+final class PropertyNames {
     public static final Property IceProps[] = {
         new Property("Ice.AcceptClassCycles", false, "0", false),
         new Property("Ice.Admin.AdapterId", false, "", false),

@@ -5,7 +5,7 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden Kept public because it's used by IceBT, IceGridGUI, and the generated code.
+ * @hidden Public because it's used by IceBT, IceGridGUI, and the generated code.
  */
 public final class HashUtil {
     public static int hashAdd(int hashCode, boolean value) {

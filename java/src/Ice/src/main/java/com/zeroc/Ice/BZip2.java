@@ -5,7 +5,7 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden Kept public because it's used by the 'Ice/operations' test.
+ * @hidden Public because it's used by the 'Ice/operations' test.
  */
 public class BZip2 {
     public static Buffer compress(Buffer buf, int headerSize, int compressionLevel) {

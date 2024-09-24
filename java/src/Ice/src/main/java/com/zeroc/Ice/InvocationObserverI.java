@@ -10,7 +10,7 @@ import com.zeroc.Ice.Instrumentation.InvocationObserver;
 import com.zeroc.Ice.Instrumentation.RemoteObserver;
 
 /**
- * @hidden Kept public because it's used by IceMX (via reflection).
+ * @hidden Public because it's used by IceMX (via reflection).
  */
 public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics, InvocationObserver>
         implements InvocationObserver {

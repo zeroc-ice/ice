@@ -5,7 +5,7 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden Kept public because it's used by IceBT and SSL.
+ * @hidden Public because it's used by IceBT and SSL.
  */
 public interface Acceptor {
     java.nio.channels.ServerSocketChannel fd();

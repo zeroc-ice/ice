@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * @hidden Kept public because it's used by the 'Ice\metrics' test.
+ * @hidden Public because it's used by the 'Ice\metrics' test.
  */
 public final class ConnectionI extends EventHandler implements Connection, CancellationHandler {
     public interface StartCallback {

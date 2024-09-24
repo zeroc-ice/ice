@@ -6,7 +6,7 @@ package com.zeroc.Ice;
  * Provides overloads of the proxy factory methods with covariant return types so that applications
  * do not need to downcast to the derived proxy type.
  *
- * @hidden Kept public because it's used by the generated code.
+ * @hidden Public because it's used by the generated code.
  */
 @SuppressWarnings("unchecked")
 public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _ObjectPrxI {

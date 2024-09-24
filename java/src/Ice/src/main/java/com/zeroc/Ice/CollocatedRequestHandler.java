@@ -171,7 +171,7 @@ final class CollocatedRequestHandler implements RequestHandler {
         int dispatchCount = requestCount > 0 ? requestCount : 1;
         assert !_response || dispatchCount == 1;
 
-        Object dispatcher = _adapter.dispatchPipeline();
+        com.zeroc.Ice.Object dispatcher = _adapter.dispatchPipeline();
         assert dispatcher != null;
 
         try {

@@ -8,7 +8,7 @@ import com.zeroc.Ice.IceMX.RemoteMetrics;
 import com.zeroc.Ice.Instrumentation.RemoteObserver;
 
 /**
- * @hidden Kept public because it's used by IceMX (via reflection).
+ * @hidden Public because it's used by IceMX (via reflection).
  */
 public class RemoteObserverI
         extends com.zeroc.Ice.IceMX.ObserverWithDelegate<RemoteMetrics, RemoteObserver>

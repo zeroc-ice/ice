@@ -562,7 +562,7 @@ public final class Util {
     }
 
     /**
-     * @hidden Kept public because it's used by IceBT and the 'Ice/background' test.
+     * @hidden Public because it's used by IceBT and the 'Ice/background' test.
      */
     public static ProtocolPluginFacade getProtocolPluginFacade(Communicator communicator) {
         return new ProtocolPluginFacadeI(communicator);
@@ -573,7 +573,7 @@ public final class Util {
      * absolute). If that fails, fall back to the file system. Returns null if the file does not
      * exist and raises IOException if an error occurs.
      *
-     * @hidden Kept public because it's used by SSL.
+     * @hidden Public because it's used by SSL.
      */
     public static java.io.InputStream openResource(ClassLoader cl, String path)
             throws java.io.IOException {
@@ -613,7 +613,7 @@ public final class Util {
     }
 
     /**
-     * @hidden Kept public because it's used by IceBox and IceGridGUI.
+     * @hidden Public because it's used by IceBox and IceGridGUI.
      */
     public static Class<?> findClass(String className, ClassLoader cl) throws LinkageError {
         //
@@ -703,7 +703,7 @@ public final class Util {
     /**
      * Returns true if we're running on Android.
      *
-     * @hidden Kept public because it's used by the tests.
+     * @hidden Public because it's used by the tests.
      */
     public static boolean isAndroid() {
         return System.getProperty("java.vm.name").startsWith("Dalvik");
