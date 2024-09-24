@@ -4,9 +4,9 @@
 
 package com.zeroc.Ice.SSL;
 
-final class ConnectorI implements com.zeroc.IceInternal.Connector {
+final class ConnectorI implements com.zeroc.Ice.Connector {
     @Override
-    public com.zeroc.IceInternal.Transceiver connect() {
+    public com.zeroc.Ice.Transceiver connect() {
         SSLEngineFactory clientSSLEngineFactory =
                 _instance.initializationData().clientSSLEngineFactory;
         if (clientSSLEngineFactory == null) {
@@ -36,7 +36,7 @@ final class ConnectorI implements com.zeroc.IceInternal.Connector {
     //
     // Only for use by EndpointI.
     //
-    ConnectorI(Instance instance, com.zeroc.IceInternal.Connector delegate, String host) {
+    ConnectorI(Instance instance, com.zeroc.Ice.Connector delegate, String host) {
         _instance = instance;
         _delegate = delegate;
         _host = host;
@@ -57,6 +57,6 @@ final class ConnectorI implements com.zeroc.IceInternal.Connector {
     }
 
     private Instance _instance;
-    private com.zeroc.IceInternal.Connector _delegate;
+    private com.zeroc.Ice.Connector _delegate;
     private String _host;
 }

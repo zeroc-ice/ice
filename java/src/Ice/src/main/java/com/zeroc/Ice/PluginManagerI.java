@@ -6,7 +6,7 @@ package com.zeroc.Ice;
 
 import java.net.URLEncoder;
 
-public final class PluginManagerI implements PluginManager {
+final class PluginManagerI implements PluginManager {
     private static String _kindOfObject = "plugin";
 
     @Override
@@ -121,7 +121,7 @@ public final class PluginManagerI implements PluginManager {
         }
     }
 
-    public PluginManagerI(Communicator communicator, com.zeroc.IceInternal.Instance instance) {
+    public PluginManagerI(Communicator communicator, Instance instance) {
         _communicator = communicator;
         _instance = instance;
         _initialized = false;
@@ -189,7 +189,7 @@ public final class PluginManagerI implements PluginManager {
 
         String[] args;
         try {
-            args = com.zeroc.IceUtilInternal.Options.split(pluginSpec);
+            args = Options.split(pluginSpec);
         } catch (ParseException ex) {
             throw new PluginInitializationException(
                     "invalid arguments for plug-in `" + name + "'", ex);
@@ -323,7 +323,7 @@ public final class PluginManagerI implements PluginManager {
                 } catch (java.io.IOException ex) {
                     throw new PluginInitializationException(
                             "invalid path in entry point `" + pluginSpec + "'", ex);
-                } catch (java.lang.ClassNotFoundException ex) {
+                } catch (ClassNotFoundException ex) {
                     // Ignored
                 }
             } else {
@@ -391,7 +391,7 @@ public final class PluginManagerI implements PluginManager {
     }
 
     private Communicator _communicator;
-    private com.zeroc.IceInternal.Instance _instance;
+    private Instance _instance;
     private java.util.List<PluginInfo> _plugins = new java.util.ArrayList<>();
     private boolean _initialized;
     private java.util.Map<String, ClassLoader> _classLoaders;

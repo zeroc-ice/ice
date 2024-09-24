@@ -78,8 +78,7 @@ class LogFilterDialog extends JDialog {
                         String txt = traceCategories.getText();
                         if (txt != null && !txt.isEmpty()) {
                             traceCategoryFilter =
-                                    com.zeroc.IceUtilInternal.StringUtil.splitString(
-                                            txt, ", \t\r\n");
+                                    com.zeroc.Ice.StringUtil.splitString(txt, ", \t\r\n");
                             if (traceCategoryFilter == null) {
                                 // unmatched quote
                                 JOptionPane.showMessageDialog(

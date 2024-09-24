@@ -26,7 +26,7 @@ public class ProxyIdentityKey {
         //
         _identity = proxy.ice_getIdentity();
         int h = 5381;
-        h = com.zeroc.IceInternal.HashUtil.hashAdd(h, _identity);
+        h = HashUtil.hashAdd(h, _identity);
         _hashCode = h;
     }
 

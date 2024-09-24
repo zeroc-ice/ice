@@ -3,18 +3,18 @@
 package com.zeroc.IceBT;
 
 import android.bluetooth.BluetoothAdapter;
+import com.zeroc.Ice.Acceptor;
+import com.zeroc.Ice.Connector;
+import com.zeroc.Ice.EndpointI_connectors;
 import com.zeroc.Ice.EndpointSelectionType;
+import com.zeroc.Ice.HashUtil;
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OutputStream;
 import com.zeroc.Ice.ParseException;
-import com.zeroc.IceInternal.Acceptor;
-import com.zeroc.IceInternal.Connector;
-import com.zeroc.IceInternal.EndpointI_connectors;
-import com.zeroc.IceInternal.HashUtil;
-import com.zeroc.IceInternal.Transceiver;
+import com.zeroc.Ice.Transceiver;
 import java.util.UUID;
 
-final class EndpointI extends com.zeroc.IceInternal.EndpointI {
+final class EndpointI extends com.zeroc.Ice.EndpointI {
     public EndpointI(
             Instance instance,
             String addr,
@@ -85,7 +85,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI timeout(int timeout) {
+    public com.zeroc.Ice.EndpointI timeout(int timeout) {
         if (timeout == _timeout) {
             return this;
         } else {
@@ -100,7 +100,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI connectionId(String connectionId) {
+    public com.zeroc.Ice.EndpointI connectionId(String connectionId) {
         if (connectionId.equals(_connectionId)) {
             return this;
         } else {
@@ -115,7 +115,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI compress(boolean compress) {
+    public com.zeroc.Ice.EndpointI compress(boolean compress) {
         if (compress == _compress) {
             return this;
         } else {
@@ -153,8 +153,8 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public java.util.List<com.zeroc.IceInternal.EndpointI> expandIfWildcard() {
-        java.util.List<com.zeroc.IceInternal.EndpointI> endps = new java.util.ArrayList<>();
+    public java.util.List<com.zeroc.Ice.EndpointI> expandIfWildcard() {
+        java.util.List<com.zeroc.Ice.EndpointI> endps = new java.util.ArrayList<>();
         if (_addr.isEmpty()) {
             // Starting in Android 6 (API 23), BluetoothAdapter.getAddress() returns a bogus
             // constant value.
@@ -176,16 +176,16 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI.ExpandHostResult expandHost() {
-        com.zeroc.IceInternal.EndpointI.ExpandHostResult result =
-                new com.zeroc.IceInternal.EndpointI.ExpandHostResult();
+    public com.zeroc.Ice.EndpointI.ExpandHostResult expandHost() {
+        com.zeroc.Ice.EndpointI.ExpandHostResult result =
+                new com.zeroc.Ice.EndpointI.ExpandHostResult();
         result.endpoints = new java.util.ArrayList<>();
         result.endpoints.add(this);
         return result;
     }
 
     @Override
-    public boolean equivalent(com.zeroc.IceInternal.EndpointI endpoint) {
+    public boolean equivalent(com.zeroc.Ice.EndpointI endpoint) {
         if (!(endpoint instanceof EndpointI)) {
             return false;
         }
@@ -302,7 +302,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     }
 
     @Override
-    public int compareTo(com.zeroc.IceInternal.EndpointI obj) {
+    public int compareTo(com.zeroc.Ice.EndpointI obj) {
         if (!(obj instanceof EndpointI)) {
             return type() < obj.type() ? -1 : 1;
         }

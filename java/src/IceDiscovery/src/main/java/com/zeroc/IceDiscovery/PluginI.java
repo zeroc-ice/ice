@@ -2,7 +2,7 @@
 
 package com.zeroc.IceDiscovery;
 
-import com.zeroc.IceInternal.Network;
+import com.zeroc.Ice.Network;
 
 class PluginI implements com.zeroc.Ice.Plugin {
     public PluginI(com.zeroc.Ice.Communicator communicator) {

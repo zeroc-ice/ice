@@ -390,11 +390,11 @@ public class ServiceManagerI implements ServiceManager {
                 throw new FailureException(
                         "ServiceManager: invalid path in plug-in entry point `" + classDir + "'",
                         ex);
-            } catch (java.lang.ClassNotFoundException ex) {
+            } catch (ClassNotFoundException ex) {
                 // Ignored
             }
         } else {
-            c = com.zeroc.IceInternal.Util.findClass(className, null);
+            c = com.zeroc.Ice.Util.findClass(className, null);
         }
 
         if (c == null) {
@@ -573,7 +573,7 @@ public class ServiceManagerI implements ServiceManager {
         while (_pendingStatusChanges) {
             try {
                 wait();
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
         }
 
@@ -721,7 +721,7 @@ public class ServiceManagerI implements ServiceManager {
             // "<path with spaces>:<class-name>" [args]
 
             try {
-                args = com.zeroc.IceUtilInternal.Options.split(value);
+                args = com.zeroc.Ice.Options.split(value);
             } catch (com.zeroc.Ice.ParseException ex) {
                 throw new FailureException(
                         "ServiceManager: invalid arguments for service `" + name + "'", ex);

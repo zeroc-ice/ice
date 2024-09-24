@@ -31,7 +31,7 @@ public class ServerLocator implements TestLocator {
         // running the test on a fast machine
         try {
             Thread.sleep(1);
-        } catch (java.lang.InterruptedException ex) {
+        } catch (InterruptedException ex) {
         }
         return CompletableFuture.completedFuture(_registry.getAdapter(adapter));
     }
@@ -45,7 +45,7 @@ public class ServerLocator implements TestLocator {
         // running the test on a fast machine
         try {
             Thread.sleep(1);
-        } catch (java.lang.InterruptedException ex) {
+        } catch (InterruptedException ex) {
         }
         return CompletableFuture.completedFuture(_registry.getObject(id));
     }

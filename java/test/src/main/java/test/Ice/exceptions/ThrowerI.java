@@ -115,7 +115,7 @@ public final class ThrowerI implements Thrower {
 
     @Override
     public void throwAssertException(com.zeroc.Ice.Current current) {
-        throw new java.lang.AssertionError();
+        throw new AssertionError();
     }
 
     @Override

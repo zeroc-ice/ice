@@ -32,7 +32,7 @@ public class AllTests {
                 if (delay > 0) {
                     try {
                         wait(delay);
-                    } catch (java.lang.InterruptedException ex) {
+                    } catch (InterruptedException ex) {
                     }
                 } else {
                     break;

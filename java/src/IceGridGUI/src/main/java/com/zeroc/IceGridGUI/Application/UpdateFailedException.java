@@ -2,7 +2,7 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-public class UpdateFailedException extends Exception {
+public class UpdateFailedException extends java.lang.Exception {
     UpdateFailedException(TreeNode parent, String id) {
         _message = parent.getFullId().toString() + " has already a child with '" + id + "' as ID.";
     }

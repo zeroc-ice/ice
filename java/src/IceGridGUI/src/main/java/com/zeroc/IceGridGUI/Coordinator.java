@@ -1203,7 +1203,7 @@ public class Coordinator {
                     try {
                         SwingUtilities.invokeAndWait(this);
                         break;
-                    } catch (java.lang.InterruptedException e) {
+                    } catch (InterruptedException e) {
                         // Ignore and retry
                     } catch (java.lang.reflect.InvocationTargetException e) {
                         break;
@@ -1312,7 +1312,7 @@ public class Coordinator {
                                                     JOptionPane.ERROR_MESSAGE);
                                         });
                                 break;
-                            } catch (java.lang.InterruptedException e) {
+                            } catch (InterruptedException e) {
                             } catch (java.lang.reflect.InvocationTargetException e) {
                                 break;
                             }
@@ -1357,7 +1357,7 @@ public class Coordinator {
                                                         JOptionPane.ERROR_MESSAGE);
                                             });
                                     break;
-                                } catch (java.lang.InterruptedException e) {
+                                } catch (InterruptedException e) {
                                 } catch (java.lang.reflect.InvocationTargetException e) {
                                     break;
                                 }
@@ -1999,7 +1999,7 @@ public class Coordinator {
                                                                     }
                                                                 });
                                                         break;
-                                                    } catch (java.lang.InterruptedException ex) {
+                                                    } catch (InterruptedException ex) {
                                                         // Ignore and retry
                                                     } catch (
                                                             java.lang.reflect
@@ -2863,16 +2863,14 @@ public class Coordinator {
     public IGraphView createGraphView() {
         IGraphView view = null;
         Class<?> c1 =
-                com.zeroc.IceInternal.Util.findClass(
-                        "com.zeroc.IceGridGUI.LiveDeployment.GraphView", null);
+                com.zeroc.Ice.Util.findClass("com.zeroc.IceGridGUI.LiveDeployment.GraphView", null);
         if (c1 == null) {
             JOptionPane.showMessageDialog(
                     _mainFrame,
                     "IceGrid GUI was built without Metrics Graph Support",
                     "IceGrid GUI Info",
                     JOptionPane.INFORMATION_MESSAGE);
-        } else if (com.zeroc.IceInternal.Util.findClass("javafx.embed.swing.JFXPanel", null)
-                == null) {
+        } else if (com.zeroc.Ice.Util.findClass("javafx.embed.swing.JFXPanel", null) == null) {
             JOptionPane.showMessageDialog(
                     _mainFrame,
                     "The Metrics Graph view requires JavaFX",
@@ -3267,7 +3265,7 @@ public class Coordinator {
                         "Initialization Exception",
                         JOptionPane.ERROR_MESSAGE);
                 return;
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
                 JOptionPane.showMessageDialog(
                         getMainFrame(),
                         "Could not read Windows registry key `" + regKey + "'\n" + ex.toString(),
@@ -3572,7 +3570,7 @@ public class Coordinator {
     private JFileChooser _saveLogFileChooser;
     private JFileChooser _saveIceLogChooser;
 
-    private Process _icegridadminProcess;
+    private java.lang.Process _icegridadminProcess;
     private String _fileParser;
     private boolean _connected;
 

@@ -4,14 +4,14 @@
 
 package com.zeroc.Ice.SSL;
 
-final class AcceptorI implements com.zeroc.IceInternal.Acceptor {
+final class AcceptorI implements com.zeroc.Ice.Acceptor {
     @Override
     public java.nio.channels.ServerSocketChannel fd() {
         return _delegate.fd();
     }
 
     @Override
-    public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback) {
+    public void setReadyCallback(com.zeroc.Ice.ReadyCallback callback) {
         _delegate.setReadyCallback(callback);
     }
 
@@ -21,13 +21,13 @@ final class AcceptorI implements com.zeroc.IceInternal.Acceptor {
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointI listen() {
+    public com.zeroc.Ice.EndpointI listen() {
         _endpoint = _endpoint.endpoint(_delegate.listen());
         return _endpoint;
     }
 
     @Override
-    public com.zeroc.IceInternal.Transceiver accept() {
+    public com.zeroc.Ice.Transceiver accept() {
         return new TransceiverI(
                 _instance, _delegate.accept(), _adapterName, true, _sslEngineFactory);
     }
@@ -50,7 +50,7 @@ final class AcceptorI implements com.zeroc.IceInternal.Acceptor {
     AcceptorI(
             EndpointI endpoint,
             Instance instance,
-            com.zeroc.IceInternal.Acceptor delegate,
+            com.zeroc.Ice.Acceptor delegate,
             String adapterName,
             SSLEngineFactory sslEngineFactory) {
         _endpoint = endpoint;
@@ -68,7 +68,7 @@ final class AcceptorI implements com.zeroc.IceInternal.Acceptor {
 
     private EndpointI _endpoint;
     private Instance _instance;
-    private com.zeroc.IceInternal.Acceptor _delegate;
+    private com.zeroc.Ice.Acceptor _delegate;
     private String _adapterName;
     private SSLEngineFactory _sslEngineFactory;
 }

@@ -10,7 +10,7 @@ public class SerializableClass implements java.io.Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(java.lang.Object obj) {
         if (obj instanceof SerializableClass) {
             return _v == ((SerializableClass) obj)._v;
         }

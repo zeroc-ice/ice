@@ -12,10 +12,9 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory {
 
         @Override
         public void initialize() {
-            com.zeroc.IceInternal.ProtocolPluginFacade facade =
-                    com.zeroc.IceInternal.Util.getProtocolPluginFacade(_communicator);
+            var facade = com.zeroc.Ice.Util.getProtocolPluginFacade(_communicator);
             for (short s = 0; s < 100; ++s) {
-                com.zeroc.IceInternal.EndpointFactory factory = facade.getEndpointFactory(s);
+                com.zeroc.Ice.EndpointFactory factory = facade.getEndpointFactory(s);
                 if (factory != null) {
                     facade.addEndpointFactory(new EndpointFactory(_configuration, factory));
                 }

@@ -169,7 +169,7 @@ public class AllTests {
             closureThread.start();
             try {
                 Thread.sleep(50);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
 
             // We set a connect timeout of '1s', so the connection should still be useable here.
@@ -181,7 +181,7 @@ public class AllTests {
 
             try {
                 closureThread.join(); // Ensure the connection closure completed.
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
 
             try {
@@ -192,7 +192,7 @@ public class AllTests {
 
             try {
                 closureThread.join(); // Ensure the connection closure thread completed.
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
 
             controller.resumeAdapter();

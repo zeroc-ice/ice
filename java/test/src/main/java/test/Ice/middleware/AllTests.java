@@ -3,7 +3,6 @@
 package test.Ice.middleware;
 
 import com.zeroc.Ice.*;
-import com.zeroc.Ice.Object;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,13 +13,14 @@ import test.Ice.middleware.Test.*;
 
 public class AllTests {
 
-    private static class Middleware implements Object {
-        private final Object _next;
+    private static class Middleware implements com.zeroc.Ice.Object {
+        private final com.zeroc.Ice.Object _next;
         private final String _name;
         private final List<String> _inLog;
         private final List<String> _outLog;
 
-        Middleware(Object next, String name, List<String> inLog, List<String> outLog) {
+        Middleware(
+                com.zeroc.Ice.Object next, String name, List<String> inLog, List<String> outLog) {
             _next = next;
             _name = name;
             _inLog = inLog;
@@ -46,7 +46,7 @@ public class AllTests {
         @Override
         public CompletionStage<String> getNameAsync(Current current) {
             if (_throwError) {
-                return CompletableFuture.failedFuture(new java.lang.StackOverflowError());
+                return CompletableFuture.failedFuture(new StackOverflowError());
             } else {
                 return CompletableFuture.completedFuture("Foo");
             }
@@ -55,7 +55,7 @@ public class AllTests {
         @Override
         public void ice_ping(Current current) {
             if (_throwError) {
-                throw new java.lang.StackOverflowError();
+                throw new StackOverflowError();
             }
         }
 
@@ -65,7 +65,7 @@ public class AllTests {
     }
 
     private static class ErrorHolder {
-        java.lang.Error error;
+        Error error;
     }
 
     public static void allTests(test.TestHelper helper) {
@@ -144,7 +144,7 @@ public class AllTests {
 
         // Assert
         if (withError) {
-            test(errorHolder.error instanceof java.lang.StackOverflowError);
+            test(errorHolder.error instanceof StackOverflowError);
         } else {
             test(errorHolder.error == null);
         }

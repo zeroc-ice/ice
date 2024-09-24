@@ -772,12 +772,12 @@ public interface ObjectPrx {
      * @hidden
      * @return -
      */
-    com.zeroc.IceInternal.Reference _getReference();
+    Reference _getReference();
 
     /**
      * @hidden
      */
-    default ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref) {
+    default ObjectPrx _newInstance(Reference ref) {
         return new _ObjectPrxI(ref);
     }
 

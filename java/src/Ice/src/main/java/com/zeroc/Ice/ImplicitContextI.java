@@ -4,10 +4,8 @@
 
 package com.zeroc.Ice;
 
-//
-// The base class for all ImplicitContext implementations
-//
-public abstract class ImplicitContextI implements ImplicitContext {
+/** The base class for all ImplicitContext implementations. */
+abstract class ImplicitContextI implements ImplicitContext {
     public static ImplicitContextI create(String kind) {
         if (kind.isEmpty() || kind.equals("None")) {
             return null;

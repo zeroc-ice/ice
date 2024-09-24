@@ -57,8 +57,7 @@ import javax.swing.table.AbstractTableModel;
 public class SessionKeeper {
     // An AdminSessionPrx and various objects associated with that session
     private class Session {
-        Session(AdminSessionPrx session, boolean routed, final Component parent)
-                throws java.lang.Throwable {
+        Session(AdminSessionPrx session, boolean routed, final Component parent) throws Throwable {
             _session = session;
             _routed = routed;
             try {
@@ -76,7 +75,7 @@ public class SessionKeeper {
                                             JOptionPane.ERROR_MESSAGE);
                                 });
                         break;
-                    } catch (java.lang.InterruptedException ex) {
+                    } catch (InterruptedException ex) {
                         // Ignore and retry
                     } catch (java.lang.reflect.InvocationTargetException ex) {
                         break;
@@ -124,7 +123,7 @@ public class SessionKeeper {
                                             JOptionPane.ERROR_MESSAGE);
                                 });
                         break;
-                    } catch (java.lang.InterruptedException ex) {
+                    } catch (InterruptedException ex) {
                         // Ignore and retry
                     } catch (java.lang.reflect.InvocationTargetException ex) {
                         break;
@@ -145,7 +144,7 @@ public class SessionKeeper {
                                             JOptionPane.ERROR_MESSAGE);
                                 });
                         break;
-                    } catch (java.lang.InterruptedException ex) {
+                    } catch (InterruptedException ex) {
                         // Ignore and retry
                     } catch (java.lang.reflect.InvocationTargetException ex) {
                         break;
@@ -259,7 +258,7 @@ public class SessionKeeper {
             _coordinator.setConnected(false);
         }
 
-        public void registerObservers() throws java.lang.Throwable {
+        public void registerObservers() throws Throwable {
             // Create the object adapter for the observers
             String category;
 
@@ -359,7 +358,7 @@ public class SessionKeeper {
                                 applicationObserverServant.waitForInit();
                             });
                     break;
-                } catch (java.lang.InterruptedException ex) {
+                } catch (InterruptedException ex) {
                     // Ignore and retry
                 } catch (java.lang.reflect.InvocationTargetException ex) {
                     throw ex.getCause();
@@ -4688,14 +4687,14 @@ public class SessionKeeper {
                                                                 JOptionPane.ERROR_MESSAGE);
                                                     });
                                             break;
-                                        } catch (java.lang.InterruptedException ex) {
+                                        } catch (InterruptedException ex) {
                                             // Ignore and retry
                                         } catch (java.lang.reflect.InvocationTargetException ex) {
                                             break;
                                         }
                                     }
                                 }
-                            } catch (java.lang.Throwable e) {
+                            } catch (Throwable e) {
                                 return;
                             }
 

@@ -2,7 +2,7 @@
 
 package test.Ice.plugin.plugins;
 
-public class PluginInitializeFailException extends java.lang.RuntimeException {
+public class PluginInitializeFailException extends RuntimeException {
     public PluginInitializeFailException() {
         super("PluginInitializeFailException");
     }

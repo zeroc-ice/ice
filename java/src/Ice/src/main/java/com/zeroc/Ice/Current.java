@@ -2,7 +2,6 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.IceInternal.Protocol;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
 import java.util.function.BiConsumer;

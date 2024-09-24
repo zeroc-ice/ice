@@ -55,7 +55,7 @@ public class ControllerActivity extends ListActivity
                 Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
             }
-            catch (SecurityException ex)
+            catch (java.lang.SecurityException ex)
             {
                 // The user didn't grant the required permissions.
                 Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show();

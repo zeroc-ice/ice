@@ -28,8 +28,8 @@ public class ProxyIdentityFacetKey {
         _identity = proxy.ice_getIdentity();
         _facet = proxy.ice_getFacet();
         int h = 5381;
-        h = com.zeroc.IceInternal.HashUtil.hashAdd(h, _identity);
-        h = com.zeroc.IceInternal.HashUtil.hashAdd(h, _facet);
+        h = HashUtil.hashAdd(h, _identity);
+        h = HashUtil.hashAdd(h, _facet);
         _hashCode = h;
     }
 

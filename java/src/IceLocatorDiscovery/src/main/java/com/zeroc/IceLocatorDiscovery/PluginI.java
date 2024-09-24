@@ -2,7 +2,7 @@
 
 package com.zeroc.IceLocatorDiscovery;
 
-import com.zeroc.IceInternal.Network;
+import com.zeroc.Ice.Network;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -200,7 +200,7 @@ class PluginI implements Plugin {
                         }
                     }
                 }
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
                 throw new com.zeroc.Ice.OperationInterruptedException();
             }
 
@@ -331,7 +331,7 @@ class PluginI implements Plugin {
             if (request != null && _locator != null && _locator != locator) {
                 request.invoke(_locator);
             } else if (request != null
-                    && com.zeroc.IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry) {
+                    && com.zeroc.Ice.Time.currentMonotonicTimeMillis() < _nextRetry) {
                 request.invoke(
                         _voidLocator); // Don't retry to find a locator before the retry delay
                 // expires
@@ -513,8 +513,7 @@ class PluginI implements Plugin {
                                 _pendingRequests.clear();
                             }
                             _nextRetry =
-                                    com.zeroc.IceInternal.Time.currentMonotonicTimeMillis()
-                                            + _retryDelay;
+                                    com.zeroc.Ice.Time.currentMonotonicTimeMillis() + _retryDelay;
                         }
                     }
                 };

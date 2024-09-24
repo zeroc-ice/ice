@@ -4,8 +4,6 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.IceInternal.Property;
-
 /**
  * A property set used to configure Ice and Ice applications. Properties are key/value pairs, with
  * both keys and values being strings. By convention, property keys should have the form
@@ -274,9 +272,7 @@ public final class Properties {
      * @see #setProperty
      */
     public synchronized String[] getIcePropertyAsList(String key) {
-        String[] defaultList =
-                com.zeroc.IceUtilInternal.StringUtil.splitString(
-                        getDefaultProperty(key), ", \t\r\n");
+        String[] defaultList = StringUtil.splitString(getDefaultProperty(key), ", \t\r\n");
         return getPropertyAsListWithDefault(key, defaultList);
     }
 
@@ -302,8 +298,7 @@ public final class Properties {
         if (pv != null) {
             pv.used = true;
 
-            String[] result =
-                    com.zeroc.IceUtilInternal.StringUtil.splitString(pv.value, ", \t\r\n");
+            String[] result = StringUtil.splitString(pv.value, ", \t\r\n");
             if (result == null) {
                 Util.getProcessLogger()
                         .warning(
@@ -451,10 +446,8 @@ public final class Properties {
      */
     public String[] parseIceCommandLineOptions(String[] options) {
         String[] args = options;
-        for (int i = 0; com.zeroc.IceInternal.PropertyNames.clPropNames[i] != null; ++i) {
-            args =
-                    parseCommandLineOptions(
-                            com.zeroc.IceInternal.PropertyNames.clPropNames[i], args);
+        for (int i = 0; PropertyNames.clPropNames[i] != null; ++i) {
+            args = parseCommandLineOptions(PropertyNames.clPropNames[i], args);
         }
         return args;
     }
@@ -532,8 +525,7 @@ public final class Properties {
         } else {
             java.io.PushbackInputStream is = null;
             try {
-                java.io.InputStream f =
-                        com.zeroc.IceInternal.Util.openResource(getClass().getClassLoader(), file);
+                java.io.InputStream f = Util.openResource(getClass().getClassLoader(), file);
                 if (f == null) {
                     throw new FileException("failed to open '" + file + "'");
                 }
@@ -798,10 +790,10 @@ public final class Properties {
         }
 
         String prefix = key.substring(0, dotPos);
-        com.zeroc.IceInternal.Property[] propertyArray = null;
+        Property[] propertyArray = null;
 
-        for (int i = 0; com.zeroc.IceInternal.PropertyNames.validProps[i] != null; ++i) {
-            String pattern = com.zeroc.IceInternal.PropertyNames.validProps[i][0].pattern();
+        for (int i = 0; PropertyNames.validProps[i] != null; ++i) {
+            String pattern = PropertyNames.validProps[i][0].pattern();
             dotPos = pattern.indexOf('.');
 
             // Each top level prefix describes a non-empty namespace. Having a string without a
@@ -812,7 +804,7 @@ public final class Properties {
             String propPrefix = pattern.substring(0, dotPos).replaceAll("\\\\", "");
 
             if (propPrefix.equals(prefix)) {
-                propertyArray = com.zeroc.IceInternal.PropertyNames.validProps[i];
+                propertyArray = PropertyNames.validProps[i];
                 break;
             }
 

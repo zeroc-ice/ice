@@ -3,12 +3,14 @@
 package com.zeroc.Ice;
 
 /**
- * @hidden Provides overloads of the proxy factory methods with covariant return types so that
- *     applications do not need to downcast to the derived proxy type.
+ * Provides overloads of the proxy factory methods with covariant return types so that applications
+ * do not need to downcast to the derived proxy type.
+ *
+ * @hidden Public because it's used by the generated code.
  */
 @SuppressWarnings("unchecked")
 public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _ObjectPrxI {
-    protected _ObjectPrxFactoryMethods(com.zeroc.IceInternal.Reference ref) {
+    protected _ObjectPrxFactoryMethods(Reference ref) {
         super(ref);
     }
 

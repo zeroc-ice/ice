@@ -4,9 +4,9 @@
 
 package test.Ice.background;
 
-final class Connector implements com.zeroc.IceInternal.Connector {
+final class Connector implements com.zeroc.Ice.Connector {
     @Override
-    public com.zeroc.IceInternal.Transceiver connect() {
+    public com.zeroc.Ice.Transceiver connect() {
         _configuration.checkConnectException();
         return new Transceiver(_configuration, _connector.connect());
     }
@@ -29,7 +29,7 @@ final class Connector implements com.zeroc.IceInternal.Connector {
     //
     // Only for use by Endpoint
     //
-    Connector(Configuration configuration, com.zeroc.IceInternal.Connector connector) {
+    Connector(Configuration configuration, com.zeroc.Ice.Connector connector) {
         _configuration = configuration;
         _connector = connector;
     }
@@ -51,6 +51,6 @@ final class Connector implements com.zeroc.IceInternal.Connector {
         return _connector.equals(p._connector);
     }
 
-    private final com.zeroc.IceInternal.Connector _connector;
+    private final com.zeroc.Ice.Connector _connector;
     private final Configuration _configuration;
 }

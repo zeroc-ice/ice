@@ -124,7 +124,7 @@ public class Instrumentation {
             }
             try {
                 Thread.sleep(10);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
             }
         }
         if (value.value != expected) {

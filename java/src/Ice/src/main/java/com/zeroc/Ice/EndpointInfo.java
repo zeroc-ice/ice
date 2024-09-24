@@ -16,7 +16,7 @@
 package com.zeroc.Ice;
 
 /** Base class providing access to the endpoint details. */
-public abstract class EndpointInfo implements java.lang.Cloneable {
+public abstract class EndpointInfo implements Cloneable {
     public EndpointInfo() {}
 
     public EndpointInfo(EndpointInfo underlying, int timeout, boolean compress) {

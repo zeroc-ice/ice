@@ -4,11 +4,6 @@ package com.zeroc.Ice;
 
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
-import com.zeroc.IceInternal.EndpointI;
-import com.zeroc.IceInternal.IncomingConnectionFactory;
-import com.zeroc.IceInternal.LoggerMiddleware;
-import com.zeroc.IceInternal.ObserverMiddleware;
-import com.zeroc.IceInternal.Reference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,19 +29,19 @@ public final class ObjectAdapter {
     private static final int StateDestroyed = 7;
 
     private int _state = StateUninitialized;
-    private com.zeroc.IceInternal.Instance _instance;
+    private Instance _instance;
     private Communicator _communicator;
-    private com.zeroc.IceInternal.ObjectAdapterFactory _objectAdapterFactory;
-    private com.zeroc.IceInternal.ThreadPool _threadPool;
-    private com.zeroc.IceInternal.ServantManager _servantManager;
+    private ObjectAdapterFactory _objectAdapterFactory;
+    private ThreadPool _threadPool;
+    private ServantManager _servantManager;
     private final String _name;
     private final String _id;
     private final String _replicaGroupId;
     private Reference _reference;
     private List<IncomingConnectionFactory> _incomingConnectionFactories = new ArrayList<>();
-    private com.zeroc.IceInternal.RouterInfo _routerInfo = null;
+    private RouterInfo _routerInfo = null;
     private EndpointI[] _publishedEndpoints = new EndpointI[0];
-    private com.zeroc.IceInternal.LocatorInfo _locatorInfo;
+    private LocatorInfo _locatorInfo;
     private int _directCount; // The number of direct proxies dispatching on this object adapter.
     private boolean _noConfig;
     private final int _messageSizeMax;
@@ -84,7 +79,7 @@ public final class ObjectAdapter {
      * @see #deactivate
      */
     public void activate() {
-        com.zeroc.IceInternal.LocatorInfo locatorInfo = null;
+        LocatorInfo locatorInfo = null;
         boolean printAdapterReady = false;
 
         synchronized (this) {
@@ -904,7 +899,7 @@ public final class ObjectAdapter {
      * by a host changes.
      */
     public void refreshPublishedEndpoints() {
-        com.zeroc.IceInternal.LocatorInfo locatorInfo = null;
+        LocatorInfo locatorInfo = null;
         EndpointI[] oldPublishedEndpoints;
 
         synchronized (this) {
@@ -951,7 +946,7 @@ public final class ObjectAdapter {
      * @see Endpoint
      */
     public void setPublishedEndpoints(Endpoint[] newEndpoints) {
-        com.zeroc.IceInternal.LocatorInfo locatorInfo = null;
+        LocatorInfo locatorInfo = null;
         EndpointI[] oldPublishedEndpoints;
 
         synchronized (this) {
@@ -1001,7 +996,7 @@ public final class ObjectAdapter {
             //
             return ref.getAdapterId().equals(_id) || ref.getAdapterId().equals(_replicaGroupId);
         } else {
-            com.zeroc.IceInternal.EndpointI[] endpoints = ref.getEndpoints();
+            EndpointI[] endpoints = ref.getEndpoints();
 
             synchronized (this) {
                 checkForDeactivation();
@@ -1011,8 +1006,8 @@ public final class ObjectAdapter {
                 // endpoints used by this object adapter's incoming connection
                 // factories are considered local.
                 //
-                for (com.zeroc.IceInternal.EndpointI endpoint : endpoints) {
-                    for (com.zeroc.IceInternal.EndpointI p : _publishedEndpoints) {
+                for (EndpointI endpoint : endpoints) {
+                    for (EndpointI p : _publishedEndpoints) {
                         if (endpoint.equivalent(p)) {
                             return true;
                         }
@@ -1030,8 +1025,7 @@ public final class ObjectAdapter {
     }
 
     public void flushAsyncBatchRequests(
-            com.zeroc.Ice.CompressBatch compressBatch,
-            com.zeroc.IceInternal.CommunicatorFlushBatch outAsync) {
+            com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         List<IncomingConnectionFactory> f;
         synchronized (this) {
             f = new ArrayList<>(_incomingConnectionFactories);
@@ -1052,7 +1046,7 @@ public final class ObjectAdapter {
     }
 
     public void updateThreadObservers() {
-        com.zeroc.IceInternal.ThreadPool threadPool = null;
+        ThreadPool threadPool = null;
         synchronized (this) {
             threadPool = _threadPool;
         }
@@ -1079,7 +1073,7 @@ public final class ObjectAdapter {
         }
     }
 
-    public com.zeroc.IceInternal.ThreadPool getThreadPool() {
+    public ThreadPool getThreadPool() {
         // No mutex lock necessary, _threadPool and _instance are
         // immutable after creation until they are removed in
         // destroy().
@@ -1095,7 +1089,7 @@ public final class ObjectAdapter {
         }
     }
 
-    public com.zeroc.IceInternal.ServantManager getServantManager() {
+    public ServantManager getServantManager() {
         //
         // No mutex lock necessary, _servantManager is immutable.
         //
@@ -1113,12 +1107,12 @@ public final class ObjectAdapter {
     }
 
     //
-    // Only for use by com.zeroc.IceInternal.ObjectAdapterFactory
+    // Only for use by com.zeroc.Ice.ObjectAdapterFactory
     //
-    public ObjectAdapter(
-            com.zeroc.IceInternal.Instance instance,
+    ObjectAdapter(
+            Instance instance,
             Communicator communicator,
-            com.zeroc.IceInternal.ObjectAdapterFactory objectAdapterFactory,
+            ObjectAdapterFactory objectAdapterFactory,
             String name,
             RouterPrx router,
             boolean noConfig,
@@ -1126,7 +1120,7 @@ public final class ObjectAdapter {
         _instance = instance;
         _communicator = communicator;
         _objectAdapterFactory = objectAdapterFactory;
-        _servantManager = new com.zeroc.IceInternal.ServantManager(instance, name);
+        _servantManager = new ServantManager(instance, name);
         _name = name;
         _directCount = 0;
         _noConfig = noConfig;
@@ -1235,8 +1229,7 @@ public final class ObjectAdapter {
             // Create the per-adapter thread pool, if necessary.
             //
             if (threadPoolSize > 0 || threadPoolSizeMax > 0) {
-                _threadPool =
-                        new com.zeroc.IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
+                _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 
             if (router == null) {
@@ -1286,7 +1279,7 @@ public final class ObjectAdapter {
                     }
                 }
                 if (endpoints.isEmpty()) {
-                    com.zeroc.IceInternal.TraceLevels tl = _instance.traceLevels();
+                    TraceLevels tl = _instance.traceLevels();
                     if (tl.network >= 2) {
                         _instance
                                 .initializationData()
@@ -1334,11 +1327,11 @@ public final class ObjectAdapter {
                         .logger
                         .warning("object adapter `" + getName() + "' has not been destroyed");
             } else {
-                com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
+                Assert.FinalizerAssert(_threadPool == null);
                 // Not cleared, it needs to be immutable.
-                // com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_servantManager == null);
-                // com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
-                com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
+                // Assert.FinalizerAssert(_servantManager == null);
+                // Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
+                Assert.FinalizerAssert(_directCount == 0);
             }
         } catch (java.lang.Exception ex) {
         } finally {
@@ -1386,16 +1379,15 @@ public final class ObjectAdapter {
         }
     }
 
-    private List<com.zeroc.IceInternal.EndpointI> parseEndpoints(
-            String endpts, boolean oaEndpoints) {
+    private List<EndpointI> parseEndpoints(String endpts, boolean oaEndpoints) {
         int beg;
         int end = 0;
 
         final String delim = " \t\n\r";
 
-        List<com.zeroc.IceInternal.EndpointI> endpoints = new ArrayList<>();
+        List<EndpointI> endpoints = new ArrayList<>();
         while (end < endpts.length()) {
-            beg = com.zeroc.IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
+            beg = StringUtil.findFirstNotOf(endpts, delim, end);
             if (beg == -1) {
                 if (!endpoints.isEmpty()) {
                     throw new ParseException("invalid empty object adapter endpoint");
@@ -1439,8 +1431,7 @@ public final class ObjectAdapter {
             }
 
             String s = endpts.substring(beg, end);
-            com.zeroc.IceInternal.EndpointI endp =
-                    _instance.endpointFactoryManager().create(s, oaEndpoints);
+            EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
             if (endp == null) {
                 throw new ParseException("invalid object adapter endpoint '" + s + "'");
             }
@@ -1503,7 +1494,7 @@ public final class ObjectAdapter {
             s.append(_name);
             s.append("':\n");
             boolean first = true;
-            for (com.zeroc.IceInternal.EndpointI endpoint : endpoints) {
+            for (EndpointI endpoint : endpoints) {
                 if (!first) {
                     s.append(':');
                 }
@@ -1518,8 +1509,7 @@ public final class ObjectAdapter {
         return endpoints.toArray(new EndpointI[endpoints.size()]);
     }
 
-    private void updateLocatorRegistry(
-            com.zeroc.IceInternal.LocatorInfo locatorInfo, ObjectPrx proxy) {
+    private void updateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy) {
         if (_id.isEmpty() || locatorInfo == null) {
             return; // Nothing to update.
         }
@@ -1676,8 +1666,8 @@ public final class ObjectAdapter {
         //
         boolean addUnknown = true;
         String prefix = _name + '.';
-        for (int i = 0; com.zeroc.IceInternal.PropertyNames.clPropNames[i] != null; ++i) {
-            if (prefix.startsWith(com.zeroc.IceInternal.PropertyNames.clPropNames[i] + '.')) {
+        for (int i = 0; PropertyNames.clPropNames[i] != null; ++i) {
+            if (prefix.startsWith(PropertyNames.clPropNames[i] + '.')) {
                 addUnknown = false;
                 break;
             }

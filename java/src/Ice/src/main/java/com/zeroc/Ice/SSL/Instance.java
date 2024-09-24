@@ -6,7 +6,7 @@ package com.zeroc.Ice.SSL;
 
 import com.zeroc.Ice.InitializationData;
 
-public class Instance extends com.zeroc.IceInternal.ProtocolInstance {
+public class Instance extends com.zeroc.Ice.ProtocolInstance {
     public Instance(SSLEngine engine, short type, String protocol) {
         super(engine.communicator(), type, protocol, true);
         _engine = engine;
