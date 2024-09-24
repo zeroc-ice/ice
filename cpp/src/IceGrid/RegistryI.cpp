@@ -3,6 +3,7 @@
 //
 
 #include "RegistryI.h"
+#include "../Glacier2Lib/NullPermissionsVerifier.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/Network.h"
 #include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
@@ -14,7 +15,6 @@
 #include "Database.h"
 #include "FileCache.h"
 #include "FileUserAccountMapperI.h"
-#include "Glacier2/NullPermissionsVerifier.h"
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
 #include "Ice/UUID.h"

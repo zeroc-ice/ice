@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../Glacier2Lib/NullPermissionsVerifier.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
-#include "Glacier2/NullPermissionsVerifier.h"
 #include "Glacier2/Session.h"
 #include "Ice/Ice.h"
 #include "Instance.h"
