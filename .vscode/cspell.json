@@ -2,7 +2,7 @@
     "version": "0.2",
     "language": "en",
     "words": [
-        "apos",
+        "apos",            // For &apos;
         "Blobject",
         "cacerts",
         "datagram",
@@ -15,14 +15,14 @@
         "icegridadmin",
         "icegridnode",
         "icestorm",
-        "jgoodies",
-        "nohup",
+        "jgoodies",        // Common Java library
+        "nohup",           // Ice property name
         "nullopt",
         "oneway",
         "PKCS",
         "Postamble",
         "reloadable",
-        "RFCOMM",
+        "RFCOMM",          // Bluetooth protocol
         "Stringifier",
         "Syscall",
         "Truststore",

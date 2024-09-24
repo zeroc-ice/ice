@@ -5,14 +5,6 @@
 package com.zeroc.Ice;
 
 import com.zeroc.Ice.Instrumentation.ConnectionState;
-import com.zeroc.Ice.SSL.Instance;
-import com.zeroc.IceInternal.RetryException;
-import com.zeroc.IceInternal.RunnableThreadPoolWorkItem;
-import com.zeroc.IceInternal.SocketOperation;
-import com.zeroc.IceInternal.ThreadPool;
-import com.zeroc.IceInternal.TraceLevels;
-import com.zeroc.IceInternal.Transceiver;
-import com.zeroc.IceUtilInternal.Assert;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
