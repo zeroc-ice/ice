@@ -2229,7 +2229,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
 
         // Write the compression status. If BZip2 is loaded and compress is set to true, we write 1, to request a
-        // compressed reply. Otherwise, we write 0 either BZip2 is not loaded or we are sending and uncompressed reply.
+        // compressed reply. Otherwise, we write 0 either BZip2 is not loaded or we are sending an uncompressed reply.
         decompressed.pos(9);
         decompressed.writeByte((byte)((BZip2.isLoaded(_logger) && compress) ? 1 : 0));
 
