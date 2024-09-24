@@ -3,3 +3,6 @@
 **/*.md
 assets/*
 package-lock.json
+
+# Generated file
+src/Ice/PropertyNames.js
