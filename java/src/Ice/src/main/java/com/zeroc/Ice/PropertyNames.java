@@ -6,10 +6,8 @@
 
 package com.zeroc.Ice;
 
-final class PropertyNames
-{
-    public static final Property IceProps[] =
-    {
+final class PropertyNames {
+    public static final Property IceProps[] = {
         new Property("Ice.AcceptClassCycles", false, "0", false),
         new Property("Ice.Admin.AdapterId", false, "", false),
         new Property("Ice.Admin.Connection.CloseTimeout", false, "10", false),
@@ -185,8 +183,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceMXProps[] =
-    {
+    public static final Property IceMXProps[] = {
         new Property("IceMX\\.Metrics\\.[^\\s]+\\.GroupBy", true, "", false),
         new Property("IceMX\\.Metrics\\.[^\\s]+\\.Map", true, "", false),
         new Property("IceMX\\.Metrics\\.[^\\s]+\\.RetainDetached", true, "10", false),
@@ -196,8 +193,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceDiscoveryProps[] =
-    {
+    public static final Property IceDiscoveryProps[] = {
         new Property("IceDiscovery.Multicast.AdapterId", false, "", false),
         new Property("IceDiscovery.Multicast.Connection.CloseTimeout", false, "10", false),
         new Property("IceDiscovery.Multicast.Connection.ConnectTimeout", false, "10", false),
@@ -326,8 +322,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceLocatorDiscoveryProps[] =
-    {
+    public static final Property IceLocatorDiscoveryProps[] = {
         new Property("IceLocatorDiscovery.Reply.AdapterId", false, "", false),
         new Property("IceLocatorDiscovery.Reply.Connection.CloseTimeout", false, "10", false),
         new Property("IceLocatorDiscovery.Reply.Connection.ConnectTimeout", false, "10", false),
@@ -372,7 +367,8 @@ final class PropertyNames
         new Property("IceLocatorDiscovery.Locator.Connection.ConnectTimeout", false, "10", false),
         new Property("IceLocatorDiscovery.Locator.Connection.EnableIdleCheck", false, "1", false),
         new Property("IceLocatorDiscovery.Locator.Connection.IdleTimeout", false, "60", false),
-        new Property("IceLocatorDiscovery.Locator.Connection.InactivityTimeout", false, "300", false),
+        new Property(
+                "IceLocatorDiscovery.Locator.Connection.InactivityTimeout", false, "300", false),
         new Property("IceLocatorDiscovery.Locator.Connection.MaxDispatches", false, "100", false),
         new Property("IceLocatorDiscovery.Locator.Endpoints", false, "", false),
         new Property("IceLocatorDiscovery.Locator.Locator.EndpointSelection", false, "", false),
@@ -383,7 +379,8 @@ final class PropertyNames
         new Property("IceLocatorDiscovery.Locator.Locator.Locator", false, "", false),
         new Property("IceLocatorDiscovery.Locator.Locator.Router", false, "", false),
         new Property("IceLocatorDiscovery.Locator.Locator.CollocationOptimized", false, "", false),
-        new Property("IceLocatorDiscovery\\.Locator\\.Locator\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceLocatorDiscovery\\.Locator\\.Locator\\.Context\\.[^\\s]+", true, "", false),
         new Property("IceLocatorDiscovery.Locator.Locator", false, "", false),
         new Property("IceLocatorDiscovery.Locator.PublishedEndpoints", false, "", false),
         new Property("IceLocatorDiscovery.Locator.ReplicaGroupId", false, "", false),
@@ -418,8 +415,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceBoxProps[] =
-    {
+    public static final Property IceBoxProps[] = {
         new Property("IceBox.InheritProperties", false, "", false),
         new Property("IceBox.LoadOrder", false, "", false),
         new Property("IceBox.PrintServicesReady", false, "", false),
@@ -429,8 +425,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceBoxAdminProps[] =
-    {
+    public static final Property IceBoxAdminProps[] = {
         new Property("IceBoxAdmin.ServiceManager.Proxy.EndpointSelection", false, "", false),
         new Property("IceBoxAdmin.ServiceManager.Proxy.ConnectionCached", false, "", false),
         new Property("IceBoxAdmin.ServiceManager.Proxy.PreferSecure", false, "", false),
@@ -444,8 +439,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceBridgeProps[] =
-    {
+    public static final Property IceBridgeProps[] = {
         new Property("IceBridge.Source.AdapterId", false, "", false),
         new Property("IceBridge.Source.Connection.CloseTimeout", false, "10", false),
         new Property("IceBridge.Source.Connection.ConnectTimeout", false, "10", false),
@@ -490,8 +484,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceGridAdminProps[] =
-    {
+    public static final Property IceGridAdminProps[] = {
         new Property("IceGridAdmin.AuthenticateUsingSSL", false, "", false),
         new Property("IceGridAdmin.MetricsConfig", false, "", false),
         new Property("IceGridAdmin.Username", false, "", false),
@@ -547,7 +540,8 @@ final class PropertyNames
         new Property("IceGridAdmin.Discovery.Reply.Connection.ConnectTimeout", false, "10", false),
         new Property("IceGridAdmin.Discovery.Reply.Connection.EnableIdleCheck", false, "1", false),
         new Property("IceGridAdmin.Discovery.Reply.Connection.IdleTimeout", false, "60", false),
-        new Property("IceGridAdmin.Discovery.Reply.Connection.InactivityTimeout", false, "300", false),
+        new Property(
+                "IceGridAdmin.Discovery.Reply.Connection.InactivityTimeout", false, "300", false),
         new Property("IceGridAdmin.Discovery.Reply.Connection.MaxDispatches", false, "100", false),
         new Property("IceGridAdmin.Discovery.Reply.Endpoints", false, "", false),
         new Property("IceGridAdmin.Discovery.Reply.Locator.EndpointSelection", false, "", false),
@@ -558,7 +552,8 @@ final class PropertyNames
         new Property("IceGridAdmin.Discovery.Reply.Locator.Locator", false, "", false),
         new Property("IceGridAdmin.Discovery.Reply.Locator.Router", false, "", false),
         new Property("IceGridAdmin.Discovery.Reply.Locator.CollocationOptimized", false, "", false),
-        new Property("IceGridAdmin\\.Discovery\\.Reply\\.Locator\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGridAdmin\\.Discovery\\.Reply\\.Locator\\.Context\\.[^\\s]+", true, "", false),
         new Property("IceGridAdmin.Discovery.Reply.Locator", false, "", false),
         new Property("IceGridAdmin.Discovery.Reply.PublishedEndpoints", false, "", false),
         new Property("IceGridAdmin.Discovery.Reply.ReplicaGroupId", false, "", false),
@@ -570,7 +565,8 @@ final class PropertyNames
         new Property("IceGridAdmin.Discovery.Reply.Router.Locator", false, "", false),
         new Property("IceGridAdmin.Discovery.Reply.Router.Router", false, "", false),
         new Property("IceGridAdmin.Discovery.Reply.Router.CollocationOptimized", false, "", false),
-        new Property("IceGridAdmin\\.Discovery\\.Reply\\.Router\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGridAdmin\\.Discovery\\.Reply\\.Router\\.Context\\.[^\\s]+", true, "", false),
         new Property("IceGridAdmin.Discovery.Reply.Router", false, "", false),
         new Property("IceGridAdmin.Discovery.Reply.ProxyOptions", false, "", false),
         new Property("IceGridAdmin.Discovery.Reply.ThreadPool.Size", false, "1", false),
@@ -583,21 +579,31 @@ final class PropertyNames
         new Property("IceGridAdmin.Discovery.Reply.MessageSizeMax", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.AdapterId", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Connection.CloseTimeout", false, "10", false),
-        new Property("IceGridAdmin.Discovery.Locator.Connection.ConnectTimeout", false, "10", false),
-        new Property("IceGridAdmin.Discovery.Locator.Connection.EnableIdleCheck", false, "1", false),
+        new Property(
+                "IceGridAdmin.Discovery.Locator.Connection.ConnectTimeout", false, "10", false),
+        new Property(
+                "IceGridAdmin.Discovery.Locator.Connection.EnableIdleCheck", false, "1", false),
         new Property("IceGridAdmin.Discovery.Locator.Connection.IdleTimeout", false, "60", false),
-        new Property("IceGridAdmin.Discovery.Locator.Connection.InactivityTimeout", false, "300", false),
-        new Property("IceGridAdmin.Discovery.Locator.Connection.MaxDispatches", false, "100", false),
+        new Property(
+                "IceGridAdmin.Discovery.Locator.Connection.InactivityTimeout", false, "300", false),
+        new Property(
+                "IceGridAdmin.Discovery.Locator.Connection.MaxDispatches", false, "100", false),
         new Property("IceGridAdmin.Discovery.Locator.Endpoints", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Locator.EndpointSelection", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Locator.ConnectionCached", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Locator.PreferSecure", false, "", false),
-        new Property("IceGridAdmin.Discovery.Locator.Locator.LocatorCacheTimeout", false, "", false),
+        new Property(
+                "IceGridAdmin.Discovery.Locator.Locator.LocatorCacheTimeout", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Locator.InvocationTimeout", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Locator.Locator", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Locator.Router", false, "", false),
-        new Property("IceGridAdmin.Discovery.Locator.Locator.CollocationOptimized", false, "", false),
-        new Property("IceGridAdmin\\.Discovery\\.Locator\\.Locator\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGridAdmin.Discovery.Locator.Locator.CollocationOptimized", false, "", false),
+        new Property(
+                "IceGridAdmin\\.Discovery\\.Locator\\.Locator\\.Context\\.[^\\s]+",
+                true,
+                "",
+                false),
         new Property("IceGridAdmin.Discovery.Locator.Locator", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.PublishedEndpoints", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.ReplicaGroupId", false, "", false),
@@ -608,8 +614,10 @@ final class PropertyNames
         new Property("IceGridAdmin.Discovery.Locator.Router.InvocationTimeout", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Router.Locator", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Router.Router", false, "", false),
-        new Property("IceGridAdmin.Discovery.Locator.Router.CollocationOptimized", false, "", false),
-        new Property("IceGridAdmin\\.Discovery\\.Locator\\.Router\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGridAdmin.Discovery.Locator.Router.CollocationOptimized", false, "", false),
+        new Property(
+                "IceGridAdmin\\.Discovery\\.Locator\\.Router\\.Context\\.[^\\s]+", true, "", false),
         new Property("IceGridAdmin.Discovery.Locator.Router", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.ProxyOptions", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.ThreadPool.Size", false, "1", false),
@@ -617,7 +625,8 @@ final class PropertyNames
         new Property("IceGridAdmin.Discovery.Locator.ThreadPool.SizeWarn", false, "0", false),
         new Property("IceGridAdmin.Discovery.Locator.ThreadPool.StackSize", false, "0", false),
         new Property("IceGridAdmin.Discovery.Locator.ThreadPool.Serialize", false, "0", false),
-        new Property("IceGridAdmin.Discovery.Locator.ThreadPool.ThreadIdleTime", false, "60", false),
+        new Property(
+                "IceGridAdmin.Discovery.Locator.ThreadPool.ThreadIdleTime", false, "60", false),
         new Property("IceGridAdmin.Discovery.Locator.ThreadPool.ThreadPriority", false, "", false),
         new Property("IceGridAdmin.Discovery.Locator.MessageSizeMax", false, "", false),
         new Property("IceGridAdmin.Trace.Observers", false, "", false),
@@ -625,8 +634,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceGridProps[] =
-    {
+    public static final Property IceGridProps[] = {
         new Property("IceGrid.AdminRouter.AdapterId", false, "", false),
         new Property("IceGrid.AdminRouter.Connection.CloseTimeout", false, "10", false),
         new Property("IceGrid.AdminRouter.Connection.ConnectTimeout", false, "10", false),
@@ -736,65 +744,144 @@ final class PropertyNames
         new Property("IceGrid.Node.UserAccountMapper", false, "", false),
         new Property("IceGrid.Node.WaitTime", false, "60", false),
         new Property("IceGrid.Registry.AdminCryptPasswords", false, "", false),
-        new Property("IceGrid.Registry.AdminPermissionsVerifier.EndpointSelection", false, "", false),
-        new Property("IceGrid.Registry.AdminPermissionsVerifier.ConnectionCached", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminPermissionsVerifier.EndpointSelection", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminPermissionsVerifier.ConnectionCached", false, "", false),
         new Property("IceGrid.Registry.AdminPermissionsVerifier.PreferSecure", false, "", false),
-        new Property("IceGrid.Registry.AdminPermissionsVerifier.LocatorCacheTimeout", false, "", false),
-        new Property("IceGrid.Registry.AdminPermissionsVerifier.InvocationTimeout", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminPermissionsVerifier.LocatorCacheTimeout", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminPermissionsVerifier.InvocationTimeout", false, "", false),
         new Property("IceGrid.Registry.AdminPermissionsVerifier.Locator", false, "", false),
         new Property("IceGrid.Registry.AdminPermissionsVerifier.Router", false, "", false),
-        new Property("IceGrid.Registry.AdminPermissionsVerifier.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.AdminPermissionsVerifier\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid.Registry.AdminPermissionsVerifier.CollocationOptimized", false, "", false),
+        new Property(
+                "IceGrid\\.Registry\\.AdminPermissionsVerifier\\.Context\\.[^\\s]+",
+                true,
+                "",
+                false),
         new Property("IceGrid.Registry.AdminPermissionsVerifier", false, "", false),
         new Property("IceGrid.Registry.AdminSessionFilters", false, "0", false),
         new Property("IceGrid.Registry.AdminSessionManager.AdapterId", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Connection.CloseTimeout", false, "10", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Connection.ConnectTimeout", false, "10", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Connection.EnableIdleCheck", false, "1", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Connection.IdleTimeout", false, "60", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Connection.InactivityTimeout", false, "300", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Connection.MaxDispatches", false, "100", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Connection.CloseTimeout", false, "10", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Connection.ConnectTimeout",
+                false,
+                "10",
+                false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Connection.EnableIdleCheck",
+                false,
+                "1",
+                false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Connection.IdleTimeout", false, "60", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Connection.InactivityTimeout",
+                false,
+                "300",
+                false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Connection.MaxDispatches",
+                false,
+                "100",
+                false),
         new Property("IceGrid.Registry.AdminSessionManager.Endpoints", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Locator.EndpointSelection", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Locator.ConnectionCached", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Locator.EndpointSelection", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Locator.ConnectionCached", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.Locator.PreferSecure", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Locator.LocatorCacheTimeout", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Locator.InvocationTimeout", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Locator.LocatorCacheTimeout",
+                false,
+                "",
+                false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Locator.InvocationTimeout", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.Locator.Locator", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.Locator.Router", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Locator.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.AdminSessionManager\\.Locator\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Locator.CollocationOptimized",
+                false,
+                "",
+                false),
+        new Property(
+                "IceGrid\\.Registry\\.AdminSessionManager\\.Locator\\.Context\\.[^\\s]+",
+                true,
+                "",
+                false),
         new Property("IceGrid.Registry.AdminSessionManager.Locator", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.PublishedEndpoints", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.ReplicaGroupId", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Router.EndpointSelection", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Router.ConnectionCached", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Router.EndpointSelection", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Router.ConnectionCached", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.Router.PreferSecure", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Router.LocatorCacheTimeout", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Router.InvocationTimeout", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Router.LocatorCacheTimeout",
+                false,
+                "",
+                false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Router.InvocationTimeout", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.Router.Locator", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.Router.Router", false, "", false),
-        new Property("IceGrid.Registry.AdminSessionManager.Router.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.AdminSessionManager\\.Router\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.Router.CollocationOptimized",
+                false,
+                "",
+                false),
+        new Property(
+                "IceGrid\\.Registry\\.AdminSessionManager\\.Router\\.Context\\.[^\\s]+",
+                true,
+                "",
+                false),
         new Property("IceGrid.Registry.AdminSessionManager.Router", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.ProxyOptions", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.ThreadPool.Size", false, "1", false),
         new Property("IceGrid.Registry.AdminSessionManager.ThreadPool.SizeMax", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.ThreadPool.SizeWarn", false, "0", false),
-        new Property("IceGrid.Registry.AdminSessionManager.ThreadPool.StackSize", false, "0", false),
-        new Property("IceGrid.Registry.AdminSessionManager.ThreadPool.Serialize", false, "0", false),
-        new Property("IceGrid.Registry.AdminSessionManager.ThreadPool.ThreadIdleTime", false, "60", false),
-        new Property("IceGrid.Registry.AdminSessionManager.ThreadPool.ThreadPriority", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.ThreadPool.StackSize", false, "0", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.ThreadPool.Serialize", false, "0", false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.ThreadPool.ThreadIdleTime",
+                false,
+                "60",
+                false),
+        new Property(
+                "IceGrid.Registry.AdminSessionManager.ThreadPool.ThreadPriority", false, "", false),
         new Property("IceGrid.Registry.AdminSessionManager.MessageSizeMax", false, "", false),
-        new Property("IceGrid.Registry.AdminSSLPermissionsVerifier.EndpointSelection", false, "", false),
-        new Property("IceGrid.Registry.AdminSSLPermissionsVerifier.ConnectionCached", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSSLPermissionsVerifier.EndpointSelection", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSSLPermissionsVerifier.ConnectionCached", false, "", false),
         new Property("IceGrid.Registry.AdminSSLPermissionsVerifier.PreferSecure", false, "", false),
-        new Property("IceGrid.Registry.AdminSSLPermissionsVerifier.LocatorCacheTimeout", false, "", false),
-        new Property("IceGrid.Registry.AdminSSLPermissionsVerifier.InvocationTimeout", false, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSSLPermissionsVerifier.LocatorCacheTimeout",
+                false,
+                "",
+                false),
+        new Property(
+                "IceGrid.Registry.AdminSSLPermissionsVerifier.InvocationTimeout", false, "", false),
         new Property("IceGrid.Registry.AdminSSLPermissionsVerifier.Locator", false, "", false),
         new Property("IceGrid.Registry.AdminSSLPermissionsVerifier.Router", false, "", false),
-        new Property("IceGrid.Registry.AdminSSLPermissionsVerifier.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.AdminSSLPermissionsVerifier\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid.Registry.AdminSSLPermissionsVerifier.CollocationOptimized",
+                false,
+                "",
+                false),
+        new Property(
+                "IceGrid\\.Registry\\.AdminSSLPermissionsVerifier\\.Context\\.[^\\s]+",
+                true,
+                "",
+                false),
         new Property("IceGrid.Registry.AdminSSLPermissionsVerifier", false, "", false),
         new Property("IceGrid.Registry.Client.AdapterId", false, "", false),
         new Property("IceGrid.Registry.Client.Connection.CloseTimeout", false, "10", false),
@@ -842,7 +929,8 @@ final class PropertyNames
         new Property("IceGrid.Registry.Discovery.Connection.ConnectTimeout", false, "10", false),
         new Property("IceGrid.Registry.Discovery.Connection.EnableIdleCheck", false, "1", false),
         new Property("IceGrid.Registry.Discovery.Connection.IdleTimeout", false, "60", false),
-        new Property("IceGrid.Registry.Discovery.Connection.InactivityTimeout", false, "300", false),
+        new Property(
+                "IceGrid.Registry.Discovery.Connection.InactivityTimeout", false, "300", false),
         new Property("IceGrid.Registry.Discovery.Connection.MaxDispatches", false, "100", false),
         new Property("IceGrid.Registry.Discovery.Endpoints", false, "", false),
         new Property("IceGrid.Registry.Discovery.Locator.EndpointSelection", false, "", false),
@@ -853,7 +941,8 @@ final class PropertyNames
         new Property("IceGrid.Registry.Discovery.Locator.Locator", false, "", false),
         new Property("IceGrid.Registry.Discovery.Locator.Router", false, "", false),
         new Property("IceGrid.Registry.Discovery.Locator.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.Discovery\\.Locator\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid\\.Registry\\.Discovery\\.Locator\\.Context\\.[^\\s]+", true, "", false),
         new Property("IceGrid.Registry.Discovery.Locator", false, "", false),
         new Property("IceGrid.Registry.Discovery.PublishedEndpoints", false, "", false),
         new Property("IceGrid.Registry.Discovery.ReplicaGroupId", false, "", false),
@@ -865,7 +954,8 @@ final class PropertyNames
         new Property("IceGrid.Registry.Discovery.Router.Locator", false, "", false),
         new Property("IceGrid.Registry.Discovery.Router.Router", false, "", false),
         new Property("IceGrid.Registry.Discovery.Router.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.Discovery\\.Router\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid\\.Registry\\.Discovery\\.Router\\.Context\\.[^\\s]+", true, "", false),
         new Property("IceGrid.Registry.Discovery.Router", false, "", false),
         new Property("IceGrid.Registry.Discovery.ProxyOptions", false, "", false),
         new Property("IceGrid.Registry.Discovery.ThreadPool.Size", false, "1", false),
@@ -897,7 +987,8 @@ final class PropertyNames
         new Property("IceGrid.Registry.Internal.Locator.Locator", false, "", false),
         new Property("IceGrid.Registry.Internal.Locator.Router", false, "", false),
         new Property("IceGrid.Registry.Internal.Locator.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.Internal\\.Locator\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid\\.Registry\\.Internal\\.Locator\\.Context\\.[^\\s]+", true, "", false),
         new Property("IceGrid.Registry.Internal.Locator", false, "", false),
         new Property("IceGrid.Registry.Internal.PublishedEndpoints", false, "", false),
         new Property("IceGrid.Registry.Internal.ReplicaGroupId", false, "", false),
@@ -930,7 +1021,8 @@ final class PropertyNames
         new Property("IceGrid.Registry.PermissionsVerifier.Locator", false, "", false),
         new Property("IceGrid.Registry.PermissionsVerifier.Router", false, "", false),
         new Property("IceGrid.Registry.PermissionsVerifier.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.PermissionsVerifier\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid\\.Registry\\.PermissionsVerifier\\.Context\\.[^\\s]+", true, "", false),
         new Property("IceGrid.Registry.PermissionsVerifier", false, "", false),
         new Property("IceGrid.Registry.ReplicaName", false, "Master", false),
         new Property("IceGrid.Registry.Server.AdapterId", false, "", false),
@@ -975,33 +1067,52 @@ final class PropertyNames
         new Property("IceGrid.Registry.SessionFilters", false, "0", false),
         new Property("IceGrid.Registry.SessionManager.AdapterId", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Connection.CloseTimeout", false, "10", false),
-        new Property("IceGrid.Registry.SessionManager.Connection.ConnectTimeout", false, "10", false),
-        new Property("IceGrid.Registry.SessionManager.Connection.EnableIdleCheck", false, "1", false),
+        new Property(
+                "IceGrid.Registry.SessionManager.Connection.ConnectTimeout", false, "10", false),
+        new Property(
+                "IceGrid.Registry.SessionManager.Connection.EnableIdleCheck", false, "1", false),
         new Property("IceGrid.Registry.SessionManager.Connection.IdleTimeout", false, "60", false),
-        new Property("IceGrid.Registry.SessionManager.Connection.InactivityTimeout", false, "300", false),
-        new Property("IceGrid.Registry.SessionManager.Connection.MaxDispatches", false, "100", false),
+        new Property(
+                "IceGrid.Registry.SessionManager.Connection.InactivityTimeout",
+                false,
+                "300",
+                false),
+        new Property(
+                "IceGrid.Registry.SessionManager.Connection.MaxDispatches", false, "100", false),
         new Property("IceGrid.Registry.SessionManager.Endpoints", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Locator.EndpointSelection", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Locator.ConnectionCached", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Locator.PreferSecure", false, "", false),
-        new Property("IceGrid.Registry.SessionManager.Locator.LocatorCacheTimeout", false, "", false),
+        new Property(
+                "IceGrid.Registry.SessionManager.Locator.LocatorCacheTimeout", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Locator.InvocationTimeout", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Locator.Locator", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Locator.Router", false, "", false),
-        new Property("IceGrid.Registry.SessionManager.Locator.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.SessionManager\\.Locator\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid.Registry.SessionManager.Locator.CollocationOptimized", false, "", false),
+        new Property(
+                "IceGrid\\.Registry\\.SessionManager\\.Locator\\.Context\\.[^\\s]+",
+                true,
+                "",
+                false),
         new Property("IceGrid.Registry.SessionManager.Locator", false, "", false),
         new Property("IceGrid.Registry.SessionManager.PublishedEndpoints", false, "", false),
         new Property("IceGrid.Registry.SessionManager.ReplicaGroupId", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Router.EndpointSelection", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Router.ConnectionCached", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Router.PreferSecure", false, "", false),
-        new Property("IceGrid.Registry.SessionManager.Router.LocatorCacheTimeout", false, "", false),
+        new Property(
+                "IceGrid.Registry.SessionManager.Router.LocatorCacheTimeout", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Router.InvocationTimeout", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Router.Locator", false, "", false),
         new Property("IceGrid.Registry.SessionManager.Router.Router", false, "", false),
-        new Property("IceGrid.Registry.SessionManager.Router.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.SessionManager\\.Router\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid.Registry.SessionManager.Router.CollocationOptimized", false, "", false),
+        new Property(
+                "IceGrid\\.Registry\\.SessionManager\\.Router\\.Context\\.[^\\s]+",
+                true,
+                "",
+                false),
         new Property("IceGrid.Registry.SessionManager.Router", false, "", false),
         new Property("IceGrid.Registry.SessionManager.ProxyOptions", false, "", false),
         new Property("IceGrid.Registry.SessionManager.ThreadPool.Size", false, "1", false),
@@ -1009,18 +1120,22 @@ final class PropertyNames
         new Property("IceGrid.Registry.SessionManager.ThreadPool.SizeWarn", false, "0", false),
         new Property("IceGrid.Registry.SessionManager.ThreadPool.StackSize", false, "0", false),
         new Property("IceGrid.Registry.SessionManager.ThreadPool.Serialize", false, "0", false),
-        new Property("IceGrid.Registry.SessionManager.ThreadPool.ThreadIdleTime", false, "60", false),
+        new Property(
+                "IceGrid.Registry.SessionManager.ThreadPool.ThreadIdleTime", false, "60", false),
         new Property("IceGrid.Registry.SessionManager.ThreadPool.ThreadPriority", false, "", false),
         new Property("IceGrid.Registry.SessionManager.MessageSizeMax", false, "", false),
         new Property("IceGrid.Registry.SSLPermissionsVerifier.EndpointSelection", false, "", false),
         new Property("IceGrid.Registry.SSLPermissionsVerifier.ConnectionCached", false, "", false),
         new Property("IceGrid.Registry.SSLPermissionsVerifier.PreferSecure", false, "", false),
-        new Property("IceGrid.Registry.SSLPermissionsVerifier.LocatorCacheTimeout", false, "", false),
+        new Property(
+                "IceGrid.Registry.SSLPermissionsVerifier.LocatorCacheTimeout", false, "", false),
         new Property("IceGrid.Registry.SSLPermissionsVerifier.InvocationTimeout", false, "", false),
         new Property("IceGrid.Registry.SSLPermissionsVerifier.Locator", false, "", false),
         new Property("IceGrid.Registry.SSLPermissionsVerifier.Router", false, "", false),
-        new Property("IceGrid.Registry.SSLPermissionsVerifier.CollocationOptimized", false, "", false),
-        new Property("IceGrid\\.Registry\\.SSLPermissionsVerifier\\.Context\\.[^\\s]+", true, "", false),
+        new Property(
+                "IceGrid.Registry.SSLPermissionsVerifier.CollocationOptimized", false, "", false),
+        new Property(
+                "IceGrid\\.Registry\\.SSLPermissionsVerifier\\.Context\\.[^\\s]+", true, "", false),
         new Property("IceGrid.Registry.SSLPermissionsVerifier", false, "", false),
         new Property("IceGrid.Registry.Trace.Admin", false, "0", false),
         new Property("IceGrid.Registry.Trace.Application", false, "0", false),
@@ -1040,8 +1155,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceSSLProps[] =
-    {
+    public static final Property IceSSLProps[] = {
         new Property("IceSSL.Alias", false, "", false),
         new Property("IceSSL.CAs", false, "", false),
         new Property("IceSSL.CertStore", false, "My", false),
@@ -1074,23 +1188,20 @@ final class PropertyNames
         null
     };
 
-    public static final Property IceStormAdminProps[] =
-    {
+    public static final Property IceStormAdminProps[] = {
         new Property("IceStormAdmin\\.TopicManager\\.[^\\s]+", true, "", false),
         new Property("IceStormAdmin.Host", false, "", false),
         new Property("IceStormAdmin.Port", false, "", false),
         null
     };
 
-    public static final Property IceBTProps[] =
-    {
+    public static final Property IceBTProps[] = {
         new Property("IceBT.RcvSize", false, "", false),
         new Property("IceBT.SndSize", false, "", false),
         null
     };
 
-    public static final Property Glacier2Props[] =
-    {
+    public static final Property Glacier2Props[] = {
         new Property("Glacier2.AddConnectionContext", false, "0", false),
         new Property("Glacier2.Client.AdapterId", false, "", false),
         new Property("Glacier2.Client.Connection.CloseTimeout", false, "10", false),
@@ -1236,8 +1347,7 @@ final class PropertyNames
         null
     };
 
-    public static final Property[] validProps[] =
-    {
+    public static final Property[] validProps[] = {
         IceProps,
         IceMXProps,
         IceDiscoveryProps,
@@ -1254,8 +1364,7 @@ final class PropertyNames
         null
     };
 
-    public static final String clPropNames[] =
-    {
+    public static final String clPropNames[] = {
         "Ice",
         "IceMX",
         "IceDiscovery",
