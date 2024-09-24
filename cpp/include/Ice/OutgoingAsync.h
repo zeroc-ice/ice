@@ -20,7 +20,7 @@
 #include <Ice/UniquePtr.h>
 
 #ifdef ICE_CPP11_MAPPING
-#   if defined(__clang__)
+#   ifdef __clang__
 #       pragma clang diagnostic push
         // See #2747
 #       pragma clang diagnostic ignored "-Wshadow-uncaptured-local"
@@ -860,9 +860,9 @@ newCallback(T* instance,
 #endif
 
 #ifdef ICE_CPP11_MAPPING
-#    if defined(__clang__)
-#        pragma clang diagnostic pop
-#    endif
+#   ifdef __clang__
+#       pragma clang diagnostic pop
+#   endif
 #endif
 
 #endif
