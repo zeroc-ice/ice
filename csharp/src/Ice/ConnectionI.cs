@@ -1816,7 +1816,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             Util.currentProtocol.ice_writeMembers(os);
             Util.currentProtocolEncoding.ice_writeMembers(os);
             os.writeByte(Protocol.closeConnectionMsg);
-            os.writeByte(BZip2.isLoaded ? (byte)1 : (byte)0);
+            os.writeByte(0); // Compression status: always zero for close connection.
             os.writeInt(Protocol.headerSize); // Message size.
 
             scheduleCloseTimer();
@@ -2191,48 +2191,47 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private OutputStream doCompress(OutputStream decompressed, bool compress)
     {
-        if (BZip2.isLoaded)
+        if (BZip2.isLoaded(_logger) && compress && decompressed.size() >= 100)
         {
-            if (compress && decompressed.size() >= 100)
+            //
+            // Do compression.
+            //
+            Ice.Internal.Buffer cbuf = BZip2.compress(
+                decompressed.getBuffer(),
+                Protocol.headerSize,
+                _compressionLevel);
+            if (cbuf is not null)
             {
+                OutputStream cstream = new OutputStream(new Internal.Buffer(cbuf, true), decompressed.getEncoding());
+
                 //
-                // Do compression.
+                // Set compression status.
                 //
-                Ice.Internal.Buffer cbuf = BZip2.compress(
-                    decompressed.getBuffer(),
-                    Protocol.headerSize,
-                    _compressionLevel);
-                if (cbuf is not null)
-                {
-                    OutputStream cstream = new OutputStream(new Internal.Buffer(cbuf, true), decompressed.getEncoding());
+                cstream.pos(9);
+                cstream.writeByte(2);
 
-                    //
-                    // Set compression status.
-                    //
-                    cstream.pos(9);
-                    cstream.writeByte(2);
+                //
+                // Write the size of the compressed stream into the header.
+                //
+                cstream.pos(10);
+                cstream.writeInt(cstream.size());
 
-                    //
-                    // Write the size of the compressed stream into the header.
-                    //
-                    cstream.pos(10);
-                    cstream.writeInt(cstream.size());
+                //
+                // Write the compression status and size of the compressed stream into the header of the
+                // decompressed stream -- we need this to trace requests correctly.
+                //
+                decompressed.pos(9);
+                decompressed.writeByte(2);
+                decompressed.writeInt(cstream.size());
 
-                    //
-                    // Write the compression status and size of the compressed stream into the header of the
-                    // decompressed stream -- we need this to trace requests correctly.
-                    //
-                    decompressed.pos(9);
-                    decompressed.writeByte(2);
-                    decompressed.writeInt(cstream.size());
-
-                    return cstream;
-                }
+                return cstream;
             }
         }
 
+        // Write the compression status. If BZip2 is loaded and compress is set to true, we write 1, to request a
+        // compressed reply. Otherwise, we write 0 either BZip2 is not loaded or we are sending an uncompressed reply.
         decompressed.pos(9);
-        decompressed.writeByte((byte)((BZip2.isLoaded && compress) ? 1 : 0));
+        decompressed.writeByte((byte)((BZip2.isLoaded(_logger) && compress) ? 1 : 0));
 
         //
         // Not compressed, fill in the message size.
@@ -2276,7 +2275,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             info.compress = info.stream.readByte();
             if (info.compress == 2)
             {
-                if (BZip2.isLoaded)
+                if (BZip2.isLoaded(_logger))
                 {
                     Ice.Internal.Buffer ubuf = BZip2.decompress(
                         info.stream.getBuffer(),
