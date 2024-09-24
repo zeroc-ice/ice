@@ -335,7 +335,7 @@ namespace
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "SSL transport: failed to open certificate store `" + storeName + "':\n" +
+                "SSL transport: failed to open certificate store '" + storeName + "':\n" +
                     IceInternal::lastErrorToString());
         }
 
@@ -362,7 +362,7 @@ namespace
             {
                 if (value.find(':', 0) == string::npos)
                 {
-                    throw InitializationException(__FILE__, __LINE__, "SSL transport: no key in `" + value + "'");
+                    throw InitializationException(__FILE__, __LINE__, "SSL transport: no key in '" + value + "'");
                 }
                 size_t start = 0;
                 size_t pos;
@@ -375,7 +375,7 @@ namespace
                         throw InitializationException(
                             __FILE__,
                             __LINE__,
-                            "SSL transport: unknown key in `" + value + "'");
+                            "SSL transport: unknown key in '" + value + "'");
                     }
 
                     start = pos + 1;
@@ -389,7 +389,7 @@ namespace
                         throw InitializationException(
                             __FILE__,
                             __LINE__,
-                            "SSL transport: missing argument in `" + value + "'");
+                            "SSL transport: missing argument in '" + value + "'");
                     }
 
                     string arg;
@@ -410,7 +410,7 @@ namespace
                             throw InitializationException(
                                 __FILE__,
                                 __LINE__,
-                                "SSL transport: unmatched quote in `" + value + "'");
+                                "SSL transport: unmatched quote in '" + value + "'");
                         }
                         ++start;
                         arg = value.substr(start, end - start);
@@ -462,7 +462,7 @@ namespace
                                 throw InitializationException(
                                     __FILE__,
                                     __LINE__,
-                                    "SSL transport: invalid value `" + value + "' for `IceSSL.FindCert' property:\n" +
+                                    "SSL transport: invalid value '" + value + "' for `IceSSL.FindCert' property:\n" +
                                         IceInternal::lastErrorToString());
                             }
 
@@ -472,7 +472,7 @@ namespace
                                 throw InitializationException(
                                     __FILE__,
                                     __LINE__,
-                                    "SSL transport: invalid value `" + value + "' for `IceSSL.FindCert' property:\n" +
+                                    "SSL transport: invalid value '" + value + "' for `IceSSL.FindCert' property:\n" +
                                         IceInternal::lastErrorToString());
                             }
 
@@ -490,7 +490,7 @@ namespace
                             throw InitializationException(
                                 __FILE__,
                                 __LINE__,
-                                "SSL transport: invalid `IceSSL.FindCert' property: can't decode the value");
+                                "SSL transport: invalid 'IceSSL.FindCert' property: can't decode the value");
                         }
 
                         CRYPT_HASH_BLOB hash = {static_cast<DWORD>(buffer.size()), &buffer[0]};
@@ -505,7 +505,7 @@ namespace
                             throw InitializationException(
                                 __FILE__,
                                 __LINE__,
-                                "SSL transport: invalid value `" + value + "' for `IceSSL.FindCert' property");
+                                "SSL transport: invalid value '" + value + "' for `IceSSL.FindCert' property");
                         }
 
                         CRYPT_INTEGER_BLOB serial = {static_cast<DWORD>(buffer.size()), &buffer[0]};
@@ -582,7 +582,9 @@ namespace
         readFile(file, buffer);
         if (buffer.empty())
         {
-            throw InitializationException(__FILE__, __LINE__, "SSL transport: certificate file is empty:\n" + file);
+            ostringstream os;
+            os << "SSL transport: certificate file is empty: '" << file << "'";
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
 
         string strbuf(buffer.begin(), buffer.end());
@@ -748,7 +750,7 @@ Schannel::SSLEngine::initialize()
     if (certStoreLocation != "CurrentUser" && certStoreLocation != "LocalMachine")
     {
         getLogger()->warning(
-            "invalid IceSSL.CertStoreLocation value `" + certStoreLocation + "' adjusted to `CurrentUser'");
+            "invalid IceSSL.CertStoreLocation value '" + certStoreLocation + "' adjusted to 'CurrentUser'");
         certStoreLocation = "CurrentUser";
     }
 
@@ -772,10 +774,9 @@ Schannel::SSLEngine::initialize()
         string resolved;
         if (!checkPath(caFile, defaultDir, false, resolved))
         {
-            throw InitializationException(
-                __FILE__,
-                __LINE__,
-                "SSL transport: CA certificate file not found:\n" + caFile);
+            ostringstream os;
+            os << "SSL transport: CA certificate file not found: '" << caFile << "'";
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
 
         addCertificatesToStore(resolved, _rootStore);
@@ -822,10 +823,9 @@ Schannel::SSLEngine::initialize()
         string resolved;
         if (!checkPath(certFile, defaultDir, false, resolved))
         {
-            throw InitializationException(
-                __FILE__,
-                __LINE__,
-                "SSL transport: certificate file not found:\n" + certFile);
+            ostringstream os;
+            os << "SSL transport: certificate file not found: '" << certFile << "'";
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
         certFile = resolved;
 
@@ -833,7 +833,9 @@ Schannel::SSLEngine::initialize()
         readFile(certFile, buffer);
         if (buffer.empty())
         {
-            throw InitializationException(__FILE__, __LINE__, "SSL transport: certificate file is empty:\n" + certFile);
+            ostringstream os;
+            os << "SSL transport: certificate file is empty: '" << certFile << "'";
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
 
         CRYPT_DATA_BLOB pfxBlob;
@@ -907,14 +909,18 @@ Schannel::SSLEngine::initialize()
             err = 0;
             if (!checkPath(keyFile, defaultDir, false, resolved))
             {
-                throw InitializationException(__FILE__, __LINE__, "SSL transport: key file not found:\n" + keyFile);
+                ostringstream os;
+                os << "SSL transport: key file not found: '" << keyFile << "'";
+                throw InitializationException(__FILE__, __LINE__, os.str());
             }
             keyFile = resolved;
 
             readFile(keyFile, buffer);
             if (buffer.empty())
             {
-                throw InitializationException(__FILE__, __LINE__, "SSL transport: key file is empty:\n" + keyFile);
+                ostringstream os;
+                os << "SSL transport: key file is empty: '" << keyFile << "'";
+                throw InitializationException(__FILE__, __LINE__, os.str());
             }
 
             vector<BYTE> outBuffer;
@@ -931,10 +937,9 @@ Schannel::SSLEngine::initialize()
                     0,
                     0))
             {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: error decoding key `" + keyFile + "':\n" + lastErrorToString());
+                ostringstream os;
+                os << "SSL transport: error decoding key '" << keyFile << "':\n" << lastErrorToString();
+                throw InitializationException(__FILE__, __LINE__, os.str());
             }
 
             PCRYPT_PRIVATE_KEY_INFO keyInfo = nullptr;
@@ -957,10 +962,9 @@ Schannel::SSLEngine::initialize()
                     // Check that we are using an RSA Key.
                     if (strcmp(keyInfo->Algorithm.pszObjId, szOID_RSA_RSA))
                     {
-                        throw InitializationException(
-                            __FILE__,
-                            __LINE__,
-                            string("SSL transport: error unknow key algorithm: `") + keyInfo->Algorithm.pszObjId + "'");
+                        ostringstream os;
+                        os << "SSL transport: error unknow key algorithm: '" << keyInfo->Algorithm.pszObjId << "'";
+                        throw InitializationException(__FILE__, __LINE__, os.str());
                     }
 
                     // Decode the private key BLOB.
@@ -974,10 +978,9 @@ Schannel::SSLEngine::initialize()
                             &key,
                             &outLength))
                     {
-                        throw InitializationException(
-                            __FILE__,
-                            __LINE__,
-                            "SSL transport: error decoding key `" + keyFile + "':\n" + lastErrorToString());
+                        ostringstream os;
+                        os << "SSL transport: error decoding key '" + keyFile + "':\n" + lastErrorToString();
+                        throw InitializationException(__FILE__, __LINE__, os.str());
                     }
                     LocalFree(keyInfo);
                     keyInfo = nullptr;
@@ -995,10 +998,9 @@ Schannel::SSLEngine::initialize()
                             &key,
                             &outLength))
                     {
-                        throw InitializationException(
-                            __FILE__,
-                            __LINE__,
-                            "SSL transport: error decoding key `" + keyFile + "':\n" + lastErrorToString());
+                        ostringstream os;
+                        os << "SSL transport: error decoding key '" << keyFile << "':\n" << lastErrorToString();
+                        throw InitializationException(__FILE__, __LINE__, os.str());
                     }
                 }
 
@@ -1028,10 +1030,9 @@ Schannel::SSLEngine::initialize()
                 // Import the private key.
                 if (!CryptImportKey(cryptProv, key, outLength, 0, 0, &hKey))
                 {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "SSL transport: error importing key `" + keyFile + "':\n" + lastErrorToString());
+                    ostringstream os;
+                    os << "SSL transport: error importing key '" << keyFile << "':\n" + lastErrorToString();
+                    throw InitializationException(__FILE__, __LINE__, os.str());
                 }
                 LocalFree(key);
                 key = nullptr;

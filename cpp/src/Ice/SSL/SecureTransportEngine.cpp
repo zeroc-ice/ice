@@ -592,10 +592,9 @@ SecureTransport::SSLEngine::initialize()
             string resolved;
             if (!checkPath(caFile, defaultDir, false, resolved))
             {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: CA certificate file not found:\n" + caFile);
+                ostringstream os;
+                os << "SSL transport: CA certificate file not found: '" << caFile << "'";
+                throw InitializationException(__FILE__, __LINE__, os.str());
             }
             _certificateAuthorities.reset(loadCACertificates(resolved));
         }
@@ -619,76 +618,35 @@ SecureTransport::SSLEngine::initialize()
 
     if (!certFile.empty())
     {
-        vector<string> files;
-        if (!IceInternal::splitString(certFile, IceInternal::pathsep, files) || files.size() > 2)
+        string resolved;
+
+        if (!checkPath(certFile, defaultDir, false, resolved))
         {
-            throw InitializationException(
-                __FILE__,
-                __LINE__,
-                "SSL transport: invalid value for IceSSL.CertFile:\n" + certFile);
+            ostringstream os;
+            os << "SSL transport: certificate file not found: '" << certFile << "'";
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
-        vector<string> keyFiles;
+        certFile = resolved;
+
+        string keyFile = properties->getIceProperty("IceSSL.KeyFile");
+        if (!keyFile.empty())
         {
-            string keyFile = properties->getIceProperty("IceSSL.KeyFile");
-            if (!keyFile.empty())
+            if (!checkPath(keyFile, defaultDir, false, resolved))
             {
-                if (!IceInternal::splitString(keyFile, IceInternal::pathsep, keyFiles) || keyFiles.size() > 2)
-                {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "SSL transport: invalid value for IceSSL.KeyFile:\n" + keyFile);
-                }
-                if (files.size() != keyFiles.size())
-                {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "SSL transport: IceSSL.KeyFile does not agree with IceSSL.CertFile");
-                }
+                ostringstream os;
+                os << "SSL transport: key file not found: '" << keyFile << "'";
+                throw InitializationException(__FILE__, __LINE__, os.str());
             }
+            keyFile = resolved;
         }
 
-        for (size_t i = 0; i < files.size(); ++i)
+        try
         {
-            string file = files[i];
-            string keyFile = keyFiles.empty() ? "" : keyFiles[i];
-            string resolved;
-
-            if (!checkPath(file, defaultDir, false, resolved))
-            {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: certificate file not found:\n" + file);
-            }
-            file = resolved;
-
-            if (!keyFile.empty())
-            {
-                if (!checkPath(keyFile, defaultDir, false, resolved))
-                {
-                    throw InitializationException(__FILE__, __LINE__, "SSL transport: key file not found:\n" + keyFile);
-                }
-                keyFile = resolved;
-            }
-
-            try
-            {
-                _chain.reset(loadCertificateChain(file, keyFile, keychain, keychainPassword, password));
-                break;
-            }
-            catch (const CertificateReadException& ce)
-            {
-                //
-                // If this is the last certificate rethrow the exception as InitializationException,
-                // otherwise try the next certificate.
-                //
-                if (i == files.size() - 1)
-                {
-                    throw InitializationException(__FILE__, __LINE__, ce.what());
-                }
-            }
+            _chain.reset(loadCertificateChain(certFile, keyFile, keychain, keychainPassword, password));
+        }
+        catch (const CertificateReadException& ce)
+        {
+            throw InitializationException(__FILE__, __LINE__, ce.what());
         }
     }
     else if (!findCert.empty())
