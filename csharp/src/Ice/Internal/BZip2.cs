@@ -3,9 +3,11 @@
 #nullable enable
 
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Ice.Internal;
 
@@ -56,6 +58,9 @@ public static class BZip2
         ConfigError = -9
     }
 
+    private static readonly object _mutex = new object();
+    private static bool? _isLoaded;
+
     public static bool isLoaded(Ice.Logger logger)
     {
         lock (_mutex)
@@ -73,7 +78,7 @@ public static class BZip2
                 }
                 catch (EntryPointNotFoundException)
                 {
-                    Console.Error.WriteLine($"warning: found {libNames} but entry point BZ2_bzlibVersion is missing.");
+                    logger.warning($"found {libNames} but entry point BZ2_bzlibVersion is missing.");
                 }
                 catch (TypeLoadException)
                 {
@@ -81,23 +86,23 @@ public static class BZip2
                 }
                 catch (BadImageFormatException)
                 {
-                    Console.Error.Write(
-                        $"warning: {libNames} could not be loaded (likely due to 32/64-bit mismatch).");
+                    var msg = new StringBuilder();
+                    msg.AppendLine(
+                        CultureInfo.InvariantCulture,
+                        $"{libNames} could not be loaded (likely due to 32/64-bit mismatch).");
                     if (IntPtr.Size == 8)
                     {
-                        Console.Error.Write(
-                            $" Make sure the directory containing the 64-bit {libNames} is in your PATH.");
+                        msg.AppendLine(
+                            CultureInfo.InvariantCulture,
+                            $"Make sure the directory containing the 64-bit {libNames} is in your PATH.");
                     }
-                    Console.Error.WriteLine();
+                    logger.warning(msg.ToString());
                 }
                 _isLoaded = loaded;
             }
             return _isLoaded.Value;
         }
     }
-
-    private static readonly object _mutex = new object();
-    private static bool? _isLoaded;
 
     internal static Buffer? compress(Buffer buf, int headerSize, int compressionLevel)
     {
