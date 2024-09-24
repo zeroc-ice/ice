@@ -32,16 +32,6 @@ Glacier2::RouterI::RouterI(
       _controlId(controlId),
       _context(context)
 {
-    //
-    // If Glacier2 will be used with pre 3.2 clients, then the client proxy must be set.
-    // Otherwise getClientProxy just needs to return a nil proxy.
-    //
-    if (_instance->properties()->getIcePropertyAsInt("Glacier2.ReturnClientProxy") > 0)
-    {
-        const_cast<optional<ObjectPrx>&>(_clientProxy) =
-            _instance->clientObjectAdapter()->createProxy(stringToIdentity("dummy"));
-    }
-
     if (_instance->serverObjectAdapter())
     {
         Identity ident = {"dummy", ""};
@@ -113,9 +103,8 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
 optional<ObjectPrx>
 Glacier2::RouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current&) const
 {
-    // No mutex lock necessary, _clientProxy is immutable and is never destroyed.
     hasRoutingTable = true;
-    return _clientProxy;
+    return nullopt; // always return nullopt from Glacier2 router implementation
 }
 
 optional<ObjectPrx>

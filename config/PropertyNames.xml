@@ -540,7 +540,6 @@ generated from the section label.
         <property name="Filter.Identity.Accept" />
         <property name="InstanceName" default="Glacier2" />
         <property name="PermissionsVerifier" class="proxy" />
-        <property name="ReturnClientProxy" defalut="0" />
         <property name="SSLPermissionsVerifier" class="proxy" />
         <property name="RoutingTable.MaxSize" default="1000" />
         <property name="Server" class="objectadapter" />
