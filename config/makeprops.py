@@ -94,7 +94,7 @@ javaPreamble = (
     + """
 package com.zeroc.Ice;
 
-public final class PropertyNames
+final class PropertyNames
 {
 """
 )
