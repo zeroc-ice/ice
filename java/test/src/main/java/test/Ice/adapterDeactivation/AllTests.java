@@ -172,6 +172,19 @@ public class AllTests {
                 test(false);
             } catch (com.zeroc.Ice.ConnectFailedException ex) {
             }
+
+            try {
+                router =
+                        com.zeroc.Ice.RouterPrx.createProxy(
+                                communicator, "test:" + helper.getTestEndpoint(1));
+
+                communicator
+                        .getProperties()
+                        .setProperty("AdapterWithRouter.Endpoints", "tcp -h 127.0.0.1");
+                communicator.createObjectAdapterWithRouter("AdapterWithRouter", router);
+                test(false);
+            } catch (com.zeroc.Ice.InitializationException ex) {
+            }
         }
         out.println("ok");
 

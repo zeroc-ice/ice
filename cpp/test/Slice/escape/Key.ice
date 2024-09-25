@@ -57,16 +57,12 @@ exception sizeof extends return
     int static; int switch;
 }
 
-/*
-TODO: reenable once bug #1617 is fixed.
-
 interface friend
 {
-    auto goto(continue if, auto d, delete inline, switch private, do mutable, break* namespace,
-              char* new, switch* not, do* operator, int or, int protected, int public, int register)
+    auto goto(continue if, auto d, delete inline, switch private, do* mutable, break* namespace,
+              char* new, switch not, do* operator, int or, int protected, int public, int register)
         throws return, sizeof;
 }
-*/
 
 const int template = 0;
 const int this = 0;
