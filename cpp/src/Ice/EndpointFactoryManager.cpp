@@ -31,7 +31,11 @@ IceInternal::EndpointFactoryManager::initialize() const
 void
 IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
 {
-    lock_guard lock(_mutex); // TODO: Necessary?
+    lock_guard lock(_mutex);
+    if (_destroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
 
     //
     // TODO: Optimize with a map?
@@ -49,7 +53,11 @@ IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
 EndpointFactoryPtr
 IceInternal::EndpointFactoryManager::get(int16_t type) const
 {
-    lock_guard lock(_mutex); // TODO: Necessary?
+    lock_guard lock(_mutex);
+    if (_destroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
 
     //
     // TODO: Optimize with a map?
@@ -89,8 +97,12 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
 
     EndpointFactoryPtr factory;
     {
-        lock_guard lock(_mutex); // TODO: Necessary?
-
+        // Hold the mutex while looking up the factory, destroy can be called concurrently.
+        lock_guard lock(_mutex);
+        if (_destroyed)
+        {
+            throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        }
         //
         // TODO: Optimize with a map?
         //
@@ -189,6 +201,8 @@ IceInternal::EndpointFactoryManager::read(InputStream* s) const
 void
 IceInternal::EndpointFactoryManager::destroy()
 {
+    lock_guard lock(_mutex);
+    _destroyed = true;
     for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
         _factories[i]->destroy();

@@ -38,6 +38,7 @@ namespace IceInternal
         InstancePtr _instance;
         std::vector<EndpointFactoryPtr> _factories;
         mutable std::mutex _mutex;
+        bool _destroyed = false;
     };
 }
 

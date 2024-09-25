@@ -16,6 +16,10 @@ final class EndpointFactoryManager {
     }
 
     public synchronized void add(EndpointFactory factory) {
+        if (_destroyed) {
+            throw new CommunicatorDestroyedException();
+        }
+
         for (EndpointFactory f : _factories) {
             if (f.type() == factory.type()) {
                 assert (false);
@@ -25,6 +29,10 @@ final class EndpointFactoryManager {
     }
 
     public synchronized EndpointFactory get(short type) {
+        if (_destroyed) {
+            throw new CommunicatorDestroyedException();
+        }
+
         for (EndpointFactory f : _factories) {
             if (f.type() == type) {
                 return f;
@@ -34,6 +42,11 @@ final class EndpointFactoryManager {
     }
 
     public synchronized EndpointI create(String str, boolean oaEndpoint) {
+
+        if (_destroyed) {
+            throw new CommunicatorDestroyedException();
+        }
+
         String[] arr = StringUtil.splitString(str, " \t\r\n");
         if (arr == null) {
             throw new ParseException("Failed to parse endpoint '" + str + "': mismatched quote");
@@ -163,6 +176,7 @@ final class EndpointFactoryManager {
         _factories.clear();
     }
 
+    private boolean _destroyed = false;
     private Instance _instance;
     private java.util.List<EndpointFactory> _factories = new java.util.ArrayList<>();
 }
