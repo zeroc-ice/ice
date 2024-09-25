@@ -1127,8 +1127,6 @@ SwiftGenerator::typeToString(
     return t;
 }
 
-// PUT IT HERE
-
 string
 SwiftGenerator::getUnqualified(const string& type, const string& localModule)
 {
