@@ -98,21 +98,21 @@ Ice::SSL::readFile(const string& file, vector<char>& buffer)
 }
 
 optional<string>
-Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir)
+Ice::SSL::resolveFilePath(const string& path, const string& parentDir)
 {
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS) || defined(ICE_SWIFT)
     CFBundleRef bundle = CFBundleGetMainBundle();
     if (bundle)
     {
         UniqueRef<CFStringRef> resourceName(toCFString(path));
-        UniqueRef<CFStringRef> subDirName(toCFString(defaultDir));
+        UniqueRef<CFStringRef> subDirName(toCFString(parentDir));
         UniqueRef<CFURLRef> url(CFBundleCopyResourceURL(bundle, resourceName.get(), 0, subDirName.get()));
 
         UInt8 filePath[PATH_MAX];
         if (CFURLGetFileSystemRepresentation(url.get(), true, filePath, sizeof(filePath)))
         {
             string tmp = string(reinterpret_cast<char*>(filePath));
-            if ((dir && IceInternal::directoryExists(tmp)) || (!dir && IceInternal::fileExists(tmp)))
+            if (IceInternal::fileExists(tmp))
             {
                 return tmp;
             }
@@ -121,7 +121,58 @@ Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir)
 #endif
     if (IceInternal::isAbsolutePath(path))
     {
-        if ((dir && IceInternal::directoryExists(path)) || (!dir && IceInternal::fileExists(path)))
+        if (IceInternal::fileExists(path))
+        {
+            return path;
+        }
+        return std::nullopt;
+    }
+
+    //
+    // If a parent directory is provided, the given path is relative to the parent directory.
+    //
+    string tmp;
+    if (!parentDir.empty())
+    {
+        tmp = parentDir + IceInternal::separator + path;
+    }
+    else
+    {
+        tmp = path;
+    }
+
+    if (IceInternal::fileExists(tmp))
+    {
+        return tmp;
+    }
+    return std::nullopt;
+}
+
+optional<string>
+Ice::SSL::resolveDirPath(const string& path, const string& parentDir)
+{
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS) || defined(ICE_SWIFT)
+    CFBundleRef bundle = CFBundleGetMainBundle();
+    if (bundle)
+    {
+        UniqueRef<CFStringRef> resourceName(toCFString(path));
+        UniqueRef<CFStringRef> subDirName(toCFString(parentDir));
+        UniqueRef<CFURLRef> url(CFBundleCopyResourceURL(bundle, resourceName.get(), 0, subDirName.get()));
+
+        UInt8 filePath[PATH_MAX];
+        if (CFURLGetFileSystemRepresentation(url.get(), true, filePath, sizeof(filePath)))
+        {
+            string tmp = string(reinterpret_cast<char*>(filePath));
+            if (IceInternal::directoryExists(tmp))
+            {
+                return tmp;
+            }
+        }
+    }
+#endif
+    if (IceInternal::isAbsolutePath(path))
+    {
+        if (IceInternal::directoryExists(path))
         {
             return path;
         }
@@ -132,16 +183,16 @@ Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir)
     // If a default directory is provided, the given path is relative to the default directory.
     //
     string tmp;
-    if (!defaultDir.empty())
+    if (!parentDir.empty())
     {
-        tmp = defaultDir + IceInternal::separator + path;
+        tmp = parentDir + IceInternal::separator + path;
     }
     else
     {
         tmp = path;
     }
 
-    if ((dir && IceInternal::directoryExists(tmp)) || (!dir && IceInternal::fileExists(tmp)))
+    if (IceInternal::directoryExists(tmp))
     {
         return tmp;
     }

@@ -589,7 +589,7 @@ SecureTransport::SSLEngine::initialize()
         string caFile = properties->getIceProperty("IceSSL.CAs");
         if (!caFile.empty())
         {
-            optional<string> resolved = checkPath(caFile, defaultDir, false);
+            optional<string> resolved = resolveFilePath(caFile, defaultDir);
 
             if (!resolved)
             {
@@ -619,7 +619,7 @@ SecureTransport::SSLEngine::initialize()
 
     if (!certFile.empty())
     {
-        optional<string> resolved = checkPath(certFile, defaultDir, false);
+        optional<string> resolved = resolveFilePath(certFile, defaultDir);
 
         if (!resolved)
         {
@@ -632,7 +632,7 @@ SecureTransport::SSLEngine::initialize()
         string keyFile = properties->getIceProperty("IceSSL.KeyFile");
         if (!keyFile.empty())
         {
-            resolved = checkPath(keyFile, defaultDir, false);
+            resolved = resolveFilePath(keyFile, defaultDir);
             if (!resolved)
             {
                 ostringstream os;

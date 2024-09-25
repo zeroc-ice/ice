@@ -105,7 +105,7 @@ OpenSSL::SSLEngine::initialize()
             const char* dir = nullptr;
             if (!path.empty())
             {
-                resolved = checkPath(path, defaultDir, false);
+                resolved = resolveFilePath(path, defaultDir);
                 if (resolved)
                 {
                     path = *resolved;
@@ -114,7 +114,7 @@ OpenSSL::SSLEngine::initialize()
 
                 if (!file)
                 {
-                    resolved = checkPath(path, defaultDir, true);
+                    resolved = resolveDirPath(path, defaultDir);
                     if (resolved)
                     {
                         path = *resolved;
@@ -164,7 +164,7 @@ OpenSSL::SSLEngine::initialize()
 
         if (!certFile.empty())
         {
-            optional<string> resolved = checkPath(certFile, defaultDir, false);
+            optional<string> resolved = resolveFilePath(certFile, defaultDir);
             if (!resolved)
             {
                 ostringstream os;
@@ -289,7 +289,7 @@ OpenSSL::SSLEngine::initialize()
 
         if (!keyLoaded && !keyFile.empty())
         {
-            optional<string> resolved = checkPath(keyFile, defaultDir, false);
+            optional<string> resolved = resolveFilePath(keyFile, defaultDir);
             if (!resolved)
             {
                 ostringstream os;
@@ -340,7 +340,7 @@ OpenSSL::SSLEngine::initialize()
 
             for (const string& crlFile : crlFiles)
             {
-                optional<string> resolved = checkPath(crlFile, defaultDir, false);
+                optional<string> resolved = resolveFilePath(crlFile, defaultDir);
                 if (!resolved)
                 {
                     ostringstream os;

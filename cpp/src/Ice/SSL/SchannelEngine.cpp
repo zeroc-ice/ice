@@ -771,7 +771,7 @@ Schannel::SSLEngine::initialize()
     }
     if (!caFile.empty())
     {
-        optional<string> resolved = checkPath(caFile, defaultDir, false);
+        optional<string> resolved = resolveFilePath(caFile, defaultDir);
 
         if (!resolved)
         {
@@ -821,7 +821,7 @@ Schannel::SSLEngine::initialize()
 
     if (!certFile.empty())
     {
-        optional<string> resolved = checkPath(certFile, defaultDir, false);
+        optional<string> resolved = resolveFilePath(certFile, defaultDir);
 
         if (!resolved)
         {
@@ -909,7 +909,7 @@ Schannel::SSLEngine::initialize()
 
             // Try to load certificate & key as PEM files.
             err = 0;
-            resolved = checkPath(certFile, defaultDir, false);
+            resolved = resolveFilePath(certFile, defaultDir);
             if (!resolved)
             {
                 ostringstream os;

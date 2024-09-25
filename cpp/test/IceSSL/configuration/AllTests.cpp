@@ -165,7 +165,7 @@ public:
     {
         for (int i = 0; certificates[i] != 0; ++i)
         {
-            optional<string> resolved = Ice::SSL::checkPath(certificates[i], defaultDir, false);
+            optional<string> resolved = Ice::SSL::resolveFilePath(certificates[i], defaultDir);
             if (resolved)
             {
                 IceInternal::UniqueRef<CFArrayRef> certs(
