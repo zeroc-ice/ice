@@ -61,7 +61,7 @@ class OutputStreamWrapper extends java.io.OutputStream {
             _s.expand(1);
             _s.getBuffer().b.put((byte) b);
             _pos += 1;
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new IOException(ex.toString());
         }
     }
@@ -103,7 +103,7 @@ class OutputStreamWrapper extends java.io.OutputStream {
             _s.expand(count);
             _s.getBuffer().b.put(bytes, offset, count);
             _pos += count;
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new IOException(ex.toString());
         }
     }
@@ -131,7 +131,7 @@ class OutputStreamWrapper extends java.io.OutputStream {
                 _s.writeSize(_pos); // Patch previously-written dummy value.
                 _s.pos(currentPos);
             }
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new IOException(ex.toString());
         }
     }

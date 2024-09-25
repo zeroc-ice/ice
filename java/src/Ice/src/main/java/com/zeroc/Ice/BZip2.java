@@ -24,7 +24,7 @@ public class BZip2 {
             //
             data = buf.b.array();
             offset = buf.b.arrayOffset();
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             //
             // Otherwise, allocate an array to hold a copy of the uncompressed data.
             //
@@ -47,7 +47,7 @@ public class BZip2 {
             os.write(data, offset + headerSize, uncompressedLen);
             os.close();
             compressedLen = bos.pos();
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new ProtocolException("bzip2 compression failed", ex);
         }
 
@@ -105,7 +105,7 @@ public class BZip2 {
             //
             compressed = buf.b.array();
             offset = buf.b.arrayOffset();
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             //
             // Otherwise, allocate an array to hold a copy of the compressed data.
             //
@@ -137,7 +137,7 @@ public class BZip2 {
                 r.b.put(arr, 0, n);
             }
             is.close();
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new ProtocolException("bzip2 uncompression failed", ex);
         }
 
@@ -182,7 +182,7 @@ public class BZip2 {
                     types[1] = Integer.TYPE;
                     _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
                 }
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 // Ignore - bzip2 compression not available.
             }
         }

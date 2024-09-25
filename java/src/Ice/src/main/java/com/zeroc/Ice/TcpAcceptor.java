@@ -27,7 +27,7 @@ class TcpAcceptor implements Acceptor {
     public EndpointI listen() {
         try {
             _addr = Network.doBind(_fd, _addr, _backlog);
-        } catch (com.zeroc.Ice.Exception ex) {
+        } catch (LocalException ex) {
             _fd = null;
             throw ex;
         }
@@ -108,7 +108,7 @@ class TcpAcceptor implements Acceptor {
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_fd == null);
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }

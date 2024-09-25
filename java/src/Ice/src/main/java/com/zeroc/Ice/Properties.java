@@ -518,7 +518,7 @@ public final class Properties {
                 }
             } catch (LocalException ex) {
                 throw ex;
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 throw new InitializationException(
                         "Could not read Windows registry key `" + file + "'", ex);
             }

@@ -100,7 +100,7 @@ final class CollocatedRequestHandler implements RequestHandler {
 
                 _sendAsyncRequests.put(outAsync, requestId);
             }
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             _adapter.decDirectCount();
             throw ex;
         }
@@ -285,7 +285,7 @@ final class CollocatedRequestHandler implements RequestHandler {
         _adapter.decDirectCount();
     }
 
-    private void handleException(com.zeroc.Ice.Exception ex, int requestId, boolean amd) {
+    private void handleException(LocalException ex, int requestId, boolean amd) {
         if (requestId == 0) {
             return; // Ignore exception for oneway messages.
         }

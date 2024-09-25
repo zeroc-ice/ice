@@ -298,7 +298,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         ProxyFlushBatch f = new ProxyFlushBatch(this);
         try {
             f.invoke();
-        } catch (Exception ex) {
+        } catch (LocalException ex) {
             f.abort(ex);
         }
         return f;

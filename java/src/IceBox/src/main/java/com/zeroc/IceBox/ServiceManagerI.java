@@ -64,7 +64,7 @@ public class ServiceManagerI implements ServiceManager {
                     info.communicator == null ? _sharedCommunicator : info.communicator,
                     info.args);
             started = true;
-        } catch (java.lang.Exception e) {
+        } catch (Exception e) {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             e.printStackTrace(pw);
@@ -123,7 +123,7 @@ public class ServiceManagerI implements ServiceManager {
         try {
             info.service.stop();
             stopped = true;
-        } catch (java.lang.Exception e) {
+        } catch (Exception e) {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             e.printStackTrace(pw);
@@ -611,7 +611,7 @@ public class ServiceManagerI implements ServiceManager {
 
             try {
                 _sharedCommunicator.destroy();
-            } catch (java.lang.Exception e) {
+            } catch (Exception e) {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 e.printStackTrace(pw);
@@ -824,7 +824,7 @@ public class ServiceManagerI implements ServiceManager {
         } catch (com.zeroc.Ice.CommunicatorDestroyedException e) {
             // Ignore, the service might have already destroyed the communicator for its own
             // reasons.
-        } catch (java.lang.Exception e) {
+        } catch (Exception e) {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             e.printStackTrace(pw);

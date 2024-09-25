@@ -82,7 +82,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         }
         try {
             join();
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         }
     }
 
@@ -368,7 +368,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         }
     }
 
-    protected boolean finished(com.zeroc.Ice.Exception ex) {
+    protected boolean finished(LocalException ex) {
         synchronized (this) {
             _state |= StateDone;
             _exception = ex;
@@ -462,7 +462,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     protected final Communicator _communicator;
     protected final String _operation;
 
-    protected com.zeroc.Ice.Exception _exception;
+    protected LocalException _exception;
 
     private CancellationHandler _cancellationHandler;
     private LocalException _cancellationException;
