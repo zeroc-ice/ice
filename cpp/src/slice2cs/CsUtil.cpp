@@ -42,10 +42,7 @@ namespace
             "string",   "struct",    "switch",    "this",    "throw",     "true",     "try",        "typeof",
             "uint",     "ulong",     "unchecked", "unsafe",  "ushort",    "using",    "var",        "virtual",
             "void",     "volatile",  "while"};
-        bool found = binary_search(
-            &keywordList[0],
-            &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-            name);
+        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
         if (found)
         {
             return "@" + name;
