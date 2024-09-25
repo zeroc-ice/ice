@@ -673,10 +673,6 @@ public final class Instance implements java.util.function.Function<String, Class
         return null;
     }
 
-    public boolean useApplicationClassLoader() {
-        return _useApplicationClassLoader;
-    }
-
     public boolean queueRequests() {
         return _queueExecutorService != null;
     }
@@ -773,9 +769,6 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             _packages = validatePackages();
-
-            _useApplicationClassLoader =
-                    properties.getIcePropertyAsInt("Ice.UseApplicationClassLoader") > 0;
 
             _traceLevels = new TraceLevels(properties);
 
@@ -1578,7 +1571,6 @@ public final class Instance implements java.util.function.Function<String, Class
 
     private java.util.Map<String, String> _sliceTypeIdToClassMap = new java.util.HashMap<>();
     private String[] _packages;
-    private boolean _useApplicationClassLoader;
 
     private static boolean _oneOffDone = false;
     private QueueExecutorService _queueExecutorService;
