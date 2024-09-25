@@ -909,7 +909,7 @@ Schannel::SSLEngine::initialize()
 
             // Try to load certificate & key as PEM files.
             err = 0;
-            resolved = resolveFilePath(certFile, defaultDir);
+            resolved = resolveFilePath(keyFile, defaultDir);
             if (!resolved)
             {
                 ostringstream os;
