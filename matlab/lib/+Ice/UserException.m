@@ -12,7 +12,7 @@ classdef (Abstract) UserException < Ice.Exception
         function obj = iceRead(obj, is)
             is.startException();
             obj = obj.iceReadImpl(is);
-            is.endException(false);
+            is.endException();
         end
         function obj = icePostUnmarshal(obj)
             %
