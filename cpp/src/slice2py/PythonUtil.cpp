@@ -319,7 +319,7 @@ lookupKwd(const string& name)
         "False", "None",     "True",  "and",    "as",     "assert", "async",  "await", "break",    "case",
         "class", "continue", "def",   "del",    "elif",   "else",   "except", "exec",  "finally",  "for",
         "from",  "global",   "if",    "import", "in",     "is",     "lambda", "match", "nonlocal", "not",
-        "or",    "pass",     "print", "raise",  "return", "try",    "while",  "with",  "yield"};
+        "or",    "pass",     "print", "raise",  "return", "try",    "type",   "while", "with",     "yield"};
     bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
     return found ? "_" + name : name;
 }

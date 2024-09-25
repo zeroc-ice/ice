@@ -63,14 +63,16 @@ namespace
         // NOTE: Any changes made to this list must also be made in BasicStream.java.
         //
         static const string keywordList[] = {
-            "abstract",    "assert",  "boolean",   "break",         "byte",     "case",     "catch",      "char",
-            "checkedCast", "class",   "clone",     "const",         "continue", "default",  "do",         "double",
-            "else",        "enum",    "equals",    "extends",       "false",    "final",    "finalize",   "finally",
-            "float",       "for",     "getClass",  "goto",          "hashCode", "if",       "implements", "import",
-            "instanceof",  "int",     "interface", "long",          "native",   "new",      "notify",     "notifyAll",
-            "null",        "package", "private",   "protected",     "public",   "return",   "short",      "static",
-            "strictfp",    "super",   "switch",    "synchronized",  "this",     "throw",    "throws",     "toString",
-            "transient",   "true",    "try",       "uncheckedCast", "void",     "volatile", "wait",       "while"};
+            "abstract", "assert",      "boolean",    "break",     "byte",       "case",         "catch",
+            "char",     "checkedCast", "class",      "clone",     "const",      "continue",     "default",
+            "do",       "double",      "else",       "enum",      "equals",     "extends",      "false",
+            "final",    "finalize",    "finally",    "float",     "for",        "getClass",     "goto",
+            "hashCode", "if",          "implements", "import",    "instanceof", "int",          "interface",
+            "long",     "native",      "new",        "notify",    "notifyAll",  "null",         "package",
+            "permits",  "private",     "protected",  "public",    "record",     "return",       "sealed",
+            "short",    "static",      "strictfp",   "super",     "switch",     "synchronized", "this",
+            "throw",    "throws",      "toString",   "transient", "true",       "try",          "uncheckedCast",
+            "var",      "void",        "volatile",   "wait",      "when",       "while",        "yield"};
         bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
         return found ? "_" + name : name;
     }
