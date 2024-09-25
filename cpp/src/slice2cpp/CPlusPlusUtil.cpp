@@ -502,7 +502,7 @@ Slice::typeToString(
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return getUnqualified(cl->scoped(), scope) + "Ptr";
+        return getUnqualified(fixKwd(cl->scoped() + "Ptr"), scope);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -804,8 +804,7 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
     };
     optionalMembers.sort(SortFn::compare);
 
-    string scoped = c->scoped();
-    string fullName = fixKwd(scoped);
+    string fullName = fixKwd(c->scoped());
     string holder = "v.";
 
     //
