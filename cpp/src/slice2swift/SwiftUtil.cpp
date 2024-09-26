@@ -111,7 +111,7 @@ namespace
             "where",
             "while",
             "willSet"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name));
+        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
         if (found)
         {
             return "`" + name + "`";
