@@ -9,6 +9,7 @@
 #include "Ice/SSL/Config.h"
 
 #include <functional>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -43,8 +44,11 @@ namespace Ice::SSL
     // Read a file into memory buffer.
     void readFile(const std::string&, std::vector<char>&);
 
-    // Determine if a file or directory exists, with an optional default directory.
-    bool checkPath(const std::string&, const std::string&, bool, std::string&);
+    // Determine if a file exists, with an optional parent directory.
+    std::optional<std::string> resolveFilePath(const std::string& path, const std::string& parentDir = "");
+
+    // Determine if a directory exists, with an optional parent directory.
+    std::optional<std::string> resolveDirPath(const std::string& path, const std::string& parentDir = "");
 
     bool parseBytes(const std::string&, std::vector<unsigned char>&);
 

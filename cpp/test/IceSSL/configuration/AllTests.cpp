@@ -165,11 +165,11 @@ public:
     {
         for (int i = 0; certificates[i] != 0; ++i)
         {
-            string resolved;
-            if (Ice::SSL::checkPath(certificates[i], defaultDir, false, resolved))
+            optional<string> resolved = Ice::SSL::resolveFilePath(certificates[i], defaultDir);
+            if (resolved)
             {
                 IceInternal::UniqueRef<CFArrayRef> certs(
-                    Ice::SSL::SecureTransport::loadCertificateChain(resolved, "", "", "", "password"));
+                    Ice::SSL::SecureTransport::loadCertificateChain(*resolved, "", "", "", "password"));
                 SecIdentityRef identity =
                     static_cast<SecIdentityRef>(const_cast<void*>(CFArrayGetValueAtIndex(certs.get(), 0)));
                 CFRetain(identity);
