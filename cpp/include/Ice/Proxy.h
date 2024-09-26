@@ -179,7 +179,8 @@ namespace Ice
         template<class Rep, class Period>
         Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(asPrx()._invocationTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));
+            return fromReference(
+                asPrx()._invocationTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));
         }
 
         /**
@@ -210,7 +211,8 @@ namespace Ice
         template<class Rep, class Period>
         Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(asPrx()._locatorCacheTimeout(std::chrono::duration_cast<std::chrono::seconds>(timeout)));
+            return fromReference(
+                asPrx()._locatorCacheTimeout(std::chrono::duration_cast<std::chrono::seconds>(timeout)));
         }
 
         /**
