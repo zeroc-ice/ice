@@ -124,7 +124,6 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("creating and activating callback receiver adapter... ");
-        communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
         const adapter = await communicator.createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
         await adapter.activate();
         out.writeLine("ok");
