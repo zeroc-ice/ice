@@ -57,7 +57,7 @@ jobs:
 
           # # Xcode SDK builds
           # # TODO - Should we also test the debug config here as well?
-          # - os: 5
+          # - macos-15
           #   config: "xcodesdk"
           #   working_directory: "cpp"
           #   build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
