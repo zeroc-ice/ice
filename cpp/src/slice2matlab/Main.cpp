@@ -2809,28 +2809,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "function r = ice_readOpt(is, tag)";
-    out.inc();
-    out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
-    out.inc();
-    if (p->isVariableLength())
-    {
-        out << nl << "is.skip(4);";
-    }
-    else
-    {
-        out << nl << "is.skipSize();";
-    }
-    out << nl << "r = " << abs << ".ice_read(is);";
-    out.dec();
-    out << nl << "else";
-    out.inc();
-    out << nl << "r = Ice.Unset;";
-    out.dec();
-    out << nl << "end";
-    out.dec();
-    out << nl << "end";
-
     out << nl << "function ice_write(os, v)";
     out.inc();
     out << nl << "if isempty(v)";
@@ -2845,28 +2823,53 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "function ice_writeOpt(os, tag, v)";
-    out.inc();
-    out << nl << "if v ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
-    out.inc();
-    if (p->isVariableLength())
+    if (!p->usesClasses())
     {
-        out << nl << "pos = os.startSize();";
-        out << nl << abs << ".ice_write(os, v);";
-        out << nl << "os.endSize(pos);";
-    }
-    else
-    {
-        out << nl << "os.writeSize(" << p->minWireSize() << ");";
-        out << nl << abs << ".ice_write(os, v);";
-    }
-    out.dec();
-    out << nl << "end";
-    out.dec();
-    out << nl << "end";
-    out.dec();
-    out << nl << "end";
+        out << nl << "function r = ice_readOpt(is, tag)";
+        out.inc();
+        out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        if (p->isVariableLength())
+        {
+            out << nl << "is.skip(4);";
+        }
+        else
+        {
+            out << nl << "is.skipSize();";
+        }
+        out << nl << "r = " << abs << ".ice_read(is);";
+        out.dec();
+        out << nl << "else";
+        out.inc();
+        out << nl << "r = Ice.Unset;";
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
 
+        out << nl << "function ice_writeOpt(os, tag, v)";
+        out.inc();
+        out << nl << "if v ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        if (p->isVariableLength())
+        {
+            out << nl << "pos = os.startSize();";
+            out << nl << abs << ".ice_write(os, v);";
+            out << nl << "os.endSize(pos);";
+        }
+        else
+        {
+            out << nl << "os.writeSize(" << p->minWireSize() << ");";
+            out << nl << abs << ".ice_write(os, v);";
+        }
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
+    }
+
+    out.dec();
+    out << nl << "end";
     out.dec();
     out << nl << "end";
     out << nl;
@@ -2945,42 +2948,6 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     else
     {
         marshal(out, "os", "seq{i}", content, false, 0);
-    }
-    out.dec();
-    out << nl << "end";
-    out.dec();
-    out << nl << "end";
-
-    out << nl << "function writeOpt(os, tag, seq)";
-    out.inc();
-    out << nl << "if seq ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
-    out.inc();
-    if (p->type()->isVariableLength())
-    {
-        out << nl << "pos = os.startSize();";
-        out << nl << abs << ".write(os, seq);";
-        out << nl << "os.endSize(pos);";
-    }
-    else
-    {
-        //
-        // The element is a fixed-size type. If the element type is bool or byte, we do NOT write an extra size.
-        //
-        const size_t sz = p->type()->minWireSize();
-        if (sz > 1)
-        {
-            out << nl << "len = length(seq);";
-            out << nl << "if len > 254";
-            out.inc();
-            out << nl << "os.writeSize(len * " << sz << " + 5);";
-            out.dec();
-            out << nl << "else";
-            out.inc();
-            out << nl << "os.writeSize(len * " << sz << " + 1);";
-            out.dec();
-            out << nl << "end";
-        }
-        out << nl << abs << ".write(os, seq);";
     }
     out.dec();
     out << nl << "end";
@@ -3076,27 +3043,66 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "function r = readOpt(is, tag)";
-    out.inc();
-    out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
-    out.inc();
-    if (p->type()->isVariableLength())
+    if (!p->type()->usesClasses())
     {
-        out << nl << "is.skip(4);";
+        out << nl << "function writeOpt(os, tag, seq)";
+        out.inc();
+        out << nl << "if seq ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        if (p->type()->isVariableLength())
+        {
+            out << nl << "pos = os.startSize();";
+            out << nl << abs << ".write(os, seq);";
+            out << nl << "os.endSize(pos);";
+        }
+        else
+        {
+            //
+            // The element is a fixed-size type. If the element type is bool or byte, we do NOT write an extra size.
+            //
+            const size_t sz = p->type()->minWireSize();
+            if (sz > 1)
+            {
+                out << nl << "len = length(seq);";
+                out << nl << "if len > 254";
+                out.inc();
+                out << nl << "os.writeSize(len * " << sz << " + 5);";
+                out.dec();
+                out << nl << "else";
+                out.inc();
+                out << nl << "os.writeSize(len * " << sz << " + 1);";
+                out.dec();
+                out << nl << "end";
+            }
+            out << nl << abs << ".write(os, seq);";
+        }
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
+
+        out << nl << "function r = readOpt(is, tag)";
+        out.inc();
+        out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        if (p->type()->isVariableLength())
+        {
+            out << nl << "is.skip(4);";
+        }
+        else if (p->type()->minWireSize() > 1)
+        {
+            out << nl << "is.skipSize();";
+        }
+        out << nl << "r = " << abs << ".read(is);";
+        out.dec();
+        out << nl << "else";
+        out.inc();
+        out << nl << "r = Ice.Unset;";
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
     }
-    else if (p->type()->minWireSize() > 1)
-    {
-        out << nl << "is.skipSize();";
-    }
-    out << nl << "r = " << abs << ".read(is);";
-    out.dec();
-    out << nl << "else";
-    out.inc();
-    out << nl << "r = Ice.Unset;";
-    out.dec();
-    out << nl << "end";
-    out.dec();
-    out << nl << "end";
 
     if (cls || convert)
     {
@@ -3237,43 +3243,6 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "function writeOpt(os, tag, d)";
-    out.inc();
-    out << nl << "if d ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
-    out.inc();
-    if (key->isVariableLength() || value->isVariableLength())
-    {
-        out << nl << "pos = os.startSize();";
-        out << nl << abs << ".write(os, d);";
-        out << nl << "os.endSize(pos);";
-    }
-    else
-    {
-        const size_t sz = key->minWireSize() + value->minWireSize();
-        if (cls)
-        {
-            out << nl << "len = length(d.array);";
-        }
-        else
-        {
-            out << nl << "len = length(d);";
-        }
-        out << nl << "if len > 254";
-        out.inc();
-        out << nl << "os.writeSize(len * " << sz << " + 5);";
-        out.dec();
-        out << nl << "else";
-        out.inc();
-        out << nl << "os.writeSize(len * " << sz << " + 1);";
-        out.dec();
-        out << nl << "end";
-        out << nl << abs << ".write(os, d);";
-    }
-    out.dec();
-    out << nl << "end";
-    out.dec();
-    out << nl << "end";
-
     out << nl << "function r = read(is)";
     out.inc();
     out << nl << "sz = is.readSize();";
@@ -3323,27 +3292,67 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "function r = readOpt(is, tag)";
-    out.inc();
-    out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
-    out.inc();
-    if (key->isVariableLength() || value->isVariableLength())
+    if (!p->valueType()->usesClasses())
     {
-        out << nl << "is.skip(4);";
+        out << nl << "function writeOpt(os, tag, d)";
+        out.inc();
+        out << nl << "if d ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        if (key->isVariableLength() || value->isVariableLength())
+        {
+            out << nl << "pos = os.startSize();";
+            out << nl << abs << ".write(os, d);";
+            out << nl << "os.endSize(pos);";
+        }
+        else
+        {
+            const size_t sz = key->minWireSize() + value->minWireSize();
+            if (cls)
+            {
+                out << nl << "len = length(d.array);";
+            }
+            else
+            {
+                out << nl << "len = length(d);";
+            }
+            out << nl << "if len > 254";
+            out.inc();
+            out << nl << "os.writeSize(len * " << sz << " + 5);";
+            out.dec();
+            out << nl << "else";
+            out.inc();
+            out << nl << "os.writeSize(len * " << sz << " + 1);";
+            out.dec();
+            out << nl << "end";
+            out << nl << abs << ".write(os, d);";
+        }
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
+
+        out << nl << "function r = readOpt(is, tag)";
+        out.inc();
+        out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        if (key->isVariableLength() || value->isVariableLength())
+        {
+            out << nl << "is.skip(4);";
+        }
+        else
+        {
+            out << nl << "is.skipSize();";
+        }
+        out << nl << "r = " << abs << ".read(is);";
+        out.dec();
+        out << nl << "else";
+        out.inc();
+        out << nl << "r = Ice.Unset;";
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
     }
-    else
-    {
-        out << nl << "is.skipSize();";
-    }
-    out << nl << "r = " << abs << ".read(is);";
-    out.dec();
-    out << nl << "else";
-    out.inc();
-    out << nl << "r = Ice.Unset;";
-    out.dec();
-    out << nl << "end";
-    out.dec();
-    out << nl << "end";
 
     if (cls || convert)
     {
@@ -3461,6 +3470,13 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out.dec();
     out << nl << "end";
 
+    out << nl << "function r = ice_read(is)";
+    out.inc();
+    out << nl << "v = is.readEnum(" << p->maxValue() << ");";
+    out << nl << "r = " << abs << ".ice_getValue(v);";
+    out.dec();
+    out << nl << "end";
+
     out << nl << "function ice_writeOpt(os, tag, v)";
     out.inc();
     out << nl << "if v ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
@@ -3468,13 +3484,6 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out << nl << abs << ".ice_write(os, v);";
     out.dec();
     out << nl << "end";
-    out.dec();
-    out << nl << "end";
-
-    out << nl << "function r = ice_read(is)";
-    out.inc();
-    out << nl << "v = is.readEnum(" << p->maxValue() << ");";
-    out << nl << "r = " << abs << ".ice_getValue(v);";
     out.dec();
     out << nl << "end";
 
