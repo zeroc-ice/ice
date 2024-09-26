@@ -337,9 +337,9 @@ classdef InputStream < handle
             %assert(isobject(obj.encapsStackDecoder));
             obj.encapsStackDecoder.startInstance(IceInternal.SliceType.ExceptionSlice);
         end
-        function r = endException(obj, preserve)
+        function r = endException(obj)
             %assert(isobject(obj.encapsStackDecoder));
-            r = obj.encapsStackDecoder.endInstance(preserve);
+            r = obj.encapsStackDecoder.endInstance();
         end
         function startEncapsulation(obj)
             curr = obj.encapsCache;
@@ -715,9 +715,9 @@ classdef InputStream < handle
             %assert(isobject(obj.encapsStackDecoder));
             obj.encapsStackDecoder.startInstance(IceInternal.SliceType.ValueSlice);
         end
-        function r = endValue(obj, preserve)
+        function r = endValue(obj)
             %assert(isobject(obj.encapsStackDecoder));
-            r = obj.encapsStackDecoder.endInstance(preserve);
+            r = obj.encapsStackDecoder.endInstance();
         end
         function throwException(obj)
             if ~isobject(obj.encapsStackDecoder)

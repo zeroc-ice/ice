@@ -455,9 +455,6 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            %{
-                TODO: fix #1945 and re-enable this test
-
             fprintf('return value identity for input params known first... ');
 
             d1 = D1();
@@ -484,9 +481,13 @@ classdef AllTests
             b2 = b1.pb;
             assert(~isempty(b2));
             assert(strcmp(b2.sb, 'D3.sb'));
-            assert(strcmp(b2.ice_id(), '::Test::B'));  % Sliced by server
             assert(b2.pb == b1);
-            assert(~isa(b2, 'Test.D3'));
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(b2, 'Test.D3'));
+            else
+                assert(isa(b2, 'Test.D3'));
+                assert(strcmp(b2.ice_id(), '::Test::D3'));  % preserved
+            end
 
             assert(b1 ~= d1);
             assert(b1 ~= d3);
@@ -521,9 +522,13 @@ classdef AllTests
             b2 = b1.pb;
             assert(~isempty(b2));
             assert(strcmp(b2.sb, 'D3.sb'));
-            assert(strcmp(b2.ice_id(), '::Test::B'));  % Sliced by server
             assert(b2.pb == b1);
-            assert(~isa(b2, 'Test.D3'));
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(b2, 'Test.D3'));
+            else
+                assert(isa(b2, 'Test.D3'));
+                assert(strcmp(b2.ice_id(), '::Test::D3'));  % preserved
+            end
 
             assert(b1 ~= d1);
             assert(b1 ~= d3);
@@ -549,8 +554,13 @@ classdef AllTests
 
             assert(~isempty(b1));
             assert(strcmp(b1.sb, 'D3.sb'));
-            assert(strcmp(b1.ice_id(), '::Test::B')); % Sliced by server
-            assert(~isa(b1, 'Test.D3'));
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(b1, 'Test.D3'));
+            else
+                assert(isa(b1, 'Test.D3'));
+                assert(strcmp(b1.ice_id(), '::Test::D3')); % preserved
+            end
+
             b2 = b1.pb;
             assert(~isempty(b2));
             assert(strcmp(b2.sb, 'D1.sb'));
@@ -585,8 +595,13 @@ classdef AllTests
 
             assert(~isempty(b1));
             assert(strcmp(b1.sb, 'D3.sb'));
-            assert(strcmp(b1.ice_id(), '::Test::B')); % Sliced by server
-            assert(~isa(b1, 'Test.D3'));
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(b1, 'Test.D3'));
+            else
+                assert(isa(b1, 'Test.D3'));
+                assert(strcmp(b1.ice_id(), '::Test::D3')); % preserved
+            end
+
             b2 = b1.pb;
             assert(~isempty(b2));
             assert(strcmp(b2.sb, 'D1.sb'));
@@ -603,7 +618,6 @@ classdef AllTests
             assert(b2 ~= d3);
 
             fprintf('ok\n');
-            %}
 
             fprintf('remainder unmarshaling (3 instances)... ');
 
@@ -679,9 +693,6 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            %{
-                TODO: fix #1945 and re-enable this test
-
             fprintf('param ptr slicing, instance marshaled in unknown derived as base... ');
 
             b1 = B();
@@ -701,9 +712,14 @@ classdef AllTests
             r = proxy.returnTest3(d3, b2);
 
             assert(~isempty(r));
-            assert(strcmp(r.ice_id(), '::Test::B'));
-            assert(strcmp(r.sb, 'D3.sb'));
-            assert(r.pb == r);
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(r, 'Test.D3'));
+            else
+                assert(isa(r, 'Test.D3'));
+                assert(strcmp(r.ice_id(), '::Test::D3'));
+                assert(strcmp(r.sb, 'D3.sb'));
+                assert(r.pb == r);
+            end
 
             fprintf('ok\n');
 
@@ -726,9 +742,14 @@ classdef AllTests
             r = proxy.returnTest3Async(d3, b2).fetchOutputs();
 
             assert(~isempty(r));
-            assert(strcmp(r.ice_id(), '::Test::B'));
-            assert(strcmp(r.sb, 'D3.sb'));
-            assert(r.pb == r);
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(r, 'Test.D3'));
+            else
+                assert(isa(r, 'Test.D3'));
+                assert(strcmp(r.ice_id(), '::Test::D3'));
+                assert(strcmp(r.sb, 'D3.sb'));
+                assert(r.pb == r);
+            end
 
             fprintf('ok\n');
 
@@ -753,10 +774,14 @@ classdef AllTests
 
             r = proxy.returnTest3(d3, d12);
             assert(~isempty(r));
-            assert(strcmp(r.ice_id(), '::Test::B'));
-            assert(strcmp(r.sb, 'D3.sb'));
-            assert(r.pb == r);
-
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(r, 'Test.D3'));
+            else
+                assert(isa(r, 'Test.D3'));
+                assert(strcmp(r.ice_id(), '::Test::D3'));
+                assert(strcmp(r.sb, 'D3.sb'));
+                assert(r.pb == r);
+            end
             fprintf('ok\n');
 
             fprintf('param ptr slicing, instance marshaled in unknown derived as derived (AMI)... ');
@@ -780,10 +805,14 @@ classdef AllTests
 
             r = proxy.returnTest3Async(d3, d12).fetchOutputs();
             assert(~isempty(r));
-            assert(strcmp(r.ice_id(), '::Test::B'));
-            assert(strcmp(r.sb, 'D3.sb'));
-            assert(r.pb == r);
-
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(r, 'Test.D3'));
+            else
+                assert(isa(r, 'Test.D3'));
+                assert(strcmp(r.ice_id(), '::Test::D3'));
+                assert(strcmp(r.sb, 'D3.sb'));
+                assert(r.pb == r);
+            end
             fprintf('ok\n');
 
             fprintf('sequence slicing... ');
@@ -857,11 +886,19 @@ classdef AllTests
 
             assert(strcmp(ss1b.ice_id(), '::Test::B'));
             assert(strcmp(ss1d1.ice_id(), '::Test::D1'));
-            assert(strcmp(ss1d3.ice_id(), '::Test::B'));
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(ss1d3, 'Test.D3'));
+            else
+                assert(strcmp(ss1d3.ice_id(), '::Test::D3'));
+            end
 
             assert(strcmp(ss2b.ice_id(), '::Test::B'));
             assert(strcmp(ss2d1.ice_id(), '::Test::D1'));
-            assert(strcmp(ss2d3.ice_id(), '::Test::B'));
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(ss2d3, 'Test.D3'));
+            else
+                assert(strcmp(ss2d3.ice_id(), '::Test::D3'));
+            end
 
             fprintf('ok\n');
 
@@ -936,14 +973,21 @@ classdef AllTests
 
             assert(strcmp(ss1b.ice_id(), '::Test::B'));
             assert(strcmp(ss1d1.ice_id(), '::Test::D1'));
-            assert(strcmp(ss1d3.ice_id(), '::Test::B'));
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(ss1d3, 'Test.D3'));
+            else
+                assert(strcmp(ss1d3.ice_id(), '::Test::D3'));
+            end
 
             assert(strcmp(ss2b.ice_id(), '::Test::B'));
             assert(strcmp(ss2d1.ice_id(), '::Test::D1'));
-            assert(strcmp(ss2d3.ice_id(), '::Test::B'));
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(ss2d3, 'Test.D3'));
+            else
+                assert(strcmp(ss2d3.ice_id(), '::Test::D3'));
+            end
 
             fprintf('ok\n');
-            %}
 
             fprintf('dictionary slicing... ');
 
@@ -1217,9 +1261,6 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            %{
-                TODO: fix #1945 and re-enable this test
-
             fprintf('preserved classes... ');
 
             try
@@ -1236,79 +1277,6 @@ classdef AllTests
                 assert(p2.pi == 3);
                 assert(strcmp(p2.ps, 'preserved'));
                 assert(p2.pb == p2);
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
-            end
-
-            try
-                %
-                % Server only knows the base (non-preserved) type, so the object is sliced.
-                %
-                pu = PCUnknown();
-                pu.pi = 3;
-                pu.pu = 'preserved';
-
-                r = proxy.exchangePBase(pu);
-                assert(~isa(r, 'Test.PCUnknown'));
-                assert(r.pi == 3);
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
-            end
-
-            try
-                %
-                % Server only knows the intermediate type Preserved. The object will be sliced to
-                % Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                %
-                pcd = PCDerived();
-                pcd.pi = 3;
-                pcd.pbs = {};
-                pcd.pbs{1} = pcd;
-
-                r = proxy.exchangePBase(pcd);
-                if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'Test.PCDerived'));
-                    assert(r.pi == 3);
-                else
-                    p2 = r;
-                    assert(p2.pi == 3);
-                    assert(p2.pbs{1} == p2);
-                end
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
-            end
-
-            try
-                %
-                % Server only knows the intermediate type Preserved. The object will be sliced to
-                % Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                %
-                pcd = CompactPCDerived();
-                pcd.pi = 3;
-                pcd.pbs = {};
-                pcd.pbs{1} = pcd;
-
-                r = proxy.exchangePBase(pcd);
-                if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'Test.CompactPCDerived'));
-                    assert(r.pi == 3);
-                else
-                    p2 = r;
-                    assert(p2.pi == 3);
-                    assert(p2.pbs{1} == p2);
-                end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
                     % Ignore
@@ -1374,14 +1342,14 @@ classdef AllTests
                 p = proxy.PBSUnknownAsPreserved();
                 assert(~isempty(p));
                 proxy.checkPBSUnknown(p);
+                slicedData = p.ice_getSlicedData();
+                assert(~isempty(slicedData));
                 if proxy.ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 0)
-                    slicedData = p.ice_getSlicedData();
-                    assert(~isempty(slicedData));
                     assert(length(slicedData.slices) == 1);
                     assert(strcmp(slicedData.slices{1}.typeId, '::Test::PSUnknown'));
                     proxy.ice_encodingVersion(Ice.EncodingVersion(1, 0)).checkPBSUnknown(p);
                 else
-                    assert(isempty(p.ice_getSlicedData()));
+                    assert(length(slicedData.slices) == 0);
                 end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
@@ -1409,79 +1377,6 @@ classdef AllTests
                 assert(p2.pi == 3);
                 assert(strcmp(p2.ps, 'preserved'));
                 assert(p2.pb == p2);
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
-            end
-
-            try
-                %
-                % Server only knows the base (non-preserved) type, so the object is sliced.
-                %
-                pu = PCUnknown();
-                pu.pi = 3;
-                pu.pu = 'preserved';
-
-                r = proxy.exchangePBaseAsync(pu).fetchOutputs();
-                assert(~isa(r, 'Test.PCUnknown'));
-                assert(r.pi == 3);
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
-            end
-
-            try
-                %
-                % Server only knows the intermediate type Preserved. The object will be sliced to
-                % Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                %
-                pcd = PCDerived();
-                pcd.pi = 3;
-                pcd.pbs = {};
-                pcd.pbs{1} = pcd;
-
-                r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
-                if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'Test.PCDerived'));
-                    assert(r.pi == 3);
-                else
-                    p2 = r;
-                    assert(p2.pi == 3);
-                    assert(p2.pbs{1} == p2);
-                end
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
-            end
-
-            try
-                %
-                % Server only knows the intermediate type Preserved. The object will be sliced to
-                % Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                %
-                pcd = CompactPCDerived();
-                pcd.pi = 3;
-                pcd.pbs = {};
-                pcd.pbs{1} = pcd;
-
-                r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
-                if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'Test.CompactPCDerived'));
-                    assert(r.pi == 3);
-                else
-                    p2 = r;
-                    assert(p2.pi == 3);
-                    assert(p2.pbs{1} == p2);
-                end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
                     % Ignore
@@ -1547,14 +1442,14 @@ classdef AllTests
                 p = proxy.PBSUnknownAsPreservedAsync().fetchOutputs();
                 assert(~isempty(p));
                 proxy.checkPBSUnknown(p);
+                slicedData = p.ice_getSlicedData();
+                assert(~isempty(slicedData));
                 if proxy.ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 0)
-                    slicedData = p.ice_getSlicedData();
-                    assert(~isempty(slicedData));
                     assert(length(slicedData.slices) == 1);
                     assert(strcmp(slicedData.slices{1}.typeId, '::Test::PSUnknown'));
                     proxy.ice_encodingVersion(Ice.EncodingVersion(1, 0)).checkPBSUnknown(p);
                 else
-                    assert(isempty(p.ice_getSlicedData()));
+                    assert(length(slicedData.slices) == 0);
                 end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
@@ -1565,8 +1460,6 @@ classdef AllTests
             end
 
             fprintf('ok\n');
-
-            %}
 
             fprintf('garbage collection for preserved classes... ');
 

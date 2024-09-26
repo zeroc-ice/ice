@@ -57,7 +57,7 @@ classdef (Abstract) EncapsDecoder < handle
         readValue(obj, cb)
         throwException(obj)
         startInstance(obj, sliceType)
-        r = endInstance(obj, preserve)
+        r = endInstance(obj)
         r = startSlice(obj)
         endSlice(obj)
         skipSlice(obj)

@@ -1737,9 +1737,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    const bool basePreserved = p->inheritsMetadata("preserve-slice");
-    const bool preserved = p->hasMetadata("preserve-slice");
-
     MemberInfoList allMembers;
     collectClassMembers(p, allMembers, false);
 
@@ -1833,15 +1830,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    if (preserved && !basePreserved)
-    {
-        out << nl << "function r = ice_getSlicedData(obj)";
-        out.inc();
-        out << nl << "r = obj.iceSlicedData_;";
-        out.dec();
-        out << nl << "end";
-    }
-
     out.dec();
     out << nl << "end";
 
@@ -1854,50 +1842,29 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    if ((preserved && !basePreserved) || !convertMembers.empty())
+    if (!convertMembers.empty())
     {
         out << nl << "methods(Hidden=true)";
         out.inc();
 
-        if (preserved && !basePreserved)
+        out << nl << "function r = iceDelayPostUnmarshal(~)";
+        out.inc();
+        out << nl << "r = true;";
+        out.dec();
+        out << nl << "end";
+        out << nl << "function icePostUnmarshal(obj)";
+        out.inc();
+        for (DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
         {
-            out << nl << "function iceWrite(obj, os)";
-            out.inc();
-            out << nl << "os.startValue(obj.iceSlicedData_);";
-            out << nl << "obj.iceWriteImpl(os);";
-            out << nl << "os.endValue();";
-            out.dec();
-            out << nl << "end";
-            out << nl << "function iceRead(obj, is)";
-            out.inc();
-            out << nl << "is.startValue();";
-            out << nl << "obj.iceReadImpl(is);";
-            out << nl << "obj.iceSlicedData_ = is.endValue(true);";
-            out.dec();
-            out << nl << "end";
+            string m = "obj." + fixIdent((*d)->name());
+            convertValueType(out, m, m, (*d)->type(), (*d)->optional());
         }
-
-        if (!convertMembers.empty())
+        if (base)
         {
-            out << nl << "function r = iceDelayPostUnmarshal(~)";
-            out.inc();
-            out << nl << "r = true;";
-            out.dec();
-            out << nl << "end";
-            out << nl << "function icePostUnmarshal(obj)";
-            out.inc();
-            for (DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
-            {
-                string m = "obj." + fixIdent((*d)->name());
-                convertValueType(out, m, m, (*d)->type(), (*d)->optional());
-            }
-            if (base)
-            {
-                out << nl << "icePostUnmarshal@" << getAbsolute(base) << "(obj);";
-            }
-            out.dec();
-            out << nl << "end";
+            out << nl << "icePostUnmarshal@" << getAbsolute(base) << "(obj);";
         }
+        out.dec();
+        out << nl << "end";
 
         out.dec();
         out << nl << "end";
@@ -1989,15 +1956,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "end";
     out.dec();
     out << nl << "end";
-
-    if (preserved && !basePreserved)
-    {
-        out << nl << "properties(Access=protected)";
-        out.inc();
-        out << nl << "iceSlicedData_";
-        out.dec();
-        out << nl << "end";
-    }
 
     out.dec();
     out << nl << "end";
@@ -2568,8 +2526,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
-    const bool basePreserved = p->inheritsMetadata("preserve-slice");
-    const bool preserved = p->hasMetadata("preserve-slice");
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
@@ -2676,33 +2632,28 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "end";
 
     const DataMemberList classMembers = p->classDataMembers();
-    if (!classMembers.empty() || !convertMembers.empty() || (preserved && !basePreserved))
+    if (!classMembers.empty() || !convertMembers.empty())
     {
         out << nl << "methods(Hidden=true)";
         out.inc();
-
-        if (!classMembers.empty() || !convertMembers.empty())
+        out << nl << "function obj = icePostUnmarshal(obj)";
+        out.inc();
+        for (DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
         {
-            out << nl << "function obj = icePostUnmarshal(obj)";
-            out.inc();
-            for (DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
-            {
-                string m = fixExceptionMember((*q)->name());
-                out << nl << "obj." << m << " = obj." << m << ".value;";
-            }
-            for (MemberInfoList::const_iterator q = convertMembers.begin(); q != convertMembers.end(); ++q)
-            {
-                string m = "obj." + q->fixedName;
-                convertValueType(out, m, m, q->dataMember->type(), q->dataMember->optional());
-            }
-            if (base && base->usesClasses())
-            {
-                out << nl << "obj = icePostUnmarshal@" << getAbsolute(base) << "(obj);";
-            }
-            out.dec();
-            out << nl << "end";
+            string m = fixExceptionMember((*q)->name());
+            out << nl << "obj." << m << " = obj." << m << ".value;";
         }
-
+        for (MemberInfoList::const_iterator q = convertMembers.begin(); q != convertMembers.end(); ++q)
+        {
+            string m = "obj." + q->fixedName;
+            convertValueType(out, m, m, q->dataMember->type(), q->dataMember->optional());
+        }
+        if (base && base->usesClasses())
+        {
+            out << nl << "obj = icePostUnmarshal@" << getAbsolute(base) << "(obj);";
+        }
+        out.dec();
+        out << nl << "end";
         out.dec();
         out << nl << "end";
     }
