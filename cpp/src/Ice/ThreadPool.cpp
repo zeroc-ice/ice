@@ -158,7 +158,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
       _sizeMax(0),
       _sizeWarn(0),
       _serialize(_instance->initializationData().properties->getPropertyAsInt(_prefix + ".Serialize") > 0),
-      _priority(0),
       _serverIdleTime(timeout),
       _threadIdleTime(0),
       _inUse(0),
