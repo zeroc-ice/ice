@@ -117,11 +117,9 @@ namespace IceInternal
         const int _sizeMax;    // Maximum number of threads.
         const int _sizeWarn;   // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
         const bool _serialize; // True if requests need to be serialized over the connection.
-        const bool _hasPriority;
         const int _priority;
         const int _serverIdleTime;
         const int _threadIdleTime;
-        const size_t _stackSize;
 
         std::set<EventHandlerThreadPtr> _threads; // All threads, running or not.
         int _inUse;                               // Number of threads that are currently in use.
