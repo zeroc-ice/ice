@@ -269,7 +269,7 @@ generated from the section label.
         <property name="Compression.Level" languages="cpp,csharp,java" default="1" />
         <property name="Config" languages="cpp,csharp,java" />
         <property name="Connection.Client" class="connection" languages="all" />
-        <property name="Connection.Server" class="connection" languages="all" />
+        <property name="Connection.Server" class="connection" languages="cpp,csharp,java" />
         <property name="ConsoleListener" languages="csharp" default="1" />
         <property name="Default.CollocationOptimized" languages="cpp,csharp,java" default="1" />
         <property name="Default.EncodingVersion" languages="all" default="1.1"/>
