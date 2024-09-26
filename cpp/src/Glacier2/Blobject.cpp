@@ -166,6 +166,8 @@ Glacier2::Blobject::invoke(
         }
         else
         {
+            // For oneway requests, we want the dispatch to complete only once the request has been forwarded (sent).
+            // This ensures proper flow control / back pressure through the Glacier2 router.
             amiSent = [amdResponse = std::move(response)](bool) { amdResponse(true, {nullptr, nullptr}); };
         }
 
@@ -180,7 +182,7 @@ Glacier2::Blobject::invoke(
                     current.mode,
                     inParams,
                     std::move(amiResponse),
-                    std::move(exception),
+                    exception,
                     std::move(amiSent),
                     ctx);
             }
@@ -191,7 +193,7 @@ Glacier2::Blobject::invoke(
                     current.mode,
                     inParams,
                     std::move(amiResponse),
-                    std::move(exception),
+                    exception,
                     std::move(amiSent),
                     current.ctx);
             }
@@ -205,7 +207,7 @@ Glacier2::Blobject::invoke(
                     current.mode,
                     inParams,
                     std::move(amiResponse),
-                    std::move(exception),
+                    exception,
                     std::move(amiSent),
                     _context);
             }
@@ -216,7 +218,7 @@ Glacier2::Blobject::invoke(
                     current.mode,
                     inParams,
                     std::move(amiResponse),
-                    std::move(exception),
+                    exception,
                     std::move(amiSent));
             }
         }
