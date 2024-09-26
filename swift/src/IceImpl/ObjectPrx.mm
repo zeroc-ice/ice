@@ -125,7 +125,7 @@
 
 - (int32_t)ice_getLocatorCacheTimeout
 {
-    return _prx->ice_getLocatorCacheTimeout();
+    return std::chrono::duration_cast<std::chrono::duration<int32_t>>(_prx->ice_getLocatorCacheTimeout()).count();
 }
 
 - (instancetype)ice_locatorCacheTimeout:(int32_t)timeout error:(NSError**)error
@@ -144,7 +144,7 @@
 
 - (int32_t)ice_getInvocationTimeout
 {
-    return _prx->ice_getInvocationTimeout();
+    return std::chrono::duration_cast<std::chrono::duration<int32_t>>(_prx->ice_getInvocationTimeout()).count();
 }
 
 - (instancetype)ice_invocationTimeout:(int32_t)timeout error:(NSError**)error
