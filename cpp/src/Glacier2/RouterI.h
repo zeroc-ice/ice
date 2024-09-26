@@ -64,8 +64,6 @@ namespace Glacier2
         const std::optional<Ice::ObjectPrx> _serverProxy;
         const std::shared_ptr<ClientBlobject> _clientBlobject;
         const std::shared_ptr<ServerBlobject> _serverBlobject;
-        const bool _clientBlobjectBuffered;
-        const bool _serverBlobjectBuffered;
         const Ice::ConnectionPtr _connection;
         const std::string _userId;
         const std::optional<SessionPrx> _session;
