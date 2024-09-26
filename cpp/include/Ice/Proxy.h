@@ -176,9 +176,10 @@ namespace Ice
          * @param timeout The new invocation timeout (in milliseconds).
          * @return A proxy with the new timeout.
          */
-        Prx ice_invocationTimeout(std::chrono::milliseconds timeout) const
+        template<class Rep, class Period>
+        Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(asPrx()._invocationTimeout(timeout));
+            return fromReference(asPrx()._invocationTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));
         }
 
         /**
@@ -206,9 +207,10 @@ namespace Ice
          * @param timeout The new locator cache timeout (in seconds).
          * @return A proxy with the new timeout.
          */
-        Prx ice_locatorCacheTimeout(std::chrono::seconds timeout) const
+        template<class Rep, class Period>
+        Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(asPrx()._locatorCacheTimeout(timeout));
+            return fromReference(asPrx()._locatorCacheTimeout(std::chrono::duration_cast<std::chrono::seconds>(timeout)));
         }
 
         /**
