@@ -421,7 +421,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocatorCacheTimeout)
     try
     {
         chrono::seconds timeout = _this->proxy->ice_getLocatorCacheTimeout();
-        ZVAL_LONG(return_value, chrono::duration_cast<chrono::duration<long>>(timeout).count());
+        ZVAL_LONG(return_value, static_cast<long>(timeout.count()));
     }
     catch (...)
     {
@@ -1254,7 +1254,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
     try
     {
         chrono::milliseconds timeout = _this->proxy->ice_getInvocationTimeout();
-        ZVAL_LONG(return_value, chrono::duration_cast<chrono::duration<long>>(timeout).count());
+        ZVAL_LONG(return_value, static_cast<long>(timeout.count()));
     }
     catch (...)
     {

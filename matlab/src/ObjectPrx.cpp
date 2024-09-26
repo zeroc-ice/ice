@@ -543,7 +543,7 @@ extern "C"
     mxArray* Ice_ObjectPrx_ice_getLocatorCacheTimeout(void* self)
     {
         chrono::seconds timeout = restoreProxy(self)->ice_getLocatorCacheTimeout();
-        return createResultValue(createInt(chrono::duration_cast<chrono::duration<int32_t>>(timeout).count()));
+        return createResultValue(createInt(static_cast<int32_t>(timeout.count())));
     }
 
     mxArray* Ice_ObjectPrx_ice_locatorCacheTimeout(void* self, void** r, int t)
@@ -564,7 +564,7 @@ extern "C"
     mxArray* Ice_ObjectPrx_ice_getInvocationTimeout(void* self)
     {
         chrono::milliseconds timeout = restoreProxy(self)->ice_getInvocationTimeout();
-        return createResultValue(createInt(chrono::duration_cast<chrono::duration<int32_t>>(timeout).count()));
+        return createResultValue(createInt(static_cast<int32_t>>(timeout.count())));
     }
 
     mxArray* Ice_ObjectPrx_ice_invocationTimeout(void* self, void** r, int t)

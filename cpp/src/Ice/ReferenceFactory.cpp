@@ -857,7 +857,7 @@ IceInternal::ReferenceFactory::create(
         {
             int locatorCacheTimeoutValue = properties->getPropertyAsIntWithDefault(
                 property,
-                chrono::duration_cast<chrono::duration<int>>(locatorCacheTimeout).count());
+                static_cast<int32_t>(locatorCacheTimeout.count()));
             if (locatorCacheTimeoutValue < -1)
             {
                 locatorCacheTimeoutValue = -1;
@@ -874,7 +874,7 @@ IceInternal::ReferenceFactory::create(
         {
             int invocationTimeoutValue = properties->getPropertyAsIntWithDefault(
                 property,
-                chrono::duration_cast<chrono::duration<int>>(invocationTimeout).count());
+                static_cast<int32_t>(invocationTimeout.count()));
             if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1)
             {
                 invocationTimeoutValue = -1;
