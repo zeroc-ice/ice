@@ -42,7 +42,7 @@ public sealed class DefaultsAndOverrides
         if (val.Length > 0)
         {
             overrideCompress = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
-            if (!BZip2.isLoaded && overrideCompress.Value)
+            if (!BZip2.isLoaded(logger) && overrideCompress.Value)
             {
                 Console.Error.WriteLine("warning: BZip2 library not found, Ice.Override.Compress ignored.");
                 overrideCompress = null;
@@ -50,7 +50,7 @@ public sealed class DefaultsAndOverrides
         }
         else
         {
-            overrideCompress = BZip2.isLoaded ? null : false;
+            overrideCompress = BZip2.isLoaded(logger) ? null : false;
         }
 
         val = properties.getIceProperty("Ice.Override.Secure");

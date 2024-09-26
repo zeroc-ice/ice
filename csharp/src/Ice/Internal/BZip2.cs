@@ -3,9 +3,11 @@
 #nullable enable
 
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Ice.Internal;
 
@@ -56,45 +58,55 @@ public static class BZip2
         ConfigError = -9
     }
 
-    public static bool isLoaded => _loaded.Value;
+    private static readonly object _mutex = new object();
+    private static bool? _isLoaded;
 
-    private static readonly Lazy<bool> _loaded =
-        new(() =>
+    public static bool isLoaded(Ice.Logger logger)
+    {
+        lock (_mutex)
         {
-            // Register a delegate to load native libraries used by Ice assembly.
-            NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(BZip2))!, dllImportResolver);
-            string libNames = string.Join(", ", getPlatformNativeLibraryNames()).TrimEnd();
-            bool loaded = false;
-            try
+            if (_isLoaded is null)
             {
-                BZ2_bzLibVersion();
-                loaded = true;
-            }
-            catch (EntryPointNotFoundException)
-            {
-                Console.Error.WriteLine($"warning: found {libNames} but entry point BZ2_bzlibVersion is missing.");
-            }
-            catch (TypeLoadException)
-            {
-                // Expected -- bzip2 lib not installed or not in PATH.
-            }
-            catch (BadImageFormatException)
-            {
-                Console.Error.Write(
-                    $"warning: {libNames} could not be loaded (likely due to 32/64-bit mismatch).");
-                if (IntPtr.Size == 8)
+                // Register a delegate to load native libraries used by Ice assembly.
+                NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(BZip2))!, dllImportResolver);
+                string libNames = string.Join(", ", getPlatformNativeLibraryNames()).TrimEnd();
+                bool loaded = false;
+                try
                 {
-                    Console.Error.Write(
-                        $" Make sure the directory containing the 64-bit {libNames} is in your PATH.");
+                    BZ2_bzLibVersion();
+                    loaded = true;
                 }
-                Console.Error.WriteLine();
+                catch (EntryPointNotFoundException)
+                {
+                    logger.warning($"found {libNames} but entry point BZ2_bzlibVersion is missing.");
+                }
+                catch (TypeLoadException)
+                {
+                    // Expected -- bzip2 lib not installed or not in PATH.
+                }
+                catch (BadImageFormatException)
+                {
+                    var msg = new StringBuilder();
+                    msg.AppendLine(
+                        CultureInfo.InvariantCulture,
+                        $"{libNames} could not be loaded (likely due to 32/64-bit mismatch).");
+                    if (IntPtr.Size == 8)
+                    {
+                        msg.AppendLine(
+                            CultureInfo.InvariantCulture,
+                            $"Make sure the directory containing the 64-bit {libNames} is in your PATH.");
+                    }
+                    logger.warning(msg.ToString());
+                }
+                _isLoaded = loaded;
             }
-            return loaded;
-        });
+            return _isLoaded.Value;
+        }
+    }
 
     internal static Buffer? compress(Buffer buf, int headerSize, int compressionLevel)
     {
-        Debug.Assert(isLoaded);
+        Debug.Assert(_isLoaded is true);
         // In the worst case, the compressed buffer will be 1% larger than the decompressed buffer plus 600 bytes
         // for the bzip2 header, plus 4 bytes for the decompressed size added by Ice protocol.
         int compressedLenMax = (int)((buf.size() * 1.01) + 600 + 4);
@@ -180,7 +192,7 @@ public static class BZip2
 
     internal static Buffer decompress(Buffer buf, int headerSize, int messageSizeMax)
     {
-        Debug.Assert(isLoaded);
+        Debug.Assert(_isLoaded is true);
 
         buf.b.position(headerSize);
         int decompressedSize = buf.b.getInt();

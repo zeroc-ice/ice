@@ -19,7 +19,7 @@ class Ex {
         String expected;
         try {
             expected = (String) expectedType.getMethod("ice_staticId").invoke(null);
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             expected = "";
             assert (false);
         }

@@ -36,7 +36,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
                 //
                 invokeImpl(true); // userThread = true
             }
-        } catch (com.zeroc.Ice.Exception ex) {
+        } catch (LocalException ex) {
             abort(ex);
         }
     }
@@ -77,7 +77,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
     }
 
     @Override
-    public void abort(com.zeroc.Ice.Exception ex) {
+    public void abort(LocalException ex) {
         if (isBatch()) {
             //
             // If we didn't finish a batch oneway or datagram request, we

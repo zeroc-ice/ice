@@ -457,7 +457,7 @@ final class UdpTransceiver implements Transceiver {
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_fd == null);
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }

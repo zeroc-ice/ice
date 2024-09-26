@@ -2288,7 +2288,7 @@ Ice::ConnectionI::initiateShutdown()
         os.write(currentProtocol);
         os.write(currentProtocolEncoding);
         os.write(closeConnectionMsg);
-        os.write(static_cast<uint8_t>(1)); // compression status: compression supported but not used.
+        os.write(static_cast<uint8_t>(0)); // compression status: always zero for close connection.
         os.write(headerSize);              // Message size.
 
         scheduleCloseTimerTask();

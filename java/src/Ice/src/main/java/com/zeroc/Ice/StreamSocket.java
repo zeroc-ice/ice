@@ -53,7 +53,7 @@ class StreamSocket {
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_fd == null);
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }

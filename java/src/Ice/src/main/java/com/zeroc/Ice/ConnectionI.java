@@ -136,7 +136,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     .executeNoThrow(
                             new Callable<Void>() {
                                 @Override
-                                public Void call() throws Exception {
+                                public Void call() throws LocalException {
                                     abortImpl();
                                     return null;
                                 }
@@ -158,7 +158,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     .executeNoThrow(
                             new Callable<Void>() {
                                 @Override
-                                public Void call() throws Exception {
+                                public Void call() throws LocalException {
                                     closeImpl();
                                     return null;
                                 }
@@ -376,7 +376,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             public void run() {
                                 try {
                                     callback.closed(ConnectionI.this);
-                                } catch (Exception ex) {
+                                } catch (LocalException ex) {
                                     _logger.error(
                                             "connection callback exception:\n" + ex + '\n' + _desc);
                                 }
@@ -932,7 +932,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     .executeNoThrow(
                             new Callable<Void>() {
                                 @Override
-                                public Void call() throws Exception {
+                                public Void call() throws LocalException {
                                     finish(close);
                                     return null;
                                 }
@@ -1034,7 +1034,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         .executeNoThrow(
                                 new Callable<Void>() {
                                     @Override
-                                    public Void call() throws Exception {
+                                    public Void call() throws LocalException {
                                         _startCallback.connectionStartFailed(
                                                 ConnectionI.this, _exception);
                                         return null;
@@ -1084,7 +1084,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         if (_closeCallback != null) {
             try {
                 _closeCallback.closed(this);
-            } catch (Exception ex) {
+            } catch (LocalException ex) {
                 _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
             }
             _closeCallback = null;
@@ -1323,7 +1323,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             _threadPool.initialize(this);
         } catch (LocalException ex) {
             throw ex;
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new SyscallException(ex);
         }
     }
@@ -1337,7 +1337,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             Assert.FinalizerAssert(_upcallCount == 0);
             Assert.FinalizerAssert(_sendStreams.isEmpty());
             Assert.FinalizerAssert(_asyncRequests.isEmpty());
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }
@@ -1620,7 +1620,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 .executeNoThrow(
                         new Callable<Void>() {
                             @Override
-                            public Void call() throws Exception {
+                            public Void call() throws LocalException {
                                 synchronized (ConnectionI.this) {
                                     try {
                                         initiateShutdown();
@@ -2305,7 +2305,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     .executeNoThrow(
                             new Callable<Void>() {
                                 @Override
-                                public Void call() throws Exception {
+                                public Void call() throws LocalException {
                                     sendResponseImpl(outputStream, isTwoWay, compress);
                                     return null;
                                 }
@@ -2431,7 +2431,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         return connectionStateMap[state];
     }
 
-    private void warning(String msg, java.lang.Exception ex) {
+    private void warning(String msg, Exception ex) {
         java.io.StringWriter sw = new java.io.StringWriter();
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
         ex.printStackTrace(pw);

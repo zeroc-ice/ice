@@ -319,7 +319,7 @@ public class AllTests {
         } catch (com.zeroc.Ice.MarshalException ex) {
             test(ex.getMessage().contains("'::Test::AlsoEmpty'"));
             test(ex.getMessage().contains("'::Test::Empty'"));
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             out.println(ex);
             test(false);
         }

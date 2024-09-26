@@ -636,7 +636,7 @@ public class OutputStream {
             out.writeObject(o);
             out.close();
             w.close();
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new MarshalException("cannot serialize object: " + ex);
         }
     }
@@ -1690,7 +1690,7 @@ public class OutputStream {
 
                     try {
                         p.getKey().ice_preMarshal();
-                    } catch (java.lang.Exception ex) {
+                    } catch (Exception ex) {
                         String s = "exception raised by ice_preMarshal:\n" + Ex.toString(ex);
                         _stream.instance().initializationData().logger.warning(s);
                     }
@@ -1981,7 +1981,7 @@ public class OutputStream {
 
             try {
                 v.ice_preMarshal();
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 String s = "exception raised by ice_preMarshal:\n" + Ex.toString(ex);
                 _stream.instance().initializationData().logger.warning(s);
             }

@@ -1946,7 +1946,7 @@ public class SessionKeeper {
                                                     "Error parsing endpoint",
                                                     JOptionPane.ERROR_MESSAGE);
                                             return;
-                                        } catch (com.zeroc.Ice.Exception ex) {
+                                        } catch (com.zeroc.Ice.LocalException ex) {
                                             JOptionPane.showMessageDialog(
                                                     ConnectionWizardDialog.this,
                                                     ex.getMessage(),
@@ -3598,7 +3598,7 @@ public class SessionKeeper {
                                                         "Invalid certificate password",
                                                         "Invalid certificate password",
                                                         JOptionPane.ERROR_MESSAGE);
-                                            } catch (java.lang.Exception ex) {
+                                            } catch (Exception ex) {
                                                 JOptionPane.showMessageDialog(
                                                         KeyStorePanel.this,
                                                         ex.toString(),
@@ -3611,7 +3611,7 @@ public class SessionKeeper {
                                         if (loaded) {
                                             try {
                                                 importKeyStore(keyStore);
-                                            } catch (java.lang.Exception ex) {
+                                            } catch (Exception ex) {
                                                 JOptionPane.showMessageDialog(
                                                         KeyStorePanel.this,
                                                         ex.toString(),
@@ -3660,7 +3660,7 @@ public class SessionKeeper {
                                                     new FileOutputStream(_keyStorePath),
                                                     new char[] {});
                                             load(_keyStorePath);
-                                        } catch (java.lang.Exception ex) {
+                                        } catch (Exception ex) {
                                             JOptionPane.showMessageDialog(
                                                     KeyStorePanel.this,
                                                     ex.toString(),
@@ -3674,7 +3674,7 @@ public class SessionKeeper {
                                                     java.security.KeyStore.getInstance("JKS");
                                             keyStore.load(new FileInputStream(keyFile), null);
                                             importKeyStore(keyStore);
-                                        } catch (java.lang.Exception ex) {
+                                        } catch (Exception ex) {
                                             JOptionPane.showMessageDialog(
                                                     KeyStorePanel.this,
                                                     ex.toString(),
@@ -3712,7 +3712,7 @@ public class SessionKeeper {
                                                     new CertificateDetailDialog(x509Cert);
                                             d.showDialog();
                                         }
-                                    } catch (java.lang.Exception ex) {
+                                    } catch (Exception ex) {
                                         JOptionPane.showMessageDialog(
                                                 KeyStorePanel.this,
                                                 ex.toString(),
@@ -3750,7 +3750,7 @@ public class SessionKeeper {
                                                     new char[] {});
                                             load(_keyStorePath);
                                             _tableModel.fireTableStructureChanged();
-                                        } catch (java.lang.Exception ex) {
+                                        } catch (Exception ex) {
                                             JOptionPane.showMessageDialog(
                                                     KeyStorePanel.this,
                                                     ex.toString(),
@@ -4174,7 +4174,7 @@ public class SessionKeeper {
                         _coordinator.getDataDirectory() + File.separator + "ServerCerts.jks");
                 _authorityCertificatesPanel.load(
                         _coordinator.getDataDirectory() + File.separator + "AuthorityCerts.jks");
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 JOptionPane.showMessageDialog(
                         this, ex.toString(), "Error loading keystore", JOptionPane.ERROR_MESSAGE);
                 return false;

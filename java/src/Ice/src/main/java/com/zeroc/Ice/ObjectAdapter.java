@@ -1239,6 +1239,11 @@ public final class ObjectAdapter {
                 _routerInfo = _instance.routerManager().get(router);
                 assert (_routerInfo != null);
 
+                if (!properties.getProperty(_name + ".Endpoints").isEmpty()) {
+                    throw new InitializationException(
+                            "An object adapter with a router cannot accept incoming connections.");
+                }
+
                 //
                 // Make sure this router is not already registered with another adapter.
                 //
@@ -1333,7 +1338,7 @@ public final class ObjectAdapter {
                 // Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
                 Assert.FinalizerAssert(_directCount == 0);
             }
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }

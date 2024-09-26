@@ -21,7 +21,7 @@ class InputStreamWrapper extends java.io.InputStream {
     public int read() throws java.io.IOException {
         try {
             return _buf.get();
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new java.io.IOException(ex.toString());
         }
     }
@@ -35,7 +35,7 @@ class InputStreamWrapper extends java.io.InputStream {
     public int read(byte[] b, int offset, int count) throws java.io.IOException {
         try {
             _buf.get(b, offset, count);
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new java.io.IOException(ex.toString());
         }
         return count;
