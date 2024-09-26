@@ -840,7 +840,7 @@ class Mapping(object):
         def cloneAndOverrideWith(self, current):
             #
             # Clone this configuration and override options with options from the given configuration
-            # (the parent configuraton). This is usefull when running cross-testing. For example, JS
+            # (the parent configuration). This is useful when running cross-testing. For example, JS
             # tests don't support all the options so we clone the C++ configuration and override the
             # options that are set on the JS configuration.
             #
@@ -864,7 +864,9 @@ class Mapping(object):
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:
                     props["Ice.ThreadPool.Server.Serialize"] = "1"
-                props["Ice.IPv6"] = self.ipv6
+                # JavaScript does not support the Ice.IPv6 property
+                if not isinstance(current.testsuite.getMapping(), JavaScriptMapping):
+                    props["Ice.IPv6"] = self.ipv6
                 if self.ipv6:
                     props["Ice.PreferIPv6Address"] = True
                 if self.mx:
@@ -3598,8 +3600,12 @@ class CppMapping(Mapping):
                 self.pathOverride = os.path.abspath(self.pathOverride)
 
     def getProps(self, process, current):
+        # JavaScript does not support Ice.PrintStackTraces
+        supportsPrintStackTraces = not isinstance(
+            current.testsuite.getMapping(), JavaScriptMapping
+        )
         props = Mapping.getProps(self, process, current)
-        if isinstance(process, IceProcess):
+        if isinstance(process, IceProcess) and supportsPrintStackTraces:
             props["Ice.PrintStackTraces"] = "1"
         return props
 

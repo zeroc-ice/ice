@@ -9,15 +9,25 @@ import shutil
 import signal
 import time
 
+from enum import StrEnum, auto
+from typing import override
+
 from xml.sax import make_parser
 from xml.sax.handler import feature_namespaces
 from xml.sax.handler import ContentHandler
-
 from xml.dom.minidom import parse
 
 progname = os.path.basename(sys.argv[0])
-contentHandler = None
 propertyClasses = {}
+
+
+class Language(StrEnum):
+    ALL = auto()
+    CPP = auto()
+    JAVA = auto()
+    CSHARP = auto()
+    JS = auto()
+
 
 commonPreamble = f"""\
 // Copyright (c) ZeroC, Inc.
@@ -112,16 +122,10 @@ public sealed class PropertyNames
 jsPreamble = (
     commonPreamble
     + """
-/* eslint comma-dangle: "off" */
-/* eslint array-bracket-newline: "off" */
-/* eslint no-useless-escape: "off" */
-
 import { Property } from "./Property.js";
 export const PropertyNames = {};
 """
 )
-
-jsEpilogue = ""
 
 
 #
@@ -174,27 +178,22 @@ def initPropertyClasses(filename):
 #
 
 
-def handler(sigNum, frame):
-    """Installed as signal handler. Should cause any files that are in
-    use to be closed and removed"""
-    global contentHandler
-    contentHandler.cleanup()
-    sys.exit(128 + sigNum)
-
-
 class PropertyHandler(ContentHandler):
-    def __init__(self):
-        self.start = False
+    def __init__(self, language):
+        # The language we are generating properties for
+        self.language = language
+        # The section section we are currently parsing
         self.currentSection = None
-        self.sectionPropertyCount = 0
-        self.sections = []
+        # Dictionary of section names to properties
+        self.sectionProperties = dict()
+
         self.cmdLineOptions = []
 
     def cleanup(self):
         # Needs to be overridden in derived class
         pass
 
-    def startFiles(self):
+    def openFiles(self):
         # Needs to be overridden in derived class
         pass
 
@@ -202,30 +201,38 @@ class PropertyHandler(ContentHandler):
         # Needs to be overridden in derived class
         pass
 
-    def propertyImpl(self, propertyName, usesRegex, defaultValue, deprecated):
+    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
         # Needs to be overridden in derived class
         pass
 
-    def newSection(self, sectionName):
+    def writeProperty(self, property):
         # Needs to be overridden in derived class
         pass
+
+    def openSection(self, sectionName):
+        # Needs to be overridden in derived class
+        pass
+
+    def writeProperties(self):
+        self.openFiles()
+        for section in self.sectionProperties.keys():
+            self.openSection(section)
+            for prop in self.sectionProperties[section]:
+                self.writeProperty(prop)
+            self.closeSection(section)
+        self.closeFiles()
 
     def moveFiles(self, location):
         # Needs to be overridden in derived class
         pass
 
-    def handleNewSection(self, sectionName, noCmdLine):
-        self.currentSection = sectionName
-        self.sectionPropertyCount = 0
-        if noCmdLine == "false":
-            self.cmdLineOptions.append(sectionName)
-        self.sections.append(sectionName)
-        self.newSection()
-
     def handleProperty(self, propertyName, usesRegex, defaultValue, deprecated):
-        self.propertyImpl(propertyName, usesRegex, defaultValue, deprecated)
+        property = self.createProperty(
+            propertyName, usesRegex, defaultValue, deprecated
+        )
+        self.sectionProperties.setdefault(self.currentSection, []).append(property)
 
-    def validateAttributes(self, validAttrs, attrs):
+    def validateKnownAttributes(self, validAttrs, attrs):
         if "name" not in attrs:
             print(sys.stderr, "missing name attribute")
 
@@ -233,49 +240,83 @@ class PropertyHandler(ContentHandler):
             if a not in validAttrs:
                 print(sys.stderr, "invalid attribute '%s'" % a)
 
+    def validateLanguages(self, attrs):
+        languageAttr = attrs.get("languages", None)
+        # If no language attribute is specified issue a warning and skip code generation for this element
+        if languageAttr is None:
+            print(
+                sys.stderr,
+                "missing languages attribute in property element %s"
+                % attrs.get("name"),
+            )
+            return False
+
+        # languages="cpp,java" -> ["cpp", "java"]
+        languages = [lang.strip() for lang in languageAttr.split(",")]
+
+        for lang in languages:
+            if lang not in [lang.value for lang in Language]:
+                print(
+                    sys.stderr,
+                    "invalid language '%s' in property element %s"
+                    % (lang, attrs.get("name")),
+                )
+                return False
+
+        # All should be by itself. Issue a warning but continue generation for this element.
+        if Language.ALL in languages and len(languages) > 1:
+            print(
+                sys.stderr,
+                "Invalid languages attribute in property element: %s. 'all' must be specified alone."
+                % attrs.get("name"),
+            )
+
+        # True if the current language is in the list of languages or if the list contains 'all'
+        return Language.ALL in languages or self.language in languages
+
     def startElement(self, name, attrs):
-        if name == "properties":
-            self.start = True
-            self.startFiles()
-            return
+        match name:
+            case "section":
+                self.validateKnownAttributes(["name"], attrs)
+                self.currentSection = attrs.get("name")
+                self.cmdLineOptions.append(self.currentSection)
 
-        if not self.start:
-            return
+            case "property":
+                self.validateKnownAttributes(
+                    ["name", "class", "default", "deprecated", "languages"], attrs
+                )
 
-        if name == "section":
-            self.validateAttributes(["name", "noCmdLine"], attrs)
-            noCmdLine = attrs.get("noCmdLine", "false")
-            self.handleNewSection(attrs.get("name"), noCmdLine)
-
-        elif name == "property":
-            self.validateAttributes(["name", "class", "default", "deprecated"], attrs)
-            propertyName = attrs.get("name", None)
-            if "class" in attrs:
-                c = propertyClasses[attrs["class"]]
-                for p in c.getChildren():
-                    assert propertyName is not None
-                    assert propertyName != ""
-                    t = dict(p)
-                    t["name"] = "%s.%s" % (propertyName, p["name"])
-                    self.startElement(name, t)
-                if c.isPrefixOnly():
+                if self.validateLanguages(attrs) is False:
                     return
 
-            usesRegex = "[any]" in propertyName
-            deprecated = attrs.get("deprecated", "false").lower() == "true"
-            defaultValue = attrs.get("default", None) or ""
-            self.handleProperty(propertyName, usesRegex, defaultValue, deprecated)
+                propertyName = attrs.get("name", None)
+                if "class" in attrs:
+                    c = propertyClasses[attrs["class"]]
+                    for p in c.getChildren():
+                        t = dict(p)
+                        t["name"] = "%s.%s" % (propertyName, p["name"])
+                        self.startElement(name, t)
+                    if c.isPrefixOnly():
+                        return
+
+                usesRegex = "[any]" in propertyName
+                deprecated = attrs.get("deprecated", "false").lower() == "true"
+                defaultValue = attrs.get("default", None) or ""
+                self.handleProperty(
+                    propertyName,
+                    usesRegex,
+                    defaultValue,
+                    deprecated,
+                )
 
     def endElement(self, name):
-        if name == "properties":
-            self.closeFiles()
-        elif name == "section":
-            self.closeSection()
+        if name == "section":
+            self.currentSection = None
 
 
 class CppPropertyHandler(PropertyHandler):
     def __init__(self):
-        PropertyHandler.__init__(self)
+        super().__init__(Language.CPP)
         self.hFile = None
         self.cppFile = None
 
@@ -289,7 +330,7 @@ class CppPropertyHandler(PropertyHandler):
             if os.path.exists("PropertyNames.cpp"):
                 os.remove("PropertyNames.cpp")
 
-    def startFiles(self):
+    def openFiles(self):
         self.hFile = open("PropertyNames.h", "w")
         self.cppFile = open("PropertyNames.cpp", "w")
         self.hFile.write(cppHeaderPreamble)
@@ -303,7 +344,7 @@ class CppPropertyHandler(PropertyHandler):
         )
 
         self.cppFile.write("{\n")
-        for s in self.sections:
+        for s in self.sectionProperties.keys():
             self.cppFile.write("    %sProps,\n" % s)
         self.cppFile.write("    IceInternal::PropertyArray(0,0)\n")
         self.cppFile.write("};\n\n")
@@ -320,7 +361,12 @@ class CppPropertyHandler(PropertyHandler):
     def fix(self, propertyName):
         return propertyName.replace("[any]", "*")
 
-    def propertyImpl(self, propertyName, usesRegex, defaultValue, deprecated):
+    @override
+    def writeProperty(self, property):
+        self.cppFile.write("    %s,\n" % property)
+
+    @override
+    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
         name = f"{self.currentSection}.{propertyName}"
 
         propertyLine = 'IceInternal::Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
@@ -330,24 +376,22 @@ class CppPropertyHandler(PropertyHandler):
             deprecated="true" if deprecated else "false",
         )
 
-        self.cppFile.write(f"    {propertyLine},\n")
+        return propertyLine
 
-    def newSection(self):
-        self.hFile.write(
-            "        static const PropertyArray %sProps;\n" % self.currentSection
-        )
+    def openSection(self, sectionName):
+        self.hFile.write("        static const PropertyArray %sProps;\n" % sectionName)
         self.cppFile.write(
-            "const IceInternal::Property %sPropsData[] =\n" % self.currentSection
+            "const IceInternal::Property %sPropsData[] =\n" % sectionName
         )
         self.cppFile.write("{\n")
 
-    def closeSection(self):
+    def closeSection(self, sectionName):
         self.cppFile.write("};\n")
         self.cppFile.write(
             f"""
 const IceInternal::PropertyArray
-    IceInternal::PropertyNames::{self.currentSection}Props({self.currentSection}PropsData,
-        sizeof({self.currentSection}PropsData)/sizeof({self.currentSection}PropsData[0]));
+    IceInternal::PropertyNames::{sectionName}Props({sectionName}PropsData,
+        sizeof({sectionName}PropsData)/sizeof({sectionName}PropsData[0]));
 
 """
         )
@@ -364,7 +408,7 @@ const IceInternal::PropertyArray
 
 class JavaPropertyHandler(PropertyHandler):
     def __init__(self):
-        PropertyHandler.__init__(self)
+        super().__init__(Language.JAVA)
         self.srcFile = None
 
     def cleanup(self):
@@ -373,7 +417,7 @@ class JavaPropertyHandler(PropertyHandler):
             if os.path.exists("PropertyNames.java"):
                 os.remove("PropertyNames.java")
 
-    def startFiles(self):
+    def openFiles(self):
         self.srcFile = open("PropertyNames.java", "w")
         self.srcFile.write(javaPreamble)
 
@@ -381,7 +425,7 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("    public static final Property[] validProps[] =\n")
 
         self.srcFile.write("    {\n")
-        for s in self.sections:
+        for s in self.sectionProperties.keys():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("        null\n")
         self.srcFile.write("    };\n")
@@ -401,7 +445,11 @@ class JavaPropertyHandler(PropertyHandler):
         #
         return propertyName.replace(".", r"\\.").replace("[any]", r"[^\\s]+")
 
-    def propertyImpl(self, propertyName, usesRegex, defaultValue, deprecated):
+    @override
+    def writeProperty(self, property):
+        self.srcFile.write("    %s,\n" % property)
+
+    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
         name = f"{self.currentSection}.{propertyName}"
         line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
             pattern=self.fix(name) if usesRegex else name,
@@ -409,15 +457,16 @@ class JavaPropertyHandler(PropertyHandler):
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
         )
-        self.srcFile.write(f"        {line},\n")
 
-    def newSection(self):
+        return line
+
+    def openSection(self, sectionName):
         self.srcFile.write(
-            "    public static final Property %sProps[] =\n" % self.currentSection
+            "    public static final Property %sProps[] =\n" % sectionName
         )
         self.srcFile.write("    {\n")
 
-    def closeSection(self):
+    def closeSection(self, sectionName):
         self.srcFile.write("        null\n")
         self.srcFile.write("    };\n\n")
 
@@ -441,7 +490,7 @@ class JavaPropertyHandler(PropertyHandler):
 
 class CSPropertyHandler(PropertyHandler):
     def __init__(self):
-        PropertyHandler.__init__(self)
+        super().__init__(Language.CSHARP)
         self.srcFile = None
 
     def cleanup(self):
@@ -450,7 +499,7 @@ class CSPropertyHandler(PropertyHandler):
             if os.path.exists("PropertyNames.cs"):
                 os.remove("PropertyNames.cs")
 
-    def startFiles(self):
+    def openFiles(self):
         self.srcFile = open("PropertyNames.cs", "w")
         self.srcFile.write(csPreamble)
 
@@ -458,7 +507,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("    public static Property[][] validProps =\n")
 
         self.srcFile.write("    {\n")
-        for s in self.sections:
+        for s in self.sectionProperties.keys():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("    };\n\n")
 
@@ -473,7 +522,12 @@ class CSPropertyHandler(PropertyHandler):
     def fix(self, propertyName):
         return propertyName.replace(".", r"\.").replace("[any]", r"[^\s]+")
 
-    def propertyImpl(self, propertyName, usesRegex, defaultValue, deprecated):
+    @override
+    def writeProperty(self, property):
+        self.srcFile.write("    %s,\n" % property)
+
+    @override
+    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
         name = f"{self.currentSection}.{propertyName}"
         line = 'new(@"{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
             pattern=f"^{self.fix(name)}$" if usesRegex else name,
@@ -481,15 +535,13 @@ class CSPropertyHandler(PropertyHandler):
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
         )
-        self.srcFile.write(f"         {line},\n")
+        return line
 
-    def newSection(self):
-        self.srcFile.write(
-            "    public static Property[] %sProps =\n" % self.currentSection
-        )
+    def openSection(self, sectionName):
+        self.srcFile.write("    public static Property[] %sProps =\n" % sectionName)
         self.srcFile.write("    {\n")
 
-    def closeSection(self):
+    def closeSection(self, sectionName):
         self.srcFile.write("    };\n")
         self.srcFile.write("\n")
 
@@ -502,7 +554,7 @@ class CSPropertyHandler(PropertyHandler):
 
 class JSPropertyHandler(PropertyHandler):
     def __init__(self):
-        PropertyHandler.__init__(self)
+        super().__init__(Language.JS)
         self.srcFile = None
         self.validSections = ["Ice"]
 
@@ -512,43 +564,43 @@ class JSPropertyHandler(PropertyHandler):
             if os.path.exists("PropertyNames.js"):
                 os.remove("PropertyNames.js")
 
-    def startFiles(self):
+    def openFiles(self):
         self.srcFile = open("PropertyNames.js", "w")
         self.srcFile.write(jsPreamble)
 
     def closeFiles(self):
         self.srcFile.write("PropertyNames.validProps = new Map();\n")
-        for s in self.sections:
-            if s in self.validSections:
-                self.srcFile.write(f'PropertyNames.validProps.set("{s}", {s}Props);\n')
+        for s in self.sectionProperties.keys():
+            self.srcFile.write(f'PropertyNames.validProps.set("{s}", {s}Props);\n')
 
-        self.srcFile.write(jsEpilogue)
         self.srcFile.close()
 
     def fix(self, propertyName):
         return propertyName.replace(".", "\\.").replace("[any]", ".")
 
-    def propertyImpl(self, propertyName, usesRegex, defaultValue, deprecated):
-        if self.currentSection in self.validSections:
-            name = f"{self.currentSection}.{propertyName}"
-            line = "new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated})".format(
+    @override
+    def writeProperty(self, property):
+        self.srcFile.write("    %s,\n" % property)
+
+    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
+        name = f"{self.currentSection}.{propertyName}"
+        line = (
+            "new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated})".format(
                 pattern=f"/^{self.fix(name)}/" if usesRegex else f'"{name}"',
                 usesRegex="true" if usesRegex else "false",
                 defaultValue=f'"{defaultValue}"',
                 deprecated="true" if deprecated else "false",
             )
-            self.srcFile.write(f"    {line},\n")
+        )
+        return line
 
-    def newSection(self):
-        if self.currentSection in self.validSections:
-            self.skipSection = False
-            self.srcFile.write(f"const {self.currentSection}Props =\n")
-            self.srcFile.write("[\n")
+    def openSection(self, sectionName):
+        self.srcFile.write(f"const {sectionName}Props =\n")
+        self.srcFile.write("[\n")
 
-    def closeSection(self):
-        if self.currentSection in self.validSections:
-            self.srcFile.write("];\n")
-            self.srcFile.write("\n")
+    def closeSection(self, sectionName):
+        self.srcFile.write("];\n")
+        self.srcFile.write("\n")
 
     def moveFiles(self, location):
         dest = os.path.join(location, "js", "src", "Ice")
@@ -557,46 +609,27 @@ class JSPropertyHandler(PropertyHandler):
         shutil.move("PropertyNames.js", dest)
 
 
-class MultiHandler(PropertyHandler):
+class MultiHandler(ContentHandler):
     def __init__(self, handlers):
         self.handlers = handlers
-        PropertyHandler.__init__(self)
+        super().__init__()
+
+    @override
+    def startElement(self, name, attrs):
+        for f in self.handlers:
+            f.startElement(name, attrs)
 
     def cleanup(self):
         for f in self.handlers:
             f.cleanup()
 
-    def startFiles(self):
-        for f in self.handlers:
-            f.startFiles()
-
-    def closeFiles(self):
-        for f in self.handlers:
-            f.closeFiles()
-
-    def newSection(self):
-        for f in self.handlers:
-            f.newSection()
-
-    def closeSection(self):
-        for f in self.handlers:
-            f.closeSection()
-
-    def handleNewSection(self, sectionName, cmdLine):
-        for f in self.handlers:
-            f.handleNewSection(sectionName, cmdLine)
-
-    def handleProperty(self, propertyName, usesRegex, default, deprecated):
-        for f in self.handlers:
-            f.handleProperty(propertyName, usesRegex, default, deprecated)
-
-    def startElement(self, name, attrs):
-        for f in self.handlers:
-            f.startElement(name, attrs)
-
     def moveFiles(self, location):
         for f in self.handlers:
             f.moveFiles(location)
+
+    def writeProperties(self):
+        for f in self.handlers:
+            f.writeProperties()
 
 
 def main():
@@ -615,8 +648,6 @@ def main():
         )
         sys.exit(1)
 
-    global contentHandler
-
     contentHandler = MultiHandler(
         [
             CppPropertyHandler(),
@@ -626,20 +657,19 @@ def main():
         ]
     )
 
-    #
-    # Install signal handler so we can remove the output files if we are interrupted.
-    #
-    signal.signal(signal.SIGINT, handler)
-    # signal.signal(signal.SIGHUP, handler)
-    signal.signal(signal.SIGTERM, handler)
+    # Ignore all signals. This script should not take long to run
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+
     initPropertyClasses(propsFile)
 
     parser = make_parser()
     parser.setFeature(feature_namespaces, 0)
     parser.setContentHandler(contentHandler)
-    pf = open(propsFile)
+    propsFileBuffer = open(propsFile)
     try:
-        parser.parse(pf)
+        parser.parse(propsFileBuffer)
+        contentHandler.writeProperties()
         contentHandler.moveFiles(topLevel)
     except Exception as ex:
         print(sys.stderr, str(ex))
