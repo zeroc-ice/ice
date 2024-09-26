@@ -481,12 +481,12 @@ classdef AllTests
             b2 = b1.pb;
             assert(~isempty(b2));
             assert(strcmp(b2.sb, 'D3.sb'));
+            assert(b2.pb == b1);
             if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
                 assert(~isa(b2, 'Test.D3'));
             else
                 assert(isa(b2, 'Test.D3'));
                 assert(strcmp(b2.ice_id(), '::Test::D3'));  % preserved
-                assert(b2.pb == b1);
             end
 
             assert(b1 ~= d1);
@@ -522,12 +522,12 @@ classdef AllTests
             b2 = b1.pb;
             assert(~isempty(b2));
             assert(strcmp(b2.sb, 'D3.sb'));
+            assert(b2.pb == b1);
             if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
                 assert(~isa(b2, 'Test.D3'));
             else
                 assert(isa(b2, 'Test.D3'));
                 assert(strcmp(b2.ice_id(), '::Test::D3'));  % preserved
-                assert(b2.pb == b1);
             end
 
             assert(b1 ~= d1);
