@@ -159,9 +159,12 @@ IceInternal::LocatorTable::clear()
 }
 
 bool
-IceInternal::LocatorTable::getAdapterEndpoints(const string& adapter, int ttl, vector<EndpointIPtr>& endpoints)
+IceInternal::LocatorTable::getAdapterEndpoints(
+    const string& adapter,
+    chrono::seconds ttl,
+    vector<EndpointIPtr>& endpoints)
 {
-    if (ttl == 0) // No locator cache.
+    if (ttl == 0s) // No locator cache.
     {
         return false;
     }
@@ -214,9 +217,9 @@ IceInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
 }
 
 bool
-IceInternal::LocatorTable::getObjectReference(const Identity& id, int ttl, ReferencePtr& ref)
+IceInternal::LocatorTable::getObjectReference(const Identity& id, chrono::seconds ttl, ReferencePtr& ref)
 {
-    if (ttl == 0) // No locator cache
+    if (ttl == 0s) // No locator cache
     {
         return false;
     }
@@ -266,16 +269,16 @@ IceInternal::LocatorTable::removeObjectReference(const Identity& id)
 }
 
 bool
-IceInternal::LocatorTable::checkTTL(const chrono::steady_clock::time_point& time, int ttl) const
+IceInternal::LocatorTable::checkTTL(const chrono::steady_clock::time_point& time, chrono::seconds ttl) const
 {
-    assert(ttl != 0);
-    if (ttl < 0) // TTL = infinite
+    assert(ttl != 0s);
+    if (ttl < 0s) // TTL = infinite
     {
         return true;
     }
     else
     {
-        return chrono::steady_clock::now() - time <= chrono::seconds(ttl);
+        return chrono::steady_clock::now() - time <= ttl;
     }
 }
 
@@ -345,7 +348,7 @@ IceInternal::LocatorInfo::RequestCallback::exception(const LocatorInfoPtr& locat
 
 IceInternal::LocatorInfo::RequestCallback::RequestCallback(
     const ReferencePtr& ref,
-    int ttl,
+    chrono::seconds ttl,
     const GetEndpointsCallbackPtr& cb)
     : _reference(ref),
       _ttl(ttl),
@@ -357,7 +360,7 @@ void
 IceInternal::LocatorInfo::Request::addCallback(
     const ReferencePtr& ref,
     const ReferencePtr& wellKnownRef,
-    int ttl,
+    chrono::seconds ttl,
     const GetEndpointsCallbackPtr& cb)
 {
     RequestCallbackPtr callback = make_shared<RequestCallback>(ref, ttl, cb);
@@ -508,7 +511,7 @@ void
 IceInternal::LocatorInfo::getEndpoints(
     const ReferencePtr& ref,
     const ReferencePtr& wellKnownRef,
-    int ttl,
+    chrono::seconds ttl,
     const GetEndpointsCallbackPtr& callback)
 {
     assert(ref->isIndirect());

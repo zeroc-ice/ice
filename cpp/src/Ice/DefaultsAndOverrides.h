@@ -25,8 +25,8 @@ namespace IceInternal
         std::string defaultProtocol;
         bool defaultCollocationOptimization;
         Ice::EndpointSelectionType defaultEndpointSelection;
-        int defaultInvocationTimeout;
-        int defaultLocatorCacheTimeout;
+        std::chrono::milliseconds defaultInvocationTimeout;
+        std::chrono::seconds defaultLocatorCacheTimeout;
         bool defaultPreferSecure;
         Ice::EncodingVersion defaultEncoding;
         Ice::FormatType defaultFormat;

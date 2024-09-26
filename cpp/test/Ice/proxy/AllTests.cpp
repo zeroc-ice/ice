@@ -455,10 +455,10 @@ allTests(TestHelper* helper)
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".LocatorCacheTimeout";
-    test(b1->ice_getLocatorCacheTimeout() == -1);
+    test(b1->ice_getLocatorCacheTimeout() == -1s);
     prop->setProperty(property, "1");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getLocatorCacheTimeout() == 1);
+    test(b1->ice_getLocatorCacheTimeout() == 1s);
     prop->setProperty(property, "");
 
     // Now retest with an indirect proxy.
@@ -470,10 +470,10 @@ allTests(TestHelper* helper)
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".LocatorCacheTimeout";
-    test(b1->ice_getLocatorCacheTimeout() == -1);
+    test(b1->ice_getLocatorCacheTimeout() == -1s);
     prop->setProperty(property, "1");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getLocatorCacheTimeout() == 1);
+    test(b1->ice_getLocatorCacheTimeout() == 1s);
     prop->setProperty(property, "");
 
     // This cannot be tested so easily because the property is cached
@@ -508,10 +508,10 @@ allTests(TestHelper* helper)
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".InvocationTimeout";
-    test(b1->ice_getInvocationTimeout() == -1);
+    test(b1->ice_getInvocationTimeout() == -1ms);
     prop->setProperty(property, "1000");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getInvocationTimeout() == 1000);
+    test(b1->ice_getInvocationTimeout() == 1s);
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".EndpointSelection";
@@ -646,7 +646,25 @@ allTests(TestHelper* helper)
 
     try
     {
+        base->ice_invocationTimeout(0ms);
+        test(false);
+    }
+    catch (const invalid_argument&)
+    {
+    }
+
+    try
+    {
         base->ice_invocationTimeout(-1);
+    }
+    catch (const invalid_argument&)
+    {
+        test(false);
+    }
+
+    try
+    {
+        base->ice_invocationTimeout(-1ms);
     }
     catch (const invalid_argument&)
     {
@@ -664,7 +682,25 @@ allTests(TestHelper* helper)
 
     try
     {
+        base->ice_invocationTimeout(-2ms);
+        test(false);
+    }
+    catch (const invalid_argument&)
+    {
+    }
+
+    try
+    {
         base->ice_locatorCacheTimeout(0);
+    }
+    catch (const invalid_argument&)
+    {
+        test(false);
+    }
+
+    try
+    {
+        base->ice_locatorCacheTimeout(0s);
     }
     catch (const invalid_argument&)
     {
@@ -682,7 +718,25 @@ allTests(TestHelper* helper)
 
     try
     {
+        base->ice_locatorCacheTimeout(-1s);
+    }
+    catch (const invalid_argument&)
+    {
+        test(false);
+    }
+
+    try
+    {
         base->ice_locatorCacheTimeout(-2);
+        test(false);
+    }
+    catch (const invalid_argument&)
+    {
+    }
+
+    try
+    {
+        base->ice_locatorCacheTimeout(-2s);
         test(false);
     }
     catch (const invalid_argument&)
@@ -922,8 +976,8 @@ allTests(TestHelper* helper)
                 ctx["two"] = "world";
                 test(cl->ice_fixed(connection)->ice_getContext().empty());
                 test(cl->ice_context(ctx)->ice_fixed(connection)->ice_getContext().size() == 2);
-                test(cl->ice_fixed(connection)->ice_getInvocationTimeout() == -1);
-                test(cl->ice_invocationTimeout(10)->ice_fixed(connection)->ice_getInvocationTimeout() == 10);
+                test(cl->ice_fixed(connection)->ice_getInvocationTimeout() == -1ms);
+                test(cl->ice_invocationTimeout(10)->ice_fixed(connection)->ice_getInvocationTimeout() == 10ms);
                 test(cl->ice_fixed(connection)->ice_getConnection() == connection);
                 test(cl->ice_fixed(connection)->ice_fixed(connection)->ice_getConnection() == connection);
                 test(*cl->ice_compress(true)->ice_fixed(connection)->ice_getCompress());
@@ -1234,7 +1288,6 @@ allTests(TestHelper* helper)
         // Test with WS endpoint
         p = communicator->stringToProxy("test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
         pstr = communicator->proxyToString(p);
-        cerr << pstr << endl;
         test(pstr == "test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
     }
     std::locale::global(currentLocale);

@@ -81,7 +81,7 @@ IceInternal::Reference::changeFacet(string newFacet) const
 }
 
 ReferencePtr
-IceInternal::Reference::changeInvocationTimeout(int invocationTimeout) const
+IceInternal::Reference::changeInvocationTimeout(chrono::milliseconds invocationTimeout) const
 {
     ReferencePtr r = clone();
     r->_invocationTimeout = invocationTimeout;
@@ -125,7 +125,7 @@ Reference::hash() const noexcept
     hashAdd(h, _facet);
     hashAdd(h, _compress);
     // We don't include protocol and encoding in the hash; they are using 1.0 and 1.1, respectively.
-    hashAdd(h, _invocationTimeout);
+    hashAdd(h, _invocationTimeout.count());
     return h;
 }
 
@@ -430,7 +430,7 @@ IceInternal::Reference::Reference(
     std::optional<bool> compress,
     const ProtocolVersion& protocol,
     const EncodingVersion& encoding,
-    int invocationTimeout,
+    chrono::milliseconds invocationTimeout,
     const Ice::Context& ctx)
     : _instance(instance),
       _communicator(communicator),
@@ -473,7 +473,7 @@ IceInternal::FixedReference::FixedReference(
     const ProtocolVersion& protocol,
     const EncodingVersion& encoding,
     ConnectionIPtr fixedConnection,
-    int invocationTimeout,
+    chrono::milliseconds invocationTimeout,
     const Ice::Context& context)
     : Reference(
           instance,
@@ -527,10 +527,10 @@ IceInternal::FixedReference::getEndpointSelection() const noexcept
     return EndpointSelectionType::Random;
 }
 
-int
+chrono::seconds
 IceInternal::FixedReference::getLocatorCacheTimeout() const noexcept
 {
-    return 0;
+    return 0s;
 }
 
 string
@@ -588,7 +588,7 @@ IceInternal::FixedReference::changeEndpointSelection(EndpointSelectionType) cons
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeLocatorCacheTimeout(int) const
+IceInternal::FixedReference::changeLocatorCacheTimeout(chrono::seconds) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -765,8 +765,8 @@ IceInternal::RoutableReference::RoutableReference(
     bool cacheConnection,
     bool preferSecure,
     EndpointSelectionType endpointSelection,
-    int locatorCacheTimeout,
-    int invocationTimeout,
+    chrono::seconds locatorCacheTimeout,
+    chrono::milliseconds invocationTimeout,
     const Ice::Context& ctx)
     : Reference(instance, communicator, id, facet, mode, secure, compress, protocol, encoding, invocationTimeout, ctx),
       _endpoints(endpoints),
@@ -831,7 +831,7 @@ IceInternal::RoutableReference::getEndpointSelection() const noexcept
     return _endpointSelection;
 }
 
-int
+chrono::seconds
 IceInternal::RoutableReference::getLocatorCacheTimeout() const noexcept
 {
     return _locatorCacheTimeout;
@@ -953,7 +953,7 @@ IceInternal::RoutableReference::changeEndpointSelection(EndpointSelectionType ne
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeLocatorCacheTimeout(int timeout) const
+IceInternal::RoutableReference::changeLocatorCacheTimeout(chrono::seconds timeout) const
 {
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_locatorCacheTimeout = timeout;
@@ -1092,8 +1092,8 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
     properties[prefix + ".EndpointSelection"] =
         _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
-    properties[prefix + ".LocatorCacheTimeout"] = to_string(_locatorCacheTimeout);
-    properties[prefix + ".InvocationTimeout"] = to_string(getInvocationTimeout());
+    properties[prefix + ".LocatorCacheTimeout"] = to_string(_locatorCacheTimeout.count());
+    properties[prefix + ".InvocationTimeout"] = to_string(getInvocationTimeout().count());
 
     if (_routerInfo)
     {

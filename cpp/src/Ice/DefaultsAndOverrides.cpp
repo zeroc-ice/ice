@@ -63,23 +63,25 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         throw ParseException(__FILE__, __LINE__, "illegal value '" + value + "'; expected 'Random' or 'Ordered'");
     }
 
-    const_cast<int&>(defaultInvocationTimeout) = properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-    if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1)
+    int defaultInvocationTimeoutValue = properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout");
+    if (defaultInvocationTimeoutValue < 1 && defaultInvocationTimeoutValue != -1)
     {
-        const_cast<int32_t&>(defaultInvocationTimeout) = -1;
+        defaultInvocationTimeoutValue = -1;
         Warning out(logger);
         out << "invalid value for Ice.Default.InvocationTimeout `"
             << properties->getIceProperty("Ice.Default.InvocationTimeout") << "': defaulting to -1";
     }
+    const_cast<chrono::milliseconds&>(defaultInvocationTimeout) = chrono::milliseconds(defaultInvocationTimeoutValue);
 
-    const_cast<int&>(defaultLocatorCacheTimeout) = properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
-    if (defaultLocatorCacheTimeout < -1)
+    int defaultLocatorCacheTimeoutValue = properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
+    if (defaultLocatorCacheTimeoutValue < -1)
     {
-        const_cast<int32_t&>(defaultLocatorCacheTimeout) = -1;
+        defaultLocatorCacheTimeoutValue = -1;
         Warning out(logger);
         out << "invalid value for Ice.Default.LocatorCacheTimeout `"
             << properties->getIceProperty("Ice.Default.LocatorCacheTimeout") << "': defaulting to -1";
     }
+    const_cast<chrono::seconds&>(defaultLocatorCacheTimeout) = chrono::seconds(defaultLocatorCacheTimeoutValue);
 
     const_cast<bool&>(defaultPreferSecure) = properties->getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 

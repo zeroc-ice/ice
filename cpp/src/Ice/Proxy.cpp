@@ -109,7 +109,7 @@ Ice::ObjectPrx::ice_getEndpoints() const
     return retSeq;
 }
 
-int32_t
+chrono::seconds
 Ice::ObjectPrx::ice_getLocatorCacheTimeout() const noexcept
 {
     return _reference->getLocatorCacheTimeout();
@@ -165,7 +165,7 @@ Ice::ObjectPrx::ice_isCollocationOptimized() const noexcept
     return _reference->getCollocationOptimized();
 }
 
-int32_t
+chrono::milliseconds
 Ice::ObjectPrx::ice_getInvocationTimeout() const noexcept
 {
     return _reference->getInvocationTimeout();
@@ -476,9 +476,9 @@ Ice::ObjectPrx::_fixed(ConnectionPtr connection) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_invocationTimeout(int newTimeout) const
+Ice::ObjectPrx::_invocationTimeout(chrono::milliseconds newTimeout) const
 {
-    if (newTimeout < 1 && newTimeout != -1)
+    if (newTimeout < 1ms && newTimeout != -1ms)
     {
         ostringstream s;
         s << "invalid value passed to ice_invocationTimeout: " << newTimeout;
@@ -509,9 +509,9 @@ Ice::ObjectPrx::_locator(const std::optional<LocatorPrx>& locator) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_locatorCacheTimeout(int newTimeout) const
+Ice::ObjectPrx::_locatorCacheTimeout(chrono::seconds newTimeout) const
 {
-    if (newTimeout < -1)
+    if (newTimeout < -1s)
     {
         ostringstream s;
         s << "invalid value passed to ice_locatorCacheTimeout: " << newTimeout;

@@ -334,8 +334,7 @@ NodeEntry::loadServer(
             //
             if (timeout > 0s)
             {
-                auto timeoutInMilliseconds = secondsToInt(timeout) * 1000;
-                node = node->ice_invocationTimeout(std::move(timeoutInMilliseconds));
+                node = node->ice_invocationTimeout(timeout);
             }
 
             ServerInfo info = server;
@@ -467,8 +466,7 @@ NodeEntry::destroyServer(
             //
             if (timeout > 0s)
             {
-                int timeoutInMilliseconds = secondsToInt(timeout) * 1000;
-                node = node->ice_invocationTimeout(timeoutInMilliseconds);
+                node = node->ice_invocationTimeout(timeout);
             }
         }
 

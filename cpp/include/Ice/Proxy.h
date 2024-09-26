@@ -165,7 +165,20 @@ namespace Ice
          * @param timeout The new invocation timeout (in milliseconds).
          * @return A proxy with the new timeout.
          */
-        Prx ice_invocationTimeout(int timeout) const { return fromReference(asPrx()._invocationTimeout(timeout)); }
+        Prx ice_invocationTimeout(int timeout) const
+        {
+            return ice_invocationTimeout(std::chrono::milliseconds(timeout));
+        }
+
+        /**
+         * Obtains a proxy that is identical to this proxy, except for the invocation timeout.
+         * @param timeout The new invocation timeout (in milliseconds).
+         * @return A proxy with the new timeout.
+         */
+        Prx ice_invocationTimeout(std::chrono::milliseconds timeout) const
+        {
+            return fromReference(asPrx()._invocationTimeout(timeout));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the locator.
@@ -182,7 +195,20 @@ namespace Ice
          * @param timeout The new locator cache timeout (in seconds).
          * @return A proxy with the new timeout.
          */
-        Prx ice_locatorCacheTimeout(int timeout) const { return fromReference(asPrx()._locatorCacheTimeout(timeout)); }
+        Prx ice_locatorCacheTimeout(int timeout) const
+        {
+            return ice_locatorCacheTimeout(std::chrono::seconds(timeout));
+        }
+
+        /**
+         * Obtains a proxy that is identical to this proxy, except for the locator cache timeout.
+         * @param timeout The new locator cache timeout (in seconds).
+         * @return A proxy with the new timeout.
+         */
+        Prx ice_locatorCacheTimeout(std::chrono::seconds timeout) const
+        {
+            return fromReference(asPrx()._locatorCacheTimeout(timeout));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses oneway invocations.
@@ -616,7 +642,7 @@ namespace Ice
          * Obtains the locator cache timeout of this proxy.
          * @return The locator cache timeout value (in seconds).
          */
-        std::int32_t ice_getLocatorCacheTimeout() const noexcept;
+        std::chrono::seconds ice_getLocatorCacheTimeout() const noexcept;
 
         /**
          * Determines whether this proxy caches connections.
@@ -672,7 +698,7 @@ namespace Ice
          * Obtains the invocation timeout of this proxy.
          * @return The invocation timeout value (in milliseconds).
          */
-        std::int32_t ice_getInvocationTimeout() const noexcept;
+        std::chrono::milliseconds ice_getInvocationTimeout() const noexcept;
 
         /**
          * Determines whether this proxy uses twoway invocations.
@@ -787,9 +813,9 @@ namespace Ice
         IceInternal::ReferencePtr _identity(Identity) const;
         IceInternal::ReferencePtr _facet(std::string) const;
         IceInternal::ReferencePtr _fixed(ConnectionPtr) const;
-        IceInternal::ReferencePtr _invocationTimeout(int) const;
+        IceInternal::ReferencePtr _invocationTimeout(std::chrono::milliseconds) const;
         IceInternal::ReferencePtr _locator(const std::optional<LocatorPrx>&) const;
-        IceInternal::ReferencePtr _locatorCacheTimeout(int) const;
+        IceInternal::ReferencePtr _locatorCacheTimeout(std::chrono::seconds) const;
         IceInternal::ReferencePtr _oneway() const;
         IceInternal::ReferencePtr _preferSecure(bool) const;
         IceInternal::ReferencePtr _router(const std::optional<RouterPrx>&) const;
