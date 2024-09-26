@@ -4,6 +4,7 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -194,11 +195,11 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         return _reference.getEndpoints().clone();
     }
 
-    public int ice_getLocatorCacheTimeout() {
+    public Duration ice_getLocatorCacheTimeout() {
         return _reference.getLocatorCacheTimeout();
     }
 
-    public int ice_getInvocationTimeout() {
+    public Duration ice_getInvocationTimeout() {
         return _reference.getInvocationTimeout();
     }
 
@@ -385,11 +386,16 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
     @Override
     public ObjectPrx ice_locatorCacheTimeout(int newTimeout) {
-        if (newTimeout < -1) {
+        return this.ice_locatorCacheTimeout(Duration.ofSeconds(newTimeout));
+    }
+
+    @Override
+    public ObjectPrx ice_locatorCacheTimeout(Duration newTimeout) {
+        if (newTimeout.compareTo(Duration.ofSeconds(-1)) < 0) {
             throw new IllegalArgumentException(
-                    "invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
+                    "invalid value passed to ice_locatorCacheTimeout: " + newTimeout.toSeconds());
         }
-        if (newTimeout == _reference.getLocatorCacheTimeout()) {
+        if (newTimeout.equals(_reference.getLocatorCacheTimeout())) {
             return this;
         } else {
             return _newInstance(_reference.changeLocatorCacheTimeout(newTimeout));
@@ -398,11 +404,16 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
     @Override
     public ObjectPrx ice_invocationTimeout(int newTimeout) {
-        if (newTimeout < 1 && newTimeout != -1) {
+        return this.ice_invocationTimeout(Duration.ofMillis(newTimeout));
+    }
+
+    @Override
+    public ObjectPrx ice_invocationTimeout(Duration newTimeout) {
+        if (newTimeout.compareTo(Duration.ZERO) <= 0 && !newTimeout.equals(Duration.ofMillis(-1))) {
             throw new IllegalArgumentException(
-                    "invalid value passed to ice_invocationTimeout: " + newTimeout);
+                    "invalid value passed to ice_invocationTimeout: " + newTimeout.toMillis());
         }
-        if (newTimeout == _reference.getInvocationTimeout()) {
+        if (newTimeout.equals(_reference.getInvocationTimeout())) {
             return this;
         } else {
             return _newInstance(_reference.changeInvocationTimeout(newTimeout));

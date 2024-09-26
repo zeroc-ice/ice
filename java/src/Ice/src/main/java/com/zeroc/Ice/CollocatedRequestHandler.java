@@ -4,6 +4,7 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
 import java.util.concurrent.CompletionStage;
 
 final class CollocatedRequestHandler implements RequestHandler {
@@ -110,7 +111,7 @@ final class CollocatedRequestHandler implements RequestHandler {
         if (!sync
                 || !_response
                 || _reference.getInstance().queueRequests()
-                || _reference.getInvocationTimeout() > 0) {
+                || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             _adapter.getThreadPool()
                     .dispatch(
                             new InvokeAllAsync(

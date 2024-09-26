@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 final class LocatorTable {
     LocatorTable() {}
 
@@ -12,8 +14,9 @@ final class LocatorTable {
         _objectTable.clear();
     }
 
-    synchronized EndpointI[] getAdapterEndpoints(String adapter, int ttl, Holder<Boolean> cached) {
-        if (ttl == 0) // Locator cache disabled.
+    synchronized EndpointI[] getAdapterEndpoints(
+            String adapter, Duration ttl, Holder<Boolean> cached) {
+        if (ttl.isZero()) // Locator cache disabled.
         {
             cached.value = false;
             return null;
@@ -38,8 +41,8 @@ final class LocatorTable {
         return entry != null ? entry.endpoints : null;
     }
 
-    synchronized Reference getObjectReference(Identity id, int ttl, Holder<Boolean> cached) {
-        if (ttl == 0) // Locator cache disabled.
+    synchronized Reference getObjectReference(Identity id, Duration ttl, Holder<Boolean> cached) {
+        if (ttl.isZero()) // Locator cache disabled.
         {
             cached.value = false;
             return null;
@@ -63,13 +66,13 @@ final class LocatorTable {
         return entry != null ? entry.reference : null;
     }
 
-    private boolean checkTTL(long time, int ttl) {
-        assert (ttl != 0);
-        if (ttl < 0) // TTL = infinite
+    private boolean checkTTL(long time, Duration ttl) {
+        assert (!ttl.isZero());
+        if (ttl.compareTo(Duration.ZERO) < 0) // TTL = infinite
         {
             return true;
         } else {
-            return Time.currentMonotonicTimeMillis() - time <= ((long) ttl * 1000);
+            return Time.currentMonotonicTimeMillis() - time <= ttl.toMillis();
         }
     }
 

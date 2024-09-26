@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 /**
  * @hidden Public because it's used by the generated code.
  */
@@ -129,9 +131,9 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler) {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation
-        // timeout
-        // set.
-        if (!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout() > 0) {
+        // timeout set.
+        if (!_proxy.ice_isTwoway()
+                || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }

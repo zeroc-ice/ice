@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 //
 // Base class for proxy based invocations. This class handles the
 // retry for proxy invocations. It also ensures the child observer is
@@ -189,8 +191,8 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
     protected void invokeImpl(boolean userThread) {
         try {
             if (userThread) {
-                int invocationTimeout = _proxy._getReference().getInvocationTimeout();
-                if (invocationTimeout > 0) {
+                Duration invocationTimeout = _proxy._getReference().getInvocationTimeout();
+                if (invocationTimeout.compareTo(Duration.ZERO) > 0) {
                     _timerFuture =
                             _instance
                                     .timer()
@@ -198,7 +200,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                                             () -> {
                                                 cancel(new InvocationTimeoutException());
                                             },
-                                            invocationTimeout,
+                                            invocationTimeout.toMillis(),
                                             java.util.concurrent.TimeUnit.MILLISECONDS);
                 }
             } else // If not called from the user thread, it's called from the retry queue
