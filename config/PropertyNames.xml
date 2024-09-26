@@ -231,6 +231,7 @@ generated from the section label.
     <class name="objectadapter" prefix-only="true">
         <suffix name="AdapterId" languages="cpp,csharp,java" />
         <suffix name="Connection" class="connection" languages="cpp,csharp,java"/>
+        <!-- TODO: remove from JavaScript -->
         <suffix name="Endpoints" languages="all" />
         <suffix name="Locator" class="proxy" languages="cpp,csharp,java" />
         <suffix name="PublishedEndpoints" languages="all" />
@@ -315,6 +316,7 @@ generated from the section label.
         <property name="SyslogFacility" languages="cpp,java" default="LOG_USER" />
         <property name="ThreadPool.Client" class="threadpool" languages="cpp,csharp,java" />
         <property name="ThreadPool.Server" class="threadpool" languages="cpp,csharp,java" />
+        <!-- TODO: remove from c++ -->
         <property name="ThreadPriority" languages="cpp,csharp,java" />
         <property name="ToStringMode" languages="all" default="Unicode" />
         <property name="Trace.Admin.Properties" languages="cpp,csharp,java" default="0" />
@@ -335,7 +337,7 @@ generated from the section label.
         <property name="UseSystemdJournal" languages="cpp" default="0" />
         <property name="Warn.AMICallback" languages="cpp,csharp,java" default="1" />
         <property name="Warn.Connections" languages="all" default="0" />
-        <property name="Warn.Datagrams" languages="all" default="0" />
+        <property name="Warn.Datagrams" languages="cpp,csharp,java" default="0" />
         <property name="Warn.Dispatch" languages="all" default="1" />
         <property name="Warn.Endpoints" languages="all" default="1" />
         <property name="Warn.UnknownProperties" languages="all" default="1" />
@@ -397,22 +399,22 @@ generated from the section label.
     </section>
 
     <section name="IceGridAdmin">
-        <property name="AuthenticateUsingSSL" languages="cpp,java" />
-        <property name="MetricsConfig" languages="cpp,java" />
-        <property name="Username" languages="cpp,java" />
-        <property name="Password" languages="cpp,java" />
-        <property name="Replica" languages="cpp,java" />
-        <property name="Host" languages="cpp,java" />
-        <property name="Port" languages="cpp,java" />
-        <property name="InstanceName" default="IceGridAdmin" languages="cpp,java" />
-        <property name="Server" class="objectadapter" languages="cpp,java" />
-        <property name="Discovery.Address" languages="cpp,java" />
-        <property name="Discovery.Interface" languages="cpp,java" />
-        <property name="Discovery.Lookup" languages="cpp,java" />
-        <property name="Discovery.Reply" class="objectadapter" languages="cpp,java" />
-        <property name="Discovery.Locator" class="objectadapter" languages="cpp,java" />
-        <property name="Trace.Observers" languages="cpp,java" />
-        <property name="Trace.SaveToRegistry" languages="cpp,java" />
+        <property name="AuthenticateUsingSSL" languages="cpp" />
+        <property name="MetricsConfig" languages="java" />
+        <property name="Username" languages="cpp" />
+        <property name="Password" languages="cpp" />
+        <property name="Replica" languages="cpp" />
+        <property name="Host" languages="cpp" />
+        <property name="Port" languages="cpp" />
+        <property name="InstanceName" default="" languages="cpp" />
+        <property name="Server" class="objectadapter" languages="cpp" />
+        <property name="Discovery.Address" languages="cpp" />
+        <property name="Discovery.Interface" languages="cpp" />
+        <property name="Discovery.Lookup" languages="cpp" />
+        <property name="Discovery.Reply" class="objectadapter" languages="cpp" />
+        <property name="Discovery.Locator" class="objectadapter" languages="cpp" />
+        <property name="Trace.Observers" languages="java" />
+        <property name="Trace.SaveToRegistry" languages="java" />
     </section>
 
     <section name="IceGrid">
@@ -518,8 +520,8 @@ generated from the section label.
     </section>
 
     <section name="IceBT">
-        <property name="RcvSize" languages="cpp" />
-        <property name="SndSize" languages="cpp" />
+        <property name="RcvSize" languages="cpp,java" />
+        <property name="SndSize" languages="cpp,java" />
     </section>
 
     <section name="Glacier2">
