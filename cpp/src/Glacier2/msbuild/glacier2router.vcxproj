@@ -105,7 +105,6 @@
     <ClCompile Include="..\Instance.cpp" />
     <ClCompile Include="..\InstrumentationI.cpp" />
     <ClCompile Include="..\ProxyVerifier.cpp" />
-    <ClCompile Include="..\RequestQueue.cpp" />
     <ClCompile Include="..\RouterI.cpp" />
     <ClCompile Include="..\RoutingTable.cpp" />
     <ClCompile Include="..\ServerBlobject.cpp" />
@@ -119,7 +118,6 @@
     <ClInclude Include="..\Instance.h" />
     <ClInclude Include="..\InstrumentationI.h" />
     <ClInclude Include="..\ProxyVerifier.h" />
-    <ClInclude Include="..\RequestQueue.h" />
     <ClInclude Include="..\RouterI.h" />
     <ClInclude Include="..\RoutingTable.h" />
     <ClInclude Include="..\ServerBlobject.h" />
