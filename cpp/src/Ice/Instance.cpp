@@ -967,45 +967,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     IceInternal::printStackTraces = false;
                 }
 #endif
-
-#ifndef _WIN32
-                string newUser = _initData.properties->getIceProperty("Ice.ChangeUser");
-                if (!newUser.empty())
-                {
-                    struct passwd pwbuf;
-                    vector<char> buffer(4096); // 4KB initial buffer
-                    struct passwd* pw;
-                    int err;
-                    while ((err = getpwnam_r(newUser.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw)) == ERANGE &&
-                           buffer.size() < 1024 * 1024) // Limit buffer to 1M
-                    {
-                        buffer.resize(buffer.size() * 2);
-                    }
-                    if (err != 0)
-                    {
-                        throw Ice::SyscallException{__FILE__, __LINE__, "getpwnam_r failed", err};
-                    }
-                    else if (pw == 0)
-                    {
-                        throw InitializationException(__FILE__, __LINE__, "unknown user account '" + newUser + "'");
-                    }
-
-                    if (setgid(pw->pw_gid) == -1)
-                    {
-                        throw SyscallException{__FILE__, __LINE__, "setgid failed", errno};
-                    }
-
-                    if (initgroups(pw->pw_name, static_cast<int>(pw->pw_gid)) == -1)
-                    {
-                        throw SyscallException{__FILE__, __LINE__, "initgroups failed", errno};
-                    }
-
-                    if (setuid(pw->pw_uid) == -1)
-                    {
-                        throw SyscallException{__FILE__, __LINE__, "setuid failed", errno};
-                    }
-                }
-#endif
                 oneOfDone = true;
             }
 
