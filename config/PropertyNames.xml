@@ -389,7 +389,7 @@ generated from the section label.
     </section>
 
     <section name="IceBoxAdmin">
-        <property name="ServiceManager.Proxy" class="proxy" languages="cpp" />
+        <property name="ServiceManager.Proxy" class="proxy" languages="cpp,java" />
     </section>
 
     <section name="IceBridge">
