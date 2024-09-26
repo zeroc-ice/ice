@@ -481,7 +481,7 @@ Ice::ObjectPrx::_invocationTimeout(chrono::milliseconds newTimeout) const
     if (newTimeout < 1ms && newTimeout != -1ms)
     {
         ostringstream s;
-        s << "invalid value passed to ice_invocationTimeout: " << newTimeout;
+        s << "invalid value passed to ice_invocationTimeout: " << newTimeout.count();
         throw invalid_argument(s.str());
     }
     if (newTimeout == _reference->getInvocationTimeout())
@@ -514,7 +514,7 @@ Ice::ObjectPrx::_locatorCacheTimeout(chrono::seconds newTimeout) const
     if (newTimeout < -1s)
     {
         ostringstream s;
-        s << "invalid value passed to ice_locatorCacheTimeout: " << newTimeout;
+        s << "invalid value passed to ice_locatorCacheTimeout: " << newTimeout.count();
         throw invalid_argument(s.str());
     }
     if (newTimeout == _reference->getLocatorCacheTimeout())

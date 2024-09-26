@@ -13,6 +13,8 @@
 #include "Ice/PropertiesF.h"
 #include "Network.h"
 
+#include <chrono>
+
 namespace IceInternal
 {
     class DefaultsAndOverrides
