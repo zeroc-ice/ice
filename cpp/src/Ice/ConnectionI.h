@@ -393,7 +393,10 @@ namespace Ice
 
         Observer _observer;
 
-        // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, ...)
+        // The upcall count keeps track of the number of dispatches, AMI (response) continuations, sent callbacks and
+        // connection establishment callbacks that have been started (or are about to be started) by a thread of the
+        // thread pool associated with this connection, and have not completed yet. All these operations except the
+        // connection establishment callbacks execute application code or code generated from Slice definitions.
         int _upcallCount;
 
         // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
