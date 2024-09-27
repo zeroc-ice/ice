@@ -1713,11 +1713,6 @@ IceInternal::Instance::destroy()
         _locatorManager->destroy();
     }
 
-    if (_endpointFactoryManager)
-    {
-        _endpointFactoryManager->destroy();
-    }
-
     if (_initData.properties->getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0)
     {
         set<string> unusedProperties = _initData.properties.get()->getUnusedProperties();

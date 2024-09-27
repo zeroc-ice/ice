@@ -30,7 +30,6 @@ namespace IceInternal
         virtual std::string protocol() const = 0;
         virtual EndpointIPtr create(std::vector<std::string>&, bool) const = 0;
         virtual EndpointIPtr read(Ice::InputStream*) const = 0;
-        virtual void destroy() = 0;
 
         virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const = 0;
     };
@@ -49,7 +48,6 @@ namespace IceInternal
         virtual std::string protocol() const;
         virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
         virtual EndpointIPtr read(Ice::InputStream*) const;
-        virtual void destroy();
 
         virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
 
@@ -80,7 +78,6 @@ namespace IceInternal
         virtual std::string protocol() const;
         virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
         virtual EndpointIPtr read(Ice::InputStream*) const;
-        virtual void destroy();
 
         virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
 

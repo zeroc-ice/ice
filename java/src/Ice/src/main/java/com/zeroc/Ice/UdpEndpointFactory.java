@@ -32,11 +32,6 @@ final class UdpEndpointFactory implements EndpointFactory {
     }
 
     @Override
-    public void destroy() {
-        _instance = null;
-    }
-
-    @Override
     public EndpointFactory clone(ProtocolInstance instance) {
         return new UdpEndpointFactory(instance);
     }

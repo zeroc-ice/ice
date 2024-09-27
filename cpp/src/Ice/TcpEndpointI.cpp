@@ -370,12 +370,6 @@ IceInternal::TcpEndpointFactory::read(InputStream* s) const
     return make_shared<TcpEndpointI>(_instance, s);
 }
 
-void
-IceInternal::TcpEndpointFactory::destroy()
-{
-    _instance = nullptr;
-}
-
 EndpointFactoryPtr
 IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {

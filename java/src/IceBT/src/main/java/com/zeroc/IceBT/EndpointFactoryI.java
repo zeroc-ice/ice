@@ -33,12 +33,6 @@ final class EndpointFactoryI implements EndpointFactory {
     }
 
     @Override
-    public void destroy() {
-        _instance.destroy();
-        _instance = null;
-    }
-
-    @Override
     public EndpointFactory clone(ProtocolInstance instance) {
         return new EndpointFactoryI(
                 new Instance(_instance.communicator(), instance.type(), instance.protocol()));

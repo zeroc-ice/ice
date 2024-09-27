@@ -39,10 +39,6 @@ internal class EndpointFactory : Ice.Internal.EndpointFactory
         return endpoint;
     }
 
-    public void destroy()
-    {
-    }
-
     public Ice.Internal.EndpointFactory clone(Ice.Internal.ProtocolInstance instance)
     {
         return this;

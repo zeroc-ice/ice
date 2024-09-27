@@ -50,13 +50,6 @@ public abstract class EndpointFactoryWithUnderlying implements EndpointFactory {
         return readWithUnderlying(_underlying.read(s), s);
     }
 
-    public void destroy() {
-        if (_underlying != null) {
-            _underlying.destroy();
-        }
-        _instance = null;
-    }
-
     public EndpointFactory clone(ProtocolInstance instance) {
         return cloneWithUnderlying(instance, _type);
     }

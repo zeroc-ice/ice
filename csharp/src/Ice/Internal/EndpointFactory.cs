@@ -16,8 +16,6 @@ public interface EndpointFactory
 
     EndpointI read(Ice.InputStream s);
 
-    void destroy();
-
     EndpointFactory clone(ProtocolInstance instance);
 }
 
@@ -69,15 +67,6 @@ public abstract class EndpointFactoryWithUnderlying : EndpointFactory
             return null; // Can't create an endpoint without underlying factory.
         }
         return readWithUnderlying(_underlying.read(s), s);
-    }
-
-    public void destroy()
-    {
-        if (_underlying != null)
-        {
-            _underlying.destroy();
-        }
-        instance_ = null;
     }
 
     public EndpointFactory clone(ProtocolInstance instance)

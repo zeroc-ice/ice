@@ -20,7 +20,5 @@ public interface EndpointFactory {
 
     EndpointI read(InputStream s);
 
-    void destroy();
-
     EndpointFactory clone(ProtocolInstance instance);
 }

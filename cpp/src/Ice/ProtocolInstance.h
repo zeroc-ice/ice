@@ -62,7 +62,7 @@ namespace IceInternal
     protected:
         ProtocolInstance(const InstancePtr&, std::int16_t, const std::string&, bool);
         friend class Instance;
-        const InstancePtr _instance;
+        const std::weak_ptr<Instance> _instance;
         const int _traceLevel;
         const std::string _traceCategory;
         const Ice::PropertiesPtr _properties;

@@ -24,18 +24,7 @@ public sealed class EndpointFactoryManager
     {
         lock (_mutex)
         {
-            if (_destroyed)
-            {
-                throw new Ice.CommunicatorDestroyedException();
-            }
-
-            foreach (EndpointFactory f in _factories)
-            {
-                if (f.type() == factory.type())
-                {
-                    Debug.Assert(false);
-                }
-            }
+            Debug.Assert(!_factories.Any(f => f.type() == factory.type()));
             _factories.Add(factory);
         }
     }
@@ -44,11 +33,6 @@ public sealed class EndpointFactoryManager
     {
         lock (_mutex)
         {
-            if (_destroyed)
-            {
-                throw new Ice.CommunicatorDestroyedException();
-            }
-
             foreach (EndpointFactory f in _factories)
             {
                 if (f.type() == type)
@@ -86,10 +70,6 @@ public sealed class EndpointFactoryManager
 
         lock (_mutex)
         {
-            if (_destroyed)
-            {
-                throw new Ice.CommunicatorDestroyedException();
-            }
             for (int i = 0; i < _factories.Count; i++)
             {
                 EndpointFactory f = _factories[i];
@@ -198,16 +178,10 @@ public sealed class EndpointFactoryManager
     {
         lock (_mutex)
         {
-            _destroyed = true;
-            foreach (EndpointFactory f in _factories)
-            {
-                f.destroy();
-            }
             _factories.Clear();
         }
     }
 
-    private bool _destroyed;
     private readonly Instance _instance;
     private readonly List<EndpointFactory> _factories;
     private readonly object _mutex = new();

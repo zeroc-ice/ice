@@ -25,9 +25,9 @@ IceInternal::ProtocolInstance::ProtocolInstance(
     const string& protocol,
     bool secure)
     : _instance(getInstance(com)),
-      _traceLevel(_instance->traceLevels()->network),
-      _traceCategory(_instance->traceLevels()->networkCat),
-      _properties(_instance->initializationData().properties),
+      _traceLevel(_instance.lock()->traceLevels()->network),
+      _traceCategory(_instance.lock()->traceLevels()->networkCat),
+      _properties(_instance.lock()->initializationData().properties),
       _protocol(protocol),
       _type(type),
       _secure(secure)
@@ -40,9 +40,9 @@ IceInternal::ProtocolInstance::ProtocolInstance(
     const string& protocol,
     bool secure)
     : _instance(instance),
-      _traceLevel(_instance->traceLevels()->network),
-      _traceCategory(_instance->traceLevels()->networkCat),
-      _properties(_instance->initializationData().properties),
+      _traceLevel(instance->traceLevels()->network),
+      _traceCategory(instance->traceLevels()->networkCat),
+      _properties(instance->initializationData().properties),
       _protocol(protocol),
       _type(type),
       _secure(secure)
@@ -52,73 +52,133 @@ IceInternal::ProtocolInstance::ProtocolInstance(
 const LoggerPtr&
 IceInternal::ProtocolInstance::logger() const
 {
-    return _instance->initializationData().logger;
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->initializationData().logger;
 }
 
 EndpointFactoryPtr
 IceInternal::ProtocolInstance::getEndpointFactory(int16_t type) const
 {
-    return _instance->endpointFactoryManager()->get(type);
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->endpointFactoryManager()->get(type);
 }
 
 BufSizeWarnInfo
 IceInternal::ProtocolInstance::getBufSizeWarn(int16_t type)
 {
-    return _instance->getBufSizeWarn(type);
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->getBufSizeWarn(type);
 }
 
 void
 IceInternal::ProtocolInstance::setSndBufSizeWarn(int16_t type, int size)
 {
-    _instance->setSndBufSizeWarn(type, size);
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    instance->setSndBufSizeWarn(type, size);
 }
 
 void
 IceInternal::ProtocolInstance::setRcvBufSizeWarn(int16_t type, int size)
 {
-    _instance->setRcvBufSizeWarn(type, size);
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    instance->setRcvBufSizeWarn(type, size);
 }
 
 bool
 IceInternal::ProtocolInstance::preferIPv6() const
 {
-    return _instance->preferIPv6();
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->preferIPv6();
 }
 
 ProtocolSupport
 IceInternal::ProtocolInstance::protocolSupport() const
 {
-    return _instance->protocolSupport();
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->protocolSupport();
 }
 
 const string&
 IceInternal::ProtocolInstance::defaultHost() const
 {
-    return _instance->defaultsAndOverrides()->defaultHost;
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->defaultsAndOverrides()->defaultHost;
 }
 
 const Address&
 IceInternal::ProtocolInstance::defaultSourceAddress() const
 {
-    return _instance->defaultsAndOverrides()->defaultSourceAddress;
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->defaultsAndOverrides()->defaultSourceAddress;
 }
 
 const EncodingVersion&
 IceInternal::ProtocolInstance::defaultEncoding() const
 {
-    return _instance->defaultsAndOverrides()->defaultEncoding;
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->defaultsAndOverrides()->defaultEncoding;
 }
 
 NetworkProxyPtr
 IceInternal::ProtocolInstance::networkProxy() const
 {
-    return _instance->networkProxy();
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->networkProxy();
 }
 
 size_t
 IceInternal::ProtocolInstance::messageSizeMax() const
 {
-    return _instance->messageSizeMax();
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    return instance->messageSizeMax();
 }
 
 void
@@ -130,5 +190,10 @@ IceInternal::ProtocolInstance::resolve(
     std::function<void(std::vector<ConnectorPtr>)> response,
     std::function<void(exception_ptr)> exception) const
 {
-    _instance->endpointHostResolver()->resolve(host, port, type, endpoint, response, exception);
+    InstancePtr instance = _instance.lock();
+    if (!instance)
+    {
+        throw CommunicatorDestroyedException{__FILE__, __LINE__};
+    }
+    instance->endpointHostResolver()->resolve(host, port, type, endpoint, response, exception);
 }
