@@ -822,8 +822,7 @@ public sealed class Network
                     if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
                        (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                     {
-                        if (!addresses.Contains(uni.Address) &&
-                           (!IPAddress.IsLoopback(uni.Address)))
+                        if (!addresses.Contains(uni.Address))
                         {
                             addresses.Add(uni.Address);
                             if (singleAddressPerInterface)
