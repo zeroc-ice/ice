@@ -24,8 +24,6 @@ Glacier2::RouterI::RouterI(
     : _instance(std::move(instance)),
       _routingTable(make_shared<RoutingTable>(_instance->communicator(), _instance->proxyVerifier())),
       _clientBlobject(make_shared<ClientBlobject>(_instance, std::move(filters), context, _routingTable)),
-      _clientBlobjectBuffered(_instance->clientRequestQueueThread()),
-      _serverBlobjectBuffered(_instance->serverRequestQueueThread()),
       _connection(std::move(connection)),
       _userId(userId),
       _session(std::move(session)),
@@ -89,12 +87,6 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
         {
             _session->destroyAsync(nullptr, std::move(error), nullptr);
         }
-    }
-
-    _clientBlobject->destroy();
-    if (_serverBlobject)
-    {
-        _serverBlobject->destroy();
     }
 
     _routingTable->destroy();
@@ -171,7 +163,7 @@ shared_ptr<ClientBlobject>
 Glacier2::RouterI::getClientBlobject() const
 {
     // Can only be called with the SessionRouterI mutex locked
-    if (!_clientBlobjectBuffered && _observer)
+    if (_observer)
     {
         _observer->forwarded(true);
     }
@@ -182,7 +174,7 @@ shared_ptr<ServerBlobject>
 Glacier2::RouterI::getServerBlobject() const
 {
     // Can only be called with the SessionRouterI mutex locked
-    if (!_serverBlobjectBuffered && _observer)
+    if (_observer)
     {
         _observer->forwarded(false);
     }
@@ -201,11 +193,6 @@ Glacier2::RouterI::updateObserver(const shared_ptr<Glacier2::Instrumentation::Ro
     // Can only be called with the SessionRouterI mutex locked
 
     _observer = _routingTable->updateObserver(observer, _userId, _connection);
-    _clientBlobject->updateObserver(_observer);
-    if (_serverBlobject)
-    {
-        _serverBlobject->updateObserver(_observer);
-    }
 }
 
 string

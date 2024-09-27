@@ -793,40 +793,16 @@ final class ReferenceFactory {
             }
 
             property = propertyPrefix + ".LocatorCacheTimeout";
-            if (!properties.getProperty(property).isEmpty()) {
-                int locatorCacheTimeoutValue =
-                        properties.getPropertyAsIntWithDefault(
-                                property, (int) locatorCacheTimeout.toSeconds());
-                if (locatorCacheTimeoutValue < -1) {
-                    locatorCacheTimeoutValue = -1;
-
-                    StringBuffer msg = new StringBuffer("invalid value for ");
-                    msg.append(property);
-                    msg.append(" '");
-                    msg.append(properties.getProperty(property));
-                    msg.append("': defaulting to -1");
-                    _instance.initializationData().logger.warning(msg.toString());
-                }
-                locatorCacheTimeout = Duration.ofSeconds(locatorCacheTimeoutValue);
-            }
+            locatorCacheTimeout =
+                    Duration.ofSeconds(
+                            properties.getPropertyAsIntWithDefault(
+                                    property, (int) locatorCacheTimeout.toSeconds()));
 
             property = propertyPrefix + ".InvocationTimeout";
-            if (!properties.getProperty(property).isEmpty()) {
-                int invocationTimeoutValue =
-                        properties.getPropertyAsIntWithDefault(
-                                property, (int) invocationTimeout.toMillis());
-                if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1) {
-                    invocationTimeoutValue = -1;
-
-                    StringBuffer msg = new StringBuffer("invalid value for ");
-                    msg.append(property);
-                    msg.append(" '");
-                    msg.append(properties.getProperty(property));
-                    msg.append("': defaulting to -1");
-                    _instance.initializationData().logger.warning(msg.toString());
-                }
-                invocationTimeout = Duration.ofMillis(invocationTimeoutValue);
-            }
+            invocationTimeout =
+                    Duration.ofMillis(
+                            properties.getPropertyAsIntWithDefault(
+                                    property, (int) invocationTimeout.toMillis()));
 
             property = propertyPrefix + ".Context.";
             java.util.Map<String, String> contexts = properties.getPropertiesForPrefix(property);

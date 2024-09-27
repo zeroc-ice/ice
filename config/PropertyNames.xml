@@ -218,11 +218,9 @@ generated from the section label.
         <suffix name="Size" languages="cpp,csharp,java" default="1" />
         <suffix name="SizeMax" languages="cpp,csharp,java" />
         <suffix name="SizeWarn" languages="cpp,csharp,java" default="0" />
-        <!-- TODO: remove from c++ -->
         <suffix name="StackSize" languages="csharp,java" default="0" />
         <suffix name="Serialize" languages="cpp,csharp,java" default="0" />
         <suffix name="ThreadIdleTime" languages="cpp,csharp,java" default="60" />
-        <!-- TODO: remove from c++ -->
         <suffix name="ThreadPriority" languages="csharp,java" />
     </class>
 
@@ -314,8 +312,7 @@ generated from the section label.
         <property name="SyslogFacility" languages="cpp,java" default="LOG_USER" />
         <property name="ThreadPool.Client" class="threadpool" languages="cpp,csharp,java" />
         <property name="ThreadPool.Server" class="threadpool" languages="cpp,csharp,java" />
-        <!-- TODO: remove from c++ -->
-        <property name="ThreadPriority" languages="cpp,csharp,java" />
+        <property name="ThreadPriority" languages="csharp,java" />
         <property name="ToStringMode" languages="all" default="Unicode" />
         <property name="Trace.Admin.Properties" languages="cpp,csharp,java" default="0" />
         <property name="Trace.Admin.Logger" languages="cpp,csharp,java" default="0" />
@@ -525,10 +522,7 @@ generated from the section label.
     <section name="Glacier2">
         <property name="AddConnectionContext" languages="cpp" default="0" />
         <property name="Client" languages="cpp" class="objectadapter"/>
-        <property name="Client.Buffered" languages="cpp" default="1" />
         <property name="Client.ForwardContext" languages="cpp" default="0" />
-        <property name="Client.SleepTime" languages="cpp" default="0" />
-        <property name="Client.Trace.Override" languages="cpp" default="0" />
         <property name="Client.Trace.Reject" languages="cpp" default="0" />
         <property name="Client.Trace.Request" languages="cpp" default="0" />
         <property name="CryptPasswords" languages="cpp" />
@@ -544,10 +538,7 @@ generated from the section label.
         <property name="SSLPermissionsVerifier" class="proxy" languages="cpp" />
         <property name="RoutingTable.MaxSize" languages="cpp" default="1000" />
         <property name="Server" class="objectadapter" languages="cpp" />
-        <property name="Server.Buffered" languages="cpp" default="1" />
         <property name="Server.ForwardContext" languages="cpp" default="0" />
-        <property name="Server.SleepTime" languages="cpp" default="0" />
-        <property name="Server.Trace.Override" languages="cpp" default="0" />
         <property name="Server.Trace.Request" languages="cpp" default="0" />
         <property name="SessionManager" class="proxy" languages="cpp" />
         <property name="SSLSessionManager" class="proxy" languages="cpp" />

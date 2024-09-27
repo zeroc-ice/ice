@@ -1439,9 +1439,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "ThreadPool.Size",
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
-        "ThreadPool.StackSize",
-        "ThreadPool.ThreadIdleTime",
-        "ThreadPool.ThreadPriority"};
+        "ThreadPool.ThreadIdleTime"};
 
     //
     // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc

@@ -403,10 +403,10 @@ namespace Ice
                 test(b1.ice_getLocator() != null && b1.ice_getLocator().ice_getIdentity().name == "locator");
                 prop.setProperty(property, "");
                 property = propertyPrefix + ".LocatorCacheTimeout";
-                test(b1.ice_getLocatorCacheTimeout() == -1);
+                test(b1.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
                 prop.setProperty(property, "1");
                 b1 = communicator.propertyToProxy(propertyPrefix);
-                test(b1.ice_getLocatorCacheTimeout() == 1);
+                test(b1.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(1));
                 prop.setProperty(property, "");
 
                 // Now retest with an indirect proxy.
@@ -418,10 +418,10 @@ namespace Ice
                 prop.setProperty(property, "");
 
                 property = propertyPrefix + ".LocatorCacheTimeout";
-                test(b1.ice_getLocatorCacheTimeout() == -1);
+                test(b1.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
                 prop.setProperty(property, "1");
                 b1 = communicator.propertyToProxy(propertyPrefix);
-                test(b1.ice_getLocatorCacheTimeout() == 1);
+                test(b1.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(1));
                 prop.setProperty(property, "");
 
                 // This cannot be tested so easily because the property is cached
@@ -456,10 +456,10 @@ namespace Ice
                 prop.setProperty(property, "");
 
                 property = propertyPrefix + ".InvocationTimeout";
-                test(b1.ice_getInvocationTimeout() == -1);
+                test(b1.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
                 prop.setProperty(property, "1000");
                 b1 = communicator.propertyToProxy(propertyPrefix);
-                test(b1.ice_getInvocationTimeout() == 1000);
+                test(b1.ice_getInvocationTimeout() == TimeSpan.FromSeconds(1));
                 prop.setProperty(property, "");
 
                 property = propertyPrefix + ".EndpointSelection";
@@ -582,59 +582,13 @@ namespace Ice
                 test(baseProxy.ice_preferSecure(true).ice_isPreferSecure());
                 test(!baseProxy.ice_preferSecure(false).ice_isPreferSecure());
 
-                try
-                {
-                    baseProxy.ice_invocationTimeout(0);
-                    test(false);
-                }
-                catch (ArgumentException)
-                {
-                }
+                test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == TimeSpan.Zero);
+                test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
+                test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-2));
 
-                try
-                {
-                    baseProxy.ice_invocationTimeout(-1);
-                }
-                catch (ArgumentException)
-                {
-                    test(false);
-                }
-
-                try
-                {
-                    baseProxy.ice_invocationTimeout(-2);
-                    test(false);
-                }
-                catch (ArgumentException)
-                {
-                }
-
-                try
-                {
-                    baseProxy.ice_locatorCacheTimeout(0);
-                }
-                catch (ArgumentException)
-                {
-                    test(false);
-                }
-
-                try
-                {
-                    baseProxy.ice_locatorCacheTimeout(-1);
-                }
-                catch (ArgumentException)
-                {
-                    test(false);
-                }
-
-                try
-                {
-                    baseProxy.ice_locatorCacheTimeout(-2);
-                    test(false);
-                }
-                catch (ArgumentException)
-                {
-                }
+                test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == TimeSpan.Zero);
+                test(baseProxy.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
+                test(baseProxy.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-2));
 
                 output.WriteLine("ok");
 
@@ -792,8 +746,8 @@ namespace Ice
                         ctx["two"] = "world";
                         test(cl.ice_fixed(connection).ice_getContext().Count == 0);
                         test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().Count == 2);
-                        test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
-                        test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
+                        test(cl.ice_fixed(connection).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
+                        test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(10));
                         test(cl.ice_fixed(connection).ice_getConnection() == connection);
                         test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
                         test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().Value);

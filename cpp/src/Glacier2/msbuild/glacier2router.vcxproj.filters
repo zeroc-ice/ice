@@ -81,9 +81,6 @@
     <ClCompile Include="..\ProxyVerifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\RequestQueue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\RouterI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -117,9 +114,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ProxyVerifier.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\RequestQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\RouterI.h">

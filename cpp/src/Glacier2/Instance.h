@@ -11,7 +11,6 @@
 
 #include "Instrumentation.h"
 #include "ProxyVerifier.h"
-#include "RequestQueue.h"
 #include "SessionRouterI.h"
 
 namespace Glacier2
@@ -27,8 +26,6 @@ namespace Glacier2
         Ice::PropertiesPtr properties() const { return _properties; }
         Ice::LoggerPtr logger() const { return _logger; }
 
-        std::shared_ptr<RequestQueueThread> clientRequestQueueThread() const { return _clientRequestQueueThread; }
-        std::shared_ptr<RequestQueueThread> serverRequestQueueThread() const { return _serverRequestQueueThread; }
         std::shared_ptr<ProxyVerifier> proxyVerifier() const { return _proxyVerifier; }
         std::shared_ptr<SessionRouterI> sessionRouter() const { return _sessionRouter; }
 
@@ -44,8 +41,6 @@ namespace Glacier2
         const Ice::LoggerPtr _logger;
         const Ice::ObjectAdapterPtr _clientAdapter;
         const Ice::ObjectAdapterPtr _serverAdapter;
-        const std::shared_ptr<RequestQueueThread> _clientRequestQueueThread;
-        const std::shared_ptr<RequestQueueThread> _serverRequestQueueThread;
         const std::shared_ptr<ProxyVerifier> _proxyVerifier;
         std::shared_ptr<SessionRouterI> _sessionRouter;
         const std::shared_ptr<Glacier2::Instrumentation::RouterObserver> _observer;

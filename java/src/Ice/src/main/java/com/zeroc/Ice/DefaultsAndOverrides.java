@@ -7,7 +7,7 @@ package com.zeroc.Ice;
 import java.time.Duration;
 
 final class DefaultsAndOverrides {
-    DefaultsAndOverrides(Properties properties, Logger logger) {
+    DefaultsAndOverrides(Properties properties) {
         String value;
         int intValue;
 
@@ -67,29 +67,12 @@ final class DefaultsAndOverrides {
                             + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
-        intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
-        if (intValue < -1) {
-            defaultLocatorCacheTimeout = Duration.ofSeconds(-1);
-            StringBuffer msg =
-                    new StringBuffer("invalid value for Ice.Default.LocatorCacheTimeout `");
-            msg.append(properties.getIceProperty("Ice.Default.LocatorCacheTimeout"));
-            msg.append("': defaulting to -1");
-            logger.warning(msg.toString());
-        } else {
-            defaultLocatorCacheTimeout = Duration.ofSeconds(intValue);
-        }
+        defaultLocatorCacheTimeout =
+                Duration.ofSeconds(
+                        properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
 
-        intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-        if (intValue < 1 && intValue != -1) {
-            defaultInvocationTimeout = Duration.ofMillis(-1);
-            StringBuffer msg =
-                    new StringBuffer("invalid value for Ice.Default.InvocationTimeout `");
-            msg.append(properties.getIceProperty("Ice.Default.InvocationTimeout"));
-            msg.append("': defaulting to -1");
-            logger.warning(msg.toString());
-        } else {
-            defaultInvocationTimeout = Duration.ofMillis(intValue);
-        }
+        defaultInvocationTimeout =
+                Duration.ofMillis(properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
 
         defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 

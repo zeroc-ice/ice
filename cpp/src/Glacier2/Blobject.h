@@ -7,7 +7,6 @@
 
 #include "Ice/Ice.h"
 #include "Instance.h"
-#include "RequestQueue.h"
 
 namespace Glacier2
 {
@@ -15,11 +14,6 @@ namespace Glacier2
     {
     public:
         Blobject(std::shared_ptr<Instance>, Ice::ConnectionPtr, const Ice::Context&);
-
-        void destroy();
-
-        virtual void updateObserver(const std::shared_ptr<Instrumentation::SessionObserver>&);
-
         void invokeException(std::exception_ptr, std::function<void(std::exception_ptr)>&&);
 
     protected:
@@ -36,8 +30,6 @@ namespace Glacier2
     private:
         const bool _forwardContext;
         const int _requestTraceLevel;
-        const int _overrideTraceLevel;
-        const std::shared_ptr<RequestQueue> _requestQueue;
         const Ice::Context _context;
     };
 }

@@ -80,7 +80,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         }
 
         public
-        RequestCallback(Reference @ref, int ttl, GetEndpointsCallback cb)
+        RequestCallback(Reference @ref, TimeSpan ttl, GetEndpointsCallback cb)
         {
             _ref = @ref;
             _ttl = ttl;
@@ -88,14 +88,14 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         }
 
         private readonly Reference _ref;
-        private readonly int _ttl;
+        private readonly TimeSpan _ttl;
         private readonly GetEndpointsCallback _callback;
     }
 
     private abstract class Request
     {
         public void
-        addCallback(Reference @ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
+        addCallback(Reference @ref, Reference wellKnownRef, TimeSpan ttl, GetEndpointsCallback cb)
         {
             RequestCallback callback = new RequestCallback(@ref, ttl, cb);
             lock (_mutex)
@@ -304,13 +304,13 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     }
 
     public void
-    getEndpoints(Reference @ref, int ttl, GetEndpointsCallback callback)
+    getEndpoints(Reference @ref, TimeSpan ttl, GetEndpointsCallback callback)
     {
         getEndpoints(@ref, null, ttl, callback);
     }
 
     public void
-    getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, GetEndpointsCallback callback)
+    getEndpoints(Reference @ref, Reference wellKnownRef, TimeSpan ttl, GetEndpointsCallback callback)
     {
         Debug.Assert(@ref.isIndirect());
         EndpointI[] endpoints = null;
@@ -803,9 +803,9 @@ internal sealed class LocatorTable
         }
     }
 
-    internal EndpointI[] getAdapterEndpoints(string adapter, int ttl, out bool cached)
+    internal EndpointI[] getAdapterEndpoints(string adapter, TimeSpan ttl, out bool cached)
     {
-        if (ttl == 0) // Locator cache disabled.
+        if (ttl == TimeSpan.Zero) // Locator cache disabled.
         {
             cached = false;
             return null;
@@ -847,9 +847,9 @@ internal sealed class LocatorTable
         }
     }
 
-    internal Reference getObjectReference(Ice.Identity id, int ttl, out bool cached)
+    internal Reference getObjectReference(Ice.Identity id, TimeSpan ttl, out bool cached)
     {
-        if (ttl == 0) // Locator cache disabled.
+        if (ttl == TimeSpan.Zero) // Locator cache disabled.
         {
             cached = false;
             return null;
@@ -890,16 +890,16 @@ internal sealed class LocatorTable
         }
     }
 
-    private bool checkTTL(long time, int ttl)
+    private bool checkTTL(long time, TimeSpan ttl)
     {
-        Debug.Assert(ttl != 0);
-        if (ttl < 0) // TTL = infinite
+        Debug.Assert(ttl != TimeSpan.Zero);
+        if (ttl < TimeSpan.Zero) // TTL = infinite
         {
             return true;
         }
         else
         {
-            return Time.currentMonotonicTimeMillis() - time <= ((long)ttl * 1000);
+            return Time.currentMonotonicTimeMillis() - time <= ttl.TotalMilliseconds;
         }
     }
 

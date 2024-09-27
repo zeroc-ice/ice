@@ -245,7 +245,7 @@ namespace Ice
                 communicator.stringToProxy("test").ice_ping();
                 test(count == locator.getRequestCount());
 
-                test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() == 99);
+                test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(99));
 
                 output.WriteLine("ok");
 

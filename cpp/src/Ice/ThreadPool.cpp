@@ -158,11 +158,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
       _sizeMax(0),
       _sizeWarn(0),
       _serialize(_instance->initializationData().properties->getPropertyAsInt(_prefix + ".Serialize") > 0),
-      _hasPriority(false),
-      _priority(0),
       _serverIdleTime(timeout),
       _threadIdleTime(0),
-      _stackSize(0),
       _inUse(0),
 #if !defined(ICE_USE_IOCP)
       _inUseIO(0),
@@ -253,32 +250,6 @@ IceInternal::ThreadPool::initialize()
 #ifdef ICE_USE_IOCP
     _selector.setup(_sizeIO);
 #endif
-
-#if defined(__APPLE__)
-    //
-    // We use a default stack size of 1MB on macOS. The C++ mapping allows transmitting
-    // class graphs with a depth of 100 (maximum default), 512KB is not enough otherwise.
-    //
-    int defaultStackSize = 1024 * 1024; // 1MB
-#else
-    int defaultStackSize = 0;
-#endif
-    int stackSize = properties->getPropertyAsIntWithDefault(_prefix + ".StackSize", defaultStackSize);
-    if (stackSize < 0)
-    {
-        Warning out(_instance->initializationData().logger);
-        out << _prefix << ".StackSize < 0; Size adjusted to OS default";
-        stackSize = 0;
-    }
-    const_cast<size_t&>(_stackSize) = static_cast<size_t>(stackSize);
-
-    const_cast<bool&>(_hasPriority) = properties->getProperty(_prefix + ".ThreadPriority") != "";
-    const_cast<int&>(_priority) = properties->getPropertyAsInt(_prefix + ".ThreadPriority");
-    if (!_hasPriority)
-    {
-        const_cast<bool&>(_hasPriority) = properties->getProperty("Ice.ThreadPriority") != "";
-        const_cast<int&>(_priority) = properties->getPropertyAsInt("Ice.ThreadPriority");
-    }
 
     _workQueue = make_shared<ThreadPoolWorkQueue>(*this);
     _selector.initialize(_workQueue.get());
