@@ -530,7 +530,7 @@ IceInternal::FixedReference::getEndpointSelection() const noexcept
 chrono::milliseconds
 IceInternal::FixedReference::getLocatorCacheTimeout() const noexcept
 {
-    return 0s;
+    return 0ms;
 }
 
 string
@@ -1092,7 +1092,8 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
     properties[prefix + ".EndpointSelection"] =
         _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
-    properties[prefix + ".LocatorCacheTimeout"] = to_string(_locatorCacheTimeout.count());
+    properties[prefix + ".LocatorCacheTimeout"] =
+        to_string(chrono::duration_cast<chrono::seconds>(_locatorCacheTimeout).count());
     properties[prefix + ".InvocationTimeout"] = to_string(getInvocationTimeout().count());
 
     if (_routerInfo)

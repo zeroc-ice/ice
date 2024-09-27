@@ -635,113 +635,27 @@ allTests(TestHelper* helper)
     test(base->ice_encodingVersion(Ice::Encoding_1_1)->ice_getEncodingVersion() == Ice::Encoding_1_1);
     test(base->ice_encodingVersion(Ice::Encoding_1_0)->ice_getEncodingVersion() != Ice::Encoding_1_1);
 
-    try
-    {
-        base->ice_invocationTimeout(0);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
+    test(base->ice_invocationTimeout(10)->ice_getInvocationTimeout() == 10ms);
 
-    try
-    {
-        base->ice_invocationTimeout(0ms);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
+    test(base->ice_invocationTimeout(0)->ice_getInvocationTimeout() == 0ms);
+    test(base->ice_invocationTimeout(0ms)->ice_getInvocationTimeout() == 0ms);
 
-    try
-    {
-        base->ice_invocationTimeout(-1);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
+    test(base->ice_invocationTimeout(-1)->ice_getInvocationTimeout() == -1ms);
+    test(base->ice_invocationTimeout(-1ms)->ice_getInvocationTimeout() == -1ms);
 
-    try
-    {
-        base->ice_invocationTimeout(-1ms);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
+    test(base->ice_invocationTimeout(-2)->ice_getInvocationTimeout() == -2ms);
+    test(base->ice_invocationTimeout(-2ms)->ice_getInvocationTimeout() == -2ms);
 
-    try
-    {
-        base->ice_invocationTimeout(-2);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
+    test(base->ice_locatorCacheTimeout(10)->ice_getLocatorCacheTimeout() == 10s);
 
-    try
-    {
-        base->ice_invocationTimeout(-2ms);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
+    test(base->ice_locatorCacheTimeout(0)->ice_getLocatorCacheTimeout() == 0s);
+    test(base->ice_locatorCacheTimeout(0s)->ice_getLocatorCacheTimeout() == 0s);
 
-    try
-    {
-        base->ice_locatorCacheTimeout(0);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
+    test(base->ice_locatorCacheTimeout(-1)->ice_getLocatorCacheTimeout() == -1s);
+    test(base->ice_locatorCacheTimeout(-1s)->ice_getLocatorCacheTimeout() == -1s);
 
-    try
-    {
-        base->ice_locatorCacheTimeout(0s);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
-
-    try
-    {
-        base->ice_locatorCacheTimeout(-1);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
-
-    try
-    {
-        base->ice_locatorCacheTimeout(-1s);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
-
-    try
-    {
-        base->ice_locatorCacheTimeout(-2);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
-
-    try
-    {
-        base->ice_locatorCacheTimeout(-2s);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
+    test(base->ice_locatorCacheTimeout(-2)->ice_getLocatorCacheTimeout() == -2s);
+    test(base->ice_locatorCacheTimeout(-2s)->ice_getLocatorCacheTimeout() == -2s);
 
     cout << "ok" << endl;
 

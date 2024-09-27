@@ -94,8 +94,11 @@ namespace IceInternal
         class Request
         {
         public:
-            void
-            addCallback(const ReferencePtr&, const ReferencePtr&, std::chrono::milliseconds, const GetEndpointsCallbackPtr&);
+            void addCallback(
+                const ReferencePtr&,
+                const ReferencePtr&,
+                std::chrono::milliseconds,
+                const GetEndpointsCallbackPtr&);
 
             void response(const std::optional<Ice::ObjectPrx>&);
             void exception(std::exception_ptr);
@@ -134,8 +137,11 @@ namespace IceInternal
         {
             getEndpoints(ref, 0, ttl, cb);
         }
-        void
-        getEndpoints(const ReferencePtr&, const ReferencePtr&, std::chrono::milliseconds, const GetEndpointsCallbackPtr&);
+        void getEndpoints(
+            const ReferencePtr&,
+            const ReferencePtr&,
+            std::chrono::milliseconds,
+            const GetEndpointsCallbackPtr&);
 
         void clearCache(const ReferencePtr&);
 

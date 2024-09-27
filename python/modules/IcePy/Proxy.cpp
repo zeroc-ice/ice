@@ -611,7 +611,7 @@ proxyIceGetLocatorCacheTimeout(ProxyObject* self, PyObject* /*args*/)
 
     try
     {
-        chrono::seconds timeout = (*self->proxy)->ice_getLocatorCacheTimeout();
+        chrono::seconds timeout = chrono::duration_cast<chrono::seconds>((*self->proxy)->ice_getLocatorCacheTimeout());
         return PyLong_FromLong(static_cast<int32_t>(timeout.count()));
     }
     catch (...)

@@ -366,7 +366,7 @@ IceRuby_ObjectPrx_ice_getLocatorCacheTimeout(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        chrono::seconds timeout = p->ice_getLocatorCacheTimeout();
+        chrono::seconds timeout = chrono::duration_cast<chrono::seconds>(p->ice_getLocatorCacheTimeout());
         return INT2FIX(static_cast<int32_t>(timeout.count()));
     }
     ICE_RUBY_CATCH

@@ -63,8 +63,10 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         throw ParseException(__FILE__, __LINE__, "illegal value '" + value + "'; expected 'Random' or 'Ordered'");
     }
 
-    const_cast<chrono::milliseconds&>(defaultInvocationTimeout) = chrono::milliseconds(properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
-    const_cast<chrono::seconds&>(defaultLocatorCacheTimeout) = chrono::seconds(properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
+    const_cast<chrono::milliseconds&>(defaultInvocationTimeout) =
+        chrono::milliseconds(properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
+    const_cast<chrono::seconds&>(defaultLocatorCacheTimeout) =
+        chrono::seconds(properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
 
     const_cast<bool&>(defaultPreferSecure) = properties->getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
