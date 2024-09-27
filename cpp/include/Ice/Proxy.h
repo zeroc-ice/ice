@@ -647,7 +647,7 @@ namespace Ice
          * Obtains the locator cache timeout of this proxy.
          * @return The locator cache timeout value (in seconds).
          */
-        std::chrono::seconds ice_getLocatorCacheTimeout() const noexcept;
+        std::chrono::milliseconds ice_getLocatorCacheTimeout() const noexcept;
 
         /**
          * Determines whether this proxy caches connections.
@@ -820,12 +820,11 @@ namespace Ice
         IceInternal::ReferencePtr _fixed(ConnectionPtr) const;
         IceInternal::ReferencePtr _invocationTimeout(std::chrono::milliseconds) const;
         IceInternal::ReferencePtr _locator(const std::optional<LocatorPrx>&) const;
-        IceInternal::ReferencePtr _locatorCacheTimeout(std::chrono::seconds) const;
+        IceInternal::ReferencePtr _locatorCacheTimeout(std::chrono::milliseconds) const;
         IceInternal::ReferencePtr _oneway() const;
         IceInternal::ReferencePtr _preferSecure(bool) const;
         IceInternal::ReferencePtr _router(const std::optional<RouterPrx>&) const;
         IceInternal::ReferencePtr _secure(bool) const;
-        IceInternal::ReferencePtr _timeout(int) const;
         IceInternal::ReferencePtr _twoway() const;
 
         // Only the assignment operators can change these fields. All other member functions must be const.

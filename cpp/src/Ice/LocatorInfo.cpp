@@ -161,10 +161,10 @@ IceInternal::LocatorTable::clear()
 bool
 IceInternal::LocatorTable::getAdapterEndpoints(
     const string& adapter,
-    chrono::seconds ttl,
+    chrono::milliseconds ttl,
     vector<EndpointIPtr>& endpoints)
 {
-    if (ttl == 0s) // No locator cache.
+    if (ttl == 0ms) // No locator cache.
     {
         return false;
     }
@@ -217,9 +217,9 @@ IceInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
 }
 
 bool
-IceInternal::LocatorTable::getObjectReference(const Identity& id, chrono::seconds ttl, ReferencePtr& ref)
+IceInternal::LocatorTable::getObjectReference(const Identity& id, chrono::milliseconds ttl, ReferencePtr& ref)
 {
-    if (ttl == 0s) // No locator cache
+    if (ttl == 0ms) // No locator cache
     {
         return false;
     }
@@ -269,10 +269,10 @@ IceInternal::LocatorTable::removeObjectReference(const Identity& id)
 }
 
 bool
-IceInternal::LocatorTable::checkTTL(const chrono::steady_clock::time_point& time, chrono::seconds ttl) const
+IceInternal::LocatorTable::checkTTL(const chrono::steady_clock::time_point& time, chrono::milliseconds ttl) const
 {
-    assert(ttl != 0s);
-    if (ttl < 0s) // TTL = infinite
+    assert(ttl != 0ms);
+    if (ttl < 0ms) // TTL = infinite
     {
         return true;
     }
@@ -348,7 +348,7 @@ IceInternal::LocatorInfo::RequestCallback::exception(const LocatorInfoPtr& locat
 
 IceInternal::LocatorInfo::RequestCallback::RequestCallback(
     const ReferencePtr& ref,
-    chrono::seconds ttl,
+    chrono::milliseconds ttl,
     const GetEndpointsCallbackPtr& cb)
     : _reference(ref),
       _ttl(ttl),
@@ -360,7 +360,7 @@ void
 IceInternal::LocatorInfo::Request::addCallback(
     const ReferencePtr& ref,
     const ReferencePtr& wellKnownRef,
-    chrono::seconds ttl,
+    chrono::milliseconds ttl,
     const GetEndpointsCallbackPtr& cb)
 {
     RequestCallbackPtr callback = make_shared<RequestCallback>(ref, ttl, cb);
@@ -511,7 +511,7 @@ void
 IceInternal::LocatorInfo::getEndpoints(
     const ReferencePtr& ref,
     const ReferencePtr& wellKnownRef,
-    chrono::seconds ttl,
+    chrono::milliseconds ttl,
     const GetEndpointsCallbackPtr& callback)
 {
     assert(ref->isIndirect());

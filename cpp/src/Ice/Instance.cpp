@@ -1105,7 +1105,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         const_cast<TraceLevelsPtr&>(_traceLevels) = make_shared<TraceLevels>(_initData.properties);
 
         const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) =
-            make_shared<DefaultsAndOverrides>(_initData.properties, _initData.logger);
+            make_shared<DefaultsAndOverrides>(_initData.properties);
 
         const_cast<ConnectionOptions&>(_clientConnectionOptions) = readConnectionOptions("Ice.Connection.Client");
         const_cast<ConnectionOptions&>(_serverConnectionOptions) = readConnectionOptions("Ice.Connection.Server");

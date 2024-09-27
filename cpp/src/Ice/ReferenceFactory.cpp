@@ -853,36 +853,12 @@ IceInternal::ReferenceFactory::create(
         }
 
         property = propertyPrefix + ".LocatorCacheTimeout";
-        if (!properties->getProperty(property).empty())
-        {
-            int locatorCacheTimeoutValue =
-                properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(locatorCacheTimeout.count()));
-            if (locatorCacheTimeoutValue < -1)
-            {
-                locatorCacheTimeoutValue = -1;
-
-                Warning out(_instance->initializationData().logger);
-                out << "invalid value for " << property << "'" << properties->getProperty(property) << "'"
-                    << ": defaulting to -1";
-            }
-            locatorCacheTimeout = chrono::seconds(locatorCacheTimeoutValue);
-        }
+        locatorCacheTimeout = chrono::seconds(
+            properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(locatorCacheTimeout.count())));
 
         property = propertyPrefix + ".InvocationTimeout";
-        if (!properties->getProperty(property).empty())
-        {
-            int invocationTimeoutValue =
-                properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(invocationTimeout.count()));
-            if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1)
-            {
-                invocationTimeoutValue = -1;
-
-                Warning out(_instance->initializationData().logger);
-                out << "invalid value for " << property << "'" << properties->getProperty(property) << "'"
-                    << ": defaulting to -1";
-            }
-            invocationTimeout = chrono::milliseconds(invocationTimeoutValue);
-        }
+        invocationTimeout = chrono::milliseconds(
+            properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(invocationTimeout.count())));
 
         property = propertyPrefix + ".Context.";
         PropertyDict contexts = properties->getPropertiesForPrefix(property);

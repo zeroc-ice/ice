@@ -11,7 +11,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties, const LoggerPtr& logger)
+IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties)
     : overrideCompress(nullopt),
       overrideSecure(nullopt)
 {
@@ -63,25 +63,8 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         throw ParseException(__FILE__, __LINE__, "illegal value '" + value + "'; expected 'Random' or 'Ordered'");
     }
 
-    int defaultInvocationTimeoutValue = properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-    if (defaultInvocationTimeoutValue < 1 && defaultInvocationTimeoutValue != -1)
-    {
-        defaultInvocationTimeoutValue = -1;
-        Warning out(logger);
-        out << "invalid value for Ice.Default.InvocationTimeout `"
-            << properties->getIceProperty("Ice.Default.InvocationTimeout") << "': defaulting to -1";
-    }
-    const_cast<chrono::milliseconds&>(defaultInvocationTimeout) = chrono::milliseconds(defaultInvocationTimeoutValue);
-
-    int defaultLocatorCacheTimeoutValue = properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
-    if (defaultLocatorCacheTimeoutValue < -1)
-    {
-        defaultLocatorCacheTimeoutValue = -1;
-        Warning out(logger);
-        out << "invalid value for Ice.Default.LocatorCacheTimeout `"
-            << properties->getIceProperty("Ice.Default.LocatorCacheTimeout") << "': defaulting to -1";
-    }
-    const_cast<chrono::seconds&>(defaultLocatorCacheTimeout) = chrono::seconds(defaultLocatorCacheTimeoutValue);
+    const_cast<chrono::milliseconds&>(defaultInvocationTimeout) = chrono::milliseconds(properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
+    const_cast<chrono::seconds&>(defaultLocatorCacheTimeout) = chrono::seconds(properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
 
     const_cast<bool&>(defaultPreferSecure) = properties->getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 

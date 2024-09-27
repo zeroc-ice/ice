@@ -20,7 +20,7 @@ namespace IceInternal
     class DefaultsAndOverrides
     {
     public:
-        DefaultsAndOverrides(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+        DefaultsAndOverrides(const Ice::PropertiesPtr&);
 
         std::string defaultHost;
         Address defaultSourceAddress;
