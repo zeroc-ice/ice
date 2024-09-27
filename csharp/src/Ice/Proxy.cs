@@ -210,8 +210,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Returns the locator cache timeout of this proxy.
     /// </summary>
-    /// <returns>The locator cache timeout value (in seconds).</returns>
-    int ice_getLocatorCacheTimeout();
+    /// <returns>The locator cache timeout value.</returns>
+    TimeSpan ice_getLocatorCacheTimeout();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
@@ -220,16 +220,28 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_locatorCacheTimeout(int newTimeout);
 
     /// <summary>
+    /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
+    /// </summary>
+    /// <param name="newTimeout">The new locator cache timeout.</param>
+    ObjectPrx ice_locatorCacheTimeout(TimeSpan newTimeout);
+
+    /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout (in seconds).</param>
+    /// <param name="newTimeout">The new invocation timeout (in milliseconds).</param>
     ObjectPrx ice_invocationTimeout(int newTimeout);
+
+    /// <summary>
+    /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+    /// </summary>
+    /// <param name="newTimeout">The new invocation timeout.</param>
+    ObjectPrx ice_invocationTimeout(TimeSpan newTimeout);
 
     /// <summary>
     /// Returns the invocation timeout of this proxy.
     /// </summary>
-    /// <returns>The invocation timeout value (in seconds).</returns>
-    int ice_getInvocationTimeout();
+    /// <returns>The invocation timeout value.</returns>
+    TimeSpan ice_getInvocationTimeout();
 
     /// <summary>
     /// Returns whether this proxy caches connections.
@@ -1033,8 +1045,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns the locator cache timeout of this proxy.
     /// </summary>
-    /// <returns>The locator cache timeout value (in seconds).</returns>
-    public int ice_getLocatorCacheTimeout()
+    /// <returns>The locator cache timeout value.</returns>
+    public TimeSpan ice_getLocatorCacheTimeout()
     {
         return _reference.getLocatorCacheTimeout();
     }
@@ -1046,10 +1058,16 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The new proxy with the specified locator cache timeout.</returns>
     public ObjectPrx ice_locatorCacheTimeout(int newTimeout)
     {
-        if (newTimeout < -1)
-        {
-            throw new ArgumentException("invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
-        }
+        return ice_locatorCacheTimeout(TimeSpan.FromSeconds(newTimeout));
+    }
+
+    /// <summary>
+    /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
+    /// </summary>
+    /// <param name="newTimeout">The new locator cache timeout.</param>
+    /// <returns>The new proxy with the specified locator cache timeout.</returns>
+    public ObjectPrx ice_locatorCacheTimeout(TimeSpan newTimeout)
+    {
         if (newTimeout == _reference.getLocatorCacheTimeout())
         {
             return this;
@@ -1063,8 +1081,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns the invocation timeout of this proxy.
     /// </summary>
-    /// <returns>The invocation timeout value (in seconds).</returns>
-    public int ice_getInvocationTimeout()
+    /// <returns>The invocation timeout value.</returns>
+    public TimeSpan ice_getInvocationTimeout()
     {
         return _reference.getInvocationTimeout();
     }
@@ -1072,14 +1090,20 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout (in seconds).</param>
+    /// <param name="newTimeout">The new invocation timeout (in milliseconds).</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
     public ObjectPrx ice_invocationTimeout(int newTimeout)
     {
-        if (newTimeout < 1 && newTimeout != -1)
-        {
-            throw new ArgumentException("invalid value passed to ice_invocationTimeout: " + newTimeout);
-        }
+        return ice_invocationTimeout(TimeSpan.FromMilliseconds(newTimeout));
+    }
+
+    /// <summary>
+    /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+    /// </summary>
+    /// <param name="newTimeout">The new invocation timeout.</param>
+    /// <returns>The new proxy with the specified invocation timeout.</returns>
+    public ObjectPrx ice_invocationTimeout(TimeSpan newTimeout)
+    {
         if (newTimeout == _reference.getInvocationTimeout())
         {
             return this;

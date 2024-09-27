@@ -80,25 +80,10 @@ public sealed class DefaultsAndOverrides
             throw new ParseException($"illegal value '{val}' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
-        defaultLocatorCacheTimeout = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
-        if (defaultLocatorCacheTimeout < -1)
-        {
-            defaultLocatorCacheTimeout = -1;
-            StringBuilder msg = new StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
-            msg.Append(properties.getIceProperty("Ice.Default.LocatorCacheTimeout"));
-            msg.Append("': defaulting to -1");
-            logger.warning(msg.ToString());
-        }
-
-        defaultInvocationTimeout = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-        if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1)
-        {
-            defaultInvocationTimeout = -1;
-            StringBuilder msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
-            msg.Append(properties.getIceProperty("Ice.Default.InvocationTimeout"));
-            msg.Append("': defaulting to -1");
-            logger.warning(msg.ToString());
-        }
+        defaultLocatorCacheTimeout = TimeSpan.FromSeconds(
+            properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
+        defaultInvocationTimeout = TimeSpan.FromMilliseconds(
+            properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
 
         defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
@@ -117,8 +102,8 @@ public sealed class DefaultsAndOverrides
     public string defaultProtocol;
     public bool defaultCollocationOptimization;
     public Ice.EndpointSelectionType defaultEndpointSelection;
-    public int defaultLocatorCacheTimeout;
-    public int defaultInvocationTimeout;
+    public TimeSpan defaultLocatorCacheTimeout;
+    public TimeSpan defaultInvocationTimeout;
     public bool defaultPreferSecure;
     public Ice.EncodingVersion defaultEncoding;
     public Ice.FormatType defaultFormat;

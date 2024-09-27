@@ -520,10 +520,10 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         {
             if (userThread)
             {
-                int invocationTimeout = proxy_.iceReference().getInvocationTimeout();
-                if (invocationTimeout > 0)
+                TimeSpan invocationTimeout = proxy_.iceReference().getInvocationTimeout();
+                if (invocationTimeout > TimeSpan.Zero)
                 {
-                    instance_.timer().schedule(this, invocationTimeout);
+                    instance_.timer().schedule(this, (long)invocationTimeout.TotalMilliseconds);
                 }
             }
             else if (observer_ != null)
@@ -606,7 +606,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         _sent = true;
         if (done)
         {
-            if (proxy_.iceReference().getInvocationTimeout() != -1)
+            if (proxy_.iceReference().getInvocationTimeout() > TimeSpan.Zero)
             {
                 instance_.timer().cancel(this);
             }
@@ -616,7 +616,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
 
     protected override bool exceptionImpl(Ice.Exception ex)
     {
-        if (proxy_.iceReference().getInvocationTimeout() != -1)
+        if (proxy_.iceReference().getInvocationTimeout() > TimeSpan.Zero)
         {
             instance_.timer().cancel(this);
         }
@@ -625,7 +625,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
 
     protected override bool responseImpl(bool userThread, bool ok, bool invoke)
     {
-        if (proxy_.iceReference().getInvocationTimeout() != -1)
+        if (proxy_.iceReference().getInvocationTimeout() > TimeSpan.Zero)
         {
             instance_.timer().cancel(this);
         }
@@ -1040,7 +1040,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
     public override int invokeCollocated(CollocatedRequestHandler handler)
     {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-        if (!proxy_.ice_isTwoway() || proxy_.iceReference().getInvocationTimeout() != -1)
+        if (!proxy_.ice_isTwoway() || proxy_.iceReference().getInvocationTimeout() > TimeSpan.Zero)
         {
             // Disable caching by marking the streams as cached!
             state_ |= StateCachedBuffers;
