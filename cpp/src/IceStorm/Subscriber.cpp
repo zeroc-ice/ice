@@ -297,8 +297,8 @@ namespace
 {
     SubscriberLink::SubscriberLink(const shared_ptr<Instance>& instance, const SubscriberRecord& rec)
         : Subscriber(instance, rec, nullopt, -1, 1),
-          _obj(Ice::uncheckedCast<TopicLinkPrx>(rec.obj->ice_collocationOptimized(false)->ice_invocationTimeout(
-              static_cast<int>(instance->sendTimeout().count()))))
+          _obj(Ice::uncheckedCast<TopicLinkPrx>(
+              rec.obj->ice_collocationOptimized(false)->ice_invocationTimeout(instance->sendTimeout())))
     {
     }
 
@@ -414,7 +414,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             optional<Ice::ObjectPrx> newObj;
             try
             {
-                newObj = rec.obj->ice_invocationTimeout(static_cast<int>(instance->sendTimeout().count()));
+                newObj = rec.obj->ice_invocationTimeout(instance->sendTimeout());
             }
             catch (const Ice::FixedProxyException&)
             {

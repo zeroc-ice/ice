@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 class RoutableReference extends Reference {
     @Override
     public final EndpointI[] getEndpoints() {
@@ -46,7 +48,7 @@ class RoutableReference extends Reference {
     }
 
     @Override
-    public final int getLocatorCacheTimeout() {
+    public final Duration getLocatorCacheTimeout() {
         return _locatorCacheTimeout;
     }
 
@@ -164,7 +166,7 @@ class RoutableReference extends Reference {
     }
 
     @Override
-    public Reference changeLocatorCacheTimeout(int newTimeout) {
+    public Reference changeLocatorCacheTimeout(Duration newTimeout) {
         RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
         r._locatorCacheTimeout = newTimeout;
         return r;
@@ -281,12 +283,12 @@ class RoutableReference extends Reference {
 
         {
             StringBuffer s = new StringBuffer();
-            s.append(getInvocationTimeout());
+            s.append(getInvocationTimeout().toMillis());
             properties.put(prefix + ".InvocationTimeout", s.toString());
         }
         {
             StringBuffer s = new StringBuffer();
-            s.append(_locatorCacheTimeout);
+            s.append(_locatorCacheTimeout.toSeconds());
             properties.put(prefix + ".LocatorCacheTimeout", s.toString());
         }
 
@@ -360,7 +362,7 @@ class RoutableReference extends Reference {
         if (_endpointSelection != rhs._endpointSelection) {
             return false;
         }
-        if (_locatorCacheTimeout != rhs._locatorCacheTimeout) {
+        if (!_locatorCacheTimeout.equals(rhs._locatorCacheTimeout)) {
             return false;
         }
         if (!_connectionId.equals(rhs._connectionId)) {
@@ -524,8 +526,8 @@ class RoutableReference extends Reference {
             boolean cacheConnection,
             boolean preferSecure,
             EndpointSelectionType endpointSelection,
-            int locatorCacheTimeout,
-            int invocationTimeout,
+            Duration locatorCacheTimeout,
+            Duration invocationTimeout,
             java.util.Map<String, String> context) {
         super(
                 instance,
@@ -810,6 +812,6 @@ class RoutableReference extends Reference {
     private boolean _cacheConnection;
     private boolean _preferSecure;
     private EndpointSelectionType _endpointSelection;
-    private int _locatorCacheTimeout;
+    private Duration _locatorCacheTimeout;
     private String _connectionId = "";
 }

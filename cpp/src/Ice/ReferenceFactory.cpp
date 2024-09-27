@@ -21,6 +21,7 @@
 #include "PropertyNames.h"
 #include "RouterInfo.h"
 
+#include <chrono>
 #include <stdexcept>
 
 using namespace std;
@@ -88,7 +89,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
         Ice::Protocol_1_0,
         _instance->defaultsAndOverrides()->defaultEncoding,
         connection,
-        -1,
+        -1ms,
         Ice::Context());
 }
 
@@ -774,8 +775,8 @@ IceInternal::ReferenceFactory::create(
     bool cacheConnection = true;
     bool preferSecure = defaultsAndOverrides->defaultPreferSecure;
     Ice::EndpointSelectionType endpointSelection = defaultsAndOverrides->defaultEndpointSelection;
-    int locatorCacheTimeout = defaultsAndOverrides->defaultLocatorCacheTimeout;
-    int invocationTimeout = defaultsAndOverrides->defaultInvocationTimeout;
+    chrono::seconds locatorCacheTimeout = defaultsAndOverrides->defaultLocatorCacheTimeout;
+    chrono::milliseconds invocationTimeout = defaultsAndOverrides->defaultInvocationTimeout;
     Ice::Context ctx;
 
     //
@@ -852,34 +853,12 @@ IceInternal::ReferenceFactory::create(
         }
 
         property = propertyPrefix + ".LocatorCacheTimeout";
-        string value = properties->getProperty(property);
-        if (!value.empty())
-        {
-            locatorCacheTimeout = properties->getPropertyAsIntWithDefault(property, locatorCacheTimeout);
-            if (locatorCacheTimeout < -1)
-            {
-                locatorCacheTimeout = -1;
-
-                Warning out(_instance->initializationData().logger);
-                out << "invalid value for " << property << "'" << properties->getProperty(property) << "'"
-                    << ": defaulting to -1";
-            }
-        }
+        locatorCacheTimeout = chrono::seconds(
+            properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(locatorCacheTimeout.count())));
 
         property = propertyPrefix + ".InvocationTimeout";
-        value = properties->getProperty(property);
-        if (!value.empty())
-        {
-            invocationTimeout = properties->getPropertyAsIntWithDefault(property, invocationTimeout);
-            if (invocationTimeout < 1 && invocationTimeout != -1)
-            {
-                invocationTimeout = -1;
-
-                Warning out(_instance->initializationData().logger);
-                out << "invalid value for " << property << "'" << properties->getProperty(property) << "'"
-                    << ": defaulting to -1";
-            }
-        }
+        invocationTimeout = chrono::milliseconds(
+            properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(invocationTimeout.count())));
 
         property = propertyPrefix + ".Context.";
         PropertyDict contexts = properties->getPropertiesForPrefix(property);

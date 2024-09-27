@@ -224,14 +224,13 @@ ReplicaSessionI::setAdapterDirectProxy(
     string adapterId,
     string replicaGroupId,
     optional<Ice::ObjectPrx> proxy,
-    const Ice::Current& current)
+    const Ice::Current&)
 {
-    Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
     if (_database->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") <= 0)
     {
         throw AdapterNotExistException();
     }
-    _database->setAdapterDirectProxy(adapterId, replicaGroupId, *std::move(proxy));
+    _database->setAdapterDirectProxy(adapterId, replicaGroupId, proxy);
 }
 
 void

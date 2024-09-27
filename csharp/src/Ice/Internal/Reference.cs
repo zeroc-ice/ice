@@ -92,7 +92,7 @@ public abstract class Reference : IEquatable<Reference>
         return _context;
     }
 
-    public int
+    public TimeSpan
     getInvocationTimeout()
     {
         return _invocationTimeout;
@@ -125,7 +125,7 @@ public abstract class Reference : IEquatable<Reference>
 
     public abstract Ice.EndpointSelectionType getEndpointSelection();
 
-    public abstract int getLocatorCacheTimeout();
+    public abstract TimeSpan getLocatorCacheTimeout();
 
     public abstract string getConnectionId();
 
@@ -185,7 +185,7 @@ public abstract class Reference : IEquatable<Reference>
         return r;
     }
 
-    public Reference changeInvocationTimeout(int newTimeout)
+    public Reference changeInvocationTimeout(TimeSpan newTimeout)
     {
         Reference r = _instance.referenceFactory().copy(this);
         r._invocationTimeout = newTimeout;
@@ -222,7 +222,7 @@ public abstract class Reference : IEquatable<Reference>
 
     public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
 
-    public abstract Reference changeLocatorCacheTimeout(int newTimeout);
+    public abstract Reference changeLocatorCacheTimeout(TimeSpan newTimeout);
 
     public abstract Reference changeConnectionId(string connectionId);
 
@@ -446,7 +446,7 @@ public abstract class Reference : IEquatable<Reference>
     protected bool secure_;
     private Ice.ProtocolVersion _protocol;
     private Ice.EncodingVersion _encoding;
-    private int _invocationTimeout;
+    private TimeSpan _invocationTimeout;
     private bool? _compress;
 
     protected Reference(
@@ -459,7 +459,7 @@ public abstract class Reference : IEquatable<Reference>
         bool? compress,
         Ice.ProtocolVersion protocol,
         Ice.EncodingVersion encoding,
-        int invocationTimeout,
+        TimeSpan invocationTimeout,
         Dictionary<string, string> context)
     {
         // Validate string arguments.
@@ -496,7 +496,7 @@ public class FixedReference : Reference
         Ice.ProtocolVersion protocol,
         Ice.EncodingVersion encoding,
         Ice.ConnectionI connection,
-        int invocationTimeout,
+        TimeSpan invocationTimeout,
         Dictionary<string, string> context)
     : base(instance, communicator, identity, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context)
     {
@@ -543,9 +543,9 @@ public class FixedReference : Reference
         return Ice.EndpointSelectionType.Random;
     }
 
-    public override int getLocatorCacheTimeout()
+    public override TimeSpan getLocatorCacheTimeout()
     {
-        return 0;
+        return TimeSpan.Zero;
     }
 
     public override string getConnectionId()
@@ -603,7 +603,7 @@ public class FixedReference : Reference
         throw new Ice.FixedProxyException();
     }
 
-    public override Reference changeLocatorCacheTimeout(int newTimeout)
+    public override Reference changeLocatorCacheTimeout(TimeSpan newTimeout)
     {
         throw new Ice.FixedProxyException();
     }
@@ -756,7 +756,7 @@ public class RoutableReference : Reference
         return _endpointSelection;
     }
 
-    public override int getLocatorCacheTimeout()
+    public override TimeSpan getLocatorCacheTimeout()
     {
         return _locatorCacheTimeout;
     }
@@ -872,7 +872,7 @@ public class RoutableReference : Reference
         return r;
     }
 
-    public override Reference changeLocatorCacheTimeout(int newTimeout)
+    public override Reference changeLocatorCacheTimeout(TimeSpan newTimeout)
     {
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._locatorCacheTimeout = newTimeout;
@@ -1000,8 +1000,8 @@ public class RoutableReference : Reference
         properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
         properties[prefix + ".EndpointSelection"] =
                    _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered";
-        properties[prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.ToString(CultureInfo.InvariantCulture);
-        properties[prefix + ".InvocationTimeout"] = getInvocationTimeout().ToString(CultureInfo.InvariantCulture);
+        properties[prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.TotalSeconds.ToString(CultureInfo.InvariantCulture);
+        properties[prefix + ".InvocationTimeout"] = getInvocationTimeout().TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
 
         if (_routerInfo != null)
         {
@@ -1243,8 +1243,8 @@ public class RoutableReference : Reference
         bool cacheConnection,
         bool preferSecure,
         Ice.EndpointSelectionType endpointSelection,
-        int locatorCacheTimeout,
-        int invocationTimeout,
+        TimeSpan locatorCacheTimeout,
+        TimeSpan invocationTimeout,
         Dictionary<string, string> context)
     : base(
         instance,
@@ -1577,7 +1577,7 @@ public class RoutableReference : Reference
     private bool _cacheConnection;
     private bool _preferSecure;
     private Ice.EndpointSelectionType _endpointSelection;
-    private int _locatorCacheTimeout;
+    private TimeSpan _locatorCacheTimeout;
 
     private string _connectionId = "";
 }

@@ -93,17 +93,9 @@ namespace
                 Ice::noExplicitContext);
         }
 
-        void useActivationTimeout()
-        {
-            auto timeout = secondsToInt(_activationTimeout) * 1000;
-            _proxy = _proxy->ice_invocationTimeout(timeout);
-        }
+        void useActivationTimeout() { _proxy = _proxy->ice_invocationTimeout(_activationTimeout); }
 
-        void useDeactivationTimeout()
-        {
-            auto timeout = secondsToInt(_deactivationTimeout) * 1000;
-            _proxy = _proxy->ice_invocationTimeout(timeout);
-        }
+        void useDeactivationTimeout() { _proxy = _proxy->ice_invocationTimeout(_deactivationTimeout); }
 
         ServerPrx* operator->() { return &_proxy; }
 
