@@ -214,29 +214,8 @@ internal sealed class WSEndpoint : EndpointI
         }
     }
 
-    public override List<EndpointI> expandIfWildcard()
-    {
-        List<EndpointI> l = new List<EndpointI>();
-        foreach (EndpointI e in _delegate.expandIfWildcard())
-        {
-            l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
-        }
-        return l;
-    }
-
-    public override List<EndpointI> expandHost(out EndpointI publish)
-    {
-        List<EndpointI> l = new List<EndpointI>();
-        foreach (EndpointI e in _delegate.expandHost(out publish))
-        {
-            l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
-        }
-        if (publish != null)
-        {
-            publish = publish == _delegate ? this : new WSEndpoint(_instance, publish, _resource);
-        }
-        return l;
-    }
+    public override List<EndpointI> expandHost() =>
+        _delegate.expandHost().Select(e => new WSEndpoint(_instance, e, _resource) as EndpointI).ToList();
 
     public override bool equivalent(EndpointI endpoint)
     {

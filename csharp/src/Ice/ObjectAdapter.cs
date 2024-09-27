@@ -5,6 +5,7 @@
 using Ice.Instrumentation;
 using Ice.Internal;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Security;
 using System.Text;
 
@@ -938,26 +939,12 @@ public sealed class ObjectAdapter
             {
                 checkForDeactivation();
 
-                //
-                // Proxies which have at least one endpoint in common with the
-                // endpoints used by this object adapter's incoming connection
-                // factories are considered local.
-                //
-                for (int i = 0; i < endpoints.Length; ++i)
+                // Proxies which have at least one endpoint in common with the published endpoints are considered local.
+                foreach (EndpointI endpoint in endpoints)
                 {
-                    foreach (EndpointI endpoint in _publishedEndpoints)
+                    if (_publishedEndpoints.Any(e => e.equivalent(endpoint)))
                     {
-                        if (endpoints[i].equivalent(endpoint))
-                        {
-                            return true;
-                        }
-                    }
-                    foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                    {
-                        if (factory.isLocal(endpoints[i]))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
                 return false;
@@ -1236,14 +1223,9 @@ public sealed class ObjectAdapter
                 List<EndpointI> endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                 foreach (EndpointI endp in endpoints)
                 {
-                    EndpointI publishedEndpoint;
-                    foreach (Ice.Internal.EndpointI expanded in endp.expandHost(out publishedEndpoint))
+                    foreach (EndpointI expanded in endp.expandHost())
                     {
-                        IncomingConnectionFactory factory = new IncomingConnectionFactory(
-                            instance,
-                            expanded,
-                            publishedEndpoint,
-                            this);
+                        var factory = new IncomingConnectionFactory(instance, expanded, this);
                         _incomingConnectionFactories.Add(factory);
                     }
                 }
@@ -1252,7 +1234,7 @@ public sealed class ObjectAdapter
                     TraceLevels tl = _instance.traceLevels();
                     if (tl.network >= 2)
                     {
-                        _instance.initializationData().logger!.trace(tl.networkCat, "created adapter `" + _name +
+                        _instance.initializationData().logger!.trace(tl.networkCat, "created adapter '" + _name +
                                                                     "' without endpoints");
                     }
                 }
@@ -1406,57 +1388,51 @@ public sealed class ObjectAdapter
 
     private EndpointI[] computePublishedEndpoints()
     {
-        List<EndpointI> endpoints;
+        IEnumerable<EndpointI> endpoints;
         if (_routerInfo is not null)
         {
-            //
             // Get the router's server proxy endpoints and use them as the published endpoints.
-            //
-            endpoints = new List<EndpointI>();
-            foreach (EndpointI endpt in _routerInfo.getServerEndpoints())
-            {
-                if (!endpoints.Contains(endpt))
-                {
-                    endpoints.Add(endpt);
-                }
-            }
+            endpoints = _routerInfo.getServerEndpoints().Distinct();
         }
         else
         {
-            //
-            // Parse published endpoints. If set, these are used in proxies
-            // instead of the connection factory endpoints.
-            //
-            string endpts = _instance.initializationData().properties!.getProperty(_name + ".PublishedEndpoints");
+            // Parse published endpoints. If set, these are used instead of the connection factory endpoints.
+            string endpts = _instance.initializationData().properties!.getProperty($"{_name}.PublishedEndpoints");
             endpoints = parseEndpoints(endpts, false);
-            if (endpoints.Count == 0)
+            if (!endpoints.Any())
             {
-                //
-                // If the PublishedEndpoints property isn't set, we compute the published endpoints
-                // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
-                // to include actual addresses in the published endpoints.
-                //
-                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
+                // If the PublishedEndpoints property isn't set, we compute the published endpoints from the factory
+                // endpoints.
+                endpoints = _incomingConnectionFactories.Select(f => f.endpoint());
+
+                // Remove all loopback endpoints.
+                IEnumerable<EndpointI> endpointsNoLoopback =
+                    endpoints.Where(e => e is IPEndpointI ipEndpoint && !ipEndpoint.isLoopback());
+
+                if (endpointsNoLoopback.Any())
                 {
-                    foreach (EndpointI endpt in factory.endpoint().expandIfWildcard())
+                    endpoints = endpointsNoLoopback;
+
+                    // Retrieve published host
+                    string publishedHost =
+                        _instance.initializationData().properties!.getProperty($"{_name}.PublishedHost");
+                    if (publishedHost.Length == 0)
                     {
-                        //
-                        // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
-                        // expands to multiple addresses. In this case, multiple incoming connection
-                        // factories can point to the same published endpoint.
-                        //
-                        if (!endpoints.Contains(endpt))
-                        {
-                            endpoints.Add(endpt);
-                        }
+                        publishedHost = Dns.GetHostEntry("").HostName; // fully qualified name of local host
                     }
+
+                    // Replace the host in IP endpoints by publishedHost.
+                    endpoints = endpoints
+                        .Select(e => e is IPEndpointI ipEndpoint ? ipEndpoint.withHost(publishedHost) : e)
+                        .Distinct();
                 }
+                // else all the published endpoints are IP loopback endpoints: we just keep them as-is
             }
         }
 
-        if (_instance.traceLevels().network >= 1 && endpoints.Count > 0)
+        if (_instance.traceLevels().network >= 1 && endpoints.Any())
         {
-            StringBuilder s = new StringBuilder("published endpoints for object adapter `");
+            StringBuilder s = new StringBuilder("published endpoints for object adapter '");
             s.Append(_name);
             s.Append("':\n");
             bool first = true;

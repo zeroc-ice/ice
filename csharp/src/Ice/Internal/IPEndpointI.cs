@@ -103,44 +103,13 @@ public abstract class IPEndpointI : EndpointI
         instance_.resolve(host_, port_, selType, this, callback);
     }
 
-    public override List<EndpointI> expandIfWildcard()
+    public override List<EndpointI> expandHost()
     {
-        List<EndpointI> endps = new List<EndpointI>();
-        List<string> hosts = Network.getHostsForEndpointExpand(host_, instance_.protocolSupport(), false);
-        if (hosts == null || hosts.Count == 0)
-        {
-            endps.Add(this);
-        }
-        else
-        {
-            foreach (string h in hosts)
-            {
-                endps.Add(createEndpoint(h, port_, connectionId_));
-            }
-        }
-        return endps;
-    }
-
-    public override List<EndpointI> expandHost(out EndpointI publishedEndpoint)
-    {
-        //
-        // If this endpoint has an empty host (wildcard address), don't expand, just return
-        // this endpoint.
-        //
-        var endpoints = new List<EndpointI>();
+        // If this endpoint has an empty host (wildcard address), don't expand, just return this endpoint.
         if (host_.Length == 0)
         {
-            publishedEndpoint = null;
-            endpoints.Add(this);
-            return endpoints;
+            return [this];
         }
-
-        //
-        // If using a fixed port, this endpoint can be used as the published endpoint to
-        // access the returned endpoints. Otherwise, we'll publish each individual expanded
-        // endpoint.
-        //
-        publishedEndpoint = port_ > 0 ? this : null;
 
         List<EndPoint> addresses = Network.getAddresses(
             host_,
@@ -150,21 +119,11 @@ public abstract class IPEndpointI : EndpointI
             instance_.preferIPv6(),
             true);
 
-        if (addresses.Count == 1)
-        {
-            endpoints.Add(this);
-        }
-        else
-        {
-            foreach (EndPoint addr in addresses)
-            {
-                endpoints.Add(createEndpoint(
-                    Network.endpointAddressToString(addr),
-                    Network.endpointPort(addr),
-                    connectionId_));
-            }
-        }
-        return endpoints;
+        return addresses.Select(
+            addr => createEndpoint(
+                        Network.endpointAddressToString(addr),
+                        Network.endpointPort(addr),
+                        connectionId_) as EndpointI).ToList();
     }
 
     public override bool equivalent(EndpointI endpoint)
@@ -396,6 +355,12 @@ public abstract class IPEndpointI : EndpointI
     protected abstract Connector createConnector(EndPoint addr, NetworkProxy proxy);
 
     protected abstract IPEndpointI createEndpoint(string host, int port, string connectionId);
+
+    internal IPEndpointI withHost(string host) => createEndpoint(host, port_, connectionId_);
+
+    // Empty host_ means the endpoint is a wildcard address.
+    internal bool isLoopback() =>
+        host_.Length > 0 && IPAddress.IsLoopback(IPAddress.Parse(host_));
 
     protected ProtocolInstance instance_;
     protected string host_;

@@ -211,25 +211,7 @@ internal sealed class OpaqueEndpointI : EndpointI
         return null;
     }
 
-    //
-    // Expand endpoint out in to separate endpoints for each local
-    // host if listening on INADDR_ANY on server side or if no host
-    // was specified on client side.
-    //
-    public override List<EndpointI> expandIfWildcard()
-    {
-        List<EndpointI> endps = new List<EndpointI>();
-        endps.Add(this);
-        return endps;
-    }
-
-    public override List<EndpointI> expandHost(out EndpointI publishedEndpoint)
-    {
-        publishedEndpoint = null;
-        List<EndpointI> endps = new List<EndpointI>();
-        endps.Add(this);
-        return endps;
-    }
+    public override List<EndpointI> expandHost() => [this];
 
     //
     // Check whether the endpoint is equivalent to another one.

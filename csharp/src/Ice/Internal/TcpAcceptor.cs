@@ -104,7 +104,7 @@ internal class TcpAcceptor : Acceptor
         s.Append(ToString());
 
         List<string> intfs =
-            Network.getHostsForEndpointExpand(_addr.Address.ToString(), _instance.protocolSupport(), true);
+            Network.getHostsForEndpointExpand(_addr.Address.ToString(), _instance.protocolSupport());
         if (intfs.Count != 0)
         {
             s.Append("\nlocal interfaces = ");

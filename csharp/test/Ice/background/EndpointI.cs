@@ -173,29 +173,8 @@ internal class EndpointI : Ice.Internal.EndpointI
         }
     }
 
-    public override List<Ice.Internal.EndpointI> expandIfWildcard()
-    {
-        List<Ice.Internal.EndpointI> endps = new List<Ice.Internal.EndpointI>();
-        foreach (Ice.Internal.EndpointI endpt in _endpoint.expandIfWildcard())
-        {
-            endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
-        }
-        return endps;
-    }
-
-    public override List<Ice.Internal.EndpointI> expandHost(out Ice.Internal.EndpointI publish)
-    {
-        List<Ice.Internal.EndpointI> endps = new List<Ice.Internal.EndpointI>();
-        foreach (Ice.Internal.EndpointI endpt in _endpoint.expandHost(out publish))
-        {
-            endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
-        }
-        if (publish != null)
-        {
-            publish = publish == _endpoint ? this : new EndpointI(publish);
-        }
-        return endps;
-    }
+    public override List<Ice.Internal.EndpointI> expandHost() =>
+        _endpoint.expandHost().Select(e => new EndpointI(e) as Ice.Internal.EndpointI).ToList();
 
     public override bool equivalent(Ice.Internal.EndpointI endpoint)
     {
