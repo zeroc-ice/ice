@@ -184,7 +184,7 @@ final class ConnectRequestHandler
                     .executeNoThrow(
                             new Callable<Void>() {
                                 @Override
-                                public Void call() throws java.lang.Exception {
+                                public Void call() throws Exception {
                                     flushRequestsImpl();
                                     return null;
                                 }

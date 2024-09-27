@@ -7,6 +7,7 @@ package test.Ice.location;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import test.Ice.location.Test.HelloPrx;
 import test.Ice.location.Test.ServerManagerPrx;
@@ -258,10 +259,10 @@ public class AllTests {
 
         test(
                 communicator
-                                .stringToProxy("test")
-                                .ice_locatorCacheTimeout(99)
-                                .ice_getLocatorCacheTimeout()
-                        == 99);
+                        .stringToProxy("test")
+                        .ice_locatorCacheTimeout(Duration.ofSeconds(99))
+                        .ice_getLocatorCacheTimeout()
+                        .equals(Duration.ofSeconds(99)));
 
         out.println("ok");
 

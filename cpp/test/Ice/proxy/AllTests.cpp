@@ -455,10 +455,10 @@ allTests(TestHelper* helper)
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".LocatorCacheTimeout";
-    test(b1->ice_getLocatorCacheTimeout() == -1);
+    test(b1->ice_getLocatorCacheTimeout() == -1s);
     prop->setProperty(property, "1");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getLocatorCacheTimeout() == 1);
+    test(b1->ice_getLocatorCacheTimeout() == 1s);
     prop->setProperty(property, "");
 
     // Now retest with an indirect proxy.
@@ -470,10 +470,10 @@ allTests(TestHelper* helper)
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".LocatorCacheTimeout";
-    test(b1->ice_getLocatorCacheTimeout() == -1);
+    test(b1->ice_getLocatorCacheTimeout() == -1s);
     prop->setProperty(property, "1");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getLocatorCacheTimeout() == 1);
+    test(b1->ice_getLocatorCacheTimeout() == 1s);
     prop->setProperty(property, "");
 
     // This cannot be tested so easily because the property is cached
@@ -508,10 +508,10 @@ allTests(TestHelper* helper)
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".InvocationTimeout";
-    test(b1->ice_getInvocationTimeout() == -1);
+    test(b1->ice_getInvocationTimeout() == -1ms);
     prop->setProperty(property, "1000");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getInvocationTimeout() == 1000);
+    test(b1->ice_getInvocationTimeout() == 1s);
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".EndpointSelection";
@@ -635,59 +635,27 @@ allTests(TestHelper* helper)
     test(base->ice_encodingVersion(Ice::Encoding_1_1)->ice_getEncodingVersion() == Ice::Encoding_1_1);
     test(base->ice_encodingVersion(Ice::Encoding_1_0)->ice_getEncodingVersion() != Ice::Encoding_1_1);
 
-    try
-    {
-        base->ice_invocationTimeout(0);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
+    test(base->ice_invocationTimeout(10)->ice_getInvocationTimeout() == 10ms);
 
-    try
-    {
-        base->ice_invocationTimeout(-1);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
+    test(base->ice_invocationTimeout(0)->ice_getInvocationTimeout() == 0ms);
+    test(base->ice_invocationTimeout(0ms)->ice_getInvocationTimeout() == 0ms);
 
-    try
-    {
-        base->ice_invocationTimeout(-2);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
+    test(base->ice_invocationTimeout(-1)->ice_getInvocationTimeout() == -1ms);
+    test(base->ice_invocationTimeout(-1ms)->ice_getInvocationTimeout() == -1ms);
 
-    try
-    {
-        base->ice_locatorCacheTimeout(0);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
+    test(base->ice_invocationTimeout(-2)->ice_getInvocationTimeout() == -2ms);
+    test(base->ice_invocationTimeout(-2ms)->ice_getInvocationTimeout() == -2ms);
 
-    try
-    {
-        base->ice_locatorCacheTimeout(-1);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
+    test(base->ice_locatorCacheTimeout(10)->ice_getLocatorCacheTimeout() == 10s);
 
-    try
-    {
-        base->ice_locatorCacheTimeout(-2);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
+    test(base->ice_locatorCacheTimeout(0)->ice_getLocatorCacheTimeout() == 0s);
+    test(base->ice_locatorCacheTimeout(0s)->ice_getLocatorCacheTimeout() == 0s);
+
+    test(base->ice_locatorCacheTimeout(-1)->ice_getLocatorCacheTimeout() == -1s);
+    test(base->ice_locatorCacheTimeout(-1s)->ice_getLocatorCacheTimeout() == -1s);
+
+    test(base->ice_locatorCacheTimeout(-2)->ice_getLocatorCacheTimeout() == -2s);
+    test(base->ice_locatorCacheTimeout(-2s)->ice_getLocatorCacheTimeout() == -2s);
 
     cout << "ok" << endl;
 
@@ -922,8 +890,8 @@ allTests(TestHelper* helper)
                 ctx["two"] = "world";
                 test(cl->ice_fixed(connection)->ice_getContext().empty());
                 test(cl->ice_context(ctx)->ice_fixed(connection)->ice_getContext().size() == 2);
-                test(cl->ice_fixed(connection)->ice_getInvocationTimeout() == -1);
-                test(cl->ice_invocationTimeout(10)->ice_fixed(connection)->ice_getInvocationTimeout() == 10);
+                test(cl->ice_fixed(connection)->ice_getInvocationTimeout() == -1ms);
+                test(cl->ice_invocationTimeout(10)->ice_fixed(connection)->ice_getInvocationTimeout() == 10ms);
                 test(cl->ice_fixed(connection)->ice_getConnection() == connection);
                 test(cl->ice_fixed(connection)->ice_fixed(connection)->ice_getConnection() == connection);
                 test(*cl->ice_compress(true)->ice_fixed(connection)->ice_getCompress());
@@ -1234,7 +1202,6 @@ allTests(TestHelper* helper)
         // Test with WS endpoint
         p = communicator->stringToProxy("test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
         pstr = communicator->proxyToString(p);
-        cerr << pstr << endl;
         test(pstr == "test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
     }
     std::locale::global(currentLocale);

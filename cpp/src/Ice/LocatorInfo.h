@@ -48,16 +48,16 @@ namespace IceInternal
 
         void clear();
 
-        bool getAdapterEndpoints(const std::string&, int, std::vector<EndpointIPtr>&);
+        bool getAdapterEndpoints(const std::string&, std::chrono::milliseconds, std::vector<EndpointIPtr>&);
         void addAdapterEndpoints(const std::string&, const std::vector<EndpointIPtr>&);
         std::vector<EndpointIPtr> removeAdapterEndpoints(const std::string&);
 
-        bool getObjectReference(const Ice::Identity&, int, ReferencePtr&);
+        bool getObjectReference(const Ice::Identity&, std::chrono::milliseconds, ReferencePtr&);
         void addObjectReference(const Ice::Identity&, const ReferencePtr&);
         ReferencePtr removeObjectReference(const Ice::Identity&);
 
     private:
-        bool checkTTL(const std::chrono::steady_clock::time_point&, int) const;
+        bool checkTTL(const std::chrono::steady_clock::time_point&, std::chrono::milliseconds) const;
 
         std::map<std::string, std::pair<std::chrono::steady_clock::time_point, std::vector<EndpointIPtr>>>
             _adapterEndpointsMap;
@@ -79,14 +79,14 @@ namespace IceInternal
         class RequestCallback final
         {
         public:
-            RequestCallback(const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+            RequestCallback(const ReferencePtr&, std::chrono::milliseconds, const GetEndpointsCallbackPtr&);
 
             void response(const LocatorInfoPtr&, const std::optional<Ice::ObjectPrx>&);
             void exception(const LocatorInfoPtr&, std::exception_ptr);
 
         private:
             const ReferencePtr _reference;
-            const int _ttl;
+            const std::chrono::milliseconds _ttl;
             const GetEndpointsCallbackPtr _callback;
         };
         using RequestCallbackPtr = std::shared_ptr<RequestCallback>;
@@ -94,7 +94,11 @@ namespace IceInternal
         class Request
         {
         public:
-            void addCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+            void addCallback(
+                const ReferencePtr&,
+                const ReferencePtr&,
+                std::chrono::milliseconds,
+                const GetEndpointsCallbackPtr&);
 
             void response(const std::optional<Ice::ObjectPrx>&);
             void exception(std::exception_ptr);
@@ -129,11 +133,15 @@ namespace IceInternal
 
         std::optional<Ice::LocatorRegistryPrx> getLocatorRegistry();
 
-        void getEndpoints(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& cb)
+        void getEndpoints(const ReferencePtr& ref, std::chrono::milliseconds ttl, const GetEndpointsCallbackPtr& cb)
         {
             getEndpoints(ref, 0, ttl, cb);
         }
-        void getEndpoints(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+        void getEndpoints(
+            const ReferencePtr&,
+            const ReferencePtr&,
+            std::chrono::milliseconds,
+            const GetEndpointsCallbackPtr&);
 
         void clearCache(const ReferencePtr&);
 

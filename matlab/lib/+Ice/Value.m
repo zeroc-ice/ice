@@ -41,15 +41,9 @@ classdef (Abstract) Value < matlab.mixin.Copyable
             %   to override this method in order to perform additional
             %   initialization.
         end
-        function r = ice_getSlicedData(~)
-            % ice_getSlicedData - Returns the sliced data if the value has a
-            %   preserve-slice base class and has been sliced during
-            %   unmarshaling of the value; an empty array is returned otherwise.
-
-            %
-            % Overridden by subclasses that have the "preserve-slice" metadata.
-            %
-            r = [];
+        function r = ice_getSlicedData(obj)
+            % ice_getSlicedData - Returns the sliced data of this value.
+            r = obj.iceSlicedData_;
         end
     end
     methods(Abstract)
@@ -62,14 +56,14 @@ classdef (Abstract) Value < matlab.mixin.Copyable
     end
     methods(Hidden=true)
         function iceWrite(obj, os)
-            os.startValue([]);
+            os.startValue(obj.iceSlicedData_);
             obj.iceWriteImpl(os);
             os.endValue();
         end
         function iceRead(obj, is)
             is.startValue();
             obj.iceReadImpl(is);
-            is.endValue(false);
+            obj.iceSlicedData_ = is.endValue();
         end
         function r = iceDelayPostUnmarshal(~)
             %
@@ -85,11 +79,14 @@ classdef (Abstract) Value < matlab.mixin.Copyable
             %
         end
     end
-    methods(Abstract,Access=protected)
-        iceWriteImpl(obj, os)
-        iceReadImpl(obj, is)
+    methods(Access=protected)
+        function iceWriteImpl(~, ~)
+        end
+        function iceReadImpl(~, ~)
+        end
     end
     properties(Hidden, NonCopyable)
         iceInternal_ int32
+        iceSlicedData_ Ice.SlicedData
     end
 end

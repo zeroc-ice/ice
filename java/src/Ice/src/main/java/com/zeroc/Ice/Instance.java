@@ -648,7 +648,7 @@ public final class Instance implements java.util.function.Function<String, Class
         if (c != null) {
             try {
                 return (String) c.getField("typeId").get(null);
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 assert (false);
             }
         }
@@ -671,10 +671,6 @@ public final class Instance implements java.util.function.Function<String, Class
         }
 
         return null;
-    }
-
-    public boolean useApplicationClassLoader() {
-        return _useApplicationClassLoader;
     }
 
     public boolean queueRequests() {
@@ -773,9 +769,6 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             _packages = validatePackages();
-
-            _useApplicationClassLoader =
-                    properties.getIcePropertyAsInt("Ice.UseApplicationClassLoader") > 0;
 
             _traceLevels = new TraceLevels(properties);
 
@@ -961,7 +954,7 @@ public final class Instance implements java.util.function.Function<String, Class
             Assert.FinalizerAssert(_endpointFactoryManager == null);
             Assert.FinalizerAssert(_pluginManager == null);
             Assert.FinalizerAssert(_retryQueue == null);
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }
@@ -1431,7 +1424,7 @@ public final class Instance implements java.util.function.Function<String, Class
             Class<?> cls = null;
             try {
                 cls = findClass(className);
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
             }
             if (cls == null) {
                 _initData.logger.warning("unable to validate package: " + key + "=" + pkg);
@@ -1578,7 +1571,6 @@ public final class Instance implements java.util.function.Function<String, Class
 
     private java.util.Map<String, String> _sliceTypeIdToClassMap = new java.util.HashMap<>();
     private String[] _packages;
-    private boolean _useApplicationClassLoader;
 
     private static boolean _oneOffDone = false;
     private QueueExecutorService _queueExecutorService;

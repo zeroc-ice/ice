@@ -162,10 +162,9 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 
 - Removed local Slice. `local` is no longer a Slice keyword.
 
-- Removed support for the `["preserve-slice"]` metadata. Slice classes encoded in the Sliced-format are now always
-  full-preserved.
+- Removed the `["preserve-slice"]` metadata. Slice classes encoded in the sliced format are now always preserved.
 
-- Exceptions are now always encoded in the sliced format and no longer support preservation of unknown type slices.
+- Exceptions are now always encoded in the sliced format and no longer support preservation of unknown slices.
 
 - Slice classes can no longer define operations or implement interfaces, and `implements` is no longer a Slice keyword.
 This feature has been deprecated since Ice 3.7.

@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 /** Base interface of all object proxies. */
 public interface ObjectPrx {
     /**
@@ -287,17 +289,17 @@ public interface ObjectPrx {
     /**
      * Returns the locator cache timeout of this proxy.
      *
-     * @return The locator cache timeout value (in seconds).
+     * @return The locator cache timeout value.
      * @see Locator
      */
-    int ice_getLocatorCacheTimeout();
+    Duration ice_getLocatorCacheTimeout();
 
     /**
      * Returns the invocation timeout of this proxy.
      *
-     * @return The invocation timeout value (in milliseconds).
+     * @return The invocation timeout value.
      */
-    int ice_getInvocationTimeout();
+    Duration ice_getInvocationTimeout();
 
     /**
      * Returns the connection id of this proxy.
@@ -332,12 +334,29 @@ public interface ObjectPrx {
     ObjectPrx ice_locatorCacheTimeout(int newTimeout);
 
     /**
+     * Returns a proxy that is identical to this proxy, except for the locator cache timeout.
+     *
+     * @param newTimeout The new locator cache timeout.
+     * @return The proxy with the new timeout.
+     * @see Locator
+     */
+    ObjectPrx ice_locatorCacheTimeout(Duration newTimeout);
+
+    /**
      * Returns a proxy that is identical to this proxy, except for the invocation timeout.
      *
      * @param newTimeout The new invocation timeout (in milliseconds).
      * @return The proxy with the new timeout.
      */
     ObjectPrx ice_invocationTimeout(int newTimeout);
+
+    /**
+     * Returns a proxy that is identical to this proxy, except for the invocation timeout.
+     *
+     * @param newTimeout The new invocation timeout.
+     * @return The proxy with the new timeout.
+     */
+    ObjectPrx ice_invocationTimeout(Duration newTimeout);
 
     /**
      * Returns whether this proxy caches connections.

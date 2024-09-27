@@ -1219,7 +1219,7 @@ public class Coordinator {
                             new UntrustedCertificateDialog(parent, _certificate);
                     Utils.addEscapeListener(dialog);
                     _decision = dialog.showDialog();
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     JOptionPane.showMessageDialog(
                             parent,
                             ex.toString(),
@@ -1345,7 +1345,7 @@ public class Coordinator {
                             sessionKeeper.certificateManager(parent).load();
                             System.out.println("Trust always");
                             return;
-                        } catch (final java.lang.Exception ex) {
+                        } catch (final Exception ex) {
                             while (true) {
                                 try {
                                     SwingUtilities.invokeAndWait(
@@ -1411,7 +1411,7 @@ public class Coordinator {
                         break;
                     }
                 }
-            } catch (java.lang.Exception e) {
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(
                         parent,
                         e.toString(),
@@ -1433,7 +1433,7 @@ public class Coordinator {
                         KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
                 keyManagerFactory.init(myCerts, info.getKeyPassword());
                 keyManagers = keyManagerFactory.getKeyManagers();
-            } catch (java.lang.Exception e) {
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(
                         parent,
                         e.toString(),
@@ -1450,7 +1450,7 @@ public class Coordinator {
                         new FileInputStream(getDataDirectory() + "/ServerCerts.jks")) {
                     trustedServerKeyStore.load(stream, null);
                 }
-            } catch (java.lang.Exception e) {
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(
                         parent,
                         e.toString(),
@@ -1503,7 +1503,7 @@ public class Coordinator {
                 context.init(keyManagers, trustManagers, null);
                 initData.clientSSLEngineFactory =
                         (peerHost, peerPort) -> context.createSSLEngine(peerHost, peerPort);
-            } catch (java.lang.Exception e) {
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(
                         parent,
                         e.toString(),

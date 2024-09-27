@@ -51,30 +51,28 @@ public:
     virtual void foo(const _cpp_and::charPrx&, int32_t&, const ::Ice::Current&) {}
 };
 
-/*
-TODO: reenable once bug #1617 is fixed.
-
 class friendI : public _cpp_and::_cpp_friend
 {
 public:
-    virtual _cpp_and::_cpp_auto
-    _cpp_goto(_cpp_and::_cpp_continue,
-              const _cpp_and::_cpp_auto&,
-              const _cpp_and::_cpp_delete&,
-              const _cpp_and::switchPtr&,
-              const ::std::shared_ptr<::Ice::Value>&,
-              const optional<_cpp_and::breakPrx>&,
-              const optional<_cpp_and::charPrx>&,
-              const optional<::Ice::ObjectPrx>&,
-              const optional<_cpp_and::doPrx>&,
-              ::int32_t, ::int32_t,
-              ::int32_t, ::int32_t,
-              const ::Ice::Current&)
+    _cpp_and::_cpp_auto _cpp_goto(
+        _cpp_and::_cpp_continue,
+        _cpp_and::_cpp_auto,
+        _cpp_and::_cpp_delete,
+        _cpp_and::switchPtr,
+        optional<_cpp_and::doPrx>,
+        optional<_cpp_and::breakPrx>,
+        optional<_cpp_and::charPrx>,
+        _cpp_and::switchPtr,
+        optional<_cpp_and::doPrx>,
+        ::int32_t,
+        ::int32_t,
+        ::int32_t,
+        ::int32_t,
+        const ::Ice::Current&) override
     {
         return _cpp_and::_cpp_auto();
     }
 };
-*/
 
 //
 // This section of the test is present to ensure that the C++ types
@@ -129,8 +127,7 @@ testtypes(const Ice::CommunicatorPtr& communicator)
     k._cpp_switch = 1;
     k._cpp_signed = 2;
 
-    // TODO: reenable once bug #1617 is fixed.
-    // _cpp_and::friendPtr l = std::make_shared<friendI>();
+    _cpp_and::friendPtr l = std::make_shared<friendI>();
 
     const int m = _cpp_and::_cpp_template;
     test(m == _cpp_and::_cpp_template);

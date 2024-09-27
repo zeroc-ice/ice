@@ -19,7 +19,7 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
         return false;
     }
 
-    public boolean completed(com.zeroc.Ice.Exception ex) {
+    public boolean completed(LocalException ex) {
         return finished(ex);
     }
 
@@ -92,7 +92,7 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     }
 
     @Override
-    protected boolean finished(com.zeroc.Ice.Exception ex) {
+    protected boolean finished(LocalException ex) {
         if (_childObserver != null) {
             _childObserver.failed(ex.ice_id());
             _childObserver.detach();

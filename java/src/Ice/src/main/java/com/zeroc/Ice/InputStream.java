@@ -907,7 +907,7 @@ public class InputStream {
             return cl.cast(in.readObject());
         } catch (LocalException ex) {
             throw ex;
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new MarshalException("cannot deserialize object", ex);
         } finally {
             if (in != null) {
@@ -1812,7 +1812,7 @@ public class InputStream {
                     userEx = (UserException) c.getDeclaredConstructor().newInstance();
                 }
             }
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             throw new MarshalException(
                     "Failed to create user exception with type ID '" + id + "'.", ex);
         }
@@ -1915,7 +1915,7 @@ public class InputStream {
                         cls = _classResolver.apply(typeId);
                         _typeIdCache.put(typeId, cls != null ? cls : EncapsDecoder.class);
                     }
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     throw new MarshalException(
                             "Failed to create a class with type ID '" + typeId + "'.", ex);
                 }
@@ -1954,7 +1954,7 @@ public class InputStream {
                 if (cls != null) {
                     try {
                         v = (Value) cls.getDeclaredConstructor().newInstance();
-                    } catch (java.lang.Exception ex) {
+                    } catch (Exception ex) {
                         throw new MarshalException(
                                 "Failed to create a class with type ID '" + typeId + "'.", ex);
                     }
@@ -2041,7 +2041,7 @@ public class InputStream {
             if ((_patchMap == null || _patchMap.isEmpty()) && _valueList == null) {
                 try {
                     v.ice_postUnmarshal();
-                } catch (java.lang.Exception ex) {
+                } catch (Exception ex) {
                     String s = "exception raised by ice_postUnmarshal:\n" + Ex.toString(ex);
                     _stream.instance().initializationData().logger.warning(s);
                 }
@@ -2062,7 +2062,7 @@ public class InputStream {
                     for (Value p : _valueList) {
                         try {
                             p.ice_postUnmarshal();
-                        } catch (java.lang.Exception ex) {
+                        } catch (Exception ex) {
                             String s = "exception raised by ice_postUnmarshal:\n" + Ex.toString(ex);
                             _stream.instance().initializationData().logger.warning(s);
                         }
@@ -2713,7 +2713,7 @@ public class InputStream {
                             try {
                                 v = (Value) cls.getDeclaredConstructor().newInstance();
                                 updateCache = false;
-                            } catch (java.lang.Exception ex) {
+                            } catch (Exception ex) {
                                 throw new MarshalException(
                                         "Cannot find value factory for type ID '"
                                                 + _current.compactId
@@ -2999,7 +2999,7 @@ public class InputStream {
                     return c;
                 }
                 throw new ClassNotFoundException("unable to resolve class" + cls.getName());
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 throw new ClassNotFoundException("unable to resolve class " + cls.getName(), ex);
             }
         }

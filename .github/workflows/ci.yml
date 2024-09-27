@@ -21,7 +21,7 @@ jobs:
       matrix:
         include:
           # Release builds
-          - os: macos-14
+          - os: macos-15
             config: "release"
             # https://github.com/zeroc-ice/ice/issues/2061
             test_flags: "--rfilter=csharp/Ice/adapterDeactivation"
@@ -39,7 +39,7 @@ jobs:
             test_flags: "--platform=Win32"
 
           # Debug builds
-          - os: macos-14
+          - os: macos-15
             config: "debug"
             build_flags: "OPTIMIZE=no"
             # https://github.com/zeroc-ice/ice/issues/2061
@@ -57,7 +57,7 @@ jobs:
 
           # # Xcode SDK builds
           # # TODO - Should we also test the debug config here as well?
-          # - os: macos-14
+          # - macos-15
           #   config: "xcodesdk"
           #   working_directory: "cpp"
           #   build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"

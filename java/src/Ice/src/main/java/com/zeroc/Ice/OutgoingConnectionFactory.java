@@ -143,7 +143,7 @@ final class OutgoingConnectionFactory {
                     .executeNoThrow(
                             new Callable<Void>() {
                                 @Override
-                                public Void call() throws java.lang.Exception {
+                                public Void call() throws Exception {
                                     cb.getConnectors();
                                     return null;
                                 }
@@ -251,7 +251,7 @@ final class OutgoingConnectionFactory {
             Assert.FinalizerAssert(_connectionsByEndpoint.isEmpty());
             Assert.FinalizerAssert(_pendingConnectCount == 0);
             Assert.FinalizerAssert(_pending.isEmpty());
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }

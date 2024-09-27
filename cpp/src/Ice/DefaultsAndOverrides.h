@@ -13,20 +13,22 @@
 #include "Ice/PropertiesF.h"
 #include "Network.h"
 
+#include <chrono>
+
 namespace IceInternal
 {
     class DefaultsAndOverrides
     {
     public:
-        DefaultsAndOverrides(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+        DefaultsAndOverrides(const Ice::PropertiesPtr&);
 
         std::string defaultHost;
         Address defaultSourceAddress;
         std::string defaultProtocol;
         bool defaultCollocationOptimization;
         Ice::EndpointSelectionType defaultEndpointSelection;
-        int defaultInvocationTimeout;
-        int defaultLocatorCacheTimeout;
+        std::chrono::milliseconds defaultInvocationTimeout;
+        std::chrono::seconds defaultLocatorCacheTimeout;
         bool defaultPreferSecure;
         Ice::EncodingVersion defaultEncoding;
         Ice::FormatType defaultFormat;

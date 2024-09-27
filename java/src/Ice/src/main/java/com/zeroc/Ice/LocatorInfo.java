@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 final class LocatorInfo {
     interface GetEndpointsCallback {
         void setEndpoints(EndpointI[] endpoints, boolean cached);
@@ -51,7 +53,7 @@ final class LocatorInfo {
             }
         }
 
-        public void exception(LocatorInfo locatorInfo, java.lang.Exception exc) {
+        public void exception(LocatorInfo locatorInfo, Exception exc) {
             try {
                 locatorInfo.getEndpointsException(_ref, exc); // This throws.
             } catch (LocalException ex) {
@@ -61,20 +63,20 @@ final class LocatorInfo {
             }
         }
 
-        RequestCallback(Reference ref, int ttl, GetEndpointsCallback cb) {
+        RequestCallback(Reference ref, Duration ttl, GetEndpointsCallback cb) {
             _ref = ref;
             _ttl = ttl;
             _callback = cb;
         }
 
         final Reference _ref;
-        final int _ttl;
+        final Duration _ttl;
         final GetEndpointsCallback _callback;
     }
 
     private abstract class Request {
         public void addCallback(
-                Reference ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb) {
+                Reference ref, Reference wellKnownRef, Duration ttl, GetEndpointsCallback cb) {
             RequestCallback callback = new RequestCallback(ref, ttl, cb);
             synchronized (this) {
                 if (!_response && _exception == null) {
@@ -120,7 +122,7 @@ final class LocatorInfo {
             }
         }
 
-        protected void exception(java.lang.Exception ex) {
+        protected void exception(Exception ex) {
             synchronized (this) {
                 _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex instanceof UserException);
                 _exception = ex;
@@ -141,7 +143,7 @@ final class LocatorInfo {
         private boolean _sent;
         private boolean _response;
         private ObjectPrx _proxy;
-        private java.lang.Exception _exception;
+        private Exception _exception;
     }
 
     private class ObjectRequest extends Request {
@@ -170,7 +172,7 @@ final class LocatorInfo {
                                         response(proxy);
                                     }
                                 });
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 exception(ex);
             }
         }
@@ -202,7 +204,7 @@ final class LocatorInfo {
                                         response(proxy);
                                     }
                                 });
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 exception(ex);
             }
         }
@@ -273,12 +275,12 @@ final class LocatorInfo {
         }
     }
 
-    public void getEndpoints(Reference ref, int ttl, GetEndpointsCallback callback) {
+    public void getEndpoints(Reference ref, Duration ttl, GetEndpointsCallback callback) {
         getEndpoints(ref, null, ttl, callback);
     }
 
     public void getEndpoints(
-            Reference ref, Reference wellKnownRef, int ttl, GetEndpointsCallback callback) {
+            Reference ref, Reference wellKnownRef, Duration ttl, GetEndpointsCallback callback) {
         assert (ref.isIndirect());
         EndpointI[] endpoints = null;
         Holder<Boolean> cached = new Holder<>();
@@ -401,7 +403,7 @@ final class LocatorInfo {
                 .trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
 
-    private void getEndpointsException(Reference ref, java.lang.Exception exc) {
+    private void getEndpointsException(Reference ref, Exception exc) {
         assert (ref.isIndirect());
 
         try {
@@ -455,7 +457,7 @@ final class LocatorInfo {
                         .trace(instance.traceLevels().locationCat, s.toString());
             }
             throw ex;
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             assert (false);
         }
     }

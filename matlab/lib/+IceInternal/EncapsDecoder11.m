@@ -113,11 +113,8 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             obj.current.skipFirstSlice = true;
         end
 
-        function r = endInstance(obj, preserve)
-            slicedData = [];
-            if preserve
-                slicedData = obj.readSlicedData();
-            end
+        function r = endInstance(obj)
+            slicedData = obj.readSlicedData();
             current = obj.current;
             current.slices = {};
             current.indirectionTables = {};
@@ -258,20 +255,26 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             end
 
             %
-            % Preserve this slice.
+            % Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
             %
-            hasOptionalMembers = bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) > 0;
-            if hasOptionalMembers
-                %
-                % Don't include the optional member end marker. It will be re-written by
-                % endSlice when the sliced data is re-written.
-                %
-                bytes = is.getBytes(start, is.getPos() - 2);
-            else
-                bytes = is.getBytes(start, is.getPos() - 1);
+
+            if current.sliceType == IceInternal.SliceType.ValueSlice
+
+                hasOptionalMembers = bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) > 0;
+                if hasOptionalMembers
+                    %
+                    % Don't include the optional member end marker. It will be re-written by
+                    % endSlice when the sliced data is re-written.
+                    %
+                    bytes = is.getBytes(start, is.getPos() - 2);
+                else
+                    bytes = is.getBytes(start, is.getPos() - 1);
+                end
+                info = Ice.SliceInfo(current.typeId, current.compactId, bytes, hasOptionalMembers,...
+                    bitand(current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE) > 0);
+
+                current.slices{end + 1} = info;
             end
-            info = Ice.SliceInfo(current.typeId, current.compactId, bytes, hasOptionalMembers,...
-                bitand(current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE) > 0);
 
             %
             % Read the indirect instance table. We read the instances or their
@@ -291,10 +294,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             else
                 current.indirectionTables{end + 1} = {};
             end
-
-            current.slices{end + 1} = info;
         end
-
     end
     methods(Access=private)
         function r = readInstance(obj, index, cb)

@@ -321,7 +321,7 @@ final class ServantManager implements Object {
             ServantLocator locator = p.getValue();
             try {
                 locator.deactivate(p.getKey());
-            } catch (java.lang.Exception ex) {
+            } catch (Exception ex) {
                 String s =
                         "exception during locator deactivation:\n"
                                 + "object adapter: `"

@@ -48,7 +48,7 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
             }
 
             @Override
-            public boolean completed(com.zeroc.Ice.Exception ex) {
+            public boolean completed(LocalException ex) {
                 if (_childObserver != null) {
                     _childObserver.failed(ex.ice_id());
                     _childObserver.detach();

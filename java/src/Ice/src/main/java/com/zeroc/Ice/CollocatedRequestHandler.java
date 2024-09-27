@@ -4,6 +4,7 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
 import java.util.concurrent.CompletionStage;
 
 final class CollocatedRequestHandler implements RequestHandler {
@@ -100,7 +101,7 @@ final class CollocatedRequestHandler implements RequestHandler {
 
                 _sendAsyncRequests.put(outAsync, requestId);
             }
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             _adapter.decDirectCount();
             throw ex;
         }
@@ -110,7 +111,7 @@ final class CollocatedRequestHandler implements RequestHandler {
         if (!sync
                 || !_response
                 || _reference.getInstance().queueRequests()
-                || _reference.getInvocationTimeout() > 0) {
+                || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             _adapter.getThreadPool()
                     .dispatch(
                             new InvokeAllAsync(
@@ -285,7 +286,7 @@ final class CollocatedRequestHandler implements RequestHandler {
         _adapter.decDirectCount();
     }
 
-    private void handleException(com.zeroc.Ice.Exception ex, int requestId, boolean amd) {
+    private void handleException(LocalException ex, int requestId, boolean amd) {
         if (requestId == 0) {
             return; // Ignore exception for oneway messages.
         }

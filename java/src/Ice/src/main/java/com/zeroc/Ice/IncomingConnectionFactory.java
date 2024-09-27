@@ -12,7 +12,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
         try {
             createAcceptor();
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             String s =
                     "acceptor creation failed:\n"
                             + ex.getCause().getMessage()
@@ -413,7 +413,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             } else {
                 createAcceptor();
             }
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             //
             // Clean up for finalizer.
             //
@@ -444,7 +444,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         try {
             Assert.FinalizerAssert(_state == StateFinished);
             Assert.FinalizerAssert(_connections.isEmpty());
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
         } finally {
             super.finalize();
         }
@@ -586,7 +586,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             }
 
             _acceptorStarted = true;
-        } catch (java.lang.Exception ex) {
+        } catch (Exception ex) {
             if (_acceptor != null) {
                 _acceptor.close();
             }

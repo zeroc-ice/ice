@@ -270,7 +270,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     ObjectPrx(communicator, "test")->ice_ping();
     test(count == locator->getRequestCount());
 
-    test(ObjectPrx(communicator, "test")->ice_locatorCacheTimeout(99)->ice_getLocatorCacheTimeout() == 99);
+    test(ObjectPrx(communicator, "test")->ice_locatorCacheTimeout(99)->ice_getLocatorCacheTimeout() == 99s);
 
     cout << "ok" << endl;
 

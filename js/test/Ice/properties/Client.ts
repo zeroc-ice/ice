@@ -74,13 +74,13 @@ export class Client extends TestHelper {
             out.write("testing ice properties with unset default values...");
             const properties = Ice.createProperties();
 
-            const stringValue = properties.getIceProperty("Ice.Admin.Router");
+            const stringValue = properties.getIceProperty("Ice.Default.Host");
             test(stringValue == "");
 
-            const intValue = properties.getIcePropertyAsInt("Ice.Admin.Router");
+            const intValue = properties.getIcePropertyAsInt("Ice.Default.Host");
             test(intValue == 0);
 
-            const listValue = properties.getIcePropertyAsList("Ice.Admin.Router");
+            const listValue = properties.getIcePropertyAsList("Ice.Default.Host");
             test(listValue.length == 0);
 
             out.writeLine("ok");

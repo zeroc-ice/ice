@@ -5,6 +5,7 @@
 #import "include/Communicator.h"
 #import "include/Connection.h"
 #import "include/OutputStream.h"
+#include <chrono>
 
 @implementation ICEObjectPrx
 
@@ -125,7 +126,8 @@
 
 - (int32_t)ice_getLocatorCacheTimeout
 {
-    return _prx->ice_getLocatorCacheTimeout();
+    std::chrono::seconds timeout = std::chrono::duration_cast<std::chrono::seconds>(_prx->ice_getLocatorCacheTimeout());
+    return static_cast<int32_t>(timeout.count());
 }
 
 - (instancetype)ice_locatorCacheTimeout:(int32_t)timeout error:(NSError**)error
@@ -144,7 +146,7 @@
 
 - (int32_t)ice_getInvocationTimeout
 {
-    return _prx->ice_getInvocationTimeout();
+    return static_cast<int32_t>(_prx->ice_getInvocationTimeout().count());
 }
 
 - (instancetype)ice_invocationTimeout:(int32_t)timeout error:(NSError**)error
