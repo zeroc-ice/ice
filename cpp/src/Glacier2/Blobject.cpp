@@ -17,8 +17,6 @@ namespace
     constexpr string_view clientForwardContext = "Glacier2.Client.ForwardContext";
     constexpr string_view serverTraceRequest = "Glacier2.Server.Trace.Request";
     constexpr string_view clientTraceRequest = "Glacier2.Client.Trace.Request";
-    constexpr string_view serverTraceOverride = "Glacier2.Server.Trace.Override";
-    constexpr string_view clientTraceOverride = "Glacier2.Client.Trace.Override";
 }
 
 Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, ConnectionPtr reverseConnection, const Context& context)
@@ -30,35 +28,8 @@ Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, ConnectionPtr revers
       _requestTraceLevel(
           _reverseConnection ? _instance->properties()->getIcePropertyAsInt(serverTraceRequest)
                              : _instance->properties()->getIcePropertyAsInt(clientTraceRequest)),
-      _overrideTraceLevel(
-          reverseConnection ? _instance->properties()->getIcePropertyAsInt(serverTraceOverride)
-                            : _instance->properties()->getIcePropertyAsInt(clientTraceOverride)),
       _context(context)
 {
-    auto t = _reverseConnection ? _instance->serverRequestQueueThread() : _instance->clientRequestQueueThread();
-    if (t)
-    {
-        const_cast<shared_ptr<RequestQueue>&>(_requestQueue) =
-            make_shared<RequestQueue>(t, _instance, _reverseConnection);
-    }
-}
-
-void
-Glacier2::Blobject::destroy()
-{
-    if (_requestQueue)
-    {
-        _requestQueue->destroy();
-    }
-}
-
-void
-Glacier2::Blobject::updateObserver(const shared_ptr<Glacier2::Instrumentation::SessionObserver>& observer)
-{
-    if (_requestQueue)
-    {
-        _requestQueue->updateObserver(observer);
-    }
 }
 
 void
@@ -163,14 +134,6 @@ Glacier2::Blobject::invoke(
             out << "reverse ";
         }
         out << "routing";
-        if (_requestQueue)
-        {
-            out << " (buffered)";
-        }
-        else
-        {
-            out << " (not buffered)";
-        }
         if (_reverseConnection)
         {
             out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
@@ -192,131 +155,76 @@ Glacier2::Blobject::invoke(
         }
     }
 
-    if (_requestQueue)
+    try
     {
-        //
-        // If we are in buffered mode, we create a new request and add
-        // it to the request queue. If the request is twoway, we use
-        // AMI.
-        //
+        function<void(bool, pair<const byte*, const byte*>)> amiResponse = nullptr;
+        function<void(bool)> amiSent = nullptr;
 
-        bool override;
-        try
+        if (proxy->ice_isTwoway())
         {
-            override = _requestQueue->addRequest(
-                make_shared<
-                    Request>(proxy, inParams, current, _forwardContext, _context, std::move(response), exception));
+            amiResponse = std::move(response);
         }
-        catch (const ObjectNotExistException&)
+        else
         {
-            exception(current_exception());
-            return;
+            // For oneway requests, we want the dispatch to complete only once the request has been forwarded (sent).
+            // This ensures proper flow control / back pressure through the Glacier2 router.
+            amiSent = [amdResponse = std::move(response)](bool) { amdResponse(true, {nullptr, nullptr}); };
         }
 
-        if (override && _overrideTraceLevel >= 1)
+        if (_forwardContext)
         {
-            Trace out(_instance->logger(), "Glacier2");
-            if (_reverseConnection)
+            if (_context.size() > 0)
             {
-                out << "reverse ";
-            }
-            out << "routing override";
-            if (_reverseConnection)
-            {
-                out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
+                Context ctx = current.ctx;
+                ctx.insert(_context.begin(), _context.end());
+                proxy->ice_invokeAsync(
+                    current.operation,
+                    current.mode,
+                    inParams,
+                    std::move(amiResponse),
+                    exception,
+                    std::move(amiSent),
+                    ctx);
             }
             else
             {
-                out << "\nproxy = " << proxy;
+                proxy->ice_invokeAsync(
+                    current.operation,
+                    current.mode,
+                    inParams,
+                    std::move(amiResponse),
+                    exception,
+                    std::move(amiSent),
+                    current.ctx);
             }
-            out << "\noperation = " << current.operation;
-            out << "\ncontext = ";
-            Context::const_iterator q = current.ctx.begin();
-            while (q != current.ctx.end())
+        }
+        else
+        {
+            if (_context.size() > 0)
             {
-                out << q->first << '/' << q->second;
-                if (++q != current.ctx.end())
-                {
-                    out << ", ";
-                }
+                proxy->ice_invokeAsync(
+                    current.operation,
+                    current.mode,
+                    inParams,
+                    std::move(amiResponse),
+                    exception,
+                    std::move(amiSent),
+                    _context);
+            }
+            else
+            {
+                proxy->ice_invokeAsync(
+                    current.operation,
+                    current.mode,
+                    inParams,
+                    std::move(amiResponse),
+                    exception,
+                    std::move(amiSent));
             }
         }
     }
-    else
+    catch (const LocalException&)
     {
-        //
-        // If we are in not in buffered mode, we send the request directly.
-        //
-
-        try
-        {
-            function<void(bool, pair<const byte*, const byte*>)> amiResponse = nullptr;
-            function<void(bool)> amiSent = nullptr;
-
-            if (proxy->ice_isTwoway())
-            {
-                amiResponse = std::move(response);
-            }
-            else
-            {
-                amiSent = [amdResponse = std::move(response)](bool) { amdResponse(true, {nullptr, nullptr}); };
-            }
-
-            if (_forwardContext)
-            {
-                if (_context.size() > 0)
-                {
-                    Context ctx = current.ctx;
-                    ctx.insert(_context.begin(), _context.end());
-                    proxy->ice_invokeAsync(
-                        current.operation,
-                        current.mode,
-                        inParams,
-                        std::move(amiResponse),
-                        std::move(exception),
-                        std::move(amiSent),
-                        ctx);
-                }
-                else
-                {
-                    proxy->ice_invokeAsync(
-                        current.operation,
-                        current.mode,
-                        inParams,
-                        std::move(amiResponse),
-                        std::move(exception),
-                        std::move(amiSent),
-                        current.ctx);
-                }
-            }
-            else
-            {
-                if (_context.size() > 0)
-                {
-                    proxy->ice_invokeAsync(
-                        current.operation,
-                        current.mode,
-                        inParams,
-                        std::move(amiResponse),
-                        std::move(exception),
-                        std::move(amiSent),
-                        _context);
-                }
-                else
-                {
-                    proxy->ice_invokeAsync(
-                        current.operation,
-                        current.mode,
-                        inParams,
-                        std::move(amiResponse),
-                        std::move(exception),
-                        std::move(amiSent));
-                }
-            }
-        }
-        catch (const LocalException&)
-        {
-            exception(current_exception());
-        }
+        exception(current_exception());
     }
 }

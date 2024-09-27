@@ -10,14 +10,6 @@
 using namespace std;
 using namespace Glacier2;
 
-namespace
-{
-    constexpr string_view serverSleepTime = "Glacier2.Server.SleepTime";
-    constexpr string_view clientSleepTime = "Glacier2.Client.SleepTime";
-    constexpr string_view serverBuffered = "Glacier2.Server.Buffered";
-    constexpr string_view clientBuffered = "Glacier2.Client.Buffered";
-}
-
 Glacier2::Instance::Instance(
     shared_ptr<Ice::Communicator> communicator,
     Ice::ObjectAdapterPtr clientAdapter,
@@ -29,20 +21,6 @@ Glacier2::Instance::Instance(
       _serverAdapter(std::move(serverAdapter)),
       _proxyVerifier(make_shared<ProxyVerifier>(_communicator))
 {
-    if (_properties->getIcePropertyAsInt(serverBuffered) > 0)
-    {
-        auto sleepTime = chrono::milliseconds(_properties->getIcePropertyAsInt(serverSleepTime));
-        const_cast<shared_ptr<RequestQueueThread>&>(_serverRequestQueueThread) =
-            make_shared<RequestQueueThread>(sleepTime);
-    }
-
-    if (_properties->getIcePropertyAsInt(clientBuffered) > 0)
-    {
-        auto sleepTime = chrono::milliseconds(_properties->getIcePropertyAsInt(clientSleepTime));
-        const_cast<shared_ptr<RequestQueueThread>&>(_clientRequestQueueThread) =
-            make_shared<RequestQueueThread>(sleepTime);
-    }
-
     //
     // If an Ice metrics observer is setup on the communicator, also enable metrics for Glacier2.
     //
@@ -57,16 +35,6 @@ Glacier2::Instance::Instance(
 void
 Glacier2::Instance::destroy()
 {
-    if (_clientRequestQueueThread)
-    {
-        _clientRequestQueueThread->destroy();
-    }
-
-    if (_serverRequestQueueThread)
-    {
-        _serverRequestQueueThread->destroy();
-    }
-
     _sessionRouter = nullptr;
 }
 

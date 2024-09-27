@@ -30,28 +30,14 @@ traceProps = {
     "Ice.Trace.Retry": 1,
 }
 
-
-def buffered(enabled):
-    return {"Glacier2.Client.Buffered": enabled, "Glacier2.Server.Buffered": enabled}
-
-
 Glacier2TestSuite(
     __name__,
     routerProps,
     [
         ClientServerTestCase(
-            name="client/server with router in unbuffered mode",
+            name="client/server with router",
             servers=[
-                Glacier2Router(passwords=passwords, props=buffered(False)),
-                Server(),
-            ],
-            client=Client(args=["--shutdown"]),
-            traceProps=traceProps,
-        ),
-        ClientServerTestCase(
-            name="client/server with router in buffered mode",
-            servers=[
-                Glacier2Router(passwords=passwords, props=buffered(True)),
+                Glacier2Router(passwords=passwords),
                 Server(),
             ],
             clients=[Client(), Client(args=["--shutdown"])],

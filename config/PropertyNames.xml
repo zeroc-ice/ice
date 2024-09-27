@@ -521,10 +521,7 @@ generated from the section label.
     <section name="Glacier2">
         <property name="AddConnectionContext" languages="cpp" default="0" />
         <property name="Client" languages="cpp" class="objectadapter"/>
-        <property name="Client.Buffered" languages="cpp" default="1" />
         <property name="Client.ForwardContext" languages="cpp" default="0" />
-        <property name="Client.SleepTime" languages="cpp" default="0" />
-        <property name="Client.Trace.Override" languages="cpp" default="0" />
         <property name="Client.Trace.Reject" languages="cpp" default="0" />
         <property name="Client.Trace.Request" languages="cpp" default="0" />
         <property name="CryptPasswords" languages="cpp" />
@@ -540,10 +537,7 @@ generated from the section label.
         <property name="SSLPermissionsVerifier" class="proxy" languages="cpp" />
         <property name="RoutingTable.MaxSize" languages="cpp" default="1000" />
         <property name="Server" class="objectadapter" languages="cpp" />
-        <property name="Server.Buffered" languages="cpp" default="1" />
         <property name="Server.ForwardContext" languages="cpp" default="0" />
-        <property name="Server.SleepTime" languages="cpp" default="0" />
-        <property name="Server.Trace.Override" languages="cpp" default="0" />
         <property name="Server.Trace.Request" languages="cpp" default="0" />
         <property name="SessionManager" class="proxy" languages="cpp" />
         <property name="SSLSessionManager" class="proxy" languages="cpp" />
