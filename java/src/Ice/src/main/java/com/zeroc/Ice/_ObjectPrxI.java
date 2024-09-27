@@ -393,7 +393,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     public ObjectPrx ice_locatorCacheTimeout(Duration newTimeout) {
         if (newTimeout.compareTo(Duration.ofSeconds(-1)) < 0) {
             throw new IllegalArgumentException(
-                    "invalid value passed to ice_locatorCacheTimeout: " + newTimeout.toSeconds());
+                    "invalid value passed to ice_locatorCacheTimeout: " + newTimeout.toString());
         }
         if (newTimeout.equals(_reference.getLocatorCacheTimeout())) {
             return this;
@@ -411,7 +411,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     public ObjectPrx ice_invocationTimeout(Duration newTimeout) {
         if (newTimeout.compareTo(Duration.ZERO) <= 0 && !newTimeout.equals(Duration.ofMillis(-1))) {
             throw new IllegalArgumentException(
-                    "invalid value passed to ice_invocationTimeout: " + newTimeout.toMillis());
+                    "invalid value passed to ice_invocationTimeout: " + newTimeout.toString());
         }
         if (newTimeout.equals(_reference.getInvocationTimeout())) {
             return this;
