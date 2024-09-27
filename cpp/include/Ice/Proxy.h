@@ -645,7 +645,7 @@ namespace Ice
 
         /**
          * Obtains the locator cache timeout of this proxy.
-         * @return The locator cache timeout value (in seconds).
+         * @return The locator cache timeout value.
          */
         std::chrono::milliseconds ice_getLocatorCacheTimeout() const noexcept;
 
@@ -701,7 +701,7 @@ namespace Ice
 
         /**
          * Obtains the invocation timeout of this proxy.
-         * @return The invocation timeout value (in milliseconds).
+         * @return The invocation timeout value.
          */
         std::chrono::milliseconds ice_getInvocationTimeout() const noexcept;
 
