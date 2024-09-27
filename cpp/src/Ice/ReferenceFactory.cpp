@@ -855,9 +855,8 @@ IceInternal::ReferenceFactory::create(
         property = propertyPrefix + ".LocatorCacheTimeout";
         if (!properties->getProperty(property).empty())
         {
-            int locatorCacheTimeoutValue = properties->getPropertyAsIntWithDefault(
-                property,
-                static_cast<int32_t>(locatorCacheTimeout.count()));
+            int locatorCacheTimeoutValue =
+                properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(locatorCacheTimeout.count()));
             if (locatorCacheTimeoutValue < -1)
             {
                 locatorCacheTimeoutValue = -1;
@@ -872,9 +871,8 @@ IceInternal::ReferenceFactory::create(
         property = propertyPrefix + ".InvocationTimeout";
         if (!properties->getProperty(property).empty())
         {
-            int invocationTimeoutValue = properties->getPropertyAsIntWithDefault(
-                property,
-                static_cast<int32_t>(invocationTimeout.count()));
+            int invocationTimeoutValue =
+                properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(invocationTimeout.count()));
             if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1)
             {
                 invocationTimeoutValue = -1;

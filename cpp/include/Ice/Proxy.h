@@ -173,7 +173,7 @@ namespace Ice
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the invocation timeout.
-         * @param timeout The new invocation timeout (in milliseconds).
+         * @param timeout The new invocation timeout.
          * @return A proxy with the new timeout.
          */
         template<class Rep, class Period>
@@ -205,7 +205,7 @@ namespace Ice
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the locator cache timeout.
-         * @param timeout The new locator cache timeout (in seconds).
+         * @param timeout The new locator cache timeout.
          * @return A proxy with the new timeout.
          */
         template<class Rep, class Period>

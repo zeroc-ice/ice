@@ -564,7 +564,7 @@ extern "C"
     mxArray* Ice_ObjectPrx_ice_getInvocationTimeout(void* self)
     {
         chrono::milliseconds timeout = restoreProxy(self)->ice_getInvocationTimeout();
-        return createResultValue(createInt(static_cast<int32_t>>(timeout.count())));
+        return createResultValue(createInt(static_cast<int32_t>(timeout.count())));
     }
 
     mxArray* Ice_ObjectPrx_ice_invocationTimeout(void* self, void** r, int t)
