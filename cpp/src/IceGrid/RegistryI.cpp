@@ -323,7 +323,7 @@ RegistryI::startImpl()
     {
         string endpoints = properties->getProperty("IceGrid.Registry.Client.Endpoints");
         string strPrx = _instanceName + "/Locator:" + endpoints;
-        _communicator->stringToProxy(strPrx)->ice_invocationTimeout(5000)->ice_ping();
+        _communicator->stringToProxy(strPrx)->ice_invocationTimeout(5s)->ice_ping();
 
         Error out(_communicator->getLogger());
         out << "an IceGrid registry is already running and listening on the client endpoints `" << endpoints << "'";

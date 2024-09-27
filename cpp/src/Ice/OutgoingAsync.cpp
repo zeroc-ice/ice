@@ -428,10 +428,10 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
     {
         if (userThread)
         {
-            int invocationTimeout = _proxy._getReference()->getInvocationTimeout();
-            if (invocationTimeout > 0)
+            chrono::milliseconds invocationTimeout = _proxy._getReference()->getInvocationTimeout();
+            if (invocationTimeout > 0ms)
             {
-                _instance->timer()->schedule(shared_from_this(), chrono::milliseconds(invocationTimeout));
+                _instance->timer()->schedule(shared_from_this(), invocationTimeout);
             }
         }
         else
@@ -515,7 +515,7 @@ ProxyOutgoingAsyncBase::sentImpl(bool done)
     _sent = true;
     if (done)
     {
-        if (_proxy._getReference()->getInvocationTimeout() != -1)
+        if (_proxy._getReference()->getInvocationTimeout() > 0ms)
         {
             _instance->timer()->cancel(shared_from_this());
         }
@@ -526,7 +526,7 @@ ProxyOutgoingAsyncBase::sentImpl(bool done)
 bool
 ProxyOutgoingAsyncBase::exceptionImpl(std::exception_ptr ex)
 {
-    if (_proxy._getReference()->getInvocationTimeout() != -1)
+    if (_proxy._getReference()->getInvocationTimeout() > 0ms)
     {
         _instance->timer()->cancel(shared_from_this());
     }
@@ -536,7 +536,7 @@ ProxyOutgoingAsyncBase::exceptionImpl(std::exception_ptr ex)
 bool
 ProxyOutgoingAsyncBase::responseImpl(bool ok, bool invoke)
 {
-    if (_proxy._getReference()->getInvocationTimeout() != -1)
+    if (_proxy._getReference()->getInvocationTimeout() > 0ms)
     {
         _instance->timer()->cancel(shared_from_this());
     }
