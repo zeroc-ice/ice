@@ -109,7 +109,6 @@ For example, consider the following definitions:
 
     <properties>
         <section name="Ice">
-            <property name="ChangeUser" />
             <property name="Package.[any]" />
             <property name="QuenchRequests" deprecated="true" />
             <property name="Bar" />
@@ -149,7 +148,6 @@ public:
 // Properties.cpp
 const IceInternal::Property IceInternal::Properties::IcePropsData[] =
 {
-    IceInternal::Property("Ice.ChangeUser", false, 0),
     IceInternal::Property("Ice.Package.*", false, 0),
     IceInternal::Property("Ice.QuenchRequests", true, 0),
     IceInternal::Property("Ice.Foo", true, "Ice.Bar"),
@@ -264,7 +262,6 @@ generated from the section label.
         <property name="BackgroundLocatorCacheUpdates" languages="all" default="0" />
         <property name="BatchAutoFlush" deprecated="true" languages="all" />
         <property name="BatchAutoFlushSize" default="1024" languages="all" />
-        <property name="ChangeUser" languages="cpp" />
         <property name="ClassGraphDepthMax" languages="all" default="10" />
         <property name="Compression.Level" languages="cpp,csharp,java" default="1" />
         <property name="Config" languages="cpp,csharp,java" />
