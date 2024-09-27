@@ -156,10 +156,6 @@ final class EndpointFactoryManager {
         return e;
     }
 
-    void destroy() {
-        _factories.clear();
-    }
-
     private Instance _instance;
     private java.util.List<EndpointFactory> _factories = new java.util.ArrayList<>();
 }

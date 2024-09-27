@@ -174,14 +174,6 @@ public sealed class EndpointFactoryManager
         }
     }
 
-    internal void destroy()
-    {
-        lock (_mutex)
-        {
-            _factories.Clear();
-        }
-    }
-
     private readonly Instance _instance;
     private readonly List<EndpointFactory> _factories;
     private readonly object _mutex = new();

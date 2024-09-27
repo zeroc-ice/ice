@@ -87,7 +87,6 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
 
     EndpointFactoryPtr factory;
     {
-        // Hold the mutex while looking up the factory, destroy can be called concurrently.
         lock_guard lock(_mutex);
         //
         // TODO: Optimize with a map?
