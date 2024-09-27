@@ -289,7 +289,7 @@ public interface ObjectPrx {
     /**
      * Returns the locator cache timeout of this proxy.
      *
-     * @return The locator cache timeout value (in seconds).
+     * @return The locator cache timeout value.
      * @see Locator
      */
     Duration ice_getLocatorCacheTimeout();
@@ -297,7 +297,7 @@ public interface ObjectPrx {
     /**
      * Returns the invocation timeout of this proxy.
      *
-     * @return The invocation timeout value (in milliseconds).
+     * @return The invocation timeout value.
      */
     Duration ice_getInvocationTimeout();
 
@@ -336,7 +336,7 @@ public interface ObjectPrx {
     /**
      * Returns a proxy that is identical to this proxy, except for the locator cache timeout.
      *
-     * @param newTimeout The new locator cache timeout (in seconds).
+     * @param newTimeout The new locator cache timeout.
      * @return The proxy with the new timeout.
      * @see Locator
      */
@@ -353,7 +353,7 @@ public interface ObjectPrx {
     /**
      * Returns a proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout The new invocation timeout (in milliseconds).
+     * @param newTimeout The new invocation timeout.
      * @return The proxy with the new timeout.
      */
     ObjectPrx ice_invocationTimeout(Duration newTimeout);
