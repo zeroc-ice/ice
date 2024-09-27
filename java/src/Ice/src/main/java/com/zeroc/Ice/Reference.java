@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 /**
  * @hidden Public because it's used by the generated code.
  */
@@ -61,7 +63,7 @@ public abstract class Reference implements Cloneable {
         return _context;
     }
 
-    public int getInvocationTimeout() {
+    public Duration getInvocationTimeout() {
         return _invocationTimeout;
     }
 
@@ -89,7 +91,7 @@ public abstract class Reference implements Cloneable {
 
     public abstract EndpointSelectionType getEndpointSelection();
 
-    public abstract int getLocatorCacheTimeout();
+    public abstract Duration getLocatorCacheTimeout();
 
     public abstract String getConnectionId();
 
@@ -139,7 +141,7 @@ public abstract class Reference implements Cloneable {
         return r;
     }
 
-    public final Reference changeInvocationTimeout(int newTimeout) {
+    public final Reference changeInvocationTimeout(Duration newTimeout) {
         Reference r = _instance.referenceFactory().copy(this);
         r._invocationTimeout = newTimeout;
         return r;
@@ -173,7 +175,7 @@ public abstract class Reference implements Cloneable {
 
     public abstract Reference changeEndpointSelection(EndpointSelectionType newType);
 
-    public abstract Reference changeLocatorCacheTimeout(int newTimeout);
+    public abstract Reference changeLocatorCacheTimeout(Duration newTimeout);
 
     public abstract Reference changeConnectionId(String connectionId);
 
@@ -192,7 +194,7 @@ public abstract class Reference implements Cloneable {
         }
         // We don't include protocol and encoding in the hash; they are using 1.0 and 1.1,
         // respectively.
-        h = HashUtil.hashAdd(h, _invocationTimeout);
+        h = HashUtil.hashAdd(h, _invocationTimeout.toMillis());
 
         return h;
     }
@@ -403,7 +405,7 @@ public abstract class Reference implements Cloneable {
             return false;
         }
 
-        if (_invocationTimeout != r._invocationTimeout) {
+        if (!_invocationTimeout.equals(r._invocationTimeout)) {
             return false;
         }
 
@@ -434,7 +436,7 @@ public abstract class Reference implements Cloneable {
     private String _facet;
     private final ProtocolVersion _protocol;
     private EncodingVersion _encoding;
-    private int _invocationTimeout;
+    private Duration _invocationTimeout;
 
     protected Reference(
             Instance instance,
@@ -446,7 +448,7 @@ public abstract class Reference implements Cloneable {
             java.util.Optional<Boolean> compress,
             ProtocolVersion protocol,
             EncodingVersion encoding,
-            int invocationTimeout,
+            Duration invocationTimeout,
             java.util.Map<String, String> context) {
         //
         // Validate string arguments.
