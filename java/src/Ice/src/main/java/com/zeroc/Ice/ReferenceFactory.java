@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 final class ReferenceFactory {
     public Reference create(Identity ident, String facet, Reference tmpl, EndpointI[] endpoints) {
         if (ident.name.isEmpty() && ident.category.isEmpty()) {
@@ -62,7 +64,7 @@ final class ReferenceFactory {
                 Util.Protocol_1_0,
                 _instance.defaultsAndOverrides().defaultEncoding,
                 fixedConnection,
-                -1,
+                Duration.ofMillis(-1),
                 null);
     }
 
@@ -714,8 +716,8 @@ final class ReferenceFactory {
         boolean cacheConnection = true;
         boolean preferSecure = defaultsAndOverrides.defaultPreferSecure;
         EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
-        int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
-        int invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
+        Duration locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
+        Duration invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
         java.util.Map<String, String> context = null;
 
         //
@@ -791,38 +793,16 @@ final class ReferenceFactory {
             }
 
             property = propertyPrefix + ".LocatorCacheTimeout";
-            String value = properties.getProperty(property);
-            if (!value.isEmpty()) {
-                locatorCacheTimeout =
-                        properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
-                if (locatorCacheTimeout < -1) {
-                    locatorCacheTimeout = -1;
-
-                    StringBuffer msg = new StringBuffer("invalid value for ");
-                    msg.append(property);
-                    msg.append(" '");
-                    msg.append(properties.getProperty(property));
-                    msg.append("': defaulting to -1");
-                    _instance.initializationData().logger.warning(msg.toString());
-                }
-            }
+            locatorCacheTimeout =
+                    Duration.ofSeconds(
+                            properties.getPropertyAsIntWithDefault(
+                                    property, (int) locatorCacheTimeout.toSeconds()));
 
             property = propertyPrefix + ".InvocationTimeout";
-            value = properties.getProperty(property);
-            if (!value.isEmpty()) {
-                invocationTimeout =
-                        properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
-                if (invocationTimeout < 1 && invocationTimeout != -1) {
-                    invocationTimeout = -1;
-
-                    StringBuffer msg = new StringBuffer("invalid value for ");
-                    msg.append(property);
-                    msg.append(" '");
-                    msg.append(properties.getProperty(property));
-                    msg.append("': defaulting to -1");
-                    _instance.initializationData().logger.warning(msg.toString());
-                }
-            }
+            invocationTimeout =
+                    Duration.ofMillis(
+                            properties.getPropertyAsIntWithDefault(
+                                    property, (int) invocationTimeout.toMillis()));
 
             property = propertyPrefix + ".Context.";
             java.util.Map<String, String> contexts = properties.getPropertiesForPrefix(property);

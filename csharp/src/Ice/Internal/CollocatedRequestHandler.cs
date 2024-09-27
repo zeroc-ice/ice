@@ -97,7 +97,7 @@ public class CollocatedRequestHandler : RequestHandler
         }
 
         outAsync.attachCollocatedObserver(_adapter, requestId);
-        if (!synchronous || !_response || _reference.getInvocationTimeout() > 0)
+        if (!synchronous || !_response || _reference.getInvocationTimeout() > TimeSpan.Zero)
         {
             // Don't invoke from the user thread if async or invocation timeout is set
             _adapter.getThreadPool().execute(

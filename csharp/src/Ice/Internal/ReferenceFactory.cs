@@ -72,7 +72,7 @@ internal class ReferenceFactory
             Ice.Util.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
             connection,
-            -1,
+            TimeSpan.FromMilliseconds(-1),
             null);
     }
 
@@ -725,8 +725,8 @@ internal class ReferenceFactory
         bool cacheConnection = true;
         bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
         Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
-        int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
-        int invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
+        TimeSpan locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
+        TimeSpan invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
         Dictionary<string, string> context = null;
 
         //
@@ -805,40 +805,12 @@ internal class ReferenceFactory
             }
 
             property = propertyPrefix + ".LocatorCacheTimeout";
-            string val = properties.getProperty(property);
-            if (val.Length > 0)
-            {
-                locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
-                if (locatorCacheTimeout < -1)
-                {
-                    locatorCacheTimeout = -1;
-
-                    StringBuilder msg = new StringBuilder("invalid value for ");
-                    msg.Append(property);
-                    msg.Append(" `");
-                    msg.Append(properties.getProperty(property));
-                    msg.Append("': defaulting to -1");
-                    _instance.initializationData().logger.warning(msg.ToString());
-                }
-            }
+            locatorCacheTimeout = TimeSpan.FromSeconds(
+                properties.getPropertyAsIntWithDefault(property, (int)locatorCacheTimeout.TotalSeconds));
 
             property = propertyPrefix + ".InvocationTimeout";
-            val = properties.getProperty(property);
-            if (val.Length > 0)
-            {
-                invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
-                if (invocationTimeout < 1 && invocationTimeout != -1)
-                {
-                    invocationTimeout = -1;
-
-                    StringBuilder msg = new StringBuilder("invalid value for ");
-                    msg.Append(property);
-                    msg.Append(" `");
-                    msg.Append(properties.getProperty(property));
-                    msg.Append("': defaulting to -1");
-                    _instance.initializationData().logger.warning(msg.ToString());
-                }
-            }
+            invocationTimeout = TimeSpan.FromMilliseconds(
+                properties.getPropertyAsIntWithDefault(property, (int)invocationTimeout.TotalMilliseconds));
 
             property = propertyPrefix + ".Context.";
             Dictionary<string, string> contexts = properties.getPropertiesForPrefix(property);

@@ -917,11 +917,11 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, exception_p
             request->activating(adapter.id);
         }
 
-        int timeout = secondsToInt(adapter.activationTimeout + adapter.deactivationTimeout) * 1000;
         auto self = shared_from_this();
-        adapter.proxy->ice_invocationTimeout(timeout)->activateAsync(
-            [self, adapter](auto obj) { self->getDirectProxyResponse(adapter, std::move(obj)); },
-            [self, adapter](auto e) { self->getDirectProxyException(adapter, e); });
+        adapter.proxy->ice_invocationTimeout(adapter.activationTimeout + adapter.deactivationTimeout)
+            ->activateAsync(
+                [self, adapter](auto obj) { self->getDirectProxyResponse(adapter, std::move(obj)); },
+                [self, adapter](auto e) { self->getDirectProxyException(adapter, e); });
     }
     else
     {

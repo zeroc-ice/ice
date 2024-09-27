@@ -158,7 +158,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     //
     auto self = shared_from_this();
 
-    if (!synchronous || !_response || _reference->getInvocationTimeout() > 0)
+    if (!synchronous || !_response || _reference->getInvocationTimeout() > 0ms)
     {
         auto stream = make_shared<InputStream>();
         is.swap(*stream);

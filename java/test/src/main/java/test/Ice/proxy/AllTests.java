@@ -11,6 +11,7 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
+import java.time.Duration;
 import test.Ice.proxy.Test.DiamondClassPrx;
 import test.Ice.proxy.Test.MyClassPrx;
 import test.Ice.proxy.Test.MyDerivedClassPrx;
@@ -449,10 +450,10 @@ public class AllTests {
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".LocatorCacheTimeout";
-        test(b1.ice_getLocatorCacheTimeout() == -1);
+        test(b1.ice_getLocatorCacheTimeout().equals(Duration.ofSeconds(-1)));
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocatorCacheTimeout() == 1);
+        test(b1.ice_getLocatorCacheTimeout().equals(Duration.ofSeconds(1)));
         prop.setProperty(property, "");
 
         // Now retest with an indirect proxy.
@@ -466,10 +467,10 @@ public class AllTests {
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".LocatorCacheTimeout";
-        test(b1.ice_getLocatorCacheTimeout() == -1);
+        test(b1.ice_getLocatorCacheTimeout().equals(Duration.ofSeconds(-1)));
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocatorCacheTimeout() == 1);
+        test(b1.ice_getLocatorCacheTimeout().equals(Duration.ofSeconds(1)));
         prop.setProperty(property, "");
 
         // This cannot be tested so easily because the property is cached
@@ -506,10 +507,10 @@ public class AllTests {
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".InvocationTimeout";
-        test(b1.ice_getInvocationTimeout() == -1);
+        test(b1.ice_getInvocationTimeout().equals(Duration.ofMillis(-1)));
         prop.setProperty(property, "1000");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getInvocationTimeout() == 1000);
+        test(b1.ice_getInvocationTimeout().equals(Duration.ofSeconds(1)));
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".EndpointSelection";
@@ -650,41 +651,33 @@ public class AllTests {
                         .ice_getEncodingVersion()
                         .equals(Util.Encoding_1_1));
 
-        try {
-            base.ice_invocationTimeout(0);
-            test(false);
-        } catch (IllegalArgumentException e) {
-        }
+        test(
+                base.ice_invocationTimeout(10)
+                        .ice_getInvocationTimeout()
+                        .equals(Duration.ofMillis(10)));
+        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout().equals(Duration.ZERO));
+        test(
+                base.ice_invocationTimeout(-1)
+                        .ice_getInvocationTimeout()
+                        .equals(Duration.ofMillis(-1)));
+        test(
+                base.ice_invocationTimeout(-2)
+                        .ice_getInvocationTimeout()
+                        .equals(Duration.ofMillis(-2)));
 
-        try {
-            base.ice_invocationTimeout(-1);
-        } catch (IllegalArgumentException e) {
-            test(false);
-        }
-
-        try {
-            base.ice_invocationTimeout(-2);
-            test(false);
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            base.ice_locatorCacheTimeout(0);
-        } catch (IllegalArgumentException e) {
-            test(false);
-        }
-
-        try {
-            base.ice_locatorCacheTimeout(-1);
-        } catch (IllegalArgumentException e) {
-            test(false);
-        }
-
-        try {
-            base.ice_locatorCacheTimeout(-2);
-            test(false);
-        } catch (IllegalArgumentException e) {
-        }
+        test(
+                base.ice_locatorCacheTimeout(10)
+                        .ice_getLocatorCacheTimeout()
+                        .equals(Duration.ofSeconds(10)));
+        test(base.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout().equals(Duration.ZERO));
+        test(
+                base.ice_locatorCacheTimeout(-1)
+                        .ice_getLocatorCacheTimeout()
+                        .equals(Duration.ofSeconds(-1)));
+        test(
+                base.ice_locatorCacheTimeout(-2)
+                        .ice_getLocatorCacheTimeout()
+                        .equals(Duration.ofSeconds(-2)));
 
         // Ensure that the proxy methods can be called unambiguously with the correct return type.
         var diamondClass = DiamondClassPrx.uncheckedCast(base);
@@ -866,12 +859,15 @@ public class AllTests {
                     ctx.put("two", "world");
                     test(cl.ice_fixed(connection).ice_getContext().isEmpty());
                     test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().size() == 2);
-                    test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+                    test(
+                            cl.ice_fixed(connection)
+                                    .ice_getInvocationTimeout()
+                                    .equals(Duration.ofMillis(-1)));
                     test(
                             cl.ice_invocationTimeout(10)
-                                            .ice_fixed(connection)
-                                            .ice_getInvocationTimeout()
-                                    == 10);
+                                    .ice_fixed(connection)
+                                    .ice_getInvocationTimeout()
+                                    .equals(Duration.ofMillis(10)));
                     test(cl.ice_fixed(connection).ice_getConnection() == connection);
                     test(
                             cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection()

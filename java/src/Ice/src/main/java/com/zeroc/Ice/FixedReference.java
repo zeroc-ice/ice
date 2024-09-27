@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 public class FixedReference extends Reference {
     public FixedReference(
             Instance instance,
@@ -16,7 +18,7 @@ public class FixedReference extends Reference {
             ProtocolVersion protocol,
             EncodingVersion encoding,
             ConnectionI connection,
-            int invocationTimeout,
+            Duration invocationTimeout,
             java.util.Map<String, String> context) {
         super(
                 instance,
@@ -74,8 +76,8 @@ public class FixedReference extends Reference {
     }
 
     @Override
-    public int getLocatorCacheTimeout() {
-        return 0;
+    public Duration getLocatorCacheTimeout() {
+        return Duration.ZERO;
     }
 
     @Override
@@ -134,7 +136,7 @@ public class FixedReference extends Reference {
     }
 
     @Override
-    public Reference changeLocatorCacheTimeout(int newTimeout) {
+    public Reference changeLocatorCacheTimeout(Duration newTimeout) {
         throw new FixedProxyException();
     }
 

@@ -363,7 +363,7 @@ IceGrid::getMMVersion(const string& o)
 int
 IceGrid::secondsToInt(const std::chrono::seconds& sec)
 {
-    return chrono::duration_cast<chrono::duration<int>>(sec).count();
+    return static_cast<int>(sec.count());
 }
 
 void

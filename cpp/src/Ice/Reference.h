@@ -55,7 +55,7 @@ namespace IceInternal
         const std::string& getFacet() const noexcept { return _facet; }
         const InstancePtr& getInstance() const noexcept { return _instance; }
         const SharedContextPtr& getContext() const noexcept { return _context; }
-        int getInvocationTimeout() const noexcept { return _invocationTimeout; }
+        std::chrono::milliseconds getInvocationTimeout() const noexcept { return _invocationTimeout; }
         std::optional<bool> getCompress() const noexcept { return _compress; }
 
         Ice::CommunicatorPtr getCommunicator() const noexcept;
@@ -68,7 +68,7 @@ namespace IceInternal
         virtual bool getCacheConnection() const noexcept = 0;
         virtual bool getPreferSecure() const noexcept = 0;
         virtual Ice::EndpointSelectionType getEndpointSelection() const noexcept = 0;
-        virtual int getLocatorCacheTimeout() const noexcept = 0;
+        virtual std::chrono::milliseconds getLocatorCacheTimeout() const noexcept = 0;
         virtual std::string getConnectionId() const = 0;
 
         //
@@ -80,7 +80,7 @@ namespace IceInternal
         ReferencePtr changeSecure(bool) const;
         ReferencePtr changeIdentity(Ice::Identity) const;
         ReferencePtr changeFacet(std::string) const;
-        ReferencePtr changeInvocationTimeout(int) const;
+        ReferencePtr changeInvocationTimeout(std::chrono::milliseconds) const;
 
         virtual ReferencePtr changeEncoding(Ice::EncodingVersion) const;
         virtual ReferencePtr changeCompress(bool) const;
@@ -90,7 +90,7 @@ namespace IceInternal
         virtual ReferencePtr changeLocator(std::optional<Ice::LocatorPrx>) const = 0;
         virtual ReferencePtr changeRouter(std::optional<Ice::RouterPrx>) const = 0;
         virtual ReferencePtr changeCollocationOptimized(bool) const = 0;
-        virtual ReferencePtr changeLocatorCacheTimeout(int) const = 0;
+        virtual ReferencePtr changeLocatorCacheTimeout(std::chrono::milliseconds) const = 0;
         virtual ReferencePtr changeCacheConnection(bool) const = 0;
         virtual ReferencePtr changePreferSecure(bool) const = 0;
         virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const = 0;
@@ -150,7 +150,7 @@ namespace IceInternal
             std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
-            int,
+            std::chrono::milliseconds,
             const Ice::Context& ctx);
         Reference(const Reference&);
 
@@ -167,7 +167,7 @@ namespace IceInternal
         std::string _facet;
         Ice::ProtocolVersion _protocol;
         Ice::EncodingVersion _encoding;
-        int _invocationTimeout;
+        std::chrono::milliseconds _invocationTimeout;
     };
 
     class FixedReference final : public Reference
@@ -184,7 +184,7 @@ namespace IceInternal
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             Ice::ConnectionIPtr,
-            int,
+            std::chrono::milliseconds,
             const Ice::Context&);
 
         FixedReference(const FixedReference&);
@@ -195,7 +195,7 @@ namespace IceInternal
         bool getCacheConnection() const noexcept final;
         bool getPreferSecure() const noexcept final;
         Ice::EndpointSelectionType getEndpointSelection() const noexcept final;
-        int getLocatorCacheTimeout() const noexcept final;
+        std::chrono::milliseconds getLocatorCacheTimeout() const noexcept final;
         std::string getConnectionId() const final;
 
         ReferencePtr changeEndpoints(std::vector<EndpointIPtr>) const final;
@@ -206,7 +206,7 @@ namespace IceInternal
         ReferencePtr changeCacheConnection(bool) const final;
         ReferencePtr changePreferSecure(bool) const final;
         ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const final;
-        ReferencePtr changeLocatorCacheTimeout(int) const final;
+        ReferencePtr changeLocatorCacheTimeout(std::chrono::milliseconds) const final;
 
         ReferencePtr changeConnectionId(std::string) const final;
         ReferencePtr changeConnection(Ice::ConnectionIPtr) const final;
@@ -252,8 +252,8 @@ namespace IceInternal
             bool,
             bool,
             Ice::EndpointSelectionType,
-            int,
-            int,
+            std::chrono::milliseconds,
+            std::chrono::milliseconds,
             const Ice::Context&);
 
         RoutableReference(const RoutableReference&);
@@ -266,7 +266,7 @@ namespace IceInternal
         bool getCacheConnection() const noexcept final;
         bool getPreferSecure() const noexcept final;
         Ice::EndpointSelectionType getEndpointSelection() const noexcept final;
-        int getLocatorCacheTimeout() const noexcept final;
+        std::chrono::milliseconds getLocatorCacheTimeout() const noexcept final;
         std::string getConnectionId() const final;
 
         ReferencePtr changeEncoding(Ice::EncodingVersion) const final;
@@ -280,7 +280,7 @@ namespace IceInternal
         ReferencePtr changeCacheConnection(bool) const final;
         ReferencePtr changePreferSecure(bool) const final;
         ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const final;
-        ReferencePtr changeLocatorCacheTimeout(int) const final;
+        ReferencePtr changeLocatorCacheTimeout(std::chrono::milliseconds) const final;
 
         ReferencePtr changeConnectionId(std::string) const final;
         ReferencePtr changeConnection(Ice::ConnectionIPtr) const final;
@@ -335,7 +335,7 @@ namespace IceInternal
         bool _cacheConnection;
         bool _preferSecure;
         Ice::EndpointSelectionType _endpointSelection;
-        int _locatorCacheTimeout;
+        std::chrono::milliseconds _locatorCacheTimeout;
 
         std::string _connectionId;
     };

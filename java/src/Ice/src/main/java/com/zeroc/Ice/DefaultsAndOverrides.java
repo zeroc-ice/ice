@@ -4,8 +4,10 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
+
 final class DefaultsAndOverrides {
-    DefaultsAndOverrides(Properties properties, Logger logger) {
+    DefaultsAndOverrides(Properties properties) {
         String value;
         int intValue;
 
@@ -65,29 +67,12 @@ final class DefaultsAndOverrides {
                             + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
-        intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
-        if (intValue < -1) {
-            defaultLocatorCacheTimeout = -1;
-            StringBuffer msg =
-                    new StringBuffer("invalid value for Ice.Default.LocatorCacheTimeout `");
-            msg.append(properties.getIceProperty("Ice.Default.LocatorCacheTimeout"));
-            msg.append("': defaulting to -1");
-            logger.warning(msg.toString());
-        } else {
-            defaultLocatorCacheTimeout = intValue;
-        }
+        defaultLocatorCacheTimeout =
+                Duration.ofSeconds(
+                        properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
 
-        intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-        if (intValue < 1 && intValue != -1) {
-            defaultInvocationTimeout = -1;
-            StringBuffer msg =
-                    new StringBuffer("invalid value for Ice.Default.InvocationTimeout `");
-            msg.append(properties.getIceProperty("Ice.Default.InvocationTimeout"));
-            msg.append("': defaulting to -1");
-            logger.warning(msg.toString());
-        } else {
-            defaultInvocationTimeout = intValue;
-        }
+        defaultInvocationTimeout =
+                Duration.ofMillis(properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
 
         defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
@@ -107,8 +92,8 @@ final class DefaultsAndOverrides {
     public final String defaultProtocol;
     public final boolean defaultCollocationOptimization;
     public final EndpointSelectionType defaultEndpointSelection;
-    public final int defaultLocatorCacheTimeout;
-    public final int defaultInvocationTimeout;
+    public final Duration defaultLocatorCacheTimeout;
+    public final Duration defaultInvocationTimeout;
     public final boolean defaultPreferSecure;
     public final EncodingVersion defaultEncoding;
     public final FormatType defaultFormat;

@@ -772,7 +772,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
             _traceLevels = new TraceLevels(properties);
 
-            _defaultsAndOverrides = new DefaultsAndOverrides(properties, _initData.logger);
+            _defaultsAndOverrides = new DefaultsAndOverrides(properties);
 
             _clientConnectionOptions = readConnectionOptions("Ice.Connection.Client");
             _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
