@@ -213,6 +213,10 @@ internal sealed class OpaqueEndpointI : EndpointI
 
     public override List<EndpointI> expandHost() => [this];
 
+    public override bool isLoopback() => false;
+
+    public override EndpointI withPublishedHost(string host) => this;
+
     //
     // Check whether the endpoint is equivalent to another one.
     //

@@ -155,6 +155,10 @@ internal sealed class EndpointI : Ice.Internal.EndpointI
     public override List<Ice.Internal.EndpointI> expandHost() =>
         _delegate.expandHost().Select(e => new EndpointI(_instance, e) as Internal.EndpointI).ToList();
 
+    public override bool isLoopback() => _delegate.isLoopback();
+
+    public override EndpointI withPublishedHost(string host) => endpoint(_delegate.withPublishedHost(host));
+
     public override bool equivalent(Ice.Internal.EndpointI endpoint)
     {
         if (endpoint is not EndpointI)

@@ -176,6 +176,10 @@ internal class EndpointI : Ice.Internal.EndpointI
     public override List<Ice.Internal.EndpointI> expandHost() =>
         _endpoint.expandHost().Select(e => new EndpointI(e) as Ice.Internal.EndpointI).ToList();
 
+    public override bool isLoopback() => _endpoint.isLoopback();
+
+    public override EndpointI withPublishedHost(string host) => endpoint(_endpoint.withPublishedHost(host));
+
     public override bool equivalent(Ice.Internal.EndpointI endpoint)
     {
         EndpointI testEndpoint = null;

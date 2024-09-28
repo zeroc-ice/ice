@@ -133,6 +133,12 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
     // Used only for server endpoints.
     public abstract List<EndpointI> expandHost();
 
+    // Returns true when the most underlying endpoint is an IP endpoint with a loopback address.
+    public abstract bool isLoopback();
+
+    // Returns a new endpoint with the specified host; returns this when this operation is not applicable.
+    public abstract EndpointI withPublishedHost(string host);
+
     //
     // Check whether the endpoint is equivalent to another one.
     //

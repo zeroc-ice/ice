@@ -126,6 +126,13 @@ public abstract class IPEndpointI : EndpointI
                         connectionId_) as EndpointI).ToList();
     }
 
+    // Empty host_ means the endpoint is a wildcard address. This method must be called only on an endpoint with an
+    // empty host or an IP address.
+    public override bool isLoopback() =>
+        host_.Length > 0 && IPAddress.IsLoopback(IPAddress.Parse(host_));
+
+    public override EndpointI withPublishedHost(string host) => createEndpoint(host, port_, connectionId_);
+
     public override bool equivalent(EndpointI endpoint)
     {
         if (!(endpoint is IPEndpointI))
@@ -355,12 +362,6 @@ public abstract class IPEndpointI : EndpointI
     protected abstract Connector createConnector(EndPoint addr, NetworkProxy proxy);
 
     protected abstract IPEndpointI createEndpoint(string host, int port, string connectionId);
-
-    internal IPEndpointI withHost(string host) => createEndpoint(host, port_, connectionId_);
-
-    // Empty host_ means the endpoint is a wildcard address.
-    internal bool isLoopback() =>
-        host_.Length > 0 && IPAddress.IsLoopback(IPAddress.Parse(host_));
 
     protected ProtocolInstance instance_;
     protected string host_;

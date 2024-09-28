@@ -47,6 +47,7 @@ public class AllTests
         Dictionary<string, string> result = new Dictionary<string, string>();
         result["IceSSL.DefaultDir"] = defaultProperties.getProperty("IceSSL.DefaultDir");
         result["Ice.Default.Host"] = defaultProperties.getProperty("Ice.Default.Host");
+
         if (defaultProperties.getProperty("Ice.IPv6").Length > 0)
         {
             result["Ice.IPv6"] = defaultProperties.getProperty("Ice.IPv6");
@@ -483,6 +484,7 @@ public class AllTests
                         test(fact != null);
                         d = createServerProps(props, "s_rsa_ca1_cn1", "cacert1");
                         d["IceSSL.CheckCertName"] = "1";
+                        d["ServerAdapter.PublishedHost"] = "localhost";
                         server = fact.createServer(d);
                         try
                         {
@@ -512,6 +514,7 @@ public class AllTests
                         test(fact != null);
                         d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1");
                         d["IceSSL.CheckCertName"] = "1";
+                        d["ServerAdapter.PublishedHost"] = "localhost";
                         server = fact.createServer(d);
                         try
                         {
@@ -538,6 +541,7 @@ public class AllTests
                         test(fact != null);
                         d = createServerProps(props, "s_rsa_ca1_cn3", "cacert1");
                         d["IceSSL.CheckCertName"] = "1";
+                        d["ServerAdapter.PublishedHost"] = "localhost";
                         server = fact.createServer(d);
                         try
                         {
@@ -564,6 +568,7 @@ public class AllTests
                         test(fact != null);
                         d = createServerProps(props, "s_rsa_ca1_cn4", "cacert1");
                         d["IceSSL.CheckCertName"] = "1";
+                        d["ServerAdapter.PublishedHost"] = "localhost";
                         server = fact.createServer(d);
                         try
                         {
@@ -590,6 +595,7 @@ public class AllTests
                         test(fact != null);
                         d = createServerProps(props, "s_rsa_ca1_cn5", "cacert1");
                         d["IceSSL.CheckCertName"] = "1";
+                        d["ServerAdapter.PublishedHost"] = "localhost";
                         server = fact.createServer(d);
                         try
                         {
@@ -644,6 +650,7 @@ public class AllTests
                         test(fact != null);
                         d = createServerProps(defaultProperties, "s_rsa_ca1_cn7", "cacert1");
                         d["IceSSL.CheckCertName"] = "1";
+                        d["ServerAdapter.PublishedHost"] = "localhost";
                         server = fact.createServer(d);
                         try
                         {

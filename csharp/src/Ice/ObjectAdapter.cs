@@ -1406,27 +1406,29 @@ public sealed class ObjectAdapter
                 endpoints = _incomingConnectionFactories.Select(f => f.endpoint());
 
                 // Remove all loopback endpoints.
-                IEnumerable<EndpointI> endpointsNoLoopback =
-                    endpoints.Where(e => e is IPEndpointI ipEndpoint && !ipEndpoint.isLoopback());
+                IEnumerable<EndpointI> endpointsNoLoopback = endpoints.Where(e => !e.isLoopback());
+
+                // Retrieve published host
+                string publishedHost = _instance.initializationData().properties!.getProperty($"{_name}.PublishedHost");
 
                 if (endpointsNoLoopback.Any())
                 {
                     endpoints = endpointsNoLoopback;
 
-                    // Retrieve published host
-                    string publishedHost =
-                        _instance.initializationData().properties!.getProperty($"{_name}.PublishedHost");
+                    // For non-loopback endpoints, we use the fully qualified name of the local host as default for
+                    // publishedHost.
                     if (publishedHost.Length == 0)
                     {
                         publishedHost = Dns.GetHostEntry("").HostName; // fully qualified name of local host
                     }
-
-                    // Replace the host in IP endpoints by publishedHost.
-                    endpoints = endpoints
-                        .Select(e => e is IPEndpointI ipEndpoint ? ipEndpoint.withHost(publishedHost) : e)
-                        .Distinct();
                 }
-                // else all the published endpoints are IP loopback endpoints: we just keep them as-is
+
+                if (publishedHost.Length > 0)
+                {
+                    // Replace the host in all endpoints by publishedHost (when applicable).
+                    endpoints = endpoints.Select(e => e.withPublishedHost(publishedHost)).Distinct();
+                }
+                // else keep the loopback-only endpoints as-is (with IP addresses)
             }
         }
 
@@ -1587,6 +1589,7 @@ public sealed class ObjectAdapter
         "MaxConnections",
         "MessageSizeMax",
         "PublishedEndpoints",
+        "PublishedHost",
         "ReplicaGroupId",
         "Router",
         "Router.EncodingVersion",
