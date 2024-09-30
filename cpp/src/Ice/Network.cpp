@@ -2174,7 +2174,7 @@ IceInternal::getHostName()
     char name[256];
     if (gethostname(name, sizeof(name)) != 0)
     {
-        throw SocketException{__FILE__, __LINE__, getSocketErrno()};
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
     return name;
 }
