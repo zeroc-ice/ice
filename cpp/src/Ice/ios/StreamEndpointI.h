@@ -48,6 +48,8 @@ namespace IceObjC
         Ice::CommunicatorPtr communicator();
 
     private:
+        // Use a weak pointer to avoid circular references. The communicator owns the endpoint factory, which in
+        // turn own this protocol instance.
         const std::weak_ptr<Ice::Communicator> _communicator;
         IceInternal::UniqueRef<CFMutableDictionaryRef> _proxySettings;
         std::string _proxyHost;
