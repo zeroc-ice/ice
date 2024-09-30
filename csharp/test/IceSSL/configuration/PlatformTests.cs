@@ -100,9 +100,7 @@ public class PlatformTests
         };
         using var clientCommunicator = createClient(clientOptions);
 
-        var obj = ServerPrxHelper.createProxy(
-            clientCommunicator,
-            "server:" + helper.getTestEndpoint(10, "ssl") + " -h 127.0.0.1");
+        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         try
         {
             obj.ice_ping();
@@ -128,9 +126,7 @@ public class PlatformTests
 
         using var clientCommunicator = createClient(new SslClientAuthenticationOptions { });
 
-        var obj = ServerPrxHelper.createProxy(
-            clientCommunicator,
-            "server:" + helper.getTestEndpoint(10, "ssl") + " -h 127.0.0.1");
+        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         try
         {
             obj.ice_ping();
@@ -172,9 +168,7 @@ public class PlatformTests
         };
         using var clientCommunicator = createClient(clientOptions);
 
-        var obj = ServerPrxHelper.createProxy(
-            clientCommunicator,
-            "server:" + helper.getTestEndpoint(10, "ssl") + " -h 127.0.0.1");
+        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         obj.ice_ping();
         Console.WriteLine("ok");
     }
@@ -209,9 +203,7 @@ public class PlatformTests
         };
         using var clientCommunicator = createClient(clientOptions);
 
-        var obj = ServerPrxHelper.createProxy(
-            clientCommunicator,
-            "server:" + helper.getTestEndpoint(10, "ssl") + " -h 127.0.0.1");
+        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         try
         {
             obj.ice_ping();
@@ -249,9 +241,7 @@ public class PlatformTests
         };
         using var clientCommunicator = createClient(clientOptions);
 
-        var obj = ServerPrxHelper.createProxy(
-            clientCommunicator,
-            "server:" + helper.getTestEndpoint(10, "ssl") + " -h 127.0.0.1");
+        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
 
         try
         {
@@ -307,9 +297,7 @@ public class PlatformTests
             };
             using var clientCommunicator = createClient(clientOptions);
 
-            var obj = ServerPrxHelper.createProxy(
-                clientCommunicator,
-                "server:" + helper.getTestEndpoint(10, "ssl") + " -h 127.0.0.1");
+            var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
             obj.ice_ping();
         }
 
@@ -324,9 +312,7 @@ public class PlatformTests
             };
             using var clientCommunicator = createClient(clientOptions);
 
-            var obj = ServerPrxHelper.createProxy(
-                clientCommunicator,
-                "server:" + helper.getTestEndpoint(10, "ssl") + " -h 127.0.0.1");
+            var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
             try
             {
                 obj.ice_ping();
@@ -351,9 +337,7 @@ public class PlatformTests
             };
             using var clientCommunicator = createClient(clientOptions);
 
-            var obj = ServerPrxHelper.createProxy(
-                clientCommunicator,
-                "server:" + helper.getTestEndpoint(10, "ssl") + " -h 127.0.0.1");
+            var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
             obj.ice_ping();
         }
 
@@ -368,9 +352,7 @@ public class PlatformTests
             };
             using var clientCommunicator = createClient(clientOptions);
 
-            var obj = ServerPrxHelper.createProxy(
-                clientCommunicator,
-                "server:" + helper.getTestEndpoint(10, "ssl") + " -h 127.0.0.1");
+            var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
             try
             {
                 obj.ice_ping();
