@@ -93,11 +93,7 @@ lookupKwd(const string& name)
         "interface", "let",    "new",      "null",   "package",    "private", "protected", "public",
         "return",    "static", "super",    "switch", "this",       "throw",   "true",      "try",
         "typeof",    "var",    "void",     "while",  "with",       "yield"};
-    bool found = binary_search(
-        &keywordList[0],
-        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-        name,
-        Slice::CICompare());
+    bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
     if (found)
     {
         return "_" + name;
