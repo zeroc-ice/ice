@@ -154,8 +154,6 @@ internal class SSLEngine
 
     internal X509Certificate2Collection caCerts() => _caCerts;
 
-    internal bool getCheckCertName() => _checkCertName;
-
     internal Ice.Communicator communicator() => _communicator;
 
     internal int securityTraceLevel() => _securityTraceLevel;
@@ -252,6 +250,7 @@ internal class SSLEngine
         {
             authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreInvalidName;
         }
+
         if (_checkCRL == 1)
         {
             authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;

@@ -397,7 +397,9 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
         catch (AuthenticationException ex)
         {
-            throw new SecurityException("Authentication failure.", ex);
+            throw new SecurityException(
+                _errorDescription.Length == 0 ? "SSL authentication failure" : _errorDescription,
+                ex);
         }
         catch (Exception ex)
         {
@@ -436,7 +438,9 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
         catch (AuthenticationException ex)
         {
-            throw new SecurityException("Authentication failure.", ex);
+            throw new SecurityException(
+                _errorDescription.Length == 0 ? "SSL authentication failure." : _errorDescription,
+                ex);
         }
         catch (System.Exception ex)
         {
@@ -462,17 +466,28 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
         }
 
-        foreach (X509ChainStatus status in chain?.ChainStatus ?? [])
+        if ((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
         {
-            message += $"\n{status.StatusInformation}";
+            message += ": Remote certificate name mismatch";
         }
 
-        if (errors != 0 && traceLevel >= 1)
+        if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
         {
-            logger.trace(
-                traceCategory,
-                message.Length > 0 ?
-                    $"SSL certificate validation failed:{message}" : "SSL certificate validation failed");
+            message += ": Remote certificate not available";
+        }
+
+        foreach (X509ChainStatus status in chain?.ChainStatus ?? [])
+        {
+            message += $": {status.StatusInformation}";
+        }
+
+        if (errors != 0)
+        {
+            _errorDescription = message.Length > 0 ? $"SSL authentication failure{message}" : "SSL authentication failure";
+            if (traceLevel >= 1)
+            {
+                logger.trace(traceCategory, _errorDescription);
+            }
         }
         return errors == 0;
     }
@@ -483,6 +498,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     public int getRecvPacketSize(int length) =>
         _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
 
+    private string _errorDescription = "";
     private readonly Instance _instance;
     private readonly Ice.Internal.Transceiver _delegate;
     private readonly string _host = "";
