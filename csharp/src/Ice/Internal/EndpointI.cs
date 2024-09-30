@@ -129,23 +129,15 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
     //
     public abstract Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions);
 
-    //
-    // Expand endpoint out in to separate endpoints for each local
-    // host if listening on INADDR_ANY on server side or if no host
-    // was specified on client side.
-    //
-    public abstract List<EndpointI> expandIfWildcard();
+    // Expand endpoint into separate endpoints for each IP address returned by the DNS resolver.
+    // Used only for server endpoints.
+    public abstract List<EndpointI> expandHost();
 
-    //
-    // Expand endpoint out into separate endpoints for each IP
-    // address returned by the DNS resolver. Also returns the
-    // endpoint which can be used to connect to the returned
-    // endpoints or null if no specific endpoint can be used to
-    // connect to these endpoints (e.g.: with the IP endpoint,
-    // it returns this endpoint if it uses a fixed port, null
-    // otherwise).
-    //
-    public abstract List<EndpointI> expandHost(out EndpointI publishedEndpoint);
+    // Returns true when the most underlying endpoint is an IP endpoint with a loopback address.
+    public abstract bool isLoopback();
+
+    // Returns a new endpoint with the specified host; returns this when this operation is not applicable.
+    public abstract EndpointI withPublishedHost(string host);
 
     //
     // Check whether the endpoint is equivalent to another one.

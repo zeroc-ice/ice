@@ -803,7 +803,7 @@ public sealed class Network
         return addresses;
     }
 
-    public static IPAddress[] getLocalAddresses(int protocol, bool includeLoopback, bool singleAddressPerInterface)
+    public static IPAddress[] getLocalAddresses(int protocol, bool singleAddressPerInterface)
     {
         List<IPAddress> addresses;
         int retry = 5;
@@ -822,8 +822,7 @@ public sealed class Network
                     if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
                        (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                     {
-                        if (!addresses.Contains(uni.Address) &&
-                           (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
+                        if (!addresses.Contains(uni.Address))
                         {
                             addresses.Add(uni.Address);
                             if (singleAddressPerInterface)
@@ -933,13 +932,12 @@ public sealed class Network
         }
     }
 
-    public static List<string> getHostsForEndpointExpand(string host, int protocol, bool includeLoopback)
+    public static List<string> getHostsForEndpointExpand(string host, int protocol)
     {
         List<string> hosts = new List<string>();
-        bool ipv4Wildcard = false;
-        if (isWildcard(host, out ipv4Wildcard))
+        if (isWildcard(host, out bool ipv4Wildcard))
         {
-            foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback, false))
+            foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, false))
             {
                 if (!isLinklocal(a))
                 {
@@ -964,7 +962,7 @@ public sealed class Network
         bool ipv4Wildcard = false;
         if (isWildcard(intf, out ipv4Wildcard))
         {
-            foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true, true))
+            foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true))
             {
                 interfaces.Add(a.ToString());
             }

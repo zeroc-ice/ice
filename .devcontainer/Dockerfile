@@ -13,3 +13,13 @@ RUN set -eux \
     && sudo apt-get install -y libbluetooth-dev libbz2-dev libdbus-1-dev libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev libssl-dev libsystemd-dev \
     && sudo rm -rf /var/lib/apt/lists/* \
     && sudo apt-get clean
+
+# Install .NET 8.0
+RUN set -eux \
+    && curl https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh -L \
+    && chmod +x dotnet-install.sh \
+    && ./dotnet-install.sh -v latest -c 8.0
+
+# Set environment variables
+ENV DOTNET_ROOT=/home/vscode/.dotnet
+ENV PATH=$DOTNET_ROOT:$PATH

@@ -231,6 +231,7 @@ generated from the section label.
         <suffix name="Endpoints" languages="all" />
         <suffix name="Locator" class="proxy" languages="cpp,csharp,java" />
         <suffix name="PublishedEndpoints" languages="all" />
+        <suffix name="PublishedHost" languages="cpp,csharp,java" />
         <suffix name="ReplicaGroupId" languages="cpp,csharp,java" />
         <suffix name="Router" class="proxy" languages="all" />
         <suffix name="ProxyOptions" languages="all" />

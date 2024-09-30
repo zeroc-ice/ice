@@ -639,8 +639,7 @@ internal sealed class UdpTransceiver : Transceiver
         {
             intfs = Network.getHostsForEndpointExpand(
                 Network.endpointAddressToString(_addr),
-                _instance.protocolSupport(),
-                true);
+                _instance.protocolSupport());
         }
         else
         {

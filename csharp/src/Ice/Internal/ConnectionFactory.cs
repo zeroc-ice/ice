@@ -1196,24 +1196,8 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         }
     }
 
-    public bool isLocal(EndpointI endpoint)
-    {
-        if (_publishedEndpoint != null && endpoint.equivalent(_publishedEndpoint))
-        {
-            return true;
-        }
-        lock (_mutex)
-        {
-            return endpoint.equivalent(_endpoint);
-        }
-    }
-
     public EndpointI endpoint()
     {
-        if (_publishedEndpoint != null)
-        {
-            return _publishedEndpoint;
-        }
         lock (_mutex)
         {
             return _endpoint;
@@ -1523,11 +1507,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         }
     }
 
-    public IncomingConnectionFactory(
-        Instance instance,
-        EndpointI endpoint,
-        EndpointI publish,
-        Ice.ObjectAdapter adapter)
+    public IncomingConnectionFactory(Instance instance, EndpointI endpoint, ObjectAdapter adapter)
     {
         _instance = instance;
         _connectionOptions = instance.serverConnectionOptions(adapter.getName());
@@ -1537,7 +1517,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             instance.initializationData().properties.getPropertyAsInt($"{adapter.getName()}.MaxConnections");
 
         _endpoint = endpoint;
-        _publishedEndpoint = publish;
         _adapter = adapter;
         _warn = _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _connections = new HashSet<Ice.ConnectionI>();
@@ -1800,8 +1779,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     private Acceptor _acceptor;
     private readonly Transceiver _transceiver;
     private EndpointI _endpoint;
-    private readonly EndpointI _publishedEndpoint;
-
     private Ice.ObjectAdapter _adapter;
 
     private readonly bool _warn;

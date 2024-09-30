@@ -45,11 +45,13 @@ public class AllTests
     createServerProps(Ice.Properties defaultProperties)
     {
         Dictionary<string, string> result = new Dictionary<string, string>();
-        result["IceSSL.DefaultDir"] = defaultProperties.getProperty("IceSSL.DefaultDir");
-        result["Ice.Default.Host"] = defaultProperties.getProperty("Ice.Default.Host");
-        if (defaultProperties.getProperty("Ice.IPv6").Length > 0)
+        result["IceSSL.DefaultDir"] = defaultProperties.getIceProperty("IceSSL.DefaultDir");
+        result["Ice.Default.Host"] = defaultProperties.getIceProperty("Ice.Default.Host");
+        result["ServerAdapter.PublishedHost"] = result["Ice.Default.Host"];
+
+        if (defaultProperties.getIceProperty("Ice.IPv6").Length > 0)
         {
-            result["Ice.IPv6"] = defaultProperties.getProperty("Ice.IPv6");
+            result["Ice.IPv6"] = defaultProperties.getIceProperty("Ice.IPv6");
         }
         //result["IceSSL.Trace.Security"] = "1";
         return result;
