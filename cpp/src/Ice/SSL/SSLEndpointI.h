@@ -78,7 +78,7 @@ namespace Ice::SSL
         IceInternal::EndpointIPtr readWithUnderlying(const IceInternal::EndpointIPtr&, Ice::InputStream*) const final;
 
     private:
-        InstancePtr _sslInstance;
+        const InstancePtr _sslInstance;
     };
 }
 

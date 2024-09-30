@@ -20,7 +20,7 @@ public:
     IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
 protected:
-    IceInternal::EndpointFactoryPtr _factory;
+    const IceInternal::EndpointFactoryPtr _factory;
 };
 
 #endif
