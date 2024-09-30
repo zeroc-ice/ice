@@ -940,14 +940,7 @@ public sealed class ObjectAdapter
                 checkForDeactivation();
 
                 // Proxies which have at least one endpoint in common with the published endpoints are considered local.
-                foreach (EndpointI endpoint in endpoints)
-                {
-                    if (_publishedEndpoints.Any(e => e.equivalent(endpoint)))
-                    {
-                        return true;
-                    }
-                }
-                return false;
+                return _publishedEndpoints.Any(e => endpoints.Any(e.equivalent));
             }
         }
     }
@@ -1234,8 +1227,9 @@ public sealed class ObjectAdapter
                     TraceLevels tl = _instance.traceLevels();
                     if (tl.network >= 2)
                     {
-                        _instance.initializationData().logger!.trace(tl.networkCat, "created adapter '" + _name +
-                                                                    "' without endpoints");
+                        _instance.initializationData().logger!.trace(
+                            tl.networkCat,
+                            $"created adapter '{_name}' without endpoints");
                     }
                 }
             }
@@ -1397,8 +1391,10 @@ public sealed class ObjectAdapter
         else
         {
             // Parse published endpoints. If set, these are used instead of the connection factory endpoints.
-            string endpts = _instance.initializationData().properties!.getProperty($"{_name}.PublishedEndpoints");
-            endpoints = parseEndpoints(endpts, false);
+            endpoints = parseEndpoints(
+                _instance.initializationData().properties!.getProperty($"{_name}.PublishedEndpoints"),
+                oaEndpoints: false);
+
             if (!endpoints.Any())
             {
                 // If the PublishedEndpoints property isn't set, we compute the published endpoints from the factory
@@ -1432,13 +1428,15 @@ public sealed class ObjectAdapter
             }
         }
 
-        if (_instance.traceLevels().network >= 1 && endpoints.Any())
+        EndpointI[] endpointsArray = endpoints.ToArray();
+
+        if (_instance.traceLevels().network >= 1 && endpointsArray.Length > 0)
         {
-            StringBuilder s = new StringBuilder("published endpoints for object adapter '");
+            var s = new StringBuilder("published endpoints for object adapter '");
             s.Append(_name);
             s.Append("':\n");
             bool first = true;
-            foreach (EndpointI endpoint in endpoints)
+            foreach (EndpointI endpoint in endpointsArray)
             {
                 if (!first)
                 {
@@ -1450,7 +1448,7 @@ public sealed class ObjectAdapter
             _instance.initializationData().logger!.trace(_instance.traceLevels().networkCat, s.ToString());
         }
 
-        return endpoints.ToArray();
+        return endpointsArray;
     }
 
     private void updateLocatorRegistry(LocatorInfo? locatorInfo, ObjectPrx? proxy)
