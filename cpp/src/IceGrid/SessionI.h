@@ -73,7 +73,7 @@ public:
 
     Ice::ObjectPrx _register(const SessionServantManagerPtr&, const Ice::ConnectionPtr&);
 
-    void ice_ping(const Ice::Current&) const;
+    virtual void ice_ping(const Ice::Current&) const;
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
