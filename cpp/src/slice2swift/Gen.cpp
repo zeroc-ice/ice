@@ -525,9 +525,9 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "func read() throws -> " << name;
     out << sb;
     out << nl << (usesClasses ? "let" : "var") << " v = " << name << "()";
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
-        writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), false);
+        writeMarshalUnmarshalCode(out, member->type(), p, "v." + fixIdent(member->name()), false);
     }
     out << nl << "return v";
     out << eb;
@@ -566,9 +566,9 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "///";
     out << nl << "/// - parameter _: `" << name << "` - The value to write to the stream.";
     out << nl << "func write(_ v: " << name << ")" << sb;
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
-        writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), true);
+        writeMarshalUnmarshalCode(out, member->type(), p, "v." + fixIdent(member->name()), true);
     }
     out << eb;
 
@@ -632,7 +632,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string ostr = getUnqualified("Ice.OutputStream", swiftModule);
     const string istr = getUnqualified("Ice.InputStream", swiftModule);
 
-    const string optionalFormat = getUnqualified(getOptionalFormat(p), swiftModule);
+    const string optionalFormat = getOptionalFormat(p);
 
     out << sp;
     out << nl << "/// Helper class to read and write `" << fixIdent(name) << "` sequence values from";
@@ -774,7 +774,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string ostr = getUnqualified("Ice.OutputStream", swiftModule);
     const string istr = getUnqualified("Ice.InputStream", swiftModule);
 
-    const string optionalFormat = getUnqualified(getOptionalFormat(p), swiftModule);
+    const string optionalFormat = getOptionalFormat(p);
     const bool isVariableLength = p->keyType()->isVariableLength() || p->valueType()->isVariableLength();
     const size_t minWireSize = p->keyType()->minWireSize() + p->valueType()->minWireSize();
 
@@ -925,16 +925,16 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "public enum " << name << ": " << enumType;
     out << sb;
 
-    for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+    for (const auto& enumerator : enumerators)
     {
-        StringList sl = splitComment((*en)->comment());
-        out << nl << "/// " << fixIdent((*en)->name());
+        StringList sl = splitComment(enumerator->comment());
+        out << nl << "/// " << fixIdent(enumerator->name());
         if (!sl.empty())
         {
             out << " ";
             writeDocLines(out, sl, false);
         }
-        out << nl << "case " << fixIdent((*en)->name()) << " = " << (*en)->value();
+        out << nl << "case " << fixIdent(enumerator->name()) << " = " << enumerator->value();
     }
 
     out << nl << "public init()";
@@ -1325,17 +1325,16 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         << ") throws";
     out << sb;
     out << nl << "_ = try istr.startSlice()";
-    for (DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    for (const auto& member : members)
     {
-        DataMemberPtr member = *i;
         if (!member->optional())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
         }
     }
-    for (DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, (*d)->type(), p, "self." + fixIdent((*d)->name()), false, (*d)->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
     }
     out << nl << "try istr.endSlice()";
     if (base)
@@ -1349,18 +1348,17 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: " << p->compactId()
         << ", last: " << (!base ? "true" : "false") << ")";
-    for (DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    for (const auto& member : members)
     {
-        DataMemberPtr member = *i;
         TypePtr type = member->type();
         if (!member->optional())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
         }
     }
-    for (DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, (*d)->type(), p, "self." + fixIdent((*d)->name()), true, (*d)->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
     }
     out << nl << "ostr.endSlice()";
     if (base)

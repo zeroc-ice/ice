@@ -156,27 +156,32 @@ namespace
     }
 }
 
-//
 // Check the given identifier against Swift's list of reserved words. If it matches
 // a reserved word, then an escaped version is returned with a leading underscore.
 //
+// The provided identifier must be a _Swift_ identifier (Ice.Foo) and not a Slice identifier (Ice::Foo).
 string
 Slice::fixIdent(const string& ident)
 {
-    if (ident[0] != ':')
+    assert(ident.find(':' == string::npos));
+
+    // Swift namespaces are flat, so we don't need to check for multiple periods, there can be at most 1.
+    string::size_type separator_pos = ident.find('.');
+    if (separator_pos != string::npos)
     {
+        // If this identifier is scoped, we break it up and escape each piece separately.
+        auto scope = ident.substr(0, separator_pos);
+        auto name = ident.substr(separator_pos + 1);
+
+        ostringstream result;
+        result << lookupKwd(scope) << "." << lookupKwd(name);
+        return result.str();
+    }
+    else
+    {
+        // If this identifier isn't scoped, we directly escape it.
         return lookupKwd(ident);
     }
-    vector<string> ids = splitScopedName(ident);
-
-    transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-
-    ostringstream result;
-    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
-    {
-        result << "::" + *i;
-    }
-    return result.str();
 }
 
 string
@@ -1545,7 +1550,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
                 alias = m->name() + "_" + memberType;
                 out << nl << "typealias " << alias << " = " << memberType;
             }
-            args += (alias.empty() ? memberType : alias) + ".self";
+            args += fixIdent(alias.empty() ? memberType : alias) + ".self";
             out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 "
                 << "}";
         }
@@ -2224,9 +2229,10 @@ SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const Op
     out << sb;
     out << nl << "throw ex";
     out << eb;
-    for (ExceptionList::const_iterator q = throws.begin(); q != throws.end(); ++q)
+
+    for (const auto& thrown : throws)
     {
-        out << " catch let error as " << getRelativeTypeString(*q, swiftModule) << sb;
+        out << " catch let error as " << fixIdent(getRelativeTypeString(thrown, swiftModule)) << sb;
         out << nl << "throw error";
         out << eb;
     }
