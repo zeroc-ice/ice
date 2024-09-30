@@ -694,12 +694,6 @@ IceObjC::iAPEndpointFactory::read(InputStream* s) const
     return make_shared<iAPEndpointI>(_instance, s);
 }
 
-void
-IceObjC::iAPEndpointFactory::destroy()
-{
-    _instance = 0;
-}
-
 EndpointFactoryPtr
 IceObjC::iAPEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {

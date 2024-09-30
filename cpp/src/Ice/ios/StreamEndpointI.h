@@ -37,7 +37,6 @@ namespace IceObjC
     {
     public:
         Instance(const Ice::CommunicatorPtr&, std::int16_t, const std::string&, bool);
-        Instance(const InstancePtr&, const IceInternal::ProtocolInstancePtr&);
         ~Instance() = default;
 
         const std::string& proxyHost() const { return _proxyHost; }
@@ -46,8 +45,10 @@ namespace IceObjC
 
         void setupStreams(CFReadStreamRef, CFWriteStreamRef, bool, const std::string&) const;
 
+        Ice::CommunicatorPtr communicator();
+
     private:
-        const Ice::CommunicatorPtr _communicator;
+        const std::weak_ptr<Ice::Communicator> _communicator;
         IceInternal::UniqueRef<CFMutableDictionaryRef> _proxySettings;
         std::string _proxyHost;
         int _proxyPort;
@@ -133,7 +134,6 @@ namespace IceObjC
         std::string protocol() const final;
         IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
         IceInternal::EndpointIPtr read(Ice::InputStream*) const final;
-        void destroy() final;
 
         IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
