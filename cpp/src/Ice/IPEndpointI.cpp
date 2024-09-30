@@ -107,46 +107,14 @@ IceInternal::IPEndpointI::connectorsAsync(
 }
 
 vector<EndpointIPtr>
-IceInternal::IPEndpointI::expandIfWildcard() const
+IceInternal::IPEndpointI::expandHost() const
 {
-    vector<EndpointIPtr> endpoints;
-    vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
-    if (hosts.empty())
-    {
-        endpoints.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
-    }
-    else
-    {
-        for (const auto& host : hosts)
-        {
-            endpoints.push_back(createEndpoint(host, _port, _connectionId));
-        }
-    }
-    return endpoints;
-}
-
-vector<EndpointIPtr>
-IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
-{
-    //
-    // If this endpoint has an empty host (wildcard address), don't expand, just return
-    // this endpoint.
-    //
+    // If this endpoint has an empty host (wildcard address), don't expand, just return this endpoint.
     if (_host.empty())
     {
         vector<EndpointIPtr> endpoints;
         endpoints.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
         return endpoints;
-    }
-
-    //
-    // If using a fixed port, this endpoint can be used as the published endpoint to
-    // access the returned endpoints. Otherwise, we'll publish each individual expanded
-    // endpoint.
-    //
-    if (_port > 0)
-    {
-        publish = const_cast<IPEndpointI*>(this)->shared_from_this();
     }
 
     vector<Address> addrs = getAddresses(
@@ -158,21 +126,26 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
         true);
 
     vector<EndpointIPtr> endpoints;
-    if (addrs.size() == 1)
+    for (const auto& address : addrs)
     {
-        endpoints.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
-    }
-    else
-    {
-        for (vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
-        {
-            string host;
-            int port;
-            addrToAddressAndPort(*p, host, port);
-            endpoints.push_back(createEndpoint(host, port, _connectionId));
-        }
+        string host;
+        int port;
+        addrToAddressAndPort(address, host, port);
+        endpoints.push_back(createEndpoint(host, port, _connectionId));
     }
     return endpoints;
+}
+
+bool
+IceInternal::IPEndpointI::isLoopback() const
+{
+    return _host.empty() ? false : isLoopbackAddress(_host);
+}
+
+shared_ptr<EndpointI>
+IceInternal::IPEndpointI::withPublishedHost(string host) const
+{
+    return createEndpoint(host, _port, _connectionId);
 }
 
 bool

@@ -1386,7 +1386,7 @@ public sealed class ObjectAdapter
         if (_routerInfo is not null)
         {
             // Get the router's server proxy endpoints and use them as the published endpoints.
-            endpoints = _routerInfo.getServerEndpoints().Distinct();
+            endpoints = _routerInfo.getServerEndpoints();
         }
         else
         {

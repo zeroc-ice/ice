@@ -163,19 +163,23 @@ IceInternal::OpaqueEndpointI::acceptor(const string&, const optional<Ice::SSL::S
 }
 
 vector<EndpointIPtr>
-IceInternal::OpaqueEndpointI::expandIfWildcard() const
+IceInternal::OpaqueEndpointI::expandHost() const
 {
     vector<EndpointIPtr> endps;
     endps.push_back(const_cast<OpaqueEndpointI*>(this)->shared_from_this());
     return endps;
 }
 
-vector<EndpointIPtr>
-IceInternal::OpaqueEndpointI::expandHost(EndpointIPtr&) const
+bool
+IceInternal::OpaqueEndpointI::isLoopback() const
 {
-    vector<EndpointIPtr> endps;
-    endps.push_back(const_cast<OpaqueEndpointI*>(this)->shared_from_this());
-    return endps;
+    return false;
+}
+
+shared_ptr<EndpointI>
+IceInternal::OpaqueEndpointI::withPublishedHost(string) const
+{
+    return const_cast<OpaqueEndpointI*>(this)->shared_from_this();
 }
 
 bool

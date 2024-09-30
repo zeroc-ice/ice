@@ -214,14 +214,24 @@ IceBT::EndpointI::expandIfWildcard() const
 }
 
 vector<IceInternal::EndpointIPtr>
-IceBT::EndpointI::expandHost(IceInternal::EndpointIPtr&) const
+IceBT::EndpointI::expandHost() const
 {
-    //
     // Nothing to do here.
-    //
     vector<IceInternal::EndpointIPtr> endps;
     endps.push_back(const_cast<EndpointI*>(this)->shared_from_this());
     return endps;
+}
+
+bool
+IceBT::EndpointI::isLoopback() const
+{
+    return false;
+}
+
+shared_ptr<IceInternal::EndpointI>
+IceBT::EndpointI::withPublishedHost(string) const
+{
+    return const_cast<EndpointI*>(this)->shared_from_this();
 }
 
 bool

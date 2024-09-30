@@ -261,47 +261,29 @@ IceInternal::WSEndpoint::endpoint(const EndpointIPtr& delEndp) const
 }
 
 vector<EndpointIPtr>
-IceInternal::WSEndpoint::expandIfWildcard() const
+IceInternal::WSEndpoint::expandHost() const
 {
-    vector<EndpointIPtr> endps = _delegate->expandIfWildcard();
-    for (vector<EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
-    {
-        if (p->get() == _delegate.get())
-        {
-            *p = const_cast<WSEndpoint*>(this)->shared_from_this();
-        }
-        else
-        {
-            *p = make_shared<WSEndpoint>(_instance, *p, _resource);
-        }
-    }
-    return endps;
+    vector<EndpointIPtr> endpoints = _delegate->expandHost();
+
+    transform(
+        endpoints.begin(),
+        endpoints.end(),
+        endpoints.begin(),
+        [this](const EndpointIPtr& p) { return endpoint(p); });
+
+    return endpoints;
 }
 
-vector<EndpointIPtr>
-IceInternal::WSEndpoint::expandHost(EndpointIPtr& publish) const
+bool
+IceInternal::WSEndpoint::isLoopback() const
 {
-    vector<EndpointIPtr> endps = _delegate->expandHost(publish);
-    if (publish.get() == _delegate.get())
-    {
-        publish = const_cast<WSEndpoint*>(this)->shared_from_this();
-    }
-    else if (publish.get())
-    {
-        publish = make_shared<WSEndpoint>(_instance, publish, _resource);
-    }
-    for (vector<EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
-    {
-        if (p->get() == _delegate.get())
-        {
-            *p = const_cast<WSEndpoint*>(this)->shared_from_this();
-        }
-        else
-        {
-            *p = make_shared<WSEndpoint>(_instance, *p, _resource);
-        }
-    }
-    return endps;
+    return _delegate->isLoopback();
+}
+
+shared_ptr<EndpointI>
+IceInternal::WSEndpoint::withPublishedHost(string host) const
+{
+    return endpoint(_delegate->withPublishedHost(std::move(host)));
 }
 
 bool

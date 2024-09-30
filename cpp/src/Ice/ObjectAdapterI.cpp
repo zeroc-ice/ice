@@ -712,31 +712,15 @@ Ice::ObjectAdapterI::isLocal(const ReferencePtr& ref) const
     }
     else
     {
-        vector<EndpointIPtr> endpoints = ref->getEndpoints();
-
         lock_guard lock(_mutex);
         checkForDeactivation();
 
-        //
-        // Proxies which have at least one endpoint in common with the
-        // endpoints used by this object adapter are considered local.
-        //
-        for (vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        // Proxies which have at least one endpoint in common with the published endpoints are considered local.
+        for (const auto& endpoint : ref->getEndpoints())
         {
-            for (vector<IncomingConnectionFactoryPtr>::const_iterator q = _incomingConnectionFactories.begin();
-                 q != _incomingConnectionFactories.end();
-                 ++q)
+            for (const auto& publishedEndpoint : _publishedEndpoints)
             {
-                if ((*q)->isLocal(*p))
-                {
-                    return true;
-                }
-            }
-
-            for (vector<EndpointIPtr>::const_iterator r = _publishedEndpoints.begin(); r != _publishedEndpoints.end();
-                 ++r)
-            {
-                if ((*p)->equivalent(*r))
+                if (endpoint->equivalent(publishedEndpoint))
                 {
                     return true;
                 }
@@ -1031,14 +1015,11 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             // fill in the real port number.
             //
             vector<EndpointIPtr> endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"), true);
-            for (vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+            for (const auto& endpoint : endpoints)
             {
-                EndpointIPtr publishedEndpoint;
-                vector<EndpointIPtr> expanded = (*p)->expandHost(publishedEndpoint);
-                for (vector<EndpointIPtr>::iterator q = expanded.begin(); q != expanded.end(); ++q)
+                for (const auto& expanded : endpoint->expandHost())
                 {
-                    auto factory =
-                        make_shared<IncomingConnectionFactory>(_instance, *q, publishedEndpoint, shared_from_this());
+                    auto factory = make_shared<IncomingConnectionFactory>(_instance, expanded, shared_from_this());
                     factory->initialize();
                     _incomingConnectionFactories.push_back(factory);
                 }
@@ -1238,49 +1219,65 @@ ObjectAdapterI::computePublishedEndpoints()
     vector<EndpointIPtr> endpoints;
     if (_routerInfo)
     {
-        //
         // Get the router's server proxy endpoints and use them as the published endpoints.
-        //
-        vector<EndpointIPtr> endps = _routerInfo->getServerEndpoints();
-        for (vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
-        {
-            if (::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
-            {
-                endpoints.push_back(*p);
-            }
-        }
+        endpoints = _routerInfo->getServerEndpoints();
     }
     else
     {
-        //
-        // Parse published endpoints. If set, these are used in proxies
-        // instead of the connection factory endpoints.
-        //
-        string endpts = _communicator->getProperties()->getProperty(_name + ".PublishedEndpoints");
-        endpoints = parseEndpoints(endpts, false);
+        // Parse published endpoints. If set, these are used in proxies instead of the connection factory endpoints.
+        endpoints = parseEndpoints(_communicator->getProperties()->getProperty(_name + ".PublishedEndpoints"), false);
         if (endpoints.empty())
         {
-            //
-            // If the PublishedEndpoints property isn't set, we compute the published endpoints
-            // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
-            // to include actual addresses in the published endpoints.
-            //
-            for (unsigned int i = 0; i < _incomingConnectionFactories.size(); ++i)
+            // If the PublishedEndpoints property isn't set, we compute the published endpoints from the factory
+            // endpoints.
+            for (const auto& factory : _incomingConnectionFactories)
             {
-                vector<EndpointIPtr> endps = _incomingConnectionFactories[i]->endpoint()->expandIfWildcard();
-                for (vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
+                endpoints.push_back(factory->endpoint());
+            }
+
+            // Remove all loopback endpoints
+            vector<EndpointIPtr> endpointsNoLoopback;
+            copy_if(
+                endpoints.begin(),
+                endpoints.end(),
+                back_inserter(endpointsNoLoopback),
+                [](const EndpointIPtr& endpoint) { return !endpoint->isLoopback(); });
+
+            // Retrieve published host
+            string publishedHost = _communicator->getProperties()->getProperty(_name + ".PublishedHost");
+
+            if (!endpointsNoLoopback.empty())
+            {
+                endpoints = endpointsNoLoopback;
+
+                // For non-loopback endpoints, we use the fully qualified name of the local host as default for
+                // publishedHost.
+                if (publishedHost.empty())
                 {
-                    //
-                    // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
-                    // expands to multiple addresses. In this case, multiple incoming connection
-                    // factories can point to the same published endpoint.
-                    //
-                    if (::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
-                    {
-                        endpoints.push_back(*p);
-                    }
+                    publishedHost = getHostName(); // fully qualified name of local host
                 }
             }
+            // else keep endpoints as-is; they are all loopback.
+
+            if (!publishedHost.empty())
+            {
+                vector<EndpointIPtr> newEndpoints;
+
+                // Replace the host in all endpoints by publishedHost (when applicable), and remove duplicates.
+                for (const auto& endpoint : endpoints)
+                {
+                    EndpointIPtr newEndpoint = endpoint->withPublishedHost(publishedHost);
+                    if (::find_if(
+                            newEndpoints.begin(),
+                            newEndpoints.end(),
+                            [newEndpoint](const EndpointIPtr& p) { return *newEndpoint == *p; }) == newEndpoints.end())
+                    {
+                        newEndpoints.push_back(newEndpoint);
+                    }
+                }
+                endpoints = newEndpoints;
+            }
+            // else keep the loopback-only endpoints as-is (with IP addresses)
         }
     }
 
@@ -1418,6 +1415,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "MaxConnections",
         "MessageSizeMax",
         "PublishedEndpoints",
+        "PublishedHost",
         "ReplicaGroupId",
         "Router",
         "Router.EncodingVersion",
