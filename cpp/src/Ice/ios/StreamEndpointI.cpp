@@ -474,10 +474,7 @@ EndpointFactoryPtr
 IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     const CommunicatorPtr communicator = _instance->communicator();
-    return make_shared<StreamEndpointFactory>(make_shared<IceObjC::Instance>(
-        communicator,
-        instance->type(),
-        instance->protocol(),
-        instance->secure()));
+    return make_shared<StreamEndpointFactory>(
+        make_shared<IceObjC::Instance>(communicator, instance->type(), instance->protocol(), instance->secure()));
 }
 #endif

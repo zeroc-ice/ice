@@ -19,7 +19,7 @@ namespace Ice::SSL
         SSLEnginePtr engine() const;
 
     private:
-        //Use a weak pointer to avoid circular references, the SSL engine is owned by the communicator instance.
+        // Use a weak pointer to avoid circular references, the SSL engine is owned by the communicator instance.
         const std::weak_ptr<SSLEngine> _engine;
     };
 }
