@@ -36,5 +36,5 @@ final class TcpEndpointFactory implements EndpointFactory {
         return new TcpEndpointFactory(instance);
     }
 
-    private ProtocolInstance _instance;
+    private final ProtocolInstance _instance;
 }

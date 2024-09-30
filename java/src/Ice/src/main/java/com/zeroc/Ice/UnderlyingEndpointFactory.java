@@ -58,7 +58,7 @@ public class UnderlyingEndpointFactory implements EndpointFactory {
         return new UnderlyingEndpointFactory(instance, _type, _underlying);
     }
 
-    protected ProtocolInstance _instance;
+    protected final ProtocolInstance _instance;
 
     private final short _type;
     private final short _underlying;

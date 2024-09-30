@@ -38,5 +38,5 @@ final class EndpointFactoryI implements EndpointFactory {
                 new Instance(_instance.communicator(), instance.type(), instance.protocol()));
     }
 
-    private Instance _instance;
+    private final Instance _instance;
 }

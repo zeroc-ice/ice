@@ -61,7 +61,7 @@ public abstract class EndpointFactoryWithUnderlying implements EndpointFactory {
 
     protected abstract EndpointI readWithUnderlying(EndpointI underlying, InputStream s);
 
-    protected ProtocolInstance _instance;
+    protected final ProtocolInstance _instance;
 
     private final short _type;
     private EndpointFactory _underlying;

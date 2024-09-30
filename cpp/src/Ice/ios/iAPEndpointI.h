@@ -95,7 +95,7 @@ namespace IceObjC
         IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
     private:
-        IceInternal::ProtocolInstancePtr _instance;
+        const IceInternal::ProtocolInstancePtr _instance;
     };
 }
 

@@ -397,7 +397,7 @@ public abstract class IPEndpointI : EndpointI
 
     protected abstract IPEndpointI createEndpoint(string host, int port, string connectionId);
 
-    protected ProtocolInstance instance_;
+    protected readonly ProtocolInstance instance_;
     protected string host_;
     protected int port_;
     protected EndPoint sourceAddr_;

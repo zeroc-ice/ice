@@ -34,7 +34,7 @@ namespace IceInternal
     private:
         friend class Instance;
 
-        InstancePtr _instance;
+        const InstancePtr _instance;
         std::vector<EndpointFactoryPtr> _factories;
         mutable std::mutex _mutex;
     };

@@ -322,5 +322,5 @@ internal sealed class TcpEndpointFactory : EndpointFactory
         return new TcpEndpointFactory(instance);
     }
 
-    private ProtocolInstance _instance;
+    private readonly ProtocolInstance _instance;
 }

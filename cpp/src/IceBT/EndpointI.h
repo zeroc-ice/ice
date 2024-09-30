@@ -105,7 +105,7 @@ namespace IceBT
         IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
     private:
-        InstancePtr _instance;
+        const InstancePtr _instance;
     };
 }
 

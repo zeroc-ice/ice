@@ -36,5 +36,5 @@ final class UdpEndpointFactory implements EndpointFactory {
         return new UdpEndpointFactory(instance);
     }
 
-    private ProtocolInstance _instance;
+    private final ProtocolInstance _instance;
 }

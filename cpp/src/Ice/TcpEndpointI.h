@@ -80,7 +80,7 @@ namespace IceInternal
         EndpointFactoryPtr clone(const ProtocolInstancePtr&) const final;
 
     private:
-        ProtocolInstancePtr _instance;
+        const ProtocolInstancePtr _instance;
     };
 }
 

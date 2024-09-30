@@ -156,6 +156,6 @@ final class EndpointFactoryManager {
         return e;
     }
 
-    private Instance _instance;
+    private final Instance _instance;
     private java.util.List<EndpointFactory> _factories = new java.util.ArrayList<>();
 }

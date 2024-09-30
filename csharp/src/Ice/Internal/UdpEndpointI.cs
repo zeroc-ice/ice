@@ -477,5 +477,5 @@ internal sealed class UdpEndpointFactory : EndpointFactory
         return new UdpEndpointFactory(instance);
     }
 
-    private ProtocolInstance _instance;
+    private readonly ProtocolInstance _instance;
 }
