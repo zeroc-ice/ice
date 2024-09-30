@@ -950,148 +950,147 @@ export class Client extends TestHelper {
         p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 4 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
         test(communicator.proxyToString(p2) === "test -t -e 1.1:ws -h 127.0.0.1 -p 12010 -t 10000");
 
-        if (communicator.getProperties().getPropertyAsInt("Ice.IPv6") === 0) {
-            const ref = "test:" + this.getTestEndpoint();
+        const ref = "test:" + this.getTestEndpoint();
 
-            const ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") === "ssl";
-            // TODO: p1 contains 127.0.0.1 - OK to invoke?
-            //   if(!ssl)
-            //   {
-            //       p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-            //   }
+        const ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") === "ssl";
+        // TODO: p1 contains 127.0.0.1 - OK to invoke?
+        //   if(!ssl)
+        //   {
+        //       p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+        //   }
 
-            // Two legal TCP endpoints expressed as opaque endpoints
-            p1 = communicator.stringToProxy(
-                "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==",
-            );
-            pstr = communicator.proxyToString(p1);
-            test(pstr === "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+        // Two legal TCP endpoints expressed as opaque endpoints
+        p1 = communicator.stringToProxy(
+            "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==",
+        );
+        pstr = communicator.proxyToString(p1);
+        test(pstr === "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
-            p1 = communicator.stringToProxy(
-                "test -e 1.0:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAAA=",
-            );
-            pstr = communicator.proxyToString(p1);
-            test(pstr === "test -t -e 1.0:ws -h 127.0.0.1 -p 12010 -t 10000:ws -h 127.0.0.2 -p 12011 -t 10000");
+        p1 = communicator.stringToProxy(
+            "test -e 1.0:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAAA=",
+        );
+        pstr = communicator.proxyToString(p1);
+        test(pstr === "test -t -e 1.0:ws -h 127.0.0.1 -p 12010 -t 10000:ws -h 127.0.0.2 -p 12011 -t 10000");
 
+        //
+        // Test that an SSL endpoint and a nonsense endpoint get
+        // written back out as an opaque endpoint.
+        //
+        p1 = communicator.stringToProxy(
+            "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch",
+        );
+        pstr = communicator.proxyToString(p1);
+        test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
+
+        //
+        // Try to invoke on the SSL endpoint to verify that we get a
+        // NoEndpointException (or ConnectFailedException when
+        // running with SSL).
+        //
+        try {
+            await p1.ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
+            test(false);
+        } catch (ex) {
+            if (ex instanceof Ice.NoEndpointException) {
+                test(!ssl);
+            } else if (ex instanceof Ice.ConnectFailedException) {
+                test(ssl);
+            } else {
+                throw ex;
+            }
+        }
+        //
+        // Test that the proxy with an SSL endpoint and a nonsense
+        // endpoint (which the server doesn't understand either) can
+        // be sent over the wire and returned by the server without
+        // losing the opaque endpoints.
+        //
+        derived = Test.MyDerivedClassPrx.uncheckedCast(
+            communicator.stringToProxy("test -e 1.0:" + this.getTestEndpoint()),
+        );
+        p2 = await derived.echo(p1);
+
+        pstr = communicator.proxyToString(p2);
+        test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
+
+        let p = communicator.stringToProxy("test:" + this.getTestEndpoint());
+        if (defaultProtocol === "tcp") {
+            test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.TCPEndpointInfo);
+        } else if (defaultProtocol === "ws" || defaultProtocol === "wss") {
+            test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.WSEndpointInfo);
+        }
+
+        let con = await p.ice_getConnection();
+        if (defaultProtocol === "tcp") {
+            test(con.getInfo() instanceof Ice.TCPConnectionInfo);
+        } else if (defaultProtocol === "ws" || defaultProtocol === "wss") {
+            test(con.getInfo() instanceof Ice.WSConnectionInfo);
+        }
+
+        // The first endpoint is a non connectable and should be automatically skipped.
+        p = TestHelper.isBrowser()
+            ? communicator.stringToProxy("test:" + this.getTestEndpoint("tcp") + ":" + this.getTestEndpoint())
+            : communicator.stringToProxy("test:" + this.getTestEndpoint("ws") + ":" + this.getTestEndpoint());
+
+        p = p.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
+        await p.ice_ping();
+
+        out.writeLine("ok");
+
+        out.write("testing proxyToString... ");
+        b1 = communicator.stringToProxy(ref);
+        let b2 = communicator.stringToProxy(communicator.proxyToString(b1));
+        test(b1.equals(b2));
+
+        con = await b1.ice_getConnection();
+        b2 = con.createProxy(Ice.stringToIdentity("fixed"));
+        const str = communicator.proxyToString(b2);
+        test(b2.toString() === str);
+        const str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
+
+        // Verify that the stringified fixed proxy is the same as a regular stringified proxy
+        // but without endpoints
+        test(str2.startsWith(str));
+        test(str2.charAt(str.length) === ":");
+
+        out.writeLine("ok");
+
+        if (defaultProtocol === "ws" || defaultProtocol === "wss") {
+            out.write("testing ping invalid WS proxies... ");
             //
-            // Test that an SSL endpoint and a nonsense endpoint get
-            // written back out as an opaque endpoint.
+            // Invocation in a WS or WSS proxy that has not hostname set
+            // will fail creating the WebSocket object.
             //
-            p1 = communicator.stringToProxy(
-                "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch",
-            );
-            pstr = communicator.proxyToString(p1);
-            test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
-
-            //
-            // Try to invoke on the SSL endpoint to verify that we get a
-            // NoEndpointException (or ConnectFailedException when
-            // running with SSL).
-            //
+            const communicator2 = Ice.initialize();
+            const invalid = communicator2.stringToProxy("test:" + this.getTestEndpoint());
             try {
-                await p1.ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
+                await invalid.ice_ping();
                 test(false);
             } catch (ex) {
-                if (ex instanceof Ice.NoEndpointException) {
-                    test(!ssl);
-                } else if (ex instanceof Ice.ConnectFailedException) {
-                    test(ssl);
-                } else {
-                    throw ex;
-                }
-            }
-            //
-            // Test that the proxy with an SSL endpoint and a nonsense
-            // endpoint (which the server doesn't understand either) can
-            // be sent over the wire and returned by the server without
-            // losing the opaque endpoints.
-            //
-            derived = Test.MyDerivedClassPrx.uncheckedCast(
-                communicator.stringToProxy("test -e 1.0:" + this.getTestEndpoint()),
-            );
-            p2 = await derived.echo(p1);
-
-            pstr = communicator.proxyToString(p2);
-            test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
-
-            let p = communicator.stringToProxy("test:" + this.getTestEndpoint());
-            if (defaultProtocol === "tcp") {
-                test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.TCPEndpointInfo);
-            } else if (defaultProtocol === "ws" || defaultProtocol === "wss") {
-                test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.WSEndpointInfo);
-            }
-
-            let con = await p.ice_getConnection();
-            if (defaultProtocol === "tcp") {
-                test(con.getInfo() instanceof Ice.TCPConnectionInfo);
-            } else if (defaultProtocol === "ws" || defaultProtocol === "wss") {
-                test(con.getInfo() instanceof Ice.WSConnectionInfo);
-            }
-
-            // The first endpoint is a non connectable and should be automatically skipped.
-            p = TestHelper.isBrowser()
-                ? communicator.stringToProxy("test:" + this.getTestEndpoint("tcp") + ":" + this.getTestEndpoint())
-                : communicator.stringToProxy("test:" + this.getTestEndpoint("ws") + ":" + this.getTestEndpoint());
-
-            p = p.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
-            await p.ice_ping();
-
-            out.writeLine("ok");
-
-            out.write("testing proxyToString... ");
-            b1 = communicator.stringToProxy(ref);
-            let b2 = communicator.stringToProxy(communicator.proxyToString(b1));
-            test(b1.equals(b2));
-
-            con = await b1.ice_getConnection();
-            b2 = con.createProxy(Ice.stringToIdentity("fixed"));
-            const str = communicator.proxyToString(b2);
-            test(b2.toString() === str);
-            const str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
-
-            // Verify that the stringified fixed proxy is the same as a regular stringified proxy
-            // but without endpoints
-            test(str2.startsWith(str));
-            test(str2.charAt(str.length) === ":");
-
-            out.writeLine("ok");
-
-            if (defaultProtocol === "ws" || defaultProtocol === "wss") {
-                out.write("testing ping invalid WS proxies... ");
-                //
-                // Invocation in a WS or WSS proxy that has not hostname set
-                // will fail creating the WebSocket object.
-                //
-                const communicator2 = Ice.initialize();
-                const invalid = communicator2.stringToProxy("test:" + this.getTestEndpoint());
-                try {
-                    await invalid.ice_ping();
-                    test(false);
-                } catch (ex) {
-                    // expected
-                } finally {
-                    await communicator2.destroy();
-                }
-                out.writeLine("ok");
-            }
-
-            out.write("testing communicator shutdown/destroy... ");
-            {
-                const c = Ice.initialize();
-                c.shutdown();
-                test(c.isShutdown());
-                await c.waitForShutdown();
-                await c.destroy();
-                c.shutdown();
-                test(c.isShutdown());
-                await c.waitForShutdown();
-                await c.destroy();
+                // expected
+            } finally {
+                await communicator2.destroy();
             }
             out.writeLine("ok");
-
-            derived = new Test.MyDerivedClassPrx(communicator, `test:${this.getTestEndpoint()}`);
-            await derived.shutdown();
         }
+
+        out.write("testing communicator shutdown/destroy... ");
+        {
+            const c = Ice.initialize();
+            c.shutdown();
+            test(c.isShutdown());
+            await c.waitForShutdown();
+            await c.destroy();
+            c.shutdown();
+            test(c.isShutdown());
+            await c.waitForShutdown();
+            await c.destroy();
+        }
+        out.writeLine("ok");
+
+        derived = new Test.MyDerivedClassPrx(communicator, `test:${this.getTestEndpoint()}`);
+        await derived.shutdown();
+
     }
 
     async run(args: string[]) {
