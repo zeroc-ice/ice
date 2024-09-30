@@ -789,7 +789,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 {
     DocElements doc = parseComment(p);
 
-    const string name = getUnqualified(getAbsolute(p), swiftModule);
+    const string name = getRelativeTypeString(p, swiftModule);
     const string prx = name + "Prx";
 
     if (doc.overview.empty())
@@ -837,7 +837,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
 {
     DocElements doc = parseComment(p);
 
-    const string name = getUnqualified(getAbsolute(p), swiftModule);
+    const string name = getRelativeTypeString(p, swiftModule);
 
     if (doc.overview.empty())
     {
@@ -917,36 +917,32 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
     u->visit(&visitor);
 }
 
-//
-// Get the fully-qualified name of the given definition. If a suffix is provided,
-// it is prepended to the definition's unqualified name. If the nameSuffix
-// is provided, it is appended to the container's name.
-//
-namespace
+string
+SwiftGenerator::getRelativeTypeString(const ContainedPtr& contained, const string& currentModule)
 {
-    string getAbsoluteImpl(const ContainedPtr& cont, const string& prefix = "", const string& suffix = "")
+    string typeString = contained->scoped();
+
+    // Proxy types always end with "Prx".
+    if (dynamic_pointer_cast<InterfaceDecl>(contained))
     {
-        string swiftPrefix;
-        string swiftModule = getSwiftModule(getTopLevelModule(cont), swiftPrefix);
-
-        string str = cont->scope() + prefix + cont->name() + suffix;
-        if (str.find("::") == 0)
-        {
-            str.erase(0, 2);
-        }
-
-        size_t pos = str.find("::");
-        //
-        // Replace the definition top-level module by the corresponding Swift module
-        // and append the Swift prefix for the Slice module, then any remaining nested
-        // modules become a Swift prefix
-        //
-        if (pos != string::npos)
-        {
-            str = str.substr(pos + 2);
-        }
-        return swiftModule + "." + swiftPrefix + replace(str, "::", "");
+        typeString += "Prx";
     }
+
+    // Remove the leading '::' the Slice compiler always gives us.
+    assert(typeString.find("::") == 0);
+    typeString.erase(0, 2);
+    // Replace the definition top-level module by the corresponding Swift module
+    // and append the Swift prefix for the Slice module, then any remaining nested
+    // modules become a Swift prefix
+    size_t pos = typeString.find("::");
+    if (pos != string::npos)
+    {
+        typeString = typeString.substr(pos + 2);
+    }
+    string swiftPrefix;
+    string swiftModule = getSwiftModule(getTopLevelModule(contained), swiftPrefix);
+    auto absoluteIdent = swiftModule + "." + swiftPrefix + replace(typeString, "::", "");
+    return getUnqualified(absoluteIdent, currentModule);
 }
 
 string
@@ -993,19 +989,19 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return getUnqualified(getAbsolute(type), swiftModule) + "()";
+        return getRelativeTypeString(st, swiftModule) + "()";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
     {
-        return getUnqualified(getAbsolute(type), swiftModule) + "()";
+        return getRelativeTypeString(seq, swiftModule) + "()";
     }
 
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if (dict)
     {
-        return getUnqualified(getAbsolute(type), swiftModule) + "()";
+        return getRelativeTypeString(dict, swiftModule) + "()";
     }
 
     return "nil";
@@ -1024,7 +1020,7 @@ SwiftGenerator::writeConstantValue(
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        out << getUnqualified(getAbsolute(constant), swiftModule);
+        out << getRelativeTypeString(constant, swiftModule);
     }
     else
     {
@@ -1043,7 +1039,7 @@ SwiftGenerator::writeConstantValue(
                 assert(valueType);
                 EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(enumerator);
-                out << getUnqualified(getAbsolute(ep), swiftModule) << "." << enumerator->name();
+                out << getRelativeTypeString(ep, swiftModule) << "." << enumerator->name();
             }
             else
             {
@@ -1113,15 +1109,15 @@ SwiftGenerator::typeToString(
 
     if (cl)
     {
-        t += fixIdent(getUnqualified(getAbsoluteImpl(cl), currentModule));
+        t += fixIdent(getRelativeTypeString(cl, currentModule));
     }
     else if (prx)
     {
-        t = getUnqualified(getAbsoluteImpl(prx, "", "Prx"), currentModule);
+        t = getRelativeTypeString(prx, currentModule);
     }
     else if (cont)
     {
-        t = fixIdent(getUnqualified(getAbsoluteImpl(cont), currentModule));
+        t = fixIdent(getRelativeTypeString(cont, currentModule));
     }
 
     if (!nonnull && (optional || isNullableType(type)))
@@ -1129,105 +1125,6 @@ SwiftGenerator::typeToString(
         t += "?";
     }
     return t;
-}
-
-string
-SwiftGenerator::getAbsolute(const TypePtr& type)
-{
-    static const char* builtinTable[] = {
-        "Swift.UInt8",
-        "Swift.Bool",
-        "Swift.Int16",
-        "Swift.Int32",
-        "Swift.Int64",
-        "Swift.Float",
-        "Swift.Double",
-        "Swift.String",
-        "Ice.Disp",      // Object
-        "Ice.ObjectPrx", // ObjectPrx
-        "Ice.Value"      // Value
-    };
-
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin)
-    {
-        return builtinTable[builtin->kind()];
-    }
-
-    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if (proxy)
-    {
-        return getAbsoluteImpl(proxy, "", "Prx");
-    }
-
-    ContainedPtr cont = dynamic_pointer_cast<Contained>(type);
-    if (cont)
-    {
-        return getAbsoluteImpl(cont);
-    }
-
-    assert(false);
-    return "???";
-}
-
-string
-SwiftGenerator::getAbsolute(const ClassDeclPtr& cl)
-{
-    return getAbsoluteImpl(cl);
-}
-
-string
-SwiftGenerator::getAbsolute(const ClassDefPtr& cl)
-{
-    return getAbsoluteImpl(cl);
-}
-
-string
-SwiftGenerator::getAbsolute(const InterfaceDeclPtr& prx)
-{
-    return getAbsoluteImpl(prx, "", "Prx");
-}
-
-string
-SwiftGenerator::getAbsolute(const InterfaceDefPtr& interface)
-{
-    return getAbsoluteImpl(interface);
-}
-
-string
-SwiftGenerator::getAbsolute(const StructPtr& st)
-{
-    return getAbsoluteImpl(st);
-}
-
-string
-SwiftGenerator::getAbsolute(const ExceptionPtr& ex)
-{
-    return getAbsoluteImpl(ex);
-}
-
-string
-SwiftGenerator::getAbsolute(const EnumPtr& en)
-{
-    return getAbsoluteImpl(en);
-}
-
-string
-SwiftGenerator::getAbsolute(const ConstPtr& en)
-{
-    return getAbsoluteImpl(en);
-}
-
-string
-SwiftGenerator::getAbsolute(const SequencePtr& en)
-{
-    return getAbsoluteImpl(en);
-}
-
-string
-SwiftGenerator::getAbsolute(const DictionaryPtr& en)
-{
-    return getAbsoluteImpl(en);
 }
 
 string
@@ -1589,7 +1486,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
                     {
                         args += ", type: ";
                     }
-                    args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
+                    args += getUnqualified("Ice.ObjectPrx", swiftModule) + ".self";
 
                     out << nl << param << " = try " << stream << ".read(" << args << ")";
                 }
@@ -1624,7 +1521,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
         }
         else
         {
-            string memberType = getUnqualified(getAbsolute(type), swiftModule);
+            string memberType = getRelativeTypeString(cl, swiftModule);
             string memberName;
             const string memberPrefix = "self.";
             if (param.find(memberPrefix) == 0)
@@ -1678,7 +1575,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
                 args += ", type: ";
             }
 
-            args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
+            args += getRelativeTypeString(prx, swiftModule) + ".self";
             out << nl << param << " = try " << stream << ".read(" << args << ")";
         }
         return;
@@ -1714,8 +1611,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
         }
         else
         {
-            string helper =
-                getUnqualified(getAbsoluteImpl(dynamic_pointer_cast<Contained>(type)), swiftModule) + "Helper";
+            string helper = getRelativeTypeString(seq, swiftModule) + "Helper";
             if (marshal)
             {
                 out << nl << helper << ".write(to: " << stream << ", " << args << ")";
@@ -1733,9 +1629,10 @@ SwiftGenerator::writeMarshalUnmarshalCode(
         return;
     }
 
-    if (dynamic_pointer_cast<Dictionary>(type))
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
+    if (dict)
     {
-        string helper = getUnqualified(getAbsoluteImpl(dynamic_pointer_cast<Contained>(type)), swiftModule) + "Helper";
+        string helper = getRelativeTypeString(dict, swiftModule) + "Helper";
         if (marshal)
         {
             out << nl << helper << ".write(to: " << stream << ", " << args << ")";
@@ -2324,7 +2221,7 @@ SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const Op
     out << eb;
     for (ExceptionList::const_iterator q = throws.begin(); q != throws.end(); ++q)
     {
-        out << " catch let error as " << getUnqualified(getAbsolute(*q), swiftModule) << sb;
+        out << " catch let error as " << getRelativeTypeString(*q, swiftModule) << sb;
         out << nl << "throw error";
         out << eb;
     }
