@@ -192,28 +192,6 @@ IceBT::EndpointI::acceptor(const string& adapterName, const std::optional<SSL::S
 }
 
 vector<IceInternal::EndpointIPtr>
-IceBT::EndpointI::expandIfWildcard() const
-{
-    vector<IceInternal::EndpointIPtr> endps;
-
-    if (_addr.empty())
-    {
-        //
-        // getDefaultAdapterAddress will raise BluetoothException if no adapter is present.
-        //
-        string addr = _instance->engine()->getDefaultAdapterAddress();
-        endps.push_back(
-            make_shared<EndpointI>(_instance, addr, _uuid, _name, _channel, _timeout, _connectionId, _compress));
-    }
-    else
-    {
-        endps.push_back(const_cast<EndpointI*>(this)->shared_from_this());
-    }
-
-    return endps;
-}
-
-vector<IceInternal::EndpointIPtr>
 IceBT::EndpointI::expandHost() const
 {
     // Nothing to do here.
