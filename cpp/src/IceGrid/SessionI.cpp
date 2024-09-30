@@ -155,6 +155,12 @@ SessionI::~SessionI()
 {
 }
 
+void
+SessionI::ice_ping(const Ice::Current& current) const
+{
+    const_cast<SessionI*>(this)->keepAlive(current);
+}
+
 Ice::ObjectPrx
 SessionI::_register(const SessionServantManagerPtr& servantManager, const Ice::ConnectionPtr& con)
 {

@@ -116,6 +116,12 @@ AdminSessionI::~AdminSessionI()
 {
 }
 
+void
+AdminSessionI::ice_ping(const Ice::Current& current) const
+{
+    const_cast<AdminSessionI*>(this)->keepAlive(current);
+}
+
 Ice::ObjectPrx
 AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const Ice::ConnectionPtr& con)
 {
