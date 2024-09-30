@@ -132,7 +132,6 @@ export class Client extends TestHelper {
             // We don't want connection warnings because of the timeout
             //
             properties.setProperty("Ice.Warn.Connections", "0");
-            properties.setProperty("Ice.PrintStackTraces", "1");
 
             [communicator] = this.initialize(properties);
             await this.allTests();

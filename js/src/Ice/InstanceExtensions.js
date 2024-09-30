@@ -37,9 +37,6 @@ const { TCPEndpointType, WSEndpointType, SSLEndpointType, WSSEndpointType } = Ic
 
 import { Debug } from "./Debug.js";
 
-let _oneOfDone = undefined;
-let _printStackTraces = false;
-
 Instance.prototype.initializationData = function () {
     //
     // No check for destruction. It must be possible to access the
@@ -191,12 +188,6 @@ Instance.prototype.finishSetup = function (communicator) {
             this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.EnableIdleCheck") > 0,
             this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.InactivityTimeout"),
         );
-
-        if (_oneOfDone === undefined) {
-            _printStackTraces = this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0;
-
-            _oneOfDone = true;
-        }
 
         if (this._initData.logger === null) {
             this._initData.logger = getProcessLogger();
