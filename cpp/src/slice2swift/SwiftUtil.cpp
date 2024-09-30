@@ -26,13 +26,19 @@ namespace
         //
         static const string keywordList[] = {
             "Any",
+            "Self",
+            "Type",
             "as",
             "associatedtype",
             "associativity",
+            "async",
+            "await",
+            "borrowing",
             "break",
             "case",
             "catch",
             "class",
+            "consuming",
             "continue",
             "convenience",
             "default",
@@ -67,13 +73,16 @@ namespace
             "mutating",
             "nil",
             "none",
+            "nonisolated",
             "nonmutating",
             "open",
             "operator",
             "optional",
             "override",
+            "package",
             "postfix",
             "precedence",
+            "precedencegroup",
             "prefix",
             "private",
             "protocol",
@@ -85,6 +94,7 @@ namespace
             "right",
             "self",
             "set",
+            "some",
             "static",
             "struct",
             "subscript",
@@ -94,7 +104,6 @@ namespace
             "throws",
             "true",
             "try",
-            "Type",
             "typealias",
             "unowned",
             "var",
@@ -102,11 +111,7 @@ namespace
             "where",
             "while",
             "willSet"};
-        bool found = binary_search(
-            &keywordList[0],
-            &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-            name,
-            Slice::CICompare());
+        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
         if (found)
         {
             return "`" + name + "`";
