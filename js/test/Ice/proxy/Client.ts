@@ -1090,7 +1090,6 @@ export class Client extends TestHelper {
 
         derived = new Test.MyDerivedClassPrx(communicator, `test:${this.getTestEndpoint()}`);
         await derived.shutdown();
-
     }
 
     async run(args: string[]) {
