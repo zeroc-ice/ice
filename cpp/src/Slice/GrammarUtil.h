@@ -8,6 +8,14 @@
 #include <cassert>
 #include <memory>
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 namespace Slice
 {
     struct StringTok final : public GrammarBase
@@ -109,5 +117,11 @@ namespace Slice
     using FloatingTokPtr = std::shared_ptr<FloatingTok>;
     using ConstDefTokPtr = std::shared_ptr<ConstDefTok>;
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
 #endif
