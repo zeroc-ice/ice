@@ -2178,7 +2178,7 @@ yyreduce:
 {
     auto type = dynamic_pointer_cast<Type>(yyvsp[-1]);
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    yylval = make_shared<TypeStringTok>(type, ident->v);
+    yyval = make_shared<TypeStringTok>(type, ident->v);
 }
 #line 2186 "src/Slice/Grammar.cpp"
     break;

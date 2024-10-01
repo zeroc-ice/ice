@@ -888,18 +888,16 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << name;
     _out << sb;
 
+    for (const auto& enumerator : enumerators)
     {
-        for (const auto& enumerator : enumerators)
-        {
-            _out << nl << "const " << fixIdent(enumerator->name()) << " = " << enumerator->value() << ';';
-        }
+        _out << nl << "const " << fixIdent(enumerator->name()) << " = " << enumerator->value() << ';';
     }
 
     _out << eb;
 
     // Emit the type information.
     _out << sp << nl << type << " = IcePHP_defineEnum('" << scoped << "', array(";
-    for (EnumeratorList::iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         if (q != enumerators.begin())
         {

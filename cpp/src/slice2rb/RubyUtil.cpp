@@ -1018,7 +1018,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp;
     int i = 0;
-    for (EnumeratorList::iterator q = enumerators.begin(); q != enumerators.end(); ++q, ++i)
+    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q, ++i)
     {
         ostringstream idx;
         idx << i;
@@ -1027,7 +1027,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     }
 
     _out << sp << nl << "@@_enumerators = {";
-    for (EnumeratorList::iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         if (q != enumerators.begin())
         {

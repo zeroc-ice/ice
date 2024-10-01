@@ -1639,7 +1639,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
              << enumerator->value() << ')';
     }
     _out << nl << name << "._enumerators = { ";
-    for (EnumeratorList::iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         if (q != enumerators.begin())
         {
