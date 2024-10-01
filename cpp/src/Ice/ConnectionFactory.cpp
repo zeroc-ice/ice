@@ -242,7 +242,7 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         // this connection factory. We also clear the timeout as it is
         // no longer used for Ice 3.8.
         //
-        endpoint = endpoint->compress(false).timeout(-1);
+        endpoint = endpoint->compress(false)->timeout(-1);
 
         for (multimap<ConnectorPtr, ConnectionIPtr>::const_iterator q = _connections.begin(); q != _connections.end();
              ++q)
