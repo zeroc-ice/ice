@@ -215,7 +215,7 @@ internal sealed class WSEndpoint : EndpointI
     }
 
     public override List<EndpointI> expandHost() =>
-        _delegate.expandHost().Select(e => new WSEndpoint(_instance, e, _resource) as EndpointI).ToList();
+        _delegate.expandHost().Select(e => endpoint(e) as EndpointI).ToList();
 
     public override bool isLoopback() => _delegate.isLoopback();
 

@@ -2142,3 +2142,39 @@ IceInternal::isIpAddress(const string& name)
 
     return inet_pton(AF_INET, name.c_str(), &addr) > 0 || inet_pton(AF_INET6, name.c_str(), &addr6) > 0;
 }
+
+bool
+IceInternal::isLoopbackAddress(const string& name)
+{
+    if (name.empty())
+    {
+        return false;
+    }
+    else
+    {
+        in_addr addr;
+        in6_addr addr6;
+        if (inet_pton(AF_INET, name.c_str(), &addr) > 0)
+        {
+            // It's an IPv4 address
+            return addr.s_addr == htonl(INADDR_LOOPBACK);
+        }
+        else if (inet_pton(AF_INET6, name.c_str(), &addr6) > 0)
+        {
+            // It's an IPv6 address
+            return IN6_IS_ADDR_LOOPBACK(&addr6);
+        }
+        return false;
+    }
+}
+
+string
+IceInternal::getHostName()
+{
+    char name[256];
+    if (gethostname(name, sizeof(name)) != 0)
+    {
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
+    }
+    return name;
+}

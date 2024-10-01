@@ -47,8 +47,9 @@ namespace IceBT
             std::function<void(std::exception_ptr)>) const final;
         IceInternal::AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
-        std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const final;
-        std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const final;
+        std::vector<IceInternal::EndpointIPtr> expandHost() const final;
+        bool isLoopback() const final;
+        std::shared_ptr<IceInternal::EndpointI> withPublishedHost(std::string host) const final;
         bool equivalent(const IceInternal::EndpointIPtr&) const final;
 
         bool operator==(const Ice::Endpoint&) const final;

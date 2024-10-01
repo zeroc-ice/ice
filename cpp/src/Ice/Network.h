@@ -260,6 +260,9 @@ namespace IceInternal
 #endif
 
     ICE_API bool isIpAddress(const std::string&);
+    ICE_API bool isLoopbackAddress(const std::string&);
+
+    ICE_API std::string getHostName();
 }
 
 #endif

@@ -186,30 +186,29 @@ EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 }
 
 vector<IceInternal::EndpointIPtr>
-EndpointI::expandIfWildcard() const
+EndpointI::expandHost() const
 {
-    vector<IceInternal::EndpointIPtr> e = _endpoint->expandIfWildcard();
-    for (vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
-    {
-        *p = (*p == _endpoint) ? const_cast<EndpointI*>(this)->shared_from_this() : make_shared<EndpointI>(*p);
-    }
-    return e;
+    vector<IceInternal::EndpointIPtr> endpoints = _endpoint->expandHost();
+
+    transform(
+        endpoints.begin(),
+        endpoints.end(),
+        endpoints.begin(),
+        [this](const IceInternal::EndpointIPtr& p) { return endpoint(p); });
+
+    return endpoints;
 }
 
-vector<IceInternal::EndpointIPtr>
-EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
+bool
+EndpointI::isLoopback() const
 {
-    vector<IceInternal::EndpointIPtr> e = _endpoint->expandHost(publish);
-    if (publish)
-    {
-        publish =
-            publish == _endpoint ? const_cast<EndpointI*>(this)->shared_from_this() : make_shared<EndpointI>(publish);
-    }
-    for (vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
-    {
-        *p = (*p == _endpoint) ? const_cast<EndpointI*>(this)->shared_from_this() : make_shared<EndpointI>(*p);
-    }
-    return e;
+    return _endpoint->isLoopback();
+}
+
+shared_ptr<IceInternal::EndpointI>
+EndpointI::withPublishedHost(string host) const
+{
+    return endpoint(_endpoint->withPublishedHost(std::move(host)));
 }
 
 bool

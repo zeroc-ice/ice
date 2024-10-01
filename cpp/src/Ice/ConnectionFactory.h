@@ -167,11 +167,7 @@ namespace IceInternal
     class IncomingConnectionFactory final : public EventHandler
     {
     public:
-        IncomingConnectionFactory(
-            const InstancePtr&,
-            const EndpointIPtr&,
-            const EndpointIPtr&,
-            const std::shared_ptr<Ice::ObjectAdapterI>&);
+        IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const std::shared_ptr<Ice::ObjectAdapterI>&);
         void activate();
         void hold();
         void destroy();
@@ -184,7 +180,6 @@ namespace IceInternal
         void waitUntilHolding() const;
         void waitUntilFinished();
 
-        bool isLocal(const EndpointIPtr&) const;
         EndpointIPtr endpoint() const;
         std::list<Ice::ConnectionIPtr> connections() const;
         void removeConnection(const Ice::ConnectionIPtr&) noexcept;
@@ -242,7 +237,6 @@ namespace IceInternal
         AcceptorPtr _acceptor;
         const TransceiverPtr _transceiver;
         EndpointIPtr _endpoint;
-        EndpointIPtr _publishedEndpoint;
 
         bool _acceptorStarted;
         bool _acceptorStopped;

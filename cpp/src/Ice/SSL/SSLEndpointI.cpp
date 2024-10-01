@@ -240,47 +240,29 @@ Ice::SSL::EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 }
 
 vector<IceInternal::EndpointIPtr>
-Ice::SSL::EndpointI::expandIfWildcard() const
+Ice::SSL::EndpointI::expandHost() const
 {
-    vector<IceInternal::EndpointIPtr> endps = _delegate->expandIfWildcard();
-    for (vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
-    {
-        if (p->get() == _delegate.get())
-        {
-            *p = const_cast<EndpointI*>(this)->shared_from_this();
-        }
-        else
-        {
-            *p = make_shared<EndpointI>(_instance, *p);
-        }
-    }
-    return endps;
+    vector<IceInternal::EndpointIPtr> endpoints = _delegate->expandHost();
+
+    transform(
+        endpoints.begin(),
+        endpoints.end(),
+        endpoints.begin(),
+        [this](const IceInternal::EndpointIPtr& p) { return endpoint(p); });
+
+    return endpoints;
 }
 
-vector<IceInternal::EndpointIPtr>
-Ice::SSL::EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
+bool
+Ice::SSL::EndpointI::isLoopback() const
 {
-    vector<IceInternal::EndpointIPtr> endps = _delegate->expandHost(publish);
-    if (publish.get() == _delegate.get())
-    {
-        publish = const_cast<EndpointI*>(this)->shared_from_this();
-    }
-    else if (publish.get())
-    {
-        publish = make_shared<EndpointI>(_instance, publish);
-    }
-    for (vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
-    {
-        if (p->get() == _delegate.get())
-        {
-            *p = const_cast<EndpointI*>(this)->shared_from_this();
-        }
-        else
-        {
-            *p = make_shared<EndpointI>(_instance, *p);
-        }
-    }
-    return endps;
+    return _delegate->isLoopback();
+}
+
+shared_ptr<IceInternal::EndpointI>
+Ice::SSL::EndpointI::withPublishedHost(string host) const
+{
+    return endpoint(_delegate->withPublishedHost(std::move(host)));
 }
 
 bool

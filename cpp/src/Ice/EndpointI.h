@@ -112,23 +112,15 @@ namespace IceInternal
         virtual AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const = 0;
 
-        //
-        // Expand endpoint out into separate endpoints for each local
-        // host if listening on INADDR_ANY on server side.
-        //
-        virtual std::vector<EndpointIPtr> expandIfWildcard() const = 0;
+        // Expand endpoint into separate endpoints for each IP address returned by the DNS resolver.
+        // Used only for server endpoints.
+        virtual std::vector<EndpointIPtr> expandHost() const = 0;
 
-        //
-        // Expand endpoint out into separate endpoints for each IP
-        // address returned by the DNS resolver. Also returns the
-        // endpoint which can be used to connect to the returned
-        // endpoints or null if no specific endpoint can be used to
-        // connect to these endpoints (e.g.: with the IP endpoint,
-        // it returns this endpoint if it uses a fixed port, null
-        // otherwise).
-        //
-        virtual std::vector<EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const = 0;
+        // Returns true when the most underlying endpoint is an IP endpoint with a loopback address.
+        virtual bool isLoopback() const = 0;
 
+        // Returns a new endpoint with the specified host; returns this when this operation is not applicable.
+        virtual std::shared_ptr<EndpointI> withPublishedHost(std::string host) const = 0;
         //
         // Check whether the endpoint is equivalent to another one.
         //

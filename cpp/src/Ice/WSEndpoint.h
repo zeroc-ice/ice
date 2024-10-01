@@ -46,8 +46,9 @@ namespace IceInternal
             std::function<void(std::exception_ptr)>) const final;
         AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
-        std::vector<EndpointIPtr> expandIfWildcard() const final;
-        std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const final;
+        std::vector<EndpointIPtr> expandHost() const final;
+        bool isLoopback() const final;
+        std::shared_ptr<EndpointI> withPublishedHost(std::string host) const final;
         bool equivalent(const EndpointIPtr&) const final;
         std::size_t hash() const noexcept final;
         std::string options() const final;
