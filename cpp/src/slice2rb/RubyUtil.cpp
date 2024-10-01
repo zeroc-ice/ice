@@ -940,7 +940,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 {
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
-    EnumeratorList enums = p->enumerators();
+    EnumeratorList enumerators = p->enumerators();
 
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
@@ -960,7 +960,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     {
         _out << sp << nl << "def " << name << ".from_int(val)";
         ostringstream sz;
-        sz << enums.size() - 1;
+        sz << enumerators.size() - 1;
         _out.inc();
         _out << nl << "@@_enumerators[val]"; // Evaluates to nil if the key is not found
         _out.dec();
@@ -1018,7 +1018,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp;
     int i = 0;
-    for (EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q, ++i)
+    for (EnumeratorList::iterator q = enumerators.begin(); q != enumerators.end(); ++q, ++i)
     {
         ostringstream idx;
         idx << i;
@@ -1027,9 +1027,9 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     }
 
     _out << sp << nl << "@@_enumerators = {";
-    for (EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
+    for (EnumeratorList::iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
-        if (q != enums.begin())
+        if (q != enumerators.begin())
         {
             _out << ", ";
         }
@@ -1184,8 +1184,8 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
     EnumPtr en = dynamic_pointer_cast<Enum>(p);
     if (en)
     {
-        EnumeratorList enums = en->enumerators();
-        return getAbsolute(en, IdentToUpper) + "::" + fixIdent(enums.front()->name(), IdentToUpper);
+        string firstEnumerator = en->enumerators().front()->name();
+        return getAbsolute(en, IdentToUpper) + "::" + fixIdent(firstEnumerator, IdentToUpper);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(p);

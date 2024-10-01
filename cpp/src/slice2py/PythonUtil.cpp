@@ -159,8 +159,6 @@ namespace Slice
             // Checks a definition that doesn't currently support Python metadata.
             //
             void reject(const ContainedPtr&);
-
-            StringSet _history;
         };
 
         //
@@ -1606,8 +1604,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
-    EnumeratorList enums = p->enumerators();
-    EnumeratorList::iterator q;
+    EnumeratorList enumerators = p->enumerators();
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
@@ -1615,7 +1612,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
 
-    writeDocstring(p->comment(), enums);
+    writeDocstring(p->comment(), enumerators);
 
     _out << sp << nl << "def __init__(self, _n, _v):";
     _out.inc();
@@ -1635,16 +1632,16 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out.dec();
 
     _out << sp;
-    for (q = enums.begin(); q != enums.end(); ++q)
+    for (const auto& enumerator : enumerators)
     {
-        string fixedEnum = fixIdent((*q)->name());
-        _out << nl << name << '.' << fixedEnum << " = " << name << "(\"" << (*q)->name() << "\", " << (*q)->value()
-             << ')';
+        string fixedEnum = fixIdent(enumerator->name());
+        _out << nl << name << '.' << fixedEnum << " = " << name << "(\"" << enumerator->name() << "\", "
+             << enumerator->value() << ')';
     }
     _out << nl << name << "._enumerators = { ";
-    for (q = enums.begin(); q != enums.end(); ++q)
+    for (EnumeratorList::iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
-        if (q != enums.begin())
+        if (q != enumerators.begin())
         {
             _out << ", ";
         }
@@ -1814,8 +1811,8 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
     EnumPtr en = dynamic_pointer_cast<Enum>(p);
     if (en)
     {
-        EnumeratorList enums = en->enumerators();
-        _out << getSymbol(en) << "." << fixIdent(enums.front()->name());
+        string firstEnumerator = en->enumerators().front()->name();
+        _out << getSymbol(en) << "." << fixIdent(firstEnumerator);
         return;
     }
 
@@ -2313,7 +2310,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const string& comment, const EnumeratorList& enums)
+Slice::Python::CodeVisitor::writeDocstring(const string& comment, const EnumeratorList& enumerators)
 {
     vector<string> lines = stripMarkup(comment);
     if (lines.empty())
@@ -2328,18 +2325,18 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
         _out << nl << *q;
     }
 
-    if (!enums.empty())
+    if (!enumerators.empty())
     {
         //
         // Collect docstrings (if any) for the enumerators.
         //
         map<string, vector<string>> docs;
-        for (EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
+        for (const auto& enumerator : enumerators)
         {
-            vector<string> doc = stripMarkup((*e)->comment());
+            vector<string> doc = stripMarkup(enumerator->comment());
             if (!doc.empty())
             {
-                docs[(*e)->name()] = doc;
+                docs[enumerator->name()] = doc;
             }
         }
         //
@@ -2348,10 +2345,10 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
         if (!docs.empty())
         {
             _out << nl << "Enumerators:";
-            for (EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
+            for (const auto& enumerator : enumerators)
             {
-                _out << nl << fixIdent((*e)->name()) << " -- ";
-                map<string, vector<string>>::iterator p = docs.find((*e)->name());
+                _out << nl << fixIdent(enumerator->name()) << " -- ";
+                map<string, vector<string>>::iterator p = docs.find(enumerator->name());
                 if (p != docs.end())
                 {
                     for (vector<string>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)

@@ -25,8 +25,9 @@ namespace Slice
 
     struct TypeStringTok final : public GrammarBase
     {
-        TypeStringTok() {}
-        TypeString v;
+        TypeStringTok(TypePtr type, std::string name) : type(type), name(name) {}
+        TypePtr type;
+        std::string name;
     };
 
     struct IntegerTok final : public GrammarBase
