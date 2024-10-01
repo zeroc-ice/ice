@@ -31,5 +31,5 @@ IceBT::Instance::engine() const
 bool
 IceBT::Instance::initialized() const
 {
-    return _engine->initialized();
+    return engine()->initialized();
 }
