@@ -273,7 +273,7 @@ public final class OutgoingConnectionFactory
                 {
                     for(ConnectionI connection : connectionList)
                     {
-                        if(connection.endpoint() == endpoint)
+                        if(connection.endpoint().equals(endpoint))
                         {
                             connection.setAdapter(adapter);
                         }

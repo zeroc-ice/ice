@@ -265,7 +265,7 @@ public final class OutgoingConnectionFactory
                 {
                     for(Ice.ConnectionI connection : connectionList)
                     {
-                        if(connection.endpoint() == endpoint)
+                        if(connection.endpoint().equals(endpoints))
                         {
                             connection.setAdapter(adapter);
                         }
