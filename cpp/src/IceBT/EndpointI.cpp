@@ -194,10 +194,7 @@ IceBT::EndpointI::acceptor(const string& adapterName, const std::optional<SSL::S
 vector<IceInternal::EndpointIPtr>
 IceBT::EndpointI::expandHost() const
 {
-    // Nothing to do here.
-    vector<IceInternal::EndpointIPtr> endps;
-    endps.push_back(const_cast<EndpointI*>(this)->shared_from_this());
-    return endps;
+    return {const_cast<EndpointI*>(this)->shared_from_this()};
 }
 
 bool

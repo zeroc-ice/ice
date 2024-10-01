@@ -305,9 +305,7 @@ IceObjC::iAPEndpointI::acceptor(const string&, const optional<SSL::ServerAuthent
 vector<EndpointIPtr>
 IceObjC::iAPEndpointI::expandHost() const
 {
-    vector<EndpointIPtr> endps;
-    endps.push_back(const_cast<iAPEndpointI*>(this)->shared_from_this());
-    return endps;
+    return {const_cast<iAPEndpointI*>(this)->shared_from_this()};
 }
 
 bool

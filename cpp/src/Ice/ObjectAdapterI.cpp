@@ -1248,7 +1248,7 @@ ObjectAdapterI::computePublishedEndpoints()
 
             if (!endpointsNoLoopback.empty())
             {
-                endpoints = endpointsNoLoopback;
+                endpoints = std::move(endpointsNoLoopback);
 
                 // For non-loopback endpoints, we use the fully qualified name of the local host as default for
                 // publishedHost.
@@ -1267,15 +1267,15 @@ ObjectAdapterI::computePublishedEndpoints()
                 for (const auto& endpoint : endpoints)
                 {
                     EndpointIPtr newEndpoint = endpoint->withPublishedHost(publishedHost);
-                    if (::find_if(
+                    if (find_if(
                             newEndpoints.begin(),
                             newEndpoints.end(),
-                            [newEndpoint](const EndpointIPtr& p) { return *newEndpoint == *p; }) == newEndpoints.end())
+                            [&newEndpoint](const EndpointIPtr& p) { return *newEndpoint == *p; }) == newEndpoints.end())
                     {
                         newEndpoints.push_back(newEndpoint);
                     }
                 }
-                endpoints = newEndpoints;
+                endpoints = std::move(newEndpoints);
             }
             // else keep the loopback-only endpoints as-is (with IP addresses)
         }
@@ -1284,8 +1284,8 @@ ObjectAdapterI::computePublishedEndpoints()
     if (_instance->traceLevels()->network >= 1 && !endpoints.empty())
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-        out << "published endpoints for object adapter `" << getName() << "':\n";
-        for (unsigned int i = 0; i < endpoints.size(); ++i)
+        out << "published endpoints for object adapter '" << getName() << "':\n";
+        for (size_t i = 0; i < endpoints.size(); ++i)
         {
             if (i > 0)
             {
