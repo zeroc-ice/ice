@@ -398,10 +398,10 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         catch (AuthenticationException ex)
         {
             throw new SecurityException(
-                _errorDescription.Length == 0 ? "SSL authentication failure" : _errorDescription,
+                _errorDescription.Length == 0 ? "SSL authentication failure." : _errorDescription,
                 ex);
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             throw new Ice.SyscallException(ex);
         }
@@ -460,18 +460,18 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         Ice.Logger logger = _instance.logger();
         string message = "";
 
-        if (_incoming && (errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0 && _verifyPeer <= 1)
+        if (_incoming && (errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) != 0 && _verifyPeer <= 1)
         {
             // The client certificate is optional when IceSSL.VerifyPeer = 1, and not required when IceSSL.VerifyPeer = 0
             errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
         }
 
-        if ((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
+        if ((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
         {
             message += ": Remote certificate name mismatch";
         }
 
-        if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
+        if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) != 0)
         {
             message += ": Remote certificate not available";
         }
@@ -483,7 +483,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
         if (errors != 0)
         {
-            _errorDescription = message.Length > 0 ? $"SSL authentication failure{message}" : "SSL authentication failure";
+            _errorDescription = message.Length > 0 ? $"SSL authentication failure{message}." : "SSL authentication failure.";
             if (traceLevel >= 1)
             {
                 logger.trace(traceCategory, _errorDescription);
