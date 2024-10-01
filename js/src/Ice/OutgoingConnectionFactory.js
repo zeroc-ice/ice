@@ -89,9 +89,10 @@ export class OutgoingConnectionFactory {
                     // other sources. In order to allow connection sharing for
                     // endpoints that differ in the value of the compression flag
                     // only, we always set the compression flag to false here in
-                    // this connection factory.
+                    // this connection factory. We also clear the timeout as it is
+                    // no longer used for Ice 3.8.
                     //
-                    endpoint = endpoint.changeCompress(false);
+                    endpoint = endpoint.changeCompress(false).changeTimeout(-1);
 
                     this._connectionsByEndpoint.forEach(connection => {
                         if (connection.endpoint().equals(endpoint)) {

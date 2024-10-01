@@ -178,13 +178,14 @@ final class OutgoingConnectionFactory {
                 // other sources. In order to allow connection sharing for
                 // endpoints that differ in the value of the compression flag
                 // only, we always set the compression flag to false here in
-                // this connection factory.
+                // this connection factory. We also clear the timeout as it is
+                // no longer used for Ice 3.8.
                 //
-                endpoint = endpoint.compress(false);
+                endpoint = endpoint.compress(false).timeout(-1);
 
                 for (java.util.List<ConnectionI> connectionList : _connections.values()) {
                     for (ConnectionI connection : connectionList) {
-                        if (connection.endpoint() == endpoint) {
+                        if (connection.endpoint().equals(endpoint)) {
                             connection.setAdapter(adapter);
                         }
                     }
