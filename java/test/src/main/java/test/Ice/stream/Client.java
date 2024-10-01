@@ -4,6 +4,7 @@
 
 package test.Ice.stream;
 
+import com.zeroc.Ice.FormatType;
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OutputStream;
 import java.io.PrintWriter;
@@ -253,7 +254,7 @@ public class Client extends test.TestHelper {
             }
 
             {
-                out = new OutputStream(communicator, com.zeroc.Ice.Util.Encoding_1_0);
+                out = new OutputStream(com.zeroc.Ice.Util.Encoding_1_0, FormatType.SlicedFormat);
                 OptionalClass o = new OptionalClass();
                 o.bo = true;
                 o.by = (byte) 5;

@@ -1224,7 +1224,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             // As a result of this optimization, the only possible heartbeat in _sendStreams is the
             // first _sendStreams message.
             if (_sendStreams.isEmpty()) {
-                OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+                OutputStream os = new OutputStream(Protocol.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
                 Protocol.currentProtocol.ice_writeMembers(os);
                 Protocol.currentProtocolEncoding.ice_writeMembers(os);
@@ -1280,7 +1280,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         _readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
         _readHeader = false;
         _readStreamPos = -1;
-        _writeStream = new OutputStream(instance, Protocol.currentProtocolEncoding);
+        _writeStream = new OutputStream(); // temporary stream
         _writeStreamPos = -1;
         _upcallCount = 0;
         _state = StateNotInitialized;
@@ -1586,7 +1586,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             //
             // Before we shut down, we send a close connection message.
             //
-            OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+            OutputStream os = new OutputStream(Protocol.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
             Protocol.currentProtocol.ice_writeMembers(os);
             Protocol.currentProtocolEncoding.ice_writeMembers(os);
@@ -1670,7 +1670,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     // (always zero for
                     // validate connection).
                     _writeStream.writeInt(Protocol.headerSize); // Message size.
-                    TraceUtil.traceSend(_writeStream, _logger, _traceLevels);
+                    TraceUtil.traceSend(_writeStream, _instance, _logger, _traceLevels);
                     _writeStream.prepareWrite();
                 }
 
@@ -1861,7 +1861,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 message.stream.prepareWrite();
                 message.prepared = true;
 
-                TraceUtil.traceSend(stream, _logger, _traceLevels);
+                TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
 
                 //
                 // Send the message.
@@ -1927,7 +1927,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         message.stream.prepareWrite();
         message.prepared = true;
         int op;
-        TraceUtil.traceSend(stream, _logger, _traceLevels);
+        TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
 
         // Send the message without blocking.
         if (_observer != null) {
@@ -1981,9 +1981,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     BZip2.compress(
                             uncompressed.getBuffer(), Protocol.headerSize, _compressionLevel);
             if (cbuf != null) {
-                OutputStream cstream =
-                        new OutputStream(
-                                uncompressed.instance(), uncompressed.getEncoding(), cbuf, true);
+                var cstream = new OutputStream(new Buffer(cbuf, true), uncompressed.getEncoding());
 
                 //
                 // Set compression status.
@@ -2250,16 +2248,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     }
                 } else {
                     // Received request on a connection without an object adapter.
-                    // TODO: fix #2595
-                    System.err.println(
-                            "*************** Received request on a connection without an object adapter.");
-                    /*
                     sendResponse(
                             request.current.createOutgoingResponse(
                                     new com.zeroc.Ice.ObjectNotExistException()),
                             isTwoWay,
                             (byte) 0);
-                    */
                 }
                 --requestCount;
             }
@@ -2611,8 +2604,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
         public void adopt() {
             if (adopt) {
-                OutputStream stream =
-                        new OutputStream(this.stream.instance(), Protocol.currentProtocolEncoding);
+                var stream = new OutputStream(Protocol.currentProtocolEncoding);
                 stream.swap(this.stream);
                 this.stream = stream;
                 adopt = false;
