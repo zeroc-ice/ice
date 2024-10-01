@@ -1,255 +1,61 @@
 <?xml version="1.0"?>
 <!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
 
-<!--
-This file defines the valid properties that are used by various Ice
-components. It is used to generate source code using the makeprops.py
-utility, so we do not need to redundantly maintain the same property
-definitions in several languages (and risk having them go out of sync).
+<!-- This file defines the class properties and prefixes used by Ice. -->
 
-The root node has zero or more section elements. Section elements must
-have a name attribute that defines a "section label". Section elements
-may also have a noCmdLine attribute. If noCmdLine has the value "true",
-command line options that match the section label are not parsed by
-Ice::PropertiesI::parseCommandLineOptions(). If noCmdLine has a value
-other than "true" or is omitted, Ice::PropertiesI::parseCommandLineOptions()
-processes properties that match the respective section name.
-
-Each root node may also have zero or more class elements. A class
-element has a name attribute, a prefix-only attribute and zero or more
-suffix elements. Suffix elements appear similar to the property elements
-found in the property sections. How classes are used is described below.
-
-Each section node has zero or more property elements. Property elements
-must have a name attribute. Property elements may also have a property
-class attribute. The property class attribute allows you to define a
-list of properties that are repeatedly defined for different property
-categories. Here's how it works:
-
- - Define a property class with the list of property suffixes common to
-   that class.
-
- - Include the class attribute in a property declaration.
-
-The generated code will take each property that has a class attribute
-and expand it by creating new properties for each suffix in the
-specified class. The new property names are constructed as follows:
-
-generated property name =
-    relevant section name +
-    property name containing the class attribute +
-    the suffix in the class.
-
-Let's illustrate by comparing a case using classes vs. without
-classes:
-
-    <class name="proxy" prefix-only="false">
-        <suffix name="EndpointSelection" />
-        <suffix name="ConnectionCached" />
-        <suffix name="PreferSecure" />
-        <suffix name="LocatorCacheTimeout" />
-        <suffix name="Locator" />
-        <suffix name="Router" />
-        <suffix name="CollocationOptimization" deprecated="true" />
-        <suffix name="CollocationOptimized" />
-    </class>
-    .
-    .
-    .
-    <section name="Ice">
-        <property name="Default.Locator" class="proxy" />
-    </section>
-
-This definition is equivalent to the following:
-
-    <section name="Ice">
-        <property name="Default.Locator" />
-        <property name="Default.Locator.EndpointSelection" />
-        <property name="Default.Locator.ConnectionCached" />
-        <property name="Default.Locator.PreferSecure" />
-        <property name="Default.Locator.LocatorCacheTimeout" />
-        <property name="Default.Locator.Locator" />
-        <property name="Default.Locator.Router" />
-        <property name="Default.Locator.CollocationOptimization" />
-        <property name="Default.Locator.CollocationOptimized" />
-    </section>
-
-The benefit is that several categories have the same properties because
-they are the same `type' of property. Without a property class, changes
-to a supported type of property require modifying the file in several
-locations, e.g.:
-
-    <section name="Ice">
-        <property name="Default.Router" class="proxy" />
-        <property name="Default.Locator" class="proxy" />
-    </section>
-
-Notice the `prefix-only' attribute on the property class node. If
-prefix-only is set to true the property containing the property class
-works as a prefix and place holder; code isn't actually generated for
-the property itself. When set to false, properties are expanded as
-described above `in addition to' the property containing the property
-class.
-
-Property elements may also include the deprecated. A property that has a deprecated attribute with the value
-"true" will be marked internally as deprecated and Ice may issue warnings
-if a deprecated property is used.
-
-Property element name attributes have some additional syntax: The token
-"<any>" (denoted in valid XML as [any]) is a wildcard and matches any
-non-empty sequence of non-whitespace characters.
-
-Examples:
-
-"Ice.Foo.<any>" allows all properties with that prefix, such as "Ice.Foo.Bar".
-"Ice.Foo<any>" allows properties such as "Ice.Foo.Bar" and "Ice.FooBar".
-
-Property definitions are translated into each language by makeprops.py.
-For example, consider the following definitions:
-
-    <properties>
-        <section name="Ice">
-            <property name="Package.[any]" />
-            <property name="QuenchRequests" deprecated="true" />
-            <property name="Bar" />
-            <property name="Default.Locator" proxy="true" />
-            <property name="ThreadPool.Client" threadpool="true" />
-        </section>
-        <section name="IceBox">
-            <property name="LoadOrder" />
-        </section>
-    </properties>
-
-If the source file is called Properties.xml, makeprops.py generates
-code similar to the following for the C++ header and source file:
-
-//
-// Properties.h
-//
-namespace IceInternal
-{
-
-//
-// ... definitions for IceInternal::Property and IceInternal::PropertyArray
-// omitted...
-
-class Properties
-{
-public:
-
-    static const PropertyArray const IceProps;
-    static const PropertyArray const IceBoxProps;
-
-    static const PropertyArray validProps[];
-};
-
-}
-
-// Properties.cpp
-const IceInternal::Property IceInternal::Properties::IcePropsData[] =
-{
-    IceInternal::Property("Ice.Package.*", false, 0),
-    IceInternal::Property("Ice.QuenchRequests", true, 0),
-    IceInternal::Property("Ice.Foo", true, "Ice.Bar"),
-    IceInternal::Property("Ice.Bar", false, 0),
-    IceInternal::Property("Ice.Default.Locator", false, 0),
-    IceInternal::Property("Ice.Default.Locator.EndpointSelection", false, 0),
-    IceInternal::Property("Ice.Default.Locator.ConnectionCached", false, 0),
-    IceInternal::Property("Ice.Default.Locator.PreferSecure", false, 0),
-    IceInternal::Property("Ice.Default.Locator.LocatorCacheTimeout", false, 0),
-    IceInternal::Property("Ice.Default.Locator.Locator", false, 0),
-    IceInternal::Property("Ice.Default.Locator.Router", false, 0),
-    IceInternal::Property("Ice.Default.Locator.CollocationOptimization", false, 0),
-    IceInternal::Property("Ice.ThreadPool.Client.Size", false, 0),
-    IceInternal::Property("Ice.ThreadPool.Client.SizeMax", false, 0),
-    IceInternal::Property("Ice.ThreadPool.Client.SizeWarn", false, 0),
-    IceInternal::Property("Ice.ThreadPool.Client.StackSize", false, 0)
-};
-
-const IceInternal::PropertyArray
-    IceInternal::Properties::IceProps(IcePropsData, sizeof(IcePropsData) /
-        sizeof(IcePropsData[0]));
-
-const IceInternal::Property IceInternal::Properties::IceBoxPropsData[] =
-{
-    IceInternal::Property("IceBox.LoadOrder", false, 0)
-};
-
-const IceInternal::PropertyArray
-    IceInternal::Properties::IceBoxProps(IceBoxPropsData, sizeof(IceBoxPropsData) /
-        sizeof(IceBoxPropsData[0]));
-
-const PropertyArray IceInternal::Properties::validProps[] =
-{
-    IceProps,
-    IceBoxProps,
-    IceInternal::PropertyArray(0, 0)
-};
-
-Note that the class name ("Properties" in this example) is generated
-from the file name, and the first component of the property name is
-generated from the section label.
-
--->
 <properties>
-    <class name="proxy" prefix-only="false">
-        <suffix name="EndpointSelection" languages="all" />
-        <suffix name="ConnectionCached" languages="all" />
-        <suffix name="PreferSecure" languages="all" />
-        <suffix name="LocatorCacheTimeout" languages="all" />
-        <suffix name="InvocationTimeout" languages="all" />
-        <suffix name="Locator" languages="all" />
-        <suffix name="Router" languages="all"/>
+    <class name="Proxy" prefix-only="false">
+        <property name="EndpointSelection" languages="all" />
+        <property name="ConnectionCached" languages="all" />
+        <property name="PreferSecure" languages="all" />
+        <property name="LocatorCacheTimeout" languages="all" />
+        <property name="InvocationTimeout" languages="all" />
+        <!-- TODO: set class="Proxy" once all languages support class props -->
+        <property name="Locator" languages="all" />
+        <!-- TODO: set class="Proxy" once all languages support class props -->
+        <property name="Router" languages="all" />
         <!-- TODO: Remove from javascript -->
-        <suffix name="CollocationOptimized" languages="all" />
-        <suffix name="Context.[any]" languages="all" />
+        <property name="CollocationOptimized" languages="all" />
+        <property name="Context.[any]" languages="all" />
     </class>
 
-    <class name="connection" prefix-only="true">
-        <suffix name="CloseTimeout" languages="all" default="10" />
-        <suffix name="ConnectTimeout" languages="all" default="10" />
-        <suffix name="EnableIdleCheck" languages="all" default="1" />
-        <suffix name="IdleTimeout" languages="all" default="60" />
-        <suffix name="InactivityTimeout" languages="all" default="300" />
-        <suffix name="MaxDispatches" languages="cpp,csharp,java" default="100" />
+    <class name="Connection" prefix-only="true">
+        <property name="CloseTimeout" languages="all" default="10" />
+        <property name="ConnectTimeout" languages="all" default="10" />
+        <property name="EnableIdleCheck" languages="all" default="1" />
+        <property name="IdleTimeout" languages="all" default="60" />
+        <property name="InactivityTimeout" languages="all" default="300" />
+        <property name="MaxDispatches" languages="cpp,csharp,java" default="100" />
     </class>
 
-    <class name="threadpool" prefix-only="true">
-        <suffix name="Size" languages="cpp,csharp,java" default="1" />
-        <suffix name="SizeMax" languages="cpp,csharp,java" />
-        <suffix name="SizeWarn" languages="cpp,csharp,java" default="0" />
-        <suffix name="StackSize" languages="csharp,java" default="0" />
-        <suffix name="Serialize" languages="cpp,csharp,java" default="0" />
-        <suffix name="ThreadIdleTime" languages="cpp,csharp,java" default="60" />
-        <suffix name="ThreadPriority" languages="csharp,java" />
+    <class name="ThreadPool" prefix-only="true">
+        <property name="Size" languages="cpp,csharp,java" default="1" />
+        <property name="SizeMax" languages="cpp,csharp,java" />
+        <property name="SizeWarn" languages="cpp,csharp,java" default="0" />
+        <property name="StackSize" languages="csharp,java" default="0" />
+        <property name="Serialize" languages="cpp,csharp,java" default="0" />
+        <property name="ThreadIdleTime" languages="cpp,csharp,java" default="60" />
+        <property name="ThreadPriority" languages="csharp,java" />
     </class>
 
-    <class name="objectadapter" prefix-only="true">
-        <suffix name="AdapterId" languages="cpp,csharp,java" />
-        <suffix name="Connection" class="connection" languages="cpp,csharp,java"/>
+    <class name="ObjectAdapter" prefix-only="true">
+        <property name="AdapterId" languages="cpp,csharp,java" />
+        <property name="Connection" class="Connection" languages="cpp,csharp,java"/>
         <!-- TODO: remove from JavaScript -->
-        <suffix name="Endpoints" languages="all" />
-        <suffix name="Locator" class="proxy" languages="cpp,csharp,java" />
-        <suffix name="PublishedEndpoints" languages="all" />
-        <suffix name="PublishedHost" languages="cpp,csharp,java" />
-        <suffix name="ReplicaGroupId" languages="cpp,csharp,java" />
-        <suffix name="Router" class="proxy" languages="all" />
-        <suffix name="ProxyOptions" languages="all" />
-        <suffix name="ThreadPool" class="threadpool" languages="cpp,csharp,java" />
-        <suffix name="MessageSizeMax" languages="all" />
-    </class>
-
-    <class name="mx" prefix-only="false">
-        <suffix name="GroupBy" languages="cpp,csharp,java" />
-        <suffix name="Map" languages="cpp,csharp,java" />
-        <suffix name="RetainDetached" default="10" languages="cpp,csharp,java" />
-        <suffix name="Accept" languages="cpp,csharp,java" />
-        <suffix name="Reject" languages="cpp,csharp,java" />
+        <property name="Endpoints" languages="all" />
+        <property name="Locator" class="Proxy" languages="cpp,csharp,java" />
+        <property name="PublishedEndpoints" languages="all" />
+        <property name="PublishedHost" languages="cpp,csharp,java" />
+        <property name="ReplicaGroupId" languages="cpp,csharp,java" />
+        <property name="Router" class="Proxy" languages="all" />
+        <property name="ProxyOptions" languages="all" />
+        <property name="ThreadPool" class="ThreadPool" languages="cpp,csharp,java" />
+        <property name="MessageSizeMax" languages="all" />
     </class>
 
     <section name="Ice">
         <property name="AcceptClassCycles" languages="cpp,csharp,java" default="0" />
-        <property name="Admin" class="objectadapter" languages="cpp,csharp,java" />
+        <property name="Admin" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="Admin.DelayCreation" languages="cpp,csharp,java" default="0" />
         <property name="Admin.Enabled" languages="cpp,csharp,java" />
         <property name="Admin.Facets" languages="cpp,csharp,java" />
@@ -264,20 +70,20 @@ generated from the section label.
         <property name="ClassGraphDepthMax" languages="all" default="10" />
         <property name="Compression.Level" languages="cpp,csharp,java" default="1" />
         <property name="Config" languages="cpp,csharp,java" />
-        <property name="Connection.Client" class="connection" languages="all" />
-        <property name="Connection.Server" class="connection" languages="cpp,csharp,java" />
+        <property name="Connection.Client" class="Connection" languages="all" />
+        <property name="Connection.Server" class="Connection" languages="cpp,csharp,java" />
         <property name="ConsoleListener" languages="csharp" default="1" />
         <property name="Default.CollocationOptimized" languages="cpp,csharp,java" default="1" />
         <property name="Default.EncodingVersion" languages="all" default="1.1"/>
         <property name="Default.EndpointSelection" languages="all" default="Random" />
         <property name="Default.Host" languages="all" />
-        <property name="Default.Locator" languages="all" class="proxy" />
+        <property name="Default.Locator" languages="all" class="Proxy" />
         <property name="Default.LocatorCacheTimeout" languages="all" default="-1" />
         <property name="Default.InvocationTimeout" languages="all" default="-1" />
         <property name="Default.Package" languages="java" />
         <property name="Default.PreferSecure" languages="all" default="0" />
         <property name="Default.Protocol" languages="all" default="tcp" />
-        <property name="Default.Router" languages="all" class="proxy" />
+        <property name="Default.Router" languages="all" class="Proxy" />
         <property name="Default.SlicedFormat" languages="all" default="0" />
         <property name="Default.SourceAddress" languages="all" />
         <property name="EventLog.Source" languages="cpp" />
@@ -310,8 +116,8 @@ generated from the section label.
         <property name="StdErr" languages="cpp,csharp,java" />
         <property name="StdOut" languages="cpp,csharp,java" />
         <property name="SyslogFacility" languages="cpp,java" default="LOG_USER" />
-        <property name="ThreadPool.Client" class="threadpool" languages="cpp,csharp,java" />
-        <property name="ThreadPool.Server" class="threadpool" languages="cpp,csharp,java" />
+        <property name="ThreadPool.Client" class="ThreadPool" languages="cpp,csharp,java" />
+        <property name="ThreadPool.Server" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPriority" languages="csharp,java" />
         <property name="ToStringMode" languages="all" default="Unicode" />
         <property name="Trace.Admin.Properties" languages="cpp,csharp,java" default="0" />
@@ -342,13 +148,18 @@ generated from the section label.
     </section>
 
     <section name="IceMX">
-        <property name="Metrics.[any]" languages="cpp,csharp,java" class="mx" />
+        <property name="Metrics.[any].GroupBy" languages="cpp,csharp,java" />
+        <property name="Metrics.[any].Map" languages="cpp,csharp,java" />
+        <property name="Metrics.[any].RetainDetached" default="10" languages="cpp,csharp,java" />
+        <property name="Metrics.[any].Accept" languages="cpp,csharp,java" />
+        <property name="Metrics.[any].Reject" languages="cpp,csharp,java" />
+        <property name="Metrics.[any]" languages="cpp,csharp,java" />
     </section>
 
     <section name="IceDiscovery">
-        <property name="Multicast" class="objectadapter" languages="cpp,csharp,java" />
-        <property name="Reply" class="objectadapter" languages="cpp,csharp,java"/>
-        <property name="Locator" class="objectadapter" languages="cpp,csharp,java" />
+        <property name="Multicast" class="ObjectAdapter" languages="cpp,csharp,java" />
+        <property name="Reply" class="ObjectAdapter" languages="cpp,csharp,java"/>
+        <property name="Locator" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="Lookup" languages="cpp,csharp,java" />
         <property name="Timeout" languages="cpp,csharp,java" default="300" />
         <property name="RetryCount" languages="cpp,csharp,java" default="3" />
@@ -361,8 +172,8 @@ generated from the section label.
     </section>
 
     <section name="IceLocatorDiscovery">
-        <property name="Reply" class="objectadapter" languages="cpp,csharp,java" />
-        <property name="Locator" class="objectadapter" languages="cpp,csharp,java" />
+        <property name="Reply" class="ObjectAdapter" languages="cpp,csharp,java" />
+        <property name="Locator" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="Lookup" languages="cpp,csharp,java"/>
         <property name="Timeout" languages="cpp,csharp,java" default="300" />
         <property name="RetryCount" languages="cpp,csharp,java" default="3" />
@@ -384,11 +195,11 @@ generated from the section label.
     </section>
 
     <section name="IceBoxAdmin">
-        <property name="ServiceManager.Proxy" class="proxy" languages="cpp,java" />
+        <property name="ServiceManager.Proxy" class="Proxy" languages="cpp,java" />
     </section>
 
     <section name="IceBridge">
-        <property name="Source" class="objectadapter" languages="cpp" />
+        <property name="Source" class="ObjectAdapter" languages="cpp" />
         <property name="Target.Endpoints" languages="cpp" />
         <property name="InstanceName" default="IceBridge" languages="cpp" />
     </section>
@@ -402,20 +213,20 @@ generated from the section label.
         <property name="Host" languages="cpp" />
         <property name="Port" languages="cpp" />
         <property name="InstanceName" default="" languages="cpp" />
-        <property name="Server" class="objectadapter" languages="cpp" />
+        <property name="Server" class="ObjectAdapter" languages="cpp" />
         <property name="Discovery.Address" languages="cpp" />
         <property name="Discovery.Interface" languages="cpp" />
         <property name="Discovery.Lookup" languages="cpp" />
-        <property name="Discovery.Reply" class="objectadapter" languages="cpp" />
-        <property name="Discovery.Locator" class="objectadapter" languages="cpp" />
+        <property name="Discovery.Reply" class="ObjectAdapter" languages="cpp" />
+        <property name="Discovery.Locator" class="ObjectAdapter" languages="cpp" />
         <property name="Trace.Observers" languages="java" />
         <property name="Trace.SaveToRegistry" languages="java" />
     </section>
 
     <section name="IceGrid">
-        <property name="AdminRouter" class="objectadapter" languages="cpp" />
+        <property name="AdminRouter" class="ObjectAdapter" languages="cpp" />
         <property name="InstanceName" languages="cpp" default="IceGrid" />
-        <property name="Node" class="objectadapter" languages="cpp" />
+        <property name="Node" class="ObjectAdapter" languages="cpp" />
         <property name="Node.AllowRunningServersAsRoot" languages="cpp" />
         <property name="Node.AllowEndpointsOverride" languages="cpp" default="0"/>
         <property name="Node.CollocateRegistry" languages="cpp" />
@@ -434,31 +245,31 @@ generated from the section label.
         <property name="Node.Trace.Replica" languages="cpp" default="0" />
         <property name="Node.Trace.Server" languages="cpp" default="0" />
         <property name="Node.UserAccounts" languages="cpp" />
-        <property name="Node.UserAccountMapper" class="proxy" languages="cpp" />
+        <property name="Node.UserAccountMapper" class="Proxy" languages="cpp" />
         <property name="Node.WaitTime" languages="cpp" default="60" />
         <property name="Registry.AdminCryptPasswords" languages="cpp" />
-        <property name="Registry.AdminPermissionsVerifier" class="proxy" languages="cpp" />
+        <property name="Registry.AdminPermissionsVerifier" class="Proxy" languages="cpp" />
         <property name="Registry.AdminSessionFilters" languages="cpp" default="0" />
-        <property name="Registry.AdminSessionManager" class="objectadapter" languages="cpp" />
-        <property name="Registry.AdminSSLPermissionsVerifier" class="proxy" languages="cpp" />
-        <property name="Registry.Client" class="objectadapter" languages="cpp" />
+        <property name="Registry.AdminSessionManager" class="ObjectAdapter" languages="cpp" />
+        <property name="Registry.AdminSSLPermissionsVerifier" class="Proxy" languages="cpp" />
+        <property name="Registry.Client" class="ObjectAdapter" languages="cpp" />
         <property name="Registry.CryptPasswords" languages="cpp" />
         <property name="Registry.DefaultTemplates" languages="cpp" />
-        <property name="Registry.Discovery" class="objectadapter" languages="cpp" />
+        <property name="Registry.Discovery" class="ObjectAdapter" languages="cpp" />
         <property name="Registry.Discovery.Enabled" languages="cpp" default="1" />
         <property name="Registry.Discovery.Address" languages="cpp" />
         <property name="Registry.Discovery.Port" languages="cpp" default="4061" />
         <property name="Registry.Discovery.Interface" languages="cpp" />
         <property name="Registry.DynamicRegistration" languages="cpp" />
-        <property name="Registry.Internal" class="objectadapter" languages="cpp" />
+        <property name="Registry.Internal" class="ObjectAdapter" languages="cpp" />
         <property name="Registry.LMDB.MapSize" languages="cpp" />
         <property name="Registry.LMDB.Path" languages="cpp" />
-        <property name="Registry.PermissionsVerifier" class="proxy" languages="cpp" />
+        <property name="Registry.PermissionsVerifier" class="Proxy" languages="cpp" />
         <property name="Registry.ReplicaName" languages="cpp" default="Master" />
-        <property name="Registry.Server" class="objectadapter" languages="cpp" />
+        <property name="Registry.Server" class="ObjectAdapter" languages="cpp" />
         <property name="Registry.SessionFilters" languages="cpp" default="0" />
-        <property name="Registry.SessionManager" class="objectadapter" languages="cpp" />
-        <property name="Registry.SSLPermissionsVerifier" class="proxy" languages="cpp"/>
+        <property name="Registry.SessionManager" class="ObjectAdapter" languages="cpp" />
+        <property name="Registry.SSLPermissionsVerifier" class="Proxy" languages="cpp"/>
         <property name="Registry.Trace.Admin" languages="cpp" default="0" />
         <property name="Registry.Trace.Application" languages="cpp" default="0" />
         <property name="Registry.Trace.Adapter" languages="cpp" default="0" />
@@ -521,7 +332,7 @@ generated from the section label.
 
     <section name="Glacier2">
         <property name="AddConnectionContext" languages="cpp" default="0" />
-        <property name="Client" languages="cpp" class="objectadapter"/>
+        <property name="Client" languages="cpp" class="ObjectAdapter"/>
         <property name="Client.ForwardContext" languages="cpp" default="0" />
         <property name="Client.Trace.Reject" languages="cpp" default="0" />
         <property name="Client.Trace.Request" languages="cpp" default="0" />
@@ -534,14 +345,14 @@ generated from the section label.
         <property name="Filter.AdapterId.Accept" languages="cpp" />
         <property name="Filter.Identity.Accept" languages="cpp" />
         <property name="InstanceName" languages="cpp" default="Glacier2" />
-        <property name="PermissionsVerifier" class="proxy" languages="cpp" />
-        <property name="SSLPermissionsVerifier" class="proxy" languages="cpp" />
+        <property name="PermissionsVerifier" class="Proxy" languages="cpp" />
+        <property name="SSLPermissionsVerifier" class="Proxy" languages="cpp" />
         <property name="RoutingTable.MaxSize" languages="cpp" default="1000" />
-        <property name="Server" class="objectadapter" languages="cpp" />
+        <property name="Server" class="ObjectAdapter" languages="cpp" />
         <property name="Server.ForwardContext" languages="cpp" default="0" />
         <property name="Server.Trace.Request" languages="cpp" default="0" />
-        <property name="SessionManager" class="proxy" languages="cpp" />
-        <property name="SSLSessionManager" class="proxy" languages="cpp" />
+        <property name="SessionManager" class="Proxy" languages="cpp" />
+        <property name="SSLSessionManager" class="Proxy" languages="cpp" />
         <property name="Trace.RoutingTable" languages="cpp" default="0" />
         <property name="Trace.Session" languages="cpp" default="0" />
     </section>

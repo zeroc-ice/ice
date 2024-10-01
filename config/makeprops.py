@@ -47,18 +47,23 @@ cppHeaderPreamble = (
 
 namespace IceInternal
 {
+    struct PropertyArray;
     struct Property
     {
         const char* pattern;
-        bool usesRegex;
         const char* defaultValue;
+        bool usesRegex;
         bool deprecated;
+        const PropertyArray* propertyClass;
+        bool prefixOnly;
 
-        Property(const char* n, bool r, const char* dv, bool d) :
+        Property(const char* n, const char* dv, bool r, bool d, const PropertyArray* pc, bool po) :
             pattern(n),
-            usesRegex(r),
             defaultValue(dv),
-            deprecated(d)
+            usesRegex(r),
+            deprecated(d),
+            propertyClass(pc),
+            prefixOnly(po)
         {
         }
     };
@@ -136,6 +141,7 @@ export const PropertyNames = {};
 #
 
 
+# TODO: delete once all languages support class props
 class PropertyClass:
     def __init__(self, prefixOnly, childProperties):
         self.prefixOnly = prefixOnly
@@ -161,7 +167,7 @@ def initPropertyClasses(filename):
         classType = n.attributes["prefix-only"].nodeValue
         properties = []
         for a in n.childNodes:
-            if a.localName == "suffix" and a.hasAttributes():
+            if a.localName == "property" and a.hasAttributes():
                 """Convert minidom maps to hash tables """
                 attributeMap = {}
                 for i in range(0, a.attributes.length):
@@ -183,9 +189,11 @@ class PropertyHandler(ContentHandler):
         # The language we are generating properties for
         self.language = language
         # The section section we are currently parsing
-        self.currentSection = None
-        # Dictionary of section names to properties
-        self.sectionProperties = dict()
+        self.parentNodeName = None
+        # Dictionary of node names to properties
+        self.nodeProperties = dict()
+        # The current section type (class or section)
+        self.parentNodeType = None
 
         self.cmdLineOptions = []
 
@@ -201,7 +209,15 @@ class PropertyHandler(ContentHandler):
         # Needs to be overridden in derived class
         pass
 
-    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
+    def createProperty(
+        self,
+        propertyName,
+        usesRegex,
+        defaultValue,
+        deprecated,
+        propertyClass,
+        prefixOnly,
+    ):
         # Needs to be overridden in derived class
         pass
 
@@ -215,22 +231,57 @@ class PropertyHandler(ContentHandler):
 
     def writeProperties(self):
         self.openFiles()
-        for section in self.sectionProperties.keys():
+
+        for section in self.nodeProperties.keys():
             self.openSection(section)
-            for prop in self.sectionProperties[section]:
+            for prop in self.nodeProperties[section]:
                 self.writeProperty(prop)
             self.closeSection(section)
+
         self.closeFiles()
 
     def moveFiles(self, location):
         # Needs to be overridden in derived class
         pass
 
-    def handleProperty(self, propertyName, usesRegex, defaultValue, deprecated):
-        property = self.createProperty(
-            propertyName, usesRegex, defaultValue, deprecated
+    def parseProperty(self, propertyPrefix, attrs):
+        name = attrs.get("name")
+        usesRegex = "[any]" in name
+        deprecated = attrs.get("deprecated", "false").lower() == "true"
+        defaultValue = attrs.get("default", None)
+        propertyClass = attrs.get("class", None)
+        prefixOnly = attrs.get("prefix-only", "false").lower() == "true"
+
+        propertyName = (
+            f"{propertyPrefix}.{name}" if self.parentNodeType == "section" else name
         )
-        self.sectionProperties.setdefault(self.currentSection, []).append(property)
+
+        if not propertyClass and prefixOnly:
+            print(
+                sys.stderr,
+                f"Property '{propertyName}' cannot have prefix-only without a class",
+            )
+
+        if propertyClass and defaultValue:
+            print(
+                sys.stderr,
+                f"Property '{propertyName}' cannot have both a class and a default value",
+            )
+
+        if propertyClass and usesRegex:
+            print(
+                sys.stderr,
+                f"Property '{propertyName}' cannot have both a class and use a regex",
+            )
+
+        return self.createProperty(
+            propertyName,
+            usesRegex,
+            defaultValue or "",
+            deprecated,
+            propertyClass,
+            prefixOnly,
+        )
 
     def validateKnownAttributes(self, validAttrs, attrs):
         if "name" not in attrs:
@@ -253,7 +304,6 @@ class PropertyHandler(ContentHandler):
 
         # languages="cpp,java" -> ["cpp", "java"]
         languages = [lang.strip() for lang in languageAttr.split(",")]
-
         for lang in languages:
             if lang not in [lang.value for lang in Language]:
                 print(
@@ -276,10 +326,17 @@ class PropertyHandler(ContentHandler):
 
     def startElement(self, name, attrs):
         match name:
+            case "properties":
+                pass
+            case "class":
+                self.validateKnownAttributes(["name", "prefix-only"], attrs)
+                self.parentNodeType = "class"
+                self.parentNodeName = f"{attrs.get("name")}Class"
             case "section":
                 self.validateKnownAttributes(["name"], attrs)
-                self.currentSection = attrs.get("name")
-                self.cmdLineOptions.append(self.currentSection)
+                self.parentNodeType = "section"
+                self.parentNodeName = attrs.get("name")
+                self.cmdLineOptions.append(self.parentNodeName)
 
             case "property":
                 self.validateKnownAttributes(
@@ -289,29 +346,33 @@ class PropertyHandler(ContentHandler):
                 if self.validateLanguages(attrs) is False:
                     return
 
-                propertyName = attrs.get("name", None)
-                if "class" in attrs:
-                    c = propertyClasses[attrs["class"]]
-                    for p in c.getChildren():
-                        t = dict(p)
-                        t["name"] = "%s.%s" % (propertyName, p["name"])
-                        self.startElement(name, t)
-                    if c.isPrefixOnly():
+                # TODO: temporary until all languages support class props
+
+                if self.language != Language.CPP:
+                    if self.parentNodeType == "class":
                         return
 
-                usesRegex = "[any]" in propertyName
-                deprecated = attrs.get("deprecated", "false").lower() == "true"
-                defaultValue = attrs.get("default", None) or ""
-                self.handleProperty(
-                    propertyName,
-                    usesRegex,
-                    defaultValue,
-                    deprecated,
-                )
+                    propertyName = attrs.get("name", None)
+                    if "class" in attrs:
+                        c = propertyClasses[attrs["class"]]
+                        assert c is not None
+                        for p in c.getChildren():
+                            t = dict(p)
+                            t["name"] = "%s.%s" % (propertyName, p["name"])
+                            self.startElement(name, t)
+                        if c.isPrefixOnly():
+                            return
+
+                property = self.parseProperty(self.parentNodeName, attrs)
+                self.nodeProperties.setdefault(self.parentNodeName, []).append(property)
+            case _:
+                print(sys.stderr, "unknown element '%s'" % name)
 
     def endElement(self, name):
-        if name == "section":
-            self.currentSection = None
+        print("ending element", self.parentNodeName)
+        if name == "section" or name == "class":
+            self.parentNodeName = None
+            self.parentNodeType = None
 
 
 class CppPropertyHandler(PropertyHandler):
@@ -344,7 +405,7 @@ class CppPropertyHandler(PropertyHandler):
         )
 
         self.cppFile.write("{\n")
-        for s in self.sectionProperties.keys():
+        for s in self.cmdLineOptions:
             self.cppFile.write("    %sProps,\n" % s)
         self.cppFile.write("    IceInternal::PropertyArray(0,0)\n")
         self.cppFile.write("};\n\n")
@@ -366,14 +427,24 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.write("    %s,\n" % property)
 
     @override
-    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
-        name = f"{self.currentSection}.{propertyName}"
-
-        propertyLine = 'IceInternal::Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
-            pattern=self.fix(name) if usesRegex else name,
-            usesRegex="true" if usesRegex else "false",
+    def createProperty(
+        self,
+        propertyName,
+        usesRegex,
+        defaultValue,
+        deprecated,
+        propertyClass,
+        prefixOnly,
+    ):
+        propertyLine = 'IceInternal::Property("{pattern}", {defaultValue}, {usesRegex}, {deprecated}, {propertyClass}, {prefixOnly})'.format(
+            pattern=self.fix(propertyName) if usesRegex else propertyName,
             defaultValue=f'"{defaultValue}"',
+            usesRegex="true" if usesRegex else "false",
             deprecated="true" if deprecated else "false",
+            propertyClass=f"&IceInternal::PropertyNames::{propertyClass}ClassProps"
+            if propertyClass
+            else "nullptr",
+            prefixOnly="true" if prefixOnly else "false",
         )
 
         return propertyLine
@@ -425,7 +496,7 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("    public static final Property[] validProps[] =\n")
 
         self.srcFile.write("    {\n")
-        for s in self.sectionProperties.keys():
+        for s in self.nodeProperties.keys():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("        null\n")
         self.srcFile.write("    };\n")
@@ -449,10 +520,17 @@ class JavaPropertyHandler(PropertyHandler):
     def writeProperty(self, property):
         self.srcFile.write("    %s,\n" % property)
 
-    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
-        name = f"{self.currentSection}.{propertyName}"
+    def createProperty(
+        self,
+        propertyName,
+        usesRegex,
+        defaultValue,
+        deprecated,
+        propertyClass,
+        prefixOnly,
+    ):
         line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
-            pattern=self.fix(name) if usesRegex else name,
+            pattern=self.fix(propertyName) if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
@@ -507,7 +585,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("    public static Property[][] validProps =\n")
 
         self.srcFile.write("    {\n")
-        for s in self.sectionProperties.keys():
+        for s in self.nodeProperties.keys():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("    };\n\n")
 
@@ -527,10 +605,17 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("    %s,\n" % property)
 
     @override
-    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
-        name = f"{self.currentSection}.{propertyName}"
+    def createProperty(
+        self,
+        propertyName,
+        usesRegex,
+        defaultValue,
+        deprecated,
+        propertyClass,
+        prefixOnly,
+    ):
         line = 'new(@"{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
-            pattern=f"^{self.fix(name)}$" if usesRegex else name,
+            pattern=f"^{self.fix(propertyName)}$" if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
@@ -570,7 +655,7 @@ class JSPropertyHandler(PropertyHandler):
 
     def closeFiles(self):
         self.srcFile.write("PropertyNames.validProps = new Map();\n")
-        for s in self.sectionProperties.keys():
+        for s in self.nodeProperties.keys():
             self.srcFile.write(f'PropertyNames.validProps.set("{s}", {s}Props);\n')
 
         self.srcFile.close()
@@ -582,11 +667,20 @@ class JSPropertyHandler(PropertyHandler):
     def writeProperty(self, property):
         self.srcFile.write("    %s,\n" % property)
 
-    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated):
-        name = f"{self.currentSection}.{propertyName}"
+    def createProperty(
+        self,
+        propertyName,
+        usesRegex,
+        defaultValue,
+        deprecated,
+        propertyClass,
+        prefixOnly,
+    ):
         line = (
             "new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated})".format(
-                pattern=f"/^{self.fix(name)}/" if usesRegex else f'"{name}"',
+                pattern=f"/^{self.fix(propertyName)}/"
+                if usesRegex
+                else f'"{propertyName}"',
                 usesRegex="true" if usesRegex else "false",
                 defaultValue=f'"{defaultValue}"',
                 deprecated="true" if deprecated else "false",
@@ -661,6 +755,7 @@ def main():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
 
+    # TODO: delete once all languages support class props
     initPropertyClasses(propsFile)
 
     parser = make_parser()
