@@ -481,7 +481,7 @@ namespace Ice
         SocketException(const char* file, int line, std::string messagePrefix, ErrorCode error);
 
         /**
-         * Constructs a SocketException without a generic message.
+         * Constructs a SocketException with a generic message.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
          * @param error The error code.
