@@ -46,11 +46,6 @@ EndpointFactory::read(Ice::InputStream* s) const
     return endpoint;
 }
 
-void
-EndpointFactory::destroy()
-{
-}
-
 IceInternal::EndpointFactoryPtr
 EndpointFactory::clone(const IceInternal::ProtocolInstancePtr&) const
 {

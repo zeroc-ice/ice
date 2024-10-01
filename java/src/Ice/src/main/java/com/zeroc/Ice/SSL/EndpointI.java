@@ -227,6 +227,6 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         return false;
     }
 
-    private Instance _instance;
+    private final Instance _instance;
     private com.zeroc.Ice.EndpointI _delegate;
 }

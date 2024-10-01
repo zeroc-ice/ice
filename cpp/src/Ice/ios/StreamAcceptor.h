@@ -36,7 +36,7 @@ namespace IceObjC
         friend class StreamEndpointI;
 
         StreamEndpointIPtr _endpoint;
-        InstancePtr _instance;
+        const InstancePtr _instance;
         int _backlog;
         IceInternal::Address _addr;
     };

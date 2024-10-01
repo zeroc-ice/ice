@@ -101,12 +101,11 @@ namespace IceBT
         std::string protocol() const final;
         IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
         IceInternal::EndpointIPtr read(Ice::InputStream*) const final;
-        void destroy();
 
         IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
     private:
-        InstancePtr _instance;
+        const InstancePtr _instance;
     };
 }
 

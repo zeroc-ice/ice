@@ -58,7 +58,7 @@ internal sealed class WSConnector : Connector
         return _delegate.GetHashCode();
     }
 
-    private ProtocolInstance _instance;
+    private readonly ProtocolInstance _instance;
     private Connector _delegate;
     private string _host;
     private string _resource;

@@ -190,7 +190,9 @@ public final class Current implements Cloneable {
         OutputStream ostr;
 
         if (requestId != 0) {
-            ostr = new OutputStream(adapter.getCommunicator(), Protocol.currentProtocolEncoding);
+            // The default class format doesn't matter since we always encode user exceptions in
+            // Sliced format.
+            ostr = new OutputStream(Protocol.currentProtocolEncoding);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
         } else {
@@ -325,7 +327,13 @@ public final class Current implements Cloneable {
             return new OutputStream();
         } else {
             var ostr =
-                    new OutputStream(adapter.getCommunicator(), Protocol.currentProtocolEncoding);
+                    new OutputStream(
+                            Protocol.currentProtocolEncoding,
+                            this.adapter
+                                    .getCommunicator()
+                                    .getInstance()
+                                    .defaultsAndOverrides()
+                                    .defaultFormat);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
             ostr.writeByte(replyStatus.value());

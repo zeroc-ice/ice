@@ -1242,10 +1242,6 @@ public final class Instance implements java.util.function.Function<String, Class
                 _locatorManager.destroy();
             }
 
-            if (_endpointFactoryManager != null) {
-                _endpointFactoryManager.destroy();
-            }
-
             if (_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
                 java.util.List<String> unusedProperties =
                         _initData.properties.getUnusedProperties();

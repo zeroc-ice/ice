@@ -32,14 +32,9 @@ final class TcpEndpointFactory implements EndpointFactory {
     }
 
     @Override
-    public void destroy() {
-        _instance = null;
-    }
-
-    @Override
     public EndpointFactory clone(ProtocolInstance instance) {
         return new TcpEndpointFactory(instance);
     }
 
-    private ProtocolInstance _instance;
+    private final ProtocolInstance _instance;
 }

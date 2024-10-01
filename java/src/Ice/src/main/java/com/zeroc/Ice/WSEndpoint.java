@@ -286,7 +286,7 @@ final class WSEndpoint extends EndpointI {
         }
     }
 
-    private ProtocolInstance _instance;
+    private final ProtocolInstance _instance;
     private EndpointI _delegate;
     private String _resource;
 }

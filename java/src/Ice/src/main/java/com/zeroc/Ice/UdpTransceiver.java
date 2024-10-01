@@ -464,7 +464,7 @@ final class UdpTransceiver implements Transceiver {
     }
 
     private UdpEndpointI _endpoint = null;
-    private ProtocolInstance _instance;
+    private final ProtocolInstance _instance;
 
     private int _state;
     private int _rcvSize;

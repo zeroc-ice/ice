@@ -16,8 +16,6 @@ public interface EndpointFactory
 
     EndpointI read(Ice.InputStream s);
 
-    void destroy();
-
     EndpointFactory clone(ProtocolInstance instance);
 }
 
@@ -71,15 +69,6 @@ public abstract class EndpointFactoryWithUnderlying : EndpointFactory
         return readWithUnderlying(_underlying.read(s), s);
     }
 
-    public void destroy()
-    {
-        if (_underlying != null)
-        {
-            _underlying.destroy();
-        }
-        instance_ = null;
-    }
-
     public EndpointFactory clone(ProtocolInstance instance)
     {
         return cloneWithUnderlying(instance, _type);
@@ -91,7 +80,7 @@ public abstract class EndpointFactoryWithUnderlying : EndpointFactory
 
     protected abstract EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s);
 
-    protected ProtocolInstance instance_;
+    protected readonly ProtocolInstance instance_;
 
     private readonly short _type;
     private EndpointFactory _underlying;

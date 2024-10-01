@@ -872,7 +872,7 @@ internal sealed class UdpTransceiver : Transceiver
     }
 
     private UdpEndpointI _endpoint;
-    private ProtocolInstance _instance;
+    private readonly ProtocolInstance _instance;
     private int _state;
     private bool _incoming;
     private int _rcvSize;
