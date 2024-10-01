@@ -1624,11 +1624,12 @@ IceInternal::getNumericAddress(const std::string& address)
     }
 }
 
-int
+SyscallException::ErrorCode
 IceInternal::getSocketErrno()
 {
 #if defined(_WIN32)
-    return WSAGetLastError();
+    // We standardize on DWORD aka unsigned long for all system error codes on Windows.
+    return static_cast<SyscallException::ErrorCode>(WSAGetLastError());
 #else
     return errno;
 #endif
@@ -2174,7 +2175,7 @@ IceInternal::getHostName()
     char name[256];
     if (gethostname(name, sizeof(name)) != 0)
     {
-        throw SocketException(__FILE__, __LINE__, getSocketErrno());
+        throw SocketException{__FILE__, __LINE__, getSocketErrno()};
     }
     return name;
 }
