@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice.SSL;
 
+import java.util.stream.Collectors;
+
 final class EndpointI extends com.zeroc.Ice.EndpointI {
     public EndpointI(Instance instance, com.zeroc.Ice.EndpointI delegate) {
         _instance = instance;
@@ -163,14 +165,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
 
     @Override
     public java.util.List<com.zeroc.Ice.EndpointI> expandHost() {
-        java.util.List<com.zeroc.Ice.EndpointI> underlying = _delegate.expandHost();
-
-        var result = new java.util.ArrayList<com.zeroc.Ice.EndpointI>(underlying.size());
-
-        for (com.zeroc.Ice.EndpointI e : underlying) {
-            result.add(endpoint(e));
-        }
-        return result;
+        return _delegate.expandHost().stream().map(this::endpoint).collect(Collectors.toList());
     }
 
     @Override

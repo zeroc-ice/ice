@@ -5,6 +5,7 @@
 package com.zeroc.Ice;
 
 import com.zeroc.Ice.SSL.SSLEngineFactory;
+import java.util.stream.Collectors;
 
 final class WSEndpoint extends EndpointI {
     public WSEndpoint(ProtocolInstance instance, EndpointI del, String res) {
@@ -173,14 +174,7 @@ final class WSEndpoint extends EndpointI {
 
     @Override
     public java.util.List<EndpointI> expandHost() {
-        java.util.List<EndpointI> underlying = _delegate.expandHost();
-
-        var result = new java.util.ArrayList<EndpointI>(underlying.size());
-
-        for (EndpointI e : underlying) {
-            result.add(endpoint(e));
-        }
-        return result;
+        return _delegate.expandHost().stream().map(this::endpoint).collect(Collectors.toList());
     }
 
     @Override

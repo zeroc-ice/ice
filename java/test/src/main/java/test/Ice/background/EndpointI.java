@@ -4,6 +4,8 @@
 
 package test.Ice.background;
 
+import java.util.stream.Collectors;
+
 final class EndpointI extends com.zeroc.Ice.EndpointI {
     static final short TYPE_BASE = 100;
 
@@ -148,14 +150,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
 
     @Override
     public java.util.List<com.zeroc.Ice.EndpointI> expandHost() {
-        java.util.List<com.zeroc.Ice.EndpointI> underlying = _endpoint.expandHost();
-
-        var result = new java.util.ArrayList<com.zeroc.Ice.EndpointI>(underlying.size());
-
-        for (com.zeroc.Ice.EndpointI e : underlying) {
-            result.add(endpoint(e));
-        }
-        return result;
+        return _endpoint.expandHost().stream().map(this::endpoint).collect(Collectors.toList());
     }
 
     @Override
