@@ -572,8 +572,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             format = "nil";
         }
 
-        _out << nl << name << "Prx_mixin::OP_" << op->name() << " = ::Ice::__defineOperation('" << op->name()
-             << "', ";
+        _out << nl << name << "Prx_mixin::OP_" << op->name() << " = ::Ice::__defineOperation('" << op->name() << "', ";
         switch (op->mode())
         {
             case Operation::Normal:
