@@ -20,7 +20,7 @@ public class AllTests : global::Test.AllTests
             communicator.createObjectAdapter("Foo");
             test(false);
         }
-        catch(InitializationException)
+        catch (InitializationException)
         {
         }
         output.WriteLine("ok");
@@ -34,7 +34,7 @@ public class AllTests : global::Test.AllTests
             communicator.propertyToProxy("Greeter");
             test(false);
         }
-        catch(InitializationException)
+        catch (InitializationException)
         {
         }
         output.WriteLine("ok");
