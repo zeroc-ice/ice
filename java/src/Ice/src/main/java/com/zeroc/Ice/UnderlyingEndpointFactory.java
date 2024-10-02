@@ -54,11 +54,18 @@ public class UnderlyingEndpointFactory implements EndpointFactory {
         return _factory.read(s);
     }
 
+    public void destroy() {
+        if (_factory != null) {
+            _factory.destroy();
+        }
+        _instance = null;
+    }
+
     public EndpointFactory clone(ProtocolInstance instance) {
         return new UnderlyingEndpointFactory(instance, _type, _underlying);
     }
 
-    protected final ProtocolInstance _instance;
+    protected ProtocolInstance _instance;
 
     private final short _type;
     private final short _underlying;

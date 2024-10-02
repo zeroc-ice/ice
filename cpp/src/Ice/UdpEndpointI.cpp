@@ -526,6 +526,12 @@ IceInternal::UdpEndpointFactory::read(InputStream* s) const
     return make_shared<UdpEndpointI>(_instance, s);
 }
 
+void
+IceInternal::UdpEndpointFactory::destroy()
+{
+    _instance = 0;
+}
+
 EndpointFactoryPtr
 IceInternal::UdpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {

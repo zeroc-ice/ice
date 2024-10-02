@@ -16,11 +16,10 @@ namespace Ice::SSL
     public:
         Instance(const SSLEnginePtr&, std::int16_t, const std::string&);
 
-        SSLEnginePtr engine() const;
+        SSLEnginePtr engine() const { return _engine; }
 
     private:
-        // Use a weak pointer to avoid circular references, the SSL engine is owned by the communicator instance.
-        const std::weak_ptr<SSLEngine> _engine;
+        const SSLEnginePtr _engine;
     };
 }
 

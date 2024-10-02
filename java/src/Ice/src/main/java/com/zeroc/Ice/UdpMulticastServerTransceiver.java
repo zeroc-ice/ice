@@ -415,7 +415,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     }
 
     private UdpEndpointI _endpoint = null;
-    private final ProtocolInstance _instance;
+    private ProtocolInstance _instance;
 
     private int _size;
     private int _newSize;

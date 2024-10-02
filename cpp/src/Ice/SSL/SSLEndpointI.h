@@ -70,6 +70,8 @@ namespace Ice::SSL
     public:
         EndpointFactoryI(const InstancePtr&, std::int16_t);
 
+        void destroy() final;
+
         IceInternal::EndpointFactoryPtr
         cloneWithUnderlying(const IceInternal::ProtocolInstancePtr&, std::int16_t) const final;
 
@@ -79,7 +81,7 @@ namespace Ice::SSL
         IceInternal::EndpointIPtr readWithUnderlying(const IceInternal::EndpointIPtr&, Ice::InputStream*) const final;
 
     private:
-        const InstancePtr _sslInstance;
+        InstancePtr _sslInstance;
     };
 }
 

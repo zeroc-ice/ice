@@ -391,7 +391,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
         }
     }
 
-    private final ProtocolInstance _instance;
+    private ProtocolInstance _instance;
     private InetSocketAddress _addr;
     private String _mcastInterface;
 

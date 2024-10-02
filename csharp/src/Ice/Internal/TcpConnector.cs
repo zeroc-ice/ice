@@ -84,7 +84,7 @@ internal sealed class TcpConnector : Connector
         return hash.ToHashCode();
     }
 
-    private readonly ProtocolInstance _instance;
+    private ProtocolInstance _instance;
     private EndPoint _addr;
     private NetworkProxy _proxy;
     private EndPoint _sourceAddr;

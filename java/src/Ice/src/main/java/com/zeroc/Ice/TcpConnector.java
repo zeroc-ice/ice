@@ -78,7 +78,7 @@ final class TcpConnector implements Connector {
         return java.util.Objects.equals(_addr, p._addr);
     }
 
-    private final ProtocolInstance _instance;
+    private ProtocolInstance _instance;
     private java.net.InetSocketAddress _addr;
     private NetworkProxy _proxy;
     private java.net.InetSocketAddress _sourceAddr;

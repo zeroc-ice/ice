@@ -56,7 +56,7 @@ final class ConnectorI implements com.zeroc.Ice.Connector {
         return p._delegate.equals(_delegate);
     }
 
-    private final Instance _instance;
+    private Instance _instance;
     private com.zeroc.Ice.Connector _delegate;
     private String _host;
 }

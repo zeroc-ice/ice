@@ -58,6 +58,6 @@ internal class WSAcceptor : Acceptor
     }
 
     private WSEndpoint _endpoint;
-    private readonly ProtocolInstance _instance;
+    private ProtocolInstance _instance;
     private Acceptor _delegate;
 }

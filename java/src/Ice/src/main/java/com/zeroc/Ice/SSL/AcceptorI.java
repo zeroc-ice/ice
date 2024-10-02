@@ -67,7 +67,7 @@ final class AcceptorI implements com.zeroc.Ice.Acceptor {
     }
 
     private EndpointI _endpoint;
-    private final Instance _instance;
+    private Instance _instance;
     private com.zeroc.Ice.Acceptor _delegate;
     private String _adapterName;
     private SSLEngineFactory _sslEngineFactory;

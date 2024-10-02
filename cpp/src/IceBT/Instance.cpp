@@ -17,19 +17,8 @@ IceBT::Instance::Instance(const EnginePtr& engine, int16_t type, const string& p
 
 IceBT::Instance::~Instance() {}
 
-EnginePtr
-IceBT::Instance::engine() const
-{
-    EnginePtr engine = _engine.lock();
-    if (!engine)
-    {
-        throw CommunicatorDestroyedException{__FILE__, __LINE__};
-    }
-    return engine;
-}
-
 bool
 IceBT::Instance::initialized() const
 {
-    return engine()->initialized();
+    return _engine->initialized();
 }

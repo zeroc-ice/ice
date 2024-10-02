@@ -31,7 +31,8 @@ IceInternal::EndpointFactoryManager::initialize() const
 void
 IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
 {
-    lock_guard lock(_mutex);
+    lock_guard lock(_mutex); // TODO: Necessary?
+
     //
     // TODO: Optimize with a map?
     //
@@ -48,7 +49,8 @@ IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
 EndpointFactoryPtr
 IceInternal::EndpointFactoryManager::get(int16_t type) const
 {
-    lock_guard lock(_mutex);
+    lock_guard lock(_mutex); // TODO: Necessary?
+
     //
     // TODO: Optimize with a map?
     //
@@ -87,7 +89,8 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
 
     EndpointFactoryPtr factory;
     {
-        lock_guard lock(_mutex);
+        lock_guard lock(_mutex); // TODO: Necessary?
+
         //
         // TODO: Optimize with a map?
         //
@@ -181,4 +184,14 @@ IceInternal::EndpointFactoryManager::read(InputStream* s) const
     s->endEncapsulation();
 
     return e;
+}
+
+void
+IceInternal::EndpointFactoryManager::destroy()
+{
+    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    {
+        _factories[i]->destroy();
+    }
+    _factories.clear();
 }

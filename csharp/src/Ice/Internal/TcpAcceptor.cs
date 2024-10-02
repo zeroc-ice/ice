@@ -140,7 +140,7 @@ internal class TcpAcceptor : Acceptor
     }
 
     private TcpEndpointI _endpoint;
-    private readonly ProtocolInstance _instance;
+    private ProtocolInstance _instance;
     private Socket _fd;
     private Socket _acceptFd;
     private Ice.SocketException _acceptError;

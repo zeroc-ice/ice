@@ -176,7 +176,7 @@ internal sealed class WSEndpoint : EndpointI
             _callback.exception(ex);
         }
 
-        private readonly ProtocolInstance _instance;
+        private ProtocolInstance _instance;
         private string _host;
         private string _resource;
         private EndpointI_connectors _callback;
@@ -305,7 +305,7 @@ internal sealed class WSEndpoint : EndpointI
         }
     }
 
-    private readonly ProtocolInstance _instance;
+    private ProtocolInstance _instance;
     private EndpointI _delegate;
     private string _resource;
 }

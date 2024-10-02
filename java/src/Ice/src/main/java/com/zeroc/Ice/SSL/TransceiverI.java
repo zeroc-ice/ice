@@ -513,7 +513,7 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
         _appInput.compact();
     }
 
-    private final Instance _instance;
+    private Instance _instance;
     private com.zeroc.Ice.Transceiver _delegate;
     private javax.net.ssl.SSLEngine _engine;
     private String _host = "";

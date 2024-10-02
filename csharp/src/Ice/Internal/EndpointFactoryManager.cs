@@ -24,7 +24,13 @@ public sealed class EndpointFactoryManager
     {
         lock (_mutex)
         {
-            Debug.Assert(!_factories.Any(f => f.type() == factory.type()));
+            foreach (EndpointFactory f in _factories)
+            {
+                if (f.type() == factory.type())
+                {
+                    Debug.Assert(false);
+                }
+            }
             _factories.Add(factory);
         }
     }
@@ -172,6 +178,15 @@ public sealed class EndpointFactoryManager
 
             return e;
         }
+    }
+
+    internal void destroy()
+    {
+        foreach (EndpointFactory f in _factories)
+        {
+            f.destroy();
+        }
+        _factories.Clear();
     }
 
     private readonly Instance _instance;

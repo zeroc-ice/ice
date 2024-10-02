@@ -17,13 +17,12 @@ namespace IceBT
         Instance(const EnginePtr&, std::int16_t, const std::string&);
         virtual ~Instance();
 
-        EnginePtr engine() const;
+        EnginePtr engine() const { return _engine; }
 
         bool initialized() const;
 
     private:
-        // Use a weak pointer to avoid circular references, the engine is owned by the plug-in instance.
-        const std::weak_ptr<Engine> _engine;
+        const EnginePtr _engine;
     };
 }
 

@@ -111,7 +111,7 @@ final class EndpointFactoryManager {
                 // and ask the factory to read the endpoint data from that stream to create
                 // the actual endpoint.
                 //
-                var os = new OutputStream(Protocol.currentProtocolEncoding);
+                var os = new OutputStream(_instance, Protocol.currentProtocolEncoding, false);
                 os.writeShort(ue.type());
                 ue.streamWrite(os);
                 var is =
@@ -156,6 +156,13 @@ final class EndpointFactoryManager {
         return e;
     }
 
-    private final Instance _instance;
+    void destroy() {
+        for (EndpointFactory f : _factories) {
+            f.destroy();
+        }
+        _factories.clear();
+    }
+
+    private Instance _instance;
     private java.util.List<EndpointFactory> _factories = new java.util.ArrayList<>();
 }

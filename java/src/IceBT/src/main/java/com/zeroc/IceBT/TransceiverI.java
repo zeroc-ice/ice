@@ -481,7 +481,7 @@ final class TransceiverI implements Transceiver {
         }
     }
 
-    private final Instance _instance;
+    private Instance _instance;
     private String _remoteAddr;
     private String _uuid;
     private String _connectionId;

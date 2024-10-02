@@ -64,7 +64,6 @@ void
 IceBT::PluginI::destroy()
 {
     _engine->destroy();
-    _engine = nullptr;
 }
 
 void

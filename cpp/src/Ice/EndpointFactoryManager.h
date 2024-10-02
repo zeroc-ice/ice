@@ -32,9 +32,10 @@ namespace IceInternal
         EndpointIPtr read(Ice::InputStream*) const;
 
     private:
+        void destroy();
         friend class Instance;
 
-        const InstancePtr _instance;
+        InstancePtr _instance;
         std::vector<EndpointFactoryPtr> _factories;
         mutable std::mutex _mutex;
     };

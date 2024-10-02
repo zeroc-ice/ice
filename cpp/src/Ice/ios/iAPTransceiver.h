@@ -56,7 +56,7 @@ namespace IceObjC
     private:
         void checkErrorStatus(NSStream*, const char*, int);
 
-        const IceInternal::ProtocolInstancePtr _instance;
+        IceInternal::ProtocolInstancePtr _instance;
         EASession* _session;
         NSInputStream* _readStream;
         NSOutputStream* _writeStream;

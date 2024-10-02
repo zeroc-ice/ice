@@ -317,10 +317,15 @@ internal sealed class TcpEndpointFactory : EndpointFactory
         return new TcpEndpointI(_instance, s);
     }
 
+    public void destroy()
+    {
+        _instance = null;
+    }
+
     public EndpointFactory clone(ProtocolInstance instance)
     {
         return new TcpEndpointFactory(instance);
     }
 
-    private readonly ProtocolInstance _instance;
+    private ProtocolInstance _instance;
 }
