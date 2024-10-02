@@ -2908,7 +2908,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     {
         return meta->substr(prefix.size());
     }
-    
+
     return "";
 }
 

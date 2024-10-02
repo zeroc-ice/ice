@@ -1159,8 +1159,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
 
     const string genericPrefix = "cs:generic:";
     string genericType;
-    bool isGeneric = false;
     string addMethod = "Add";
+    bool isGeneric = false;
     bool isStack = false;
     bool isList = false;
     bool isLinkedList = false;
