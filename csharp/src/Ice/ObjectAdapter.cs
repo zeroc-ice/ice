@@ -933,13 +933,12 @@ public sealed class ObjectAdapter
         }
         else
         {
-            EndpointI[] endpoints = r.getEndpoints();
-
+            // Proxies which have at least one endpoint in common with the published endpoints are considered local.
             lock (_mutex)
             {
                 checkForDeactivation();
 
-                // Proxies which have at least one endpoint in common with the published endpoints are considered local.
+                EndpointI[] endpoints = r.getEndpoints();
                 return _publishedEndpoints.Any(e => endpoints.Any(e.equivalent));
             }
         }

@@ -5,6 +5,7 @@
 package com.zeroc.Ice;
 
 import com.zeroc.Ice.SSL.SSLEngineFactory;
+import java.util.Collections;
 
 final class OpaqueEndpointI extends EndpointI {
     public OpaqueEndpointI(java.util.ArrayList<String> args) {
@@ -178,24 +179,19 @@ final class OpaqueEndpointI extends EndpointI {
         return null;
     }
 
-    //
-    // Expand endpoint out in to separate endpoints for each local
-    // host if listening on INADDR_ANY on server side or if no host
-    // was specified on client side.
-    //
     @Override
-    public java.util.List<EndpointI> expandIfWildcard() {
-        java.util.List<EndpointI> endps = new java.util.ArrayList<>();
-        endps.add(this);
-        return endps;
+    public java.util.List<EndpointI> expandHost() {
+        return Collections.singletonList(this);
     }
 
     @Override
-    public EndpointI.ExpandHostResult expandHost() {
-        EndpointI.ExpandHostResult result = new EndpointI.ExpandHostResult();
-        result.endpoints = new java.util.ArrayList<>();
-        result.endpoints.add(this);
-        return result;
+    public boolean isLoopback() {
+        return false;
+    }
+
+    @Override
+    public EndpointI withPublishedHost(String host) {
+        return this;
     }
 
     //

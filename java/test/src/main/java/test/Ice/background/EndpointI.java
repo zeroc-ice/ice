@@ -4,6 +4,8 @@
 
 package test.Ice.background;
 
+import java.util.stream.Collectors;
+
 final class EndpointI extends com.zeroc.Ice.EndpointI {
     static final short TYPE_BASE = 100;
 
@@ -147,29 +149,18 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public java.util.List<com.zeroc.Ice.EndpointI> expandIfWildcard() {
-        java.util.List<com.zeroc.Ice.EndpointI> endps = new java.util.ArrayList<>();
-        for (com.zeroc.Ice.EndpointI endpt : _endpoint.expandIfWildcard()) {
-            endps.add(endpt == _endpoint ? this : new EndpointI(_configuration, endpt));
-        }
-        return endps;
+    public java.util.List<com.zeroc.Ice.EndpointI> expandHost() {
+        return _endpoint.expandHost().stream().map(this::endpoint).collect(Collectors.toList());
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI.ExpandHostResult expandHost() {
-        com.zeroc.Ice.EndpointI.ExpandHostResult result = _endpoint.expandHost();
-        java.util.List<com.zeroc.Ice.EndpointI> l = new java.util.ArrayList<>();
-        for (com.zeroc.Ice.EndpointI e : result.endpoints) {
-            l.add(e == _endpoint ? this : new EndpointI(_configuration, e));
-        }
-        result.endpoints = l;
-        if (result.publish != null) {
-            result.publish =
-                    result.publish == _endpoint
-                            ? this
-                            : new EndpointI(_configuration, result.publish);
-        }
-        return result;
+    public boolean isLoopback() {
+        return _endpoint.isLoopback();
+    }
+
+    @Override
+    public com.zeroc.Ice.EndpointI withPublishedHost(String host) {
+        return endpoint(_endpoint.withPublishedHost(host));
     }
 
     @Override

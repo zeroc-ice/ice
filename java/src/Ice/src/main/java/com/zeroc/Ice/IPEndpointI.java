@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.Collections;
+
 abstract class IPEndpointI extends EndpointI {
     protected IPEndpointI(
             ProtocolInstance instance,
@@ -92,40 +94,13 @@ abstract class IPEndpointI extends EndpointI {
     }
 
     @Override
-    public java.util.List<EndpointI> expandIfWildcard() {
-        java.util.List<EndpointI> endps = new java.util.ArrayList<>();
-        java.util.List<String> hosts =
-                Network.getHostsForEndpointExpand(_host, _instance.protocolSupport(), false);
-        if (hosts == null || hosts.isEmpty()) {
-            endps.add(this);
-        } else {
-            for (String h : hosts) {
-                endps.add(createEndpoint(h, _port, _connectionId));
-            }
-        }
-        return endps;
-    }
+    public java.util.List<EndpointI> expandHost() {
 
-    @Override
-    public EndpointI.ExpandHostResult expandHost() {
-        EndpointI.ExpandHostResult result = new EndpointI.ExpandHostResult();
-
-        //
-        // If this endpoint has an empty host (wildcard address), don't expand, just return
-        // this endpoint.
-        //
-        if (_host.isEmpty()) {
-            result.endpoints = new java.util.ArrayList<>();
-            result.endpoints.add(this);
-            return result;
-        }
-
-        //
-        // If using a fixed port, this endpoint can be used as the published endpoint to
-        // access the returned endpoints. Otherwise, we'll publish each individual expanded
+        // If this endpoint has an empty host (wildcard address), don't expand, just return this
         // endpoint.
-        //
-        result.publish = _port > 0 ? this : null;
+        if (_host.isEmpty()) {
+            return Collections.singletonList(this);
+        }
 
         java.util.List<java.net.InetSocketAddress> addresses =
                 Network.getAddresses(
@@ -136,17 +111,28 @@ abstract class IPEndpointI extends EndpointI {
                         _instance.preferIPv6(),
                         true);
 
-        result.endpoints = new java.util.ArrayList<>();
-        if (addresses.size() == 1) {
-            result.endpoints.add(this);
-        } else {
-            for (java.net.InetSocketAddress addr : addresses) {
-                result.endpoints.add(
-                        createEndpoint(
-                                addr.getAddress().getHostAddress(), addr.getPort(), _connectionId));
-            }
+        var result = new java.util.ArrayList<EndpointI>(addresses.size());
+        for (java.net.InetSocketAddress addr : addresses) {
+            result.add(
+                    createEndpoint(
+                            addr.getAddress().getHostAddress(), addr.getPort(), _connectionId));
         }
+
         return result;
+    }
+
+    @Override
+    public boolean isLoopback() {
+        try {
+            return !_host.isEmpty() && java.net.InetAddress.getByName(_host).isLoopbackAddress();
+        } catch (java.net.UnknownHostException ex) {
+            return false;
+        }
+    }
+
+    @Override
+    public EndpointI withPublishedHost(String host) {
+        return createEndpoint(host, _port, _connectionId);
     }
 
     @Override

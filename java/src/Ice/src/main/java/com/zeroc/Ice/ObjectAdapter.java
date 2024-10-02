@@ -4,6 +4,7 @@ package com.zeroc.Ice;
 
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -996,32 +997,16 @@ public final class ObjectAdapter {
             //
             return ref.getAdapterId().equals(_id) || ref.getAdapterId().equals(_replicaGroupId);
         } else {
-            EndpointI[] endpoints = ref.getEndpoints();
-
+            // Proxies which have at least one endpoint in common with the published endpoints
+            // are considered local.
             synchronized (this) {
                 checkForDeactivation();
 
-                //
-                // Proxies which have at least one endpoint in common with the
-                // endpoints used by this object adapter's incoming connection
-                // factories are considered local.
-                //
-                for (EndpointI endpoint : endpoints) {
-                    for (EndpointI p : _publishedEndpoints) {
-                        if (endpoint.equivalent(p)) {
-                            return true;
-                        }
-                    }
-                    for (IncomingConnectionFactory p : _incomingConnectionFactories) {
-                        if (p.isLocal(endpoint)) {
-                            return true;
-                        }
-                    }
-                }
+                EndpointI[] endpoints = ref.getEndpoints();
+                return java.util.Arrays.stream(_publishedEndpoints)
+                        .anyMatch(p -> java.util.Arrays.stream(endpoints).anyMatch(p::equivalent));
             }
         }
-
-        return false;
     }
 
     public void flushAsyncBatchRequests(
@@ -1273,14 +1258,11 @@ public final class ObjectAdapter {
                 //
                 List<EndpointI> endpoints =
                         parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
-                for (EndpointI endp : endpoints) {
-                    EndpointI.ExpandHostResult result = endp.expandHost();
-                    for (EndpointI expanded : result.endpoints) {
 
-                        IncomingConnectionFactory factory =
-                                new IncomingConnectionFactory(
-                                        instance, expanded, result.publish, this);
-                        _incomingConnectionFactories.add(factory);
+                for (EndpointI endpoint : endpoints) {
+                    for (EndpointI expanded : endpoint.expandHost()) {
+                        _incomingConnectionFactories.add(
+                                new IncomingConnectionFactory(instance, expanded, this));
                     }
                 }
                 if (endpoints.isEmpty()) {
@@ -1291,7 +1273,7 @@ public final class ObjectAdapter {
                                 .logger
                                 .trace(
                                         tl.networkCat,
-                                        "created adapter `" + name + "' without endpoints");
+                                        "created adapter '" + name + "' without endpoints");
                     }
                 }
             }
@@ -1449,57 +1431,79 @@ public final class ObjectAdapter {
     }
 
     private EndpointI[] computePublishedEndpoints() {
-        List<EndpointI> endpoints;
+        EndpointI[] endpointsArray;
         if (_routerInfo != null) {
-            //
             // Get the router's server proxy endpoints and use them as the published endpoints.
-            //
-            endpoints = new ArrayList<>();
-            for (EndpointI endpt : _routerInfo.getServerEndpoints()) {
-                if (!endpoints.contains(endpt)) {
-                    endpoints.add(endpt);
-                }
-            }
+            endpointsArray = _routerInfo.getServerEndpoints();
         } else {
-            //
-            // Parse published endpoints. If set, these are used in proxies
-            // instead of the connection factory Endpoints.
-            //
-            String endpts =
-                    _instance
-                            .initializationData()
-                            .properties
-                            .getProperty(_name + ".PublishedEndpoints");
-            endpoints = parseEndpoints(endpts, false);
-            if (endpoints.isEmpty()) {
-                //
+            // Parse published endpoints. If set, these are used instead of the connection factory
+            // endpoints.
+            var endpointsList =
+                    parseEndpoints(
+                            _instance
+                                    .initializationData()
+                                    .properties
+                                    .getProperty(_name + ".PublishedEndpoints"),
+                            false);
+
+            if (endpointsList.isEmpty()) {
                 // If the PublishedEndpoints property isn't set, we compute the published endpoints
-                // from the OA endpoints, expanding any endpoints that may be listening on
-                // INADDR_ANY
-                // to include actual addresses in the published endpoints.
-                //
-                for (IncomingConnectionFactory factory : _incomingConnectionFactories) {
-                    for (EndpointI endpt : factory.endpoint().expandIfWildcard()) {
-                        //
-                        // Check for duplicate endpoints, this might occur if an endpoint with a DNS
-                        // name
-                        // expands to multiple addresses. In this case, multiple incoming connection
-                        // factories can point to the same published endpoint.
-                        //
-                        if (!endpoints.contains(endpt)) {
-                            endpoints.add(endpt);
+                // from the factory endpoints.
+                endpointsList =
+                        _incomingConnectionFactories.stream()
+                                .map(IncomingConnectionFactory::endpoint)
+                                .toList();
+
+                // Remove all loopback endpoints.
+                var endpointsNoLoopback =
+                        endpointsList.stream().filter(e -> !e.isLoopback()).toList();
+
+                // Retrieve published host.
+                String publishedHost =
+                        _instance
+                                .initializationData()
+                                .properties
+                                .getProperty(_name + ".PublishedHost");
+
+                java.util.stream.Stream<EndpointI> endpoints;
+
+                if (endpointsNoLoopback.isEmpty()) {
+                    endpoints = endpointsList.stream();
+                } else {
+                    endpoints = endpointsNoLoopback.stream();
+
+                    // For non-loopback endpoints, we use the fully qualified name of the local host
+                    // as default for publishedHost.
+                    if (publishedHost.isEmpty()) {
+                        try {
+                            publishedHost = InetAddress.getLocalHost().getHostName();
+                        } catch (java.net.UnknownHostException e) {
+                            throw new InitializationException(
+                                    "failed to get the local host name", e);
                         }
                     }
                 }
+
+                if (!publishedHost.isEmpty()) {
+                    // Replace the host in all endpoints by publishedHost (when applicable).
+                    final String publishedHostCapture = publishedHost;
+                    endpoints =
+                            endpoints
+                                    .map(e -> e.withPublishedHost(publishedHostCapture))
+                                    .distinct();
+                }
+                endpointsArray = endpoints.toArray(EndpointI[]::new);
+            } else {
+                endpointsArray = endpointsList.toArray(EndpointI[]::new);
             }
         }
 
-        if (_instance.traceLevels().network >= 1 && !endpoints.isEmpty()) {
-            StringBuffer s = new StringBuffer("published endpoints for object adapter `");
+        if (_instance.traceLevels().network >= 1 && endpointsArray.length > 0) {
+            StringBuffer s = new StringBuffer("published endpoints for object adapter '");
             s.append(_name);
             s.append("':\n");
             boolean first = true;
-            for (EndpointI endpoint : endpoints) {
+            for (EndpointI endpoint : endpointsArray) {
                 if (!first) {
                     s.append(':');
                 }
@@ -1511,7 +1515,7 @@ public final class ObjectAdapter {
                     .logger
                     .trace(_instance.traceLevels().networkCat, s.toString());
         }
-        return endpoints.toArray(new EndpointI[endpoints.size()]);
+        return endpointsArray;
     }
 
     private void updateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy) {
@@ -1639,6 +1643,7 @@ public final class ObjectAdapter {
         "MaxConnections",
         "MessageSizeMax",
         "PublishedEndpoints",
+        "PublishedHost",
         "ReplicaGroupId",
         "Router",
         "Router.EncodingVersion",

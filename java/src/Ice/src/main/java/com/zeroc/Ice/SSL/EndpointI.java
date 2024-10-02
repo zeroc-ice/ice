@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice.SSL;
 
+import java.util.stream.Collectors;
+
 final class EndpointI extends com.zeroc.Ice.EndpointI {
     public EndpointI(Instance instance, com.zeroc.Ice.EndpointI delegate) {
         _instance = instance;
@@ -162,27 +164,18 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public java.util.List<com.zeroc.Ice.EndpointI> expandIfWildcard() {
-        java.util.List<com.zeroc.Ice.EndpointI> l = new java.util.ArrayList<>();
-        for (com.zeroc.Ice.EndpointI e : _delegate.expandIfWildcard()) {
-            l.add(e == _delegate ? this : new EndpointI(_instance, e));
-        }
-        return l;
+    public java.util.List<com.zeroc.Ice.EndpointI> expandHost() {
+        return _delegate.expandHost().stream().map(this::endpoint).collect(Collectors.toList());
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI.ExpandHostResult expandHost() {
-        com.zeroc.Ice.EndpointI.ExpandHostResult result = _delegate.expandHost();
-        java.util.List<com.zeroc.Ice.EndpointI> l = new java.util.ArrayList<>();
-        for (com.zeroc.Ice.EndpointI e : result.endpoints) {
-            l.add(e == _delegate ? this : new EndpointI(_instance, e));
-        }
-        result.endpoints = l;
-        if (result.publish != null) {
-            result.publish =
-                    result.publish == _delegate ? this : new EndpointI(_instance, result.publish);
-        }
-        return result;
+    public boolean isLoopback() {
+        return _delegate.isLoopback();
+    }
+
+    @Override
+    public com.zeroc.Ice.EndpointI withPublishedHost(String host) {
+        return endpoint(_delegate.withPublishedHost(host));
     }
 
     @Override

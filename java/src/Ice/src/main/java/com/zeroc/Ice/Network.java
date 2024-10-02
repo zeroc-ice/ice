@@ -698,11 +698,10 @@ public final class Network {
     }
 
     public static java.util.ArrayList<String> getHostsForEndpointExpand(
-            String host, int protocolSupport, boolean includeLoopback) {
+            String host, int protocolSupport) {
         java.util.ArrayList<String> hosts = new java.util.ArrayList<>();
         if (isWildcard(host)) {
-            for (java.net.InetAddress addr :
-                    getLocalAddresses(protocolSupport, includeLoopback, false)) {
+            for (java.net.InetAddress addr : getLocalAddresses(protocolSupport, true, false)) {
                 //
                 // NOTE: We don't publish link-local IPv6 addresses as these addresses can only
                 // be accessed in general with a scope-id.

@@ -113,22 +113,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         }
     }
 
-    public boolean isLocal(EndpointI endpoint) {
-        if (_publishedEndpoint != null && endpoint.equivalent(_publishedEndpoint)) {
-            return true;
-        }
-        synchronized (this) {
-            return endpoint.equivalent(_endpoint);
-        }
-    }
-
-    public EndpointI endpoint() {
-        if (_publishedEndpoint != null) {
-            return _publishedEndpoint;
-        }
-        synchronized (this) {
-            return _endpoint;
-        }
+    public synchronized EndpointI endpoint() {
+        return _endpoint;
     }
 
     public synchronized java.util.LinkedList<ConnectionI> connections() {
@@ -351,8 +337,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         //
     }
 
-    public IncomingConnectionFactory(
-            Instance instance, EndpointI endpoint, EndpointI publish, ObjectAdapter adapter) {
+    public IncomingConnectionFactory(Instance instance, EndpointI endpoint, ObjectAdapter adapter) {
         _instance = instance;
         _connectionOptions = instance.serverConnectionOptions(adapter.getName());
 
@@ -365,7 +350,6 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                                 .getPropertyAsInt(adapter.getName() + ".MaxConnections");
 
         _endpoint = endpoint;
-        _publishedEndpoint = publish;
         _adapter = adapter;
         _warn =
                 _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections")
@@ -632,7 +616,6 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
     private Acceptor _acceptor;
     private Transceiver _transceiver;
     private EndpointI _endpoint;
-    private final EndpointI _publishedEndpoint;
 
     private ObjectAdapter _adapter;
 

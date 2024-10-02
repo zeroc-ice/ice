@@ -12,6 +12,7 @@ import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OutputStream;
 import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.Transceiver;
+import java.util.Collections;
 import java.util.UUID;
 
 final class EndpointI extends com.zeroc.Ice.EndpointI {
@@ -153,35 +154,18 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public java.util.List<com.zeroc.Ice.EndpointI> expandIfWildcard() {
-        java.util.List<com.zeroc.Ice.EndpointI> endps = new java.util.ArrayList<>();
-        if (_addr.isEmpty()) {
-            // Starting in Android 6 (API 23), BluetoothAdapter.getAddress() returns a bogus
-            // constant value.
-            String addr = BluetoothAdapter.getDefaultAdapter().getAddress();
-            endps.add(
-                    new EndpointI(
-                            _instance,
-                            addr,
-                            _uuid,
-                            _name,
-                            _channel,
-                            _timeout,
-                            _connectionId,
-                            _compress));
-        } else {
-            endps.add(this);
-        }
-        return endps;
+    public java.util.List<com.zeroc.Ice.EndpointI> expandHost() {
+        return Collections.singletonList(this);
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI.ExpandHostResult expandHost() {
-        com.zeroc.Ice.EndpointI.ExpandHostResult result =
-                new com.zeroc.Ice.EndpointI.ExpandHostResult();
-        result.endpoints = new java.util.ArrayList<>();
-        result.endpoints.add(this);
-        return result;
+    public boolean isLoopback() {
+        return false;
+    }
+
+    @Override
+    public com.zeroc.Ice.EndpointI withPublishedHost(String host) {
+        return this;
     }
 
     @Override
