@@ -679,7 +679,7 @@ internal class ReferenceFactory
 
         if (unknownProps.Count != 0)
         {
-            StringBuilder message = new StringBuilder("found unknown properties for proxy '");
+            StringBuilder message = new StringBuilder("Found unknown properties for proxy '");
             message.Append(prefix);
             message.Append("':");
             foreach (string s in unknownProps)
@@ -687,7 +687,7 @@ internal class ReferenceFactory
                 message.Append("\n    ");
                 message.Append(s);
             }
-            _instance.initializationData().logger.warning(message.ToString());
+            throw new UnknownPropertyException(message.ToString());
         }
     }
 
@@ -736,13 +736,7 @@ internal class ReferenceFactory
         {
             Ice.Properties properties = _instance.initializationData().properties;
 
-            //
-            // Warn about unknown properties.
-            //
-            if (properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
-            {
-                checkForUnknownProperties(propertyPrefix);
-            }
+            checkForUnknownProperties(propertyPrefix);
 
             string property;
 

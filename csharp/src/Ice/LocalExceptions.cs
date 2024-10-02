@@ -855,3 +855,22 @@ public sealed class TwowayOnlyException : LocalException
 
     public override string ice_id() => "::Ice::TwowayOnlyException";
 }
+
+/// <summary>
+/// An unknown property was used in the configuration of an object adapter or a proxy.
+/// </summary>
+public sealed class UnknownPropertyException : LocalException
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UnknownPropertyException" /> class.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
+    public UnknownPropertyException(string message, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    /// <inheritdoc/>
+    public override string ice_id() => "::Ice::UnknownPropertyException";
+}

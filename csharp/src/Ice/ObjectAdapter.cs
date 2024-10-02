@@ -1097,12 +1097,9 @@ public sealed class ObjectAdapter
         List<string> unknownProps = new List<string>();
         bool noProps = filterProperties(unknownProps);
 
-        //
-        // Warn about unknown object adapter properties.
-        //
-        if (unknownProps.Count != 0 && properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
+        if (unknownProps.Count > 0)
         {
-            StringBuilder message = new StringBuilder("found unknown properties for object adapter `");
+            StringBuilder message = new StringBuilder("Found unknown properties for object adapter '");
             message.Append(_name);
             message.Append("':");
             foreach (string s in unknownProps)
@@ -1110,7 +1107,7 @@ public sealed class ObjectAdapter
                 message.Append("\n    ");
                 message.Append(s);
             }
-            _instance.initializationData().logger!.warning(message.ToString());
+            throw new UnknownPropertyException(message.ToString());
         }
 
         //
