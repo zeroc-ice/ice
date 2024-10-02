@@ -4,9 +4,10 @@
 #include "Ice/StringUtil.h"
 
 using namespace std;
+using namespace IceInternal;
 
-optional<IceInternal::Property>
-IceInternal::findInPropertyArray(const PropertyArray* propertyArray, string_view key)
+optional<Property>
+IceInternal::findProperty(string_view key, const PropertyArray* propertyArray)
 {
     for (int i = 0; i < propertyArray->length; ++i)
     {
@@ -22,7 +23,7 @@ IceInternal::findInPropertyArray(const PropertyArray* propertyArray, string_view
             }
             return prop;
         }
-        else if (prop.usesRegex && IceInternal::match(string{key}, prop.pattern))
+        else if (prop.usesRegex && match(string{key}, prop.pattern))
         {
             return prop;
         }
@@ -42,7 +43,7 @@ IceInternal::findInPropertyArray(const PropertyArray* propertyArray, string_view
                 string_view substring = key.substr(pattern.length() + 1);
                 // Check if the suffix is a valid property. If so, return it. If it's not, continue searching
                 // the current property array.
-                if (auto subProp = findInPropertyArray(prop.propertyClass, substring))
+                if (auto subProp = findProperty(substring, prop.propertyClass))
                 {
                     return subProp;
                 }

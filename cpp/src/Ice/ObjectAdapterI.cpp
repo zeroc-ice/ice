@@ -1418,7 +1418,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
     {
         // Strip prefix from property name
         string name = prop.first.substr(prefix.size());
-        auto property = findInPropertyArray(&IceInternal::PropertyNames::ObjectAdapterClassProps, name);
+        auto property = findProperty(name, &IceInternal::PropertyNames::ObjectAdapterClassProps);
         if (property)
         {
             noProps = false;

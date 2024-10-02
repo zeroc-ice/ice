@@ -10,10 +10,10 @@
 namespace IceInternal
 {
     /// Searches a property array for a property with the given key.
-    /// @param propertyArray The property array to search.
     /// @param key The key to search for.
+    /// @param propertyArray The property array to search.
     /// @return The property if found, nullopt otherwise.
-    std::optional<Property> findInPropertyArray(const PropertyArray* propertyArray, std::string_view key);
+    std::optional<Property> findProperty(std::string_view key, const PropertyArray* propertyArray);
 }
 
 #endif
