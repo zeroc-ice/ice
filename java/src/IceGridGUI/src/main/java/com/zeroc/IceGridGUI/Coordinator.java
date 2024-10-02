@@ -1161,6 +1161,7 @@ public class Coordinator {
         }
 
         _logout.setEnabled(false);
+        _statusBar.setText("Logged out");
         _showLiveDeploymentFilters.setEnabled(false);
         _openApplicationFromRegistry.setEnabled(false);
         _showApplicationDetails.setEnabled(false);

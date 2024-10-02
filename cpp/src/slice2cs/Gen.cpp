@@ -2318,10 +2318,9 @@ namespace
             }
         }
 
-        ModuleList modules = p->modules();
-        for (ModuleList::const_iterator i = modules.begin(); i != modules.end(); ++i)
+        for (const auto& module : p->modules())
         {
-            if (hasResultType(*i))
+            if (hasResultType(module))
             {
                 return true;
             }
