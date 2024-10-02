@@ -10,6 +10,7 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/StringUtil.h"
 #include "PropertyNames.h"
+#include "PropertyUtil.h"
 
 #include <cassert>
 #include <fstream>
@@ -20,56 +21,6 @@ using namespace IceInternal;
 
 namespace
 {
-    /// Searches a property array for a property with the given key.
-    /// @param propertyArray The property array to search.
-    /// @param key The key to search for.
-    /// @return The property if found, nullopt otherwise.
-    optional<Property> searchPropertyArray(const PropertyArray* propertyArray, string_view key)
-    {
-        for (int i = 0; i < propertyArray->length; ++i)
-        {
-            auto prop = propertyArray->properties[i];
-
-            // If the key is an exact match, return the property if it's not a property class. If it is, return nullopt.
-            // If the key is a regex match, return the property. A property cannot have a property class and use regex.
-            if (key == prop.pattern)
-            {
-                if (prop.propertyClass != nullptr && prop.prefixOnly)
-                {
-                    return nullopt;
-                }
-                return prop;
-            }
-            else if (prop.usesRegex && IceInternal::match(string{key}, prop.pattern))
-            {
-                return prop;
-            }
-
-            // If the property has a property class, check if the key is a prefix of the property.
-            if (prop.propertyClass)
-            {
-                auto pattern = string{prop.pattern};
-                // Check if the key is a prefix of the property.
-                // The key must be:
-                // - shorter than the property pattern
-                // - the property pattern must start with the key
-                // - the pattern character after the key must be a dot
-                if (key.length() > pattern.length() && key.find(pattern) == 0 && key[pattern.length()] == '.')
-                {
-                    // Plus one to skip the dot.
-                    string_view substring = key.substr(pattern.length() + 1);
-                    // Check if the suffix is a valid property. If so, return it. If it's not, continue searching
-                    // the current property array.
-                    if (auto subProp = searchPropertyArray(prop.propertyClass, substring))
-                    {
-                        return subProp;
-                    }
-                }
-            }
-        }
-
-        return nullopt;
-    }
 
     /// Find a property in the Ice property set.
     /// @param key The property name.
@@ -126,7 +77,7 @@ namespace
             return nullopt;
         }
 
-        if (auto prop = searchPropertyArray(propertyArray, key))
+        if (auto prop = IceInternal::findInPropertyArray(propertyArray, key))
         {
             return prop;
         }
