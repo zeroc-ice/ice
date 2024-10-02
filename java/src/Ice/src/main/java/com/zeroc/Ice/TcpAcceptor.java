@@ -57,7 +57,7 @@ class TcpAcceptor implements Acceptor {
 
         java.util.List<String> intfs =
                 Network.getHostsForEndpointExpand(
-                        _addr.getAddress().getHostAddress(), _instance.protocolSupport(), true);
+                        _addr.getAddress().getHostAddress(), _instance.protocolSupport());
         if (!intfs.isEmpty()) {
             s.append("\nlocal interfaces = ");
             s.append(String.join(", ", intfs));

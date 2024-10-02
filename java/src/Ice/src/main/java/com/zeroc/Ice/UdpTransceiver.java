@@ -227,7 +227,7 @@ final class UdpTransceiver implements Transceiver {
         if (_mcastAddr == null) {
             intfs =
                     Network.getHostsForEndpointExpand(
-                            _addr.getAddress().getHostAddress(), _instance.protocolSupport(), true);
+                            _addr.getAddress().getHostAddress(), _instance.protocolSupport());
         } else {
             intfs =
                     Network.getInterfacesForMulticast(
