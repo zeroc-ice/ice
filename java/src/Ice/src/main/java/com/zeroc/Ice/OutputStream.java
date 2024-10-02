@@ -40,7 +40,7 @@ public final class OutputStream {
      */
     public OutputStream(EncodingVersion encoding, FormatType format, boolean direct) {
         // The 1.0 encoding doesn't use the class format type, but we still have to set it in case
-        // the stream reads and 1.1 encapsulation, in which case it would use the format type set
+        // the stream reads an 1.1 encapsulation, in which case it would use the format type set
         // in the stream.
         _buf = new Buffer(direct);
         _encoding = encoding;
