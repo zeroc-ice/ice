@@ -10,6 +10,7 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/StringUtil.h"
 #include "PropertyNames.h"
+#include "PropertyUtil.h"
 
 #include <cassert>
 #include <fstream>
@@ -24,7 +25,7 @@ namespace
     /// @param key The property name.
     /// @param logWarnings Whether to log relevant warnings.
     /// @return The property if found, nullopt otherwise.
-    optional<Property> findProperty(string_view key, bool logWarnings)
+    optional<Property> findIceProperty(string_view key, bool logWarnings)
     {
         // Check if the property is legal.
         LoggerPtr logger = getProcessLogger();
@@ -75,14 +76,9 @@ namespace
             return nullopt;
         }
 
-        for (int i = 0; i < propertyArray->length; ++i)
+        if (auto prop = IceInternal::findProperty(key, propertyArray))
         {
-            auto prop = propertyArray->properties[i];
-
-            if (prop.usesRegex ? IceInternal::match(string{key}, prop.pattern) : key == prop.pattern)
-            {
-                return prop;
-            }
+            return prop;
         }
 
         if (logWarnings)
@@ -100,7 +96,7 @@ namespace
     /// @throws std::invalid_argument if the property is unknown.
     string_view getDefaultValue(string_view key)
     {
-        optional<Property> prop = findProperty(key, false);
+        optional<Property> prop = findIceProperty(key, false);
         if (!prop)
         {
             throw invalid_argument{"unknown Ice property: " + string{key}};
@@ -346,7 +342,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
 
     // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
     // case-insensitive Ice property prefix matches.
-    auto prop = findProperty(key, true);
+    auto prop = findIceProperty(key, true);
 
     // If the property is deprecated, log a warning.
     if (prop && prop->deprecated)

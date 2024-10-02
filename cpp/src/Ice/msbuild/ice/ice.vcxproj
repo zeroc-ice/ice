@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0"
+  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -557,6 +558,7 @@
     <ClCompile Include="..\..\PluginManagerI.cpp" />
     <ClCompile Include="..\..\PropertiesAdminI.cpp" />
     <ClCompile Include="..\..\PropertyNames.cpp" />
+    <ClCompile Include="..\..\PropertyUtil.cpp" />
     <ClCompile Include="..\..\Protocol.cpp" />
     <ClCompile Include="..\..\ProtocolInstance.cpp" />
     <ClCompile Include="..\..\ProtocolPluginFacade.cpp" />

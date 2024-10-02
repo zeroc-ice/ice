@@ -24,6 +24,7 @@
 #include "ObjectAdapterFactory.h"
 #include "ObserverMiddleware.h"
 #include "PropertyNames.h"
+#include "PropertyUtil.h"
 #include "ReferenceFactory.h"
 #include "RouterInfo.h"
 #include "ServantManager.h"
@@ -1396,49 +1397,6 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
 bool
 Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 {
-    static const string suffixes[] = {
-        "AdapterId",
-        "Connection.CloseTimeout",
-        "Connection.ConnectTimeout",
-        "Connection.EnableIdleCheck",
-        "Connection.IdleTimeout",
-        "Connection.InactivityTimeout",
-        "Connection.MaxDispatches",
-        "Endpoints",
-        "Locator",
-        "Locator.EncodingVersion",
-        "Locator.EndpointSelection",
-        "Locator.ConnectionCached",
-        "Locator.PreferSecure",
-        "Locator.CollocationOptimized",
-        "Locator.Router",
-        "MaxConnections",
-        "MessageSizeMax",
-        "PublishedEndpoints",
-        "PublishedHost",
-        "ReplicaGroupId",
-        "Router",
-        "Router.EncodingVersion",
-        "Router.EndpointSelection",
-        "Router.ConnectionCached",
-        "Router.PreferSecure",
-        "Router.CollocationOptimized",
-        "Router.Locator",
-        "Router.Locator.EndpointSelection",
-        "Router.Locator.ConnectionCached",
-        "Router.Locator.PreferSecure",
-        "Router.Locator.CollocationOptimized",
-        "Router.Locator.LocatorCacheTimeout",
-        "Router.Locator.InvocationTimeout",
-        "Router.LocatorCacheTimeout",
-        "Router.InvocationTimeout",
-        "ProxyOptions",
-        "ThreadPool.Serialize",
-        "ThreadPool.Size",
-        "ThreadPool.SizeMax",
-        "ThreadPool.SizeWarn",
-        "ThreadPool.ThreadIdleTime"};
-
     //
     // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
     //
@@ -1456,23 +1414,18 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 
     bool noProps = true;
     PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix);
-    for (PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    for (const auto& prop : props)
     {
-        bool valid = false;
-        for (unsigned int i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
+        // Strip prefix from property name
+        string name = prop.first.substr(prefix.size());
+        auto property = findProperty(name, &IceInternal::PropertyNames::ObjectAdapterClassProps);
+        if (property)
         {
-            string prop = prefix + suffixes[i];
-            if (p->first == prop)
-            {
-                noProps = false;
-                valid = true;
-                break;
-            }
+            noProps = false;
         }
-
-        if (!valid && addUnknown)
+        else if (addUnknown)
         {
-            unknownProps.push_back(p->first);
+            unknownProps.push_back(prop.first);
         }
     }
 
