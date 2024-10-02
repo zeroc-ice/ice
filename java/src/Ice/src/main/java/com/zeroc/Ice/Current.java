@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 
 /** Provides information about an incoming request being dispatched. */
 public final class Current implements Cloneable {
-    /** TThe object adapter that received the request. */
+    /** The object adapter that received the request. */
     public final ObjectAdapter adapter;
 
     /**
@@ -61,10 +61,9 @@ public final class Current implements Cloneable {
             java.util.Map<String, String> ctx,
             int requestId,
             EncodingVersion encoding) {
-        // We may occasionally construct a Current with a null adapter, however we never return such
-        // a
-        // current to the
-        // application code.
+        // We may occasionally construct a Current with a null adapter, however we never
+        // return such
+        // a current to the application code.
         Objects.requireNonNull(id);
         Objects.requireNonNull(facet);
         Objects.requireNonNull(operation);
@@ -190,7 +189,12 @@ public final class Current implements Cloneable {
         OutputStream ostr;
 
         if (requestId != 0) {
-            ostr = new OutputStream(adapter.getCommunicator(), Protocol.currentProtocolEncoding);
+            // The default class format doesn't matter since we always encode user
+            // exceptions in
+            // Sliced format.;
+            ostr =
+                    new OutputStream(
+                            Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
         } else {
@@ -324,8 +328,15 @@ public final class Current implements Cloneable {
         if (requestId == 0) {
             return new OutputStream();
         } else {
+            assert (adapter != null);
             var ostr =
-                    new OutputStream(adapter.getCommunicator(), Protocol.currentProtocolEncoding);
+                    new OutputStream(
+                            Protocol.currentProtocolEncoding,
+                            adapter.getCommunicator()
+                                    .getInstance()
+                                    .defaultsAndOverrides()
+                                    .defaultFormat,
+                            false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
             ostr.writeByte(replyStatus.value());

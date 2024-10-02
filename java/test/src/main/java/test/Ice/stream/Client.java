@@ -253,7 +253,7 @@ public class Client extends test.TestHelper {
             }
 
             {
-                out = new OutputStream(communicator, com.zeroc.Ice.Util.Encoding_1_0);
+                out = new OutputStream(com.zeroc.Ice.Util.Encoding_1_0, false);
                 OptionalClass o = new OptionalClass();
                 o.bo = true;
                 o.by = (byte) 5;

@@ -35,7 +35,11 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
             }
         }
         if (_os == null) {
-            _os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+            _os =
+                    new OutputStream(
+                            Protocol.currentProtocolEncoding,
+                            _instance.defaultsAndOverrides().defaultFormat,
+                            _instance.cacheMessageBuffers() > 1);
         }
     }
 

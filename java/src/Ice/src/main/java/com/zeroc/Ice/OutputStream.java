@@ -9,138 +9,73 @@ package com.zeroc.Ice;
  *
  * @see InputStream
  */
-public class OutputStream {
+public final class OutputStream {
+
     /**
-     * Constructing an OutputStream without providing a communicator means the stream will use the
-     * default encoding version, the default format for class encoding, and a non-direct buffer. You
-     * can supply a communicator later by calling initialize().
+     * Construct a new instance of the OutputStream class. The output stream is initially empty, and
+     * uses the 1.1 encoding, and compact class format.
      */
     public OutputStream() {
-        this(false);
+        this(Util.currentEncoding(), FormatType.CompactFormat, false);
     }
 
     /**
-     * Constructing an OutputStream without providing a communicator means the stream will use the
-     * default encoding version and the default format for class encoding. You can supply a
-     * communicator later by calling initialize().
+     * Construct a new instance of the OutputStream class. The output stream is initially empty, and
+     * uses the specified encoding, and compact class format.
      *
+     * @param encoding The encoding version to use.
+     */
+    public OutputStream(EncodingVersion encoding) {
+        this(encoding, FormatType.CompactFormat, false);
+    }
+
+    /**
+     * Construct a new instance of the OutputStream class. The output stream is initially empty, and
+     * uses the specified encoding, and compact class format.
+     *
+     * @param encoding The encoding version to use.
      * @param direct Indicates whether to use a direct buffer.
      */
-    public OutputStream(boolean direct) {
-        _buf = new Buffer(direct);
-        _instance = null;
-        _closure = null;
-        _encoding = Protocol.currentEncoding;
-        _format = FormatType.CompactFormat;
+    public OutputStream(EncodingVersion encoding, boolean direct) {
+        this(encoding, FormatType.CompactFormat, direct);
     }
 
     /**
-     * This constructor uses the communicator's default encoding version.
+     * Construct a new instance of the OutputStream class. The output stream is initially empty, and
+     * uses the specified encoding, and class format.
      *
-     * @param communicator The communicator to use when initializing the stream.
+     * @param encoding The encoding version to use.
+     * @param format The format to use for class encoding.
+     * @param direct Indicates whether to use a direct buffer.
+     */
+    public OutputStream(EncodingVersion encoding, FormatType format, boolean direct) {
+        // The 1.0 encoding doesn't use the class format type, but we still have to set
+        // it in case
+        // the stream reads an 1.1 encapsulation, in which case it would use the format
+        // type set
+        // in the stream.
+        _buf = new Buffer(direct);
+        _encoding = encoding;
+        _format = format;
+    }
+
+    /**
+     * Construct a new instance of the OutputStream class. The output stream is initially empty, and
+     * uses the communicator's default encoding version and default class format.
+     *
+     * @param communicator The communicator that provides the encoding version and class format.
      */
     public OutputStream(Communicator communicator) {
-        assert (communicator != null);
-        final Instance instance = communicator.getInstance();
-        initialize(
-                instance,
-                instance.defaultsAndOverrides().defaultEncoding,
-                instance.cacheMessageBuffers() > 1);
+        this(
+                communicator.getInstance().defaultsAndOverrides().defaultEncoding,
+                communicator.getInstance().defaultsAndOverrides().defaultFormat,
+                communicator.getInstance().cacheMessageBuffers() > 1);
     }
 
-    /**
-     * This constructor uses the communicator's default encoding version.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     * @param direct Indicates whether to use a direct buffer.
-     */
-    public OutputStream(Communicator communicator, boolean direct) {
-        assert (communicator != null);
-        final Instance instance = communicator.getInstance();
-        initialize(instance, instance.defaultsAndOverrides().defaultEncoding, direct);
-    }
-
-    /**
-     * This constructor uses the given communicator and encoding version.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     * @param encoding The desired Ice encoding version.
-     */
-    public OutputStream(Communicator communicator, EncodingVersion encoding) {
-        assert (communicator != null);
-        final Instance instance = communicator.getInstance();
-        initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
-    }
-
-    /**
-     * This constructor uses the given communicator and encoding version.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     * @param encoding The desired Ice encoding version.
-     * @param direct Indicates whether to use a direct buffer.
-     */
-    public OutputStream(Communicator communicator, EncodingVersion encoding, boolean direct) {
-        assert (communicator != null);
-        final Instance instance = communicator.getInstance();
-        initialize(instance, encoding, direct);
-    }
-
-    public OutputStream(Instance instance, EncodingVersion encoding) {
-        initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
-    }
-
-    public OutputStream(Instance instance, EncodingVersion encoding, boolean direct) {
-        initialize(instance, encoding, direct);
-    }
-
-    public OutputStream(Instance instance, EncodingVersion encoding, Buffer buf, boolean adopt) {
-        initialize(instance, encoding, new Buffer(buf, adopt));
-    }
-
-    /**
-     * Initializes the stream to use the communicator's default encoding version and class encoding
-     * format.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     */
-    public void initialize(Communicator communicator) {
-        assert (communicator != null);
-        final Instance instance = communicator.getInstance();
-        initialize(
-                instance,
-                instance.defaultsAndOverrides().defaultEncoding,
-                instance.cacheMessageBuffers() > 1);
-    }
-
-    /**
-     * Initializes the stream to use the given encoding version and the communicator's default class
-     * encoding format.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     * @param encoding The desired Ice encoding version.
-     */
-    public void initialize(Communicator communicator, EncodingVersion encoding) {
-        assert (communicator != null);
-        final Instance instance = communicator.getInstance();
-        initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
-    }
-
-    private void initialize(Instance instance, EncodingVersion encoding, boolean direct) {
-        initialize(instance, encoding, new Buffer(direct));
-    }
-
-    private void initialize(Instance instance, EncodingVersion encoding, Buffer buf) {
-        assert (instance != null);
-
-        _instance = instance;
+    OutputStream(Buffer buf, EncodingVersion encoding) {
         _buf = buf;
-        _closure = null;
-        _encoding = encoding;
-
-        _format = _instance.defaultsAndOverrides().defaultFormat;
-
-        _encapsStack = null;
-        _encapsCache = null;
+        _encoding = encoding != null ? encoding : Protocol.currentEncoding;
+        _format = FormatType.CompactFormat;
     }
 
     /**
@@ -165,19 +100,6 @@ public class OutputStream {
             _encapsCache.reset();
             _encapsStack = null;
         }
-    }
-
-    public Instance instance() {
-        return _instance;
-    }
-
-    /**
-     * Sets the encoding format for class and exception instances.
-     *
-     * @param fmt The encoding format.
-     */
-    public void setFormat(FormatType fmt) {
-        _format = fmt;
     }
 
     /**
@@ -219,8 +141,6 @@ public class OutputStream {
      * @param other The other stream.
      */
     public void swap(OutputStream other) {
-        assert (_instance == other._instance);
-
         Buffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
@@ -234,7 +154,8 @@ public class OutputStream {
         _closure = tmpClosure;
 
         //
-        // Swap is never called for streams that have encapsulations being written. However,
+        // Swap is never called for streams that have encapsulations being written.
+        // However,
         // encapsulations might still be set in case marshaling failed. We just
         // reset the encapsulations if there are still some set.
         //
@@ -1513,7 +1434,6 @@ public class OutputStream {
         _buf.expand(n);
     }
 
-    private Instance _instance;
     private Buffer _buf;
     private Object _closure;
     private FormatType _format;
@@ -1688,13 +1608,7 @@ public class OutputStream {
                     //
                     _stream.writeInt(p.getValue().intValue());
 
-                    try {
-                        p.getKey().ice_preMarshal();
-                    } catch (Exception ex) {
-                        String s = "exception raised by ice_preMarshal:\n" + Ex.toString(ex);
-                        _stream.instance().initializationData().logger.warning(s);
-                    }
-
+                    p.getKey().ice_preMarshal();
                     p.getKey()._iceWrite(_stream);
                 }
             }
@@ -1979,13 +1893,7 @@ public class OutputStream {
             //
             _marshaledMap.put(v, ++_valueIdIndex);
 
-            try {
-                v.ice_preMarshal();
-            } catch (Exception ex) {
-                String s = "exception raised by ice_preMarshal:\n" + Ex.toString(ex);
-                _stream.instance().initializationData().logger.warning(s);
-            }
-
+            v.ice_preMarshal();
             _stream.writeSize(1); // Class instance marker.
             v._iceWrite(_stream);
         }
