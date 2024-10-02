@@ -5,6 +5,8 @@
 
 #include "PropertyNames.h"
 
+#include <optional>
+
 namespace IceInternal
 {
     /// Searches a property array for a property with the given key.
