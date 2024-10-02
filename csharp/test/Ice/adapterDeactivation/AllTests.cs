@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using Ice.Internal;
-
 namespace Ice
 {
     namespace adapterDeactivation
