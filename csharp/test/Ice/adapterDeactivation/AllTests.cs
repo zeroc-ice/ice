@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+using Ice.Internal;
+
 namespace Ice
 {
     namespace adapterDeactivation
@@ -91,6 +93,109 @@ namespace Ice
                     test(adapter.getPublishedEndpoints()[0].ToString() == "tcp -h localhost -p 12345 -t 20000");
                     adapter.destroy();
                     test(adapter.getPublishedEndpoints().Length == 0);
+                }
+                output.WriteLine("ok");
+
+                output.Write("testing object adapter published host... ");
+                output.Flush();
+                {
+                    communicator.getProperties().setProperty("PHAdapter.Endpoints", "default -h *");
+
+                    // PublishedHost not set
+                    {
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                        var publishedEndpoints = adapter.getPublishedEndpoints();
+                        test(publishedEndpoints.Length == 1);
+                        test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
+                            ipEndpointInfo.host.Length > 0);
+                        adapter.destroy();
+                    }
+
+                    communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+                    {
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                        var publishedEndpoints = adapter.getPublishedEndpoints();
+                        test(publishedEndpoints.Length == 1);
+                        test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
+                            ipEndpointInfo.host == "test.zeroc.com");
+                        adapter.destroy();
+                    }
+
+                    communicator.getProperties().setProperty("PHAdapter.Endpoints", "default -h 127.0.0.1");
+
+                    communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
+                    {
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        var publishedEndpoints = adapter.getPublishedEndpoints();
+                        test(publishedEndpoints.Length == 1);
+                        test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
+                            ipEndpointInfo.host == "127.0.0.1");
+                        adapter.destroy();
+                    }
+
+                    communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+                    {
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                        var publishedEndpoints = adapter.getPublishedEndpoints();
+                        test(publishedEndpoints.Length == 1);
+                        test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
+                            ipEndpointInfo.host == "test.zeroc.com");
+                        adapter.destroy();
+                    }
+
+                    // Two loopback endpoints with different ports
+                    communicator.getProperties().setProperty(
+                        "PHAdapter.Endpoints",
+                        "default -h 127.0.0.1 -p 12345:default -h 127.0.0.1");
+
+                    communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
+                    {
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        var publishedEndpoints = adapter.getPublishedEndpoints();
+                        test(publishedEndpoints.Length == 2);
+                        test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo0 &&
+                            ipEndpointInfo0.host == "127.0.0.1" &&
+                            ipEndpointInfo0.port == 12345);
+                        test(getUnderlying(publishedEndpoints[1].getInfo()) is IPEndpointInfo ipEndpointInfo1 &&
+                            ipEndpointInfo1.host == "127.0.0.1");
+                        adapter.destroy();
+                    }
+
+                    // Two endpoints - one loopback, one not loopback
+                    communicator.getProperties().setProperty(
+                        "PHAdapter.Endpoints",
+                        "default -h 127.0.0.1 -p 12345:default -h *");
+
+                    communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
+                    {
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        var publishedEndpoints = adapter.getPublishedEndpoints();
+                        test(publishedEndpoints.Length == 1); // loopback filtered out
+                        test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
+                            ipEndpointInfo.host.Length > 0 &&
+                            ipEndpointInfo.port != 12345);
+                        adapter.destroy();
+                    }
+
+                    communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+                    {
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        var publishedEndpoints = adapter.getPublishedEndpoints();
+                        test(publishedEndpoints.Length == 1); // loopback filtered out
+                        test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
+                            ipEndpointInfo.host == "test.zeroc.com" &&
+                            ipEndpointInfo.port != 12345);
+                        adapter.destroy();
+                    }
+
+                    static EndpointInfo getUnderlying(EndpointInfo endpointInfo)
+                    {
+                        while (endpointInfo.underlying is not null)
+                        {
+                            endpointInfo = endpointInfo.underlying;
+                        }
+                        return endpointInfo;
+                    }
                 }
                 output.WriteLine("ok");
 
