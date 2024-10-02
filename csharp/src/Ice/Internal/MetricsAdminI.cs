@@ -690,9 +690,9 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
             }
         }
 
-        if (unknownProps.Count != 0 && properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
+        if (unknownProps.Count != 0)
         {
-            StringBuilder message = new StringBuilder("found unknown IceMX properties for `");
+            StringBuilder message = new StringBuilder("Found unknown IceMX properties for '");
             message.Append(prefix.AsSpan(0, prefix.Length - 1));
             message.Append("':");
             foreach (string p in unknownProps)
@@ -700,7 +700,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
                 message.Append("\n    ");
                 message.Append(p);
             }
-            Ice.Util.getProcessLogger().warning(message.ToString());
+            throw new InvalidOperationException(message.ToString());
         }
     }
 
