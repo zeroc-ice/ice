@@ -111,7 +111,7 @@ namespace
         if (auto meta = m->findMetadata(prefix))
         {
             hasCSharpNamespaceAttribute = true;
-            return (*meta).substr(prefix.size()) + "." + csharpNamespace;
+            return meta->substr(prefix.size()) + "." + csharpNamespace;
         }
         else
         {
