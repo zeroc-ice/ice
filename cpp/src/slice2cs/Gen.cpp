@@ -3163,10 +3163,9 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << eb;
 
     string prefix = "cs:generic:";
-    string meta;
-    if (p->findMetadata(prefix, meta))
+    if (auto meta = p->findMetadata(prefix))
     {
-        string type = meta.substr(prefix.size());
+        string type = (*meta).substr(prefix.size());
         if (type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
         {
             return;
@@ -3200,17 +3199,15 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
 
-    string meta;
-
     string prefix = "cs:generic:";
     string genericType;
-    if (!p->findMetadata(prefix, meta))
+    if (auto meta = p->findMetadata(prefix))
     {
-        genericType = "Dictionary";
+        genericType = (*meta).substr(prefix.size());
     }
     else
     {
-        genericType = meta.substr(prefix.size());
+        genericType = "Dictionary";
     }
 
     string ns = getNamespace(p);

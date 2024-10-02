@@ -108,11 +108,10 @@ namespace
 
         static const string prefix = "cs:namespace:";
 
-        string q;
-        if (m->findMetadata(prefix, q))
+        if (auto meta = m->findMetadata(prefix))
         {
             hasCSharpNamespaceAttribute = true;
-            return q.substr(prefix.size()) + "." + csharpNamespace;
+            return (*meta).substr(prefix.size()) + "." + csharpNamespace;
         }
         else
         {

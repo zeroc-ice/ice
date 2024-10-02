@@ -407,10 +407,9 @@ namespace
             static const string prefix = "cpp:doxygen:include:";
             DefinitionContextPtr dc = unt->findDefinitionContext(file);
             assert(dc);
-            string q = dc->findMetadata(prefix);
-            if (!q.empty())
+            if (auto meta = dc->findMetadata(prefix))
             {
-                out << nl << " * \\headerfile " << q.substr(prefix.size());
+                out << nl << " * \\headerfile " << (*meta).substr(prefix.size());
             }
         }
 
@@ -662,10 +661,9 @@ Slice::Gen::generate(const UnitPtr& p)
     if (_dllExport.empty())
     {
         static const string dllExportPrefix = "cpp:dll-export:";
-        string meta = dc->findMetadata(dllExportPrefix);
-        if (meta.size() > dllExportPrefix.size())
+        if (auto meta = dc->findMetadata(dllExportPrefix))
         {
-            _dllExport = meta.substr(dllExportPrefix.size());
+            _dllExport = (*meta).substr(dllExportPrefix.size());
         }
     }
 
@@ -1200,31 +1198,27 @@ Slice::Gen::resetUseWstring(list<TypeContext>& hist)
 string
 Slice::Gen::getHeaderExt(const string& file, const UnitPtr& ut)
 {
-    string ext;
     static const string headerExtPrefix = "cpp:header-ext:";
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
-    string meta = dc->findMetadata(headerExtPrefix);
-    if (meta.size() > headerExtPrefix.size())
+    if (auto meta = dc->findMetadata(headerExtPrefix))
     {
-        ext = meta.substr(headerExtPrefix.size());
+        return (*meta).substr(headerExtPrefix.size());
     }
-    return ext;
+    return "";
 }
 
 string
 Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
 {
-    string ext;
     static const string sourceExtPrefix = "cpp:source-ext:";
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
-    string meta = dc->findMetadata(sourceExtPrefix);
-    if (meta.size() > sourceExtPrefix.size())
+    if (auto meta = dc->findMetadata(sourceExtPrefix))
     {
-        ext = meta.substr(sourceExtPrefix.size());
+        return (*meta).substr(sourceExtPrefix.size());
     }
-    return ext;
+    return "";
 }
 
 Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h) : H(h), _useWstring(TypeContext::None) {}

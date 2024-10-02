@@ -191,15 +191,15 @@ Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
 
     string swiftModule;
 
-    if (module->findMetadata(modulePrefix, swiftModule))
+    if (auto meta = module->findMetadata(modulePrefix))
     {
-        swiftModule = swiftModule.substr(modulePrefix.size());
+        swiftModule = (*meta).substr(modulePrefix.size());
 
         size_t pos = swiftModule.find(':');
         if (pos != string::npos)
         {
-            swiftPrefix = swiftModule.substr(pos + 1);
             swiftModule = swiftModule.substr(0, pos);
+            swiftPrefix = swiftModule.substr(pos + 1);
         }
     }
     else
@@ -1668,26 +1668,8 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
         // top-level module
         const UnitPtr unit = p->unit();
 
-        const string modulePrefix = "swift:module:";
-
-        string swiftModule;
         string swiftPrefix;
-
-        if (p->findMetadata(modulePrefix, swiftModule))
-        {
-            swiftModule = swiftModule.substr(modulePrefix.size());
-
-            size_t pos = swiftModule.find(':');
-            if (pos != string::npos)
-            {
-                swiftPrefix = swiftModule.substr(pos + 1);
-                swiftModule = swiftModule.substr(0, pos);
-            }
-        }
-        else
-        {
-            swiftModule = p->name();
-        }
+        string swiftModule = getSwiftModule(p, swiftPrefix);
 
         const string filename = p->definitionContext()->filename();
         ModuleMap::const_iterator current = _modules.find(filename);

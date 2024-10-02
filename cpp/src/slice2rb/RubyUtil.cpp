@@ -546,13 +546,13 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         _out << sp;
     }
-    for (OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
+    for (const auto& op : ops)
     {
-        ParamDeclList params = (*s)->parameters();
-        ParamDeclList::iterator t;
+        ParamDeclList params = op->parameters();
+        ParamDeclList::const_iterator t;
         int count;
         string format;
-        optional<FormatType> opFormat = (*s)->format();
+        optional<FormatType> opFormat = op->format();
         if (opFormat)
         {
             switch (*opFormat)
@@ -572,9 +572,9 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             format = "nil";
         }
 
-        _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('" << (*s)->name()
+        _out << nl << name << "Prx_mixin::OP_" << op->name() << " = ::Ice::__defineOperation('" << op->name()
              << "', ";
-        switch ((*s)->mode())
+        switch (op->mode())
         {
             case Operation::Normal:
                 _out << "::Ice::OperationMode::Normal";
@@ -583,7 +583,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << "::Ice::OperationMode::Idempotent";
                 break;
         }
-        _out << ", " << ((p->hasMetadata("amd") || (*s)->hasMetadata("amd")) ? "true" : "false") << ", " << format
+        _out << ", " << ((p->hasMetadata("amd") || op->hasMetadata("amd")) ? "true" : "false") << ", " << format
              << ", [";
         for (t = params.begin(), count = 0; t != params.end(); ++t)
         {
@@ -617,7 +617,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
         _out << "], ";
-        TypePtr returnType = (*s)->returnType();
+        TypePtr returnType = op->returnType();
         if (returnType)
         {
             //
@@ -627,15 +627,15 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             _out << '[';
             writeType(returnType);
-            _out << ", " << ((*s)->returnIsOptional() ? "true" : "false") << ", "
-                 << ((*s)->returnIsOptional() ? (*s)->returnTag() : 0) << ']';
+            _out << ", " << (op->returnIsOptional() ? "true" : "false") << ", "
+                 << (op->returnIsOptional() ? op->returnTag() : 0) << ']';
         }
         else
         {
             _out << "nil";
         }
         _out << ", [";
-        ExceptionList exceptions = (*s)->throws();
+        ExceptionList exceptions = op->throws();
         for (ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
         {
             if (u != exceptions.begin())
@@ -646,11 +646,11 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << "])";
 
-        if ((*s)->isDeprecated(true))
+        if (op->isDeprecated(true))
         {
             // Get the deprecation reason if present, or default to an empty string.
-            string reason = (*s)->getDeprecationReason(true).value_or("");
-            _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << ".deprecate(\"" << reason << "\")";
+            string reason = op->getDeprecationReason(true).value_or("");
+            _out << nl << name << "Prx_mixin::OP_" << op->name() << ".deprecate(\"" << reason << "\")";
         }
     }
 

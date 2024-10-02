@@ -1987,12 +1987,11 @@ namespace
     string getDefinedIn(const ContainedPtr& p)
     {
         const string prefix = "js:defined-in:";
-        string meta;
-        if (p->findMetadata(prefix, meta))
+        if (auto meta = p->findMetadata(prefix))
         {
-            return meta.substr(prefix.size());
+            return (*meta).substr(prefix.size());
         }
-        return meta;
+        return "";
     }
 }
 

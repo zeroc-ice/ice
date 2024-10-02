@@ -3762,13 +3762,12 @@ Slice::Gen::HelperVisitor::HelperVisitor(const string& dir) : JavaVisitor(dir) {
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    string meta;
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
     if (!hasTypeMetadata(p) && builtin && builtin->kind() <= Builtin::KindString)
     {
         return; // No helpers for sequence of primitive types
     }
-    else if (hasTypeMetadata(p) && !p->findMetadata("java:type", meta))
+    else if (hasTypeMetadata(p) && !p->hasMetadata("java:type"))
     {
         return; // No helpers for custom metadata other than java:type
     }
