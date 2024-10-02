@@ -239,9 +239,10 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         // other sources. In order to allow connection sharing for
         // endpoints that differ in the value of the compression flag
         // only, we always set the compression flag to false here in
-        // this connection factory.
+        // this connection factory. We also clear the timeout as it is
+        // no longer used for Ice 3.8.
         //
-        endpoint = endpoint->compress(false);
+        endpoint = endpoint->compress(false)->timeout(-1);
 
         for (multimap<ConnectorPtr, ConnectionIPtr>::const_iterator q = _connections.begin(); q != _connections.end();
              ++q)
@@ -1223,24 +1224,9 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
     }
 }
 
-bool
-IceInternal::IncomingConnectionFactory::isLocal(const EndpointIPtr& endpoint) const
-{
-    if (_publishedEndpoint && endpoint->equivalent(_publishedEndpoint))
-    {
-        return true;
-    }
-    lock_guard lock(_mutex);
-    return endpoint->equivalent(_endpoint);
-}
-
 EndpointIPtr
 IceInternal::IncomingConnectionFactory::endpoint() const
 {
-    if (_publishedEndpoint)
-    {
-        return _publishedEndpoint;
-    }
     lock_guard lock(_mutex);
     return _endpoint;
 }
@@ -1609,7 +1595,6 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
     const InstancePtr& instance,
     const EndpointIPtr& endpoint,
-    const EndpointIPtr& publishedEndpoint,
     const shared_ptr<ObjectAdapterI>& adapter)
     : _instance(instance),
       _connectionOptions(instance->serverConnectionOptions(adapter->getName())),
@@ -1618,7 +1603,6 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
               ? 0
               : instance->initializationData().properties->getPropertyAsInt(adapter->getName() + ".MaxConnections")),
       _endpoint(endpoint),
-      _publishedEndpoint(publishedEndpoint),
       _acceptorStarted(false),
       _acceptorStopped(false),
       _adapter(adapter),

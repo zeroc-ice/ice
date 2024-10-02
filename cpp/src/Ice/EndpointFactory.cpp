@@ -94,16 +94,6 @@ IceInternal::EndpointFactoryWithUnderlying::read(InputStream* s) const
     return readWithUnderlying(_underlying->read(s), s);
 }
 
-void
-IceInternal::EndpointFactoryWithUnderlying::destroy()
-{
-    if (_underlying)
-    {
-        _underlying->destroy();
-    }
-    _instance = nullptr;
-}
-
 EndpointFactoryPtr
 IceInternal::EndpointFactoryWithUnderlying::clone(const ProtocolInstancePtr& instance) const
 {
@@ -170,16 +160,6 @@ IceInternal::UnderlyingEndpointFactory::read(InputStream* s) const
         return nullptr;
     }
     return _factory->read(s);
-}
-
-void
-IceInternal::UnderlyingEndpointFactory::destroy()
-{
-    if (_factory)
-    {
-        _factory->destroy();
-    }
-    _instance = nullptr;
 }
 
 EndpointFactoryPtr

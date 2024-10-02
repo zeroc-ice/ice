@@ -192,36 +192,21 @@ IceBT::EndpointI::acceptor(const string& adapterName, const std::optional<SSL::S
 }
 
 vector<IceInternal::EndpointIPtr>
-IceBT::EndpointI::expandIfWildcard() const
+IceBT::EndpointI::expandHost() const
 {
-    vector<IceInternal::EndpointIPtr> endps;
-
-    if (_addr.empty())
-    {
-        //
-        // getDefaultAdapterAddress will raise BluetoothException if no adapter is present.
-        //
-        string addr = _instance->engine()->getDefaultAdapterAddress();
-        endps.push_back(
-            make_shared<EndpointI>(_instance, addr, _uuid, _name, _channel, _timeout, _connectionId, _compress));
-    }
-    else
-    {
-        endps.push_back(const_cast<EndpointI*>(this)->shared_from_this());
-    }
-
-    return endps;
+    return {const_cast<EndpointI*>(this)->shared_from_this()};
 }
 
-vector<IceInternal::EndpointIPtr>
-IceBT::EndpointI::expandHost(IceInternal::EndpointIPtr&) const
+bool
+IceBT::EndpointI::isLoopback() const
 {
-    //
-    // Nothing to do here.
-    //
-    vector<IceInternal::EndpointIPtr> endps;
-    endps.push_back(const_cast<EndpointI*>(this)->shared_from_this());
-    return endps;
+    return false;
+}
+
+shared_ptr<IceInternal::EndpointI>
+IceBT::EndpointI::withPublishedHost(string) const
+{
+    return const_cast<EndpointI*>(this)->shared_from_this();
 }
 
 bool
@@ -669,12 +654,6 @@ IceInternal::EndpointIPtr
 IceBT::EndpointFactoryI::read(InputStream* s) const
 {
     return make_shared<EndpointI>(_instance, s);
-}
-
-void
-IceBT::EndpointFactoryI::destroy()
-{
-    _instance = nullptr;
 }
 
 IceInternal::EndpointFactoryPtr

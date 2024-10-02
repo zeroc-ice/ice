@@ -277,6 +277,8 @@ createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     Test::Properties result;
     result["IceSSL.DefaultDir"] = defaultProps->getProperty("IceSSL.DefaultDir");
     result["Ice.Default.Host"] = defaultProps->getProperty("Ice.Default.Host");
+    result["ServerAdapter.PublishedHost"] = result["Ice.Default.Host"];
+
     if (!defaultProps->getProperty("Ice.IPv6").empty())
     {
         result["Ice.IPv6"] = defaultProps->getProperty("Ice.IPv6");

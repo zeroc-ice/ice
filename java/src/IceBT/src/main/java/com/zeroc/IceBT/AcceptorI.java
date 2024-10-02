@@ -173,7 +173,7 @@ final class AcceptorI implements Acceptor {
     }
 
     private EndpointI _endpoint;
-    private Instance _instance;
+    private final Instance _instance;
     private String _adapterName;
     private String _name;
     private String _uuid;

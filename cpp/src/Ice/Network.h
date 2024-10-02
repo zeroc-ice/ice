@@ -250,7 +250,7 @@ namespace IceInternal
 
     ICE_API void createPipe(SOCKET fds[2]);
 
-    ICE_API int getSocketErrno();
+    ICE_API Ice::SyscallException::ErrorCode getSocketErrno();
 
     ICE_API Address getNumericAddress(const std::string&);
 
@@ -260,6 +260,9 @@ namespace IceInternal
 #endif
 
     ICE_API bool isIpAddress(const std::string&);
+    ICE_API bool isLoopbackAddress(const std::string&);
+
+    ICE_API std::string getHostName();
 }
 
 #endif

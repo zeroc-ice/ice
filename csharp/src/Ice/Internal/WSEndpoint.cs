@@ -176,7 +176,7 @@ internal sealed class WSEndpoint : EndpointI
             _callback.exception(ex);
         }
 
-        private ProtocolInstance _instance;
+        private readonly ProtocolInstance _instance;
         private string _host;
         private string _resource;
         private EndpointI_connectors _callback;
@@ -215,7 +215,7 @@ internal sealed class WSEndpoint : EndpointI
     }
 
     public override List<EndpointI> expandHost() =>
-        _delegate.expandHost().Select(e => new WSEndpoint(_instance, e, _resource) as EndpointI).ToList();
+        _delegate.expandHost().Select(e => endpoint(e) as EndpointI).ToList();
 
     public override bool isLoopback() => _delegate.isLoopback();
 
@@ -305,7 +305,7 @@ internal sealed class WSEndpoint : EndpointI
         }
     }
 
-    private ProtocolInstance _instance;
+    private readonly ProtocolInstance _instance;
     private EndpointI _delegate;
     private string _resource;
 }

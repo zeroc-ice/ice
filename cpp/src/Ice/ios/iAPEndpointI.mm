@@ -303,19 +303,21 @@ IceObjC::iAPEndpointI::acceptor(const string&, const optional<SSL::ServerAuthent
 }
 
 vector<EndpointIPtr>
-IceObjC::iAPEndpointI::expandIfWildcard() const
+IceObjC::iAPEndpointI::expandHost() const
 {
-    vector<EndpointIPtr> endps;
-    endps.push_back(const_cast<iAPEndpointI*>(this)->shared_from_this());
-    return endps;
+    return {const_cast<iAPEndpointI*>(this)->shared_from_this()};
 }
 
-vector<EndpointIPtr>
-IceObjC::iAPEndpointI::expandHost(EndpointIPtr&) const
+bool
+IceObjC::iAPEndpointI::isLoopback() const
 {
-    vector<EndpointIPtr> endps;
-    endps.push_back(const_cast<iAPEndpointI*>(this)->shared_from_this());
-    return endps;
+    return false;
+}
+
+shared_ptr<EndpointI>
+IceObjC::iAPEndpointI::withPublishedHost(string) const
+{
+    return const_cast<iAPEndpointI*>(this)->shared_from_this();
 }
 
 bool
@@ -692,12 +694,6 @@ EndpointIPtr
 IceObjC::iAPEndpointFactory::read(InputStream* s) const
 {
     return make_shared<iAPEndpointI>(_instance, s);
-}
-
-void
-IceObjC::iAPEndpointFactory::destroy()
-{
-    _instance = 0;
 }
 
 EndpointFactoryPtr

@@ -13,7 +13,7 @@ export class Client extends TestHelper {
         const out = this.getWriter();
         out.write("testing Slice predefined macros... ");
 
-        const d = new Test._Default();
+        const d = new Test.Default();
         test(d.x == 10);
         test(d.y == 10);
 

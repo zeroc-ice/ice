@@ -112,7 +112,7 @@ public class ProtocolInstance {
         _secure = secure;
     }
 
-    protected Instance _instance;
+    protected final Instance _instance;
     protected int _traceLevel;
     protected String _traceCategory;
     protected Logger _logger;

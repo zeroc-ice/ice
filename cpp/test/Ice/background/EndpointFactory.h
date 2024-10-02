@@ -16,12 +16,11 @@ public:
     std::string protocol() const final;
     IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
     IceInternal::EndpointIPtr read(Ice::InputStream*) const final;
-    void destroy() final;
 
     IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
 protected:
-    IceInternal::EndpointFactoryPtr _factory;
+    const IceInternal::EndpointFactoryPtr _factory;
 };
 
 #endif
