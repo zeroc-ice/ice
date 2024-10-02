@@ -21,16 +21,6 @@ public final class OutputStream {
 
     /**
      * Construct a new instance of the OutputStream class. The output stream is initially empty, and
-     * uses the specified encoding, and the compact class format.
-     *
-     * @param encoding The encoding version to use.
-     */
-    public OutputStream(EncodingVersion encoding) {
-        this(encoding, FormatType.CompactFormat, false);
-    }
-
-    /**
-     * Construct a new instance of the OutputStream class. The output stream is initially empty, and
      * uses the specified encoding, and compact class format.
      *
      * @param encoding The encoding version to use.
