@@ -441,8 +441,8 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.write(
             f"""
 const PropertyArray
-    PropertyNames::{sectionName}Props({sectionName}PropsData,
-        sizeof({sectionName}PropsData)/sizeof({sectionName}PropsData[0]));
+    PropertyNames::{sectionName}Props{{{sectionName}PropsData,
+        sizeof({sectionName}PropsData)/sizeof({sectionName}PropsData[0])}};
 
 """
         )

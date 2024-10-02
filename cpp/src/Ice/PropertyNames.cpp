@@ -22,8 +22,8 @@ const Property ProxyClassPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::ProxyClassProps(ProxyClassPropsData,
-        sizeof(ProxyClassPropsData)/sizeof(ProxyClassPropsData[0]));
+    PropertyNames::ProxyClassProps{ProxyClassPropsData,
+        sizeof(ProxyClassPropsData)/sizeof(ProxyClassPropsData[0])};
 
 const Property ConnectionClassPropsData[] =
 {
@@ -36,8 +36,8 @@ const Property ConnectionClassPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::ConnectionClassProps(ConnectionClassPropsData,
-        sizeof(ConnectionClassPropsData)/sizeof(ConnectionClassPropsData[0]));
+    PropertyNames::ConnectionClassProps{ConnectionClassPropsData,
+        sizeof(ConnectionClassPropsData)/sizeof(ConnectionClassPropsData[0])};
 
 const Property ThreadPoolClassPropsData[] =
 {
@@ -49,8 +49,8 @@ const Property ThreadPoolClassPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::ThreadPoolClassProps(ThreadPoolClassPropsData,
-        sizeof(ThreadPoolClassPropsData)/sizeof(ThreadPoolClassPropsData[0]));
+    PropertyNames::ThreadPoolClassProps{ThreadPoolClassPropsData,
+        sizeof(ThreadPoolClassPropsData)/sizeof(ThreadPoolClassPropsData[0])};
 
 const Property ObjectAdapterClassPropsData[] =
 {
@@ -68,8 +68,8 @@ const Property ObjectAdapterClassPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::ObjectAdapterClassProps(ObjectAdapterClassPropsData,
-        sizeof(ObjectAdapterClassPropsData)/sizeof(ObjectAdapterClassPropsData[0]));
+    PropertyNames::ObjectAdapterClassProps{ObjectAdapterClassPropsData,
+        sizeof(ObjectAdapterClassPropsData)/sizeof(ObjectAdapterClassPropsData[0])};
 
 const Property IcePropsData[] =
 {
@@ -160,8 +160,8 @@ const Property IcePropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceProps(IcePropsData,
-        sizeof(IcePropsData)/sizeof(IcePropsData[0]));
+    PropertyNames::IceProps{IcePropsData,
+        sizeof(IcePropsData)/sizeof(IcePropsData[0])};
 
 const Property IceMXPropsData[] =
 {
@@ -174,8 +174,8 @@ const Property IceMXPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceMXProps(IceMXPropsData,
-        sizeof(IceMXPropsData)/sizeof(IceMXPropsData[0]));
+    PropertyNames::IceMXProps{IceMXPropsData,
+        sizeof(IceMXPropsData)/sizeof(IceMXPropsData[0])};
 
 const Property IceDiscoveryPropsData[] =
 {
@@ -193,8 +193,8 @@ const Property IceDiscoveryPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceDiscoveryProps(IceDiscoveryPropsData,
-        sizeof(IceDiscoveryPropsData)/sizeof(IceDiscoveryPropsData[0]));
+    PropertyNames::IceDiscoveryProps{IceDiscoveryPropsData,
+        sizeof(IceDiscoveryPropsData)/sizeof(IceDiscoveryPropsData[0])};
 
 const Property IceLocatorDiscoveryPropsData[] =
 {
@@ -212,8 +212,8 @@ const Property IceLocatorDiscoveryPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceLocatorDiscoveryProps(IceLocatorDiscoveryPropsData,
-        sizeof(IceLocatorDiscoveryPropsData)/sizeof(IceLocatorDiscoveryPropsData[0]));
+    PropertyNames::IceLocatorDiscoveryProps{IceLocatorDiscoveryPropsData,
+        sizeof(IceLocatorDiscoveryPropsData)/sizeof(IceLocatorDiscoveryPropsData[0])};
 
 const Property IceBoxPropsData[] =
 {
@@ -226,8 +226,8 @@ const Property IceBoxPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceBoxProps(IceBoxPropsData,
-        sizeof(IceBoxPropsData)/sizeof(IceBoxPropsData[0]));
+    PropertyNames::IceBoxProps{IceBoxPropsData,
+        sizeof(IceBoxPropsData)/sizeof(IceBoxPropsData[0])};
 
 const Property IceBoxAdminPropsData[] =
 {
@@ -235,8 +235,8 @@ const Property IceBoxAdminPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceBoxAdminProps(IceBoxAdminPropsData,
-        sizeof(IceBoxAdminPropsData)/sizeof(IceBoxAdminPropsData[0]));
+    PropertyNames::IceBoxAdminProps{IceBoxAdminPropsData,
+        sizeof(IceBoxAdminPropsData)/sizeof(IceBoxAdminPropsData[0])};
 
 const Property IceBridgePropsData[] =
 {
@@ -246,8 +246,8 @@ const Property IceBridgePropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceBridgeProps(IceBridgePropsData,
-        sizeof(IceBridgePropsData)/sizeof(IceBridgePropsData[0]));
+    PropertyNames::IceBridgeProps{IceBridgePropsData,
+        sizeof(IceBridgePropsData)/sizeof(IceBridgePropsData[0])};
 
 const Property IceGridAdminPropsData[] =
 {
@@ -267,8 +267,8 @@ const Property IceGridAdminPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceGridAdminProps(IceGridAdminPropsData,
-        sizeof(IceGridAdminPropsData)/sizeof(IceGridAdminPropsData[0]));
+    PropertyNames::IceGridAdminProps{IceGridAdminPropsData,
+        sizeof(IceGridAdminPropsData)/sizeof(IceGridAdminPropsData[0])};
 
 const Property IceGridPropsData[] =
 {
@@ -336,8 +336,8 @@ const Property IceGridPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceGridProps(IceGridPropsData,
-        sizeof(IceGridPropsData)/sizeof(IceGridPropsData[0]));
+    PropertyNames::IceGridProps{IceGridPropsData,
+        sizeof(IceGridPropsData)/sizeof(IceGridPropsData[0])};
 
 const Property IceSSLPropsData[] =
 {
@@ -365,8 +365,8 @@ const Property IceSSLPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceSSLProps(IceSSLPropsData,
-        sizeof(IceSSLPropsData)/sizeof(IceSSLPropsData[0]));
+    PropertyNames::IceSSLProps{IceSSLPropsData,
+        sizeof(IceSSLPropsData)/sizeof(IceSSLPropsData[0])};
 
 const Property IceStormAdminPropsData[] =
 {
@@ -376,8 +376,8 @@ const Property IceStormAdminPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceStormAdminProps(IceStormAdminPropsData,
-        sizeof(IceStormAdminPropsData)/sizeof(IceStormAdminPropsData[0]));
+    PropertyNames::IceStormAdminProps{IceStormAdminPropsData,
+        sizeof(IceStormAdminPropsData)/sizeof(IceStormAdminPropsData[0])};
 
 const Property IceBTPropsData[] =
 {
@@ -386,8 +386,8 @@ const Property IceBTPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceBTProps(IceBTPropsData,
-        sizeof(IceBTPropsData)/sizeof(IceBTPropsData[0]));
+    PropertyNames::IceBTProps{IceBTPropsData,
+        sizeof(IceBTPropsData)/sizeof(IceBTPropsData[0])};
 
 const Property Glacier2PropsData[] =
 {
@@ -418,8 +418,8 @@ const Property Glacier2PropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::Glacier2Props(Glacier2PropsData,
-        sizeof(Glacier2PropsData)/sizeof(Glacier2PropsData[0]));
+    PropertyNames::Glacier2Props{Glacier2PropsData,
+        sizeof(Glacier2PropsData)/sizeof(Glacier2PropsData[0])};
 
 const PropertyArray PropertyNames::validProps[] =
 {
