@@ -45,7 +45,8 @@ class BatchRequestQueue {
         _batchStream =
                 new OutputStream(
                         Protocol.currentProtocolEncoding,
-                        instance.defaultsAndOverrides().defaultFormat);
+                        instance.defaultsAndOverrides().defaultFormat,
+                        instance.cacheMessageBuffers() > 1);
         _batchStream.writeBlob(Protocol.requestBatchHdr);
         _batchMarker = _batchStream.size();
         _batchCompress = false;

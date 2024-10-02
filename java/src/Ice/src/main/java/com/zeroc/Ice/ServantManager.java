@@ -75,8 +75,7 @@ final class ServantManager implements Object {
                         }
                         if (ex != null) {
                             // We only marshal errors and runtime exceptions (including
-                            // CompletionException) at
-                            // a higher level.
+                            // CompletionException) at a higher level.
                             if (ex instanceof Error errorEx) {
                                 throw errorEx;
                             }
@@ -90,8 +89,7 @@ final class ServantManager implements Object {
                     });
         } else {
             // Skip the encapsulation. This allows the next batch requests in the same InputStream
-            // to
-            // proceed.
+            // to proceed.
             request.inputStream.skipEncapsulation();
             if (hasServant(current.id)) {
                 throw new FacetNotExistException();

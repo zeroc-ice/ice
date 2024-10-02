@@ -1233,7 +1233,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 os.writeInt(Protocol.headerSize); // Message size.
 
                 try {
-                    sendMessage(new OutgoingMessage(os, false, false));
+                    sendMessage(new OutgoingMessage(os, false));
                 } catch (LocalException ex) {
                     setState(StateClosed, ex);
                 }
@@ -1597,7 +1597,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
             scheduleCloseTimer();
 
-            if ((sendMessage(new OutgoingMessage(os, false, false)) & AsyncStatus.Sent) > 0) {
+            if ((sendMessage(new OutgoingMessage(os, false)) & AsyncStatus.Sent) > 0) {
                 setState(StateClosingPending);
 
                 //
@@ -1913,7 +1913,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         // Some messages are queued for sending. Just adds the message to the send queue and
         // tell the caller that the message was queued.
         if (!_sendStreams.isEmpty()) {
-            message.adopt();
             _sendStreams.addLast(message);
             return AsyncStatus.Queued;
         }
@@ -1954,8 +1953,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         // pool. At this point the message() method will take care of sending the whole
         // message (held by _writeStream) when the transceiver is ready to write more
         // of the message buffer.
-
-        message.adopt();
 
         _writeStream.swap(message.stream);
         _sendStreams.addLast(message);
@@ -2328,7 +2325,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
                     if (_state < StateClosed) {
                         if (isTwoWay) {
-                            sendMessage(new OutgoingMessage(outputStream, compress != 0, true));
+                            sendMessage(new OutgoingMessage(outputStream, compress != 0));
                         }
 
                         if (_state == StateActive
@@ -2582,10 +2579,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     }
 
     private static class OutgoingMessage {
-        OutgoingMessage(OutputStream stream, boolean compress, boolean adopt) {
+        OutgoingMessage(OutputStream stream, boolean compress) {
             this.stream = stream;
             this.compress = compress;
-            this.adopt = adopt;
             this.requestId = 0;
         }
 
@@ -2600,15 +2596,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         public void canceled() {
             assert (outAsync != null);
             outAsync = null;
-        }
-
-        public void adopt() {
-            if (adopt) {
-                var stream = new OutputStream(Protocol.currentProtocolEncoding);
-                stream.swap(this.stream);
-                this.stream = stream;
-                adopt = false;
-            }
         }
 
         public boolean sent() {
@@ -2628,7 +2615,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         public OutgoingAsyncBase outAsync;
         public boolean compress;
         public int requestId;
-        boolean adopt;
         boolean prepared;
     }
 

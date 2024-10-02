@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 
 /** Provides information about an incoming request being dispatched. */
 public final class Current implements Cloneable {
-    /** TThe object adapter that received the request. */
+    /** The object adapter that received the request. */
     public final ObjectAdapter adapter;
 
     /**
@@ -62,9 +62,7 @@ public final class Current implements Cloneable {
             int requestId,
             EncodingVersion encoding) {
         // We may occasionally construct a Current with a null adapter, however we never return such
-        // a
-        // current to the
-        // application code.
+        // a current to the application code.
         Objects.requireNonNull(id);
         Objects.requireNonNull(facet);
         Objects.requireNonNull(operation);
@@ -192,7 +190,14 @@ public final class Current implements Cloneable {
         if (requestId != 0) {
             // The default class format doesn't matter since we always encode user exceptions in
             // Sliced format.
-            ostr = new OutputStream(Protocol.currentProtocolEncoding);
+            boolean useDirectBuffers =
+                    adapter != null
+                            && adapter.getCommunicator().getInstance().cacheMessageBuffers() > 1;
+            ostr =
+                    new OutputStream(
+                            Protocol.currentProtocolEncoding,
+                            FormatType.SlicedFormat,
+                            useDirectBuffers);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
         } else {
@@ -326,14 +331,15 @@ public final class Current implements Cloneable {
         if (requestId == 0) {
             return new OutputStream();
         } else {
+            assert (adapter != null);
             var ostr =
                     new OutputStream(
                             Protocol.currentProtocolEncoding,
-                            this.adapter
-                                    .getCommunicator()
+                            adapter.getCommunicator()
                                     .getInstance()
                                     .defaultsAndOverrides()
-                                    .defaultFormat);
+                                    .defaultFormat,
+                            adapter.getCommunicator().getInstance().cacheMessageBuffers() > 1);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
             ostr.writeByte(replyStatus.value());

@@ -52,10 +52,6 @@ public final class OutputStream {
         _buf = new Buffer(direct);
         _encoding = encoding;
         _format = format;
-
-        _closure = null;
-        _encapsStack = null;
-        _encapsCache = null;
     }
 
     /**
@@ -79,10 +75,6 @@ public final class OutputStream {
         _buf = buf;
         _encoding = encoding != null ? encoding : Protocol.currentEncoding;
         _format = format;
-
-        _closure = null;
-        _encapsStack = null;
-        _encapsCache = null;
     }
 
     /**
@@ -107,15 +99,6 @@ public final class OutputStream {
             _encapsCache.reset();
             _encapsStack = null;
         }
-    }
-
-    /**
-     * Sets the encoding format for class and exception instances.
-     *
-     * @param fmt The encoding format.
-     */
-    public void setFormat(FormatType fmt) {
-        _format = fmt;
     }
 
     /**
