@@ -166,7 +166,6 @@ public sealed class PropertyNames
     new(@"Ice.Warn.Datagrams", false, "0", false),
     new(@"Ice.Warn.Dispatch", false, "1", false),
     new(@"Ice.Warn.Endpoints", false, "1", false),
-    new(@"Ice.Warn.UnknownProperties", false, "1", false),
     new(@"Ice.Warn.UnusedProperties", false, "0", false),
     new(@"Ice.CacheMessageBuffers", false, "2", false),
     };
