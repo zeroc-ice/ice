@@ -1,13 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Collections;
-using System.Diagnostics;
-
 namespace Ice.unknownProperties;
 
-public class AllTests : global::Test.AllTests
+public class AllTests : Test.AllTests
 {
-    public static int allTests(global::Test.TestHelper helper)
+    public static int allTests(Test.TestHelper helper)
     {
         var communicator = helper.communicator();
         var output = helper.getWriter();
@@ -20,7 +17,7 @@ public class AllTests : global::Test.AllTests
             communicator.createObjectAdapter("Foo");
             test(false);
         }
-        catch (InitializationException)
+        catch (UnknownPropertyException)
         {
         }
         output.WriteLine("ok");
@@ -34,7 +31,7 @@ public class AllTests : global::Test.AllTests
             communicator.propertyToProxy("Greeter");
             test(false);
         }
-        catch (InitializationException)
+        catch (UnknownPropertyException)
         {
         }
         output.WriteLine("ok");

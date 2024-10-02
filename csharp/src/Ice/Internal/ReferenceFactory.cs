@@ -687,7 +687,7 @@ internal class ReferenceFactory
                 message.Append("\n    ");
                 message.Append(s);
             }
-            throw new InitializationException(message.ToString());
+            throw new UnknownPropertyException(message.ToString());
         }
     }
 

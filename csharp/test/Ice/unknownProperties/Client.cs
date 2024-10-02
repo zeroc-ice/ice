@@ -2,18 +2,16 @@
 
 namespace Ice.unknownProperties;
 
-public class Client : global::Test.TestHelper
+public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
-        using (var communicator = initialize(initData))
-        {
-            AllTests.allTests(this);
-        }
+        using Communicator communicator = initialize(initData);
+        AllTests.allTests(this);
     }
 
     public static Task<int> Main(string[] args) =>
-        global::Test.TestDriver.runTestAsync<Client>(args);
+        Test.TestDriver.runTestAsync<Client>(args);
 }
