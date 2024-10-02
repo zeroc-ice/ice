@@ -1537,7 +1537,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     os.writeInt(Protocol.headerSize); // Message size.
                     try
                     {
-                        _ = sendMessage(new OutgoingMessage(os, false, false));
+                        _ = sendMessage(new OutgoingMessage(os, compress: false));
                     }
                     catch (LocalException ex)
                     {
@@ -1821,7 +1821,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
             scheduleCloseTimer();
 
-            if ((sendMessage(new OutgoingMessage(os, false, false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
+            if ((sendMessage(new OutgoingMessage(os, compress: false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
             {
                 setState(StateClosingPending);
 
@@ -2135,7 +2135,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         // the message was queued.
         if (_sendStreams.Count > 0)
         {
-            message.adopt();
             _sendStreams.AddLast(message);
             return OutgoingAsyncBase.AsyncStatusQueued;
         }
@@ -2180,8 +2179,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         // stream with `_writeStream`. The socket operation returned by the transceiver write is registered with the
         // thread pool. At this point the message() method will take care of sending the whole message (held by
         // _writeStream) when the transceiver is ready to write more of the message buffer.
-
-        message.adopt();
 
         _writeStream.swap(message.stream);
         _sendStreams.AddLast(message);
@@ -2559,7 +2556,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                     if (isTwoWay)
                     {
-                        sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
+                        sendMessage(new OutgoingMessage(response.outputStream, compress > 0));
                     }
 
                     if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches)
@@ -2845,11 +2842,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private class OutgoingMessage
     {
-        internal OutgoingMessage(OutputStream stream, bool compress, bool adopt)
+        internal OutgoingMessage(OutputStream stream, bool compress)
         {
             this.stream = stream;
             this.compress = compress;
-            _adopt = adopt;
         }
 
         internal OutgoingMessage(OutgoingAsyncBase outAsync, OutputStream stream, bool compress, int requestId)
@@ -2864,17 +2860,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             Debug.Assert(outAsync is not null); // Only requests can timeout.
             outAsync = null;
-        }
-
-        internal void adopt()
-        {
-            if (_adopt)
-            {
-                var stream = new OutputStream(Util.currentProtocolEncoding);
-                stream.swap(this.stream);
-                this.stream = stream;
-                _adopt = false;
-            }
         }
 
         internal bool sent()
@@ -2904,7 +2889,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         internal OutgoingAsyncBase outAsync;
         internal bool compress;
         internal int requestId;
-        internal bool _adopt;
         internal bool prepared;
         internal bool isSent;
         internal bool invokeSent;

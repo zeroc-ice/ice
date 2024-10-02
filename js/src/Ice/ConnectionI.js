@@ -412,7 +412,7 @@ export class ConnectionI {
             }
 
             if (isTwoWay) {
-                this.sendMessage(OutgoingMessage.createForStream(response.outputStream, true));
+                this.sendMessage(OutgoingMessage.createForStream(response.outputStream));
             }
             --this._dispatchCount;
 
@@ -1057,7 +1057,7 @@ export class ConnectionI {
         os.writeInt(Protocol.headerSize); // Message size.
 
         scheduleCloseTimeout(this);
-        this.sendMessage(OutgoingMessage.createForStream(os, false));
+        this.sendMessage(OutgoingMessage.createForStream(os));
     }
 
     idleCheck(idleTimeout) {
@@ -1120,7 +1120,7 @@ export class ConnectionI {
                 os.writeByte(0);
                 os.writeInt(Protocol.headerSize); // Message size.
                 try {
-                    this.sendMessage(OutgoingMessage.createForStream(os, false));
+                    this.sendMessage(OutgoingMessage.createForStream(os));
                 } catch (ex) {
                     this.setState(StateClosed, ex);
                 }
@@ -1297,7 +1297,6 @@ export class ConnectionI {
         Debug.assert(this._state < StateClosed);
 
         if (this._sendStreams.length > 0) {
-            message.doAdopt();
             this._sendStreams.push(message);
             return AsyncStatus.Queued;
         }
@@ -1319,8 +1318,6 @@ export class ConnectionI {
             message.sent();
             return AsyncStatus.Sent;
         }
-
-        message.doAdopt();
 
         this._writeStream.swap(message.stream);
         this._sendStreams.push(message);
@@ -1619,15 +1616,6 @@ class OutgoingMessage {
         this.outAsync = null;
     }
 
-    doAdopt() {
-        if (this.adopt) {
-            const stream = new OutputStream(Protocol.currentProtocolEncoding);
-            stream.swap(this.stream);
-            this.stream = stream;
-            this.adopt = false;
-        }
-    }
-
     sent() {
         if (this.outAsync !== null) {
             this.outAsync.sent();
@@ -1640,10 +1628,9 @@ class OutgoingMessage {
         }
     }
 
-    static createForStream(stream, adopt) {
+    static createForStream(stream) {
         const m = new OutgoingMessage();
         m.stream = stream;
-        m.adopt = adopt;
         m.isSent = false;
         m.requestId = 0;
         m.outAsync = null;
@@ -1656,7 +1643,6 @@ class OutgoingMessage {
         m.outAsync = out;
         m.requestId = requestId;
         m.isSent = false;
-        m.adopt = false;
         return m;
     }
 }
