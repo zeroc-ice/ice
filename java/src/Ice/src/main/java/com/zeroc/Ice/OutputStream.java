@@ -24,6 +24,16 @@ public final class OutputStream {
      * uses the specified encoding, and compact class format.
      *
      * @param encoding The encoding version to use.
+     */
+    public OutputStream(EncodingVersion encoding) {
+        this(encoding, FormatType.CompactFormat, false);
+    }
+
+    /**
+     * Construct a new instance of the OutputStream class. The output stream is initially empty, and
+     * uses the specified encoding, and compact class format.
+     *
+     * @param encoding The encoding version to use.
      * @param direct Indicates whether to use a direct buffer.
      */
     public OutputStream(EncodingVersion encoding, boolean direct) {
@@ -39,8 +49,10 @@ public final class OutputStream {
      * @param direct Indicates whether to use a direct buffer.
      */
     public OutputStream(EncodingVersion encoding, FormatType format, boolean direct) {
-        // The 1.0 encoding doesn't use the class format type, but we still have to set it in case
-        // the stream reads an 1.1 encapsulation, in which case it would use the format type set
+        // The 1.0 encoding doesn't use the class format type, but we still have to set
+        // it in case
+        // the stream reads an 1.1 encapsulation, in which case it would use the format
+        // type set
         // in the stream.
         _buf = new Buffer(direct);
         _encoding = encoding;
@@ -142,7 +154,8 @@ public final class OutputStream {
         _closure = tmpClosure;
 
         //
-        // Swap is never called for streams that have encapsulations being written. However,
+        // Swap is never called for streams that have encapsulations being written.
+        // However,
         // encapsulations might still be set in case marshaling failed. We just
         // reset the encapsulations if there are still some set.
         //

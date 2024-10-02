@@ -61,7 +61,8 @@ public final class Current implements Cloneable {
             java.util.Map<String, String> ctx,
             int requestId,
             EncodingVersion encoding) {
-        // We may occasionally construct a Current with a null adapter, however we never return such
+        // We may occasionally construct a Current with a null adapter, however we never
+        // return such
         // a current to the application code.
         Objects.requireNonNull(id);
         Objects.requireNonNull(facet);
@@ -188,16 +189,12 @@ public final class Current implements Cloneable {
         OutputStream ostr;
 
         if (requestId != 0) {
-            // The default class format doesn't matter since we always encode user exceptions in
-            // Sliced format.
-            boolean useDirectBuffers =
-                    adapter != null
-                            && adapter.getCommunicator().getInstance().cacheMessageBuffers() > 1;
+            // The default class format doesn't matter since we always encode user
+            // exceptions in
+            // Sliced format.;
             ostr =
                     new OutputStream(
-                            Protocol.currentProtocolEncoding,
-                            FormatType.SlicedFormat,
-                            useDirectBuffers);
+                            Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
         } else {
@@ -339,7 +336,7 @@ public final class Current implements Cloneable {
                                     .getInstance()
                                     .defaultsAndOverrides()
                                     .defaultFormat,
-                            adapter.getCommunicator().getInstance().cacheMessageBuffers() > 1);
+                            false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
             ostr.writeByte(replyStatus.value());
