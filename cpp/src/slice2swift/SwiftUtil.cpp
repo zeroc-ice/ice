@@ -198,8 +198,8 @@ Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
         size_t pos = swiftModule.find(':');
         if (pos != string::npos)
         {
-            swiftModule = swiftModule.substr(0, pos);
             swiftPrefix = swiftModule.substr(pos + 1);
+            swiftModule = swiftModule.substr(0, pos);
         }
     }
     else
