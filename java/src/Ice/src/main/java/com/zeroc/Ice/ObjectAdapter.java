@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * The object adapter provides an up-call interface from the Ice run time to the implementation of
@@ -1259,6 +1258,7 @@ public final class ObjectAdapter {
                 //
                 List<EndpointI> endpoints =
                         parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
+
                 for (EndpointI endpoint : endpoints) {
                     for (EndpointI expanded : endpoint.expandHost()) {
                         _incomingConnectionFactories.add(
@@ -1452,13 +1452,11 @@ public final class ObjectAdapter {
                 endpointsList =
                         _incomingConnectionFactories.stream()
                                 .map(IncomingConnectionFactory::endpoint)
-                                .collect(Collectors.toList());
+                                .toList();
 
                 // Remove all loopback endpoints.
                 var endpointsNoLoopback =
-                        endpointsList.stream()
-                                .filter(e -> !e.isLoopback())
-                                .collect(Collectors.toList());
+                        endpointsList.stream().filter(e -> !e.isLoopback()).toList();
 
                 // Retrieve published host.
                 String publishedHost =
