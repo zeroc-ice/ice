@@ -1224,7 +1224,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             // As a result of this optimization, the only possible heartbeat in _sendStreams is the
             // first _sendStreams message.
             if (_sendStreams.isEmpty()) {
-                OutputStream os = new OutputStream(Protocol.currentProtocolEncoding);
+                OutputStream os =
+                        new OutputStream(
+                                Protocol.currentProtocolEncoding,
+                                _instance.cacheMessageBuffers() > 1);
                 os.writeBlob(Protocol.magic);
                 Protocol.currentProtocol.ice_writeMembers(os);
                 Protocol.currentProtocolEncoding.ice_writeMembers(os);
@@ -1586,7 +1589,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             //
             // Before we shut down, we send a close connection message.
             //
-            OutputStream os = new OutputStream(Protocol.currentProtocolEncoding);
+            OutputStream os =
+                    new OutputStream(
+                            Protocol.currentProtocolEncoding, _instance.cacheMessageBuffers() > 1);
             os.writeBlob(Protocol.magic);
             Protocol.currentProtocol.ice_writeMembers(os);
             Protocol.currentProtocolEncoding.ice_writeMembers(os);

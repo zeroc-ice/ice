@@ -75,7 +75,8 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
         _os =
                 new OutputStream(
                         Protocol.currentProtocolEncoding,
-                        instance.defaultsAndOverrides().defaultFormat);
+                        instance.defaultsAndOverrides().defaultFormat,
+                        instance.cacheMessageBuffers() > 1);
     }
 
     protected OutgoingAsyncBase(Communicator com, Instance instance, String op, OutputStream os) {

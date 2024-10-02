@@ -31,13 +31,13 @@ public final class OutputStream {
 
     /**
      * Construct a new instance of the OutputStream class. The output stream is initially empty, and
-     * uses the specified encoding, and class format.
+     * uses the specified encoding, and compact class format.
      *
      * @param encoding The encoding version to use.
-     * @param format The format to use for class encoding.
+     * @param direct Indicates whether to use a direct buffer.
      */
-    public OutputStream(EncodingVersion encoding, FormatType format) {
-        this(encoding, format, false);
+    public OutputStream(EncodingVersion encoding, boolean direct) {
+        this(encoding, FormatType.CompactFormat, direct);
     }
 
     /**
@@ -49,6 +49,9 @@ public final class OutputStream {
      * @param direct Indicates whether to use a direct buffer.
      */
     public OutputStream(EncodingVersion encoding, FormatType format, boolean direct) {
+        // The 1.0 encoding doesn't use the class format type, but we still have to set it in case
+        // the stream reads and 1.1 encapsulation, in which case it would use the format type set
+        // in the stream.
         _buf = new Buffer(direct);
         _encoding = encoding;
         _format = format;
@@ -68,13 +71,9 @@ public final class OutputStream {
     }
 
     OutputStream(Buffer buf, EncodingVersion encoding) {
-        this(buf, encoding, FormatType.CompactFormat);
-    }
-
-    OutputStream(Buffer buf, EncodingVersion encoding, FormatType format) {
         _buf = buf;
         _encoding = encoding != null ? encoding : Protocol.currentEncoding;
-        _format = format;
+        _format = FormatType.CompactFormat;
     }
 
     /**
