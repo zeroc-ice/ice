@@ -19,6 +19,7 @@
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "PropertyNames.h"
+#include "PropertyUtil.h"
 #include "RouterInfo.h"
 
 #include <chrono>
@@ -684,63 +685,6 @@ IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance, con
 {
 }
 
-void
-IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
-{
-    static const string suffixes[] = {
-        "EndpointSelection",
-        "ConnectionCached",
-        "PreferSecure",
-        "LocatorCacheTimeout",
-        "InvocationTimeout",
-        "Locator",
-        "Router",
-        "CollocationOptimized",
-        "Context.*"};
-
-    //
-    // Do not warn about unknown properties list if Ice prefix, ie Ice, Glacier2, etc
-    //
-    for (const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
-    {
-        if (prefix.find(*i) == 0)
-        {
-            return;
-        }
-    }
-
-    StringSeq unknownProps;
-    PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix + ".");
-    for (PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
-    {
-        bool valid = false;
-        for (unsigned int i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
-        {
-            string prop = prefix + "." + suffixes[i];
-            if (IceInternal::match(p->first, prop))
-            {
-                valid = true;
-                break;
-            }
-        }
-
-        if (!valid)
-        {
-            unknownProps.push_back(p->first);
-        }
-    }
-
-    if (unknownProps.size())
-    {
-        Warning out(_instance->initializationData().logger);
-        out << "found unknown properties for proxy '" << prefix << "':";
-        for (unsigned int i = 0; i < unknownProps.size(); ++i)
-        {
-            out << "\n    " << unknownProps[i];
-        }
-    }
-}
-
 RoutableReferencePtr
 IceInternal::ReferenceFactory::create(
     const Identity& ident,
@@ -785,10 +729,11 @@ IceInternal::ReferenceFactory::create(
     if (!propertyPrefix.empty())
     {
         PropertiesPtr properties = _instance->initializationData().properties;
-        if (properties->getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
-        {
-            checkForUnknownProperties(propertyPrefix);
-        }
+        validatePropertyPrefix(
+            "proxy",
+            propertyPrefix,
+            _instance->initializationData().properties,
+            &IceInternal::PropertyNames::ProxyClassProps);
 
         string property;
 

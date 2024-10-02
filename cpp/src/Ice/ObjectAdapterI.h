@@ -122,7 +122,6 @@ namespace Ice
         std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
         std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
         void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<ObjectPrx>&);
-        bool filterProperties(StringSeq&);
 
         enum State
         {

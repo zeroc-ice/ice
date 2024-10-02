@@ -32,7 +32,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
     auto adapter = communicator->createObjectAdapter(name);
     adapter->add(
         make_shared<TestI>(adapter, properties),
-        stringToIdentity(properties->getProperty(name + ".Identity")));
+        stringToIdentity(properties->getProperty(name + "Data.Identity")));
     adapter->activate();
 }
 

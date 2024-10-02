@@ -64,6 +64,7 @@ const Property ObjectAdapterClassPropsData[] =
     Property{"Router", "", false, false, &PropertyNames::ProxyClassProps, false},
     Property{"ProxyOptions", "", false, false, nullptr, false},
     Property{"ThreadPool", "", false, false, &PropertyNames::ThreadPoolClassProps, false},
+    Property{"MaxConnections", "0", false, false, nullptr, false},
     Property{"MessageSizeMax", "", false, false, nullptr, false},
 };
 

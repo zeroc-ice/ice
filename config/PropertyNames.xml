@@ -50,7 +50,9 @@
         <property name="Router" class="Proxy" languages="all" />
         <property name="ProxyOptions" languages="all" />
         <property name="ThreadPool" class="ThreadPool" languages="cpp,csharp,java" />
+        <property name="MaxConnections" languages="cpp,csharp,java" default="0" />
         <property name="MessageSizeMax" languages="all" />
+
     </class>
 
     <section name="Ice">

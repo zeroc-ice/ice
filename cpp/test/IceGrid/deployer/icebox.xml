@@ -24,8 +24,7 @@
           <object identity="${server}-${service}" type="::Test"/>
         </adapter>
         <properties>
-          <property name="Ice.Warn.UnknownProperties" value="0"/>
-          <property name="${service}.Identity" value="${server}-${service}"/>
+          <property name="${service}Data.Identity" value="${server}-${service}"/>
         </properties>
       </service>
 

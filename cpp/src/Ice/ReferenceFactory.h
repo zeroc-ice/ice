@@ -50,7 +50,6 @@ namespace IceInternal
         std::optional<Ice::LocatorPrx> getDefaultLocator() const;
 
     private:
-        void checkForUnknownProperties(const std::string&);
         RoutableReferencePtr create(
             const Ice::Identity&,
             const std::string&,
