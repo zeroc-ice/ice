@@ -5,11 +5,10 @@
 package com.zeroc.Ice;
 
 final class TraceUtil {
-    public static void traceSend(
-            OutputStream str, Instance instance, Logger logger, TraceLevels tl) {
+    public static void traceSend(OutputStream str, Logger logger, TraceLevels tl) {
         if (tl.protocol >= 1) {
             int p = str.pos();
-            var is = new InputStream(instance, str.getEncoding(), str.getBuffer(), false);
+            var is = new InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
             is.pos(0);
 
             java.io.StringWriter s = new java.io.StringWriter();
@@ -38,6 +37,21 @@ final class TraceUtil {
         }
     }
 
+    public static void trace(String heading, OutputStream str, Logger logger, TraceLevels tl) {
+        if (tl.protocol >= 1) {
+            int p = str.pos();
+            var is = new InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
+            is.pos(0);
+
+            java.io.StringWriter s = new java.io.StringWriter();
+            s.write(heading);
+            printMessage(s, is);
+
+            logger.trace(tl.protocolCat, s.toString());
+            str.pos(p);
+        }
+    }
+
     public static void trace(String heading, InputStream str, Logger logger, TraceLevels tl) {
         if (tl.protocol >= 1) {
             int p = str.pos();
@@ -60,6 +74,54 @@ final class TraceUtil {
             java.io.StringWriter s = new java.io.StringWriter();
             s.write("unknown " + kind + " type `" + typeId + "'");
             logger.trace(slicingCat, s.toString());
+        }
+    }
+
+    public static void dumpStream(InputStream stream) {
+        int pos = stream.pos();
+        stream.pos(0);
+
+        byte[] data = stream.readBlob(stream.size());
+        dumpOctets(data);
+
+        stream.pos(pos);
+    }
+
+    public static void dumpOctets(byte[] data) {
+        final int inc = 8;
+
+        for (int i = 0; i < data.length; i += inc) {
+            for (int j = i; j - i < inc; j++) {
+                if (j < data.length) {
+                    int n = data[j];
+                    if (n < 0) {
+                        n += 256;
+                    }
+                    String s;
+                    if (n < 10) {
+                        s = "  " + n;
+                    } else if (n < 100) {
+                        s = " " + n;
+                    } else {
+                        s = "" + n;
+                    }
+                    System.out.print(s + " ");
+                } else {
+                    System.out.print("    ");
+                }
+            }
+
+            System.out.print('"');
+
+            for (int j = i; j < data.length && j - i < inc; j++) {
+                if (data[j] >= (byte) 32 && data[j] < (byte) 127) {
+                    System.out.print((char) data[j]);
+                } else {
+                    System.out.print('.');
+                }
+            }
+
+            System.out.println('"');
         }
     }
 
