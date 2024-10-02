@@ -83,7 +83,7 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
     static const string prefix = "cs:namespace:";
     if (auto meta = m->findMetadata(prefix))
     {
-        return (*meta).substr(prefix.size());
+        return meta->substr(prefix.size());
     }
     return "";
 }
@@ -360,7 +360,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         string prefix = "cs:generic:";
         if (auto meta = seq->findMetadata(prefix))
         {
-            string customType = (*meta).substr(prefix.size());
+            string customType = meta->substr(prefix.size());
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
                 return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), package) +
@@ -382,7 +382,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         string typeName;
         if (auto meta = d->findMetadata(prefix))
         {
-            typeName = (*meta).substr(prefix.size());
+            typeName = meta->substr(prefix.size());
         }
         else
         {
@@ -1168,7 +1168,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     if (auto meta = seq->findMetadata(genericPrefix))
     {
         isGeneric = true;
-        genericType = (*meta).substr(genericPrefix.size());
+        genericType = meta->substr(genericPrefix.size());
         if (genericType == "LinkedList")
         {
             addMethod = "AddLast";

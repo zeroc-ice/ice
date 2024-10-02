@@ -193,7 +193,7 @@ Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
 
     if (auto meta = module->findMetadata(modulePrefix))
     {
-        swiftModule = (*meta).substr(modulePrefix.size());
+        swiftModule = meta->substr(modulePrefix.size());
 
         size_t pos = swiftModule.find(':');
         if (pos != string::npos)

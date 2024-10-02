@@ -29,7 +29,7 @@ namespace
         static const string classResolverPrefix = "swift:class-resolver-prefix:";
         if (auto meta = dc->findMetadata(classResolverPrefix))
         {
-            return (*meta).substr(classResolverPrefix.size());
+            return meta->substr(classResolverPrefix.size());
         }
         return "";
     }

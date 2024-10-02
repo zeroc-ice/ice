@@ -968,11 +968,11 @@ Slice::Contained::getDeprecationReason(bool checkParent) const
     // First, we check if the element itself is deprecated.
     if (auto meta = findMetadata(prefix1))
     {
-        return (*meta).substr(prefix1.size());
+        return meta->substr(prefix1.size());
     }
     if (auto meta = findMetadata(prefix2))
     {
-        return (*meta).substr(prefix2.size());
+        return meta->substr(prefix2.size());
     }
 
     // Then, if necessary, we check if the container it's within is deprecated.
@@ -981,11 +981,11 @@ Slice::Contained::getDeprecationReason(bool checkParent) const
     {
         if (auto meta = parent->findMetadata(prefix1))
         {
-            return (*meta).substr(prefix1.size());
+            return meta->substr(prefix1.size());
         }
         if (auto meta = parent->findMetadata(prefix2))
         {
-            return (*meta).substr(prefix2.size());
+            return meta->substr(prefix2.size());
         }
     }
 

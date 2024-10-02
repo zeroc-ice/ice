@@ -911,7 +911,7 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
 
     if (auto meta = m->findMetadata(prefix))
     {
-        return (*meta).substr(prefix.size());
+        return meta->substr(prefix.size());
     }
 
     string file = cont->file();
@@ -919,7 +919,7 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
     assert(dc);
     if (auto meta = dc->findMetadata(prefix))
     {
-        return (*meta).substr(prefix.size());
+        return meta->substr(prefix.size());
     }
 
     return "";
@@ -2446,7 +2446,7 @@ Slice::JavaGenerator::getSequenceTypes(
             string prefix = "java:serializable:";
             if (auto meta = seq->findMetadata(prefix))
             {
-                instanceType = formalType = (*meta).substr(prefix.size());
+                instanceType = formalType = meta->substr(prefix.size());
                 return true;
             }
         }

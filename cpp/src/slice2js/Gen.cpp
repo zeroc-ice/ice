@@ -1989,7 +1989,7 @@ namespace
         const string prefix = "js:defined-in:";
         if (auto meta = p->findMetadata(prefix))
         {
-            return (*meta).substr(prefix.size());
+            return meta->substr(prefix.size());
         }
         return "";
     }

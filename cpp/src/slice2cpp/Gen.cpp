@@ -409,7 +409,7 @@ namespace
             assert(dc);
             if (auto meta = dc->findMetadata(prefix))
             {
-                out << nl << " * \\headerfile " << (*meta).substr(prefix.size());
+                out << nl << " * \\headerfile " << meta->substr(prefix.size());
             }
         }
 
@@ -663,7 +663,7 @@ Slice::Gen::generate(const UnitPtr& p)
         static const string dllExportPrefix = "cpp:dll-export:";
         if (auto meta = dc->findMetadata(dllExportPrefix))
         {
-            _dllExport = (*meta).substr(dllExportPrefix.size());
+            _dllExport = meta->substr(dllExportPrefix.size());
         }
     }
 
@@ -1203,7 +1203,7 @@ Slice::Gen::getHeaderExt(const string& file, const UnitPtr& ut)
     assert(dc);
     if (auto meta = dc->findMetadata(headerExtPrefix))
     {
-        return (*meta).substr(headerExtPrefix.size());
+        return meta->substr(headerExtPrefix.size());
     }
     return "";
 }
@@ -1216,7 +1216,7 @@ Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
     assert(dc);
     if (auto meta = dc->findMetadata(sourceExtPrefix))
     {
-        return (*meta).substr(sourceExtPrefix.size());
+        return meta->substr(sourceExtPrefix.size());
     }
     return "";
 }

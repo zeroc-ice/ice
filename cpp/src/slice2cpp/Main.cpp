@@ -215,7 +215,7 @@ compile(const vector<string>& argv)
             assert(dc);
             if (auto meta = dc->findMetadata(headerExtPrefix))
             {
-                ext = (*meta).substr(headerExtPrefix.size());
+                ext = meta->substr(headerExtPrefix.size());
             }
 
             u->destroy();

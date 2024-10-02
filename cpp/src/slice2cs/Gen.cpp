@@ -3165,7 +3165,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     string prefix = "cs:generic:";
     if (auto meta = p->findMetadata(prefix))
     {
-        string type = (*meta).substr(prefix.size());
+        string type = meta->substr(prefix.size());
         if (type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
         {
             return;
@@ -3203,7 +3203,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     string genericType;
     if (auto meta = p->findMetadata(prefix))
     {
-        genericType = (*meta).substr(prefix.size());
+        genericType = meta->substr(prefix.size());
     }
     else
     {

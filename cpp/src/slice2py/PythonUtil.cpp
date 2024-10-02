@@ -2742,7 +2742,7 @@ Slice::Python::getPackageDirectory(const string& file, const UnitPtr& ut)
     if (auto meta = dc->findMetadata(prefix))
     {
         // The metadata is present, so the generated file was placed in the specified directory.
-        return (*meta).substr(prefix.size());
+        return meta->substr(prefix.size());
     }
     return "";
 }
@@ -2898,7 +2898,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     static const string prefix = "python:package:";
     if (auto meta = m->findMetadata(prefix))
     {
-        return (*meta).substr(prefix.size());
+        return meta->substr(prefix.size());
     }
 
     string file = cont->file();
@@ -2906,7 +2906,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     assert(dc);
     if (auto meta = dc->findMetadata(prefix))
     {
-        return (*meta).substr(prefix.size());
+        return meta->substr(prefix.size());
     }
     
     return "";
