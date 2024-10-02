@@ -162,27 +162,25 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public java.util.List<com.zeroc.Ice.EndpointI> expandIfWildcard() {
-        java.util.List<com.zeroc.Ice.EndpointI> l = new java.util.ArrayList<>();
-        for (com.zeroc.Ice.EndpointI e : _delegate.expandIfWildcard()) {
-            l.add(e == _delegate ? this : new EndpointI(_instance, e));
+    public java.util.List<com.zeroc.Ice.EndpointI> expandHost() {
+        java.util.List<com.zeroc.Ice.EndpointI> underlying = _delegate.expandHost();
+
+        var result = new java.util.ArrayList<com.zeroc.Ice.EndpointI>(underlying.size());
+
+        for (com.zeroc.Ice.EndpointI e : underlying) {
+            result.add(endpoint(e));
         }
-        return l;
+        return result;
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI.ExpandHostResult expandHost() {
-        com.zeroc.Ice.EndpointI.ExpandHostResult result = _delegate.expandHost();
-        java.util.List<com.zeroc.Ice.EndpointI> l = new java.util.ArrayList<>();
-        for (com.zeroc.Ice.EndpointI e : result.endpoints) {
-            l.add(e == _delegate ? this : new EndpointI(_instance, e));
-        }
-        result.endpoints = l;
-        if (result.publish != null) {
-            result.publish =
-                    result.publish == _delegate ? this : new EndpointI(_instance, result.publish);
-        }
-        return result;
+    public boolean isLoopback() {
+        return _delegate.isLoopback();
+    }
+
+    @Override
+    public com.zeroc.Ice.EndpointI withPublishedHost(String host) {
+        return endpoint(_delegate.withPublishedHost(host));
     }
 
     @Override

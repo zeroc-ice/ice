@@ -63,6 +63,8 @@ public class AllTests {
         java.util.Map<String, String> result = new java.util.HashMap<>();
         result.put("IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
         result.put("Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
+        result.put("ServerAdapter.PublishedHost", result.get("Ice.Default.Host"));
+
         if (defaultProperties.getProperty("Ice.IPv6").length() > 0) {
             result.put("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
         }

@@ -8,12 +8,6 @@ package com.zeroc.Ice;
  * @hidden Public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */
 public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
-    public class ExpandHostResult {
-        public EndpointI publish;
-        public java.util.List<EndpointI> endpoints;
-    }
-    ;
-
     public void streamWrite(OutputStream s) {
         s.startEncapsulation();
         streamWriteImpl(s);
@@ -118,22 +112,16 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
     public abstract Acceptor acceptor(
             String adapterName, com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory);
 
-    //
-    // Expand endpoint out in to separate endpoints for each local
-    // host if listening on INADDR_ANY.
-    //
-    public abstract java.util.List<EndpointI> expandIfWildcard();
+    // Expand endpoint into separate endpoints for each IP address returned by the DNS resolver.
+    // Used only for server endpoints.
+    public abstract java.util.List<EndpointI> expandHost();
 
-    //
-    // Expand endpoint out into separate endpoints for each IP
-    // address returned by the DNS resolver. Also returns the
-    // endpoint which can be used to connect to the returned
-    // endpoints or null if no specific endpoint can be used to
-    // connect to these endpoints (e.g.: with the IP endpoint,
-    // it returns this endpoint if it uses a fixed port, null
-    // otherwise).
-    //
-    public abstract ExpandHostResult expandHost();
+    // Returns true when the most underlying endpoint is an IP endpoint with a loopback address.
+    public abstract boolean isLoopback();
+
+    // Returns a new endpoint with the specified host; returns this when this operation is not
+    // applicable.
+    public abstract EndpointI withPublishedHost(String host);
 
     //
     // Check whether the endpoint is equivalent to another one.

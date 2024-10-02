@@ -172,30 +172,25 @@ final class WSEndpoint extends EndpointI {
     }
 
     @Override
-    public java.util.List<EndpointI> expandIfWildcard() {
-        java.util.List<EndpointI> endps = _delegate.expandIfWildcard();
-        java.util.List<EndpointI> l = new java.util.ArrayList<>();
-        for (EndpointI e : endps) {
-            l.add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
+    public java.util.List<EndpointI> expandHost() {
+        java.util.List<EndpointI> underlying = _delegate.expandHost();
+
+        var result = new java.util.ArrayList<EndpointI>(underlying.size());
+
+        for (EndpointI e : underlying) {
+            result.add(endpoint(e));
         }
-        return l;
+        return result;
     }
 
     @Override
-    public EndpointI.ExpandHostResult expandHost() {
-        EndpointI.ExpandHostResult result = _delegate.expandHost();
-        java.util.List<EndpointI> l = new java.util.ArrayList<>();
-        for (EndpointI e : result.endpoints) {
-            l.add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
-        }
-        result.endpoints = l;
-        if (result.publish != null) {
-            result.publish =
-                    result.publish == _delegate
-                            ? this
-                            : new WSEndpoint(_instance, result.publish, _resource);
-        }
-        return result;
+    public boolean isLoopback() {
+        return _delegate.isLoopback();
+    }
+
+    @Override
+    public EndpointI withPublishedHost(String host) {
+        return endpoint(_delegate.withPublishedHost(host));
     }
 
     @Override
