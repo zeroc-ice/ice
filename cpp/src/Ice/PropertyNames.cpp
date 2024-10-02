@@ -156,7 +156,6 @@ const Property IcePropsData[] =
     Property{"Ice.Warn.Datagrams", "0", false, false, nullptr, false},
     Property{"Ice.Warn.Dispatch", "1", false, false, nullptr, false},
     Property{"Ice.Warn.Endpoints", "1", false, false, nullptr, false},
-    Property{"Ice.Warn.UnknownProperties", "1", false, false, nullptr, false},
     Property{"Ice.Warn.UnusedProperties", "0", false, false, nullptr, false},
 };
 

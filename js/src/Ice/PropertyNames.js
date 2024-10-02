@@ -59,7 +59,6 @@ const IceProps =
     new Property("Ice.Warn.Connections", false, "0", false),
     new Property("Ice.Warn.Dispatch", false, "1", false),
     new Property("Ice.Warn.Endpoints", false, "1", false),
-    new Property("Ice.Warn.UnknownProperties", false, "1", false),
     new Property("Ice.Warn.UnusedProperties", false, "0", false),
 ];
 
