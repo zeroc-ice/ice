@@ -1898,51 +1898,6 @@ Slice::Container::exceptions() const
     return result;
 }
 
-StructList
-Slice::Container::structs() const
-{
-    StructList result;
-    for (const auto& p : _contents)
-    {
-        StructPtr q = dynamic_pointer_cast<Struct>(p);
-        if (q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-SequenceList
-Slice::Container::sequences() const
-{
-    SequenceList result;
-    for (const auto& p : _contents)
-    {
-        SequencePtr q = dynamic_pointer_cast<Sequence>(p);
-        if (q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-DictionaryList
-Slice::Container::dictionaries() const
-{
-    DictionaryList result;
-    for (const auto& p : _contents)
-    {
-        DictionaryPtr q = dynamic_pointer_cast<Dictionary>(p);
-        if (q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
 EnumList
 Slice::Container::enums() const
 {
@@ -2025,21 +1980,6 @@ Slice::Container::enumerators(const string& identifier) const
         }
     }
 
-    return result;
-}
-
-ConstList
-Slice::Container::consts() const
-{
-    ConstList result;
-    for (const auto& p : _contents)
-    {
-        ConstPtr q = dynamic_pointer_cast<Const>(p);
-        if (q)
-        {
-            result.push_back(q);
-        }
-    }
     return result;
 }
 

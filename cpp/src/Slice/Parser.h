@@ -92,20 +92,13 @@ namespace Slice
     bool containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs);
 
     using TypeList = std::list<TypePtr>;
-    using StringSet = std::set<std::string>;
     using StringList = std::list<std::string>;
-    using TypeString = std::pair<TypePtr, std::string>;
-    using TypeStringList = std::list<TypeString>;
     using ContainedList = std::list<ContainedPtr>;
     using ModuleList = std::list<ModulePtr>;
     using ClassList = std::list<ClassDefPtr>;
     using InterfaceList = std::list<InterfaceDefPtr>;
     using ExceptionList = std::list<ExceptionPtr>;
-    using StructList = std::list<StructPtr>;
-    using SequenceList = std::list<SequencePtr>;
-    using DictionaryList = std::list<DictionaryPtr>;
     using EnumList = std::list<EnumPtr>;
-    using ConstList = std::list<ConstPtr>;
     using OperationList = std::list<OperationPtr>;
     using DataMemberList = std::list<DataMemberPtr>;
     using ParamDeclList = std::list<ParamDeclPtr>;
@@ -432,13 +425,9 @@ namespace Slice
         ClassList classes() const;
         InterfaceList interfaces() const;
         ExceptionList exceptions() const;
-        StructList structs() const;
-        SequenceList sequences() const;
-        DictionaryList dictionaries() const;
         EnumList enums() const;
         EnumeratorList enumerators() const;
         EnumeratorList enumerators(const std::string& identifier) const;
-        ConstList consts() const;
         ContainedList contents() const;
         std::string thisScope() const;
         void visit(ParserVisitor* visitor) override;

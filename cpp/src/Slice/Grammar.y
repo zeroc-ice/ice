@@ -533,9 +533,7 @@ type_id
 {
     auto type = dynamic_pointer_cast<Type>($1);
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    auto typestring = make_shared<TypeStringTok>();
-    typestring->v = make_pair(type, ident->v);
-    $$ = typestring;
+    $$ = make_shared<TypeStringTok>(type, ident->v);
 }
 ;
 
@@ -657,8 +655,8 @@ optional_type_id
 {
     auto m = dynamic_pointer_cast<OptionalDefTok>($1);
     auto ts = dynamic_pointer_cast<TypeStringTok>($2);
-    m->type = ts->v.first;
-    m->name = ts->v.second;
+    m->type = ts->type;
+    m->name = ts->name;
 
     // It's safe to perform this check in the parser, since we already have enough information to know whether a type
     // can be optional. This is because the only types that can be forward declared (classes/interfaces) have constant
@@ -674,8 +672,8 @@ optional_type_id
 {
     auto ts = dynamic_pointer_cast<TypeStringTok>($1);
     auto m = make_shared<OptionalDefTok>(-1);
-    m->type = ts->v.first;
-    m->name = ts->v.second;
+    m->type = ts->type;
+    m->name = ts->name;
     $$ = m;
 }
 ;

@@ -880,7 +880,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     string name = getName(p);
     string type = getTypeVar(p);
     string abs = getAbsolute(p);
-    EnumeratorList enums = p->enumerators();
+    EnumeratorList enumerators = p->enumerators();
 
     startNamespace(p);
 
@@ -888,21 +888,18 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << name;
     _out << sb;
 
+    for (const auto& enumerator : enumerators)
     {
-        long i = 0;
-        for (EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q, ++i)
-        {
-            _out << nl << "const " << fixIdent((*q)->name()) << " = " << (*q)->value() << ';';
-        }
+        _out << nl << "const " << fixIdent(enumerator->name()) << " = " << enumerator->value() << ';';
     }
 
     _out << eb;
 
     // Emit the type information.
     _out << sp << nl << type << " = IcePHP_defineEnum('" << scoped << "', array(";
-    for (EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
+    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
-        if (q != enums.begin())
+        if (q != enumerators.begin())
         {
             _out << ", ";
         }
@@ -1077,8 +1074,8 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
     EnumPtr en = dynamic_pointer_cast<Enum>(p);
     if (en)
     {
-        EnumeratorList enums = en->enumerators();
-        _out << getAbsolute(en) << "::" << fixIdent(enums.front()->name());
+        string firstEnumerator = en->enumerators().front()->name();
+        _out << getAbsolute(en) << "::" << fixIdent(firstEnumerator);
         return;
     }
 
