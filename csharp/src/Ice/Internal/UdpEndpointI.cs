@@ -472,15 +472,10 @@ internal sealed class UdpEndpointFactory : EndpointFactory
         return new UdpEndpointI(_instance, s);
     }
 
-    public void destroy()
-    {
-        _instance = null;
-    }
-
     public EndpointFactory clone(ProtocolInstance instance)
     {
         return new UdpEndpointFactory(instance);
     }
 
-    private ProtocolInstance _instance;
+    private readonly ProtocolInstance _instance;
 }

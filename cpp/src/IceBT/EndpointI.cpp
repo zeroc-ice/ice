@@ -656,12 +656,6 @@ IceBT::EndpointFactoryI::read(InputStream* s) const
     return make_shared<EndpointI>(_instance, s);
 }
 
-void
-IceBT::EndpointFactoryI::destroy()
-{
-    _instance = nullptr;
-}
-
 IceInternal::EndpointFactoryPtr
 IceBT::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance) const
 {

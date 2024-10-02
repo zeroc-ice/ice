@@ -353,12 +353,6 @@ Ice::SSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, int16_
 {
 }
 
-void
-Ice::SSL::EndpointFactoryI::destroy()
-{
-    _sslInstance = nullptr;
-}
-
 IceInternal::EndpointFactoryPtr
 Ice::SSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, int16_t underlying)
     const

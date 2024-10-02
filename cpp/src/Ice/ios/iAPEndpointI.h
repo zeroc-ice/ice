@@ -92,12 +92,11 @@ namespace IceObjC
         std::string protocol() const final;
         IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
         IceInternal::EndpointIPtr read(Ice::InputStream*) const final;
-        void destroy() final;
 
         IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
     private:
-        IceInternal::ProtocolInstancePtr _instance;
+        const IceInternal::ProtocolInstancePtr _instance;
     };
 }
 

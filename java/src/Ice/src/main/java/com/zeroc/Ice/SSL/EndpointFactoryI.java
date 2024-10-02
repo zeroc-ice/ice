@@ -31,5 +31,5 @@ public final class EndpointFactoryI extends com.zeroc.Ice.EndpointFactoryWithUnd
         return new EndpointI(_instance, underlying);
     }
 
-    private Instance _instance;
+    private final Instance _instance;
 }

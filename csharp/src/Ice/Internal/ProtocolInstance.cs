@@ -130,7 +130,7 @@ public class ProtocolInstance
         instance_.setRcvBufSizeWarn(type, size);
     }
 
-    protected Instance instance_;
+    protected readonly Instance instance_;
     protected int traceLevel_;
     protected string traceCategory_;
     protected Ice.Logger logger_;

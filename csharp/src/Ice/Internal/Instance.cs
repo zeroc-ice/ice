@@ -1183,11 +1183,6 @@ public sealed class Instance
             _locatorManager.destroy();
         }
 
-        if (_endpointFactoryManager != null)
-        {
-            _endpointFactoryManager.destroy();
-        }
-
         if (_initData.properties.getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0)
         {
             List<string> unusedProperties = _initData.properties.getUnusedProperties();

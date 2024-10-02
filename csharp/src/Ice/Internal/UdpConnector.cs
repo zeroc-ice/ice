@@ -90,7 +90,7 @@ internal sealed class UdpConnector : Connector
         return hash.ToHashCode();
     }
 
-    private ProtocolInstance _instance;
+    private readonly ProtocolInstance _instance;
     private EndPoint _addr;
     private EndPoint _sourceAddr;
     private string _mcastInterface;
