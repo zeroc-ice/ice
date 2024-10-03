@@ -59,6 +59,7 @@ namespace IceInternal
 
     struct PropertyArray
     {
+        const char* name;
         const Property* properties;
         const int length;
     };
@@ -316,7 +317,7 @@ class PropertyHandler(ContentHandler):
             case "class":
                 self.validateKnownAttributes(["name", "prefix-only"], attrs)
                 self.parentNodeType = "class"
-                self.parentNodeName = f"{attrs.get("name")}Class"
+                self.parentNodeName = f"{attrs.get("name")}"
             case "section":
                 self.validateKnownAttributes(["name"], attrs)
                 self.parentNodeType = "section"
@@ -389,14 +390,14 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.write("{\n")
         for s in self.cmdLineOptions:
             self.cppFile.write("    %sProps,\n" % s)
-        self.cppFile.write("    PropertyArray{nullptr,0}\n")
+        self.cppFile.write("    PropertyArray{nullptr, nullptr ,0}\n")
         self.cppFile.write("};\n\n")
 
         self.cppFile.write("const char* PropertyNames::clPropNames[] =\n")
         self.cppFile.write("{\n")
         for s in self.cmdLineOptions:
             self.cppFile.write('    "%s",\n' % s)
-        self.cppFile.write("    0\n")
+        self.cppFile.write("    nullptr\n")
         self.cppFile.write("};\n")
         self.hFile.close()
         self.cppFile.close()
@@ -423,7 +424,7 @@ class CppPropertyHandler(PropertyHandler):
             defaultValue=f'"{defaultValue}"',
             usesRegex="true" if usesRegex else "false",
             deprecated="true" if deprecated else "false",
-            propertyClass=f"&PropertyNames::{propertyClass}ClassProps"
+            propertyClass=f"&PropertyNames::{propertyClass}Props"
             if propertyClass
             else "nullptr",
             prefixOnly="true" if prefixOnly else "false",
@@ -441,7 +442,7 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.write(
             f"""
 const PropertyArray
-    PropertyNames::{sectionName}Props{{{sectionName}PropsData,
+    PropertyNames::{sectionName}Props{{"{sectionName}", {sectionName}PropsData,
         sizeof({sectionName}PropsData)/sizeof({sectionName}PropsData[0])}};
 
 """

@@ -24,6 +24,7 @@ namespace IceInternal
 
     struct PropertyArray
     {
+        const char* name;
         const Property* properties;
         const int length;
     };
@@ -32,10 +33,10 @@ namespace IceInternal
     {
     public:
 
-        static const PropertyArray ProxyClassProps;
-        static const PropertyArray ConnectionClassProps;
-        static const PropertyArray ThreadPoolClassProps;
-        static const PropertyArray ObjectAdapterClassProps;
+        static const PropertyArray ProxyProps;
+        static const PropertyArray ConnectionProps;
+        static const PropertyArray ThreadPoolProps;
+        static const PropertyArray ObjectAdapterProps;
         static const PropertyArray IceProps;
         static const PropertyArray IceMXProps;
         static const PropertyArray IceDiscoveryProps;

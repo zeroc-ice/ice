@@ -520,8 +520,8 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing service configuration... " << flush;
     obj = TestIntfPrx(comm, "IceBox1-Service1@IceBox1.Service1.Service1");
-    test(obj->getProperty("Service1.Type") == "standard");
-    test(obj->getProperty("Service1.ServiceName") == "Service1");
+    test(obj->getProperty("Service1Data.Type") == "standard");
+    test(obj->getProperty("Service1Data.ServiceName") == "Service1");
     test(obj->getProperty("TestService1Identity") == "IceBox1-Service1");
     test(obj->getProperty("LogFilePath") == "test-Service1.log");
     test(obj->getProperty("LogFilePath-Service1") == "test.log");
@@ -538,10 +538,10 @@ allTests(Test::TestHelper* helper)
         "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
 
     obj = TestIntfPrx(comm, "IceBox2-Service2@IceBox2Service2Adapter");
-    test(obj->getProperty("Service2.Type") == "nonstandard");
-    test(obj->getProperty("Service2.ServiceName") == "Service2");
-    test(obj->getProperty("Service2.DebugProperty") == "");
-    test(obj->getProperty("Service1.DebugProperty") == "");
+    test(obj->getProperty("Service2Data.Type") == "nonstandard");
+    test(obj->getProperty("Service2Data.ServiceName") == "Service2");
+    test(obj->getProperty("Service2Data.DebugProperty") == "");
+    test(obj->getProperty("Service1Data.DebugProperty") == "");
     cout << "ok" << endl;
 
     cout << "testing server options... " << flush;

@@ -911,6 +911,14 @@ namespace Ice
 
         const char* ice_id() const noexcept final;
     };
+
+    class ICE_API UnknownPropertyException final : public LocalException
+    {
+    public:
+        using LocalException::LocalException;
+
+        const char* ice_id() const noexcept final;
+    };
 }
 
 #endif
