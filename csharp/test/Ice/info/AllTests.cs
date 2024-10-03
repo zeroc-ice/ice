@@ -119,7 +119,7 @@ namespace Ice
 
                     int port = helper.getTestPort(1);
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p " + port);
-                    communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", helper.getTestEndpoint(1));
+                    communicator.getProperties().setProperty("TestAdapter.PublishedHost", "test.zeroc.com");
                     adapter = communicator.createObjectAdapter("TestAdapter");
 
                     endpoints = adapter.getEndpoints();
@@ -134,7 +134,7 @@ namespace Ice
                     }
 
                     tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo());
-                    test(tcpEndpoint.host == "127.0.0.1");
+                    test(tcpEndpoint.host == "test.zeroc.com");
                     test(tcpEndpoint.port == port);
 
                     adapter.destroy();
