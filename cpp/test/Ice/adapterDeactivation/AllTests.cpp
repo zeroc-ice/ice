@@ -13,6 +13,14 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
+namespace
+{
+    EndpointInfoPtr getUnderlying(const EndpointInfoPtr& info)
+    {
+        return info->underlying ? getUnderlying(info->underlying) : info;
+    }
+}
+
 void
 allTests(Test::TestHelper* helper)
 {
@@ -74,6 +82,128 @@ allTests(Test::TestHelper* helper)
         test(adapter->getPublishedEndpoints() == prx->ice_getEndpoints());
         adapter->destroy();
         test(adapter->getPublishedEndpoints().empty());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing object adapter published host... " << flush;
+    {
+        communicator->getProperties()->setProperty("PHAdapter.Endpoints", "default -h *");
+
+        // PublishedHost not set
+        {
+            ObjectAdapterPtr adapter = communicator->createObjectAdapter("PHAdapter");
+            auto publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 1);
+            auto ipEndpointInfo = dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
+            test(ipEndpointInfo && !ipEndpointInfo->host.empty());
+            adapter->destroy();
+        }
+
+        communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+        {
+            ObjectAdapterPtr adapter = communicator->createObjectAdapter("PHAdapter");
+            auto publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 1);
+            auto ipEndpointInfo = dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
+            test(ipEndpointInfo && ipEndpointInfo->host == "test.zeroc.com");
+            adapter->destroy();
+        }
+
+        // Listening on loopback
+        communicator->getProperties()->setProperty("PHAdapter.Endpoints", "default -h 127.0.0.1");
+
+        communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "");
+        {
+            ObjectAdapterPtr adapter = communicator->createObjectAdapter("PHAdapter");
+            auto publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 1);
+            auto ipEndpointInfo = dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
+            test(ipEndpointInfo && ipEndpointInfo->host == "127.0.0.1");
+            adapter->destroy();
+        }
+
+        communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+        {
+            ObjectAdapterPtr adapter = communicator->createObjectAdapter("PHAdapter");
+            auto publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 1);
+            auto ipEndpointInfo = dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
+            test(ipEndpointInfo && ipEndpointInfo->host == "test.zeroc.com");
+            adapter->destroy();
+        }
+
+        // Two loopback endpoints with different ports
+        communicator->getProperties()->setProperty(
+            "PHAdapter.Endpoints",
+            "default -h 127.0.0.1 -p 12345:default -h 127.0.0.1");
+
+        communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "");
+        {
+            ObjectAdapterPtr adapter = communicator->createObjectAdapter("PHAdapter");
+            auto publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 2);
+            auto ipEndpointInfo0 =
+                dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
+            auto ipEndpointInfo1 =
+                dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[1]->getInfo()));
+            test(ipEndpointInfo0 && ipEndpointInfo0->host == "127.0.0.1" && ipEndpointInfo0->port == 12345);
+            test(ipEndpointInfo1 && ipEndpointInfo1->host == "127.0.0.1" && ipEndpointInfo1->port != 12345);
+            adapter->destroy();
+        }
+
+        // Two endpoints - one loopback, one not loopback
+        communicator->getProperties()->setProperty("PHAdapter.Endpoints", "default -h 127.0.0.1 -p 12345:default -h *");
+
+        communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "");
+        {
+            ObjectAdapterPtr adapter = communicator->createObjectAdapter("PHAdapter");
+            auto publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 1); // loopback filtered out
+            auto ipEndpointInfo = dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
+            test(ipEndpointInfo && !ipEndpointInfo->host.empty() && ipEndpointInfo->port != 12345);
+            adapter->destroy();
+        }
+
+        communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+        {
+            ObjectAdapterPtr adapter = communicator->createObjectAdapter("PHAdapter");
+            auto publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 1); // loopback filtered out
+            auto ipEndpointInfo = dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
+            test(ipEndpointInfo && ipEndpointInfo->host == "test.zeroc.com" && ipEndpointInfo->port != 12345);
+            adapter->destroy();
+        }
+
+        // Two non-loopback endpoints
+        communicator->getProperties()->setProperty("PHAdapter.Endpoints", "tcp -h * -p 12345:default -h *");
+
+        communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "");
+        {
+            ObjectAdapterPtr adapter = communicator->createObjectAdapter("PHAdapter");
+            auto publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 2);
+            auto ipEndpointInfo0 =
+                dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
+            auto ipEndpointInfo1 =
+                dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[1]->getInfo()));
+            test(ipEndpointInfo0 && !ipEndpointInfo0->host.empty() && ipEndpointInfo0->port == 12345);
+            test(ipEndpointInfo1 && !ipEndpointInfo1->host.empty() && ipEndpointInfo1->port != 12345);
+            adapter->destroy();
+        }
+
+        communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+        {
+            ObjectAdapterPtr adapter = communicator->createObjectAdapter("PHAdapter");
+            auto publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 2);
+            auto ipEndpointInfo0 =
+                dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
+            auto ipEndpointInfo1 =
+                dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[1]->getInfo()));
+            test(ipEndpointInfo0 && ipEndpointInfo0->host == "test.zeroc.com" && ipEndpointInfo0->port == 12345);
+            test(ipEndpointInfo1 && ipEndpointInfo1->host == "test.zeroc.com" && ipEndpointInfo1->port != 12345);
+            adapter->destroy();
+        }
     }
     cout << "ok" << endl;
 

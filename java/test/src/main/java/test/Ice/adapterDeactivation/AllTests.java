@@ -4,6 +4,9 @@
 
 package test.Ice.adapterDeactivation;
 
+import com.zeroc.Ice.EndpointInfo;
+import com.zeroc.Ice.IPEndpointInfo;
+import com.zeroc.Ice.ObjectAdapter;
 import java.util.Arrays;
 import test.Ice.adapterDeactivation.Test.TestIntfPrx;
 
@@ -12,6 +15,12 @@ public class AllTests {
         if (!b) {
             throw new RuntimeException();
         }
+    }
+
+    private static EndpointInfo getUnderlying(EndpointInfo endpointInfo) {
+        return endpointInfo.underlying == null
+                ? endpointInfo
+                : getUnderlying(endpointInfo.underlying);
     }
 
     public static TestIntfPrx allTests(test.TestHelper helper) {
@@ -95,6 +104,146 @@ public class AllTests {
             test(Arrays.equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
             adapter.destroy();
             test(adapter.getPublishedEndpoints().length == 0);
+        }
+        out.println("ok");
+
+        out.print("testing object adapter published host... ");
+        out.flush();
+        {
+            communicator.getProperties().setProperty("PHAdapter.Endpoints", "default -h *");
+
+            // PublishedHost not set
+            {
+                ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                test(publishedEndpoints.length == 1);
+                IPEndpointInfo ipEndpointInfo =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test(ipEndpointInfo.host.length() > 0);
+                adapter.destroy();
+            }
+
+            communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+            {
+                ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                test(publishedEndpoints.length == 1);
+                IPEndpointInfo ipEndpointInfo =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test(ipEndpointInfo.host.equals("test.zeroc.com"));
+                adapter.destroy();
+            }
+
+            // Listening on loopback
+            communicator.getProperties().setProperty("PHAdapter.Endpoints", "default -h 127.0.0.1");
+
+            communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
+            {
+                ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                test(publishedEndpoints.length == 1);
+                IPEndpointInfo ipEndpointInfo =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test(ipEndpointInfo.host.equals("127.0.0.1"));
+                adapter.destroy();
+            }
+
+            communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+            {
+                ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                IPEndpointInfo ipEndpointInfo =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test(ipEndpointInfo.host.equals("test.zeroc.com"));
+                adapter.destroy();
+            }
+
+            // Two loopback endpoints with different ports
+            communicator
+                    .getProperties()
+                    .setProperty(
+                            "PHAdapter.Endpoints",
+                            "default -h 127.0.0.1 -p 12345:default -h 127.0.0.1");
+
+            communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
+            {
+                ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                test(publishedEndpoints.length == 2);
+                IPEndpointInfo ipEndpointInfo0 =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                IPEndpointInfo ipEndpointInfo1 =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
+
+                test(ipEndpointInfo0.host.equals("127.0.0.1") && ipEndpointInfo0.port == 12345);
+                test(ipEndpointInfo1.host.equals("127.0.0.1") && ipEndpointInfo1.port != 12345);
+                adapter.destroy();
+            }
+
+            // Two endpoints - one loopback, one not loopback
+            communicator
+                    .getProperties()
+                    .setProperty(
+                            "PHAdapter.Endpoints", "default -h 127.0.0.1 -p 12345:default -h *");
+
+            communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
+            {
+                ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                test(publishedEndpoints.length == 1); // loopback filtered out
+                IPEndpointInfo ipEndpointInfo =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test(ipEndpointInfo.host.length() > 0 && ipEndpointInfo.port != 12345);
+                adapter.destroy();
+            }
+
+            communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+            {
+                ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                test(publishedEndpoints.length == 1); // loopback filtered out
+                IPEndpointInfo ipEndpointInfo =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test(ipEndpointInfo.host.equals("test.zeroc.com") && ipEndpointInfo.port != 12345);
+                adapter.destroy();
+            }
+
+            // Two non-loopback endpoints
+            communicator
+                    .getProperties()
+                    .setProperty("PHAdapter.Endpoints", "tcp -h * -p 12345:default -h *");
+
+            communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
+            {
+                ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                test(publishedEndpoints.length == 2);
+                IPEndpointInfo ipEndpointInfo0 =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                IPEndpointInfo ipEndpointInfo1 =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
+                test(ipEndpointInfo0.host.length() > 0 && ipEndpointInfo0.port == 12345);
+                test(ipEndpointInfo1.host.length() > 0 && ipEndpointInfo1.port != 12345);
+                adapter.destroy();
+            }
+
+            communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+            {
+                ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
+                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                test(publishedEndpoints.length == 2);
+                IPEndpointInfo ipEndpointInfo0 =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                IPEndpointInfo ipEndpointInfo1 =
+                        (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
+                test(
+                        ipEndpointInfo0.host.equals("test.zeroc.com")
+                                && ipEndpointInfo0.port == 12345);
+                test(
+                        ipEndpointInfo1.host.equals("test.zeroc.com")
+                                && ipEndpointInfo1.port != 12345);
+                adapter.destroy();
+            }
         }
         out.println("ok");
 
