@@ -41,8 +41,8 @@ class RouterI: Ice.Router {
     }
 
     func getServerProxy(current: Ice.Current) async throws -> Ice.ObjectPrx? {
-        return makeProxy(
-            communicator: current.adapter.getCommunicator(), proxyString: "dummy: -h localhost -p 23456 -t 30000",
+        return try makeProxy(
+            communicator: current.adapter.getCommunicator(), proxyString: "dummy:tcp -h localhost -p 23456 -t 30000",
             type: Ice.ObjectPrx.self)
     }
 }
