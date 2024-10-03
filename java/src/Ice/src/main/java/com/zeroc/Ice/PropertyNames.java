@@ -131,6 +131,8 @@ final class PropertyNames
     new Property("Ice.StdErr", false, "", false),
     new Property("Ice.StdOut", false, "", false),
     new Property("Ice.SyslogFacility", false, "LOG_USER", false),
+    new Property("Ice.SyslogHost", false, "localhost", false),
+    new Property("Ice.SyslogPort", false, "514", false),
     new Property("Ice.ThreadPool.Client.Size", false, "1", false),
     new Property("Ice.ThreadPool.Client.SizeMax", false, "", false),
     new Property("Ice.ThreadPool.Client.SizeWarn", false, "0", false),

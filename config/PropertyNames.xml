@@ -116,6 +116,8 @@
         <property name="StdErr" languages="cpp,csharp,java" />
         <property name="StdOut" languages="cpp,csharp,java" />
         <property name="SyslogFacility" languages="cpp,java" default="LOG_USER" />
+        <property name="SyslogHost" languages="java" default="localhost"/>
+        <property name="SyslogPort" languages="java" default="514"/>
         <property name="ThreadPool.Client" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPool.Server" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPriority" languages="csharp,java" />

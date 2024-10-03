@@ -10,69 +10,18 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 public final class SysLoggerI implements Logger {
-    public SysLoggerI(String prefix, String facilityString) {
-        int facility;
-        if (facilityString.equals("LOG_KERN")) {
-            facility = LOG_KERN;
-        } else if (facilityString.equals("LOG_USER")) {
-            facility = LOG_USER;
-        } else if (facilityString.equals("LOG_MAIL")) {
-            facility = LOG_MAIL;
-        } else if (facilityString.equals("LOG_DAEMON")) {
-            facility = LOG_DAEMON;
-        } else if (facilityString.equals("LOG_AUTH")) {
-            facility = LOG_AUTH;
-        } else if (facilityString.equals("LOG_SYSLOG")) {
-            facility = LOG_SYSLOG;
-        } else if (facilityString.equals("LOG_LPR")) {
-            facility = LOG_LPR;
-        } else if (facilityString.equals("LOG_NEWS")) {
-            facility = LOG_NEWS;
-        } else if (facilityString.equals("LOG_UUCP")) {
-            facility = LOG_UUCP;
-        } else if (facilityString.equals("LOG_CRON")) {
-            facility = LOG_CRON;
-        } else if (facilityString.equals("LOG_AUTHPRIV")) {
-            facility = LOG_AUTHPRIV;
-        } else if (facilityString.equals("LOG_FTP")) {
-            facility = LOG_FTP;
-        } else if (facilityString.equals("LOG_LOCAL0")) {
-            facility = LOG_LOCAL0;
-        } else if (facilityString.equals("LOG_LOCAL1")) {
-            facility = LOG_LOCAL1;
-        } else if (facilityString.equals("LOG_LOCAL2")) {
-            facility = LOG_LOCAL2;
-        } else if (facilityString.equals("LOG_LOCAL3")) {
-            facility = LOG_LOCAL3;
-        } else if (facilityString.equals("LOG_LOCAL4")) {
-            facility = LOG_LOCAL4;
-        } else if (facilityString.equals("LOG_LOCAL5")) {
-            facility = LOG_LOCAL5;
-        } else if (facilityString.equals("LOG_LOCAL6")) {
-            facility = LOG_LOCAL6;
-        } else if (facilityString.equals("LOG_LOCAL7")) {
-            facility = LOG_LOCAL7;
-        } else {
-            throw new InitializationException(
-                    "Invalid value for Ice.SyslogFacility: " + facilityString);
-        }
-        initialize(prefix, facility);
+    public SysLoggerI(String prefix, String facilityString, String host, int port) {
+        this(prefix, parseFacility(facilityString), parseHost(host), port);
     }
 
-    private SysLoggerI(String prefix, int facility) {
-        initialize(prefix, facility);
-    }
-
-    private void initialize(String prefix, int facility) {
+    private SysLoggerI(String prefix, int facility, InetAddress host, int port) {
         _prefix = prefix;
         _facility = facility;
+        _host = host;
+        _port = port;
 
-        //
-        // Open a datagram socket to communicate with the localhost
-        // syslog daemon.
-        //
+        // Open a datagram socket to communicate with the localhost syslog daemon.
         try {
-            _host = Network.getLocalAddress(Network.EnableBoth);
             _socket = new DatagramSocket();
             _socket.connect(_host, _port);
         } catch (IOException ex) {
@@ -107,7 +56,61 @@ public final class SysLoggerI implements Logger {
 
     @Override
     public Logger cloneWithPrefix(String prefix) {
-        return new SysLoggerI(prefix, _facility);
+        return new SysLoggerI(prefix, _facility, _host, _port);
+    }
+
+    private static int parseFacility(String facility) {
+        if (facility.equals("LOG_KERN")) {
+            return LOG_KERN;
+        } else if (facility.equals("LOG_USER")) {
+            return LOG_USER;
+        } else if (facility.equals("LOG_MAIL")) {
+            return LOG_MAIL;
+        } else if (facility.equals("LOG_DAEMON")) {
+            return LOG_DAEMON;
+        } else if (facility.equals("LOG_AUTH")) {
+            return LOG_AUTH;
+        } else if (facility.equals("LOG_SYSLOG")) {
+            return LOG_SYSLOG;
+        } else if (facility.equals("LOG_LPR")) {
+            return LOG_LPR;
+        } else if (facility.equals("LOG_NEWS")) {
+            return LOG_NEWS;
+        } else if (facility.equals("LOG_UUCP")) {
+            return LOG_UUCP;
+        } else if (facility.equals("LOG_CRON")) {
+            return LOG_CRON;
+        } else if (facility.equals("LOG_AUTHPRIV")) {
+            return LOG_AUTHPRIV;
+        } else if (facility.equals("LOG_FTP")) {
+            return LOG_FTP;
+        } else if (facility.equals("LOG_LOCAL0")) {
+            return LOG_LOCAL0;
+        } else if (facility.equals("LOG_LOCAL1")) {
+            return LOG_LOCAL1;
+        } else if (facility.equals("LOG_LOCAL2")) {
+            return LOG_LOCAL2;
+        } else if (facility.equals("LOG_LOCAL3")) {
+            return LOG_LOCAL3;
+        } else if (facility.equals("LOG_LOCAL4")) {
+            return LOG_LOCAL4;
+        } else if (facility.equals("LOG_LOCAL5")) {
+            return LOG_LOCAL5;
+        } else if (facility.equals("LOG_LOCAL6")) {
+            return LOG_LOCAL6;
+        } else if (facility.equals("LOG_LOCAL7")) {
+            return LOG_LOCAL7;
+        } else {
+            throw new InitializationException("Invalid value for Ice.SyslogFacility: " + facility);
+        }
+    }
+
+    private static InetAddress parseHost(String host) {
+        try {
+            return InetAddress.getByName(host);
+        } catch (Exception ex) {
+            throw new InitializationException("Invalid value for Ice.SyslogHost: " + host);
+        }
     }
 
     private void log(int severity, String message) {
@@ -136,7 +139,7 @@ public final class SysLoggerI implements Logger {
     private int _facility;
     private DatagramSocket _socket;
     private InetAddress _host;
-    private static int _port = 514;
+    private int _port;
 
     //
     // Syslog facilities (as defined in syslog.h)
