@@ -509,7 +509,7 @@ ServiceI::validateProperties(const string& name, const Ice::PropertiesPtr& prope
     if (!unknownProps.empty())
     {
         ostringstream os;
-        os << "found unknown properties for " << "IceStorm" << ": `" << prefix << "'";
+        os << "found unknown properties for " << "IceStorm" << ": '" << prefix << "'";
         if (!unknownProps.empty())
         {
             for (const auto& prop : unknownProps)

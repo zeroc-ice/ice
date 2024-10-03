@@ -436,7 +436,7 @@ const PropertyArray PropertyNames::validProps[] =
     IceStormAdminProps,
     IceBTProps,
     Glacier2Props,
-    PropertyArray{nullptr, nullptr,0}
+    PropertyArray{nullptr, nullptr ,0}
 };
 
 const char* PropertyNames::clPropNames[] =

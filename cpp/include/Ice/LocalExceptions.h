@@ -915,16 +915,7 @@ namespace Ice
     class ICE_API UnknownPropertyException final : public LocalException
     {
     public:
-        /**
-         * Constructs an UnknownPropertyException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message containing the unknown property(s).
-         */
-        UnknownPropertyException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept final;
     };

@@ -390,7 +390,7 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.write("{\n")
         for s in self.cmdLineOptions:
             self.cppFile.write("    %sProps,\n" % s)
-        self.cppFile.write("    PropertyArray{nullptr, nullptr,0}\n")
+        self.cppFile.write("    PropertyArray{nullptr, nullptr ,0}\n")
         self.cppFile.write("};\n\n")
 
         self.cppFile.write("const char* PropertyNames::clPropNames[] =\n")

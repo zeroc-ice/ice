@@ -88,7 +88,7 @@ IceInternal::validatePropertiesWithPrefix(
     if (!unknownProps.empty())
     {
         ostringstream os;
-        os << "found unknown properties for " << propertyArray->name << ": `" << prefix << "'";
+        os << "found unknown properties for " << propertyArray->name << ": '" << prefix << "'";
         if (!unknownProps.empty())
         {
             for (const auto& prop : unknownProps)

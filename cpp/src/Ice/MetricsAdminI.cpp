@@ -57,7 +57,7 @@ namespace
         if (!unknownProps.empty())
         {
             ostringstream os;
-            os << "found unknown properties for " << "IceMX" << ": `" << prefix << "'";
+            os << "found unknown properties for " << "IceMX" << ": '" << prefix << "'";
             if (!unknownProps.empty())
             {
                 for (const auto& prop : unknownProps)
