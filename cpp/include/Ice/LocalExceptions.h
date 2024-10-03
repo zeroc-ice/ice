@@ -921,8 +921,8 @@ namespace Ice
          * @param line The line where this exception is constructed.
          * @param message The message containing the unknown property(s).
          */
-        UnknownPropertyException(const char* file, int line, std::string_view message)
-            : LocalException(file, line, std::string{message})
+        UnknownPropertyException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
         {
         }
 
