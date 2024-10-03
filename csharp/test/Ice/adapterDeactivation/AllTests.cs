@@ -186,6 +186,37 @@ namespace Ice
                         adapter.destroy();
                     }
 
+                    // Two non-loopback endpoints
+                    communicator.getProperties().setProperty("PHAdapter.Endpoints", "tcp -h * -p 12345:default -h *");
+
+                    communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
+                    {
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        var publishedEndpoints = adapter.getPublishedEndpoints();
+                        test(publishedEndpoints.Length == 2);
+                        test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo0 &&
+                            ipEndpointInfo0.host.Length > 0 &&
+                            ipEndpointInfo0.port == 12345);
+                        test(getUnderlying(publishedEndpoints[1].getInfo()) is IPEndpointInfo ipEndpointInfo1 &&
+                            ipEndpointInfo1.host.Length > 0 &&
+                            ipEndpointInfo1.port != 12345);
+                        adapter.destroy();
+                    }
+
+                    communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
+                    {
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        var publishedEndpoints = adapter.getPublishedEndpoints();
+                        test(publishedEndpoints.Length == 2);
+                        test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo0 &&
+                            ipEndpointInfo0.host == "test.zeroc.com" &&
+                            ipEndpointInfo0.port == 12345);
+                        test(getUnderlying(publishedEndpoints[1].getInfo()) is IPEndpointInfo ipEndpointInfo1 &&
+                            ipEndpointInfo1.host == "test.zeroc.com" &&
+                            ipEndpointInfo1.port != 12345);
+                        adapter.destroy();
+                    }
+
                     static EndpointInfo getUnderlying(EndpointInfo endpointInfo)
                     {
                         while (endpointInfo.underlying is not null)
