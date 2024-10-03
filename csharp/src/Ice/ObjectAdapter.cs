@@ -813,46 +813,6 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Refresh the set of published endpoints.
-    /// The run time re-reads the PublishedEndpoints property if it is set and
-    /// re-reads the list of local interfaces if the adapter is configured to listen on all endpoints. This operation
-    /// is useful to refresh the endpoint information that is published in the proxies that are created by an object
-    /// adapter if the network interfaces used by a host changes.
-    /// </summary>
-    public void refreshPublishedEndpoints()
-    {
-        LocatorInfo? locatorInfo = null;
-        EndpointI[] oldPublishedEndpoints;
-
-        lock (_mutex)
-        {
-            checkForDeactivation();
-
-            oldPublishedEndpoints = _publishedEndpoints;
-            _publishedEndpoints = computePublishedEndpoints();
-
-            locatorInfo = _locatorInfo;
-        }
-
-        try
-        {
-            var dummy = new Identity("dummy", "");
-            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
-        }
-        catch (LocalException)
-        {
-            lock (_mutex)
-            {
-                //
-                // Restore the old published endpoints.
-                //
-                _publishedEndpoints = oldPublishedEndpoints;
-                throw;
-            }
-        }
-    }
-
-    /// <summary>
     /// Get the set of endpoints that proxies created by this object adapter will contain.
     /// </summary>
     /// <returns>The set of published endpoints.

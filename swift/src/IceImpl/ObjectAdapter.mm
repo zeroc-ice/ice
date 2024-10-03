@@ -183,20 +183,6 @@
     return toNSArray(self.objectAdapter->getEndpoints());
 }
 
-- (BOOL)refreshPublishedEndpoints:(NSError* _Nullable* _Nullable)error
-{
-    try
-    {
-        self.objectAdapter->refreshPublishedEndpoints();
-        return YES;
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return NO;
-    }
-}
-
 - (NSArray<ICEEndpoint*>*)getPublishedEndpoints
 {
     return toNSArray(self.objectAdapter->getPublishedEndpoints());

@@ -82,13 +82,6 @@ namespace Ice
                     Ice.Identity id = new Ice.Identity("dummy", "");
                     test(Enumerable.SequenceEqual(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
                     test(Enumerable.SequenceEqual(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
-                    adapter.refreshPublishedEndpoints();
-                    test(adapter.getPublishedEndpoints().Length == 1);
-                    test(adapter.getPublishedEndpoints()[0].Equals(endpt));
-                    communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
-                    adapter.refreshPublishedEndpoints();
-                    test(adapter.getPublishedEndpoints().Length == 1);
-                    test(adapter.getPublishedEndpoints()[0].ToString() == "tcp -h localhost -p 12345 -t 20000");
                     adapter.destroy();
                     test(adapter.getPublishedEndpoints().Length == 0);
                 }
@@ -122,9 +115,6 @@ namespace Ice
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithRouter("", router);
                     test(adapter.getPublishedEndpoints().Length == 1);
                     test(adapter.getPublishedEndpoints()[0].ToString() == "tcp -h localhost -p 23456 -t 30000");
-                    adapter.refreshPublishedEndpoints();
-                    test(adapter.getPublishedEndpoints().Length == 1);
-                    test(adapter.getPublishedEndpoints()[0].ToString() == "tcp -h localhost -p 23457 -t 30000");
                     try
                     {
                         adapter.setPublishedEndpoints(router.ice_getEndpoints());

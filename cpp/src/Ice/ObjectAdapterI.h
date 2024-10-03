@@ -79,7 +79,6 @@ namespace Ice
         std::optional<LocatorPrx> getLocator() const noexcept;
         EndpointSeq getEndpoints() const noexcept;
 
-        void refreshPublishedEndpoints() final;
         EndpointSeq getPublishedEndpoints() const noexcept;
         void setPublishedEndpoints(const EndpointSeq&) final;
 

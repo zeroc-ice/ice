@@ -84,15 +84,6 @@ func allTests(_ helper: TestHelper) async throws {
         try test(
             adapter.createProxy(id).ice_getEndpoints().elementsEqual(prx.ice_getEndpoints()) { $0 == $1 })
         try test(adapter.getPublishedEndpoints().elementsEqual(prx.ice_getEndpoints()) { $0 == $1 })
-        try adapter.refreshPublishedEndpoints()
-        try test(adapter.getPublishedEndpoints().count == 1)
-        try test(adapter.getPublishedEndpoints()[0] == endpt)
-        communicator.getProperties().setProperty(
-            key: "PAdapter.PublishedEndpoints",
-            value: "tcp -h localhost -p 12345 -t 20000")
-        try adapter.refreshPublishedEndpoints()
-        try test(adapter.getPublishedEndpoints().count == 1)
-        try test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 12345 -t 20000")
         adapter.destroy()
         try test(adapter.getPublishedEndpoints().count == 0)
     }
@@ -122,9 +113,6 @@ func allTests(_ helper: TestHelper) async throws {
         let adapter = try communicator.createObjectAdapterWithRouter(name: "", rtr: router)
         try test(adapter.getPublishedEndpoints().count == 1)
         try test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 23456 -t 30000")
-        try adapter.refreshPublishedEndpoints()
-        try test(adapter.getPublishedEndpoints().count == 1)
-        try test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 23457 -t 30000")
         do {
             try adapter.setPublishedEndpoints(router.ice_getEndpoints())
             try test(false)

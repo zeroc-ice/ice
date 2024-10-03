@@ -14,18 +14,14 @@ public final class ServantLocatorI implements ServantLocator {
         }
 
         public com.zeroc.Ice.ObjectPrx getServerProxy(com.zeroc.Ice.Current current) {
-            StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
-            s.append(_nextPort++);
-            s.append(" -t 30000");
-            return current.adapter.getCommunicator().stringToProxy(s.toString());
+            return com.zeroc.Ice.ObjectPrx.createProxy(
+                    current.adapter.getCommunicator(), "dummy:tcp -h localhost -p 23456 -t 30000");
         }
 
         public com.zeroc.Ice.ObjectPrx[] addProxies(
                 com.zeroc.Ice.ObjectPrx[] proxies, com.zeroc.Ice.Current current) {
             return null;
         }
-
-        private int _nextPort = 23456;
     }
 
     public ServantLocatorI() {

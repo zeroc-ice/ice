@@ -123,6 +123,14 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   The existing `stringToProxy` operation on `Communicator` remains available. However, the new
   syntax is now the preferred way to create a proxy from a string.
 
+- Rework the published endpoints of object adapters
+  - The published endpoints of an object adapter are the endpoint(s) included in the proxies returned by the `add` and
+`createProxy` operations on an object adapter. For indirect object adapters, the published endpoints are the endpoints
+registered with the Ice Locator (typically the IceGrid registry).
+  - Improved the algorithm for computing the default published endpoints.
+  - Add new _AdapterName_.PublishedHost property, used to compute the default published endpoints.
+  - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
+
 - Consolidate and refactor the exceptions derived from LocalException.
   | Local exception in Ice 3.7          | Replacement                | Notes    |
   |-------------------------------------|----------------------------| ---------|

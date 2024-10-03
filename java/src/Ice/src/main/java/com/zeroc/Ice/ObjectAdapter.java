@@ -893,45 +893,9 @@ public final class ObjectAdapter {
     }
 
     /**
-     * Refresh the set of published endpoints. The run time re-reads the PublishedEndpoints property
-     * if it is set and re-reads the list of local interfaces if the adapter is configured to listen
-     * on all endpoints. This operation is useful to refresh the endpoint information that is
-     * published in the proxies that are created by an object adapter if the network interfaces used
-     * by a host changes.
-     */
-    public void refreshPublishedEndpoints() {
-        LocatorInfo locatorInfo = null;
-        EndpointI[] oldPublishedEndpoints;
-
-        synchronized (this) {
-            checkForDeactivation();
-
-            oldPublishedEndpoints = _publishedEndpoints;
-            _publishedEndpoints = computePublishedEndpoints();
-
-            locatorInfo = _locatorInfo;
-        }
-
-        try {
-            Identity dummy = new Identity();
-            dummy.name = "dummy";
-            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
-        } catch (LocalException ex) {
-            synchronized (this) {
-                //
-                // Restore the old published endpoints.
-                //
-                _publishedEndpoints = oldPublishedEndpoints;
-                throw ex;
-            }
-        }
-    }
-
-    /**
      * Get the set of endpoints that proxies created by this object adapter will contain.
      *
      * @return The set of published endpoints.
-     * @see #refreshPublishedEndpoints
      * @see Endpoint
      */
     public synchronized Endpoint[] getPublishedEndpoints() {
@@ -943,7 +907,6 @@ public final class ObjectAdapter {
      * Set of the endpoints that proxies created by this object adapter will contain.
      *
      * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
-     * @see #refreshPublishedEndpoints
      * @see Endpoint
      */
     public void setPublishedEndpoints(Endpoint[] newEndpoints) {

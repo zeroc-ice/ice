@@ -15,21 +15,14 @@ namespace
     class RouterI final : public Router
     {
     public:
-        RouterI() : _nextPort(23456) {}
-
         optional<ObjectPrx> getClientProxy(optional<bool>&, const Current&) const final { return nullopt; }
 
         optional<ObjectPrx> getServerProxy(const Current& c) const final
         {
-            ostringstream os;
-            os << "dummy:tcp -h localhost -p " << _nextPort++ << " -t 30000";
-            return c.adapter->getCommunicator()->stringToProxy(os.str());
+            return ObjectPrx(c.adapter->getCommunicator(), "dummy:tcp -h localhost -p 23456 -t 30000");
         }
 
         ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return ObjectProxySeq(); }
-
-    private:
-        mutable int _nextPort;
     };
 }
 
