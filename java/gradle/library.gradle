@@ -15,7 +15,6 @@ task jarSources(type:Jar, dependsOn: jar){
 javadoc.dependsOn(compileSlice)
 
 javadoc {
-    // We rely on Java9+ javadoc features
     source = sourceSets.main.allJava
     enabled = true
     doFirst {
@@ -23,7 +22,23 @@ javadoc {
     }
     failOnError = true
     options.header = project.ext.displayName
-}
+    options.addBooleanOption('html5', true)
+    options.docTitle = "${project.ext.displayName} ${iceVersion} API Reference"
+    destinationDir = file("${buildDir}/docs/javadoc")
+
+    configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        if (artifact.moduleVersion.id.group == "com.zeroc") {
+            def artifactProject = project(":${artifact.name}")
+
+            // Add dependency on the Javadoc task of the artifact project
+            dependsOn artifactProject.tasks.named("javadoc")
+
+            options.linksOffline(
+                "https://doc.zeroc.com/api/ice/main/java/${artifactProject.ext.displayName}/",
+                "${rootProject.projectDir}/src/${artifactProject.ext.displayName}/build/docs/javadoc")
+        }
+    }
+ }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc
