@@ -606,40 +606,6 @@ Ice::ObjectAdapterI::getEndpoints() const noexcept
     return endpoints;
 }
 
-void
-Ice::ObjectAdapterI::refreshPublishedEndpoints()
-{
-    LocatorInfoPtr locatorInfo;
-    vector<EndpointIPtr> oldPublishedEndpoints;
-
-    {
-        lock_guard lock(_mutex);
-        checkForDeactivation();
-
-        oldPublishedEndpoints = _publishedEndpoints;
-        _publishedEndpoints = computePublishedEndpoints();
-
-        locatorInfo = _locatorInfo;
-    }
-
-    try
-    {
-        Ice::Identity dummy;
-        dummy.name = "dummy";
-        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
-    }
-    catch (const Ice::LocalException&)
-    {
-        lock_guard lock(_mutex);
-
-        //
-        // Restore the old published endpoints.
-        //
-        _publishedEndpoints = oldPublishedEndpoints;
-        throw;
-    }
-}
-
 EndpointSeq
 Ice::ObjectAdapterI::getPublishedEndpoints() const noexcept
 {

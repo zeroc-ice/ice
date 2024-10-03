@@ -202,12 +202,6 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         return handle.getEndpoints().fromObjc()
     }
 
-    func refreshPublishedEndpoints() throws {
-        try autoreleasepool {
-            try handle.refreshPublishedEndpoints()
-        }
-    }
-
     func getPublishedEndpoints() -> EndpointSeq {
         return handle.getPublishedEndpoints().fromObjc()
     }

@@ -8,27 +8,17 @@ namespace Ice
     {
         public class RouterI : Ice.RouterDisp_
         {
-            public override Ice.ObjectPrx getClientProxy(out bool? hasRoutingTable,
-                Ice.Current current)
+            public override Ice.ObjectPrx getClientProxy(out bool? hasRoutingTable, Current current)
             {
                 hasRoutingTable = false;
                 return null;
             }
 
-            public override Ice.ObjectPrx getServerProxy(Ice.Current current)
-            {
-                StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
-                s.Append(_nextPort++);
-                s.Append(" -t 30000");
-                return current.adapter.getCommunicator().stringToProxy(s.ToString());
-            }
+            public override Ice.ObjectPrx getServerProxy(Current current) =>
+                ObjectPrxHelper.createProxy(current.adapter.getCommunicator(),
+                "dummy:tcp -h localhost -p 23456 -t 30000");
 
-            public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
-            {
-                return null;
-            }
-
-            private int _nextPort = 23456;
+            public override Ice.ObjectPrx[] addProxies(ObjectPrx[] proxies, Current current) => null;
         }
 
         public sealed class ServantLocatorI : Ice.ServantLocator

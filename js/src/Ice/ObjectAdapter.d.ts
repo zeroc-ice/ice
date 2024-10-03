@@ -423,20 +423,8 @@ declare module "ice" {
             getEndpoints(): Endpoint[];
 
             /**
-             * Refresh the set of published endpoints.
-             *
-             * The run time re-reads the PublishedEndpoints property if it is set. This operation is useful to refresh
-             * the endpoint information that is published in the proxies that are created by an object adapter if the
-             * network interfaces used by a host changes.
-             *
-             * @returns The asynchronous result object for the invocation.
-             */
-            refreshPublishedEndpoints(): Promise<void>;
-
-            /**
              * Get the set of endpoints that proxies created by this object adapter will contain.
              * @returns The set of published endpoints.
-             * @see {@link ObjectAdapter#refreshPublishedEndpoints}
              * @see {@link Endpoint}
              */
             getPublishedEndpoints(): Endpoint[];
@@ -444,7 +432,6 @@ declare module "ice" {
             /**
              * Set of the endpoints that proxies created by this object adapter will contain.
              * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
-             * @see {@link ObjectAdapter#refreshPublishedEndpoints}
              * @see {@link Endpoint}
              */
             setPublishedEndpoints(newEndpoints: Ice.Endpoint[]): void;

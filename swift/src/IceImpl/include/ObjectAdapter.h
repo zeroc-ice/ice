@@ -33,7 +33,6 @@ ICEIMPL_API @interface ICEObjectAdapter : ICELocalObject
 - (void)setLocator:(ICEObjectPrx* _Nullable)locator;
 - (nullable ICEObjectPrx*)getLocator;
 - (NSArray<ICEEndpoint*>*)getEndpoints;
-- (BOOL)refreshPublishedEndpoints:(NSError* _Nullable* _Nullable)error;
 - (NSArray<ICEEndpoint*>*)getPublishedEndpoints;
 - (BOOL)setPublishedEndpoints:(NSArray<ICEEndpoint*>*)newEndpoints error:(NSError* _Nullable* _Nullable)error;
 - (void)registerDispatchAdapter:(id<ICEDispatchAdapter>)dispatchAdapter NS_SWIFT_NAME(registerDispatchAdapter(_:));

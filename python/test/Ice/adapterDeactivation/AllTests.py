@@ -70,17 +70,6 @@ def allTests(helper, communicator):
     ident.name = "dummy"
     test(adapter.createProxy(ident).ice_getEndpoints() == prx.ice_getEndpoints())
     test(adapter.getPublishedEndpoints() == prx.ice_getEndpoints())
-    adapter.refreshPublishedEndpoints()
-    test(len(adapter.getPublishedEndpoints()) == 1)
-    test(adapter.getPublishedEndpoints()[0] == endpt)
-    communicator.getProperties().setProperty(
-        "PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000"
-    )
-    adapter.refreshPublishedEndpoints()
-    test(len(adapter.getPublishedEndpoints()) == 1)
-    test(
-        str(adapter.getPublishedEndpoints()[0]) == "tcp -h localhost -p 12345 -t 20000"
-    )
     adapter.destroy()
     test(len(adapter.getPublishedEndpoints()) == 0)
 
@@ -111,11 +100,6 @@ def allTests(helper, communicator):
     test(len(adapter.getPublishedEndpoints()) == 1)
     test(
         str(adapter.getPublishedEndpoints()[0]) == "tcp -h localhost -p 23456 -t 30000"
-    )
-    adapter.refreshPublishedEndpoints()
-    test(len(adapter.getPublishedEndpoints()) == 1)
-    test(
-        str(adapter.getPublishedEndpoints()[0]) == "tcp -h localhost -p 23457 -t 30000"
     )
     try:
         adapter.setPublishedEndpoints(router.ice_getEndpoints())
