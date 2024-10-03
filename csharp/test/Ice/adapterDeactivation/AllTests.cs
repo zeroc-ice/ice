@@ -118,7 +118,7 @@ namespace Ice
                             ipEndpointInfo.host == "test.zeroc.com");
                         adapter.destroy();
                     }
-
+                    // Listening on loopback
                     communicator.getProperties().setProperty("PHAdapter.Endpoints", "default -h 127.0.0.1");
 
                     communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
