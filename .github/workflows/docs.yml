@@ -84,7 +84,7 @@ jobs:
       - name: Generate API reference for Java
         working-directory: ./java
         run: |
-          make -C ../../cpp slice2java
+          make -C ../cpp slice2java
           ./gradlew dist
 
       # This will perform a full sync of the documentation to S3 every time the workflow is run since
