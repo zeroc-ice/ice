@@ -33,7 +33,7 @@ namespace
     createUnknownPropertyMessage(string_view propertyClass, string_view prefix, const vector<string> properties)
     {
         ostringstream os;
-        os << "found unknown properties for " << propertyClass << ": `" << prefix << "'";
+        os << "found unknown properties for " << propertyClass << ": '" << prefix << "'";
         if (!properties.empty())
         {
             for (const auto& prop : properties)
