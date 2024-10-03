@@ -14,9 +14,9 @@ public final class SysLoggerI implements Logger {
         this(prefix, parseFacility(facilityString), parseHost(host), port);
     }
 
-    private SysLoggerI(String prefix, int facilityString, InetAddress host, int port) {
+    private SysLoggerI(String prefix, int facility, InetAddress host, int port) {
         _prefix = prefix;
-        _facility = facilityString;
+        _facility = facility;
         _host = host;
         _port = port;
 
