@@ -28,22 +28,6 @@ namespace
         os << "dispatch failed with " << typeName;
         return os.str();
     }
-
-    inline std::string
-    createUnknownPropertyMessage(string_view propertyClass, string_view prefix, const vector<string> properties)
-    {
-        ostringstream os;
-        os << "found unknown properties for " << propertyClass << ": '" << prefix << "'";
-        if (!properties.empty())
-        {
-            for (const auto& prop : properties)
-            {
-                os << "\n    " << prop;
-            }
-        }
-        return os.str();
-    }
-
 }
 
 // Can't move id/facet/operation because the evaluation order is unspecified.
@@ -460,16 +444,6 @@ const char*
 Ice::TwowayOnlyException::ice_id() const noexcept
 {
     return "::Ice::TwowayOnlyException";
-}
-
-Ice::UnknownPropertyException::UnknownPropertyException(
-    const char* file,
-    int line,
-    string_view propertyClass,
-    string_view prefix,
-    const vector<string>& properties)
-    : LocalException(file, line, createUnknownPropertyMessage(propertyClass, prefix, properties))
-{
 }
 
 const char*

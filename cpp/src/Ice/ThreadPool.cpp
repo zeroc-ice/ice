@@ -169,11 +169,10 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
       _promote(true)
 {
     // Check for unknown thread pool properties
-    validatePropertyPrefix(
-        "thread pool",
+    validatePropertiesWithPrefix(
         _prefix,
         _instance->initializationData().properties,
-        &IceInternal::PropertyNames::ThreadPoolClassProps);
+        &IceInternal::PropertyNames::ThreadPoolProps);
 }
 
 void

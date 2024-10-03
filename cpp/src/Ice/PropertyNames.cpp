@@ -8,7 +8,7 @@
 
 using namespace IceInternal;
 
-const Property ProxyClassPropsData[] =
+const Property ProxyPropsData[] =
 {
     Property{"EndpointSelection", "", false, false, nullptr, false},
     Property{"ConnectionCached", "", false, false, nullptr, false},
@@ -22,10 +22,10 @@ const Property ProxyClassPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::ProxyClassProps{ProxyClassPropsData,
-        sizeof(ProxyClassPropsData)/sizeof(ProxyClassPropsData[0])};
+    PropertyNames::ProxyProps{"Proxy", ProxyPropsData,
+        sizeof(ProxyPropsData)/sizeof(ProxyPropsData[0])};
 
-const Property ConnectionClassPropsData[] =
+const Property ConnectionPropsData[] =
 {
     Property{"CloseTimeout", "10", false, false, nullptr, false},
     Property{"ConnectTimeout", "10", false, false, nullptr, false},
@@ -36,10 +36,10 @@ const Property ConnectionClassPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::ConnectionClassProps{ConnectionClassPropsData,
-        sizeof(ConnectionClassPropsData)/sizeof(ConnectionClassPropsData[0])};
+    PropertyNames::ConnectionProps{"Connection", ConnectionPropsData,
+        sizeof(ConnectionPropsData)/sizeof(ConnectionPropsData[0])};
 
-const Property ThreadPoolClassPropsData[] =
+const Property ThreadPoolPropsData[] =
 {
     Property{"Size", "1", false, false, nullptr, false},
     Property{"SizeMax", "", false, false, nullptr, false},
@@ -49,33 +49,33 @@ const Property ThreadPoolClassPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::ThreadPoolClassProps{ThreadPoolClassPropsData,
-        sizeof(ThreadPoolClassPropsData)/sizeof(ThreadPoolClassPropsData[0])};
+    PropertyNames::ThreadPoolProps{"ThreadPool", ThreadPoolPropsData,
+        sizeof(ThreadPoolPropsData)/sizeof(ThreadPoolPropsData[0])};
 
-const Property ObjectAdapterClassPropsData[] =
+const Property ObjectAdapterPropsData[] =
 {
     Property{"AdapterId", "", false, false, nullptr, false},
-    Property{"Connection", "", false, false, &PropertyNames::ConnectionClassProps, false},
+    Property{"Connection", "", false, false, &PropertyNames::ConnectionProps, false},
     Property{"Endpoints", "", false, false, nullptr, false},
-    Property{"Locator", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"Locator", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"PublishedEndpoints", "", false, false, nullptr, false},
     Property{"PublishedHost", "", false, false, nullptr, false},
     Property{"ReplicaGroupId", "", false, false, nullptr, false},
-    Property{"Router", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"Router", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"ProxyOptions", "", false, false, nullptr, false},
-    Property{"ThreadPool", "", false, false, &PropertyNames::ThreadPoolClassProps, false},
+    Property{"ThreadPool", "", false, false, &PropertyNames::ThreadPoolProps, false},
     Property{"MaxConnections", "0", false, false, nullptr, false},
     Property{"MessageSizeMax", "", false, false, nullptr, false},
 };
 
 const PropertyArray
-    PropertyNames::ObjectAdapterClassProps{ObjectAdapterClassPropsData,
-        sizeof(ObjectAdapterClassPropsData)/sizeof(ObjectAdapterClassPropsData[0])};
+    PropertyNames::ObjectAdapterProps{"ObjectAdapter", ObjectAdapterPropsData,
+        sizeof(ObjectAdapterPropsData)/sizeof(ObjectAdapterPropsData[0])};
 
 const Property IcePropsData[] =
 {
     Property{"Ice.AcceptClassCycles", "0", false, false, nullptr, false},
-    Property{"Ice.Admin", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"Ice.Admin", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"Ice.Admin.DelayCreation", "0", false, false, nullptr, false},
     Property{"Ice.Admin.Enabled", "", false, false, nullptr, false},
     Property{"Ice.Admin.Facets", "", false, false, nullptr, false},
@@ -90,18 +90,18 @@ const Property IcePropsData[] =
     Property{"Ice.ClassGraphDepthMax", "10", false, false, nullptr, false},
     Property{"Ice.Compression.Level", "1", false, false, nullptr, false},
     Property{"Ice.Config", "", false, false, nullptr, false},
-    Property{"Ice.Connection.Client", "", false, false, &PropertyNames::ConnectionClassProps, false},
-    Property{"Ice.Connection.Server", "", false, false, &PropertyNames::ConnectionClassProps, false},
+    Property{"Ice.Connection.Client", "", false, false, &PropertyNames::ConnectionProps, false},
+    Property{"Ice.Connection.Server", "", false, false, &PropertyNames::ConnectionProps, false},
     Property{"Ice.Default.CollocationOptimized", "1", false, false, nullptr, false},
     Property{"Ice.Default.EncodingVersion", "1.1", false, false, nullptr, false},
     Property{"Ice.Default.EndpointSelection", "Random", false, false, nullptr, false},
     Property{"Ice.Default.Host", "", false, false, nullptr, false},
-    Property{"Ice.Default.Locator", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"Ice.Default.Locator", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"Ice.Default.LocatorCacheTimeout", "-1", false, false, nullptr, false},
     Property{"Ice.Default.InvocationTimeout", "-1", false, false, nullptr, false},
     Property{"Ice.Default.PreferSecure", "0", false, false, nullptr, false},
     Property{"Ice.Default.Protocol", "tcp", false, false, nullptr, false},
-    Property{"Ice.Default.Router", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"Ice.Default.Router", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"Ice.Default.SlicedFormat", "0", false, false, nullptr, false},
     Property{"Ice.Default.SourceAddress", "", false, false, nullptr, false},
     Property{"Ice.EventLog.Source", "", false, false, nullptr, false},
@@ -132,8 +132,8 @@ const Property IcePropsData[] =
     Property{"Ice.StdErr", "", false, false, nullptr, false},
     Property{"Ice.StdOut", "", false, false, nullptr, false},
     Property{"Ice.SyslogFacility", "LOG_USER", false, false, nullptr, false},
-    Property{"Ice.ThreadPool.Client", "", false, false, &PropertyNames::ThreadPoolClassProps, false},
-    Property{"Ice.ThreadPool.Server", "", false, false, &PropertyNames::ThreadPoolClassProps, false},
+    Property{"Ice.ThreadPool.Client", "", false, false, &PropertyNames::ThreadPoolProps, false},
+    Property{"Ice.ThreadPool.Server", "", false, false, &PropertyNames::ThreadPoolProps, false},
     Property{"Ice.ToStringMode", "Unicode", false, false, nullptr, false},
     Property{"Ice.Trace.Admin.Properties", "0", false, false, nullptr, false},
     Property{"Ice.Trace.Admin.Logger", "0", false, false, nullptr, false},
@@ -160,7 +160,7 @@ const Property IcePropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceProps{IcePropsData,
+    PropertyNames::IceProps{"Ice", IcePropsData,
         sizeof(IcePropsData)/sizeof(IcePropsData[0])};
 
 const Property IceMXPropsData[] =
@@ -174,14 +174,14 @@ const Property IceMXPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceMXProps{IceMXPropsData,
+    PropertyNames::IceMXProps{"IceMX", IceMXPropsData,
         sizeof(IceMXPropsData)/sizeof(IceMXPropsData[0])};
 
 const Property IceDiscoveryPropsData[] =
 {
-    Property{"IceDiscovery.Multicast", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
-    Property{"IceDiscovery.Reply", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
-    Property{"IceDiscovery.Locator", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceDiscovery.Multicast", "", false, false, &PropertyNames::ObjectAdapterProps, false},
+    Property{"IceDiscovery.Reply", "", false, false, &PropertyNames::ObjectAdapterProps, false},
+    Property{"IceDiscovery.Locator", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceDiscovery.Lookup", "", false, false, nullptr, false},
     Property{"IceDiscovery.Timeout", "300", false, false, nullptr, false},
     Property{"IceDiscovery.RetryCount", "3", false, false, nullptr, false},
@@ -193,13 +193,13 @@ const Property IceDiscoveryPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceDiscoveryProps{IceDiscoveryPropsData,
+    PropertyNames::IceDiscoveryProps{"IceDiscovery", IceDiscoveryPropsData,
         sizeof(IceDiscoveryPropsData)/sizeof(IceDiscoveryPropsData[0])};
 
 const Property IceLocatorDiscoveryPropsData[] =
 {
-    Property{"IceLocatorDiscovery.Reply", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
-    Property{"IceLocatorDiscovery.Locator", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceLocatorDiscovery.Reply", "", false, false, &PropertyNames::ObjectAdapterProps, false},
+    Property{"IceLocatorDiscovery.Locator", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceLocatorDiscovery.Lookup", "", false, false, nullptr, false},
     Property{"IceLocatorDiscovery.Timeout", "300", false, false, nullptr, false},
     Property{"IceLocatorDiscovery.RetryCount", "3", false, false, nullptr, false},
@@ -212,7 +212,7 @@ const Property IceLocatorDiscoveryPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceLocatorDiscoveryProps{IceLocatorDiscoveryPropsData,
+    PropertyNames::IceLocatorDiscoveryProps{"IceLocatorDiscovery", IceLocatorDiscoveryPropsData,
         sizeof(IceLocatorDiscoveryPropsData)/sizeof(IceLocatorDiscoveryPropsData[0])};
 
 const Property IceBoxPropsData[] =
@@ -226,27 +226,27 @@ const Property IceBoxPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceBoxProps{IceBoxPropsData,
+    PropertyNames::IceBoxProps{"IceBox", IceBoxPropsData,
         sizeof(IceBoxPropsData)/sizeof(IceBoxPropsData[0])};
 
 const Property IceBoxAdminPropsData[] =
 {
-    Property{"IceBoxAdmin.ServiceManager.Proxy", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"IceBoxAdmin.ServiceManager.Proxy", "", false, false, &PropertyNames::ProxyProps, false},
 };
 
 const PropertyArray
-    PropertyNames::IceBoxAdminProps{IceBoxAdminPropsData,
+    PropertyNames::IceBoxAdminProps{"IceBoxAdmin", IceBoxAdminPropsData,
         sizeof(IceBoxAdminPropsData)/sizeof(IceBoxAdminPropsData[0])};
 
 const Property IceBridgePropsData[] =
 {
-    Property{"IceBridge.Source", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceBridge.Source", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceBridge.Target.Endpoints", "", false, false, nullptr, false},
     Property{"IceBridge.InstanceName", "IceBridge", false, false, nullptr, false},
 };
 
 const PropertyArray
-    PropertyNames::IceBridgeProps{IceBridgePropsData,
+    PropertyNames::IceBridgeProps{"IceBridge", IceBridgePropsData,
         sizeof(IceBridgePropsData)/sizeof(IceBridgePropsData[0])};
 
 const Property IceGridAdminPropsData[] =
@@ -258,23 +258,23 @@ const Property IceGridAdminPropsData[] =
     Property{"IceGridAdmin.Host", "", false, false, nullptr, false},
     Property{"IceGridAdmin.Port", "", false, false, nullptr, false},
     Property{"IceGridAdmin.InstanceName", "", false, false, nullptr, false},
-    Property{"IceGridAdmin.Server", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceGridAdmin.Server", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceGridAdmin.Discovery.Address", "", false, false, nullptr, false},
     Property{"IceGridAdmin.Discovery.Interface", "", false, false, nullptr, false},
     Property{"IceGridAdmin.Discovery.Lookup", "", false, false, nullptr, false},
-    Property{"IceGridAdmin.Discovery.Reply", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
-    Property{"IceGridAdmin.Discovery.Locator", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceGridAdmin.Discovery.Reply", "", false, false, &PropertyNames::ObjectAdapterProps, false},
+    Property{"IceGridAdmin.Discovery.Locator", "", false, false, &PropertyNames::ObjectAdapterProps, false},
 };
 
 const PropertyArray
-    PropertyNames::IceGridAdminProps{IceGridAdminPropsData,
+    PropertyNames::IceGridAdminProps{"IceGridAdmin", IceGridAdminPropsData,
         sizeof(IceGridAdminPropsData)/sizeof(IceGridAdminPropsData[0])};
 
 const Property IceGridPropsData[] =
 {
-    Property{"IceGrid.AdminRouter", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceGrid.AdminRouter", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceGrid.InstanceName", "IceGrid", false, false, nullptr, false},
-    Property{"IceGrid.Node", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceGrid.Node", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceGrid.Node.AllowRunningServersAsRoot", "", false, false, nullptr, false},
     Property{"IceGrid.Node.AllowEndpointsOverride", "0", false, false, nullptr, false},
     Property{"IceGrid.Node.CollocateRegistry", "", false, false, nullptr, false},
@@ -293,31 +293,31 @@ const Property IceGridPropsData[] =
     Property{"IceGrid.Node.Trace.Replica", "0", false, false, nullptr, false},
     Property{"IceGrid.Node.Trace.Server", "0", false, false, nullptr, false},
     Property{"IceGrid.Node.UserAccounts", "", false, false, nullptr, false},
-    Property{"IceGrid.Node.UserAccountMapper", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"IceGrid.Node.UserAccountMapper", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"IceGrid.Node.WaitTime", "60", false, false, nullptr, false},
     Property{"IceGrid.Registry.AdminCryptPasswords", "", false, false, nullptr, false},
-    Property{"IceGrid.Registry.AdminPermissionsVerifier", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"IceGrid.Registry.AdminPermissionsVerifier", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"IceGrid.Registry.AdminSessionFilters", "0", false, false, nullptr, false},
-    Property{"IceGrid.Registry.AdminSessionManager", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
-    Property{"IceGrid.Registry.AdminSSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyClassProps, false},
-    Property{"IceGrid.Registry.Client", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceGrid.Registry.AdminSessionManager", "", false, false, &PropertyNames::ObjectAdapterProps, false},
+    Property{"IceGrid.Registry.AdminSSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyProps, false},
+    Property{"IceGrid.Registry.Client", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceGrid.Registry.CryptPasswords", "", false, false, nullptr, false},
     Property{"IceGrid.Registry.DefaultTemplates", "", false, false, nullptr, false},
-    Property{"IceGrid.Registry.Discovery", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceGrid.Registry.Discovery", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceGrid.Registry.Discovery.Enabled", "1", false, false, nullptr, false},
     Property{"IceGrid.Registry.Discovery.Address", "", false, false, nullptr, false},
     Property{"IceGrid.Registry.Discovery.Port", "4061", false, false, nullptr, false},
     Property{"IceGrid.Registry.Discovery.Interface", "", false, false, nullptr, false},
     Property{"IceGrid.Registry.DynamicRegistration", "", false, false, nullptr, false},
-    Property{"IceGrid.Registry.Internal", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceGrid.Registry.Internal", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceGrid.Registry.LMDB.MapSize", "", false, false, nullptr, false},
     Property{"IceGrid.Registry.LMDB.Path", "", false, false, nullptr, false},
-    Property{"IceGrid.Registry.PermissionsVerifier", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"IceGrid.Registry.PermissionsVerifier", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"IceGrid.Registry.ReplicaName", "Master", false, false, nullptr, false},
-    Property{"IceGrid.Registry.Server", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"IceGrid.Registry.Server", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"IceGrid.Registry.SessionFilters", "0", false, false, nullptr, false},
-    Property{"IceGrid.Registry.SessionManager", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
-    Property{"IceGrid.Registry.SSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"IceGrid.Registry.SessionManager", "", false, false, &PropertyNames::ObjectAdapterProps, false},
+    Property{"IceGrid.Registry.SSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"IceGrid.Registry.Trace.Admin", "0", false, false, nullptr, false},
     Property{"IceGrid.Registry.Trace.Application", "0", false, false, nullptr, false},
     Property{"IceGrid.Registry.Trace.Adapter", "0", false, false, nullptr, false},
@@ -336,7 +336,7 @@ const Property IceGridPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceGridProps{IceGridPropsData,
+    PropertyNames::IceGridProps{"IceGrid", IceGridPropsData,
         sizeof(IceGridPropsData)/sizeof(IceGridPropsData[0])};
 
 const Property IceSSLPropsData[] =
@@ -365,7 +365,7 @@ const Property IceSSLPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceSSLProps{IceSSLPropsData,
+    PropertyNames::IceSSLProps{"IceSSL", IceSSLPropsData,
         sizeof(IceSSLPropsData)/sizeof(IceSSLPropsData[0])};
 
 const Property IceStormAdminPropsData[] =
@@ -376,7 +376,7 @@ const Property IceStormAdminPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceStormAdminProps{IceStormAdminPropsData,
+    PropertyNames::IceStormAdminProps{"IceStormAdmin", IceStormAdminPropsData,
         sizeof(IceStormAdminPropsData)/sizeof(IceStormAdminPropsData[0])};
 
 const Property IceBTPropsData[] =
@@ -386,13 +386,13 @@ const Property IceBTPropsData[] =
 };
 
 const PropertyArray
-    PropertyNames::IceBTProps{IceBTPropsData,
+    PropertyNames::IceBTProps{"IceBT", IceBTPropsData,
         sizeof(IceBTPropsData)/sizeof(IceBTPropsData[0])};
 
 const Property Glacier2PropsData[] =
 {
     Property{"Glacier2.AddConnectionContext", "0", false, false, nullptr, false},
-    Property{"Glacier2.Client", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"Glacier2.Client", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"Glacier2.Client.ForwardContext", "0", false, false, nullptr, false},
     Property{"Glacier2.Client.Trace.Reject", "0", false, false, nullptr, false},
     Property{"Glacier2.Client.Trace.Request", "0", false, false, nullptr, false},
@@ -405,20 +405,20 @@ const Property Glacier2PropsData[] =
     Property{"Glacier2.Filter.AdapterId.Accept", "", false, false, nullptr, false},
     Property{"Glacier2.Filter.Identity.Accept", "", false, false, nullptr, false},
     Property{"Glacier2.InstanceName", "Glacier2", false, false, nullptr, false},
-    Property{"Glacier2.PermissionsVerifier", "", false, false, &PropertyNames::ProxyClassProps, false},
-    Property{"Glacier2.SSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"Glacier2.PermissionsVerifier", "", false, false, &PropertyNames::ProxyProps, false},
+    Property{"Glacier2.SSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"Glacier2.RoutingTable.MaxSize", "1000", false, false, nullptr, false},
-    Property{"Glacier2.Server", "", false, false, &PropertyNames::ObjectAdapterClassProps, false},
+    Property{"Glacier2.Server", "", false, false, &PropertyNames::ObjectAdapterProps, false},
     Property{"Glacier2.Server.ForwardContext", "0", false, false, nullptr, false},
     Property{"Glacier2.Server.Trace.Request", "0", false, false, nullptr, false},
-    Property{"Glacier2.SessionManager", "", false, false, &PropertyNames::ProxyClassProps, false},
-    Property{"Glacier2.SSLSessionManager", "", false, false, &PropertyNames::ProxyClassProps, false},
+    Property{"Glacier2.SessionManager", "", false, false, &PropertyNames::ProxyProps, false},
+    Property{"Glacier2.SSLSessionManager", "", false, false, &PropertyNames::ProxyProps, false},
     Property{"Glacier2.Trace.RoutingTable", "0", false, false, nullptr, false},
     Property{"Glacier2.Trace.Session", "0", false, false, nullptr, false},
 };
 
 const PropertyArray
-    PropertyNames::Glacier2Props{Glacier2PropsData,
+    PropertyNames::Glacier2Props{"Glacier2", Glacier2PropsData,
         sizeof(Glacier2PropsData)/sizeof(Glacier2PropsData[0])};
 
 const PropertyArray PropertyNames::validProps[] =
@@ -436,7 +436,7 @@ const PropertyArray PropertyNames::validProps[] =
     IceStormAdminProps,
     IceBTProps,
     Glacier2Props,
-    PropertyArray{nullptr,0}
+    PropertyArray{nullptr, nullptr,0}
 };
 
 const char* PropertyNames::clPropNames[] =
@@ -454,5 +454,5 @@ const char* PropertyNames::clPropNames[] =
     "IceStormAdmin",
     "IceBT",
     "Glacier2",
-    0
+    nullptr
 };

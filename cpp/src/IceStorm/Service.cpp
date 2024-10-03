@@ -46,7 +46,7 @@ namespace
 
     private:
         void createDbEnv(const Ice::CommunicatorPtr&);
-        void validateProperties(const std::string&, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+        void validateProperties(const std::string&, const Ice::PropertiesPtr&);
 
         std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
         std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
@@ -90,7 +90,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
 {
     auto properties = communicator->getProperties();
 
-    validateProperties(name, properties, communicator->getLogger());
+    validateProperties(name, properties);
 
     int id = properties->getPropertyAsIntWithDefault(name + ".NodeId", -1);
 
@@ -422,7 +422,7 @@ ServiceI::stop()
 }
 
 void
-ServiceI::validateProperties(const string& name, const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& logger)
+ServiceI::validateProperties(const string& name, const Ice::PropertiesPtr& properties)
 {
     static const string suffixes[] = {
         "ReplicatedTopicManagerEndpoints",
@@ -508,11 +508,16 @@ ServiceI::validateProperties(const string& name, const Ice::PropertiesPtr& prope
 
     if (!unknownProps.empty())
     {
-        Warning out(logger);
-        out << "found unknown properties for IceStorm service '" << name << "':";
-        for (vector<string>::const_iterator p = unknownProps.begin(); p != unknownProps.end(); ++p)
+        ostringstream os;
+        os << "found unknown properties for " << "IceStorm" << ": `" << prefix << "'";
+        if (!unknownProps.empty())
         {
-            out << "\n    " << *p;
+            for (const auto& prop : unknownProps)
+            {
+                os << "\n    " << prop;
+            }
         }
+
+        throw UnknownPropertyException(__FILE__, __LINE__, os.str());
     }
 }

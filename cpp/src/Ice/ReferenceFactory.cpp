@@ -729,11 +729,10 @@ IceInternal::ReferenceFactory::create(
     if (!propertyPrefix.empty())
     {
         PropertiesPtr properties = _instance->initializationData().properties;
-        validatePropertyPrefix(
-            "proxy",
+        validatePropertiesWithPrefix(
             propertyPrefix,
             _instance->initializationData().properties,
-            &IceInternal::PropertyNames::ProxyClassProps);
+            &IceInternal::PropertyNames::ProxyProps);
 
         string property;
 

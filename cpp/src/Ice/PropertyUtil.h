@@ -18,15 +18,13 @@ namespace IceInternal
     std::optional<Property> findProperty(std::string_view key, const PropertyArray* propertyArray);
 
     /// Finds all unknown properties for a given prefix.
-    /// @param propertyClass The property class name.
     /// @param prefix The prefix to search for.
     /// @param properties The properties to consider.
     /// @param propertyArray The property array to search against.
     /// @throws UnknownPropertyException if unknown properties are found.
-    void validatePropertyPrefix(
-        std::string_view propertyClass,
+    void validatePropertiesWithPrefix(
         std::string_view prefix,
-        const Ice::PropertiesPtr properties,
+        const Ice::PropertiesPtr& properties,
         const PropertyArray* propertyArray);
 }
 

@@ -899,7 +899,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 
     try
     {
-        validatePropertyPrefix("object adapter", _name, properties, &PropertyNames::ObjectAdapterClassProps);
+        validatePropertiesWithPrefix(_name, properties, &PropertyNames::ObjectAdapterProps);
 
         if (!router && properties->getPropertiesForPrefix(_name + ".").size() == 0)
         {

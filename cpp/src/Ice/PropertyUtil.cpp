@@ -58,10 +58,9 @@ IceInternal::findProperty(string_view key, const PropertyArray* propertyArray)
 }
 
 void
-IceInternal::validatePropertyPrefix(
-    std::string_view propertyClass,
+IceInternal::validatePropertiesWithPrefix(
     string_view prefix,
-    const PropertiesPtr properties,
+    const PropertiesPtr& properties,
     const PropertyArray* propertyArray)
 {
     vector<string> unknownProps;
@@ -88,6 +87,16 @@ IceInternal::validatePropertyPrefix(
 
     if (!unknownProps.empty())
     {
-        throw UnknownPropertyException(__FILE__, __LINE__, propertyClass, prefix, unknownProps);
+        ostringstream os;
+        os << "found unknown properties for " << propertyArray->name << ": `" << prefix << "'";
+        if (!unknownProps.empty())
+        {
+            for (const auto& prop : unknownProps)
+            {
+                os << "\n    " << prop;
+            }
+        }
+
+        throw UnknownPropertyException(__FILE__, __LINE__, os.str());
     }
 }

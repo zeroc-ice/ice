@@ -56,7 +56,17 @@ namespace
 
         if (!unknownProps.empty())
         {
-            throw UnknownPropertyException(__FILE__, __LINE__, "metrics", prefix, unknownProps);
+            ostringstream os;
+            os << "found unknown properties for " << "IceMX" << ": `" << prefix << "'";
+            if (!unknownProps.empty())
+            {
+                for (const auto& prop : unknownProps)
+                {
+                    os << "\n    " << prop;
+                }
+            }
+
+            throw UnknownPropertyException(__FILE__, __LINE__, os.str());
         }
     }
 
