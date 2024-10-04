@@ -116,7 +116,7 @@ namespace Ice
 
                     communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
                     {
-                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
                         var publishedEndpoints = adapter.getPublishedEndpoints();
                         test(publishedEndpoints.Length == 1);
                         test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
@@ -141,7 +141,7 @@ namespace Ice
 
                     communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
                     {
-                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
                         var publishedEndpoints = adapter.getPublishedEndpoints();
                         test(publishedEndpoints.Length == 2);
                         test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo0 &&
@@ -159,7 +159,7 @@ namespace Ice
 
                     communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
                     {
-                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
                         var publishedEndpoints = adapter.getPublishedEndpoints();
                         test(publishedEndpoints.Length == 1); // loopback filtered out
                         test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
@@ -170,7 +170,7 @@ namespace Ice
 
                     communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
                     {
-                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
                         var publishedEndpoints = adapter.getPublishedEndpoints();
                         test(publishedEndpoints.Length == 1); // loopback filtered out
                         test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
@@ -184,7 +184,7 @@ namespace Ice
 
                     communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
                     {
-                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
                         var publishedEndpoints = adapter.getPublishedEndpoints();
                         test(publishedEndpoints.Length == 2);
                         test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo0 &&
@@ -198,7 +198,7 @@ namespace Ice
 
                     communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
                     {
-                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter"); // unset
+                        ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
                         var publishedEndpoints = adapter.getPublishedEndpoints();
                         test(publishedEndpoints.Length == 2);
                         test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo0 &&
@@ -210,14 +210,8 @@ namespace Ice
                         adapter.destroy();
                     }
 
-                    static EndpointInfo getUnderlying(EndpointInfo endpointInfo)
-                    {
-                        while (endpointInfo.underlying is not null)
-                        {
-                            endpointInfo = endpointInfo.underlying;
-                        }
-                        return endpointInfo;
-                    }
+                    static EndpointInfo getUnderlying(EndpointInfo endpointInfo) =>
+                        endpointInfo.underlying is null ? endpointInfo : getUnderlying(endpointInfo.underlying);
                 }
                 output.WriteLine("ok");
 
