@@ -38,13 +38,6 @@ subprojects {
         options.encoding = "UTF-8"
         options.deprecation = true
     }
-
-    // TODO do we need this plug-in?
-    apply plugin: 'idea'
-    idea.module {
-        excludeDirs -= file(buildDir)
-        buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-    }
 }
 
 task clean(type: Delete) {
