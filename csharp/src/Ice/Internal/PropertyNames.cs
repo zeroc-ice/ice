@@ -462,6 +462,7 @@ public sealed class PropertyNames
         "IceGridAdmin",
         "IceGrid",
         "IceSSL",
+        "IceStorm",
         "IceStormAdmin",
         "IceBT",
         "Glacier2",

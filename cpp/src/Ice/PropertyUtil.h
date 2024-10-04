@@ -22,7 +22,7 @@ namespace IceInternal
     /// @param properties The properties to consider.
     /// @param propertyArray The property array to search against.
     /// @throws UnknownPropertyException if unknown properties are found.
-    void validatePropertiesWithPrefix(
+    ICE_API void validatePropertiesWithPrefix(
         std::string_view prefix,
         const Ice::PropertiesPtr& properties,
         const PropertyArray* propertyArray);

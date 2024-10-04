@@ -42,6 +42,8 @@ cppHeaderPreamble = (
 #ifndef ICE_INTERNAL_PROPERTY_NAMES_H
 #define ICE_INTERNAL_PROPERTY_NAMES_H
 
+#include "Ice/Config.h"
+
 #include <string>
 
 namespace IceInternal
@@ -64,7 +66,7 @@ namespace IceInternal
         const int length;
     };
 
-    class PropertyNames
+    class ICE_API PropertyNames
     {
     public:
 
@@ -180,8 +182,8 @@ class PropertyHandler(ContentHandler):
         self.nodeProperties = dict()
         # The current section type (class or section)
         self.parentNodeType = None
-
-        self.cmdLineOptions = []
+        # The list of section names
+        self.sectionNames = []
 
     def cleanup(self):
         # Needs to be overridden in derived class
@@ -230,6 +232,12 @@ class PropertyHandler(ContentHandler):
         # Needs to be overridden in derived class
         pass
 
+    # The list of sections that have properties generated for them
+    def generatedSections(self):
+        return [
+            name for name in self.sectionNames if name in self.nodeProperties.keys()
+        ]
+
     def parseProperty(self, propertyPrefix, attrs):
         name = attrs.get("name")
         usesRegex = "[any]" in name
@@ -238,9 +246,12 @@ class PropertyHandler(ContentHandler):
         propertyClass = attrs.get("class", None)
         prefixOnly = attrs.get("prefix-only", "false").lower() == "true"
 
-        propertyName = (
-            f"{propertyPrefix}.{name}" if self.parentNodeType == "section" else name
-        )
+        if self.language == Language.CPP:
+            propertyName = name
+        else:
+            propertyName = (
+                f"{propertyPrefix}.{name}" if self.parentNodeType == "section" else name
+            )
 
         if not propertyClass and prefixOnly:
             print(
@@ -322,7 +333,7 @@ class PropertyHandler(ContentHandler):
                 self.validateKnownAttributes(["name"], attrs)
                 self.parentNodeType = "section"
                 self.parentNodeName = attrs.get("name")
-                self.cmdLineOptions.append(self.parentNodeName)
+                self.sectionNames.append(self.parentNodeName)
 
             case "property":
                 self.validateKnownAttributes(
@@ -388,14 +399,14 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.write("const PropertyArray PropertyNames::validProps[] =\n")
 
         self.cppFile.write("{\n")
-        for s in self.cmdLineOptions:
+        for s in self.generatedSections():
             self.cppFile.write("    %sProps,\n" % s)
         self.cppFile.write("    PropertyArray{nullptr, nullptr ,0}\n")
         self.cppFile.write("};\n\n")
 
         self.cppFile.write("const char* PropertyNames::clPropNames[] =\n")
         self.cppFile.write("{\n")
-        for s in self.cmdLineOptions:
+        for s in self.sectionNames:
             self.cppFile.write('    "%s",\n' % s)
         self.cppFile.write("    nullptr\n")
         self.cppFile.write("};\n")
@@ -477,14 +488,14 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("    public static final Property[] validProps[] =\n")
 
         self.srcFile.write("    {\n")
-        for s in self.nodeProperties.keys():
+        for s in self.generatedSections():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("        null\n")
         self.srcFile.write("    };\n")
 
         self.srcFile.write("\n    public static final String clPropNames[] =\n")
         self.srcFile.write("    {\n")
-        for s in self.cmdLineOptions:
+        for s in self.sectionNames:
             self.srcFile.write('        "%s",\n' % s)
         self.srcFile.write("        null\n")
         self.srcFile.write("    };\n")
@@ -566,13 +577,13 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("    public static Property[][] validProps =\n")
 
         self.srcFile.write("    {\n")
-        for s in self.nodeProperties.keys():
+        for s in self.generatedSections():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("    };\n\n")
 
         self.srcFile.write("    public static string[] clPropNames =\n")
         self.srcFile.write("    {\n")
-        for s in self.cmdLineOptions:
+        for s in self.sectionNames:
             self.srcFile.write('        "%s",\n' % s)
         self.srcFile.write("    };\n")
         self.srcFile.write("}\n")
@@ -636,7 +647,7 @@ class JSPropertyHandler(PropertyHandler):
 
     def closeFiles(self):
         self.srcFile.write("PropertyNames.validProps = new Map();\n")
-        for s in self.nodeProperties.keys():
+        for s in self.generatedSections():
             self.srcFile.write(f'PropertyNames.validProps.set("{s}", {s}Props);\n')
 
         self.srcFile.close()

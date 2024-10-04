@@ -54,6 +54,11 @@
         <property name="MessageSizeMax" languages="all" />
     </class>
 
+    <class name="LMDB" prefix-only="true">
+        <property name="Path" languages="cpp" />
+        <property name="MapSize" languages="cpp" />
+    </class>
+
     <!-- TODO: use this to validate IceMX properties -->
     <!-- <class name="Metrics" prefix-only="true">
         <property name="Disabled" languages="cpp,csharp,java" />
@@ -275,8 +280,7 @@
         <property name="Registry.Discovery.Interface" languages="cpp" />
         <property name="Registry.DynamicRegistration" languages="cpp" />
         <property name="Registry.Internal" class="ObjectAdapter" languages="cpp" />
-        <property name="Registry.LMDB.MapSize" languages="cpp" />
-        <property name="Registry.LMDB.Path" languages="cpp" />
+        <property name="Registry.LMDB" class="LMDB" languages="cpp"/>
         <property name="Registry.PermissionsVerifier" class="Proxy" languages="cpp" />
         <property name="Registry.ReplicaName" languages="cpp" default="Master" />
         <property name="Registry.Server" class="ObjectAdapter" languages="cpp" />
@@ -330,6 +334,33 @@
         <property name="TruststoreType" languages="java" default="JKS" />
         <property name="UsePlatformCAs" languages="cpp,csharp,java" default="0" />
         <property name="VerifyPeer" languages="cpp,csharp,java" default="2" />
+    </section>
+
+    <section name="IceStorm">
+        <property name="Discard.Interval" languages="cpp" default="60" />
+        <property name="Election.ElectionTimeout" languages="cpp" default="10" />
+        <property name="Election.MasterTimeout" languages="cpp" default="10" />
+        <property name="Election.ResponseTimeout" languages="cpp" default="10" />
+        <property name="Flush.Timeout" languages="cpp" default="1000" />
+        <property name="InstanceName" languages="cpp" default="IceStorm" />
+        <property name="LMDB" class="LMDB" languages="cpp"/>
+        <property name="Node" class="ObjectAdapter" languages="cpp" />
+        <property name="NodeId" languages="cpp" default="-1" />
+        <property name="Nodes.[any]" languages="cpp" />
+        <property name="Publish" class="ObjectAdapter" languages="cpp" />
+        <property name="ReplicatedPublishEndpoints" languages="cpp" />
+        <property name="ReplicatedTopicManagerEndpoints" languages="cpp" />
+        <property name="Send.QueueSizeMax" languages="cpp" default="-1" />
+        <property name="Send.QueueSizeMaxPolicy" languages="cpp" />
+        <property name="Send.Timeout" languages="cpp" default="60000" />
+        <property name="TopicManager.Proxy" class="Proxy" languages="cpp" />
+        <property name="TopicManager" class="ObjectAdapter" languages="cpp" />
+        <property name="Trace.Election" languages="cpp" default="0" />
+        <property name="Trace.Replication" languages="cpp" default="0" />
+        <property name="Trace.Subscriber" languages="cpp" default="0" />
+        <property name="Trace.Topic" languages="cpp" default="0" />
+        <property name="Trace.TopicManager" languages="cpp" default="0" />
+        <property name="Transient" languages="cpp" default="0" />
     </section>
 
     <section name="IceStormAdmin">
