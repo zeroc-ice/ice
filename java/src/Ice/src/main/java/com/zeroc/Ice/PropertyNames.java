@@ -504,9 +504,14 @@ final class PropertyNames
         "IceLocatorDiscovery",
         "IceBox",
         "IceBoxAdmin",
+        "IceBridge",
         "IceGridAdmin",
+        "IceGrid",
         "IceSSL",
+        "IceStorm",
+        "IceStormAdmin",
         "IceBT",
+        "Glacier2",
         null
     };
 }

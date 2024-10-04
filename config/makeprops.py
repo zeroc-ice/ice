@@ -406,7 +406,7 @@ class CppPropertyHandler(PropertyHandler):
 
         self.cppFile.write("const char* PropertyNames::clPropNames[] =\n")
         self.cppFile.write("{\n")
-        for s in self.generatedSections():
+        for s in self.sectionNames:
             self.cppFile.write('    "%s",\n' % s)
         self.cppFile.write("    nullptr\n")
         self.cppFile.write("};\n")
@@ -495,7 +495,7 @@ class JavaPropertyHandler(PropertyHandler):
 
         self.srcFile.write("\n    public static final String clPropNames[] =\n")
         self.srcFile.write("    {\n")
-        for s in self.generatedSections():
+        for s in self.sectionNames:
             self.srcFile.write('        "%s",\n' % s)
         self.srcFile.write("        null\n")
         self.srcFile.write("    };\n")
@@ -577,13 +577,13 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("    public static Property[][] validProps =\n")
 
         self.srcFile.write("    {\n")
-        for s in self.nodeProperties.keys():
+        for s in self.generatedSections():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("    };\n\n")
 
         self.srcFile.write("    public static string[] clPropNames =\n")
         self.srcFile.write("    {\n")
-        for s in self.generatedSections():
+        for s in self.sectionNames:
             self.srcFile.write('        "%s",\n' % s)
         self.srcFile.write("    };\n")
         self.srcFile.write("}\n")
