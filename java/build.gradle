@@ -9,8 +9,6 @@ subprojects {
     project.group = "com.zeroc"
 
     apply plugin: 'java'
-    // TODO do we need this plug-in?
-    // apply plugin: 'idea'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {
@@ -41,10 +39,12 @@ subprojects {
         options.deprecation = true
     }
 
-    // idea.module {
-    //    excludeDirs -= file(buildDir)
-    //    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-    // }
+    // TODO do we need this plug-in?
+    apply plugin: 'idea'
+    idea.module {
+        excludeDirs -= file(buildDir)
+        buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+    }
 }
 
 if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
