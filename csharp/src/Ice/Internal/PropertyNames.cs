@@ -457,13 +457,6 @@ public sealed class PropertyNames
         "IceDiscovery",
         "IceLocatorDiscovery",
         "IceBox",
-        "IceBoxAdmin",
-        "IceBridge",
-        "IceGridAdmin",
-        "IceGrid",
         "IceSSL",
-        "IceStormAdmin",
-        "IceBT",
-        "Glacier2",
     };
 }

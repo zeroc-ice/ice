@@ -7,6 +7,8 @@
 #ifndef ICE_INTERNAL_PROPERTY_NAMES_H
 #define ICE_INTERNAL_PROPERTY_NAMES_H
 
+#include "Ice/Config.h"
+
 #include <string>
 
 namespace IceInternal
@@ -29,7 +31,7 @@ namespace IceInternal
         const int length;
     };
 
-    class PropertyNames
+    class ICE_API PropertyNames
     {
     public:
 
@@ -37,6 +39,7 @@ namespace IceInternal
         static const PropertyArray ConnectionProps;
         static const PropertyArray ThreadPoolProps;
         static const PropertyArray ObjectAdapterProps;
+        static const PropertyArray LMDBProps;
         static const PropertyArray IceProps;
         static const PropertyArray IceMXProps;
         static const PropertyArray IceDiscoveryProps;
@@ -47,6 +50,7 @@ namespace IceInternal
         static const PropertyArray IceGridAdminProps;
         static const PropertyArray IceGridProps;
         static const PropertyArray IceSSLProps;
+        static const PropertyArray IceStormProps;
         static const PropertyArray IceStormAdminProps;
         static const PropertyArray IceBTProps;
         static const PropertyArray Glacier2Props;

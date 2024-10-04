@@ -44,16 +44,8 @@ namespace
 
         for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != nullptr; ++i)
         {
-            string_view pattern{IceInternal::PropertyNames::validProps[i].properties[0].pattern};
-            dotPos = pattern.find('.');
-
-            // Each top level prefix describes a non-empty
-            // namespace. Having a string without a prefix followed by a
-            // dot is an error.
-            assert(dotPos != string::npos);
-            string_view propPrefix = pattern.substr(0, dotPos);
-
-            if (propPrefix == prefix)
+            auto properties = IceInternal::PropertyNames::validProps[i];
+            if (prefix == properties.name)
             {
                 // We've found the property list for the given prefix.
                 propertyArray = &IceInternal::PropertyNames::validProps[i];
@@ -62,10 +54,10 @@ namespace
 
             // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
             // Otherwise no other warning is issued.
-            if (logWarnings && IceInternal::toLower(propPrefix) == IceInternal::toLower(prefix))
+            if (logWarnings && IceInternal::toLower(properties.name) == IceInternal::toLower(prefix))
             {
                 ostringstream os;
-                os << "unknown property prefix: `" << prefix << "'; did you mean `" << propPrefix << "'?";
+                os << "unknown property prefix: `" << prefix << "'; did you mean `" << properties.name << "'?";
                 return nullopt;
             }
         }
@@ -76,7 +68,7 @@ namespace
             return nullopt;
         }
 
-        if (auto prop = IceInternal::findProperty(key, propertyArray))
+        if (auto prop = IceInternal::findProperty(key.substr(prefix.length() + 1), propertyArray))
         {
             return prop;
         }

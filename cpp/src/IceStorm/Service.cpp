@@ -6,6 +6,8 @@
 
 #include "Service.h"
 #include "../Ice/PluginManagerI.h" // For loadPlugin
+#include "../Ice/PropertyNames.h"
+#include "../Ice/PropertyUtil.h"
 #include "Ice/StringUtil.h"
 #include "IceGrid/Registry.h"
 #include "Instance.h"
@@ -46,7 +48,6 @@ namespace
 
     private:
         void createDbEnv(const Ice::CommunicatorPtr&);
-        void validateProperties(const std::string&, const Ice::PropertiesPtr&);
 
         std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
         std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
@@ -90,7 +91,9 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
 {
     auto properties = communicator->getProperties();
 
-    validateProperties(name, properties);
+    // IceStorm does its own property validation as we do not include the IceStorm properties in the list of known
+    // properties as users should not set them
+    IceInternal::validatePropertiesWithPrefix(name, properties, &IceInternal::PropertyNames::IceStormProps);
 
     int id = properties->getPropertyAsIntWithDefault(name + ".NodeId", -1);
 
@@ -368,12 +371,11 @@ ServiceI::start(
     const Identity& id,
     const string&)
 {
-    // For IceGrid we don't validate the properties as all sorts of non-IceStorm properties are included in the prefix.
     //
-    // validateProperties(name, communicator->getProperties(), communicator->getLogger());
-
     // This is for IceGrid only and as such we use a transient implementation of IceStorm.
-    string instanceName = communicator->getProperties()->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
+    //
+
+    const string instanceName = "IceStorm";
     _instance = make_shared<Instance>(instanceName, name, communicator, publishAdapter, topicAdapter, nullptr);
 
     try
@@ -419,102 +421,4 @@ ServiceI::stop()
     // Destroy the instance. This step must occur last.
     //
     _instance->destroy();
-}
-
-void
-ServiceI::validateProperties(const string& name, const Ice::PropertiesPtr& properties)
-{
-    static const string suffixes[] = {
-        "ReplicatedTopicManagerEndpoints",
-        "ReplicatedPublishEndpoints",
-        "Nodes.*",
-        "Transient",
-        "NodeId",
-        "Flush.Timeout",
-        "InstanceName",
-        "Election.MasterTimeout",
-        "Election.ElectionTimeout",
-        "Election.ResponseTimeout",
-        "Publish.AdapterId",
-        "Publish.Endpoints",
-        "Publish.Locator",
-        "Publish.PublishedEndpoints",
-        "Publish.ReplicaGroupId",
-        "Publish.Router",
-        "Publish.ThreadPool.Size",
-        "Publish.ThreadPool.SizeMax",
-        "Publish.ThreadPool.SizeWarn",
-        "Publish.ThreadPool.StackSize",
-        "Node.AdapterId",
-        "Node.Endpoints",
-        "Node.Locator",
-        "Node.PublishedEndpoints",
-        "Node.ReplicaGroupId",
-        "Node.Router",
-        "Node.ThreadPool.Size",
-        "Node.ThreadPool.SizeMax",
-        "Node.ThreadPool.SizeWarn",
-        "Node.ThreadPool.StackSize",
-        "TopicManager.AdapterId",
-        "TopicManager.Endpoints",
-        "TopicManager.Locator",
-        "TopicManager.Proxy",
-        "TopicManager.Proxy.EndpointSelection",
-        "TopicManager.Proxy.ConnectionCached",
-        "TopicManager.Proxy.PreferSecure",
-        "TopicManager.Proxy.LocatorCacheTimeout",
-        "TopicManager.Proxy.Locator",
-        "TopicManager.Proxy.Router",
-        "TopicManager.Proxy.CollocationOptimization",
-        "TopicManager.PublishedEndpoints",
-        "TopicManager.ReplicaGroupId",
-        "TopicManager.Router",
-        "TopicManager.ThreadPool.Size",
-        "TopicManager.ThreadPool.SizeMax",
-        "TopicManager.ThreadPool.SizeWarn",
-        "TopicManager.ThreadPool.StackSize",
-        "Trace.Election",
-        "Trace.Replication",
-        "Trace.Subscriber",
-        "Trace.Topic",
-        "Trace.TopicManager",
-        "Send.Timeout",
-        "Send.QueueSizeMax",
-        "Send.QueueSizeMaxPolicy",
-        "Discard.Interval",
-        "LMDB.Path",
-        "LMDB.MapSize"};
-
-    vector<string> unknownProps;
-    string prefix = name + ".";
-    PropertyDict props = properties->getPropertiesForPrefix(prefix);
-    for (PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
-    {
-        bool valid = false;
-        for (unsigned int i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
-        {
-            string prop = prefix + suffixes[i];
-            if (IceInternal::match(p->first, prop))
-            {
-                valid = true;
-                break;
-            }
-        }
-        if (!valid)
-        {
-            unknownProps.push_back(p->first);
-        }
-    }
-
-    if (!unknownProps.empty())
-    {
-        ostringstream os;
-        os << "found unknown properties for " << "IceStorm" << ": '" << prefix << "'";
-        for (const auto& prop : unknownProps)
-        {
-            os << "\n    " << prop;
-        }
-
-        throw UnknownPropertyException(__FILE__, __LINE__, os.str());
-    }
 }
