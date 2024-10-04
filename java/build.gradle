@@ -9,7 +9,6 @@ subprojects {
     project.group = "com.zeroc"
 
     apply plugin: 'java'
-    apply plugin: 'idea'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {
@@ -22,7 +21,6 @@ subprojects {
     }
 
     java {
-        modularity.inferModulePath = true
         // The corresponding -source and -target javac options are suppressed by gradle when
         // --release is set through options.compileArgs (see above).
         sourceCompatibility = "1.${targetJavaRelease}"
@@ -39,11 +37,6 @@ subprojects {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:-options"
         options.encoding = "UTF-8"
         options.deprecation = true
-    }
-
-    idea.module {
-        excludeDirs -= file(buildDir)
-        buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
     }
 }
 

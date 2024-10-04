@@ -16,7 +16,6 @@ javadoc.dependsOn(compileSlice)
 
 javadoc {
     source = sourceSets.main.allJava
-    enabled = true
     doFirst {
         options.addStringOption('Xdoclint:none', '-quiet')
     }

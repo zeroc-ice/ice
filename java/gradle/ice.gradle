@@ -37,13 +37,8 @@ buildscript {
     }
 }
 
-//
-// We do not use the new gradle Plugin DSL because on debian we want to use the plug-in
-// from gradle-ice-builder-plugin package and this is not possible when using gradle 3.2
-// included in stretch and the Plugin DSL.
-//
-project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
-project.apply(plugin: com.diffplug.gradle.spotless.SpotlessPlugin)
+apply plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin
+apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
 
 slice {
     cppConfiguration = project.cppConfiguration
@@ -124,33 +119,7 @@ if((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.sta
     ext.binDir = prefix + "/bin"
 }
 
-// Check is DESTDIR is set (non-Windows)
-if(isWindows) {
-    ext.DESTDIR = ""
-}
-
 ext.libDir = "$rootProject.projectDir/lib"
-
-ext.searchFile = { List<Closure> places, List<String> searchPaths ->
-    def dirs = []
-    places.each {
-        def dir = it
-        if(dir != null) {
-            dirs << dir + "/"
-        }
-    }
-
-    def candidates = searchPaths.collect {
-        def path = it
-        dirs.collect {
-            it.concat(path)
-        }
-    }.flatten()
-
-    return candidates.find {
-        new File(it).exists()
-    }
-}
 
 // Used for the tests
 ext.localDependency = { artifactId ->
