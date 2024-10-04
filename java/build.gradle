@@ -9,7 +9,8 @@ subprojects {
     project.group = "com.zeroc"
 
     apply plugin: 'java'
-    apply plugin: 'idea'
+    // TODO do we need this plug-in?
+    // apply plugin: 'idea'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {
@@ -22,7 +23,6 @@ subprojects {
     }
 
     java {
-        modularity.inferModulePath = true
         // The corresponding -source and -target javac options are suppressed by gradle when
         // --release is set through options.compileArgs (see above).
         sourceCompatibility = "1.${targetJavaRelease}"
@@ -41,10 +41,10 @@ subprojects {
         options.deprecation = true
     }
 
-    idea.module {
-        excludeDirs -= file(buildDir)
-        buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-    }
+    // idea.module {
+    //    excludeDirs -= file(buildDir)
+    //    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+    // }
 }
 
 if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {

@@ -131,27 +131,6 @@ if(isWindows) {
 
 ext.libDir = "$rootProject.projectDir/lib"
 
-ext.searchFile = { List<Closure> places, List<String> searchPaths ->
-    def dirs = []
-    places.each {
-        def dir = it
-        if(dir != null) {
-            dirs << dir + "/"
-        }
-    }
-
-    def candidates = searchPaths.collect {
-        def path = it
-        dirs.collect {
-            it.concat(path)
-        }
-    }.flatten()
-
-    return candidates.find {
-        new File(it).exists()
-    }
-}
-
 // Used for the tests
 ext.localDependency = { artifactId ->
     def useBinDist = System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}

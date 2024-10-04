@@ -6,15 +6,6 @@ project.ext.displayName = "IceStorm"
 project.ext.moduleName = "com.zeroc.icestorm"
 project.ext.description = "Publish-subscribe event distribution service"
 
-sourceSets {
-    main {
-        java {
-            // ice.jar already includes a marker for the IceMX package.
-            exclude '**/com/zeroc/IceMX/_Marker.java'
-        }
-    }
-}
-
 slice {
     java {
         srcDir = "$project.ext.topSrcDir/slice/IceStorm"
