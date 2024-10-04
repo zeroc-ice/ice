@@ -1,9 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "PropertyUtil.h"
+#include "Ice/LocalExceptions.h"
+#include "Ice/Properties.h"
 #include "Ice/StringUtil.h"
 
 using namespace std;
+using namespace Ice;
 using namespace IceInternal;
 
 optional<Property>
@@ -52,4 +55,45 @@ IceInternal::findProperty(string_view key, const PropertyArray* propertyArray)
     }
 
     return nullopt;
+}
+
+void
+IceInternal::validatePropertiesWithPrefix(
+    string_view prefix,
+    const PropertiesPtr& properties,
+    const PropertyArray* propertyArray)
+{
+    vector<string> unknownProps;
+
+    // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
+    for (const char** i = IceInternal::PropertyNames::clPropNames; *i; ++i)
+    {
+        string icePrefix = string(*i) + ".";
+        if (prefix.find(icePrefix) == 0)
+        {
+            return;
+        }
+    }
+
+    PropertyDict props = properties->getPropertiesForPrefix(string{prefix} + ".");
+    for (const auto& p : props)
+    {
+        // Plus one to include the dot.
+        if (!findProperty(p.first.substr(prefix.size() + 1), propertyArray))
+        {
+            unknownProps.push_back(p.first);
+        }
+    }
+
+    if (!unknownProps.empty())
+    {
+        ostringstream os;
+        os << "found unknown properties for " << propertyArray->name << ": '" << prefix << "'";
+        for (const auto& prop : unknownProps)
+        {
+            os << "\n    " << prop;
+        }
+
+        throw UnknownPropertyException(__FILE__, __LINE__, os.str());
+    }
 }

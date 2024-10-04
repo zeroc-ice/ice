@@ -401,13 +401,6 @@ export class ObjectAdapter {
         return [];
     }
 
-    refreshPublishedEndpoints() {
-        this.checkForDeactivation();
-        return this.computePublishedEndpoints().then(endpoints => {
-            this._publishedEndpoints = endpoints;
-        });
-    }
-
     getPublishedEndpoints() {
         return ArrayUtil.clone(this._publishedEndpoints);
     }

@@ -564,16 +564,6 @@ class ObjectAdapter(object):
         """
         return self._impl.getEndpoints()
 
-    def refreshPublishedEndpoints(self):
-        """
-        Refresh the set of published endpoints.
-
-        The runtime re-reads the PublishedEndpoints property if it is set and re-reads the list of local interfaces
-        if the adapter is configured to listen on all endpoints. This operation is useful to refresh the endpoint information
-        that is published in the proxies that are created by an object adapter if the network interfaces used by a host change.
-        """
-        self._impl.refreshPublishedEndpoints()
-
     def getPublishedEndpoints(self):
         """
         Get the set of endpoints that proxies created by this object adapter will contain.

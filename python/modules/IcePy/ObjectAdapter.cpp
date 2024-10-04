@@ -1445,24 +1445,6 @@ adapterGetEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 }
 
 extern "C" PyObject*
-adapterRefreshPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
-{
-    assert(self->adapter);
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-        (*self->adapter)->refreshPublishedEndpoints();
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return nullptr;
-    }
-
-    return Py_None;
-}
-
-extern "C" PyObject*
 adapterGetPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
@@ -1644,10 +1626,6 @@ static PyMethodDef AdapterMethods[] = {
      reinterpret_cast<PyCFunction>(adapterGetEndpoints),
      METH_NOARGS,
      PyDoc_STR("getEndpoints() -> None")},
-    {"refreshPublishedEndpoints",
-     reinterpret_cast<PyCFunction>(adapterRefreshPublishedEndpoints),
-     METH_NOARGS,
-     PyDoc_STR("refreshPublishedEndpoints() -> None")},
     {"getPublishedEndpoints",
      reinterpret_cast<PyCFunction>(adapterGetPublishedEndpoints),
      METH_NOARGS,

@@ -3,6 +3,8 @@
 #ifndef ICE_PROPERTY_UTIL_H
 #define ICE_PROPERTY_UTIL_H
 
+#include "Ice/PropertiesF.h"
+#include "Ice/PropertyDict.h"
 #include "PropertyNames.h"
 
 #include <optional>
@@ -14,6 +16,16 @@ namespace IceInternal
     /// @param propertyArray The property array to search.
     /// @return The property if found, nullopt otherwise.
     std::optional<Property> findProperty(std::string_view key, const PropertyArray* propertyArray);
+
+    /// Finds all unknown properties for a given prefix.
+    /// @param prefix The prefix to search for.
+    /// @param properties The properties to consider.
+    /// @param propertyArray The property array to search against.
+    /// @throws UnknownPropertyException if unknown properties are found.
+    void validatePropertiesWithPrefix(
+        std::string_view prefix,
+        const Ice::PropertiesPtr& properties,
+        const PropertyArray* propertyArray);
 }
 
 #endif

@@ -755,7 +755,9 @@ public final class Instance implements java.util.function.Function<String, Class
                     _initData.logger =
                             new SysLoggerI(
                                     properties.getIceProperty("Ice.ProgramName"),
-                                    properties.getIceProperty("Ice.SyslogFacility"));
+                                    properties.getIceProperty("Ice.SyslogFacility"),
+                                    properties.getIceProperty("Ice.SyslogHost"),
+                                    properties.getIcePropertyAsInt("Ice.SyslogPort"));
                 } else if (!logFile.isEmpty()) {
                     _initData.logger =
                             new LoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);

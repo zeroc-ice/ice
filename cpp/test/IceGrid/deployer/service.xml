@@ -13,10 +13,9 @@
       <log path="test-${service}.log" property="LogFilePath"/>
       <log path="test.log" property="LogFilePath-${service}"/>
 
-      <property name="Ice.Warn.UnknownProperties" value="0"/>
-      <property name="${name}.Identity" value="${server}-${name}"/>
-      <property name="${name}.Type" value="standard"/>
-      <property name="${name}.ServiceName" value="${name}"/>
+      <property name="${name}Data.Identity" value="${server}-${name}"/>
+      <property name="${name}Data.Type" value="standard"/>
+      <property name="${name}Data.ServiceName" value="${name}"/>
 
       <property name="PropertyWithSpaces" value="   test   "/>
       <property name="WindowsPath" value="C:\Program Files (x86)\ZeroC\"/>

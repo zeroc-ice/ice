@@ -72,13 +72,6 @@ allTests(Test::TestHelper* helper)
         id.name = "dummy";
         test(adapter->createProxy(id)->ice_getEndpoints() == prx->ice_getEndpoints());
         test(adapter->getPublishedEndpoints() == prx->ice_getEndpoints());
-        adapter->refreshPublishedEndpoints();
-        test(adapter->getPublishedEndpoints().size() == 1);
-        test(*adapter->getPublishedEndpoints()[0] == *endpt);
-        communicator->getProperties()->setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
-        adapter->refreshPublishedEndpoints();
-        test(adapter->getPublishedEndpoints().size() == 1);
-        test(adapter->getPublishedEndpoints()[0]->toString() == "tcp -h localhost -p 12345 -t 20000");
         adapter->destroy();
         test(adapter->getPublishedEndpoints().empty());
     }
@@ -110,9 +103,6 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("", router);
         test(adapter->getPublishedEndpoints().size() == 1);
         test(adapter->getPublishedEndpoints()[0]->toString() == "tcp -h localhost -p 23456 -t 30000");
-        adapter->refreshPublishedEndpoints();
-        test(adapter->getPublishedEndpoints().size() == 1);
-        test(adapter->getPublishedEndpoints()[0]->toString() == "tcp -h localhost -p 23457 -t 30000");
         try
         {
             adapter->setPublishedEndpoints(router->ice_getEndpoints());

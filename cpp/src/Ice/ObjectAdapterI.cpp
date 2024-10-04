@@ -606,40 +606,6 @@ Ice::ObjectAdapterI::getEndpoints() const noexcept
     return endpoints;
 }
 
-void
-Ice::ObjectAdapterI::refreshPublishedEndpoints()
-{
-    LocatorInfoPtr locatorInfo;
-    vector<EndpointIPtr> oldPublishedEndpoints;
-
-    {
-        lock_guard lock(_mutex);
-        checkForDeactivation();
-
-        oldPublishedEndpoints = _publishedEndpoints;
-        _publishedEndpoints = computePublishedEndpoints();
-
-        locatorInfo = _locatorInfo;
-    }
-
-    try
-    {
-        Ice::Identity dummy;
-        dummy.name = "dummy";
-        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
-    }
-    catch (const Ice::LocalException&)
-    {
-        lock_guard lock(_mutex);
-
-        //
-        // Restore the old published endpoints.
-        //
-        _publishedEndpoints = oldPublishedEndpoints;
-        throw;
-    }
-}
-
 EndpointSeq
 Ice::ObjectAdapterI::getPublishedEndpoints() const noexcept
 {
@@ -896,30 +862,14 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
     }
 
     PropertiesPtr properties = _instance->initializationData().properties;
-    StringSeq unknownProps;
-    bool noProps = filterProperties(unknownProps);
-
-    //
-    // Warn about unknown object adapter properties.
-    //
-    if (unknownProps.size() != 0 && properties->getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
-    {
-        Warning out(_instance->initializationData().logger);
-        out << "found unknown properties for object adapter `" << _name << "':";
-        for (unsigned int i = 0; i < unknownProps.size(); ++i)
-        {
-            out << "\n    " << unknownProps[i];
-        }
-    }
 
     try
     {
-        //
-        // Make sure named adapter has some configuration
-        //
-        if (router == nullopt && noProps)
+        validatePropertiesWithPrefix(_name, properties, &PropertyNames::ObjectAdapterProps);
+
+        if (!router && properties->getPropertiesForPrefix(_name + ".").size() == 0)
         {
-            throw InitializationException(__FILE__, __LINE__, "object adapter `" + _name + "' requires configuration");
+            throw InitializationException(__FILE__, __LINE__, "object adapter '" + _name + "' requires configuration");
         }
 
         const_cast<string&>(_id) = properties->getProperty(_name + ".AdapterId");
@@ -1392,42 +1342,4 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
             out << o.str();
         }
     }
-}
-
-bool
-Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
-{
-    //
-    // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
-    //
-    bool addUnknown = true;
-    string prefix = _name + ".";
-    for (const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
-    {
-        string icePrefix = string(*i) + ".";
-        if (prefix.find(icePrefix) == 0)
-        {
-            addUnknown = false;
-            break;
-        }
-    }
-
-    bool noProps = true;
-    PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix);
-    for (const auto& prop : props)
-    {
-        // Strip prefix from property name
-        string name = prop.first.substr(prefix.size());
-        auto property = findProperty(name, &IceInternal::PropertyNames::ObjectAdapterClassProps);
-        if (property)
-        {
-            noProps = false;
-        }
-        else if (addUnknown)
-        {
-            unknownProps.push_back(prop.first);
-        }
-    }
-
-    return noProps;
 }

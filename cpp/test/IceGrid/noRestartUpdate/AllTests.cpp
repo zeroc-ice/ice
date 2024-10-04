@@ -488,7 +488,6 @@ allTests(Test::TestHelper* helper)
         cout << "testing icebox server add... " << flush;
 
         auto service = make_shared<ServiceDescriptor>();
-        addProperty(service, "Ice.Warn.UnknownProperties", "0");
         // addProperty(service, "Ice.Trace.Admin.Properties", "1");
         service->name = "Service1";
 
@@ -501,7 +500,7 @@ allTests(Test::TestHelper* helper)
         adapter.serverLifetime = false;
         addProperty(service, "${service}.Endpoints", "default");
         object.id = Ice::stringToIdentity("${server}.${service}");
-        addProperty(service, "${service}.Identity", "${server}.${service}");
+        addProperty(service, "${service}Data.Identity", "${server}.${service}");
         adapter.objects.push_back(object);
         service->adapters.push_back(adapter);
 

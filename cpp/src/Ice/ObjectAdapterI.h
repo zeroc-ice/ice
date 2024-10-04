@@ -79,7 +79,6 @@ namespace Ice
         std::optional<LocatorPrx> getLocator() const noexcept;
         EndpointSeq getEndpoints() const noexcept;
 
-        void refreshPublishedEndpoints() final;
         EndpointSeq getPublishedEndpoints() const noexcept;
         void setPublishedEndpoints(const EndpointSeq&) final;
 
@@ -122,7 +121,6 @@ namespace Ice
         std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
         std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
         void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<ObjectPrx>&);
-        bool filterProperties(StringSeq&);
 
         enum State
         {

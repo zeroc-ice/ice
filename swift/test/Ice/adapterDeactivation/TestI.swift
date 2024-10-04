@@ -41,14 +41,10 @@ class RouterI: Ice.Router {
     }
 
     func getServerProxy(current: Ice.Current) async throws -> Ice.ObjectPrx? {
-        let prx =
-            try current.adapter.getCommunicator().stringToProxy(
-                "dummy:tcp -h localhost -p \(_nextPort) -t 30000")
-        _nextPort += 1
-        return prx
+        return try makeProxy(
+            communicator: current.adapter.getCommunicator(), proxyString: "dummy:tcp -h localhost -p 23456 -t 30000",
+            type: Ice.ObjectPrx.self)
     }
-
-    var _nextPort: Int32 = 23456
 }
 
 class ServantLocatorI: Ice.ServantLocator {

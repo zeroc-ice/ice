@@ -445,3 +445,9 @@ Ice::TwowayOnlyException::ice_id() const noexcept
 {
     return "::Ice::TwowayOnlyException";
 }
+
+const char*
+Ice::UnknownPropertyException::ice_id() const noexcept
+{
+    return "::Ice::UnknownPropertyException";
+}

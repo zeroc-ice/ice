@@ -81,6 +81,12 @@ jobs:
               --target $target --transform-for-static-hosting --hosting-base-path  /api/ice/main/swift/$target
           done
 
+      - name: Generate API reference for Java
+        working-directory: ./java
+        run: |
+          make -C ../cpp slice2java
+          ./gradlew dist
+
       # This will perform a full sync of the documentation to S3 every time the workflow is run since
       # the timestamps will always be different. Using --size-only is not sufficient since the
       # documentation may be updated without changing the size of the files. S3 does not offer a hash based sync.
@@ -102,6 +108,10 @@ jobs:
 
           for target in Ice Glacier2 IceGrid IceStorm; do
             aws s3 sync ./swift/docs/$target s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/$target --delete
+          done
+
+          for target in Glacier2 Ice IceBT IceBox IceGrid IceStorm; do
+            aws s3 sync ./java/src/$target/build/docs/javadoc s3://${AWS_S3_DOC_BUCKET}/api/ice/main/java/$target --delete
           done
 
         env:

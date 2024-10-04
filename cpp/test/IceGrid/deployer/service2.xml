@@ -13,10 +13,9 @@
         <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
         <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
 
-        <property name="Ice.Warn.UnknownProperties" value="0"/>
-        <property name="${name}.Identity" value="${server}-${name}"/>
-        <property name="${name}.Type" value="nonstandard"/>
-        <property name="${name}.ServiceName" value="${name}"/>
+        <property name="${name}Data.Identity" value="${server}-${name}"/>
+        <property name="${name}Data.Type" value="nonstandard"/>
+        <property name="${name}Data.ServiceName" value="${name}"/>
 
         <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
         <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>

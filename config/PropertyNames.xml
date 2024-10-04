@@ -50,8 +50,19 @@
         <property name="Router" class="Proxy" languages="all" />
         <property name="ProxyOptions" languages="all" />
         <property name="ThreadPool" class="ThreadPool" languages="cpp,csharp,java" />
+        <property name="MaxConnections" languages="cpp,csharp,java" default="0" />
         <property name="MessageSizeMax" languages="all" />
     </class>
+
+    <!-- TODO: use this to validate IceMX properties -->
+    <!-- <class name="Metrics" prefix-only="true">
+        <property name="Disabled" languages="cpp,csharp,java" />
+        <property name="GroupBy" languages="cpp,csharp,java" />
+        <property name="Map.[any]" languages="cpp,csharp,java" />
+        <property name="RetainDetached" languages="cpp,csharp,java" default="10" />
+        <property name="Accept.[any]" languages="cpp,csharp,java" />
+        <property name="Reject.[any]" languages="cpp,csharp,java" />
+    </class> -->
 
     <section name="Ice">
         <property name="AcceptClassCycles" languages="cpp,csharp,java" default="0" />
@@ -116,6 +127,8 @@
         <property name="StdErr" languages="cpp,csharp,java" />
         <property name="StdOut" languages="cpp,csharp,java" />
         <property name="SyslogFacility" languages="cpp,java" default="LOG_USER" />
+        <property name="SyslogHost" languages="java" default="localhost"/>
+        <property name="SyslogPort" languages="java" default="514"/>
         <property name="ThreadPool.Client" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPool.Server" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPriority" languages="csharp,java" />
@@ -141,7 +154,7 @@
         <property name="Warn.Datagrams" languages="cpp,csharp,java" default="0" />
         <property name="Warn.Dispatch" languages="all" default="1" />
         <property name="Warn.Endpoints" languages="all" default="1" />
-        <property name="Warn.UnknownProperties" languages="all" default="1" />
+        <property name="Warn.UnknownProperties" languages="java,js" default="1" />
         <property name="Warn.UnusedProperties" languages="all" default="0" />
         <property name="CacheMessageBuffers" languages="csharp,java" default="2" />
         <property name="ThreadInterruptSafe" languages="java" />
@@ -356,5 +369,4 @@
         <property name="Trace.RoutingTable" languages="cpp" default="0" />
         <property name="Trace.Session" languages="cpp" default="0" />
     </section>
-
 </properties>

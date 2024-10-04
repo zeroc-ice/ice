@@ -54,15 +54,15 @@ namespace
             }
         }
 
-        if (!unknownProps.empty() && properties->getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
+        if (!unknownProps.empty())
         {
-            Warning out(getProcessLogger());
-            out << "found unknown IceMX properties for '" << prefix.substr(0, prefix.size() - 1) << "':";
-            for (vector<string>::const_iterator p = unknownProps.begin(); p != unknownProps.end(); ++p)
+            ostringstream os;
+            os << "found unknown properties for " << "IceMX" << ": '" << prefix << "'";
+            for (const auto& prop : unknownProps)
             {
-                out << "\n    " << *p;
-                properties->setProperty(*p, ""); // Clear the known property to prevent further warnings.
+                os << "\n    " << prop;
             }
+            throw UnknownPropertyException(__FILE__, __LINE__, os.str());
         }
     }
 

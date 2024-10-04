@@ -10,6 +10,7 @@
 #include "Instance.h"
 #include "Network.h"
 #include "ObjectAdapterFactory.h"
+#include "PropertyUtil.h"
 #include "TraceLevels.h"
 
 #if defined(__FreeBSD__)
@@ -167,6 +168,11 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 #endif
       _promote(true)
 {
+    // Check for unknown thread pool properties
+    validatePropertiesWithPrefix(
+        _prefix,
+        _instance->initializationData().properties,
+        &IceInternal::PropertyNames::ThreadPoolProps);
 }
 
 void

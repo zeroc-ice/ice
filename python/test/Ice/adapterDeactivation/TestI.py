@@ -27,18 +27,13 @@ class TestI(Test.TestIntf):
 
 
 class RouterI(Ice.Router):
-    def __init__(self):
-        self._nextPort = 23456
-
     def getClientProxy(self, c):
         return (None, False)
 
     def getServerProxy(self, c):
-        port = self._nextPort
-        self._nextPort += 1
         return Ice.ObjectPrx(
             c.adapter.getCommunicator(),
-            "dummy:tcp -h localhost -p {0} -t 30000".format(port)
+            "dummy:tcp -h localhost -p 23456 -t 30000"
         )
 
     def addProxies(self, proxies, c):
