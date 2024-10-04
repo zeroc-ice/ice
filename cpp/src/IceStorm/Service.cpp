@@ -91,8 +91,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
 {
     auto properties = communicator->getProperties();
 
-    // IceStorm does its own property validation as we do not include the IceStorm properties in the list of known
-    // properties as users should not set them
+    // TODO: Remove once we fix #2798
     IceInternal::validatePropertiesWithPrefix(name, properties, &IceInternal::PropertyNames::IceStormProps);
 
     int id = properties->getPropertyAsIntWithDefault(name + ".NodeId", -1);
