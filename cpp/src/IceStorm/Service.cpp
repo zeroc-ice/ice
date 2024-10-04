@@ -31,17 +31,18 @@ namespace
     class ServiceI final : public IceStormInternal::Service
     {
     public:
+        IceStorm::TopicManagerPrx getTopicManager() const final;
+
+        void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) final;
+
+        // For IceGrid
         void start(
             const Ice::CommunicatorPtr&,
             const Ice::ObjectAdapterPtr&,
             const Ice::ObjectAdapterPtr&,
             const std::string&,
-            const Ice::Identity&,
-            const std::string&);
+            const Ice::Identity&);
 
-        IceStorm::TopicManagerPrx getTopicManager() const final;
-
-        void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) final;
         void stop() final;
 
     private:
@@ -77,11 +78,10 @@ IceStormInternal::Service::create(
     const ObjectAdapterPtr& topicAdapter,
     const ObjectAdapterPtr& publishAdapter,
     const string& name,
-    const Ice::Identity& id,
-    const string& dbEnv)
+    const Ice::Identity& id)
 {
     shared_ptr<ServiceI> service(new ServiceI);
-    service->start(communicator, topicAdapter, publishAdapter, name, id, dbEnv);
+    service->start(communicator, topicAdapter, publishAdapter, name, id);
     return service;
 }
 
@@ -365,8 +365,7 @@ ServiceI::start(
     const ObjectAdapterPtr& topicAdapter,
     const ObjectAdapterPtr& publishAdapter,
     const string& name,
-    const Identity& id,
-    const string&)
+    const Identity& id)
 {
     // For IceGrid we don't validate the properties as all sorts of non-IceStorm properties are included in the prefix.
     //

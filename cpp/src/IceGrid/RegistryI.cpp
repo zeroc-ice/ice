@@ -355,8 +355,7 @@ RegistryI::startImpl()
         _registryAdapter,
         _registryAdapter,
         "IceGrid.Registry",
-        registryTopicManagerId,
-        "");
+        registryTopicManagerId);
 
     try
     {
