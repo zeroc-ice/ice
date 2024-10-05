@@ -10,29 +10,21 @@ final class ObjectAdapterFactory {
     public void shutdown() {
         java.util.List<ObjectAdapter> adapters;
         synchronized (this) {
-            //
-            // Ignore shutdown requests if the object adapter factory has
-            // already been shut down.
-            //
+            // Ignore shutdown requests if the object adapter factory has already been shut down.
             if (_instance == null) {
                 return;
             }
 
-            adapters = new java.util.LinkedList<>(_adapters);
-        }
-
-        //
-        // Deactivate outside the thread synchronization, to avoid
-        // deadlocks.
-        //
-        for (ObjectAdapter adapter : adapters) {
-            adapter.deactivate();
-        }
-
-        synchronized (this) {
             _instance = null;
             _communicator = null;
             notifyAll();
+
+            adapters = new java.util.LinkedList<>(_adapters);
+        }
+
+        // Deactivate outside the thread synchronization, to avoid deadlocks.
+        for (ObjectAdapter adapter : adapters) {
+            adapter.deactivate();
         }
     }
 
