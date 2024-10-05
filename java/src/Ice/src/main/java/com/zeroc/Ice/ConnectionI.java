@@ -1450,10 +1450,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
                 case StateActive:
                     {
-                        //
-                        // Can only switch from holding or not validated to
-                        // active.
-                        //
+                        // Can only switch from holding or not validated to active.
                         if (_state != StateHolding && _state != StateNotValidated) {
                             return;
                         }
@@ -1466,8 +1463,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         }
                         // else don't resume reading since we're at or over the _maxDispatches
                         // limit.
-
-                        _threadPool.register(this, SocketOperation.Read);
                         break;
                     }
 
