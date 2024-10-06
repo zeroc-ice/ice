@@ -11,6 +11,7 @@
 #include "Ice/OutputStream.h"
 
 #include <condition_variable>
+#include <functional>
 #include <mutex>
 
 namespace IceInternal
