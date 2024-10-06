@@ -70,7 +70,8 @@ namespace Ice
     //
 
     /**
-     * General reader. slice2cpp generates specializations as needed.
+     * Reader used/generated for structs, classes and exceptions. slice2cpp generates specializations as needed, in
+     * particular, it always generates a specialization for structs and for classes/exceptions with fields.
      * \headerfile Ice/Ice.h
      */
     template<typename T> struct StreamReader
@@ -82,21 +83,12 @@ namespace Ice
     };
 
     /**
-     * General writer. slice2cpp generates specializations as needed.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T> struct StreamWriter
-    {
-        static void write(OutputStream* stream, const T& v) { stream->writeAll(v.ice_tuple()); }
-    };
-
-    /**
      * Helper for structs.
      * \headerfile Ice/Ice.h
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryStruct>
     {
-        static void write(OutputStream* stream, const T& v) { StreamWriter<T>::write(stream, v); }
+        static void write(OutputStream* stream, const T& v) { stream->writeAll(v.ice_tuple());  }
 
         static void read(InputStream* stream, T& v) { StreamReader<T>::read(stream, v); }
     };

@@ -891,35 +891,6 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
     string holder = "v.";
 
     //
-    // Generate StreamWriter
-    //
-    // Only generate StreamWriter specializations if we are generating optional data members and no
-    // base class data members
-    //
-    if (!optionalMembers.empty() || hasBaseDataMembers)
-    {
-        out << nl << "template<>";
-        out << nl << "struct StreamWriter<" << fullName << ">";
-        out << sb;
-        if (requiredMembers.empty() && optionalMembers.empty())
-        {
-            out << nl << "static void write(OutputStream*, const " << fullName << "&)";
-        }
-        else
-        {
-            out << nl << "static void write(OutputStream* ostr, const " << fullName << "& v)";
-        }
-
-        out << sb;
-
-        writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
-        writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, true);
-
-        out << eb;
-        out << eb << ";" << nl;
-    }
-
-    //
     // Generate StreamReader
     //
     out << nl << "template<>";
@@ -941,6 +912,40 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
 
     out << eb;
     out << eb << ";" << nl;
+}
+
+void
+Slice::writeDataMembers(Output& out, DataMemberList dataMembers)
+{
+    assert(dataMembers.size() > 0);
+
+    DataMemberList requiredMembers;
+    DataMemberList optionalMembers;
+
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        if ((*q)->optional())
+        {
+            optionalMembers.push_back(*q);
+        }
+        else
+        {
+            requiredMembers.push_back(*q);
+        }
+    }
+
+    // Sort optional data members
+    class SortFn
+    {
+    public:
+        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs) { return lhs->tag() < rhs->tag(); }
+    };
+    optionalMembers.sort(SortFn::compare);
+
+    string holder = "this->";
+
+    writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
+    writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, true);
 }
 
 void

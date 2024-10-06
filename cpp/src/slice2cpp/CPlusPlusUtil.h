@@ -68,6 +68,10 @@ namespace Slice
 
     void writeMarshalUnmarshalAllInHolder(IceInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
     void writeStreamHelpers(::IceInternal::Output&, const ContainedPtr&, DataMemberList, bool);
+
+    // Writes the data members of a class or exceptions slice.
+    void writeDataMembers(IceInternal::Output&, DataMemberList);
+
     void writeIceTuple(::IceInternal::Output&, DataMemberList, TypeContext);
 
     bool findMetadata(const std::string&, const ClassDeclPtr&, std::string&);

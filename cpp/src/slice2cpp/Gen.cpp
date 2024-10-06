@@ -2275,7 +2275,7 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamWriter<" << name << ">::write(ostr, *this);";
+        writeDataMembers(C, dataMembers);
     }
     C << nl << "ostr->endSlice();";
     if (base)
@@ -2464,8 +2464,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if (generateFriend)
     {
         H << nl << "template<typename T>";
-        H << nl << "friend struct Ice::StreamWriter;";
-        H << nl << "template<typename T>";
         H << nl << "friend struct Ice::StreamReader;";
         H << sp;
     }
@@ -2487,7 +2485,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamWriter<" << name << ">::write(ostr, *this);";
+        writeDataMembers(C, dataMembers);
     }
     C << nl << "ostr->endSlice();";
     if (base)
