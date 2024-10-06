@@ -70,12 +70,11 @@ namespace Ice
     //
 
     /**
-     * Reader used/generated for structs.
+     * Reader used/generated for structs. Always specialized.
      * \headerfile Ice/Ice.h
      */
     template<typename T> struct StreamReader
     {
-        static void read(InputStream*, T&); // not implemented, always specialized
     };
 
     /**
@@ -84,7 +83,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryStruct>
     {
-        static void write(OutputStream* stream, const T& v) { stream->writeAll(v.ice_tuple());  }
+        static void write(OutputStream* stream, const T& v) { stream->writeAll(v.ice_tuple()); }
 
         static void read(InputStream* stream, T& v) { StreamReader<T>::read(stream, v); }
     };

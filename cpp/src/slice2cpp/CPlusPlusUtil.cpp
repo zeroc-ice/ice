@@ -113,9 +113,7 @@ namespace
 
         // Sort optional data members
         optionalMembers.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        });
+                             { return lhs->tag() < rhs->tag(); });
 
         return {requiredMembers, optionalMembers};
     }
