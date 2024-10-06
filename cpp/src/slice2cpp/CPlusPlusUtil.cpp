@@ -859,21 +859,26 @@ Slice::writeMarshalUnmarshalAllInHolder(
     {
         ostringstream os;
         os << "{";
-        for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        bool firstElement = true;
+        for (const auto& q : dataMembers)
         {
-            if (q != dataMembers.begin())
+            if (firstElement)
+            {
+                firstElement = false;
+            }
+            else
             {
                 os << ", ";
             }
-            os << (*q)->tag();
+            os << q->tag();
         }
         os << "}";
         out << os.str();
     }
 
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& q : dataMembers)
     {
-        out << holder + fixKwd((*q)->name());
+        out << holder + fixKwd(q->name());
     }
 
     out << epar << ";";

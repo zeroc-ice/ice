@@ -66,6 +66,7 @@ namespace Slice
         const std::string&,
         TypeContext);
 
+    // TODO: remove from header file.
     void writeMarshalUnmarshalAllInHolder(IceInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
 
     // Writes the StreamReader specialization for a struct.
