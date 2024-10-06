@@ -69,13 +69,13 @@ namespace Slice
     void writeMarshalUnmarshalAllInHolder(IceInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
 
     // Writes the StreamReader specialization for a struct.
-    void writeStreamReader(IceInternal::Output&, const StructPtr&, DataMemberList);
+    void writeStreamReader(IceInternal::Output&, const StructPtr&, const DataMemberList&);
 
     // Reads or writes the data members of a class or exceptions slice.
-    void readDataMembers(IceInternal::Output&, DataMemberList);
-    void writeDataMembers(IceInternal::Output&, DataMemberList);
+    void readDataMembers(IceInternal::Output&, const DataMemberList&);
+    void writeDataMembers(IceInternal::Output&, const DataMemberList&);
 
-    void writeIceTuple(::IceInternal::Output&, DataMemberList, TypeContext);
+    void writeIceTuple(::IceInternal::Output&, const DataMemberList&, TypeContext);
 
     bool findMetadata(const std::string&, const ClassDeclPtr&, std::string&);
     bool findMetadata(const std::string&, const StringList&, std::string&);

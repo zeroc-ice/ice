@@ -93,6 +93,33 @@ namespace
         }
     }
 
+    // Split data members in required and optional members; the optional members are sorted in tag order
+    std::pair<DataMemberList, DataMemberList> split(const DataMemberList& dataMembers)
+    {
+        DataMemberList requiredMembers;
+        DataMemberList optionalMembers;
+
+        for (const auto& q : dataMembers)
+        {
+            if (q->optional())
+            {
+                optionalMembers.push_back(q);
+            }
+            else
+            {
+                requiredMembers.push_back(q);
+            }
+        }
+
+        // Sort optional data members
+        optionalMembers.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs)
+        {
+            return lhs->tag() < rhs->tag();
+        });
+
+        return {requiredMembers, optionalMembers};
+    }
+
     // Do we pass this type by value when it's an input parameter?
     bool inputParamByValue(const TypePtr& type, const StringList& metadata)
     {
@@ -853,7 +880,7 @@ Slice::writeMarshalUnmarshalAllInHolder(
 }
 
 void
-Slice::writeStreamReader(Output& out, const StructPtr& p, DataMemberList dataMembers)
+Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& dataMembers)
 {
     string fullName = fixKwd(p->scoped());
 
@@ -870,33 +897,11 @@ Slice::writeStreamReader(Output& out, const StructPtr& p, DataMemberList dataMem
 }
 
 void
-Slice::readDataMembers(Output& out, DataMemberList dataMembers)
+Slice::readDataMembers(Output& out, const DataMemberList& dataMembers)
 {
     assert(dataMembers.size() > 0);
 
-    DataMemberList requiredMembers;
-    DataMemberList optionalMembers;
-
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        if ((*q)->optional())
-        {
-            optionalMembers.push_back(*q);
-        }
-        else
-        {
-            requiredMembers.push_back(*q);
-        }
-    }
-
-    // Sort optional data members
-    class SortFn
-    {
-    public:
-        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs) { return lhs->tag() < rhs->tag(); }
-    };
-    optionalMembers.sort(SortFn::compare);
-
+    auto [requiredMembers, optionalMembers] = split(dataMembers);
     string holder = "this->";
 
     writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, false);
@@ -904,33 +909,11 @@ Slice::readDataMembers(Output& out, DataMemberList dataMembers)
 }
 
 void
-Slice::writeDataMembers(Output& out, DataMemberList dataMembers)
+Slice::writeDataMembers(Output& out, const DataMemberList& dataMembers)
 {
     assert(dataMembers.size() > 0);
 
-    DataMemberList requiredMembers;
-    DataMemberList optionalMembers;
-
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        if ((*q)->optional())
-        {
-            optionalMembers.push_back(*q);
-        }
-        else
-        {
-            requiredMembers.push_back(*q);
-        }
-    }
-
-    // Sort optional data members
-    class SortFn
-    {
-    public:
-        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs) { return lhs->tag() < rhs->tag(); }
-    };
-    optionalMembers.sort(SortFn::compare);
-
+    auto [requiredMembers, optionalMembers] = split(dataMembers);
     string holder = "this->";
 
     writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
@@ -938,7 +921,7 @@ Slice::writeDataMembers(Output& out, DataMemberList dataMembers)
 }
 
 void
-Slice::writeIceTuple(::IceInternal::Output& out, DataMemberList dataMembers, TypeContext typeCtx)
+Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembers, TypeContext typeCtx)
 {
     //
     // Use an empty scope to get full qualified names from calls to typeToString.
