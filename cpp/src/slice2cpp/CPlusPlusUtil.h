@@ -67,9 +67,12 @@ namespace Slice
         TypeContext);
 
     void writeMarshalUnmarshalAllInHolder(IceInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
-    void writeStreamHelpers(::IceInternal::Output&, const ContainedPtr&, DataMemberList, bool);
 
-    // Writes the data members of a class or exceptions slice.
+    // Writes the StreamReader specialization for a struct.
+    void writeStreamReader(IceInternal::Output&, const StructPtr&, DataMemberList);
+
+    // Reads or writes the data members of a class or exceptions slice.
+    void readDataMembers(IceInternal::Output&, DataMemberList);
     void writeDataMembers(IceInternal::Output&, DataMemberList);
 
     void writeIceTuple(::IceInternal::Output&, DataMemberList, TypeContext);

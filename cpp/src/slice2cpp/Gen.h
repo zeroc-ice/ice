@@ -185,7 +185,7 @@ namespace Slice
             std::list<TypeContext> _useWstringHist;
         };
 
-        // Generates internal StreamHelper template specializations for enums, structs, classes and exceptions.
+        // Generates internal StreamHelper template specializations for enums and structs.
         class StreamVisitor final : public ParserVisitor
         {
         public:
@@ -195,8 +195,6 @@ namespace Slice
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
             bool visitStructStart(const StructPtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            void visitExceptionEnd(const ExceptionPtr&) final;
             void visitEnum(const EnumPtr&) final;
 
         private:

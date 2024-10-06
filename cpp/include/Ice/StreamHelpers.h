@@ -70,16 +70,12 @@ namespace Ice
     //
 
     /**
-     * Reader used/generated for structs, classes and exceptions. slice2cpp generates specializations as needed, in
-     * particular, it always generates a specialization for structs and for classes/exceptions with fields.
+     * Reader used/generated for structs.
      * \headerfile Ice/Ice.h
      */
     template<typename T> struct StreamReader
     {
-        static void read(InputStream*, T&)
-        {
-            // Default is to read nothing
-        }
+        static void read(InputStream*, T&); // not implemented, always specialized
     };
 
     /**

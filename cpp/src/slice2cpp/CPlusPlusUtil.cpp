@@ -853,16 +853,26 @@ Slice::writeMarshalUnmarshalAllInHolder(
 }
 
 void
-Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dataMembers, bool hasBaseDataMembers)
+Slice::writeStreamReader(Output& out, const StructPtr& p, DataMemberList dataMembers)
 {
-    // If c is a class/exception whose base class contains data members (recursively), then we need to generate
-    // a StreamWriter even if its implementation is empty. This is because our default marshaling uses ice_tuple() which
-    // contains all of our class/exception's data members as well the base data members, which breaks marshaling. This
-    // is not an issue for structs.
-    if (dataMembers.empty() && !hasBaseDataMembers)
-    {
-        return;
-    }
+    string fullName = fixKwd(p->scoped());
+
+    out << nl << "template<>";
+    out << nl << "struct StreamReader<" << fullName << ">";
+    out << sb;
+    out << nl << "static void read(InputStream* istr, " << fullName << "& v)";
+    out << sb;
+
+    writeMarshalUnmarshalAllInHolder(out, "v.", dataMembers, false, false);
+
+    out << eb;
+    out << eb << ";" << nl;
+}
+
+void
+Slice::readDataMembers(Output& out, DataMemberList dataMembers)
+{
+    assert(dataMembers.size() > 0);
 
     DataMemberList requiredMembers;
     DataMemberList optionalMembers;
@@ -887,31 +897,10 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
     };
     optionalMembers.sort(SortFn::compare);
 
-    string fullName = fixKwd(c->scoped());
-    string holder = "v.";
-
-    //
-    // Generate StreamReader
-    //
-    out << nl << "template<>";
-    out << nl << "struct StreamReader<" << fullName << ">";
-    out << sb;
-    if (requiredMembers.empty() && optionalMembers.empty())
-    {
-        out << nl << "static void read(InputStream*, " << fullName << "&)";
-    }
-    else
-    {
-        out << nl << "static void read(InputStream* istr, " << fullName << "& v)";
-    }
-
-    out << sb;
+    string holder = "this->";
 
     writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, false);
     writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, false);
-
-    out << eb;
-    out << eb << ";" << nl;
 }
 
 void
