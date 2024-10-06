@@ -5,7 +5,8 @@
 #ifndef ICE_COMPARABLE_H
 #define ICE_COMPARABLE_H
 
-#include <functional>
+#include <tuple>
+#include <type_traits>
 
 namespace Ice
 {
@@ -113,80 +114,91 @@ namespace Ice
         }
     };
 
-    //
-    // Relational operators for generated structs and classes
-    //
-
-    /**
-     * Relational operator for generated structs and classes.
-     * @param lhs The left-hand side.
-     * @param rhs The right-hand side.
-     * @return True if the left-hand side compares less than the right-hand side, false otherwise.
-     */
-    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
-    bool operator<(const C& lhs, const C& rhs)
+    namespace Tuple
     {
-        return lhs.ice_tuple() < rhs.ice_tuple();
-    }
+        /**
+         * Relational operator for generated structs and classes.
+         * @param lhs The left-hand side.
+         * @param rhs The right-hand side.
+         * @return True if the left-hand side compares less than the right-hand side, false otherwise.
+         */
+        template<
+            class C,
+            std::enable_if_t<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value, bool> = true>
+        bool operator<(const C& lhs, const C& rhs)
+        {
+            return lhs.ice_tuple() < rhs.ice_tuple();
+        }
 
-    /**
-     * Relational operator for generated structs and classes.
-     * @param lhs The left-hand side.
-     * @param rhs The right-hand side.
-     * @return True if the left-hand side compares less than or equal to the right-hand side, false otherwise.
-     */
-    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
-    bool operator<=(const C& lhs, const C& rhs)
-    {
-        return lhs.ice_tuple() <= rhs.ice_tuple();
-    }
+        /**
+         * Relational operator for generated structs and classes.
+         * @param lhs The left-hand side.
+         * @param rhs The right-hand side.
+         * @return True if the left-hand side compares less than or equal to the right-hand side, false otherwise.
+         */
+        template<
+            class C,
+            std::enable_if_t<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value, bool> = true>
+        bool operator<=(const C& lhs, const C& rhs)
+        {
+            return lhs.ice_tuple() <= rhs.ice_tuple();
+        }
 
-    /**
-     * Relational operator for generated structs and classes.
-     * @param lhs The left-hand side.
-     * @param rhs The right-hand side.
-     * @return True if the left-hand side compares greater than the right-hand side, false otherwise.
-     */
-    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
-    bool operator>(const C& lhs, const C& rhs)
-    {
-        return lhs.ice_tuple() > rhs.ice_tuple();
-    }
+        /**
+         * Relational operator for generated structs and classes.
+         * @param lhs The left-hand side.
+         * @param rhs The right-hand side.
+         * @return True if the left-hand side compares greater than the right-hand side, false otherwise.
+         */
+        template<
+            class C,
+            std::enable_if_t<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value, bool> = true>
+        bool operator>(const C& lhs, const C& rhs)
+        {
+            return lhs.ice_tuple() > rhs.ice_tuple();
+        }
 
-    /**
-     * Relational operator for generated structs and classes.
-     * @param lhs The left-hand side.
-     * @param rhs The right-hand side.
-     * @return True if the left-hand side compares greater than or equal to the right-hand side, false otherwise.
-     */
-    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
-    bool operator>=(const C& lhs, const C& rhs)
-    {
-        return lhs.ice_tuple() >= rhs.ice_tuple();
-    }
+        /**
+         * Relational operator for generated structs and classes.
+         * @param lhs The left-hand side.
+         * @param rhs The right-hand side.
+         * @return True if the left-hand side compares greater than or equal to the right-hand side, false otherwise.
+         */
+        template<
+            class C,
+            std::enable_if_t<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value, bool> = true>
+        bool operator>=(const C& lhs, const C& rhs)
+        {
+            return lhs.ice_tuple() >= rhs.ice_tuple();
+        }
 
-    /**
-     * Relational operator for generated structs and classes.
-     * @param lhs The left-hand side.
-     * @param rhs The right-hand side.
-     * @return True if the left-hand side compares equal to the right-hand side, false otherwise.
-     */
-    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
-    bool operator==(const C& lhs, const C& rhs)
-    {
-        return lhs.ice_tuple() == rhs.ice_tuple();
-    }
+        /**
+         * Relational operator for generated structs and classes.
+         * @param lhs The left-hand side.
+         * @param rhs The right-hand side.
+         * @return True if the left-hand side compares equal to the right-hand side, false otherwise.
+         */
+        template<
+            class C,
+            std::enable_if_t<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value, bool> = true>
+        bool operator==(const C& lhs, const C& rhs)
+        {
+            return lhs.ice_tuple() == rhs.ice_tuple();
+        }
 
-    /**
-     * Relational operator for generated structs and classes.
-     * @param lhs The left-hand side.
-     * @param rhs The right-hand side.
-     * @return True if the left-hand side is not equal to the right-hand side, false otherwise.
-     */
-    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
-    bool operator!=(const C& lhs, const C& rhs)
-    {
-        return lhs.ice_tuple() != rhs.ice_tuple();
+        /**
+         * Relational operator for generated structs and classes.
+         * @param lhs The left-hand side.
+         * @param rhs The right-hand side.
+         * @return True if the left-hand side is not equal to the right-hand side, false otherwise.
+         */
+        template<
+            class C,
+            std::enable_if_t<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value, bool> = true>
+        bool operator!=(const C& lhs, const C& rhs)
+        {
+            return lhs.ice_tuple() != rhs.ice_tuple();
+        }
     }
 }
 

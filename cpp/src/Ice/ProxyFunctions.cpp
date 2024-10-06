@@ -21,17 +21,16 @@ IceInternal::throwNullProxyMarshalException(const char* file, int line, const Cu
     throw MarshalException{file, line, os.str()};
 }
 
-namespace Ice
+bool
+Ice::operator<(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept
 {
-    bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept
-    {
-        return targetLess(lhs._getReference(), rhs._getReference());
-    }
+    return targetLess(lhs._getReference(), rhs._getReference());
+}
 
-    bool operator==(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept
-    {
-        return targetEqualTo(lhs._getReference(), rhs._getReference());
-    }
+bool
+Ice::operator==(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept
+{
+    return targetEqualTo(lhs._getReference(), rhs._getReference());
 }
 
 bool
