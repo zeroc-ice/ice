@@ -63,8 +63,6 @@ IceInternal::validatePropertiesWithPrefix(
     const PropertiesPtr& properties,
     const PropertyArray* propertyArray)
 {
-    vector<string> unknownProps;
-
     // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
     for (const char** i = IceInternal::PropertyNames::clPropNames; *i; ++i)
     {
@@ -75,6 +73,7 @@ IceInternal::validatePropertiesWithPrefix(
         }
     }
 
+    vector<string> unknownProps;
     PropertyDict props = properties->getPropertiesForPrefix(string{prefix} + ".");
     for (const auto& p : props)
     {

@@ -628,69 +628,6 @@ internal class ReferenceFactory
         _communicator = communicator;
     }
 
-    private static readonly string[] _suffixes =
-    {
-        "EndpointSelection",
-        "ConnectionCached",
-        "PreferSecure",
-        "LocatorCacheTimeout",
-        "InvocationTimeout",
-        "Locator",
-        "Router",
-        "CollocationOptimized",
-        "Context\\..*"
-    };
-
-    private void
-    checkForUnknownProperties(string prefix)
-    {
-        //
-        // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
-        //
-        foreach (string name in PropertyNames.clPropNames)
-        {
-            if (prefix.StartsWith($"{name}.", StringComparison.Ordinal))
-            {
-                return;
-            }
-        }
-
-        List<string> unknownProps = new List<string>();
-        Dictionary<string, string> props
-            = _instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-        foreach (string prop in props.Keys)
-        {
-            bool valid = false;
-            for (int i = 0; i < _suffixes.Length; ++i)
-            {
-                string pattern = "^" + Regex.Escape(prefix + ".") + _suffixes[i] + "$";
-                if (new Regex(pattern).Match(prop).Success)
-                {
-                    valid = true;
-                    break;
-                }
-            }
-
-            if (!valid)
-            {
-                unknownProps.Add(prop);
-            }
-        }
-
-        if (unknownProps.Count != 0)
-        {
-            StringBuilder message = new StringBuilder("Found unknown properties for proxy '");
-            message.Append(prefix);
-            message.Append("':");
-            foreach (string s in unknownProps)
-            {
-                message.Append("\n    ");
-                message.Append(s);
-            }
-            throw new UnknownPropertyException(message.ToString());
-        }
-    }
-
     private Reference create(
         Ice.Identity ident,
         string facet,
@@ -734,9 +671,9 @@ internal class ReferenceFactory
         //
         if (propertyPrefix != null && propertyPrefix.Length > 0)
         {
-            Ice.Properties properties = _instance.initializationData().properties;
+            Properties properties = _instance.initializationData().properties;
 
-            checkForUnknownProperties(propertyPrefix);
+            Properties.validatePropertiesWithPrefix(propertyPrefix, properties, PropertyNames.ProxyProps);
 
             string property;
 
