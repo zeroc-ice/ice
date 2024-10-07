@@ -407,10 +407,9 @@ namespace
             static const string prefix = "cpp:doxygen:include:";
             DefinitionContextPtr dc = unt->findDefinitionContext(file);
             assert(dc);
-            string q = dc->findMetadata(prefix);
-            if (!q.empty())
+            if (auto meta = dc->findMetadata(prefix))
             {
-                out << nl << " * \\headerfile " << q.substr(prefix.size());
+                out << nl << " * \\headerfile " << meta->substr(prefix.size());
             }
         }
 
@@ -662,10 +661,9 @@ Slice::Gen::generate(const UnitPtr& p)
     if (_dllExport.empty())
     {
         static const string dllExportPrefix = "cpp:dll-export:";
-        string meta = dc->findMetadata(dllExportPrefix);
-        if (meta.size() > dllExportPrefix.size())
+        if (auto meta = dc->findMetadata(dllExportPrefix))
         {
-            _dllExport = meta.substr(dllExportPrefix.size());
+            _dllExport = meta->substr(dllExportPrefix.size());
         }
     }
 
@@ -1200,31 +1198,27 @@ Slice::Gen::resetUseWstring(list<TypeContext>& hist)
 string
 Slice::Gen::getHeaderExt(const string& file, const UnitPtr& ut)
 {
-    string ext;
     static const string headerExtPrefix = "cpp:header-ext:";
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
-    string meta = dc->findMetadata(headerExtPrefix);
-    if (meta.size() > headerExtPrefix.size())
+    if (auto meta = dc->findMetadata(headerExtPrefix))
     {
-        ext = meta.substr(headerExtPrefix.size());
+        return meta->substr(headerExtPrefix.size());
     }
-    return ext;
+    return "";
 }
 
 string
 Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
 {
-    string ext;
     static const string sourceExtPrefix = "cpp:source-ext:";
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
-    string meta = dc->findMetadata(sourceExtPrefix);
-    if (meta.size() > sourceExtPrefix.size())
+    if (auto meta = dc->findMetadata(sourceExtPrefix))
     {
-        ext = meta.substr(sourceExtPrefix.size());
+        return meta->substr(sourceExtPrefix.size());
     }
-    return ext;
+    return "";
 }
 
 Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h) : H(h), _useWstring(TypeContext::None) {}
@@ -2004,13 +1998,16 @@ Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
 {
     if (p->contains<Struct>())
     {
-        H << sp << nl << "using Ice::operator<;";
-        H << nl << "using Ice::operator<=;";
-        H << nl << "using Ice::operator>;";
-        H << nl << "using Ice::operator>=;";
-        H << nl << "using Ice::operator==;";
-        H << nl << "using Ice::operator!=;";
+        // Bring in relational operators for structs.
+        H << sp;
+        H << nl << "using Ice::Tuple::operator<;";
+        H << nl << "using Ice::Tuple::operator<=;";
+        H << nl << "using Ice::Tuple::operator>;";
+        H << nl << "using Ice::Tuple::operator>=;";
+        H << nl << "using Ice::Tuple::operator==;";
+        H << nl << "using Ice::Tuple::operator!=;";
     }
+
     H << sp << nl << '}';
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -2275,7 +2272,7 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamWriter<" << name << ">::write(ostr, *this);";
+        writeDataMembers(C, dataMembers);
     }
     C << nl << "ostr->endSlice();";
     if (base)
@@ -2290,7 +2287,7 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     C << nl << "istr->startSlice();";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamReader<" << name << ">::read(istr, *this);";
+        readDataMembers(C, dataMembers);
     }
     C << nl << "istr->endSlice();";
     if (base)
@@ -2409,7 +2406,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     // Emit data members. Access visibility may be specified by metadata.
     //
     bool inProtected = false;
-    bool generateFriend = false;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetadata("protected");
     bool needSp = true;
@@ -2426,7 +2422,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 inProtected = true;
                 needSp = false;
             }
-            generateFriend = true;
         }
         else
         {
@@ -2461,15 +2456,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         inProtected = true;
     }
 
-    if (generateFriend)
-    {
-        H << nl << "template<typename T>";
-        H << nl << "friend struct Ice::StreamWriter;";
-        H << nl << "template<typename T>";
-        H << nl << "friend struct Ice::StreamReader;";
-        H << sp;
-    }
-
     H << nl << name << "(const " << name << "&) = default;";
     H << sp << nl << _dllMemberExport << "::Ice::ValuePtr _iceCloneImpl() const override;";
     C << sp;
@@ -2487,7 +2473,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamWriter<" << name << ">::write(ostr, *this);";
+        writeDataMembers(C, dataMembers);
     }
     C << nl << "ostr->endSlice();";
     if (base)
@@ -2502,7 +2488,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "istr->startSlice();";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamReader<" << name << ">::read(istr, *this);";
+        readDataMembers(C, dataMembers);
     }
     C << nl << "istr->endSlice();";
     if (base)
@@ -3271,22 +3257,8 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    writeStreamHelpers(H, p, p->dataMembers(), false);
-
+    writeStreamReader(H, p, p->dataMembers());
     return false;
-}
-
-bool
-Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
-{
-    writeStreamHelpers(H, c, c->dataMembers(), c->hasBaseDataMembers());
-    return false;
-}
-
-void
-Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
-{
-    writeStreamHelpers(H, p, p->dataMembers(), p->hasBaseDataMembers());
 }
 
 void

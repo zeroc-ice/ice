@@ -213,10 +213,9 @@ compile(const vector<string>& argv)
             static const string headerExtPrefix = "cpp:header-ext:";
             DefinitionContextPtr dc = u->findDefinitionContext(u->topLevelFile());
             assert(dc);
-            string meta = dc->findMetadata(headerExtPrefix);
-            if (meta.size() > headerExtPrefix.size())
+            if (auto meta = dc->findMetadata(headerExtPrefix))
             {
-                ext = meta.substr(headerExtPrefix.size());
+                ext = meta->substr(headerExtPrefix.size());
             }
 
             u->destroy();

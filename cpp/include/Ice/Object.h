@@ -9,6 +9,7 @@
 #include "ObjectF.h"
 #include "OutgoingResponse.h"
 
+#include <functional>
 #include <string_view>
 
 namespace Ice

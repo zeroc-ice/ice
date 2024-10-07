@@ -515,10 +515,10 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
     optional<std::int64_t> serialVersionUID = nullopt;
 
     // Check if the user provided their own UID value with metadata.
-    string metadata;
-    if (p->findMetadata("java:serialVersionUID", metadata))
+    if (auto meta = p->findMetadata("java:serialVersionUID"))
     {
-        string::size_type pos = metadata.rfind(":") + 1;
+        string value = *meta;
+        string::size_type pos = value.rfind(":") + 1;
         if (pos == string::npos)
         {
             ostringstream os;
@@ -531,8 +531,8 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
         {
             try
             {
-                metadata = metadata.substr(pos);
-                serialVersionUID = std::stoll(metadata, nullptr, 0);
+                value = value.substr(pos);
+                serialVersionUID = std::stoll(value, nullptr, 0);
             }
             catch (const std::exception&)
             {
@@ -909,24 +909,20 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
     //
     static const string prefix = "java:package:";
 
-    string q;
-    if (!m->findMetadata(prefix, q))
+    if (auto meta = m->findMetadata(prefix))
     {
-        UnitPtr ut = cont->unit();
-        string file = cont->file();
-        assert(!file.empty());
-
-        DefinitionContextPtr dc = ut->findDefinitionContext(file);
-        assert(dc);
-        q = dc->findMetadata(prefix);
+        return meta->substr(prefix.size());
     }
 
-    if (!q.empty())
+    string file = cont->file();
+    DefinitionContextPtr dc = cont->unit()->findDefinitionContext(file);
+    assert(dc);
+    if (auto meta = dc->findMetadata(prefix))
     {
-        q = q.substr(prefix.size());
+        return meta->substr(prefix.size());
     }
 
-    return q;
+    return "";
 }
 
 string
@@ -1545,7 +1541,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                     return;
                 }
             }
-            else if (findMetadata("java:serializable", seq->getMetadata(), ignored))
+            else if (seq->hasMetadata("java:serializable"))
             {
                 if (marshal)
                 {
@@ -1560,7 +1556,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                 }
             }
             else if (
-                !hasTypeMetadata(seq, metadata) || findMetadata("java:type", seq->getMetadata(), ignored) ||
+                !hasTypeMetadata(seq, metadata) || seq->hasMetadata("java:type") ||
                 findMetadata("java:type", metadata, ignored))
             {
                 string instanceType, formalType, origInstanceType, origFormalType;
@@ -1614,8 +1610,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                     {
                         string ignored2;
                         out << nl << "final int optSize = " << s << " == null ? 0 : ";
-                        if (findMetadata("java:buffer", seq->getMetadata(), ignored2) ||
-                            findMetadata("java:buffer", metadata, ignored2))
+                        if (seq->hasMetadata("java:buffer") || findMetadata("java:buffer", metadata, ignored2))
                         {
                             out << s << ".remaining() / " << sz << ";";
                         }
@@ -1876,9 +1871,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
     if (builtin && builtin->kind() == Builtin::KindByte)
     {
-        string meta;
         static const string serializable = "java:serializable:";
-        if (seq->findMetadata(serializable, meta))
+        if (seq->hasMetadata(serializable))
         {
             if (marshal)
             {
@@ -1900,7 +1894,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     {
         string meta;
         static const string bytebuffer = "java:buffer";
-        if (seq->findMetadata(bytebuffer, meta) || findMetadata(bytebuffer, metadata, meta))
+        if (seq->hasMetadata(bytebuffer) || findMetadata(bytebuffer, metadata, meta))
         {
             if (marshal)
             {
@@ -2450,10 +2444,9 @@ Slice::JavaGenerator::getSequenceTypes(
         if (builtin->kind() == Builtin::KindByte)
         {
             string prefix = "java:serializable:";
-            string meta;
-            if (seq->findMetadata(prefix, meta))
+            if (auto meta = seq->findMetadata(prefix))
             {
-                instanceType = formalType = meta.substr(prefix.size());
+                instanceType = formalType = meta->substr(prefix.size());
                 return true;
             }
         }
@@ -2463,9 +2456,8 @@ Slice::JavaGenerator::getSequenceTypes(
              builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
         {
             string prefix = "java:buffer";
-            string meta;
             string ignored;
-            if (seq->findMetadata(prefix, meta) || findMetadata(prefix, metadata, ignored))
+            if (seq->hasMetadata(prefix) || findMetadata(prefix, metadata, ignored))
             {
                 instanceType = formalType = typeToBufferString(seq->type());
                 return true;

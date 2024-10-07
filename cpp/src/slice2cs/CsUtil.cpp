@@ -81,13 +81,11 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
     assert(m);
 
     static const string prefix = "cs:namespace:";
-
-    string q;
-    if (m->findMetadata(prefix, q))
+    if (auto meta = m->findMetadata(prefix))
     {
-        q = q.substr(prefix.size());
+        return meta->substr(prefix.size());
     }
-    return q;
+    return "";
 }
 
 string
@@ -360,10 +358,9 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     if (seq)
     {
         string prefix = "cs:generic:";
-        string meta;
-        if (seq->findMetadata(prefix, meta))
+        if (auto meta = seq->findMetadata(prefix))
         {
-            string customType = meta.substr(prefix.size());
+            string customType = meta->substr(prefix.size());
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
                 return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), package) +
@@ -382,11 +379,10 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     if (d)
     {
         string prefix = "cs:generic:";
-        string meta;
         string typeName;
-        if (d->findMetadata(prefix, meta))
+        if (auto meta = d->findMetadata(prefix))
         {
-            typeName = meta.substr(prefix.size());
+            typeName = meta->substr(prefix.size());
         }
         else
         {
@@ -1164,14 +1160,15 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     const string genericPrefix = "cs:generic:";
     string genericType;
     string addMethod = "Add";
-    const bool isGeneric = seq->findMetadata(genericPrefix, genericType);
+    bool isGeneric = false;
     bool isStack = false;
     bool isList = false;
     bool isLinkedList = false;
     bool isCustom = false;
-    if (isGeneric)
+    if (auto meta = seq->findMetadata(genericPrefix))
     {
-        genericType = genericType.substr(genericPrefix.size());
+        isGeneric = true;
+        genericType = meta->substr(genericPrefix.size());
         if (genericType == "LinkedList")
         {
             addMethod = "AddLast";
@@ -1788,8 +1785,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
     const string typeS = typeToString(type, scope);
     const string seqS = typeToString(seq, scope);
 
-    string meta;
-    const bool isArray = !seq->findMetadata("cs:generic:", meta);
+    const bool isArray = !seq->hasMetadata("cs:generic:");
     const string length = isArray ? param + ".Length" : param + ".Count";
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);

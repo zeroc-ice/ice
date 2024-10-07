@@ -105,24 +105,24 @@ allTests(Test::TestHelper* helper)
         Test::CPtr c1 = make_shared<Test::C>(s1);
         {
             auto result = i->opCAsync(c1).get();
-            test(Ice::targetEqualTo(std::get<0>(result), c1));
-            test(Ice::targetEqualTo(std::get<1>(result), c1));
+            test(std::get<0>(result)->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)->ice_tuple() == c1->ice_tuple());
         }
 
         Test::CSeq cseq1;
         cseq1.push_back(c1);
         {
             auto result = i->opCSeqAsync(cseq1).get();
-            test(Ice::targetEqualTo(std::get<0>(result)[0], c1));
-            test(Ice::targetEqualTo(std::get<1>(result)[0], c1));
+            test(std::get<0>(result)[0]->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)[0]->ice_tuple() == c1->ice_tuple());
         }
 
         Test::CMap cmap1;
         cmap1["a"] = c1;
         {
             auto result = i->opCMapAsync(cmap1).get();
-            test(Ice::targetEqualTo(std::get<0>(result)["a"], c1));
-            test(Ice::targetEqualTo(std::get<1>(result)["a"], c1));
+            test(std::get<0>(result)["a"]->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)["a"]->ice_tuple() == c1->ice_tuple());
         }
 
         {
@@ -235,8 +235,8 @@ allTests(Test::TestHelper* helper)
                 c1,
                 [&p, &c1](Test::CPtr c2, Test::CPtr c3)
                 {
-                    test(Ice::targetEqualTo(c2, c1));
-                    test(Ice::targetEqualTo(c3, c1));
+                    test(c2->ice_tuple() == c1->ice_tuple());
+                    test(c3->ice_tuple() == c1->ice_tuple());
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -261,8 +261,8 @@ allTests(Test::TestHelper* helper)
                 cseq1,
                 [&p, c1](Test::CSeq c2, Test::CSeq c3)
                 {
-                    test(Ice::targetEqualTo(c2[0], c1));
-                    test(Ice::targetEqualTo(c3[0], c1));
+                    test(c2[0]->ice_tuple() == c1->ice_tuple());
+                    test((c3[0]->ice_tuple() == c1->ice_tuple()));
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -287,8 +287,8 @@ allTests(Test::TestHelper* helper)
                 cmap1,
                 [&p, c1](Test::CMap c2, Test::CMap c3)
                 {
-                    test(Ice::targetEqualTo(c2["a"], c1));
-                    test(Ice::targetEqualTo(c3["a"], c1));
+                    test(c2["a"]->ice_tuple() == c1->ice_tuple());
+                    test((c3["a"]->ice_tuple() == c1->ice_tuple()));
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -454,24 +454,24 @@ allTests(Test::TestHelper* helper)
         Test::Inner::Inner2::CPtr c1 = make_shared<Test::Inner::Inner2::C>(s1);
         {
             auto result = i->opCAsync(c1).get();
-            test(Ice::targetEqualTo(std::get<0>(result), c1));
-            test(Ice::targetEqualTo(std::get<1>(result), c1));
+            test(std::get<0>(result)->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)->ice_tuple() == c1->ice_tuple());
         }
 
         Test::Inner::Inner2::CSeq cseq1;
         cseq1.push_back(c1);
         {
             auto result = i->opCSeqAsync(cseq1).get();
-            test(Ice::targetEqualTo(std::get<0>(result)[0], c1));
-            test(Ice::targetEqualTo(std::get<1>(result)[0], c1));
+            test(std::get<0>(result)[0]->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)[0]->ice_tuple() == c1->ice_tuple());
         }
 
         Test::Inner::Inner2::CMap cmap1;
         cmap1["a"] = c1;
         {
             auto result = i->opCMapAsync(cmap1).get();
-            test(Ice::targetEqualTo(std::get<0>(result)["a"], c1));
-            test(Ice::targetEqualTo(std::get<1>(result)["a"], c1));
+            test(std::get<0>(result)["a"]->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)["a"]->ice_tuple() == c1->ice_tuple());
         }
     }
 
@@ -567,8 +567,8 @@ allTests(Test::TestHelper* helper)
                 c1,
                 [&p, &c1](shared_ptr<Test::Inner::Inner2::C> c2, shared_ptr<Test::Inner::Inner2::C> c3)
                 {
-                    test(Ice::targetEqualTo(c2, c1));
-                    test(Ice::targetEqualTo(c3, c1));
+                    test(c2->ice_tuple() == c1->ice_tuple());
+                    test((c3->ice_tuple() == c1->ice_tuple()));
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -593,8 +593,8 @@ allTests(Test::TestHelper* helper)
                 cseq1,
                 [&p, c1](Test::Inner::Inner2::CSeq c2, Test::Inner::Inner2::CSeq c3)
                 {
-                    test(Ice::targetEqualTo(c2[0], c1));
-                    test(Ice::targetEqualTo(c3[0], c1));
+                    test(c2[0]->ice_tuple() == c1->ice_tuple());
+                    test((c3[0]->ice_tuple() == c1->ice_tuple()));
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -619,8 +619,8 @@ allTests(Test::TestHelper* helper)
                 cmap1,
                 [&p, c1](Test::Inner::Inner2::CMap c2, Test::Inner::Inner2::CMap c3)
                 {
-                    test(Ice::targetEqualTo(c2["a"], c1));
-                    test(Ice::targetEqualTo(c3["a"], c1));
+                    test(c2["a"]->ice_tuple() == c1->ice_tuple());
+                    test((c3["a"]->ice_tuple() == c1->ice_tuple()));
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -715,24 +715,24 @@ allTests(Test::TestHelper* helper)
         Test::Inner::Inner2::CPtr c1 = make_shared<Test::Inner::Inner2::C>(s1);
         {
             auto result = i->opCAsync(c1).get();
-            test(Ice::targetEqualTo(std::get<0>(result), c1));
-            test(Ice::targetEqualTo(std::get<1>(result), c1));
+            test(std::get<0>(result)->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)->ice_tuple() == c1->ice_tuple());
         }
 
         Test::Inner::Inner2::CSeq cseq1;
         cseq1.push_back(c1);
         {
             auto result = i->opCSeqAsync(cseq1).get();
-            test(Ice::targetEqualTo(std::get<0>(result)[0], c1));
-            test(Ice::targetEqualTo(std::get<1>(result)[0], c1));
+            test(std::get<0>(result)[0]->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)[0]->ice_tuple() == c1->ice_tuple());
         }
 
         Test::Inner::Inner2::CMap cmap1;
         cmap1["a"] = c1;
         {
             auto result = i->opCMapAsync(cmap1).get();
-            test(Ice::targetEqualTo(std::get<0>(result)["a"], c1));
-            test(Ice::targetEqualTo(std::get<1>(result)["a"], c1));
+            test(std::get<0>(result)["a"]->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)["a"]->ice_tuple() == c1->ice_tuple());
         }
     }
 
@@ -828,8 +828,8 @@ allTests(Test::TestHelper* helper)
                 c1,
                 [&p, &c1](shared_ptr<Test::Inner::Inner2::C> c2, shared_ptr<Test::Inner::Inner2::C> c3)
                 {
-                    test(Ice::targetEqualTo(c2, c1));
-                    test(Ice::targetEqualTo(c3, c1));
+                    test(c2->ice_tuple() == c1->ice_tuple());
+                    test(c3->ice_tuple() == c1->ice_tuple());
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -854,8 +854,8 @@ allTests(Test::TestHelper* helper)
                 cseq1,
                 [&p, c1](Test::Inner::Inner2::CSeq c2, Test::Inner::Inner2::CSeq c3)
                 {
-                    test(Ice::targetEqualTo(c2[0], c1));
-                    test(Ice::targetEqualTo(c3[0], c1));
+                    test(c2[0]->ice_tuple() == c1->ice_tuple());
+                    test(c3[0]->ice_tuple() == c1->ice_tuple());
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -880,8 +880,8 @@ allTests(Test::TestHelper* helper)
                 cmap1,
                 [&p, c1](Test::Inner::Inner2::CMap c2, Test::Inner::Inner2::CMap c3)
                 {
-                    test(Ice::targetEqualTo(c2["a"], c1));
-                    test(Ice::targetEqualTo(c3["a"], c1));
+                    test(c2["a"]->ice_tuple() == c1->ice_tuple());
+                    test(c3["a"]->ice_tuple() == c1->ice_tuple());
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -976,24 +976,24 @@ allTests(Test::TestHelper* helper)
         Test::CPtr c1 = make_shared<Test::C>(s1);
         {
             auto result = i->opCAsync(c1).get();
-            test(Ice::targetEqualTo(std::get<0>(result), c1));
-            test(Ice::targetEqualTo(std::get<1>(result), c1));
+            test(std::get<0>(result)->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)->ice_tuple() == c1->ice_tuple());
         }
 
         Test::CSeq cseq1;
         cseq1.push_back(c1);
         {
             auto result = i->opCSeqAsync(cseq1).get();
-            test(Ice::targetEqualTo(std::get<0>(result)[0], c1));
-            test(Ice::targetEqualTo(std::get<1>(result)[0], c1));
+            test(std::get<0>(result)[0]->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)[0]->ice_tuple() == c1->ice_tuple());
         }
 
         Test::CMap cmap1;
         cmap1["a"] = c1;
         {
             auto result = i->opCMapAsync(cmap1).get();
-            test(Ice::targetEqualTo(std::get<0>(result)["a"], c1));
-            test(Ice::targetEqualTo(std::get<1>(result)["a"], c1));
+            test(std::get<0>(result)["a"]->ice_tuple() == c1->ice_tuple());
+            test(std::get<1>(result)["a"]->ice_tuple() == c1->ice_tuple());
         }
     }
 
@@ -1089,8 +1089,8 @@ allTests(Test::TestHelper* helper)
                 c1,
                 [&p, &c1](shared_ptr<Test::C> c2, shared_ptr<Test::C> c3)
                 {
-                    test(Ice::targetEqualTo(c2, c1));
-                    test(Ice::targetEqualTo(c3, c1));
+                    test(c2->ice_tuple() == c1->ice_tuple());
+                    test(c3->ice_tuple() == c1->ice_tuple());
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -1115,8 +1115,8 @@ allTests(Test::TestHelper* helper)
                 cseq1,
                 [&p, c1](Test::CSeq c2, Test::CSeq c3)
                 {
-                    test(Ice::targetEqualTo(c2[0], c1));
-                    test(Ice::targetEqualTo(c3[0], c1));
+                    test(c2[0]->ice_tuple() == c1->ice_tuple());
+                    test(c3[0]->ice_tuple() == c1->ice_tuple());
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -1141,8 +1141,8 @@ allTests(Test::TestHelper* helper)
                 cmap1,
                 [&p, c1](Test::CMap c2, Test::CMap c3)
                 {
-                    test(Ice::targetEqualTo(c2["a"], c1));
-                    test(Ice::targetEqualTo(c3["a"], c1));
+                    test(c2["a"]->ice_tuple() == c1->ice_tuple());
+                    test(c3["a"]->ice_tuple() == c1->ice_tuple());
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });

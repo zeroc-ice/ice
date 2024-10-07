@@ -16,6 +16,7 @@
 #include "RequestHandlerF.h"
 
 #include <chrono>
+#include <functional>
 #include <future>
 #include <iosfwd>
 #include <optional>
