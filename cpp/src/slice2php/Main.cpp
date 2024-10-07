@@ -254,10 +254,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << sp;
         bool isProtected = p->hasMetadata("protected");
-        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (const auto& member : members)
         {
             _out << nl;
-            if (isProtected || (*q)->hasMetadata("protected"))
+            if (isProtected || member->hasMetadata("protected"))
             {
                 _out << "protected ";
             }
@@ -265,7 +265,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << "public ";
             }
-            _out << "$" << fixIdent((*q)->name()) << ";";
+            _out << "$" << fixIdent(member->name()) << ";";
         }
     }
 

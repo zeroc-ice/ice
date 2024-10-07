@@ -809,15 +809,15 @@ Slice::writeAllocateCode(
     const string& clScope,
     TypeContext typeCtx)
 {
-    for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
         writeParamAllocateCode(
             out,
-            (*p)->type(),
-            (*p)->optional(),
+            param->type(),
+            param->optional(),
             clScope,
-            fixKwd(paramPrefix + (*p)->name()),
-            (*p)->getMetadata(),
+            fixKwd(paramPrefix + param->name()),
+            param->getMetadata(),
             typeCtx);
     }
 
@@ -953,32 +953,6 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
         out << fixKwd((*pi)->name());
     }
     out << ");" << eb;
-}
-
-bool
-Slice::findMetadata(const string& prefix, const ClassDeclPtr& cl, string& value)
-{
-    if (findMetadata(prefix, cl->getMetadata(), value))
-    {
-        return true;
-    }
-
-    ClassDefPtr def = cl->definition();
-    return def ? findMetadata(prefix, def->getMetadata(), value) : false;
-}
-
-bool
-Slice::findMetadata(const string& prefix, const StringList& metadata, string& value)
-{
-    for (const auto& s : metadata)
-    {
-        if (s.find(prefix) == 0)
-        {
-            value = s.substr(prefix.size());
-            return true;
-        }
-    }
-    return false;
 }
 
 string

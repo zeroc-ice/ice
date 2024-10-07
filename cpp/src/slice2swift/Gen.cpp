@@ -27,12 +27,11 @@ namespace
         assert(dc);
 
         static const string classResolverPrefix = "swift:class-resolver-prefix:";
-        string result = dc->findMetadata(classResolverPrefix);
-        if (!result.empty())
+        if (auto meta = dc->findMetadata(classResolverPrefix))
         {
-            result = result.substr(classResolverPrefix.size());
+            return meta->substr(classResolverPrefix.size());
         }
-        return result;
+        return "";
     }
 }
 

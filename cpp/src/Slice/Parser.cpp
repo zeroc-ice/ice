@@ -136,7 +136,7 @@ Slice::DefinitionContext::setSeenDefinition()
 bool
 Slice::DefinitionContext::hasMetadata(const string& directive) const
 {
-    return findMetadata(directive) == directive;
+    return findMetadata(directive).has_value();
 }
 
 void
@@ -146,7 +146,7 @@ Slice::DefinitionContext::setMetadata(const StringList& metadata)
     initSuppressedWarnings();
 }
 
-string
+optional<string>
 Slice::DefinitionContext::findMetadata(const string& prefix) const
 {
     for (const auto& p : _metadata)
@@ -156,7 +156,7 @@ Slice::DefinitionContext::findMetadata(const string& prefix) const
             return p;
         }
     }
-    return string();
+    return nullopt;
 }
 
 StringList
@@ -186,39 +186,42 @@ Slice::DefinitionContext::initSuppressedWarnings()
 {
     _suppressedWarnings.clear();
     const string prefix = "suppress-warning";
-    string value = findMetadata(prefix);
-    if (value == prefix)
+    if (auto meta = findMetadata(prefix))
     {
-        _suppressedWarnings.insert(All);
-    }
-    else if (!value.empty())
-    {
-        assert(value.length() > prefix.length());
-        if (value[prefix.length()] == ':')
+        string value = *meta;
+        if (value == prefix)
         {
-            value = value.substr(prefix.length() + 1);
-            vector<string> result;
-            IceInternal::splitString(value, ",", result);
-            for (const auto& p : result)
+            _suppressedWarnings.insert(All);
+        }
+        else
+        {
+            assert(value.length() > prefix.length());
+            if (value[prefix.length()] == ':')
             {
-                string s = IceInternal::trim(p);
-                if (s == "all")
+                value = value.substr(prefix.length() + 1);
+                vector<string> result;
+                IceInternal::splitString(value, ",", result);
+                for (const auto& p : result)
                 {
-                    _suppressedWarnings.insert(All);
-                }
-                else if (s == "deprecated")
-                {
-                    _suppressedWarnings.insert(Deprecated);
-                }
-                else if (s == "invalid-metadata")
-                {
-                    _suppressedWarnings.insert(InvalidMetadata);
-                }
-                else
-                {
-                    ostringstream os;
-                    os << "invalid category `" << s << "' in file metadata suppress-warning";
-                    warning(InvalidMetadata, "", -1, os.str());
+                    string s = IceInternal::trim(p);
+                    if (s == "all")
+                    {
+                        _suppressedWarnings.insert(All);
+                    }
+                    else if (s == "deprecated")
+                    {
+                        _suppressedWarnings.insert(Deprecated);
+                    }
+                    else if (s == "invalid-metadata")
+                    {
+                        _suppressedWarnings.insert(InvalidMetadata);
+                    }
+                    else
+                    {
+                        ostringstream os;
+                        os << "invalid category `" << s << "' in file metadata suppress-warning";
+                        warning(InvalidMetadata, "", -1, os.str());
+                    }
                 }
             }
         }
@@ -881,38 +884,36 @@ Slice::Contained::includeLevel() const
 bool
 Slice::Contained::hasMetadata(const string& directive) const
 {
-    return find(_metadata.begin(), _metadata.end(), directive) != _metadata.end();
+    return findMetadata(directive).has_value();
 }
 
-bool
-Slice::Contained::findMetadata(const string& prefix, string& output) const
+optional<string>
+Slice::Contained::findMetadata(const string& prefix) const
 {
     for (const auto& p : _metadata)
     {
         if (p.find(prefix) == 0)
         {
-            output = p;
-            return true;
+            return p;
         }
     }
-
-    return false;
+    return nullopt;
 }
 
-list<string>
+StringList
 Slice::Contained::getMetadata() const
 {
     return _metadata;
 }
 
 void
-Slice::Contained::setMetadata(const list<string>& metadata)
+Slice::Contained::setMetadata(const StringList& metadata)
 {
     _metadata = metadata;
 }
 
 std::optional<FormatType>
-Slice::Contained::parseFormatMetadata(const list<string>& metadata)
+Slice::Contained::parseFormatMetadata(const StringList& metadata)
 {
     std::optional<FormatType> result;
 
@@ -952,31 +953,40 @@ Slice::Contained::isDeprecated(bool checkParent) const
 {
     const string prefix1 = "deprecate";
     const string prefix2 = "deprecated";
-    string metadata;
     ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
 
-    return (findMetadata(prefix1, metadata) || (parent && parent->findMetadata(prefix1, metadata))) ||
-           (findMetadata(prefix2, metadata) || (parent && parent->findMetadata(prefix2, metadata)));
+    return (hasMetadata(prefix1) || (parent && parent->hasMetadata(prefix1))) ||
+           (hasMetadata(prefix2) || (parent && parent->hasMetadata(prefix2)));
 }
 
 optional<string>
 Slice::Contained::getDeprecationReason(bool checkParent) const
 {
-    string metadata;
-    ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
-
     const string prefix1 = "deprecate:";
-    if (findMetadata(prefix1, metadata) || (parent && parent->findMetadata(prefix1, metadata)))
+    const string prefix2 = "deprecated:";
+
+    // First, we check if the element itself is deprecated.
+    if (auto meta = findMetadata(prefix1))
     {
-        assert(metadata.find(prefix1) == 0);
-        return metadata.substr(prefix1.size());
+        return meta->substr(prefix1.size());
+    }
+    if (auto meta = findMetadata(prefix2))
+    {
+        return meta->substr(prefix2.size());
     }
 
-    const string prefix2 = "deprecated:";
-    if (findMetadata(prefix2, metadata) || (parent && parent->findMetadata(prefix2, metadata)))
+    // Then, if necessary, we check if the container it's within is deprecated.
+    ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
+    if (checkParent && parent)
     {
-        assert(metadata.find(prefix2) == 0);
-        return metadata.substr(prefix2.size());
+        if (auto meta = parent->findMetadata(prefix1))
+        {
+            return meta->substr(prefix1.size());
+        }
+        if (auto meta = parent->findMetadata(prefix2))
+        {
+            return meta->substr(prefix2.size());
+        }
     }
 
     return nullopt;

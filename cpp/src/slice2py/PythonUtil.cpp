@@ -2014,21 +2014,19 @@ Slice::Python::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfo
         collectClassMembers(base, allMembers, true);
     }
 
-    DataMemberList members = p->dataMembers();
-
-    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : p->dataMembers())
     {
         MemberInfo m;
-        if (p->hasMetadata("protected") || (*q)->hasMetadata("protected"))
+        if (p->hasMetadata("protected") || member->hasMetadata("protected"))
         {
-            m.fixedName = "_" + fixIdent((*q)->name());
+            m.fixedName = "_" + fixIdent(member->name());
         }
         else
         {
-            m.fixedName = fixIdent((*q)->name());
+            m.fixedName = fixIdent(member->name());
         }
         m.inherited = inherited;
-        m.dataMember = *q;
+        m.dataMember = member;
         allMembers.push_back(m);
     }
 }
@@ -2741,16 +2739,12 @@ Slice::Python::getPackageDirectory(const string& file, const UnitPtr& ut)
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     const string prefix = "python:pkgdir:";
-    string pkgdir = dc->findMetadata(prefix);
-    if (!pkgdir.empty())
+    if (auto meta = dc->findMetadata(prefix))
     {
-        //
         // The metadata is present, so the generated file was placed in the specified directory.
-        //
-        pkgdir = pkgdir.substr(prefix.size());
-        assert(!pkgdir.empty()); // This situation should have been caught by MetadataVisitor.
+        return meta->substr(prefix.size());
     }
-    return pkgdir;
+    return "";
 }
 
 string
@@ -2902,25 +2896,20 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     // The python:package metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
     static const string prefix = "python:package:";
-
-    string q;
-    if (!m->findMetadata(prefix, q))
+    if (auto meta = m->findMetadata(prefix))
     {
-        UnitPtr ut = cont->unit();
-        string file = cont->file();
-        assert(!file.empty());
-
-        DefinitionContextPtr dc = ut->findDefinitionContext(file);
-        assert(dc);
-        q = dc->findMetadata(prefix);
+        return meta->substr(prefix.size());
     }
 
-    if (!q.empty())
+    string file = cont->file();
+    DefinitionContextPtr dc = cont->unit()->findDefinitionContext(file);
+    assert(dc);
+    if (auto meta = dc->findMetadata(prefix))
     {
-        q = q.substr(prefix.size());
+        return meta->substr(prefix.size());
     }
 
-    return q;
+    return "";
 }
 
 string

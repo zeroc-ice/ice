@@ -78,8 +78,6 @@ namespace Slice
 
     void writeIceTuple(::IceInternal::Output&, const DataMemberList&, TypeContext);
 
-    bool findMetadata(const std::string&, const ClassDeclPtr&, std::string&);
-    bool findMetadata(const std::string&, const StringList&, std::string&);
     std::string findMetadata(const StringList&, TypeContext = TypeContext::None);
     bool inWstringModule(const SequencePtr&);
 }

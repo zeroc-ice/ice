@@ -176,7 +176,7 @@ namespace Slice
 
         bool hasMetadata(const std::string& directive) const;
         void setMetadata(const StringList& metadata);
-        std::string findMetadata(const std::string& prefix) const;
+        std::optional<std::string> findMetadata(const std::string& prefix) const;
         StringList getMetadata() const;
 
         /// Emits a warning unless it should be filtered out by a [["suppress-warning"]].
@@ -347,11 +347,11 @@ namespace Slice
         int includeLevel() const;
 
         bool hasMetadata(const std::string& directive) const;
-        bool findMetadata(const std::string& prefix, std::string& output) const;
-        std::list<std::string> getMetadata() const;
-        void setMetadata(const std::list<std::string>& metadata);
+        std::optional<std::string> findMetadata(const std::string& prefix) const;
+        StringList getMetadata() const;
+        void setMetadata(const StringList& metadata);
 
-        static std::optional<FormatType> parseFormatMetadata(const std::list<std::string>& metadata);
+        static std::optional<FormatType> parseFormatMetadata(const StringList& metadata);
 
         /// Returns true if this item is deprecated (due to the presence of 'deprecated' metadata).
         /// @param checkParent If true, this item's immediate container will also be checked for 'deprecated' metadata.
