@@ -70,24 +70,11 @@ namespace Ice
     //
 
     /**
-     * General reader. slice2cpp generates specializations as needed.
+     * Reader used/generated for structs. Always specialized.
      * \headerfile Ice/Ice.h
      */
     template<typename T> struct StreamReader
     {
-        static void read(InputStream*, T&)
-        {
-            // Default is to read nothing
-        }
-    };
-
-    /**
-     * General writer. slice2cpp generates specializations as needed.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T> struct StreamWriter
-    {
-        static void write(OutputStream* stream, const T& v) { stream->writeAll(v.ice_tuple()); }
     };
 
     /**
@@ -96,7 +83,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryStruct>
     {
-        static void write(OutputStream* stream, const T& v) { StreamWriter<T>::write(stream, v); }
+        static void write(OutputStream* stream, const T& v) { stream->writeAll(v.ice_tuple()); }
 
         static void read(InputStream* stream, T& v) { StreamReader<T>::read(stream, v); }
     };

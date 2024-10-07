@@ -2274,7 +2274,7 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamWriter<" << name << ">::write(ostr, *this);";
+        writeDataMembers(C, dataMembers);
     }
     C << nl << "ostr->endSlice();";
     if (base)
@@ -2289,7 +2289,7 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     C << nl << "istr->startSlice();";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamReader<" << name << ">::read(istr, *this);";
+        readDataMembers(C, dataMembers);
     }
     C << nl << "istr->endSlice();";
     if (base)
@@ -2408,7 +2408,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     // Emit data members. Access visibility may be specified by metadata.
     //
     bool inProtected = false;
-    bool generateFriend = false;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetadata("protected");
     bool needSp = true;
@@ -2425,7 +2424,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 inProtected = true;
                 needSp = false;
             }
-            generateFriend = true;
         }
         else
         {
@@ -2460,15 +2458,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         inProtected = true;
     }
 
-    if (generateFriend)
-    {
-        H << nl << "template<typename T>";
-        H << nl << "friend struct Ice::StreamWriter;";
-        H << nl << "template<typename T>";
-        H << nl << "friend struct Ice::StreamReader;";
-        H << sp;
-    }
-
     H << nl << name << "(const " << name << "&) = default;";
     H << sp << nl << _dllMemberExport << "::Ice::ValuePtr _iceCloneImpl() const override;";
     C << sp;
@@ -2486,7 +2475,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamWriter<" << name << ">::write(ostr, *this);";
+        writeDataMembers(C, dataMembers);
     }
     C << nl << "ostr->endSlice();";
     if (base)
@@ -2501,7 +2490,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "istr->startSlice();";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamReader<" << name << ">::read(istr, *this);";
+        readDataMembers(C, dataMembers);
     }
     C << nl << "istr->endSlice();";
     if (base)
@@ -3270,22 +3259,8 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    writeStreamHelpers(H, p, p->dataMembers(), false);
-
+    writeStreamReader(H, p, p->dataMembers());
     return false;
-}
-
-bool
-Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
-{
-    writeStreamHelpers(H, c, c->dataMembers(), c->hasBaseDataMembers());
-    return false;
-}
-
-void
-Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
-{
-    writeStreamHelpers(H, p, p->dataMembers(), p->hasBaseDataMembers());
 }
 
 void

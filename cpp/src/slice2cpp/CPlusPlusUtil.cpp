@@ -93,6 +93,31 @@ namespace
         }
     }
 
+    // Split data members in required and optional members; the optional members are sorted in tag order
+    std::pair<DataMemberList, DataMemberList> split(const DataMemberList& dataMembers)
+    {
+        DataMemberList requiredMembers;
+        DataMemberList optionalMembers;
+
+        for (const auto& q : dataMembers)
+        {
+            if (q->optional())
+            {
+                optionalMembers.push_back(q);
+            }
+            else
+            {
+                requiredMembers.push_back(q);
+            }
+        }
+
+        // Sort optional data members
+        optionalMembers.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs)
+                             { return lhs->tag() < rhs->tag(); });
+
+        return {requiredMembers, optionalMembers};
+    }
+
     // Do we pass this type by value when it's an input parameter?
     bool inputParamByValue(const TypePtr& type, const StringList& metadata)
     {
@@ -832,119 +857,74 @@ Slice::writeMarshalUnmarshalAllInHolder(
     {
         ostringstream os;
         os << "{";
-        for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        bool firstElement = true;
+        for (const auto& q : dataMembers)
         {
-            if (q != dataMembers.begin())
+            if (firstElement)
+            {
+                firstElement = false;
+            }
+            else
             {
                 os << ", ";
             }
-            os << (*q)->tag();
+            os << q->tag();
         }
         os << "}";
         out << os.str();
     }
 
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& q : dataMembers)
     {
-        out << holder + fixKwd((*q)->name());
+        out << holder + fixKwd(q->name());
     }
 
     out << epar << ";";
 }
 
 void
-Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dataMembers, bool hasBaseDataMembers)
+Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& dataMembers)
 {
-    // If c is a class/exception whose base class contains data members (recursively), then we need to generate
-    // a StreamWriter even if its implementation is empty. This is because our default marshaling uses ice_tuple() which
-    // contains all of our class/exception's data members as well the base data members, which breaks marshaling. This
-    // is not an issue for structs.
-    if (dataMembers.empty() && !hasBaseDataMembers)
-    {
-        return;
-    }
+    string fullName = fixKwd(p->scoped());
 
-    DataMemberList requiredMembers;
-    DataMemberList optionalMembers;
-
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        if ((*q)->optional())
-        {
-            optionalMembers.push_back(*q);
-        }
-        else
-        {
-            requiredMembers.push_back(*q);
-        }
-    }
-
-    // Sort optional data members
-    class SortFn
-    {
-    public:
-        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs) { return lhs->tag() < rhs->tag(); }
-    };
-    optionalMembers.sort(SortFn::compare);
-
-    string fullName = fixKwd(c->scoped());
-    string holder = "v.";
-
-    //
-    // Generate StreamWriter
-    //
-    // Only generate StreamWriter specializations if we are generating optional data members and no
-    // base class data members
-    //
-    if (!optionalMembers.empty() || hasBaseDataMembers)
-    {
-        out << nl << "template<>";
-        out << nl << "struct StreamWriter<" << fullName << ">";
-        out << sb;
-        if (requiredMembers.empty() && optionalMembers.empty())
-        {
-            out << nl << "static void write(OutputStream*, const " << fullName << "&)";
-        }
-        else
-        {
-            out << nl << "static void write(OutputStream* ostr, const " << fullName << "& v)";
-        }
-
-        out << sb;
-
-        writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
-        writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, true);
-
-        out << eb;
-        out << eb << ";" << nl;
-    }
-
-    //
-    // Generate StreamReader
-    //
     out << nl << "template<>";
     out << nl << "struct StreamReader<" << fullName << ">";
     out << sb;
-    if (requiredMembers.empty() && optionalMembers.empty())
-    {
-        out << nl << "static void read(InputStream*, " << fullName << "&)";
-    }
-    else
-    {
-        out << nl << "static void read(InputStream* istr, " << fullName << "& v)";
-    }
-
+    out << nl << "static void read(InputStream* istr, " << fullName << "& v)";
     out << sb;
 
-    writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, false);
-    writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, false);
+    writeMarshalUnmarshalAllInHolder(out, "v.", dataMembers, false, false);
 
     out << eb;
     out << eb << ";" << nl;
 }
 
 void
-Slice::writeIceTuple(::IceInternal::Output& out, DataMemberList dataMembers, TypeContext typeCtx)
+Slice::readDataMembers(Output& out, const DataMemberList& dataMembers)
+{
+    assert(dataMembers.size() > 0);
+
+    auto [requiredMembers, optionalMembers] = split(dataMembers);
+    string holder = "this->";
+
+    writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, false);
+    writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, false);
+}
+
+void
+Slice::writeDataMembers(Output& out, const DataMemberList& dataMembers)
+{
+    assert(dataMembers.size() > 0);
+
+    auto [requiredMembers, optionalMembers] = split(dataMembers);
+    string holder = "this->";
+
+    writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
+    writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, true);
+}
+
+void
+Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembers, TypeContext typeCtx)
 {
     //
     // Use an empty scope to get full qualified names from calls to typeToString.
