@@ -4,7 +4,7 @@
 
 namespace Ice.Internal;
 
-public sealed record class PropertyArray(
+internal sealed record class PropertyArray(
     string name,
     Property[] properties);
 
