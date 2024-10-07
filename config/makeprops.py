@@ -583,18 +583,18 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write(csPreamble)
 
     def closeFiles(self):
-        self.srcFile.write("    public static Property[][] validProps =\n")
+        self.srcFile.write("    internal static PropertyArray[] validProps =\n")
 
-        self.srcFile.write("    {\n")
+        self.srcFile.write("    [\n")
         for s in self.generatedSections():
             self.srcFile.write("        %sProps,\n" % s)
-        self.srcFile.write("    };\n\n")
+        self.srcFile.write("    ];\n\n")
 
-        self.srcFile.write("    public static string[] clPropNames =\n")
-        self.srcFile.write("    {\n")
+        self.srcFile.write("    internal static string[] clPropNames =\n")
+        self.srcFile.write("    [\n")
         for s in self.sectionNames:
             self.srcFile.write('        "%s",\n' % s)
-        self.srcFile.write("    };\n")
+        self.srcFile.write("    ];\n")
         self.srcFile.write("}\n")
         self.srcFile.close()
 
@@ -603,7 +603,7 @@ class CSPropertyHandler(PropertyHandler):
 
     @override
     def writeProperty(self, property):
-        self.srcFile.write("    %s,\n" % property)
+        self.srcFile.write("            %s,\n" % property)
 
     @override
     def createProperty(
@@ -615,20 +615,24 @@ class CSPropertyHandler(PropertyHandler):
         propertyClass,
         prefixOnly,
     ):
-        line = 'new(@"{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
+        line = 'new(pattern: @"{pattern}", usesRegex: {usesRegex}, defaultValue: {defaultValue}, deprecated: {deprecated}, propertyClass: {propertyClass}, prefixOnly: {prefixOnly})'.format(
             pattern=f"^{self.fix(propertyName)}$" if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
+            propertyClass=f"{propertyClass}Props" if propertyClass else "null",
+            prefixOnly="true" if prefixOnly else "false",
         )
         return line
 
     def openSection(self, sectionName):
-        self.srcFile.write("    public static Property[] %sProps =\n" % sectionName)
-        self.srcFile.write("    {\n")
+        self.srcFile.write(
+            f'    internal static PropertyArray {sectionName}Props = new(\n        "{sectionName}",\n'
+        )
+        self.srcFile.write("        [\n")
 
     def closeSection(self, sectionName):
-        self.srcFile.write("    };\n")
+        self.srcFile.write("        ]);\n")
         self.srcFile.write("\n")
 
     def moveFiles(self, location):

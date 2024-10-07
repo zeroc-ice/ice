@@ -8,220 +8,230 @@ namespace Ice.Internal;
 
 public sealed class PropertyNames
 {
-    public static Property[] ProxyProps =
-    {
-    new(@"EndpointSelection", false, "", false),
-    new(@"ConnectionCached", false, "", false),
-    new(@"PreferSecure", false, "", false),
-    new(@"LocatorCacheTimeout", false, "", false),
-    new(@"InvocationTimeout", false, "", false),
-    new(@"Locator", false, "", false),
-    new(@"Router", false, "", false),
-    new(@"CollocationOptimized", false, "", false),
-    new(@"^Context\.[^\s]+$", true, "", false),
-    };
+    internal static PropertyArray ProxyProps = new(
+        "Proxy",
+        [
+            new(pattern: @"EndpointSelection", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ConnectionCached", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"PreferSecure", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"LocatorCacheTimeout", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"InvocationTimeout", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Router", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"CollocationOptimized", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^Context\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[] ConnectionProps =
-    {
-    new(@"CloseTimeout", false, "10", false),
-    new(@"ConnectTimeout", false, "10", false),
-    new(@"EnableIdleCheck", false, "1", false),
-    new(@"IdleTimeout", false, "60", false),
-    new(@"InactivityTimeout", false, "300", false),
-    new(@"MaxDispatches", false, "100", false),
-    };
+    internal static PropertyArray ConnectionProps = new(
+        "Connection",
+        [
+            new(pattern: @"CloseTimeout", usesRegex: false, defaultValue: "10", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ConnectTimeout", usesRegex: false, defaultValue: "10", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"EnableIdleCheck", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"IdleTimeout", usesRegex: false, defaultValue: "60", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"InactivityTimeout", usesRegex: false, defaultValue: "300", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"MaxDispatches", usesRegex: false, defaultValue: "100", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[] ThreadPoolProps =
-    {
-    new(@"Size", false, "1", false),
-    new(@"SizeMax", false, "", false),
-    new(@"SizeWarn", false, "0", false),
-    new(@"StackSize", false, "0", false),
-    new(@"Serialize", false, "0", false),
-    new(@"ThreadIdleTime", false, "60", false),
-    new(@"ThreadPriority", false, "", false),
-    };
+    internal static PropertyArray ThreadPoolProps = new(
+        "ThreadPool",
+        [
+            new(pattern: @"Size", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"SizeMax", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"SizeWarn", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"StackSize", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Serialize", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ThreadIdleTime", usesRegex: false, defaultValue: "60", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ThreadPriority", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[] ObjectAdapterProps =
-    {
-    new(@"AdapterId", false, "", false),
-    new(@"Connection", false, "", false),
-    new(@"Endpoints", false, "", false),
-    new(@"Locator", false, "", false),
-    new(@"PublishedEndpoints", false, "", false),
-    new(@"PublishedHost", false, "", false),
-    new(@"ReplicaGroupId", false, "", false),
-    new(@"Router", false, "", false),
-    new(@"ProxyOptions", false, "", false),
-    new(@"ThreadPool", false, "", false),
-    new(@"MaxConnections", false, "0", false),
-    new(@"MessageSizeMax", false, "", false),
-    };
+    internal static PropertyArray ObjectAdapterProps = new(
+        "ObjectAdapter",
+        [
+            new(pattern: @"AdapterId", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Connection", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ConnectionProps, prefixOnly: false),
+            new(pattern: @"Endpoints", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ProxyProps, prefixOnly: false),
+            new(pattern: @"PublishedEndpoints", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"PublishedHost", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ReplicaGroupId", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Router", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ProxyProps, prefixOnly: false),
+            new(pattern: @"ProxyOptions", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ThreadPool", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ThreadPoolProps, prefixOnly: false),
+            new(pattern: @"MaxConnections", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"MessageSizeMax", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[] IceProps =
-    {
-    new(@"AcceptClassCycles", false, "0", false),
-    new(@"Admin", false, "", false),
-    new(@"Admin.DelayCreation", false, "0", false),
-    new(@"Admin.Enabled", false, "", false),
-    new(@"Admin.Facets", false, "", false),
-    new(@"Admin.InstanceName", false, "", false),
-    new(@"Admin.Logger.KeepLogs", false, "100", false),
-    new(@"Admin.Logger.KeepTraces", false, "100", false),
-    new(@"Admin.Logger.Properties", false, "", false),
-    new(@"Admin.ServerId", false, "", false),
-    new(@"BackgroundLocatorCacheUpdates", false, "0", false),
-    new(@"BatchAutoFlush", false, "", true),
-    new(@"BatchAutoFlushSize", false, "1024", false),
-    new(@"ClassGraphDepthMax", false, "10", false),
-    new(@"Compression.Level", false, "1", false),
-    new(@"Config", false, "", false),
-    new(@"Connection.Client", false, "", false),
-    new(@"Connection.Server", false, "", false),
-    new(@"ConsoleListener", false, "1", false),
-    new(@"Default.CollocationOptimized", false, "1", false),
-    new(@"Default.EncodingVersion", false, "1.1", false),
-    new(@"Default.EndpointSelection", false, "Random", false),
-    new(@"Default.Host", false, "", false),
-    new(@"Default.Locator", false, "", false),
-    new(@"Default.LocatorCacheTimeout", false, "-1", false),
-    new(@"Default.InvocationTimeout", false, "-1", false),
-    new(@"Default.PreferSecure", false, "0", false),
-    new(@"Default.Protocol", false, "tcp", false),
-    new(@"Default.Router", false, "", false),
-    new(@"Default.SlicedFormat", false, "0", false),
-    new(@"Default.SourceAddress", false, "", false),
-    new(@"HTTPProxyHost", false, "", false),
-    new(@"HTTPProxyPort", false, "1080", false),
-    new(@"ImplicitContext", false, "None", false),
-    new(@"InitPlugins", false, "1", false),
-    new(@"IPv4", false, "1", false),
-    new(@"IPv6", false, "1", false),
-    new(@"LogFile", false, "", false),
-    new(@"MessageSizeMax", false, "1024", false),
-    new(@"Override.Compress", false, "", false),
-    new(@"Override.Secure", false, "", false),
-    new(@"^Plugin\.[^\s]+$", true, "", false),
-    new(@"PluginLoadOrder", false, "", false),
-    new(@"PreferIPv6Address", false, "0", false),
-    new(@"PreloadAssemblies", false, "0", false),
-    new(@"PrintAdapterReady", false, "", false),
-    new(@"PrintProcessId", false, "", false),
-    new(@"ProgramName", false, "", false),
-    new(@"RetryIntervals", false, "0", false),
-    new(@"ServerIdleTime", false, "0", false),
-    new(@"SOCKSProxyHost", false, "", false),
-    new(@"SOCKSProxyPort", false, "1080", false),
-    new(@"StdErr", false, "", false),
-    new(@"StdOut", false, "", false),
-    new(@"ThreadPool.Client", false, "", false),
-    new(@"ThreadPool.Server", false, "", false),
-    new(@"ThreadPriority", false, "", false),
-    new(@"ToStringMode", false, "Unicode", false),
-    new(@"Trace.Admin.Properties", false, "0", false),
-    new(@"Trace.Admin.Logger", false, "0", false),
-    new(@"Trace.Locator", false, "0", false),
-    new(@"Trace.Network", false, "0", false),
-    new(@"Trace.Protocol", false, "0", false),
-    new(@"Trace.Retry", false, "0", false),
-    new(@"Trace.Slicing", false, "0", false),
-    new(@"Trace.ThreadPool", false, "0", false),
-    new(@"UDP.RcvSize", false, "", false),
-    new(@"UDP.SndSize", false, "", false),
-    new(@"TCP.Backlog", false, "", false),
-    new(@"TCP.RcvSize", false, "", false),
-    new(@"TCP.SndSize", false, "", false),
-    new(@"Warn.AMICallback", false, "1", false),
-    new(@"Warn.Connections", false, "0", false),
-    new(@"Warn.Datagrams", false, "0", false),
-    new(@"Warn.Dispatch", false, "1", false),
-    new(@"Warn.Endpoints", false, "1", false),
-    new(@"Warn.UnusedProperties", false, "0", false),
-    new(@"CacheMessageBuffers", false, "2", false),
-    };
+    internal static PropertyArray IceProps = new(
+        "Ice",
+        [
+            new(pattern: @"AcceptClassCycles", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Admin", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ObjectAdapterProps, prefixOnly: false),
+            new(pattern: @"Admin.DelayCreation", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Admin.Enabled", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Admin.Facets", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Admin.InstanceName", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Admin.Logger.KeepLogs", usesRegex: false, defaultValue: "100", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Admin.Logger.KeepTraces", usesRegex: false, defaultValue: "100", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Admin.Logger.Properties", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Admin.ServerId", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"BackgroundLocatorCacheUpdates", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"BatchAutoFlush", usesRegex: false, defaultValue: "", deprecated: true, propertyClass: null, prefixOnly: false),
+            new(pattern: @"BatchAutoFlushSize", usesRegex: false, defaultValue: "1024", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ClassGraphDepthMax", usesRegex: false, defaultValue: "10", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Compression.Level", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Config", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Connection.Client", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ConnectionProps, prefixOnly: false),
+            new(pattern: @"Connection.Server", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ConnectionProps, prefixOnly: false),
+            new(pattern: @"ConsoleListener", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.CollocationOptimized", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.EncodingVersion", usesRegex: false, defaultValue: "1.1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.EndpointSelection", usesRegex: false, defaultValue: "Random", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.Host", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ProxyProps, prefixOnly: false),
+            new(pattern: @"Default.LocatorCacheTimeout", usesRegex: false, defaultValue: "-1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.InvocationTimeout", usesRegex: false, defaultValue: "-1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.PreferSecure", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.Protocol", usesRegex: false, defaultValue: "tcp", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.Router", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ProxyProps, prefixOnly: false),
+            new(pattern: @"Default.SlicedFormat", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Default.SourceAddress", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"HTTPProxyHost", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"HTTPProxyPort", usesRegex: false, defaultValue: "1080", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ImplicitContext", usesRegex: false, defaultValue: "None", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"InitPlugins", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"IPv4", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"IPv6", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"LogFile", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"MessageSizeMax", usesRegex: false, defaultValue: "1024", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Override.Compress", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Override.Secure", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^Plugin\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"PluginLoadOrder", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"PreferIPv6Address", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"PreloadAssemblies", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"PrintAdapterReady", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"PrintProcessId", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ProgramName", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"RetryIntervals", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ServerIdleTime", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"SOCKSProxyHost", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"SOCKSProxyPort", usesRegex: false, defaultValue: "1080", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"StdErr", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"StdOut", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ThreadPool.Client", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ThreadPoolProps, prefixOnly: false),
+            new(pattern: @"ThreadPool.Server", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ThreadPoolProps, prefixOnly: false),
+            new(pattern: @"ThreadPriority", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"ToStringMode", usesRegex: false, defaultValue: "Unicode", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.Admin.Properties", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.Admin.Logger", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.Locator", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.Network", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.Protocol", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.Retry", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.Slicing", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.ThreadPool", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"UDP.RcvSize", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"UDP.SndSize", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"TCP.Backlog", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"TCP.RcvSize", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"TCP.SndSize", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Warn.AMICallback", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Warn.Connections", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Warn.Datagrams", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Warn.Dispatch", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Warn.Endpoints", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Warn.UnusedProperties", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"CacheMessageBuffers", usesRegex: false, defaultValue: "2", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[] IceMXProps =
-    {
-    new(@"^Metrics\.[^\s]+\.GroupBy$", true, "", false),
-    new(@"^Metrics\.[^\s]+\.Map$", true, "", false),
-    new(@"^Metrics\.[^\s]+\.RetainDetached$", true, "10", false),
-    new(@"^Metrics\.[^\s]+\.Accept$", true, "", false),
-    new(@"^Metrics\.[^\s]+\.Reject$", true, "", false),
-    new(@"^Metrics\.[^\s]+$", true, "", false),
-    };
+    internal static PropertyArray IceMXProps = new(
+        "IceMX",
+        [
+            new(pattern: @"^Metrics\.[^\s]+\.GroupBy$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^Metrics\.[^\s]+\.Map$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^Metrics\.[^\s]+\.RetainDetached$", usesRegex: true, defaultValue: "10", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^Metrics\.[^\s]+\.Accept$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^Metrics\.[^\s]+\.Reject$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^Metrics\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[] IceDiscoveryProps =
-    {
-    new(@"Multicast", false, "", false),
-    new(@"Reply", false, "", false),
-    new(@"Locator", false, "", false),
-    new(@"Lookup", false, "", false),
-    new(@"Timeout", false, "300", false),
-    new(@"RetryCount", false, "3", false),
-    new(@"LatencyMultiplier", false, "1", false),
-    new(@"Address", false, "", false),
-    new(@"Port", false, "4061", false),
-    new(@"Interface", false, "", false),
-    new(@"DomainId", false, "", false),
-    };
+    internal static PropertyArray IceDiscoveryProps = new(
+        "IceDiscovery",
+        [
+            new(pattern: @"Multicast", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ObjectAdapterProps, prefixOnly: false),
+            new(pattern: @"Reply", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ObjectAdapterProps, prefixOnly: false),
+            new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ObjectAdapterProps, prefixOnly: false),
+            new(pattern: @"Lookup", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Timeout", usesRegex: false, defaultValue: "300", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"RetryCount", usesRegex: false, defaultValue: "3", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"LatencyMultiplier", usesRegex: false, defaultValue: "1", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Address", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Port", usesRegex: false, defaultValue: "4061", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Interface", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"DomainId", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[] IceLocatorDiscoveryProps =
-    {
-    new(@"Reply", false, "", false),
-    new(@"Locator", false, "", false),
-    new(@"Lookup", false, "", false),
-    new(@"Timeout", false, "300", false),
-    new(@"RetryCount", false, "3", false),
-    new(@"RetryDelay", false, "2000", false),
-    new(@"Address", false, "", false),
-    new(@"Port", false, "4061", false),
-    new(@"Interface", false, "", false),
-    new(@"InstanceName", false, "IceLocatorDiscovery", false),
-    new(@"Trace.Lookup", false, "0", false),
-    };
+    internal static PropertyArray IceLocatorDiscoveryProps = new(
+        "IceLocatorDiscovery",
+        [
+            new(pattern: @"Reply", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ObjectAdapterProps, prefixOnly: false),
+            new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: ObjectAdapterProps, prefixOnly: false),
+            new(pattern: @"Lookup", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Timeout", usesRegex: false, defaultValue: "300", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"RetryCount", usesRegex: false, defaultValue: "3", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"RetryDelay", usesRegex: false, defaultValue: "2000", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Address", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Port", usesRegex: false, defaultValue: "4061", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Interface", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"InstanceName", usesRegex: false, defaultValue: "IceLocatorDiscovery", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.Lookup", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[] IceBoxProps =
-    {
-    new(@"InheritProperties", false, "", false),
-    new(@"LoadOrder", false, "", false),
-    new(@"PrintServicesReady", false, "", false),
-    new(@"^Service\.[^\s]+$", true, "", false),
-    new(@"Trace.ServiceObserver", false, "", false),
-    new(@"^UseSharedCommunicator\.[^\s]+$", true, "", false),
-    };
+    internal static PropertyArray IceBoxProps = new(
+        "IceBox",
+        [
+            new(pattern: @"InheritProperties", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"LoadOrder", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"PrintServicesReady", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^Service\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.ServiceObserver", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^UseSharedCommunicator\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[] IceSSLProps =
-    {
-    new(@"CAs", false, "", false),
-    new(@"CertStore", false, "My", false),
-    new(@"CertStoreLocation", false, "CurrentUser", false),
-    new(@"CertFile", false, "", false),
-    new(@"CheckCertName", false, "0", false),
-    new(@"CheckCRL", false, "0", false),
-    new(@"DefaultDir", false, "", false),
-    new(@"FindCert", false, "", false),
-    new(@"Password", false, "", false),
-    new(@"Trace.Security", false, "0", false),
-    new(@"TrustOnly", false, "", false),
-    new(@"TrustOnly.Client", false, "", false),
-    new(@"TrustOnly.Server", false, "", false),
-    new(@"^TrustOnly\.Server\.[^\s]+$", true, "", false),
-    new(@"UsePlatformCAs", false, "0", false),
-    new(@"VerifyPeer", false, "2", false),
-    };
+    internal static PropertyArray IceSSLProps = new(
+        "IceSSL",
+        [
+            new(pattern: @"CAs", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"CertStore", usesRegex: false, defaultValue: "My", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"CertStoreLocation", usesRegex: false, defaultValue: "CurrentUser", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"CertFile", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"CheckCertName", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"CheckCRL", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"DefaultDir", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"FindCert", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Password", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"Trace.Security", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"TrustOnly", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"TrustOnly.Client", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"TrustOnly.Server", usesRegex: false, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"^TrustOnly\.Server\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"UsePlatformCAs", usesRegex: false, defaultValue: "0", deprecated: false, propertyClass: null, prefixOnly: false),
+            new(pattern: @"VerifyPeer", usesRegex: false, defaultValue: "2", deprecated: false, propertyClass: null, prefixOnly: false),
+        ]);
 
-    public static Property[][] validProps =
-    {
+    internal static PropertyArray[] validProps =
+    [
         IceProps,
         IceMXProps,
         IceDiscoveryProps,
         IceLocatorDiscoveryProps,
         IceBoxProps,
         IceSSLProps,
-    };
+    ];
 
-    public static string[] clPropNames =
-    {
+    internal static string[] clPropNames =
+    [
         "Ice",
         "IceMX",
         "IceDiscovery",
@@ -236,5 +246,5 @@ public sealed class PropertyNames
         "IceStormAdmin",
         "IceBT",
         "Glacier2",
-    };
+    ];
 }

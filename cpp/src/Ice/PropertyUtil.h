@@ -17,8 +17,8 @@ namespace IceInternal
     /// @return The property if found, nullopt otherwise.
     std::optional<Property> findProperty(std::string_view key, const PropertyArray* propertyArray);
 
-    /// Finds all unknown properties for a given prefix.
-    /// @param prefix The prefix to search for.
+    /// Validates the properties for a given prefix.
+    /// @param prefix The prefix to validate.
     /// @param properties The properties to consider.
     /// @param propertyArray The property array to search against.
     /// @throws UnknownPropertyException if unknown properties are found.
