@@ -40,8 +40,7 @@ namespace Ice
         Timer();
         virtual ~Timer() = default;
 
-        // Destroy the timer and detach its execution thread if the calling thread
-        // is the timer thread, join the timer execution thread otherwise.
+        // Destroy the timer and join the timer execution thread. Must not be called from a timer task.
         void destroy();
 
         // Schedule task for execution after a given delay.
