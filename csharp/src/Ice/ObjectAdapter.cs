@@ -1053,26 +1053,12 @@ public sealed class ObjectAdapter
         }
 
         Properties properties = _instance.initializationData().properties!;
-        List<string> unknownProps = new List<string>();
-        bool noProps = filterProperties(unknownProps);
-
-        if (unknownProps.Count > 0)
-        {
-            StringBuilder message = new StringBuilder("Found unknown properties for object adapter '");
-            message.Append(_name);
-            message.Append("':");
-            foreach (string s in unknownProps)
-            {
-                message.Append("\n    ");
-                message.Append(s);
-            }
-            throw new UnknownPropertyException(message.ToString());
-        }
+        Properties.validatePropertiesWithPrefix(_name, properties, PropertyNames.ObjectAdapterProps);
 
         //
         // Make sure named adapter has configuration.
         //
-        if (router is null && noProps)
+        if (router is null && properties.getPropertiesForPrefix(_name + ".").Count == 0)
         {
             //
             // These need to be set to prevent warnings/asserts in the destructor.
@@ -1521,93 +1507,5 @@ public sealed class ObjectAdapter
         }
         _middlewareStack.Clear(); // we no longer need these functions
         return dispatchPipeline;
-    }
-
-    private static readonly string[] _suffixes =
-    {
-        "AdapterId",
-        "Connection.CloseTimeout",
-        "Connection.ConnectTimeout",
-        "Connection.EnableIdleCheck",
-        "Connection.IdleTimeout",
-        "Connection.InactivityTimeout",
-        "Connection.MaxDispatches",
-        "Endpoints",
-        "Locator",
-        "Locator.EncodingVersion",
-        "Locator.EndpointSelection",
-        "Locator.ConnectionCached",
-        "Locator.PreferSecure",
-        "Locator.CollocationOptimized",
-        "Locator.Router",
-        "MaxConnections",
-        "MessageSizeMax",
-        "PublishedEndpoints",
-        "PublishedHost",
-        "ReplicaGroupId",
-        "Router",
-        "Router.EncodingVersion",
-        "Router.EndpointSelection",
-        "Router.ConnectionCached",
-        "Router.PreferSecure",
-        "Router.CollocationOptimized",
-        "Router.Locator",
-        "Router.Locator.EndpointSelection",
-        "Router.Locator.ConnectionCached",
-        "Router.Locator.PreferSecure",
-        "Router.Locator.CollocationOptimized",
-        "Router.Locator.LocatorCacheTimeout",
-        "Router.Locator.InvocationTimeout",
-        "Router.LocatorCacheTimeout",
-        "Router.InvocationTimeout",
-        "ProxyOptions",
-        "ThreadPool.Serialize",
-        "ThreadPool.Size",
-        "ThreadPool.SizeMax",
-        "ThreadPool.SizeWarn",
-        "ThreadPool.StackSize",
-        "ThreadPool.ThreadIdleTime",
-        "ThreadPool.ThreadPriority"
-    };
-
-    private bool filterProperties(List<string> unknownProps)
-    {
-        //
-        // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
-        //
-        bool addUnknown = true;
-        string prefix = $"{_name}.";
-        foreach (string propertyName in PropertyNames.clPropNames)
-        {
-            if (prefix.StartsWith($"{propertyName}.", StringComparison.Ordinal))
-            {
-                addUnknown = false;
-                break;
-            }
-        }
-
-        bool noProps = true;
-        Dictionary<string, string> props =
-            _instance.initializationData().properties!.getPropertiesForPrefix(prefix);
-        foreach (string prop in props.Keys)
-        {
-            bool valid = false;
-            for (int i = 0; i < _suffixes.Length; ++i)
-            {
-                if (prop.Equals(prefix + _suffixes[i], StringComparison.Ordinal))
-                {
-                    noProps = false;
-                    valid = true;
-                    break;
-                }
-            }
-
-            if (!valid && addUnknown)
-            {
-                unknownProps.Add(prop);
-            }
-        }
-
-        return noProps;
     }
 }

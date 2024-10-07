@@ -246,7 +246,7 @@ class PropertyHandler(ContentHandler):
         propertyClass = attrs.get("class", None)
         prefixOnly = attrs.get("prefix-only", "false").lower() == "true"
 
-        if self.language == Language.CPP:
+        if self.language == Language.CPP or self.language == Language.CSHARP:
             propertyName = name
         else:
             propertyName = (
@@ -345,7 +345,7 @@ class PropertyHandler(ContentHandler):
 
                 # TODO: temporary until all languages support class props
 
-                if self.language != Language.CPP:
+                if self.language != Language.CPP and self.language != Language.CSHARP:
                     if self.parentNodeType == "class":
                         return
 
@@ -574,18 +574,18 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write(csPreamble)
 
     def closeFiles(self):
-        self.srcFile.write("    public static Property[][] validProps =\n")
+        self.srcFile.write("    public static PropertyArray[] validProps =\n")
 
-        self.srcFile.write("    {\n")
+        self.srcFile.write("    [\n")
         for s in self.generatedSections():
             self.srcFile.write("        %sProps,\n" % s)
-        self.srcFile.write("    };\n\n")
+        self.srcFile.write("    ];\n\n")
 
         self.srcFile.write("    public static string[] clPropNames =\n")
-        self.srcFile.write("    {\n")
+        self.srcFile.write("    [\n")
         for s in self.sectionNames:
             self.srcFile.write('        "%s",\n' % s)
-        self.srcFile.write("    };\n")
+        self.srcFile.write("    ];\n")
         self.srcFile.write("}\n")
         self.srcFile.close()
 
@@ -594,7 +594,7 @@ class CSPropertyHandler(PropertyHandler):
 
     @override
     def writeProperty(self, property):
-        self.srcFile.write("    %s,\n" % property)
+        self.srcFile.write("            %s,\n" % property)
 
     @override
     def createProperty(
@@ -606,20 +606,24 @@ class CSPropertyHandler(PropertyHandler):
         propertyClass,
         prefixOnly,
     ):
-        line = 'new(@"{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
+        line = 'new(@"{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {propertyClass}, {prefixOnly})'.format(
             pattern=f"^{self.fix(propertyName)}$" if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
+            propertyClass=f"{propertyClass}Props" if propertyClass else "null",
+            prefixOnly="true" if prefixOnly else "false",
         )
         return line
 
     def openSection(self, sectionName):
-        self.srcFile.write("    public static Property[] %sProps =\n" % sectionName)
-        self.srcFile.write("    {\n")
+        self.srcFile.write(
+            f'    public static PropertyArray {sectionName}Props = new(\n        "{sectionName}",\n'
+        )
+        self.srcFile.write("        [\n")
 
     def closeSection(self, sectionName):
-        self.srcFile.write("    };\n")
+        self.srcFile.write("        ]);\n")
         self.srcFile.write("\n")
 
     def moveFiles(self, location):
