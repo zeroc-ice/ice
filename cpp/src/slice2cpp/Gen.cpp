@@ -2000,16 +2000,20 @@ Slice::Gen::DataDefVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    // Always generated when this module contains a struct, class, or exception.
-    H << sp;
-    H << nl << "using Ice::Tuple::operator<;";
-    H << nl << "using Ice::Tuple::operator<=;";
-    H << nl << "using Ice::Tuple::operator>;";
-    H << nl << "using Ice::Tuple::operator>=;";
-    H << nl << "using Ice::Tuple::operator==;";
-    H << nl << "using Ice::Tuple::operator!=;";
+    if (p->contains<Struct>())
+    {
+        // Bring in relational operators for structs.
+        H << sp;
+        H << nl << "using Ice::Tuple::operator<;";
+        H << nl << "using Ice::Tuple::operator<=;";
+        H << nl << "using Ice::Tuple::operator>;";
+        H << nl << "using Ice::Tuple::operator>=;";
+        H << nl << "using Ice::Tuple::operator==;";
+        H << nl << "using Ice::Tuple::operator!=;";
+    }
+
     H << sp << nl << '}';
     _useWstring = resetUseWstring(_useWstringHist);
 }
