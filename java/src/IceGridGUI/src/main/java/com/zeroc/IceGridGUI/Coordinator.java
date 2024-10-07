@@ -2269,7 +2269,7 @@ public class Coordinator {
         _prefs = prefs;
         _initData = new com.zeroc.Ice.InitializationData();
 
-        _initData.logger = new Logger(mainFrame);
+        _initData.logger = new Logger(mainFrame, com.zeroc.Ice.Util.getProcessLogger());
         java.util.List<String> rArgs = new java.util.ArrayList<>();
         _initData.properties = createProperties(args, rArgs);
 

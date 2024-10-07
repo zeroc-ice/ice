@@ -43,5 +43,5 @@ public final class DummyLogger implements com.zeroc.Ice.Logger {
         return new DummyLogger();
     }
 
-    private com.zeroc.Ice.Logger _logger = new com.zeroc.Ice.LoggerI("", "");
+    private final com.zeroc.Ice.Logger _logger = com.zeroc.Ice.Util.getProcessLogger();
 }

@@ -4,15 +4,14 @@
 
 package com.zeroc.Ice;
 
-/**
- * @hidden Public because it's used by IceGridGUI.
- */
-public class LoggerI implements Logger {
-    public LoggerI(String prefix, String file) {
+class LoggerI implements Logger {
+    LoggerI(String prefix, String file) {
         _prefix = prefix;
 
         if (!prefix.isEmpty()) {
             _formattedPrefix = prefix + ": ";
+        } else {
+            _formattedPrefix = "";
         }
 
         _lineSeparator = System.getProperty("line.separator");
@@ -26,6 +25,9 @@ public class LoggerI implements Logger {
             } catch (java.io.FileNotFoundException ex) {
                 throw new InitializationException("FileLogger: cannot open " + _file);
             }
+        } else {
+            _file = "";
+            _out = null;
         }
     }
 
@@ -126,11 +128,11 @@ public class LoggerI implements Logger {
         }
     }
 
-    String _prefix = "";
-    String _formattedPrefix = "";
-    String _file = "";
-    String _lineSeparator;
-    java.text.DateFormat _date;
-    java.text.SimpleDateFormat _time;
-    java.io.FileOutputStream _out = null;
+    private final String _prefix;
+    private final String _formattedPrefix;
+    private final String _file;
+    private final String _lineSeparator;
+    private final java.text.DateFormat _date;
+    private final java.text.SimpleDateFormat _time;
+    private final java.io.FileOutputStream _out;
 }

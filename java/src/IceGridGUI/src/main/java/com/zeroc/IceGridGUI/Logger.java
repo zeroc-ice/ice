@@ -6,11 +6,23 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-public class Logger extends com.zeroc.Ice.LoggerI {
-    public Logger(JFrame mainFrame) {
-        super("IceGrid GUI", "");
+class Logger implements com.zeroc.Ice.Logger {
+    private final com.zeroc.Ice.Logger _defaultLogger;
+    private final JFrame _mainFrame;
 
+    Logger(JFrame mainFrame, com.zeroc.Ice.Logger defaultLogger) {
         _mainFrame = mainFrame;
+        _defaultLogger = defaultLogger;
+    }
+
+    @Override
+    public void print(String message) {
+        _defaultLogger.print(message);
+    }
+
+    @Override
+    public void trace(String category, String message) {
+        _defaultLogger.trace(category, message);
     }
 
     @Override
@@ -38,5 +50,15 @@ public class Logger extends com.zeroc.Ice.LoggerI {
                 });
     }
 
-    private final JFrame _mainFrame;
+    @Override
+    public String getPrefix() {
+        // Not used for anything.
+        return "IceGrid GUI";
+    }
+
+    @Override
+    public Logger cloneWithPrefix(String prefix) {
+        throw new UnsupportedOperationException(
+                "cloneWithPrefix is not supported on IceGridGUI.Logger");
+    }
 }
