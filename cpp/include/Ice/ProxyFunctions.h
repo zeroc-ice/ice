@@ -160,8 +160,8 @@ namespace Ice
         return proxy ? checkedCast<Prx>(proxy->ice_facet(std::move(facet)), context) : std::nullopt;
     }
 
-    ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&) noexcept;
-    ICE_API bool operator==(const ObjectPrx&, const ObjectPrx&) noexcept;
+    ICE_API bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept;
+    ICE_API bool operator==(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept;
 
     inline bool operator>(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return rhs < lhs; }
     inline bool operator<=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs > rhs); }
