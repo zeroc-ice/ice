@@ -516,12 +516,12 @@ public sealed class Properties
         }
 
         var unknownProps = new List<string>();
-        Dictionary<string, string> props = properties.getPropertiesForPrefix(prefix + ".");
+        Dictionary<string, string> props = properties.getPropertiesForPrefix($"{prefix}.");
 
         foreach (string p in props.Keys)
         {
             // Plus one to include the dot.
-            if (findProperty(p[(prefix.Length + 1)..], propertyArray) == null)
+            if (findProperty(p[(prefix.Length + 1)..], propertyArray) is null)
             {
                 unknownProps.Add(p);
             }
@@ -610,11 +610,11 @@ public sealed class Properties
     {
         foreach (Property prop in propertyArray.properties)
         {
-            // If the key is an exact match, return the property if it's not a property class. If it is, return nullopt.
+            // If the key is an exact match, return the property if it's not a property class. If it is, return null.
             // If the key is a regex match, return the property. A property cannot have a property class and use regex.
             if (key == prop.pattern)
             {
-                if (prop.propertyClass != null && prop.prefixOnly)
+                if (prop.propertyClass is not null && prop.prefixOnly)
                 {
                     return null;
                 }
@@ -626,15 +626,14 @@ public sealed class Properties
             }
 
             // If the property has a property class, check if the key is a prefix of the property.
-            if (prop.propertyClass != null)
+            if (prop.propertyClass is not null)
             {
                 // Check if the key is a prefix of the property.
                 // The key must be:
                 // - shorter than the property pattern
                 // - the property pattern must start with the key
                 // - the pattern character after the key must be a dot
-                if (key.Length > prop.pattern.Length && key.StartsWith(prop.pattern, StringComparison.Ordinal) &&
-                    key[prop.pattern.Length] == '.')
+                if (key.Length > prop.pattern.Length && key.StartsWith($"{prop.pattern}.", StringComparison.Ordinal))
                 {
                     // Plus one to skip the dot.
                     string substring = key[(prop.pattern.Length + 1)..];

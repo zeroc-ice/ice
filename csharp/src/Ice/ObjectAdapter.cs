@@ -1058,7 +1058,7 @@ public sealed class ObjectAdapter
         //
         // Make sure named adapter has configuration.
         //
-        if (router is null && properties.getPropertiesForPrefix(_name + ".").Count == 0)
+        if (router is null && properties.getPropertiesForPrefix($"{_name}.").Count == 0)
         {
             //
             // These need to be set to prevent warnings/asserts in the destructor.

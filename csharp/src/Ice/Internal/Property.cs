@@ -8,7 +8,7 @@ internal sealed record class PropertyArray(
     string name,
     Property[] properties);
 
-public sealed record class Property(
+internal sealed record class Property(
     string pattern,
     bool usesRegex,
     string defaultValue,
