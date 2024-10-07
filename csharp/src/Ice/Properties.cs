@@ -576,7 +576,7 @@ public sealed class Properties
             // Otherwise no other warning is issued.
             if (logWarnings && properties.name.Equals(prefix, StringComparison.OrdinalIgnoreCase))
             {
-                logger.warning("unknown property: `" + key + "'; did you mean '" + properties.name + "'?");
+                logger.warning($"unknown property: '{key}'; did you mean '{properties.name}'?");
                 return null;
             }
         }
@@ -595,7 +595,7 @@ public sealed class Properties
         // If we get here, the prefix is valid but the property is unknown
         if (logWarnings)
         {
-            logger.warning("unknown property: " + key);
+            logger.warning($"unknown property: {key}");
         }
         return null;
     }

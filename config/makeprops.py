@@ -606,7 +606,7 @@ class CSPropertyHandler(PropertyHandler):
         propertyClass,
         prefixOnly,
     ):
-        line = 'new(@"{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {propertyClass}, {prefixOnly})'.format(
+        line = 'new(pattern: @"{pattern}", usesRegex: {usesRegex}, defaultValue: {defaultValue}, deprecated: {deprecated}, propertyClass: {propertyClass}, prefixOnly: {prefixOnly})'.format(
             pattern=f"^{self.fix(propertyName)}$" if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
