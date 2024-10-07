@@ -8,7 +8,7 @@ namespace Ice.Internal;
 
 public sealed class PropertyNames
 {
-    public static PropertyArray ProxyProps = new(
+    internal static PropertyArray ProxyProps = new(
         "Proxy",
         [
             new(@"EndpointSelection", false, "", false, null, false),
@@ -22,7 +22,7 @@ public sealed class PropertyNames
             new(@"^Context\.[^\s]+$", true, "", false, null, false),
         ]);
 
-    public static PropertyArray ConnectionProps = new(
+    internal static PropertyArray ConnectionProps = new(
         "Connection",
         [
             new(@"CloseTimeout", false, "10", false, null, false),
@@ -33,7 +33,7 @@ public sealed class PropertyNames
             new(@"MaxDispatches", false, "100", false, null, false),
         ]);
 
-    public static PropertyArray ThreadPoolProps = new(
+    internal static PropertyArray ThreadPoolProps = new(
         "ThreadPool",
         [
             new(@"Size", false, "1", false, null, false),
@@ -45,7 +45,7 @@ public sealed class PropertyNames
             new(@"ThreadPriority", false, "", false, null, false),
         ]);
 
-    public static PropertyArray ObjectAdapterProps = new(
+    internal static PropertyArray ObjectAdapterProps = new(
         "ObjectAdapter",
         [
             new(@"AdapterId", false, "", false, null, false),
@@ -62,7 +62,7 @@ public sealed class PropertyNames
             new(@"MessageSizeMax", false, "", false, null, false),
         ]);
 
-    public static PropertyArray IceProps = new(
+    internal static PropertyArray IceProps = new(
         "Ice",
         [
             new(@"AcceptClassCycles", false, "0", false, null, false),
@@ -145,7 +145,7 @@ public sealed class PropertyNames
             new(@"CacheMessageBuffers", false, "2", false, null, false),
         ]);
 
-    public static PropertyArray IceMXProps = new(
+    internal static PropertyArray IceMXProps = new(
         "IceMX",
         [
             new(@"^Metrics\.[^\s]+\.GroupBy$", true, "", false, null, false),
@@ -156,7 +156,7 @@ public sealed class PropertyNames
             new(@"^Metrics\.[^\s]+$", true, "", false, null, false),
         ]);
 
-    public static PropertyArray IceDiscoveryProps = new(
+    internal static PropertyArray IceDiscoveryProps = new(
         "IceDiscovery",
         [
             new(@"Multicast", false, "", false, ObjectAdapterProps, false),
@@ -172,7 +172,7 @@ public sealed class PropertyNames
             new(@"DomainId", false, "", false, null, false),
         ]);
 
-    public static PropertyArray IceLocatorDiscoveryProps = new(
+    internal static PropertyArray IceLocatorDiscoveryProps = new(
         "IceLocatorDiscovery",
         [
             new(@"Reply", false, "", false, ObjectAdapterProps, false),
@@ -188,7 +188,7 @@ public sealed class PropertyNames
             new(@"Trace.Lookup", false, "0", false, null, false),
         ]);
 
-    public static PropertyArray IceBoxProps = new(
+    internal static PropertyArray IceBoxProps = new(
         "IceBox",
         [
             new(@"InheritProperties", false, "", false, null, false),
@@ -199,7 +199,7 @@ public sealed class PropertyNames
             new(@"^UseSharedCommunicator\.[^\s]+$", true, "", false, null, false),
         ]);
 
-    public static PropertyArray IceSSLProps = new(
+    internal static PropertyArray IceSSLProps = new(
         "IceSSL",
         [
             new(@"CAs", false, "", false, null, false),
@@ -220,7 +220,7 @@ public sealed class PropertyNames
             new(@"VerifyPeer", false, "2", false, null, false),
         ]);
 
-    public static PropertyArray[] validProps =
+    internal static PropertyArray[] validProps =
     [
         IceProps,
         IceMXProps,
@@ -230,7 +230,7 @@ public sealed class PropertyNames
         IceSSLProps,
     ];
 
-    public static string[] clPropNames =
+    internal static string[] clPropNames =
     [
         "Ice",
         "IceMX",

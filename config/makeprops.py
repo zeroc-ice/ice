@@ -574,14 +574,14 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write(csPreamble)
 
     def closeFiles(self):
-        self.srcFile.write("    public static PropertyArray[] validProps =\n")
+        self.srcFile.write("    internal static PropertyArray[] validProps =\n")
 
         self.srcFile.write("    [\n")
         for s in self.generatedSections():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("    ];\n\n")
 
-        self.srcFile.write("    public static string[] clPropNames =\n")
+        self.srcFile.write("    internal static string[] clPropNames =\n")
         self.srcFile.write("    [\n")
         for s in self.sectionNames:
             self.srcFile.write('        "%s",\n' % s)
@@ -618,7 +618,7 @@ class CSPropertyHandler(PropertyHandler):
 
     def openSection(self, sectionName):
         self.srcFile.write(
-            f'    public static PropertyArray {sectionName}Props = new(\n        "{sectionName}",\n'
+            f'    internal static PropertyArray {sectionName}Props = new(\n        "{sectionName}",\n'
         )
         self.srcFile.write("        [\n")
 
