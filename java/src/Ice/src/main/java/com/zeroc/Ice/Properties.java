@@ -772,6 +772,12 @@ public final class Properties {
         }
     }
 
+    /*
+     * Find a property by key in a property array.
+     * @param key The property key.
+     * @param propertyArray The property array to search.
+     * @return The property if found, null otherwise.
+     */
     static Property findProperty(String key, PropertyArray propertyArray) {
         for (Property prop : propertyArray.properties()) {
             String pattern = prop.pattern();
@@ -812,6 +818,13 @@ public final class Properties {
         return null;
     }
 
+    /*
+     * Validate properties with a given prefix.
+     * @param prefix The property prefix.
+     * @param properties The properties to validate.
+     * @param propertyArray The property array to validate against.
+     * @throws UnknownPropertyException if any unknown properties are found.
+     */
     static void validatePropertiesWithPrefix(
             String prefix, Properties properties, PropertyArray propertyArray) {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
