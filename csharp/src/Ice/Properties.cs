@@ -508,8 +508,7 @@ public sealed class Properties
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
         foreach (string name in PropertyNames.clPropNames)
         {
-            string icePrefix = name + ".";
-            if (prefix.StartsWith(icePrefix, StringComparison.Ordinal))
+            if (prefix.StartsWith($"{name}.", StringComparison.Ordinal))
             {
                 return;
             }
