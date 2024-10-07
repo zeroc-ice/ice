@@ -101,7 +101,15 @@ public:
     virtual void runTimerTask()
     {
         lock_guard lock(_mutex);
-        _timer->destroy();
+        try
+        {
+            _timer->destroy();
+            test(false);
+        }
+        catch (const std::runtime_error&)
+        {
+            // Expected.
+        }
         _run = true;
         _condition.notify_one();
     }
@@ -233,6 +241,7 @@ Client::run(int, char*[])
             {
                 // Expected;
             }
+            timer->destroy();
         }
         {
             auto timer = make_shared<Ice::Timer>();
