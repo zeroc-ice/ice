@@ -493,19 +493,17 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write(javaPreamble)
 
     def closeFiles(self):
-        self.srcFile.write("    public static final Property[] validProps[] =\n")
+        self.srcFile.write("    public static final PropertyArray validProps[] =\n")
 
         self.srcFile.write("    {\n")
         for s in self.generatedSections():
             self.srcFile.write("        %sProps,\n" % s)
-        self.srcFile.write("        null\n")
         self.srcFile.write("    };\n")
 
         self.srcFile.write("\n    public static final String clPropNames[] =\n")
         self.srcFile.write("    {\n")
         for s in self.sectionNames:
             self.srcFile.write('        "%s",\n' % s)
-        self.srcFile.write("        null\n")
         self.srcFile.write("    };\n")
         self.srcFile.write("}\n")
         self.srcFile.close()
@@ -549,7 +547,6 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("        new Property[] {\n")
 
     def closeSection(self, sectionName):
-        self.srcFile.write("            null\n")
         self.srcFile.write("        });\n\n")
 
     def moveFiles(self, location):

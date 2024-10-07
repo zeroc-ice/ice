@@ -1103,29 +1103,14 @@ public final class ObjectAdapter {
         }
 
         final Properties properties = _instance.initializationData().properties;
-        List<String> unknownProps = new ArrayList<>();
-        boolean noProps = filterProperties(unknownProps);
 
-        //
-        // Warn about unknown object adapter properties.
-        //
-        if (!unknownProps.isEmpty()
-                && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0) {
-            StringBuffer message =
-                    new StringBuffer("found unknown properties for object adapter `");
-            message.append(_name);
-            message.append("':");
-            for (String p : unknownProps) {
-                message.append("\n    ");
-                message.append(p);
-            }
-            _instance.initializationData().logger.warning(message.toString());
-        }
+        Properties.validatePropertiesWithPrefix(
+                _name, properties, PropertyNames.ObjectAdapterProps);
 
         //
         // Make sure named adapter has some configuration.
         //
-        if (router == null && noProps) {
+        if (router == null && properties.getPropertiesForPrefix(_name).isEmpty()) {
             //
             // These need to be set to prevent finalizer from complaining.
             //
@@ -1585,85 +1570,5 @@ public final class ObjectAdapter {
                     .logger
                     .trace(_instance.traceLevels().locationCat, s.toString());
         }
-    }
-
-    private static String[] _suffixes = {
-        "AdapterId",
-        "Connection.CloseTimeout",
-        "Connection.ConnectTimeout",
-        "Connection.EnableIdleCheck",
-        "Connection.IdleTimeout",
-        "Connection.InactivityTimeout",
-        "Connection.MaxDispatches",
-        "Endpoints",
-        "Locator",
-        "Locator.EncodingVersion",
-        "Locator.EndpointSelection",
-        "Locator.ConnectionCached",
-        "Locator.PreferSecure",
-        "Locator.CollocationOptimized",
-        "Locator.Router",
-        "MaxConnections",
-        "MessageSizeMax",
-        "PublishedEndpoints",
-        "PublishedHost",
-        "ReplicaGroupId",
-        "Router",
-        "Router.EncodingVersion",
-        "Router.EndpointSelection",
-        "Router.ConnectionCached",
-        "Router.PreferSecure",
-        "Router.CollocationOptimized",
-        "Router.Locator",
-        "Router.Locator.EndpointSelection",
-        "Router.Locator.ConnectionCached",
-        "Router.Locator.PreferSecure",
-        "Router.Locator.CollocationOptimized",
-        "Router.Locator.LocatorCacheTimeout",
-        "Router.Locator.InvocationTimeout",
-        "Router.LocatorCacheTimeout",
-        "Router.InvocationTimeout",
-        "ProxyOptions",
-        "ThreadPool.Serialize",
-        "ThreadPool.Size",
-        "ThreadPool.SizeMax",
-        "ThreadPool.SizeWarn",
-        "ThreadPool.StackSize",
-        "ThreadPool.ThreadIdleTime",
-        "ThreadPool.ThreadPriority"
-    };
-
-    boolean filterProperties(List<String> unknownProps) {
-        //
-        // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
-        //
-        boolean addUnknown = true;
-        String prefix = _name + '.';
-        for (int i = 0; PropertyNames.clPropNames[i] != null; ++i) {
-            if (prefix.startsWith(PropertyNames.clPropNames[i] + '.')) {
-                addUnknown = false;
-                break;
-            }
-        }
-
-        boolean noProps = true;
-        Map<String, String> props =
-                _instance.initializationData().properties.getPropertiesForPrefix(prefix);
-        for (String prop : props.keySet()) {
-            boolean valid = false;
-            for (String suffix : _suffixes) {
-                if (prop.equals(prefix + suffix)) {
-                    noProps = false;
-                    valid = true;
-                    break;
-                }
-            }
-
-            if (!valid && addUnknown) {
-                unknownProps.add(prop);
-            }
-        }
-
-        return noProps;
     }
 }

@@ -4,5 +4,10 @@
 
 package com.zeroc.Ice;
 
-record Property(String pattern, boolean usesRegex, String defaultValue, boolean deprecated, PropertyArray propertyClass, boolean prefixOnly)
-{}
+record Property(
+        String pattern,
+        boolean usesRegex,
+        String defaultValue,
+        boolean deprecated,
+        PropertyArray propertyClass,
+        boolean prefixOnly) {}
