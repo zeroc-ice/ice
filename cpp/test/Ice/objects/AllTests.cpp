@@ -66,17 +66,13 @@ allTests(Test::TestHelper* helper)
     test(ba2->theS.str == "hello");
     test(ba2->str == "hi");
 
-    test(*ba1 < *ba2);
-    test(*ba2 > *ba1);
-    test(*ba1 != *ba2);
+    auto [s2, str2] = ba2->ice_tuple();
+    test(s2 == s);
+    test(str2 == "hi");
 
     ba1 = ba2->ice_clone();
     test(ba1->theS.str == "hello");
     test(ba1->str == "hi");
-
-    test(*ba1 == *ba2);
-    test(*ba1 >= *ba2);
-    test(*ba1 <= *ba2);
 
     BasePtr bp1 = make_shared<Base>();
     bp1 = ba2->ice_clone();
