@@ -1191,7 +1191,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     public synchronized void sendHeartbeat() {
         assert !_endpoint.datagram();
 
-        if (_state == StateActive || _state == StateHolding) {
+        if (_state == StateActive || _state == StateHolding || _state == StateClosing) {
 
             // We check if the connection has become inactive.
             if (_inactivityTimerFuture == null // timer not already scheduled
@@ -1203,9 +1203,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     && _sendStreams.size() <= 1 // there is at most one pending outgoing message
             ) {
                 // We may become inactive while the peer is back-pressuring us. In this case, we
-                // only
-                // schedule the inactivity timer if there is no pending outgoing message or the
-                // pending outgoing message is a heartbeat.
+                // only schedule the inactivity timer if there is no pending outgoing message or
+                // the pending outgoing message is a heartbeat.
 
                 // The stream of the first _sendStreams message is in _writeStream.
                 if (_sendStreams.isEmpty()
@@ -1215,21 +1214,13 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             }
 
             // We send a heartbeat to the peer to generate a "write" on the connection. This
-            // write
-            // in
-            // turns creates a read on the peer, and resets the peer's idle check timer.
-            // When
-            // _sendStream is not empty, there is already an outstanding write, so we don't
-            // need to
-            // send a heartbeat. It's possible the first message of _sendStreams was already
-            // sent
-            // but
-            // not yet removed from _sendStreams: it means the last write occurred very
-            // recently,
-            // which is good enough with respect to the idle check.
+            // write in turns creates a read on the peer, and resets the peer's idle check timer.
+            // When _sendStream is not empty, there is already an outstanding write, so we don't
+            // need to send a heartbeat. It's possible the first message of _sendStreams was
+            // already sent but  not yet removed from _sendStreams: it means the last write
+            // occurred very recently, which is good enough with respect to the idle check.
             // As a result of this optimization, the only possible heartbeat in _sendStreams
-            // is the
-            // first _sendStreams message.
+            // is the first _sendStreams message.
             if (_sendStreams.isEmpty()) {
                 OutputStream os = new OutputStream(Protocol.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
@@ -1593,8 +1584,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             Protocol.currentProtocol.ice_writeMembers(os);
             Protocol.currentProtocolEncoding.ice_writeMembers(os);
             os.writeByte(Protocol.closeConnectionMsg);
-            os.writeByte((byte) 0); // compression status: always report 0 for
-            // CloseConnection in Java.
+            os.writeByte((byte) 0); // compression status
             os.writeInt(Protocol.headerSize); // Message size.
 
             scheduleCloseTimer();
@@ -1885,10 +1875,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 // If the message was sent right away, loop to send the next queued message.
             }
 
-            //
-            // If all the messages were sent and we are in the closing state, we schedule
-            // the close timeout to wait for the peer to close the connection.
-            //
+            // Once the CloseConnection message is sent, we transition to the StateClosingPending
+            // state.
             if (_state == StateClosing && _shutdownInitiated) {
                 setState(StateClosingPending);
                 int op = _transceiver.closing(true, _exception);

@@ -2392,7 +2392,7 @@ Ice::ConnectionI::sendHeartbeat() noexcept
     assert(!_endpoint->datagram());
 
     lock_guard lock(_mutex);
-    if (_state == StateActive || _state == StateHolding)
+    if (_state == StateActive || _state == StateHolding || _state == StateClosing)
     {
         // We check if the connection has become inactive.
         if (_inactivityTimerTask &&           // null when the inactivity timeout is infinite
@@ -2832,10 +2832,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
             // If the message was sent right away, loop to send the next queued message.
         }
 
-        //
-        // If all the messages were sent and we are in the closing state, we schedule the close timeout to wait for the
-        // peer to close the connection.
-        //
+        // Once the CloseConnection message is sent, we transition to the StateClosingPending state.
         if (_state == StateClosing && _shutdownInitiated)
         {
             setState(StateClosingPending);

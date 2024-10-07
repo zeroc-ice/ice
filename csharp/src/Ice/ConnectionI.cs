@@ -1496,7 +1496,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         lock (_mutex)
         {
-            if (_state == StateActive || _state == StateHolding)
+            if (_state == StateActive || _state == StateHolding || _state == StateClosing)
             {
                 // We check if the connection has become inactive.
                 if (
@@ -2100,10 +2100,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // If the message was sent right away, loop to send the next queued message.
             }
 
-            //
-            // If all the messages were sent and we are in the closing state, we schedule the close timeout to wait for
-            // the peer to close the connection.
-            //
+            // Once the CloseConnection message is sent, we transition to the StateClosingPending state.
             if (_state == StateClosing && _shutdownInitiated)
             {
                 setState(StateClosingPending);
