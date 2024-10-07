@@ -246,7 +246,11 @@ class PropertyHandler(ContentHandler):
         propertyClass = attrs.get("class", None)
         prefixOnly = attrs.get("prefix-only", "false").lower() == "true"
 
-        if self.language == Language.CPP:
+        if (
+            self.language == Language.CPP
+            or self.language == Language.CSHARP
+            or self.language == Language.JAVA
+        ):
             propertyName = name
         else:
             propertyName = (
@@ -345,7 +349,11 @@ class PropertyHandler(ContentHandler):
 
                 # TODO: temporary until all languages support class props
 
-                if self.language != Language.CPP:
+                if (
+                    self.language != Language.CPP
+                    and self.language != Language.CSHARP
+                    and self.language != Language.JAVA
+                ):
                     if self.parentNodeType == "class":
                         return
 
@@ -510,7 +518,7 @@ class JavaPropertyHandler(PropertyHandler):
 
     @override
     def writeProperty(self, property):
-        self.srcFile.write("    %s,\n" % property)
+        self.srcFile.write("            %s,\n" % property)
 
     def createProperty(
         self,
@@ -521,24 +529,28 @@ class JavaPropertyHandler(PropertyHandler):
         propertyClass,
         prefixOnly,
     ):
-        line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
+        line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {propertyClass}, {prefixOnly})'.format(
             pattern=self.fix(propertyName) if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
+            propertyClass=f"PropertyNames.{propertyClass}Props"
+            if propertyClass
+            else "null",
+            prefixOnly="true" if prefixOnly else "false",
         )
 
         return line
 
     def openSection(self, sectionName):
         self.srcFile.write(
-            "    public static final Property %sProps[] =\n" % sectionName
+            f'    public static final PropertyArray {sectionName}Props = new PropertyArray(\n        "{sectionName}",\n'
         )
-        self.srcFile.write("    {\n")
+        self.srcFile.write("        new Property[] {\n")
 
     def closeSection(self, sectionName):
-        self.srcFile.write("        null\n")
-        self.srcFile.write("    };\n\n")
+        self.srcFile.write("            null\n")
+        self.srcFile.write("        });\n\n")
 
     def moveFiles(self, location):
         dest = os.path.join(
