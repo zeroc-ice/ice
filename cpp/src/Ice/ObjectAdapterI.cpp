@@ -85,6 +85,9 @@ Ice::ObjectAdapterI::activate()
                 _incomingConnectionFactories.begin(),
                 _incomingConnectionFactories.end(),
                 [](const IncomingConnectionFactoryPtr& factory) { factory->activate(); });
+
+            _state = StateActive;
+            _conditionVariable.notify_all();
             return;
         }
 
@@ -181,10 +184,8 @@ Ice::ObjectAdapterI::deactivate() noexcept
     {
         unique_lock lock(_mutex);
 
-        //
-        // Wait for activation to complete. This is necessary to not
-        // get out of order locator updates.
-        //
+        // Wait for activation or a previous deactivation to complete.
+        // This is necessary to avoid out of order locator updates.
         _conditionVariable.wait(lock, [this] { return _state != StateActivating && _state != StateDeactivating; });
 
         if (_state >= StateDeactivated)
