@@ -53,12 +53,10 @@ declare module "ice" {
              * to destroy are ignored. Once destroy has completed, it is possible to create another object adapter with
              * the same name.
              *
-             * @returns The asynchronous result object for the invocation.
-             *
              * @see {@link ObjectAdapter#deactivate}
              * @see {@link Communicator#destroy}
              */
-            destroy(): Promise<void>;
+            destroy(): void;
 
             /**
              *  Install a middleware in this object adapter.
