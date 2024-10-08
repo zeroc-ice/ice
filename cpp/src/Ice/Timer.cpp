@@ -20,6 +20,10 @@ Timer::Timer() : _destroyed(false), _wakeUpTime(chrono::steady_clock::time_point
 void
 Timer::destroy()
 {
+    if (std::this_thread::get_id() == _worker.get_id())
+    {
+        throw std::runtime_error("a timer task cannot destroy the timer");
+    }
     {
         std::lock_guard lock(_mutex);
         if (_destroyed)
@@ -31,15 +35,7 @@ Timer::destroy()
         _tokens.clear();
         _condition.notify_one();
     }
-
-    if (std::this_thread::get_id() == _worker.get_id())
-    {
-        _worker.detach();
-    }
-    else if (_worker.joinable())
-    {
-        _worker.join();
-    }
+    _worker.join();
 }
 
 bool
