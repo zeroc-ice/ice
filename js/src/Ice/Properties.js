@@ -137,7 +137,7 @@ export class Properties {
 
         // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
         // case-insensitive Ice property prefix matches.
-        var prop = Properties.findProperty(key, true);
+        var prop = Properties.findIceProperty(key, true);
 
         // If the property is deprecated, log a warning
         if (prop !== null && prop.deprecated) {
@@ -370,7 +370,68 @@ export class Properties {
         return new Properties(args, defaults);
     }
 
-    static findProperty(key, logWarnings) {
+    static findProperty(key, propertyArray) {
+        for (const prop of propertyArray.properties) {
+            // If the key is an exact match, return the property unless it has a property class which is prefix only.
+            // If the key is a regex match, return the property. A property cannot have a property class and use regex.
+            if (key == prop.pattern) {
+                if (prop.propertyArray !== null && prop.propertyArray.prefixOnly) {
+                    return null;
+                }
+                return prop;
+            }
+            else if (prop.usesRegex && key.match(prop.pattern)) {
+                return prop;
+            }
+
+            // If the property has a property array, check if the key is a prefix of the property.
+            if (prop.propertyArray)
+            {
+                // Check if the key is a prefix of the property.
+                // The key must be:
+                // - shorter than the property pattern
+                // - the property pattern must start with the key
+                // - the pattern character after the key must be a dot
+                if (key.length > prop.pattern.length && key.startsWith(`${prop.pattern}.`))
+                {
+                    // Plus one to skip the dot.
+                    let substring = key.substring(prop.pattern.length + 1);
+
+                    // Check if the suffix is a valid property. If so, return it. If it's not, continue searching
+                    // the current property array.
+                    const subProp = Properties.findProperty(substring, prop.propertyArray);
+                    if (subProp !== null)
+                    {
+                        return subProp;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    static validatePropertiesWithPrefix(prefix, properties, propertyArray) {
+        // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
+        for (const name in PropertyNames.validProps.keys()) {
+            if (prefix.startsWith(`${name}.`)) {
+                return;
+            }
+        }
+
+        var unknownProps = [];
+        let props = properties.getPropertiesForPrefix(`${prefix}.`);
+        props.key().forEach(key => {
+            if (Properties.findProperty(key.substring(prefix.length + 1), propertyArray) === null) {
+                unknownProps.push(key);
+            }
+        });
+
+        if (unknownProps.length > 0) {
+            `found unknown properties for ${propertyArray.name}: '${prefix}'\n${unknownProps.join(",\n")}`;
+        }
+    }
+
+    static findIceProperty(key, logWarnings) {
         // Check if the property is a known Ice property and log warnings if necessary
         const logger = getProcessLogger();
 
@@ -382,12 +443,12 @@ export class Properties {
         }
 
         const prefix = key.substr(0, dotPos);
-        var propertiesForPrefix = null;
+        var propertyArray = null;
 
         // Search for the property prefix
         for (const [validPropsPrefix, validPropsValue] of PropertyNames.validProps) {
             if (validPropsPrefix === prefix) {
-                propertiesForPrefix = validPropsValue;
+                propertyArray = validPropsValue;
                 break;
             }
 
@@ -397,15 +458,14 @@ export class Properties {
             }
         }
 
-        if (propertiesForPrefix === null) {
+        if (propertyArray === null) {
             // The prefix is not a valid Ice property.
             return null;
         }
 
-        for (const prop of propertiesForPrefix) {
-            if (prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern) {
-                return prop;
-            }
+        let prop = Properties.findProperty(key.substr(dotPos + 1), propertyArray);
+        if (prop !== null) {
+            return prop;
         }
 
         // If we get here, the prefix is valid but the property is unknown
@@ -417,7 +477,7 @@ export class Properties {
 
     static getDefaultProperty(key) {
         // Find the property, don't log any warnings.
-        const prop = Properties.findProperty(key, false);
+        const prop = Properties.findIceProperty(key, false);
         if (prop === null) {
             throw new Error("unknown Ice property: " + key);
         }

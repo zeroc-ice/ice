@@ -362,3 +362,13 @@ export class TwowayOnlyException extends LocalException {
         this.operation = operation;
     }
 }
+
+export class UnknownPropertyException extends RequestFailedException {
+    static get _ice_id() {
+        return "::Ice::UnknownPropertyException";
+    }
+
+    constructor(message) {
+        super(message);
+    }
+}

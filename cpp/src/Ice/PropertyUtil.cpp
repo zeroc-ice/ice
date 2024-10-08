@@ -20,7 +20,7 @@ IceInternal::findProperty(string_view key, const PropertyArray* propertyArray)
         // If the key is a regex match, return the property. A property cannot have a property class and use regex.
         if (key == prop.pattern)
         {
-            if (prop.propertyClass && prop.prefixOnly)
+            if (prop.propertyArray && prop.propertyArray->prefixOnly)
             {
                 return nullopt;
             }
@@ -32,7 +32,7 @@ IceInternal::findProperty(string_view key, const PropertyArray* propertyArray)
         }
 
         // If the property has a property class, check if the key is a prefix of the property.
-        if (prop.propertyClass)
+        if (prop.propertyArray)
         {
             auto pattern = string{prop.pattern};
             // Check if the key is a prefix of the property.
@@ -46,7 +46,7 @@ IceInternal::findProperty(string_view key, const PropertyArray* propertyArray)
                 string_view substring = key.substr(pattern.length() + 1);
                 // Check if the suffix is a valid property. If so, return it. If it's not, continue searching
                 // the current property array.
-                if (auto subProp = findProperty(substring, prop.propertyClass))
+                if (auto subProp = findProperty(substring, prop.propertyArray))
                 {
                     return subProp;
                 }

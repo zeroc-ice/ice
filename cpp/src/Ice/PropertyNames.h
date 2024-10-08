@@ -18,15 +18,16 @@ namespace IceInternal
     {
         const char* pattern;
         const char* defaultValue;
-        bool usesRegex;
-        bool deprecated;
-        const PropertyArray* propertyClass;
-        bool prefixOnly;
+        const bool usesRegex;
+        const bool deprecated;
+        const PropertyArray* propertyArray;
+
     };
 
     struct PropertyArray
     {
         const char* name;
+        const bool prefixOnly;
         const Property* properties;
         const int length;
     };

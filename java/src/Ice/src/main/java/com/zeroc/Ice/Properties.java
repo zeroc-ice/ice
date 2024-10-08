@@ -788,7 +788,7 @@ public final class Properties {
             // If the key is a regex match, return the property. A property cannot have a property
             // class and use regex.
             if (key.equals(pattern)) {
-                if (prop.propertyClass() != null && prop.prefixOnly()) {
+                if (prop.propertyArray() != null && prop.propertyArray().prefixOnly()) {
                     return null;
                 }
                 return prop;
@@ -797,7 +797,7 @@ public final class Properties {
             }
 
             // If the property has a property class, check if the key is a prefix of the property.
-            if (prop.propertyClass() != null) {
+            if (prop.propertyArray() != null) {
                 // Check if the key is a prefix of the property.
                 // The key must be:
                 // - shorter than the property pattern
@@ -810,7 +810,7 @@ public final class Properties {
                     // Check if the suffix is a valid property. If so, return it. If it's not,
                     // continue searching
                     // the current property array.
-                    Property foundProp = findProperty(substring, prop.propertyClass());
+                    Property foundProp = findProperty(substring, prop.propertyArray());
                     if (foundProp != null) {
                         return foundProp;
                     }

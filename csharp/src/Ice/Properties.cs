@@ -613,7 +613,7 @@ public sealed class Properties
             // If the key is a regex match, return the property. A property cannot have a property class and use regex.
             if (key == prop.pattern)
             {
-                if (prop.propertyClass is not null && prop.prefixOnly)
+                if (prop.propertyArray is not null && prop.propertyArray.prefixOnly)
                 {
                     return null;
                 }
@@ -625,7 +625,7 @@ public sealed class Properties
             }
 
             // If the property has a property class, check if the key is a prefix of the property.
-            if (prop.propertyClass is not null)
+            if (prop.propertyArray is not null)
             {
                 // Check if the key is a prefix of the property.
                 // The key must be:
@@ -639,7 +639,7 @@ public sealed class Properties
 
                     // Check if the suffix is a valid property. If so, return it. If it's not, continue searching
                     // the current property array.
-                    if (findProperty(substring, prop.propertyClass) is Property subProp)
+                    if (findProperty(substring, prop.propertyArray) is Property subProp)
                     {
                         return subProp;
                     }

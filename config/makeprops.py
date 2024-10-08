@@ -14,10 +14,8 @@ from typing import override
 from xml.sax import make_parser
 from xml.sax.handler import feature_namespaces
 from xml.sax.handler import ContentHandler
-from xml.dom.minidom import parse
 
 progname = os.path.basename(sys.argv[0])
-propertyClasses = {}
 
 
 class Language(StrEnum):
@@ -53,15 +51,16 @@ namespace IceInternal
     {
         const char* pattern;
         const char* defaultValue;
-        bool usesRegex;
-        bool deprecated;
-        const PropertyArray* propertyClass;
-        bool prefixOnly;
+        const bool usesRegex;
+        const bool deprecated;
+        const PropertyArray* propertyArray;
+
     };
 
     struct PropertyArray
     {
         const char* name;
+        const bool prefixOnly;
         const Property* properties;
         const int length;
     };
@@ -115,61 +114,22 @@ public sealed class PropertyNames
 jsPreamble = (
     commonPreamble
     + """
-import { Property } from "./Property.js";
+import { Property, PropertyArray } from "./Property.js";
 export const PropertyNames = {};
+
 """
 )
 
 
-#
-# Currently the processing of PropertyNames.xml is going to take place
-# in two parts. One is using DOM to extract the property 'classes' such
-# as 'proxy', 'objectadapter', etc. The other part uses SAX to create
-# the language mapping source code.
-#
-
-
-# TODO: delete once all languages support class props
-class PropertyClass:
-    def __init__(self, prefixOnly, childProperties):
+class PropertyArray:
+    def __init__(self, name: str, prefixOnly: bool, isClass: bool):
+        self.name = name
         self.prefixOnly = prefixOnly
-        self.childProperties = childProperties
+        self.isClass = isClass
+        self.properties = []
 
-    def getChildren(self):
-        return self.childProperties
-
-    def isPrefixOnly(self):
-        return self.prefixOnly
-
-    def __repr__(self):
-        return repr((repr(self.prefixOnly), repr(self.childProperties)))
-
-
-def initPropertyClasses(filename):
-    doc = parse(filename)
-    propertyClassNodes = doc.getElementsByTagName("class")
-    global propertyClasses
-    propertyClasses = {}
-    for n in propertyClassNodes:
-        className = n.attributes["name"].nodeValue
-        classType = n.attributes["prefix-only"].nodeValue
-        properties = []
-        for a in n.childNodes:
-            if a.localName == "property" and a.hasAttributes():
-                """Convert minidom maps to hash tables """
-                attributeMap = {}
-                for i in range(0, a.attributes.length):
-                    attributeMap[a.attributes.item(i).name] = a.attributes.item(i).value
-                properties.append(attributeMap)
-
-        propertyClasses[className] = PropertyClass(
-            classType.lower() == "true", properties
-        )
-
-
-#
-# SAX part.
-#
+    def addProperty(self, property):
+        self.properties.append(property)
 
 
 class PropertyHandler(ContentHandler):
@@ -178,12 +138,8 @@ class PropertyHandler(ContentHandler):
         self.language = language
         # The section section we are currently parsing
         self.parentNodeName = None
-        # Dictionary of node names to properties
-        self.nodeProperties = dict()
-        # The current section type (class or section)
-        self.parentNodeType = None
-        # The list of section names
-        self.sectionNames = []
+        # Dictionary of section names to attr dicts
+        self.propertyArrayDict: dict[str, PropertyArray] = dict()
 
     def cleanup(self):
         # Needs to be overridden in derived class
@@ -203,8 +159,7 @@ class PropertyHandler(ContentHandler):
         usesRegex,
         defaultValue,
         deprecated,
-        propertyClass,
-        prefixOnly,
+        propertyArrayName,
     ):
         # Needs to be overridden in derived class
         pass
@@ -213,18 +168,21 @@ class PropertyHandler(ContentHandler):
         # Needs to be overridden in derived class
         pass
 
-    def openSection(self, sectionName):
+    def openSection(self, propertyArray: PropertyArray):
         # Needs to be overridden in derived class
         pass
 
     def writeProperties(self):
         self.openFiles()
 
-        for section in self.nodeProperties.keys():
-            self.openSection(section)
-            for prop in self.nodeProperties[section]:
-                self.writeProperty(prop)
-            self.closeSection(section)
+        for sectionName, propertyArray in self.propertyArrayDict.items():
+            if len(propertyArray.properties) == 0:
+                continue
+
+            self.openSection(propertyArray)
+            for property in propertyArray.properties:
+                self.writeProperty(property)
+            self.closeSection(propertyArray)
 
         self.closeFiles()
 
@@ -235,53 +193,37 @@ class PropertyHandler(ContentHandler):
     # The list of sections that have properties generated for them
     def generatedSections(self):
         return [
-            name for name in self.sectionNames if name in self.nodeProperties.keys()
+            name
+            for name, propertyArray in self.propertyArrayDict.items()
+            if len(self.propertyArrayDict[name].properties) > 0
+            and not propertyArray.isClass
         ]
 
-    def parseProperty(self, propertyPrefix, attrs):
+    def parseProperty(self, attrs):
         name = attrs.get("name")
         usesRegex = "[any]" in name
         deprecated = attrs.get("deprecated", "false").lower() == "true"
         defaultValue = attrs.get("default", None)
-        propertyClass = attrs.get("class", None)
-        prefixOnly = attrs.get("prefix-only", "false").lower() == "true"
+        propertyArrayName = attrs.get("class", None)
 
-        if (
-            self.language == Language.CPP
-            or self.language == Language.CSHARP
-            or self.language == Language.JAVA
-        ):
-            propertyName = name
-        else:
-            propertyName = (
-                f"{propertyPrefix}.{name}" if self.parentNodeType == "section" else name
-            )
-
-        if not propertyClass and prefixOnly:
+        if propertyArrayName and defaultValue:
             print(
                 sys.stderr,
-                f"Property '{propertyName}' cannot have prefix-only without a class",
+                f"Property '{name}' cannot have both a class and a default value",
             )
 
-        if propertyClass and defaultValue:
+        if propertyArrayName and usesRegex:
             print(
                 sys.stderr,
-                f"Property '{propertyName}' cannot have both a class and a default value",
-            )
-
-        if propertyClass and usesRegex:
-            print(
-                sys.stderr,
-                f"Property '{propertyName}' cannot have both a class and use a regex",
+                f"Property '{name}' cannot have both a class and use a regex",
             )
 
         return self.createProperty(
-            propertyName,
+            name,
             usesRegex,
             defaultValue or "",
             deprecated,
-            propertyClass,
-            prefixOnly,
+            propertyArrayName,
         )
 
     def validateKnownAttributes(self, validAttrs, attrs):
@@ -331,13 +273,17 @@ class PropertyHandler(ContentHandler):
                 pass
             case "class":
                 self.validateKnownAttributes(["name", "prefix-only"], attrs)
-                self.parentNodeType = "class"
                 self.parentNodeName = f"{attrs.get("name")}"
+                prefixOnly = attrs.get("prefix-only", "false").lower() == "true"
+                self.propertyArrayDict[self.parentNodeName] = PropertyArray(
+                    self.parentNodeName, prefixOnly, True
+                )
             case "section":
                 self.validateKnownAttributes(["name"], attrs)
-                self.parentNodeType = "section"
                 self.parentNodeName = attrs.get("name")
-                self.sectionNames.append(self.parentNodeName)
+                self.propertyArrayDict[self.parentNodeName] = PropertyArray(
+                    self.parentNodeName, False, False
+                )
 
             case "property":
                 self.validateKnownAttributes(
@@ -347,37 +293,15 @@ class PropertyHandler(ContentHandler):
                 if self.validateLanguages(attrs) is False:
                     return
 
-                # TODO: temporary until all languages support class props
+                property = self.parseProperty(attrs)
 
-                if (
-                    self.language != Language.CPP
-                    and self.language != Language.CSHARP
-                    and self.language != Language.JAVA
-                ):
-                    if self.parentNodeType == "class":
-                        return
-
-                    propertyName = attrs.get("name", None)
-                    if "class" in attrs:
-                        c = propertyClasses[attrs["class"]]
-                        assert c is not None
-                        for p in c.getChildren():
-                            t = dict(p)
-                            t["name"] = "%s.%s" % (propertyName, p["name"])
-                            self.startElement(name, t)
-                        if c.isPrefixOnly():
-                            return
-
-                property = self.parseProperty(self.parentNodeName, attrs)
-                self.nodeProperties.setdefault(self.parentNodeName, []).append(property)
+                self.propertyArrayDict[self.parentNodeName].addProperty(property)
             case _:
-                print(sys.stderr, "unknown element '%s'" % name)
+                raise ValueError(f"Unknown element: {name}")
 
     def endElement(self, name):
-        print("ending element", self.parentNodeName)
         if name == "section" or name == "class":
             self.parentNodeName = None
-            self.parentNodeType = None
 
 
 class CppPropertyHandler(PropertyHandler):
@@ -409,12 +333,12 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.write("{\n")
         for s in self.generatedSections():
             self.cppFile.write("    %sProps,\n" % s)
-        self.cppFile.write("    PropertyArray{nullptr, nullptr ,0}\n")
+        self.cppFile.write("    PropertyArray{nullptr, false, nullptr ,0}\n")
         self.cppFile.write("};\n\n")
 
         self.cppFile.write("const char* PropertyNames::clPropNames[] =\n")
         self.cppFile.write("{\n")
-        for s in self.sectionNames:
+        for s in self.propertyArrayDict.keys():
             self.cppFile.write('    "%s",\n' % s)
         self.cppFile.write("    nullptr\n")
         self.cppFile.write("};\n")
@@ -430,39 +354,35 @@ class CppPropertyHandler(PropertyHandler):
 
     @override
     def createProperty(
-        self,
-        propertyName,
-        usesRegex,
-        defaultValue,
-        deprecated,
-        propertyClass,
-        prefixOnly,
+        self, propertyName, usesRegex, defaultValue, deprecated, propertyArray
     ):
-        propertyLine = 'Property{{"{pattern}", {defaultValue}, {usesRegex}, {deprecated}, {propertyClass}, {prefixOnly}}}'.format(
+        propertyLine = 'Property{{"{pattern}", {defaultValue}, {usesRegex}, {deprecated}, {propertyArray}}}'.format(
             pattern=self.fix(propertyName) if usesRegex else propertyName,
             defaultValue=f'"{defaultValue}"',
             usesRegex="true" if usesRegex else "false",
             deprecated="true" if deprecated else "false",
-            propertyClass=f"&PropertyNames::{propertyClass}Props"
-            if propertyClass
+            propertyArray=f"&PropertyNames::{propertyArray}Props"
+            if propertyArray
             else "nullptr",
-            prefixOnly="true" if prefixOnly else "false",
         )
 
         return propertyLine
 
-    def openSection(self, sectionName):
-        self.hFile.write("        static const PropertyArray %sProps;\n" % sectionName)
-        self.cppFile.write("const Property %sPropsData[] =\n" % sectionName)
+    def openSection(self, propertyArray: PropertyArray):
+        name = propertyArray.name
+        self.hFile.write(f"        static const PropertyArray {name}Props;\n")
+        self.cppFile.write(f"const Property {name}PropsData[] =\n")
         self.cppFile.write("{\n")
 
-    def closeSection(self, sectionName):
+    def closeSection(self, propertyArray: PropertyArray):
+        name = propertyArray.name
+        prefixOnly = "true" if propertyArray.prefixOnly else "false"
         self.cppFile.write("};\n")
         self.cppFile.write(
             f"""
 const PropertyArray
-    PropertyNames::{sectionName}Props{{"{sectionName}", {sectionName}PropsData,
-        sizeof({sectionName}PropsData)/sizeof({sectionName}PropsData[0])}};
+    PropertyNames::{name}Props{{"{name}", {prefixOnly}, {name}PropsData,
+        sizeof({name}PropsData)/sizeof({name}PropsData[0])}};
 
 """
         )
@@ -502,7 +422,7 @@ class JavaPropertyHandler(PropertyHandler):
 
         self.srcFile.write("\n    public static final String clPropNames[] =\n")
         self.srcFile.write("    {\n")
-        for s in self.sectionNames:
+        for s in self.propertyArrayDict.keys():
             self.srcFile.write('        "%s",\n' % s)
         self.srcFile.write("    };\n")
         self.srcFile.write("}\n")
@@ -524,29 +444,29 @@ class JavaPropertyHandler(PropertyHandler):
         usesRegex,
         defaultValue,
         deprecated,
-        propertyClass,
-        prefixOnly,
+        propertyArray,
     ):
-        line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {propertyClass}, {prefixOnly})'.format(
+        line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {propertyArray})'.format(
             pattern=self.fix(propertyName) if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
-            propertyClass=f"PropertyNames.{propertyClass}Props"
-            if propertyClass
+            propertyArray=f"PropertyNames.{propertyArray}Props"
+            if propertyArray
             else "null",
-            prefixOnly="true" if prefixOnly else "false",
         )
 
         return line
 
-    def openSection(self, sectionName):
+    def openSection(self, propertyArray: PropertyArray):
+        name = propertyArray.name
+        prefixOnly = "true" if propertyArray.prefixOnly else "false"
         self.srcFile.write(
-            f'    public static final PropertyArray {sectionName}Props = new PropertyArray(\n        "{sectionName}",\n'
+            f'    public static final PropertyArray {name}Props = new PropertyArray(\n        "{name}",\n        {prefixOnly},\n'
         )
         self.srcFile.write("        new Property[] {\n")
 
-    def closeSection(self, sectionName):
+    def closeSection(self, propertyArray):
         self.srcFile.write("        });\n\n")
 
     def moveFiles(self, location):
@@ -592,7 +512,7 @@ class CSPropertyHandler(PropertyHandler):
 
         self.srcFile.write("    internal static string[] clPropNames =\n")
         self.srcFile.write("    [\n")
-        for s in self.sectionNames:
+        for s in self.propertyArrayDict.keys():
             self.srcFile.write('        "%s",\n' % s)
         self.srcFile.write("    ];\n")
         self.srcFile.write("}\n")
@@ -612,26 +532,26 @@ class CSPropertyHandler(PropertyHandler):
         usesRegex,
         defaultValue,
         deprecated,
-        propertyClass,
-        prefixOnly,
+        propertyArray,
     ):
-        line = 'new(pattern: @"{pattern}", usesRegex: {usesRegex}, defaultValue: {defaultValue}, deprecated: {deprecated}, propertyClass: {propertyClass}, prefixOnly: {prefixOnly})'.format(
+        line = 'new(pattern: @"{pattern}", usesRegex: {usesRegex}, defaultValue: {defaultValue}, deprecated: {deprecated}, propertyArray: {propertyArray})'.format(
             pattern=f"^{self.fix(propertyName)}$" if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
-            propertyClass=f"{propertyClass}Props" if propertyClass else "null",
-            prefixOnly="true" if prefixOnly else "false",
+            propertyArray=f"{propertyArray}Props" if propertyArray else "null",
         )
         return line
 
-    def openSection(self, sectionName):
+    def openSection(self, propertyArray: PropertyArray):
+        name = propertyArray.name
+        prefixOnly = "true" if propertyArray.prefixOnly else "false"
         self.srcFile.write(
-            f'    internal static PropertyArray {sectionName}Props = new(\n        "{sectionName}",\n'
+            f'    internal static PropertyArray {name}Props = new(\n        "{name}",\n        {prefixOnly},\n'
         )
         self.srcFile.write("        [\n")
 
-    def closeSection(self, sectionName):
+    def closeSection(self, propertyArray):
         self.srcFile.write("        ]);\n")
         self.srcFile.write("\n")
 
@@ -646,7 +566,6 @@ class JSPropertyHandler(PropertyHandler):
     def __init__(self):
         super().__init__(Language.JS)
         self.srcFile = None
-        self.validSections = ["Ice"]
 
     def cleanup(self):
         if self.srcFile is not None:
@@ -659,10 +578,17 @@ class JSPropertyHandler(PropertyHandler):
         self.srcFile.write(jsPreamble)
 
     def closeFiles(self):
-        self.srcFile.write("PropertyNames.validProps = new Map();\n")
-        for s in self.generatedSections():
-            self.srcFile.write(f'PropertyNames.validProps.set("{s}", {s}Props);\n')
+        self.srcFile.write("PropertyNames.validProps = new Map([\n")
+        for name in self.generatedSections():
+            self.srcFile.write(f'    ["{name}", PropertyNames.{name}Props],\n')
 
+        for name in [
+            name
+            for name, array in self.propertyArrayDict.items()
+            if len(array.properties) == 0 and not array.isClass
+        ]:
+            self.srcFile.write(f'    ["{name}", null],\n')
+        self.srcFile.write("]);\n")
         self.srcFile.close()
 
     def fix(self, propertyName):
@@ -678,27 +604,30 @@ class JSPropertyHandler(PropertyHandler):
         usesRegex,
         defaultValue,
         deprecated,
-        propertyClass,
-        prefixOnly,
+        propertyArray,
     ):
-        line = (
-            "new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated})".format(
-                pattern=f"/^{self.fix(propertyName)}/"
-                if usesRegex
-                else f'"{propertyName}"',
-                usesRegex="true" if usesRegex else "false",
-                defaultValue=f'"{defaultValue}"',
-                deprecated="true" if deprecated else "false",
-            )
+        line = "new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated}, {propertyArray})".format(
+            pattern=f"/^{self.fix(propertyName)}/"
+            if usesRegex
+            else f'"{propertyName}"',
+            usesRegex="true" if usesRegex else "false",
+            defaultValue=f'"{defaultValue}"',
+            deprecated="true" if deprecated else "false",
+            propertyArray=f"PropertyNames.{propertyArray}Props"
+            if propertyArray
+            else "null",
         )
         return line
 
-    def openSection(self, sectionName):
-        self.srcFile.write(f"const {sectionName}Props =\n")
-        self.srcFile.write("[\n")
+    def openSection(self, propertyArray):
+        name = propertyArray.name
+        prefixOnly = "true" if propertyArray.prefixOnly else "false"
+        self.srcFile.write(
+            f'PropertyNames.{name}Props = new PropertyArray("{name}", {prefixOnly}, [\n'
+        )
 
-    def closeSection(self, sectionName):
-        self.srcFile.write("];\n")
+    def closeSection(self, propertyArray):
+        self.srcFile.write("]);\n")
         self.srcFile.write("\n")
 
     def moveFiles(self, location):
@@ -759,9 +688,6 @@ def main():
     # Ignore all signals. This script should not take long to run
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
-
-    # TODO: delete once all languages support class props
-    initPropertyClasses(propsFile)
 
     parser = make_parser()
     parser.setFeature(feature_namespaces, 0)
