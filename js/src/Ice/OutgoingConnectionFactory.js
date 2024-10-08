@@ -31,7 +31,7 @@ export class OutgoingConnectionFactory {
             return;
         }
 
-        this._connectionsByEndpoint.forEach(connection => connection.destroy(ConnectionI.CommunicatorDestroyed));
+        this._connectionsByEndpoint.forEach(connection => connection.destroy());
 
         this._destroyed = true;
         this._communicator = null;
