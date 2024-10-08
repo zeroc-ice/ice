@@ -79,7 +79,6 @@ export class Server extends TestHelper {
             test(inLog[1] === "B");
             test(inLog[2] === "C");
 
-            out.write("outLog.length = " + outLog.length + "\n");
             test(outLog.length === 3);
             test(outLog[0] === "C");
             test(outLog[1] === "B");
