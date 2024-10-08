@@ -42,10 +42,13 @@ import "./CurrentExtensions.js";
 const StateNotInitialized = 0;
 const StateNotValidated = 1;
 const StateActive = 2;
+// StateHolding is a very transient state in JS: the connection is in StateHolding once the connection establishment
+// has succeeded and until the outgoing connection factory activates the connection - which is essentially immediate.
 const StateHolding = 3;
 const StateClosing = 4;
-const StateClosed = 5;
-const StateFinished = 6;
+// const StateClosingPending = 4;
+const StateClosed = 6;
+const StateFinished = 7;
 
 class MessageInfo {
     constructor(instance) {
@@ -111,7 +114,7 @@ export class ConnectionI {
         // The number of user calls currently executed by the event-loop (servant dispatch, invocation response, etc.).
         this._upcallCount = 0;
 
-        // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
+        // The number of outstanding dispatches. Maintained only while state is StateActive.
         this._dispatchCount = 0;
 
         this._state = StateNotInitialized;
@@ -178,14 +181,6 @@ export class ConnectionI {
             return;
         }
         this.setState(StateActive);
-    }
-
-    hold() {
-        if (this._state <= StateNotValidated) {
-            return;
-        }
-
-        this.setState(StateHolding);
     }
 
     destroy() {
@@ -561,11 +556,7 @@ export class ConnectionI {
                     return;
                 }
 
-                this._transceiver.unregister();
-
-                //
                 // We start out in holding state.
-                //
                 this.setState(StateHolding);
                 if (this._startPromise !== null) {
                     ++this._upcallCount;
@@ -935,30 +926,15 @@ export class ConnectionI {
                 }
 
                 case StateActive: {
-                    //
-                    // Can only switch from holding or not validated to
-                    // active.
-                    //
-                    if (this._state !== StateHolding && this._state !== StateNotValidated) {
-                        return;
-                    }
+                    Debug.assert(this._state <= StateHolding);
                     this._transceiver.register();
                     break;
                 }
 
-                case StateHolding: {
-                    //
-                    // Can only switch from active or not validated to
-                    // holding.
-                    //
-                    if (this._state !== StateActive && this._state !== StateNotValidated) {
-                        return;
-                    }
-                    if (this._state === StateActive) {
-                        this._transceiver.unregister();
-                    }
-                    break;
-                }
+                case StateHolding:
+                    Debug.assert(this._state == StateNotValidated);
+                    this._transceiver.unregister();
+                    break; // see comment on StateHolding definition
 
                 case StateClosing: {
                     //
@@ -966,10 +942,6 @@ export class ConnectionI {
                     //
                     if (this._state >= StateClosed) {
                         return;
-                    }
-                    if (this._state === StateHolding) {
-                        // We need to continue to read in closing state.
-                        this._transceiver.register();
                     }
                     break;
                 }
