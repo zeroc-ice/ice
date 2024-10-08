@@ -46,7 +46,7 @@ const StateActive = 2;
 // has succeeded and until the outgoing connection factory activates the connection - which is essentially immediate.
 const StateHolding = 3;
 const StateClosing = 4;
-// const StateClosingPending = 4;
+const StateClosingPending = 5;
 const StateClosed = 6;
 const StateFinished = 7;
 
@@ -562,7 +562,7 @@ export class ConnectionI {
                     ++this._upcallCount;
                 }
             } else {
-                Debug.assert(this._state <= StateClosing);
+                Debug.assert(this._state <= StateClosingPending);
 
                 //
                 // We parse messages first, if we receive a close
@@ -932,15 +932,16 @@ export class ConnectionI {
                 }
 
                 case StateHolding:
-                    Debug.assert(this._state == StateNotValidated);
+                    Debug.assert(this._state === StateNotValidated);
                     this._transceiver.unregister();
                     break; // see comment on StateHolding definition
 
-                case StateClosing: {
+                case StateClosing:
+                case StateClosingPending: {
                     //
-                    // Can't change back from closed.
+                    // Can't change back from closing pending.
                     //
-                    if (this._state >= StateClosed) {
+                    if (this._state >= StateClosingPending) {
                         return;
                     }
                     break;
@@ -1014,11 +1015,14 @@ export class ConnectionI {
         os.writeInt(Protocol.headerSize); // Message size.
 
         scheduleCloseTimeout(this);
-        this.sendMessage(OutgoingMessage.createForStream(os));
+
+        if ((this.sendMessage(OutgoingMessage.createForStream(os)) & AsyncStatus.Sent) > 0) {
+            this.setState(StateClosingPending);
+        }
     }
 
     idleCheck(idleTimeout) {
-        if (this._state == StateActive || this._state == StateHolding) {
+        if (this._state === StateActive || this._state === StateHolding) {
             if (this._traceLevels.network >= 1) {
                 this._logger.trace(
                     this._traceLevels.networkCat,
@@ -1037,14 +1041,14 @@ export class ConnectionI {
     }
 
     sendHeartbeat() {
-        if (this._state == StateActive || this._state == StateHolding) {
+        if (this._state === StateActive || this._state === StateHolding || this._state === StateClosing) {
             // We check if the connection has become inactive.
             if (
                 this._inactivityTimer === undefined && // timer not already scheduled
                 this._inactivityTimeout > 0 && // inactivity timeout is enabled
-                this._state == StateActive && // only schedule the timer if the connection is active
-                this._dispatchCount == 0 && // no pending dispatch
-                this._asyncRequests.size == 0 && // no pending invocation
+                this._state === StateActive && // only schedule the timer if the connection is active
+                this._dispatchCount === 0 && // no pending dispatch
+                this._asyncRequests.size === 0 && // no pending invocation
                 this._readHeader && // we're not waiting for the remainder of an incoming message
                 this._sendStreams.length <= 1 // there is at most one pending outgoing message
             ) {
@@ -1054,8 +1058,8 @@ export class ConnectionI {
 
                 // The stream of the first _sendStreams message is in _writeStream.
                 if (
-                    this._sendStreams.length == 0 ||
-                    this._writeStream.buffer.getAt(8) == Protocol.validateConnectionMsg
+                    this._sendStreams.length === 0 ||
+                    this._writeStream.buffer.getAt(8) === Protocol.validateConnectionMsg
                 ) {
                     this.scheduleInactivityTimer();
                 }
@@ -1068,7 +1072,7 @@ export class ConnectionI {
             // occurred very recently, which is good enough with respect to the idle check.
             // As a result of this optimization, the only possible heartbeat in _sendStreams is the first
             // _sendStreams message.
-            if (this._sendStreams.length == 0) {
+            if (this._sendStreams.length === 0) {
                 const os = new OutputStream(Protocol.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
                 Protocol.currentProtocol._write(os);
@@ -1203,13 +1207,13 @@ export class ConnectionI {
                 }
 
                 //
-                // If we are in the closed state, don't continue sending.
+                // If we are in the closed state or if the close is pending, don't continue sending.
                 //
                 // The connection can be in the closed state if parseMessage
                 // (called before sendNextMessage by message()) closes the
                 // connection.
                 //
-                if (this._state >= StateClosed) {
+                if (this._state >= StateClosingPending) {
                     return;
                 }
 
@@ -1234,8 +1238,13 @@ export class ConnectionI {
                 //
                 if (this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer)) {
                     Debug.assert(!this._writeStream.isEmpty());
-                    return;
+                    return; // not done
                 }
+            }
+
+            // Once the CloseConnection message is sent, we transition to the StateClosingPending state.
+            if (this._state === StateClosing && this._shutdownInitiated) {
+                this.setState(StateClosingPending);
             }
         } catch (ex) {
             if (ex instanceof LocalException) {
@@ -1310,12 +1319,13 @@ export class ConnectionI {
             switch (messageType) {
                 case Protocol.closeConnectionMsg: {
                     TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
+                    // We transition directly to StateClosed, not StateClosingPending.
                     this.setState(StateClosed, new CloseConnectionException());
                     break;
                 }
 
                 case Protocol.requestMsg: {
-                    if (this._state === StateClosing) {
+                    if (this._state >= StateClosing) {
                         TraceUtil.traceIn(
                             "received request during closing\n" + "(ignored by server, client will retry)",
                             info.stream,
@@ -1336,7 +1346,7 @@ export class ConnectionI {
                 }
 
                 case Protocol.requestBatchMsg: {
-                    if (this._state === StateClosing) {
+                    if (this._state >= StateClosing) {
                         TraceUtil.traceIn(
                             "received batch request during closing\n" + "(ignored by server, client will retry)",
                             info.stream,
