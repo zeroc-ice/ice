@@ -217,7 +217,7 @@ export class ObjectAdapter {
 
     deactivate() {
         if (this._state < StateDeactivated) {
-            this.setState(StateDeactivated);
+            this._state = StateDeactivated;
             this._instance.outgoingConnectionFactory().removeAdapter(this);
         }
     }
@@ -225,7 +225,7 @@ export class ObjectAdapter {
     destroy() {
         this.deactivate();
         if (this._state < StateDestroyed) {
-            this.setState(StateDestroyed);
+            this._state = StateDestroyed;
             this._servantManager.destroy();
             this._objectAdapterFactory.removeObjectAdapter(this);
             this._publishedEndpoints = [];
@@ -530,9 +530,5 @@ export class ObjectAdapter {
         }
 
         return noProps;
-    }
-
-    setState(state) {
-        this._state = state;
     }
 }
