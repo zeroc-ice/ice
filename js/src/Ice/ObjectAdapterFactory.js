@@ -24,15 +24,13 @@ export class ObjectAdapterFactory {
         if (this._instance !== null) {
             this._instance = null;
             this._communicator = null;
-            this._adapters.map(adapter => adapter.deactivate());
+            this._adapters.map(adapter => adapter.deactivate()); // deactivate is synchronous
             this._shutdownPromise.resolve();
         }
     }
 
     waitForShutdown() {
-        return this._shutdownPromise.then(() =>
-            Promise.all(this._adapters.map(adapter => adapter.waitForDeactivate())),
-        );
+        return this._shutdownPromise;
     }
 
     isShutdown() {

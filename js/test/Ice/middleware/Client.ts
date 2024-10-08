@@ -14,6 +14,7 @@ export class Client extends TestHelper {
             [communicator] = this.initialize(properties);
 
             let prx = new Test.MyObjectPrx(communicator, `test: ${this.getTestEndpoint()}`);
+            await prx.getName();
             await prx.shutdown();
         } finally {
             if (communicator) {

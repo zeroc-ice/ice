@@ -19,7 +19,6 @@ import { Promise } from "./Promise.js";
 import { PropertyNames } from "./PropertyNames.js";
 import { ServantManager } from "./ServantManager.js";
 import { StringUtil } from "./StringUtil.js";
-import { Timer } from "./Timer.js";
 import { identityToString } from "./IdentityToString.js";
 import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
@@ -66,13 +65,9 @@ const _suffixes = [
     "ThreadPool.ThreadPriority",
 ];
 
-const StateUninitialized = 0; // Just constructed.
-const StateHeld = 1;
-// const StateWaitActivate = 2;
-const StateActive = 3;
-// const StateDeactivating = 4;
-const StateDeactivated = 5;
-const StateDestroyed = 6;
+const StateActive = 0;
+const StateDeactivated = 1;
+const StateDestroyed = 2;
 
 //
 // Only for use by IceInternal.ObjectAdapterFactory
@@ -86,9 +81,8 @@ export class ObjectAdapter {
         this._name = name;
         this._publishedEndpoints = [];
         this._routerInfo = null;
-        this._state = StateUninitialized;
+        this._state = StateActive;
         this._noConfig = noConfig;
-        this._statePromises = [];
 
         this._dispatchPipeline = null;
         this._middlewareStack = [];
@@ -221,26 +215,6 @@ export class ObjectAdapter {
         return this._communicator;
     }
 
-    activate() {
-        this.setState(StateActive);
-    }
-
-    hold() {
-        this.checkForDeactivation();
-        this.setState(StateHeld);
-    }
-
-    waitForHold() {
-        const promise = new Promise();
-        try {
-            this.checkForDeactivation();
-            this.waitState(StateHeld, promise);
-        } catch (ex) {
-            promise.reject(ex);
-        }
-        return promise;
-    }
-
     deactivate() {
         if (this._state < StateDeactivated) {
             this.setState(StateDeactivated);
@@ -248,18 +222,7 @@ export class ObjectAdapter {
         }
     }
 
-    waitForDeactivate() {
-        const promise = new Promise();
-        this.waitState(StateDeactivated, promise);
-        return promise;
-    }
-
-    isDeactivated() {
-        return this._state >= StateDeactivated;
-    }
-
     destroy() {
-        // We don't call waitForDeactivate since deactivate is a synchronous operation.
         this.deactivate();
         if (this._state < StateDestroyed) {
             this.setState(StateDestroyed);
@@ -570,35 +533,6 @@ export class ObjectAdapter {
     }
 
     setState(state) {
-        if (this._state === state) {
-            return;
-        }
         this._state = state;
-
-        let promises = [];
-        (state < StateDeactivated ? [state] : [StateHeld, StateDeactivated]).forEach(s => {
-            if (this._statePromises[s]) {
-                promises = promises.concat(this._statePromises[s]);
-                delete this._statePromises[s];
-            }
-        });
-        if (promises.length > 0) {
-            Timer.setImmediate(() => promises.forEach(p => p.resolve()));
-        }
-    }
-
-    waitState(state, promise) {
-        if (
-            this._state < StateDeactivated &&
-            ((state === StateHeld && this._state !== StateHeld) || state === StateDeactivated)
-        ) {
-            if (this._statePromises[state]) {
-                this._statePromises[state].push(promise);
-            } else {
-                this._statePromises[state] = [promise];
-            }
-        } else {
-            promise.resolve();
-        }
     }
 }
