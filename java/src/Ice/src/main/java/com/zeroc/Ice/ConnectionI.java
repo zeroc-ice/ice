@@ -1217,7 +1217,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             // write in turns creates a read on the peer, and resets the peer's idle check timer.
             // When _sendStream is not empty, there is already an outstanding write, so we don't
             // need to send a heartbeat. It's possible the first message of _sendStreams was
-            // already sent but  not yet removed from _sendStreams: it means the last write
+            // already sent but not yet removed from _sendStreams: it means the last write
             // occurred very recently, which is good enough with respect to the idle check.
             // As a result of this optimization, the only possible heartbeat in _sendStreams
             // is the first _sendStreams message.
