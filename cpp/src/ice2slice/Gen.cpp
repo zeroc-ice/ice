@@ -566,7 +566,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     for (const auto& metadata : p->getMetadata())
     {
-        if (metadata->directive() == "cd:generic")
+        if (metadata->directive() == "cs:generic")
         {
             string_view type = metadata->arguments();
             if ((type == "LinkedList" || type == "Queue" || type == "Stack") && p->type()->isClassType())
