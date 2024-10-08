@@ -630,60 +630,6 @@ final class ReferenceFactory {
         _communicator = communicator;
     }
 
-    private static String[] _suffixes = {
-        "EndpointSelection",
-        "ConnectionCached",
-        "PreferSecure",
-        "LocatorCacheTimeout",
-        "InvocationTimeout",
-        "Locator",
-        "Router",
-        "CollocationOptimized",
-        "Context\\..*"
-    };
-
-    private void checkForUnknownProperties(String prefix) {
-        //
-        // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
-        //
-        for (int i = 0; PropertyNames.clPropNames[i] != null; ++i) {
-            if (prefix.startsWith(PropertyNames.clPropNames[i] + ".")) {
-                return;
-            }
-        }
-
-        java.util.ArrayList<String> unknownProps = new java.util.ArrayList<>();
-        java.util.Map<String, String> props =
-                _instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-        for (java.util.Map.Entry<String, String> p : props.entrySet()) {
-            String prop = p.getKey();
-
-            boolean valid = false;
-            for (String suffix : _suffixes) {
-                String pattern = java.util.regex.Pattern.quote(prefix + ".") + suffix;
-                if (java.util.regex.Pattern.compile(pattern).matcher(prop).matches()) {
-                    valid = true;
-                    break;
-                }
-            }
-
-            if (!valid) {
-                unknownProps.add(prop);
-            }
-        }
-
-        if (!unknownProps.isEmpty()) {
-            StringBuffer message = new StringBuffer("found unknown properties for proxy '");
-            message.append(prefix);
-            message.append("':");
-            for (String s : unknownProps) {
-                message.append("\n    ");
-                message.append(s);
-            }
-            _instance.initializationData().logger.warning(message.toString());
-        }
-    }
-
     private Reference create(
             Identity ident,
             String facet,
@@ -726,12 +672,8 @@ final class ReferenceFactory {
         if (propertyPrefix != null && !propertyPrefix.isEmpty()) {
             Properties properties = _instance.initializationData().properties;
 
-            //
-            // Warn about unknown properties.
-            //
-            if (properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0) {
-                checkForUnknownProperties(propertyPrefix);
-            }
+            Properties.validatePropertiesWithPrefix(
+                    propertyPrefix, properties, PropertyNames.ProxyProps);
 
             String property;
 
