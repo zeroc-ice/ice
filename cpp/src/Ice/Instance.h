@@ -198,13 +198,13 @@ namespace IceInternal
         Ice::SSL::SSLEnginePtr _sslEngine;
     };
 
-    class ProcessI : public Ice::Process
+    class ProcessI final : public Ice::Process
     {
     public:
         ProcessI(const Ice::CommunicatorPtr&);
 
-        virtual void shutdown(const Ice::Current&);
-        virtual void writeMessage(std::string, std::int32_t, const Ice::Current&);
+        void shutdown(const Ice::Current&) final;
+        void writeMessage(std::string message, std::int32_t fd, const Ice::Current&) final;
 
     private:
         const Ice::CommunicatorPtr _communicator;
