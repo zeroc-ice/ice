@@ -142,11 +142,9 @@ Slice::getJavaScriptModuleForType(const TypePtr& type)
 string
 Slice::getJavaScriptModule(const DefinitionContextPtr& dc)
 {
-    // Check if the file contains the js:module file metadata.-
+    // Check if the file contains the `js:module` file metadata.
     assert(dc);
-    const string prefix = "js:module:";
-    const optional<string> value = dc->findMetadata(prefix);
-    return value.has_value() ? (*value).substr(prefix.size()) : "";
+    return dc->getMetadataArgs("js:module").value_or("");
 }
 
 //

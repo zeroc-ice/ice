@@ -92,10 +92,86 @@ namespace Slice
 }
 
 // ----------------------------------------------------------------------
+// Metadata
+// ----------------------------------------------------------------------
+Slice::Metadata::Metadata(const string& rawMetadata, const UnitPtr& unit) : GrammarBase()
+{
+    std::tie(_directive, _arguments) = parseRawMetadata(rawMetadata);
+    _file = unit->currentFile();
+    _line = unit->currentLine();
+}
+
+string_view
+Slice::Metadata::directive() const
+{
+    return _directive;
+}
+
+string_view
+Slice::Metadata::arguments() const
+{
+    return _arguments;
+}
+
+string_view
+Slice::Metadata::file() const
+{
+    return _file;
+}
+
+int
+Slice::Metadata::line() const
+{
+    return _line;
+}
+
+pair<string, string>
+Slice::Metadata::parseRawMetadata(const string& rawMetadata)
+{
+    // If the metadata contains no colons, then it must be a directive with no arguments.
+    size_t firstColonPos = rawMetadata.find(':');
+    if (firstColonPos == string::npos)
+    {
+        return { rawMetadata, "" };
+    }
+
+    // Otherwise, we check whether the colon is for a language prefix or for arguments and split the string accordingly.
+    size_t secondColonPos = rawMetadata.find(':', firstColonPos);
+    size_t splitPos;
+    if (secondColonPos == string::npos)
+    {
+        // If the metadata contains only 1 colon, we need to check if it's for a language prefix, or for arguments.
+        // NOTE: It is important that this list is kept in alphabetical order!
+        static const string languages[] = { "cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift" };
+        string_view prefix = rawMetadata.substr(0, firstColonPos);
+        bool isLanguage = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
+        if (isLanguage)
+        {
+            // If the piece before the colon was a language prefix, don't split up the string.
+            splitPos = rawMetadata.size();
+        }
+        else
+        {
+            // If it wasn't a language prefix, then the part after the colon must be arguments. Split it accordingly.
+            splitPos = firstColonPos;
+        }
+    }
+    else
+    {
+        // If the metadata contains 2 colons, than the 1st is for the language prefix, and the 2nd is for the arguments.
+        splitPos = secondColonPos;
+    }
+
+    string directive = rawMetadata.substr(0, splitPos);
+    string arguments = rawMetadata.substr(splitPos);
+    return { directive, arguments };
+}
+
+// ----------------------------------------------------------------------
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metadata)
+Slice::DefinitionContext::DefinitionContext(int includeLevel, const MetadataList& metadata)
     : _includeLevel(includeLevel),
       _metadata(metadata),
       _seenDefinition(false)
@@ -133,36 +209,43 @@ Slice::DefinitionContext::setSeenDefinition()
     _seenDefinition = true;
 }
 
-bool
-Slice::DefinitionContext::hasMetadata(const string& directive) const
+MetadataList
+Slice::DefinitionContext::getMetadata() const
 {
-    return findMetadata(directive).has_value();
+    return _metadata;
 }
 
 void
-Slice::DefinitionContext::setMetadata(const StringList& metadata)
+Slice::DefinitionContext::setMetadata(MetadataList metadata)
 {
     _metadata = metadata;
     initSuppressedWarnings();
 }
 
-optional<string>
-Slice::DefinitionContext::findMetadata(const string& prefix) const
+bool
+Slice::DefinitionContext::hasMetadata(string_view directive) const
 {
     for (const auto& p : _metadata)
     {
-        if (p.find(prefix) == 0)
+        if (p->directive() == directive)
         {
-            return p;
+            return true;
+        }
+    }
+    return false;
+}
+
+optional<string>
+Slice::DefinitionContext::getMetadataArgs(string_view directive) const
+{
+    for (const auto& p : _metadata)
+    {
+        if (p->directive() == directive)
+        {
+            return string(p->arguments());
         }
     }
     return nullopt;
-}
-
-StringList
-Slice::DefinitionContext::getMetadata() const
-{
-    return _metadata;
 }
 
 void
@@ -185,43 +268,36 @@ void
 Slice::DefinitionContext::initSuppressedWarnings()
 {
     _suppressedWarnings.clear();
-    const string prefix = "suppress-warning";
-    if (auto meta = findMetadata(prefix))
+    if (auto metadata = getMetadataArgs("suppress-warning"))
     {
-        string value = *meta;
-        if (value == prefix)
+        if (metadata->empty())
         {
             _suppressedWarnings.insert(All);
         }
         else
         {
-            assert(value.length() > prefix.length());
-            if (value[prefix.length()] == ':')
+            vector<string> result;
+            IceInternal::splitString(*metadata, ",", result);
+            for (const auto& p : result)
             {
-                value = value.substr(prefix.length() + 1);
-                vector<string> result;
-                IceInternal::splitString(value, ",", result);
-                for (const auto& p : result)
+                string s = IceInternal::trim(p);
+                if (s == "all")
                 {
-                    string s = IceInternal::trim(p);
-                    if (s == "all")
-                    {
-                        _suppressedWarnings.insert(All);
-                    }
-                    else if (s == "deprecated")
-                    {
-                        _suppressedWarnings.insert(Deprecated);
-                    }
-                    else if (s == "invalid-metadata")
-                    {
-                        _suppressedWarnings.insert(InvalidMetadata);
-                    }
-                    else
-                    {
-                        ostringstream os;
-                        os << "invalid category `" << s << "' in file metadata suppress-warning";
-                        warning(InvalidMetadata, "", -1, os.str());
-                    }
+                    _suppressedWarnings.insert(All);
+                }
+                else if (s == "deprecated")
+                {
+                    _suppressedWarnings.insert(Deprecated);
+                }
+                else if (s == "invalid-metadata")
+                {
+                    _suppressedWarnings.insert(InvalidMetadata);
+                }
+                else
+                {
+                    ostringstream os;
+                    os << "invalid category `" << s << "' in file metadata suppress-warning";
+                    warning(InvalidMetadata, "", -1, os.str());
                 }
             }
         }
@@ -868,71 +944,65 @@ Slice::Contained::includeLevel() const
     return _includeLevel;
 }
 
-bool
-Slice::Contained::hasMetadata(const string& directive) const
-{
-    return findMetadata(directive).has_value();
-}
-
-optional<string>
-Slice::Contained::findMetadata(const string& prefix) const
-{
-    for (const auto& p : _metadata)
-    {
-        if (p.find(prefix) == 0)
-        {
-            return p;
-        }
-    }
-    return nullopt;
-}
-
-StringList
+MetadataList
 Slice::Contained::getMetadata() const
 {
     return _metadata;
 }
 
 void
-Slice::Contained::setMetadata(const StringList& metadata)
+Slice::Contained::setMetadata(MetadataList metadata)
 {
     _metadata = metadata;
 }
 
-std::optional<FormatType>
-Slice::Contained::parseFormatMetadata(const StringList& metadata)
+bool
+Slice::Contained::hasMetadata(string_view directive) const
 {
-    std::optional<FormatType> result;
-
-    string tag;
-    string prefix = "format:";
-    for (const auto& p : metadata)
+    for (const auto& p : _metadata)
     {
-        if (p.find(prefix) == 0)
+        if (p->directive() == directive)
         {
-            tag = p;
-            break;
+            return true;
         }
     }
+    return false;
+}
 
-    if (!tag.empty())
+optional<string>
+Slice::Contained::getMetadataArgs(string_view directive) const
+{
+    for (const auto& p : _metadata)
     {
-        tag = tag.substr(prefix.size());
-        if (tag == "compact")
+        if (p->directive() == directive)
         {
-            result = CompactFormat;
+            return string(p->arguments());
         }
-        else if (tag == "sliced")
+    }
+    return nullopt;
+}
+
+std::optional<FormatType>
+Slice::Contained::parseFormatMetadata() const
+{
+    if (auto metadata = getMetadataArgs("format"))
+    {
+        string arg = *metadata;
+        if (arg == "compact")
         {
-            result = SlicedFormat;
+            return CompactFormat;
         }
-        else if (tag != "default") // TODO: Allow "default" to be specified as a format value?
+        else if (arg == "sliced")
+        {
+            return SlicedFormat;
+        }
+        else if (arg != "default") // TODO: Allow "default" to be specified as a format value?
         {
             // TODO: How to handle invalid format?
+            return nullopt;
         }
     }
-
-    return result;
+    return nullopt;
 }
 
 bool
@@ -947,13 +1017,13 @@ Slice::Contained::getDeprecationReason() const
     const string prefix1 = "deprecate:";
     const string prefix2 = "deprecated:";
 
-    if (auto meta = findMetadata(prefix1))
+    if (auto reason = getMetadataArgs(prefix1))
     {
-        return meta->substr(prefix1.size());
+        return *reason;
     }
-    if (auto meta = findMetadata(prefix2))
+    if (auto reason = getMetadataArgs(prefix2))
     {
-        return meta->substr(prefix2.size());
+        return *reason;
     }
 
     return nullopt;
@@ -1420,7 +1490,7 @@ Slice::Container::createStruct(const string& name, NodeType nodeType)
 }
 
 SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metadata, NodeType nodeType)
+Slice::Container::createSequence(const string& name, const TypePtr& type, MetadataList metadata, NodeType nodeType)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -1458,9 +1528,9 @@ DictionaryPtr
 Slice::Container::createDictionary(
     const string& name,
     const TypePtr& keyType,
-    const StringList& keyMetadata,
+    MetadataList keyMetadata,
     const TypePtr& valueType,
-    const StringList& valueMetadata,
+    MetadataList valueMetadata,
     NodeType nodeType)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -1542,7 +1612,7 @@ ConstPtr
 Slice::Container::createConst(
     const string name,
     const TypePtr& type,
-    const StringList& metadata,
+    MetadataList metadata,
     const SyntaxTreeBasePtr& valueType,
     const string& valueString,
     NodeType nodeType)
@@ -2635,9 +2705,9 @@ Slice::ClassDef::canBeCyclic() const
 }
 
 bool
-Slice::ClassDef::inheritsMetadata(const string& metadata) const
+Slice::ClassDef::inheritsMetadata(string_view directive) const
 {
-    return _base && (_base->hasMetadata(metadata) || _base->inheritsMetadata(metadata));
+    return _base && (_base->hasMetadata(directive) || _base->inheritsMetadata(directive));
 }
 
 bool
@@ -3069,11 +3139,11 @@ Slice::InterfaceDef::hasOperations() const
 }
 
 bool
-Slice::InterfaceDef::inheritsMetadata(const string& metadata) const
+Slice::InterfaceDef::inheritsMetadata(string_view directive) const
 {
     for (const auto& p : _bases)
     {
-        if (p->hasMetadata(metadata) || p->inheritsMetadata(metadata))
+        if (p->hasMetadata(directive) || p->inheritsMetadata(directive))
         {
             return true;
         }
@@ -3459,12 +3529,12 @@ Slice::Operation::sendsOptionals() const
 std::optional<FormatType>
 Slice::Operation::format() const
 {
-    std::optional<FormatType> format = parseFormatMetadata(getMetadata());
+    std::optional<FormatType> format = parseFormatMetadata();
     if (!format)
     {
         ContainedPtr cont = dynamic_pointer_cast<Contained>(container());
         assert(cont);
-        format = parseFormatMetadata(cont->getMetadata());
+        format = cont->parseFormatMetadata();
     }
     return format;
 }
@@ -3732,9 +3802,9 @@ Slice::Exception::usesClasses() const
 }
 
 bool
-Slice::Exception::inheritsMetadata(const string& metadata) const
+Slice::Exception::inheritsMetadata(string_view directive) const
 {
-    if (_base && (_base->hasMetadata(metadata) || _base->inheritsMetadata(metadata)))
+    if (_base && (_base->hasMetadata(directive) || _base->inheritsMetadata(directive)))
     {
         return true;
     }
@@ -3950,7 +4020,7 @@ Slice::Sequence::type() const
     return _type;
 }
 
-StringList
+MetadataList
 Slice::Sequence::typeMetadata() const
 {
     return _typeMetadata;
@@ -3996,7 +4066,7 @@ Slice::Sequence::Sequence(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& type,
-    const StringList& typeMetadata)
+    MetadataList typeMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
@@ -4022,13 +4092,13 @@ Slice::Dictionary::valueType() const
     return _valueType;
 }
 
-StringList
+MetadataList
 Slice::Dictionary::keyMetadata() const
 {
     return _keyMetadata;
 }
 
-StringList
+MetadataList
 Slice::Dictionary::valueMetadata() const
 {
     return _valueMetadata;
@@ -4126,9 +4196,9 @@ Slice::Dictionary::Dictionary(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& keyType,
-    const StringList& keyMetadata,
+    MetadataList keyMetadata,
     const TypePtr& valueType,
-    const StringList& valueMetadata)
+    MetadataList valueMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
@@ -4335,7 +4405,7 @@ Slice::Const::type() const
     return _type;
 }
 
-StringList
+MetadataList
 Slice::Const::typeMetadata() const
 {
     return _typeMetadata;
@@ -4369,7 +4439,7 @@ Slice::Const::Const(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& type,
-    const StringList& typeMetadata,
+    MetadataList typeMetadata,
     const SyntaxTreeBasePtr& valueType,
     const string& valueString)
     : SyntaxTreeBase(container->unit()),

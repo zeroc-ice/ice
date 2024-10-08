@@ -187,19 +187,19 @@ Slice::fixIdent(const string& ident)
 string
 Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
 {
-    const string modulePrefix = "swift:module:";
-
     string swiftModule;
-
-    if (auto meta = module->findMetadata(modulePrefix))
+    if (auto argument = module->getMetadataArgs("swift:module"))
     {
-        swiftModule = meta->substr(modulePrefix.size());
-
-        size_t pos = swiftModule.find(':');
+        size_t pos = argument->find(':');
         if (pos != string::npos)
         {
-            swiftPrefix = swiftModule.substr(pos + 1);
-            swiftModule = swiftModule.substr(0, pos);
+            swiftModule = argument->substr(0, pos);
+            swiftPrefix = argument->substr(pos + 1);
+        }
+        else
+        {
+            swiftModule = *argument;
+            swiftPrefix = "";
         }
     }
     else
@@ -1023,7 +1023,6 @@ SwiftGenerator::writeConstantValue(
     const TypePtr& type,
     const SyntaxTreeBasePtr& valueType,
     const string& value,
-    const StringList&,
     const string& swiftModule,
     bool optional)
 {
@@ -1071,7 +1070,7 @@ string
 SwiftGenerator::typeToString(
     const TypePtr& type,
     const ContainedPtr& toplevel,
-    const StringList& metadata,
+    const MetadataList& metadata,
     bool optional)
 {
     static const char* builtinTable[] = {
@@ -1099,7 +1098,6 @@ SwiftGenerator::typeToString(
     //
     string currentModule = getSwiftModule(getTopLevelModule(toplevel));
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    bool nonnull = find(metadata.begin(), metadata.end(), "swift:nonnull") != metadata.end();
 
     if (builtin)
     {
@@ -1130,6 +1128,15 @@ SwiftGenerator::typeToString(
         t = fixIdent(getRelativeTypeString(cont, currentModule));
     }
 
+    bool nonnull = false;
+    for (const auto& meta : metadata)
+    {
+        if (meta->directive() == "swift:nonnull")
+        {
+            nonnull = true;
+            break;
+        }
+    }
     if (!nonnull && (optional || isNullableType(type)))
     {
         t += "?";
@@ -1399,7 +1406,6 @@ SwiftGenerator::writeMembers(
                     type,
                     member->defaultValueType(),
                     defaultValue,
-                    p->getMetadata(),
                     swiftModule,
                     member->optional());
             }
@@ -2224,14 +2230,13 @@ SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const Op
 }
 
 void
-SwiftGenerator::writeSwiftAttributes(::IceInternal::Output& out, const StringList& metadata)
+SwiftGenerator::writeSwiftAttributes(::IceInternal::Output& out, const MetadataList& metadata)
 {
-    static const string prefix = "swift:attribute:";
-    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
+    for (const auto& meta : metadata)
     {
-        if (q->find(prefix) == 0 && q->size() > prefix.size())
+        if (meta->directive() == "swift:attribute")
         {
-            out << nl << q->substr(prefix.size());
+            out << nl << meta->arguments();
         }
     }
 }
@@ -2387,6 +2392,8 @@ SwiftGenerator::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
     p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
     for (const auto& member : p->dataMembers())
     {
+        // TODO we should probably be passing `member` instead of `member->type()`.
+        // Otherwise I'm pretty sure we're just skipping the data-member metadata.
         member->setMetadata(validate(member->type(), member->getMetadata(), p->file(), member->line()));
     }
     return true;
@@ -2402,19 +2409,21 @@ SwiftGenerator::MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p
 void
 SwiftGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
 {
-    StringList metadata = p->getMetadata();
+    MetadataList metadata = p->getMetadata();
 
     const UnitPtr ut = p->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
     assert(dc);
 
-    for (StringList::iterator q = metadata.begin(); q != metadata.end();)
+    for (MetadataList::iterator q = metadata.begin(); q != metadata.end();)
     {
-        string s = *q++;
-        if (s.find("swift:attribute:") == 0 || s.find("swift:type:") == 0 || s == "swift:noexcept" ||
-            s == "swift:nonnull")
+        MetadataPtr s = *q++;
+        string_view directive = s->directive();
+        if (directive == "swift:attribute" || directive == "swift:type" || directive == "swift:noexcept" ||
+            directive == "swift:nonnull")
         {
-            dc->warning(InvalidMetadata, p->file(), p->line(), "ignoring metadata `" + s + "' for non local operation");
+            string message = "ignoring metadata '" + string(directive) + "' for non local operation";
+            dc->warning(InvalidMetadata, p->file(), p->line(), message);
             metadata.remove(s);
         }
     }

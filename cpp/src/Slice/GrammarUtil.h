@@ -25,12 +25,6 @@ namespace Slice
         std::string literal;
     };
 
-    struct StringListTok final : public GrammarBase
-    {
-        StringListTok() {}
-        StringList v;
-    };
-
     struct TypeStringTok final : public GrammarBase
     {
         TypeStringTok(TypePtr type, std::string name) : type(type), name(name) {}

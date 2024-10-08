@@ -88,7 +88,11 @@ namespace Slice
         ParamInfoList getAllOutParams(const OperationPtr&);
         void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
-        std::string typeToString(const TypePtr&, const ContainedPtr&, const StringList& = StringList(), bool = false);
+        std::string typeToString(
+            const TypePtr&,
+            const ContainedPtr&,
+            const MetadataList& = MetadataList(),
+            bool = false);
 
         std::string getUnqualified(const std::string&, const std::string&);
         std::string modeToString(Operation::Mode);
@@ -109,7 +113,6 @@ namespace Slice
             const TypePtr&,
             const SyntaxTreeBasePtr&,
             const std::string&,
-            const StringList&,
             const std::string&,
             bool optional = false);
         void writeDefaultInitializer(IceInternal::Output&, bool, bool);
@@ -138,7 +141,7 @@ namespace Slice
         void writeUnmarshalInParams(::IceInternal::Output&, const OperationPtr&);
         void writeUnmarshalOutParams(::IceInternal::Output&, const OperationPtr&);
         void writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr&);
-        void writeSwiftAttributes(::IceInternal::Output&, const StringList&);
+        void writeSwiftAttributes(::IceInternal::Output&, const MetadataList&);
         void writeProxyOperation(::IceInternal::Output&, const OperationPtr&);
         void writeDispatchOperation(::IceInternal::Output&, const OperationPtr&);
 
@@ -160,7 +163,7 @@ namespace Slice
             bool shouldVisitIncludedDefinitions() const final { return true; }
 
         private:
-            StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, int);
+            MetadataList validate(const SyntaxTreeBasePtr&, const MetadataList&, const std::string&, int);
 
             typedef std::map<std::string, std::string> ModuleMap;
             typedef std::map<std::string, ModuleMap> ModulePrefix;

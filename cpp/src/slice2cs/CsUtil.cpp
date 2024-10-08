@@ -80,12 +80,7 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
 
     assert(m);
 
-    static const string prefix = "cs:namespace:";
-    if (auto meta = m->findMetadata(prefix))
-    {
-        return meta->substr(prefix.size());
-    }
-    return "";
+    return m->getMetadataArgs("cs:namespace").value_or("");
 }
 
 string
@@ -357,10 +352,9 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
     {
-        string prefix = "cs:generic:";
-        if (auto meta = seq->findMetadata(prefix))
+        if (auto metadata = seq->getMetadataArgs("cs:generic"))
         {
-            string customType = meta->substr(prefix.size());
+            string customType = *metadata;
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
                 return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), package) +
@@ -378,16 +372,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        string prefix = "cs:generic:";
-        string typeName;
-        if (auto meta = d->findMetadata(prefix))
-        {
-            typeName = meta->substr(prefix.size());
-        }
-        else
-        {
-            typeName = "Dictionary";
-        }
+        string typeName = d->getMetadataArgs("cs:generic").value_or("Dictionary");
         return "global::System.Collections.Generic." + typeName + "<" + typeToString(d->keyType(), package) + ", " +
                typeToString(d->valueType(), package) + ">";
     }
@@ -1157,7 +1142,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     TypePtr type = seq->type();
     string typeS = typeToString(type, scope);
 
-    const string genericPrefix = "cs:generic:";
     string genericType;
     string addMethod = "Add";
     bool isGeneric = false;
@@ -1165,10 +1149,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     bool isList = false;
     bool isLinkedList = false;
     bool isCustom = false;
-    if (auto meta = seq->findMetadata(genericPrefix))
+    if (auto metadata = seq->getMetadataArgs("cs:generic"))
     {
         isGeneric = true;
-        genericType = meta->substr(genericPrefix.size());
+        genericType = *metadata;
         if (genericType == "LinkedList")
         {
             addMethod = "AddLast";
@@ -1989,27 +1973,18 @@ Slice::CsGenerator::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
     {
         DefinitionContextPtr dc = unit->findDefinitionContext(file);
         assert(dc);
-        StringList fileMetadata = dc->getMetadata();
-        StringList newFileMetadata;
-        static const string csPrefix = "cs:";
 
-        for (StringList::iterator r = fileMetadata.begin(); r != fileMetadata.end(); ++r)
+        MetadataList newFileMetadata;
+        for (const auto& metadata : dc->getMetadata())
         {
-            string& s = *r;
-            string oldS = s;
-
-            if (s.find(csPrefix) == 0)
+            string_view directive = metadata->directive();
+            if (directive.starts_with("cs:") && directive != "cs:attribute")
             {
-                static const string csAttributePrefix = csPrefix + "attribute:";
-                if (!(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size()))
-                {
-                    dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata `" + oldS + "'");
-                    continue;
-                }
+                dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata '" + string(directive) + "'");
+                continue;
             }
-            newFileMetadata.push_back(oldS);
+            newFileMetadata.push_back(metadata);
         }
-
         dc->setMetadata(newFileMetadata);
     }
     return true;
@@ -2053,12 +2028,12 @@ void
 Slice::CsGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
 {
     validate(p);
+    for (const auto& param : p->parameters())
+    {
+        visitParamDecl(param);
+    }
 
     ParamDeclList params = p->parameters();
-    for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
-    {
-        visitParamDecl(*i);
-    }
 }
 
 void
@@ -2100,90 +2075,69 @@ Slice::CsGenerator::MetadataVisitor::visitConst(const ConstPtr& p)
 void
 Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
 {
-    const string msg = "ignoring invalid metadata";
-
-    StringList localMetadata = cont->getMetadata();
-    StringList newLocalMetadata;
-
     const UnitPtr ut = cont->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
     assert(dc);
 
-    for (StringList::iterator p = localMetadata.begin(); p != localMetadata.end(); ++p)
+    MetadataList newLocalMetadata;
+    for (const auto& metadata : cont->getMetadata())
     {
-        string& s = *p;
-        string oldS = s;
+        string_view directive = metadata->directive();
+        string_view arguments = metadata->arguments();
 
-        const string csPrefix = "cs:";
-        if (s.find(csPrefix) == 0)
+        if (directive.starts_with("cs:"))
         {
             SequencePtr seq = dynamic_pointer_cast<Sequence>(cont);
             if (seq)
             {
-                static const string csGenericPrefix = csPrefix + "generic:";
-                if (s.find(csGenericPrefix) == 0)
+                if (directive == "cs:generic")
                 {
-                    string type = s.substr(csGenericPrefix.size());
-                    if (type == "LinkedList" || type == "Queue" || type == "Stack")
+                    if (arguments == "LinkedList" || arguments == "Queue" || arguments == "Stack")
                     {
                         if (!seq->type()->isClassType())
                         {
-                            newLocalMetadata.push_back(s);
+                            newLocalMetadata.push_back(metadata);
                             continue;
                         }
                     }
-                    else if (!type.empty())
+                    else if (!arguments.empty())
                     {
-                        newLocalMetadata.push_back(s);
+                        newLocalMetadata.push_back(metadata);
                         continue; // Custom type or List<T>
                     }
                 }
             }
             else if (dynamic_pointer_cast<Struct>(cont))
             {
-                if (s.substr(csPrefix.size()) == "class")
+                if (directive == "cs:class" || directive == "cs:property" || directive == "cs:implements")
                 {
-                    newLocalMetadata.push_back(s);
-                    continue;
-                }
-                if (s.substr(csPrefix.size()) == "property")
-                {
-                    newLocalMetadata.push_back(s);
-                    continue;
-                }
-                static const string csImplementsPrefix = csPrefix + "implements:";
-                if (s.find(csImplementsPrefix) == 0)
-                {
-                    newLocalMetadata.push_back(s);
+                    newLocalMetadata.push_back(metadata);
                     continue;
                 }
             }
             else if (dynamic_pointer_cast<ClassDef>(cont) || dynamic_pointer_cast<Exception>(cont))
             {
-                if (s.substr(csPrefix.size()) == "property")
+                if (directive == "cs:property")
                 {
-                    newLocalMetadata.push_back(s);
+                    newLocalMetadata.push_back(metadata);
                     continue;
                 }
             }
             else if (dynamic_pointer_cast<InterfaceDef>(cont))
             {
-                static const string csImplementsPrefix = csPrefix + "implements:";
-                if (s.find(csImplementsPrefix) == 0)
+                if (directive == "cs:implements")
                 {
-                    newLocalMetadata.push_back(s);
+                    newLocalMetadata.push_back(metadata);
                     continue;
                 }
             }
             else if (dynamic_pointer_cast<Dictionary>(cont))
             {
-                static const string csGenericPrefix = csPrefix + "generic:";
-                if (s.find(csGenericPrefix) == 0)
+                if (directive == "cs:generic")
                 {
-                    string type = s.substr(csGenericPrefix.size());
-                    if (type == "SortedDictionary" || type == "SortedList")
+                    if (arguments == "SortedDictionary" || arguments == "SortedList")
                     {
-                        newLocalMetadata.push_back(s);
+                        newLocalMetadata.push_back(metadata);
                         continue;
                     }
                 }
@@ -2194,29 +2148,29 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
                 StructPtr st = dynamic_pointer_cast<Struct>(dataMember->container());
                 ExceptionPtr ex = dynamic_pointer_cast<Exception>(dataMember->container());
                 ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(dataMember->container());
-                static const string csTypePrefix = csPrefix + "type:";
+                static const string csTypePrefix = "cs:type:";
+                // TODO Seems like this validation only got half written?...
             }
             else if (dynamic_pointer_cast<Module>(cont))
             {
-                static const string csNamespacePrefix = csPrefix + "namespace:";
-                if (s.find(csNamespacePrefix) == 0 && s.size() > csNamespacePrefix.size())
+                if (directive == "cs:namespace" && !arguments.empty())
                 {
-                    newLocalMetadata.push_back(s);
+                    newLocalMetadata.push_back(metadata);
                     continue;
                 }
             }
 
-            static const string csAttributePrefix = csPrefix + "attribute:";
-            if (s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
+            if (directive == "cs:attribute" && !arguments.empty())
             {
-                newLocalMetadata.push_back(s);
+                newLocalMetadata.push_back(metadata);
                 continue;
             }
 
-            dc->warning(InvalidMetadata, cont->file(), cont->line(), msg + " `" + oldS + "'");
+            string message = "ignoring invalid metadata '" + string(directive) + "'";
+            dc->warning(InvalidMetadata, cont->file(), cont->line(), message);
             continue;
         }
-        newLocalMetadata.push_back(s);
+        newLocalMetadata.push_back(metadata);
     }
 
     cont->setMetadata(newLocalMetadata);

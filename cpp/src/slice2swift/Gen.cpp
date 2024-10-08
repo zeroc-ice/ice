@@ -25,13 +25,7 @@ namespace
     {
         DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
         assert(dc);
-
-        static const string classResolverPrefix = "swift:class-resolver-prefix:";
-        if (auto meta = dc->findMetadata(classResolverPrefix))
-        {
-            return meta->substr(classResolverPrefix.size());
-        }
-        return "";
+        return dc->getMetadataArgs("swift:class-resolver-prefix").value_or("");
     }
 }
 
@@ -1020,7 +1014,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     writeDocSummary(out, p);
     out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
-    writeConstantValue(out, type, p->valueType(), p->value(), p->getMetadata(), swiftModule);
+    writeConstantValue(out, type, p->valueType(), p->value(), swiftModule);
     out << nl;
 }
 
