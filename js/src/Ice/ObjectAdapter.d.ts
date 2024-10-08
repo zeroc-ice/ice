@@ -31,86 +31,20 @@ declare module "ice" {
             getCommunicator(): Ice.Communicator;
 
             /**
-             * Activate all object adapter's endpoints.
+             * Deactivates this object adapter.
              *
-             * After activation, the object adapter can dispatch requests received through its endpoints.
-             *
-             * @returns The asynchronous result object for the invocation.
-             *
-             * @see {@link ObjectAdapter#hold}
-             * @see {@link ObjectAdapter#deactivate}
-             */
-            activate(): Promise<void>;
-
-            /**
-             * Temporarily hold receiving and dispatching requests.
-             *
-             * The object adapter can be reactivated with the {@link ObjectAdapter#activate} operation. Holding is not
-             * immediate, i.e., after {@link ObjectAdapter#hold} returns, the object adapter might still be active for
-             * some time. You can use {@link ObjectAdapter#waitForHold} to wait until holding is complete.
-             *
-             * @see {@link ObjectAdapter#activate}
-             * @see {@link ObjectAdapter#deactivate}
-             * @see {@link ObjectAdapter#waitForHold}
-             */
-            hold(): void;
-
-            /**
-             * Wait until the object adapter holds requests.
-             *
-             * Calling {@link ObjectAdapter#hold} initiates holding of requests, and {@link ObjectAdapter#waitForHold}
-             * only returns when holding of requests has been completed.
-             *
-             * @returns The asynchronous result object for the invocation.
-             *
-             * @see {@link ObjectAdapter#hold}
-             * @see {@link ObjectAdapter#waitForDeactivate}
-             * @see {@link Communicator#waitForShutdown}
-             */
-            waitForHold(): Promise<void>;
-
-            /**
-             * Deactivate all endpoints that belong to this object adapter.
-             *
-             * After deactivation, the object adapter stops receiving requests through its endpoints. Object adapters
-             * that have been deactivated must not be reactivated again, and cannot be used otherwise. Attempts to use
-             * a deactivated object adapter raise {@link ObjectAdapterDeactivatedException} however, attempts to
-             * deactivate an already deactivated object adapter are ignored and do nothing.
+             * After deactivation, the object adapter is disconnected from any outgoing connection.
              *
              * Once deactivated, it is possible to destroy the adapter to clean up resources and then create and
              * activate a new adapter with the same name.
              *
              * After {@link ObjectAdapter#deactivate} returns, no new requests are processed by the object adapter.
              * However, requests that have been started before {@link ObjectAdapter#deactivate} was called might still
-             * be active. You can use {@link ObjectAdapter#waitForDeactivate} to wait for the completion of all requests
-             * for this object adapter.
+             * be active.
              *
-             * @see {@link ObjectAdapter#activate}
-             * @see {@link ObjectAdapter#hold}
-             * @see {@link ObjectAdapter#waitForDeactivate}
              * @see {@link Communicator#shutdown}
              */
             deactivate(): void;
-
-            /**
-             * Wait until the object adapter has deactivated.
-             *
-             * @returns The asynchronous result object for the invocation.
-             *
-             * @see {@link ObjectAdapter#deactivate}
-             * @see {@link ObjectAdapter#waitForHold}
-             * @see {@link Communicator#waitForShutdown}
-             */
-            waitForDeactivate(): Promise<void>;
-
-            /**
-             * Check whether object adapter has been deactivated.
-             *
-             * @returns Whether adapter has been deactivated.
-             *
-             * @see {@link Communicator#shutdown}
-             */
-            isDeactivated(): boolean;
 
             /**
              * Destroys the object adapter and cleans up all resources held by the object adapter.
@@ -122,7 +56,6 @@ declare module "ice" {
              * @returns The asynchronous result object for the invocation.
              *
              * @see {@link ObjectAdapter#deactivate}
-             * @see {@link ObjectAdapter#waitForDeactivate}
              * @see {@link Communicator#destroy}
              */
             destroy(): Promise<void>;

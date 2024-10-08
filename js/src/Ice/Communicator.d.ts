@@ -48,7 +48,6 @@ declare module "ice" {
              *
              * @see {@link shutdown}
              * @see {@link destroy}
-             * @see {@link ObjectAdapter#waitForDeactivate}
              */
             waitForShutdown(): Promise<void>;
 

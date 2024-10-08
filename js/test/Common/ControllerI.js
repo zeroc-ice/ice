@@ -183,7 +183,6 @@ export async function runController(clientOutput, serverOutput, scripts) {
         const adapter = await comm.createObjectAdapter("");
         const ident = new Ice.Identity("ProcessController", "Browser");
         const processController = adapter.add(new ProcessControllerI(out, serverOut, worker, scripts), ident);
-        adapter.activate();
         registerProcessController(adapter, registry, processController);
     } catch (ex) {
         out.writeLine("unexpected exception while creating controller:\n" + ex.toString());

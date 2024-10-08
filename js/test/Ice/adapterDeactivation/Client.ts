@@ -128,42 +128,6 @@ export class Client extends TestHelper {
         await obj!.deactivate();
         out.writeLine("ok");
 
-        out.write("testing adapter states... ");
-        {
-            const adpt = await communicator.createObjectAdapter("");
-            test(!adpt.isDeactivated());
-            await adpt.activate();
-            test(!adpt.isDeactivated());
-
-            let isHolding = false;
-            let p1 = adpt.waitForHold().then(() => {
-                isHolding = true;
-            });
-            test(!isHolding);
-            adpt.hold();
-            await adpt.waitForHold();
-            await p1;
-            test(isHolding);
-
-            isHolding = false;
-            p1 = adpt.waitForHold().then(() => {
-                isHolding = true;
-            });
-
-            let isDeactivated = false;
-            const p2 = adpt.waitForDeactivate().then(() => {
-                isDeactivated = true;
-            });
-            test(!isDeactivated);
-            await adpt.deactivate();
-            await adpt.waitForDeactivate();
-            await Promise.all([p1, p2]);
-            test(isDeactivated && isHolding);
-            test(adpt.isDeactivated());
-            await adpt.destroy();
-        }
-        out.writeLine("ok");
-
         out.write("testing whether server is gone... ");
         try {
             await obj!.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
