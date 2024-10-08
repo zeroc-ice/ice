@@ -114,12 +114,12 @@ export class Properties {
 
     getPropertiesForPrefix(prefix = "") {
         const result = new Map();
-        this._properties.forEach((property, key) => {
-            if (key.indexOf(prefix) === 0) {
-                property.used = true;
-                result.set(key, property.value);
+        for (const [key, property] of this._properties) {
+            if (key.startsWith(prefix)) {
+            property.used = true;
+            result.set(key, property.value);
             }
-        });
+        }
         return result;
     }
 
@@ -412,7 +412,7 @@ export class Properties {
 
     static validatePropertiesWithPrefix(prefix, properties, propertyArray) {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
-        for (const name in PropertyNames.validProps.keys()) {
+        for (const name of PropertyNames.validProps.keys()) {
             if (prefix.startsWith(`${name}.`)) {
                 return;
             }
@@ -420,11 +420,12 @@ export class Properties {
 
         var unknownProps = [];
         let props = properties.getPropertiesForPrefix(`${prefix}.`);
-        props.key().forEach(key => {
+
+        for (const key of props.keys()) {
             if (Properties.findProperty(key.substring(prefix.length + 1), propertyArray) === null) {
                 unknownProps.push(key);
             }
-        });
+        };
 
         if (unknownProps.length > 0) {
             `found unknown properties for ${propertyArray.name}: '${prefix}'\n${unknownProps.join(",\n")}`;
