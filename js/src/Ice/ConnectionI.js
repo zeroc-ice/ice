@@ -188,24 +188,9 @@ export class ConnectionI {
         this.setState(StateHolding);
     }
 
-    destroy(reason) {
-        switch (reason) {
-            case ConnectionI.ObjectAdapterDeactivated: {
-                const adapterName = this._adapter !== null ? this._adapter.getName() : "";
-                this.setState(StateClosing, new ObjectAdapterDeactivatedException(adapterName));
-                break;
-            }
-
-            case ConnectionI.CommunicatorDestroyed: {
-                this.setState(StateClosing, new CommunicatorDestroyedException());
-                break;
-            }
-
-            default: {
-                Debug.assert(false);
-                break;
-            }
-        }
+    destroy() {
+        // Called by Communicator.destroy
+        this.setState(StateClosing, new CommunicatorDestroyedException());
     }
 
     abort() {
@@ -1598,10 +1583,6 @@ export class ConnectionI {
         }
     }
 }
-
-// DestructionReason.
-ConnectionI.ObjectAdapterDeactivated = 0;
-ConnectionI.CommunicatorDestroyed = 1;
 
 class OutgoingMessage {
     constructor() {

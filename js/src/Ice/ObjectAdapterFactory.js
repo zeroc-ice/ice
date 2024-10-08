@@ -24,7 +24,7 @@ export class ObjectAdapterFactory {
         if (this._instance !== null) {
             this._instance = null;
             this._communicator = null;
-            this._adapters.map(adapter => adapter.deactivate()); // deactivate is synchronous
+            this._adapters.forEach(adapter => adapter.deactivate()); // deactivate is synchronous
             this._shutdownPromise.resolve();
         }
     }
@@ -39,7 +39,7 @@ export class ObjectAdapterFactory {
 
     async destroy() {
         await this.waitForShutdown();
-        await Promise.all(this._adapters.map(adapter => adapter.destroy()));
+        this._adapters.forEach(adapter => adapter.destroy());
     }
 
     createObjectAdapter(name, router, promise) {
