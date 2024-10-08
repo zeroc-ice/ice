@@ -11,7 +11,7 @@ export class Property {
 }
 
 export class PropertyArray {
-    constructor(name,prefixOnly, properties) {
+    constructor(name, prefixOnly, properties) {
         this.name = name;
         this.prefixOnly = prefixOnly;
         this.properties = properties;

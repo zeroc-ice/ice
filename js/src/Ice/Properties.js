@@ -116,8 +116,8 @@ export class Properties {
         const result = new Map();
         for (const [key, property] of this._properties) {
             if (key.startsWith(prefix)) {
-            property.used = true;
-            result.set(key, property.value);
+                property.used = true;
+                result.set(key, property.value);
             }
         }
         return result;
@@ -379,29 +379,25 @@ export class Properties {
                     return null;
                 }
                 return prop;
-            }
-            else if (prop.usesRegex && key.match(prop.pattern)) {
+            } else if (prop.usesRegex && key.match(prop.pattern)) {
                 return prop;
             }
 
             // If the property has a property array, check if the key is a prefix of the property.
-            if (prop.propertyArray)
-            {
+            if (prop.propertyArray) {
                 // Check if the key is a prefix of the property.
                 // The key must be:
                 // - shorter than the property pattern
                 // - the property pattern must start with the key
                 // - the pattern character after the key must be a dot
-                if (key.length > prop.pattern.length && key.startsWith(`${prop.pattern}.`))
-                {
+                if (key.length > prop.pattern.length && key.startsWith(`${prop.pattern}.`)) {
                     // Plus one to skip the dot.
                     let substring = key.substring(prop.pattern.length + 1);
 
                     // Check if the suffix is a valid property. If so, return it. If it's not, continue searching
                     // the current property array.
                     const subProp = Properties.findProperty(substring, prop.propertyArray);
-                    if (subProp !== null)
-                    {
+                    if (subProp !== null) {
                         return subProp;
                     }
                 }
@@ -425,7 +421,7 @@ export class Properties {
             if (Properties.findProperty(key.substring(prefix.length + 1), propertyArray) === null) {
                 unknownProps.push(key);
             }
-        };
+        }
 
         if (unknownProps.length > 0) {
             `found unknown properties for ${propertyArray.name}: '${prefix}'\n${unknownProps.join(",\n")}`;
