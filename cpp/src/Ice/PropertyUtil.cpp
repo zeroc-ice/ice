@@ -16,7 +16,7 @@ IceInternal::findProperty(string_view key, const PropertyArray* propertyArray)
     {
         auto prop = propertyArray->properties[i];
 
-        // If the key is an exact match, return the property if it's not a property class. If it is, return nullopt.
+        // If the key is an exact match, return the property unless it has a property class which is prefix only.
         // If the key is a regex match, return the property. A property cannot have a property class and use regex.
         if (key == prop.pattern)
         {

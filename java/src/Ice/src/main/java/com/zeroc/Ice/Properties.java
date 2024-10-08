@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.stream.Collectors;
+
 /**
  * A property set used to configure Ice and Ice applications. Properties are key/value pairs, with
  * both keys and values being strings. By convention, property keys should have the form
@@ -781,7 +783,7 @@ public final class Properties {
     static Property findProperty(String key, PropertyArray propertyArray) {
         for (Property prop : propertyArray.properties()) {
             String pattern = prop.pattern();
-            // If the key is an exact match, return the property if it's not a property class. If it
+            // If the key is an exact match, return the property unless it has a property class which is prefix only.
             // is, return nullopt.
             // If the key is a regex match, return the property. A property cannot have a property
             // class and use regex.
@@ -835,17 +837,12 @@ public final class Properties {
         }
 
         var unknownProperties = new java.util.ArrayList<String>();
-        properties
-                .getPropertiesForPrefix(prefix + ".")
-                .keySet()
-                .forEach(
-                        (key) -> {
-                            // Plus one to skip the dot.
-                            if (findProperty(key.substring(prefix.length() + 1), propertyArray)
-                                    == null) {
-                                unknownProperties.add(key);
-                            }
-                        });
+        properties.getPropertiesForPrefix(prefix + ".").keySet().stream()
+                .filter(
+                        key ->
+                                findProperty(key.substring(prefix.length() + 1), propertyArray)
+                                        == null)
+                .collect(Collectors.toList());
 
         if (unknownProperties.size() > 0) {
             throw new UnknownPropertyException(
