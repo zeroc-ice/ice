@@ -10,10 +10,14 @@ const test = TestHelper.test;
 
 class Middleware extends Ice.Object {
     async dispatch(request: Ice.IncomingRequest): Promise<Ice.OutgoingResponse> {
-        this._inLog.push(this._name);
-        var response = await this._next.dispatch(request);
-        this._outLog.push(this._name);
-        return response;
+        if (request.current.operation === "shutdown") {
+            return this._next.dispatch(request);
+        } else {
+            this._inLog.push(this._name);
+            var response = await this._next.dispatch(request);
+            this._outLog.push(this._name);
+            return response;
+        }
     }
 
     constructor(next: Ice.Object, name: string, inLog: string[], outLog: string[]) {

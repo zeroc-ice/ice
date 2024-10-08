@@ -125,7 +125,6 @@ export class Client extends TestHelper {
 
         out.write("creating and activating callback receiver adapter... ");
         const adapter = await communicator.createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
-        await adapter.activate();
         out.writeLine("ok");
 
         out.write("getting category from router... ");
