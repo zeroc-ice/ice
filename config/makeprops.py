@@ -3,7 +3,6 @@
 # Copyright (c) ZeroC, Inc.
 #
 
-
 import os
 import sys
 import shutil
@@ -180,7 +179,7 @@ class PropertyHandler(ContentHandler):
         # Needs to be overridden in derived class
         pass
 
-    # The list of sections that have properties generated for them
+    # The list of property arrays to get generated
     def generatedPropertyArrays(self):
         return [
             name
