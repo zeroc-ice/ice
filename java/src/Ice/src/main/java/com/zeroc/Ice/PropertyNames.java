@@ -270,7 +270,7 @@ final class PropertyNames
         IceBoxAdminProps,
         IceGridAdminProps,
         IceSSLProps,
-        IceBTProps,
+        IceBTProps
     };
 
     public static final String clPropNames[] =
@@ -288,6 +288,6 @@ final class PropertyNames
         "IceStorm",
         "IceStormAdmin",
         "IceBT",
-        "Glacier2",
+        "Glacier2"
     };
 }

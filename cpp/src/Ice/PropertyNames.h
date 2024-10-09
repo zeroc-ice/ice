@@ -35,7 +35,6 @@ namespace IceInternal
     class ICE_API PropertyNames
     {
     public:
-
         static const PropertyArray ProxyProps;
         static const PropertyArray ConnectionProps;
         static const PropertyArray ThreadPoolProps;

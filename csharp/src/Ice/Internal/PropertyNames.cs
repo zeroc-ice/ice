@@ -237,7 +237,7 @@ public sealed class PropertyNames
         IceDiscoveryProps,
         IceLocatorDiscoveryProps,
         IceBoxProps,
-        IceSSLProps,
+        IceSSLProps
     ];
 
     internal static string[] clPropNames =
@@ -255,6 +255,6 @@ public sealed class PropertyNames
         "IceStorm",
         "IceStormAdmin",
         "IceBT",
-        "Glacier2",
+        "Glacier2"
     ];
 }
