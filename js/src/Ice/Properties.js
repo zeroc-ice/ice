@@ -412,14 +412,11 @@ export class Properties {
             return;
         }
 
-        var unknownProps = [];
-        let props = properties.getPropertiesForPrefix(`${prefix}.`);
-
-        for (const key of props.keys()) {
-            if (Properties.findProperty(key.substring(prefix.length + 1), propertyArray) === null) {
-                unknownProps.push(key);
-            }
-        }
+        const unknownProps = properties
+            .getPropertiesForPrefix(`${prefix}.`)
+            .keys()
+            .filter(key => Properties.findProperty(key.substring(prefix.length + 1), propertyArray) === null)
+            .toArray();
 
         if (unknownProps.length > 0) {
             `found unknown properties for ${propertyArray.name}: '${prefix}'\n${unknownProps.join(",\n")}`;
@@ -438,7 +435,7 @@ export class Properties {
         }
 
         const prefix = key.substr(0, dotPos);
-        var propertyArray = null;
+        let propertyArray = null;
 
         // Search for the property prefix
         for (const [validPropsPrefix, validPropsValue] of PropertyNames.validProps) {
