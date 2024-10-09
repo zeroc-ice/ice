@@ -408,15 +408,14 @@ export class Properties {
 
     static validatePropertiesWithPrefix(prefix, properties, propertyArray) {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
-        if (PropertyNames.validProps.keys().some(name => prefix.startsWith(`${name}.`))) {
+        if (Array.from(PropertyNames.validProps.keys()).some(name => prefix.startsWith(`${name}.`))) {
             return;
         }
 
-        const unknownProps = properties
+        const unknownProps = Array.from(properties
             .getPropertiesForPrefix(`${prefix}.`)
-            .keys()
-            .filter(key => Properties.findProperty(key.substring(prefix.length + 1), propertyArray) === null)
-            .toArray();
+            .keys())
+            .filter(key => Properties.findProperty(key.substring(prefix.length + 1), propertyArray) === null);
 
         if (unknownProps.length > 0) {
             `found unknown properties for ${propertyArray.name}: '${prefix}'\n${unknownProps.join(",\n")}`;
