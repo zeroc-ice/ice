@@ -3,6 +3,7 @@
 # Copyright (c) ZeroC, Inc.
 #
 
+
 import os
 import sys
 import shutil
@@ -14,8 +15,6 @@ from typing import override
 from xml.sax import make_parser
 from xml.sax.handler import feature_namespaces
 from xml.sax.handler import ContentHandler
-
-progname = os.path.basename(sys.argv[0])
 
 
 class Language(StrEnum):
@@ -164,25 +163,16 @@ class PropertyHandler(ContentHandler):
         # Needs to be overridden in derived class
         pass
 
-    def writeProperty(self, property):
-        # Needs to be overridden in derived class
-        pass
-
-    def openSection(self, propertyArray: PropertyArray):
+    def writePropertyArray(self, propertyArray: PropertyArray):
         # Needs to be overridden in derived class
         pass
 
     def writeProperties(self):
         self.openFiles()
 
-        for sectionName, propertyArray in self.propertyArrayDict.items():
-            if len(propertyArray.properties) == 0:
-                continue
-
-            self.openSection(propertyArray)
-            for property in propertyArray.properties:
-                self.writeProperty(property)
-            self.closeSection(propertyArray)
+        for propertyArray in self.propertyArrayDict.values():
+            if len(propertyArray.properties) > 0:
+                self.writePropertyArray(propertyArray)
 
         self.closeFiles()
 
@@ -191,12 +181,17 @@ class PropertyHandler(ContentHandler):
         pass
 
     # The list of sections that have properties generated for them
-    def generatedSections(self):
+    def generatedPropertyArrays(self):
         return [
             name
             for name, propertyArray in self.propertyArrayDict.items()
             if len(self.propertyArrayDict[name].properties) > 0
             and not propertyArray.isClass
+        ]
+
+    def reservedPropertyPrefixes(self):
+        return [
+            name for name, array in self.propertyArrayDict.items() if not array.isClass
         ]
 
     def parseProperty(self, attrs):
@@ -267,6 +262,7 @@ class PropertyHandler(ContentHandler):
         # True if the current language is in the list of languages or if the list contains 'all'
         return Language.ALL in languages or self.language in languages
 
+    @override
     def startElement(self, name, attrs):
         match name:
             case "properties":
@@ -299,6 +295,7 @@ class PropertyHandler(ContentHandler):
             case _:
                 raise ValueError(f"Unknown element: {name}")
 
+    @override
     def endElement(self, name):
         if name == "section" or name == "class":
             self.parentNodeName = None
@@ -310,6 +307,7 @@ class CppPropertyHandler(PropertyHandler):
         self.hFile = None
         self.cppFile = None
 
+    @override
     def cleanup(self):
         if self.hFile is not None:
             self.hFile.close()
@@ -320,28 +318,30 @@ class CppPropertyHandler(PropertyHandler):
             if os.path.exists("PropertyNames.cpp"):
                 os.remove("PropertyNames.cpp")
 
+    @override
     def openFiles(self):
         self.hFile = open("PropertyNames.h", "w")
         self.cppFile = open("PropertyNames.cpp", "w")
         self.hFile.write(cppHeaderPreamble)
         self.cppFile.write(cppSrcPreamble)
 
+    @override
     def closeFiles(self):
         self.hFile.write(cppHeaderPostamble)
-        self.cppFile.write("const PropertyArray PropertyNames::validProps[] =\n")
+        self.cppFile.write(f"""\
+const PropertyArray PropertyNames::validProps[] =
+{{
+    {",\n    ".join([f"{name}Props" for name in self.generatedPropertyArrays()])},
+    PropertyArray{{nullptr, false, nullptr ,0}}
+}};
 
-        self.cppFile.write("{\n")
-        for s in self.generatedSections():
-            self.cppFile.write("    %sProps,\n" % s)
-        self.cppFile.write("    PropertyArray{nullptr, false, nullptr ,0}\n")
-        self.cppFile.write("};\n\n")
+const char* PropertyNames::clPropNames[] =
+{{
+    {",\n    ".join([f'"{name}"' for name in self.reservedPropertyPrefixes()])},
+    nullptr
+}};
+""")
 
-        self.cppFile.write("const char* PropertyNames::clPropNames[] =\n")
-        self.cppFile.write("{\n")
-        for s in self.propertyArrayDict.keys():
-            self.cppFile.write('    "%s",\n' % s)
-        self.cppFile.write("    nullptr\n")
-        self.cppFile.write("};\n")
         self.hFile.close()
         self.cppFile.close()
 
@@ -349,8 +349,27 @@ class CppPropertyHandler(PropertyHandler):
         return propertyName.replace("[any]", "*")
 
     @override
-    def writeProperty(self, property):
-        self.cppFile.write("    %s,\n" % property)
+    def writePropertyArray(self, propertyArray):
+        name = propertyArray.name
+        prefixOnly = "true" if propertyArray.prefixOnly else "false"
+
+        self.hFile.write(f"static const PropertyArray {name}Props;\n".ljust(8))
+
+        self.cppFile.write(f"""\
+const Property {name}PropsData[] =
+{{
+    {",\n    ".join(propertyArray.properties)}
+}};
+
+const PropertyArray PropertyNames::{name}Props
+{{
+    "{name}",
+    {prefixOnly},
+    {name}PropsData,
+    sizeof({name}PropsData)/sizeof({name}PropsData[0])
+}};
+
+""")
 
     @override
     def createProperty(
@@ -368,25 +387,7 @@ class CppPropertyHandler(PropertyHandler):
 
         return propertyLine
 
-    def openSection(self, propertyArray: PropertyArray):
-        name = propertyArray.name
-        self.hFile.write(f"        static const PropertyArray {name}Props;\n")
-        self.cppFile.write(f"const Property {name}PropsData[] =\n")
-        self.cppFile.write("{\n")
-
-    def closeSection(self, propertyArray: PropertyArray):
-        name = propertyArray.name
-        prefixOnly = "true" if propertyArray.prefixOnly else "false"
-        self.cppFile.write("};\n")
-        self.cppFile.write(
-            f"""
-const PropertyArray
-    PropertyNames::{name}Props{{"{name}", {prefixOnly}, {name}PropsData,
-        sizeof({name}PropsData)/sizeof({name}PropsData[0])}};
-
-"""
-        )
-
+    @override
     def moveFiles(self, location):
         dest = os.path.join(location, "cpp", "src", "Ice")
         if os.path.exists(os.path.join(dest, "PropertyNames.h")):
@@ -402,27 +403,30 @@ class JavaPropertyHandler(PropertyHandler):
         super().__init__(Language.JAVA)
         self.srcFile = None
 
+    @override
     def cleanup(self):
         if self.srcFile is not None:
             self.srcFile.close()
             if os.path.exists("PropertyNames.java"):
                 os.remove("PropertyNames.java")
 
+    @override
     def openFiles(self):
         self.srcFile = open("PropertyNames.java", "w")
         self.srcFile.write(javaPreamble)
 
+    @override
     def closeFiles(self):
         self.srcFile.write("    public static final PropertyArray validProps[] =\n")
 
         self.srcFile.write("    {\n")
-        for s in self.generatedSections():
+        for s in self.generatedPropertyArrays():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("    };\n")
 
         self.srcFile.write("\n    public static final String clPropNames[] =\n")
         self.srcFile.write("    {\n")
-        for s in self.propertyArrayDict.keys():
+        for s in self.reservedPropertyPrefixes():
             self.srcFile.write('        "%s",\n' % s)
         self.srcFile.write("    };\n")
         self.srcFile.write("}\n")
@@ -435,9 +439,22 @@ class JavaPropertyHandler(PropertyHandler):
         return propertyName.replace(".", r"\\.").replace("[any]", r"[^\\s]+")
 
     @override
-    def writeProperty(self, property):
-        self.srcFile.write("            %s,\n" % property)
+    def writePropertyArray(self, propertyArray):
+        name = propertyArray.name
+        prefixOnly = "true" if propertyArray.prefixOnly else "false"
 
+        self.srcFile.write(
+            f"""    public static final PropertyArray {name}Props = new PropertyArray(
+        "{name}",
+        {prefixOnly},
+        new Property[] {{
+            {",\n            ".join(propertyArray.properties)}
+        }});
+
+"""
+        )
+
+    @override
     def createProperty(
         self,
         propertyName,
@@ -458,17 +475,7 @@ class JavaPropertyHandler(PropertyHandler):
 
         return line
 
-    def openSection(self, propertyArray: PropertyArray):
-        name = propertyArray.name
-        prefixOnly = "true" if propertyArray.prefixOnly else "false"
-        self.srcFile.write(
-            f'    public static final PropertyArray {name}Props = new PropertyArray(\n        "{name}",\n        {prefixOnly},\n'
-        )
-        self.srcFile.write("        new Property[] {\n")
-
-    def closeSection(self, propertyArray):
-        self.srcFile.write("        });\n\n")
-
+    @override
     def moveFiles(self, location):
         dest = os.path.join(
             location,
@@ -492,27 +499,30 @@ class CSPropertyHandler(PropertyHandler):
         super().__init__(Language.CSHARP)
         self.srcFile = None
 
+    @override
     def cleanup(self):
         if self.srcFile is not None:
             self.srcFile.close()
             if os.path.exists("PropertyNames.cs"):
                 os.remove("PropertyNames.cs")
 
+    @override
     def openFiles(self):
         self.srcFile = open("PropertyNames.cs", "w")
         self.srcFile.write(csPreamble)
 
+    @override
     def closeFiles(self):
         self.srcFile.write("    internal static PropertyArray[] validProps =\n")
 
         self.srcFile.write("    [\n")
-        for s in self.generatedSections():
+        for s in self.generatedPropertyArrays():
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("    ];\n\n")
 
         self.srcFile.write("    internal static string[] clPropNames =\n")
         self.srcFile.write("    [\n")
-        for s in self.propertyArrayDict.keys():
+        for s in self.reservedPropertyPrefixes():
             self.srcFile.write('        "%s",\n' % s)
         self.srcFile.write("    ];\n")
         self.srcFile.write("}\n")
@@ -522,8 +532,19 @@ class CSPropertyHandler(PropertyHandler):
         return propertyName.replace(".", r"\.").replace("[any]", r"[^\s]+")
 
     @override
-    def writeProperty(self, property):
-        self.srcFile.write("            %s,\n" % property)
+    def writePropertyArray(self, propertyArray):
+        name = propertyArray.name
+        prefixOnly = "true" if propertyArray.prefixOnly else "false"
+
+        self.srcFile.write(f"""\
+    internal static PropertyArray {name}Props = new(
+        "{name}",
+        {prefixOnly},
+        [
+            {",\n            ".join(propertyArray.properties)}
+        ]);
+
+""")
 
     @override
     def createProperty(
@@ -543,18 +564,7 @@ class CSPropertyHandler(PropertyHandler):
         )
         return line
 
-    def openSection(self, propertyArray: PropertyArray):
-        name = propertyArray.name
-        prefixOnly = "true" if propertyArray.prefixOnly else "false"
-        self.srcFile.write(
-            f'    internal static PropertyArray {name}Props = new(\n        "{name}",\n        {prefixOnly},\n'
-        )
-        self.srcFile.write("        [\n")
-
-    def closeSection(self, propertyArray):
-        self.srcFile.write("        ]);\n")
-        self.srcFile.write("\n")
-
+    @override
     def moveFiles(self, location):
         dest = os.path.join(location, "csharp", "src", "Ice", "Internal")
         if os.path.exists(os.path.join(dest, "PropertyNames.cs")):
@@ -567,19 +577,22 @@ class JSPropertyHandler(PropertyHandler):
         super().__init__(Language.JS)
         self.srcFile = None
 
+    @override
     def cleanup(self):
         if self.srcFile is not None:
             self.srcFile.close()
             if os.path.exists("PropertyNames.js"):
                 os.remove("PropertyNames.js")
 
+    @override
     def openFiles(self):
         self.srcFile = open("PropertyNames.js", "w")
         self.srcFile.write(jsPreamble)
 
+    @override
     def closeFiles(self):
         self.srcFile.write("PropertyNames.validProps = new Map([\n")
-        for name in self.generatedSections():
+        for name in self.generatedPropertyArrays():
             self.srcFile.write(f'    ["{name}", PropertyNames.{name}Props],\n')
 
         for name in [
@@ -595,9 +608,18 @@ class JSPropertyHandler(PropertyHandler):
         return propertyName.replace(".", "\\.").replace("[any]", ".")
 
     @override
-    def writeProperty(self, property):
-        self.srcFile.write("    %s,\n" % property)
+    def writePropertyArray(self, propertyArray):
+        name = propertyArray.name
+        prefixOnly = "true" if propertyArray.prefixOnly else "false"
 
+        self.srcFile.write(f"""\
+PropertyNames.{name}Props = new PropertyArray("{name}", {prefixOnly}, [
+    {",\n    ".join(propertyArray.properties)}
+]);
+
+""")
+
+    @override
     def createProperty(
         self,
         propertyName,
@@ -619,17 +641,7 @@ class JSPropertyHandler(PropertyHandler):
         )
         return line
 
-    def openSection(self, propertyArray):
-        name = propertyArray.name
-        prefixOnly = "true" if propertyArray.prefixOnly else "false"
-        self.srcFile.write(
-            f'PropertyNames.{name}Props = new PropertyArray("{name}", {prefixOnly}, [\n'
-        )
-
-    def closeSection(self, propertyArray):
-        self.srcFile.write("]);\n")
-        self.srcFile.write("\n")
-
+    @override
     def moveFiles(self, location):
         dest = os.path.join(location, "js", "src", "Ice")
         if os.path.exists(os.path.join(dest, "PropertyNames.js")):

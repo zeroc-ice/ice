@@ -20,7 +20,7 @@ public sealed class PropertyNames
             new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Router", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"CollocationOptimized", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"^Context\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"^Context\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray ConnectionProps = new(
@@ -32,7 +32,7 @@ public sealed class PropertyNames
             new(pattern: @"EnableIdleCheck", usesRegex: false, defaultValue: "1", deprecated: false, propertyArray: null),
             new(pattern: @"IdleTimeout", usesRegex: false, defaultValue: "60", deprecated: false, propertyArray: null),
             new(pattern: @"InactivityTimeout", usesRegex: false, defaultValue: "300", deprecated: false, propertyArray: null),
-            new(pattern: @"MaxDispatches", usesRegex: false, defaultValue: "100", deprecated: false, propertyArray: null),
+            new(pattern: @"MaxDispatches", usesRegex: false, defaultValue: "100", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray ThreadPoolProps = new(
@@ -45,7 +45,7 @@ public sealed class PropertyNames
             new(pattern: @"StackSize", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"Serialize", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"ThreadIdleTime", usesRegex: false, defaultValue: "60", deprecated: false, propertyArray: null),
-            new(pattern: @"ThreadPriority", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"ThreadPriority", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray ObjectAdapterProps = new(
@@ -63,7 +63,7 @@ public sealed class PropertyNames
             new(pattern: @"ProxyOptions", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"ThreadPool", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ThreadPoolProps),
             new(pattern: @"MaxConnections", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
-            new(pattern: @"MessageSizeMax", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"MessageSizeMax", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray IceProps = new(
@@ -147,7 +147,7 @@ public sealed class PropertyNames
             new(pattern: @"Warn.Dispatch", usesRegex: false, defaultValue: "1", deprecated: false, propertyArray: null),
             new(pattern: @"Warn.Endpoints", usesRegex: false, defaultValue: "1", deprecated: false, propertyArray: null),
             new(pattern: @"Warn.UnusedProperties", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
-            new(pattern: @"CacheMessageBuffers", usesRegex: false, defaultValue: "2", deprecated: false, propertyArray: null),
+            new(pattern: @"CacheMessageBuffers", usesRegex: false, defaultValue: "2", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray IceMXProps = new(
@@ -159,7 +159,7 @@ public sealed class PropertyNames
             new(pattern: @"^Metrics\.[^\s]+\.RetainDetached$", usesRegex: true, defaultValue: "10", deprecated: false, propertyArray: null),
             new(pattern: @"^Metrics\.[^\s]+\.Accept$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"^Metrics\.[^\s]+\.Reject$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"^Metrics\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"^Metrics\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray IceDiscoveryProps = new(
@@ -176,7 +176,7 @@ public sealed class PropertyNames
             new(pattern: @"Address", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Port", usesRegex: false, defaultValue: "4061", deprecated: false, propertyArray: null),
             new(pattern: @"Interface", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"DomainId", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"DomainId", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray IceLocatorDiscoveryProps = new(
@@ -193,7 +193,7 @@ public sealed class PropertyNames
             new(pattern: @"Port", usesRegex: false, defaultValue: "4061", deprecated: false, propertyArray: null),
             new(pattern: @"Interface", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"InstanceName", usesRegex: false, defaultValue: "IceLocatorDiscovery", deprecated: false, propertyArray: null),
-            new(pattern: @"Trace.Lookup", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
+            new(pattern: @"Trace.Lookup", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray IceBoxProps = new(
@@ -205,7 +205,7 @@ public sealed class PropertyNames
             new(pattern: @"PrintServicesReady", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"^Service\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Trace.ServiceObserver", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"^UseSharedCommunicator\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"^UseSharedCommunicator\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray IceSSLProps = new(
@@ -227,7 +227,7 @@ public sealed class PropertyNames
             new(pattern: @"TrustOnly.Server", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"^TrustOnly\.Server\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"UsePlatformCAs", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
-            new(pattern: @"VerifyPeer", usesRegex: false, defaultValue: "2", deprecated: false, propertyArray: null),
+            new(pattern: @"VerifyPeer", usesRegex: false, defaultValue: "2", deprecated: false, propertyArray: null)
         ]);
 
     internal static PropertyArray[] validProps =
@@ -242,11 +242,6 @@ public sealed class PropertyNames
 
     internal static string[] clPropNames =
     [
-        "Proxy",
-        "Connection",
-        "ThreadPool",
-        "ObjectAdapter",
-        "LMDB",
         "Ice",
         "IceMX",
         "IceDiscovery",

@@ -20,7 +20,7 @@ final class PropertyNames
             new Property("Locator", false, "", false, null),
             new Property("Router", false, "", false, null),
             new Property("CollocationOptimized", false, "", false, null),
-            new Property("Context\\.[^\\s]+", true, "", false, null),
+            new Property("Context\\.[^\\s]+", true, "", false, null)
         });
 
     public static final PropertyArray ConnectionProps = new PropertyArray(
@@ -32,7 +32,7 @@ final class PropertyNames
             new Property("EnableIdleCheck", false, "1", false, null),
             new Property("IdleTimeout", false, "60", false, null),
             new Property("InactivityTimeout", false, "300", false, null),
-            new Property("MaxDispatches", false, "100", false, null),
+            new Property("MaxDispatches", false, "100", false, null)
         });
 
     public static final PropertyArray ThreadPoolProps = new PropertyArray(
@@ -45,7 +45,7 @@ final class PropertyNames
             new Property("StackSize", false, "0", false, null),
             new Property("Serialize", false, "0", false, null),
             new Property("ThreadIdleTime", false, "60", false, null),
-            new Property("ThreadPriority", false, "", false, null),
+            new Property("ThreadPriority", false, "", false, null)
         });
 
     public static final PropertyArray ObjectAdapterProps = new PropertyArray(
@@ -63,7 +63,7 @@ final class PropertyNames
             new Property("ProxyOptions", false, "", false, null),
             new Property("ThreadPool", false, "", false, PropertyNames.ThreadPoolProps),
             new Property("MaxConnections", false, "0", false, null),
-            new Property("MessageSizeMax", false, "", false, null),
+            new Property("MessageSizeMax", false, "", false, null)
         });
 
     public static final PropertyArray IceProps = new PropertyArray(
@@ -152,7 +152,7 @@ final class PropertyNames
             new Property("Warn.UnknownProperties", false, "1", false, null),
             new Property("Warn.UnusedProperties", false, "0", false, null),
             new Property("CacheMessageBuffers", false, "2", false, null),
-            new Property("ThreadInterruptSafe", false, "", false, null),
+            new Property("ThreadInterruptSafe", false, "", false, null)
         });
 
     public static final PropertyArray IceMXProps = new PropertyArray(
@@ -164,7 +164,7 @@ final class PropertyNames
             new Property("Metrics\\.[^\\s]+\\.RetainDetached", true, "10", false, null),
             new Property("Metrics\\.[^\\s]+\\.Accept", true, "", false, null),
             new Property("Metrics\\.[^\\s]+\\.Reject", true, "", false, null),
-            new Property("Metrics\\.[^\\s]+", true, "", false, null),
+            new Property("Metrics\\.[^\\s]+", true, "", false, null)
         });
 
     public static final PropertyArray IceDiscoveryProps = new PropertyArray(
@@ -181,7 +181,7 @@ final class PropertyNames
             new Property("Address", false, "", false, null),
             new Property("Port", false, "4061", false, null),
             new Property("Interface", false, "", false, null),
-            new Property("DomainId", false, "", false, null),
+            new Property("DomainId", false, "", false, null)
         });
 
     public static final PropertyArray IceLocatorDiscoveryProps = new PropertyArray(
@@ -198,7 +198,7 @@ final class PropertyNames
             new Property("Port", false, "4061", false, null),
             new Property("Interface", false, "", false, null),
             new Property("InstanceName", false, "IceLocatorDiscovery", false, null),
-            new Property("Trace.Lookup", false, "0", false, null),
+            new Property("Trace.Lookup", false, "0", false, null)
         });
 
     public static final PropertyArray IceBoxProps = new PropertyArray(
@@ -210,14 +210,14 @@ final class PropertyNames
             new Property("PrintServicesReady", false, "", false, null),
             new Property("Service\\.[^\\s]+", true, "", false, null),
             new Property("Trace.ServiceObserver", false, "", false, null),
-            new Property("UseSharedCommunicator\\.[^\\s]+", true, "", false, null),
+            new Property("UseSharedCommunicator\\.[^\\s]+", true, "", false, null)
         });
 
     public static final PropertyArray IceBoxAdminProps = new PropertyArray(
         "IceBoxAdmin",
         false,
         new Property[] {
-            new Property("ServiceManager.Proxy", false, "", false, PropertyNames.ProxyProps),
+            new Property("ServiceManager.Proxy", false, "", false, PropertyNames.ProxyProps)
         });
 
     public static final PropertyArray IceGridAdminProps = new PropertyArray(
@@ -226,7 +226,7 @@ final class PropertyNames
         new Property[] {
             new Property("MetricsConfig", false, "", false, null),
             new Property("Trace.Observers", false, "", false, null),
-            new Property("Trace.SaveToRegistry", false, "", false, null),
+            new Property("Trace.SaveToRegistry", false, "", false, null)
         });
 
     public static final PropertyArray IceSSLProps = new PropertyArray(
@@ -249,7 +249,7 @@ final class PropertyNames
             new Property("TruststorePassword", false, "", false, null),
             new Property("TruststoreType", false, "JKS", false, null),
             new Property("UsePlatformCAs", false, "0", false, null),
-            new Property("VerifyPeer", false, "2", false, null),
+            new Property("VerifyPeer", false, "2", false, null)
         });
 
     public static final PropertyArray IceBTProps = new PropertyArray(
@@ -257,7 +257,7 @@ final class PropertyNames
         false,
         new Property[] {
             new Property("RcvSize", false, "", false, null),
-            new Property("SndSize", false, "", false, null),
+            new Property("SndSize", false, "", false, null)
         });
 
     public static final PropertyArray validProps[] =
@@ -275,11 +275,6 @@ final class PropertyNames
 
     public static final String clPropNames[] =
     {
-        "Proxy",
-        "Connection",
-        "ThreadPool",
-        "ObjectAdapter",
-        "LMDB",
         "Ice",
         "IceMX",
         "IceDiscovery",

@@ -16,7 +16,7 @@ PropertyNames.ProxyProps = new PropertyArray("Proxy", false, [
     new Property("Locator", false, "", false, null),
     new Property("Router", false, "", false, null),
     new Property("CollocationOptimized", false, "", false, null),
-    new Property(/^Context\../, true, "", false, null),
+    new Property(/^Context\../, true, "", false, null)
 ]);
 
 PropertyNames.ConnectionProps = new PropertyArray("Connection", true, [
@@ -24,7 +24,7 @@ PropertyNames.ConnectionProps = new PropertyArray("Connection", true, [
     new Property("ConnectTimeout", false, "10", false, null),
     new Property("EnableIdleCheck", false, "1", false, null),
     new Property("IdleTimeout", false, "60", false, null),
-    new Property("InactivityTimeout", false, "300", false, null),
+    new Property("InactivityTimeout", false, "300", false, null)
 ]);
 
 PropertyNames.ObjectAdapterProps = new PropertyArray("ObjectAdapter", true, [
@@ -32,7 +32,7 @@ PropertyNames.ObjectAdapterProps = new PropertyArray("ObjectAdapter", true, [
     new Property("PublishedEndpoints", false, "", false, null),
     new Property("Router", false, "", false, PropertyNames.ProxyProps),
     new Property("ProxyOptions", false, "", false, null),
-    new Property("MessageSizeMax", false, "", false, null),
+    new Property("MessageSizeMax", false, "", false, null)
 ]);
 
 PropertyNames.IceProps = new PropertyArray("Ice", false, [
@@ -66,7 +66,7 @@ PropertyNames.IceProps = new PropertyArray("Ice", false, [
     new Property("Warn.Dispatch", false, "1", false, null),
     new Property("Warn.Endpoints", false, "1", false, null),
     new Property("Warn.UnknownProperties", false, "1", false, null),
-    new Property("Warn.UnusedProperties", false, "0", false, null),
+    new Property("Warn.UnusedProperties", false, "0", false, null)
 ]);
 
 PropertyNames.validProps = new Map([

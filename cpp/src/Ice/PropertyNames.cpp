@@ -18,12 +18,16 @@ const Property ProxyPropsData[] =
     Property{"Locator", "", false, false, nullptr},
     Property{"Router", "", false, false, nullptr},
     Property{"CollocationOptimized", "", false, false, nullptr},
-    Property{"Context.*", "", true, false, nullptr},
+    Property{"Context.*", "", true, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::ProxyProps{"Proxy", false, ProxyPropsData,
-        sizeof(ProxyPropsData)/sizeof(ProxyPropsData[0])};
+const PropertyArray PropertyNames::ProxyProps
+{
+    "Proxy",
+    false,
+    ProxyPropsData,
+    sizeof(ProxyPropsData)/sizeof(ProxyPropsData[0])
+};
 
 const Property ConnectionPropsData[] =
 {
@@ -32,12 +36,16 @@ const Property ConnectionPropsData[] =
     Property{"EnableIdleCheck", "1", false, false, nullptr},
     Property{"IdleTimeout", "60", false, false, nullptr},
     Property{"InactivityTimeout", "300", false, false, nullptr},
-    Property{"MaxDispatches", "100", false, false, nullptr},
+    Property{"MaxDispatches", "100", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::ConnectionProps{"Connection", true, ConnectionPropsData,
-        sizeof(ConnectionPropsData)/sizeof(ConnectionPropsData[0])};
+const PropertyArray PropertyNames::ConnectionProps
+{
+    "Connection",
+    true,
+    ConnectionPropsData,
+    sizeof(ConnectionPropsData)/sizeof(ConnectionPropsData[0])
+};
 
 const Property ThreadPoolPropsData[] =
 {
@@ -45,12 +53,16 @@ const Property ThreadPoolPropsData[] =
     Property{"SizeMax", "", false, false, nullptr},
     Property{"SizeWarn", "0", false, false, nullptr},
     Property{"Serialize", "0", false, false, nullptr},
-    Property{"ThreadIdleTime", "60", false, false, nullptr},
+    Property{"ThreadIdleTime", "60", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::ThreadPoolProps{"ThreadPool", true, ThreadPoolPropsData,
-        sizeof(ThreadPoolPropsData)/sizeof(ThreadPoolPropsData[0])};
+const PropertyArray PropertyNames::ThreadPoolProps
+{
+    "ThreadPool",
+    true,
+    ThreadPoolPropsData,
+    sizeof(ThreadPoolPropsData)/sizeof(ThreadPoolPropsData[0])
+};
 
 const Property ObjectAdapterPropsData[] =
 {
@@ -65,22 +77,30 @@ const Property ObjectAdapterPropsData[] =
     Property{"ProxyOptions", "", false, false, nullptr},
     Property{"ThreadPool", "", false, false, &PropertyNames::ThreadPoolProps},
     Property{"MaxConnections", "0", false, false, nullptr},
-    Property{"MessageSizeMax", "", false, false, nullptr},
+    Property{"MessageSizeMax", "", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::ObjectAdapterProps{"ObjectAdapter", true, ObjectAdapterPropsData,
-        sizeof(ObjectAdapterPropsData)/sizeof(ObjectAdapterPropsData[0])};
+const PropertyArray PropertyNames::ObjectAdapterProps
+{
+    "ObjectAdapter",
+    true,
+    ObjectAdapterPropsData,
+    sizeof(ObjectAdapterPropsData)/sizeof(ObjectAdapterPropsData[0])
+};
 
 const Property LMDBPropsData[] =
 {
     Property{"Path", "", false, false, nullptr},
-    Property{"MapSize", "", false, false, nullptr},
+    Property{"MapSize", "", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::LMDBProps{"LMDB", true, LMDBPropsData,
-        sizeof(LMDBPropsData)/sizeof(LMDBPropsData[0])};
+const PropertyArray PropertyNames::LMDBProps
+{
+    "LMDB",
+    true,
+    LMDBPropsData,
+    sizeof(LMDBPropsData)/sizeof(LMDBPropsData[0])
+};
 
 const Property IcePropsData[] =
 {
@@ -166,12 +186,16 @@ const Property IcePropsData[] =
     Property{"Warn.Datagrams", "0", false, false, nullptr},
     Property{"Warn.Dispatch", "1", false, false, nullptr},
     Property{"Warn.Endpoints", "1", false, false, nullptr},
-    Property{"Warn.UnusedProperties", "0", false, false, nullptr},
+    Property{"Warn.UnusedProperties", "0", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceProps{"Ice", false, IcePropsData,
-        sizeof(IcePropsData)/sizeof(IcePropsData[0])};
+const PropertyArray PropertyNames::IceProps
+{
+    "Ice",
+    false,
+    IcePropsData,
+    sizeof(IcePropsData)/sizeof(IcePropsData[0])
+};
 
 const Property IceMXPropsData[] =
 {
@@ -180,12 +204,16 @@ const Property IceMXPropsData[] =
     Property{"Metrics.*.RetainDetached", "10", true, false, nullptr},
     Property{"Metrics.*.Accept", "", true, false, nullptr},
     Property{"Metrics.*.Reject", "", true, false, nullptr},
-    Property{"Metrics.*", "", true, false, nullptr},
+    Property{"Metrics.*", "", true, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceMXProps{"IceMX", false, IceMXPropsData,
-        sizeof(IceMXPropsData)/sizeof(IceMXPropsData[0])};
+const PropertyArray PropertyNames::IceMXProps
+{
+    "IceMX",
+    false,
+    IceMXPropsData,
+    sizeof(IceMXPropsData)/sizeof(IceMXPropsData[0])
+};
 
 const Property IceDiscoveryPropsData[] =
 {
@@ -199,12 +227,16 @@ const Property IceDiscoveryPropsData[] =
     Property{"Address", "", false, false, nullptr},
     Property{"Port", "4061", false, false, nullptr},
     Property{"Interface", "", false, false, nullptr},
-    Property{"DomainId", "", false, false, nullptr},
+    Property{"DomainId", "", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceDiscoveryProps{"IceDiscovery", false, IceDiscoveryPropsData,
-        sizeof(IceDiscoveryPropsData)/sizeof(IceDiscoveryPropsData[0])};
+const PropertyArray PropertyNames::IceDiscoveryProps
+{
+    "IceDiscovery",
+    false,
+    IceDiscoveryPropsData,
+    sizeof(IceDiscoveryPropsData)/sizeof(IceDiscoveryPropsData[0])
+};
 
 const Property IceLocatorDiscoveryPropsData[] =
 {
@@ -218,12 +250,16 @@ const Property IceLocatorDiscoveryPropsData[] =
     Property{"Port", "4061", false, false, nullptr},
     Property{"Interface", "", false, false, nullptr},
     Property{"InstanceName", "IceLocatorDiscovery", false, false, nullptr},
-    Property{"Trace.Lookup", "0", false, false, nullptr},
+    Property{"Trace.Lookup", "0", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceLocatorDiscoveryProps{"IceLocatorDiscovery", false, IceLocatorDiscoveryPropsData,
-        sizeof(IceLocatorDiscoveryPropsData)/sizeof(IceLocatorDiscoveryPropsData[0])};
+const PropertyArray PropertyNames::IceLocatorDiscoveryProps
+{
+    "IceLocatorDiscovery",
+    false,
+    IceLocatorDiscoveryPropsData,
+    sizeof(IceLocatorDiscoveryPropsData)/sizeof(IceLocatorDiscoveryPropsData[0])
+};
 
 const Property IceBoxPropsData[] =
 {
@@ -232,32 +268,44 @@ const Property IceBoxPropsData[] =
     Property{"PrintServicesReady", "", false, false, nullptr},
     Property{"Service.*", "", true, false, nullptr},
     Property{"Trace.ServiceObserver", "", false, false, nullptr},
-    Property{"UseSharedCommunicator.*", "", true, false, nullptr},
+    Property{"UseSharedCommunicator.*", "", true, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceBoxProps{"IceBox", false, IceBoxPropsData,
-        sizeof(IceBoxPropsData)/sizeof(IceBoxPropsData[0])};
+const PropertyArray PropertyNames::IceBoxProps
+{
+    "IceBox",
+    false,
+    IceBoxPropsData,
+    sizeof(IceBoxPropsData)/sizeof(IceBoxPropsData[0])
+};
 
 const Property IceBoxAdminPropsData[] =
 {
-    Property{"ServiceManager.Proxy", "", false, false, &PropertyNames::ProxyProps},
+    Property{"ServiceManager.Proxy", "", false, false, &PropertyNames::ProxyProps}
 };
 
-const PropertyArray
-    PropertyNames::IceBoxAdminProps{"IceBoxAdmin", false, IceBoxAdminPropsData,
-        sizeof(IceBoxAdminPropsData)/sizeof(IceBoxAdminPropsData[0])};
+const PropertyArray PropertyNames::IceBoxAdminProps
+{
+    "IceBoxAdmin",
+    false,
+    IceBoxAdminPropsData,
+    sizeof(IceBoxAdminPropsData)/sizeof(IceBoxAdminPropsData[0])
+};
 
 const Property IceBridgePropsData[] =
 {
     Property{"Source", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Target.Endpoints", "", false, false, nullptr},
-    Property{"InstanceName", "IceBridge", false, false, nullptr},
+    Property{"InstanceName", "IceBridge", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceBridgeProps{"IceBridge", false, IceBridgePropsData,
-        sizeof(IceBridgePropsData)/sizeof(IceBridgePropsData[0])};
+const PropertyArray PropertyNames::IceBridgeProps
+{
+    "IceBridge",
+    false,
+    IceBridgePropsData,
+    sizeof(IceBridgePropsData)/sizeof(IceBridgePropsData[0])
+};
 
 const Property IceGridAdminPropsData[] =
 {
@@ -273,12 +321,16 @@ const Property IceGridAdminPropsData[] =
     Property{"Discovery.Interface", "", false, false, nullptr},
     Property{"Discovery.Lookup", "", false, false, nullptr},
     Property{"Discovery.Reply", "", false, false, &PropertyNames::ObjectAdapterProps},
-    Property{"Discovery.Locator", "", false, false, &PropertyNames::ObjectAdapterProps},
+    Property{"Discovery.Locator", "", false, false, &PropertyNames::ObjectAdapterProps}
 };
 
-const PropertyArray
-    PropertyNames::IceGridAdminProps{"IceGridAdmin", false, IceGridAdminPropsData,
-        sizeof(IceGridAdminPropsData)/sizeof(IceGridAdminPropsData[0])};
+const PropertyArray PropertyNames::IceGridAdminProps
+{
+    "IceGridAdmin",
+    false,
+    IceGridAdminPropsData,
+    sizeof(IceGridAdminPropsData)/sizeof(IceGridAdminPropsData[0])
+};
 
 const Property IceGridPropsData[] =
 {
@@ -341,12 +393,16 @@ const Property IceGridPropsData[] =
     Property{"Registry.Trace.Subscriber", "0", false, false, nullptr},
     Property{"Registry.Trace.Topic", "0", false, false, nullptr},
     Property{"Registry.Trace.TopicManager", "0", false, false, nullptr},
-    Property{"Registry.UserAccounts", "", false, false, nullptr},
+    Property{"Registry.UserAccounts", "", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceGridProps{"IceGrid", false, IceGridPropsData,
-        sizeof(IceGridPropsData)/sizeof(IceGridPropsData[0])};
+const PropertyArray PropertyNames::IceGridProps
+{
+    "IceGrid",
+    false,
+    IceGridPropsData,
+    sizeof(IceGridPropsData)/sizeof(IceGridPropsData[0])
+};
 
 const Property IceSSLPropsData[] =
 {
@@ -370,12 +426,16 @@ const Property IceSSLPropsData[] =
     Property{"TrustOnly.Server", "", false, false, nullptr},
     Property{"TrustOnly.Server.*", "", true, false, nullptr},
     Property{"UsePlatformCAs", "0", false, false, nullptr},
-    Property{"VerifyPeer", "2", false, false, nullptr},
+    Property{"VerifyPeer", "2", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceSSLProps{"IceSSL", false, IceSSLPropsData,
-        sizeof(IceSSLPropsData)/sizeof(IceSSLPropsData[0])};
+const PropertyArray PropertyNames::IceSSLProps
+{
+    "IceSSL",
+    false,
+    IceSSLPropsData,
+    sizeof(IceSSLPropsData)/sizeof(IceSSLPropsData[0])
+};
 
 const Property IceStormPropsData[] =
 {
@@ -402,33 +462,45 @@ const Property IceStormPropsData[] =
     Property{"Trace.Subscriber", "0", false, false, nullptr},
     Property{"Trace.Topic", "0", false, false, nullptr},
     Property{"Trace.TopicManager", "0", false, false, nullptr},
-    Property{"Transient", "0", false, false, nullptr},
+    Property{"Transient", "0", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceStormProps{"IceStorm", false, IceStormPropsData,
-        sizeof(IceStormPropsData)/sizeof(IceStormPropsData[0])};
+const PropertyArray PropertyNames::IceStormProps
+{
+    "IceStorm",
+    false,
+    IceStormPropsData,
+    sizeof(IceStormPropsData)/sizeof(IceStormPropsData[0])
+};
 
 const Property IceStormAdminPropsData[] =
 {
     Property{"TopicManager.*", "", true, false, nullptr},
     Property{"Host", "", false, false, nullptr},
-    Property{"Port", "", false, false, nullptr},
+    Property{"Port", "", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceStormAdminProps{"IceStormAdmin", false, IceStormAdminPropsData,
-        sizeof(IceStormAdminPropsData)/sizeof(IceStormAdminPropsData[0])};
+const PropertyArray PropertyNames::IceStormAdminProps
+{
+    "IceStormAdmin",
+    false,
+    IceStormAdminPropsData,
+    sizeof(IceStormAdminPropsData)/sizeof(IceStormAdminPropsData[0])
+};
 
 const Property IceBTPropsData[] =
 {
     Property{"RcvSize", "", false, false, nullptr},
-    Property{"SndSize", "", false, false, nullptr},
+    Property{"SndSize", "", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::IceBTProps{"IceBT", false, IceBTPropsData,
-        sizeof(IceBTPropsData)/sizeof(IceBTPropsData[0])};
+const PropertyArray PropertyNames::IceBTProps
+{
+    "IceBT",
+    false,
+    IceBTPropsData,
+    sizeof(IceBTPropsData)/sizeof(IceBTPropsData[0])
+};
 
 const Property Glacier2PropsData[] =
 {
@@ -455,12 +527,16 @@ const Property Glacier2PropsData[] =
     Property{"SessionManager", "", false, false, &PropertyNames::ProxyProps},
     Property{"SSLSessionManager", "", false, false, &PropertyNames::ProxyProps},
     Property{"Trace.RoutingTable", "0", false, false, nullptr},
-    Property{"Trace.Session", "0", false, false, nullptr},
+    Property{"Trace.Session", "0", false, false, nullptr}
 };
 
-const PropertyArray
-    PropertyNames::Glacier2Props{"Glacier2", false, Glacier2PropsData,
-        sizeof(Glacier2PropsData)/sizeof(Glacier2PropsData[0])};
+const PropertyArray PropertyNames::Glacier2Props
+{
+    "Glacier2",
+    false,
+    Glacier2PropsData,
+    sizeof(Glacier2PropsData)/sizeof(Glacier2PropsData[0])
+};
 
 const PropertyArray PropertyNames::validProps[] =
 {
@@ -483,11 +559,6 @@ const PropertyArray PropertyNames::validProps[] =
 
 const char* PropertyNames::clPropNames[] =
 {
-    "Proxy",
-    "Connection",
-    "ThreadPool",
-    "ObjectAdapter",
-    "LMDB",
     "Ice",
     "IceMX",
     "IceDiscovery",
