@@ -720,7 +720,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         // decoded by parseMessage. parseMessage returns the operation to wait for
                         // readiness next.
                         newOp |= parseMessage(info);
-                        upcallCount += info.messageDispatchCount;
+                        upcallCount += info.upcallCount;
                     }
 
                     if ((readyOp & SocketOperation.Write) != 0) {
@@ -846,10 +846,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             // must be done outside the thread synchronization, so that nested
             // calls are possible.
             //
-            if (info.invokeNum > 0) {
+            if (info.requestCount > 0) {
                 dispatchAll(
                         info.stream,
-                        info.invokeNum,
+                        info.requestCount,
                         info.requestId,
                         info.compress,
                         info.servantManager,
@@ -2014,13 +2014,13 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         }
 
         InputStream stream;
-        int invokeNum;
+        int requestCount;
         int requestId;
         byte compress;
         ServantManager servantManager;
         ObjectAdapter adapter;
         OutgoingAsyncBase outAsync;
-        int messageDispatchCount;
+        int upcallCount;
     }
 
     private int parseMessage(MessageInfo info) {
@@ -2093,10 +2093,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         } else {
                             TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                             info.requestId = info.stream.readInt();
-                            info.invokeNum = 1;
+                            info.requestCount = 1;
                             info.servantManager = _servantManager;
                             info.adapter = _adapter;
-                            ++info.messageDispatchCount;
+                            ++info.upcallCount;
 
                             cancelInactivityTimer();
                             ++_dispatchCount;
@@ -2114,20 +2114,20 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                     _traceLevels);
                         } else {
                             TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
-                            info.invokeNum = info.stream.readInt();
-                            if (info.invokeNum < 0) {
-                                info.invokeNum = 0;
+                            info.requestCount = info.stream.readInt();
+                            if (info.requestCount < 0) {
+                                info.requestCount = 0;
                                 throw new MarshalException(
                                         "Received batch request with "
-                                                + info.invokeNum
+                                                + info.requestCount
                                                 + "batches.");
                             }
                             info.servantManager = _servantManager;
                             info.adapter = _adapter;
-                            info.messageDispatchCount += info.invokeNum;
+                            info.upcallCount += info.requestCount;
 
                             cancelInactivityTimer();
-                            _dispatchCount += info.invokeNum;
+                            _dispatchCount += info.requestCount;
                         }
                         break;
                     }
@@ -2140,7 +2140,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         var outAsync = _asyncRequests.remove(info.requestId);
                         if (outAsync != null && outAsync.completed(info.stream)) {
                             info.outAsync = outAsync;
-                            ++info.messageDispatchCount;
+                            ++info.upcallCount;
                         }
                         if (_closeRequested && _state < StateClosing && _asyncRequests.isEmpty()) {
                             doApplicationClose();
