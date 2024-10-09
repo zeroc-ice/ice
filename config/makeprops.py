@@ -571,7 +571,7 @@ export const PropertyNames = {{}};
 PropertyNames.validProps = new Map([
 {",\n".join([f'    ["{name}", PropertyNames.{name}Props]' for name in self.generatedPropertyArrays()])},
 {",\n".join([f'    ["{name}", null]' for name in [name for name, array in self.propertyArrayDict.items() if len(array.properties) == 0 and not array.isClass]])}
-])
+]);
 """)
         self.srcFile.close()
 

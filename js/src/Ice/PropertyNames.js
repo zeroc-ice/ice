@@ -85,4 +85,4 @@ PropertyNames.validProps = new Map([
     ["IceStormAdmin", null],
     ["IceBT", null],
     ["Glacier2", null]
-])
+]);
