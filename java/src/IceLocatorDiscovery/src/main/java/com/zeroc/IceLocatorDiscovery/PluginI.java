@@ -102,26 +102,25 @@ class PluginI implements Plugin {
 
     private static class LocatorI implements com.zeroc.Ice.BlobjectAsync {
         LocatorI(
-                String name,
                 LookupPrx lookup,
                 com.zeroc.Ice.Properties properties,
                 String instanceName,
                 com.zeroc.Ice.LocatorPrx voidLocator) {
             _lookup = lookup;
-            _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
+            _timeout = properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout");
             if (_timeout < 0) {
                 _timeout = 300;
             }
-            _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
+            _retryCount = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryCount");
             if (_retryCount < 0) {
                 _retryCount = 0;
             }
-            _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
+            _retryDelay = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryDelay");
             if (_retryDelay < 0) {
                 _retryDelay = 0;
             }
             _timer = lookup.ice_getCommunicator().getInstance().timer();
-            _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
+            _traceLevel = properties.getPropertyAsInt("IceLocatorDiscovery.Trace.Lookup");
             _instanceName = instanceName;
             _warned = false;
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
@@ -554,8 +553,7 @@ class PluginI implements Plugin {
         private final LocatorI _locator;
     }
 
-    public PluginI(String name, com.zeroc.Ice.Communicator communicator) {
-        _name = name;
+    public PluginI(com.zeroc.Ice.Communicator communicator) {
         _communicator = communicator;
     }
 
@@ -567,14 +565,15 @@ class PluginI implements Plugin {
         boolean preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
         String address;
         if (ipv4 && !preferIPv6) {
-            address = properties.getPropertyWithDefault(_name + ".Address", "239.255.0.1");
+            address =
+                    properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
         } else {
-            address = properties.getPropertyWithDefault(_name + ".Address", "ff15::1");
+            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
         }
-        int port = properties.getPropertyAsIntWithDefault(_name + ".Port", 4061);
-        String intf = properties.getProperty(_name + ".Interface");
+        int port = properties.getIcePropertyAsInt("IceLocatorDiscovery.Port");
+        String intf = properties.getIceProperty("IceLocatorDiscovery.Interface");
 
-        String lookupEndpoints = properties.getProperty(_name + ".Lookup");
+        String lookupEndpoints = properties.getIceProperty("IceLocatorDiscovery.Lookup");
         if (lookupEndpoints.isEmpty()) {
             int protocol = ipv4 && !preferIPv6 ? Network.EnableIPv4 : Network.EnableIPv6;
             java.util.List<String> interfaces = Network.getInterfacesForMulticast(intf, protocol);
@@ -587,19 +586,20 @@ class PluginI implements Plugin {
             }
         }
 
-        if (properties.getProperty(_name + ".Reply.Endpoints").isEmpty()) {
+        if (properties.getIceProperty("IceLocatorDiscovery.Reply.Endpoints").isEmpty()) {
             properties.setProperty(
-                    _name + ".Reply.Endpoints",
+                    "IceLocatorDiscovery.Reply.Endpoints",
                     "udp -h " + (intf.isEmpty() ? "*" : "\"" + intf + "\""));
         }
 
-        if (properties.getProperty(_name + ".Locator.Endpoints").isEmpty()) {
+        if (properties.getIceProperty("IceLocatorDiscovery.Locator.Endpoints").isEmpty()) {
             properties.setProperty(
-                    _name + ".Locator.AdapterId", java.util.UUID.randomUUID().toString());
+                    "IceLocatorDiscovery.Locator.AdapterId",
+                    java.util.UUID.randomUUID().toString());
         }
 
-        _replyAdapter = _communicator.createObjectAdapter(_name + ".Reply");
-        _locatorAdapter = _communicator.createObjectAdapter(_name + ".Locator");
+        _replyAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Reply");
+        _locatorAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Locator");
 
         // We don't want those adapters to be registered with the locator so clear their locator.
         _replyAdapter.setLocator(null);
@@ -614,18 +614,13 @@ class PluginI implements Plugin {
                 com.zeroc.Ice.LocatorPrx.uncheckedCast(
                         _locatorAdapter.addWithUUID(new VoidLocatorI()));
 
-        String instanceName = properties.getProperty(_name + ".InstanceName");
+        String instanceName = properties.getIceProperty("IceLocatorDiscovery.InstanceName");
         com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity();
         id.name = "Locator";
         id.category =
                 !instanceName.isEmpty() ? instanceName : java.util.UUID.randomUUID().toString();
         _locator =
-                new LocatorI(
-                        _name,
-                        LookupPrx.uncheckedCast(lookupPrx),
-                        properties,
-                        instanceName,
-                        voidLoc);
+                new LocatorI(LookupPrx.uncheckedCast(lookupPrx), properties, instanceName, voidLoc);
         _defaultLocator = _communicator.getDefaultLocator();
         _locatorPrx = com.zeroc.Ice.LocatorPrx.uncheckedCast(_locatorAdapter.add(_locator, id));
         _communicator.setDefaultLocator(_locatorPrx);
@@ -656,7 +651,6 @@ class PluginI implements Plugin {
         return _locator.getLocators(instanceName, waitTime);
     }
 
-    private String _name;
     private com.zeroc.Ice.Communicator _communicator;
     private com.zeroc.Ice.ObjectAdapter _locatorAdapter;
     private com.zeroc.Ice.ObjectAdapter _replyAdapter;

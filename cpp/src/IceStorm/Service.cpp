@@ -91,29 +91,26 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
 {
     auto properties = communicator->getProperties();
 
-    // TODO: Remove once we fix #2798
-    IceInternal::validatePropertiesWithPrefix(name, properties, &IceInternal::PropertyNames::IceStormProps);
-
-    int id = properties->getPropertyAsIntWithDefault(name + ".NodeId", -1);
+    int id = properties->getPropertyAsIntWithDefault("IceStorm.NodeId", -1);
 
     // If we are using a replicated deployment and if the topic manager thread pool max size is not set then ensure it
     // is set to some suitably high number. This ensures no deadlocks in the replicated case due to call forwarding
     // from replicas to coordinators.
-    if (id != -1 && properties->getProperty(name + ".TopicManager.ThreadPool.SizeMax").empty())
+    if (id != -1 && properties->getProperty("IceStorm.TopicManager.ThreadPool.SizeMax").empty())
     {
-        properties->setProperty(name + ".TopicManager.ThreadPool.SizeMax", "100");
+        properties->setProperty("IceStorm.TopicManager.ThreadPool.SizeMax", "100");
     }
 
-    auto topicAdapter = communicator->createObjectAdapter(name + ".TopicManager");
-    auto publishAdapter = communicator->createObjectAdapter(name + ".Publish");
+    auto topicAdapter = communicator->createObjectAdapter("IceStorm.TopicManager");
+    auto publishAdapter = communicator->createObjectAdapter("IceStorm.Publish");
 
     //
     // We use the name of the service for the name of the database environment.
     //
-    string instanceName = properties->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
+    string instanceName = properties->getPropertyWithDefault("IceStorm.InstanceName", "IceStorm");
     Identity topicManagerId = {"TopicManager", instanceName};
 
-    if (properties->getPropertyAsIntWithDefault(name + ".Transient", 0) > 0)
+    if (properties->getPropertyAsIntWithDefault("IceStorm.Transient", 0) > 0)
     {
         _instance = make_shared<Instance>(instanceName, name, communicator, publishAdapter, topicAdapter, nullptr);
         try
@@ -161,12 +158,12 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
         // Here we want to create a map of id -> election node proxies.
         map<int, NodePrx> nodes;
 
-        string topicManagerAdapterId = properties->getProperty(name + ".TopicManager.AdapterId");
+        string topicManagerAdapterId = properties->getProperty("IceStorm.TopicManager.AdapterId");
 
         // We support two possible deployments. The first is a manual deployment, the second is IceGrid.
         //
         // Here we check for the manual deployment
-        const string prefix = name + ".Nodes.";
+        const string prefix = "IceStorm.Nodes.";
         Ice::PropertyDict props = properties->getPropertiesForPrefix(prefix);
         if (!props.empty())
         {
@@ -190,7 +187,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
         {
             // If adapter id's are defined for the topic manager or node adapters then we consider this an IceGrid
             // based deployment.
-            string nodeAdapterId = properties->getProperty(name + ".Node.AdapterId");
+            string nodeAdapterId = properties->getProperty("IceStorm.Node.AdapterId");
 
             // Validate first that the adapter ids match for the node and the topic manager otherwise some other
             // deployment is being used.
@@ -213,7 +210,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             // We work out the node id by removing the instance name. The node id must follow.
             auto locator = uncheckedCast<IceGrid::LocatorPrx>(communicator->getDefaultLocator().value());
             auto query = locator->getLocalQuery();
-            auto replicas = query->findAllReplicas(communicator->stringToProxy(instanceName + "/TopicManager"));
+            auto replicas = query->findAllReplicas(communicator->stringToProxy(instance "IceStorm/TopicManager"));
 
             for (const auto& replica : replicas)
             {
@@ -273,19 +270,19 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             // If the node thread pool size is not set then initialize
             // to the number of nodes + 1 and disable thread pool size
             // warnings.
-            if (properties->getProperty(name + ".Node.ThreadPool.Size").empty())
+            if (properties->getProperty("IceStorm.Node.ThreadPool.Size").empty())
             {
                 ostringstream os;
                 os << nodes.size() + 1;
-                properties->setProperty(name + ".Node.ThreadPool.Size", os.str());
-                properties->setProperty(name + ".Node.ThreadPool.SizeWarn", "0");
+                properties->setProperty("IceStorm.Node.ThreadPool.Size", os.str());
+                properties->setProperty("IceStorm.Node.ThreadPool.SizeWarn", "0");
             }
-            if (properties->getProperty(name + ".Node.MessageSizeMax").empty())
+            if (properties->getProperty("IceStorm.Node.MessageSizeMax").empty())
             {
-                properties->setProperty(name + ".Node.MessageSizeMax", "0"); // No limit on data exchanged internally
+                properties->setProperty("IceStorm.Node.MessageSizeMax", "0"); // No limit on data exchanged internally
             }
 
-            auto nodeAdapter = communicator->createObjectAdapter(name + ".Node");
+            auto nodeAdapter = communicator->createObjectAdapter("IceStorm.Node");
             auto instance = make_shared<PersistentInstance>(
                 instanceName,
                 name,

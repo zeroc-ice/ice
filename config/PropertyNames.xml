@@ -199,7 +199,7 @@
         <property name="Address" languages="cpp,csharp,java"/>
         <property name="Port" languages="cpp,csharp,java" default="4061" />
         <property name="Interface" languages="cpp,csharp,java" />
-        <property name="InstanceName" languages="cpp,csharp,java" default="IceLocatorDiscovery" />
+        <property name="InstanceName" languages="cpp,csharp,java" />
         <property name="Trace.Lookup" languages="cpp,csharp,java" default="0" />
     </section>
 
