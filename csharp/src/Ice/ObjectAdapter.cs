@@ -83,6 +83,8 @@ public sealed class ObjectAdapter
                 {
                     icf.activate();
                 }
+                _state = StateActive;
+                Monitor.PulseAll(_mutex);
                 return;
             }
 
@@ -119,7 +121,7 @@ public sealed class ObjectAdapter
             lock (_mutex)
             {
                 _state = StateUninitialized;
-                System.Threading.Monitor.PulseAll(_mutex);
+                Monitor.PulseAll(_mutex);
             }
             throw;
         }
@@ -139,7 +141,7 @@ public sealed class ObjectAdapter
             }
 
             _state = StateActive;
-            System.Threading.Monitor.PulseAll(_mutex);
+            Monitor.PulseAll(_mutex);
         }
     }
 
@@ -200,14 +202,11 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            //
-            //
-            // Wait for activation to complete. This is necessary to not
-            // get out of order locator updates.
-            //
+            // Wait for activation or a previous deactivation to complete.
+            // This is necessary to avoid out of order locator updates.
             while (_state == StateActivating || _state == StateDeactivating)
             {
-                System.Threading.Monitor.Wait(_mutex);
+                Monitor.Wait(_mutex);
             }
             if (_state > StateDeactivating)
             {
@@ -257,7 +256,7 @@ public sealed class ObjectAdapter
         {
             Debug.Assert(_state == StateDeactivating);
             _state = StateDeactivated;
-            System.Threading.Monitor.PulseAll(_mutex);
+            Monitor.PulseAll(_mutex);
         }
     }
 
@@ -278,7 +277,7 @@ public sealed class ObjectAdapter
             //
             while ((_state < StateDeactivated) || _directCount > 0)
             {
-                System.Threading.Monitor.Wait(_mutex);
+                Monitor.Wait(_mutex);
             }
             if (_state > StateDeactivated)
             {
@@ -335,7 +334,7 @@ public sealed class ObjectAdapter
             //
             while (_state == StateDestroying)
             {
-                System.Threading.Monitor.Wait(_mutex);
+                Monitor.Wait(_mutex);
             }
             if (_state == StateDestroyed)
             {
@@ -383,7 +382,7 @@ public sealed class ObjectAdapter
             _objectAdapterFactory = null;
 
             _state = StateDestroyed;
-            System.Threading.Monitor.PulseAll(_mutex);
+            Monitor.PulseAll(_mutex);
         }
     }
 
@@ -968,7 +967,7 @@ public sealed class ObjectAdapter
             Debug.Assert(_directCount > 0);
             if (--_directCount == 0)
             {
-                System.Threading.Monitor.PulseAll(_mutex);
+                Monitor.PulseAll(_mutex);
             }
         }
     }
