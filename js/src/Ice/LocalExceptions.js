@@ -363,7 +363,7 @@ export class TwowayOnlyException extends LocalException {
     }
 }
 
-export class UnknownPropertyException extends RequestFailedException {
+export class UnknownPropertyException extends LocalException {
     static get _ice_id() {
         return "::Ice::UnknownPropertyException";
     }

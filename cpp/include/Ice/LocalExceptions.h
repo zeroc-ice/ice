@@ -912,6 +912,9 @@ namespace Ice
         const char* ice_id() const noexcept final;
     };
 
+    /**
+     * An unknown property was used in the configuration of an object adapter or a proxy.
+     */
     class ICE_API UnknownPropertyException final : public LocalException
     {
     public:
