@@ -474,7 +474,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     return;
                 }
                 _adapter = null;
-                _servantManager = null;
             }
         }
 
@@ -506,14 +505,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
     }
 
-    public synchronized void setAdapterAndServantManager(
-            ObjectAdapter adapter, ServantManager servantManager) {
+    synchronized void setAdapterFromAdapter(ObjectAdapter adapter) {
         if (_state <= StateNotValidated || _state >= StateClosing) {
             return;
         }
         assert (adapter != null); // Called by ObjectAdapter::setAdapterOnConnection
         _adapter = adapter;
-        _servantManager = servantManager;
     }
 
     //
@@ -852,7 +849,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         info.requestCount,
                         info.requestId,
                         info.compress,
-                        info.servantManager,
                         info.adapter);
 
                 //
@@ -1240,7 +1236,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         // else, nothing to do.
     }
 
-    public ConnectionI(
+    ConnectionI(
             Communicator communicator,
             Instance instance,
             Transceiver transceiver,
@@ -1305,12 +1301,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         }
 
         _transceiver = transceiver;
-
-        if (adapter != null) {
-            _servantManager = adapter.getServantManager();
-        } else {
-            _servantManager = null;
-        }
 
         try {
             if (adapter != null) {
@@ -2017,7 +2007,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         int requestCount;
         int requestId;
         byte compress;
-        ServantManager servantManager;
         ObjectAdapter adapter;
         OutgoingAsyncBase outAsync;
         int upcallCount;
@@ -2094,7 +2083,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                             info.requestId = info.stream.readInt();
                             info.requestCount = 1;
-                            info.servantManager = _servantManager;
                             info.adapter = _adapter;
                             ++info.upcallCount;
 
@@ -2122,7 +2110,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                                 + info.requestCount
                                                 + "batches.");
                             }
-                            info.servantManager = _servantManager;
                             info.adapter = _adapter;
                             info.upcallCount += info.requestCount;
 
@@ -2195,7 +2182,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             int requestCount,
             int requestId,
             byte compress,
-            ServantManager servantManager,
             ObjectAdapter adapter) {
 
         // Note: In contrast to other private or protected methods, this method must be
@@ -2624,7 +2610,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     private final EndpointI _endpoint;
 
     private ObjectAdapter _adapter;
-    private ServantManager _servantManager;
 
     private final boolean _executor;
     private final Logger _logger;
