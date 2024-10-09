@@ -137,7 +137,7 @@ export class Properties {
 
         // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
         // case-insensitive Ice property prefix matches.
-        var prop = Properties.findIceProperty(key, true);
+        const prop = Properties.findIceProperty(key, true);
 
         // If the property is deprecated, log a warning
         if (prop !== null && prop.deprecated) {
