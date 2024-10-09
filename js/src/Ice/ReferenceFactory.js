@@ -19,19 +19,7 @@ const { ProtocolVersion, EncodingVersion } = Ice_Version;
 import { Debug } from "./Debug.js";
 import { stringToIdentity } from "./StringToIdentity.js";
 import { RoutableReference, FixedReference } from "./Reference.js";
-
-const suffixes = [
-    "EndpointSelection",
-    "ConnectionCached",
-    "PreferSecure",
-    "EncodingVersion",
-    "LocatorCacheTimeout",
-    "InvocationTimeout",
-    "Locator",
-    "Router",
-    "CollocationOptimized",
-    "Context\\..*",
-];
+import { Properties } from "./Properties.js";
 
 //
 // Only for use by Instance
@@ -533,43 +521,6 @@ export class ReferenceFactory {
         return this._defaultLocator;
     }
 
-    checkForUnknownProperties(prefix) {
-        let unknownProps = [];
-        //
-        // Do not warn about unknown properties for Ice prefixes (Ice, Glacier2, etc.)
-        //
-        for (const validPrefix of PropertyNames.validProps.keys()) {
-            if (prefix.indexOf(`${validPrefix}.`) === 0) {
-                return;
-            }
-        }
-
-        const properties = this._instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-        const escapedPrefix = prefix.replace(/\./g, "\\.");
-        for (const [key, _] of properties) {
-            let valid = false;
-            for (const suffix of suffixes) {
-                const pattern = new RegExp(`^${escapedPrefix}.${suffix}$`);
-                if (pattern.test(key)) {
-                    valid = true;
-                    break;
-                }
-            }
-            if (!valid) {
-                unknownProps.push(key);
-            }
-        }
-
-        if (unknownProps.length > 0) {
-            const message = [];
-            message.push("found unknown properties for proxy '");
-            message.push(prefix);
-            message.push("':");
-            unknownProps.forEach(unknownProp => message.push("\n    ", unknownProp));
-            this._instance.initializationData().logger.warning(message.join(""));
-        }
-    }
-
     createImpl(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, propertyPrefix) {
         const defaultsAndOverrides = this._instance.defaultsAndOverrides();
 
@@ -598,12 +549,7 @@ export class ReferenceFactory {
         if (propertyPrefix !== null && propertyPrefix.length > 0) {
             const properties = this._instance.initializationData().properties;
 
-            //
-            // Warn about unknown properties.
-            //
-            if (properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0) {
-                this.checkForUnknownProperties(propertyPrefix);
-            }
+            Properties.validatePropertiesWithPrefix(propertyPrefix, properties, PropertyNames.ProxyProps);
 
             let property = propertyPrefix + ".Locator";
             const locator = LocatorPrx.uncheckedCast(this._communicator.propertyToProxy(property));

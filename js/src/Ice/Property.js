@@ -1,28 +1,19 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 export class Property {
-    constructor(pattern, usesRegex, defaultValue, deprecated) {
-        this._pattern = pattern;
-        this._usesRegex = usesRegex;
-        this._default = defaultValue;
-        this._deprecated = deprecated;
+    constructor(pattern, usesRegex, defaultValue, deprecated, propertyArray) {
+        this.pattern = pattern;
+        this.usesRegex = usesRegex;
+        this.defaultValue = defaultValue;
+        this.deprecated = deprecated;
+        this.propertyArray = propertyArray;
     }
+}
 
-    get pattern() {
-        return this._pattern;
-    }
-
-    get usesRegex() {
-        return this._usesRegex;
-    }
-
-    get defaultValue() {
-        return this._default;
-    }
-
-    get deprecated() {
-        return this._deprecated;
+export class PropertyArray {
+    constructor(name, prefixOnly, properties) {
+        this.name = name;
+        this.prefixOnly = prefixOnly;
+        this.properties = properties;
     }
 }

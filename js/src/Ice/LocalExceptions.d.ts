@@ -266,5 +266,12 @@ declare module "ice" {
         class TwowayOnlyException extends LocalException {
             constructor(operation: string);
         }
+
+        /**
+         * An unknown property was used in the configuration of an object adapter or a proxy.
+         */
+        class UnknownPropertyException extends LocalException {
+            constructor(message: string);
+        }
     }
 }
