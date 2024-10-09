@@ -408,10 +408,8 @@ export class Properties {
 
     static validatePropertiesWithPrefix(prefix, properties, propertyArray) {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
-        for (const name of PropertyNames.validProps.keys()) {
-            if (prefix.startsWith(`${name}.`)) {
-                return;
-            }
+        if (PropertyNames.validProps.keys().some(name => prefix.startsWith(`${name}.`))) {
+            return;
         }
 
         var unknownProps = [];
