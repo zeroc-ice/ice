@@ -150,14 +150,10 @@ namespace Slice
             void visitConst(const ConstPtr&) final;
 
         private:
-            //
-            // Validates sequence metadata.
-            //
-            StringList validateSequence(const string&, int, const TypePtr&, const StringList&);
+            /// Validates sequence metadata.
+            MetadataList validateSequence(const string&, int, const TypePtr&, const MetadataList&);
 
-            //
-            // Checks a definition that doesn't currently support Python metadata.
-            //
+            /// Checks a definition that doesn't currently support Python metadata.
             void reject(const ContainedPtr&);
         };
 
@@ -239,7 +235,7 @@ namespace Slice
             //
             // Write Python metadata as a tuple.
             //
-            void writeMetadata(const StringList&);
+            void writeMetadata(const MetadataList&);
 
             //
             // Convert an operation mode into a string.
@@ -1547,12 +1543,11 @@ void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
     // Emit the type information.
-    StringList metadata = p->getMetadata();
     string scoped = p->scoped();
     _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
     _out.inc();
     _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
-    writeMetadata(metadata);
+    writeMetadata(p->getMetadata());
     _out << ", ";
     writeType(p->type());
     _out << ")";
@@ -1839,19 +1834,21 @@ Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int&
 }
 
 void
-Slice::Python::CodeVisitor::writeMetadata(const StringList& meta)
+Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata)
 {
     int i = 0;
     _out << '(';
-    for (StringList::const_iterator p = meta.begin(); p != meta.end(); ++p)
+    for (const auto& meta : metadata)
     {
-        if (p->find("python:") == 0)
+        string_view directive = meta->directive();
+        if (directive.starts_with("python:"))
         {
             if (i > 0)
             {
                 _out << ", ";
             }
-            _out << "'" << *p << "'";
+            // TODO are we really intentionally writing the _entire_ metadata here? And not just the arguments?
+            _out << "'" << directive << ":" << meta->arguments() << "'";
             ++i;
         }
     }
@@ -2707,22 +2704,13 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 string
 Slice::Python::getPackageDirectory(const string& file, const UnitPtr& ut)
 {
-    //
     // file must be a fully-qualified path name.
-    //
 
-    //
     // Check if the file contains the python:pkgdir file metadata.
-    //
+    // If the metadata is present, then the generated file was placed in the specified directory.
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
-    const string prefix = "python:pkgdir:";
-    if (auto meta = dc->findMetadata(prefix))
-    {
-        // The metadata is present, so the generated file was placed in the specified directory.
-        return meta->substr(prefix.size());
-    }
-    return "";
+    return dc->getMetadataArgs("python:pkgdir").value_or("");
 }
 
 string
@@ -2873,21 +2861,16 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 
     // The python:package metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
-    static const string prefix = "python:package:";
-    if (auto meta = m->findMetadata(prefix))
+    static const string directive = "python:package";
+    if (auto packageMetadata = m->getMetadataArgs(directive))
     {
-        return meta->substr(prefix.size());
+        return *packageMetadata;
     }
 
     string file = cont->file();
     DefinitionContextPtr dc = cont->unit()->findDefinitionContext(file);
     assert(dc);
-    if (auto meta = dc->findMetadata(prefix))
-    {
-        return meta->substr(prefix.size());
-    }
-
-    return "";
+    return dc->getMetadataArgs(directive).value_or("");
 }
 
 string
@@ -2927,32 +2910,31 @@ Slice::Python::printHeader(IceInternal::Output& out)
 bool
 Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 {
-    static const string prefix = "python:";
-
     // Validate file metadata in the top-level file and all included files.
     for (const auto& file : unit->allFiles())
     {
         DefinitionContextPtr dc = unit->findDefinitionContext(file);
         assert(dc);
-        StringList fileMetadata = dc->getMetadata();
-        for (StringList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
+        MetadataList fileMetadata = dc->getMetadata();
+        for (MetadataList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
         {
-            string s = *r++;
-            if (s.find(prefix) == 0)
+            MetadataPtr meta = *r++;
+            string_view directive = meta->directive();
+            string_view arguments = meta->arguments();
+
+            if (directive.starts_with("python:"))
             {
-                static const string packagePrefix = "python:package:";
-                if (s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
+                if (directive == "python:package" && !arguments.empty())
                 {
                     continue;
                 }
-                static const string pkgdirPrefix = "python:pkgdir:";
-                if (s.find(pkgdirPrefix) == 0 && s.size() > pkgdirPrefix.size())
+                if (directive == "python:pkgdir" && !arguments.empty())
                 {
                     continue;
                 }
 
-                dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata `" + s + "'");
-                fileMetadata.remove(s);
+                dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata '" + string(directive) + "'");
+                fileMetadata.remove(meta);
             }
         }
         dc->setMetadata(fileMetadata);
@@ -2965,25 +2947,23 @@ Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
     static const string prefix = "python:package:";
 
-    StringList metadata = p->getMetadata();
-    for (StringList::const_iterator r = metadata.begin(); r != metadata.end();)
+    MetadataList metadata = p->getMetadata();
+    for (MetadataList::const_iterator r = metadata.begin(); r != metadata.end();)
     {
-        string s = *r++;
-        if (s.find(prefix) == 0)
+        MetadataPtr meta = *r++;
+        string_view directive = meta->directive();
+
+        if (directive.starts_with("python:"))
         {
-            //
             // Must be a top-level module.
-            //
-            if (dynamic_pointer_cast<Unit>(p->container()))
+            if (dynamic_pointer_cast<Unit>(p->container()) && directive == "python:package")
             {
                 continue;
             }
-        }
 
-        if (s.find("python:") == 0)
-        {
-            p->definitionContext()->warning(InvalidMetadata, p->file(), -1, "ignoring invalid metadata `" + s + "'");
-            metadata.remove(s);
+            string msg =  "ignoring invalid file metadata '" + string(directive) + "'";
+            p->definitionContext()->warning(InvalidMetadata, p->file(), -1, msg);
+            metadata.remove(meta);
         }
     }
 
@@ -3055,9 +3035,7 @@ Slice::Python::MetadataVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Python::MetadataVisitor::visitSequence(const SequencePtr& p)
 {
-    StringList metadata = p->getMetadata();
-    metadata = validateSequence(p->file(), p->line(), p, metadata);
-    p->setMetadata(metadata);
+    p->setMetadata(validateSequence(p->file(), p->line(), p, p->getMetadata()));
 }
 
 void
@@ -3078,49 +3056,50 @@ Slice::Python::MetadataVisitor::visitConst(const ConstPtr& p)
     reject(p);
 }
 
-StringList
+MetadataList
 Slice::Python::MetadataVisitor::validateSequence(
     const string& file,
     int line,
     const TypePtr& type,
-    const StringList& metadata)
+    const MetadataList& metadata)
 {
     const UnitPtr ut = type->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
 
     static const string prefix = "python:";
-    StringList newMetadata = metadata;
-    for (StringList::const_iterator p = newMetadata.begin(); p != newMetadata.end();)
+    MetadataList newMetadata = metadata;
+    for (MetadataList::const_iterator p = newMetadata.begin(); p != newMetadata.end();)
     {
-        string s = *p++;
-        if (s.find(prefix) == 0)
+        string prefix = "python:";
+        MetadataPtr s = *p++;
+        string_view directive = s->directive();
+        string_view arguments = s->arguments();
+
+        if (directive.starts_with(prefix))
         {
             SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
             if (seq)
             {
-                static const string seqPrefix = "python:seq:";
-                if (s.find(seqPrefix) == 0)
+                // TODO This implementation seems strange, but I preserved the current behavior.
+                if (directive == "python:seq")
                 {
-                    string arg = s.substr(seqPrefix.size());
-                    if (arg == "tuple" || arg == "list" || arg == "default")
+                    if (arguments == "tuple" || arguments == "list" || arguments == "default")
                     {
                         continue;
                     }
                 }
-                else if (s.size() > prefix.size())
+                else if (directive.size() > prefix.size())
                 {
-                    string arg = s.substr(prefix.size());
-                    if (arg == "tuple" || arg == "list" || arg == "default")
+                    string_view subDirective = directive.substr(prefix.size());
+                    if (subDirective == "tuple" || subDirective == "list" || subDirective == "default")
                     {
                         continue;
                     }
-                    else if (arg == "array.array" || arg == "numpy.ndarray" || arg.find("memoryview:") == 0)
+                    else if (subDirective == "array.array" || subDirective == "numpy.ndarray" || subDirective == "memoryview")
                     {
-                        //
                         // The memoryview sequence metadata is only valid for integral builtin
                         // types excluding strings.
-                        //
                         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
                         if (builtin)
                         {
@@ -3145,7 +3124,7 @@ Slice::Python::MetadataVisitor::validateSequence(
                     }
                 }
             }
-            dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + s + "'");
+            dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata '" + string(directive) + "'");
             newMetadata.remove(s);
         }
     }
@@ -3155,19 +3134,20 @@ Slice::Python::MetadataVisitor::validateSequence(
 void
 Slice::Python::MetadataVisitor::reject(const ContainedPtr& cont)
 {
-    StringList localMetadata = cont->getMetadata();
-    static const string prefix = "python:";
+    MetadataList localMetadata = cont->getMetadata();
 
     const UnitPtr ut = cont->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
     assert(dc);
 
-    for (StringList::const_iterator p = localMetadata.begin(); p != localMetadata.end();)
+    for (MetadataList::const_iterator p = localMetadata.begin(); p != localMetadata.end();)
     {
-        string s = *p++;
-        if (s.find(prefix) == 0)
+        MetadataPtr s = *p++;
+        string_view directive = s->directive();
+        if (directive.starts_with("python:"))
         {
-            dc->warning(InvalidMetadata, cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
+            string msg = "ignoring invalid metadata '" + string(directive) + "'";
+            dc->warning(InvalidMetadata, cont->file(), cont->line(), msg);
             localMetadata.remove(s);
         }
     }

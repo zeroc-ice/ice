@@ -94,7 +94,7 @@ namespace
         const SyntaxTreeBasePtr& valueType,
         const string& value,
         TypeContext typeContext,
-        const StringList& metadata,
+        const MetadataList& metadata,
         const string& scope)
     {
         ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
@@ -414,12 +414,13 @@ namespace
             UnitPtr unt = p->container()->unit();
             string file = p->file();
             assert(!file.empty());
-            static const string prefix = "cpp:doxygen:include:";
             DefinitionContextPtr dc = unt->findDefinitionContext(file);
             assert(dc);
-            if (auto meta = dc->findMetadata(prefix))
+
+            // TODO: why do we ignore all instances of this metadata except the first?
+            if (auto headerFile = dc->getMetadataArgs("cpp:doxygen:include"))
             {
-                out << nl << " * \\headerfile " << meta->substr(prefix.size());
+                out << nl << " * \\headerfile " << *headerFile;
             }
         }
 
@@ -675,10 +676,9 @@ Slice::Gen::generate(const UnitPtr& p)
     //
     if (_dllExport.empty())
     {
-        static const string dllExportPrefix = "cpp:dll-export:";
-        if (auto meta = dc->findMetadata(dllExportPrefix))
+        if (auto dllExport = dc->getMetadataArgs("cpp:dll-export"))
         {
-            _dllExport = meta->substr(dllExportPrefix.size());
+            _dllExport = *dllExport;
         }
     }
 
@@ -767,19 +767,20 @@ Slice::Gen::generate(const UnitPtr& p)
         }
     }
 
-    // Emit #include statements for any cpp:include metadata directives in the top-level Slice file.
+    // Emit #include statements for any 'cpp:include' metadata directives in the top-level Slice file.
     {
-        StringList fileMetadata = dc->getMetadata();
-        for (StringList::const_iterator q = fileMetadata.begin(); q != fileMetadata.end();)
+        MetadataList fileMetadata = dc->getMetadata();
+        for (MetadataList::const_iterator q = fileMetadata.begin(); q != fileMetadata.end();)
         {
-            string metadata = *q++;
-            static const string includePrefix = "cpp:include:";
-            static const string sourceIncludePrefix = "cpp:source-include:";
-            if (metadata.find(includePrefix) == 0)
+            MetadataPtr metadata = *q++;
+            string_view directive = metadata->directive();
+            string_view arguments = metadata->arguments();
+
+            if (directive == "cpp:include")
             {
-                if (metadata.size() > includePrefix.size())
+                if (!arguments.empty())
                 {
-                    H << nl << "#include <" << metadata.substr(includePrefix.size()) << ">";
+                    H << nl << "#include <" << arguments << ">";
                 }
                 else
                 {
@@ -789,11 +790,11 @@ Slice::Gen::generate(const UnitPtr& p)
                     fileMetadata.remove(metadata);
                 }
             }
-            else if (metadata.find(sourceIncludePrefix) == 0)
+            else if (directive == "cpp:source-include")
             {
-                if (metadata.size() > sourceIncludePrefix.size())
+                if (!arguments.empty())
                 {
-                    C << nl << "#include <" << metadata.substr(sourceIncludePrefix.size()) << ">";
+                    C << nl << "#include <" << arguments << ">";
                 }
                 else
                 {
@@ -900,89 +901,88 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 bool
 Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 {
-    static const string prefix = "cpp:";
-
-    //
     // Validate file metadata in the top-level file and all included files.
-    //
     for (const string& file : unit->allFiles())
     {
         DefinitionContextPtr dc = unit->findDefinitionContext(file);
-        StringList fileMetadata = dc->getMetadata();
+        MetadataList fileMetadata = dc->getMetadata();
         assert(dc);
-        int headerExtension = 0;
-        int sourceExtension = 0;
-        int dllExport = 0;
-        for (StringList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
+        bool seenHeaderExtension = false;
+        bool seenSourceExtension = false;
+        bool seenDllExport = false;
+
+        for (MetadataList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
         {
-            string s = *r++;
-            if (s.find(prefix) == 0)
+            MetadataPtr s = *r++;
+            string_view directive = s->directive();
+            string_view arguments = s->arguments();
+
+            if (directive.starts_with("cpp:"))
             {
-                static const string cppIncludePrefix = "cpp:include:";
+                static const string cppIncludePrefix = "cpp:include";
                 static const string cppNoDefaultInclude = "cpp:no-default-include";
                 static const string cppNoStream = "cpp:no-stream";
                 static const string cppSourceIncludePrefix = "cpp:source-include";
-                static const string cppHeaderExtPrefix = "cpp:header-ext:";
-                static const string cppSourceExtPrefix = "cpp:source-ext:";
-                static const string cppDllExportPrefix = "cpp:dll-export:";
-                static const string cppDoxygenIncludePrefix = "cpp:doxygen:include:";
+                static const string cppHeaderExtPrefix = "cpp:header-ext";
+                static const string cppSourceExtPrefix = "cpp:source-ext";
+                static const string cppDllExportPrefix = "cpp:dll-export";
+                static const string cppDoxygenIncludePrefix = "cpp:doxygen:include";
 
-                if (s == cppNoDefaultInclude || s == cppNoStream)
+                if (directive == cppNoDefaultInclude || directive == cppNoStream)
                 {
                     continue;
                 }
-                else if (s.find(cppIncludePrefix) == 0 && s.size() > cppIncludePrefix.size())
+                else if (directive == cppIncludePrefix && !arguments.empty())
                 {
                     continue;
                 }
-                else if (s.find(cppSourceIncludePrefix) == 0 && s.size() > cppSourceIncludePrefix.size())
+                else if (directive == cppSourceIncludePrefix && !arguments.empty())
                 {
                     continue;
                 }
-                else if (s.find(cppHeaderExtPrefix) == 0 && s.size() > cppHeaderExtPrefix.size())
+                else if (directive == cppHeaderExtPrefix && !arguments.empty())
                 {
-                    headerExtension++;
-                    if (headerExtension > 1)
+                    if (seenHeaderExtension)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid file metadata `" << s << "': directive can appear only once per file";
+                        ostr << "ignoring invalid file metadata '" << s << "': directive can appear only once per file";
                         dc->warning(InvalidMetadata, file, -1, ostr.str());
                         fileMetadata.remove(s);
                     }
+                    seenHeaderExtension = true;
                     continue;
                 }
-                else if (s.find(cppSourceExtPrefix) == 0 && s.size() > cppSourceExtPrefix.size())
+                else if (directive == cppSourceExtPrefix && !arguments.empty())
                 {
-                    sourceExtension++;
-                    if (sourceExtension > 1)
+                    if (seenSourceExtension)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid file metadata `" << s << "': directive can appear only once per file";
+                        ostr << "ignoring invalid file metadata '" << s << "': directive can appear only once per file";
                         dc->warning(InvalidMetadata, file, -1, ostr.str());
                         fileMetadata.remove(s);
                     }
+                    seenSourceExtension = true;
                     continue;
                 }
-                else if (s.find(cppDllExportPrefix) == 0 && s.size() > cppDllExportPrefix.size())
+                else if (directive == cppDllExportPrefix && !arguments.empty())
                 {
-                    dllExport++;
-                    if (dllExport > 1)
+                    if (seenDllExport)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid file metadata `" << s << "': directive can appear only once per file";
+                        ostr << "ignoring invalid file metadata '" << s << "': directive can appear only once per file";
                         dc->warning(InvalidMetadata, file, -1, ostr.str());
-
                         fileMetadata.remove(s);
                     }
+                    seenDllExport = true;
                     continue;
                 }
-                else if (s.find(cppDoxygenIncludePrefix) == 0 && s.size() > cppDoxygenIncludePrefix.size())
+                else if (directive == cppDoxygenIncludePrefix && !arguments.empty())
                 {
                     continue;
                 }
 
                 ostringstream ostr;
-                ostr << "ignoring invalid file metadata `" << s << "'";
+                ostr << "ignoring invalid file metadata '" << s << "'";
                 dc->warning(InvalidMetadata, file, -1, ostr.str());
                 fileMetadata.remove(s);
             }
@@ -996,7 +996,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 bool
 Slice::Gen::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
     return true;
 }
@@ -1004,14 +1004,14 @@ Slice::Gen::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 bool
 Slice::Gen::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
     return true;
 }
@@ -1019,7 +1019,7 @@ Slice::Gen::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
     return true;
 }
@@ -1027,7 +1027,7 @@ Slice::Gen::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::MetadataVisitor::visitStructStart(const StructPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
     return true;
 }
@@ -1040,17 +1040,16 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
     {
         const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
         assert(dc);
-        StringList metadata = p->getMetadata();
-        for (StringList::const_iterator q = metadata.begin(); q != metadata.end();)
+        MetadataList metadata = p->getMetadata();
+        for (MetadataList::const_iterator q = metadata.begin(); q != metadata.end();)
         {
-            string s = *q++;
-            if (s.find("cpp:type:") == 0 || s.find("cpp:view-type:") == 0 || s == "cpp:array")
+            MetadataPtr s = *q++;
+            string_view directive = s->directive();
+            if (directive == "cpp:type" || directive == "cpp:view-type" || directive == "cpp:array")
             {
-                dc->warning(
-                    InvalidMetadata,
-                    p->file(),
-                    p->line(),
-                    "ignoring invalid metadata `" + s + "' for operation with void return type");
+                ostringstream ostr;
+                ostr << "ignoring invalid metadata '" << s << "' for operation with void return type";
+                dc->warning(InvalidMetadata, p->file(), p->line(), ostr.str());
                 metadata.remove(s);
             }
         }
@@ -1070,75 +1069,78 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
 void
 Slice::Gen::MetadataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    StringList metadata = validate(p->type(), p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p->type(), p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 void
 Slice::Gen::MetadataVisitor::visitSequence(const SequencePtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 void
 Slice::Gen::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 void
 Slice::Gen::MetadataVisitor::visitEnum(const EnumPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 void
 Slice::Gen::MetadataVisitor::visitConst(const ConstPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
-StringList
+MetadataList
 Slice::Gen::MetadataVisitor::validate(
     const SyntaxTreeBasePtr& cont,
-    const StringList& metadata,
+    const MetadataList& metadata,
     const string& file,
     int line,
     bool operation)
 {
-    static const string cppPrefix = "cpp:";
-
     const UnitPtr ut = cont->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
-    StringList newMetadata = metadata;
-    for (const string& s : metadata)
+
+    MetadataList newMetadata = metadata;
+    for (const auto& meta : metadata)
     {
+        string_view directive = meta->directive();
+
         // Issue friendly warning for cpp11 and cpp98 metadata what were removed as Slice does not issue warnings
         // for unknown "top-level" metadata.
-        if (s.find("cpp11:") == 0 || s.find("cpp98:") == 0)
+        if (directive.starts_with("cpp11:") || directive.starts_with("cpp98:"))
         {
-            dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + s + "'");
-            newMetadata.remove(s);
+            ostringstream ostr;
+            ostr << "ignoring invalid metadata '" << meta << "'";
+            dc->warning(InvalidMetadata, file, line, ostr.str());
+            newMetadata.remove(meta);
             continue;
         }
 
-        if (s.find(cppPrefix) != 0)
-        {
-            continue;
-        }
-
-        if (operation && s == "cpp:const")
+        if (!directive.starts_with("cpp:"))
         {
             continue;
         }
 
-        string ss = s.substr(cppPrefix.size());
-        if (ss == "type:wstring" || ss == "type:string")
+        if (operation && directive == "cpp:const")
+        {
+            continue;
+        }
+
+        string_view arguments = meta->arguments();
+        if (directive == "cpp:type" && (arguments == "wstring" || arguments == "string"))
         {
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(cont);
             ModulePtr module = dynamic_pointer_cast<Module>(cont);
@@ -1154,34 +1156,36 @@ Slice::Gen::MetadataVisitor::validate(
         }
         if (dynamic_pointer_cast<Sequence>(cont))
         {
-            if (ss.find("type:") == 0 || ss.find("view-type:") == 0 || ss == "array")
+            if (directive == "cpp:type" || directive == "cpp:view-type" || directive == "cpp:array")
             {
                 continue;
             }
         }
-        if (dynamic_pointer_cast<Dictionary>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
+        if (dynamic_pointer_cast<Dictionary>(cont) && (directive == "cpp:type" || directive == "cpp:view-type"))
         {
             continue;
         }
-        if (dynamic_pointer_cast<Exception>(cont) && ss == "ice_print")
+        if (dynamic_pointer_cast<Exception>(cont) && directive == "cpp:ice_print")
         {
             continue;
         }
-        if (dynamic_pointer_cast<Enum>(cont) && ss == "unscoped")
+        if (dynamic_pointer_cast<Enum>(cont) && directive == "cpp:unscoped")
         {
             continue;
         }
 
         {
             ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(cont);
-            if (cl && ss.find("type:") == 0)
+            if (cl && directive == "cpp:type")
             {
                 continue;
             }
         }
 
-        dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + s + "'");
-        newMetadata.remove(s);
+        ostringstream ostr;
+        ostr << "ignoring invalid metadata '" << meta << "'";
+        dc->warning(InvalidMetadata, file, line, ostr.str());
+        newMetadata.remove(meta);
     }
     return newMetadata;
 }
@@ -1190,14 +1194,16 @@ TypeContext
 Slice::Gen::setUseWstring(ContainedPtr p, list<TypeContext>& hist, TypeContext typeCtx)
 {
     hist.push_back(typeCtx);
-    StringList metadata = p->getMetadata();
-    if (find(metadata.begin(), metadata.end(), "cpp:type:wstring") != metadata.end())
+    if (auto argument = p->getMetadataArgs("cpp:type"))
     {
-        typeCtx = TypeContext::UseWstring;
-    }
-    else if (find(metadata.begin(), metadata.end(), "cpp:type:string") != metadata.end())
-    {
-        typeCtx = TypeContext::None;
+        if (argument == "wstring")
+        {
+            typeCtx = TypeContext::UseWstring;
+        }
+        else if (argument == "string")
+        {
+            typeCtx = TypeContext::None;
+        }
     }
     return typeCtx;
 }
@@ -1213,27 +1219,17 @@ Slice::Gen::resetUseWstring(list<TypeContext>& hist)
 string
 Slice::Gen::getHeaderExt(const string& file, const UnitPtr& ut)
 {
-    static const string headerExtPrefix = "cpp:header-ext:";
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
-    if (auto meta = dc->findMetadata(headerExtPrefix))
-    {
-        return meta->substr(headerExtPrefix.size());
-    }
-    return "";
+    return dc->getMetadataArgs("cpp:header-ext").value_or("");
 }
 
 string
 Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
 {
-    static const string sourceExtPrefix = "cpp:source-ext:";
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
-    if (auto meta = dc->findMetadata(sourceExtPrefix))
-    {
-        return meta->substr(sourceExtPrefix.size());
-    }
-    return "";
+    return dc->getMetadataArgs("cpp:source-ext").value_or("");
 }
 
 Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h) : H(h), _useWstring(TypeContext::None) {}
@@ -1338,7 +1334,7 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     string scope = fixKwd(p->scope());
     TypePtr type = p->type();
     TypeContext typeCtx = _useWstring;
-    StringList metadata = p->getMetadata();
+    MetadataList metadata = p->getMetadata();
 
     string seqType = findMetadata(metadata, _useWstring);
     writeDocSummary(H, p);
@@ -1658,7 +1654,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     for (const auto& q : paramList)
     {
         string paramName = fixKwd(q->name());
-        StringList metadata = q->getMetadata();
+        MetadataList metadata = q->getMetadata();
 
         if (q->isOutParam())
         {
@@ -2223,8 +2219,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << sp;
     }
 
-    StringList metadata = p->getMetadata();
-    if (find(metadata.begin(), metadata.end(), "cpp:ice_print") != metadata.end())
+    if (p->hasMetadata("cpp:ice_print"))
     {
         H << nl << "/**";
         H << nl << " * Outputs a custom description of this exception to a stream.";

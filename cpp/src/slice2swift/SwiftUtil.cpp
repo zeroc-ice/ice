@@ -1128,16 +1128,7 @@ SwiftGenerator::typeToString(
         t = fixIdent(getRelativeTypeString(cont, currentModule));
     }
 
-    bool nonnull = false;
-    for (const auto& meta : metadata)
-    {
-        if (meta->directive() == "swift:nonnull")
-        {
-            nonnull = true;
-            break;
-        }
-    }
-    if (!nonnull && (optional || isNullableType(type)))
+    if (optional || isNullableType(type))
     {
         t += "?";
     }
@@ -2409,25 +2400,7 @@ SwiftGenerator::MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p
 void
 SwiftGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
 {
-    MetadataList metadata = p->getMetadata();
-
-    const UnitPtr ut = p->unit();
-    const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
-    assert(dc);
-
-    for (MetadataList::iterator q = metadata.begin(); q != metadata.end();)
-    {
-        MetadataPtr s = *q++;
-        string_view directive = s->directive();
-        if (directive == "swift:attribute" || directive == "swift:type" || directive == "swift:noexcept" ||
-            directive == "swift:nonnull")
-        {
-            string message = "ignoring metadata '" + string(directive) + "' for non local operation";
-            dc->warning(InvalidMetadata, p->file(), p->line(), message);
-            metadata.remove(s);
-        }
-    }
-    p->setMetadata(validate(p, metadata, p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
     for (const auto& param : p->parameters())
     {
         param->setMetadata(validate(param->type(), param->getMetadata(), param->file(), param->line()));
@@ -2469,37 +2442,22 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
     const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
     assert(dc);
 
-    StringList newMetadata = p->keyMetadata();
-    for (StringList::const_iterator q = newMetadata.begin(); q != newMetadata.end();)
+    for (const auto& metadata : p->keyMetadata())
     {
-        string s = *q++;
-        if (s.find(prefix) != 0)
+        if (metadata->directive().starts_with(prefix))
         {
-            continue;
+            string msg = "ignoring invalid metadata '" + string(metadata->directive()) + "' for dictionary key type";
+            dc->warning(InvalidMetadata, p->file(), p->line(), msg);
         }
-
-        dc->warning(
-            InvalidMetadata,
-            p->file(),
-            p->line(),
-            "ignoring invalid metadata '" + s + "' for dictionary key type");
     }
 
-    newMetadata = p->valueMetadata();
-    TypePtr t = p->valueType();
-    for (StringList::const_iterator q = newMetadata.begin(); q != newMetadata.end();)
+    for (const auto& metadata : p->valueMetadata())
     {
-        string s = *q++;
-        if (s.find(prefix) != 0)
+        if (metadata->directive().starts_with(prefix))
         {
-            continue;
+            string msg = "ignoring invalid metadata '" + string(metadata->directive()) + "' for dictionary value type";
+            dc->warning(InvalidMetadata, p->file(), p->line(), msg);
         }
-
-        dc->warning(
-            InvalidMetadata,
-            p->file(),
-            p->line(),
-            "ignoring invalid metadata '" + s + "' for dictionary value type");
     }
 
     p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
@@ -2517,32 +2475,34 @@ SwiftGenerator::MetadataVisitor::visitConst(const ConstPtr& p)
     p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
 }
 
-StringList
+MetadataList
 SwiftGenerator::MetadataVisitor::validate(
     const SyntaxTreeBasePtr& cont,
-    const StringList& metadata,
+    const MetadataList& metadata,
     const string& file,
     int line)
 {
-    StringList newMetadata = metadata;
-    const string prefix = "swift:";
+    MetadataList newMetadata = metadata;
     const UnitPtr ut = cont->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
-    for (StringList::const_iterator p = newMetadata.begin(); p != newMetadata.end();)
+
+    for (MetadataList::const_iterator p = newMetadata.begin(); p != newMetadata.end();)
     {
-        string s = *p++;
-        if (s.find(prefix) != 0)
+        MetadataPtr meta = *p++;
+        string_view directive = meta->directive();
+
+        if (!directive.starts_with("swift:"))
         {
             continue;
         }
 
-        if (dynamic_pointer_cast<Module>(cont) && s.find("swift:module:") == 0)
+        if (dynamic_pointer_cast<Module>(cont) && directive == "swift:module")
         {
             continue;
         }
 
-        if (dynamic_pointer_cast<InterfaceDef>(cont) && s.find("swift:inherits:") == 0)
+        if (dynamic_pointer_cast<InterfaceDef>(cont) && directive == "swift:inherits")
         {
             continue;
         }
@@ -2550,13 +2510,13 @@ SwiftGenerator::MetadataVisitor::validate(
         if ((dynamic_pointer_cast<ClassDef>(cont) || dynamic_pointer_cast<InterfaceDef>(cont) ||
              dynamic_pointer_cast<Enum>(cont) || dynamic_pointer_cast<Exception>(cont) ||
              dynamic_pointer_cast<Operation>(cont)) &&
-            s.find("swift:attribute:") == 0)
+             directive == "swift:attribute")
         {
             continue;
         }
 
-        dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + s + "'");
-        newMetadata.remove(s);
+        dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata '" + string(directive) + "'");
+        newMetadata.remove(meta);
         continue;
     }
     return newMetadata;

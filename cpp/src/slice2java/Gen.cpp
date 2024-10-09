@@ -1004,7 +1004,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         bool optional;
         TypePtr type;
         int tag;
-        StringList metadata;
+        MetadataList metadata;
         if (ret)
         {
             type = ret;
@@ -1102,7 +1102,7 @@ Slice::JavaVisitor::writeMarshalServantResults(
         OptionalMode mode;
         TypePtr type;
         int tag;
-        StringList metadata;
+        MetadataList metadata;
         if (op->returnType())
         {
             type = op->returnType();
@@ -1343,18 +1343,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     out << nl << "return \"" << p->scoped() << "\";";
     out << eb;
 
-    //
     // Dispatch methods. We only generate methods for operations
     // defined in this InterfaceDef, because we reuse existing methods
     // for inherited operations.
-    //
-    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    for (const auto& op : ops)
     {
-        OperationPtr op = *r;
-        StringList opMetadata = op->getMetadata();
-
-        CommentPtr dc = op->parseComment(false);
-
         string opName = op->name();
         out << sp;
 

@@ -19,7 +19,7 @@ using namespace IceInternal;
 
 namespace
 {
-    string stringTypeToString(const TypePtr&, const StringList& metadata, TypeContext typeCtx)
+    string stringTypeToString(const TypePtr&, const MetadataList& metadata, TypeContext typeCtx)
     {
         string strType = findMetadata(metadata, typeCtx);
 
@@ -41,7 +41,7 @@ namespace
     }
 
     string
-    sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringList& metadata, TypeContext typeCtx)
+    sequenceTypeToString(const SequencePtr& seq, const string& scope, const MetadataList& metadata, TypeContext typeCtx)
     {
         string seqType = findMetadata(metadata, typeCtx);
         if (!seqType.empty())
@@ -79,7 +79,7 @@ namespace
     string dictionaryTypeToString(
         const DictionaryPtr& dict,
         const string& scope,
-        const StringList& metadata,
+        const MetadataList& metadata,
         TypeContext typeCtx)
     {
         const string dictType = findMetadata(metadata, typeCtx);
@@ -119,7 +119,7 @@ namespace
     }
 
     // Do we pass this type by value when it's an input parameter?
-    bool inputParamByValue(const TypePtr& type, const StringList& metadata)
+    bool inputParamByValue(const TypePtr& type, const MetadataList& metadata)
     {
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
         if ((builtin && (!builtin->isVariableLength() || builtin->kind() == Builtin::KindString)))
@@ -132,31 +132,13 @@ namespace
         }
         if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
         {
-            static const string prefix = "cpp:";
-
             // Return true for view-type (sequence and dictionary) and array (sequence only)
-            for (const auto& str : metadata)
+            for (const auto& meta : metadata)
             {
-                if (str.find(prefix) == 0)
+                string_view directive = meta->directive();
+                if (directive == "cpp:view-type" || directive == "cpp:array")
                 {
-                    string::size_type pos = str.find(':', prefix.size());
-                    if (pos != string::npos)
-                    {
-                        string ss = str.substr(prefix.size());
-                        if (ss.find("view-type:") == 0)
-                        {
-                            return true;
-                        }
-                        // else check remaining metadata
-                    }
-                    else
-                    {
-                        if (str.substr(prefix.size()) == "array")
-                        {
-                            return true;
-                        }
-                        // else check remaining metadata
-                    }
+                    return true;
                 }
             }
         }
@@ -169,7 +151,7 @@ namespace
         bool optional,
         const string& scope,
         const string& fixedName,
-        const StringList& metadata,
+        const MetadataList& metadata,
         TypeContext typeCtx)
     {
         string s = typeToString(type, optional, scope, metadata, typeCtx);
@@ -473,7 +455,7 @@ Slice::typeToString(
     const TypePtr& type,
     bool optional,
     const string& scope,
-    const StringList& metadata,
+    const MetadataList& metadata,
     TypeContext typeCtx)
 {
     assert(type);
@@ -568,7 +550,7 @@ Slice::inputTypeToString(
     const TypePtr& type,
     bool optional,
     const string& scope,
-    const StringList& metadata,
+    const MetadataList& metadata,
     TypeContext typeCtx)
 {
     assert(type);
@@ -592,7 +574,7 @@ Slice::outputTypeToString(
     const TypePtr& type,
     bool optional,
     const string& scope,
-    const StringList& metadata,
+    const MetadataList& metadata,
     TypeContext typeCtx)
 {
     assert(type);
@@ -956,60 +938,41 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
 }
 
 string
-Slice::findMetadata(const StringList& metadata, TypeContext typeCtx)
+Slice::findMetadata(const MetadataList& metadata, TypeContext typeCtx)
 {
-    static const string prefix = "cpp:";
-
-    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
+    for (const auto& meta : metadata)
     {
-        string str = *q;
-        if (str.find(prefix) == 0)
+        string_view directive = meta->directive();
+
+        // If a marshal param, we first check view-type then type. Otherwise, we check type.
+        // Then, if a marshal param or an unmarshal param where the underlying InputStream buffer remains valid for
+        // a while, we check for "array".
+        if ((typeCtx & TypeContext::MarshalParam) != TypeContext::None)
         {
-            string::size_type pos = str.find(':', prefix.size());
-
-            // If a marshal param, we first check view-type then type. Otherwise, we check type.
-            // Then, if a marshal param or an unmarshal param where the underlying InputStream buffer remains valid for
-            // a while, we check for "array".
-
-            if (pos != string::npos)
+            if (directive == "cpp:view-type")
             {
-                string ss = str.substr(prefix.size());
-
-                if ((typeCtx & TypeContext::MarshalParam) != TypeContext::None)
-                {
-                    if (ss.find("view-type:") == 0)
-                    {
-                        return str.substr(pos + 1);
-                    }
-                }
-
-                if (ss.find("type:") == 0)
-                {
-                    return str.substr(pos + 1);
-                }
-            }
-            else if ((typeCtx & (TypeContext::MarshalParam | TypeContext::UnmarshalParamZeroCopy)) != TypeContext::None)
-            {
-                string ss = str.substr(prefix.size());
-                if (ss == "array")
-                {
-                    return "%array";
-                }
-            }
-            //
-            // Otherwise if the data is "unscoped" it is returned.
-            //
-            else
-            {
-                string ss = str.substr(prefix.size());
-                if (ss == "unscoped")
-                {
-                    return "%unscoped";
-                }
+                return string(meta->arguments());
             }
         }
-    }
 
+        if (directive == "cpp:type")
+        {
+            return string(meta->arguments());
+        }
+
+        if ((typeCtx & (TypeContext::MarshalParam | TypeContext::UnmarshalParamZeroCopy)) != TypeContext::None)
+        {
+            if (directive == "cpp:array")
+            {
+                return "%array";
+            }
+        }
+        else if (directive == "cpp:unscoped") // The 'else if' here seems dubious. Should probably just be 'if'.
+        {
+            return "%unscoped";
+        }
+
+    }
     return "";
 }
 
@@ -1024,14 +987,16 @@ Slice::inWstringModule(const SequencePtr& seq)
         {
             break;
         }
-        StringList metadata = mod->getMetadata();
-        if (find(metadata.begin(), metadata.end(), "cpp:type:wstring") != metadata.end())
+        if (auto argument = mod->getMetadataArgs("cpp:type"))
         {
-            return true;
-        }
-        else if (find(metadata.begin(), metadata.end(), "cpp:type:string") != metadata.end())
-        {
-            return false;
+            if (argument == "wstring")
+            {
+                return true;
+            }
+            else if (argument == "string")
+            {
+                return false;
+            }
         }
         cont = mod->container();
     }

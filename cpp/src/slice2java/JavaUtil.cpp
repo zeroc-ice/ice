@@ -437,6 +437,7 @@ namespace
                     //
                     dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + *i + "'");
                 }
+                // TODO: the delegate metadata is only for local interfaces, we should remove this check.
                 else if (i->find("delegate") == 0)
                 {
                     dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + *i + "'");

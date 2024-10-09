@@ -1457,16 +1457,12 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         baseNames.push_back(fixIdent(getRelativeTypeString(*i, swiftModule)));
     }
 
-    //
-    // Check for swift:inherits metadata.
-    //
-    const StringList metadata = p->getMetadata();
-    static const string prefix = "swift:inherits:";
-    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
+    // Check for 'swift:inherits' metadata.
+    for (const auto& metadata : p->getMetadata())
     {
-        if (q->find(prefix) == 0)
+        if (metadata->directive() == "swift:inherits")
         {
-            baseNames.push_back(q->substr(prefix.size()));
+            baseNames.push_back(string(metadata->arguments()));
         }
     }
 

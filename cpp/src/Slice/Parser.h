@@ -185,6 +185,8 @@ namespace Slice
         std::string_view file() const;
         int line() const;
 
+        friend std::ostream& operator<<(std::ostream &out, const Metadata &metadata);
+
     private:
         /// Parses a metadata string into a pair of (directive, arguments) strings.
         static std::pair<std::string, std::string> parseRawMetadata(const std::string& rawMetadata);
@@ -195,6 +197,12 @@ namespace Slice
         std::string _file;
         int _line;
     };
+
+    inline std::ostream& operator<<(std::ostream &ostr, const Metadata &metadata)
+    {
+        ostr << metadata._directive << ":" << metadata._arguments;
+        return ostr;
+    }
 
     // ----------------------------------------------------------------------
     // DefinitionContext
@@ -989,7 +997,7 @@ namespace Slice
         int setCurrentFile(const std::string& currentFile, int lineNumber);
         int currentIncludeLevel() const;
 
-        void addFileMetadata(const StringList& metadata);
+        void addFileMetadata(const MetadataList& metadata);
 
         void setSeenDefinition();
 
@@ -1028,13 +1036,13 @@ namespace Slice
         std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
-        Unit(bool all, const StringList& defaultFileMetadata);
+        Unit(bool all, const MetadataList& defaultFileMetadata);
 
         void pushDefinitionContext();
         void popDefinitionContext();
 
         bool _all;
-        StringList _defaultFileMetadata;
+        MetadataList _defaultFileMetadata;
         int _errors;
         std::string _currentComment;
         int _currentIncludeLevel;
