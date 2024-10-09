@@ -412,10 +412,9 @@ export class Properties {
             return;
         }
 
-        const unknownProps = Array.from(properties
-            .getPropertiesForPrefix(`${prefix}.`)
-            .keys())
-            .filter(key => Properties.findProperty(key.substring(prefix.length + 1), propertyArray) === null);
+        const unknownProps = Array.from(properties.getPropertiesForPrefix(`${prefix}.`).keys()).filter(
+            key => Properties.findProperty(key.substring(prefix.length + 1), propertyArray) === null,
+        );
 
         if (unknownProps.length > 0) {
             `found unknown properties for ${propertyArray.name}: '${prefix}'\n${unknownProps.join(",\n")}`;
