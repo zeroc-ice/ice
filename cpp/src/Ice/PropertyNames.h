@@ -36,25 +36,25 @@ namespace IceInternal
     {
     public:
 
-static const PropertyArray ProxyProps;
-static const PropertyArray ConnectionProps;
-static const PropertyArray ThreadPoolProps;
-static const PropertyArray ObjectAdapterProps;
-static const PropertyArray LMDBProps;
-static const PropertyArray IceProps;
-static const PropertyArray IceMXProps;
-static const PropertyArray IceDiscoveryProps;
-static const PropertyArray IceLocatorDiscoveryProps;
-static const PropertyArray IceBoxProps;
-static const PropertyArray IceBoxAdminProps;
-static const PropertyArray IceBridgeProps;
-static const PropertyArray IceGridAdminProps;
-static const PropertyArray IceGridProps;
-static const PropertyArray IceSSLProps;
-static const PropertyArray IceStormProps;
-static const PropertyArray IceStormAdminProps;
-static const PropertyArray IceBTProps;
-static const PropertyArray Glacier2Props;
+        static const PropertyArray ProxyProps;
+        static const PropertyArray ConnectionProps;
+        static const PropertyArray ThreadPoolProps;
+        static const PropertyArray ObjectAdapterProps;
+        static const PropertyArray LMDBProps;
+        static const PropertyArray IceProps;
+        static const PropertyArray IceMXProps;
+        static const PropertyArray IceDiscoveryProps;
+        static const PropertyArray IceLocatorDiscoveryProps;
+        static const PropertyArray IceBoxProps;
+        static const PropertyArray IceBoxAdminProps;
+        static const PropertyArray IceBridgeProps;
+        static const PropertyArray IceGridAdminProps;
+        static const PropertyArray IceGridProps;
+        static const PropertyArray IceSSLProps;
+        static const PropertyArray IceStormProps;
+        static const PropertyArray IceStormAdminProps;
+        static const PropertyArray IceBTProps;
+        static const PropertyArray Glacier2Props;
 
         static const PropertyArray validProps[];
         static const char* clPropNames[];

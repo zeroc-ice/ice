@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 #
 # Copyright (c) ZeroC, Inc.
 #
@@ -352,7 +353,7 @@ const char* PropertyNames::clPropNames[] =
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
 
-        self.hFile.write(f"static const PropertyArray {name}Props;\n".ljust(8))
+        self.hFile.write(f"        static const PropertyArray {name}Props;\n")
 
         self.cppFile.write(f"""\
 const Property {name}PropsData[] =
