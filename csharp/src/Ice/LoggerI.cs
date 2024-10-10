@@ -4,6 +4,7 @@
 
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.ConstrainedExecution;
 
 namespace Ice;
 
@@ -109,20 +110,14 @@ internal sealed class ConsoleLoggerI : LoggerI
     }
 }
 
-#pragma warning disable CA1001 // _writer is disposed by destroy.
 internal sealed class FileLoggerI : LoggerI
-#pragma warning restore CA1001
 {
-    public override Logger cloneWithPrefix(string prefix)
-    {
-        return new FileLoggerI(prefix, _file);
-    }
+    private readonly TextWriter _writer;
 
-    public override void Dispose()
-    {
-        _writer.Close();
-        _writer.Dispose();
-    }
+    public override Logger cloneWithPrefix(string prefix) =>
+        throw new InvalidOperationException("Cannot clone a file logger.");
+
+    public override void Dispose() => _writer.Dispose();
 
     protected override void write(string message)
     {
@@ -131,17 +126,11 @@ internal sealed class FileLoggerI : LoggerI
     }
 
     internal FileLoggerI(string prefix, string file)
-        : base(prefix)
-    {
-        _file = file;
+        : base(prefix) =>
         _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
-    }
-
-    private string _file;
-    private TextWriter _writer;
 }
 
-internal class ConsoleListener : TraceListener
+internal sealed class ConsoleListener : TraceListener
 {
     public override bool IsThreadSafe => true;
 
