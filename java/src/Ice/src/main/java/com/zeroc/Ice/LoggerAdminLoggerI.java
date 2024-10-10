@@ -50,7 +50,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     @Override
-    public void destroy() {
+    public void close() {
         Thread thread = null;
         synchronized (this) {
             if (_sendLogThread != null) {

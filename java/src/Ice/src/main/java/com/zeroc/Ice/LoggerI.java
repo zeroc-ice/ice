@@ -19,16 +19,18 @@ class LoggerI implements Logger {
         _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
 
         if (!file.isEmpty()) {
-            _file = file;
             try {
-                _out = new java.io.FileOutputStream(new java.io.File(_file), true);
+                _out = new java.io.FileOutputStream(new java.io.File(file), true);
             } catch (java.io.FileNotFoundException ex) {
-                throw new InitializationException("FileLogger: cannot open " + _file);
+                throw new InitializationException("FileLogger: cannot open " + file);
             }
         } else {
-            _file = "";
             _out = null;
         }
+    }
+
+    LoggerI(String prefix) {
+        this(prefix, "");
     }
 
     @Override
@@ -96,7 +98,11 @@ class LoggerI implements Logger {
 
     @Override
     public Logger cloneWithPrefix(String prefix) {
-        return new LoggerI(prefix, _file);
+        if (_out != null) {
+            throw new UnsupportedOperationException(
+                    "cloneWithPrefix is not supported on a file logger");
+        }
+        return new LoggerI(prefix);
     }
 
     private void write(StringBuilder message, boolean indent) {
@@ -119,18 +125,15 @@ class LoggerI implements Logger {
         }
     }
 
-    public void destroy() {
-        if (!_file.isEmpty()) {
-            try {
-                _out.close();
-            } catch (java.io.IOException ex) {
-            }
+    @Override
+    public void close() throws java.io.IOException {
+        if (_out != null) {
+            _out.close();
         }
     }
 
     private final String _prefix;
     private final String _formattedPrefix;
-    private final String _file;
     private final String _lineSeparator;
     private final java.text.DateFormat _date;
     private final java.text.SimpleDateFormat _time;

@@ -1182,7 +1182,11 @@ public final class Instance implements java.util.function.Function<String, Class
                 //
                 // This only disables the remote logging; we don't set or reset _initData.logger
                 //
-                ((LoggerAdminLogger) _initData.logger).destroy();
+                try {
+                    ((LoggerAdminLogger) _initData.logger).close();
+                } catch (Exception ex) {
+                    // ignored
+                }
             }
 
             //
@@ -1266,9 +1270,12 @@ public final class Instance implements java.util.function.Function<String, Class
                 _pluginManager.destroy();
             }
 
-            if (_initData.logger instanceof LoggerI) {
-                LoggerI logger = (LoggerI) _initData.logger;
-                logger.destroy();
+            if (_initData.logger != null) {
+                try {
+                    _initData.logger.close();
+                } catch (Exception ex) {
+                    // ignored
+                }
             }
 
             synchronized (this) {

@@ -61,4 +61,9 @@ class Logger implements com.zeroc.Ice.Logger {
         throw new UnsupportedOperationException(
                 "cloneWithPrefix is not supported on IceGridGUI.Logger");
     }
+
+    @Override
+    public void close() {
+        // Nothing to do.
+    }
 }
