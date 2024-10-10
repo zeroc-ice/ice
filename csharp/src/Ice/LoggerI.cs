@@ -51,6 +51,8 @@ internal abstract class LoggerI : Logger
 
     public abstract Logger cloneWithPrefix(string prefix);
 
+    public abstract void Dispose();
+
     protected abstract void write(string message);
 
     internal LoggerI(string prefix)
@@ -91,15 +93,13 @@ internal abstract class LoggerI : Logger
 
 internal sealed class ConsoleLoggerI : LoggerI
 {
-    public override Logger cloneWithPrefix(string prefix)
+    public override Logger cloneWithPrefix(string prefix) => new ConsoleLoggerI(prefix);
+
+    public override void Dispose()
     {
-        return new ConsoleLoggerI(prefix);
     }
 
-    protected override void write(string message)
-    {
-        System.Console.Error.WriteLine(message);
-    }
+    protected override void write(string message) => Console.Error.WriteLine(message);
 
     internal ConsoleLoggerI(string prefix)
         : base(prefix)
@@ -118,7 +118,7 @@ internal sealed class FileLoggerI : LoggerI
         return new FileLoggerI(prefix, _file);
     }
 
-    public void destroy()
+    public override void Dispose()
     {
         _writer.Close();
         _writer.Dispose();
@@ -214,6 +214,10 @@ internal sealed class TraceLoggerI : LoggerI
     public override Logger cloneWithPrefix(string prefix)
     {
         return new TraceLoggerI(prefix, _console);
+    }
+
+    public override void Dispose()
+    {
     }
 
     protected override void write(string message)

@@ -163,6 +163,10 @@ namespace Ice
                 {
                     return this;
                 }
+
+                public void Dispose()
+                {
+                }
             }
         }
     }

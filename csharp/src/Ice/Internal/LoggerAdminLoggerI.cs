@@ -4,11 +4,9 @@ using System.Diagnostics;
 
 namespace Ice.Internal;
 
-internal interface LoggerAdminLogger : Ice.Logger
+internal interface LoggerAdminLogger : Logger
 {
     Ice.Object getFacet();
-
-    void destroy();
 }
 
 internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
@@ -56,7 +54,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         return _loggerAdmin;
     }
 
-    public void destroy()
+    public void Dispose()
     {
         Thread thread = null;
         lock (_mutex)
@@ -68,12 +66,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 _destroyed = true;
                 Monitor.PulseAll(_mutex);
             }
-
-            Ice.FileLoggerI fileLoger = _localLogger as Ice.FileLoggerI;
-            if (fileLoger != null)
-            {
-                fileLoger.destroy();
-            }
+            _localLogger.Dispose();
         }
 
         if (thread != null)

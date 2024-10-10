@@ -1127,12 +1127,9 @@ public sealed class Instance
             _initData.observer.setObserverUpdater(null);
         }
 
+        if (_initData.logger is LoggerAdminLogger logger)
         {
-            LoggerAdminLogger logger = _initData.logger as LoggerAdminLogger;
-            if (logger != null)
-            {
-                logger.destroy();
-            }
+            logger.Dispose();
         }
 
         //
@@ -1230,13 +1227,7 @@ public sealed class Instance
             Monitor.PulseAll(_mutex);
         }
 
-        {
-            Ice.FileLoggerI logger = _initData.logger as Ice.FileLoggerI;
-            if (logger != null)
-            {
-                logger.destroy();
-            }
-        }
+        _initData.logger?.Dispose();
     }
 
     public BufSizeWarnInfo getBufSizeWarn(short type)

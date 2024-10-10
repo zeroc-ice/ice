@@ -33,6 +33,10 @@ namespace Ice
             {
                 return new DummyLogger();
             }
+
+            public void Dispose()
+            {
+            }
         }
 
         public class Server : TestHelper
