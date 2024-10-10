@@ -9,5 +9,4 @@ record Property(
         boolean usesRegex,
         String defaultValue,
         boolean deprecated,
-        PropertyArray propertyClass,
-        boolean prefixOnly) {}
+        PropertyArray propertyArray) {}

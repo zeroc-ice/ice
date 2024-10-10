@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
 
-<!-- This file defines the class properties and prefixes used by Ice. -->
+<!-- This file defines the properties used by Ice. -->
 
 <properties>
     <class name="Proxy" prefix-only="false">

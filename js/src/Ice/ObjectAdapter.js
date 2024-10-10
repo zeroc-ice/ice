@@ -24,46 +24,7 @@ import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 import { Logger } from "./Logger.js";
 import { LoggerMiddleware } from "./LoggerMiddleware.js";
-
-const _suffixes = [
-    "ACM",
-    "AdapterId",
-    "Endpoints",
-    "Locator",
-    "Locator.EncodingVersion",
-    "Locator.EndpointSelection",
-    "Locator.ConnectionCached",
-    "Locator.PreferSecure",
-    "Locator.CollocationOptimized",
-    "Locator.Router",
-    "MaxConnections",
-    "MessageSizeMax",
-    "PublishedEndpoints",
-    "ReplicaGroupId",
-    "Router",
-    "Router.EncodingVersion",
-    "Router.EndpointSelection",
-    "Router.ConnectionCached",
-    "Router.PreferSecure",
-    "Router.CollocationOptimized",
-    "Router.Locator",
-    "Router.Locator.EndpointSelection",
-    "Router.Locator.ConnectionCached",
-    "Router.Locator.PreferSecure",
-    "Router.Locator.CollocationOptimized",
-    "Router.Locator.LocatorCacheTimeout",
-    "Router.Locator.InvocationTimeout",
-    "Router.LocatorCacheTimeout",
-    "Router.InvocationTimeout",
-    "ProxyOptions",
-    "ThreadPool.Serialize",
-    "ThreadPool.Size",
-    "ThreadPool.SizeMax",
-    "ThreadPool.SizeWarn",
-    "ThreadPool.StackSize",
-    "ThreadPool.ThreadIdleTime",
-    "ThreadPool.ThreadPriority",
-];
+import { Properties } from "./Properties.js";
 
 const StateActive = 0;
 const StateDeactivated = 1;
@@ -104,22 +65,13 @@ export class ObjectAdapter {
         }
 
         const properties = this._instance.initializationData().properties;
-        const unknownProps = [];
-        const noProps = this.filterProperties(unknownProps);
 
-        //
-        // Warn about unknown object adapter properties.
-        //
-        if (unknownProps.length !== 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0) {
-            const message = ["found unknown properties for object adapter `" + name + "':"];
-            unknownProps.forEach(unknownProp => message.push("\n    " + unknownProp));
-            logger.warning(message.join(""));
-        }
+        Properties.validatePropertiesWithPrefix(this._name, properties, PropertyNames.ObjectAdapterProps);
 
         //
         // Make sure named adapter has some configuration.
         //
-        if (router === null && noProps) {
+        if (router === null && properties.getPropertiesForPrefix(`${this._name}.`).size === 0) {
             throw new InitializationException(`Object adapter '${this._name}' requires configuration.`);
         }
 
@@ -497,38 +449,5 @@ export class ObjectAdapter {
             this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, msg);
         }
         return endpoints;
-    }
-
-    filterProperties(unknownProps) {
-        //
-        // Do not create unknown properties list if Ice prefix, i.e., Ice, Glacier2, etc.
-        //
-        let addUnknown = true;
-        const prefix = this._name + ".";
-        for (const validPrefix of PropertyNames.validProps.keys()) {
-            if (prefix.indexOf(`${validPrefix}.`) === 0) {
-                addUnknown = false;
-                break;
-            }
-        }
-
-        let noProps = true;
-        const props = this._instance.initializationData().properties.getPropertiesForPrefix(prefix);
-        for (const key of props.keys()) {
-            let valid = false;
-            for (let i = 0; i < _suffixes.length; ++i) {
-                if (key === prefix + _suffixes[i]) {
-                    noProps = false;
-                    valid = true;
-                    break;
-                }
-            }
-
-            if (!valid && addUnknown) {
-                unknownProps.push(key);
-            }
-        }
-
-        return noProps;
     }
 }

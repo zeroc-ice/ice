@@ -94,6 +94,8 @@ public final class ObjectAdapter {
                 for (IncomingConnectionFactory factory : _incomingConnectionFactories) {
                     factory.activate();
                 }
+                _state = StateActive;
+                notifyAll();
                 return;
             }
 
@@ -223,10 +225,8 @@ public final class ObjectAdapter {
         }
 
         synchronized (this) {
-            //
-            // Wait for activation to complete. This is necessary to
-            // not get out of order locator updates.
-            //
+            // Wait for activation or a previous deactivation to complete.
+            // This is necessary to avoid out of order locator updates.
             while (_state == StateActivating) {
                 try {
                     wait();
