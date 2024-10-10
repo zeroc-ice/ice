@@ -96,7 +96,7 @@ class LoggerI implements Logger {
     @Override
     public void close() throws Exception {}
 
-    // Writes the actually message to the output stream.
+    // Writes the message to the output stream.
     protected void writeMessage(String message) {
         System.err.print(message);
     }
