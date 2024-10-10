@@ -13,7 +13,7 @@ using namespace Test;
 
 // Verify that we can create connectionCount connections and send a ping on each connection.
 void
-testCreateConnections(TestIntfPrx p, int connectionCount, function<void()> postCloseDelay)
+testCreateConnections(TestIntfPrx p, int connectionCount)
 {
     cout << "testing the creation of " << connectionCount << " connections... " << flush;
     vector<ConnectionPtr> connectionList;
@@ -29,18 +29,12 @@ testCreateConnections(TestIntfPrx p, int connectionCount, function<void()> postC
     {
         connection->close().get();
     }
-
-    if (postCloseDelay)
-    {
-        postCloseDelay();
-    }
-
     cout << "ok" << endl;
 }
 
 // Verify that we can create connectionCount connections and send a ping on each connection.
 void
-testCreateConnectionsWithMax(TestIntfPrx p, int max, function<void()> postCloseDelay)
+testCreateConnectionsWithMax(TestIntfPrx p, int max)
 {
     cout << "testing the creation of " << max << " connections with connection lost at " << (max + 1) << "... "
          << flush;
@@ -69,18 +63,12 @@ testCreateConnectionsWithMax(TestIntfPrx p, int max, function<void()> postCloseD
     {
         connection->close().get();
     }
-
-    if (postCloseDelay)
-    {
-        postCloseDelay();
-    }
-
     cout << "ok" << endl;
 }
 
 // Verify that we can create max connections, then connection lost, then recover.
 void
-testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max, function<void()> postCloseDelay)
+testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max)
 {
     cout << "testing the creation of " << max << " connections with connection lost at " << (max + 1)
          << " then recovery... " << flush;
@@ -108,11 +96,6 @@ testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max, function<void()>
     connectionList.front()->close().get();
     connectionList.erase(connectionList.begin());
 
-    if (postCloseDelay)
-    {
-        postCloseDelay();
-    }
-
     // Try again
     try
     {
@@ -131,11 +114,6 @@ testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max, function<void()>
     {
         connection->close().get();
     }
-
-    if (postCloseDelay)
-    {
-        postCloseDelay();
-    }
     cout << "ok" << endl;
 }
 
@@ -149,19 +127,9 @@ allTests(TestHelper* helper)
     string proxyStringMax10 = "test: " + helper->getTestEndpoint(1);
     TestIntfPrx pMax10(communicator, proxyStringMax10);
 
-    string transport = helper->getTestProtocol();
-
-    // When the transport is WS or WSS, we need to wait a little bit: the server closes the connection after it
-    // gets a transport frame from the client.
-    function<void()> postCloseDelay;
-    if (transport.find("ws") == 0)
-    {
-        postCloseDelay = []() { this_thread::sleep_for(50ms); };
-    }
-
-    testCreateConnections(p, 100, postCloseDelay);
-    testCreateConnectionsWithMax(pMax10, 10, postCloseDelay);
-    testCreateConnectionsWithMaxAndRecovery(pMax10, 10, postCloseDelay);
+    testCreateConnections(p, 100);
+    testCreateConnectionsWithMax(pMax10, 10);
+    testCreateConnectionsWithMaxAndRecovery(pMax10, 10);
 
     p->shutdown();
 }
