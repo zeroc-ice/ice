@@ -332,11 +332,6 @@ export class ObjectAdapter {
         return this._servantManager;
     }
 
-    setAdapterOnConnection(connection) {
-        this.checkForDeactivation();
-        connection.setAdapterAndServantManager(this, this._servantManager);
-    }
-
     messageSizeMax() {
         return this._messageSizeMax;
     }
