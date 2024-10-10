@@ -760,12 +760,12 @@ public final class Instance implements java.util.function.Function<String, Class
                                     properties.getIcePropertyAsInt("Ice.SyslogPort"));
                 } else if (!logFile.isEmpty()) {
                     _initData.logger =
-                            new LoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
+                            new FileLoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
                 } else {
                     _initData.logger = Util.getProcessLogger();
                     if (_initData.logger instanceof LoggerI) {
                         _initData.logger =
-                                new LoggerI(properties.getIceProperty("Ice.ProgramName"), "");
+                                new LoggerI(properties.getIceProperty("Ice.ProgramName"));
                     }
                 }
             }
