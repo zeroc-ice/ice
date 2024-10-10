@@ -16,7 +16,11 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    auto properties = createTestProperties(argc, argv);
+    // We disable retries to make the logs clearer and avoid hiding potential issues.
+    properties->setProperty("Ice.RetryIntervals", "-1");
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
     void allTests(Test::TestHelper*);
     allTests(this);
