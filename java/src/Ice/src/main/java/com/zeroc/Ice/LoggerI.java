@@ -93,9 +93,6 @@ class LoggerI implements Logger {
         return new LoggerI(prefix);
     }
 
-    @Override
-    public void close() throws Exception {}
-
     // Writes the message to the output stream.
     protected void writeMessage(String message) {
         System.err.print(message);

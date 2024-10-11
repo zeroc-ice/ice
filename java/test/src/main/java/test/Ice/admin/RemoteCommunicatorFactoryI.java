@@ -44,9 +44,6 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory {
                         public com.zeroc.Ice.Logger cloneWithPrefix(String prefix) {
                             return this;
                         }
-
-                        @Override
-                        public void close() {}
                     };
         }
 

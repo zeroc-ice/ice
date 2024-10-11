@@ -43,8 +43,5 @@ public final class DummyLogger implements com.zeroc.Ice.Logger {
         return new DummyLogger();
     }
 
-    @Override
-    public void close() {}
-
     private final com.zeroc.Ice.Logger _logger = com.zeroc.Ice.Util.getProcessLogger();
 }

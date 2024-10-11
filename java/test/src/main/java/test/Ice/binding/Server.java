@@ -32,9 +32,6 @@ public class Server extends test.TestHelper {
                     public com.zeroc.Ice.Logger cloneWithPrefix(String prefix) {
                         return this;
                     }
-
-                    @Override
-                    public void close() {}
                 };
 
         try (com.zeroc.Ice.Communicator communicator = initialize(initData)) {

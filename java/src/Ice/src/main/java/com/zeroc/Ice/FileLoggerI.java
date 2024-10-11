@@ -25,9 +25,11 @@ final class FileLoggerI extends LoggerI {
                 "cloneWithPrefix is not supported on a file logger");
     }
 
-    @Override
-    public void close() throws java.io.IOException {
-        _out.close();
+    void destroy() {
+        try {
+            _out.close();
+        } catch (java.io.IOException ex) {
+        }
     }
 
     @Override

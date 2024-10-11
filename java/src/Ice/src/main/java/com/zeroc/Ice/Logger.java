@@ -6,7 +6,7 @@ package com.zeroc.Ice;
  * The Ice message logger. Applications can provide their own logger by implementing this interface
  * and installing it in a communicator.
  */
-public interface Logger extends AutoCloseable {
+public interface Logger {
     /**
      * Print a message. The message is printed literally, without any decorations such as executable
      * name or time stamp.
