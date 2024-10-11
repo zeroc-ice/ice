@@ -1211,6 +1211,8 @@ public sealed class ObjectAdapter
 
     private void checkForDeactivation()
     {
+        checkForDestruction();
+
         if (_state >= StateDeactivating)
         {
             throw new ObjectAdapterDeactivatedException(getName());
