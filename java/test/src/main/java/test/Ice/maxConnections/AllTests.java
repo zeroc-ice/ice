@@ -16,16 +16,27 @@ public class AllTests {
         String proxyStringMax10 = "test: " + helper.getTestEndpoint(1);
         var pMax10 = TestIntfPrx.createProxy(communicator, proxyStringMax10);
 
-        testCreateConnections(p, 100, helper.getWriter());
-        testCreateConnectionsWithMax(pMax10, 10, helper.getWriter());
-        testCreateConnectionsWithMaxAndRecovery(pMax10, 10, helper.getWriter());
+        Runnable postCloseDelay = null;
+        // When the transport is WS or WSS, we need to wait a little bit: the server closes
+        // the connection after it gets a transport frame from the client.
+        if (helper.getTestProtocol().startsWith("ws")) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        testCreateConnections(p, 100, helper.getWriter(), postCloseDelay);
+        testCreateConnectionsWithMax(pMax10, 10, helper.getWriter(), postCloseDelay);
+        testCreateConnectionsWithMaxAndRecovery(pMax10, 10, helper.getWriter(), postCloseDelay);
 
         p.shutdown();
     }
 
     // Verify that we can create connectionCount connections and send a ping on each connection.
     private static void testCreateConnections(
-            TestIntfPrx p, int connectionCount, PrintWriter output) {
+            TestIntfPrx p, int connectionCount, PrintWriter output, Runnable postCloseDelay) {
         output.write("testing the creation of " + connectionCount + " connections... ");
         output.flush();
 
@@ -41,11 +52,16 @@ public class AllTests {
             connectionList.get(i).close();
         }
 
+        if (postCloseDelay != null) {
+            postCloseDelay.run();
+        }
+
         output.println("ok");
     }
 
     // Verify that we can create max connections but not more.
-    private static void testCreateConnectionsWithMax(TestIntfPrx p, int max, PrintWriter output) {
+    private static void testCreateConnectionsWithMax(
+            TestIntfPrx p, int max, PrintWriter output, Runnable postCloseDelay) {
         output.write(
                 "testing the creation of "
                         + max
@@ -74,12 +90,16 @@ public class AllTests {
             connectionList.get(i).close();
         }
 
+        if (postCloseDelay != null) {
+            postCloseDelay.run();
+        }
+
         output.println("ok");
     }
 
     // Verify that we can create max connections, then connection lost, then recover.
     private static void testCreateConnectionsWithMaxAndRecovery(
-            TestIntfPrx p, int max, PrintWriter output) {
+            TestIntfPrx p, int max, PrintWriter output, Runnable postCloseDelay) {
         output.write(
                 "testing the creation of "
                         + max
@@ -107,6 +127,10 @@ public class AllTests {
         connectionList.get(0).close();
         connectionList.remove(0);
 
+        if (postCloseDelay != null) {
+            postCloseDelay.run();
+        }
+
         // Try again
         p.ice_ping();
         connectionList.add(p.ice_getCachedConnection());
@@ -114,6 +138,10 @@ public class AllTests {
         // Close all connections
         for (int i = 0; i < max; i++) {
             connectionList.get(i).close();
+        }
+
+        if (postCloseDelay != null) {
+            postCloseDelay.run();
         }
 
         output.println("ok");

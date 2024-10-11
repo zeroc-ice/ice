@@ -1427,10 +1427,7 @@ export class ConnectionI {
                 } else {
                     // Received request on a connection without an object adapter.
                     this.sendResponse(
-                        request.current.createOutgoingResponseWithException(
-                            new ObjectNotExistException(),
-                            this._communicator,
-                        ),
+                        request.current.createOutgoingResponseWithException(new ObjectNotExistException()),
                         !this._endpoint.datagram() && requestId != 0,
                     );
                 }
@@ -1460,9 +1457,7 @@ export class ConnectionI {
                 try {
                     response = await dispatcher.dispatch(request);
                 } catch (ex) {
-                    const communicator = request.current.adapter.getCommunicator();
-                    Debug.assert(communicator !== null);
-                    response = request.current.createOutgoingResponseWithException(ex, communicator);
+                    response = request.current.createOutgoingResponseWithException(ex);
                 }
                 connection.sendResponse(response, !connection._endpoint.datagram() && requestId != 0);
             } catch (ex) {

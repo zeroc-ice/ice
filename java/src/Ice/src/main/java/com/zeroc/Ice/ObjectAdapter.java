@@ -1037,16 +1037,9 @@ public final class ObjectAdapter {
         }
     }
 
-    public ServantManager getServantManager() {
-        //
-        // No mutex lock necessary, _servantManager is immutable.
-        //
-        return _servantManager;
-    }
-
     public synchronized void setAdapterOnConnection(com.zeroc.Ice.ConnectionI connection) {
         checkForDeactivation();
-        connection.setAdapterAndServantManager(this, _servantManager);
+        connection.setAdapterFromAdapter(this);
     }
 
     public int messageSizeMax() {
