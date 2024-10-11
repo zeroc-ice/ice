@@ -1179,14 +1179,8 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             if (_initData.logger instanceof LoggerAdminLogger) {
-                //
                 // This only disables the remote logging; we don't set or reset _initData.logger
-                //
-                try {
-                    ((LoggerAdminLogger) _initData.logger).destroy();
-                } catch (Exception ex) {
-                    // ignored
-                }
+                ((LoggerAdminLogger) _initData.logger).destroy();
             }
 
             //
