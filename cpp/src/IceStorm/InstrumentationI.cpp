@@ -288,7 +288,7 @@ TopicManagerObserverI::setObserverUpdater(const shared_ptr<ObserverUpdater>& upd
 
 shared_ptr<TopicObserver>
 TopicManagerObserverI::getTopicObserver(
-    const string& service,
+    const string& service, // TODO: should always be "IceStorm"
     const string& topic,
     const shared_ptr<TopicObserver>& old)
 {

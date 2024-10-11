@@ -74,17 +74,12 @@ GroupNodeInfo::operator==(const GroupNodeInfo& rhs) const
 
 namespace
 {
-    static chrono::seconds getTimeout(const shared_ptr<Instance> instance, const string& key, int def)
+    static chrono::seconds getTimeout(const shared_ptr<Ice::Properties> properties, string_view key)
     {
-        auto properties = instance->communicator()->getProperties();
-        auto traceLevels = instance->traceLevels();
-
-        auto t = chrono::seconds(properties->getPropertyAsIntWithDefault(key, def));
+        auto t = chrono::seconds(properties->getIcePropertyAsInt(key));
         if (t < 0s)
         {
-            Ice::Warning out(traceLevels->logger);
-            out << traceLevels->electionCat << ": " << key << " < 0; Adjusted to 1";
-            t = 1s;
+            throw Ice::InitializationException(__FILE__, __LINE__, "invalid timeout value for " + string{key});
         }
         return t;
     }
@@ -119,9 +114,9 @@ NodeI::NodeI(
       _replicaProxy(std::move(replicaProxy)),
       _id(id),
       _nodes(nodes),
-      _masterTimeout(getTimeout(instance, instance->serviceName() + ".Election.MasterTimeout", 10)),
-      _electionTimeout(getTimeout(instance, instance->serviceName() + ".Election.ElectionTimeout", 10)),
-      _mergeTimeout(getTimeout(instance, instance->serviceName() + ".Election.ResponseTimeout", 10)),
+      _masterTimeout(getTimeout(instance->properties(), "IceStorm.Election.MasterTimeout")),
+      _electionTimeout(getTimeout(instance->properties(), "IceStorm.Election.ElectionTimeout")),
+      _mergeTimeout(getTimeout(instance->properties(), "IceStorm.Election.ResponseTimeout")),
       _state(NodeState::NodeStateInactive),
       _updateCounter(0),
       _max(0),

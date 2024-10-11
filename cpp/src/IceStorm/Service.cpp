@@ -35,14 +35,14 @@ namespace
     public:
         IceStorm::TopicManagerPrx getTopicManager() const final;
 
-        void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) final;
+        // IceBox::Service::start
+        void start(const std::string& name, const Ice::CommunicatorPtr&, const Ice::StringSeq&) final;
 
         // For IceGrid
         void start(
             const Ice::CommunicatorPtr&,
             const Ice::ObjectAdapterPtr&,
             const Ice::ObjectAdapterPtr&,
-            const std::string&,
             const Ice::Identity&);
 
         void stop() final;
@@ -78,16 +78,15 @@ IceStormInternal::Service::create(
     const CommunicatorPtr& communicator,
     const ObjectAdapterPtr& topicAdapter,
     const ObjectAdapterPtr& publishAdapter,
-    const string& name,
     const Ice::Identity& id)
 {
     shared_ptr<ServiceI> service(new ServiceI);
-    service->start(communicator, topicAdapter, publishAdapter, name, id);
+    service->start(communicator, topicAdapter, publishAdapter, id);
     return service;
 }
 
 void
-ServiceI::start(const string& name, const CommunicatorPtr& communicator, const StringSeq&)
+ServiceI::start(const string&, const CommunicatorPtr& communicator, const StringSeq&)
 {
     auto properties = communicator->getProperties();
 
@@ -104,15 +103,13 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
     auto topicAdapter = communicator->createObjectAdapter("IceStorm.TopicManager");
     auto publishAdapter = communicator->createObjectAdapter("IceStorm.Publish");
 
-    //
-    // We use the name of the service for the name of the database environment.
-    //
-    string instanceName = properties->getPropertyWithDefault("IceStorm.InstanceName", "IceStorm");
+    // The instance name is used as the identity category for all objects hosted by IceStorm object adapters.
+    string instanceName = properties->getIceProperty("IceStorm.InstanceName");
     Identity topicManagerId = {"TopicManager", instanceName};
 
     if (properties->getPropertyAsIntWithDefault("IceStorm.Transient", 0) > 0)
     {
-        _instance = make_shared<Instance>(instanceName, name, communicator, publishAdapter, topicAdapter, nullptr);
+        _instance = make_shared<Instance>(instanceName, communicator, publishAdapter, topicAdapter, nullptr);
         try
         {
             auto manager = make_shared<TransientTopicManagerImpl>(_instance);
@@ -123,7 +120,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             _instance = 0;
 
             LoggerOutputBase s;
-            s << "exception while starting IceStorm service " << name << ":\n";
+            s << "exception while starting IceStorm:\n";
             s << ex;
             throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
@@ -136,8 +133,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
     {
         try
         {
-            auto instance =
-                make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter, topicAdapter);
+            auto instance = make_shared<PersistentInstance>(instanceName, communicator, publishAdapter, topicAdapter);
             _manager = TopicManagerImpl::create(instance);
             _instance = std::move(instance);
             _managerProxy = topicAdapter->add<TopicManagerPrx>(_manager->getServant(), topicManagerId);
@@ -147,7 +143,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             _instance = 0;
 
             LoggerOutputBase s;
-            s << "exception while starting IceStorm service " << name << ":\n";
+            s << "exception while starting IceStorm:\n";
             s << ex;
 
             throw IceBox::FailureException(__FILE__, __LINE__, s.str());
@@ -210,7 +206,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             // We work out the node id by removing the instance name. The node id must follow.
             auto locator = uncheckedCast<IceGrid::LocatorPrx>(communicator->getDefaultLocator().value());
             auto query = locator->getLocalQuery();
-            auto replicas = query->findAllReplicas(communicator->stringToProxy(instance "IceStorm/TopicManager"));
+            auto replicas = query->findAllReplicas(communicator->stringToProxy(instanceName + "/TopicManager"));
 
             for (const auto& replica : replicas)
             {
@@ -285,7 +281,6 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             auto nodeAdapter = communicator->createObjectAdapter("IceStorm.Node");
             auto instance = make_shared<PersistentInstance>(
                 instanceName,
-                name,
                 communicator,
                 publishAdapter,
                 topicAdapter,
@@ -345,7 +340,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             _instance = nullptr;
 
             LoggerOutputBase s;
-            s << "exception while starting IceStorm service " << name << ":\n" << ex;
+            s << "exception while starting IceStorm:\n" << ex;
             throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
     }
@@ -363,15 +358,12 @@ ServiceI::start(
     const CommunicatorPtr& communicator,
     const ObjectAdapterPtr& topicAdapter,
     const ObjectAdapterPtr& publishAdapter,
-    const string& name,
     const Identity& id)
 {
     //
     // This is for IceGrid only and as such we use a transient implementation of IceStorm.
     //
-
-    const string instanceName = "IceStorm";
-    _instance = make_shared<Instance>(instanceName, name, communicator, publishAdapter, topicAdapter, nullptr);
+    _instance = make_shared<Instance>("IceStorm", communicator, publishAdapter, topicAdapter, nullptr);
 
     try
     {
@@ -382,7 +374,7 @@ ServiceI::start(
     {
         _instance = nullptr;
         LoggerOutputBase s;
-        s << "exception while starting IceStorm service " << name << ":\n" << ex;
+        s << "exception while starting IceStorm:\n" << ex;
         throw IceBox::FailureException(__FILE__, __LINE__, s.str());
     }
 }

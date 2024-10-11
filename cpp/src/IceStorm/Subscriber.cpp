@@ -814,7 +814,7 @@ Subscriber::updateObserver()
     {
         assert(_rec.obj);
         _observer.attach(_instance->observer()->getSubscriberObserver(
-            _instance->serviceName(),
+            "IceStorm",
             _rec.topicName,
             *_rec.obj,
             _rec.theQoS,
@@ -852,7 +852,7 @@ Subscriber::Subscriber(
     {
         assert(_rec.obj);
         _observer.attach(_instance->observer()->getSubscriberObserver(
-            _instance->serviceName(),
+            "IceStorm",
             _rec.topicName,
             *_rec.obj,
             _rec.theQoS,
@@ -900,7 +900,7 @@ Subscriber::setState(Subscriber::SubscriberState state)
         {
             assert(_rec.obj);
             _observer.attach(_instance->observer()->getSubscriberObserver(
-                _instance->serviceName(),
+                "IceStorm",
                 _rec.topicName,
                 *_rec.obj,
                 _rec.theQoS,

@@ -45,7 +45,6 @@ namespace IceStorm
 
         Instance(
             const std::string&,
-            const std::string&,
             Ice::CommunicatorPtr,
             Ice::ObjectAdapterPtr,
             Ice::ObjectAdapterPtr,
@@ -57,7 +56,6 @@ namespace IceStorm
         void setNode(std::shared_ptr<IceStormElection::NodeI>);
 
         std::string instanceName() const;
-        std::string serviceName() const;
         Ice::CommunicatorPtr communicator() const;
         Ice::PropertiesPtr properties() const;
         Ice::ObjectAdapterPtr publishAdapter() const;
@@ -84,7 +82,6 @@ namespace IceStorm
 
     private:
         const std::string _instanceName;
-        const std::string _serviceName;
         const Ice::CommunicatorPtr _communicator;
         const Ice::ObjectAdapterPtr _publishAdapter;
         const Ice::ObjectAdapterPtr _topicAdapter;
@@ -112,7 +109,6 @@ namespace IceStorm
     {
     public:
         PersistentInstance(
-            const std::string&,
             const std::string&,
             Ice::CommunicatorPtr,
             Ice::ObjectAdapterPtr,
