@@ -231,7 +231,7 @@ public sealed class ObjectAdapterFactory
                     return adapter;
                 }
             }
-            catch (Ice.ObjectAdapterDeactivatedException)
+            catch (Ice.ObjectAdapterDestroyedException)
             {
                 // Ignore.
             }

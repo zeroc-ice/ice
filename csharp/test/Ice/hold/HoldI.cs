@@ -57,7 +57,7 @@ namespace Ice
                         current.adapter.waitForHold();
                         current.adapter.activate();
                     }
-                    catch (Ice.ObjectAdapterDeactivatedException)
+                    catch (Ice.LocalException)
                     {
                         //
                         // This shouldn't occur. The test ensures all the waitForHold timers are

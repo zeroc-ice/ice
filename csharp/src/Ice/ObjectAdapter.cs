@@ -176,7 +176,6 @@ public sealed class ObjectAdapter
         lock (_mutex)
         {
             checkForDeactivation();
-
             incomingConnectionFactories = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
         }
 
@@ -187,16 +186,14 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Deactivate all endpoints that belong to this object adapter.
-    /// After deactivation, the object adapter stops
-    /// receiving requests through its endpoints. Object adapters that have been deactivated must not be reactivated
-    /// again, and cannot be used otherwise. Attempts to use a deactivated object adapter raise
-    /// ObjectAdapterDeactivatedException however, attempts to deactivate an already deactivated
-    /// object adapter are ignored and do nothing. Once deactivated, it is possible to destroy the adapter to clean up
-    /// resources and then create and activate a new adapter with the same name.
-    /// &lt;p class="Note"&gt; After deactivate returns, no new requests are processed by the object adapter.
-    /// However, requests that have been started before deactivate was called might still be active. You can
-    /// use waitForDeactivate to wait for the completion of all requests for this object adapter.
+    /// Deactivate this object adapter.
+    /// After deactivation, the object adapter stops receiving requests through its endpoints. Object adapters that
+    /// have been deactivated must not be reactivated again.
+    /// Once deactivated, it is possible to destroy the adapter to clean up resources and then create and activate a new
+    /// adapter with the same name.
+    /// After deactivate returns, no new requests are processed by the object adapter. However, requests that have been
+    /// started before deactivate was called might still be active. You can use waitForDeactivate to wait for the
+    /// completion of all requests for this object adapter.
     /// </summary>
     public void deactivate()
     {
@@ -428,7 +425,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(identity);
             ArgumentNullException.ThrowIfNull(servant);
 
@@ -486,8 +483,7 @@ public sealed class ObjectAdapter
 
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             _servantManager.addDefaultServant(servant, category);
         }
     }
@@ -513,7 +509,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return _servantManager.removeServant(id, facet);
@@ -532,7 +528,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return _servantManager.removeAllFacets(id);
@@ -550,8 +546,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             return _servantManager.removeDefaultServant(category);
         }
     }
@@ -579,7 +574,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return _servantManager.findServant(id, facet);
@@ -596,7 +591,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return _servantManager.findAllFacets(id);
@@ -613,8 +608,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             Reference @ref = ((ObjectPrxHelperBase)proxy).iceReference();
             return findFacet(@ref.getIdentity(), @ref.getFacet());
         }
@@ -644,8 +638,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             _servantManager.addServantLocator(locator, category);
         }
     }
@@ -661,8 +654,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             return _servantManager.removeServantLocator(category);
         }
     }
@@ -678,8 +670,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             return _servantManager.findServantLocator(category);
         }
     }
@@ -693,8 +684,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             return _servantManager.findDefaultServant(category);
         }
     }
@@ -718,7 +708,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return newProxy(id, "");
@@ -736,7 +726,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return newDirectProxy(id, "");
@@ -755,7 +745,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return newIndirectProxy(id, "", _id);
@@ -775,7 +765,6 @@ public sealed class ObjectAdapter
         lock (_mutex)
         {
             checkForDeactivation();
-
             _locatorInfo = _instance.locatorManager().get(locator);
         }
     }
@@ -895,8 +884,7 @@ public sealed class ObjectAdapter
             // Proxies which have at least one endpoint in common with the published endpoints are considered local.
             lock (_mutex)
             {
-                checkForDeactivation();
-
+                checkForDestruction();
                 EndpointI[] endpoints = r.getEndpoints();
                 return _publishedEndpoints.Any(e => endpoints.Any(e.equivalent));
             }
@@ -949,7 +937,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
 
             Debug.Assert(_directCount >= 0);
             ++_directCount;
@@ -960,7 +948,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            // Not check for deactivation here!
+            // Not check for destruction here!
 
             Debug.Assert(_instance is not null); // Must not be called after destroy().
 
@@ -996,7 +984,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             connection.setAdapterFromAdapter(this);
         }
     }
@@ -1239,6 +1227,14 @@ public sealed class ObjectAdapter
         }
     }
 
+    private void checkForDestruction()
+    {
+        if (_state >= StateDestroying)
+        {
+            throw new ObjectAdapterDestroyedException(getName());
+        }
+    }
+
     private List<EndpointI> parseEndpoints(string endpts, bool oaEndpoints)
     {
         int beg;
@@ -1459,6 +1455,10 @@ public sealed class ObjectAdapter
         catch (ObjectAdapterDeactivatedException)
         {
             // Expected if collocated call and OA is deactivated, ignore.
+        }
+        catch (ObjectAdapterDestroyedException)
+        {
+            // Ignore
         }
         catch (CommunicatorDestroyedException)
         {

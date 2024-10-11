@@ -18,13 +18,7 @@ public class Server : Test.TestHelper
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             string id = communicator.getProperties().getPropertyWithDefault("Identity", "test");
             adapter.add(new TestI(), Ice.Util.stringToIdentity(id));
-            try
-            {
-                adapter.activate();
-            }
-            catch (Ice.ObjectAdapterDeactivatedException)
-            {
-            }
+            adapter.activate();
             communicator.waitForShutdown();
         }
     }

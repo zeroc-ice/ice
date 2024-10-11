@@ -761,6 +761,24 @@ public sealed class ObjectAdapterDeactivatedException : LocalException
 }
 
 /// <summary>
+/// This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
+/// </summary>
+public sealed class ObjectAdapterDestroyedException : LocalException
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectAdapterDestroyedException" /> class.
+    /// </summary>
+    /// <param name="name">The name of the object adapter that is destroyed.</param>
+    public ObjectAdapterDestroyedException(string name)
+        : base($"Object adapter '{name}' is destroyed.")
+    {
+    }
+
+    /// <inheritdoc/>
+    public override string ice_id() => "::Ice::ObjectAdapterDestroyedException";
+}
+
+/// <summary>
 /// This exception is raised if an ObjectAdapter cannot be activated.
 /// This happens if the Locator detects another active ObjectAdapter with the same adapter ID.
 /// </summary>

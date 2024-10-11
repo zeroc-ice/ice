@@ -107,15 +107,13 @@ namespace Ice
         ObjectPrx createProxy(Identity id);
 
         /// <summary>
-        /// Explicitly set an object adapter that dispatches requests that are received over this connection.
-        /// A client can
-        /// invoke an operation on a server using a proxy, and then set an object adapter for the outgoing connection that
-        /// is used by the proxy in order to receive callbacks. This is useful if the server cannot establish a connection
-        /// back to the client, for example because of firewalls.
+        /// Explicitly set an object adapter that dispatches requests received by this connection.
+        /// A client can invoke an operation on a server using a proxy, and then set an object adapter for the outgoing
+        /// connection that is used by the proxy in order to receive callbacks. This is useful if the server cannot
+        /// establish a connection back to the client, for example because of firewalls.
         /// </summary>
-        /// <param name="adapter">The object adapter that should be used by this connection to dispatch requests. The object
-        /// adapter must be activated. When the object adapter is deactivated, it is automatically removed from the
-        /// connection. Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException.</param>
+        /// <param name="adapter">The object adapter that dispatches requests received by this connection.
+        /// </param>
         void setAdapter(ObjectAdapter adapter);
 
         /// <summary>

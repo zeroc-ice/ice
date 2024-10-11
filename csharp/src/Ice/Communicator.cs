@@ -27,8 +27,7 @@ public sealed class Communicator : IDisposable
 
     /// <summary>
     /// Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
-    /// Attempts to use a deactivated object adapter throws <see cref="ObjectAdapterDeactivatedException" />. Subsequent
-    /// calls to shutdown are ignored.
+    /// Subsequent calls to shutdown are ignored.
     /// After shutdown returns, no new requests are processed. However, requests that started to be dispatched before
     /// shutdown was called might still be active. You can use <see cref="waitForShutdown" /> to wait for the completion
     /// of all dispatches.

@@ -222,13 +222,13 @@ namespace Ice
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
                     obj.ice_getConnection().setAdapter(adapter);
                     obj.ice_getConnection().setAdapter(null);
-                    adapter.deactivate();
+                    adapter.destroy();
                     try
                     {
                         obj.ice_getConnection().setAdapter(adapter);
                         test(false);
                     }
-                    catch (Ice.ObjectAdapterDeactivatedException)
+                    catch (Ice.ObjectAdapterDestroyedException)
                     {
                     }
                     output.WriteLine("ok");
@@ -316,14 +316,22 @@ namespace Ice
 
                 output.Write("testing whether server is gone... ");
                 output.Flush();
-                try
+                if (obj.ice_getConnection() is null) // collocated
                 {
-                    obj.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
-                    test(false);
-                }
-                catch (Ice.LocalException)
-                {
+                    obj.ice_ping();
                     output.WriteLine("ok");
+                }
+                else
+                {
+                    try
+                    {
+                        obj.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+                        test(false);
+                    }
+                    catch (Ice.LocalException)
+                    {
+                        output.WriteLine("ok");
+                    }
                 }
 
                 output.Write("testing server idle time...");

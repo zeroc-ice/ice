@@ -406,6 +406,10 @@ internal class ServiceManagerI : ServiceManagerDisp_
         {
             // Expected if the communicator is shutdown
         }
+        catch (Ice.ObjectAdapterDestroyedException)
+        {
+            // Expected if the communicator is shutdown
+        }
         catch (Exception ex)
         {
             _logger.error("ServiceManager: caught exception:\n" + ex.ToString());
@@ -992,6 +996,10 @@ internal class ServiceManagerI : ServiceManagerDisp_
             // Ignored
         }
         catch (Ice.ObjectAdapterDeactivatedException)
+        {
+            // Ignored
+        }
+        catch (Ice.ObjectAdapterDestroyedException)
         {
             // Ignored
         }
