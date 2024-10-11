@@ -5,7 +5,13 @@
 package com.zeroc.Ice;
 
 class LoggerI implements Logger {
-    LoggerI(String prefix, String file) {
+    private final String _prefix;
+    private final String _formattedPrefix;
+    private final String _lineSeparator;
+    private final java.text.DateFormat _date;
+    private final java.text.SimpleDateFormat _time;
+
+    LoggerI(String prefix) {
         _prefix = prefix;
 
         if (!prefix.isEmpty()) {
@@ -17,18 +23,6 @@ class LoggerI implements Logger {
         _lineSeparator = System.getProperty("line.separator");
         _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
         _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
-
-        if (!file.isEmpty()) {
-            _file = file;
-            try {
-                _out = new java.io.FileOutputStream(new java.io.File(_file), true);
-            } catch (java.io.FileNotFoundException ex) {
-                throw new InitializationException("FileLogger: cannot open " + _file);
-            }
-        } else {
-            _file = "";
-            _out = null;
-        }
     }
 
     @Override
@@ -96,7 +90,12 @@ class LoggerI implements Logger {
 
     @Override
     public Logger cloneWithPrefix(String prefix) {
-        return new LoggerI(prefix, _file);
+        return new LoggerI(prefix);
+    }
+
+    // Writes the message to the output stream.
+    protected void writeMessage(String message) {
+        System.err.print(message);
     }
 
     private void write(StringBuilder message, boolean indent) {
@@ -108,31 +107,6 @@ class LoggerI implements Logger {
             }
         }
         message.append(_lineSeparator);
-
-        if (_out == null) {
-            System.err.print(message.toString());
-        } else {
-            try {
-                _out.write(message.toString().getBytes());
-            } catch (java.io.IOException ex) {
-            }
-        }
+        writeMessage(message.toString());
     }
-
-    public void destroy() {
-        if (!_file.isEmpty()) {
-            try {
-                _out.close();
-            } catch (java.io.IOException ex) {
-            }
-        }
-    }
-
-    private final String _prefix;
-    private final String _formattedPrefix;
-    private final String _file;
-    private final String _lineSeparator;
-    private final java.text.DateFormat _date;
-    private final java.text.SimpleDateFormat _time;
-    private final java.io.FileOutputStream _out;
 }

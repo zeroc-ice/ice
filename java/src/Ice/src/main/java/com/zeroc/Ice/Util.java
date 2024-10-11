@@ -389,7 +389,7 @@ public final class Util {
                 //
                 // TODO: Would be nice to be able to use process name as prefix by default.
                 //
-                _processLogger = new LoggerI("", "");
+                _processLogger = new LoggerI("");
             }
 
             return _processLogger;

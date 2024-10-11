@@ -760,12 +760,12 @@ public final class Instance implements java.util.function.Function<String, Class
                                     properties.getIcePropertyAsInt("Ice.SyslogPort"));
                 } else if (!logFile.isEmpty()) {
                     _initData.logger =
-                            new LoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
+                            new FileLoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
                 } else {
                     _initData.logger = Util.getProcessLogger();
                     if (_initData.logger instanceof LoggerI) {
                         _initData.logger =
-                                new LoggerI(properties.getIceProperty("Ice.ProgramName"), "");
+                                new LoggerI(properties.getIceProperty("Ice.ProgramName"));
                     }
                 }
             }
@@ -1179,9 +1179,7 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             if (_initData.logger instanceof LoggerAdminLogger) {
-                //
                 // This only disables the remote logging; we don't set or reset _initData.logger
-                //
                 ((LoggerAdminLogger) _initData.logger).destroy();
             }
 
@@ -1266,8 +1264,13 @@ public final class Instance implements java.util.function.Function<String, Class
                 _pluginManager.destroy();
             }
 
-            if (_initData.logger instanceof LoggerI) {
-                LoggerI logger = (LoggerI) _initData.logger;
+            if (_initData.logger instanceof FileLoggerI) {
+                FileLoggerI logger = (FileLoggerI) _initData.logger;
+                logger.destroy();
+            }
+
+            if (_initData.logger instanceof SysLoggerI) {
+                SysLoggerI logger = (SysLoggerI) _initData.logger;
                 logger.destroy();
             }
 
