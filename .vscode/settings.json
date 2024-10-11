@@ -14,6 +14,7 @@
         "Browsable",
         "istr",
         "ostr",
+        "unregisters",
         "Upcall"
     ],
     "gradle.nestedProjects": true,

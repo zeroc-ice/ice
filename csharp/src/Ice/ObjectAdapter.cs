@@ -36,7 +36,7 @@ public sealed class ObjectAdapter
     private RouterInfo? _routerInfo;
     private EndpointI[] _publishedEndpoints;
     private LocatorInfo? _locatorInfo;
-    private int _directCount;  // The number of direct proxies dispatching on this object adapter.
+    private int _directCount;  // The number of colloc proxies dispatching on this object adapter.
     private bool _noConfig;
     private int _messageSizeMax;
     private readonly SslServerAuthenticationOptions? _serverAuthenticationOptions;
@@ -186,14 +186,12 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Deactivate this object adapter.
-    /// After deactivation, the object adapter stops receiving requests through its endpoints. Object adapters that
-    /// have been deactivated must not be reactivated again.
-    /// Once deactivated, it is possible to destroy the adapter to clean up resources and then create and activate a new
-    /// adapter with the same name.
-    /// After deactivate returns, no new requests are processed by the object adapter. However, requests that have been
-    /// started before deactivate was called might still be active. You can use waitForDeactivate to wait for the
-    /// completion of all requests for this object adapter.
+    /// Deactivates this object adapter: stop accepting new connections from clients and close gracefully all incoming
+    /// connections created by this object adapter once all outstanding dispatches have completed. If this object
+    /// adapter is indirect, this method also unregisters the object adapter from the Locator.
+    /// This method does not cancel outstanding dispatches--it lets them execute until completion. A new incoming
+    /// request on an existing connection will be accepted and can delay the closure of the connection.
+    /// A deactivated object adapter cannot be reactivated again; it can only be destroyed.
     /// </summary>
     public void deactivate()
     {
@@ -237,21 +235,17 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Wait until the object adapter has deactivated.
-    /// Calling deactivate initiates object adapter
-    /// deactivation, and waitForDeactivate only returns when deactivation has been completed.
+    /// Wait until <see cref="deactivate" /> is called on this object adapter and all connections accepted by this
+    /// object adapter are closed. A connection is closed only after all outstanding dispatches on this connection have
+    /// completed.
     /// </summary>
     public void waitForDeactivate()
     {
         IncomingConnectionFactory[]? incomingConnectionFactories = null;
         lock (_mutex)
         {
-            //
-            // Wait for deactivation of the adapter itself, and
-            // for the return of all direct method calls using this
-            // adapter.
-            //
-            while ((_state < StateDeactivated) || _directCount > 0)
+            // Wait for deactivation of the adapter itself.
+            while (_state < StateDeactivated)
             {
                 Monitor.Wait(_mutex);
             }
@@ -274,9 +268,9 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Check whether object adapter has been deactivated.
+    /// Checks if this object adapter has been deactivated.
     /// </summary>
-    /// <returns>Whether adapter has been deactivated.
+    /// <returns><see langword="true" /> if <see cref="deactivate"/> was called; otherwise, <see langword="false" />.
     /// </returns>
     public bool isDeactivated()
     {
@@ -287,11 +281,8 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Destroys the object adapter and cleans up all resources held by the object adapter.
-    /// If the object adapter has
-    /// not yet been deactivated, destroy implicitly initiates the deactivation and waits for it to finish. Subsequent
-    /// calls to destroy are ignored. Once destroy has returned, it is possible to create another object adapter with
-    /// the same name.
+    /// Destroys this object adapter and cleans up all resources held by this object adapter.
+    /// Once this method has returned, it is possible to create another object adapter with the same name.
     /// </summary>
     public void destroy()
     {
@@ -317,6 +308,11 @@ public sealed class ObjectAdapter
                 return;
             }
             _state = StateDestroying;
+
+            while (_directCount > 0)
+            {
+                Monitor.Wait(_mutex);
+            }
         }
 
         if (_routerInfo is not null)
@@ -940,7 +936,7 @@ public sealed class ObjectAdapter
         {
             // Not check for destruction here!
 
-            Debug.Assert(_instance is not null); // Must not be called after destroy().
+            Debug.Assert(_instance is not null); // destroy waits for _directCount to reach 0
 
             Debug.Assert(_directCount > 0);
             if (--_directCount == 0)

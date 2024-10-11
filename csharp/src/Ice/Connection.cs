@@ -107,21 +107,20 @@ namespace Ice
         ObjectPrx createProxy(Identity id);
 
         /// <summary>
-        /// Explicitly set an object adapter that dispatches requests received by this connection.
-        /// A client can invoke an operation on a server using a proxy, and then set an object adapter for the outgoing
-        /// connection that is used by the proxy in order to receive callbacks. This is useful if the server cannot
-        /// establish a connection back to the client, for example because of firewalls.
+        /// Associates an object adapter with this connection. When a connection receives a request, it dispatches this
+        /// request using its associated object adapter. If the associated object adapter is null, the connection
+        /// rejects any incoming request with an <see cref="ObjectNotExistException" />.
+        /// The default object adapter of an incoming connection is the object adapter that created this connection;
+        /// the default object adapter of an outgoing connection is null.
         /// </summary>
-        /// <param name="adapter">The object adapter that dispatches requests received by this connection.
-        /// </param>
-        void setAdapter(ObjectAdapter adapter);
+        /// <param name="adapter">The object adapter to associate with this connection.</param>
+        void setAdapter(ObjectAdapter? adapter);
 
         /// <summary>
-        /// Get the object adapter that dispatches requests for this connection.
+        /// Gets the object adapter associated with this connection.
         /// </summary>
-        /// <returns>The object adapter that dispatches requests for the connection, or null if no adapter is set.
-        /// </returns>
-        ObjectAdapter getAdapter();
+        /// <returns>The object adapter associated with this connection.</returns>
+        ObjectAdapter? getAdapter();
 
         /// <summary>
         /// Get the endpoint from which the connection was created.
