@@ -26,11 +26,8 @@ public sealed class Communicator : IDisposable
     public void destroy() => instance.destroy();
 
     /// <summary>
-    /// Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
-    /// Subsequent calls to shutdown are ignored.
-    /// After shutdown returns, no new requests are processed. However, requests that started to be dispatched before
-    /// shutdown was called might still be active. You can use <see cref="waitForShutdown" /> to wait for the completion
-    /// of all dispatches.
+    /// Shuts down this communicator: call <see cref="ObjectAdapter.deactivate"/> on all object adapters created by
+    /// this communicator. Shutting down a communicator has no effect on outgoing connections.
     /// </summary>
     public void shutdown()
     {
