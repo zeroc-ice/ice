@@ -1204,8 +1204,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                      _exception is ConnectionAbortedException ||
                      _exception is ConnectionClosedException ||
                      _exception is CommunicatorDestroyedException ||
-                     _exception is ObjectAdapterDeactivatedException ||
-                     _exception is ObjectAdapterDestroyedException))
+                     _exception is ObjectAdapterDeactivatedException))
                 {
                     s.Append('\n');
                     s.Append(_exception);
@@ -1286,8 +1285,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         if (_exception is ConnectionClosedException or
             CloseConnectionException or
             CommunicatorDestroyedException or
-            ObjectAdapterDeactivatedException or
-            ObjectAdapterDestroyedException)
+            ObjectAdapterDeactivatedException)
         {
             // Can execute synchronously. Note that we're not within a lock(this) here.
             _closed.SetResult();
@@ -1603,7 +1601,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                      _exception is ConnectionClosedException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||
-                     _exception is ObjectAdapterDestroyedException ||
                      (_exception is ConnectionLostException && _state >= StateClosing)))
                 {
                     warning("connection exception", _exception);
@@ -1776,7 +1773,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                      _exception is ConnectionClosedException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||
-                     _exception is ObjectAdapterDestroyedException ||
                      (_exception is ConnectionLostException && _state >= StateClosing)))
                 {
                     _observer.failed(_exception.ice_id());

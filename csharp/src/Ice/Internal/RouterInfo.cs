@@ -266,21 +266,13 @@ public sealed class RouterManager
         }
     }
 
-    //
-    // Returns router info for a given router. Automatically creates
-    // the router info if it doesn't exist yet.
-    //
-    public RouterInfo get(Ice.RouterPrx rtr)
+    // Returns router info for a given router. Automatically creates the router info if it doesn't exist yet.
+    internal RouterInfo get(Ice.RouterPrx router)
     {
-        if (rtr == null)
+        if (router is null)
         {
             return null;
         }
-
-        //
-        // The router cannot be routed.
-        //
-        Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
 
         lock (_mutex)
         {
@@ -295,29 +287,12 @@ public sealed class RouterManager
         }
     }
 
-    //
-    // Returns router info for a given router. Automatically creates
-    // the router info if it doesn't exist yet.
-    //
-    public RouterInfo erase(Ice.RouterPrx rtr)
+    internal void erase(RouterPrx router)
     {
-        RouterInfo info = null;
-        if (rtr != null)
+        lock (_mutex)
         {
-            //
-            // The router cannot be routed.
-            //
-            Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
-
-            lock (_mutex)
-            {
-                if (_table.TryGetValue(router, out info))
-                {
-                    _table.Remove(router);
-                }
-            }
+            _table.Remove(router);
         }
-        return info;
     }
 
     private Dictionary<Ice.RouterPrx, RouterInfo> _table;

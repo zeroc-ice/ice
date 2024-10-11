@@ -212,42 +212,21 @@ public sealed class ObjectAdapter
             _state = StateDeactivating;
         }
 
-        //
-        // NOTE: the router/locator infos and incoming connection
-        // factory list are immutable at this point.
-        //
+        // NOTE: the locator infos and incoming connection factory list are immutable at this point.
 
         try
         {
-            if (_routerInfo is not null)
-            {
-                //
-                // Remove entry from the router manager.
-                //
-                _instance.routerManager().erase(_routerInfo.getRouter());
-
-                //
-                // Clear this object adapter with the router.
-                //
-                _routerInfo.setAdapter(null);
-            }
-
             updateLocatorRegistry(_locatorInfo, null);
         }
         catch (LocalException)
         {
-            //
-            // We can't throw exceptions in deactivate so we ignore
-            // failures to update the locator registry.
-            //
+            // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
         }
 
         foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
         {
             factory.destroy();
         }
-
-        _instance.outgoingConnectionFactory().removeAdapter(this);
 
         lock (_mutex)
         {
@@ -339,6 +318,17 @@ public sealed class ObjectAdapter
             }
             _state = StateDestroying;
         }
+
+        if (_routerInfo is not null)
+        {
+            // Remove entry from the router manager.
+            _instance.routerManager().erase(_routerInfo.getRouter());
+
+            // Clear this object adapter with the router.
+            _routerInfo.setAdapter(null);
+        }
+
+        _instance.outgoingConnectionFactory().removeAdapter(this);
 
         //
         // Now it's also time to clean up our servants and servant

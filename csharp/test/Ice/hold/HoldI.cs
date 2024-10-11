@@ -40,7 +40,7 @@ namespace Ice
                         {
                             putOnHold(0, null);
                         }
-                        catch (Ice.ObjectAdapterDeactivatedException)
+                        catch (ObjectAdapterDeactivatedException)
                         {
                         }
                     }, milliSeconds);
