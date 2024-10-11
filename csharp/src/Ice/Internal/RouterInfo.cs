@@ -274,6 +274,9 @@ public sealed class RouterManager
             return null;
         }
 
+        // Make sure router is not routed.
+        router = RouterPrxHelper.uncheckedCast(router.ice_router(null));
+
         lock (_mutex)
         {
             RouterInfo info = null;
@@ -289,6 +292,7 @@ public sealed class RouterManager
 
     internal void erase(RouterPrx router)
     {
+        Debug.Assert(router?.ice_getRouter() is null); // The router proxy cannot be routed.
         lock (_mutex)
         {
             _table.Remove(router);
