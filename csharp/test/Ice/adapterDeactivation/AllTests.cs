@@ -219,13 +219,34 @@ namespace Ice
                 {
                     output.Write("testing object adapter with bi-dir connection... ");
                     output.Flush();
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-                    obj.ice_getConnection().setAdapter(adapter);
-                    obj.ice_getConnection().setAdapter(null);
+                    test(communicator.getDefaultObjectAdapter() is null);
+                    test(obj.ice_getCachedConnection().getAdapter() is null);
+
+                    ObjectAdapter adapter = communicator.createObjectAdapter("");
+
+                    communicator.setDefaultObjectAdapter(adapter);
+                    test(communicator.getDefaultObjectAdapter() == adapter);
+
+                    // create new connection
+                    await obj.ice_getCachedConnection().closeAsync();
+                    await obj.ice_pingAsync();
+
+                    test(obj.ice_getCachedConnection().getAdapter() == adapter);
+                    communicator.setDefaultObjectAdapter(null);
+
+                    // create new connection
+                    await obj.ice_getCachedConnection().closeAsync();
+                    await obj.ice_pingAsync();
+
+                    test(obj.ice_getCachedConnection().getAdapter() is null);
+                    obj.ice_getCachedConnection().setAdapter(adapter);
+                    test(obj.ice_getCachedConnection().getAdapter() == adapter);
+                    obj.ice_getCachedConnection().setAdapter(null);
+
                     adapter.destroy();
                     try
                     {
-                        obj.ice_getConnection().setAdapter(adapter);
+                        obj.ice_getCachedConnection().setAdapter(adapter);
                         test(false);
                     }
                     catch (Ice.ObjectAdapterDestroyedException)

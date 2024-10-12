@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Ice
 {
@@ -867,10 +868,9 @@ namespace Ice
 
                     if (!collocated)
                     {
-                        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-                        PingReplyI replyI = new PingReplyI();
+                        ObjectAdapter adapter = communicator.createObjectAdapter("");
+                        var replyI = new PingReplyI();
                         var reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
-                        adapter.activate();
 
                         p.ice_getConnection().setAdapter(adapter);
                         p.pingBiDir(reply);

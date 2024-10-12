@@ -202,6 +202,24 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
+    /// Gets the object adapter that is associated by default with new outgoing connections created by this
+    /// communicator. This method returns null unless you set a non-null default object adapter using
+    /// <see cref="setDefaultObjectAdapter" />.
+    /// </summary>
+    /// <returns>The object adapter associated by default with new outgoing connections.</returns>
+    /// <seealso cref="Connection.getAdapter" />
+    public ObjectAdapter? getDefaultObjectAdapter() => instance.outgoingConnectionFactory().getDefaultObjectAdapter();
+
+    /// <summary>
+    /// Sets the object adapter that will be associated with new outgoing connections created by this
+    /// communicator. This method has no effect on existing outgoing connections, or on incoming connections.
+    /// </summary>
+    /// <param name="adapter">The object adapter to associate with new outgoing connections.</param>
+    /// <seealso cref="Connection.setAdapter" />
+    public void setDefaultObjectAdapter(ObjectAdapter? adapter) =>
+        instance.outgoingConnectionFactory().setDefaultObjectAdapter(adapter);
+
+    /// <summary>
     /// Gets the implicit context associated with this communicator.
     /// </summary>
     /// <returns>The implicit context associated with this communicator; returns null when the property
