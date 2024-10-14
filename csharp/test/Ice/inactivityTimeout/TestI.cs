@@ -4,7 +4,7 @@ namespace Ice.inactivityTimeout;
 
 internal sealed class TestIntfI : Test.TestIntfDisp_
 {
-    public override void sleep(int ms, Current current) => Thread.Sleep(ms);
+    public override Task sleepAsync(int ms, Current current) => Task.Delay(ms);
 
     public override void shutdown(Current current) => current.adapter.getCommunicator().shutdown();
 }

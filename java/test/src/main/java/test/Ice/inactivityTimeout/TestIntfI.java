@@ -7,12 +7,15 @@ import test.Ice.inactivityTimeout.Test.TestIntf;
 
 class TestIntfI implements TestIntf {
     @Override
-    public void sleep(int ms, Current current) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException ex) {
-            // ignored
-        }
+    public java.util.concurrent.CompletionStage<Void> sleepAsync(int ms, Current current) {
+        return java.util.concurrent.CompletableFuture.runAsync(
+                () -> {
+                    try {
+                        Thread.sleep(ms);
+                    } catch (InterruptedException ex) {
+                        // ignored
+                    }
+                });
     }
 
     @Override

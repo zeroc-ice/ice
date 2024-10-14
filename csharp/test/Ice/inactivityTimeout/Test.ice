@@ -9,7 +9,9 @@ module Test
 {
     interface TestIntf
     {
+        ["amd"]
         void sleep(int ms);
+
         void shutdown();
     }
 }
