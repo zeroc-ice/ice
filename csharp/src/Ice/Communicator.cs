@@ -26,12 +26,8 @@ public sealed class Communicator : IDisposable
     public void destroy() => instance.destroy();
 
     /// <summary>
-    /// Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
-    /// Attempts to use a deactivated object adapter throws <see cref="ObjectAdapterDeactivatedException" />. Subsequent
-    /// calls to shutdown are ignored.
-    /// After shutdown returns, no new requests are processed. However, requests that started to be dispatched before
-    /// shutdown was called might still be active. You can use <see cref="waitForShutdown" /> to wait for the completion
-    /// of all dispatches.
+    /// Shuts down this communicator: call <see cref="ObjectAdapter.deactivate"/> on all object adapters created by
+    /// this communicator. Shutting down a communicator has no effect on outgoing connections.
     /// </summary>
     public void shutdown()
     {
@@ -204,6 +200,24 @@ public sealed class Communicator : IDisposable
 
         return instance.objectAdapterFactory().createObjectAdapter(name, router, serverAuthenticationOptions: null);
     }
+
+    /// <summary>
+    /// Gets the object adapter that is associated by default with new outgoing connections created by this
+    /// communicator. This method returns null unless you set a non-null default object adapter using
+    /// <see cref="setDefaultObjectAdapter" />.
+    /// </summary>
+    /// <returns>The object adapter associated by default with new outgoing connections.</returns>
+    /// <seealso cref="Connection.getAdapter" />
+    public ObjectAdapter? getDefaultObjectAdapter() => instance.outgoingConnectionFactory().getDefaultObjectAdapter();
+
+    /// <summary>
+    /// Sets the object adapter that will be associated with new outgoing connections created by this
+    /// communicator. This method has no effect on existing outgoing connections, or on incoming connections.
+    /// </summary>
+    /// <param name="adapter">The object adapter to associate with new outgoing connections.</param>
+    /// <seealso cref="Connection.setAdapter" />
+    public void setDefaultObjectAdapter(ObjectAdapter? adapter) =>
+        instance.outgoingConnectionFactory().setDefaultObjectAdapter(adapter);
 
     /// <summary>
     /// Gets the implicit context associated with this communicator.

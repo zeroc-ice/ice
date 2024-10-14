@@ -202,34 +202,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    internal bool isFinished()
-    {
-        //
-        // We can use TryLock here, because as long as there are still
-        // threads operating in this connection object, connection
-        // destruction is considered as not yet finished.
-        //
-        if (!Monitor.TryEnter(_mutex))
-        {
-            return false;
-        }
-
-        try
-        {
-            if (_state != StateFinished || _upcallCount != 0)
-            {
-                return false;
-            }
-
-            Debug.Assert(_state == StateFinished);
-            return true;
-        }
-        finally
-        {
-            Monitor.Exit(_mutex);
-        }
-    }
-
     public void throwException()
     {
         lock (_mutex)
@@ -1386,7 +1358,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     internal ConnectionI(
         Instance instance,
         Transceiver transceiver,
-        Connector connector,
+        Connector connector, // null for incoming connections, non-null for outgoing connections
         EndpointI endpoint,
         ObjectAdapter adapter,
         Action<ConnectionI> removeFromFactory, // can be null
@@ -1410,7 +1382,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _warnUdp = initData.properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
         _nextRequestId = 1;
-        _messageSizeMax = adapter is not null ? adapter.messageSizeMax() : instance.messageSizeMax();
+        _messageSizeMax = connector is null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
         _readStream = new InputStream(instance, Util.currentProtocolEncoding);
         _readHeader = false;
@@ -1443,12 +1415,16 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         try
         {
-            if (adapter is not null)
+            if (connector is null)
             {
+                // adapter is always set for incoming connections
+                Debug.Assert(adapter is not null);
                 _threadPool = adapter.getThreadPool();
             }
             else
             {
+                // we use the client thread pool for outgoing connections, even if there is an
+                // object adapter with its own thread pool.
                 _threadPool = instance.clientThreadPool();
             }
             _threadPool.initialize(this);
@@ -1860,7 +1836,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         if (!_endpoint.datagram()) // Datagram connections are always implicitly validated.
         {
-            if (_adapter is not null) // The server side has the active role for connection validation.
+            if (_connector is null) // The server side has the active role for connection validation.
             {
                 if (_writeStream.size() == 0)
                 {
@@ -2688,7 +2664,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         for (ConnectionInfo info = _info; info is not null; info = info.underlying)
         {
             info.connectionId = _endpoint.connectionId();
-            info.adapterName = _adapter is not null ? _adapter.getName() : "";
+            info.adapterName = _adapter?.getName() ?? "";
             info.incoming = _connector is null;
         }
         return _info;
@@ -2909,7 +2885,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private string _desc;
     private string _type;
-    private Connector _connector;
+    private readonly Connector _connector;
     private EndpointI _endpoint;
 
     private ObjectAdapter _adapter;

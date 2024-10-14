@@ -400,11 +400,15 @@ internal class ServiceManagerI : ServiceManagerDisp_
         }
         catch (Ice.CommunicatorDestroyedException)
         {
-            // Expected if the communicator is shutdown
+            // Expected if the communicator is destroyed
         }
         catch (Ice.ObjectAdapterDeactivatedException)
         {
             // Expected if the communicator is shutdown
+        }
+        catch (Ice.ObjectAdapterDestroyedException)
+        {
+            // Expected if the communicator is destroyed
         }
         catch (Exception ex)
         {
@@ -992,6 +996,10 @@ internal class ServiceManagerI : ServiceManagerDisp_
             // Ignored
         }
         catch (Ice.ObjectAdapterDeactivatedException)
+        {
+            // Ignored
+        }
+        catch (Ice.ObjectAdapterDestroyedException)
         {
             // Ignored
         }

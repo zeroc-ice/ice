@@ -70,7 +70,7 @@ public class CollocatedRequestHandler : RequestHandler
     {
         //
         // Increase the direct count to prevent the thread pool from being destroyed before
-        // invokeAll is called. This will also throw if the object adapter has been deactivated.
+        // invokeAll is called. This will also throw if the object adapter has been destroyed.
         //
         _adapter.incDirectCount();
 
@@ -193,7 +193,7 @@ public class CollocatedRequestHandler : RequestHandler
                 {
                     _adapter.incDirectCount();
                 }
-                catch (Ice.ObjectAdapterDeactivatedException ex)
+                catch (Ice.ObjectAdapterDestroyedException ex)
                 {
                     handleException(ex, requestId, amd: false);
                     break;

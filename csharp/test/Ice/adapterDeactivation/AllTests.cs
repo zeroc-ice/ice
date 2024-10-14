@@ -219,16 +219,37 @@ namespace Ice
                 {
                     output.Write("testing object adapter with bi-dir connection... ");
                     output.Flush();
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-                    obj.ice_getConnection().setAdapter(adapter);
-                    obj.ice_getConnection().setAdapter(null);
-                    adapter.deactivate();
+                    test(communicator.getDefaultObjectAdapter() is null);
+                    test(obj.ice_getCachedConnection().getAdapter() is null);
+
+                    ObjectAdapter adapter = communicator.createObjectAdapter("");
+
+                    communicator.setDefaultObjectAdapter(adapter);
+                    test(communicator.getDefaultObjectAdapter() == adapter);
+
+                    // create new connection
+                    await obj.ice_getCachedConnection().closeAsync();
+                    await obj.ice_pingAsync();
+
+                    test(obj.ice_getCachedConnection().getAdapter() == adapter);
+                    communicator.setDefaultObjectAdapter(null);
+
+                    // create new connection
+                    await obj.ice_getCachedConnection().closeAsync();
+                    await obj.ice_pingAsync();
+
+                    test(obj.ice_getCachedConnection().getAdapter() is null);
+                    obj.ice_getCachedConnection().setAdapter(adapter);
+                    test(obj.ice_getCachedConnection().getAdapter() == adapter);
+                    obj.ice_getCachedConnection().setAdapter(null);
+
+                    adapter.destroy();
                     try
                     {
-                        obj.ice_getConnection().setAdapter(adapter);
+                        obj.ice_getCachedConnection().setAdapter(adapter);
                         test(false);
                     }
-                    catch (Ice.ObjectAdapterDeactivatedException)
+                    catch (Ice.ObjectAdapterDestroyedException)
                     {
                     }
                     output.WriteLine("ok");
@@ -316,14 +337,22 @@ namespace Ice
 
                 output.Write("testing whether server is gone... ");
                 output.Flush();
-                try
+                if (obj.ice_getConnection() is null) // collocated
                 {
-                    obj.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
-                    test(false);
-                }
-                catch (Ice.LocalException)
-                {
+                    obj.ice_ping();
                     output.WriteLine("ok");
+                }
+                else
+                {
+                    try
+                    {
+                        obj.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+                        test(false);
+                    }
+                    catch (Ice.LocalException)
+                    {
+                        output.WriteLine("ok");
+                    }
                 }
 
                 output.Write("testing server idle time...");

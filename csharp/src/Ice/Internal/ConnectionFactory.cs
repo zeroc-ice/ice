@@ -60,6 +60,7 @@ public sealed class OutgoingConnectionFactory
 
             _destroyed = true;
             _communicator = null;
+            _defaultObjectAdapter = null;
             System.Threading.Monitor.PulseAll(_mutex);
         }
     }
@@ -259,6 +260,22 @@ public sealed class OutgoingConnectionFactory
         _connectionOptions = instance.clientConnectionOptions;
         _destroyed = false;
         _pendingConnectCount = 0;
+    }
+
+    internal void setDefaultObjectAdapter(ObjectAdapter adapter)
+    {
+        lock (_mutex)
+        {
+            _defaultObjectAdapter = adapter;
+        }
+    }
+
+    internal ObjectAdapter getDefaultObjectAdapter()
+    {
+        lock (_mutex)
+        {
+            return _defaultObjectAdapter;
+        }
     }
 
     private Ice.ConnectionI findConnection(List<EndpointI> endpoints, out bool compress)
@@ -476,7 +493,7 @@ public sealed class OutgoingConnectionFactory
                     transceiver,
                     ci.connector,
                     ci.endpoint.compress(false).timeout(-1),
-                    adapter: null,
+                    adapter: _defaultObjectAdapter,
                     removeConnection,
                     _connectionOptions);
             }
@@ -644,8 +661,7 @@ public sealed class OutgoingConnectionFactory
         }
     }
 
-    private bool
-    addToPending(ConnectCallback cb, List<ConnectorInfo> connectors)
+    private bool addToPending(ConnectCallback cb, List<ConnectorInfo> connectors)
     {
         //
         // Add the callback to each connector pending list.
@@ -1051,6 +1067,8 @@ public sealed class OutgoingConnectionFactory
     private MultiDictionary<EndpointI, Ice.ConnectionI> _connectionsByEndpoint = new();
     private Dictionary<Connector, HashSet<ConnectCallback>> _pending = new();
     private int _pendingConnectCount;
+
+    private ObjectAdapter _defaultObjectAdapter;
     private readonly object _mutex = new();
 }
 
@@ -1411,7 +1429,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                     connection = new Ice.ConnectionI(
                         _instance,
                         transceiver,
-                        null,
+                        connector: null,
                         _endpoint,
                         _adapter,
                         removeConnection,

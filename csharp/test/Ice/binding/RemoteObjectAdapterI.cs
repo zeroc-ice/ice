@@ -23,13 +23,7 @@ namespace Ice
             public override void
             deactivate(Ice.Current current)
             {
-                try
-                {
-                    _adapter.destroy();
-                }
-                catch (Ice.ObjectAdapterDeactivatedException)
-                {
-                }
+                _adapter.destroy();
             }
 
             private Ice.ObjectAdapter _adapter;
