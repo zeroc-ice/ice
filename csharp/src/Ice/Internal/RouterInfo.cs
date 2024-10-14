@@ -292,7 +292,7 @@ public sealed class RouterManager
 
     internal void erase(RouterPrx router)
     {
-        Debug.Assert(router?.ice_getRouter() is null); // The router proxy cannot be routed.
+        Debug.Assert(router.ice_getRouter() is null); // The router proxy cannot be routed.
         lock (_mutex)
         {
             _table.Remove(router);
