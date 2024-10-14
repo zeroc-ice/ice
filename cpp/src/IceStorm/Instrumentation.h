@@ -99,14 +99,11 @@ namespace IceStorm::Instrumentation
 
         /**
          * This method should return an observer for the given topic.
-         * @param svc The service name.
          * @param name The topic name.
          * @param old The previous observer, only set when updating an existing observer.
          */
-        virtual std::shared_ptr<TopicObserver> getTopicObserver(
-            const std::string& svc,
-            const std::string& name,
-            const std::shared_ptr<TopicObserver>& old) = 0;
+        virtual std::shared_ptr<TopicObserver>
+        getTopicObserver(const std::string& name, const std::shared_ptr<TopicObserver>& old) = 0;
 
         /**
          * This method should return an observer for the given subscriber.
@@ -115,7 +112,6 @@ namespace IceStorm::Instrumentation
          * @param old The previous observer, only set when updating an existing observer.
          */
         virtual std::shared_ptr<SubscriberObserver> getSubscriberObserver(
-            const std::string& svc,
             const std::string& topic,
             const Ice::ObjectPrx& prx,
             const QoS& q,
