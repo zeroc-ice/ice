@@ -1453,7 +1453,7 @@ static PyMethodDef CommunicatorMethods[] = {
      reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapterWithRouter),
      METH_VARARGS,
      PyDoc_STR("createObjectAdapterWithRouter(name, router) -> Ice.ObjectAdapter")},
-     {"getDefaultObjectAdapter",
+    {"getDefaultObjectAdapter",
      reinterpret_cast<PyCFunction>(communicatorGetDefaultObjectAdapter),
      METH_NOARGS,
      PyDoc_STR("getDefaultObjectAdapter() -> Ice.ObjectAdapter")},

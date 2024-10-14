@@ -91,29 +91,29 @@ func allTests(_ helper: TestHelper) async throws {
 
     if try await obj.ice_getConnection() != nil {
         output.write("testing object adapter with bi-dir connection... ")
-        try test(communicator.getDefaultObjectAdapter() == nil);
-        try test(obj.ice_getCachedConnection()!.getAdapter() == nil);
+        try test(communicator.getDefaultObjectAdapter() == nil)
+        try test(obj.ice_getCachedConnection()!.getAdapter() == nil)
 
-        let adapter = try communicator.createObjectAdapter("");
+        let adapter = try communicator.createObjectAdapter("")
 
-        communicator.setDefaultObjectAdapter(adapter);
-        try test(communicator.getDefaultObjectAdapter() === adapter);
-
-        // create new connection
-        try await obj.ice_getCachedConnection()!.close();
-        try await obj.ice_ping();
-
-        try test(obj.ice_getCachedConnection()!.getAdapter() === adapter);
-        communicator.setDefaultObjectAdapter(nil);
+        communicator.setDefaultObjectAdapter(adapter)
+        try test(communicator.getDefaultObjectAdapter() === adapter)
 
         // create new connection
-        try await obj.ice_getCachedConnection()!.close();
-        try await obj.ice_ping();
+        try await obj.ice_getCachedConnection()!.close()
+        try await obj.ice_ping()
 
-        try test(obj.ice_getCachedConnection()!.getAdapter() == nil);
-        try obj.ice_getCachedConnection()!.setAdapter(adapter);
-        try test(obj.ice_getCachedConnection()!.getAdapter() === adapter);
-        try obj.ice_getCachedConnection()!.setAdapter(nil);
+        try test(obj.ice_getCachedConnection()!.getAdapter() === adapter)
+        communicator.setDefaultObjectAdapter(nil)
+
+        // create new connection
+        try await obj.ice_getCachedConnection()!.close()
+        try await obj.ice_ping()
+
+        try test(obj.ice_getCachedConnection()!.getAdapter() == nil)
+        try obj.ice_getCachedConnection()!.setAdapter(adapter)
+        try test(obj.ice_getCachedConnection()!.getAdapter() === adapter)
+        try obj.ice_getCachedConnection()!.setAdapter(nil)
 
         adapter.destroy()
         do {
@@ -183,7 +183,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.writeLine("ok")
 
     output.write("testing whether server is gone... ")
-    if (try await obj.ice_getConnection() == nil) { // collocated
+    if try await obj.ice_getConnection() == nil {  // collocated
         try await obj.ice_ping()
         output.writeLine("ok")
     } else {
