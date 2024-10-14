@@ -71,6 +71,10 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
             {
                 SetException(new Ice.ObjectNotExistException());
             }
+            catch (Ice.ObjectAdapterDestroyedException)
+            {
+                SetException(new Ice.ObjectNotExistException());
+            }
             catch (Ice.CommunicatorDestroyedException)
             {
                 SetException(new Ice.ObjectNotExistException());

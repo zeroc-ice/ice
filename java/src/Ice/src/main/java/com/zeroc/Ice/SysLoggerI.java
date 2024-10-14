@@ -59,6 +59,10 @@ public final class SysLoggerI implements Logger {
         return new SysLoggerI(prefix, _facility, _host, _port);
     }
 
+    void destroy() {
+        _socket.close();
+    }
+
     private static int parseFacility(String facility) {
         if (facility.equals("LOG_KERN")) {
             return LOG_KERN;

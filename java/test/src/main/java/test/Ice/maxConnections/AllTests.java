@@ -20,11 +20,14 @@ public class AllTests {
         // When the transport is WS or WSS, we need to wait a little bit: the server closes
         // the connection after it gets a transport frame from the client.
         if (helper.getTestProtocol().startsWith("ws")) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
+            postCloseDelay =
+                    () -> {
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException ex) {
+                            // ignore
+                        }
+                    };
         }
 
         testCreateConnections(p, 100, helper.getWriter(), postCloseDelay);

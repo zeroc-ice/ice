@@ -14,6 +14,6 @@ testcases = [
 TestSuite(
     __name__,
     testcases,
-    options={"compress": [False], "protocol": ["ssl", "ws", "tcp"]},
+    options={"compress": [False]},
     multihost=False,
 )

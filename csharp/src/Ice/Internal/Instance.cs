@@ -1127,12 +1127,9 @@ public sealed class Instance
             _initData.observer.setObserverUpdater(null);
         }
 
+        if (_initData.logger is LoggerAdminLogger loggerAdminLogger)
         {
-            LoggerAdminLogger logger = _initData.logger as LoggerAdminLogger;
-            if (logger != null)
-            {
-                logger.destroy();
-            }
+            loggerAdminLogger.destroy();
         }
 
         //
@@ -1230,12 +1227,9 @@ public sealed class Instance
             Monitor.PulseAll(_mutex);
         }
 
+        if (_initData.logger is FileLoggerI fileLogger)
         {
-            Ice.FileLoggerI logger = _initData.logger as Ice.FileLoggerI;
-            if (logger != null)
-            {
-                logger.destroy();
-            }
+            fileLogger.destroy();
         }
     }
 

@@ -36,7 +36,7 @@ public sealed class ObjectAdapter
     private RouterInfo? _routerInfo;
     private EndpointI[] _publishedEndpoints;
     private LocatorInfo? _locatorInfo;
-    private int _directCount;  // The number of direct proxies dispatching on this object adapter.
+    private int _directCount;  // The number of colloc proxies dispatching on this object adapter.
     private bool _noConfig;
     private int _messageSizeMax;
     private readonly SslServerAuthenticationOptions? _serverAuthenticationOptions;
@@ -176,7 +176,6 @@ public sealed class ObjectAdapter
         lock (_mutex)
         {
             checkForDeactivation();
-
             incomingConnectionFactories = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
         }
 
@@ -187,16 +186,12 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Deactivate all endpoints that belong to this object adapter.
-    /// After deactivation, the object adapter stops
-    /// receiving requests through its endpoints. Object adapters that have been deactivated must not be reactivated
-    /// again, and cannot be used otherwise. Attempts to use a deactivated object adapter raise
-    /// ObjectAdapterDeactivatedException however, attempts to deactivate an already deactivated
-    /// object adapter are ignored and do nothing. Once deactivated, it is possible to destroy the adapter to clean up
-    /// resources and then create and activate a new adapter with the same name.
-    /// &lt;p class="Note"&gt; After deactivate returns, no new requests are processed by the object adapter.
-    /// However, requests that have been started before deactivate was called might still be active. You can
-    /// use waitForDeactivate to wait for the completion of all requests for this object adapter.
+    /// Deactivates this object adapter: stop accepting new connections from clients and close gracefully all incoming
+    /// connections created by this object adapter once all outstanding dispatches have completed. If this object
+    /// adapter is indirect, this method also unregisters the object adapter from the Locator.
+    /// This method does not cancel outstanding dispatches--it lets them execute until completion. A new incoming
+    /// request on an existing connection will be accepted and can delay the closure of the connection.
+    /// A deactivated object adapter cannot be reactivated again; it can only be destroyed.
     /// </summary>
     public void deactivate()
     {
@@ -215,42 +210,21 @@ public sealed class ObjectAdapter
             _state = StateDeactivating;
         }
 
-        //
-        // NOTE: the router/locator infos and incoming connection
-        // factory list are immutable at this point.
-        //
+        // NOTE: the locator infos and incoming connection factory list are immutable at this point.
 
         try
         {
-            if (_routerInfo is not null)
-            {
-                //
-                // Remove entry from the router manager.
-                //
-                _instance.routerManager().erase(_routerInfo.getRouter());
-
-                //
-                // Clear this object adapter with the router.
-                //
-                _routerInfo.setAdapter(null);
-            }
-
             updateLocatorRegistry(_locatorInfo, null);
         }
         catch (LocalException)
         {
-            //
-            // We can't throw exceptions in deactivate so we ignore
-            // failures to update the locator registry.
-            //
+            // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
         }
 
         foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
         {
             factory.destroy();
         }
-
-        _instance.outgoingConnectionFactory().removeAdapter(this);
 
         lock (_mutex)
         {
@@ -261,21 +235,17 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Wait until the object adapter has deactivated.
-    /// Calling deactivate initiates object adapter
-    /// deactivation, and waitForDeactivate only returns when deactivation has been completed.
+    /// Wait until <see cref="deactivate" /> is called on this object adapter and all connections accepted by this
+    /// object adapter are closed. A connection is closed only after all outstanding dispatches on this connection have
+    /// completed.
     /// </summary>
     public void waitForDeactivate()
     {
         IncomingConnectionFactory[]? incomingConnectionFactories = null;
         lock (_mutex)
         {
-            //
-            // Wait for deactivation of the adapter itself, and
-            // for the return of all direct method calls using this
-            // adapter.
-            //
-            while ((_state < StateDeactivated) || _directCount > 0)
+            // Wait for deactivation of the adapter itself.
+            while (_state < StateDeactivated)
             {
                 Monitor.Wait(_mutex);
             }
@@ -298,9 +268,9 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Check whether object adapter has been deactivated.
+    /// Checks if this object adapter has been deactivated.
     /// </summary>
-    /// <returns>Whether adapter has been deactivated.
+    /// <returns><see langword="true" /> if <see cref="deactivate"/> was called; otherwise, <see langword="false" />.
     /// </returns>
     public bool isDeactivated()
     {
@@ -311,11 +281,8 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Destroys the object adapter and cleans up all resources held by the object adapter.
-    /// If the object adapter has
-    /// not yet been deactivated, destroy implicitly initiates the deactivation and waits for it to finish. Subsequent
-    /// calls to destroy are ignored. Once destroy has returned, it is possible to create another object adapter with
-    /// the same name.
+    /// Destroys this object adapter and cleans up all resources held by this object adapter.
+    /// Once this method has returned, it is possible to create another object adapter with the same name.
     /// </summary>
     public void destroy()
     {
@@ -341,7 +308,23 @@ public sealed class ObjectAdapter
                 return;
             }
             _state = StateDestroying;
+
+            while (_directCount > 0)
+            {
+                Monitor.Wait(_mutex);
+            }
         }
+
+        if (_routerInfo is not null)
+        {
+            // Remove entry from the router manager.
+            _instance.routerManager().erase(_routerInfo.getRouter());
+
+            // Clear this object adapter with the router.
+            _routerInfo.setAdapter(null);
+        }
+
+        _instance.outgoingConnectionFactory().removeAdapter(this);
 
         //
         // Now it's also time to clean up our servants and servant
@@ -428,7 +411,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(identity);
             ArgumentNullException.ThrowIfNull(servant);
 
@@ -486,8 +469,7 @@ public sealed class ObjectAdapter
 
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             _servantManager.addDefaultServant(servant, category);
         }
     }
@@ -513,7 +495,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return _servantManager.removeServant(id, facet);
@@ -532,7 +514,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return _servantManager.removeAllFacets(id);
@@ -550,8 +532,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             return _servantManager.removeDefaultServant(category);
         }
     }
@@ -579,7 +560,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return _servantManager.findServant(id, facet);
@@ -596,7 +577,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return _servantManager.findAllFacets(id);
@@ -613,8 +594,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             Reference @ref = ((ObjectPrxHelperBase)proxy).iceReference();
             return findFacet(@ref.getIdentity(), @ref.getFacet());
         }
@@ -644,8 +624,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             _servantManager.addServantLocator(locator, category);
         }
     }
@@ -661,8 +640,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             return _servantManager.removeServantLocator(category);
         }
     }
@@ -678,8 +656,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             return _servantManager.findServantLocator(category);
         }
     }
@@ -693,8 +670,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
-
+            checkForDestruction();
             return _servantManager.findDefaultServant(category);
         }
     }
@@ -718,7 +694,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return newProxy(id, "");
@@ -736,7 +712,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return newDirectProxy(id, "");
@@ -755,7 +731,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             checkIdentity(id);
 
             return newIndirectProxy(id, "", _id);
@@ -775,7 +751,6 @@ public sealed class ObjectAdapter
         lock (_mutex)
         {
             checkForDeactivation();
-
             _locatorInfo = _instance.locatorManager().get(locator);
         }
     }
@@ -895,8 +870,7 @@ public sealed class ObjectAdapter
             // Proxies which have at least one endpoint in common with the published endpoints are considered local.
             lock (_mutex)
             {
-                checkForDeactivation();
-
+                checkForDestruction();
                 EndpointI[] endpoints = r.getEndpoints();
                 return _publishedEndpoints.Any(e => endpoints.Any(e.equivalent));
             }
@@ -949,7 +923,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
 
             Debug.Assert(_directCount >= 0);
             ++_directCount;
@@ -960,9 +934,9 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            // Not check for deactivation here!
+            // Not check for destruction here!
 
-            Debug.Assert(_instance is not null); // Must not be called after destroy().
+            Debug.Assert(_instance is not null); // destroy waits for _directCount to reach 0
 
             Debug.Assert(_directCount > 0);
             if (--_directCount == 0)
@@ -996,7 +970,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
+            checkForDestruction();
             connection.setAdapterFromAdapter(this);
         }
     }
@@ -1233,9 +1207,19 @@ public sealed class ObjectAdapter
 
     private void checkForDeactivation()
     {
+        checkForDestruction();
+
         if (_state >= StateDeactivating)
         {
             throw new ObjectAdapterDeactivatedException(getName());
+        }
+    }
+
+    private void checkForDestruction()
+    {
+        if (_state >= StateDestroying)
+        {
+            throw new ObjectAdapterDestroyedException(getName());
         }
     }
 
@@ -1459,6 +1443,10 @@ public sealed class ObjectAdapter
         catch (ObjectAdapterDeactivatedException)
         {
             // Expected if collocated call and OA is deactivated, ignore.
+        }
+        catch (ObjectAdapterDestroyedException)
+        {
+            // Ignore
         }
         catch (CommunicatorDestroyedException)
         {

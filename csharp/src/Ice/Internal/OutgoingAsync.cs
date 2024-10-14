@@ -769,6 +769,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         // or connection is closed by the application.
         if (ex is CommunicatorDestroyedException ||
            ex is ObjectAdapterDeactivatedException ||
+           ex is ObjectAdapterDestroyedException ||
            (ex is ConnectionAbortedException connectionAbortedException &&
             connectionAbortedException.closedByApplication) ||
            (ex is ConnectionClosedException connectionClosedException &&

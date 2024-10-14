@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Ice.Internal;
 
-internal interface LoggerAdminLogger : Ice.Logger
+internal interface LoggerAdminLogger : Logger
 {
     Ice.Object getFacet();
 
@@ -69,10 +69,9 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 Monitor.PulseAll(_mutex);
             }
 
-            Ice.FileLoggerI fileLoger = _localLogger as Ice.FileLoggerI;
-            if (fileLoger != null)
+            if (_localLogger is FileLoggerI fileLogger)
             {
-                fileLoger.destroy();
+                fileLogger.destroy();
             }
         }
 

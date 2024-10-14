@@ -9,9 +9,15 @@
 using namespace std;
 
 void
-TestIntfI::sleep(int32_t ms, const Ice::Current&)
+TestIntfI::sleepAsync(int32_t ms, function<void()> response, function<void(exception_ptr)>, const Ice::Current&)
 {
-    this_thread::sleep_for(chrono::milliseconds(ms));
+    _sleepFuture = std::async(
+        std::launch::async,
+        [ms, response]
+        {
+            this_thread::sleep_for(chrono::milliseconds(ms));
+            response();
+        });
 }
 
 void

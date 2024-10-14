@@ -271,6 +271,7 @@ internal sealed class WSTransceiver : Transceiver
             _closingReason = CLOSURE_NORMAL;
         }
         else if (reason is Ice.ObjectAdapterDeactivatedException ||
+                reason is Ice.ObjectAdapterDestroyedException ||
                 reason is Ice.CommunicatorDestroyedException)
         {
             _closingReason = CLOSURE_SHUTDOWN;
