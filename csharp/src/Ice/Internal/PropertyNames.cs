@@ -192,7 +192,7 @@ public sealed class PropertyNames
             new(pattern: @"Address", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Port", usesRegex: false, defaultValue: "4061", deprecated: false, propertyArray: null),
             new(pattern: @"Interface", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"InstanceName", usesRegex: false, defaultValue: "IceLocatorDiscovery", deprecated: false, propertyArray: null),
+            new(pattern: @"InstanceName", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Trace.Lookup", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null)
         ]);
 
