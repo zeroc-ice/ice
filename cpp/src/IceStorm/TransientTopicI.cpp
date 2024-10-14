@@ -351,7 +351,7 @@ TransientTopicImpl::destroy(const Ice::Current&)
         _instance->publishAdapter()->remove(_linkPrx->ice_getIdentity());
         _instance->publishAdapter()->remove(_publisherPrx->ice_getIdentity());
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
         // Ignore -- this could occur on shutdown.
     }

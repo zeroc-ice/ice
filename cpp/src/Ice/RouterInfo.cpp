@@ -9,6 +9,8 @@
 #include "Ice/Router.h"
 #include "Reference.h"
 
+#include <cassert>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -58,11 +60,11 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
     return _tableHint->second;
 }
 
-RouterInfoPtr
-IceInternal::RouterManager::erase(const RouterPrx& rtr)
+void
+IceInternal::RouterManager::erase(const RouterPrx& router)
 {
-    RouterInfoPtr info;
-    RouterPrx router = rtr->ice_router(nullopt); // The router cannot be routed.
+    assert(!router->ice_getRouter()); // The router cannot be routed.
+
     lock_guard lock(_mutex);
 
     RouterInfoTable::iterator p = _table.end();
@@ -79,11 +81,8 @@ IceInternal::RouterManager::erase(const RouterPrx& rtr)
 
     if (p != _table.end())
     {
-        info = p->second;
         _table.erase(p);
     }
-
-    return info;
 }
 
 IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) : _router(router), _hasRoutingTable(false) {}

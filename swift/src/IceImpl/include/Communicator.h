@@ -33,6 +33,9 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
                                                      router:(ICEObjectPrx*)router
                                                       error:(NSError**)error
     NS_SWIFT_NAME(createObjectAdapterWithRouter(name:router:));
+
+- (nullable ICEObjectAdapter*)getDefaultObjectAdapter;
+- (void)setDefaultObjectAdapter:(ICEObjectAdapter* _Nullable)adapter;
 - (ICEImplicitContext*)getImplicitContext;
 - (id<ICELoggerProtocol>)getLogger;
 - (nullable ICEObjectPrx*)getDefaultRouter;

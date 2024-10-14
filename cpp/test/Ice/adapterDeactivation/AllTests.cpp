@@ -210,16 +210,38 @@ allTests(Test::TestHelper* helper)
     if (obj->ice_getConnection())
     {
         cout << "testing object adapter with bi-dir connection... " << flush;
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
-        obj->ice_getConnection()->setAdapter(adapter);
-        obj->ice_getConnection()->setAdapter(nullptr);
-        adapter->deactivate();
+
+        test(communicator->getDefaultObjectAdapter() == nullptr);
+        test(obj->ice_getCachedConnection()->getAdapter() == nullptr);
+
+        ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
+
+        communicator->setDefaultObjectAdapter(adapter);
+        test(communicator->getDefaultObjectAdapter() == adapter);
+
+        // create new connection
+        obj->ice_getCachedConnection()->close().get();
+        obj->ice_ping();
+
+        test(obj->ice_getCachedConnection()->getAdapter() == adapter);
+        communicator->setDefaultObjectAdapter(nullptr);
+
+        // create new connection
+        obj->ice_getCachedConnection()->close().get();
+        obj->ice_ping();
+
+        test(obj->ice_getCachedConnection()->getAdapter() == nullptr);
+        obj->ice_getCachedConnection()->setAdapter(adapter);
+        test(obj->ice_getCachedConnection()->getAdapter() == adapter);
+        obj->ice_getCachedConnection()->setAdapter(nullptr);
+
+        adapter->destroy();
         try
         {
-            obj->ice_getConnection()->setAdapter(adapter);
+            obj->ice_getCachedConnection()->setAdapter(adapter);
             test(false);
         }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDestroyedException&)
         {
         }
         cout << "ok" << endl;
@@ -304,18 +326,27 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing whether server is gone... " << flush;
-    try
+    if (obj->ice_getConnection()) // not collocated
     {
+        try
+        {
 #ifdef _WIN32
-        obj = obj->ice_invocationTimeout(100); // Workaround to speed up testing
+            obj = obj->ice_invocationTimeout(100); // Workaround to speed up testing
 #endif
-        obj->ice_ping();
-        test(false);
+            obj->ice_ping();
+            test(false);
+        }
+        catch (const LocalException&)
+        {
+            cout << "ok" << endl;
+        }
     }
-    catch (const LocalException&)
+    else
     {
+        obj->ice_ping();
         cout << "ok" << endl;
     }
+
     cout << "testing server idle time..." << flush;
     std::thread thread1(
         []()

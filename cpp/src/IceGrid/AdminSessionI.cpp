@@ -344,7 +344,7 @@ AdminSessionI::setupObserverSubscription(TopicName name, const optional<Ice::Obj
                 // Unregister forwarder object
                 _registry->getRegistryAdapter()->remove(previousObserver->ice_getIdentity());
             }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::ObjectAdapterDestroyedException&)
             {
             }
         }

@@ -210,6 +210,23 @@ namespace Ice
         ObjectAdapterPtr createObjectAdapterWithRouter(const std::string& name, const RouterPrx& rtr);
 
         /**
+         * Gets the object adapter that is associated by default with new outgoing connections created by this
+         * communicator. This function returns null unless you set a non-null default object adapter using
+         * setDefaultObjectAdapter.
+         * @return The object adapter associated by default with new outgoing connections.
+         * @see Connection::getAdapter
+         */
+        ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
+
+        /**
+         * Sets the object adapter that will be associated with new outgoing connections created by this
+         * communicator. This function has no effect on existing outgoing connections, or on incoming connections.
+         * @param adapter The object adapter to associate with new outgoing connections.
+         * @see Connection::setAdapter
+         */
+        void setDefaultObjectAdapter(ObjectAdapterPtr adapter) noexcept;
+
+        /**
          * Get the implicit context associated with this communicator.
          * @return The implicit context associated with this communicator; returns null when the property
          * Ice.ImplicitContext is not set or is set to None.

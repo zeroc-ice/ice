@@ -4,6 +4,7 @@
 
 #include "Ice/Communicator.h"
 #include "CommunicatorFlushBatchAsync.h"
+#include "ConnectionFactory.h"
 #include "Instance.h"
 #include "ObjectAdapterFactory.h"
 #include "ReferenceFactory.h"
@@ -149,6 +150,18 @@ Ice::Communicator::createObjectAdapterWithRouter(const string& name, const Route
     }
 
     return _instance->objectAdapterFactory()->createObjectAdapter(oaName, router, nullopt);
+}
+
+ObjectAdapterPtr
+Ice::Communicator::getDefaultObjectAdapter() const noexcept
+{
+    return _instance->outgoingConnectionFactory()->getDefaultObjectAdapter();
+}
+
+void
+Ice::Communicator::setDefaultObjectAdapter(ObjectAdapterPtr adapter) noexcept
+{
+    return _instance->outgoingConnectionFactory()->setDefaultObjectAdapter(std::move(adapter));
 }
 
 PropertiesPtr

@@ -102,6 +102,17 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
+    func getDefaultObjectAdapter() -> ObjectAdapter? {
+        guard let handle = self.handle.getDefaultObjectAdapter() else {
+            return nil
+        }
+        return handle.getCachedSwiftObject(ObjectAdapterI.self)
+    }
+
+    func setDefaultObjectAdapter(_ adapter: ObjectAdapter?) {
+        handle.setDefaultObjectAdapter((adapter as? ObjectAdapterI)?.handle)
+    }
+
     func getImplicitContext() -> ImplicitContext {
         let handle = self.handle.getImplicitContext()
         return handle.getSwiftObject(ImplicitContextI.self) {

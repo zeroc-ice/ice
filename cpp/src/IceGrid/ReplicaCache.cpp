@@ -94,7 +94,7 @@ ReplicaCache::add(const string& name, const shared_ptr<ReplicaSessionI>& session
     {
         // Expected if the replica is being shutdown.
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
         // Expected if the replica is being shutdown.
     }
@@ -137,7 +137,7 @@ ReplicaCache::remove(const string& name, bool shutdown)
         {
             // Expected if the replica is being shutdown.
         }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDestroyedException&)
         {
             // Expected if the replica is being shutdown.
         }
@@ -194,7 +194,7 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
     {
         // The replica is being shutdown.
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
         // Expected if the replica is being shutdown.
     }
@@ -216,7 +216,7 @@ ReplicaCache::unsubscribe(const ReplicaObserverPrx& observer)
     {
         _topic->unsubscribe(observer);
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
         // The replica is being shutdown.
     }

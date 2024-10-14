@@ -676,7 +676,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
             ++p;
         }
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
         //
         // Just return the server commands, we'll finish the
@@ -859,7 +859,7 @@ NodeI::loadServer(
                     added = true;
                 }
             }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::ObjectAdapterDestroyedException&)
             {
                 // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the
                 // node has being unreachable upon receipt of this exception (like any other Ice::LocalException). We
@@ -885,7 +885,7 @@ NodeI::loadServer(
                     {
                         _adapter->remove(id);
                     }
-                    catch (const Ice::ObjectAdapterDeactivatedException&)
+                    catch (const Ice::ObjectAdapterDestroyedException&)
                     {
                         // IGNORE
                     }
@@ -922,7 +922,7 @@ NodeI::destroyServer(
         {
             server = dynamic_pointer_cast<ServerI>(_adapter->find(createServerIdentity(serverId)));
         }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDestroyedException&)
         {
             // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the node
             // has being unreachable upon receipt of this exception (like any other Ice::LocalException). We could also

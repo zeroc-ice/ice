@@ -827,6 +827,27 @@ namespace Ice
     };
 
     /**
+     * This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ObjectAdapterDestroyedException final : public LocalException
+    {
+    public:
+        /**
+         * Constructs an ObjectAdapterDestroyedException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param name The name of the object adapter that is destroyed.
+         */
+        ObjectAdapterDestroyedException(const char* file, int line, std::string_view name)
+            : LocalException(file, line, "object adapter '" + std::string{name} + "' is destroyed")
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
      * This exception is raised if an {@link ObjectAdapter} cannot be activated. This happens if the {@link Locator}
      * detects another active {@link ObjectAdapter} with the same adapter id.
      * \headerfile Ice/Ice.h

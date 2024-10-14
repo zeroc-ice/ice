@@ -122,7 +122,7 @@ TransientTopicManagerImpl::reap()
             {
                 _instance->topicAdapter()->remove(id);
             }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::ObjectAdapterDestroyedException&)
             {
                 // Ignore
             }

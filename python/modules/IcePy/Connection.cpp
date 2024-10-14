@@ -294,7 +294,7 @@ connectionSetAdapter(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
 
-    Ice::ObjectAdapterPtr oa = adapter != Py_None ? unwrapObjectAdapter(adapter) : Ice::ObjectAdapterPtr();
+    Ice::ObjectAdapterPtr oa = adapter != Py_None ? unwrapObjectAdapter(adapter) : nullptr;
 
     assert(self->connection);
     assert(self->communicator);
