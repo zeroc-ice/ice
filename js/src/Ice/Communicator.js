@@ -35,7 +35,7 @@ export class Communicator {
     }
 
     isShutdown() {
-       return this._isShutdown;
+        return this._isShutdown;
     }
 
     stringToProxy(str) {
