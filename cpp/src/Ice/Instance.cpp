@@ -1337,7 +1337,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     // Load plug-ins.
     //
     assert(!_serverThreadPool);
-    PluginManagerI* pluginManagerImpl = dynamic_cast<PluginManagerI*>(_pluginManager.get());
+    auto pluginManagerImpl = dynamic_pointer_cast<PluginManagerI>(_pluginManager);
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
 

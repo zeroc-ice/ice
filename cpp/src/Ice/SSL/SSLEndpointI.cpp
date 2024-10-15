@@ -268,7 +268,7 @@ Ice::SSL::EndpointI::withPublishedHost(string host) const
 bool
 Ice::SSL::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 {
-    const EndpointI* endpointI = dynamic_cast<const EndpointI*>(endpoint.get());
+    auto endpointI = dynamic_pointer_cast<EndpointI>(endpoint);
     if (!endpointI)
     {
         return false;

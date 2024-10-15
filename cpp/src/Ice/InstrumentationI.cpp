@@ -58,11 +58,11 @@ namespace
         ThreadState newState;
     };
 
-    IPConnectionInfo* getIPConnectionInfo(const ConnectionInfoPtr& info)
+    IPConnectionInfoPtr getIPConnectionInfo(const ConnectionInfoPtr& info)
     {
         for (ConnectionInfoPtr p = info; p; p = p->underlying)
         {
-            IPConnectionInfo* ipInfo = dynamic_cast<IPConnectionInfo*>(p.get());
+            IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<IPConnectionInfo>(p);
             if (ipInfo)
             {
                 return ipInfo;
@@ -101,7 +101,7 @@ namespace
             if (_id.empty())
             {
                 ostringstream os;
-                IPConnectionInfo* info = getIPConnectionInfo(_connectionInfo);
+                IPConnectionInfoPtr info = getIPConnectionInfo(_connectionInfo);
                 if (info)
                 {
                     os << info->localAddress << ':' << info->localPort;
@@ -850,7 +850,7 @@ CommunicatorObserverI::getConnectionObserver(
         try
         {
             ConnectionObserverPtr delegate;
-            ConnectionObserverI* o = dynamic_cast<ConnectionObserverI*>(observer.get());
+            auto o = dynamic_pointer_cast<ConnectionObserverI>(observer);
             if (_delegate)
             {
                 delegate = _delegate->getConnectionObserver(con, endpt, state, o ? o->getDelegate() : observer);
@@ -878,7 +878,7 @@ CommunicatorObserverI::getThreadObserver(
         try
         {
             ThreadObserverPtr delegate;
-            ThreadObserverI* o = dynamic_cast<ThreadObserverI*>(observer.get());
+            auto o = dynamic_pointer_cast<ThreadObserverI>(observer);
             if (_delegate)
             {
                 delegate = _delegate->getThreadObserver(parent, id, state, o ? o->getDelegate() : observer);

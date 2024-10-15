@@ -565,9 +565,9 @@ namespace
         //
         // There is currently no way to have a null local logger
         //
-        assert(localLogger != 0);
+        assert(localLogger);
 
-        LoggerAdminLoggerI* wrapper = dynamic_cast<LoggerAdminLoggerI*>(localLogger.get());
+        auto wrapper = dynamic_pointer_cast<LoggerAdminLoggerI>(localLogger);
         if (wrapper)
         {
             // use the underlying local logger
