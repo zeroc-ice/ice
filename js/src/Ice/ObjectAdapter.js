@@ -26,9 +26,6 @@ import { Logger } from "./Logger.js";
 import { LoggerMiddleware } from "./LoggerMiddleware.js";
 import { Properties } from "./Properties.js";
 
-const StateActive = 0;
-const StateDestroyed = 1;
-
 //
 // Only for use by IceInternal.ObjectAdapterFactory
 //
@@ -41,7 +38,7 @@ export class ObjectAdapter {
         this._name = name;
         this._publishedEndpoints = [];
         this._routerInfo = null;
-        this._state = StateActive;
+        this._isDestroyed = false;
         this._noConfig = noConfig;
 
         this._dispatchPipeline = null;
@@ -167,8 +164,8 @@ export class ObjectAdapter {
     }
 
     destroy() {
-        if (this._state < StateDestroyed) {
-            this._state = StateDestroyed;
+        if (!this._isDestroyed) {
+            this._isDestroyed = true;
             this._instance.outgoingConnectionFactory().removeAdapter(this);
             this._servantManager.destroy();
             this._objectAdapterFactory.removeObjectAdapter(this);
@@ -344,7 +341,7 @@ export class ObjectAdapter {
     }
 
     checkForDestruction() {
-        if (this._state >= StateDestroyed) {
+        if (this._isDestroyed) {
             throw new ObjectAdapterDestroyedException(this.getName());
         }
     }
