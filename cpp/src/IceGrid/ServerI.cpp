@@ -1978,7 +1978,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
                     _serverLifetimeAdapters.insert(adpt->id);
                 }
             }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::ObjectAdapterDestroyedException&)
             {
                 // IGNORE
             }
@@ -1997,7 +1997,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             {
                 adpt.second->destroy();
             }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::ObjectAdapterDestroyedException&)
             {
                 // IGNORE
             }
@@ -2679,7 +2679,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             assert(_this);
             _node->getAdapter()->remove(_this->ice_getIdentity());
         }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDestroyedException&)
         {
             // IGNORE
         }

@@ -75,26 +75,22 @@ class ObjectAdapter(object):
 
     def deactivate(self):
         """
-        Deactivate all endpoints that belong to this object adapter.
+        Deactivates this object adapter: stop accepting new connections from clients and close gracefully all incoming
+        connections created by this object adapter once all outstanding dispatches have completed.
 
-        After deactivation, the object adapter stops receiving requests through its endpoints. Object adapters that
-        have been deactivated must not be reactivated again, and cannot be used otherwise. Attempts to use a
-        deactivated object adapter raise `ObjectAdapterDeactivatedException`. However, attempts to deactivate
-        an already deactivated object adapter are ignored and do nothing. Once deactivated, it is possible to destroy
-        the adapter to clean up resources and then create and activate a new adapter with the same name.
-
-        After `deactivate` returns, no new requests are processed by the object adapter. However, requests that
-        have been started before `deactivate` was called might still be active. You can use `waitForDeactivate`
-        to wait for the completion of all requests for this object adapter.
+        If this object adapter is indirect, this method also unregisters the object adapter from the Locator.
+        This method does not cancel outstanding dispatches--it lets them execute until completion. A new incoming
+        request on an existing connection will be accepted and can delay the closure of the connection.
+        A deactivated object adapter cannot be reactivated again; it can only be destroyed.
         """
         self._impl.deactivate()
 
     def waitForDeactivate(self):
         """
-        Wait until the object adapter has deactivated.
+        Wait until `deactivate` is called on this object adapter and all connections accepted by this object adapter are
+        closed.
 
-        Calling `deactivate` initiates object adapter deactivation, and `waitForDeactivate` only returns when deactivation
-        has been completed.
+        A connection is closed only after all outstanding dispatches on this connection have completed.
         """
         #
         # TODO should be part of the documented behavior above. Should we add a timeout parameter with a default value?
@@ -108,22 +104,20 @@ class ObjectAdapter(object):
 
     def isDeactivated(self):
         """
-        Check whether the object adapter has been deactivated.
+        Checks if this object adapter has been deactivated.
 
         Returns
         -------
         bool
-            True if the object adapter has been deactivated, False otherwise.
+            True if `deactivate` has been called on this object adapter; otherwise, False.
         """
         self._impl.isDeactivated()
 
     def destroy(self):
         """
-        Destroy the object adapter and clean up all resources held by the object adapter.
+        Destroys this object adapter and cleans up all resources held by this object adapter.
 
-        If the object adapter has not yet been deactivated, `destroy` implicitly initiates the deactivation and waits for
-        it to finish. Subsequent calls to `destroy` are ignored. Once `destroy` has returned, it is possible to create
-        another object adapter with the same name.
+        Once this method has returned, it is possible to create another object adapter with the same name.
         """
         self._impl.destroy()
 

@@ -238,17 +238,15 @@ CollocatedRequestHandler::dispatchAll(InputStream& is, int32_t requestId, int32_
     {
         while (requestCount > 0)
         {
-            //
             // Increase the direct count for the dispatch. We increase it again here for
             // each dispatch. It's important for the direct count to be > 0 until the last
             // collocated request response is sent to make sure the thread pool isn't
-            // destroyed before.
-            //
+            // destroyed before. It's decremented when processing the response.
             try
             {
                 _adapter->incDirectCount();
             }
-            catch (const ObjectAdapterDeactivatedException&)
+            catch (const ObjectAdapterDestroyedException&)
             {
                 handleException(requestId, current_exception());
                 break;

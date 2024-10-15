@@ -403,6 +403,10 @@ IceInternal::WSTransceiver::closing(bool initiator, exception_ptr reason)
     {
         _closingReason = CLOSURE_SHUTDOWN;
     }
+    catch (const Ice::ObjectAdapterDestroyedException&)
+    {
+        _closingReason = CLOSURE_SHUTDOWN;
+    }
     catch (const Ice::CommunicatorDestroyedException&)
     {
         _closingReason = CLOSURE_SHUTDOWN;

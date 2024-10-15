@@ -72,13 +72,7 @@ RemoteObjectAdapterI::getTestIntf(const Current&)
 void
 RemoteObjectAdapterI::deactivate(const Current&)
 {
-    try
-    {
-        _adapter->destroy();
-    }
-    catch (const ObjectAdapterDeactivatedException&)
-    {
-    }
+    _adapter->destroy();
 }
 
 std::string

@@ -162,21 +162,19 @@ namespace Ice
         }
 
         /**
-         * Explicitly set an object adapter that dispatches requests that are received over this connection. A client
-         * can invoke an operation on a server using a proxy, and then set an object adapter for the outgoing connection
-         * that is used by the proxy in order to receive callbacks. This is useful if the server cannot establish a
-         * connection back to the client, for example because of firewalls.
-         * @param adapter The object adapter that should be used by this connection to dispatch requests. The object
-         * adapter must be activated. When the object adapter is deactivated, it is automatically removed from the
-         * connection. Attempts to use a deactivated object adapter raise {@link ObjectAdapterDeactivatedException}
-         * @see #createProxy
+         * Associates an object adapter with this connection. When a connection receives a request, it dispatches this
+         * request using its associated object adapter. If the associated object adapter is null, the connection
+         * rejects any incoming request with an ObjectNotExistException.
+         * The default object adapter of an incoming connection is the object adapter that created this connection;
+         * the default object adapter of an outgoing connection is the communicator's default object adapter.
+         * @see Communicator#getDefaultObjectAdapter
          * @see #getAdapter
          */
         virtual void setAdapter(const ObjectAdapterPtr& adapter) = 0;
 
         /**
-         * Get the object adapter that dispatches requests for this connection.
-         * @return The object adapter that dispatches requests for the connection, or null if no adapter is set.
+         * Gets the object adapter associated with this connection.
+         * @return The object adapter associated with this connection.
          * @see #setAdapter
          */
         virtual ObjectAdapterPtr getAdapter() const noexcept = 0;

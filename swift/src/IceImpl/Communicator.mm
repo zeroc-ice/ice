@@ -136,6 +136,16 @@
     }
 }
 
+- (nullable ICEObjectAdapter*)getDefaultObjectAdapter
+{
+    return [ICEObjectAdapter getHandle:self.communicator->getDefaultObjectAdapter()];
+}
+
+- (void)setDefaultObjectAdapter:(ICEObjectAdapter* _Nullable)adapter
+{
+    self.communicator->setDefaultObjectAdapter(adapter == nil ? nullptr : [adapter objectAdapter]);
+}
+
 - (ICEImplicitContext*)getImplicitContext
 {
     auto implicitContext = self.communicator->getImplicitContext();

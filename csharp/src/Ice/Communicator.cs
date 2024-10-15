@@ -211,8 +211,8 @@ public sealed class Communicator : IDisposable
     public ObjectAdapter? getDefaultObjectAdapter() => instance.outgoingConnectionFactory().getDefaultObjectAdapter();
 
     /// <summary>
-    /// Sets the object adapter that will be associated with new outgoing connections created by this
-    /// communicator. This method has no effect on existing outgoing connections, or on incoming connections.
+    /// Sets the object adapter that will be associated with new outgoing connections created by this communicator. This
+    /// method has no effect on existing outgoing connections, or on incoming connections.
     /// </summary>
     /// <param name="adapter">The object adapter to associate with new outgoing connections.</param>
     /// <seealso cref="Connection.setAdapter" />

@@ -387,16 +387,10 @@ public final class NotRegisteredException: LocalException {
 }
 
 /// This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
-public final class ObjectAdapterDeactivatedException: LocalException {
-    /// Creates an ObjectAdapterDeactivatedException.
-    /// - Parameters:
-    ///   - name: The name of the object adapter.
-    ///   - file: The file where the exception was thrown.
-    ///   - line: The line where the exception was thrown.
-    public convenience init(name: String, file: String = #fileID, line: Int32 = #line) {
-        self.init("object adapter '\(name)' is deactivated", file: file, line: line)
-    }
-}
+public final class ObjectAdapterDeactivatedException: LocalException {}
+
+/// This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
+public final class ObjectAdapterDestroyedException: LocalException {}
 
 /// This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator
 /// detects another active ObjectAdapter with the same adapter id.

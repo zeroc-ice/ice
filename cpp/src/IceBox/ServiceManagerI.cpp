@@ -976,7 +976,7 @@ IceBox::ServiceManagerI::removeAdminFacets(const string& prefix)
     {
         // Ignored
     }
-    catch (const ObjectAdapterDeactivatedException&)
+    catch (const ObjectAdapterDestroyedException&)
     {
         // Ignored
     }

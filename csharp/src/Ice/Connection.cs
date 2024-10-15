@@ -111,9 +111,10 @@ namespace Ice
         /// request using its associated object adapter. If the associated object adapter is null, the connection
         /// rejects any incoming request with an <see cref="ObjectNotExistException" />.
         /// The default object adapter of an incoming connection is the object adapter that created this connection;
-        /// the default object adapter of an outgoing connection is null.
+        /// the default object adapter of an outgoing connection is the communicator's default object adapter.
         /// </summary>
         /// <param name="adapter">The object adapter to associate with this connection.</param>
+        /// <seealso cref="Communicator.getDefaultObjectAdapter"/>
         void setAdapter(ObjectAdapter? adapter);
 
         /// <summary>

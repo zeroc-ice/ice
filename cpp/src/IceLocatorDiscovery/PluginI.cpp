@@ -366,6 +366,10 @@ Request::exception(std::exception_ptr ex)
     {
         _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
     }
+    catch (const Ice::ObjectAdapterDestroyedException&)
+    {
+        _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+    }
     catch (...)
     {
         _exception = ex;

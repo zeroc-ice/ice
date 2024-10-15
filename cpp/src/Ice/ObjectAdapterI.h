@@ -118,6 +118,7 @@ namespace Ice
         ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
         ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
         void checkForDeactivation() const;
+        void checkForDestruction() const;
         std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
         std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
         void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<ObjectPrx>&);

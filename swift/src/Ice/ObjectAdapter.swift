@@ -34,30 +34,25 @@ public protocol ObjectAdapter: AnyObject {
     /// waitForHold only returns when holding of requests has been completed.
     func waitForHold()
 
-    /// Deactivate all endpoints that belong to this object adapter. After deactivation, the object adapter stops
-    /// receiving requests through its endpoints. Object adapters that have been deactivated must not be reactivated
-    /// again, and cannot be used otherwise. Attempts to use a deactivated object adapter raise
-    /// ObjectAdapterDeactivatedException however, attempts to deactivate an already deactivated
-    /// object adapter are ignored and do nothing. Once deactivated, it is possible to destroy the adapter to clean up
-    /// resources and then create and activate a new adapter with the same name.
-    /// After deactivate returns, no new requests are processed by the object adapter.
-    /// However, requests that have been started before deactivate was called might still be active. You can
-    /// use waitForDeactivate to wait for the completion of all requests for this object adapter.
+    /// Deactivates this object adapter: stop accepting new connections from clients and close gracefully all incoming
+    /// connections created by this object adapter once all outstanding dispatches have completed. If this object
+    /// adapter is indirect, this function also unregisters the object adapter from the Locator.
+    /// This function does not cancel outstanding dispatches--it lets them execute until completion. A new incoming
+    /// request on an existing connection will be accepted and can delay the closure of the connection.
+    /// A deactivated object adapter cannot be reactivated again; it can only be destroyed.
     func deactivate()
 
-    /// Wait until the object adapter has deactivated. Calling deactivate initiates object adapter
-    /// deactivation, and waitForDeactivate only returns when deactivation has been completed.
+    /// Wait until deactivate is called on this object adapter and all connections accepted by this object adapter are
+    /// closed. A connection is closed only after all outstanding dispatches on this connection have completed.
     func waitForDeactivate()
 
-    /// Check whether object adapter has been deactivated.
+    /// Checks if this object adapter has been deactivated.
     ///
     /// - returns: `Bool` - Whether adapter has been deactivated.
     func isDeactivated() -> Bool
 
-    /// Destroys the object adapter and cleans up all resources held by the object adapter. If the object adapter has
-    /// not yet been deactivated, destroy implicitly initiates the deactivation and waits for it to finish. Subsequent
-    /// calls to destroy are ignored. Once destroy has returned, it is possible to create another object adapter with
-    /// the same name.
+    /// Destroys this object adapter and cleans up all resources held by this object adapter.
+    /// Once this function has returned, it is possible to create another object adapter with the same name.
     func destroy()
 
     /// Add a middleware to the dispatch pipeline of this object adapter.

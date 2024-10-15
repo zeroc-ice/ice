@@ -75,27 +75,21 @@ namespace Ice
         virtual void waitForHold() = 0;
 
         /**
-         * Deactivate all endpoints that belong to this object adapter. After deactivation, the object adapter stops
-         * receiving requests through its endpoints. Object adapters that have been deactivated must not be reactivated
-         * again, and cannot be used otherwise. Attempts to use a deactivated object adapter raise
-         * {@link ObjectAdapterDeactivatedException} however, attempts to {@link #deactivate} an already deactivated
-         * object adapter are ignored and do nothing. Once deactivated, it is possible to destroy the adapter to clean
-         * up resources and then create and activate a new adapter with the same name. <p class="Note"> After {@link
-         * #deactivate} returns, no new requests are processed by the object adapter. However, requests that have been
-         * started before {@link #deactivate} was called might still be active. You can use {@link #waitForDeactivate}
-         * to wait for the completion of all requests for this object adapter.
-         * @see #activate
-         * @see #hold
+         * Deactivates this object adapter: stop accepting new connections from clients and close gracefully all
+         * incoming connections created by this object adapter once all outstanding dispatches have completed. If this
+         * object adapter is indirect, this function also unregisters the object adapter from the Locator.
+         * This function does not cancel outstanding dispatches--it lets them execute until completion. A new incoming
+         * request on an existing connection will be accepted and can delay the closure of the connection.
+         * A deactivated object adapter cannot be reactivated again; it can only be destroyed.
          * @see #waitForDeactivate
          * @see Communicator#shutdown
          */
         virtual void deactivate() noexcept = 0;
 
         /**
-         * Wait until the object adapter has deactivated. Calling {@link #deactivate} initiates object adapter
-         * deactivation, and {@link #waitForDeactivate} only returns when deactivation has been completed.
+         * Wait until deactivate is called on this object adapter and all connections accepted by this object adapter
+         * are closed. A connection is closed only after all outstanding dispatches on this connection have completed.
          * @see #deactivate
-         * @see #waitForHold
          * @see Communicator#waitForShutdown
          */
         virtual void waitForDeactivate() noexcept = 0;
@@ -108,12 +102,8 @@ namespace Ice
         virtual bool isDeactivated() const noexcept = 0;
 
         /**
-         * Destroys the object adapter and cleans up all resources held by the object adapter. If the object adapter has
-         * not yet been deactivated, destroy implicitly initiates the deactivation and waits for it to finish.
-         * Subsequent calls to destroy are ignored. Once destroy has returned, it is possible to create another object
-         * adapter with the same name.
-         * @see #deactivate
-         * @see #waitForDeactivate
+         * Destroys this object adapter and cleans up all resources held by this object adapter.
+         * Once this function has returned, it is possible to create another object adapter with the same name.
          * @see Communicator#destroy
          */
         virtual void destroy() noexcept = 0;

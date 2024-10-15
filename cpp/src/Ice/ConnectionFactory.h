@@ -62,6 +62,9 @@ namespace IceInternal
 
         void removeConnection(const Ice::ConnectionIPtr&) noexcept;
 
+        void setDefaultObjectAdapter(Ice::ObjectAdapterPtr adapter) noexcept;
+        Ice::ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
+
         OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
         ~OutgoingConnectionFactory();
         friend class Instance;
@@ -160,7 +163,8 @@ namespace IceInternal
         std::multimap<EndpointIPtr, Ice::ConnectionIPtr, Ice::TargetCompare<EndpointIPtr, std::less>>
             _connectionsByEndpoint;
         int _pendingConnectCount;
-        std::mutex _mutex;
+        Ice::ObjectAdapterIPtr _defaultObjectAdapter;
+        mutable std::mutex _mutex;
         std::condition_variable _conditionVariable;
     };
 

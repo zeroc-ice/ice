@@ -249,6 +249,29 @@ class Communicator:
         adapter = self._impl.createObjectAdapterWithRouter(name, router)
         return ObjectAdapter(adapter)
 
+    def getDefaultObjectAdapter(self):
+        """
+        Get the object adapter that is associated by default with new outgoing connections created by this
+        communicator. This method returns None unless you set a default object adapter using createDefaultObjectAdapter.
+
+        Returns
+        -------
+        Ice.ObjectAdapter or None
+            The object adapter associated by default with new outgoing connections.
+        """
+        return self._impl.getDefaultObjectAdapter()
+
+    def setDefaultObjectAdapter(self, adapter):
+        """
+        Set the object adapter that is associated by default with new outgoing connections created by this communicator.
+
+        Parameters
+        ----------
+        adapter : Ice.ObjectAdapter or None
+            The object adapter to associate with new outgoing connections.
+        """
+        self._impl.setDefaultObjectAdapter(adapter)
+
     def getImplicitContext(self):
         """
         Get the implicit context associated with this communicator.

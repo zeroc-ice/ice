@@ -285,7 +285,7 @@ NodeSessionI::destroyImpl(bool shutdown)
         {
             _database->getInternalAdapter()->remove(_proxy->ice_getIdentity());
         }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDestroyedException&)
         {
         }
     }
