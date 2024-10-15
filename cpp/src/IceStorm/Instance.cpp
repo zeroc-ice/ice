@@ -18,6 +18,19 @@ using namespace IceStorm;
 using namespace IceStormElection;
 using namespace IceStormInternal;
 
+namespace
+{
+    string getLMDBPath(const Ice::PropertiesPtr& properties, const string& serviceName)
+    {
+        string path = properties->getIceProperty("IceStorm.LMDB.Path");
+        if (path.empty())
+        {
+            path = serviceName;
+        }
+        return path;
+    }
+}
+
 namespace IceStormInternal
 {
     extern IceDB::IceContext dbContext;
@@ -41,12 +54,14 @@ TopicReaper::consumeReapedTopics()
 
 Instance::Instance(
     const string& instanceName,
+    const string& serviceName,
     shared_ptr<Ice::Communicator> communicator,
     Ice::ObjectAdapterPtr publishAdapter,
     Ice::ObjectAdapterPtr topicAdapter,
     Ice::ObjectAdapterPtr nodeAdapter,
     optional<NodePrx> nodeProxy)
     : _instanceName(instanceName),
+      _serviceName(serviceName),
       _communicator(std::move(communicator)),
       _publishAdapter(std::move(publishAdapter)),
       _topicAdapter(std::move(topicAdapter)),
@@ -96,7 +111,7 @@ Instance::Instance(
         else if (!policy.empty())
         {
             Ice::Warning warn(_traceLevels->logger);
-            warn << "invalid value `" << policy << "' for `" << "IceStorm.Send.QueueSizeMaxPolicy'";
+            warn << "invalid value `" << policy << "' for `" << serviceName << ".Send.QueueSizeMaxPolicy'";
         }
 
         //
@@ -129,6 +144,12 @@ string
 Instance::instanceName() const
 {
     return _instanceName;
+}
+
+string
+Instance::serviceName() const
+{
+    return _serviceName;
 }
 
 shared_ptr<Ice::Communicator>
@@ -281,6 +302,7 @@ Instance::destroy()
 
 PersistentInstance::PersistentInstance(
     const string& instanceName,
+    const string& serviceName,
     shared_ptr<Ice::Communicator> communicator,
     Ice::ObjectAdapterPtr publishAdapter,
     Ice::ObjectAdapterPtr topicAdapter,
@@ -288,14 +310,15 @@ PersistentInstance::PersistentInstance(
     optional<NodePrx> nodeProxy)
     : Instance(
           instanceName,
+          serviceName,
           communicator,
           std::move(publishAdapter),
           std::move(topicAdapter),
           std::move(nodeAdapter),
           std::move(nodeProxy)),
-      _dbLock(communicator->getProperties()->getPropertyWithDefault("IceStorm.LMDB.Path", "IceStorm") + "/icedb.lock"),
+      _dbLock(getLMDBPath(communicator->getProperties(), serviceName) + "/icedb.lock"),
       _dbEnv(
-          communicator->getProperties()->getPropertyWithDefault("IceStorm.LMDB.Path", "IceStorm"),
+          getLMDBPath(communicator->getProperties(), serviceName),
           2,
           IceDB::getMapSize(communicator->getProperties()->getIcePropertyAsInt("IceStorm.LMDB.MapSize")))
 {

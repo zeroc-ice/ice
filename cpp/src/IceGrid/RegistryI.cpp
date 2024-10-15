@@ -350,8 +350,12 @@ RegistryI::startImpl()
     Identity registryTopicManagerId;
     registryTopicManagerId.category = _instanceName;
     registryTopicManagerId.name = "RegistryTopicManager";
-    _iceStorm =
-        IceStormInternal::Service::create(_communicator, _registryAdapter, _registryAdapter, registryTopicManagerId);
+    _iceStorm = IceStormInternal::Service::create(
+        _communicator,
+        _registryAdapter,
+        _registryAdapter,
+        "IceGrid.Registry",
+        registryTopicManagerId);
 
     try
     {

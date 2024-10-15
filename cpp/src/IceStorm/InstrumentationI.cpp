@@ -24,19 +24,24 @@ namespace
         public:
             Attributes()
             {
+                add("parent", &TopicHelper::getService);
                 add("id", &TopicHelper::getId);
                 add("topic", &TopicHelper::getId);
+                add("service", &TopicHelper::getService);
             }
         };
         static Attributes attributes;
 
-        TopicHelper(const string& name) : _name(name) {}
+        TopicHelper(const string& service, const string& name) : _service(service), _name(name) {}
 
         virtual string operator()(const string& attribute) const { return attributes(this, attribute); }
+
+        const string& getService() const { return _service; }
 
         const string& getId() const { return _name; }
 
     private:
+        const string& _service;
         const string& _name;
     };
 
@@ -53,6 +58,7 @@ namespace
                 add("parent", &SubscriberHelper::getTopic);
                 add("id", &SubscriberHelper::getId);
                 add("topic", &SubscriberHelper::getTopic);
+                add("service", &SubscriberHelper::getService);
 
                 add("identity", &SubscriberHelper::getIdentity);
 
@@ -69,12 +75,14 @@ namespace
         static Attributes attributes;
 
         SubscriberHelper(
+            const string& svc,
             const string& topic,
             const Ice::ObjectPrx& proxy,
             const IceStorm::QoS& qos,
             optional<IceStorm::TopicPrx> link,
             SubscriberState state)
-            : _topic(topic),
+            : _service(svc),
+              _topic(topic),
               _proxy(proxy),
               _qos(qos),
               _link(std::move(link)),
@@ -100,6 +108,8 @@ namespace
             }
             throw invalid_argument(attribute);
         }
+
+        const string& getService() const { return _service; }
 
         const string& getTopic() const { return _topic; }
 
@@ -171,6 +181,7 @@ namespace
         }
 
     private:
+        const string& _service;
         const string& _topic;
         const Ice::ObjectPrx& _proxy;
         const IceStorm::QoS& _qos;
@@ -276,13 +287,16 @@ TopicManagerObserverI::setObserverUpdater(const shared_ptr<ObserverUpdater>& upd
 }
 
 shared_ptr<TopicObserver>
-TopicManagerObserverI::getTopicObserver(const string& topic, const shared_ptr<TopicObserver>& old)
+TopicManagerObserverI::getTopicObserver(
+    const string& service,
+    const string& topic,
+    const shared_ptr<TopicObserver>& old)
 {
     if (_topics.isEnabled())
     {
         try
         {
-            return _topics.getObserver(TopicHelper(topic), old);
+            return _topics.getObserver(TopicHelper(service, topic), old);
         }
         catch (const exception& ex)
         {
@@ -295,6 +309,7 @@ TopicManagerObserverI::getTopicObserver(const string& topic, const shared_ptr<To
 
 shared_ptr<SubscriberObserver>
 TopicManagerObserverI::getSubscriberObserver(
+    const string& svc,
     const string& topic,
     const Ice::ObjectPrx& proxy,
     const IceStorm::QoS& qos,
@@ -306,7 +321,7 @@ TopicManagerObserverI::getSubscriberObserver(
     {
         try
         {
-            return _subscribers.getObserver(SubscriberHelper(topic, proxy, qos, link, state), old);
+            return _subscribers.getObserver(SubscriberHelper(svc, topic, proxy, qos, link, state), old);
         }
         catch (const exception& ex)
         {
