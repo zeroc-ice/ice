@@ -144,7 +144,7 @@ namespace DataStormI
                 return &p->second;
             }
 
-            ElementSubscribers remove(long long id)
+            ElementSubscribers remove(std::int64_t id)
             {
                 auto p = _elements.find(id);
                 if (p != _elements.end())

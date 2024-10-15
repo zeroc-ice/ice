@@ -880,7 +880,7 @@ SessionI::setNode(optional<NodePrx> node)
 }
 
 void
-SessionI::subscribe(long long id, TopicI* topic)
+SessionI::subscribe(int64_t id, TopicI* topic)
 {
     if (_traceLevels->session > 1)
     {
@@ -891,7 +891,7 @@ SessionI::subscribe(long long id, TopicI* topic)
 }
 
 void
-SessionI::unsubscribe(long long id, TopicI* topic)
+SessionI::unsubscribe(int64_t id, TopicI* topic)
 {
     assert(_topics.find(id) != _topics.end());
     auto& subscriber = _topics.at(id).getSubscriber(topic);
@@ -920,7 +920,7 @@ SessionI::unsubscribe(long long id, TopicI* topic)
 }
 
 void
-SessionI::disconnect(long long id, TopicI* topic)
+SessionI::disconnect(int64_t id, TopicI* topic)
 {
     lock_guard<mutex> lock(_mutex); // Called by TopicI::destroy
     if (!_session)
@@ -945,7 +945,7 @@ SessionI::disconnect(long long id, TopicI* topic)
 
 void
 SessionI::subscribeToKey(
-    long long topicId,
+    int64_t topicId,
     int64_t elementId,
     const std::shared_ptr<DataElementI>& element,
     const string& facet,
@@ -978,7 +978,7 @@ SessionI::subscribeToKey(
 
 void
 SessionI::unsubscribeFromKey(
-    long long topicId,
+    int64_t topicId,
     int64_t elementId,
     const std::shared_ptr<DataElementI>& element,
     int64_t keyId)
@@ -1014,7 +1014,7 @@ SessionI::unsubscribeFromKey(
 
 void
 SessionI::disconnectFromKey(
-    long long topicId,
+    int64_t topicId,
     int64_t elementId,
     const std::shared_ptr<DataElementI>& element,
     int64_t keyId)
@@ -1033,7 +1033,7 @@ SessionI::disconnectFromKey(
 
 void
 SessionI::subscribeToFilter(
-    long long topicId,
+    int64_t topicId,
     int64_t elementId,
     const std::shared_ptr<DataElementI>& element,
     const string& facet,
@@ -1057,7 +1057,7 @@ SessionI::subscribeToFilter(
 
 void
 SessionI::unsubscribeFromFilter(
-    long long topicId,
+    int64_t topicId,
     int64_t elementId,
     const std::shared_ptr<DataElementI>& element,
     int64_t)
@@ -1082,7 +1082,7 @@ SessionI::unsubscribeFromFilter(
 
 void
 SessionI::disconnectFromFilter(
-    long long topicId,
+    int64_t topicId,
     int64_t elementId,
     const std::shared_ptr<DataElementI>& element,
     int64_t filterId)
@@ -1100,7 +1100,7 @@ SessionI::disconnectFromFilter(
 }
 
 LongLongDict
-SessionI::getLastIds(long long topicId, int64_t keyId, const std::shared_ptr<DataElementI>& element)
+SessionI::getLastIds(int64_t topicId, int64_t keyId, const std::shared_ptr<DataElementI>& element)
 {
     LongLongDict lastIds;
     auto p = _topics.find(topicId);

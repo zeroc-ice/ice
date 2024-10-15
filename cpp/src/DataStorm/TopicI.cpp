@@ -280,7 +280,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
 }
 
 void
-TopicI::attach(long long id, const shared_ptr<SessionI>& session, optional<SessionPrx> prx)
+TopicI::attach(int64_t id, const shared_ptr<SessionI>& session, optional<SessionPrx> prx)
 {
     auto p = _listeners.find({session});
     if (p == _listeners.end())
@@ -295,7 +295,7 @@ TopicI::attach(long long id, const shared_ptr<SessionI>& session, optional<Sessi
 }
 
 void
-TopicI::detach(long long id, const shared_ptr<SessionI>& session)
+TopicI::detach(int64_t id, const shared_ptr<SessionI>& session)
 {
     auto p = _listeners.find({session});
     if (p != _listeners.end() && p->second.topics.erase(id))
@@ -742,7 +742,7 @@ void
 TopicI::forward(const Ice::ByteSeq& inEncaps, const Ice::Current& current) const
 {
     // Forwarder proxy must be called with the mutex locked!
-    for (auto listener : _listeners)
+    for (const auto& listener : _listeners)
     {
         // TODO check return value
         auto _ = listener.second.proxy->ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx);
