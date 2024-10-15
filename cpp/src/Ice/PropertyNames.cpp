@@ -250,7 +250,7 @@ const Property IceLocatorDiscoveryPropsData[] =
     Property{"Address", "", false, false, nullptr},
     Property{"Port", "4061", false, false, nullptr},
     Property{"Interface", "", false, false, nullptr},
-    Property{"InstanceName", "IceLocatorDiscovery", false, false, nullptr},
+    Property{"InstanceName", "", false, false, nullptr},
     Property{"Trace.Lookup", "0", false, false, nullptr}
 };
 

@@ -61,7 +61,7 @@ namespace
                            public std::enable_shared_from_this<LocatorI>
     {
     public:
-        LocatorI(const string&, const LookupPrx&, const Ice::PropertiesPtr&, const string&, const Ice::LocatorPrx&);
+        LocatorI(const LookupPrx&, const Ice::PropertiesPtr&, const string&, const Ice::LocatorPrx&);
         void setLookupReply(const LookupReplyPrx&);
 
         void ice_invokeAsync(
@@ -146,7 +146,7 @@ namespace
     class PluginI final : public Plugin
     {
     public:
-        PluginI(const std::string&, const Ice::CommunicatorPtr&);
+        PluginI(const Ice::CommunicatorPtr&);
 
         void initialize() final;
         void destroy() final;
@@ -167,9 +167,9 @@ namespace
 // Plugin factory function.
 //
 extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
-createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq&)
+createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
-    return new PluginI(name, communicator);
+    return new PluginI(communicator);
 }
 
 namespace Ice
@@ -183,11 +183,7 @@ namespace Ice
     }
 }
 
-PluginI::PluginI(const string& name, const Ice::CommunicatorPtr& communicator)
-    : _name(name),
-      _communicator(communicator)
-{
-}
+PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
 
 void
 PluginI::initialize()
@@ -199,16 +195,16 @@ PluginI::initialize()
     string address;
     if (ipv4 && !preferIPv6)
     {
-        address = properties->getPropertyWithDefault(_name + ".Address", "239.255.0.1");
+        address = properties->getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
     }
     else
     {
-        address = properties->getPropertyWithDefault(_name + ".Address", "ff15::1");
+        address = properties->getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
     }
-    int port = properties->getIcePropertyAsInt(_name + ".Port");
-    string intf = properties->getProperty(_name + ".Interface");
+    int port = properties->getIcePropertyAsInt("IceLocatorDiscovery.Port");
+    string intf = properties->getIceProperty("IceLocatorDiscovery.Interface");
 
-    string lookupEndpoints = properties->getIceProperty(_name + ".Lookup");
+    string lookupEndpoints = properties->getIceProperty("IceLocatorDiscovery.Lookup");
     if (lookupEndpoints.empty())
     {
         //
@@ -229,18 +225,20 @@ PluginI::initialize()
         lookupEndpoints = lookup.str();
     }
 
-    if (properties->getIceProperty(_name + ".Reply.Endpoints").empty())
+    if (properties->getIceProperty("IceLocatorDiscovery.Reply.Endpoints").empty())
     {
-        properties->setProperty(_name + ".Reply.Endpoints", "udp -h " + (intf.empty() ? "*" : "\"" + intf + "\""));
+        properties->setProperty(
+            "IceLocatorDiscovery.Reply.Endpoints",
+            "udp -h " + (intf.empty() ? "*" : "\"" + intf + "\""));
     }
 
-    if (properties->getIceProperty(_name + ".Locator.Endpoints").empty())
+    if (properties->getIceProperty("IceLocatorDiscovery.Locator.Endpoints").empty())
     {
-        properties->setProperty(_name + ".Locator.AdapterId", Ice::generateUUID()); // Collocated adapter
+        properties->setProperty("IceLocatorDiscovery.Locator.AdapterId", Ice::generateUUID()); // Collocated adapter
     }
 
-    _replyAdapter = _communicator->createObjectAdapter(_name + ".Reply");
-    _locatorAdapter = _communicator->createObjectAdapter(_name + ".Locator");
+    _replyAdapter = _communicator->createObjectAdapter("IceLocatorDiscovery.Reply");
+    _locatorAdapter = _communicator->createObjectAdapter("IceLocatorDiscovery.Locator");
 
     // We don't want those adapters to be registered with the locator so clear their locator.
     _replyAdapter->setLocator(nullopt);
@@ -252,11 +250,11 @@ PluginI::initialize()
 
     auto voidLocator = _locatorAdapter->addWithUUID<Ice::LocatorPrx>(make_shared<VoidLocatorI>());
 
-    string instanceName = properties->getProperty(_name + ".InstanceName");
+    string instanceName = properties->getIceProperty("IceLocatorDiscovery.InstanceName");
     Ice::Identity id;
     id.name = "Locator";
     id.category = !instanceName.empty() ? instanceName : Ice::generateUUID();
-    _locator = make_shared<LocatorI>(_name, lookupPrx, properties, instanceName, voidLocator);
+    _locator = make_shared<LocatorI>(lookupPrx, properties, instanceName, voidLocator);
     _defaultLocator = _communicator->getDefaultLocator();
     _locatorPrx = _locatorAdapter->add<Ice::LocatorPrx>(_locator, id);
     _communicator->setDefaultLocator(_locatorPrx);
@@ -380,17 +378,16 @@ Request::exception(std::exception_ptr ex)
 }
 
 LocatorI::LocatorI(
-    const string& name,
     const LookupPrx& lookup,
     const Ice::PropertiesPtr& p,
     const string& instanceName,
     const Ice::LocatorPrx& voidLocator)
     : _lookup(lookup),
-      _timeout(chrono::milliseconds(p->getIcePropertyAsInt(name + ".Timeout"))),
-      _retryCount(p->getIcePropertyAsInt(name + ".RetryCount")),
-      _retryDelay(chrono::milliseconds(p->getIcePropertyAsInt(name + ".RetryDelay"))),
+      _timeout(chrono::milliseconds(p->getIcePropertyAsInt("IceLocatorDiscovery.Timeout"))),
+      _retryCount(p->getIcePropertyAsInt("IceLocatorDiscovery.RetryCount")),
+      _retryDelay(chrono::milliseconds(p->getIcePropertyAsInt("IceLocatorDiscovery.RetryDelay"))),
       _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
-      _traceLevel(p->getIcePropertyAsInt(name + ".Trace.Lookup")),
+      _traceLevel(p->getIcePropertyAsInt("IceLocatorDiscovery.Trace.Lookup")),
       _instanceName(instanceName),
       _warned(false),
       _locator(lookup->ice_getCommunicator()->getDefaultLocator()),

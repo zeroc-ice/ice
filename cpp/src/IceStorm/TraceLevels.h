@@ -15,7 +15,7 @@ namespace IceStorm
     class TraceLevels
     {
     public:
-        TraceLevels(const std::string name, const Ice::PropertiesPtr&, Ice::LoggerPtr);
+        TraceLevels(const Ice::PropertiesPtr&, Ice::LoggerPtr);
 
         const int topicMgr;
         const char* topicMgrCat;

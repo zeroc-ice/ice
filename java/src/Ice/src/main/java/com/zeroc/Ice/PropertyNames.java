@@ -197,7 +197,7 @@ final class PropertyNames
             new Property("Address", false, "", false, null),
             new Property("Port", false, "4061", false, null),
             new Property("Interface", false, "", false, null),
-            new Property("InstanceName", false, "IceLocatorDiscovery", false, null),
+            new Property("InstanceName", false, "", false, null),
             new Property("Trace.Lookup", false, "0", false, null)
         });
 

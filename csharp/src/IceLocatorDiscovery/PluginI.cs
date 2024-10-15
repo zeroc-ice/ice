@@ -8,10 +8,7 @@ namespace IceLocatorDiscovery;
 public sealed class PluginFactory : Ice.PluginFactory
 {
     public Ice.Plugin
-    create(Ice.Communicator communicator, string name, string[] args)
-    {
-        return new PluginI(name, communicator);
-    }
+    create(Ice.Communicator communicator, string name, string[] args) => new PluginI(communicator);
 }
 
 public interface Plugin : Ice.Plugin
@@ -124,26 +121,26 @@ internal class VoidLocatorI : Ice.LocatorDisp_
 internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 {
     public
-    LocatorI(string name, LookupPrx lookup, Ice.Properties properties, string instanceName, Ice.LocatorPrx voidLocator)
+    LocatorI(LookupPrx lookup, Ice.Properties properties, string instanceName, Ice.LocatorPrx voidLocator)
     {
         _lookup = lookup;
-        _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
+        _timeout = properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout");
         if (_timeout < 0)
         {
             _timeout = 300;
         }
-        _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
+        _retryCount = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryCount");
         if (_retryCount < 0)
         {
             _retryCount = 0;
         }
-        _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
+        _retryDelay = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryDelay");
         if (_retryDelay < 0)
         {
             _retryDelay = 0;
         }
         _timer = Ice.Internal.Util.getInstance(lookup.ice_getCommunicator()).timer();
-        _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
+        _traceLevel = properties.getIcePropertyAsInt("IceLocatorDiscovery.Trace.Lookup");
         _instanceName = instanceName;
         _warned = false;
         _locator = lookup.ice_getCommunicator().getDefaultLocator();
@@ -158,9 +155,9 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
         // datagram on each endpoint.
         //
         var single = new Ice.Endpoint[1];
-        foreach (var endpt in lookup.ice_getEndpoints())
+        foreach (Ice.Endpoint endpoint in lookup.ice_getEndpoints())
         {
-            single[0] = endpt;
+            single[0] = endpoint;
             _lookups[(LookupPrx)lookup.ice_endpoints(single)] = null;
         }
         Debug.Assert(_lookups.Count > 0);
@@ -650,9 +647,8 @@ internal class LookupReplyI : LookupReplyDisp_
 internal class PluginI : Ice.Plugin
 {
     public
-    PluginI(string name, Ice.Communicator communicator)
+    PluginI(Ice.Communicator communicator)
     {
-        _name = name;
         _communicator = communicator;
     }
 
@@ -666,16 +662,16 @@ internal class PluginI : Ice.Plugin
         string address;
         if (ipv4 && !preferIPv6)
         {
-            address = properties.getPropertyWithDefault(_name + ".Address", "239.255.0.1");
+            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
         }
         else
         {
-            address = properties.getPropertyWithDefault(_name + ".Address", "ff15::1");
+            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
         }
-        int port = properties.getPropertyAsIntWithDefault(_name + ".Port", 4061);
-        string intf = properties.getProperty(_name + ".Interface");
+        int port = properties.getIcePropertyAsInt("IceLocatorDiscovery.Port");
+        string intf = properties.getIceProperty("IceLocatorDiscovery.Interface");
 
-        string lookupEndpoints = properties.getProperty(_name + ".Lookup");
+        string lookupEndpoints = properties.getIceProperty("IceLocatorDiscovery.Lookup");
         if (lookupEndpoints.Length == 0)
         {
             int protocol = ipv4 && !preferIPv6 ? Ice.Internal.Network.EnableIPv4 : Ice.Internal.Network.EnableIPv6;
@@ -690,20 +686,20 @@ internal class PluginI : Ice.Plugin
             }
         }
 
-        if (properties.getProperty(_name + ".Reply.Endpoints").Length == 0)
+        if (properties.getIceProperty("IceLocatorDiscovery.Reply.Endpoints").Length == 0)
         {
             properties.setProperty(
-                _name + ".Reply.Endpoints",
+                "IceLocatorDiscovery.Reply.Endpoints",
                 "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
         }
 
-        if (properties.getProperty(_name + ".Locator.Endpoints").Length == 0)
+        if (properties.getIceProperty("IceLocatorDiscovery.Locator.Endpoints").Length == 0)
         {
-            properties.setProperty(_name + ".Locator.AdapterId", Guid.NewGuid().ToString());
+            properties.setProperty("IceLocatorDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
         }
 
-        _replyAdapter = _communicator.createObjectAdapter(_name + ".Reply");
-        _locatorAdapter = _communicator.createObjectAdapter(_name + ".Locator");
+        _replyAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Reply");
+        _locatorAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Locator");
 
         // We don't want those adapters to be registered with the locator so clear their locator.
         _replyAdapter.setLocator(null);
@@ -715,11 +711,11 @@ internal class PluginI : Ice.Plugin
 
         Ice.LocatorPrx voidLo = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
 
-        string instanceName = properties.getProperty(_name + ".InstanceName");
+        string instanceName = properties.getIceProperty("IceLocatorDiscovery.InstanceName");
         var id = new Ice.Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
 
         _defaultLocator = _communicator.getDefaultLocator();
-        _locator = new LocatorI(_name, LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);
+        _locator = new LocatorI(LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);
         _locatorPrx = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.add(_locator, id));
         _communicator.setDefaultLocator(_locatorPrx);
 
@@ -754,7 +750,6 @@ internal class PluginI : Ice.Plugin
         return _locator.getLocators(instanceName, waitTime);
     }
 
-    private string _name;
     private Ice.Communicator _communicator;
     private Ice.ObjectAdapter _locatorAdapter;
     private Ice.ObjectAdapter _replyAdapter;

@@ -35,6 +35,7 @@ namespace
     public:
         IceStorm::TopicManagerPrx getTopicManager() const final;
 
+        // For IceBox
         void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) final;
 
         // For IceGrid
@@ -81,41 +82,39 @@ IceStormInternal::Service::create(
     const string& name,
     const Ice::Identity& id)
 {
-    shared_ptr<ServiceI> service(new ServiceI);
+    auto service = make_shared<ServiceI>();
     service->start(communicator, topicAdapter, publishAdapter, name, id);
     return service;
 }
 
 void
-ServiceI::start(const string& name, const CommunicatorPtr& communicator, const StringSeq&)
+ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, const StringSeq&)
 {
     auto properties = communicator->getProperties();
 
-    // TODO: Remove once we fix #2798
-    IceInternal::validatePropertiesWithPrefix(name, properties, &IceInternal::PropertyNames::IceStormProps);
-
-    int id = properties->getPropertyAsIntWithDefault(name + ".NodeId", -1);
+    int id = properties->getIcePropertyAsInt("IceStorm.NodeId");
 
     // If we are using a replicated deployment and if the topic manager thread pool max size is not set then ensure it
     // is set to some suitably high number. This ensures no deadlocks in the replicated case due to call forwarding
     // from replicas to coordinators.
-    if (id != -1 && properties->getProperty(name + ".TopicManager.ThreadPool.SizeMax").empty())
+    if (id != -1 && properties->getIceProperty("IceStorm.TopicManager.ThreadPool.SizeMax").empty())
     {
-        properties->setProperty(name + ".TopicManager.ThreadPool.SizeMax", "100");
+        properties->setProperty("IceStorm.TopicManager.ThreadPool.SizeMax", "100");
     }
 
-    auto topicAdapter = communicator->createObjectAdapter(name + ".TopicManager");
-    auto publishAdapter = communicator->createObjectAdapter(name + ".Publish");
+    auto topicAdapter = communicator->createObjectAdapter("IceStorm.TopicManager");
+    auto publishAdapter = communicator->createObjectAdapter("IceStorm.Publish");
 
     //
     // We use the name of the service for the name of the database environment.
     //
-    string instanceName = properties->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
+    string instanceName = properties->getIceProperty("IceStorm.InstanceName");
     Identity topicManagerId = {"TopicManager", instanceName};
 
-    if (properties->getPropertyAsIntWithDefault(name + ".Transient", 0) > 0)
+    if (properties->getIcePropertyAsInt("IceStorm.Transient") > 0)
     {
-        _instance = make_shared<Instance>(instanceName, name, communicator, publishAdapter, topicAdapter, nullptr);
+        _instance =
+            make_shared<Instance>(instanceName, serviceName, communicator, publishAdapter, topicAdapter, nullptr);
         try
         {
             auto manager = make_shared<TransientTopicManagerImpl>(_instance);
@@ -126,7 +125,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             _instance = 0;
 
             LoggerOutputBase s;
-            s << "exception while starting IceStorm service " << name << ":\n";
+            s << "exception while starting IceStorm service " << serviceName << ":\n";
             s << ex;
             throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
@@ -140,7 +139,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
         try
         {
             auto instance =
-                make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter, topicAdapter);
+                make_shared<PersistentInstance>(instanceName, serviceName, communicator, publishAdapter, topicAdapter);
             _manager = TopicManagerImpl::create(instance);
             _instance = std::move(instance);
             _managerProxy = topicAdapter->add<TopicManagerPrx>(_manager->getServant(), topicManagerId);
@@ -150,7 +149,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             _instance = 0;
 
             LoggerOutputBase s;
-            s << "exception while starting IceStorm service " << name << ":\n";
+            s << "exception while starting IceStorm service " << serviceName << ":\n";
             s << ex;
 
             throw IceBox::FailureException(__FILE__, __LINE__, s.str());
@@ -161,12 +160,12 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
         // Here we want to create a map of id -> election node proxies.
         map<int, NodePrx> nodes;
 
-        string topicManagerAdapterId = properties->getProperty(name + ".TopicManager.AdapterId");
+        string topicManagerAdapterId = properties->getIceProperty("IceStorm.TopicManager.AdapterId");
 
         // We support two possible deployments. The first is a manual deployment, the second is IceGrid.
         //
         // Here we check for the manual deployment
-        const string prefix = name + ".Nodes.";
+        const string prefix = "IceStorm.Nodes.";
         Ice::PropertyDict props = properties->getPropertiesForPrefix(prefix);
         if (!props.empty())
         {
@@ -190,7 +189,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
         {
             // If adapter id's are defined for the topic manager or node adapters then we consider this an IceGrid
             // based deployment.
-            string nodeAdapterId = properties->getProperty(name + ".Node.AdapterId");
+            string nodeAdapterId = properties->getIceProperty("IceStorm.Node.AdapterId");
 
             // Validate first that the adapter ids match for the node and the topic manager otherwise some other
             // deployment is being used.
@@ -217,28 +216,28 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
 
             for (const auto& replica : replicas)
             {
-                string adapterid = replica->ice_getAdapterId();
+                string adapterId = replica->ice_getAdapterId();
 
                 // Replace TopicManager with the node endpoint.
-                adapterid = adapterid.replace(adapterid.find(suffix), suffix.size(), ".Node");
+                adapterId = adapterId.replace(adapterId.find(suffix), suffix.size(), ".Node");
 
                 // The adapter id must start with the instance name.
-                if (adapterid.find(instanceName) != 0)
+                if (adapterId.find(instanceName) != 0)
                 {
                     Ice::Error error(communicator->getLogger());
-                    error << "deployment error: `" << adapterid << "' does not start with `" << instanceName << "'";
+                    error << "deployment error: `" << adapterId << "' does not start with `" << instanceName << "'";
                     throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
                 }
 
                 // The node id follows. We find the first digit (the start of the node id, and then the end of the
                 // digits).
                 string::size_type start = instanceName.size();
-                while (start < adapterid.size() && !IceInternal::isDigit(adapterid[start]))
+                while (start < adapterId.size() && !IceInternal::isDigit(adapterId[start]))
                 {
                     ++start;
                 }
                 string::size_type end = start;
-                while (end < adapterid.size() && IceInternal::isDigit(adapterid[end]))
+                while (end < adapterId.size() && IceInternal::isDigit(adapterId[end]))
                 {
                     ++end;
                 }
@@ -247,17 +246,15 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
                     // We must have at least one digit, otherwise there is some sort of deployment error.
                     Ice::Error error(communicator->getLogger());
                     error << "deployment error: node id does not follow instance name. instance name:" << instanceName
-                          << " adapter id: " << adapterid;
+                          << " adapter id: " << adapterId;
                     throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
                 }
 
-                int nodeid = atoi(adapterid.substr(start, end - start).c_str());
-                ostringstream os;
-                os << "node" << nodeid;
+                int nodeid = atoi(adapterId.substr(start, end - start).c_str());
                 Ice::Identity ident;
                 ident.category = instanceName;
-                ident.name = os.str();
-                nodes.insert({nodeid, replica->ice_adapterId(adapterid)->ice_identity<NodePrx>(ident)});
+                ident.name = "node" + to_string(nodeid);
+                nodes.insert({nodeid, replica->ice_adapterId(adapterId)->ice_identity<NodePrx>(ident)});
             }
         }
 
@@ -273,22 +270,20 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             // If the node thread pool size is not set then initialize
             // to the number of nodes + 1 and disable thread pool size
             // warnings.
-            if (properties->getProperty(name + ".Node.ThreadPool.Size").empty())
+            if (properties->getIceProperty("IceStorm.Node.ThreadPool.Size").empty())
             {
-                ostringstream os;
-                os << nodes.size() + 1;
-                properties->setProperty(name + ".Node.ThreadPool.Size", os.str());
-                properties->setProperty(name + ".Node.ThreadPool.SizeWarn", "0");
+                properties->setProperty("IceStorm.Node.ThreadPool.Size", to_string(nodes.size() + 1));
+                properties->setProperty("IceStorm.Node.ThreadPool.SizeWarn", "0");
             }
-            if (properties->getProperty(name + ".Node.MessageSizeMax").empty())
+            if (properties->getIceProperty("IceStorm.Node.MessageSizeMax").empty())
             {
-                properties->setProperty(name + ".Node.MessageSizeMax", "0"); // No limit on data exchanged internally
+                properties->setProperty("IceStorm.Node.MessageSizeMax", "0"); // No limit on data exchanged internally
             }
 
-            auto nodeAdapter = communicator->createObjectAdapter(name + ".Node");
+            auto nodeAdapter = communicator->createObjectAdapter("IceStorm.Node");
             auto instance = make_shared<PersistentInstance>(
                 instanceName,
-                name,
+                serviceName,
                 communicator,
                 publishAdapter,
                 topicAdapter,
@@ -348,7 +343,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             _instance = nullptr;
 
             LoggerOutputBase s;
-            s << "exception while starting IceStorm service " << name << ":\n" << ex;
+            s << "exception while starting IceStorm service " << serviceName << ":\n" << ex;
             throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
     }
@@ -366,7 +361,7 @@ ServiceI::start(
     const CommunicatorPtr& communicator,
     const ObjectAdapterPtr& topicAdapter,
     const ObjectAdapterPtr& publishAdapter,
-    const string& name,
+    const string& serviceName,
     const Identity& id)
 {
     //
@@ -374,7 +369,7 @@ ServiceI::start(
     //
 
     const string instanceName = "IceStorm";
-    _instance = make_shared<Instance>(instanceName, name, communicator, publishAdapter, topicAdapter, nullptr);
+    _instance = make_shared<Instance>(instanceName, serviceName, communicator, publishAdapter, topicAdapter, nullptr);
 
     try
     {
@@ -385,7 +380,7 @@ ServiceI::start(
     {
         _instance = nullptr;
         LoggerOutputBase s;
-        s << "exception while starting IceStorm service " << name << ":\n" << ex;
+        s << "exception while starting IceStorm service " << serviceName << ":\n" << ex;
         throw IceBox::FailureException(__FILE__, __LINE__, s.str());
     }
 }

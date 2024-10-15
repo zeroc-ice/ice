@@ -18,6 +18,19 @@ using namespace IceStorm;
 using namespace IceStormElection;
 using namespace IceStormInternal;
 
+namespace
+{
+    string getLMDBPath(const Ice::PropertiesPtr& properties, const string& serviceName)
+    {
+        string path = properties->getIceProperty("IceStorm.LMDB.Path");
+        if (path.empty())
+        {
+            path = serviceName;
+        }
+        return path;
+    }
+}
+
 namespace IceStormInternal
 {
     extern IceDB::IceContext dbContext;
@@ -41,27 +54,27 @@ TopicReaper::consumeReapedTopics()
 
 Instance::Instance(
     const string& instanceName,
-    const string& name,
+    const string& serviceName,
     shared_ptr<Ice::Communicator> communicator,
     Ice::ObjectAdapterPtr publishAdapter,
     Ice::ObjectAdapterPtr topicAdapter,
     Ice::ObjectAdapterPtr nodeAdapter,
     optional<NodePrx> nodeProxy)
     : _instanceName(instanceName),
-      _serviceName(name),
+      _serviceName(serviceName),
       _communicator(std::move(communicator)),
       _publishAdapter(std::move(publishAdapter)),
       _topicAdapter(std::move(topicAdapter)),
       _nodeAdapter(std::move(nodeAdapter)),
       _nodeProxy(std::move(nodeProxy)),
-      _traceLevels(make_shared<TraceLevels>(name, _communicator->getProperties(), _communicator->getLogger())),
+      _traceLevels(make_shared<TraceLevels>(_communicator->getProperties(), _communicator->getLogger())),
       // default one minute.
-      _discardInterval(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Discard.Interval", 60)),
+      _discardInterval(_communicator->getProperties()->getIcePropertyAsInt("IceStorm.Discard.Interval")),
       // default one second.
-      _flushInterval(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Flush.Timeout", 1000)),
+      _flushInterval(_communicator->getProperties()->getIcePropertyAsInt("IceStorm.Flush.Timeout")),
       // default one minute.
-      _sendTimeout(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000)),
-      _sendQueueSizeMax(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.QueueSizeMax", -1)),
+      _sendTimeout(_communicator->getProperties()->getIcePropertyAsInt("IceStorm.Send.Timeout")),
+      _sendQueueSizeMax(_communicator->getProperties()->getIcePropertyAsInt("IceStorm.Send.QueueSizeMax")),
       _sendQueueSizeMaxPolicy(RemoveSubscriber),
       _topicReaper(make_shared<TopicReaper>()),
       _observers(make_shared<Observers>(_traceLevels))
@@ -69,14 +82,14 @@ Instance::Instance(
     try
     {
         auto properties = _communicator->getProperties();
-        if (properties->getProperty(name + ".TopicManager.AdapterId").empty())
+        if (properties->getIceProperty("IceStorm.TopicManager.AdapterId").empty())
         {
-            string p = properties->getProperty(name + ".ReplicatedTopicManagerEndpoints");
+            string p = properties->getIceProperty("IceStorm.ReplicatedTopicManagerEndpoints");
             if (!p.empty())
             {
                 const_cast<optional<Ice::ObjectPrx>&>(_topicReplicaProxy) = Ice::ObjectPrx{_communicator, "dummy:" + p};
             }
-            p = properties->getProperty(name + ".ReplicatedPublishEndpoints");
+            p = properties->getIceProperty("IceStorm.ReplicatedPublishEndpoints");
             if (!p.empty())
             {
                 const_cast<optional<Ice::ObjectPrx>&>(_publisherReplicaProxy) =
@@ -86,7 +99,7 @@ Instance::Instance(
 
         _timer = make_shared<Ice::Timer>();
 
-        string policy = properties->getProperty(name + ".Send.QueueSizeMaxPolicy");
+        string policy = properties->getIceProperty("IceStorm.Send.QueueSizeMaxPolicy");
         if (policy == "RemoveSubscriber")
         {
             const_cast<SendQueueSizeMaxPolicy&>(_sendQueueSizeMaxPolicy) = RemoveSubscriber;
@@ -98,7 +111,7 @@ Instance::Instance(
         else if (!policy.empty())
         {
             Ice::Warning warn(_traceLevels->logger);
-            warn << "invalid value `" << policy << "' for `" << name << ".Send.QueueSizeMaxPolicy'";
+            warn << "invalid value `" << policy << "' for `" << serviceName << ".Send.QueueSizeMaxPolicy'";
         }
 
         //
@@ -289,7 +302,7 @@ Instance::destroy()
 
 PersistentInstance::PersistentInstance(
     const string& instanceName,
-    const string& name,
+    const string& serviceName,
     shared_ptr<Ice::Communicator> communicator,
     Ice::ObjectAdapterPtr publishAdapter,
     Ice::ObjectAdapterPtr topicAdapter,
@@ -297,17 +310,17 @@ PersistentInstance::PersistentInstance(
     optional<NodePrx> nodeProxy)
     : Instance(
           instanceName,
-          name,
+          serviceName,
           communicator,
           std::move(publishAdapter),
           std::move(topicAdapter),
           std::move(nodeAdapter),
           std::move(nodeProxy)),
-      _dbLock(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name) + "/icedb.lock"),
+      _dbLock(getLMDBPath(communicator->getProperties(), serviceName) + "/icedb.lock"),
       _dbEnv(
-          communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name),
+          getLMDBPath(communicator->getProperties(), serviceName),
           2,
-          IceDB::getMapSize(communicator->getProperties()->getPropertyAsInt(name + ".LMDB.MapSize")))
+          IceDB::getMapSize(communicator->getProperties()->getIcePropertyAsInt("IceStorm.LMDB.MapSize")))
 {
     try
     {

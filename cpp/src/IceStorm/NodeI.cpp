@@ -79,9 +79,10 @@ namespace
         auto properties = instance->communicator()->getProperties();
         auto traceLevels = instance->traceLevels();
 
-        auto t = chrono::seconds(properties->getPropertyAsIntWithDefault(key, def));
+        auto t = chrono::seconds{properties->getPropertyAsIntWithDefault(key, def)};
         if (t < 0s)
         {
+            // TODO: Maybe we should just throw an exception here
             Ice::Warning out(traceLevels->logger);
             out << traceLevels->electionCat << ": " << key << " < 0; Adjusted to 1";
             t = 1s;

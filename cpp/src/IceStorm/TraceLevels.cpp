@@ -8,24 +8,17 @@
 using namespace std;
 using namespace IceStorm;
 
-TraceLevels::TraceLevels(const string name, const Ice::PropertiesPtr& properties, Ice::LoggerPtr theLogger)
-    : topicMgr(0),
+TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, Ice::LoggerPtr theLogger)
+    : topicMgr(properties->getIcePropertyAsInt("IceStorm.Trace.TopicManager")),
       topicMgrCat("TopicManager"),
-      topic(0),
+      topic(properties->getIcePropertyAsInt("IceStorm.Trace.Topic")),
       topicCat("Topic"),
-      subscriber(0),
+      subscriber(properties->getIcePropertyAsInt("IceStorm.Trace.Subscriber")),
       subscriberCat("Subscriber"),
-      election(0),
+      election(properties->getIcePropertyAsInt("IceStorm.Trace.Election")),
       electionCat("Election"),
-      replication(0),
+      replication(properties->getIcePropertyAsInt("IceStorm.Trace.Replication")),
       replicationCat("Replication"),
       logger(std::move(theLogger))
 {
-    const string keyBase = name + ".Trace.";
-    // We can't use getIcePropertyAsInt because the IceStorm service properties are prefixed by the
-    // service name, not an Ice property prefix.
-    const_cast<int&>(topicMgr) = properties->getPropertyAsInt(keyBase + topicMgrCat);
-    const_cast<int&>(topic) = properties->getPropertyAsInt(keyBase + topicCat);
-    const_cast<int&>(subscriber) = properties->getPropertyAsInt(keyBase + subscriberCat);
-    const_cast<int&>(election) = properties->getPropertyAsInt(keyBase + electionCat);
 }

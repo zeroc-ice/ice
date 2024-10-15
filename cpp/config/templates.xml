@@ -29,18 +29,18 @@
 
       <service name="${instance-name}" entry="IceStormService,38a0:createIceStorm">
 
-        <adapter name="${service}.TopicManager"
+        <adapter name="IceStorm.TopicManager"
                  id="${instance-name}.TopicManager"
                  endpoints="${topic-manager-endpoints}">
           <object identity="${instance-name}/TopicManager" type="::IceStorm::TopicManager"/>
         </adapter>
 
-        <adapter name="${service}.Publish" id="${instance-name}.Publish" endpoints="${publish-endpoints}"/>
+        <adapter name="IceStorm.Publish" id="${instance-name}.Publish" endpoints="${publish-endpoints}"/>
 
         <properties>
-           <property name="${service}.LMDB.Path" value="${service.data}"/>
-           <property name="${service}.InstanceName" value="${instance-name}"/>
-           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+           <property name="IceStorm.LMDB.Path" value="${service.data}"/>
+           <property name="IceStorm.InstanceName" value="${instance-name}"/>
+           <property name="IceStorm.Flush.Timeout" value="${flush-timeout}"/>
         </properties>
       </service>
 
@@ -76,23 +76,23 @@
 
       <service name="${instance-name}${node-id}" entry="IceStormService,38a0:createIceStorm">
 
-        <adapter name="${service}.TopicManager"
+        <adapter name="IceStorm.TopicManager"
                  id="${instance-name}${node-id}.TopicManager"
                  endpoints="${topic-manager-endpoints}"
                  replica-group="${topic-manager-replica-group}"/>
 
-        <adapter name="${service}.Publish"
+        <adapter name="IceStorm.Publish"
                  id="${instance-name}${node-id}.Publish"
                  endpoints="${publish-endpoints}"
                  replica-group="${publish-replica-group}"/>
 
-        <adapter name="${service}.Node" id="${instance-name}${node-id}.Node" endpoints="${node-endpoints}"/>
+        <adapter name="IceStorm.Node" id="${instance-name}${node-id}.Node" endpoints="${node-endpoints}"/>
 
         <properties>
-           <property name="${service}.LMDB.Path" value="${service.data}"/>
-           <property name="${service}.InstanceName" value="${instance-name}"/>
-           <property name="${service}.NodeId" value="${node-id}"/>
-           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+           <property name="IceStorm.LMDB.Path" value="${service.data}"/>
+           <property name="IceStorm.InstanceName" value="${instance-name}"/>
+           <property name="IceStorm.NodeId" value="${node-id}"/>
+           <property name="IceStorm.Flush.Timeout" value="${flush-timeout}"/>
         </properties>
       </service>
 
