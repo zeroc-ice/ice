@@ -1,0 +1,275 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.props')" />
+  <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props')" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BD2AC148-422F-49E0-9185-ACCBA7AECF26}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\datastorm.cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.targets')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  <PropertyGroup Label="IceBuilder" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>DATASTORM_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>DATASTORM_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>DATASTORM_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>DATASTORM_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Label="IceBuilder">
+    <SliceCompile>
+      <OutputDir>$(Platform)\$(Configuration)</OutputDir>
+      <HeaderOutputDir>$(DataStormSrcRootDir)\include\generated\$(Platform)\$(Configuration)\DataStorm</HeaderOutputDir>
+      <BaseDirectoryForGeneratedInclude>DataStorm</BaseDirectoryForGeneratedInclude>
+      <IncludeDirectories>$(DataStormSrcRootDir)\..\slice</IncludeDirectories>
+    </SliceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\DataStorm.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\CallbackExecutor.cpp" />
+    <ClCompile Include="..\..\DataElementI.cpp" />
+    <ClCompile Include="..\..\ForwarderManager.cpp" />
+    <ClCompile Include="..\..\Instance.cpp" />
+    <ClCompile Include="..\..\LookupI.cpp" />
+    <ClCompile Include="..\..\Node.cpp" />
+    <ClCompile Include="..\..\NodeI.cpp" />
+    <ClCompile Include="..\..\NodeSessionI.cpp" />
+    <ClCompile Include="..\..\NodeSessionManager.cpp" />
+    <ClCompile Include="..\..\SessionI.cpp" />
+    <ClCompile Include="..\..\ConnectionManager.cpp" />
+    <ClCompile Include="..\..\TopicFactoryI.cpp" />
+    <ClCompile Include="..\..\TopicI.cpp" />
+    <ClCompile Include="..\..\TraceUtil.cpp" />
+    <ClCompile Include="Win32\Debug\Contract.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Sample.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Contract.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Sample.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Contract.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Sample.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Contract.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Sample.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\include\DataStorm\Config.h" />
+    <ClInclude Include="..\..\..\..\include\DataStorm\CtrlCHandler.h" />
+    <ClInclude Include="..\..\..\..\include\DataStorm\DataStorm.h" />
+    <ClInclude Include="..\..\..\..\include\DataStorm\InternalI.h" />
+    <ClInclude Include="..\..\..\..\include\DataStorm\InternalT.h" />
+    <ClInclude Include="..\..\..\..\include\DataStorm\Node.h" />
+    <ClInclude Include="..\..\..\..\include\DataStorm\Types.h" />
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\DataStorm\Sample.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\DataStorm\Sample.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\DataStorm\Sample.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\DataStorm\Sample.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+    </ClInclude>
+    <ClInclude Include="..\..\CallbackExecutor.h" />
+    <ClInclude Include="..\..\DataElementI.h" />
+    <ClInclude Include="..\..\ForwarderManager.h" />
+    <ClInclude Include="..\..\Instance.h" />
+    <ClInclude Include="..\..\LookupI.h" />
+    <ClInclude Include="..\..\NodeI.h" />
+    <ClInclude Include="..\..\NodeSessionI.h" />
+    <ClInclude Include="..\..\NodeSessionManager.h" />
+    <ClInclude Include="..\..\SessionI.h" />
+    <ClInclude Include="..\..\ConnectionManager.h" />
+    <ClInclude Include="..\..\Timer.h" />
+    <ClInclude Include="..\..\TopicFactoryI.h" />
+    <ClInclude Include="..\..\TopicI.h" />
+    <ClInclude Include="..\..\TraceUtil.h" />
+    <ClInclude Include="Win32\Debug\DataStorm\Contract.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
+    </ClInclude>
+    <ClInclude Include="Win32\Release\DataStorm\Contract.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\DataStorm\Contract.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
+    </ClInclude>
+    <ClInclude Include="x64\Release\DataStorm\Contract.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\..\..\slice\DataStorm\Sample.ice" />
+    <SliceCompile Include="..\..\Contract.ice">
+      <HeaderOutputDir>$(Platform)\$(Configuration)\DataStorm</HeaderOutputDir>
+    </SliceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\datastorm.sign.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.props'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.targets'))" />
+  </Target>
+</Project>
