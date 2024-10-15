@@ -9,7 +9,11 @@
 #include "Ice/Ice.h"
 #include "NodeI.h"
 
-#if defined(__clang__)
+#if defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning(disable : 4456) // ... : declaration of 'identifier' hides previous local declaration
+#    pragma warning(disable : 4458) // ... : declaration of 'identifier' hides class member
+#elif defined(__clang__)
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow"
 #endif
