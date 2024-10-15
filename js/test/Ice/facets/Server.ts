@@ -66,7 +66,7 @@ export class Server extends TestHelper {
             test(fm.get("") === obj3);
             out.writeLine("ok");
 
-            await adapter.deactivate();
+            adapter.destroy();
             adapter = await communicator.createObjectAdapter("");
 
             const di = new DI();

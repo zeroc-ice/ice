@@ -329,11 +329,6 @@ Instance.prototype.destroy = async function () {
     this._destroyPromise = new Promise();
 
     try {
-        // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be finished.
-        if (this._objectAdapterFactory) {
-            this._objectAdapterFactory.shutdown();
-        }
-
         if (this._outgoingConnectionFactory !== null) {
             this._outgoingConnectionFactory.destroy();
         }

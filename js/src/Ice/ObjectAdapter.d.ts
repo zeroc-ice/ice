@@ -31,29 +31,8 @@ declare module "ice" {
             getCommunicator(): Ice.Communicator;
 
             /**
-             * Deactivates this object adapter.
-             *
-             * After deactivation, the object adapter is disconnected from any outgoing connection.
-             *
-             * Once deactivated, it is possible to destroy the adapter to clean up resources and then create and
-             * activate a new adapter with the same name.
-             *
-             * After {@link ObjectAdapter#deactivate} returns, no new requests are processed by the object adapter.
-             * However, requests that have been started before {@link ObjectAdapter#deactivate} was called might still
-             * be active.
-             *
-             * @see {@link Communicator#shutdown}
-             */
-            deactivate(): void;
-
-            /**
              * Destroys the object adapter and cleans up all resources held by the object adapter.
              *
-             * If the object adapter has not yet been deactivated, destroy implicitly deactivates it. Subsequent calls
-             * to destroy are ignored. Once destroy has completed, it is possible to create another object adapter with
-             * the same name.
-             *
-             * @see {@link ObjectAdapter#deactivate}
              * @see {@link Communicator#destroy}
              */
             destroy(): void;

@@ -326,23 +326,13 @@ export class NotRegisteredException extends LocalException {
     }
 }
 
-export class ObjectAdapterDeactivatedException extends LocalException {
+export class ObjectAdapterDestroyedException extends LocalException {
     static get _ice_id() {
-        return "::Ice::ObjectAdapterDeactivatedException";
+        return "::Ice::ObjectAdapterDestroyedException";
     }
 
     constructor(name) {
-        super(`Object adapter '${name}' is deactivated.`);
-    }
-}
-
-export class ObjectAdapterIdInUseException extends LocalException {
-    static get _ice_id() {
-        return "::Ice::ObjectAdapterIdInUseException";
-    }
-
-    constructor(adapterId) {
-        super(`An object adapter with adapter ID '${adapterId}' is already active.`);
+        super(`Object adapter '${name}' is destroyed.`);
     }
 }
 
