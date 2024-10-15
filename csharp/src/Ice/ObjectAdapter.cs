@@ -270,7 +270,8 @@ public sealed class ObjectAdapter
     /// <summary>
     /// Checks if this object adapter has been deactivated.
     /// </summary>
-    /// <returns><see langword="true" /> if <see cref="deactivate"/> was called; otherwise, <see langword="false" />.
+    /// <returns><see langword="true" /> if <see cref="deactivate"/> has been called on this object adapter; otherwise,
+    /// <see langword="false" />.
     /// </returns>
     public bool isDeactivated()
     {

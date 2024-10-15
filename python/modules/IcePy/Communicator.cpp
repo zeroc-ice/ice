@@ -1259,6 +1259,46 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
 }
 
 extern "C" PyObject*
+communicatorGetDefaultObjectAdapter(CommunicatorObject* self, PyObject* /*args*/)
+{
+    assert(self->communicator);
+    Ice::ObjectAdapterPtr adapter = (*self->communicator)->getDefaultObjectAdapter();
+
+    if (adapter)
+    {
+        // Returns an Ice.ObjectAdapter
+        return wrapObjectAdapter(adapter);
+    }
+    else
+    {
+        return Py_None;
+    }
+}
+
+extern "C" PyObject*
+communicatorSetDefaultObjectAdapter(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* adapter = Py_None;
+    if (!PyArg_ParseTuple(args, "O", &adapter))
+    {
+        return nullptr;
+    }
+
+    PyObject* adapterType = lookupType("Ice.ObjectAdapter");
+    if (adapter != Py_None && !PyObject_IsInstance(adapter, adapterType))
+    {
+        PyErr_Format(PyExc_TypeError, "value for 'adapter' argument must be None or an Ice.ObjectAdapter instance");
+        return nullptr;
+    }
+
+    Ice::ObjectAdapterPtr oa = adapter != Py_None ? unwrapObjectAdapter(adapter) : nullptr;
+
+    assert(self->communicator);
+    (*self->communicator)->setDefaultObjectAdapter(oa);
+    return Py_None;
+}
+
+extern "C" PyObject*
 communicatorGetDefaultRouter(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
@@ -1413,6 +1453,14 @@ static PyMethodDef CommunicatorMethods[] = {
      reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapterWithRouter),
      METH_VARARGS,
      PyDoc_STR("createObjectAdapterWithRouter(name, router) -> Ice.ObjectAdapter")},
+    {"getDefaultObjectAdapter",
+     reinterpret_cast<PyCFunction>(communicatorGetDefaultObjectAdapter),
+     METH_NOARGS,
+     PyDoc_STR("getDefaultObjectAdapter() -> Ice.ObjectAdapter")},
+    {"setDefaultObjectAdapter",
+     reinterpret_cast<PyCFunction>(communicatorSetDefaultObjectAdapter),
+     METH_VARARGS,
+     PyDoc_STR("setDefaultObjectAdapter(adapter) -> None")},
     {"getValueFactoryManager",
      reinterpret_cast<PyCFunction>(communicatorGetValueFactoryManager),
      METH_NOARGS,

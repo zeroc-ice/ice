@@ -34,7 +34,7 @@ HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
                 _adapter->hold();
                 _adapter->activate();
             }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::LocalException&)
             {
                 //
                 // This shouldn't occur. The test ensures all the waitForHold timers are
@@ -84,7 +84,7 @@ HoldI::waitForHold(const Ice::Current& current)
                 _adapter->waitForHold();
                 _adapter->activate();
             }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::LocalException&)
             {
                 //
                 // This shouldn't occur. The test ensures all the waitForHold timers are

@@ -704,6 +704,10 @@ ProxyOutgoingAsyncBase::checkRetryAfterException(std::exception_ptr ex)
     {
         throw;
     }
+    catch (const ObjectAdapterDestroyedException&)
+    {
+        throw;
+    }
     catch (const ConnectionAbortedException& connectionAbortedException)
     {
         if (connectionAbortedException.closedByApplication())

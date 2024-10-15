@@ -269,7 +269,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
     {
         if (p->second->getAdapter() == adapter)
         {
-            p->second->setAdapter(0);
+            p->second->setAdapter(nullptr);
         }
     }
 }
@@ -336,6 +336,20 @@ IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
     assert(_connectionsByEndpoint.empty());
     assert(_pending.empty());
     assert(_pendingConnectCount == 0);
+}
+
+ObjectAdapterPtr
+IceInternal::OutgoingConnectionFactory::getDefaultObjectAdapter() const noexcept
+{
+    lock_guard lock(_mutex);
+    return _defaultObjectAdapter;
+}
+
+void
+IceInternal::OutgoingConnectionFactory::setDefaultObjectAdapter(ObjectAdapterPtr adapter) noexcept
+{
+    lock_guard lock(_mutex);
+    _defaultObjectAdapter = dynamic_pointer_cast<ObjectAdapterI>(adapter);
 }
 
 ConnectionIPtr
@@ -544,7 +558,7 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
             transceiver,
             ci.connector,
             ci.endpoint->compress(false)->timeout(-1),
-            nullptr,
+            _defaultObjectAdapter,
             [weakSelf = weak_from_this()](const ConnectionIPtr& closedConnection)
             {
                 if (auto self = weakSelf.lock())

@@ -339,7 +339,7 @@ RouterService::start(int argc, char* argv[], int& status)
             _instance->serverObjectAdapter()->addServantLocator(make_shared<ServerLocator>(_sessionRouter), "");
         }
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
         // Ignore.
     }

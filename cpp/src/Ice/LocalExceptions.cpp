@@ -417,6 +417,12 @@ Ice::ObjectAdapterDeactivatedException::ice_id() const noexcept
 }
 
 const char*
+Ice::ObjectAdapterDestroyedException::ice_id() const noexcept
+{
+    return "::Ice::ObjectAdapterDestroyedException";
+}
+
+const char*
 Ice::ObjectAdapterIdInUseException::ice_id() const noexcept
 {
     return "::Ice::ObjectAdapterIdInUseException";

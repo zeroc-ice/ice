@@ -219,7 +219,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ReferencePtr& referen
                 return *p;
             }
         }
-        catch (const ObjectAdapterDeactivatedException&)
+        catch (const ObjectAdapterDestroyedException&)
         {
             // Ignore.
         }

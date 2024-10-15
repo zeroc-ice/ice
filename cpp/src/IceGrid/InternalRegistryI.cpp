@@ -66,7 +66,7 @@ InternalRegistryI::registerNode(
         _reaper->add(make_shared<SessionReapable<NodeSessionI>>(logger, session), _nodeSessionTimeout);
         return session->getProxy();
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -97,7 +97,7 @@ InternalRegistryI::registerReplica(
         _reaper->add(make_shared<SessionReapable<ReplicaSessionI>>(logger, s), _replicaSessionTimeout);
         return s->getProxy();
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }

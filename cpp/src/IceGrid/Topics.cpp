@@ -124,7 +124,7 @@ ObserverTopic::unsubscribe(const Ice::ObjectPrx& observer, const string& name)
     {
         q->second->unsubscribe(observer);
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
     }
 

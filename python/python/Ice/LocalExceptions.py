@@ -390,6 +390,12 @@ class ObjectAdapterDeactivatedException(LocalException):
     """
 
 @final
+class ObjectAdapterDestroyedException(LocalException):
+    """
+    This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
+    """
+
+@final
 class ObjectAdapterIdInUseException(LocalException):
     """
     This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator detects another
@@ -449,6 +455,7 @@ __all__ = [
     'NoEndpointException',
     'NotRegisteredException',
     'ObjectAdapterDeactivatedException',
+    'ObjectAdapterDestroyedException',
     'ObjectAdapterIdInUseException',
     'ParseException',
     'SecurityException',

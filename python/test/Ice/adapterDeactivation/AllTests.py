@@ -78,14 +78,39 @@ def allTests(helper, communicator):
     if obj.ice_getConnection():
         sys.stdout.write("testing object adapter with bi-dir connection... ")
         sys.stdout.flush()
+
+        test(communicator.getDefaultObjectAdapter() is None)
+        test(obj.ice_getCachedConnection().getAdapter() is None)
+
         adapter = communicator.createObjectAdapter("")
-        obj.ice_getConnection().setAdapter(adapter)
-        obj.ice_getConnection().setAdapter(None)
-        adapter.deactivate()
+
+        communicator.setDefaultObjectAdapter(adapter)
+        # TODO: compare underlying object adapter objects
+        test(communicator.getDefaultObjectAdapter() is not None)
+
+        # create new connection
+        obj.ice_getCachedConnection().close()
+        obj.ice_ping()
+
+        # TODO: compare underlying object adapter objects
+        test(obj.ice_getCachedConnection().getAdapter() is not None)
+        communicator.setDefaultObjectAdapter(None)
+
+        # create new connection
+        obj.ice_getCachedConnection().close()
+        obj.ice_ping()
+
+        test(obj.ice_getCachedConnection().getAdapter() is None)
+        obj.ice_getCachedConnection().setAdapter(adapter)
+        # TODO: compare underlying object adapter objects
+        test(obj.ice_getCachedConnection().getAdapter() is not None)
+        obj.ice_getCachedConnection().setAdapter(None)
+
+        adapter.destroy()
         try:
             obj.ice_getConnection().setAdapter(adapter)
             test(False)
-        except Ice.ObjectAdapterDeactivatedException:
+        except Ice.ObjectAdapterDestroyedException:
             pass
         print("ok")
 
@@ -126,10 +151,14 @@ def allTests(helper, communicator):
 
     sys.stdout.write("testing whether server is gone... ")
     sys.stdout.flush()
-    try:
-        obj.ice_invocationTimeout(100).ice_ping()  # Use timeout to speed up testing on Windows
-        test(False)
-    except Ice.LocalException:
+    if obj.ice_getConnection() is None: # collocated
+        obj.ice_ping()
         print("ok")
+    else:
+        try:
+            obj.ice_invocationTimeout(100).ice_ping()  # Use timeout to speed up testing on Windows
+            test(False)
+        except Ice.LocalException:
+            print("ok")
 
     return obj

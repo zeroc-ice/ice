@@ -535,6 +535,10 @@ Ice::ConnectionI::close(function<void()> response, function<void(std::exception_
         {
             success = true;
         }
+        catch (const ObjectAdapterDestroyedException&)
+        {
+            success = true;
+        }
         catch (...)
         {
         }
@@ -996,7 +1000,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
     {
         // Go through the adapter to set the adapter on this connection
         // to ensure the object adapter is still active.
-        dynamic_cast<ObjectAdapterI*>(adapter.get())->setAdapterOnConnection(shared_from_this());
+        dynamic_pointer_cast<ObjectAdapterI>(adapter)->setAdapterOnConnection(shared_from_this());
     }
     else
     {
@@ -1653,6 +1657,9 @@ Ice::ConnectionI::finish(bool close)
             catch (const ObjectAdapterDeactivatedException&)
             {
             }
+            catch (const ObjectAdapterDestroyedException&)
+            {
+            }
             catch (const std::exception& ex)
             {
                 out << "\n" << ex;
@@ -1767,6 +1774,10 @@ Ice::ConnectionI::finish(bool close)
             success = true;
         }
         catch (const ObjectAdapterDeactivatedException&)
+        {
+            success = true;
+        }
+        catch (const ObjectAdapterDestroyedException&)
         {
             success = true;
         }
@@ -1904,7 +1915,7 @@ Ice::ConnectionI::ConnectionI(
       _compressionLevel(1),
       _nextRequestId(1),
       _asyncRequestsHint(_asyncRequests.end()),
-      _messageSizeMax(adapter ? adapter->messageSizeMax() : _instance->messageSizeMax()),
+      _messageSizeMax(connector ? _instance->messageSizeMax() : adapter->messageSizeMax()),
       _batchRequestQueue(new BatchRequestQueue(instance, endpoint->datagram())),
       _readStream(_instance.get(), Ice::currentProtocolEncoding),
       _readHeader(false),
@@ -2036,6 +2047,9 @@ Ice::ConnectionI::setState(State state, exception_ptr ex)
             {
             }
             catch (const ObjectAdapterDeactivatedException&)
+            {
+            }
+            catch (const ObjectAdapterDestroyedException&)
             {
             }
             catch (const ConnectionLostException& e)
@@ -2229,6 +2243,9 @@ Ice::ConnectionI::setState(State state)
             {
             }
             catch (const ObjectAdapterDeactivatedException&)
+            {
+            }
+            catch (const ObjectAdapterDestroyedException&)
             {
             }
             catch (const ConnectionLostException& ex)
@@ -2548,7 +2565,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
 {
     if (!_endpoint->datagram()) // Datagram connections are always implicitly validated.
     {
-        if (_adapter) // The server side has the active role for connection validation.
+        if (!_connector) // The server side has the active role for connection validation.
         {
             if (_writeStream.b.empty())
             {

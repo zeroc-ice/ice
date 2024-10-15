@@ -111,6 +111,19 @@ public protocol Communicator: AnyObject {
     /// - returns: `ObjectAdapter` - The new object adapter.
     func createObjectAdapterWithRouter(name: String, rtr: RouterPrx) throws -> ObjectAdapter
 
+    /// Gets the object adapter that is associated by default with new outgoing connections created by this
+    /// communicator. This function returns nil unless you set a non-nil default object adapter using
+    /// setDefaultObjectAdapter.
+    ///
+    /// - returns: The object adapter associated by default with new outgoing connections.
+    func getDefaultObjectAdapter() -> ObjectAdapter?
+
+    /// Sets the object adapter that will be associated with new outgoing connections created by this communicator. This
+    /// function has no effect on existing outgoing connections, or on incoming connections.
+    ///
+    /// - parameter adapter: The object adapter to associate with new outgoing connections.<
+    func setDefaultObjectAdapter(_ adapter: ObjectAdapter?)
+
     /// Get the implicit context associated with this communicator.
     ///
     /// - returns: `ImplicitContext` - The implicit context associated with this communicator; returns null when the

@@ -202,19 +202,6 @@ Ice::ObjectAdapterI::deactivate() noexcept
 
     try
     {
-        if (_routerInfo)
-        {
-            //
-            // Remove entry from the router manager.
-            //
-            _instance->routerManager()->erase(_routerInfo->getRouter());
-
-            //
-            //  Clear this object adapter with the router.
-            //
-            _routerInfo->setAdapter(0);
-        }
-
         updateLocatorRegistry(_locatorInfo, nullopt);
     }
     catch (const Ice::LocalException&)
@@ -229,8 +216,6 @@ Ice::ObjectAdapterI::deactivate() noexcept
         _incomingConnectionFactories.begin(),
         _incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory) { factory->destroy(); });
-
-    _instance->outgoingConnectionFactory()->removeAdapter(shared_from_this());
 
     {
         lock_guard lock(_mutex);
@@ -301,6 +286,17 @@ Ice::ObjectAdapterI::destroy() noexcept
         _state = StateDestroying;
     }
 
+    if (_routerInfo)
+    {
+        // Remove entry from the router manager.
+        _instance->routerManager()->erase(_routerInfo->getRouter());
+
+        // Clear this object adapter with the router.
+        _routerInfo->setAdapter(nullptr);
+    }
+
+    _instance->outgoingConnectionFactory()->removeAdapter(shared_from_this());
+
     //
     // Now it's also time to clean up our servants and servant
     // locators.
@@ -370,7 +366,7 @@ Ice::ObjectAdapterI::_addFacet(const ObjectPtr& object, const Identity& ident, c
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
     if (!object)
     {
         throw std::invalid_argument{"cannot add null servant to Ice object adapter"};
@@ -406,7 +402,7 @@ Ice::ObjectAdapterI::addDefaultServant(const ObjectPtr& servant, const string& c
 
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
     _servantManager->addDefaultServant(servant, category);
 }
 
@@ -421,7 +417,7 @@ Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->removeServant(ident, facet);
@@ -432,7 +428,7 @@ Ice::ObjectAdapterI::removeAllFacets(const Identity& ident)
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->removeAllFacets(ident);
@@ -443,7 +439,7 @@ Ice::ObjectAdapterI::removeDefaultServant(const string& category)
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
 
     return _servantManager->removeDefaultServant(category);
 }
@@ -459,7 +455,7 @@ Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet) const
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->findServant(ident, facet);
@@ -470,7 +466,7 @@ Ice::ObjectAdapterI::findAllFacets(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->findAllFacets(ident);
@@ -481,7 +477,7 @@ Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy) const
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
 
     ReferencePtr ref = proxy->_getReference();
     return findFacet(ref->getIdentity(), ref->getFacet());
@@ -492,7 +488,7 @@ Ice::ObjectAdapterI::findDefaultServant(const string& category) const
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
 
     return _servantManager->findDefaultServant(category);
 }
@@ -502,7 +498,7 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
 
     _servantManager->addServantLocator(locator, prefix);
 }
@@ -512,7 +508,7 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
 
     return _servantManager->removeServantLocator(prefix);
 }
@@ -522,7 +518,7 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
 
     return _servantManager->findServantLocator(prefix);
 }
@@ -548,7 +544,7 @@ Ice::ObjectAdapterI::_createProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
     return newProxy(ident, "");
@@ -559,7 +555,7 @@ Ice::ObjectAdapterI::_createDirectProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
     return newDirectProxy(ident, "");
@@ -570,7 +566,7 @@ Ice::ObjectAdapterI::_createIndirectProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
     return newIndirectProxy(ident, "", _id);
@@ -580,9 +576,7 @@ void
 Ice::ObjectAdapterI::setLocator(const optional<LocatorPrx>& locator)
 {
     lock_guard lock(_mutex);
-
     checkForDeactivation();
-
     _locatorInfo = locator ? _instance->locatorManager()->get(locator.value()) : nullptr;
 }
 
@@ -590,6 +584,7 @@ optional<LocatorPrx>
 Ice::ObjectAdapterI::getLocator() const noexcept
 {
     lock_guard lock(_mutex);
+    checkForDeactivation();
     return _locatorInfo ? optional<LocatorPrx>(_locatorInfo->getLocator()) : nullopt;
 }
 
@@ -681,7 +676,7 @@ Ice::ObjectAdapterI::isLocal(const ReferencePtr& ref) const
     else
     {
         lock_guard lock(_mutex);
-        checkForDeactivation();
+        checkForDestruction();
 
         // Proxies which have at least one endpoint in common with the published endpoints are considered local.
         for (const auto& endpoint : ref->getEndpoints())
@@ -747,7 +742,7 @@ Ice::ObjectAdapterI::incDirectCount()
 {
     lock_guard lock(_mutex);
 
-    checkForDeactivation();
+    checkForDestruction();
 
     assert(_directCount >= 0);
     ++_directCount;
@@ -794,7 +789,7 @@ void
 Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connection)
 {
     lock_guard lock(_mutex);
-    checkForDeactivation();
+    checkForDestruction();
     connection->setAdapterFromAdapter(shared_from_this());
 }
 
@@ -1024,12 +1019,12 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
     if (_state < StateDeactivated)
     {
         Warning out(_instance->initializationData().logger);
-        out << "object adapter `" << getName() << "' has not been deactivated";
+        out << "object adapter '" << getName() << "' has not been deactivated";
     }
     else if (_state != StateDestroyed)
     {
         Warning out(_instance->initializationData().logger);
-        out << "object adapter `" << getName() << "' has not been destroyed";
+        out << "object adapter '" << getName() << "' has not been destroyed";
     }
     else
     {
@@ -1076,9 +1071,19 @@ Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet
 void
 Ice::ObjectAdapterI::checkForDeactivation() const
 {
+    checkForDestruction();
     if (_state >= StateDeactivating)
     {
-        throw ObjectAdapterDeactivatedException(__FILE__, __LINE__, getName());
+        throw ObjectAdapterDeactivatedException{__FILE__, __LINE__, getName()};
+    }
+}
+
+void
+Ice::ObjectAdapterI::checkForDestruction() const
+{
+    if (_state >= StateDestroying)
+    {
+        throw ObjectAdapterDestroyedException{__FILE__, __LINE__, getName()};
     }
 }
 
