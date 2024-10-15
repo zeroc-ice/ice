@@ -201,18 +201,13 @@ public final class ObjectAdapter {
     }
 
     /**
-     * Deactivate all endpoints that belong to this object adapter. After deactivation, the object
-     * adapter stops receiving requests through its endpoints. Object adapters that have been
-     * deactivated must not be reactivated again, and cannot be used otherwise. Attempts to use a
-     * deactivated object adapter raise {@link ObjectAdapterDeactivatedException} however, attempts
-     * to {@link #deactivate} an already deactivated object adapter are ignored and do nothing. Once
-     * deactivated, it is possible to destroy the adapter to clean up resources and then create and
-     * activate a new adapter with the same name.
-     *
-     * <p class="Note">After {@link #deactivate} returns, no new requests are processed by the
-     * object adapter. However, requests that have been started before {@link #deactivate} was
-     * called might still be active. You can use {@link #waitForDeactivate} to wait for the
-     * completion of all requests for this object adapter.
+     * Deactivates this object adapter: stop accepting new connections from clients and close
+     * gracefully all incoming connections created by this object adapter once all outstanding
+     * dispatches have completed. If this object adapter is indirect, this method also unregisters
+     * the object adapter from the Locator. This function does not cancel outstanding dispatches--it
+     * lets them execute until completion. A new incoming request on an existing connection will be
+     * accepted and can delay the closure of the connection. A deactivated object adapter cannot be
+     * reactivated again; it can only be destroyed.
      *
      * @see #activate
      * @see #hold
@@ -246,18 +241,6 @@ public final class ObjectAdapter {
         //
 
         try {
-            if (_routerInfo != null) {
-                //
-                // Remove entry from the router manager.
-                //
-                _instance.routerManager().erase(_routerInfo.getRouter());
-
-                //
-                //  Clear this object adapter with the router.
-                //
-                _routerInfo.setAdapter(null);
-            }
-
             updateLocatorRegistry(_locatorInfo, null);
         } catch (LocalException ex) {
             //
@@ -269,8 +252,6 @@ public final class ObjectAdapter {
         for (IncomingConnectionFactory factory : _incomingConnectionFactories) {
             factory.destroy();
         }
-
-        _instance.outgoingConnectionFactory().removeAdapter(this);
 
         synchronized (this) {
             _state = StateDeactivated;
@@ -375,6 +356,16 @@ public final class ObjectAdapter {
             _state = StateDestroying;
         }
 
+        if (_routerInfo != null) {
+            // Remove entry from the router manager.
+            _instance.routerManager().erase(_routerInfo.getRouter());
+
+            // Clear this object adapter with the router.
+            _routerInfo.setAdapter(null);
+        }
+
+        _instance.outgoingConnectionFactory().removeAdapter(this);
+
         //
         // Now it's also time to clean up our servants and servant
         // locators.
@@ -470,7 +461,7 @@ public final class ObjectAdapter {
      * @see #findFacet
      */
     public synchronized ObjectPrx addFacet(Object servant, Identity identity, String facet) {
-        checkForDeactivation();
+        checkForDestruction();
         checkIdentity(identity);
         if (servant == null) {
             throw new IllegalArgumentException("cannot add null servant to Object Adapter");
@@ -550,7 +541,7 @@ public final class ObjectAdapter {
      * @see #findDefaultServant
      */
     public synchronized void addDefaultServant(Object servant, String category) {
-        checkForDeactivation();
+        checkForDestruction();
         if (servant == null) {
             throw new IllegalArgumentException("cannot add null servant to Object Adapter");
         }
@@ -586,7 +577,7 @@ public final class ObjectAdapter {
      * @see #addFacetWithUUID
      */
     public synchronized Object removeFacet(Identity identity, String facet) {
-        checkForDeactivation();
+        checkForDestruction();
         checkIdentity(identity);
 
         return _servantManager.removeServant(identity, facet);
@@ -603,7 +594,7 @@ public final class ObjectAdapter {
      * @see #removeFacet
      */
     public synchronized Map<String, Object> removeAllFacets(Identity identity) {
-        checkForDeactivation();
+        checkForDestruction();
         checkIdentity(identity);
 
         return _servantManager.removeAllFacets(identity);
@@ -619,7 +610,7 @@ public final class ObjectAdapter {
      * @see #findDefaultServant
      */
     public synchronized Object removeDefaultServant(String category) {
-        checkForDeactivation();
+        checkForDestruction();
 
         return _servantManager.removeDefaultServant(category);
     }
@@ -655,7 +646,7 @@ public final class ObjectAdapter {
      * @see #findByProxy
      */
     public synchronized Object findFacet(Identity identity, String facet) {
-        checkForDeactivation();
+        checkForDestruction();
         checkIdentity(identity);
 
         return _servantManager.findServant(identity, facet);
@@ -671,7 +662,7 @@ public final class ObjectAdapter {
      * @see #findFacet
      */
     public synchronized java.util.Map<String, Object> findAllFacets(Identity identity) {
-        checkForDeactivation();
+        checkForDestruction();
         checkIdentity(identity);
 
         return _servantManager.findAllFacets(identity);
@@ -689,7 +680,7 @@ public final class ObjectAdapter {
      * @see #findFacet
      */
     public synchronized Object findByProxy(ObjectPrx proxy) {
-        checkForDeactivation();
+        checkForDestruction();
 
         Reference ref = proxy._getReference();
         return findFacet(ref.getIdentity(), ref.getFacet());
@@ -727,7 +718,7 @@ public final class ObjectAdapter {
      * @see ServantLocator
      */
     public synchronized void addServantLocator(ServantLocator locator, String category) {
-        checkForDeactivation();
+        checkForDestruction();
 
         _servantManager.addServantLocator(locator, category);
     }
@@ -745,7 +736,7 @@ public final class ObjectAdapter {
      * @see ServantLocator
      */
     public synchronized ServantLocator removeServantLocator(String category) {
-        checkForDeactivation();
+        checkForDestruction();
 
         return _servantManager.removeServantLocator(category);
     }
@@ -762,7 +753,7 @@ public final class ObjectAdapter {
      * @see ServantLocator
      */
     public synchronized ServantLocator findServantLocator(String category) {
-        checkForDeactivation();
+        checkForDestruction();
 
         return _servantManager.findServantLocator(category);
     }
@@ -776,7 +767,7 @@ public final class ObjectAdapter {
      * @see #removeDefaultServant
      */
     public synchronized Object findDefaultServant(String category) {
-        checkForDeactivation();
+        checkForDestruction();
 
         return _servantManager.findDefaultServant(category);
     }
@@ -808,7 +799,7 @@ public final class ObjectAdapter {
      * @see Identity
      */
     public synchronized ObjectPrx createProxy(Identity identity) {
-        checkForDeactivation();
+        checkForDestruction();
         checkIdentity(identity);
 
         return newProxy(identity, "");
@@ -823,7 +814,7 @@ public final class ObjectAdapter {
      * @see Identity
      */
     public synchronized ObjectPrx createDirectProxy(Identity identity) {
-        checkForDeactivation();
+        checkForDestruction();
         checkIdentity(identity);
 
         return newDirectProxy(identity, "");
@@ -839,7 +830,7 @@ public final class ObjectAdapter {
      * @see Identity
      */
     public synchronized ObjectPrx createIndirectProxy(Identity identity) {
-        checkForDeactivation();
+        checkForDestruction();
         checkIdentity(identity);
 
         return newIndirectProxy(identity, "", _id);
@@ -871,6 +862,7 @@ public final class ObjectAdapter {
      * @see #setLocator
      */
     public synchronized LocatorPrx getLocator() {
+        checkForDeactivation();
         if (_locatorInfo == null) {
             return null;
         } else {
@@ -963,7 +955,7 @@ public final class ObjectAdapter {
             // Proxies which have at least one endpoint in common with the published endpoints
             // are considered local.
             synchronized (this) {
-                checkForDeactivation();
+                checkForDestruction();
 
                 EndpointI[] endpoints = ref.getEndpoints();
                 return java.util.Arrays.stream(_publishedEndpoints)
@@ -1004,7 +996,7 @@ public final class ObjectAdapter {
     }
 
     public synchronized void incDirectCount() {
-        checkForDeactivation();
+        checkForDestruction();
 
         assert (_directCount >= 0);
         ++_directCount;
@@ -1038,7 +1030,7 @@ public final class ObjectAdapter {
     }
 
     public synchronized void setAdapterOnConnection(com.zeroc.Ice.ConnectionI connection) {
-        checkForDeactivation();
+        checkForDestruction();
         connection.setAdapterFromAdapter(this);
     }
 
@@ -1291,8 +1283,15 @@ public final class ObjectAdapter {
     }
 
     private void checkForDeactivation() {
+        checkForDestruction();
         if (_state >= StateDeactivating) {
             throw new ObjectAdapterDeactivatedException(getName());
+        }
+    }
+
+    private void checkForDestruction() {
+        if (_state >= StateDestroying) {
+            throw new ObjectAdapterDestroyedException(getName());
         }
     }
 
@@ -1523,8 +1522,8 @@ public final class ObjectAdapter {
             }
 
             throw new ObjectAdapterIdInUseException(_id);
-        } catch (ObjectAdapterDeactivatedException e) {
-            // Expected if collocated call and OA is deactivated, ignore.
+        } catch (ObjectAdapterDestroyedException e) {
+            // Expected if collocated call and OA is destroyed, ignore.
         } catch (CommunicatorDestroyedException e) {
             // Ignore
         } catch (LocalException e) {

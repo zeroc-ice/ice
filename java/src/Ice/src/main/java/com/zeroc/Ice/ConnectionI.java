@@ -198,7 +198,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         if (!(_exception instanceof ConnectionClosedException
                 || _exception instanceof CloseConnectionException
                 || _exception instanceof CommunicatorDestroyedException
-                || _exception instanceof ObjectAdapterDeactivatedException)) {
+                || _exception instanceof ObjectAdapterDeactivatedException
+                || _exception instanceof ObjectAdapterDestroyedException)) {
             assert (_exception != null);
             throw _exception;
         }
@@ -997,7 +998,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         || _exception instanceof ConnectionAbortedException
                         || _exception instanceof ConnectionClosedException
                         || _exception instanceof CommunicatorDestroyedException
-                        || _exception instanceof ObjectAdapterDeactivatedException)) {
+                        || _exception instanceof ObjectAdapterDeactivatedException
+                        || _exception instanceof ObjectAdapterDestroyedException)) {
                     s.append("\n");
                     s.append(_exception);
                 }
@@ -1372,6 +1374,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         || _exception instanceof ConnectionClosedException
                         || _exception instanceof CommunicatorDestroyedException
                         || _exception instanceof ObjectAdapterDeactivatedException
+                        || _exception instanceof ObjectAdapterDestroyedException
                         || (_exception instanceof ConnectionLostException
                                 && _state >= StateClosing))) {
                     warning("connection exception", _exception);
@@ -1538,6 +1541,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         || _exception instanceof ConnectionClosedException
                         || _exception instanceof CommunicatorDestroyedException
                         || _exception instanceof ObjectAdapterDeactivatedException
+                        || _exception instanceof ObjectAdapterDestroyedException
                         || (_exception instanceof ConnectionLostException
                                 && _state >= StateClosing))) {
                     _observer.failed(_exception.ice_id());

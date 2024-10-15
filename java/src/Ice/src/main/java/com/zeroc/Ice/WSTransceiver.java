@@ -250,6 +250,7 @@ final class WSTransceiver implements Transceiver {
         if (reason instanceof CloseConnectionException) {
             _closingReason = CLOSURE_NORMAL;
         } else if (reason instanceof ObjectAdapterDeactivatedException
+                || reason instanceof ObjectAdapterDestroyedException
                 || reason instanceof CommunicatorDestroyedException) {
             _closingReason = CLOSURE_SHUTDOWN;
         } else if (reason instanceof ProtocolException) {

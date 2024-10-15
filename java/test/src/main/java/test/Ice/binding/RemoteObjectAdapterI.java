@@ -23,10 +23,7 @@ public class RemoteObjectAdapterI implements RemoteObjectAdapter {
 
     @Override
     public void deactivate(com.zeroc.Ice.Current current) {
-        try {
-            _adapter.destroy();
-        } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {
-        }
+        _adapter.destroy();
     }
 
     final com.zeroc.Ice.ObjectAdapter _adapter;

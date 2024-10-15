@@ -51,12 +51,10 @@ public final class HoldI implements Hold {
                             current.adapter.waitForHold();
 
                             current.adapter.activate();
-                        } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {
-                            //
+                        } catch (com.zeroc.Ice.LocalException ex) {
                             // This shouldn't occur. The test ensures all the
-                            // waitForHold timers are
-                            // finished before shutting down the communicator.
-                            //
+                            // waitForHold timers are finished before shutting down the
+                            // communicator.
                             test(false);
                         }
                     }

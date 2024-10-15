@@ -18,15 +18,15 @@ final class RouterManager {
     // Returns router info for a given router. Automatically creates
     // the router info if it doesn't exist yet.
     //
-    public RouterInfo get(RouterPrx rtr) {
-        if (rtr == null) {
+    public RouterInfo get(RouterPrx router) {
+        if (router == null) {
             return null;
         }
 
         //
         // The router cannot be routed.
         //
-        RouterPrx router = RouterPrx.uncheckedCast(rtr.ice_router(null));
+        router = RouterPrx.uncheckedCast(router.ice_router(null));
 
         synchronized (this) {
             RouterInfo info = _table.get(router);
@@ -39,17 +39,9 @@ final class RouterManager {
         }
     }
 
-    public RouterInfo erase(RouterPrx rtr) {
-        RouterInfo info = null;
-        if (rtr != null) {
-            // The router cannot be routed.
-            RouterPrx router = RouterPrx.uncheckedCast(rtr.ice_router(null));
-
-            synchronized (this) {
-                info = _table.remove(router);
-            }
-        }
-        return info;
+    public synchronized void erase(RouterPrx router) {
+        assert router.ice_getRouter() == null;
+        _table.remove(router);
     }
 
     private java.util.HashMap<RouterPrx, RouterInfo> _table = new java.util.HashMap<>();

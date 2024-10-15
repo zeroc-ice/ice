@@ -253,11 +253,11 @@ public class AllTests {
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
             obj.ice_getConnection().setAdapter(adapter);
             obj.ice_getConnection().setAdapter(null);
-            adapter.deactivate();
+            adapter.destroy();
             try {
                 obj.ice_getConnection().setAdapter(adapter);
                 test(false);
-            } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {
+            } catch (com.zeroc.Ice.ObjectAdapterDestroyedException ex) {
             }
             out.println("ok");
         }
@@ -272,6 +272,7 @@ public class AllTests {
                             base.ice_identity(routerId).ice_connectionId("rc"));
             com.zeroc.Ice.ObjectAdapter adapter =
                     communicator.createObjectAdapterWithRouter("", router);
+
             test(adapter.getPublishedEndpoints().length == 1);
             test(
                     adapter.getPublishedEndpoints()[0]
@@ -283,6 +284,7 @@ public class AllTests {
             } catch (IllegalArgumentException ex) {
                 // Expected.
             }
+
             adapter.destroy();
 
             try {
@@ -293,7 +295,6 @@ public class AllTests {
             } catch (com.zeroc.Ice.OperationNotExistException ex) {
                 // Expected: the "test" object doesn't implement Ice::Router!
             }
-
             try {
                 router =
                         com.zeroc.Ice.RouterPrx.createProxy(
@@ -302,7 +303,6 @@ public class AllTests {
                 test(false);
             } catch (com.zeroc.Ice.ConnectFailedException ex) {
             }
-
             try {
                 router =
                         com.zeroc.Ice.RouterPrx.createProxy(
@@ -341,12 +341,19 @@ public class AllTests {
 
         out.print("testing whether server is gone... ");
         out.flush();
-        try {
-            obj.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
-            test(false);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        if (obj.ice_getConnection() == null) { // collocated
+            obj.ice_ping(); // works fine
             out.println("ok");
             out.flush();
+        } else {
+            try {
+                obj.ice_invocationTimeout(100)
+                        .ice_ping(); // Use timeout to speed up testing on Windows
+                test(false);
+            } catch (com.zeroc.Ice.LocalException ex) {
+                out.println("ok");
+                out.flush();
+            }
         }
 
         out.print("testing server idle time...");
