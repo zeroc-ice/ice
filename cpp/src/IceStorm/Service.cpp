@@ -194,7 +194,6 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
             // Validate first that the adapter ids match for the node and the topic manager otherwise some other
             // deployment is being used.
             const string suffix = ".TopicManager";
-            // TODO: Can we just compare the values directly?
             if (topicManagerAdapterId.empty() || nodeAdapterId.empty() ||
                 topicManagerAdapterId.replace(topicManagerAdapterId.find(suffix), suffix.size(), ".Node") !=
                     nodeAdapterId)
