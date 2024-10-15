@@ -55,7 +55,7 @@ namespace
     OutgoingResponse makeOutgoingResponseCore(std::exception_ptr exc, const Current& current)
     {
         assert(exc);
-        OutputStream ostr{current.adapter->getCommunicator(), Ice::currentProtocolEncoding};
+        OutputStream ostr{Ice::currentProtocolEncoding};
 
         if (current.requestId != 0)
         {
