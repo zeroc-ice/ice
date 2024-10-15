@@ -250,9 +250,31 @@ public class AllTests {
         if (obj.ice_getConnection() != null) {
             out.print("testing object adapter with bi-dir connection... ");
             out.flush();
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-            obj.ice_getConnection().setAdapter(adapter);
-            obj.ice_getConnection().setAdapter(null);
+
+            test(communicator.getDefaultObjectAdapter() == null);
+            test(obj.ice_getCachedConnection().getAdapter() == null);
+
+            ObjectAdapter adapter = communicator.createObjectAdapter("");
+
+            communicator.setDefaultObjectAdapter(adapter);
+            test(communicator.getDefaultObjectAdapter() == adapter);
+
+            // create new connection
+            obj.ice_getCachedConnection().close();
+            obj.ice_ping();
+
+            test(obj.ice_getCachedConnection().getAdapter() == adapter);
+            communicator.setDefaultObjectAdapter(null);
+
+            // create new connection
+            obj.ice_getCachedConnection().close();
+            obj.ice_ping();
+
+            test(obj.ice_getCachedConnection().getAdapter() == null);
+            obj.ice_getCachedConnection().setAdapter(adapter);
+            test(obj.ice_getCachedConnection().getAdapter() == adapter);
+            obj.ice_getCachedConnection().setAdapter(null);
+
             adapter.destroy();
             try {
                 obj.ice_getConnection().setAdapter(adapter);

@@ -37,6 +37,7 @@ public interface Connection {
      * @param adapter The object adapter to associate with the connection.
      * @see #createProxy
      * @see #getAdapter
+     * @see Communicator#setDefaultObjectAdapter
      */
     void setAdapter(ObjectAdapter adapter);
 
@@ -45,6 +46,7 @@ public interface Connection {
      *
      * @return The object adapter associated with this connection.
      * @see #setAdapter
+     * @see Communicator#getDefaultObjectAdapter
      */
     ObjectAdapter getAdapter();
 

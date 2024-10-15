@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * @hidden Public because it's used by the 'Ice\metrics' test.
+ * @hidden Public because it's used by the 'Ice/metrics' test.
  */
 public final class ConnectionI extends EventHandler implements Connection, CancellationHandler {
     public interface StartCallback {
@@ -1271,7 +1271,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Datagrams")
                         > 0;
         _nextRequestId = 1;
-        _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
+        _messageSizeMax = connector == null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
         _readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
         _readHeader = false;
@@ -1644,7 +1644,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         if (!_endpoint.datagram()) // Datagram connections are always implicitly
         // validated.
         {
-            if (_adapter != null) // The server side has the active role for
+            if (_connector == null) // The server side has the active role for
             // connection validation.
             {
                 if (_writeStream.isEmpty()) {

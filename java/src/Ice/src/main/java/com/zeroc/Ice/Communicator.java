@@ -284,6 +284,30 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
+     * Gets the object adapter that is associated by default with new outgoing connections created
+     * by this communicator. This method returns null unless you set a non-null default object
+     * adapter using {@link setDefaultObjectAdapter}.
+     *
+     * @return The object adapter associated by default with new outgoing connections.
+     * @see Connection#getAdapter
+     */
+    public ObjectAdapter getDefaultObjectAdapter() {
+        return _instance.outgoingConnectionFactory().getDefaultObjectAdapter();
+    }
+
+    /**
+     * Sets the object adapter that will be associated with new outgoing connections created by this
+     * communicator. This method has no effect on existing outgoing connections, or on incoming
+     * connections.
+     *
+     * @param adapter The object adapter to associate with new outgoing connections.
+     * @see Connection#setAdapter
+     */
+    public void setDefaultObjectAdapter(ObjectAdapter adapter) {
+        _instance.outgoingConnectionFactory().setDefaultObjectAdapter(adapter);
+    }
+
+    /**
      * Get the implicit context associated with this communicator.
      *
      * @return The implicit context associated with this communicator; returns null when the

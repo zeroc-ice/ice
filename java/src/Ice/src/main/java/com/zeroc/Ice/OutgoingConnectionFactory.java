@@ -43,6 +43,7 @@ final class OutgoingConnectionFactory {
 
         _destroyed = true;
         _communicator = null;
+        _defaultObjectAdapter = null;
         notifyAll();
     }
 
@@ -292,6 +293,14 @@ final class OutgoingConnectionFactory {
         return null;
     }
 
+    synchronized void setDefaultObjectAdapter(ObjectAdapter adapter) {
+        _defaultObjectAdapter = adapter;
+    }
+
+    synchronized ObjectAdapter getDefaultObjectAdapter() {
+        return _defaultObjectAdapter;
+    }
+
     //
     // Must be called while synchronized.
     //
@@ -423,7 +432,7 @@ final class OutgoingConnectionFactory {
                             transceiver,
                             ci.connector,
                             ci.endpoint.compress(false).timeout(-1),
-                            null,
+                            _defaultObjectAdapter,
                             this::removeConnection,
                             _connectionOptions);
         } catch (LocalException ex) {
@@ -888,6 +897,7 @@ final class OutgoingConnectionFactory {
     private Communicator _communicator;
     private final Instance _instance;
     private final ConnectionOptions _connectionOptions;
+    private ObjectAdapter _defaultObjectAdapter;
     private boolean _destroyed;
 
     private MultiHashMap<Connector, ConnectionI> _connections = new MultiHashMap<>();
