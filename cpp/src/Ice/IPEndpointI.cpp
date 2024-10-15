@@ -151,7 +151,7 @@ IceInternal::IPEndpointI::withPublishedHost(string host) const
 bool
 IceInternal::IPEndpointI::equivalent(const EndpointIPtr& endpoint) const
 {
-    const IPEndpointI* ipEndpointI = dynamic_cast<const IPEndpointI*>(endpoint.get());
+    auto ipEndpointI = dynamic_pointer_cast<IPEndpointI>(endpoint);
     if (!ipEndpointI)
     {
         return false;

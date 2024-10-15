@@ -608,7 +608,7 @@ allTests(Test::TestHelper* helper, bool)
         Ice::ValuePtr obj;
         in.read(obj);
         in.endEncapsulation();
-        test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
+        test(obj && dynamic_pointer_cast<TestObjectReader>(obj));
     }
 
     {
@@ -623,7 +623,7 @@ allTests(Test::TestHelper* helper, bool)
         Ice::ValuePtr obj;
         in.read(obj);
         in.endEncapsulation();
-        test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
+        test(obj && dynamic_pointer_cast<TestObjectReader>(obj));
         factory->setEnabled(false);
     }
 
@@ -693,7 +693,7 @@ allTests(Test::TestHelper* helper, bool)
         Ice::ValuePtr obj;
         in.read(obj);
         in.endEncapsulation();
-        test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
+        test(obj && dynamic_pointer_cast<TestObjectReader>(obj));
         factory->setEnabled(false);
     }
 
@@ -759,7 +759,7 @@ allTests(Test::TestHelper* helper, bool)
         in.endEncapsulation();
         factory->setEnabled(false);
 
-        rf = dynamic_cast<FObjectReader*>(obj.get())->getF();
+        rf = dynamic_pointer_cast<FObjectReader>(obj)->getF();
         test(rf->fse.m == 56 && !rf->fsf);
     }
     cout << "ok" << endl;
@@ -795,7 +795,7 @@ allTests(Test::TestHelper* helper, bool)
                 Ice::ValuePtr obj;
                 in.read(obj);
                 in.endEncapsulation();
-                test(dynamic_cast<CObjectReader*>(obj.get()));
+                test(dynamic_pointer_cast<CObjectReader>(obj));
                 factory->setEnabled(false);
             }
 
@@ -813,8 +813,8 @@ allTests(Test::TestHelper* helper, bool)
                 Ice::ValuePtr obj;
                 in.read(obj);
                 in.endEncapsulation();
-                test(obj && dynamic_cast<DObjectReader*>(obj.get()));
-                dynamic_cast<DObjectReader*>(obj.get())->check();
+                test(obj && dynamic_pointer_cast<DObjectReader>(obj));
+                dynamic_pointer_cast<DObjectReader>(obj)->check();
                 factory->setEnabled(false);
             }
         }

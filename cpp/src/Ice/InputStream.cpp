@@ -41,7 +41,7 @@ IceInternal::Ex::throwUOE(const char* file, int line, const string& expectedType
     // If the object is an unknown sliced object, we didn't find a
     // value factory, in this case raise a MarshalException instead.
     //
-    UnknownSlicedValue* usv = dynamic_cast<UnknownSlicedValue*>(v.get());
+    UnknownSlicedValuePtr usv = dynamic_pointer_cast<UnknownSlicedValue>(v);
     if (usv)
     {
         throw MarshalException{

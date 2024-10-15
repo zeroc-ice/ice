@@ -165,7 +165,7 @@ namespace IceInternal
                     m = p->second.first;
                 }
 
-                MetricsMapT<MemberMetricsType>* map = dynamic_cast<MetricsMapT<MemberMetricsType>*>(m.get());
+                auto map = std::dynamic_pointer_cast<MetricsMapT<MemberMetricsType>>(m);
                 assert(map);
                 return map->getMatching(helper);
             }

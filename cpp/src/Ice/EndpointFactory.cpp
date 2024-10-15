@@ -121,7 +121,7 @@ IceInternal::UnderlyingEndpointFactory::initialize()
     EndpointFactoryPtr factory = _instance->getEndpointFactory(_type);
     if (factory)
     {
-        EndpointFactoryWithUnderlying* f = dynamic_cast<EndpointFactoryWithUnderlying*>(factory.get());
+        auto f = dynamic_pointer_cast<EndpointFactoryWithUnderlying>(factory);
         if (f)
         {
             _factory = f->cloneWithUnderlying(_instance, _underlying);
