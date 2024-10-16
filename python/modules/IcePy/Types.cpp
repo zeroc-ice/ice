@@ -303,7 +303,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         throw AbortMarshaling();
     }
 
-    PyObjectHandle sd{PyEval_CallObject(_slicedDataType, args.get())};
+    PyObjectHandle sd{PyObject_CallObject(_slicedDataType, args.get())};
     if (!sd.get())
     {
         assert(PyErr_Occurred());
@@ -329,7 +329,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
     int i = 0;
     for (vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
     {
-        PyObjectHandle slice{PyEval_CallObject(_sliceInfoType, args.get())};
+        PyObjectHandle slice{PyObject_CallObject(_sliceInfoType, args.get())};
         if (!slice.get())
         {
             assert(PyErr_Occurred());
@@ -1476,18 +1476,19 @@ IcePy::SequenceInfo::marshal(
             Py_ssize_t sz = 0;
             if (p != Py_None)
             {
-                const void* buf = 0;
-                if (PyObject_AsReadBuffer(p, &buf, &sz) == 0)
+                Py_buffer pybuf;
+                if (PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE | PyBUF_FORMAT) == 0)
                 {
                     if (pi->kind == PrimitiveInfo::KindString)
                     {
                         PyErr_Format(PyExc_ValueError, "expected sequence value");
                         throw AbortMarshaling();
                     }
+                    sz = pybuf.len;
                 }
                 else
                 {
-                    PyErr_Clear(); // PyObject_AsReadBuffer sets an exception on failure.
+                    PyErr_Clear(); // PyObject_GetBuffer sets an exception on failure.
 
                     PyObjectHandle fs;
                     if (pi)
@@ -1711,7 +1712,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     if (pi->kind != PrimitiveInfo::KindString)
     {
         //
-        // With Python 3 and greater we marshal sequences of pritive types using the new
+        // With Python 3 and greater we marshal sequences of primitive types using the new
         // buffer protocol when possible, for older versions we use the old buffer protocol.
         //
         Py_buffer pybuf;
@@ -1820,7 +1821,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
         }
         else
         {
-            PyErr_Clear(); // PyObject_GetBuffer/PyObject_AsReadBuffer sets an exception on failure.
+            PyErr_Clear(); // PyObject_GetBuffer sets an exception on failure.
         }
     }
 

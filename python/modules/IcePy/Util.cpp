@@ -616,7 +616,7 @@ IcePy::createExceptionInstance(PyObject* type)
     {
         return nullptr;
     }
-    return PyEval_CallObject(type, args.get());
+    return PyObject_CallObject(type, args.get());
 }
 
 namespace
@@ -651,7 +651,7 @@ namespace
             // PyTuple_SetItem takes ownership of the args[i] reference.
             PyTuple_SetItem(pArgs.get(), static_cast<Py_ssize_t>(i), args[i]);
         }
-        return PyEval_CallObject(type, pArgs.get());
+        return PyObject_CallObject(type, pArgs.get());
     }
 }
 
