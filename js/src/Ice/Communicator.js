@@ -96,6 +96,14 @@ export class Communicator {
         return promise;
     }
 
+    getDefaultObjectAdapter() {
+        this._instance.outgoingConnectionFactory().getDefaultObjectAdapter();
+    }
+
+    setDefaultObjectAdapter(adapter) {
+        this._instance.outgoingConnectionFactory().setDefaultObjectAdapter(adapter);
+    }
+
     getValueFactoryManager() {
         return this._instance.initializationData().valueFactoryManager;
     }
