@@ -6,8 +6,8 @@
 #endif
 
 #include "DataStorm/DataStorm.h"
-#include "TestHelper.h"
 #include "Test.h"
+#include "TestHelper.h"
 
 using namespace DataStorm;
 using namespace std;

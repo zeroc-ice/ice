@@ -137,7 +137,8 @@ NodeSessionManager::createOrGet(optional<NodePrx> node, const Ice::ConnectionPtr
     instance->getConnectionManager()->add(
         connection,
         make_shared<NodePrx>(*node),
-        [self = shared_from_this(), node](const Ice::ConnectionPtr&, std::exception_ptr) { self->destroySession(std::move(node)); });
+        [self = shared_from_this(), node](const Ice::ConnectionPtr&, std::exception_ptr)
+        { self->destroySession(std::move(node)); });
 
     return session;
 }
@@ -371,7 +372,8 @@ NodeSessionManager::connected(optional<NodePrx> node, optional<LookupPrx> lookup
     instance->getConnectionManager()->add(
         connection,
         make_shared<LookupPrx>(*lookup),
-        [=, self = shared_from_this()](const Ice::ConnectionPtr&, std::exception_ptr) { self->disconnected(node, lookup); });
+        [=, self = shared_from_this()](const Ice::ConnectionPtr&, std::exception_ptr)
+        { self->disconnected(node, lookup); });
     auto l = p != _sessions.end() ? lookup->ice_fixed(connection) : lookup;
     _connectedTo.emplace(node->ice_getIdentity(), make_pair(node, l));
 
