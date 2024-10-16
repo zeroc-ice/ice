@@ -14,4 +14,3 @@ traceProps = {
 }
 
 TestSuite(__file__, [ ClientServerTestCase(client = Writer(), server = Reader(), traceProps=traceProps) ])
-

@@ -15,7 +15,7 @@ class Writer(Client):
 
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
         Client.__init__(self, *args, **kargs)
-    
+
     def getProps(self, current):
         props = Client.getProps(self, current)
 
