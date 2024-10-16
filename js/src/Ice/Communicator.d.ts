@@ -135,10 +135,33 @@ declare module "ice" {
             createObjectAdapterWithEndpoints(name: string, endpoints: string): Promise<Ice.ObjectAdapter>;
 
             /**
+             * Gets the object adapter that is associated by default with new outgoing connections created by this
+             * communicator. This method returns null unless you set a non-null default object adapter using
+             * {@link setDefaultObjectAdapter}.
+             *
+             * @returns The object adapter associated by default with new outgoing connections.
+             *
+             * @see {@link Connection#getAdapter}
+             * @see {@link setDefaultObjectAdapter}
+             */
+            getDefaultObjectAdapter(): Ice.ObjectAdapter | null;
+
+            /**
+             * Sets the object adapter that is associated by default with new outgoing connections created by this
+             * communicator. This method has no effect on existing connections.
+             *
+             * @param adapter - The object adapter to associate by default with new outgoing connections.
+             *
+             * @see {@link Connection#setAdapter}
+             * @see {@link getDefaultObjectAdapter}
+             */
+            setDefaultObjectAdapter(adapter: Ice.ObjectAdapter | null): void;
+
+            /**
              * Creates a new object adapter with a router.
              *
-             * This operation creates a routed object adapter. If the `name` parameter is an empty string, a UUID will be
-             * generated and used as the object adapter name.
+             * This operation creates a routed object adapter. If the `name` parameter is an empty string, a UUID will
+             * be generated and used as the object adapter name.
              *
              * @param name - The object adapter name.
              * @param router - The router to associate with the object adapter.
