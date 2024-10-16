@@ -20,7 +20,9 @@ namespace
 
         optional<ObjectPrx> getServerProxy(const Current& c) const final
         {
-            return ObjectPrx(c.adapter->getCommunicator(), "dummy:tcp -h localhost -p " + to_string(_routerPort) + " -t 30000");
+            return ObjectPrx(
+                c.adapter->getCommunicator(),
+                "dummy:tcp -h localhost -p " + to_string(_routerPort) + " -t 30000");
         }
 
         ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return ObjectProxySeq(); }
@@ -30,9 +32,9 @@ namespace
     };
 }
 
-ServantLocatorI::ServantLocatorI(Test::TestHelper* helper) :
-    _deactivated(false),
-    _router(make_shared<RouterI>(helper)) {}
+ServantLocatorI::ServantLocatorI(Test::TestHelper* helper) : _deactivated(false), _router(make_shared<RouterI>(helper))
+{
+}
 
 ServantLocatorI::~ServantLocatorI() { test(_deactivated); }
 

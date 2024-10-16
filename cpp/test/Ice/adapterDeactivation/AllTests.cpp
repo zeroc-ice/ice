@@ -186,7 +186,7 @@ allTests(Test::TestHelper* helper)
         // Two non-loopback endpoints
         communicator->getProperties()->setProperty(
             "PHAdapter.Endpoints",
-            "tcp -h * -p " + to_string(firstPort) +":default -h *");
+            "tcp -h * -p " + to_string(firstPort) + ":default -h *");
 
         communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "");
         {
@@ -266,7 +266,9 @@ allTests(Test::TestHelper* helper)
         auto router = obj->ice_identity<Ice::RouterPrx>(routerId)->ice_connectionId("rc");
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("", router);
         test(adapter->getPublishedEndpoints().size() == 1);
-        test(adapter->getPublishedEndpoints()[0]->toString() == "tcp -h localhost -p " + to_string(routerPort) + " -t 30000");
+        test(
+            adapter->getPublishedEndpoints()[0]->toString() ==
+            "tcp -h localhost -p " + to_string(routerPort) + " -t 30000");
         try
         {
             adapter->setPublishedEndpoints(router->ice_getEndpoints());
