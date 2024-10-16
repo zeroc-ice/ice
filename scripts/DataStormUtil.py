@@ -8,44 +8,59 @@ from Util import (
     Mapping,
     ProcessFromBinDir,
     Server,
+    Process,
 )
 
-class Writer(Client):
+import re
+
+# Regex pattern to match placeholders like {port1}, {port2}, ..., {portXX}
+port_pattern = re.compile(r'{port(\d+)}')
+
+class DataStormProcess(Process):
+
+    def getEffectiveProps(self, current, props):
+        props = Process.getEffectiveProps(self, current, props)
+        for key, value in props.items():
+            if key.startswith("DataStorm.Node.") and type(value) is str:
+                props[key] = port_pattern.sub(
+                    lambda match: str(current.driver.getTestPort(10 + int(match.group(1)))), value)
+
+        return props
+
+class Writer(Client, DataStormProcess):
     processType = "writer"
 
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
         Client.__init__(self, *args, **kargs)
 
-    def getProps(self, current):
-        props = Client.getProps(self, current)
-
-        # Default properties
-        props.update(
-            {
-                "DataStorm.Node.Server.Enabled": 0,
-                "DataStorm.Node.ConnectTo": f"tcp -p {current.driver.getTestPort(10)}"
-            }
-        )
+    def getEffectiveProps(self, current, props):
+        props = DataStormProcess.getEffectiveProps(self, current, props)
+        if not any(key.startswith("DataStorm.Node.") for key in props):
+            # Default properties for tests that don't specify any DataStorm.Node.* properties
+            props.update(
+                {
+                    "DataStorm.Node.Server.Enabled": 0,
+                    "DataStorm.Node.ConnectTo": f"tcp -p {current.driver.getTestPort(10)}"
+                })
         return props
 
-class Reader(Server):
+class Reader(Server, DataStormProcess):
     processType = "reader"
 
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
         Server.__init__(self, *args, **kargs)
 
-    def getProps(self, current):
-        props = Server.getProps(self, current)
-
-        # Default properties
-        props.update(
-            {
-                "DataStorm.Node.Server.Endpoints": f"tcp -p {current.driver.getTestPort(10)}"
-            }
-        )
+    def getEffectiveProps(self, current, props):
+        props = DataStormProcess.getEffectiveProps(self, current, props)
+        if not any(key.startswith("DataStorm.Node.") for key in props):
+            # Default properties for tests that don't specify any DataStorm.Node.* properties
+            props.update(
+                {
+                    "DataStorm.Node.Server.Endpoints": f"tcp -p {current.driver.getTestPort(10)}"
+                })
         return props
 
-class Node(ProcessFromBinDir, Server):
+class Node(ProcessFromBinDir, Server, DataStormProcess):
     def __init__(self, desc=None, *args, **kargs):
         Server.__init__(self, "dsnode", mapping=Mapping.getByName("cpp"), desc=desc or "DataStorm node", *args, **kargs)
 
@@ -57,6 +72,9 @@ class Node(ProcessFromBinDir, Server):
         props = Server.getProps(self, current)
         props['Ice.ProgramName'] = self.desc
         return props
+
+    def getEffectiveProps(self, current, props):
+        return DataStormProcess.getEffectiveProps(self, current, props)
 
 class NodeTestCase(ClientServerTestCase):
 

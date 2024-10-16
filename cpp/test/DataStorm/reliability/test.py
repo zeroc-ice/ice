@@ -16,33 +16,33 @@ traceProps = {
 clientProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 0,
-    "DataStorm.Node.ConnectTo": "tcp -p 12345"
+    "DataStorm.Node.ConnectTo": "tcp -p {port1}"
 }
 
 client2Props = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 0,
-    "DataStorm.Node.ConnectTo": "tcp -p 12346"
+    "DataStorm.Node.ConnectTo": "tcp -p {port2}"
 }
 
 serverProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 1,
-    "DataStorm.Node.Server.Endpoints": "tcp -p 12345",
+    "DataStorm.Node.Server.Endpoints": "tcp -p {port1}",
     "DataStorm.Node.ConnectTo": ""
 }
 
 server2Props = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 1,
-    "DataStorm.Node.Server.Endpoints": "tcp -p 12346",
-    "DataStorm.Node.ConnectTo": "tcp -p 12345"
+    "DataStorm.Node.Server.Endpoints": "tcp -p {port2}",
+    "DataStorm.Node.ConnectTo": "tcp -p {port1}"
 }
 
 serverAnyProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Endpoints": "tcp",
-    "DataStorm.Node.ConnectTo": "tcp -p 12345",
+    "DataStorm.Node.ConnectTo": "tcp -p {port1}",
 }
 
 props = [
@@ -78,4 +78,4 @@ for (name, readerProps, writerProps, nodeProps, node2Props, reversedStart) in pr
     else:
         testcases.append(ClientServerTestCase(name=name, client=c, server=s, traceProps=traceProps))
 
-TestSuite(__file__, testcases, runOnMainThread=True)
+TestSuite(__file__, testcases)
