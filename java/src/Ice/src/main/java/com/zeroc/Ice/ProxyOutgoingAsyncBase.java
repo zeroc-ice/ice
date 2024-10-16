@@ -407,9 +407,10 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             throw ex;
         }
 
-        // Don't retry if the communicator is destroyed or object adapter is deactivated.
+        // Don't retry if the communicator is destroyed or object adapter is deactivated/destroyed
         if (ex instanceof CommunicatorDestroyedException
-                || ex instanceof ObjectAdapterDeactivatedException) {
+                || ex instanceof ObjectAdapterDeactivatedException
+                || ex instanceof ObjectAdapterDestroyedException) {
             throw ex;
         }
 

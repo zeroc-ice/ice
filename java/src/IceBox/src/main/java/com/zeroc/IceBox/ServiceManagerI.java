@@ -325,6 +325,8 @@ public class ServiceManagerI implements ServiceManager {
             // Expected if the communicator is shutdown by the shutdown hook
         } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {
             // Expected if the communicator is shutdown by the shutdown hook
+        } catch (com.zeroc.Ice.ObjectAdapterDestroyedException ex) {
+            // Expected
         } catch (Throwable ex) {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -872,6 +874,8 @@ public class ServiceManagerI implements ServiceManager {
         } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
             // Ignored
         } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {
+            // Ignored
+        } catch (com.zeroc.Ice.ObjectAdapterDestroyedException ex) {
             // Ignored
         }
     }

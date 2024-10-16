@@ -62,6 +62,8 @@ class PluginI implements Plugin {
                 _future.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
             } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException exc) {
                 _future.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
+            } catch (com.zeroc.Ice.ObjectAdapterDestroyedException exc) {
+                _future.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
             } catch (com.zeroc.Ice.CommunicatorDestroyedException exc) {
                 _future.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
             } catch (com.zeroc.Ice.LocalException exc) {

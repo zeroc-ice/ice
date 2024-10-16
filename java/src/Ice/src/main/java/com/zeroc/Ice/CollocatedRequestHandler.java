@@ -185,7 +185,7 @@ final class CollocatedRequestHandler implements RequestHandler {
                 //
                 try {
                     _adapter.incDirectCount();
-                } catch (ObjectAdapterDeactivatedException ex) {
+                } catch (ObjectAdapterDestroyedException ex) {
                     handleException(ex, requestId, false);
                     break;
                 }

@@ -45,12 +45,8 @@ namespace Ice
         void destroy() noexcept;
 
         /**
-         * Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
-         * Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException. Subsequent calls to
-         * shutdown are ignored.
-         * After shutdown returns, no new requests are processed. However, requests that have been started before
-         * shutdown was called might still be active. You can use {@link #waitForShutdown} to wait for the completion of
-         * all requests.
+         * Shuts down this communicator: call deactivate on all object adapters created by this communicator. Shutting
+         * down a communicator has no effect on outgoing connections.
          * @see #destroy
          * @see #waitForShutdown
          * @see ObjectAdapter#deactivate
