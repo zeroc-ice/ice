@@ -145,19 +145,20 @@ namespace Ice
                 await self(current).opWithUEAsync();
             }
 
-            public override void
-            pingBiDir(Test.PingReplyPrx reply, Ice.Current current)
+            public override async Task pingBiDirAsync(Test.PingReplyPrx reply, Ice.Current current)
             {
                 reply = Test.PingReplyPrxHelper.uncheckedCast(reply.ice_fixed(current.con));
-                Thread dispatchThread = Thread.CurrentThread;
-                reply.replyAsync().ContinueWith(
-                   (t) =>
-                    {
-                        Thread callbackThread = Thread.CurrentThread;
-                        test(dispatchThread != callbackThread);
-                        test(callbackThread.Name.Contains("Ice.ThreadPool.Server"));
-                    },
-                    reply.ice_scheduler()).Wait();
+                bool expectSuccess = !current.ctx.ContainsKey("ONE");
+
+                try
+                {
+                    await reply.replyAsync();
+                    test(expectSuccess);
+                }
+                catch (ObjectNotExistException)
+                {
+                    test(!expectSuccess);
+                }
             }
 
             private Test.TestIntfPrx

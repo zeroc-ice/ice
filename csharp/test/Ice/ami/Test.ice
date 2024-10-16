@@ -46,7 +46,7 @@ interface TestIntf
     ["amd"] void opWithUEAsyncDispatch()
         throws TestIntfException;
 
-    void pingBiDir(PingReply* reply);
+    ["amd"] void pingBiDir(PingReply* reply);
 }
 
 interface TestIntfController

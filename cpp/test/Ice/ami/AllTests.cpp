@@ -1279,11 +1279,13 @@ allTests(TestHelper* helper, bool collocated)
         }
         cout << "ok" << endl;
 
-        cout << "testing bidir... " << flush;
+        cout << "testing bi-dir... " << flush;
         auto adapter = communicator->createObjectAdapter("");
         auto replyI = make_shared<PingReplyI>();
-        auto reply = uncheckedCast<PingReplyPrx>(adapter->addWithUUID(replyI));
-        adapter->activate();
+        auto reply = adapter->addWithUUID<PingReplyPrx>(replyI);
+
+        map<string, string> context{{"ONE", ""}};
+        p->pingBiDir(reply, context);
 
         p->ice_getConnection()->setAdapter(adapter);
         p->pingBiDir(reply);

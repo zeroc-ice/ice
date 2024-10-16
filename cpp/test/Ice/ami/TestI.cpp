@@ -173,9 +173,44 @@ TestIntfI::supportsFunctionalTests(const Ice::Current&)
 }
 
 void
-TestIntfI::pingBiDir(optional<Test::PingReplyPrx> reply, const Ice::Current& current)
+TestIntfI::pingBiDirAsync(
+    optional<Test::PingReplyPrx> reply,
+    std::function<void()> response,
+    std::function<void(std::exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    reply->ice_fixed(current.con)->replyAsync().get();
+    reply = reply->ice_fixed(current.con);
+    const bool expectSuccess = current.ctx.find("ONE") == current.ctx.end();
+
+    reply->ice_fixed(current.con)->replyAsync(
+        [expectSuccess, response, exception]()
+        {
+            try
+            {
+                test(expectSuccess);
+                response();
+            }
+            catch (...)
+            {
+                exception(std::current_exception());
+            }
+        },
+        [expectSuccess, response, exception](exception_ptr ex)
+        {
+            try
+            {
+                test(!expectSuccess);
+                rethrow_exception(ex);
+            }
+            catch (const Ice::ObjectNotExistException&)
+            {
+                response();
+            }
+            catch (...)
+            {
+                exception(std::current_exception());
+            }
+        });
 }
 
 void
