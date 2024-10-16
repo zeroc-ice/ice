@@ -21,14 +21,12 @@ using namespace IceInternal;
 
 namespace
 {
-    /// Find a property in the Ice property set.
+    /// Find the Ice property array for a given property name.
     /// @param key The property name.
-    /// @param logWarnings Whether to log relevant warnings.
-    /// @return The property if found, nullopt otherwise.
-    optional<Property> findIceProperty(string_view key, bool logWarnings)
+    /// @return The property array if found, nullopt otherwise.
+    optional<const PropertyArray*> findIcePropertyArray(string_view key)
     {
         // Check if the property is legal.
-        LoggerPtr logger = getProcessLogger();
         string::size_type dotPos = key.find('.');
 
         // If the key doesn't contain a dot, it's not a valid Ice property.
@@ -40,45 +38,15 @@ namespace
         string_view prefix = key.substr(0, dotPos);
 
         // Find the property list for the given prefix.
-        const IceInternal::PropertyArray* propertyArray = nullptr;
-
-        for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != nullptr; ++i)
+        for (const auto& properties : IceInternal::PropertyNames::validProps)
         {
-            auto properties = IceInternal::PropertyNames::validProps[i];
             if (prefix == properties.name)
             {
                 // We've found the property list for the given prefix.
-                propertyArray = &IceInternal::PropertyNames::validProps[i];
-                break;
-            }
-
-            // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
-            // Otherwise no other warning is issued.
-            if (logWarnings && IceInternal::toLower(properties.name) == IceInternal::toLower(prefix))
-            {
-                ostringstream os;
-                os << "unknown property prefix: `" << prefix << "'; did you mean `" << properties.name << "'?";
-                return nullopt;
+                return &properties;
             }
         }
 
-        if (!propertyArray)
-        {
-            // The prefix is not a valid Ice property.
-            return nullopt;
-        }
-
-        if (auto prop = IceInternal::findProperty(key.substr(prefix.length() + 1), propertyArray))
-        {
-            return prop;
-        }
-
-        if (logWarnings)
-        {
-            ostringstream os;
-            os << "unknown property: `" << key << "'";
-            logger->warning(os.str());
-        }
         return nullopt;
     }
 
@@ -88,11 +56,23 @@ namespace
     /// @throws std::invalid_argument if the property is unknown.
     string_view getDefaultValue(string_view key)
     {
-        optional<Property> prop = findIceProperty(key, false);
+        auto propertyArray = findIcePropertyArray(key);
+
+        if (!propertyArray)
+        {
+            throw UnknownPropertyException(__FILE__, __LINE__, "unknown Ice property: " + string{key});
+        }
+
+        // The Ice property prefix.
+        string prefix{propertyArray.value()->name};
+
+        auto prop = IceInternal::findProperty(key.substr(prefix.length() + 1), *propertyArray);
+
         if (!prop)
         {
-            throw invalid_argument{"unknown Ice property: " + string{key}};
+            throw UnknownPropertyException(__FILE__, __LINE__, "unknown Ice property: " + string{key});
         }
+
         return prop->defaultValue;
     }
 }
@@ -332,14 +312,21 @@ Ice::Properties::setProperty(string_view key, string_view value)
         throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
     }
 
-    // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
-    // case-insensitive Ice property prefix matches.
-    auto prop = findIceProperty(key, true);
-
-    // If the property is deprecated, log a warning.
-    if (prop && prop->deprecated)
+    // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
+    if (auto propertyArray = findIcePropertyArray(key))
     {
-        getProcessLogger()->warning("setting deprecated property: " + string{key});
+        string propertyPrefix{propertyArray.value()->name};
+        auto prop = IceInternal::findProperty(key.substr(propertyPrefix.length() + 1), *propertyArray);
+        if (!prop)
+        {
+            throw UnknownPropertyException(__FILE__, __LINE__, "unknown Ice property: " + string{key});
+        }
+
+        // If the property is deprecated, log a warning.
+        if (prop->deprecated)
+        {
+            getProcessLogger()->warning("setting deprecated property: " + string{key});
+        }
     }
 
     lock_guard lock(_mutex);
@@ -413,9 +400,9 @@ StringSeq
 Ice::Properties::parseIceCommandLineOptions(const StringSeq& options)
 {
     StringSeq args = options;
-    for (const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
+    for (const auto& props : IceInternal::PropertyNames::validProps)
     {
-        args = parseCommandLineOptions(*i, args);
+        args = parseCommandLineOptions(props.name, args);
     }
     return args;
 }

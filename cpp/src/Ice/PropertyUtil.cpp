@@ -12,6 +12,8 @@ using namespace IceInternal;
 optional<Property>
 IceInternal::findProperty(string_view key, const PropertyArray* propertyArray)
 {
+    assert(propertyArray && propertyArray->properties);
+
     for (int i = 0; i < propertyArray->length; ++i)
     {
         auto prop = propertyArray->properties[i];
@@ -64,9 +66,9 @@ IceInternal::validatePropertiesWithPrefix(
     const PropertyArray* propertyArray)
 {
     // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
-    for (const char** i = IceInternal::PropertyNames::clPropNames; *i; ++i)
+    for (const auto& props : PropertyNames::validProps)
     {
-        string icePrefix = string(*i) + ".";
+        string icePrefix = string(props.name) + ".";
         if (prefix.find(icePrefix) == 0)
         {
             return;

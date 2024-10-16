@@ -1622,16 +1622,23 @@ class Server(IceProcess):
 
     def getProps(self, current):
         props = IceProcess.getProps(self, current)
-        props.update(
-            {
-                "Ice.ThreadPool.Server.Size": 1,
-                "Ice.ThreadPool.Server.SizeMax": 3,
-                "Ice.ThreadPool.Server.SizeWarn": 0,
-            }
-        )
+
+        mapping = self.getMapping(current)
+
+        if not isinstance(mapping, JavaScriptMapping):
+            props.update(
+                {
+                    "Ice.ThreadPool.Server.Size": 1,
+                    "Ice.ThreadPool.Server.SizeMax": 3,
+                    "Ice.ThreadPool.Server.SizeWarn": 0,
+                }
+            )
         props.update(
             current.driver.getProcessProps(
-                current, self.ready, self.readyCount + (1 if current.config.mx else 0)
+                current,
+                self.ready,
+                self.readyCount + (1 if current.config.mx else 0),
+                mapping,
             )
         )
         return props
@@ -3539,10 +3546,13 @@ class Driver:
         self.processControllers[processController] = processController(current)
         return self.processControllers[processController]
 
-    def getProcessProps(self, current, ready, readyCount):
+    def getProcessProps(self, current, ready, readyCount, mapping):
         props = {}
         if ready or readyCount > 0:
-            if current.config.buildPlatform not in ["iphonesimulator", "iphoneos"]:
+            if current.config.buildPlatform not in [
+                "iphonesimulator",
+                "iphoneos",
+            ] and not isinstance(mapping, JavaScriptMapping):
                 props["Ice.PrintAdapterReady"] = 1
         return props
 
@@ -3600,12 +3610,8 @@ class CppMapping(Mapping):
                 self.pathOverride = os.path.abspath(self.pathOverride)
 
     def getProps(self, process, current):
-        # JavaScript does not support Ice.PrintStackTraces
-        supportsPrintStackTraces = not isinstance(
-            current.testsuite.getMapping(), JavaScriptMapping
-        )
         props = Mapping.getProps(self, process, current)
-        if isinstance(process, IceProcess) and supportsPrintStackTraces:
+        if isinstance(process, IceProcess):
             props["Ice.PrintStackTraces"] = "1"
         return props
 

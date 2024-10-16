@@ -357,15 +357,20 @@ public final class Properties {
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice
-        // properties and case-insensitive Ice property prefix matches.
-        Property prop = findIceProperty(key, true);
-
-        // If the property is deprecated, log a warning
-        if (prop != null && prop.deprecated()) {
-            Util.getProcessLogger().warning("setting deprecated property: " + key);
+        // Check if the property is in an Ice property prefix. If so, check that it's a valid
+        // property.
+        PropertyArray propertyArray = findIcePropertyArray(key);
+        if (propertyArray != null) {
+            Property prop =
+                    findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
+            if (prop == null) {
+                throw new UnknownPropertyException("unknown Ice property: " + key);
+            }
+            // If the property is deprecated, log a warning
+            if (prop.deprecated()) {
+                Util.getProcessLogger().warning("setting deprecated property: " + key);
+            }
         }
-
         synchronized (this) {
             //
             // Set or clear the property.
@@ -448,8 +453,8 @@ public final class Properties {
      */
     public String[] parseIceCommandLineOptions(String[] options) {
         String[] args = options;
-        for (String prefix : PropertyNames.clPropNames) {
-            args = parseCommandLineOptions(prefix, args);
+        for (PropertyArray props : PropertyNames.validProps) {
+            args = parseCommandLineOptions(props.name(), args);
         }
         return args;
     }
@@ -830,19 +835,21 @@ public final class Properties {
     static void validatePropertiesWithPrefix(
             String prefix, Properties properties, PropertyArray propertyArray) {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
-        for (String icePrefix : PropertyNames.clPropNames) {
-            if (prefix.startsWith(icePrefix + ".")) {
+        for (PropertyArray props : PropertyNames.validProps) {
+            if (prefix.startsWith(props.name() + ".")) {
                 return;
             }
         }
 
-        var unknownProperties = new java.util.ArrayList<String>();
-        properties.getPropertiesForPrefix(prefix + ".").keySet().stream()
-                .filter(
-                        key ->
-                                findProperty(key.substring(prefix.length() + 1), propertyArray)
-                                        == null)
-                .collect(Collectors.toList());
+        var unknownProperties =
+                properties.getPropertiesForPrefix(prefix + ".").keySet().stream()
+                        .filter(
+                                key ->
+                                        findProperty(
+                                                        key.substring(prefix.length() + 1),
+                                                        propertyArray)
+                                                == null)
+                        .collect(Collectors.toList());
 
         if (unknownProperties.size() > 0) {
             throw new UnknownPropertyException(
@@ -856,15 +863,11 @@ public final class Properties {
     }
 
     /*
-     * Find a property by key.
+     * Find an Ice property array by key.
      * @param key The property key.
-     * @param logWarnings Whether to log if the property is a known Ice property.
-     * @return The property or null if the property is unknown.
+     * @return The property array if found, null otherwise.
      */
-    private static Property findIceProperty(String key, Boolean logWarnings) {
-        // Check if the property is a known Ice property and log warnings if necessary
-        Logger logger = Util.getProcessLogger();
-
+    private static PropertyArray findIcePropertyArray(String key) {
         int dotPos = key.indexOf('.');
 
         // If the key doesn't contain a dot, it's not a valid Ice property.
@@ -874,51 +877,28 @@ public final class Properties {
 
         String prefix = key.substring(0, dotPos);
 
-        PropertyArray propertyArray = null;
-
-        for (PropertyArray properties : PropertyNames.validProps) {
-            if (properties.name().equals(prefix)) {
-                propertyArray = properties;
-                break;
-            }
-
-            if (logWarnings && properties.name().toLowerCase().equals(prefix.toLowerCase())) {
-                logger.warning(
-                        "unknown property prefix: `"
-                                + key
-                                + "'; did you mean `"
-                                + properties.name()
-                                + "'?");
-            }
-        }
-
-        if (propertyArray == null) {
-            // The prefix is not a valid Ice property.
-            return null;
-        }
-
-        Property prop = findProperty(key.substring(prefix.length() + 1), propertyArray);
-        if (prop != null) {
-            return prop;
-        }
-
-        // If we reach this point, the property is unknown
-        if (logWarnings) {
-            logger.warning("unknown property: " + key);
-        }
-        return null;
+        return java.util.Arrays.stream(PropertyNames.validProps)
+                .filter(properties -> properties.name().equals(prefix))
+                .findFirst()
+                .orElse(null);
     }
 
     /*
      * Gets the default value for a given Ice property.
      * @param key The property key.
      * @return The default value.
-     * @throws IllegalArgumentException if the property is unknown.
+     * @throws UnknownPropertyException if the property is unknown.
      */
     private static String getDefaultProperty(String key) {
-        Property prop = findIceProperty(key, false);
+        PropertyArray propertyArray = findIcePropertyArray(key);
+        if (propertyArray == null) {
+            throw new UnknownPropertyException("unknown Ice property: " + key);
+        }
+
+        Property prop =
+                findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
         if (prop == null) {
-            throw new IllegalArgumentException("unknown Ice property: " + key);
+            throw new UnknownPropertyException("unknown Ice property: " + key);
         }
         return prop.defaultValue();
     }

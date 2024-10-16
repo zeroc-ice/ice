@@ -54,6 +54,15 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         {
+            out.write("testing property regexp pattern...");
+            const properties = Ice.createProperties();
+            properties.setProperty("Ice.Default.Locator.Context.Foo", "Bar");
+            const value = properties.getProperty("Ice.Default.Locator.Context.Foo");
+            test(value == "Bar");
+            out.writeLine("ok");
+        }
+
+        {
             out.write("testing ice properties with set default values...");
             const properties = Ice.createProperties();
 
@@ -99,12 +108,42 @@ export class Client extends TestHelper {
         }
 
         {
-            out.write("testing property regexp pattern...");
+            out.write("testing that setting an unknown ice property throws an exception...");
             const properties = Ice.createProperties();
-            properties.setProperty("Ice.Default.Locator.Context.Foo", "Bar");
-            const value = properties.getProperty("Ice.Default.Locator.Context.Foo");
-            test(value == "Bar");
+            try {
+                properties.setProperty("Ice.UnknownProperty", "bar");
+                test(false);
+            } catch (ex) {
+                test(ex.message == "unknown Ice property: Ice.UnknownProperty");
+            }
             out.writeLine("ok");
+        }
+
+        {
+            const communicator = Ice.initialize(args);
+            const properties = communicator.getProperties();
+
+            out.write("testing that creating an object adapter with unknown properties throws an exception...");
+            properties.setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
+            properties.setProperty("FooOA.UnknownProperty", "bar");
+            try {
+
+            } catch (ex) {
+                test(ex.message == "unknown Ice property: FooOA.UnknownProperty");
+            }
+            out.writeLine("ok");
+
+            out.write("testing that creating a proxy with unknown properties throws an exception...");
+            properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
+            properties.setProperty("FooProxy.UnknownProperty", "bar");
+            try {
+
+            } catch (ex) {
+                test(ex.message == "unknown Ice property: FooProxy.UnknownProperty");
+            }
+            out.writeLine("ok");
+
+            communicator.shutdown();
         }
     }
 

@@ -85,8 +85,7 @@ class PropertyHandler(ContentHandler):
         self.openFiles()
 
         for propertyArray in self.propertyArrayDict.values():
-            if len(propertyArray.properties) > 0:
-                self.writePropertyArray(propertyArray)
+            self.writePropertyArray(propertyArray)
 
         self.closeFiles()
 
@@ -99,8 +98,7 @@ class PropertyHandler(ContentHandler):
         return [
             name
             for name, propertyArray in self.propertyArrayDict.items()
-            if len(self.propertyArrayDict[name].properties) > 0
-            and not propertyArray.isClass
+            if not propertyArray.isClass
         ]
 
     def reservedPropertyPrefixes(self):
@@ -243,6 +241,7 @@ class CppPropertyHandler(PropertyHandler):
 
 #include "Ice/Config.h"
 
+#include <array>
 #include <string>
 
 namespace IceInternal
@@ -280,26 +279,18 @@ using namespace IceInternal;
 
     @override
     def closeFiles(self):
-        self.hFile.write("""
-        static const PropertyArray validProps[];
-        static const char* clPropNames[];
-    };
-}
+        self.hFile.write(f"""
+        static const std::array<PropertyArray,{len(self.generatedPropertyArrays())}> validProps;
+    }};
+}}
 
 #endif
 """)
 
         self.cppFile.write(f"""\
-const PropertyArray PropertyNames::validProps[] =
+const std::array<PropertyArray,{len(self.generatedPropertyArrays())}> PropertyNames::validProps =
 {{
-    {",\n    ".join([f"{name}Props" for name in self.generatedPropertyArrays()])},
-    PropertyArray{{nullptr, false, nullptr ,0}}
-}};
-
-const char* PropertyNames::clPropNames[] =
-{{
-    {",\n    ".join([f'"{name}"' for name in self.reservedPropertyPrefixes()])},
-    nullptr
+    {",\n    ".join([f"{name}Props" for name in self.generatedPropertyArrays()])}
 }};
 """)
 
@@ -327,7 +318,7 @@ const PropertyArray PropertyNames::{name}Props
     "{name}",
     {prefixOnly},
     {name}PropsData,
-    sizeof({name}PropsData)/sizeof({name}PropsData[0])
+    {len(propertyArray.properties)}
 }};
 
 """)
@@ -389,11 +380,6 @@ final class PropertyNames
     {{
         {",\n        ".join([f"{name}Props" for name in self.generatedPropertyArrays()])}
     }};
-
-    public static final String clPropNames[] =
-    {{
-        {",\n        ".join([f'"{name}"' for name in self.reservedPropertyPrefixes()])}
-    }};
 }}
 """)
         self.srcFile.close()
@@ -408,13 +394,17 @@ final class PropertyNames
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
+        properties = (
+            ",\n            ".join(propertyArray.properties)
+            if propertyArray.properties
+            else ""
+        )
 
         self.srcFile.write(
             f"""    public static final PropertyArray {name}Props = new PropertyArray(
         "{name}",
         {prefixOnly},
-        new Property[] {{
-            {",\n            ".join(propertyArray.properties)}
+        new Property[] {{{properties}
         }});
 
 """
@@ -490,11 +480,6 @@ public sealed class PropertyNames
     [
         {",\n        ".join([f"{name}Props" for name in self.generatedPropertyArrays()])}
     ];
-
-    internal static string[] clPropNames =
-    [
-        {",\n        ".join([f'"{name}"' for name in self.reservedPropertyPrefixes()])}
-    ];
 }}
 """)
         self.srcFile.close()
@@ -506,14 +491,17 @@ public sealed class PropertyNames
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
+        properties = (
+            f"\n            {",\n            ".join(propertyArray.properties)}\n        "
+            if propertyArray.properties
+            else ""
+        )
 
         self.srcFile.write(f"""\
     internal static PropertyArray {name}Props = new(
         "{name}",
         {prefixOnly},
-        [
-            {",\n            ".join(propertyArray.properties)}
-        ]);
+        [{properties}]);
 
 """)
 
@@ -568,10 +556,9 @@ export const PropertyNames = {{}};
     @override
     def closeFiles(self):
         self.srcFile.write(f"""\
-PropertyNames.validProps = new Map([
-{",\n".join([f'    ["{name}", PropertyNames.{name}Props]' for name in self.generatedPropertyArrays()])},
-{",\n".join([f'    ["{name}", null]' for name in [name for name, array in self.propertyArrayDict.items() if len(array.properties) == 0 and not array.isClass]])}
-]);
+PropertyNames.validProps = [
+{",\n".join([f'    PropertyNames.{name}Props' for name in self.generatedPropertyArrays()])},
+];
 """)
         self.srcFile.close()
 
@@ -582,10 +569,14 @@ PropertyNames.validProps = new Map([
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
+        properties = (
+            "\n    " + ",\n    ".join(propertyArray.properties)
+            if propertyArray.properties
+            else ""
+        )
 
         self.srcFile.write(f"""\
-PropertyNames.{name}Props = new PropertyArray("{name}", {prefixOnly}, [
-    {",\n    ".join(propertyArray.properties)}
+PropertyNames.{name}Props = new PropertyArray("{name}", {prefixOnly}, [{properties}
 ]);
 
 """)

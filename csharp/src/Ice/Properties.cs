@@ -4,6 +4,7 @@
 
 using Ice.Internal;
 using System.Globalization;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -321,14 +322,16 @@ public sealed class Properties
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
-        // case-insensitive Ice property prefix matches.
-        Property? prop = findIceProperty(key, true);
-
-        // If the property is deprecated, log a warning.
-        if (prop is not null && prop.deprecated)
+        // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
+        if (findIcePropertyArray(key) is PropertyArray propertyArray)
         {
-            Util.getProcessLogger().warning($"setting deprecated property: {key}");
+            Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new UnknownPropertyException($"unknown Ice property: {key}");
+
+            // If the property is deprecated, log a warning.
+            if (prop.deprecated)
+            {
+                Util.getProcessLogger().warning($"setting deprecated property: {key}");
+            }
         }
 
         lock (_mutex)
@@ -428,7 +431,7 @@ public sealed class Properties
     public string[] parseIceCommandLineOptions(string[] options)
     {
         string[] args = options;
-        foreach (string? name in PropertyNames.clPropNames)
+        foreach (string? name in PropertyNames.validProps.Select(p => p.name))
         {
             args = parseCommandLineOptions(name, args);
         }
@@ -506,7 +509,7 @@ public sealed class Properties
     internal static void validatePropertiesWithPrefix(string prefix, Properties properties, PropertyArray propertyArray)
     {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
-        foreach (string name in PropertyNames.clPropNames)
+        foreach (string? name in PropertyNames.validProps.Select(p => p.name))
         {
             if (prefix.StartsWith($"{name}.", StringComparison.Ordinal))
             {
@@ -540,15 +543,12 @@ public sealed class Properties
     }
 
     /// <summary>
-    /// Find a property in the Ice property set.
+    /// Find the Ice property array for a given property name.
     /// </summary>
-    /// <param name="key">The property's key.</param>
-    /// <param name="logWarnings">Whether to log relevant warnings.</param>
-    /// <returns>The found property or null if the property with the given key doesn't exists.</returns>
-    private static Property? findIceProperty(string key, bool logWarnings)
+    /// <param name="key">The property key.</param>
+    /// <returns>The Ice property array if found, else null.</returns>
+    private static PropertyArray? findIcePropertyArray(string key)
     {
-        // Check if the property is a known Ice property and log warnings if necessary
-        Logger logger = Util.getProcessLogger();
         int dotPos = key.IndexOf('.', StringComparison.Ordinal);
 
         // If the key doesn't contain a dot, it's not a valid Ice property
@@ -559,44 +559,8 @@ public sealed class Properties
 
         string prefix = key[..dotPos];
 
-        PropertyArray? propertyArray = null;
-
         // Search for the property list that matches the prefix
-        foreach (PropertyArray properties in PropertyNames.validProps)
-        {
-            if (prefix == properties.name)
-            {
-                // We found the property list that matches the prefix
-                propertyArray = properties;
-                break;
-            }
-
-            // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
-            // Otherwise no other warning is issued.
-            if (logWarnings && properties.name.Equals(prefix, StringComparison.OrdinalIgnoreCase))
-            {
-                logger.warning($"unknown property: '{key}'; did you mean '{properties.name}'?");
-                return null;
-            }
-        }
-
-        if (propertyArray == null)
-        {
-            // The prefix is not a valid Ice property
-            return null;
-        }
-
-        if (findProperty(key[(prefix.Length + 1)..], propertyArray) is Property subProp)
-        {
-            return subProp;
-        }
-
-        // If we get here, the prefix is valid but the property is unknown
-        if (logWarnings)
-        {
-            logger.warning($"unknown property: {key}");
-        }
-        return null;
+        return PropertyNames.validProps.FirstOrDefault(properties => prefix == properties.name);
     }
 
     /// <summary>
@@ -659,7 +623,11 @@ public sealed class Properties
     private static string getDefaultProperty(string key)
     {
         // Find the property, don't log any warnings.
-        Property? prop = findIceProperty(key, false) ?? throw new ArgumentException($"unknown Ice property: {key}");
+        PropertyArray propertyArray = findIcePropertyArray(key) ?? throw new UnknownPropertyException($"unknown Ice property: {key}");
+
+        // Find the property in the property array.
+        Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new UnknownPropertyException($"unknown Ice property: {key}");
+
         return prop.defaultValue;
     }
 
