@@ -53,7 +53,7 @@ namespace
     /// Find the default value for an Ice property. If there is no default value, return an empty string.
     /// @param key The ice property name.
     /// @return The default value for the property.
-    /// @throws std::invalid_argument if the property is unknown.
+    /// @throws UnknownPropertyException if the property is unknown.
     string_view getDefaultValue(string_view key)
     {
         auto propertyArray = findIcePropertyArray(key);
