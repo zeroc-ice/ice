@@ -8,14 +8,12 @@ __name__ = "Ice"
 
 #
 # The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
-# reply message. Other local exceptions can't be marshaled.
+# reply message. Other local exceptions can't be marshaled. Application code can raise these exceptions.
 #
 
 class RequestFailedException(LocalException):
     """
-    This exception is raised if a request failed. This exception, and all exceptions derived from
-    RequestFailedException, are transmitted by the Ice protocol, even though they are declared
-    local.
+    The base exception for the 3 NotExist exceptions.
     """
 
     def __init__(self, id=None, facet= "", operation="", msg=""):
@@ -27,7 +25,7 @@ class RequestFailedException(LocalException):
     @property
     def id(self):
         """
-        The identity of the Ice Object to which the request was sent.
+        Gets the identity of the Ice Object to which the request was sent.
 
         Returns
         -------
@@ -39,7 +37,7 @@ class RequestFailedException(LocalException):
     @property
     def facet(self):
         """
-        The facet to which the request was sent.
+        Gets the facet to which the request was sent.
 
         Returns
         -------
@@ -51,7 +49,7 @@ class RequestFailedException(LocalException):
     @property
     def operation(self):
         """
-        The operation name of the request.
+        Gets the operation name of the request.
 
         Returns
         -------
@@ -63,58 +61,47 @@ class RequestFailedException(LocalException):
 @final
 class ObjectNotExistException(RequestFailedException):
     """
-    This exception is raised if an object does not exist on the server, that is, if no facets with the given identity
-    exist.
+    The dispatch could not find a servant for the identity carried by the request.
     """
 
 @final
 class FacetNotExistException(RequestFailedException):
     """
-    This exception is raised if no facet with the given name exists, but at least one facet with the given identity
-    exists.
+    The dispatch could not find a servant for the identity + facet carried by the request.
     """
 
 @final
 class OperationNotExistException(RequestFailedException):
     """
-    This exception is raised if an operation for a given object does not exist on the server. Typically this is caused
-    by either the client or the server using an outdated Slice specification.
+    The dispatch could not find the operation carried by the request on the target servant. This is typically due
+    to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
     """
 
 class UnknownException(LocalException):
     """
-    This exception is raised if an operation call on a server raises an unknown exception. For example, for C++, this
-    exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
-    Ice::LocalException or Ice::UserException.
+    The dispatch failed with an exception that is not a LocalException or a UserException.
     """
 
 @final
 class UnknownLocalException(UnknownException):
     """
-    This exception is raised if an operation call on a server raises a  local exception. Because local exceptions are
-    not transmitted by the Ice protocol, the client receives all local exceptions raised by the server as
-    UnknownLocalException. The only exception to this rule are all exceptions derived from
-    RequestFailedException, which are transmitted by the Ice protocol even though they are declared
-    local.
+    The dispatch failed with LocalException that is not one of the special marshal-able local exceptions.
     """
 
 @final
 class UnknownUserException(UnknownException):
     """
-    An operation raised an incorrect user exception. This exception is raised if an operation raises a user exception
-    that is not declared in the exception's throws clause. Such undeclared exceptions are not transmitted
-    from the server to the client by the Ice protocol, but instead the client just gets an UnknownUserException.
-    This is necessary in order to not violate the contract established by an operation's signature: Only local
-    exceptions and user exceptions declared in the throws clause can be raised.
+    The dispatch returned a UserException that was not declared in the operation's exception specification.
     """
 
 #
 # Protocol exceptions
+# Application code should not raise these exceptions.
 #
 
 class ProtocolException(LocalException):
     """
-    A generic exception base for all kinds of protocol error conditions.
+    The base class for Ice protocol exceptions.
     """
 
 @final
@@ -137,11 +124,12 @@ class DatagramLimitException(ProtocolException):
 @final
 class MarshalException(ProtocolException):
     """
-    This exception is raised for errors during marshaling or unmarshaling data.
+    This exception reports an error during marshaling or unmarshaling.
     """
 
 #
 # Timeout exceptions
+# Application code should not raise these exceptions.
 #
 
 class TimeoutException(LocalException):
@@ -169,12 +157,12 @@ class InvocationTimeoutException(TimeoutException):
 
 #
 # Syscall exceptions
+# Application code should not raise these exceptions.
 #
 
 class SyscallException(LocalException):
     """
-    This exception is raised if a system error occurred in the server or client process. There are many possible causes
-    for such a system exception.
+    This exception is raised if a system error occurred in the server or client process.
     """
 
 @final
@@ -185,6 +173,7 @@ class DNSException(SyscallException):
 
 #
 # Socket exceptions
+# Application code should not raise these exceptions.
 #
 
 class SocketException(SyscallException):
@@ -211,6 +200,7 @@ class ConnectionRefusedException(ConnectFailedException):
 
 #
 # Other leaf local exceptions in alphabetical order.
+# Application code should not raise these exceptions.
 #
 
 @final
