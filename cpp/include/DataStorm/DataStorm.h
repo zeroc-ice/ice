@@ -14,13 +14,6 @@
 
 #include <regex>
 
-/**
- * \mainpage %DataStorm API Reference
- *
- * \section namespaces Namespaces
- *
- * @ref DataStorm — The %DataStorm core library.
- */
 namespace DataStorm
 {
 
@@ -47,7 +40,7 @@ namespace DataStorm
 
         /**
          * The type of the update tag. The update tag type defaults to string if it's not explicitly specified
-         * with the Sample template paremeters.
+         * with the Sample template parameters.
          */
         using UpdateTagType = UpdateTag;
 
@@ -516,7 +509,18 @@ namespace DataStorm
          *
          * @param topic The topic to transfer ownership from.
          */
-        Topic(Topic&& topic) noexcept;
+        Topic(Topic&& topic) noexcept
+            : _name(std::move(topic._name)),
+            _topicFactory(std::move(topic._topicFactory)),
+            _keyFactory(std::move(topic._keyFactory)),
+            _tagFactory(std::move(topic._tagFactory)),
+            _keyFilterFactories(std::move(topic._keyFilterFactories)),
+            _sampleFilterFactories(std::move(topic._sampleFilterFactories)),
+            _reader(std::move(topic._reader)),
+            _writer(std::move(topic._writer)),
+            _updaters(std::move(topic._updaters))
+        {
+        }
 
         /**
          * Destruct the Topic. This disconnects the topic from peers.
@@ -1908,20 +1912,6 @@ namespace DataStorm
         RegexFilter<Key, Key>::add(_keyFilterFactories);
         RegexFilter<Sample<Key, Value, UpdateTag>, Value>::add(_sampleFilterFactories);
         _sampleFilterFactories->set("_event", makeSampleEventFilter(*this));
-    }
-
-    template<typename Key, typename Value, typename UpdateTag>
-    Topic<Key, Value, UpdateTag>::Topic(Topic<Key, Value, UpdateTag>&& topic) noexcept
-        : _name(std::move(topic._name)),
-          _topicFactory(std::move(topic._topicFactory)),
-          _keyFactory(std::move(topic._keyFactory)),
-          _tagFactory(std::move(topic._tagFactory)),
-          _keyFilterFactories(std::move(topic._keyFilterFactories)),
-          _sampleFilterFactories(std::move(topic._sampleFilterFactories)),
-          _reader(std::move(topic._reader)),
-          _writer(std::move(topic._writer)),
-          _updaters(std::move(topic._updaters))
-    {
     }
 
     template<typename Key, typename Value, typename UpdateTag> Topic<Key, Value, UpdateTag>::~Topic()
