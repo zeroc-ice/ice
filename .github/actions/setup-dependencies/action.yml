@@ -41,7 +41,7 @@ runs:
         python-version: "3.12"
       if: runner.os == 'macOS'
 
-    - uses: actions/setup-ruby@v1
+    - uses: ruby/setup-ruby@v1
       with:
         ruby-version: "3.3"
       if: runner.os == 'macOS'
