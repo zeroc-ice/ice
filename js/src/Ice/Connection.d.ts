@@ -82,15 +82,12 @@ declare module "ice" {
             createProxy(id: Identity): Ice.ObjectPrx;
 
             /**
-             * Explicitly sets an object adapter that dispatches requests received over this connection. A client can
-             * invoke an operation on a server using a proxy and then set an object adapter for the outgoing connection
-             * used by the proxy to receive callbacks. This is particularly useful when the server cannot establish a
-             * connection back to the client, such as in scenarios involving firewalls.
+             * Associates an object adapter with this connection. When a connection receives a request, it dispatches
+             * this request using its associated object adapter. If the associated object adapter is null, the
+             * connection rejects any incoming request with an {@link ObjectNotExistException}. The default object
+             * adapter of an outgoing connection is the communicator's default object adapter.
              *
-             * @param adapter - The object adapter that should be used by this connection to dispatch requests. The
-             *                  object adapter must be activated. When the object adapter is deactivated, it is
-             *                  automatically removed from the connection. Attempts to use a deactivated object adapter
-             *                  raise an {@link ObjectAdapterDeactivatedException}.
+             * @param adapter - The object adapter to associate with this connection.
              *
              * @see {@link createProxy}
              * @see {@link getAdapter}
@@ -98,13 +95,13 @@ declare module "ice" {
             setAdapter(adapter: Ice.ObjectAdapter | null): void;
 
             /**
-             * Get the object adapter that dispatches requests for this connection.
+             * Gets the object adapter associated with this connection.
              *
-             * @returns The object adapter that dispatches requests for the connection, or null if no adapter is set.
+             * @returns The object adapter associated with this connection.
              *
              * @see {@link setAdapter}
              */
-            getAdapter(): Ice.ObjectAdapter;
+            getAdapter(): Ice.ObjectAdapter | null;
 
             /**
              * Get the endpoint from which the connection was created.

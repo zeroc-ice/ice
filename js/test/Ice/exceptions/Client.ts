@@ -72,7 +72,7 @@ export class Client extends TestHelper {
             } catch (ex) {
                 test(ex instanceof Ice.NotRegisteredException, ex);
             }
-            await adapter.deactivate();
+            adapter.destroy();
         }
         out.writeLine("ok");
 
@@ -86,7 +86,7 @@ export class Client extends TestHelper {
             } catch (ex) {
                 test(ex instanceof Ice.AlreadyRegisteredException, ex);
             }
-            await adapter.deactivate();
+            adapter.destroy();
             out.writeLine("ok");
 
             out.write("testing value factory registration exception... ");

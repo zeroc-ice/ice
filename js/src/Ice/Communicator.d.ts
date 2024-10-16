@@ -25,26 +25,16 @@ declare module "ice" {
             destroy(): Promise<void>;
 
             /**
-             * Shuts down this communicator's server functionality, including the deactivation of all object adapters.
+             * Shuts down this communicator. In JavaScript, shutdown resolves a promise and doesn't do anything else.
              *
-             * After `shutdown` returns, no new requests are processed. However, requests that were started before
-             * `shutdown` was called might still be active. You can use {@link Communicator#waitForShutdown} to wait for
-             * the completion of all active requests.
-             *
-             * @see {@link destroy}
              * @see {@link waitForShutdown}
-             * @see {@link ObjectAdapter#deactivate}
              */
             shutdown(): void;
 
             /**
              * Waits until the application has called {@link Communicator#shutdown} or {@link Communicator#destroy}.
              *
-             * On the server side, the returned promise is resolved after all currently-executing operations have completed.
-             * On the client side, the returned promise is resolved after {@link Communicator#shutdown} or
-             * {@link Communicator#destroy} have been called.
-             *
-             * @returns A promise that is resolved when the communicator has been shut down.
+             * @returns A promise that is resolved when {@link Communicator#shutdown} is called.
              *
              * @see {@link shutdown}
              * @see {@link destroy}
@@ -52,7 +42,7 @@ declare module "ice" {
             waitForShutdown(): Promise<void>;
 
             /**
-             * Checks whether the communicator has been shut down.
+             * Checks whether {@link Communicator#shutdown} has been called.
              *
              * @returns `true` if the communicator has been shut down; `false` otherwise.
              *
