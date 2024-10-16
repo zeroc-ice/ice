@@ -97,7 +97,7 @@ export class Communicator {
     }
 
     getDefaultObjectAdapter() {
-        this._instance.outgoingConnectionFactory().getDefaultObjectAdapter();
+        return this._instance.outgoingConnectionFactory().getDefaultObjectAdapter();
     }
 
     setDefaultObjectAdapter(adapter) {
