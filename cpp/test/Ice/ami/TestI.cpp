@@ -182,35 +182,36 @@ TestIntfI::pingBiDirAsync(
     reply = reply->ice_fixed(current.con);
     const bool expectSuccess = current.ctx.find("ONE") == current.ctx.end();
 
-    reply->ice_fixed(current.con)->replyAsync(
-        [expectSuccess, response, exception]()
-        {
-            try
+    reply->ice_fixed(current.con)
+        ->replyAsync(
+            [expectSuccess, response, exception]()
             {
-                test(expectSuccess);
-                response();
-            }
-            catch (...)
+                try
+                {
+                    test(expectSuccess);
+                    response();
+                }
+                catch (...)
+                {
+                    exception(std::current_exception());
+                }
+            },
+            [expectSuccess, response, exception](exception_ptr ex)
             {
-                exception(std::current_exception());
-            }
-        },
-        [expectSuccess, response, exception](exception_ptr ex)
-        {
-            try
-            {
-                test(!expectSuccess);
-                rethrow_exception(ex);
-            }
-            catch (const Ice::ObjectNotExistException&)
-            {
-                response();
-            }
-            catch (...)
-            {
-                exception(std::current_exception());
-            }
-        });
+                try
+                {
+                    test(!expectSuccess);
+                    rethrow_exception(ex);
+                }
+                catch (const Ice::ObjectNotExistException&)
+                {
+                    response();
+                }
+                catch (...)
+                {
+                    exception(std::current_exception());
+                }
+            });
 }
 
 void
