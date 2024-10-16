@@ -166,7 +166,16 @@ export class ObjectAdapter {
     destroy() {
         if (!this._isDestroyed) {
             this._isDestroyed = true;
+
+            if (this._routerInfo !== null) {
+                // Remove entry from the router manager.
+                this._instance.routerManager().erase(this._routerInfo.getRouter());
+
+                // Clear this object adapter with the router.
+                this._routerInfo.setAdapter(null);
+            }
             this._instance.outgoingConnectionFactory().removeAdapter(this);
+
             this._servantManager.destroy();
             this._objectAdapterFactory.removeObjectAdapter(this);
             this._publishedEndpoints = [];
