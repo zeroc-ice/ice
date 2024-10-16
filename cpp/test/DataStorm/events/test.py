@@ -13,4 +13,7 @@ traceProps = {
     "Ice.Trace.Network" : 2
 }
 
-TestSuite(__file__, [ ClientServerTestCase(client = Writer(), server = Reader(), traceProps=traceProps) ])
+TestSuite(
+    __file__,
+    [ ClientServerTestCase(client = Writer(), server = Reader(), traceProps=traceProps) ],
+    runOnMainThread=True)

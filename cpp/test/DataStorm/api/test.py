@@ -11,4 +11,7 @@ traceProps = {
     "DataStorm.Trace.Data" : 2,
 }
 
-TestSuite(__file__, [ ClientTestCase(client = Writer(), traceProps=traceProps) ])
+TestSuite(
+    __file__,
+    [ ClientTestCase(client = Writer(), traceProps=traceProps) ],
+    runOnMainThread=True)

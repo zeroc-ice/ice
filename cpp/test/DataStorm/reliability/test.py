@@ -78,4 +78,4 @@ for (name, readerProps, writerProps, nodeProps, node2Props, reversedStart) in pr
     else:
         testcases.append(ClientServerTestCase(name=name, client=c, server=s, traceProps=traceProps))
 
-TestSuite(__file__, testcases)
+TestSuite(__file__, testcases, runOnMainThread=True)
