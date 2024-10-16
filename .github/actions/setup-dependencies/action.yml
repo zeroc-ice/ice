@@ -43,7 +43,7 @@ runs:
 
     - uses: actions/setup-ruby@v1
       with:
-        python-version: "3.3"
+        ruby-version: "3.3"
       if: runner.os == 'macOS'
 
     - name: Install testing dependencies from pip
