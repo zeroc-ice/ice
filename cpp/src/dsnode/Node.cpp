@@ -1,13 +1,14 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-#include <DataStorm/DataStorm.h>
+
+#include "DataStorm/DataStorm.h"
 
 #include <iostream>
 
 using namespace std;
 
-void
+static void
 usage(const string& n)
 {
     cerr << "Usage: " << n << " [options]\n";
@@ -29,7 +30,7 @@ main(int argc, char* argv[])
             string arg = argv[i];
             if (arg == "-v" || arg == "--version")
             {
-                cout << DATASTORM_STRING_VERSION << endl;
+                cout << ICE_STRING_VERSION << endl;
                 return 0;
             }
             else if (arg == "-h" || arg == "--help")
