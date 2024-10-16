@@ -1817,47 +1817,12 @@ namespace DataStorm
             std::make_shared<DataStormI::SampleT<Key, Value, UpdateTag>>(SampleEvent::Remove));
     }
 
-#if !defined(__clang__) && defined(__GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) < 490
-
-#    include <regex.h>
-
-    /** @private */
-    class RegExp
-    {
-    public:
-        RegExp(const std::string& criteria)
-        {
-            if (regcomp(&_expr, criteria.c_str(), REG_EXTENDED) != 0)
-            {
-                throw std::invalid_argument(criteria);
-            }
-        }
-
-        ~RegExp() { regfree(&_expr); }
-
-        bool match(const std::string& value) const { return regexec(&_expr, value.c_str(), 0, 0, 0) == 0; }
-
-    private:
-        regex_t _expr;
-    };
-
-#endif
-
     /** @private */
     template<typename Value>
     std::function<std::function<bool(const Value&)>(const std::string&)> makeRegexFilter() noexcept
     {
         return [](const std::string& criteria)
         {
-#if !defined(__clang__) && defined(__GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) < 490
-            auto expr = std::make_shared<RegExp>(criteria);
-            return [expr](const Value& value)
-            {
-                std::ostringstream os;
-                os << value;
-                return expr->match(os.str());
-            };
-#else
             std::regex expr(criteria);
             return [expr](const Value& value)
             {
@@ -1865,7 +1830,6 @@ namespace DataStorm
                 os << value;
                 return std::regex_match(os.str(), expr);
             };
-#endif
         };
     }
 
