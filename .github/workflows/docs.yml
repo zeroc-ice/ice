@@ -64,7 +64,6 @@ jobs:
           make -C ../
           pip install -r requirements.txt
           make html
-          deactivate
 
       - name: Generate API reference for Swift
         run: |
