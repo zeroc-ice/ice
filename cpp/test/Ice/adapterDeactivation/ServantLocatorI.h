@@ -6,11 +6,12 @@
 #define SERVANT_LOCATOR_I_H
 
 #include "Ice/Ice.h"
+#include "TestHelper.h"
 
 class ServantLocatorI final : public Ice::ServantLocator
 {
 public:
-    ServantLocatorI();
+    ServantLocatorI(Test::TestHelper*);
     ~ServantLocatorI() final;
 
     Ice::ObjectPtr locate(const Ice::Current&, std::shared_ptr<void>&) final;

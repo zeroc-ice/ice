@@ -15,18 +15,24 @@ namespace
     class RouterI final : public Router
     {
     public:
+        RouterI(Test::TestHelper* helper) : _routerPort(helper->getTestPort(5)) {}
         optional<ObjectPrx> getClientProxy(optional<bool>&, const Current&) const final { return nullopt; }
 
         optional<ObjectPrx> getServerProxy(const Current& c) const final
         {
-            return ObjectPrx(c.adapter->getCommunicator(), "dummy:tcp -h localhost -p 23456 -t 30000");
+            return ObjectPrx(c.adapter->getCommunicator(), "dummy:tcp -h localhost -p " + to_string(_routerPort) + " -t 30000");
         }
 
         ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return ObjectProxySeq(); }
+
+    private:
+        int _routerPort;
     };
 }
 
-ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(make_shared<RouterI>()) {}
+ServantLocatorI::ServantLocatorI(Test::TestHelper* helper) :
+    _deactivated(false),
+    _router(make_shared<RouterI>(helper)) {}
 
 ServantLocatorI::~ServantLocatorI() { test(_deactivated); }
 

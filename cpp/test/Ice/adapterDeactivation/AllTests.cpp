@@ -66,14 +66,21 @@ allTests(Test::TestHelper* helper)
         cout << "ok" << endl;
     }
 
+    int firstPort = helper->getTestPort(3);
+    int secondPort = helper->getTestPort(4);
     cout << "testing object adapter published endpoints... " << flush;
     {
-        communicator->getProperties()->setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
+        communicator->getProperties()->setProperty(
+            "PAdapter.PublishedEndpoints",
+            "tcp -h localhost -p " + to_string(firstPort) + " -t 30000");
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PAdapter");
         test(adapter->getPublishedEndpoints().size() == 1);
         Ice::EndpointPtr endpt = adapter->getPublishedEndpoints()[0];
-        test(endpt->toString() == "tcp -h localhost -p 12345 -t 30000");
-        Ice::ObjectPrx prx(communicator, "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
+        test(endpt->toString() == "tcp -h localhost -p " + to_string(firstPort) + " -t 30000");
+        Ice::ObjectPrx prx(
+            communicator,
+            "dummy:tcp -h localhost -p " + to_string(firstPort) + " -t 20000:tcp -h localhost -p " +
+                to_string(secondPort) + " -t 10000");
         adapter->setPublishedEndpoints(prx->ice_getEndpoints());
         test(adapter->getPublishedEndpoints().size() == 2);
         Ice::Identity id;
@@ -135,7 +142,7 @@ allTests(Test::TestHelper* helper)
         // Two loopback endpoints with different ports
         communicator->getProperties()->setProperty(
             "PHAdapter.Endpoints",
-            "default -h 127.0.0.1 -p 12345:default -h 127.0.0.1");
+            "default -h 127.0.0.1 -p " + to_string(firstPort) + ":default -h 127.0.0.1");
 
         communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "");
         {
@@ -146,13 +153,15 @@ allTests(Test::TestHelper* helper)
                 dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
             auto ipEndpointInfo1 =
                 dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[1]->getInfo()));
-            test(ipEndpointInfo0 && ipEndpointInfo0->host == "127.0.0.1" && ipEndpointInfo0->port == 12345);
-            test(ipEndpointInfo1 && ipEndpointInfo1->host == "127.0.0.1" && ipEndpointInfo1->port != 12345);
+            test(ipEndpointInfo0 && ipEndpointInfo0->host == "127.0.0.1" && ipEndpointInfo0->port == firstPort);
+            test(ipEndpointInfo1 && ipEndpointInfo1->host == "127.0.0.1" && ipEndpointInfo1->port != firstPort);
             adapter->destroy();
         }
 
         // Two endpoints - one loopback, one not loopback
-        communicator->getProperties()->setProperty("PHAdapter.Endpoints", "default -h 127.0.0.1 -p 12345:default -h *");
+        communicator->getProperties()->setProperty(
+            "PHAdapter.Endpoints",
+            "default -h 127.0.0.1 -p " + to_string(firstPort) + ":default -h *");
 
         communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "");
         {
@@ -160,7 +169,7 @@ allTests(Test::TestHelper* helper)
             auto publishedEndpoints = adapter->getPublishedEndpoints();
             test(publishedEndpoints.size() == 1); // loopback filtered out
             auto ipEndpointInfo = dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
-            test(ipEndpointInfo && !ipEndpointInfo->host.empty() && ipEndpointInfo->port != 12345);
+            test(ipEndpointInfo && !ipEndpointInfo->host.empty() && ipEndpointInfo->port != firstPort);
             adapter->destroy();
         }
 
@@ -170,12 +179,14 @@ allTests(Test::TestHelper* helper)
             auto publishedEndpoints = adapter->getPublishedEndpoints();
             test(publishedEndpoints.size() == 1); // loopback filtered out
             auto ipEndpointInfo = dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
-            test(ipEndpointInfo && ipEndpointInfo->host == "test.zeroc.com" && ipEndpointInfo->port != 12345);
+            test(ipEndpointInfo && ipEndpointInfo->host == "test.zeroc.com" && ipEndpointInfo->port != firstPort);
             adapter->destroy();
         }
 
         // Two non-loopback endpoints
-        communicator->getProperties()->setProperty("PHAdapter.Endpoints", "tcp -h * -p 12345:default -h *");
+        communicator->getProperties()->setProperty(
+            "PHAdapter.Endpoints",
+            "tcp -h * -p " + to_string(firstPort) +":default -h *");
 
         communicator->getProperties()->setProperty("PHAdapter.PublishedHost", "");
         {
@@ -186,8 +197,8 @@ allTests(Test::TestHelper* helper)
                 dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
             auto ipEndpointInfo1 =
                 dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[1]->getInfo()));
-            test(ipEndpointInfo0 && !ipEndpointInfo0->host.empty() && ipEndpointInfo0->port == 12345);
-            test(ipEndpointInfo1 && !ipEndpointInfo1->host.empty() && ipEndpointInfo1->port != 12345);
+            test(ipEndpointInfo0 && !ipEndpointInfo0->host.empty() && ipEndpointInfo0->port == firstPort);
+            test(ipEndpointInfo1 && !ipEndpointInfo1->host.empty() && ipEndpointInfo1->port != firstPort);
             adapter->destroy();
         }
 
@@ -200,8 +211,8 @@ allTests(Test::TestHelper* helper)
                 dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[0]->getInfo()));
             auto ipEndpointInfo1 =
                 dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(publishedEndpoints[1]->getInfo()));
-            test(ipEndpointInfo0 && ipEndpointInfo0->host == "test.zeroc.com" && ipEndpointInfo0->port == 12345);
-            test(ipEndpointInfo1 && ipEndpointInfo1->host == "test.zeroc.com" && ipEndpointInfo1->port != 12345);
+            test(ipEndpointInfo0 && ipEndpointInfo0->host == "test.zeroc.com" && ipEndpointInfo0->port == firstPort);
+            test(ipEndpointInfo1 && ipEndpointInfo1->host == "test.zeroc.com" && ipEndpointInfo1->port != firstPort);
             adapter->destroy();
         }
     }
@@ -249,12 +260,13 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing object adapter with router... " << flush;
     {
+        int routerPort = helper->getTestPort(5);
         Ice::Identity routerId;
         routerId.name = "router";
         auto router = obj->ice_identity<Ice::RouterPrx>(routerId)->ice_connectionId("rc");
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("", router);
         test(adapter->getPublishedEndpoints().size() == 1);
-        test(adapter->getPublishedEndpoints()[0]->toString() == "tcp -h localhost -p 23456 -t 30000");
+        test(adapter->getPublishedEndpoints()[0]->toString() == "tcp -h localhost -p " + to_string(routerPort) + " -t 30000");
         try
         {
             adapter->setPublishedEndpoints(router->ice_getEndpoints());
