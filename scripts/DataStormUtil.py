@@ -23,7 +23,7 @@ class Writer(Client):
         props.update(
             {
                 "DataStorm.Node.Server.Enabled": 0,
-                "DataStorm.Node.ConnectTo": "tcp -p 12345"
+                "DataStorm.Node.ConnectTo": f"tcp -p {current.driver.getTestPort(10)}"
             }
         )
         return props
@@ -40,7 +40,7 @@ class Reader(Server):
         # Default properties
         props.update(
             {
-                "DataStorm.Node.Server.Endpoints": "tcp -p 12345"
+                "DataStorm.Node.Server.Endpoints": f"tcp -p {current.driver.getTestPort(10)}"
             }
         )
         return props
