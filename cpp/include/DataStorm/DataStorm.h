@@ -511,14 +511,14 @@ namespace DataStorm
          */
         Topic(Topic&& topic) noexcept
             : _name(std::move(topic._name)),
-            _topicFactory(std::move(topic._topicFactory)),
-            _keyFactory(std::move(topic._keyFactory)),
-            _tagFactory(std::move(topic._tagFactory)),
-            _keyFilterFactories(std::move(topic._keyFilterFactories)),
-            _sampleFilterFactories(std::move(topic._sampleFilterFactories)),
-            _reader(std::move(topic._reader)),
-            _writer(std::move(topic._writer)),
-            _updaters(std::move(topic._updaters))
+              _topicFactory(std::move(topic._topicFactory)),
+              _keyFactory(std::move(topic._keyFactory)),
+              _tagFactory(std::move(topic._tagFactory)),
+              _keyFilterFactories(std::move(topic._keyFilterFactories)),
+              _sampleFilterFactories(std::move(topic._sampleFilterFactories)),
+              _reader(std::move(topic._reader)),
+              _writer(std::move(topic._writer)),
+              _updaters(std::move(topic._updaters))
         {
         }
 
