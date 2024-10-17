@@ -317,17 +317,17 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
 
         output.writeLine("ok")
 
-        if (!collocated) {
-            output.write("testing bi-dir... ");
+        if !collocated {
+            output.write("testing bi-dir... ")
             let adapter = try communicator.createObjectAdapter("")
             let replyI = PingReplyI()
             let reply = try uncheckedCast(prx: adapter.addWithUUID(PingReplyDisp(replyI)), type: PingReplyPrx.self)
 
             let context: [String: String] = ["ONE": ""]
-            try await p.pingBiDir(reply, context: context);
+            try await p.pingBiDir(reply, context: context)
 
             try await p.ice_getConnection()!.setAdapter(adapter)
-            try await p.pingBiDir(reply);
+            try await p.pingBiDir(reply)
             try test(replyI.checkReceived())
             adapter.destroy()
             output.writeLine("ok")
