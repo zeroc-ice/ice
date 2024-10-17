@@ -12,7 +12,7 @@
 
 using namespace std;
 
-HoldI::HoldI(const Ice::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter)
+HoldI::HoldI(const IceInternal::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter)
     : _last(0),
       _timer(timer),
       _adapter(adapter)
@@ -22,7 +22,7 @@ HoldI::HoldI(const Ice::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter)
 void
 HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
 {
-    class PutOnHold : public Ice::TimerTask
+    class PutOnHold : public IceInternal::TimerTask
     {
     public:
         PutOnHold(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
@@ -72,7 +72,7 @@ HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
 void
 HoldI::waitForHold(const Ice::Current& current)
 {
-    class WaitForHold final : public Ice::TimerTask
+    class WaitForHold final : public IceInternal::TimerTask
     {
     public:
         WaitForHold(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}

@@ -100,7 +100,7 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(com
 
     _executor = make_shared<CallbackExecutor>();
     _connectionManager = make_shared<ConnectionManager>(_executor);
-    _timer = make_shared<Ice::Timer>();
+    _timer = make_shared<IceInternal::Timer>();
     _traceLevels = make_shared<TraceLevels>(_communicator);
 }
 

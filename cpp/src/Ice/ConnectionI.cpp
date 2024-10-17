@@ -38,7 +38,7 @@ using namespace IceInternal;
 
 namespace
 {
-    class ConnectTimerTask final : public Ice::TimerTask
+    class ConnectTimerTask final : public TimerTask
     {
     public:
         ConnectTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
@@ -55,7 +55,7 @@ namespace
         const weak_ptr<Ice::ConnectionI> _connection;
     };
 
-    class CloseTimerTask final : public Ice::TimerTask
+    class CloseTimerTask final : public TimerTask
     {
     public:
         CloseTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
@@ -72,7 +72,7 @@ namespace
         const weak_ptr<Ice::ConnectionI> _connection;
     };
 
-    class InactivityTimerTask final : public Ice::TimerTask
+    class InactivityTimerTask final : public TimerTask
     {
     public:
         InactivityTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}

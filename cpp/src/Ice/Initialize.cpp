@@ -412,7 +412,7 @@ IceInternal::getInstance(const CommunicatorPtr& communicator)
     return communicator->_instance;
 }
 
-Ice::TimerPtr
+IceInternal::TimerPtr
 IceInternal::getInstanceTimer(const CommunicatorPtr& communicator)
 {
     return communicator->_instance->timer();

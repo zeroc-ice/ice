@@ -162,7 +162,7 @@ namespace IceGrid
         std::set<std::string> _activatedAdapters;
         std::optional<std::chrono::steady_clock::time_point> _failureTime;
         ServerActivation _previousActivation;
-        std::shared_ptr<Ice::TimerTask> _timerTask;
+        std::shared_ptr<IceInternal::TimerTask> _timerTask;
         bool _waitForReplication;
         std::string _stdErrFile;
         std::string _stdOutFile;
@@ -197,15 +197,15 @@ namespace IceGrid
     class TimedServerCommand : public ServerCommand, public std::enable_shared_from_this<TimedServerCommand>
     {
     public:
-        TimedServerCommand(const std::shared_ptr<ServerI>&, const Ice::TimerPtr&, std::chrono::seconds);
+        TimedServerCommand(const std::shared_ptr<ServerI>&, const IceInternal::TimerPtr&, std::chrono::seconds);
         virtual void timeout() = 0;
 
         void startTimer();
         void stopTimer();
 
     private:
-        Ice::TimerPtr _timer;
-        std::shared_ptr<Ice::TimerTask> _timerTask;
+        IceInternal::TimerPtr _timer;
+        std::shared_ptr<IceInternal::TimerTask> _timerTask;
         std::chrono::seconds _timeout;
     };
 
@@ -232,7 +232,7 @@ namespace IceGrid
     class StopCommand : public TimedServerCommand
     {
     public:
-        StopCommand(const std::shared_ptr<ServerI>&, const Ice::TimerPtr&, std::chrono::seconds, bool = true);
+        StopCommand(const std::shared_ptr<ServerI>&, const IceInternal::TimerPtr&, std::chrono::seconds, bool = true);
 
         static bool isStopped(ServerI::InternalServerState);
 

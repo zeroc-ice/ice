@@ -97,7 +97,7 @@ Instance::Instance(
             }
         }
 
-        _timer = make_shared<Ice::Timer>();
+        _timer = make_shared<IceInternal::Timer>();
 
         string policy = properties->getIceProperty("IceStorm.Send.QueueSizeMaxPolicy");
         if (policy == "RemoveSubscriber")
@@ -206,7 +206,7 @@ Instance::traceLevels() const
     return _traceLevels;
 }
 
-Ice::TimerPtr
+IceInternal::TimerPtr
 Instance::timer() const
 {
     return _timer;

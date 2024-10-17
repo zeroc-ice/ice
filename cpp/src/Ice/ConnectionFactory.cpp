@@ -69,7 +69,7 @@ namespace
         return nullptr;
     }
 
-    class StartAcceptor : public Ice::TimerTask, public std::enable_shared_from_this<StartAcceptor>
+    class StartAcceptor : public TimerTask, public std::enable_shared_from_this<StartAcceptor>
     {
     public:
         StartAcceptor(const IncomingConnectionFactoryPtr& factory, const InstancePtr& instance)

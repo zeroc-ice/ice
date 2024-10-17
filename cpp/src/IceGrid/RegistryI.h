@@ -103,7 +103,7 @@ namespace IceGrid
         bool _master;
         std::string _replicaName;
         std::shared_ptr<ReapThread> _reaper;
-        Ice::TimerPtr _timer;
+        IceInternal::TimerPtr _timer;
         std::shared_ptr<SessionServantManager> _servantManager;
         std::chrono::seconds _sessionTimeout;
         std::unique_ptr<ReplicaSessionManager> _session;

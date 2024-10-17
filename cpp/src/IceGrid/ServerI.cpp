@@ -167,7 +167,7 @@ namespace IceGrid
         return props;
     }
 
-    class CommandTimeoutTimerTask final : public Ice::TimerTask
+    class CommandTimeoutTimerTask final : public IceInternal::TimerTask
     {
     public:
         CommandTimeoutTimerTask(const shared_ptr<TimedServerCommand>& command) : _command(command) {}
@@ -178,7 +178,7 @@ namespace IceGrid
         const shared_ptr<TimedServerCommand> _command;
     };
 
-    class DelayedStart : public Ice::TimerTask
+    class DelayedStart : public IceInternal::TimerTask
     {
     public:
         DelayedStart(const shared_ptr<ServerI>& server, const shared_ptr<TraceLevels>& traceLevels)
@@ -381,7 +381,7 @@ ServerCommand::ServerCommand(const shared_ptr<ServerI>& server) : _server(server
 
 TimedServerCommand::TimedServerCommand(
     const shared_ptr<ServerI>& server,
-    const Ice::TimerPtr& timer,
+    const IceInternal::TimerPtr& timer,
     chrono::seconds timeout)
     : ServerCommand(server),
       _timer(timer),
@@ -634,7 +634,7 @@ StartCommand::finished()
 
 StopCommand::StopCommand(
     const shared_ptr<ServerI>& server,
-    const Ice::TimerPtr& timer,
+    const IceInternal::TimerPtr& timer,
     chrono::seconds timeout,
     bool deactivate)
     : TimedServerCommand(server, timer, timeout),

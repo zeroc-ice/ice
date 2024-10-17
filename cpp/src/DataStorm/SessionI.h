@@ -346,7 +346,7 @@ namespace DataStormI
         bool _destroyed;
         int _sessionInstanceId;
         int _retryCount;
-        Ice::TimerTaskPtr _retryTask;
+        IceInternal::TimerTaskPtr _retryTask;
 
         std::map<std::int64_t, TopicSubscribers> _topics;
         std::unique_lock<std::mutex>* _topicLock;

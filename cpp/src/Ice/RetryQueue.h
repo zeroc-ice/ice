@@ -20,7 +20,7 @@ namespace IceInternal
     using OutgoingAsyncBasePtr = std::shared_ptr<OutgoingAsyncBase>;
     using ProxyOutgoingAsyncBasePtr = std::shared_ptr<ProxyOutgoingAsyncBase>;
 
-    class RetryTask : public Ice::TimerTask, public CancellationHandler, public std::enable_shared_from_this<RetryTask>
+    class RetryTask : public TimerTask, public CancellationHandler, public std::enable_shared_from_this<RetryTask>
     {
     public:
         RetryTask(const InstancePtr&, const RetryQueuePtr&, const ProxyOutgoingAsyncBasePtr&);

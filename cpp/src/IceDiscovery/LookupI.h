@@ -19,7 +19,7 @@ namespace IceDiscovery
 {
     class LookupI;
 
-    class Request : public Ice::TimerTask
+    class Request : public IceInternal::TimerTask
     {
     public:
         Request(const LookupIPtr&, int);
@@ -137,7 +137,7 @@ namespace IceDiscovery
         void objectRequestTimedOut(const ObjectRequestPtr&);
         void objectRequestException(const ObjectRequestPtr&, std::exception_ptr);
 
-        const Ice::TimerPtr& timer() { return _timer; }
+        const IceInternal::TimerPtr& timer() { return _timer; }
 
         int latencyMultiplier() { return _latencyMultiplier; }
 
@@ -150,7 +150,7 @@ namespace IceDiscovery
         const int _latencyMultiplier;
         const std::string _domainId;
 
-        Ice::TimerPtr _timer;
+        IceInternal::TimerPtr _timer;
         bool _warnOnce;
 
         std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;

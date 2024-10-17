@@ -13,7 +13,7 @@ using namespace std;
 
 namespace
 {
-    class CheckTask : public Ice::TimerTask
+    class CheckTask : public IceInternal::TimerTask
     {
         const shared_ptr<NodeI> _node;
 
@@ -22,7 +22,7 @@ namespace
         virtual void runTimerTask() { _node->check(); }
     };
 
-    class MergeTask : public Ice::TimerTask
+    class MergeTask : public IceInternal::TimerTask
     {
         const shared_ptr<NodeI> _node;
         const set<int> _s;
@@ -32,7 +32,7 @@ namespace
         virtual void runTimerTask() { _node->merge(_s); }
     };
 
-    class MergeContinueTask : public Ice::TimerTask
+    class MergeContinueTask : public IceInternal::TimerTask
     {
         const shared_ptr<NodeI> _node;
 
@@ -41,7 +41,7 @@ namespace
         virtual void runTimerTask() { _node->mergeContinue(); }
     };
 
-    class TimeoutTask : public Ice::TimerTask
+    class TimeoutTask : public IceInternal::TimerTask
     {
         const shared_ptr<NodeI> _node;
 

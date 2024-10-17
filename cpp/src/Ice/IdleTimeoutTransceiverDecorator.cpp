@@ -13,7 +13,7 @@ using namespace IceInternal;
 
 namespace
 {
-    class HeartbeatTimerTask final : public Ice::TimerTask
+    class HeartbeatTimerTask final : public TimerTask
     {
     public:
         HeartbeatTimerTask(const ConnectionIPtr& connection) : _connection(connection) {}
@@ -31,7 +31,7 @@ namespace
         const weak_ptr<ConnectionI> _connection;
     };
 
-    class IdleCheckTimerTask final : public Ice::TimerTask
+    class IdleCheckTimerTask final : public TimerTask
     {
     public:
         IdleCheckTimerTask(const ConnectionIPtr& connection, const chrono::seconds& idleTimeout)

@@ -8,7 +8,6 @@
 #include "Instance.h"
 #include "NodeI.h"
 #include "NodeSessionI.h"
-#include "TimerTaskI.h"
 #include "TopicFactoryI.h"
 #include "TraceUtil.h"
 
@@ -423,7 +422,6 @@ NodeSessionManager::disconnected(optional<NodePrx> node, optional<LookupPrx> loo
     else
     {
         instance->getTimer()->schedule(
-            make_shared<TimerTaskI>(
                 [=, this, self = shared_from_this()]
                 {
                     auto instance = _instance.lock();
@@ -431,7 +429,7 @@ NodeSessionManager::disconnected(optional<NodePrx> node, optional<LookupPrx> loo
                     {
                         self->connect(lookup, _nodePrx);
                     }
-                }),
+                },
             instance->getRetryDelay(_retryCount++));
     }
 }
