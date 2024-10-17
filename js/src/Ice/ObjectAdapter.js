@@ -10,7 +10,7 @@ import {
     AlreadyRegisteredException,
     FeatureNotSupportedException,
     InitializationException,
-    ObjectAdapterDeactivatedException,
+    ObjectAdapterDestroyedException,
     ParseException,
 } from "./LocalExceptions.js";
 import { Ice as Ice_Router } from "./Router.js";
@@ -26,10 +26,6 @@ import { Logger } from "./Logger.js";
 import { LoggerMiddleware } from "./LoggerMiddleware.js";
 import { Properties } from "./Properties.js";
 
-const StateActive = 0;
-const StateDeactivated = 1;
-const StateDestroyed = 2;
-
 //
 // Only for use by IceInternal.ObjectAdapterFactory
 //
@@ -42,7 +38,7 @@ export class ObjectAdapter {
         this._name = name;
         this._publishedEndpoints = [];
         this._routerInfo = null;
-        this._state = StateActive;
+        this._isDestroyed = false;
         this._noConfig = noConfig;
 
         this._dispatchPipeline = null;
@@ -167,17 +163,19 @@ export class ObjectAdapter {
         return this._communicator;
     }
 
-    deactivate() {
-        if (this._state < StateDeactivated) {
-            this._state = StateDeactivated;
-            this._instance.outgoingConnectionFactory().removeAdapter(this);
-        }
-    }
-
     destroy() {
-        this.deactivate();
-        if (this._state < StateDestroyed) {
-            this._state = StateDestroyed;
+        if (!this._isDestroyed) {
+            this._isDestroyed = true;
+
+            if (this._routerInfo !== null) {
+                // Remove entry from the router manager.
+                this._instance.routerManager().erase(this._routerInfo.getRouter());
+
+                // Clear this object adapter with the router.
+                this._routerInfo.setAdapter(null);
+            }
+            this._instance.outgoingConnectionFactory().removeAdapter(this);
+
             this._servantManager.destroy();
             this._objectAdapterFactory.removeObjectAdapter(this);
             this._publishedEndpoints = [];
@@ -197,7 +195,7 @@ export class ObjectAdapter {
     }
 
     addFacet(object, ident, facet) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         ObjectAdapter.checkIdentity(ident);
         ObjectAdapter.checkServant(object);
 
@@ -219,7 +217,7 @@ export class ObjectAdapter {
 
     addDefaultServant(servant, category) {
         ObjectAdapter.checkServant(servant);
-        this.checkForDeactivation();
+        this.checkForDestruction();
 
         this._servantManager.addDefaultServant(servant, category);
     }
@@ -229,21 +227,21 @@ export class ObjectAdapter {
     }
 
     removeFacet(ident, facet) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         ObjectAdapter.checkIdentity(ident);
 
         return this._servantManager.removeServant(ident, facet);
     }
 
     removeAllFacets(ident) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         ObjectAdapter.checkIdentity(ident);
 
         return this._servantManager.removeAllFacets(ident);
     }
 
     removeDefaultServant(category) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
 
         return this._servantManager.removeDefaultServant(category);
     }
@@ -253,25 +251,25 @@ export class ObjectAdapter {
     }
 
     findFacet(ident, facet) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         ObjectAdapter.checkIdentity(ident);
         return this._servantManager.findServant(ident, facet);
     }
 
     findAllFacets(ident) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         ObjectAdapter.checkIdentity(ident);
         return this._servantManager.findAllFacets(ident);
     }
 
     findByProxy(proxy) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         const ref = proxy._getReference();
         return this.findFacet(ref.getIdentity(), ref.getFacet());
     }
 
     findDefaultServant(category) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         return this._servantManager.findDefaultServant(category);
     }
 
@@ -288,22 +286,22 @@ export class ObjectAdapter {
     }
 
     addServantLocator(locator, prefix) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         this._servantManager.addServantLocator(locator, prefix);
     }
 
     removeServantLocator(prefix) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         return this._servantManager.removeServantLocator(prefix);
     }
 
     findServantLocator(prefix) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         return this._servantManager.findServantLocator(prefix);
     }
 
     createProxy(ident) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         ObjectAdapter.checkIdentity(ident);
         return this.newProxy(ident, "");
     }
@@ -321,7 +319,7 @@ export class ObjectAdapter {
     }
 
     setPublishedEndpoints(newEndpoints) {
-        this.checkForDeactivation();
+        this.checkForDestruction();
         if (this._routerInfo !== null) {
             throw new Error("can't set published endpoints on object adapter associated with a router");
         }
@@ -351,9 +349,9 @@ export class ObjectAdapter {
         return new ObjectPrx(reference);
     }
 
-    checkForDeactivation() {
-        if (this._state >= StateDeactivated) {
-            throw new ObjectAdapterDeactivatedException(this.getName());
+    checkForDestruction() {
+        if (this._isDestroyed) {
+            throw new ObjectAdapterDestroyedException(this.getName());
         }
     }
 
@@ -377,10 +375,6 @@ export class ObjectAdapter {
         let endpoints = [];
         if (this._routerInfo !== null) {
             endpoints = await this._routerInfo.getServerEndpoints();
-            // Remove duplicate endpoints, so we have a list of unique endpoints.
-            endpoints = endpoints.filter(
-                (object, index, self) => index === self.findIndex(value => object.equals(value)),
-            );
         } else {
             // Parse published endpoints. If set, these are used in proxies instead of the connection factory
             // endpoints.

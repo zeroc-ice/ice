@@ -289,7 +289,7 @@ IceInternal::WSEndpoint::withPublishedHost(string host) const
 bool
 IceInternal::WSEndpoint::equivalent(const EndpointIPtr& endpoint) const
 {
-    const WSEndpoint* wsEndpointI = dynamic_cast<const WSEndpoint*>(endpoint.get());
+    auto wsEndpointI = dynamic_pointer_cast<WSEndpoint>(endpoint);
     if (!wsEndpointI)
     {
         return false;

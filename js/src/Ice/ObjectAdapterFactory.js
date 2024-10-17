@@ -3,8 +3,7 @@
 //
 
 import { ObjectAdapter } from "./ObjectAdapter.js";
-import { Promise } from "./Promise.js";
-import { ObjectAdapterDeactivatedException, AlreadyRegisteredException } from "./LocalExceptions.js";
+import { CommunicatorDestroyedException, AlreadyRegisteredException } from "./LocalExceptions.js";
 import { generateUUID } from "./UUID.js";
 
 //
@@ -16,35 +15,15 @@ export class ObjectAdapterFactory {
         this._communicator = communicator;
         this._adapters = [];
         this._adapterNamesInUse = [];
-        this._shutdownPromise = new Promise();
     }
 
-    shutdown() {
-        // Ignore shutdown requests if the object adapter factory has already been shut down.
-        if (this._instance !== null) {
-            this._instance = null;
-            this._communicator = null;
-            this._adapters.forEach(adapter => adapter.deactivate()); // deactivate is synchronous
-            this._shutdownPromise.resolve();
-        }
-    }
-
-    waitForShutdown() {
-        return this._shutdownPromise;
-    }
-
-    isShutdown() {
-        return this._instance === null;
-    }
-
-    async destroy() {
-        await this.waitForShutdown();
+    destroy() {
         this._adapters.forEach(adapter => adapter.destroy());
     }
 
     createObjectAdapter(name, router, promise) {
         if (this._instance === null) {
-            throw new ObjectAdapterDeactivatedException(name);
+            throw new CommunicatorDestroyedException();
         }
 
         let adapter = null;

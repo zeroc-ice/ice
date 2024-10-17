@@ -616,7 +616,7 @@ ProxyOutgoingAsyncBase::checkRetryAfterException(std::exception_ptr ex)
 
     // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
     // the connection and the request will fail with the exception.
-    if (dynamic_cast<const FixedReference*>(ref.get()))
+    if (dynamic_pointer_cast<FixedReference>(ref))
     {
         rethrow_exception(ex);
     }

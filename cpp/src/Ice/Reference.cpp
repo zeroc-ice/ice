@@ -1616,7 +1616,7 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         remove_if(
             endpoints.begin(),
             endpoints.end(),
-            [](const EndpointIPtr& p) { return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0; }),
+            [](const EndpointIPtr& p) { return dynamic_pointer_cast<OpaqueEndpointI>(p) != nullptr; }),
         endpoints.end());
 
     // Filter out endpoints according to the mode of the reference.

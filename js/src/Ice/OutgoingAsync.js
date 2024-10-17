@@ -20,7 +20,7 @@ import {
     InvocationCanceledException,
     InvocationTimeoutException,
     MarshalException,
-    ObjectAdapterDeactivatedException,
+    ObjectAdapterDestroyedException,
     ObjectNotExistException,
     OperationNotExistException,
     RequestFailedException,
@@ -254,10 +254,10 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
             throw ex;
         }
 
-        // Don't retry if the communicator is destroyed, object adapter is deactivated, or connection is manually closed.
+        // Don't retry if the communicator is destroyed, object adapter is destroyed, or connection is manually closed.
         if (
             ex instanceof CommunicatorDestroyedException ||
-            ex instanceof ObjectAdapterDeactivatedException ||
+            ex instanceof ObjectAdapterDestroyedException ||
             (ex instanceof ConnectionAbortedException && ex.closedByApplication) ||
             (ex instanceof ConnectionClosedException && ex.closedByApplication)
         ) {

@@ -2,11 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { CommunicatorDestroyedException } from "./LocalExceptions.js";
 import { generateUUID } from "./UUID.js";
 import { identityToString } from "./IdentityToString.js";
 import { Promise } from "./Promise.js";
-import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 
 //
@@ -14,40 +12,30 @@ import { ObjectPrx } from "./ObjectPrx.js";
 //
 export class Communicator {
     constructor(initData) {
+        this._isShutdown = false;
+        this._shutdownPromise = new Promise();
         this._instance = this.createInstance(initData);
         this._instance.finishSetup(this);
     }
 
     destroy() {
+        this.shutdown();
         return this._instance.destroy();
     }
 
     shutdown() {
-        try {
-            return this._instance.objectAdapterFactory().shutdown();
-        } catch (ex) {
-            Debug.assert(ex instanceof CommunicatorDestroyedException);
+        if (!this._isShutdown) {
+            this._isShutdown = true;
+            this._shutdownPromise.resolve();
         }
     }
 
     waitForShutdown() {
-        try {
-            return this._instance.objectAdapterFactory().waitForShutdown();
-        } catch (ex) {
-            Debug.assert(ex instanceof CommunicatorDestroyedException);
-            return Promise.resolve();
-        }
+        return this._shutdownPromise;
     }
 
     isShutdown() {
-        try {
-            return this._instance.objectAdapterFactory().isShutdown();
-        } catch (ex) {
-            if (!(ex instanceof CommunicatorDestroyedException)) {
-                throw ex;
-            }
-            return true;
-        }
+        return this._isShutdown;
     }
 
     stringToProxy(str) {
@@ -106,6 +94,14 @@ export class Communicator {
 
         this._instance.objectAdapterFactory().createObjectAdapter(name, router, promise);
         return promise;
+    }
+
+    getDefaultObjectAdapter() {
+        return this._instance.outgoingConnectionFactory().getDefaultObjectAdapter();
+    }
+
+    setDefaultObjectAdapter(adapter) {
+        this._instance.outgoingConnectionFactory().setDefaultObjectAdapter(adapter);
     }
 
     getValueFactoryManager() {

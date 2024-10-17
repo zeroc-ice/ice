@@ -3689,6 +3689,8 @@ class CppMapping(Mapping):
             "collocated": "Collocated.cpp",
             "subscriber": "Subscriber.cpp",
             "publisher": "Publisher.cpp",
+            "reader": "Reader.cpp",
+            "writer": "Writer.cpp"
         }[processType]
 
     def _getDefaultExe(self, processType):

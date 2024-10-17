@@ -167,6 +167,7 @@ namespace Ice
          * rejects any incoming request with an ObjectNotExistException.
          * The default object adapter of an incoming connection is the object adapter that created this connection;
          * the default object adapter of an outgoing connection is the communicator's default object adapter.
+         * @param adapter The object adapter to associate with this connection.
          * @see Communicator#getDefaultObjectAdapter
          * @see #getAdapter
          */

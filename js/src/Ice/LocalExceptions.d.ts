@@ -238,18 +238,10 @@ declare module "ice" {
         }
 
         /**
-         * This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
+         * This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
          */
-        class ObjectAdapterDeactivatedException extends LocalException {
+        class ObjectAdapterDestroyedException extends LocalException {
             constructor(name: string);
-        }
-
-        /**
-         * This exception is raised if an ObjectAdapter cannot be activated.
-         * This happens if the Locator detects another active ObjectAdapter with the same adapter ID.
-         */
-        class ObjectAdapterIdInUseException extends LocalException {
-            constructor(adapterId: string);
         }
 
         /**

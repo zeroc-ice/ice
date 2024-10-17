@@ -42,12 +42,9 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Shuts down this communicator's server functionality, which includes the deactivation of all
-     * object adapters. Attempts to use a deactivated object adapter raise
-     * ObjectAdapterDeactivatedException. Subsequent calls to shutdown are ignored. After shutdown
-     * returns, no new requests are processed. However, requests that have been started before
-     * shutdown was called might still be active. You can use {@link #waitForShutdown} to wait for
-     * the completion of all requests.
+     * Shuts down this communicator: call {@link ObjectAdapter#deactivate} on all object adapters
+     * created by this communicator. Shutting down a communicator has no effect on outgoing
+     * connections.
      *
      * @see #destroy
      * @see #waitForShutdown
@@ -284,6 +281,30 @@ public final class Communicator implements AutoCloseable {
         }
 
         return _instance.objectAdapterFactory().createObjectAdapter(name, router, null);
+    }
+
+    /**
+     * Gets the object adapter that is associated by default with new outgoing connections created
+     * by this communicator. This method returns null unless you set a non-null default object
+     * adapter using {@link setDefaultObjectAdapter}.
+     *
+     * @return The object adapter associated by default with new outgoing connections.
+     * @see Connection#getAdapter
+     */
+    public ObjectAdapter getDefaultObjectAdapter() {
+        return _instance.outgoingConnectionFactory().getDefaultObjectAdapter();
+    }
+
+    /**
+     * Sets the object adapter that will be associated with new outgoing connections created by this
+     * communicator. This method has no effect on existing outgoing connections, or on incoming
+     * connections.
+     *
+     * @param adapter The object adapter to associate with new outgoing connections.
+     * @see Connection#setAdapter
+     */
+    public void setDefaultObjectAdapter(ObjectAdapter adapter) {
+        _instance.outgoingConnectionFactory().setDefaultObjectAdapter(adapter);
     }
 
     /**

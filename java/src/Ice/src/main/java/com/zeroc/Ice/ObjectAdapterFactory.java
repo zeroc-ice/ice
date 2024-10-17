@@ -179,7 +179,7 @@ final class ObjectAdapterFactory {
                 if (adapter.isLocal(ref)) {
                     return adapter;
                 }
-            } catch (ObjectAdapterDeactivatedException ex) {
+            } catch (ObjectAdapterDestroyedException ex) {
                 // Ignore.
             }
         }

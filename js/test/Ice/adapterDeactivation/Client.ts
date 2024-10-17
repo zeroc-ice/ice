@@ -24,13 +24,13 @@ export class Client extends TestHelper {
             } catch (ex) {
                 test(ex instanceof Ice.AlreadyRegisteredException);
             }
-            await adapter.destroy();
+            adapter.destroy();
 
             //
             // Use a different port than the first adapter to avoid an "address already in use" error.
             //
             adapter = await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "");
-            await adapter.destroy();
+            adapter.destroy();
             out.writeLine("ok");
         }
 
@@ -66,7 +66,7 @@ export class Client extends TestHelper {
             id.name = "dummy";
             test(Ice.ArrayUtil.equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
             test(Ice.ArrayUtil.equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
-            await adapter.destroy();
+            adapter.destroy();
             test(adapter.getPublishedEndpoints().length === 0);
         }
         out.writeLine("ok");
@@ -74,15 +74,37 @@ export class Client extends TestHelper {
         test(obj!.ice_getConnection() !== null);
         {
             out.write("testing object adapter with bi-dir connection... ");
+
+            test(communicator.getDefaultObjectAdapter() === null);
+            test(obj.ice_getCachedConnection().getAdapter() === null);
+
             const adapter = await communicator.createObjectAdapter("");
-            (await obj!.ice_getConnection()).setAdapter(adapter);
-            (await obj!.ice_getConnection()).setAdapter(null);
-            await adapter.deactivate();
+
+            communicator.setDefaultObjectAdapter(adapter);
+            test(communicator.getDefaultObjectAdapter() === adapter);
+
+            // create new connection
+            await obj.ice_getCachedConnection().close();
+            await obj.ice_ping();
+
+            test(obj.ice_getCachedConnection().getAdapter() === adapter);
+            communicator.setDefaultObjectAdapter(null);
+
+            // create new connection
+            await obj.ice_getCachedConnection().close();
+            await obj.ice_ping();
+
+            test(obj.ice_getCachedConnection().getAdapter() === null);
+            obj.ice_getCachedConnection().setAdapter(adapter);
+            test(obj.ice_getCachedConnection().getAdapter() === adapter);
+            obj.ice_getCachedConnection().setAdapter(null);
+
+            adapter.destroy();
             try {
                 (await obj!.ice_getConnection()).setAdapter(adapter);
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.ObjectAdapterDeactivatedException);
+                test(ex instanceof Ice.ObjectAdapterDestroyedException);
             }
             out.writeLine("ok");
         }
@@ -102,7 +124,7 @@ export class Client extends TestHelper {
                 // Expected.
                 test(ex instanceof Error);
             }
-            await adapter.destroy();
+            adapter.destroy();
 
             try {
                 routerId.name = "test";

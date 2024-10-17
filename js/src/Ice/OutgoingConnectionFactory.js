@@ -17,6 +17,7 @@ export class OutgoingConnectionFactory {
         this._communicator = communicator;
         this._instance = instance;
         this._destroyed = false;
+        this._defaultObjectAdapter = null;
         this._connectionOptions = instance.clientConnectionOptions;
 
         this._connectionsByEndpoint = new ConnectionListMap(); // map<EndpointI, Array<Ice.ConnectionI>>
@@ -35,6 +36,7 @@ export class OutgoingConnectionFactory {
 
         this._destroyed = true;
         this._communicator = null;
+        this._defaultObjectAdapter = null;
         this.checkFinished();
     }
 
@@ -130,6 +132,14 @@ export class OutgoingConnectionFactory {
                 }),
             );
         }
+    }
+
+    getDefaultObjectAdapter() {
+        return this._defaultObjectAdapter;
+    }
+
+    setDefaultObjectAdapter(adapter) {
+        this._defaultObjectAdapter = adapter;
     }
 
     findConnectionByEndpoint(endpoints) {
@@ -251,6 +261,7 @@ export class OutgoingConnectionFactory {
                 this._instance,
                 transceiver,
                 endpoint.changeCompress(false).changeTimeout(-1),
+                this._defaultObjectAdapter,
                 connection => this.removeConnection(connection),
                 this._connectionOptions,
             );

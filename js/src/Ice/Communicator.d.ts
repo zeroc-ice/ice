@@ -25,26 +25,16 @@ declare module "ice" {
             destroy(): Promise<void>;
 
             /**
-             * Shuts down this communicator's server functionality, including the deactivation of all object adapters.
+             * Shuts down this communicator. In JavaScript, shutdown resolves a promise and doesn't do anything else.
              *
-             * After `shutdown` returns, no new requests are processed. However, requests that were started before
-             * `shutdown` was called might still be active. You can use {@link Communicator#waitForShutdown} to wait for
-             * the completion of all active requests.
-             *
-             * @see {@link destroy}
              * @see {@link waitForShutdown}
-             * @see {@link ObjectAdapter#deactivate}
              */
             shutdown(): void;
 
             /**
              * Waits until the application has called {@link Communicator#shutdown} or {@link Communicator#destroy}.
              *
-             * On the server side, the returned promise is resolved after all currently-executing operations have completed.
-             * On the client side, the returned promise is resolved after {@link Communicator#shutdown} or
-             * {@link Communicator#destroy} have been called.
-             *
-             * @returns A promise that is resolved when the communicator has been shut down.
+             * @returns A promise that is resolved when {@link Communicator#shutdown} is called.
              *
              * @see {@link shutdown}
              * @see {@link destroy}
@@ -52,7 +42,7 @@ declare module "ice" {
             waitForShutdown(): Promise<void>;
 
             /**
-             * Checks whether the communicator has been shut down.
+             * Checks whether {@link Communicator#shutdown} has been called.
              *
              * @returns `true` if the communicator has been shut down; `false` otherwise.
              *
@@ -145,10 +135,33 @@ declare module "ice" {
             createObjectAdapterWithEndpoints(name: string, endpoints: string): Promise<Ice.ObjectAdapter>;
 
             /**
+             * Gets the object adapter that is associated by default with new outgoing connections created by this
+             * communicator. This method returns null unless you set a non-null default object adapter using
+             * {@link setDefaultObjectAdapter}.
+             *
+             * @returns The object adapter associated by default with new outgoing connections.
+             *
+             * @see {@link Connection#getAdapter}
+             * @see {@link setDefaultObjectAdapter}
+             */
+            getDefaultObjectAdapter(): Ice.ObjectAdapter | null;
+
+            /**
+             * Sets the object adapter that is associated by default with new outgoing connections created by this
+             * communicator. This method has no effect on existing connections.
+             *
+             * @param adapter - The object adapter to associate by default with new outgoing connections.
+             *
+             * @see {@link Connection#setAdapter}
+             * @see {@link getDefaultObjectAdapter}
+             */
+            setDefaultObjectAdapter(adapter: Ice.ObjectAdapter | null): void;
+
+            /**
              * Creates a new object adapter with a router.
              *
-             * This operation creates a routed object adapter. If the `name` parameter is an empty string, a UUID will be
-             * generated and used as the object adapter name.
+             * This operation creates a routed object adapter. If the `name` parameter is an empty string, a UUID will
+             * be generated and used as the object adapter name.
              *
              * @param name - The object adapter name.
              * @param router - The router to associate with the object adapter.

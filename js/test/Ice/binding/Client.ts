@@ -141,7 +141,7 @@ export class Client extends TestHelper {
                 }
             }
             //
-            // Deactivate an adapter and ensure that we can still
+            // Deactivate a remote adapter and ensure that we can still
             // establish the connection to the remaining adapters.
             //
             await com.deactivateObjectAdapter(adapters[0]);

@@ -271,7 +271,7 @@ public:
         const Ice::Instrumentation::ConnectionObserverPtr& old) final
     {
         std::lock_guard lock(_mutex);
-        test(!old || dynamic_cast<ConnectionObserverI*>(old.get()));
+        test(!old || std::dynamic_pointer_cast<ConnectionObserverI>(old));
         if (!connectionObserver)
         {
             connectionObserver = std::make_shared<ConnectionObserverI>();
@@ -287,7 +287,7 @@ public:
         const Ice::Instrumentation::ThreadObserverPtr& old) final
     {
         std::lock_guard lock(_mutex);
-        test(!old || dynamic_cast<ThreadObserverI*>(old.get()));
+        test(!old || std::dynamic_pointer_cast<ThreadObserverI>(old));
         if (!threadObserver)
         {
             threadObserver = std::make_shared<ThreadObserverI>();
