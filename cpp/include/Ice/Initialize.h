@@ -697,11 +697,6 @@ namespace Ice
 
 namespace IceInternal
 {
-    //
-    // Some Ice extensions need access to the Ice internal instance. Do
-    // not use this operation for regular application code! It is intended
-    // to be used by modules such as Freeze.
-    //
     ICE_API InstancePtr getInstance(const Ice::CommunicatorPtr&);
     ICE_API Ice::TimerPtr getInstanceTimer(const Ice::CommunicatorPtr&);
 }

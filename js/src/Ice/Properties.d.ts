@@ -155,7 +155,7 @@ declare module "ice" {
             /**
              * Converts a sequence of command-line options into properties. All options that begin with one of the
              * following prefixes are converted into properties: `--Ice`, `--IceBox`, `--IceGrid`, `--IceSSL`,
-             * `--IceStorm`, `--Freeze`, and `--Glacier2`.
+             * `--IceStorm`, and `--Glacier2`.
              *
              * @param options - The command-line options to be converted.
              * @returns The command-line options that do not start with one of the listed prefixes, in their original

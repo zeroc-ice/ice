@@ -264,7 +264,7 @@ class Properties(object):
         Convert a sequence of command-line options into properties.
 
         All options that begin with one of the following prefixes are converted into properties: `--Ice`, `--IceBox`,
-        `--IceGrid`, `--IceSSL`, `--IceStorm`, `--Freeze`, and `--Glacier2`.
+        `--IceGrid`, `--IceSSL`, `--IceStorm`, and `--Glacier2`.
 
         Parameters
         ----------

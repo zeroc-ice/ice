@@ -12,6 +12,7 @@
 #include "ServerI.h"
 #include "TraceLevels.h"
 #include "Util.h"
+#include <iterator>
 
 using namespace std;
 using namespace IceGrid;
@@ -708,7 +709,6 @@ NodeI::canRemoveServerDirectory(const string& name)
     //
     Ice::StringSeq c = readDirectory(_serversDir + "/" + name);
     set<string> contents(c.begin(), c.end());
-    contents.erase("dbs");
     contents.erase("config");
     contents.erase("revision");
     contents.erase("data");
@@ -732,28 +732,6 @@ NodeI::canRemoveServerDirectory(const string& name)
         if (p->find("config") != 0)
         {
             return false;
-        }
-    }
-
-    if (IceInternal::directoryExists(_serversDir + "/" + name + "/dbs"))
-    {
-        c = readDirectory(_serversDir + "/" + name + "/dbs");
-        for (Ice::StringSeq::const_iterator p = c.begin(); p != c.end(); ++p)
-        {
-            try
-            {
-                Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
-                files.erase(remove(files.begin(), files.end(), "DB_CONFIG"), files.end());
-                files.erase(remove(files.begin(), files.end(), "__Freeze"), files.end());
-                if (!files.empty())
-                {
-                    return false;
-                }
-            }
-            catch (const exception&)
-            {
-                return false;
-            }
         }
     }
 

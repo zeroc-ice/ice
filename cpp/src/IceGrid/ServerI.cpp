@@ -2097,11 +2097,10 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     updateRevision(_desc->uuid, _desc->revision);
 
     //
-    // Create or update the server directories exists.
+    // Create or update the server directories.
     //
     createDirectory(_serverDir);
     createDirectory(_serverDir + "/config");
-    createDirectory(_serverDir + "/dbs");
     createDirectory(_serverDir + "/data");
 
     //
