@@ -760,10 +760,6 @@ TopicI::forwarderException() const
     {
         // Ignore
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
-    {
-        // Ignore
-    }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
         // Ignore

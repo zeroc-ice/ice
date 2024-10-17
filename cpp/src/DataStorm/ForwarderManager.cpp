@@ -14,28 +14,17 @@ ForwarderManager::ForwarderManager(const Ice::ObjectAdapterPtr& adapter, const s
 {
 }
 
-optional<Ice::ObjectPrx>
+Ice::ObjectPrx
 ForwarderManager::add(function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)> forwarder)
 {
     lock_guard<mutex> lock(_mutex);
     ostringstream os;
     os << _nextId++;
     _forwarders.emplace(os.str(), std::move(forwarder));
-    try
-    {
-        return _adapter->createProxy({os.str(), _category});
-    }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
-    {
-        return nullopt;
-    }
-    catch (const Ice::ObjectAdapterDestroyedException&)
-    {
-        return nullopt;
-    }
+    return _adapter->createProxy({os.str(), _category});
 }
 
-optional<Ice::ObjectPrx>
+Ice::ObjectPrx
 ForwarderManager::add(function<void(Ice::ByteSeq, const Ice::Current&)> forwarder)
 {
     return add(

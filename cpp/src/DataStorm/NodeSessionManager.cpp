@@ -61,7 +61,9 @@ NodeSessionManager::NodeSessionManager(const shared_ptr<Instance>& instance, con
       _forwardToMulticast(
           instance->getCommunicator()->getProperties()->getPropertyAsInt(
               "DataStorm.Node.Server.ForwardDiscoveryToMulticast") > 0),
-      _retryCount(0)
+      _retryCount(0),
+      _forwarder(Ice::uncheckedCast<LookupPrx>(
+          instance->getCollocatedForwarder()->add([this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); })))
 {
 }
 
@@ -70,17 +72,11 @@ NodeSessionManager::init()
 {
     auto instance = getInstance();
 
-    auto forwarder = [self = shared_from_this()](Ice::ByteSeq e, const Ice::Current& c) { self->forward(e, c); };
-    _forwarder = Ice::uncheckedCast<LookupPrx>(instance->getCollocatedForwarder()->add(std::move(forwarder)));
-
     try
     {
         auto sessionForwader = make_shared<SessionForwarderI>(shared_from_this());
         instance->getObjectAdapter()->addDefaultServant(sessionForwader, "sf");
         instance->getObjectAdapter()->addDefaultServant(sessionForwader, "pf");
-    }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
-    {
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
@@ -102,7 +98,7 @@ NodeSessionManager::destroy()
 }
 
 shared_ptr<NodeSessionI>
-NodeSessionManager::createOrGet(optional<NodePrx> node, const Ice::ConnectionPtr& connection, bool forwardAnnouncements)
+NodeSessionManager::createOrGet(NodePrx node, const Ice::ConnectionPtr& connection, bool forwardAnnouncements)
 {
     // TODO node should be non-optional
     unique_lock<mutex> lock(_mutex);
@@ -136,7 +132,7 @@ NodeSessionManager::createOrGet(optional<NodePrx> node, const Ice::ConnectionPtr
     // Specially the connection manager doesn't use this proxy for lookup.
     instance->getConnectionManager()->add(
         connection,
-        make_shared<NodePrx>(*node),
+        make_shared<NodePrx>(node),
         [self = shared_from_this(), node](const Ice::ConnectionPtr&, std::exception_ptr)
         { self->destroySession(std::move(node)); });
 
@@ -146,7 +142,7 @@ NodeSessionManager::createOrGet(optional<NodePrx> node, const Ice::ConnectionPtr
 void
 NodeSessionManager::announceTopicReader(
     const string& topic,
-    optional<NodePrx> node,
+    NodePrx node,
     const Ice::ConnectionPtr& connection) const
 {
     unique_lock<mutex> lock(_mutex);
@@ -190,7 +186,7 @@ NodeSessionManager::announceTopicReader(
 void
 NodeSessionManager::announceTopicWriter(
     const string& topic,
-    optional<NodePrx> node,
+    NodePrx node,
     const Ice::ConnectionPtr& connection) const
 {
     unique_lock<mutex> lock(_mutex);
@@ -234,7 +230,7 @@ void
 NodeSessionManager::announceTopics(
     const StringSeq& readers,
     const StringSeq& writers,
-    optional<NodePrx> node,
+    NodePrx node,
     const Ice::ConnectionPtr& connection) const
 {
     unique_lock<mutex> lock(_mutex);
@@ -326,27 +322,39 @@ NodeSessionManager::forward(const Ice::ByteSeq& inEncaps, const Ice::Current& cu
 }
 
 void
-NodeSessionManager::connect(optional<LookupPrx> lookup, optional<NodePrx> proxy)
+NodeSessionManager::connect(LookupPrx lookup, NodePrx proxy)
 {
     try
     {
         lookup->createSessionAsync(
             proxy,
-            [=, self = shared_from_this()](auto node) { self->connected(node, lookup); },
-            [=, self = shared_from_this()](std::exception_ptr) { self->disconnected(nullopt, lookup); });
+            [=, self = shared_from_this()](optional<NodePrx> node)
+            {
+                // createSession must return a non null proxy.
+                assert(node);
+                if (node)
+                {
+                    self->connected(*node, lookup);
+                }
+                else
+                {
+                    self->disconnected(lookup);
+                }
+            },
+            [=, self = shared_from_this()](std::exception_ptr) { self->disconnected(lookup); });
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDestroyedException&)
     {
-        disconnected(nullopt, lookup);
+        disconnected(lookup);
     }
     catch (const Ice::CommunicatorDestroyedException&)
     {
-        disconnected(nullopt, lookup);
+        disconnected(lookup);
     }
 }
 
 void
-NodeSessionManager::connected(optional<NodePrx> node, optional<LookupPrx> lookup)
+NodeSessionManager::connected(NodePrx node, LookupPrx lookup)
 {
     // TODO lookup and node should be non-optional
     unique_lock<mutex> lock(_mutex);
@@ -371,7 +379,7 @@ NodeSessionManager::connected(optional<NodePrx> node, optional<LookupPrx> lookup
 
     instance->getConnectionManager()->add(
         connection,
-        make_shared<LookupPrx>(*lookup),
+        make_shared<LookupPrx>(lookup),
         [=, self = shared_from_this()](const Ice::ConnectionPtr&, std::exception_ptr)
         { self->disconnected(node, lookup); });
     auto l = p != _sessions.end() ? lookup->ice_fixed(connection) : lookup;
@@ -386,9 +394,6 @@ NodeSessionManager::connected(optional<NodePrx> node, optional<LookupPrx> lookup
             // TODO check the return value?
             auto _ = l->announceTopicsAsync(readerNames, writerNames, _nodePrx);
         }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
-        {
-        }
         catch (const Ice::ObjectAdapterDestroyedException&)
         {
         }
@@ -399,16 +404,11 @@ NodeSessionManager::connected(optional<NodePrx> node, optional<LookupPrx> lookup
 }
 
 void
-NodeSessionManager::disconnected(optional<NodePrx> node, optional<LookupPrx> lookup)
+NodeSessionManager::disconnected(NodePrx node, LookupPrx lookup)
 {
     unique_lock<mutex> lock(_mutex);
     auto instance = _instance.lock();
-    if (!instance)
-    {
-        return;
-    }
-
-    if (node)
+    if (instance)
     {
         _retryCount = 0;
         if (_traceLevels->session > 0)
@@ -420,19 +420,26 @@ NodeSessionManager::disconnected(optional<NodePrx> node, optional<LookupPrx> loo
         lock.unlock();
         connect(lookup, _nodePrx);
     }
-    else
+}
+
+void
+NodeSessionManager::disconnected(LookupPrx lookup)
+{
+    unique_lock<mutex> lock(_mutex);
+    auto instance = _instance.lock();
+    if (instance)
     {
         instance->getTimer()->schedule(
-            make_shared<TimerTaskI>(
-                [=, this, self = shared_from_this()]
-                {
-                    auto instance = _instance.lock();
-                    if (instance)
+                make_shared<TimerTaskI>(
+                    [=, this, self = shared_from_this()]
                     {
-                        self->connect(lookup, _nodePrx);
-                    }
-                }),
-            instance->getRetryDelay(_retryCount++));
+                        auto instance = _instance.lock();
+                        if (instance)
+                        {
+                            self->connect(lookup, _nodePrx);
+                        }
+                    }),
+                instance->getRetryDelay(_retryCount++));
     }
 }
 

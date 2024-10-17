@@ -45,22 +45,22 @@ namespace DataStormI
             const Ice::Current&) final;
 
         void createSubscriberSession(
-            std::optional<DataStormContract::NodePrx>,
+            DataStormContract::NodePrx,
             const Ice::ConnectionPtr&,
             const std::shared_ptr<PublisherSessionI>&);
 
         void createPublisherSession(
-            std::optional<DataStormContract::NodePrx>,
+            DataStormContract::NodePrx,
             const Ice::ConnectionPtr&,
             std::shared_ptr<SubscriberSessionI>);
 
         void removeSubscriberSession(
-            std::optional<DataStormContract::NodePrx>,
+            DataStormContract::NodePrx,
             const std::shared_ptr<SubscriberSessionI>&,
             const std::exception_ptr&);
 
         void removePublisherSession(
-            std::optional<DataStormContract::NodePrx>,
+            DataStormContract::NodePrx,
             const std::shared_ptr<PublisherSessionI>&,
             const std::exception_ptr&);
 
@@ -68,10 +68,9 @@ namespace DataStormI
 
         std::shared_ptr<SessionI> getSession(const Ice::Identity&) const;
 
-        std::optional<DataStormContract::NodePrx>
-        getNodeWithExistingConnection(std::optional<DataStormContract::NodePrx>, const Ice::ConnectionPtr&);
+        DataStormContract::NodePrx getNodeWithExistingConnection(DataStormContract::NodePrx, const Ice::ConnectionPtr&);
 
-        std::optional<DataStormContract::NodePrx> getProxy() const { return _proxy; }
+        DataStormContract::NodePrx getProxy() const { return _proxy; }
 
         std::shared_ptr<Instance> getInstance() const
         {
@@ -80,29 +79,25 @@ namespace DataStormI
             return instance;
         }
 
-        std::optional<DataStormContract::PublisherSessionPrx> getPublisherForwarder() const
-        {
-            return _publisherForwarder;
-        }
+        DataStormContract::PublisherSessionPrx getPublisherForwarder() const { return _publisherForwarder; }
 
-        std::optional<DataStormContract::SubscriberSessionPrx> getSubscriberForwarder() const
-        {
-            return _subscriberForwarder;
-        }
+        DataStormContract::SubscriberSessionPrx getSubscriberForwarder() const { return _subscriberForwarder; }
 
     private:
-        std::shared_ptr<SubscriberSessionI> createSubscriberSessionServant(std::optional<DataStormContract::NodePrx>);
+        std::shared_ptr<SubscriberSessionI> createSubscriberSessionServant(DataStormContract::NodePrx);
 
-        std::shared_ptr<PublisherSessionI> createPublisherSessionServant(std::optional<DataStormContract::NodePrx>);
+        std::shared_ptr<PublisherSessionI> createPublisherSessionServant(DataStormContract::NodePrx);
 
         void forward(const Ice::ByteSeq&, const Ice::Current&) const;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;
         std::weak_ptr<Instance> _instance;
-        std::optional<DataStormContract::NodePrx> _proxy;
-        std::optional<DataStormContract::SubscriberSessionPrx> _subscriberForwarder;
-        std::optional<DataStormContract::PublisherSessionPrx> _publisherForwarder;
+        // Unique identifier for this node.
+        Ice::Identity _id;
+        DataStormContract::NodePrx _proxy;
+        DataStormContract::SubscriberSessionPrx _subscriberForwarder;
+        DataStormContract::PublisherSessionPrx _publisherForwarder;
         std::map<Ice::Identity, std::shared_ptr<SubscriberSessionI>> _subscribers;
         std::map<Ice::Identity, std::shared_ptr<PublisherSessionI>> _publishers;
         std::map<Ice::Identity, std::shared_ptr<SubscriberSessionI>> _subscriberSessions;

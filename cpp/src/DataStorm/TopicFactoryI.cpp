@@ -68,9 +68,6 @@ TopicFactoryI::createTopicReader(
     catch (const Ice::CommunicatorDestroyedException&)
     {
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
-    {
-    }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
     }
@@ -127,9 +124,6 @@ TopicFactoryI::createTopicWriter(
         instance->getNodeSessionManager()->announceTopicWriter(name, nodePrx);
     }
     catch (const Ice::CommunicatorDestroyedException&)
-    {
-    }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
@@ -204,7 +198,7 @@ TopicFactoryI::getTopicWriters(const string& name) const
 void
 TopicFactoryI::createPublisherSession(
     const string& topic,
-    optional<DataStormContract::NodePrx> publisher,
+    DataStormContract::NodePrx publisher,
     const Ice::ConnectionPtr& connection)
 {
     auto readers = getTopicReaders(topic);
@@ -217,7 +211,7 @@ TopicFactoryI::createPublisherSession(
 void
 TopicFactoryI::createSubscriberSession(
     const string& topic,
-    optional<DataStormContract::NodePrx> subscriber,
+    DataStormContract::NodePrx subscriber,
     const Ice::ConnectionPtr& connection)
 {
     auto writers = getTopicWriters(topic);

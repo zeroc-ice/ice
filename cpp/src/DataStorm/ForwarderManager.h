@@ -23,9 +23,8 @@ namespace DataStormI
         using Exception = std::function<void(std::exception_ptr)>;
 
         ForwarderManager(const Ice::ObjectAdapterPtr&, const std::string&);
-
-        std::optional<Ice::ObjectPrx> add(std::function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)>);
-        std::optional<Ice::ObjectPrx> add(std::function<void(Ice::ByteSeq, const Ice::Current&)>);
+        Ice::ObjectPrx add(std::function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)>);
+        Ice::ObjectPrx add(std::function<void(Ice::ByteSeq, const Ice::Current&)>);
         void remove(const Ice::Identity&);
 
         void destroy();

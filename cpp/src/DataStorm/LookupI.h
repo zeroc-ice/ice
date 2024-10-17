@@ -16,10 +16,7 @@ namespace DataStormI
     class LookupI : public DataStormContract::Lookup
     {
     public:
-        LookupI(
-            std::shared_ptr<NodeSessionManager>,
-            std::shared_ptr<TopicFactoryI>,
-            std::optional<DataStormContract::NodePrx>);
+        LookupI(std::shared_ptr<NodeSessionManager>, std::shared_ptr<TopicFactoryI>, DataStormContract::NodePrx);
 
         virtual void
         announceTopicReader(std::string, std::optional<DataStormContract::NodePrx>, const Ice::Current&) override;
@@ -39,7 +36,7 @@ namespace DataStormI
     private:
         std::shared_ptr<NodeSessionManager> _nodeSessionManager;
         std::shared_ptr<TopicFactoryI> _topicFactory;
-        std::optional<DataStormContract::NodePrx> _nodePrx;
+        DataStormContract::NodePrx _nodePrx;
     };
 
 }
