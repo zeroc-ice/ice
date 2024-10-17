@@ -1160,30 +1160,69 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "types", "types", "{2618669B-54B1-4013-B6EC-C1389391E3AA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "writer", "..\test\DataStorm\api\msbuild\writer\writer.vcxproj", "{85F74421-2B78-448B-91F0-496526EB365F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reader", "..\test\DataStorm\callbacks\msbuild\reader\reader.vcxproj", "{783EE047-9119-4412-960A-600729D1A0F1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "writer", "..\test\DataStorm\callbacks\msbuild\writer\writer.vcxproj", "{8ADD3C14-F6A9-4683-94BE-EB87C60078F1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reader", "..\test\DataStorm\config\msbuild\reader\reader.vcxproj", "{735292B7-70CB-43B2-B7BB-D123B7497CC7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "writer", "..\test\DataStorm\config\msbuild\writer\writer.vcxproj", "{1C5D0A06-731C-4FBB-8250-0B09E7D5BF55}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reader", "..\test\DataStorm\events\msbuild\reader\reader.vcxproj", "{5EE1FFB1-A9CF-4737-A1FA-575B51F8AE00}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "writer", "..\test\DataStorm\events\msbuild\writer\writer.vcxproj", "{A368BD9C-2CBC-4302-9A7F-C96BA11D62BB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reader", "..\test\DataStorm\partial\msbuild\reader\reader.vcxproj", "{3EAAF1DE-8673-4D16-AA36-F522C5C21F79}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "writer", "..\test\DataStorm\partial\msbuild\writer\writer.vcxproj", "{71506AF2-B7C4-48D7-AE6E-4ADA8B72A87C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reader", "..\test\DataStorm\reliability\msbuild\reader\reader.vcxproj", "{18B9E886-A355-4CCC-8E27-84900C516DA8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "writer", "..\test\DataStorm\reliability\msbuild\writer\writer.vcxproj", "{71A33CBC-71F6-434B-BB90-620710269310}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reader", "..\test\DataStorm\types\msbuild\reader\reader.vcxproj", "{924B7545-4B49-41E6-9FAC-30F7BAB7A518}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "writer", "..\test\DataStorm\types\msbuild\writer\writer.vcxproj", "{6CFEBEB6-88C6-4A41-847E-E02CFDCD12C8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
