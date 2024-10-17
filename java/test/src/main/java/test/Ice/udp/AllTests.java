@@ -173,11 +173,9 @@ public class AllTests {
                 replyI = new PingReplyI();
                 reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
             }
-            if (!ret) {
-                out.println("failed (is a firewall enabled?)");
-            } else {
-                out.println("ok");
-            }
+
+            test(ret);
+            out.println("ok");
 
             out.print("testing udp bi-dir connection... ");
             out.flush();
@@ -198,36 +196,5 @@ public class AllTests {
             test(ret);
         }
         out.println("ok");
-
-        //
-        // Sending the replies back on the multicast UDP connection doesn't work for most
-        // platform (it works for macOS Leopard but not Snow Leopard, doesn't work on SLES,
-        // Windows...). For Windows, see UdpTransceiver constructor for the details. So
-        // we don't run this test.
-        //
-        //         out.print("testing udp bi-dir connection... ");
-        //         nRetry = 5;
-        //         while(nRetry-- > 0)
-        //         {
-        //             replyI.reset();
-        //             objMcast.pingBiDir(reply.ice_getIdentity());
-        //             ret = replyI.waitReply(5, 2000);
-        //             if(ret)
-        //             {
-        //                 break; // Success
-        //             }
-        //             replyI = new PingReplyI();
-        //             reply =
-        // PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
-        //         }
-
-        //         if(!ret)
-        //         {
-        //             out.println("failed (is a firewall enabled?)");
-        //         }
-        //         else
-        //         {
-        //             out.println("ok");
-        //         }
     }
 }

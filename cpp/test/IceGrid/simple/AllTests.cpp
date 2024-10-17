@@ -29,181 +29,170 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     Ice::CommunicatorPtr com;
-    try
+
+    cout << "testing discovery... " << flush;
     {
-        cout << "testing discovery... " << flush;
-        {
-            // Add test well-known object
-            IceGrid::RegistryPrx registry(
-                communicator,
-                communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+        // Add test well-known object
+        IceGrid::RegistryPrx registry(
+            communicator,
+            communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
-            optional<IceGrid::AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
-            session->getAdmin()->addObjectWithType(locator, "::Test");
-            session->destroy();
+        optional<IceGrid::AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
+        session->getAdmin()->addObjectWithType(locator, "::Test");
+        session->destroy();
 
-            //
-            // Ensure the IceGrid discovery locator can discover the
-            // registries and make sure locator requests are forwarded.
-            //
-            Ice::InitializationData initData;
-            initData.properties = communicator->getProperties()->clone();
-            initData.properties->setProperty("Ice.Default.Locator", "");
-            initData.properties->setProperty(
-                "Ice.Plugin.IceLocatorDiscovery",
-                "IceLocatorDiscovery:createIceLocatorDiscovery");
-            initData.properties->setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
-            initData.properties->setProperty("AdapterForDiscoveryTest.Endpoints", "default");
+        //
+        // Ensure the IceGrid discovery locator can discover the
+        // registries and make sure locator requests are forwarded.
+        //
+        Ice::InitializationData initData;
+        initData.properties = communicator->getProperties()->clone();
+        initData.properties->setProperty("Ice.Default.Locator", "");
+        initData.properties->setProperty(
+            "Ice.Plugin.IceLocatorDiscovery",
+            "IceLocatorDiscovery:createIceLocatorDiscovery");
+        initData.properties->setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
+        initData.properties->setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
-            com = Ice::initialize(initData);
-            test(com->getDefaultLocator());
+        com = Ice::initialize(initData);
+        test(com->getDefaultLocator());
 
-            com->stringToProxy("test @ TestAdapter")->ice_ping();
-            com->stringToProxy("test")->ice_ping();
-            test(com->getDefaultLocator()->getRegistry());
-            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator().value())->getLocalRegistry());
-            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator().value())->getLocalQuery());
+        com->stringToProxy("test @ TestAdapter")->ice_ping();
+        com->stringToProxy("test")->ice_ping();
+        test(com->getDefaultLocator()->getRegistry());
+        test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator().value())->getLocalRegistry());
+        test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator().value())->getLocalQuery());
 
-            Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
-            adapter->activate();
-            adapter->deactivate();
+        Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
+        adapter->activate();
+        adapter->deactivate();
 
-            com->destroy();
-
-            //
-            // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator. Also test
-            // Ice::registerIceLocatorDiscovery()
-            //
-#ifdef ICE_STATIC_LIBS
-            Ice::registerIceLocatorDiscovery();
-#endif
-            initData.properties->setProperty("IceLocatorDiscovery.InstanceName", "unknown");
-            initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
-            initData.properties->setProperty("IceLocatorDiscovery.Timeout", "100");
-            com = Ice::initialize(initData);
-            test(com->getDefaultLocator());
-            try
-            {
-                com->stringToProxy("test @ TestAdapter")->ice_ping();
-            }
-            catch (const Ice::NoEndpointException&)
-            {
-            }
-            try
-            {
-                com->stringToProxy("test")->ice_ping();
-            }
-            catch (const Ice::NoEndpointException&)
-            {
-            }
-            test(!com->getDefaultLocator()->getRegistry());
-            test(!Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
-            try
-            {
-                test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
-            }
-            catch (const Ice::OperationNotExistException&)
-            {
-            }
-
-            adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
-            adapter->activate();
-            adapter->deactivate();
-
-            com->destroy();
-
-            string multicast;
-            if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
-            {
-                multicast = "\"ff15::1\"";
-            }
-            else
-            {
-                multicast = "239.255.0.1";
-            }
-
-            //
-            // Test invalid lookup endpoints
-            //
-            initData.properties = communicator->getProperties()->clone();
-            initData.properties->setProperty("Ice.Default.Locator", "");
-            initData.properties->setProperty(
-                "Ice.Plugin.IceLocatorDiscovery",
-                "IceLocatorDiscovery:createIceLocatorDiscovery");
-            initData.properties->setProperty(
-                "IceLocatorDiscovery.Lookup",
-                "udp -h " + multicast + " --interface unknown");
-            com = Ice::initialize(initData);
-            test(com->getDefaultLocator());
-            try
-            {
-                com->stringToProxy("test @ TestAdapter")->ice_ping();
-                test(false);
-            }
-            catch (const Ice::NoEndpointException&)
-            {
-            }
-            com->destroy();
-
-            initData.properties = communicator->getProperties()->clone();
-            initData.properties->setProperty("Ice.Default.Locator", "");
-            initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "0");
-            initData.properties->setProperty(
-                "Ice.Plugin.IceLocatorDiscovery",
-                "IceLocatorDiscovery:createIceLocatorDiscovery");
-            initData.properties->setProperty(
-                "IceLocatorDiscovery.Lookup",
-                "udp -h " + multicast + " --interface unknown");
-            com = Ice::initialize(initData);
-            test(com->getDefaultLocator());
-            try
-            {
-                com->stringToProxy("test @ TestAdapter")->ice_ping();
-                test(false);
-            }
-            catch (const Ice::NoEndpointException&)
-            {
-            }
-            com->destroy();
-
-            initData.properties = communicator->getProperties()->clone();
-            initData.properties->setProperty("Ice.Default.Locator", "");
-            initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
-            initData.properties->setProperty(
-                "Ice.Plugin.IceLocatorDiscovery",
-                "IceLocatorDiscovery:createIceLocatorDiscovery");
-            {
-                string intf = initData.properties->getProperty("IceLocatorDiscovery.Interface");
-                if (!intf.empty())
-                {
-                    intf = " --interface \"" + intf + "\"";
-                }
-                ostringstream port;
-                port << TestHelper::getTestPort(initData.properties, 99);
-                initData.properties->setProperty(
-                    "IceLocatorDiscovery.Lookup",
-                    "udp -h " + multicast + " --interface unknown:" + "udp -h " + multicast + " -p " + port.str() +
-                        intf);
-            }
-            com = Ice::initialize(initData);
-            test(com->getDefaultLocator());
-            try
-            {
-                com->stringToProxy("test @ TestAdapter")->ice_ping();
-            }
-            catch (const Ice::NoEndpointException&)
-            {
-                test(false);
-            }
-            com->destroy();
-        }
-        cout << "ok" << endl;
-    }
-    catch (const Ice::NoEndpointException&)
-    {
         com->destroy();
-        cout << "failed (is a firewall enabled?)" << endl;
+
+        //
+        // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator. Also test
+        // Ice::registerIceLocatorDiscovery()
+        //
+#ifdef ICE_STATIC_LIBS
+        Ice::registerIceLocatorDiscovery();
+#endif
+        initData.properties->setProperty("IceLocatorDiscovery.InstanceName", "unknown");
+        initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
+        initData.properties->setProperty("IceLocatorDiscovery.Timeout", "100");
+        com = Ice::initialize(initData);
+        test(com->getDefaultLocator());
+        try
+        {
+            com->stringToProxy("test @ TestAdapter")->ice_ping();
+        }
+        catch (const Ice::NoEndpointException&)
+        {
+        }
+        try
+        {
+            com->stringToProxy("test")->ice_ping();
+        }
+        catch (const Ice::NoEndpointException&)
+        {
+        }
+        test(!com->getDefaultLocator()->getRegistry());
+        test(!Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
+        try
+        {
+            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
+        }
+        catch (const Ice::OperationNotExistException&)
+        {
+        }
+
+        adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
+        adapter->activate();
+        adapter->deactivate();
+
+        com->destroy();
+
+        string multicast;
+        if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+        {
+            multicast = "\"ff15::1\"";
+        }
+        else
+        {
+            multicast = "239.255.0.1";
+        }
+
+        //
+        // Test invalid lookup endpoints
+        //
+        initData.properties = communicator->getProperties()->clone();
+        initData.properties->setProperty("Ice.Default.Locator", "");
+        initData.properties->setProperty(
+            "Ice.Plugin.IceLocatorDiscovery",
+            "IceLocatorDiscovery:createIceLocatorDiscovery");
+        initData.properties->setProperty("IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+        com = Ice::initialize(initData);
+        test(com->getDefaultLocator());
+        try
+        {
+            com->stringToProxy("test @ TestAdapter")->ice_ping();
+            test(false);
+        }
+        catch (const Ice::NoEndpointException&)
+        {
+        }
+        com->destroy();
+
+        initData.properties = communicator->getProperties()->clone();
+        initData.properties->setProperty("Ice.Default.Locator", "");
+        initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "0");
+        initData.properties->setProperty(
+            "Ice.Plugin.IceLocatorDiscovery",
+            "IceLocatorDiscovery:createIceLocatorDiscovery");
+        initData.properties->setProperty("IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+        com = Ice::initialize(initData);
+        test(com->getDefaultLocator());
+        try
+        {
+            com->stringToProxy("test @ TestAdapter")->ice_ping();
+            test(false);
+        }
+        catch (const Ice::NoEndpointException&)
+        {
+        }
+        com->destroy();
+
+        initData.properties = communicator->getProperties()->clone();
+        initData.properties->setProperty("Ice.Default.Locator", "");
+        initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
+        initData.properties->setProperty(
+            "Ice.Plugin.IceLocatorDiscovery",
+            "IceLocatorDiscovery:createIceLocatorDiscovery");
+        {
+            string intf = initData.properties->getProperty("IceLocatorDiscovery.Interface");
+            if (!intf.empty())
+            {
+                intf = " --interface \"" + intf + "\"";
+            }
+            ostringstream port;
+            port << TestHelper::getTestPort(initData.properties, 99);
+            initData.properties->setProperty(
+                "IceLocatorDiscovery.Lookup",
+                "udp -h " + multicast + " --interface unknown:" + "udp -h " + multicast + " -p " + port.str() + intf);
+        }
+        com = Ice::initialize(initData);
+        test(com->getDefaultLocator());
+        try
+        {
+            com->stringToProxy("test @ TestAdapter")->ice_ping();
+        }
+        catch (const Ice::NoEndpointException&)
+        {
+            test(false);
+        }
+        com->destroy();
     }
+    cout << "ok" << endl;
+
     cout << "shutting down server... " << flush;
     obj->shutdown();
     cout << "ok" << endl;
