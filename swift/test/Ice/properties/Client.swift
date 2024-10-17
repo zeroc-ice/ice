@@ -136,8 +136,8 @@ public class Client: TestHelperI {
             do {
                 _ = try properties.getIceProperty("Ice.UnknownProperty")
                 try test(false)
-            } catch let error as LocalException {
-                try test(error.ice_id() == "std::invalid_argument")
+            } catch let error as UnknownPropertyException {
+                try test(error.ice_id() == "::Ice::UnknownPropertyException")
                 try test(error.message == "unknown Ice property: Ice.UnknownProperty")
             }
 

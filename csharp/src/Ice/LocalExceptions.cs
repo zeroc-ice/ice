@@ -875,7 +875,7 @@ public sealed class TwowayOnlyException : LocalException
 }
 
 /// <summary>
-/// An unknown property was used in the configuration of an object adapter or a proxy.
+/// An unknown property was used when trying to get or set an unknown property.
 /// </summary>
 public sealed class UnknownPropertyException : LocalException
 {
