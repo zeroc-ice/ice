@@ -52,6 +52,8 @@ DataElementI::DataElementI(TopicI* parent, const string& name, int64_t id, const
       _config(make_shared<ElementConfig>()),
       _executor(parent->getInstance()->getCallbackExecutor()),
       _listenerCount(0),
+      _forwarder{Ice::uncheckedCast<SessionPrx>(parent->getInstance()->getCollocatedForwarder()->add(
+          [this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); }))},
       _parent(parent->shared_from_this()),
       _waiters(0),
       _notified(0),
@@ -67,14 +69,6 @@ DataElementI::DataElementI(TopicI* parent, const string& name, int64_t id, const
     {
         _config->clearHistory = static_cast<ClearHistoryPolicy>(*config.clearHistory);
     }
-}
-
-void
-DataElementI::init()
-{
-    auto forwarder = [self = shared_from_this()](Ice::ByteSeq e, const Ice::Current& c) { self->forward(e, c); };
-    _forwarder =
-        Ice::uncheckedCast<SessionPrx>(_parent->getInstance()->getCollocatedForwarder()->add(std::move(forwarder)));
 }
 
 DataElementI::~DataElementI()
@@ -104,7 +98,7 @@ DataElementI::attach(
     const shared_ptr<Key>& key,
     const shared_ptr<Filter>& filter,
     const shared_ptr<SessionI>& session,
-    optional<SessionPrx> prx,
+    SessionPrx prx,
     const ElementData& data,
     const chrono::time_point<chrono::system_clock>& now,
     ElementDataAckSeq& acks)
@@ -146,7 +140,7 @@ DataElementI::attach(
     const shared_ptr<Key>& key,
     const shared_ptr<Filter>& filter,
     const shared_ptr<SessionI>& session,
-    optional<SessionPrx> prx,
+    SessionPrx prx,
     const ElementDataAck& data,
     const chrono::time_point<chrono::system_clock>& now,
     DataSamplesSeq& samples)
@@ -194,7 +188,7 @@ DataElementI::attachKey(
     const shared_ptr<Key>& key,
     const shared_ptr<Filter>& sampleFilter,
     const shared_ptr<SessionI>& session,
-    optional<SessionPrx> prx,
+    SessionPrx prx,
     const string& facet,
     int64_t keyId,
     const string& name,
@@ -305,7 +299,7 @@ DataElementI::attachFilter(
     const shared_ptr<Key>& key,
     const shared_ptr<Filter>& sampleFilter,
     const shared_ptr<SessionI>& session,
-    optional<SessionPrx> prx,
+    SessionPrx prx,
     const string& facet,
     int64_t filterId,
     const shared_ptr<Filter>& filter,
@@ -988,16 +982,10 @@ DataReaderI::addConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subscr
 
 DataWriterI::DataWriterI(TopicWriterI* topic, const string& name, int64_t id, const DataStorm::WriterConfig& config)
     : DataElementI(topic, name, id, config),
-      _parent(topic)
+      _parent(topic),
+      _subscribers{Ice::uncheckedCast<DataStormContract::SubscriberSessionPrx>(_forwarder)}
 {
     _config->priority = config.priority;
-}
-
-void
-DataWriterI::init()
-{
-    DataElementI::init();
-    _subscribers = Ice::uncheckedCast<DataStormContract::SubscriberSessionPrx>(_forwarder);
 }
 
 void

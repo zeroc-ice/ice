@@ -240,8 +240,8 @@ namespace DataStormI
         };
 
     public:
-        SessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx);
-        void init(std::optional<DataStormContract::SessionPrx>);
+        SessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
+        void init();
 
         virtual void announceTopics(DataStormContract::TopicInfoSeq, bool, const Ice::Current&) override;
         virtual void attachTopic(DataStormContract::TopicSpec, const Ice::Current&) override;
@@ -262,7 +262,7 @@ namespace DataStormI
         virtual void disconnected(const Ice::Current&) override;
 
         void connected(
-            std::optional<DataStormContract::SessionPrx>,
+            DataStormContract::SessionPrx,
             const Ice::ConnectionPtr&,
             const DataStormContract::TopicInfoSeq&);
         bool disconnected(const Ice::ConnectionPtr&, std::exception_ptr);
@@ -338,7 +338,7 @@ namespace DataStormI
         mutable std::mutex _mutex;
         std::shared_ptr<NodeI> _parent;
         std::string _id;
-        std::optional<DataStormContract::SessionPrx> _proxy;
+        DataStormContract::SessionPrx _proxy;
         DataStormContract::NodePrx _node;
         bool _destroyed;
         int _sessionInstanceId;
@@ -356,7 +356,7 @@ namespace DataStormI
     class SubscriberSessionI : public SessionI, public DataStormContract::SubscriberSession
     {
     public:
-        SubscriberSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx);
+        SubscriberSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
 
         virtual void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) override;
 
@@ -369,7 +369,7 @@ namespace DataStormI
     class PublisherSessionI : public SessionI, public DataStormContract::PublisherSession
     {
     public:
-        PublisherSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx);
+        PublisherSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
 
     private:
         virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const override;

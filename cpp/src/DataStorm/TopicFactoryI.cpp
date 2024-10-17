@@ -42,7 +42,6 @@ TopicFactoryI::createTopicReader(
             sampleFilterFactories,
             name,
             _nextReaderId++);
-        reader->init();
         _readers[name].push_back(reader);
         if (_traceLevels->topic > 0)
         {
@@ -100,7 +99,6 @@ TopicFactoryI::createTopicWriter(
             sampleFilterFactories,
             name,
             _nextWriterId++);
-        writer->init();
         _writers[name].push_back(writer);
         if (_traceLevels->topic > 0)
         {

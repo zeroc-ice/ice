@@ -27,10 +27,10 @@ namespace DataStormI
 
         struct Listener
         {
-            Listener(std::optional<DataStormContract::SessionPrx> proxy) : proxy(std::move(proxy)) {}
+            Listener(DataStormContract::SessionPrx proxy) : proxy(std::move(proxy)) {}
 
             std::set<std::int64_t> topics;
-            std::optional<DataStormContract::SessionPrx> proxy;
+            DataStormContract::SessionPrx proxy;
         };
 
     public:
@@ -46,8 +46,6 @@ namespace DataStormI
 
         virtual ~TopicI();
 
-        void init();
-
         virtual std::string getName() const override;
         virtual void destroy() override;
 
@@ -60,21 +58,21 @@ namespace DataStormI
         DataStormContract::ElementSpecSeq
         getElementSpecs(std::int64_t, const DataStormContract::ElementInfoSeq&, const std::shared_ptr<SessionI>&);
 
-        void attach(std::int64_t, const std::shared_ptr<SessionI>&, std::optional<DataStormContract::SessionPrx>);
+        void attach(std::int64_t, const std::shared_ptr<SessionI>&, DataStormContract::SessionPrx);
         void detach(std::int64_t, const std::shared_ptr<SessionI>&);
 
         DataStormContract::ElementSpecAckSeq attachElements(
             std::int64_t,
             const DataStormContract::ElementSpecSeq&,
             const std::shared_ptr<SessionI>&,
-            std::optional<DataStormContract::SessionPrx>,
+            DataStormContract::SessionPrx,
             const std::chrono::time_point<std::chrono::system_clock>&);
 
         DataStormContract::DataSamplesSeq attachElementsAck(
             std::int64_t,
             const DataStormContract::ElementSpecAckSeq&,
             const std::shared_ptr<SessionI>&,
-            std::optional<DataStormContract::SessionPrx>,
+            DataStormContract::SessionPrx,
             const std::chrono::time_point<std::chrono::system_clock>&,
             DataStormContract::LongSeq&);
 

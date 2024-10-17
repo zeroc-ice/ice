@@ -79,6 +79,8 @@ TopicI::TopicI(
       _instance(factory.lock()->getInstance()),
       _traceLevels(_instance->getTraceLevels()),
       _id(id),
+      _forwarder{Ice::uncheckedCast<SessionPrx>(
+          _instance->getCollocatedForwarder()->add([this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); }))},
       _destroyed(false),
       _listenerCount(0),
       _waiters(0),
@@ -90,24 +92,6 @@ TopicI::TopicI(
 }
 
 TopicI::~TopicI() { assert(_destroyed); }
-
-void
-TopicI::init()
-{
-    try
-    {
-        auto forwarder = [self = shared_from_this()](Ice::ByteSeq e, const Ice::Current& c) { self->forward(e, c); };
-        _forwarder = Ice::uncheckedCast<SessionPrx>(_instance->getCollocatedForwarder()->add(forwarder));
-    }
-    catch (const Ice::ObjectAdapterDestroyedException&)
-    {
-        // Ignore
-    }
-    catch (const Ice::CommunicatorDestroyedException&)
-    {
-        // Ignore
-    }
-}
 
 string
 TopicI::getName() const
@@ -289,12 +273,12 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
 }
 
 void
-TopicI::attach(int64_t id, const shared_ptr<SessionI>& session, optional<SessionPrx> prx)
+TopicI::attach(int64_t id, const shared_ptr<SessionI>& session, SessionPrx prx)
 {
     auto p = _listeners.find({session});
     if (p == _listeners.end())
     {
-        p = _listeners.emplace(ListenerKey{session}, Listener(prx)).first;
+        p = _listeners.emplace(ListenerKey{session}, Listener(std::move(prx))).first;
     }
 
     if (p->second.topics.insert(id).second)
@@ -322,7 +306,7 @@ TopicI::attachElements(
     int64_t topicId,
     const ElementSpecSeq& elements,
     const shared_ptr<SessionI>& session,
-    optional<SessionPrx> prx,
+    SessionPrx prx,
     const chrono::time_point<chrono::system_clock>& now)
 {
     ElementSpecAckSeq specs;
@@ -430,7 +414,7 @@ TopicI::attachElementsAck(
     int64_t topicId,
     const ElementSpecAckSeq& elements,
     const shared_ptr<SessionI>& session,
-    const optional<SessionPrx> prx,
+    SessionPrx prx,
     const chrono::time_point<chrono::system_clock>& now,
     LongSeq& removedIds)
 {
@@ -903,7 +887,6 @@ TopicReaderI::createFiltered(
         sampleFilterName,
         std::move(sampleFilterCriteria),
         mergeConfigs(std::move(config)));
-    element->init();
     addFiltered(element, filter);
     return element;
 }
@@ -925,7 +908,6 @@ TopicReaderI::create(
         sampleFilterName,
         std::move(sampleFilterCriteria),
         mergeConfigs(std::move(config)));
-    element->init();
     add(element, keys);
     return element;
 }
@@ -1028,7 +1010,6 @@ TopicWriterI::create(const vector<shared_ptr<Key>>& keys, const string& name, Da
 {
     lock_guard<mutex> lock(_mutex);
     auto element = make_shared<KeyDataWriterI>(this, name, ++_nextId, keys, mergeConfigs(std::move(config)));
-    element->init();
     add(element, keys);
     return element;
 }
