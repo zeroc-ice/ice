@@ -12,7 +12,6 @@
 #include "ServerI.h"
 #include "TraceLevels.h"
 #include "Util.h"
-#include <iterator>
 
 using namespace std;
 using namespace IceGrid;
