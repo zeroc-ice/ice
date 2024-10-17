@@ -141,7 +141,7 @@ export class Properties {
         if (propertyArray !== null) {
             const prop = Properties.findProperty(key.substring(propertyArray.name.length + 1), propertyArray);
 
-            if (!prop) {
+            if (prop === null) {
                 throw new UnknownPropertyException(`unknown Ice property: ${key}`);
             }
 
