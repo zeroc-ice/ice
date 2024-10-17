@@ -162,14 +162,9 @@ allTests(Test::TestHelper* helper)
         replyI = std::make_shared<PingReplyI>();
         reply = adapter->addWithUUID<PingReplyPrx>(replyI)->ice_datagram();
     }
-    if (!ret)
-    {
-        cout << "failed (is a firewall enabled?)" << endl;
-    }
-    else
-    {
-        cout << "ok" << endl;
-    }
+    test(ret);
+    cout << "ok" << endl;
+
 #endif
 
     cout << "testing udp bi-dir connection... " << flush;

@@ -194,14 +194,8 @@ namespace Ice
                     replyI = new PingReplyI();
                     reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
                 }
-                if (!ret)
-                {
-                    Console.Out.WriteLine("failed(is a firewall enabled?)");
-                }
-                else
-                {
-                    Console.Out.WriteLine("ok");
-                }
+                test(ret);
+                Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing udp bi-dir connection... ");
                 Console.Out.Flush();
@@ -223,36 +217,6 @@ namespace Ice
                 }
                 test(ret);
                 Console.Out.WriteLine("ok");
-
-                //
-                // Sending the replies back on the multicast UDP connection doesn't work for most
-                // platform(it works for macOS Leopard but not Snow Leopard, doesn't work on SLES,
-                // Windows...). For Windows, see UdpTransceiver constructor for the details. So
-                // we don't run this test.
-                //
-                //         Console.Out.Write("testing udp bi-dir connection... ");
-                //         nRetry = 5;
-                //         while(nRetry-- > 0)
-                //         {
-                //             replyI.reset();
-                //             objMcast.pingBiDir(reply.ice_getIdentity());
-                //             ret = replyI.waitReply(5, 2000);
-                //             if(ret)
-                //             {
-                //                 break; // Success
-                //             }
-                //             replyI = new PingReplyI();
-                //             reply =(PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
-                //         }
-
-                //         if(!ret)
-                //         {
-                //             Console.Out.WriteLine("failed(is a firewall enabled?)");
-                //         }
-                //         else
-                //         {
-                //             Console.Out.WriteLine("ok");
-                //         }
             }
         }
     }
