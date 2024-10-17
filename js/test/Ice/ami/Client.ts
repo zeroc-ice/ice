@@ -319,6 +319,21 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
+        out.write("testing bi-dir... ");
+        const adapter = await communicator.createObjectAdapter("");
+        const replyI = new PingReplyI();
+        const reply = new Test.PingReplyPrx(adapter.addWithUUID(replyI));
+
+        const context = new Map<string, string>([["ONE", ""]]);
+        await p.pingBiDir(reply, context);
+
+        (await p.ice_getConnection()).setAdapter(adapter);
+        await p.pingBiDir(reply);
+        test(replyI.checkReceived());
+        adapter.destroy();
+
+        out.writeLine("ok");
+
         await p.shutdown();
     }
 
@@ -332,5 +347,17 @@ export class Client extends TestHelper {
                 await communicator.destroy();
             }
         }
+    }
+}
+
+class PingReplyI extends Test.PingReply {
+    _received: boolean = false;
+
+    reply(current: Ice.Current) {
+        this._received = true;
+    }
+
+    checkReceived() {
+        return this._received;
     }
 }
