@@ -127,7 +127,6 @@ export class Client extends TestHelper {
             properties.setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
             properties.setProperty("FooOA.UnknownProperty", "bar");
             try {
-
             } catch (ex) {
                 test(ex.message == "unknown Ice property: FooOA.UnknownProperty");
             }
@@ -137,7 +136,6 @@ export class Client extends TestHelper {
             properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
             properties.setProperty("FooProxy.UnknownProperty", "bar");
             try {
-
             } catch (ex) {
                 test(ex.message == "unknown Ice property: FooProxy.UnknownProperty");
             }
