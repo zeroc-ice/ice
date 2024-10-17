@@ -60,7 +60,7 @@ namespace
 
         if (!propertyArray)
         {
-            throw UnknownPropertyException(__FILE__, __LINE__, "unknown Ice property: " + string{key});
+            throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
         }
 
         // The Ice property prefix.
@@ -70,7 +70,7 @@ namespace
 
         if (!prop)
         {
-            throw UnknownPropertyException(__FILE__, __LINE__, "unknown Ice property: " + string{key});
+            throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
         }
 
         return prop->defaultValue;
@@ -319,7 +319,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
         auto prop = IceInternal::findProperty(key.substr(propertyPrefix.length() + 1), *propertyArray);
         if (!prop)
         {
-            throw UnknownPropertyException(__FILE__, __LINE__, "unknown Ice property: " + string{key});
+            throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
         }
 
         // If the property is deprecated, log a warning.

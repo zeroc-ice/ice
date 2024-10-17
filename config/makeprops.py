@@ -265,7 +265,7 @@ namespace IceInternal
         const int length;
     }};
 
-    class ICE_API PropertyNames
+    class PropertyNames
     {{
     public:
 """)
@@ -280,7 +280,7 @@ using namespace IceInternal;
     @override
     def closeFiles(self):
         self.hFile.write(f"""
-        static const std::array<PropertyArray,{len(self.generatedPropertyArrays())}> validProps;
+        static const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> validProps;
     }};
 }}
 
@@ -288,7 +288,7 @@ using namespace IceInternal;
 """)
 
         self.cppFile.write(f"""\
-const std::array<PropertyArray,{len(self.generatedPropertyArrays())}> PropertyNames::validProps =
+const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> PropertyNames::validProps =
 {{
     {",\n    ".join([f"{name}Props" for name in self.generatedPropertyArrays()])}
 }};
