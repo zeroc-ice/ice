@@ -124,7 +124,7 @@ export class Client extends TestHelper {
             const properties = communicator.getProperties();
 
             out.write("testing that creating an object adapter with unknown properties throws an exception...");
-            properties.setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
+            properties.setProperty("FooOA.Locator", "locator:tcp -h 127.0.0.1 -p 10000");
             properties.setProperty("FooOA.UnknownProperty", "bar");
             try {
             } catch (ex) {

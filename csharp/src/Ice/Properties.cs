@@ -4,7 +4,6 @@
 
 using Ice.Internal;
 using System.Globalization;
-using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 
