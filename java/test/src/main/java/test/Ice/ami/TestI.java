@@ -96,18 +96,19 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public void pingBiDir(PingReplyPrx reply, com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> pingBiDirAsync(PingReplyPrx reply, com.zeroc.Ice.Current current) {
         reply = reply.ice_fixed(current.con);
-        final Thread dispatchThread = Thread.currentThread();
-        reply.replyAsync()
-                .whenCompleteAsync(
-                        (result, ex) -> {
-                            Thread callbackThread = Thread.currentThread();
-                            test(callbackThread != dispatchThread);
-                            test(callbackThread.getName().indexOf("Ice.ThreadPool.Server") != -1);
-                        },
-                        reply.ice_executor())
-                .join();
+        boolean expectSuccess = !current.ctx.containsKey("ONE");
+        return reply.replyAsync()
+                .handle(
+                        (r, ex) -> {
+                            if (expectSuccess) {
+                                test(ex == null);
+                            } else {
+                                test(ex instanceof com.zeroc.Ice.ObjectNotExistException);
+                            }
+                            return null; // means success
+                        });
     }
 
     @Override

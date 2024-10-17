@@ -1043,20 +1043,24 @@ public class AllTests {
                             },
                             p.ice_executor())
                     .join();
-
-            if (!collocated) {
-                com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-                PingReplyI replyI = new PingReplyI();
-                PingReplyPrx reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI));
-                adapter.activate();
-
-                p.ice_getConnection().setAdapter(adapter);
-                p.pingBiDir(reply);
-                test(replyI.checkReceived());
-                adapter.destroy();
-            }
         }
         out.println("ok");
+
+        if (!collocated) {
+            out.print("testing bi-dir... ");
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
+            PingReplyI replyI = new PingReplyI();
+            PingReplyPrx reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI));
+
+            var context = java.util.Map.of("ONE", "");
+            p.pingBiDir(reply, context);
+
+            p.ice_getConnection().setAdapter(adapter);
+            p.pingBiDir(reply);
+            test(replyI.checkReceived());
+            adapter.destroy();
+            out.println("ok");
+        }
 
         out.print("testing result struct... ");
         out.flush();

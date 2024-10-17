@@ -90,10 +90,15 @@ class TestIntfI(Test.TestIntf):
     def supportsFunctionalTests(self, current):
         return False
 
-    def pingBiDir(self, reply, current):
-        # TODO: verify correct thread with add_done_callback_async
-        reply.ice_fixed(current.con).replyAsync().result()
-
+    async def pingBiDir(self, reply, current):
+        expectSuccess = "ONE" not in current.ctx
+        try:
+            await reply.ice_fixed(current.con).replyAsync()
+            if not expectSuccess:
+                raise Test.TestIntfException()
+        except Ice.ObjectNotExistException:
+            if expectSuccess:
+                raise Test.TestIntfException()
 
 class TestIntfII(Test.Outer.Inner.TestIntf):
     def op(self, i, current):

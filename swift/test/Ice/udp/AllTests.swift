@@ -155,11 +155,8 @@ public func allTests(_ helper: TestHelper) async throws {
             type: PingReplyPrx.self)
     }
 
-    if ret {
-        output.writeLine("ok")
-    } else {
-        output.writeLine("failed(is a firewall enabled?)")
-    }
+    try test(ret)
+    output.writeLine("ok")
 
     output.write("testing udp bi-dir connection... ")
     try await obj.ice_getConnection()!.setAdapter(adapter)

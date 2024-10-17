@@ -44,7 +44,7 @@ interface TestIntf
     bool supportsAMD();
     bool supportsFunctionalTests();
 
-    void pingBiDir(PingReply* reply);
+    ["amd"] void pingBiDir(PingReply* reply);
 }
 
 interface TestIntfController

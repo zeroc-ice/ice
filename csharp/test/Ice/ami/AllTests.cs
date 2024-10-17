@@ -865,20 +865,25 @@ namespace Ice
                         s2.SetResult(1);
                         Task.WaitAll(t1, t2, t3, t4);
                     }
-
-                    if (!collocated)
-                    {
-                        ObjectAdapter adapter = communicator.createObjectAdapter("");
-                        var replyI = new PingReplyI();
-                        var reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
-
-                        p.ice_getConnection().setAdapter(adapter);
-                        p.pingBiDir(reply);
-                        test(replyI.checkReceived());
-                        adapter.destroy();
-                    }
                 }
                 output.WriteLine("ok");
+
+                if (!collocated)
+                {
+                    output.Write("testing bi-dir... ");
+                    ObjectAdapter adapter = communicator.createObjectAdapter("");
+                    var replyI = new PingReplyI();
+                    var reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
+
+                    var context = new Dictionary<string, string> { ["ONE"] = "" };
+                    await p.pingBiDirAsync(reply, context);
+
+                    p.ice_getConnection().setAdapter(adapter);
+                    await p.pingBiDirAsync(reply);
+                    test(replyI.checkReceived());
+                    adapter.destroy();
+                    output.WriteLine("ok");
+                }
 
                 output.Write("testing result struct... ");
                 output.Flush();
