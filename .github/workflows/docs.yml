@@ -10,7 +10,6 @@ on:
 
 jobs:
   ci:
-
     runs-on: macos-15
     steps:
       - name: Checkout repository
@@ -26,9 +25,6 @@ jobs:
 
       - name: Install doxygen and graphviz (a dependency of Doxygen for generating diagrams)
         run: brew install doxygen graphviz || true
-
-      - name: Install virtualenv for Python
-        run: pipx install virtualenv
 
       - name: Install docfx for C# API reference
         run: brew install docfx
@@ -66,11 +62,8 @@ jobs:
         run: |
           make -C ../../cpp slice2py Ice IceDiscovery IceLocatorDiscovery
           make -C ../
-          virtualenv .venv
-          source .venv/bin/activate
           pip install -r requirements.txt
           make html
-          deactivate
 
       - name: Generate API reference for Swift
         run: |

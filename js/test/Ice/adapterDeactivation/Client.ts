@@ -74,9 +74,31 @@ export class Client extends TestHelper {
         test(obj!.ice_getConnection() !== null);
         {
             out.write("testing object adapter with bi-dir connection... ");
+
+            test(communicator.getDefaultObjectAdapter() === null);
+            test(obj.ice_getCachedConnection().getAdapter() === null);
+
             const adapter = await communicator.createObjectAdapter("");
-            (await obj!.ice_getConnection()).setAdapter(adapter);
-            (await obj!.ice_getConnection()).setAdapter(null);
+
+            communicator.setDefaultObjectAdapter(adapter);
+            test(communicator.getDefaultObjectAdapter() === adapter);
+
+            // create new connection
+            await obj.ice_getCachedConnection().close();
+            await obj.ice_ping();
+
+            test(obj.ice_getCachedConnection().getAdapter() === adapter);
+            communicator.setDefaultObjectAdapter(null);
+
+            // create new connection
+            await obj.ice_getCachedConnection().close();
+            await obj.ice_ping();
+
+            test(obj.ice_getCachedConnection().getAdapter() === null);
+            obj.ice_getCachedConnection().setAdapter(adapter);
+            test(obj.ice_getCachedConnection().getAdapter() === adapter);
+            obj.ice_getCachedConnection().setAdapter(null);
+
             adapter.destroy();
             try {
                 (await obj!.ice_getConnection()).setAdapter(adapter);

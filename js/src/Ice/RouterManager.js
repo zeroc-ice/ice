@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import { Debug } from "./Debug.js";
 import { HashMap } from "./HashMap.js";
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;
@@ -23,15 +24,13 @@ export class RouterManager {
     // Returns router info for a given router. Automatically creates
     // the router info if it doesn't exist yet.
     //
-    find(rtr) {
-        if (rtr === null) {
+    find(router) {
+        if (router === null) {
             return null;
         }
 
-        //
         // The router cannot be routed.
-        //
-        const router = RouterPrx.uncheckedCast(rtr.ice_router(null));
+        router = RouterPrx.uncheckedCast(router.ice_router(null));
 
         let info = this._table.get(router);
         if (info === undefined) {
@@ -42,15 +41,8 @@ export class RouterManager {
         return info;
     }
 
-    erase(rtr) {
-        let info = null;
-        if (rtr !== null) {
-            // The router cannot be routed.
-            const router = RouterPrx.uncheckedCast(rtr.ice_router(null));
-
-            info = this._table.get(router);
-            this._table.delete(router);
-        }
-        return info;
+    erase(router) {
+        Debug.assert(router.ice_getRouter() == null); // The router cannot be routed.
+        this._table.delete(router);
     }
 }

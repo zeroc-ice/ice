@@ -72,13 +72,13 @@ function scheduleCloseTimeout(connection) {
 }
 
 export class ConnectionI {
-    constructor(communicator, instance, transceiver, endpoint, removeFromFactory, options) {
+    constructor(communicator, instance, transceiver, endpoint, adapter, removeFromFactory, options) {
         this._communicator = communicator;
         this._instance = instance;
         this._desc = transceiver.toString();
         this._type = transceiver.type();
         this._endpoint = endpoint;
-        this._adapter = null;
+        this._adapter = adapter;
         this._removeFromFactory = removeFromFactory;
 
         this._connectTimeout = options.connectTimeout * 1000; // Seconds to milliseconds
