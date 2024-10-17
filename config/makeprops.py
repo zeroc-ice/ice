@@ -469,7 +469,7 @@ class CSPropertyHandler(PropertyHandler):
 {commonPreamble}
 namespace Ice.Internal;
 
-public sealed class PropertyNames
+internal sealed class PropertyNames
 {{
 """)
 

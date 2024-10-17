@@ -127,7 +127,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
             {
                 s += "=1";
             }
-            if (auto optionPair = parseLine(s.substr(2), 0); optionPair)
+            if (auto optionPair = parseLine(s.substr(2), 0))
             {
                 auto [key, value] = *optionPair;
                 setProperty(key, value);
@@ -540,7 +540,7 @@ Ice::Properties::load(string_view file)
                 }
                 firstLine = false;
             }
-            if (auto optionPair = parseLine(line, stringConverter); optionPair)
+            if (auto optionPair = parseLine(line, stringConverter))
             {
                 auto [key, value] = *optionPair;
                 setProperty(key, value);
@@ -586,10 +586,9 @@ Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
                 opt += "=1";
             }
 
-            if (auto optionPair = parseLine(opt.substr(2), 0); optionPair)
+            if (auto optionPair = parseLine(opt.substr(2), 0))
             {
-                auto [key, value] = *optionPair;
-                matched.emplace(key, value);
+                matched.insert(*optionPair);
             }
         }
         else

@@ -6,7 +6,7 @@
 
 namespace Ice.Internal;
 
-public sealed class PropertyNames
+internal sealed class PropertyNames
 {
     internal static PropertyArray ProxyProps = new(
         "Proxy",
