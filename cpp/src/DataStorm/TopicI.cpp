@@ -14,7 +14,6 @@ using namespace DataStormContract;
 
 namespace
 {
-
     template<typename K, typename V> vector<V> toSeq(const map<K, V>& map)
     {
         vector<V> seq;
@@ -59,7 +58,6 @@ namespace
         virtual bool match(const shared_ptr<Filterable>&) const { return true; }
     };
     const auto alwaysMatchFilter = make_shared<AlwaysMatchFilter>();
-
 }
 
 TopicI::TopicI(

@@ -18,7 +18,6 @@ using namespace DataStormContract;
 
 namespace
 {
-
     class DispatchInterceptorI : public Ice::Object
     {
     public:
@@ -38,7 +37,6 @@ namespace
         Ice::ObjectPtr _servant;
         shared_ptr<CallbackExecutor> _executor;
     };
-
 }
 
 SessionI::SessionI(const std::shared_ptr<NodeI>& parent, NodePrx node)

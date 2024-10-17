@@ -17,7 +17,6 @@ using namespace DataStormContract;
 
 namespace
 {
-
     // TODO convert to a middleware
     class DispatchInterceptorI : public Ice::Object
     {
@@ -43,13 +42,11 @@ namespace
         shared_ptr<NodeI> _node;
         shared_ptr<CallbackExecutor> _executor;
     };
-
 }
 
 NodeI::NodeI(const shared_ptr<Instance>& instance)
     : _instance(instance),
-      _id{Ice::generateUUID(), ""},
-      _proxy{instance->getObjectAdapter()->createProxy<NodePrx>(_id)},
+      _proxy{instance->getObjectAdapter()->createProxy<NodePrx>({Ice::generateUUID(), ""})},
       _subscriberForwarder{Ice::uncheckedCast<SubscriberSessionPrx>(
           instance->getCollocatedForwarder()->add([this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); }))},
       _publisherForwarder{Ice::uncheckedCast<PublisherSessionPrx>(
@@ -74,7 +71,7 @@ NodeI::init()
     auto instance = getInstance();
 
     auto adapter = instance->getObjectAdapter();
-    adapter->add<NodePrx>(self, _id);
+    adapter->add<NodePrx>(self, _proxy->ice_getIdentity());
 
     auto interceptor = make_shared<DispatchInterceptorI>(self, instance->getCallbackExecutor());
     adapter->addDefaultServant(interceptor, "s");

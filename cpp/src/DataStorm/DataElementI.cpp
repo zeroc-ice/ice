@@ -16,7 +16,6 @@ using namespace DataStormContract;
 
 namespace
 {
-
     DataSample toSample(const shared_ptr<Sample>& sample, const Ice::CommunicatorPtr& communicator, bool marshalKey)
     {
         return {
@@ -44,7 +43,6 @@ namespace
             samples.erase(samples.begin(), p);
         }
     }
-
 }
 
 DataElementI::DataElementI(TopicI* parent, const string& name, int64_t id, const DataStorm::Config& config)

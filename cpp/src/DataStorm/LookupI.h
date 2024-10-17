@@ -9,7 +9,6 @@
 
 namespace DataStormI
 {
-
     class NodeSessionManager;
     class TopicFactoryI;
 
@@ -38,6 +37,5 @@ namespace DataStormI
         std::shared_ptr<TopicFactoryI> _topicFactory;
         DataStormContract::NodePrx _nodePrx;
     };
-
 }
 #endif

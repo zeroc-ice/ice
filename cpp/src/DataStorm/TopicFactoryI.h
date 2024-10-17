@@ -10,13 +10,10 @@
 
 namespace DataStormI
 {
-
     class Instance;
     class TraceLevels;
 
     class TopicI;
-    class TopicReaderI;
-    class TopicWriterI;
 
     class TopicFactoryI : public TopicFactory, public std::enable_shared_from_this<TopicFactoryI>
     {
@@ -74,6 +71,5 @@ namespace DataStormI
         std::int64_t _nextReaderId;
         std::int64_t _nextWriterId;
     };
-
 }
 #endif

@@ -15,8 +15,6 @@
 
 namespace DataStormI
 {
-
-    class TraceLevels;
     class Instance;
     class SessionI;
     class PublisherSessionI;
@@ -93,8 +91,6 @@ namespace DataStormI
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;
         std::weak_ptr<Instance> _instance;
-        // Unique identifier for this node.
-        Ice::Identity _id;
         DataStormContract::NodePrx _proxy;
         DataStormContract::SubscriberSessionPrx _subscriberForwarder;
         DataStormContract::PublisherSessionPrx _publisherForwarder;
@@ -105,6 +101,5 @@ namespace DataStormI
         std::int64_t _nextSubscriberSessionId;
         std::int64_t _nextPublisherSessionId;
     };
-
 }
 #endif

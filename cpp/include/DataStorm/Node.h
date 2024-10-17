@@ -10,7 +10,6 @@
 
 namespace DataStorm
 {
-
     template<typename, typename, typename> class Topic;
 
     /**
@@ -205,6 +204,5 @@ namespace DataStorm
 
         template<typename, typename, typename> friend class Topic;
     };
-
 }
 #endif

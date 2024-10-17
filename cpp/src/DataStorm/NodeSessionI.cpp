@@ -14,7 +14,6 @@ using namespace DataStormContract;
 
 namespace
 {
-
     class NodeForwarderI : public Node, public enable_shared_from_this<NodeForwarderI>
     {
     public:
@@ -138,7 +137,6 @@ namespace
         const weak_ptr<NodeSessionI> _session;
         const optional<NodePrx> _node;
     };
-
 }
 
 NodeSessionI::NodeSessionI(

@@ -20,10 +20,7 @@
 
 namespace DataStormI
 {
-
     class TopicI;
-    class TopicReaderI;
-    class TopicWriterI;
     class DataElementI;
     class Instance;
     class TraceLevels;
@@ -379,6 +376,5 @@ namespace DataStormI
         virtual void reconnect(DataStormContract::NodePrx) override;
         virtual void remove() override;
     };
-
 }
 #endif

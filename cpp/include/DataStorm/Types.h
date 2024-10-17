@@ -10,7 +10,6 @@
 
 namespace DataStorm
 {
-
     /**
      * The discard policy specifies how samples are discarded by readers upon receive.
      */
@@ -315,6 +314,5 @@ namespace DataStorm
         }
         return v;
     }
-
 }
 #endif

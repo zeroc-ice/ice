@@ -13,7 +13,6 @@
 
 namespace DataStormI
 {
-
     class SessionI;
     class TopicFactoryI;
 
@@ -220,6 +219,5 @@ namespace DataStormI
 
         DataStorm::WriterConfig _defaultConfig;
     };
-
 }
 #endif

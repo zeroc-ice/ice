@@ -13,9 +13,6 @@
 
 namespace DataStormI
 {
-
-    class Instance;
-
     class ForwarderManager : public Ice::BlobjectAsync
     {
     public:
@@ -43,6 +40,5 @@ namespace DataStormI
         std::map<std::string, std::function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)>> _forwarders;
         unsigned int _nextId;
     };
-
 }
 #endif

@@ -18,7 +18,6 @@ using namespace DataStormContract;
 
 namespace
 {
-
     class SessionForwarderI : public Ice::Blobject
     {
     public:
@@ -51,7 +50,6 @@ namespace
     private:
         const shared_ptr<NodeSessionManager> _nodeSessionManager;
     };
-
 }
 
 NodeSessionManager::NodeSessionManager(const shared_ptr<Instance>& instance, const shared_ptr<NodeI>& node)
@@ -140,10 +138,7 @@ NodeSessionManager::createOrGet(NodePrx node, const Ice::ConnectionPtr& connecti
 }
 
 void
-NodeSessionManager::announceTopicReader(
-    const string& topic,
-    NodePrx node,
-    const Ice::ConnectionPtr& connection) const
+NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const Ice::ConnectionPtr& connection) const
 {
     unique_lock<mutex> lock(_mutex);
     if (connection && node->ice_getIdentity() == _nodePrx->ice_getIdentity())
@@ -184,10 +179,7 @@ NodeSessionManager::announceTopicReader(
 }
 
 void
-NodeSessionManager::announceTopicWriter(
-    const string& topic,
-    NodePrx node,
-    const Ice::ConnectionPtr& connection) const
+NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const Ice::ConnectionPtr& connection) const
 {
     unique_lock<mutex> lock(_mutex);
     if (connection && node->ice_getIdentity() == _nodePrx->ice_getIdentity())
@@ -430,16 +422,16 @@ NodeSessionManager::disconnected(LookupPrx lookup)
     if (instance)
     {
         instance->getTimer()->schedule(
-                make_shared<TimerTaskI>(
-                    [=, this, self = shared_from_this()]
+            make_shared<TimerTaskI>(
+                [=, this, self = shared_from_this()]
+                {
+                    auto instance = _instance.lock();
+                    if (instance)
                     {
-                        auto instance = _instance.lock();
-                        if (instance)
-                        {
-                            self->connect(lookup, _nodePrx);
-                        }
-                    }),
-                instance->getRetryDelay(_retryCount++));
+                        self->connect(lookup, _nodePrx);
+                    }
+                }),
+            instance->getRetryDelay(_retryCount++));
     }
 }
 

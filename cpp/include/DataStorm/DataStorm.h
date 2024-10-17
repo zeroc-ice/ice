@@ -5,12 +5,12 @@
 #ifndef DATASTORM_DATASTORM_H
 #define DATASTORM_DATASTORM_H
 
-#include "DataStorm/Config.h"
-#include "DataStorm/InternalI.h"
-#include "DataStorm/InternalT.h"
-#include "DataStorm/Node.h"
+#include "Config.h"
 #include "DataStorm/Sample.h"
-#include "DataStorm/Types.h"
+#include "InternalI.h"
+#include "InternalT.h"
+#include "Node.h"
+#include "Types.h"
 
 #include <regex>
 

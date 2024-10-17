@@ -11,7 +11,6 @@
 
 namespace DataStormI
 {
-
     class NodeSessionI;
     class CallbackExecutor;
     class Instance;
@@ -26,18 +25,13 @@ namespace DataStormI
         void init();
         void destroy();
 
-        std::shared_ptr<NodeSessionI>
-        createOrGet(DataStormContract::NodePrx, const Ice::ConnectionPtr&, bool);
+        std::shared_ptr<NodeSessionI> createOrGet(DataStormContract::NodePrx, const Ice::ConnectionPtr&, bool);
 
-        void announceTopicReader(
-            const std::string&,
-            DataStormContract::NodePrx,
-            const Ice::ConnectionPtr& = nullptr) const;
+        void
+        announceTopicReader(const std::string&, DataStormContract::NodePrx, const Ice::ConnectionPtr& = nullptr) const;
 
-        void announceTopicWriter(
-            const std::string&,
-            DataStormContract::NodePrx,
-            const Ice::ConnectionPtr& = nullptr) const;
+        void
+        announceTopicWriter(const std::string&, DataStormContract::NodePrx, const Ice::ConnectionPtr& = nullptr) const;
 
         void announceTopics(
             const DataStormContract::StringSeq&,
@@ -80,14 +74,10 @@ namespace DataStormI
         int _retryCount;
 
         std::map<Ice::Identity, std::shared_ptr<NodeSessionI>> _sessions;
-        std::map<
-            Ice::Identity,
-            std::pair<DataStormContract::NodePrx, DataStormContract::LookupPrx>>
-            _connectedTo;
+        std::map<Ice::Identity, std::pair<DataStormContract::NodePrx, DataStormContract::LookupPrx>> _connectedTo;
 
         mutable Ice::ConnectionPtr _exclude;
         DataStormContract::LookupPrx _forwarder;
     };
-
 }
 #endif

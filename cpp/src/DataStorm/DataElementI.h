@@ -11,7 +11,6 @@
 
 namespace DataStormI
 {
-
     class SessionI;
     class TopicI;
     class TopicReaderI;
@@ -423,7 +422,6 @@ namespace DataStormI
 
         const std::shared_ptr<Filter> _filter;
     };
-
 }
 
 #endif

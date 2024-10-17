@@ -12,16 +12,8 @@
 #include <cmath>
 #include <mutex>
 
-namespace DataStorm
-{
-
-    class TopicFactory;
-
-}
-
 namespace DataStormI
 {
-
     class TopicFactoryI;
     class ConnectionManager;
     class NodeSessionManager;
@@ -135,6 +127,5 @@ namespace DataStormI
         mutable std::condition_variable _cond;
         bool _shutdown;
     };
-
 }
 #endif
