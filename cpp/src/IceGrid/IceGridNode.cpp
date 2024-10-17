@@ -625,13 +625,12 @@ NodeService::stop()
     {
         try
         {
+            // TODO: should these two functions be marked as noexcept?
             _activator->shutdown();
             _activator->destroy();
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            cout << "unexpected exception while shutting down activator" << endl;
-            cout << ex.what() << endl;
             assert(false);
         }
     }
