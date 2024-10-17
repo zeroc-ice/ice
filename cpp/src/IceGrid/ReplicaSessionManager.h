@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_REPLICA_SESSION_MANAGER_H
-#define ICE_GRID_REPLICA_SESSION_MANAGER_H
+#ifndef ICEGRID_REPLICA_SESSION_MANAGER_H
+#define ICEGRID_REPLICA_SESSION_MANAGER_H
 
 #include "Internal.h"
 #include "SessionManager.h"

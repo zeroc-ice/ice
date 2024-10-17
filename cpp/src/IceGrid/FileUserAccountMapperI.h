@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_FILEUSERACCOUNTMAPPERI_H
-#define ICE_GRID_FILEUSERACCOUNTMAPPERI_H
+#ifndef ICEGRID_FILEUSERACCOUNTMAPPERI_H
+#define ICEGRID_FILEUSERACCOUNTMAPPERI_H
 
 #include "IceGrid/UserAccountMapper.h"
 

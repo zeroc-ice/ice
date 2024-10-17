@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_QUERY_I_H
-#define ICE_GRID_QUERY_I_H
+#ifndef ICEGRID_QUERY_I_H
+#define ICEGRID_QUERY_I_H
 
 #include "Ice/CommunicatorF.h"
 #include "IceGrid/Registry.h"

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_DESCRIPTOR_BUILDER_H
-#define ICE_GRID_DESCRIPTOR_BUILDER_H
+#ifndef ICEGRID_DESCRIPTOR_BUILDER_H
+#define ICEGRID_DESCRIPTOR_BUILDER_H
 
 #include "../IceXML/Parser.h"
 #include "Ice/Logger.h"

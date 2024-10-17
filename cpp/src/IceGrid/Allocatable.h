@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_ALLOCATABLE_H
-#define ICE_GRID_ALLOCATABLE_H
+#ifndef ICEGRID_ALLOCATABLE_H
+#define ICEGRID_ALLOCATABLE_H
 
 #include "Ice/Timer.h"
 

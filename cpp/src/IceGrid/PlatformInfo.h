@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_PLATFORM_INFO_H
-#define ICE_GRID_PLATFORM_INFO_H
+#ifndef ICEGRID_PLATFORM_INFO_H
+#define ICEGRID_PLATFORM_INFO_H
 
 #include "Internal.h"
 

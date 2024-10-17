@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_DATABASE_H
-#define ICE_GRID_DATABASE_H
+#ifndef ICEGRID_DATABASE_H
+#define ICEGRID_DATABASE_H
 
 #include "../Ice/FileUtil.h"
 #include "AdapterCache.h"

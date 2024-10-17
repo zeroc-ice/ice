@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_OBJECTCACHE_H
-#define ICE_GRID_OBJECTCACHE_H
+#ifndef ICEGRID_OBJECTCACHE_H
+#define ICEGRID_OBJECTCACHE_H
 
 #include "Cache.h"
 #include "Ice/CommunicatorF.h"

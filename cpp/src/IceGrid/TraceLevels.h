@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_TRACE_LEVELS_H
-#define ICE_GRID_TRACE_LEVELS_H
+#ifndef ICEGRID_TRACE_LEVELS_H
+#define ICEGRID_TRACE_LEVELS_H
 
 #include "Ice/CommunicatorF.h"
 #include "Ice/Logger.h"

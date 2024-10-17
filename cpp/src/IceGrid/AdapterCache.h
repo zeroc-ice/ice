@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_ADAPTERCACHE_H
-#define ICE_GRID_ADAPTERCACHE_H
+#ifndef ICEGRID_ADAPTERCACHE_H
+#define ICEGRID_ADAPTERCACHE_H
 
 #include "Cache.h"
 #include "IceGrid/Registry.h"

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_ADMIN_ROUTER_H
-#define ICE_GRID_ADMIN_ROUTER_H
+#ifndef ICEGRID_ADMIN_ROUTER_H
+#define ICEGRID_ADMIN_ROUTER_H
 
 #include "Ice/Ice.h"
 #include "TraceLevels.h"

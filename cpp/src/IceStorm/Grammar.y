@@ -76,18 +76,18 @@ yyerror(const char* s)
 // All keyword tokens. Make sure to modify the "keyword" rule in this
 // file if the list of keywords is changed. Also make sure to add the
 // keyword to the keyword table in Scanner.l.
-%token ICE_STORM_HELP
-%token ICE_STORM_EXIT
-%token ICE_STORM_CURRENT
-%token ICE_STORM_CREATE
-%token ICE_STORM_DESTROY
-%token ICE_STORM_LINK
-%token ICE_STORM_UNLINK
-%token ICE_STORM_LINKS
-%token ICE_STORM_TOPICS
-%token ICE_STORM_REPLICA
-%token ICE_STORM_SUBSCRIBERS
-%token ICE_STORM_STRING
+%token ICESTORM_HELP
+%token ICESTORM_EXIT
+%token ICESTORM_CURRENT
+%token ICESTORM_CREATE
+%token ICESTORM_DESTROY
+%token ICESTORM_LINK
+%token ICESTORM_UNLINK
+%token ICESTORM_LINKS
+%token ICESTORM_TOPICS
+%token ICESTORM_REPLICA
+%token ICESTORM_SUBSCRIBERS
+%token ICESTORM_STRING
 
 %%
 
@@ -116,51 +116,51 @@ commands
 // ----------------------------------------------------------------------
 command
 // ----------------------------------------------------------------------
-: ICE_STORM_HELP ';'
+: ICESTORM_HELP ';'
 {
     parser->usage();
 }
-| ICE_STORM_EXIT ';'
+| ICESTORM_EXIT ';'
 {
     return 0;
 }
-| ICE_STORM_CREATE strings ';'
+| ICESTORM_CREATE strings ';'
 {
     parser->create($2);
 }
-| ICE_STORM_CURRENT strings ';'
+| ICESTORM_CURRENT strings ';'
 {
     parser->current($2);
 }
-| ICE_STORM_DESTROY strings ';'
+| ICESTORM_DESTROY strings ';'
 {
     parser->destroy($2);
 }
-| ICE_STORM_LINK strings ';'
+| ICESTORM_LINK strings ';'
 {
     parser->link($2);
 }
-| ICE_STORM_UNLINK strings ';'
+| ICESTORM_UNLINK strings ';'
 {
     parser->unlink($2);
 }
-| ICE_STORM_LINKS strings ';'
+| ICESTORM_LINKS strings ';'
 {
     parser->links($2);
 }
-| ICE_STORM_TOPICS strings ';'
+| ICESTORM_TOPICS strings ';'
 {
     parser->topics($2);
 }
-| ICE_STORM_REPLICA strings ';'
+| ICESTORM_REPLICA strings ';'
 {
     parser->replica($2);
 }
-| ICE_STORM_SUBSCRIBERS strings ';'
+| ICESTORM_SUBSCRIBERS strings ';'
 {
     parser->subscribers($2);
 }
-| ICE_STORM_STRING error ';'
+| ICESTORM_STRING error ';'
 {
     parser->invalidCommand("unknown command `" + $1.front() + "' (type `help' for more info)");
 }
@@ -176,7 +176,7 @@ command
 // ----------------------------------------------------------------------
 strings
 // ----------------------------------------------------------------------
-: ICE_STORM_STRING strings
+: ICESTORM_STRING strings
 {
     $$ = $2;
     $$.push_front($1.front());
@@ -195,31 +195,31 @@ strings
 // ----------------------------------------------------------------------
 keyword
 // ----------------------------------------------------------------------
-: ICE_STORM_HELP
+: ICESTORM_HELP
 {
 }
-| ICE_STORM_EXIT
+| ICESTORM_EXIT
 {
 }
-| ICE_STORM_CURRENT
+| ICESTORM_CURRENT
 {
 }
-| ICE_STORM_CREATE
+| ICESTORM_CREATE
 {
 }
-| ICE_STORM_DESTROY
+| ICESTORM_DESTROY
 {
 }
-| ICE_STORM_LINK
+| ICESTORM_LINK
 {
 }
-| ICE_STORM_UNLINK
+| ICESTORM_UNLINK
 {
 }
-| ICE_STORM_LINKS
+| ICESTORM_LINKS
 {
 }
-| ICE_STORM_TOPICS
+| ICESTORM_TOPICS
 {
 }
 

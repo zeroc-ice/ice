@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_INTERNALREGISTRYI_H
-#define ICE_GRID_INTERNALREGISTRYI_H
+#ifndef ICEGRID_INTERNALREGISTRYI_H
+#define ICEGRID_INTERNALREGISTRYI_H
 
 #include "IceGrid/Registry.h"
 #include "Internal.h"
