@@ -422,14 +422,14 @@ NodeSessionManager::disconnected(optional<NodePrx> node, optional<LookupPrx> loo
     else
     {
         instance->getTimer()->schedule(
-                [=, this, self = shared_from_this()]
+            [=, this, self = shared_from_this()]
+            {
+                auto instance = _instance.lock();
+                if (instance)
                 {
-                    auto instance = _instance.lock();
-                    if (instance)
-                    {
-                        self->connect(lookup, _nodePrx);
-                    }
-                },
+                    self->connect(lookup, _nodePrx);
+                }
+            },
             instance->getRetryDelay(_retryCount++));
     }
 }

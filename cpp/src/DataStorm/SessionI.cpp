@@ -735,7 +735,8 @@ SessionI::retry(optional<NodePrx> node, exception_ptr exception)
             return false;
         }
 
-        _retryTask = make_shared<IceInternal::InlineTimerTask>([node, self = shared_from_this()] { self->reconnect(node); });
+        _retryTask =
+            make_shared<IceInternal::InlineTimerTask>([node, self = shared_from_this()] { self->reconnect(node); });
         _instance->getTimer()->schedule(_retryTask, delay);
     }
     return true;
