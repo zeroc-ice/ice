@@ -203,6 +203,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glacier2cryptpermissionsver
 		{2940A3C2-A9BA-44AA-AF65-00479C783407} = {2940A3C2-A9BA-44AA-AF65-00479C783407}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastorm", "..\src\DataStorm\msbuild\datastorm\datastorm.vcxproj", "{BD2AC148-422F-49E0-9185-ACCBA7AECF26}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3AB9772C-6113-4F1C-90FB-5368E7486C11} = {3AB9772C-6113-4F1C-90FB-5368E7486C11}
+		{763F88BB-37FD-4BCC-9D13-A7103596EA06} = {763F88BB-37FD-4BCC-9D13-A7103596EA06}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dsnode", "..\src\dsnode\msbuild\dsnode.vcxproj", "{85F74421-2B78-448B-91F0-496526EB365F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BD2AC148-422F-49E0-9185-ACCBA7AECF26} = {BD2AC148-422F-49E0-9185-ACCBA7AECF26}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -475,6 +486,22 @@ Global
 		{BF2077E4-D837-486B-9356-24FA5F659808}.Release|Win32.Build.0 = Release|Win32
 		{BF2077E4-D837-486B-9356-24FA5F659808}.Release|x64.ActiveCfg = Release|x64
 		{BF2077E4-D837-486B-9356-24FA5F659808}.Release|x64.Build.0 = Release|x64
+		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Debug|Win32.Build.0 = Debug|Win32
+		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Debug|x64.ActiveCfg = Debug|x64
+		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Debug|x64.Build.0 = Debug|x64
+		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Release|Win32.ActiveCfg = Release|Win32
+		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Release|Win32.Build.0 = Release|Win32
+		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Release|x64.ActiveCfg = Release|x64
+		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Release|x64.Build.0 = Release|x64
+		{85F74421-2B78-448B-91F0-496526EB365F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{85F74421-2B78-448B-91F0-496526EB365F}.Debug|Win32.Build.0 = Debug|Win32
+		{85F74421-2B78-448B-91F0-496526EB365F}.Debug|x64.ActiveCfg = Debug|x64
+		{85F74421-2B78-448B-91F0-496526EB365F}.Debug|x64.Build.0 = Debug|x64
+		{85F74421-2B78-448B-91F0-496526EB365F}.Release|Win32.ActiveCfg = Release|Win32
+		{85F74421-2B78-448B-91F0-496526EB365F}.Release|Win32.Build.0 = Release|Win32
+		{85F74421-2B78-448B-91F0-496526EB365F}.Release|x64.ActiveCfg = Release|x64
+		{85F74421-2B78-448B-91F0-496526EB365F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
