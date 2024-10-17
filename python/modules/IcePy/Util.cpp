@@ -611,12 +611,7 @@ PyObject*
 IcePy::createExceptionInstance(PyObject* type)
 {
     assert(PyExceptionClass_Check(type));
-    IcePy::PyObjectHandle args{PyTuple_New(0)};
-    if (!args.get())
-    {
-        return nullptr;
-    }
-    return PyObject_CallObject(type, args.get());
+    return PyObject_CallObject(type, nullptr);
 }
 
 namespace

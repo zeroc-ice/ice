@@ -296,14 +296,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         assert(_sliceInfoType);
     }
 
-    IcePy::PyObjectHandle args{PyTuple_New(0)};
-    if (!args.get())
-    {
-        assert(PyErr_Occurred());
-        throw AbortMarshaling();
-    }
-
-    PyObjectHandle sd{PyObject_CallObject(_slicedDataType, args.get())};
+    PyObjectHandle sd{PyObject_CallObject(_slicedDataType, nullptr)};
     if (!sd.get())
     {
         assert(PyErr_Occurred());
@@ -329,7 +322,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
     int i = 0;
     for (vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
     {
-        PyObjectHandle slice{PyObject_CallObject(_sliceInfoType, args.get())};
+        PyObjectHandle slice{PyObject_CallObject(_sliceInfoType, nullptr)};
         if (!slice.get())
         {
             assert(PyErr_Occurred());
@@ -1477,14 +1470,12 @@ IcePy::SequenceInfo::marshal(
             if (p != Py_None)
             {
                 Py_buffer pybuf;
-                if (PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE | PyBUF_FORMAT) == 0)
+                if (pi && PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE | PyBUF_FORMAT) == 0)
                 {
-                    if (pi->kind == PrimitiveInfo::KindString)
-                    {
-                        PyErr_Format(PyExc_ValueError, "expected sequence value");
-                        throw AbortMarshaling();
-                    }
+                    // Strings are handled as variable length types above.
+                    assert(pi->kind != PrimitiveInfo::KindString);
                     sz = pybuf.len;
+                    PyBuffer_Release(&pybuf);
                 }
                 else
                 {
