@@ -351,14 +351,9 @@ export class Client extends TestHelper {
 }
 
 class PingReplyI extends Test.PingReply {
-    _received: boolean;
+    _received: boolean = false;
 
-    constructor() {
-        super();
-        this._received = false;
-    }
-
-    reply() {
+    reply(current: Ice.Current) {
         this._received = true;
     }
 
