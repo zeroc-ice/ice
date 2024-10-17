@@ -857,7 +857,7 @@ public final class Properties {
                             + propertyArray.name()
                             + ": '"
                             + prefix
-                            + "'"
+                            + "'\n    "
                             + String.join("\n    ", unknownProperties));
         }
     }
