@@ -11,7 +11,8 @@ final class PropertyNames
     public static final PropertyArray ProxyProps = new PropertyArray(
         "Proxy",
         false,
-        new Property[] {new Property("EndpointSelection", false, "", false, null),
+        new Property[] {
+            new Property("EndpointSelection", false, "", false, null),
             new Property("ConnectionCached", false, "", false, null),
             new Property("PreferSecure", false, "", false, null),
             new Property("LocatorCacheTimeout", false, "", false, null),
@@ -25,7 +26,8 @@ final class PropertyNames
     public static final PropertyArray ConnectionProps = new PropertyArray(
         "Connection",
         true,
-        new Property[] {new Property("CloseTimeout", false, "10", false, null),
+        new Property[] {
+            new Property("CloseTimeout", false, "10", false, null),
             new Property("ConnectTimeout", false, "10", false, null),
             new Property("EnableIdleCheck", false, "1", false, null),
             new Property("IdleTimeout", false, "60", false, null),
@@ -36,7 +38,8 @@ final class PropertyNames
     public static final PropertyArray ThreadPoolProps = new PropertyArray(
         "ThreadPool",
         true,
-        new Property[] {new Property("Size", false, "1", false, null),
+        new Property[] {
+            new Property("Size", false, "1", false, null),
             new Property("SizeMax", false, "", false, null),
             new Property("SizeWarn", false, "0", false, null),
             new Property("StackSize", false, "0", false, null),
@@ -48,7 +51,8 @@ final class PropertyNames
     public static final PropertyArray ObjectAdapterProps = new PropertyArray(
         "ObjectAdapter",
         true,
-        new Property[] {new Property("AdapterId", false, "", false, null),
+        new Property[] {
+            new Property("AdapterId", false, "", false, null),
             new Property("Connection", false, "", false, PropertyNames.ConnectionProps),
             new Property("Endpoints", false, "", false, null),
             new Property("Locator", false, "", false, PropertyNames.ProxyProps),
@@ -71,7 +75,8 @@ final class PropertyNames
     public static final PropertyArray IceProps = new PropertyArray(
         "Ice",
         false,
-        new Property[] {new Property("AcceptClassCycles", false, "0", false, null),
+        new Property[] {
+            new Property("AcceptClassCycles", false, "0", false, null),
             new Property("Admin", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Admin.DelayCreation", false, "0", false, null),
             new Property("Admin.Enabled", false, "", false, null),
@@ -159,7 +164,8 @@ final class PropertyNames
     public static final PropertyArray IceMXProps = new PropertyArray(
         "IceMX",
         false,
-        new Property[] {new Property("Metrics\\.[^\\s]+\\.GroupBy", true, "", false, null),
+        new Property[] {
+            new Property("Metrics\\.[^\\s]+\\.GroupBy", true, "", false, null),
             new Property("Metrics\\.[^\\s]+\\.Map", true, "", false, null),
             new Property("Metrics\\.[^\\s]+\\.RetainDetached", true, "10", false, null),
             new Property("Metrics\\.[^\\s]+\\.Accept", true, "", false, null),
@@ -170,7 +176,8 @@ final class PropertyNames
     public static final PropertyArray IceDiscoveryProps = new PropertyArray(
         "IceDiscovery",
         false,
-        new Property[] {new Property("Multicast", false, "", false, PropertyNames.ObjectAdapterProps),
+        new Property[] {
+            new Property("Multicast", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Reply", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Locator", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Lookup", false, "", false, null),
@@ -186,7 +193,8 @@ final class PropertyNames
     public static final PropertyArray IceLocatorDiscoveryProps = new PropertyArray(
         "IceLocatorDiscovery",
         false,
-        new Property[] {new Property("Reply", false, "", false, PropertyNames.ObjectAdapterProps),
+        new Property[] {
+            new Property("Reply", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Locator", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Lookup", false, "", false, null),
             new Property("Timeout", false, "300", false, null),
@@ -202,7 +210,8 @@ final class PropertyNames
     public static final PropertyArray IceBoxProps = new PropertyArray(
         "IceBox",
         false,
-        new Property[] {new Property("InheritProperties", false, "", false, null),
+        new Property[] {
+            new Property("InheritProperties", false, "", false, null),
             new Property("LoadOrder", false, "", false, null),
             new Property("PrintServicesReady", false, "", false, null),
             new Property("Service\\.[^\\s]+", true, "", false, null),
@@ -213,7 +222,8 @@ final class PropertyNames
     public static final PropertyArray IceBoxAdminProps = new PropertyArray(
         "IceBoxAdmin",
         false,
-        new Property[] {new Property("ServiceManager.Proxy", false, "", false, PropertyNames.ProxyProps)
+        new Property[] {
+            new Property("ServiceManager.Proxy", false, "", false, PropertyNames.ProxyProps)
         });
 
     public static final PropertyArray IceBridgeProps = new PropertyArray(
@@ -225,7 +235,8 @@ final class PropertyNames
     public static final PropertyArray IceGridAdminProps = new PropertyArray(
         "IceGridAdmin",
         false,
-        new Property[] {new Property("MetricsConfig", false, "", false, null),
+        new Property[] {
+            new Property("MetricsConfig", false, "", false, null),
             new Property("Trace.Observers", false, "", false, null),
             new Property("Trace.SaveToRegistry", false, "", false, null)
         });
@@ -239,7 +250,8 @@ final class PropertyNames
     public static final PropertyArray IceSSLProps = new PropertyArray(
         "IceSSL",
         false,
-        new Property[] {new Property("Alias", false, "", false, null),
+        new Property[] {
+            new Property("Alias", false, "", false, null),
             new Property("CheckCertName", false, "0", false, null),
             new Property("DefaultDir", false, "", false, null),
             new Property("Keystore", false, "", false, null),
@@ -273,7 +285,8 @@ final class PropertyNames
     public static final PropertyArray IceBTProps = new PropertyArray(
         "IceBT",
         false,
-        new Property[] {new Property("RcvSize", false, "", false, null),
+        new Property[] {
+            new Property("RcvSize", false, "", false, null),
             new Property("SndSize", false, "", false, null)
         });
 

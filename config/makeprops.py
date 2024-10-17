@@ -395,7 +395,7 @@ final class PropertyNames
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
         properties = (
-            ",\n            ".join(propertyArray.properties)
+            "\n            " + ",\n            ".join(propertyArray.properties)
             if propertyArray.properties
             else ""
         )
