@@ -37,11 +37,10 @@ public class MetricsAdminI
 
         if (unknownProps.size() > 0) {
             throw new UnknownPropertyException(
-                    "found unknown properties for "
-                            + propertyArray.name()
+                    "found unknown IceMX properties for:"
                             + ": '"
                             + prefix
-                            + "'"
+                            + "'\n    "
                             + String.join("\n    ", unknownProps));
         }
     }
