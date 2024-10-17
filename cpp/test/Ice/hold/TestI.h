@@ -10,7 +10,7 @@
 class HoldI final : public Test::Hold
 {
 public:
-    HoldI(const Ice::TimerPtr&, const Ice::ObjectAdapterPtr&);
+    HoldI(const IceInternal::TimerPtr&, const Ice::ObjectAdapterPtr&);
 
     void putOnHold(std::int32_t, const Ice::Current&) final;
     void waitForHold(const Ice::Current&) final;
@@ -20,7 +20,7 @@ public:
 
 private:
     int _last;
-    const Ice::TimerPtr _timer;
+    const IceInternal::TimerPtr _timer;
     const Ice::ObjectAdapterPtr _adapter;
     std::mutex _mutex;
 };

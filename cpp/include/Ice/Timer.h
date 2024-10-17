@@ -18,7 +18,7 @@
 #include <stdexcept>
 #include <thread>
 
-namespace Ice
+namespace IceInternal
 {
     class Timer;
     using TimerPtr = std::shared_ptr<Timer>;
@@ -32,6 +32,18 @@ namespace Ice
     };
     using TimerTaskPtr = std::shared_ptr<TimerTask>;
 
+    // Adapts a function<void()> to a TimerTask.
+    class InlineTimerTask final : public TimerTask
+    {
+    public:
+        InlineTimerTask(std::function<void()> function) : _function(std::move(function)) {}
+
+        void runTimerTask() final { _function(); }
+
+    private:
+        std::function<void()> _function;
+    };
+
     // The timer class is used to schedule tasks for one-time execution or repeated execution. Tasks are executed by a
     // dedicated timer thread sequentially.
     class ICE_API Timer
@@ -42,6 +54,13 @@ namespace Ice
 
         // Destroy the timer and join the timer execution thread. Must not be called from a timer task.
         void destroy();
+
+        // Schedule a function-task for execution after a given delay.
+        template<class Rep, class Period>
+        void schedule(std::function<void()> function, const std::chrono::duration<Rep, Period>& delay)
+        {
+            schedule(std::make_shared<InlineTimerTask>(std::move(function)), delay);
+        }
 
         // Schedule task for execution after a given delay.
         template<class Rep, class Period>

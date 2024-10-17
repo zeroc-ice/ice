@@ -57,7 +57,7 @@ namespace
     using RequestPtr = std::shared_ptr<Request>;
 
     class LocatorI final : public Ice::BlobjectArrayAsync,
-                           public Ice::TimerTask,
+                           public IceInternal::TimerTask,
                            public std::enable_shared_from_this<LocatorI>
     {
     public:
@@ -85,7 +85,7 @@ namespace
         chrono::milliseconds _timeout;
         int _retryCount;
         chrono::milliseconds _retryDelay;
-        const Ice::TimerPtr _timer;
+        const IceInternal::TimerPtr _timer;
         const int _traceLevel;
 
         string _instanceName;

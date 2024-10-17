@@ -60,7 +60,7 @@ namespace IceStormElection
     private:
         void setState(NodeState);
 
-        const Ice::TimerPtr _timer;
+        const IceInternal::TimerPtr _timer;
         const std::shared_ptr<IceStorm::TraceLevels> _traceLevels;
         const std::shared_ptr<IceStormElection::Observers> _observers;
         const std::shared_ptr<Replica> _replica; // The replica.
@@ -90,10 +90,10 @@ namespace IceStormElection
         std::optional<Ice::ObjectPrx> _coordinatorProxy;
         bool _destroy;
 
-        Ice::TimerTaskPtr _mergeTask;
-        Ice::TimerTaskPtr _timeoutTask;
-        Ice::TimerTaskPtr _checkTask;
-        Ice::TimerTaskPtr _mergeContinueTask;
+        IceInternal::TimerTaskPtr _mergeTask;
+        IceInternal::TimerTaskPtr _timeoutTask;
+        IceInternal::TimerTaskPtr _checkTask;
+        IceInternal::TimerTaskPtr _mergeContinueTask;
 
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _condVar;

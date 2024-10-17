@@ -83,7 +83,7 @@ namespace IceInternal
         EndpointHostResolverPtr endpointHostResolver();
         RetryQueuePtr retryQueue();
         const std::vector<int>& retryIntervals() const { return _retryIntervals; }
-        Ice::TimerPtr timer();
+        IceInternal::TimerPtr timer();
         EndpointFactoryManagerPtr endpointFactoryManager() const;
         Ice::PluginManagerPtr pluginManager() const;
         size_t messageSizeMax() const { return _messageSizeMax; }

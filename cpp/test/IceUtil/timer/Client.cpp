@@ -11,7 +11,7 @@
 #include <thread>
 #include <vector>
 
-using namespace Ice;
+using namespace IceInternal;
 using namespace std;
 
 template<typename T> struct TargetLess
@@ -29,7 +29,7 @@ template<typename T> struct TargetLess
     }
 };
 
-class TestTask : public Ice::TimerTask
+class TestTask : public TimerTask
 {
 public:
     TestTask() : _count(0) {}
@@ -93,10 +93,10 @@ private:
 };
 using TestTaskPtr = std::shared_ptr<TestTask>;
 
-class DestroyTask : public Ice::TimerTask
+class DestroyTask : public TimerTask
 {
 public:
-    DestroyTask(const Ice::TimerPtr& timer) : _timer(timer), _run(false) {}
+    DestroyTask(const IceInternal::TimerPtr& timer) : _timer(timer), _run(false) {}
 
     virtual void runTimerTask()
     {
@@ -127,7 +127,7 @@ public:
     }
 
 private:
-    Ice::TimerPtr _timer;
+    IceInternal::TimerPtr _timer;
     bool _run;
     mutable mutex _mutex;
     condition_variable _condition;
@@ -145,7 +145,7 @@ Client::run(int, char*[])
 {
     cout << "testing timer... " << flush;
     {
-        auto timer = make_shared<Ice::Timer>();
+        auto timer = make_shared<IceInternal::Timer>();
         {
             TestTaskPtr task = make_shared<TestTask>();
             timer->schedule(task, chrono::seconds::zero());
@@ -229,7 +229,7 @@ Client::run(int, char*[])
     cout << "testing timer destroy... " << flush;
     {
         {
-            auto timer = make_shared<Ice::Timer>();
+            auto timer = make_shared<IceInternal::Timer>();
             DestroyTaskPtr destroyTask = make_shared<DestroyTask>(timer);
             timer->schedule(destroyTask, chrono::seconds::zero());
             destroyTask->waitForRun();
@@ -244,7 +244,7 @@ Client::run(int, char*[])
             timer->destroy();
         }
         {
-            auto timer = make_shared<Ice::Timer>();
+            auto timer = make_shared<IceInternal::Timer>();
             TestTaskPtr testTask = make_shared<TestTask>();
             timer->schedule(testTask, chrono::seconds::zero());
             timer->destroy();

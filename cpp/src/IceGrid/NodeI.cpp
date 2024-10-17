@@ -48,7 +48,7 @@ NodeI::NodeI(
     const Ice::ObjectAdapterPtr& adapter,
     NodeSessionManager& sessions,
     const shared_ptr<Activator>& activator,
-    const Ice::TimerPtr& timer,
+    const IceInternal::TimerPtr& timer,
     const shared_ptr<TraceLevels>& traceLevels,
     NodePrx proxy,
     const string& name,
@@ -277,7 +277,7 @@ NodeI::getActivator() const
     return _activator;
 }
 
-Ice::TimerPtr
+IceInternal::TimerPtr
 NodeI::getTimer() const
 {
     return _timer;

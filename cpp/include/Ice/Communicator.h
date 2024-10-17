@@ -409,7 +409,7 @@ namespace Ice
         friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);
         friend ICE_API CommunicatorPtr initialize(const InitializationData&, std::int32_t);
         friend ICE_API IceInternal::InstancePtr IceInternal::getInstance(const Ice::CommunicatorPtr&);
-        friend ICE_API ::Ice::TimerPtr IceInternal::getInstanceTimer(const Ice::CommunicatorPtr&);
+        friend ICE_API IceInternal::TimerPtr IceInternal::getInstanceTimer(const Ice::CommunicatorPtr&);
 
         const IceInternal::InstancePtr _instance;
     };

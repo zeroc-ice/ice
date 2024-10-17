@@ -7,7 +7,6 @@
 #include "ConnectionManager.h"
 #include "Instance.h"
 #include "NodeI.h"
-#include "TimerTaskI.h"
 #include "TopicFactoryI.h"
 #include "TopicI.h"
 #include "TraceUtil.h"
@@ -693,7 +692,7 @@ SessionI::retry(optional<NodePrx> node, exception_ptr exception)
                 << " (ms) for peer to reconnect";
         }
 
-        _retryTask = make_shared<TimerTaskI>([self = shared_from_this()] { self->remove(); });
+        _retryTask = make_shared<IceInternal::InlineTimerTask>([self = shared_from_this()] { self->remove(); });
         _instance->getTimer()->schedule(_retryTask, delay);
     }
     else
@@ -736,7 +735,8 @@ SessionI::retry(optional<NodePrx> node, exception_ptr exception)
             return false;
         }
 
-        _retryTask = make_shared<TimerTaskI>([node, self = shared_from_this()] { self->reconnect(node); });
+        _retryTask =
+            make_shared<IceInternal::InlineTimerTask>([node, self = shared_from_this()] { self->reconnect(node); });
         _instance->getTimer()->schedule(_retryTask, delay);
     }
     return true;

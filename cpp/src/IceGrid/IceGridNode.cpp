@@ -61,7 +61,7 @@ namespace
         void usage(const std::string&);
 
         shared_ptr<Activator> _activator;
-        Ice::TimerPtr _timer;
+        IceInternal::TimerPtr _timer;
         shared_ptr<RegistryI> _registry;
         shared_ptr<NodeI> _node;
         unique_ptr<NodeSessionManager> _sessions;
@@ -417,7 +417,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create a new timer to handle server activation/deactivation timeouts.
     //
-    _timer = make_shared<Ice::Timer>();
+    _timer = make_shared<IceInternal::Timer>();
 
     //
     // The IceGrid instance name.

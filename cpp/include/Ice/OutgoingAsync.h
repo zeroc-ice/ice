@@ -144,7 +144,7 @@ namespace IceInternal
     // correct notified of failures and make sure the retry task is
     // correctly canceled when the invocation completes.
     //
-    class ICE_API ProxyOutgoingAsyncBase : public OutgoingAsyncBase, public Ice::TimerTask
+    class ICE_API ProxyOutgoingAsyncBase : public OutgoingAsyncBase, public TimerTask
     {
     public:
         virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) = 0;

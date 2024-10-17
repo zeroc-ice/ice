@@ -93,7 +93,7 @@ namespace DataStormI
             return _executor;
         }
 
-        Ice::TimerPtr getTimer() const
+        IceInternal::TimerPtr getTimer() const
         {
             assert(_timer);
             return _timer;
@@ -126,7 +126,7 @@ namespace DataStormI
         std::optional<DataStormContract::LookupPrx> _lookup;
         std::shared_ptr<TraceLevels> _traceLevels;
         std::shared_ptr<CallbackExecutor> _executor;
-        Ice::TimerPtr _timer;
+        IceInternal::TimerPtr _timer;
         std::chrono::milliseconds _retryDelay;
         int _retryMultiplier;
         int _retryCount;

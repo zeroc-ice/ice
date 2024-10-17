@@ -347,13 +347,13 @@ namespace Ice
         const IceInternal::TraceLevelsPtr _traceLevels;
         const IceInternal::ThreadPoolPtr _threadPool;
 
-        const Ice::TimerPtr _timer;
+        const IceInternal::TimerPtr _timer;
 
         const std::chrono::seconds _connectTimeout;
         const std::chrono::seconds _closeTimeout;
         const std::chrono::seconds _inactivityTimeout;
 
-        Ice::TimerTaskPtr _inactivityTimerTask;
+        IceInternal::TimerTaskPtr _inactivityTimerTask;
         bool _inactivityTimerTaskScheduled;
 
         std::function<void(ConnectionIPtr)> _connectionStartCompleted;

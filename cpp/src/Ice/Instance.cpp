@@ -180,7 +180,7 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
     //
     // Timer specialization which supports the thread observer
     //
-    class ThreadObserverTimer final : public Ice::Timer
+    class ThreadObserverTimer final : public IceInternal::Timer
     {
     public:
         ThreadObserverTimer() : _hasObserver(false) {}
@@ -188,7 +188,7 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
         void updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
 
     private:
-        void runTimerTask(const Ice::TimerTaskPtr&) final;
+        void runTimerTask(const TimerTaskPtr&) final;
 
         std::mutex _mutex;
         std::atomic<bool> _hasObserver;
@@ -210,7 +210,7 @@ ThreadObserverTimer::updateObserver(const Ice::Instrumentation::CommunicatorObse
 }
 
 void
-ThreadObserverTimer::runTimerTask(const Ice::TimerTaskPtr& task)
+ThreadObserverTimer::runTimerTask(const TimerTaskPtr& task)
 {
     if (_hasObserver)
     {
@@ -443,7 +443,7 @@ IceInternal::Instance::retryQueue()
     return _retryQueue;
 }
 
-Ice::TimerPtr
+IceInternal::TimerPtr
 IceInternal::Instance::timer()
 {
     lock_guard lock(_mutex);
