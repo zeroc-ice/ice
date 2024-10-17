@@ -200,8 +200,19 @@ namespace Ice
          */
         std::set<std::string> getUnusedProperties();
 
+        /**
+         * Parse a sequence of options into a map of key value pairs starting with a prefix. The options are expected to
+         * be of the form <code><em>key</em>=<em>value</em></code>.
+         * @param prefix The prefix to match.
+         * @param options The options to parse.
+         * @return A pair containing a map of matched key value pairs and a sequence of unmatched options.
+         */
+        static std::pair<std::map<std::string, std::string>, StringSeq>
+        parseOptions(std::string_view prefix, const StringSeq& options);
+
     private:
-        void parseLine(std::string_view, const StringConverterPtr&);
+        static std::optional<std::pair<std::string, std::string>>
+        parseLine(std::string_view, const StringConverterPtr&);
 
         void loadConfig();
 

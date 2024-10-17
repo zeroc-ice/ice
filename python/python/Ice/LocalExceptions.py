@@ -11,12 +11,13 @@ __name__ = "Ice"
 # reply message. Other local exceptions can't be marshaled. Application code can raise these exceptions.
 #
 
+
 class RequestFailedException(LocalException):
     """
     The base exception for the 3 NotExist exceptions.
     """
 
-    def __init__(self, id=None, facet= "", operation="", msg=""):
+    def __init__(self, id=None, facet="", operation="", msg=""):
         LocalException.__init__(self, msg)
         self.__id = id
         self.__facet = facet
@@ -58,17 +59,20 @@ class RequestFailedException(LocalException):
         """
         return self.__operation
 
+
 @final
 class ObjectNotExistException(RequestFailedException):
     """
     The dispatch could not find a servant for the identity carried by the request.
     """
 
+
 @final
 class FacetNotExistException(RequestFailedException):
     """
     The dispatch could not find a servant for the identity + facet carried by the request.
     """
+
 
 @final
 class OperationNotExistException(RequestFailedException):
@@ -77,10 +81,12 @@ class OperationNotExistException(RequestFailedException):
     to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
     """
 
+
 class UnknownException(LocalException):
     """
     The dispatch failed with an exception that is not a LocalException or a UserException.
     """
+
 
 @final
 class UnknownLocalException(UnknownException):
@@ -88,21 +94,25 @@ class UnknownLocalException(UnknownException):
     The dispatch failed with LocalException that is not one of the special marshal-able local exceptions.
     """
 
+
 @final
 class UnknownUserException(UnknownException):
     """
     The dispatch returned a UserException that was not declared in the operation's exception specification.
     """
 
+
 #
 # Protocol exceptions
 # Application code should not raise these exceptions.
 #
 
+
 class ProtocolException(LocalException):
     """
     The base class for Ice protocol exceptions.
     """
+
 
 @final
 class CloseConnectionException(ProtocolException):
@@ -114,6 +124,7 @@ class CloseConnectionException(ProtocolException):
     propagated to the application code.
     """
 
+
 @final
 class DatagramLimitException(ProtocolException):
     """
@@ -121,21 +132,25 @@ class DatagramLimitException(ProtocolException):
     receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
     """
 
+
 @final
 class MarshalException(ProtocolException):
     """
     This exception reports an error during marshaling or unmarshaling.
     """
 
+
 #
 # Timeout exceptions
 # Application code should not raise these exceptions.
 #
 
+
 class TimeoutException(LocalException):
     """
     This exception indicates a timeout condition.
     """
+
 
 @final
 class ConnectTimeoutException(TimeoutException):
@@ -143,11 +158,13 @@ class ConnectTimeoutException(TimeoutException):
     This exception indicates a connection establishment timeout condition.
     """
 
+
 @final
 class CloseTimeoutException(TimeoutException):
     """
     This exception indicates a connection closure timeout condition.
     """
+
 
 @final
 class InvocationTimeoutException(TimeoutException):
@@ -155,15 +172,18 @@ class InvocationTimeoutException(TimeoutException):
     This exception indicates that an invocation failed because it timed out.
     """
 
+
 #
 # Syscall exceptions
 # Application code should not raise these exceptions.
 #
 
+
 class SyscallException(LocalException):
     """
     This exception is raised if a system error occurred in the server or client process.
     """
+
 
 @final
 class DNSException(SyscallException):
@@ -171,20 +191,24 @@ class DNSException(SyscallException):
     This exception indicates a DNS problem.
     """
 
+
 #
 # Socket exceptions
 # Application code should not raise these exceptions.
 #
+
 
 class SocketException(SyscallException):
     """
     This exception indicates socket errors.
     """
 
+
 class ConnectFailedException(SocketException):
     """
     This exception indicates connection failures.
     """
+
 
 @final
 class ConnectionLostException(SocketException):
@@ -192,16 +216,19 @@ class ConnectionLostException(SocketException):
     This exception indicates a lost connection.
     """
 
+
 @final
 class ConnectionRefusedException(ConnectFailedException):
     """
     This exception indicates a connection failure for which the server host actively refuses a connection.
     """
 
+
 #
 # Other leaf local exceptions in alphabetical order.
 # Application code should not raise these exceptions.
 #
+
 
 @final
 class AlreadyRegisteredException(LocalException):
@@ -253,11 +280,13 @@ class AlreadyRegisteredException(LocalException):
         """
         return self.__id
 
+
 @final
 class CommunicatorDestroyedException(LocalException):
     """
     This exception is raised if the Communicator has been destroyed.
     """
+
 
 @final
 class ConnectionAbortedException(LocalException):
@@ -273,6 +302,7 @@ class ConnectionAbortedException(LocalException):
     def closedByApplication(self):
         return self.__closedByApplication
 
+
 @final
 class ConnectionClosedException(LocalException):
     """
@@ -287,17 +317,20 @@ class ConnectionClosedException(LocalException):
     def closedByApplication(self):
         return self.__closedByApplication
 
+
 @final
 class FeatureNotSupportedException(LocalException):
     """
     This exception is raised if an unsupported feature is used.
     """
 
+
 @final
 class FixedProxyException(LocalException):
     """
     This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
     """
+
 
 @final
 class InitializationException(LocalException):
@@ -310,16 +343,19 @@ class InitializationException(LocalException):
         The reason for the failure.
     """
 
+
 class InvocationCanceledException(LocalException):
     """
     This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
     """
+
 
 @final
 class NoEndpointException(LocalException):
     """
     This exception is raised if no suitable endpoint is available.
     """
+
 
 @final
 class NotRegisteredException(LocalException):
@@ -373,17 +409,20 @@ class NotRegisteredException(LocalException):
         """
         return self.__id
 
+
 @final
 class ObjectAdapterDeactivatedException(LocalException):
     """
     This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
     """
 
+
 @final
 class ObjectAdapterDestroyedException(LocalException):
     """
     This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
     """
+
 
 @final
 class ObjectAdapterIdInUseException(LocalException):
@@ -392,17 +431,20 @@ class ObjectAdapterIdInUseException(LocalException):
     active ObjectAdapter with the same adapter id.
     """
 
+
 @final
 class ParseException(LocalException):
     """
     This exception is raised if there was an error while parsing a string.
     """
 
+
 @final
 class SecurityException(LocalException):
     """
     This exception indicates a failure in a security subsystem, such as the SSL transport.
     """
+
 
 @final
 class TwowayOnlyException(LocalException):
@@ -412,42 +454,51 @@ class TwowayOnlyException(LocalException):
     value, out-parameters, or an exception specification.
     """
 
+
+@final
+class UnknownPropertyException(LocalException):
+    """
+    An unknown property was used when trying to get or set an unknown property.
+    """
+
+
 __all__ = [
-    'RequestFailedException',
-    'ObjectNotExistException',
-    'FacetNotExistException',
-    'OperationNotExistException',
-    'UnknownException',
-    'UnknownLocalException',
-    'UnknownUserException',
-    'ProtocolException',
-    'CloseConnectionException',
-    'DatagramLimitException',
-    'MarshalException',
-    'TimeoutException',
-    'ConnectTimeoutException',
-    'CloseTimeoutException',
-    'InvocationTimeoutException',
-    'SyscallException',
-    'DNSException',
-    'SocketException',
-    'ConnectFailedException',
-    'ConnectionLostException',
-    'ConnectionRefusedException',
-    'AlreadyRegisteredException',
-    'CommunicatorDestroyedException',
-    'ConnectionAbortedException',
-    'ConnectionClosedException',
-    'FeatureNotSupportedException',
-    'FixedProxyException',
-    'InitializationException',
-    'InvocationCanceledException',
-    'NoEndpointException',
-    'NotRegisteredException',
-    'ObjectAdapterDeactivatedException',
-    'ObjectAdapterDestroyedException',
-    'ObjectAdapterIdInUseException',
-    'ParseException',
-    'SecurityException',
-    'TwowayOnlyException'
+    "RequestFailedException",
+    "ObjectNotExistException",
+    "FacetNotExistException",
+    "OperationNotExistException",
+    "UnknownException",
+    "UnknownLocalException",
+    "UnknownUserException",
+    "ProtocolException",
+    "CloseConnectionException",
+    "DatagramLimitException",
+    "MarshalException",
+    "TimeoutException",
+    "ConnectTimeoutException",
+    "CloseTimeoutException",
+    "InvocationTimeoutException",
+    "SyscallException",
+    "DNSException",
+    "SocketException",
+    "ConnectFailedException",
+    "ConnectionLostException",
+    "ConnectionRefusedException",
+    "AlreadyRegisteredException",
+    "CommunicatorDestroyedException",
+    "ConnectionAbortedException",
+    "ConnectionClosedException",
+    "FeatureNotSupportedException",
+    "FixedProxyException",
+    "InitializationException",
+    "InvocationCanceledException",
+    "NoEndpointException",
+    "NotRegisteredException",
+    "ObjectAdapterDeactivatedException",
+    "ObjectAdapterDestroyedException",
+    "ObjectAdapterIdInUseException",
+    "ParseException",
+    "SecurityException",
+    "TwowayOnlyException",
+    "UnknownPropertyException",
 ]

@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** An unknown property was used in the configuration of an object adapter or a proxy. */
+/** An unknown property was used when trying to get or set an unknown property. */
 public final class UnknownPropertyException extends LocalException {
     private static final long serialVersionUID = 3503752114859671311L;
 

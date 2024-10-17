@@ -75,7 +75,9 @@ class Client(TestHelper):
         toStringMode = properties.getIceProperty("Ice.ToStringMode")
         test(toStringMode == "Unicode")
 
-        closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout")
+        closeTimeout = properties.getIcePropertyAsInt(
+            "Ice.Connection.Client.CloseTimeout"
+        )
         test(closeTimeout == 10)
 
         retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals")
@@ -116,7 +118,6 @@ class Client(TestHelper):
             properties = Ice.createProperties()
             properties.getIceProperty("Ice.UnknownProperty")
             test(False)
-        except Ice.LocalException:
-            # We dont' have a specific exception for unknown properties
+        except Ice.UnknownPropertyException:
             pass
         print("ok")

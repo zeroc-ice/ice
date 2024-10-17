@@ -96,8 +96,7 @@ class Client < ::TestHelper
             properties = Ice.createProperties(args)
             properties.getIceProperty("Ice.UnknownProperty")
             test(false)
-        rescue Ice::LocalException => ex
-            # The corresponding C++ exception is std::invalid_argument.
+        rescue Ice::UnknownPropertyException => ex
             test(ex.message["unknown Ice property: Ice.UnknownProperty"])
         end
         puts "ok"

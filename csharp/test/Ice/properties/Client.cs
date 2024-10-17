@@ -113,9 +113,56 @@ public class Client : Test.TestHelper
                 properties.getIceProperty("Ice.UnknownProperty");
                 test(false);
             }
-            catch (System.ArgumentException)
+            catch (Ice.UnknownPropertyException)
             {
             }
+            Console.Out.WriteLine("ok");
+        }
+
+        {
+            Console.Out.Write("testing that setting an unknown ice property throws an exception...");
+            Console.Out.Flush();
+            Ice.Properties properties = new Ice.Properties();
+            try
+            {
+                properties.setProperty("Ice.UnknownProperty", "bar");
+                test(false);
+            }
+            catch (Ice.UnknownPropertyException)
+            {
+            }
+            Console.Out.WriteLine("ok");
+        }
+
+        {
+            using Ice.Communicator communicator = Ice.Util.initialize();
+            Ice.Properties properties = communicator.getProperties();
+
+            Console.Out.Write("testing that creating an object adapter with unknown properties throws an exception...");
+            properties.setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
+            properties.setProperty("FooOA.UnknownProperty", "bar");
+            try
+            {
+                communicator.createObjectAdapter("FooOA");
+                test(false);
+            }
+            catch (Ice.UnknownPropertyException)
+            {
+            }
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing that creating a proxy with unknown properties throws an exception...");
+            properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
+            properties.setProperty("FooProxy.UnknownProperty", "bar");
+            try
+            {
+                communicator.propertyToProxy("FooProxy");
+                test(false);
+            }
+            catch (Ice.UnknownPropertyException)
+            {
+            }
+
             Console.Out.WriteLine("ok");
         }
     }

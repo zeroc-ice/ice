@@ -27,7 +27,7 @@ const PropertyArray PropertyNames::ProxyProps
     "Proxy",
     false,
     ProxyPropsData,
-    sizeof(ProxyPropsData)/sizeof(ProxyPropsData[0])
+    9
 };
 
 const Property ConnectionPropsData[] =
@@ -45,7 +45,7 @@ const PropertyArray PropertyNames::ConnectionProps
     "Connection",
     true,
     ConnectionPropsData,
-    sizeof(ConnectionPropsData)/sizeof(ConnectionPropsData[0])
+    6
 };
 
 const Property ThreadPoolPropsData[] =
@@ -62,7 +62,7 @@ const PropertyArray PropertyNames::ThreadPoolProps
     "ThreadPool",
     true,
     ThreadPoolPropsData,
-    sizeof(ThreadPoolPropsData)/sizeof(ThreadPoolPropsData[0])
+    5
 };
 
 const Property ObjectAdapterPropsData[] =
@@ -86,7 +86,7 @@ const PropertyArray PropertyNames::ObjectAdapterProps
     "ObjectAdapter",
     true,
     ObjectAdapterPropsData,
-    sizeof(ObjectAdapterPropsData)/sizeof(ObjectAdapterPropsData[0])
+    12
 };
 
 const Property LMDBPropsData[] =
@@ -100,7 +100,7 @@ const PropertyArray PropertyNames::LMDBProps
     "LMDB",
     true,
     LMDBPropsData,
-    sizeof(LMDBPropsData)/sizeof(LMDBPropsData[0])
+    2
 };
 
 const Property IcePropsData[] =
@@ -195,7 +195,7 @@ const PropertyArray PropertyNames::IceProps
     "Ice",
     false,
     IcePropsData,
-    sizeof(IcePropsData)/sizeof(IcePropsData[0])
+    83
 };
 
 const Property IceMXPropsData[] =
@@ -213,7 +213,7 @@ const PropertyArray PropertyNames::IceMXProps
     "IceMX",
     false,
     IceMXPropsData,
-    sizeof(IceMXPropsData)/sizeof(IceMXPropsData[0])
+    6
 };
 
 const Property IceDiscoveryPropsData[] =
@@ -236,7 +236,7 @@ const PropertyArray PropertyNames::IceDiscoveryProps
     "IceDiscovery",
     false,
     IceDiscoveryPropsData,
-    sizeof(IceDiscoveryPropsData)/sizeof(IceDiscoveryPropsData[0])
+    11
 };
 
 const Property IceLocatorDiscoveryPropsData[] =
@@ -259,7 +259,7 @@ const PropertyArray PropertyNames::IceLocatorDiscoveryProps
     "IceLocatorDiscovery",
     false,
     IceLocatorDiscoveryPropsData,
-    sizeof(IceLocatorDiscoveryPropsData)/sizeof(IceLocatorDiscoveryPropsData[0])
+    11
 };
 
 const Property IceBoxPropsData[] =
@@ -277,7 +277,7 @@ const PropertyArray PropertyNames::IceBoxProps
     "IceBox",
     false,
     IceBoxPropsData,
-    sizeof(IceBoxPropsData)/sizeof(IceBoxPropsData[0])
+    6
 };
 
 const Property IceBoxAdminPropsData[] =
@@ -290,7 +290,7 @@ const PropertyArray PropertyNames::IceBoxAdminProps
     "IceBoxAdmin",
     false,
     IceBoxAdminPropsData,
-    sizeof(IceBoxAdminPropsData)/sizeof(IceBoxAdminPropsData[0])
+    1
 };
 
 const Property IceBridgePropsData[] =
@@ -305,7 +305,7 @@ const PropertyArray PropertyNames::IceBridgeProps
     "IceBridge",
     false,
     IceBridgePropsData,
-    sizeof(IceBridgePropsData)/sizeof(IceBridgePropsData[0])
+    3
 };
 
 const Property IceGridAdminPropsData[] =
@@ -330,7 +330,7 @@ const PropertyArray PropertyNames::IceGridAdminProps
     "IceGridAdmin",
     false,
     IceGridAdminPropsData,
-    sizeof(IceGridAdminPropsData)/sizeof(IceGridAdminPropsData[0])
+    13
 };
 
 const Property IceGridPropsData[] =
@@ -402,7 +402,7 @@ const PropertyArray PropertyNames::IceGridProps
     "IceGrid",
     false,
     IceGridPropsData,
-    sizeof(IceGridPropsData)/sizeof(IceGridPropsData[0])
+    60
 };
 
 const Property IceSSLPropsData[] =
@@ -435,7 +435,7 @@ const PropertyArray PropertyNames::IceSSLProps
     "IceSSL",
     false,
     IceSSLPropsData,
-    sizeof(IceSSLPropsData)/sizeof(IceSSLPropsData[0])
+    21
 };
 
 const Property IceStormPropsData[] =
@@ -471,7 +471,7 @@ const PropertyArray PropertyNames::IceStormProps
     "IceStorm",
     false,
     IceStormPropsData,
-    sizeof(IceStormPropsData)/sizeof(IceStormPropsData[0])
+    24
 };
 
 const Property IceStormAdminPropsData[] =
@@ -486,7 +486,7 @@ const PropertyArray PropertyNames::IceStormAdminProps
     "IceStormAdmin",
     false,
     IceStormAdminPropsData,
-    sizeof(IceStormAdminPropsData)/sizeof(IceStormAdminPropsData[0])
+    3
 };
 
 const Property IceBTPropsData[] =
@@ -500,7 +500,7 @@ const PropertyArray PropertyNames::IceBTProps
     "IceBT",
     false,
     IceBTPropsData,
-    sizeof(IceBTPropsData)/sizeof(IceBTPropsData[0])
+    2
 };
 
 const Property Glacier2PropsData[] =
@@ -536,10 +536,10 @@ const PropertyArray PropertyNames::Glacier2Props
     "Glacier2",
     false,
     Glacier2PropsData,
-    sizeof(Glacier2PropsData)/sizeof(Glacier2PropsData[0])
+    24
 };
 
-const PropertyArray PropertyNames::validProps[] =
+const std::array<PropertyArray, 14> PropertyNames::validProps =
 {
     IceProps,
     IceMXProps,
@@ -554,25 +554,5 @@ const PropertyArray PropertyNames::validProps[] =
     IceStormProps,
     IceStormAdminProps,
     IceBTProps,
-    Glacier2Props,
-    PropertyArray{nullptr, false, nullptr ,0}
-};
-
-const char* PropertyNames::clPropNames[] =
-{
-    "Ice",
-    "IceMX",
-    "IceDiscovery",
-    "IceLocatorDiscovery",
-    "IceBox",
-    "IceBoxAdmin",
-    "IceBridge",
-    "IceGridAdmin",
-    "IceGrid",
-    "IceSSL",
-    "IceStorm",
-    "IceStormAdmin",
-    "IceBT",
-    "Glacier2",
-    nullptr
+    Glacier2Props
 };

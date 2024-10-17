@@ -6,7 +6,7 @@
 
 namespace Ice.Internal;
 
-public sealed class PropertyNames
+internal sealed class PropertyNames
 {
     internal static PropertyArray ProxyProps = new(
         "Proxy",
@@ -65,6 +65,11 @@ public sealed class PropertyNames
             new(pattern: @"MaxConnections", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"MessageSizeMax", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null)
         ]);
+
+    internal static PropertyArray LMDBProps = new(
+        "LMDB",
+        true,
+        []);
 
     internal static PropertyArray IceProps = new(
         "Ice",
@@ -208,6 +213,26 @@ public sealed class PropertyNames
             new(pattern: @"^UseSharedCommunicator\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null)
         ]);
 
+    internal static PropertyArray IceBoxAdminProps = new(
+        "IceBoxAdmin",
+        false,
+        []);
+
+    internal static PropertyArray IceBridgeProps = new(
+        "IceBridge",
+        false,
+        []);
+
+    internal static PropertyArray IceGridAdminProps = new(
+        "IceGridAdmin",
+        false,
+        []);
+
+    internal static PropertyArray IceGridProps = new(
+        "IceGrid",
+        false,
+        []);
+
     internal static PropertyArray IceSSLProps = new(
         "IceSSL",
         false,
@@ -230,6 +255,26 @@ public sealed class PropertyNames
             new(pattern: @"VerifyPeer", usesRegex: false, defaultValue: "2", deprecated: false, propertyArray: null)
         ]);
 
+    internal static PropertyArray IceStormProps = new(
+        "IceStorm",
+        false,
+        []);
+
+    internal static PropertyArray IceStormAdminProps = new(
+        "IceStormAdmin",
+        false,
+        []);
+
+    internal static PropertyArray IceBTProps = new(
+        "IceBT",
+        false,
+        []);
+
+    internal static PropertyArray Glacier2Props = new(
+        "Glacier2",
+        false,
+        []);
+
     internal static PropertyArray[] validProps =
     [
         IceProps,
@@ -237,24 +282,14 @@ public sealed class PropertyNames
         IceDiscoveryProps,
         IceLocatorDiscoveryProps,
         IceBoxProps,
-        IceSSLProps
-    ];
-
-    internal static string[] clPropNames =
-    [
-        "Ice",
-        "IceMX",
-        "IceDiscovery",
-        "IceLocatorDiscovery",
-        "IceBox",
-        "IceBoxAdmin",
-        "IceBridge",
-        "IceGridAdmin",
-        "IceGrid",
-        "IceSSL",
-        "IceStorm",
-        "IceStormAdmin",
-        "IceBT",
-        "Glacier2"
+        IceBoxAdminProps,
+        IceBridgeProps,
+        IceGridAdminProps,
+        IceGridProps,
+        IceSSLProps,
+        IceStormProps,
+        IceStormAdminProps,
+        IceBTProps,
+        Glacier2Props
     ];
 }

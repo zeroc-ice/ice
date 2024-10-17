@@ -66,7 +66,7 @@ class Client extends TestHelper
             $properties = Ice\createProperties();
             $properties->getIceProperty("Ice.UnknownProperty");
             test(False);
-        } catch (\InvalidArgumentException $ex) {
+        } catch (\Ice\UnknownPropertyException $ex) {
             test($ex->getMessage() == "unknown Ice property: Ice.UnknownProperty");
         }
         echo "ok\n";

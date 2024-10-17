@@ -5,6 +5,8 @@
 package test.Ice.properties;
 
 import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.UnknownPropertyException;
+import com.zeroc.Ice.Util;
 
 public class Client extends test.TestHelper {
     public static void test(boolean b) {
@@ -115,9 +117,48 @@ public class Client extends test.TestHelper {
             try {
                 properties.getIceProperty("Ice.UnknownProperty");
                 test(false);
-            } catch (IllegalArgumentException ex) {
+            } catch (UnknownPropertyException ex) {
             }
             System.out.println("ok");
+        }
+
+        {
+            System.out.print("testing that setting an unknown ice property throws an exception...");
+            Properties properties = new Properties();
+            try {
+                properties.setProperty("Ice.UnknownProperty", "bar");
+                test(false);
+            } catch (UnknownPropertyException ex) {
+            }
+            System.out.println("ok");
+        }
+
+        {
+            try (var communicator = Util.initialize()) {
+                var properties = communicator.getProperties();
+
+                System.out.print(
+                        "testing that creating an object adapter with unknown properties throws an exception...");
+                properties.setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
+                properties.setProperty("FooOA.UnknownProperty", "bar");
+                try {
+                    communicator.createObjectAdapter("FooOA");
+                    test(false);
+                } catch (UnknownPropertyException ex) {
+                }
+                System.out.println("ok");
+
+                System.out.print(
+                        "testing that creating a proxy with unknown properties throws an exception...");
+                properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
+                properties.setProperty("FooProxy.UnknownProperty", "bar");
+                try {
+                    communicator.propertyToProxy("FooProxy");
+                    test(false);
+                } catch (UnknownPropertyException ex) {
+                }
+                System.out.println("ok");
+            }
         }
     }
 
