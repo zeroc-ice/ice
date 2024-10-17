@@ -14,7 +14,6 @@
 
 namespace DataStormI
 {
-
     class DataElementI;
 
     class CallbackExecutor
@@ -34,7 +33,6 @@ namespace DataStormI
         bool _destroyed;
         std::vector<std::pair<std::shared_ptr<DataElementI>, std::function<void()>>> _queue;
     };
-
 }
 
 #endif

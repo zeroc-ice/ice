@@ -14,7 +14,6 @@ using namespace DataStormContract;
 
 namespace
 {
-
     class NodeForwarderI : public Node, public enable_shared_from_this<NodeForwarderI>
     {
     public:
@@ -44,12 +43,9 @@ namespace
             try
             {
                 optional<SessionPrx> session;
-                updateNodeAndSessionProxy(publisher, session, current);
+                updateNodeAndSessionProxy(*publisher, session, current);
                 // TODO check the return value?
                 auto _ = _node->initiateCreateSessionAsync(publisher);
-            }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
-            {
             }
             catch (const Ice::ObjectAdapterDestroyedException&)
             {
@@ -78,13 +74,10 @@ namespace
 
             try
             {
-                updateNodeAndSessionProxy(subscriber, subscriberSession, current);
+                updateNodeAndSessionProxy(*subscriber, subscriberSession, current);
                 session->addSession(subscriberSession);
                 // TODO check the return value?
                 auto _ = _node->createSessionAsync(subscriber, subscriberSession, true);
-            }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
-            {
             }
             catch (const Ice::ObjectAdapterDestroyedException&)
             {
@@ -111,13 +104,10 @@ namespace
             }
             try
             {
-                updateNodeAndSessionProxy(publisher, publisherSession, current);
+                updateNodeAndSessionProxy(*publisher, publisherSession, current);
                 session->addSession(publisherSession);
                 // TODO check the return value?
                 auto _ = _node->confirmCreateSessionAsync(publisher, publisherSession);
-            }
-            catch (const Ice::ObjectAdapterDeactivatedException&)
-            {
             }
             catch (const Ice::ObjectAdapterDestroyedException&)
             {
@@ -129,9 +119,8 @@ namespace
 
     private:
         template<typename T>
-        void updateNodeAndSessionProxy(optional<NodePrx>& node, optional<T>& session, const Ice::Current& current)
+        void updateNodeAndSessionProxy(NodePrx& node, optional<T>& session, const Ice::Current& current)
         {
-            assert(node != nullopt);
             if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
             {
                 auto peerSession = _nodeSessionManager->createOrGet(node, current.con, false);
@@ -148,7 +137,6 @@ namespace
         const weak_ptr<NodeSessionI> _session;
         const optional<NodePrx> _node;
     };
-
 }
 
 NodeSessionI::NodeSessionI(
@@ -206,9 +194,6 @@ NodeSessionI::destroy()
             // TODO check the return value?
             auto _ = session.second->disconnectedAsync();
         }
-    }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
-    {
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {

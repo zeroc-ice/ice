@@ -13,5 +13,4 @@ traceProps = {
 
 TestSuite(
     __file__,
-    [ ClientTestCase(client = Writer(), traceProps=traceProps) ],
-    runOnMainThread=True)
+    [ ClientTestCase(client = Writer(), traceProps=traceProps) ])

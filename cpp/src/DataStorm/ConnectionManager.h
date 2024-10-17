@@ -10,7 +10,6 @@
 
 namespace DataStormI
 {
-
     class CallbackExecutor;
 
     class ConnectionManager : public std::enable_shared_from_this<ConnectionManager>
@@ -35,7 +34,6 @@ namespace DataStormI
         std::map<Ice::ConnectionPtr, std::map<std::shared_ptr<void>, Callback>> _connections;
         std::shared_ptr<CallbackExecutor> _executor;
     };
-
 }
 
 #endif

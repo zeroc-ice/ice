@@ -13,7 +13,6 @@
 
 namespace std
 {
-
     template<typename T> inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& p)
     {
         if (!p.empty())
@@ -45,22 +44,18 @@ namespace std
         }
         return os;
     }
-
 }
 
 namespace Ice
 {
-
     inline std::ostream& operator<<(std::ostream& os, const Ice::Identity& id)
     {
         return os << (id.category.empty() ? "" : id.category + "/") << id.name;
     }
-
 }
 
 namespace DataStormContract
 {
-
     inline std::string valueIdToString(std::int64_t valueId)
     {
         std::ostringstream os;
@@ -145,12 +140,10 @@ namespace DataStormContract
         os << 'e' << samples.id << ":sz" << samples.samples.size();
         return os;
     }
-
 }
 
 namespace DataStormI
 {
-
     template<typename T, typename ::std::enable_if<::std::is_base_of<DataStormI::Element, T>::value>::type* = nullptr>
     inline std::ostream& operator<<(std::ostream& os, const std::shared_ptr<T>& p)
     {
@@ -250,6 +243,5 @@ namespace DataStormI
     public:
         Warning(std::shared_ptr<TraceLevels> traceLevels) : Ice::Warning(traceLevels->logger) {}
     };
-
 }
 #endif

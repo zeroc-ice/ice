@@ -10,13 +10,10 @@
 
 namespace DataStormI
 {
-
     class Instance;
     class TraceLevels;
 
     class TopicI;
-    class TopicReaderI;
-    class TopicWriterI;
 
     class TopicFactoryI : public TopicFactory, public std::enable_shared_from_this<TopicFactoryI>
     {
@@ -47,14 +44,8 @@ namespace DataStormI
         std::vector<std::shared_ptr<TopicI>> getTopicReaders(const std::string&) const;
         std::vector<std::shared_ptr<TopicI>> getTopicWriters(const std::string&) const;
 
-        void createSubscriberSession(
-            const std::string&,
-            std::optional<DataStormContract::NodePrx>,
-            const Ice::ConnectionPtr&);
-        void createPublisherSession(
-            const std::string&,
-            std::optional<DataStormContract::NodePrx>,
-            const Ice::ConnectionPtr&);
+        void createSubscriberSession(const std::string&, DataStormContract::NodePrx, const Ice::ConnectionPtr&);
+        void createPublisherSession(const std::string&, DataStormContract::NodePrx, const Ice::ConnectionPtr&);
 
         std::shared_ptr<Instance> getInstance() const
         {
@@ -80,6 +71,5 @@ namespace DataStormI
         std::int64_t _nextReaderId;
         std::int64_t _nextWriterId;
     };
-
 }
 #endif
