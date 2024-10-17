@@ -47,7 +47,11 @@ public:
     bool supportsAMD(const Ice::Current&) final;
     bool supportsFunctionalTests(const Ice::Current&) final;
 
-    void pingBiDir(std::optional<Test::PingReplyPrx>, const Ice::Current&) final;
+    void pingBiDirAsync(
+        std::optional<Test::PingReplyPrx>,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) final;
 
 private:
     int _batchCount;

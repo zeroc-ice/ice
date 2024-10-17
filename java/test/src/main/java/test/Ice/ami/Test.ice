@@ -47,7 +47,7 @@ interface TestIntf
     float opFloat(float f);
     double opDouble(double d);
 
-    void pingBiDir(PingReply* reply);
+    ["amd"] void pingBiDir(PingReply* reply);
 }
 
 interface TestIntfController

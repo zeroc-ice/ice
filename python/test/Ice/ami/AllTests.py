@@ -629,12 +629,14 @@ def allTestsFuture(helper, communicator, collocated):
     print("ok")
 
     if not collocated:
-        sys.stdout.write("testing bidir invocation... ")
+        sys.stdout.write("testing bi-dir... ")
         sys.stdout.flush()
         adapter = communicator.createObjectAdapter("")
         replyI = PingReplyI()
         reply = Test.PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI))
-        adapter.activate()
+
+        context = { "ONE": "" }
+        p.pingBiDir(reply, context)
 
         p.ice_getConnection().setAdapter(adapter)
         p.pingBiDir(reply)

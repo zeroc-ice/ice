@@ -102,8 +102,16 @@ class TestI: TestIntf {
     }
 
     func pingBiDir(reply: PingReplyPrx?, current: Current) async throws {
-        if let reply = reply {
-            try await reply.ice_fixed(current.con!).reply()
+        let expectSuccess = !current.ctx.keys.contains("ONE")
+        do {
+            try await reply!.ice_fixed(current.con!).reply()
+            if !expectSuccess {
+                throw TestIntfException()
+            }
+        } catch is ObjectNotExistException {
+            if expectSuccess {
+                throw TestIntfException()
+            }
         }
     }
 
