@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{da1f64c2-3af6-4ad6-9be4-651fcf51e176}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{E6261236-F264-49AD-97FE-C4A2103E10C4}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Slice Files">
+      <UniqueIdentifier>{6CF148F1-D3A5-45BD-A9B8-6E1E209A8E92}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{6dc90333-23f5-4ed6-b6d0-48df24ec0545}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Win32">
+      <UniqueIdentifier>{e7499dd2-5f0e-49bc-b32a-8e8b9a321763}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Debug">
+      <UniqueIdentifier>{e12d6501-6091-4eb6-971d-e803fc2ea3bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32">
+      <UniqueIdentifier>{e384c485-17c6-4b18-9663-999bcea9bb47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Debug">
+      <UniqueIdentifier>{62d1e5e7-deb6-47f0-a6bc-681bd24288fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64">
+      <UniqueIdentifier>{85607007-5e31-479f-a1e4-4dd811576f3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Debug">
+      <UniqueIdentifier>{3aaeea7e-9693-410c-b276-169476ff8817}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64">
+      <UniqueIdentifier>{aa92b0d4-1476-4c82-bc8d-2a53fab43cd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Debug">
+      <UniqueIdentifier>{eaaf90ac-2b23-4311-96ea-110f4dfb1aeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Release">
+      <UniqueIdentifier>{1f715f2e-ed49-497e-9476-5df658443a74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Release">
+      <UniqueIdentifier>{1a41548b-3a42-4cca-8612-a6f88dc89f63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Release">
+      <UniqueIdentifier>{ae30d32a-f00b-4e29-bd04-d8a87c0c3d2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Release">
+      <UniqueIdentifier>{2918b451-9c4f-4b55-9915-1ced485a503b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\DataStorm.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\TraceUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TopicI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TopicFactoryI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ConnectionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SessionI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\NodeI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\LookupI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Instance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ForwarderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DataElementI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CallbackExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Sample.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Contract.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Sample.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Contract.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Sample.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Contract.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Sample.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Contract.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\NodeSessionI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\NodeSessionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\CallbackExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DataElementI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ForwarderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Instance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\LookupI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\NodeI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SessionI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ConnectionManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TopicFactoryI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TopicI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TraceUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\DataStorm\Sample.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\DataStorm\Sample.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\DataStorm\Sample.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\DataStorm\Sample.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\DataStorm\Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\DataStorm\DataStorm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\DataStorm\InternalI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\DataStorm\InternalT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\DataStorm\Node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\DataStorm\Types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Debug\DataStorm\Contract.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\DataStorm\Contract.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Release\DataStorm\Contract.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Release\DataStorm\Contract.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\DataStorm\CtrlCHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\NodeSessionI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\NodeSessionManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\..\..\slice\DataStorm\Sample.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\Contract.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+  </ItemGroup>
+</Project>
