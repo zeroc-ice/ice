@@ -36,16 +36,17 @@
    private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_SRC_ICESTORM_GRAMMAR_H_INCLUDED
-#define YY_YY_SRC_ICESTORM_GRAMMAR_H_INCLUDED
+# define YY_YY_SRC_ICESTORM_GRAMMAR_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-#    define YYDEBUG 1
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 #line 9 "src/IceStorm/Grammar.y"
+
 
 #include <list>
 #include <string>
@@ -55,46 +56,51 @@ extern int yydebug;
 // simple malloc/alloc/memcpy calls, which do not work for the
 // YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
 // assignment operator, etc.
-#define YYMAXDEPTH 10000       // 10000 should suffice. Bison default is 10000 as maximum.
+#define YYMAXDEPTH  10000      // 10000 should suffice. Bison default is 10000 as maximum.
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
 #define yyoverflow(a, b, c, d, e, f) yyerror(a)
 
-#line 66 "src/IceStorm/Grammar.h"
+
+#line 67 "src/IceStorm/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
-#    define YYTOKENTYPE
-enum yytokentype
-{
+# define YYTOKENTYPE
+  enum yytokentype
+  {
     YYEMPTY = -2,
-    YYEOF = 0,                   /* "end of file"  */
-    YYerror = 256,               /* error  */
-    YYUNDEF = 257,               /* "invalid token"  */
-    ICE_STORM_HELP = 258,        /* ICE_STORM_HELP  */
-    ICE_STORM_EXIT = 259,        /* ICE_STORM_EXIT  */
-    ICE_STORM_CURRENT = 260,     /* ICE_STORM_CURRENT  */
-    ICE_STORM_CREATE = 261,      /* ICE_STORM_CREATE  */
-    ICE_STORM_DESTROY = 262,     /* ICE_STORM_DESTROY  */
-    ICE_STORM_LINK = 263,        /* ICE_STORM_LINK  */
-    ICE_STORM_UNLINK = 264,      /* ICE_STORM_UNLINK  */
-    ICE_STORM_LINKS = 265,       /* ICE_STORM_LINKS  */
-    ICE_STORM_TOPICS = 266,      /* ICE_STORM_TOPICS  */
-    ICE_STORM_REPLICA = 267,     /* ICE_STORM_REPLICA  */
-    ICE_STORM_SUBSCRIBERS = 268, /* ICE_STORM_SUBSCRIBERS  */
-    ICE_STORM_STRING = 269       /* ICE_STORM_STRING  */
-};
-typedef enum yytokentype yytoken_kind_t;
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    ICESTORM_HELP = 258,           /* ICESTORM_HELP  */
+    ICESTORM_EXIT = 259,           /* ICESTORM_EXIT  */
+    ICESTORM_CURRENT = 260,        /* ICESTORM_CURRENT  */
+    ICESTORM_CREATE = 261,         /* ICESTORM_CREATE  */
+    ICESTORM_DESTROY = 262,        /* ICESTORM_DESTROY  */
+    ICESTORM_LINK = 263,           /* ICESTORM_LINK  */
+    ICESTORM_UNLINK = 264,         /* ICESTORM_UNLINK  */
+    ICESTORM_LINKS = 265,          /* ICESTORM_LINKS  */
+    ICESTORM_TOPICS = 266,         /* ICESTORM_TOPICS  */
+    ICESTORM_REPLICA = 267,        /* ICESTORM_REPLICA  */
+    ICESTORM_SUBSCRIBERS = 268,    /* ICESTORM_SUBSCRIBERS  */
+    ICESTORM_STRING = 269          /* ICESTORM_STRING  */
+  };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
-#if !defined YYSTYPE && !defined YYSTYPE_IS_DECLARED
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef std::list<std::string> YYSTYPE;
-#    define YYSTYPE_IS_TRIVIAL 1
-#    define YYSTYPE_IS_DECLARED 1
+# define YYSTYPE_IS_TRIVIAL 1
+# define YYSTYPE_IS_DECLARED 1
 #endif
 
-int yyparse(void);
+
+
+
+int yyparse (void);
+
 
 #endif /* !YY_YY_SRC_ICESTORM_GRAMMAR_H_INCLUDED  */

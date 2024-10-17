@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_PARSER_H
-#define ICE_GRID_PARSER_H
+#ifndef ICEGRID_PARSER_H
+#define ICEGRID_PARSER_H
 
 #include "IceGrid/Admin.h"
 #include "IceGrid/Registry.h"

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_SESSIONSERVANTLOCATOR_H
-#define ICE_GRID_SESSIONSERVANTLOCATOR_H
+#ifndef ICEGRID_SESSIONSERVANTLOCATOR_H
+#define ICEGRID_SESSIONSERVANTLOCATOR_H
 
 #include "AdminCallbackRouter.h"
 #include "Ice/ServantLocator.h"

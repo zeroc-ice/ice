@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_REPLICACACHE_H
-#define ICE_GRID_REPLICACACHE_H
+#ifndef ICEGRID_REPLICACACHE_H
+#define ICEGRID_REPLICACACHE_H
 
 #include "Cache.h"
 #include "IceStorm/IceStorm.h"

@@ -12,11 +12,11 @@
 // Automatically link with IceStormService[D].lib
 //
 
-#if !defined(ICE_BUILDING_ICE_STORM_SERVICE) && defined(ICESTORM_SERVICE_API_EXPORTS)
-#    define ICE_BUILDING_ICE_STORM_SERVICE
+#if !defined(ICE_BUILDING_ICESTORM_SERVICE) && defined(ICESTORM_SERVICE_API_EXPORTS)
+#    define ICE_BUILDING_ICESTORM_SERVICE
 #endif
 
-#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_STORM_SERVICE)
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICESTORM_SERVICE)
 #    pragma comment(lib, ICE_LIBNAME("IceStormService"))
 #endif
 

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_REGISTRY_ADMIN_ROUTER_H
-#define ICE_GRID_REGISTRY_ADMIN_ROUTER_H
+#ifndef ICEGRID_REGISTRY_ADMIN_ROUTER_H
+#define ICEGRID_REGISTRY_ADMIN_ROUTER_H
 
 #include "AdminRouter.h"
 #include "Database.h"

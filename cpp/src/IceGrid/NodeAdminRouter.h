@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_NODE_ADMIN_ROUTER_H
-#define ICE_GRID_NODE_ADMIN_ROUTER_H
+#ifndef ICEGRID_NODE_ADMIN_ROUTER_H
+#define ICEGRID_NODE_ADMIN_ROUTER_H
 
 #include "AdminRouter.h"
 #include "NodeI.h"

@@ -160,7 +160,7 @@ keyword [[:alpha:]]*
     }
     yylval->clear();
     yylval->push_back(s);
-    return ICE_STORM_STRING;
+    return ICESTORM_STRING;
 }
 
 \' {
@@ -185,7 +185,7 @@ keyword [[:alpha:]]*
     }
     yylval->clear();
     yylval->push_back(s);
-    return ICE_STORM_STRING;
+    return ICESTORM_STRING;
 }
 
 . {
@@ -212,7 +212,7 @@ keyword [[:alpha:]]*
     yylval->push_back(s);
 
     const auto pos = keywordMap.find(s);
-    return pos != keywordMap.end() ? pos->second : ICE_STORM_STRING;
+    return pos != keywordMap.end() ? pos->second : ICESTORM_STRING;
 }
 
 %%
@@ -223,18 +223,18 @@ namespace IceStorm
     // It fills the keyword map with all keyword-token pairs.
     void initScanner()
     {
-        keywordMap["help"] = ICE_STORM_HELP;
-        keywordMap["quit"] = ICE_STORM_EXIT;
-        keywordMap["exit"] = ICE_STORM_EXIT;
-        keywordMap["current"] = ICE_STORM_CURRENT;
-        keywordMap["create"] = ICE_STORM_CREATE;
-        keywordMap["destroy"] = ICE_STORM_DESTROY;
-        keywordMap["link"] = ICE_STORM_LINK;
-        keywordMap["unlink"] = ICE_STORM_UNLINK;
-        keywordMap["links"] = ICE_STORM_LINKS;
-        keywordMap["topics"] = ICE_STORM_TOPICS;
-        keywordMap["replica"] = ICE_STORM_REPLICA;
-        keywordMap["subscribers"] = ICE_STORM_SUBSCRIBERS;
+        keywordMap["help"] = ICESTORM_HELP;
+        keywordMap["quit"] = ICESTORM_EXIT;
+        keywordMap["exit"] = ICESTORM_EXIT;
+        keywordMap["current"] = ICESTORM_CURRENT;
+        keywordMap["create"] = ICESTORM_CREATE;
+        keywordMap["destroy"] = ICESTORM_DESTROY;
+        keywordMap["link"] = ICESTORM_LINK;
+        keywordMap["unlink"] = ICESTORM_UNLINK;
+        keywordMap["links"] = ICESTORM_LINKS;
+        keywordMap["topics"] = ICESTORM_TOPICS;
+        keywordMap["replica"] = ICESTORM_REPLICA;
+        keywordMap["subscribers"] = ICESTORM_SUBSCRIBERS;
     }
 
     // This function is called whenever the scanner encounters an unrecoverable error.

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_NODE_SESSION_MANAGER_H
-#define ICE_GRID_NODE_SESSION_MANAGER_H
+#ifndef ICEGRID_NODE_SESSION_MANAGER_H
+#define ICEGRID_NODE_SESSION_MANAGER_H
 
 #include "IceGrid/Registry.h"
 #include "Internal.h"

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_UTIL_H
-#define ICE_GRID_UTIL_H
+#ifndef ICEGRID_UTIL_H
+#define ICEGRID_UTIL_H
 
 #include "../Ice/Random.h"
 #include "Ice/BuiltinSequences.h"
