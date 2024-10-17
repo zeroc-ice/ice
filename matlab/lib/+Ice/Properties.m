@@ -225,7 +225,7 @@ classdef Properties < IceInternal.WrapperObject
             %   options into properties. All options that begin with one of the
             %   following prefixes are converted into properties: "--Ice",
             %   "--IceBox", "--IceGrid", "--IceSSL",
-            %   "--IceStorm", "--Freeze", and "--Glacier2".
+            %   "--IceStorm", and "--Glacier2".
             %
             % Parameters:
             %   options (cell array of char) - The command-line options.

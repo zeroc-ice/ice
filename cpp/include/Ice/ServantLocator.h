@@ -31,8 +31,7 @@ namespace Ice
          * otherwise, the client receives {@link UnknownUserException}. If <code>locate</code> throws any exception, the
          * Ice run time does <em>not</em>call <code>finished</code>. <p class="Note">If you call <code>locate</code>
          * from your own code, you must also call <code>finished</code> when you have finished using the servant,
-         * provided that <code>locate</code> returned a non-null servant; otherwise, you will get undefined behavior if
-         * you use servant locators such as the Freeze Evictor.
+         * provided that <code>locate</code> returned a non-null servant.
          * @param curr Information about the current operation for which a servant is required.
          * @param cookie A "cookie" that will be passed to <code>finished</code>.
          * @return The located servant, or null if no suitable servant has been found.

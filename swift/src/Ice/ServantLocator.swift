@@ -12,8 +12,7 @@ public protocol ServantLocator: AnyObject {
     /// client receives UnknownUserException.
     /// If locate throws any exception, the Ice run time does not call finished.
     /// If you call locate from your own code, you must also call finished
-    /// when you have finished using the servant, provided that locate returned a non-null servant;
-    /// otherwise, you will get undefined behavior if you use servant locators such as the Freeze Evictor.
+    /// when you have finished using the servant, provided that locate returned a non-null servant.
     ///
     /// - parameter _: `Current` Information about the current operation for which a servant is required.
     ///

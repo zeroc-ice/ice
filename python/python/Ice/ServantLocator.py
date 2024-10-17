@@ -21,7 +21,7 @@ class ServantLocator(object):
 
         If `locate` throws any exception, the Ice runtime does not call `finished`. If you call `locate` from your own code,
         you must also call `finished` when you have finished using the servant, provided that `locate` returned a non-null
-        servant; otherwise, you will get undefined behavior if you use servant locators such as the Freeze Evictor.
+        servant.
 
         Parameters
         ----------

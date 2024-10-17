@@ -2,18 +2,12 @@
 
 import Foundation
 
-/// A factory for values. Value factories are used in several places, such as when Ice receives a class instance and
-/// when Freeze restores a persistent value. Value factories must be implemented by the application writer and
-/// registered with the communicator.
+/// Creates a new class instance from the Slice type ID of a class.
 ///
-/// Create a new value for a given value type. The type is the absolute Slice type id, i.e., the id relative to the
-/// unnamed top-level Slice module. For example, the absolute Slice type id for an interface Bar in
-/// the module Foo is "::Foo::Bar".
-/// Note that the leading "::" is required.
+/// - parameter _: `String` The Slice type ID of a class.
 ///
-/// - parameter _: `String` The value type.
-///
-/// - returns: `Value?` - The value created for the given type, or nil if the factory is unable to create the value.
+/// - returns: `Value?` - The class instance created for the given type ID, or nil if the factory is unable to find
+/// the corresponding class.
 public typealias ValueFactory = (String) -> Value?
 
 /// A value factory manager maintains a collection of value factories. An application can supply a custom
