@@ -138,7 +138,7 @@ export class Properties {
 
         // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
         const propertyArray = Properties.findIcePropertyArray(key);
-        if (propertyArray) {
+        if (propertyArray !== null) {
             const prop = Properties.findProperty(key.substring(propertyArray.name.length + 1), propertyArray);
 
             if (!prop) {
