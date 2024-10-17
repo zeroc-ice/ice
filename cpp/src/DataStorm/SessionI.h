@@ -261,10 +261,8 @@ namespace DataStormI
 
         virtual void disconnected(const Ice::Current&) override;
 
-        void connected(
-            DataStormContract::SessionPrx,
-            const Ice::ConnectionPtr&,
-            const DataStormContract::TopicInfoSeq&);
+        void
+        connected(DataStormContract::SessionPrx, const Ice::ConnectionPtr&, const DataStormContract::TopicInfoSeq&);
         bool disconnected(const Ice::ConnectionPtr&, std::exception_ptr);
         bool retry(DataStormContract::NodePrx, std::exception_ptr);
         void destroyImpl(const std::exception_ptr&);

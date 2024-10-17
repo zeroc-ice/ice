@@ -430,7 +430,10 @@ NodeI::createSubscriberSessionServant(NodePrx node)
         try
         {
             int64_t id = ++_nextSubscriberSessionId;
-            auto session = make_shared<SubscriberSessionI>(shared_from_this(), node, getInstance()->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "s"})->ice_oneway());
+            auto session = make_shared<SubscriberSessionI>(
+                shared_from_this(),
+                node,
+                getInstance()->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "s"})->ice_oneway());
             session->init();
             _subscribers.emplace(node->ice_getIdentity(), session);
             _subscriberSessions.emplace(session->getProxy()->ice_getIdentity(), session);
@@ -458,7 +461,10 @@ NodeI::createPublisherSessionServant(NodePrx node)
         try
         {
             int64_t id = ++_nextPublisherSessionId;
-            auto session = make_shared<PublisherSessionI>(shared_from_this(), node, getInstance()->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "p"})->ice_oneway());
+            auto session = make_shared<PublisherSessionI>(
+                shared_from_this(),
+                node,
+                getInstance()->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "p"})->ice_oneway());
             session->init();
             _publishers.emplace(node->ice_getIdentity(), session);
             _publisherSessions.emplace(session->getProxy()->ice_getIdentity(), session);
