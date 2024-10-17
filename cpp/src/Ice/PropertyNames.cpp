@@ -539,7 +539,7 @@ const PropertyArray PropertyNames::Glacier2Props
     24
 };
 
-const std::array<PropertyArray,14> PropertyNames::validProps =
+const std::array<PropertyArray, 14> PropertyNames::validProps =
 {
     IceProps,
     IceMXProps,

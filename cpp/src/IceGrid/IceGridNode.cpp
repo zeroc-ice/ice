@@ -628,8 +628,10 @@ NodeService::stop()
             _activator->shutdown();
             _activator->destroy();
         }
-        catch (...)
+        catch (const std::exception& ex)
         {
+            cout << "unexpected exception while shutting down activator" << endl;
+            cout << ex.what() << endl;
             assert(false);
         }
     }

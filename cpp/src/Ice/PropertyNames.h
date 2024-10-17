@@ -33,7 +33,7 @@ namespace IceInternal
         const int length;
     };
 
-    class ICE_API PropertyNames
+    class PropertyNames
     {
     public:
         static const PropertyArray ProxyProps;
@@ -56,7 +56,7 @@ namespace IceInternal
         static const PropertyArray IceBTProps;
         static const PropertyArray Glacier2Props;
 
-        static const std::array<PropertyArray,14> validProps;
+        static const std::array<PropertyArray, 14> validProps;
     };
 }
 

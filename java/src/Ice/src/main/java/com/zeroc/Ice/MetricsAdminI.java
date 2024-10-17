@@ -35,16 +35,14 @@ public class MetricsAdminI
             }
         }
 
-        if (!unknownProps.isEmpty()
-                && properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0) {
-            StringBuffer message = new StringBuffer("found unknown IceMX properties for `");
-            message.append(prefix.substring(0, prefix.length() - 1));
-            message.append("':");
-            for (String p : unknownProps) {
-                message.append("\n    ");
-                message.append(p);
-            }
-            Util.getProcessLogger().warning(message.toString());
+        if (unknownProps.size() > 0) {
+            throw new UnknownPropertyException(
+                    "found unknown properties for "
+                            + propertyArray.name()
+                            + ": '"
+                            + prefix
+                            + "'"
+                            + String.join("\n    ", unknownProps));
         }
     }
 

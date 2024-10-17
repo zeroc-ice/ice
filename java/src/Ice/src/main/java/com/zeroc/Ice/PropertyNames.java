@@ -155,7 +155,6 @@ final class PropertyNames
             new Property("Warn.Datagrams", false, "0", false, null),
             new Property("Warn.Dispatch", false, "1", false, null),
             new Property("Warn.Endpoints", false, "1", false, null),
-            new Property("Warn.UnknownProperties", false, "1", false, null),
             new Property("Warn.UnusedProperties", false, "0", false, null),
             new Property("CacheMessageBuffers", false, "2", false, null),
             new Property("ThreadInterruptSafe", false, "", false, null)

@@ -96,10 +96,12 @@ NodeI::NodeI(
             }
         }
 
-        auto p = Ice::createProperties();
-        p->parseCommandLineOptions("", overrides);
-        auto propDict = p->getPropertiesForPrefix("");
-        for (const auto& prop : propDict)
+        auto parsedOptions = Ice::Properties::parseOptions("", overrides);
+
+            // Since we're using an empty prefix, all properties will be matched
+        assert(parsedOptions.second.empty());
+
+        for (const auto& prop : parsedOptions.first)
         {
             _propertiesOverride.push_back({prop.first, prop.second});
         }

@@ -127,7 +127,11 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
             {
                 s += "=1";
             }
-            parseLine(s.substr(2), 0);
+            if (auto optionPair = parseLine(s.substr(2), 0); optionPair)
+            {
+                auto [key, value] = *optionPair;
+                setProperty(key, value);
+            }
             loadConfigFiles = true;
         }
         else
@@ -367,33 +371,14 @@ Ice::Properties::getCommandLineOptions() noexcept
 StringSeq
 Ice::Properties::parseCommandLineOptions(string_view prefix, const StringSeq& options)
 {
-    string pfx = string{prefix};
-    if (!pfx.empty() && pfx[pfx.size() - 1] != '.')
+    auto [matched, unmatched] = parseOptions(prefix, options);
+
+    for (const auto& [key, value] : matched)
     {
-        pfx += '.';
+        setProperty(key, value);
     }
-    pfx = "--" + pfx;
 
-    StringSeq result;
-    for (StringSeq::size_type i = 0; i < options.size(); i++)
-    {
-        string opt = options[i];
-
-        if (opt.find(pfx) == 0)
-        {
-            if (opt.find('=') == string::npos)
-            {
-                opt += "=1";
-            }
-
-            parseLine(opt.substr(2), 0);
-        }
-        else
-        {
-            result.push_back(opt);
-        }
-    }
-    return result;
+    return unmatched;
 }
 
 StringSeq
@@ -555,7 +540,11 @@ Ice::Properties::load(string_view file)
                 }
                 firstLine = false;
             }
-            parseLine(line, stringConverter);
+            if (auto optionPair = parseLine(line, stringConverter); optionPair)
+            {
+                auto [key, value] = *optionPair;
+                setProperty(key, value);
+            }
         }
     }
 }
@@ -575,7 +564,44 @@ Ice::Properties::getUnusedProperties()
     return unusedProperties;
 }
 
-void
+pair<map<string, string>, StringSeq>
+Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
+{
+    map<string, string> matched;
+
+    string pfx = string{prefix};
+    if (!pfx.empty() && pfx[pfx.size() - 1] != '.')
+    {
+        pfx += '.';
+    }
+    pfx = "--" + pfx;
+
+    StringSeq unmatched;
+    for (auto opt : options)
+    {
+        if (opt.find(pfx) == 0)
+        {
+            if (opt.find('=') == string::npos)
+            {
+                opt += "=1";
+            }
+
+            if (auto optionPair = parseLine(opt.substr(2), 0); optionPair)
+            {
+                auto [key, value] = *optionPair;
+                matched.emplace(key, value);
+            }
+        }
+        else
+        {
+            unmatched.emplace_back(opt);
+        }
+    }
+
+    return {matched, unmatched};
+}
+
+optional<pair<string, string>>
 Ice::Properties::parseLine(string_view line, const StringConverterPtr& converter)
 {
     string key;
@@ -738,18 +764,18 @@ Ice::Properties::parseLine(string_view line, const StringConverterPtr& converter
     if ((state == Key && key.length() != 0) || (state == Value && key.length() == 0))
     {
         getProcessLogger()->warning("invalid config file entry: \"" + string{line} + "\"");
-        return;
+        return nullopt;
     }
     else if (key.length() == 0)
     {
-        return;
+        return nullopt;
     }
 
     key = UTF8ToNative(key, converter);
     value = UTF8ToNative(value, converter);
 
-    setProperty(key, value);
-}
+    return make_pair(key, value);
+};
 
 void
 Ice::Properties::loadConfig()
