@@ -94,8 +94,19 @@ TopicI::~TopicI() { assert(_destroyed); }
 void
 TopicI::init()
 {
-    auto forwarder = [self = shared_from_this()](Ice::ByteSeq e, const Ice::Current& c) { self->forward(e, c); };
-    _forwarder = Ice::uncheckedCast<SessionPrx>(_instance->getCollocatedForwarder()->add(forwarder));
+    try
+    {
+        auto forwarder = [self = shared_from_this()](Ice::ByteSeq e, const Ice::Current& c) { self->forward(e, c); };
+        _forwarder = Ice::uncheckedCast<SessionPrx>(_instance->getCollocatedForwarder()->add(forwarder));
+    }
+    catch (const Ice::ObjectAdapterDestroyedException&)
+    {
+        // Ignore
+    }
+    catch (const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignore
+    }
 }
 
 string
