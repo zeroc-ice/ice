@@ -24,7 +24,7 @@ namespace
     /// Find the Ice property array for a given property name.
     /// @param key The property name.
     /// @return The property array if found, nullopt otherwise.
-    optional<const PropertyArray*> findIcePropertyArray(string_view key)
+    const PropertyArray* findIcePropertyArray(string_view key)
     {
         // Check if the property is legal.
         string::size_type dotPos = key.find('.');
@@ -32,7 +32,7 @@ namespace
         // If the key doesn't contain a dot, it's not a valid Ice property.
         if (dotPos == string::npos)
         {
-            return nullopt;
+            return nullptr;
         }
 
         string_view prefix = key.substr(0, dotPos);
@@ -47,7 +47,7 @@ namespace
             }
         }
 
-        return nullopt;
+        return nullptr;
     }
 
     /// Find the default value for an Ice property. If there is no default value, return an empty string.
@@ -64,9 +64,9 @@ namespace
         }
 
         // The Ice property prefix.
-        string prefix{propertyArray.value()->name};
+        string prefix{propertyArray->name};
 
-        auto prop = IceInternal::findProperty(key.substr(prefix.length() + 1), *propertyArray);
+        auto prop = IceInternal::findProperty(key.substr(prefix.length() + 1), propertyArray);
 
         if (!prop)
         {
@@ -319,8 +319,8 @@ Ice::Properties::setProperty(string_view key, string_view value)
     // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
     if (auto propertyArray = findIcePropertyArray(key))
     {
-        string propertyPrefix{propertyArray.value()->name};
-        auto prop = IceInternal::findProperty(key.substr(propertyPrefix.length() + 1), *propertyArray);
+        string propertyPrefix{propertyArray->name};
+        auto prop = IceInternal::findProperty(key.substr(propertyPrefix.length() + 1), propertyArray);
         if (!prop)
         {
             throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};

@@ -625,7 +625,6 @@ NodeService::stop()
     {
         try
         {
-            // TODO: should these two functions be marked as noexcept?
             _activator->shutdown();
             _activator->destroy();
         }
