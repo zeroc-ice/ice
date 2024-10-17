@@ -626,8 +626,8 @@ namespace DataStorm
             std::function<std::function<bool(const SampleType&)>(const Criteria&)> factory) noexcept;
 
     private:
-        std::shared_ptr<DataStormI::TopicReader> getReader() const noexcept;
-        std::shared_ptr<DataStormI::TopicWriter> getWriter() const noexcept;
+        std::shared_ptr<DataStormI::TopicReader> getReader() const;
+        std::shared_ptr<DataStormI::TopicWriter> getWriter() const;
         Ice::CommunicatorPtr getCommunicator() const noexcept;
 
         template<typename, typename, typename> friend class SingleKeyWriter;
@@ -699,7 +699,7 @@ namespace DataStorm
             const Topic<Key, Value, UpdateTag>& topic,
             const Key& key,
             const std::string& name = std::string(),
-            const ReaderConfig& config = ReaderConfig()) noexcept;
+            const ReaderConfig& config = ReaderConfig());
 
         /**
          * Construct a new reader for the given key and sample filter criteria. The construction of the reader
@@ -718,7 +718,7 @@ namespace DataStorm
             const Key& key,
             const Filter<SampleFilterCriteria>& sampleFilter,
             const std::string& name = std::string(),
-            const ReaderConfig& config = ReaderConfig()) noexcept;
+            const ReaderConfig& config = ReaderConfig());
 
         /**
          * Transfers the given reader to this reader.
@@ -758,7 +758,7 @@ namespace DataStorm
             const Topic<Key, Value, UpdateTag>& topic,
             const std::vector<Key>& keys,
             const std::string& name = std::string(),
-            const ReaderConfig& config = ReaderConfig()) noexcept;
+            const ReaderConfig& config = ReaderConfig());
 
         /**
          * Construct a new reader for the given keys and sample filter criteria. The construction of the reader
@@ -778,7 +778,7 @@ namespace DataStorm
             const std::vector<Key>& keys,
             const Filter<SampleFilterCriteria>& sampleFilter,
             const std::string& name = std::string(),
-            const ReaderConfig& config = ReaderConfig()) noexcept;
+            const ReaderConfig& config = ReaderConfig());
 
         /**
          * Transfers the given reader to this reader.
@@ -809,7 +809,7 @@ namespace DataStorm
         const Topic<K, V, UT>& topic,
         const typename Topic<K, V, UT>::KeyType& key,
         const std::string& name = std::string(),
-        const ReaderConfig& config = ReaderConfig()) noexcept
+        const ReaderConfig& config = ReaderConfig())
     {
         return SingleKeyReader<K, V, UT>(topic, key, name, config);
     }
@@ -830,7 +830,7 @@ namespace DataStorm
         const typename Topic<K, V, UT>::KeyType& key,
         const Filter<SFC>& sampleFilter,
         const std::string& name = std::string(),
-        const ReaderConfig& config = ReaderConfig()) noexcept
+        const ReaderConfig& config = ReaderConfig())
     {
         return SingleKeyReader<K, V, UT>(topic, key, sampleFilter, name, config);
     }
@@ -851,7 +851,7 @@ namespace DataStorm
         const Topic<K, V, UT>& topic,
         const std::vector<typename Topic<K, V, UT>::KeyType>& keys,
         const std::string& name = std::string(),
-        const ReaderConfig& config = ReaderConfig()) noexcept
+        const ReaderConfig& config = ReaderConfig())
     {
         return MultiKeyReader<K, V, UT>(topic, keys, name, config);
     }
@@ -874,7 +874,7 @@ namespace DataStorm
         const std::vector<typename Topic<K, V, UT>::KeyType>& keys,
         const Filter<SFC>& sampleFilter,
         const std::string& name = std::string(),
-        const ReaderConfig& config = ReaderConfig()) noexcept
+        const ReaderConfig& config = ReaderConfig())
     {
         return MultiKeyReader<K, V, UT>(topic, keys, sampleFilter, name, config);
     }
@@ -893,7 +893,7 @@ namespace DataStorm
     MultiKeyReader<K, V, UT> makeAnyKeyReader(
         const Topic<K, V, UT>& topic,
         const std::string& name = std::string(),
-        const ReaderConfig& config = ReaderConfig()) noexcept
+        const ReaderConfig& config = ReaderConfig())
     {
         return MultiKeyReader<K, V, UT>(topic, {}, name, config);
     }
@@ -914,7 +914,7 @@ namespace DataStorm
         const Topic<K, V, UT>& topic,
         const Filter<SFC>& sampleFilter,
         const std::string& name = std::string(),
-        const ReaderConfig& config = ReaderConfig()) noexcept
+        const ReaderConfig& config = ReaderConfig())
     {
         return MultiKeyReader<K, V, UT>(topic, {}, sampleFilter, name, config);
     }
@@ -1444,7 +1444,7 @@ namespace DataStorm
         const Topic<Key, Value, UpdateTag>& topic,
         const Key& key,
         const std::string& name,
-        const ReaderConfig& config) noexcept
+        const ReaderConfig& config)
         : Reader<Key, Value, UpdateTag>(topic.getReader()->create({topic._keyFactory->create(key)}, name, config))
     {
     }
@@ -1456,7 +1456,7 @@ namespace DataStorm
         const Key& key,
         const Filter<SFC>& sampleFilter,
         const std::string& name,
-        const ReaderConfig& config) noexcept
+        const ReaderConfig& config)
         : Reader<Key, Value, UpdateTag>(topic.getReader()->create(
               {topic._keyFactory->create(key)},
               name,
@@ -1485,7 +1485,7 @@ namespace DataStorm
         const Topic<Key, Value, UpdateTag>& topic,
         const std::vector<Key>& keys,
         const std::string& name,
-        const ReaderConfig& config) noexcept
+        const ReaderConfig& config)
         : Reader<Key, Value, UpdateTag>(topic.getReader()->create(topic._keyFactory->create(keys), name, config))
     {
     }
@@ -1497,7 +1497,7 @@ namespace DataStorm
         const std::vector<Key>& keys,
         const Filter<SFC>& sampleFilter,
         const std::string& name,
-        const ReaderConfig& config) noexcept
+        const ReaderConfig& config)
         : Reader<Key, Value, UpdateTag>(topic.getReader()->create(
               topic._keyFactory->create(keys),
               name,
@@ -2027,7 +2027,7 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::shared_ptr<DataStormI::TopicReader> Topic<Key, Value, UpdateTag>::getReader() const noexcept
+    std::shared_ptr<DataStormI::TopicReader> Topic<Key, Value, UpdateTag>::getReader() const
     {
         std::lock_guard<std::mutex> lock(_mutex);
         if (!_reader)
@@ -2047,7 +2047,7 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::shared_ptr<DataStormI::TopicWriter> Topic<Key, Value, UpdateTag>::getWriter() const noexcept
+    std::shared_ptr<DataStormI::TopicWriter> Topic<Key, Value, UpdateTag>::getWriter() const
     {
         std::lock_guard<std::mutex> lock(_mutex);
         if (!_writer)
