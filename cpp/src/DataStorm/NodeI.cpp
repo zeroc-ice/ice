@@ -49,10 +49,10 @@ NodeI::NodeI(const shared_ptr<Instance>& instance)
       _proxy{instance->getObjectAdapter()->createProxy<NodePrx>({Ice::generateUUID(), ""})},
       // The subscriber and publisher collocated forwarders are initalized here to avoid using a nullable proxy. These
       // objects are only used after the node is initialized and are removed in destroy implementation.
-      _subscriberForwarder{Ice::uncheckedCast<SubscriberSessionPrx>(
-          instance->getCollocatedForwarder()->add([this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); }))},
-      _publisherForwarder{Ice::uncheckedCast<PublisherSessionPrx>(
-          instance->getCollocatedForwarder()->add([this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); }))},
+      _subscriberForwarder{instance->getCollocatedForwarder()->add<SubscriberSessionPrx>(
+          [this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); })},
+      _publisherForwarder{instance->getCollocatedForwarder()->add<PublisherSessionPrx>(
+          [this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); })},
       _nextSubscriberSessionId{0},
       _nextPublisherSessionId{0}
 {
