@@ -101,7 +101,7 @@ jobs:
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
-        timeout-minutes: 90
+        timeout-minutes: 30
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           # See:
@@ -109,3 +109,17 @@ jobs:
           flags: "--rfilter=IceGrid/replication ${{ matrix.test_flags }}"
         # Don't test matlab on Windows (see setup-dependencies/action.yml)
         if: matrix.config != 'matlab' || runner.os != 'Windows'
+
+      - name: Upload test logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.config }}-${{ matrix.os }}
+          path: ${{ matrix.working_directory || '.' }}/**/*.log
+          if-no-files-found: ignore
+        if: always()
+
+      # - name: Test Summary
+      #   uses: test-summary/action@v2
+      #   with:
+      #     paths: "${{ matrix.working_directory || '.' }}/test-report.xml"
+      #   if: always()
