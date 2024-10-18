@@ -22,29 +22,29 @@ namespace DataStormI
 
         ForwarderManager(const Ice::ObjectAdapterPtr&, const std::string&);
 
-        template<
-            typename Prx = Ice::ObjectPrx,
-            std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
         Prx add(std::function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)> forwarder)
         {
             std::lock_guard<std::mutex> lock(_mutex);
             const Ice::Identity id = {std::to_string(_nextId++), _category};
             _forwarders.emplace(id.name, std::move(forwarder));
-            return _adapter->createProxy<Prx>(std::move(id));
+            return _adapter->createProxy<Prx>(id);
         }
 
-        template<
-            typename Prx = Ice::ObjectPrx,
-            std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
         Prx add(std::function<void(Ice::ByteSeq, const Ice::Current&)> forwarder)
         {
             return add<Prx>(
-                [forwarder = std::move(forwarder)](auto inEncaps, auto response, auto exception, auto current)
+                [forwarder = std::move(forwarder)](
+                    Ice::ByteSeq inEncaps,
+                    Response response,
+                    Exception exception,
+                    const Ice::Current& current)
                 {
                     try
                     {
                         forwarder(inEncaps, current);
-                        response(true, Ice::ByteSeq());
+                        response(true, Ice::ByteSeq{});
                     }
                     catch (...)
                     {
