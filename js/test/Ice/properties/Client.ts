@@ -102,7 +102,7 @@ export class Client extends TestHelper {
                 properties.getIceProperty("Ice.UnknownProperty");
                 test(false);
             } catch (ex) {
-                test(ex.message == "unknown Ice property: Ice.UnknownProperty");
+                test(ex instanceof Ice.UnknownPropertyException);
             }
             out.writeLine("ok");
         }
@@ -114,7 +114,7 @@ export class Client extends TestHelper {
                 properties.setProperty("Ice.UnknownProperty", "bar");
                 test(false);
             } catch (ex) {
-                test(ex.message == "unknown Ice property: Ice.UnknownProperty");
+                test(ex instanceof Ice.UnknownPropertyException);
             }
             out.writeLine("ok");
         }
@@ -124,11 +124,13 @@ export class Client extends TestHelper {
             const properties = communicator.getProperties();
 
             out.write("testing that creating an object adapter with unknown properties throws an exception...");
-            properties.setProperty("FooOA.Locator", "locator:tcp -h 127.0.0.1 -p 10000");
+            properties.setProperty("FooOA.Router", "router:tcp -h 127.0.0.1 -p 10000");
             properties.setProperty("FooOA.UnknownProperty", "bar");
             try {
+                await communicator.createObjectAdapter("FooOA");
+                test(false);
             } catch (ex) {
-                test(ex.message == "unknown Ice property: FooOA.UnknownProperty");
+                test(ex instanceof Ice.UnknownPropertyException);
             }
             out.writeLine("ok");
 
@@ -136,8 +138,10 @@ export class Client extends TestHelper {
             properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
             properties.setProperty("FooProxy.UnknownProperty", "bar");
             try {
+                communicator.propertyToProxy("FooProxy");
+                test(false);
             } catch (ex) {
-                test(ex.message == "unknown Ice property: FooProxy.UnknownProperty");
+                test(ex instanceof Ice.UnknownPropertyException);
             }
             out.writeLine("ok");
 

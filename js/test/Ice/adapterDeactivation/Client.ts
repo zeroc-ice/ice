@@ -16,7 +16,7 @@ export class Client extends TestHelper {
         const obj = new Test.TestIntfPrx(communicator, `test:${this.getTestEndpoint()}`);
         {
             out.write("creating/destroying/recreating object adapter... ");
-            communicator.getProperties().setProperty("TransientTestAdapter.AdapterId", "dummy");
+            communicator.getProperties().setProperty("TransientTestAdapter.ProxyOptions", "-t");
             let adapter = await communicator.createObjectAdapter("TransientTestAdapter");
             try {
                 await communicator.createObjectAdapter("TransientTestAdapter");
