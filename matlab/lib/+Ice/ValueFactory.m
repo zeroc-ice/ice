@@ -1,8 +1,6 @@
 % ValueFactory   Summary of ValueFactory
 %
-% A factory for values. Value factories are used in several places, such as when Ice receives a class instance and
-% when Freeze restores a persistent value. Value factories must be implemented by the application writer and
-% registered with the communicator.
+% A factory for class instances.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
 

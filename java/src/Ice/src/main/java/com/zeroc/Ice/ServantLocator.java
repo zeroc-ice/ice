@@ -59,8 +59,7 @@ public interface ServantLocator {
      *
      * <p class="Note">If you call <code>locate</code> from your own code, you must also call <code>
      * finished</code> when you have finished using the servant, provided that <code>locate</code>
-     * returned a non-null servant; otherwise, you will get undefined behavior if you use servant
-     * locators such as the Freeze Evictor.
+     * returned a non-null servant.
      *
      * @param curr Information about the current operation for which a servant is required.
      * @return An instance of ServantLocator.LocateResult.

@@ -422,7 +422,7 @@ public sealed class Properties
     /// Convert a sequence of command-line options into properties.
     /// All options that begin with one of the following
     /// prefixes are converted into properties: --Ice, --IceBox, --IceGrid,
-    /// --IceSSL, --IceStorm, --Freeze, and --Glacier2.
+    /// --IceSSL, --IceStorm, and --Glacier2.
     /// </summary>
     /// <param name="options">The command-line options.</param>
     /// <returns>The command-line options that do not start with one of the listed prefixes, in their original order.

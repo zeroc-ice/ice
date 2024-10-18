@@ -443,9 +443,8 @@ public final class Properties {
     /**
      * Convert a sequence of command-line options into properties. All options that begin with one
      * of the following prefixes are converted into properties: <code>--Ice</code>, <code>--IceBox
-     * </code> , <code>--IceGrid</code>, <code>--Ice.SSL</code>, <code>--IceStorm</code>, <code>
-     * --Freeze
-     * </code> , and <code>--Glacier2</code>.
+     * </code> , <code>--IceGrid</code>, <code>--Ice.SSL</code>, <code>--IceStorm</code>, and <code>
+     * --Glacier2</code>.
      *
      * @param options The command-line options.
      * @return The command-line options that do not start with one of the listed prefixes, in their
