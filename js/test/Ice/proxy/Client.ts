@@ -522,7 +522,7 @@ export class Client extends TestHelper {
         b1 = b1.ice_locator(Ice.LocatorPrx.uncheckedCast(locator));
 
         const proxyProps = communicator.proxyToProperty(b1, "Test");
-        test(proxyProps.size === 21);
+        test(proxyProps.size === 18);
         test(proxyProps.get("Test") === "test -t -e 1.0");
         test(proxyProps.get("Test.ConnectionCached") === "1");
         test(proxyProps.get("Test.PreferSecure") === "0");
