@@ -35,10 +35,13 @@ class Writer(Client, DataStormProcess):
 
     def getEffectiveProps(self, current, props):
         props = DataStormProcess.getEffectiveProps(self, current, props)
-        if not any(key.startswith("DataStorm.Node.") for key in props):
+        if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
+            props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {current.driver.getTestPort(20)}"
+        elif not any(key.startswith("DataStorm.Node.") for key in props):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
                 {
+                    "DataStorm.Node.Multicast.Enabled": 0,
                     "DataStorm.Node.Server.Enabled": 0,
                     "DataStorm.Node.ConnectTo": f"tcp -p {current.driver.getTestPort(10)}"
                 })
@@ -52,10 +55,13 @@ class Reader(Server, DataStormProcess):
 
     def getEffectiveProps(self, current, props):
         props = DataStormProcess.getEffectiveProps(self, current, props)
-        if not any(key.startswith("DataStorm.Node.") for key in props):
+        if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
+            props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {current.driver.getTestPort(20)}"
+        elif not any(key.startswith("DataStorm.Node.") for key in props):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
                 {
+                    "DataStorm.Node.Multicast.Enabled": 0,
                     "DataStorm.Node.Server.Endpoints": f"tcp -p {current.driver.getTestPort(10)}"
                 })
         return props

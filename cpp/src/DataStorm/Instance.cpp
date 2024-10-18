@@ -56,6 +56,9 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(com
     if (properties->getPropertyAsIntWithDefault("DataStorm.Node.Multicast.Enabled", 1) > 0)
     {
         properties->setProperty("DataStorm.Node.Adapters.Multicast.Endpoints", "udp -h 239.255.0.1 -p 10000");
+        // Set the published host to the multicast address, ensuring that proxies are created with the multicast
+        // address.
+        properties->setProperty("DataStorm.Node.Adapters.Multicast.PublishedHost", "239.255.0.1");
         properties->setProperty("DataStorm.Node.Adapters.Multicast.ProxyOptions", "-d");
         properties->setProperty("DataStorm.Node.Adapters.Multicast.ThreadPool.SizeMax", "1");
 
