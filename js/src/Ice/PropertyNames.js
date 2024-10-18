@@ -16,7 +16,6 @@ PropertyNames.ProxyProps = new PropertyArray("Proxy", false, [
     new Property("InvocationTimeout", false, "", false, null),
     new Property("Locator", false, "", false, null),
     new Property("Router", false, "", false, null),
-    new Property("CollocationOptimized", false, "", false, null),
     new Property(/^Context\../, true, "", false, null)
 ]);
 
@@ -32,7 +31,6 @@ PropertyNames.ThreadPoolProps = new PropertyArray("ThreadPool", true, [
 ]);
 
 PropertyNames.ObjectAdapterProps = new PropertyArray("ObjectAdapter", true, [
-    new Property("Endpoints", false, "", false, null),
     new Property("PublishedEndpoints", false, "", false, null),
     new Property("Router", false, "", false, PropertyNames.ProxyProps),
     new Property("ProxyOptions", false, "", false, null),

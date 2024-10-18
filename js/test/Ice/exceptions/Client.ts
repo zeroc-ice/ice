@@ -32,11 +32,12 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.InitializationException, ex); // Expected
         }
 
+        communicator.getProperties().setProperty("TestAdapter0.Endpoints", "default");
         try {
-            await communicator.createObjectAdapterWithEndpoints("TestAdapter0", "default");
+            await communicator.createObjectAdapter("TestAdapter0");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.FeatureNotSupportedException, ex); // Expected
+            test(ex instanceof Ice.UnknownPropertyException, ex); // Expected
         }
         out.writeLine("ok");
 

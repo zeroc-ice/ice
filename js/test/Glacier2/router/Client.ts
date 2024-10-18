@@ -114,7 +114,10 @@ export class Client extends TestHelper {
             const baseC = communicator.stringToProxy("collocated:" + this.getTestEndpoint(50));
             try {
                 await baseC.ice_ping();
-            } catch (ex) {}
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.ObjectNotExistException, ex);
+            }
             out.writeLine("ok");
         }
 

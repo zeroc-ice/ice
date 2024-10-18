@@ -19,17 +19,11 @@ export class Client extends TestHelper {
             communicator.getProperties().setProperty("TransientTestAdapter.ProxyOptions", "-t");
             let adapter = await communicator.createObjectAdapter("TransientTestAdapter");
             try {
-                await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "");
+                await communicator.createObjectAdapter("TransientTestAdapter");
                 test(false);
             } catch (ex) {
                 test(ex instanceof Ice.AlreadyRegisteredException);
             }
-            adapter.destroy();
-
-            //
-            // Use a different port than the first adapter to avoid an "address already in use" error.
-            //
-            adapter = await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "");
             adapter.destroy();
             out.writeLine("ok");
         }

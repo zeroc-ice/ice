@@ -132,10 +132,6 @@ export class ObjectAdapter {
                 //
                 p = this._instance.outgoingConnectionFactory().setRouterInfo(this._routerInfo);
             } else {
-                const endpoints = properties.getProperty(this._name + ".Endpoints");
-                if (endpoints.length > 0) {
-                    throw new FeatureNotSupportedException("object adapter endpoints not supported");
-                }
                 p = Promise.resolve();
             }
 

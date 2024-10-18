@@ -67,17 +67,6 @@ export class Communicator {
         return promise;
     }
 
-    createObjectAdapterWithEndpoints(name, endpoints) {
-        if (name.length === 0) {
-            name = generateUUID();
-        }
-
-        this.getProperties().setProperty(name + ".Endpoints", endpoints);
-        const promise = new Promise();
-        this._instance.objectAdapterFactory().createObjectAdapter(name, null, promise);
-        return promise;
-    }
-
     createObjectAdapterWithRouter(name, router) {
         if (name.length === 0) {
             name = generateUUID();

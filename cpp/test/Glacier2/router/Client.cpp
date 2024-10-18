@@ -484,6 +484,7 @@ CallbackClient::run(int argc, char** argv)
         try
         {
             baseC->ice_ping();
+            test(false);
         }
         catch (const Ice::ObjectNotExistException&)
         {
