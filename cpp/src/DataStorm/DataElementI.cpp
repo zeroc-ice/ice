@@ -52,6 +52,8 @@ DataElementI::DataElementI(TopicI* parent, const string& name, int64_t id, const
       _config(make_shared<ElementConfig>()),
       _executor(parent->getInstance()->getCallbackExecutor()),
       _listenerCount(0),
+      // The collocated forwarder is initalized here to avoid using a nullable proxy. The forwarder is only used by
+      // the instance that owns it and is removed in destroy implementation.
       _forwarder{Ice::uncheckedCast<SessionPrx>(parent->getInstance()->getCollocatedForwarder()->add(
           [this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); }))},
       _parent(parent->shared_from_this()),

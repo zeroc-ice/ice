@@ -18,10 +18,9 @@ Ice::ObjectPrx
 ForwarderManager::add(function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)> forwarder)
 {
     lock_guard<mutex> lock(_mutex);
-    ostringstream os;
-    os << _nextId++;
-    _forwarders.emplace(os.str(), std::move(forwarder));
-    return _adapter->createProxy({os.str(), _category});
+    const Ice::Identity id = {to_string(_nextId++), _category};
+    _forwarders.emplace(id.name, std::move(forwarder));
+    return _adapter->createProxy(std::move(id));
 }
 
 Ice::ObjectPrx

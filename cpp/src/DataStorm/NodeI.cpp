@@ -47,6 +47,8 @@ namespace
 NodeI::NodeI(const shared_ptr<Instance>& instance)
     : _instance(instance),
       _proxy{instance->getObjectAdapter()->createProxy<NodePrx>({Ice::generateUUID(), ""})},
+      // The subscriber and publisher collocated forwarders are initalized here to avoid using a nullable proxy. These
+      // objects are only used after the node is initialized and are removed in destroy implementation.
       _subscriberForwarder{Ice::uncheckedCast<SubscriberSessionPrx>(
           instance->getCollocatedForwarder()->add([this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); }))},
       _publisherForwarder{Ice::uncheckedCast<PublisherSessionPrx>(
@@ -82,6 +84,15 @@ void
 NodeI::destroy(bool ownsCommunicator)
 {
     unique_lock<mutex> lock(_mutex);
+
+    auto instance = getInstance();
+    assert(instance);
+    if (instance)
+    {
+        instance->getCollocatedForwarder()->remove(_subscriberForwarder->ice_getIdentity());
+        instance->getCollocatedForwarder()->remove(_publisherForwarder->ice_getIdentity());
+    }
+
     if (!ownsCommunicator)
     {
         //
