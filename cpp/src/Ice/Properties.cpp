@@ -21,78 +21,58 @@ using namespace IceInternal;
 
 namespace
 {
-    /// Find a property in the Ice property set.
+    /// Find the Ice property array for a given property name.
     /// @param key The property name.
-    /// @param logWarnings Whether to log relevant warnings.
-    /// @return The property if found, nullopt otherwise.
-    optional<Property> findIceProperty(string_view key, bool logWarnings)
+    /// @return The property array if found, nullopt otherwise.
+    const PropertyArray* findIcePropertyArray(string_view key)
     {
         // Check if the property is legal.
-        LoggerPtr logger = getProcessLogger();
         string::size_type dotPos = key.find('.');
 
         // If the key doesn't contain a dot, it's not a valid Ice property.
         if (dotPos == string::npos)
         {
-            return nullopt;
+            return nullptr;
         }
 
         string_view prefix = key.substr(0, dotPos);
 
         // Find the property list for the given prefix.
-        const IceInternal::PropertyArray* propertyArray = nullptr;
-
-        for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != nullptr; ++i)
+        for (const auto& properties : IceInternal::PropertyNames::validProps)
         {
-            auto properties = IceInternal::PropertyNames::validProps[i];
             if (prefix == properties.name)
             {
                 // We've found the property list for the given prefix.
-                propertyArray = &IceInternal::PropertyNames::validProps[i];
-                break;
-            }
-
-            // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
-            // Otherwise no other warning is issued.
-            if (logWarnings && IceInternal::toLower(properties.name) == IceInternal::toLower(prefix))
-            {
-                ostringstream os;
-                os << "unknown property prefix: `" << prefix << "'; did you mean `" << properties.name << "'?";
-                return nullopt;
+                return &properties;
             }
         }
 
-        if (!propertyArray)
-        {
-            // The prefix is not a valid Ice property.
-            return nullopt;
-        }
-
-        if (auto prop = IceInternal::findProperty(key.substr(prefix.length() + 1), propertyArray))
-        {
-            return prop;
-        }
-
-        if (logWarnings)
-        {
-            ostringstream os;
-            os << "unknown property: `" << key << "'";
-            logger->warning(os.str());
-        }
-        return nullopt;
+        return nullptr;
     }
 
     /// Find the default value for an Ice property. If there is no default value, return an empty string.
     /// @param key The ice property name.
     /// @return The default value for the property.
-    /// @throws std::invalid_argument if the property is unknown.
+    /// @throws UnknownPropertyException if the property is unknown.
     string_view getDefaultValue(string_view key)
     {
-        optional<Property> prop = findIceProperty(key, false);
+        auto propertyArray = findIcePropertyArray(key);
+
+        if (!propertyArray)
+        {
+            throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
+        }
+
+        // The Ice property prefix.
+        string prefix{propertyArray->name};
+
+        auto prop = IceInternal::findProperty(key.substr(prefix.length() + 1), propertyArray);
+
         if (!prop)
         {
-            throw invalid_argument{"unknown Ice property: " + string{key}};
+            throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
         }
+
         return prop->defaultValue;
     }
 }
@@ -147,7 +127,11 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
             {
                 s += "=1";
             }
-            parseLine(s.substr(2), 0);
+            if (auto optionPair = parseLine(s.substr(2), 0))
+            {
+                auto [key, value] = *optionPair;
+                setProperty(key, value);
+            }
             loadConfigFiles = true;
         }
         else
@@ -332,14 +316,21 @@ Ice::Properties::setProperty(string_view key, string_view value)
         throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
     }
 
-    // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
-    // case-insensitive Ice property prefix matches.
-    auto prop = findIceProperty(key, true);
-
-    // If the property is deprecated, log a warning.
-    if (prop && prop->deprecated)
+    // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
+    if (auto propertyArray = findIcePropertyArray(key))
     {
-        getProcessLogger()->warning("setting deprecated property: " + string{key});
+        string propertyPrefix{propertyArray->name};
+        auto prop = IceInternal::findProperty(key.substr(propertyPrefix.length() + 1), propertyArray);
+        if (!prop)
+        {
+            throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
+        }
+
+        // If the property is deprecated, log a warning.
+        if (prop->deprecated)
+        {
+            getProcessLogger()->warning("setting deprecated property: " + string{key});
+        }
     }
 
     lock_guard lock(_mutex);
@@ -380,42 +371,23 @@ Ice::Properties::getCommandLineOptions() noexcept
 StringSeq
 Ice::Properties::parseCommandLineOptions(string_view prefix, const StringSeq& options)
 {
-    string pfx = string{prefix};
-    if (!pfx.empty() && pfx[pfx.size() - 1] != '.')
+    auto [matched, unmatched] = parseOptions(prefix, options);
+
+    for (const auto& [key, value] : matched)
     {
-        pfx += '.';
+        setProperty(key, value);
     }
-    pfx = "--" + pfx;
 
-    StringSeq result;
-    for (StringSeq::size_type i = 0; i < options.size(); i++)
-    {
-        string opt = options[i];
-
-        if (opt.find(pfx) == 0)
-        {
-            if (opt.find('=') == string::npos)
-            {
-                opt += "=1";
-            }
-
-            parseLine(opt.substr(2), 0);
-        }
-        else
-        {
-            result.push_back(opt);
-        }
-    }
-    return result;
+    return unmatched;
 }
 
 StringSeq
 Ice::Properties::parseIceCommandLineOptions(const StringSeq& options)
 {
     StringSeq args = options;
-    for (const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
+    for (const auto& props : IceInternal::PropertyNames::validProps)
     {
-        args = parseCommandLineOptions(*i, args);
+        args = parseCommandLineOptions(props.name, args);
     }
     return args;
 }
@@ -568,7 +540,11 @@ Ice::Properties::load(string_view file)
                 }
                 firstLine = false;
             }
-            parseLine(line, stringConverter);
+            if (auto optionPair = parseLine(line, stringConverter))
+            {
+                auto [key, value] = *optionPair;
+                setProperty(key, value);
+            }
         }
     }
 }
@@ -588,7 +564,43 @@ Ice::Properties::getUnusedProperties()
     return unusedProperties;
 }
 
-void
+pair<map<string, string>, StringSeq>
+Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
+{
+    map<string, string> matched;
+
+    string pfx = string{prefix};
+    if (!pfx.empty() && pfx[pfx.size() - 1] != '.')
+    {
+        pfx += '.';
+    }
+    pfx = "--" + pfx;
+
+    StringSeq unmatched;
+    for (auto opt : options)
+    {
+        if (opt.find(pfx) == 0)
+        {
+            if (opt.find('=') == string::npos)
+            {
+                opt += "=1";
+            }
+
+            if (auto optionPair = parseLine(opt.substr(2), 0))
+            {
+                matched.insert(*optionPair);
+            }
+        }
+        else
+        {
+            unmatched.emplace_back(opt);
+        }
+    }
+
+    return {matched, unmatched};
+}
+
+optional<pair<string, string>>
 Ice::Properties::parseLine(string_view line, const StringConverterPtr& converter)
 {
     string key;
@@ -751,18 +763,18 @@ Ice::Properties::parseLine(string_view line, const StringConverterPtr& converter
     if ((state == Key && key.length() != 0) || (state == Value && key.length() == 0))
     {
         getProcessLogger()->warning("invalid config file entry: \"" + string{line} + "\"");
-        return;
+        return nullopt;
     }
     else if (key.length() == 0)
     {
-        return;
+        return nullopt;
     }
 
     key = UTF8ToNative(key, converter);
     value = UTF8ToNative(value, converter);
 
-    setProperty(key, value);
-}
+    return make_pair(key, value);
+};
 
 void
 Ice::Properties::loadConfig()

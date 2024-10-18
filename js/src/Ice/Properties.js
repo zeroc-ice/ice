@@ -6,6 +6,7 @@ import { StringUtil } from "./StringUtil.js";
 import { PropertyNames } from "./PropertyNames.js";
 import { getProcessLogger } from "./ProcessLogger.js";
 import { InitializationException } from "./LocalExceptions.js";
+import { UnknownPropertyException } from "./LocalExceptions.js";
 import { Debug } from "./Debug.js";
 
 const ParseStateKey = 0;
@@ -135,13 +136,19 @@ export class Properties {
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
-        // case-insensitive Ice property prefix matches.
-        const prop = Properties.findIceProperty(key, true);
+        // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
+        const propertyArray = Properties.findIcePropertyArray(key);
+        if (propertyArray !== null) {
+            const prop = Properties.findProperty(key.substring(propertyArray.name.length + 1), propertyArray);
 
-        // If the property is deprecated, log a warning
-        if (prop !== null && prop.deprecated) {
-            getProcessLogger().warning("setting deprecated property: " + key);
+            if (prop === null) {
+                throw new UnknownPropertyException(`unknown Ice property: ${key}`);
+            }
+
+            // If the property is deprecated, log a warning
+            if (prop.deprecated) {
+                getProcessLogger().warning("setting deprecated property: " + key);
+            }
         }
 
         //
@@ -191,8 +198,8 @@ export class Properties {
 
     parseIceCommandLineOptions(options) {
         let args = options.slice();
-        for (const prefix of PropertyNames.validProps.keys()) {
-            args = this.parseCommandLineOptions(prefix, args);
+        for (const prop of PropertyNames.validProps) {
+            args = this.parseCommandLineOptions(prop.name, args);
         }
         return args;
     }
@@ -408,7 +415,7 @@ export class Properties {
 
     static validatePropertiesWithPrefix(prefix, properties, propertyArray) {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
-        if (Array.from(PropertyNames.validProps.keys()).some(name => prefix.startsWith(`${name}.`))) {
+        if (PropertyNames.validProps.some(prop => prefix.startsWith(`${prop.name}.`))) {
             return;
         }
 
@@ -417,14 +424,11 @@ export class Properties {
         );
 
         if (unknownProps.length > 0) {
-            `found unknown properties for ${propertyArray.name}: '${prefix}'\n${unknownProps.join(",\n")}`;
+            `found unknown properties for ${propertyArray.name}: '${prefix}'\n    ${unknownProps.join("\n    ")}`;
         }
     }
 
-    static findIceProperty(key, logWarnings) {
-        // Check if the property is a known Ice property and log warnings if necessary
-        const logger = getProcessLogger();
-
+    static findIcePropertyArray(key) {
         let dotPos = key.indexOf(".");
 
         // If the key doesn't contain a dot, it's not a valid Ice property.
@@ -432,45 +436,23 @@ export class Properties {
             return null;
         }
 
-        const prefix = key.substr(0, dotPos);
-        let propertyArray = null;
+        const prefix = key.substring(0, dotPos);
 
-        // Search for the property prefix
-        for (const [validPropsPrefix, validPropsValue] of PropertyNames.validProps) {
-            if (validPropsPrefix === prefix) {
-                propertyArray = validPropsValue;
-                break;
-            }
-
-            if (logWarnings && validPropsPrefix.toUpperCase() === prefix.toUpperCase()) {
-                logger.warning("unknown property prefix: `" + prefix + "'; did you mean `" + validPropsPrefix + "'?");
-                return null;
-            }
-        }
-
-        if (propertyArray === null) {
-            // The prefix is not a valid Ice property.
-            return null;
-        }
-
-        let prop = Properties.findProperty(key.substr(dotPos + 1), propertyArray);
-        if (prop !== null) {
-            return prop;
-        }
-
-        // If we get here, the prefix is valid but the property is unknown
-        if (logWarnings) {
-            logger.warning("unknown property: " + key);
-        }
-        return null;
+        // Search for the property list that matches the prefix
+        return PropertyNames.validProps.find(props => props.name === prefix) || null;
     }
 
     static getDefaultProperty(key) {
-        // Find the property, don't log any warnings.
-        const prop = Properties.findIceProperty(key, false);
-        if (prop === null) {
-            throw new Error("unknown Ice property: " + key);
+        const propertyArray = Properties.findIcePropertyArray(key);
+        if (!propertyArray) {
+            throw new UnknownPropertyException(`unknown Ice property: ${key}`);
         }
+
+        const prop = Properties.findProperty(key.substring(propertyArray.name.length + 1), propertyArray);
+        if (!prop) {
+            throw new UnknownPropertyException(`unknown Ice property: ${key}`);
+        }
+
         return prop.defaultValue;
     }
 }

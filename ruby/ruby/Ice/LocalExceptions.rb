@@ -157,4 +157,7 @@ module Ice
 
     class TwowayOnlyException < LocalException
     end
+
+    class UnknownPropertyException < LocalException
+    end
 end

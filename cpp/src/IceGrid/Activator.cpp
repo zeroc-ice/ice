@@ -1144,7 +1144,10 @@ Activator::destroy()
     // when there's no more processes and when _deactivating is set to
     // true.
     //
-    _thread.join();
+    if (_thread.joinable())
+    {
+        _thread.join();
+    }
     assert(_processes.empty());
 }
 

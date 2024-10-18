@@ -429,3 +429,6 @@ public final class TwowayOnlyException: LocalException {
             file: file, line: line)
     }
 }
+
+/// This exception is raised when trying to get or set an unknown property.
+public final class UnknownPropertyException: LocalException {}

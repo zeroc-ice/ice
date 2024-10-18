@@ -138,17 +138,61 @@ Client::run(int, char**)
     }
 
     {
-        cout << "testing that getting an unknown Ice property throws an exception... " << flush;
+        cout << "testing that getting an unknown property throws an exception... " << flush;
+        Ice::PropertiesPtr properties = Ice::createProperties();
         try
         {
-            Ice::PropertiesPtr properties = Ice::createProperties();
             properties->getIceProperty("Ice.UnknownProperty");
             test(false);
         }
-        catch (const std::invalid_argument&)
+        catch (const Ice::UnknownPropertyException&)
         {
         }
         cout << "ok" << endl;
+    }
+
+    {
+        cout << "testing that setting an unknown property throws an exception... " << flush;
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        try
+        {
+            properties->setProperty("Ice.UnknownProperty", "value");
+            test(false);
+        }
+        catch (const Ice::UnknownPropertyException&)
+        {
+        }
+        cout << "ok" << endl;
+    }
+
+    {
+        Ice::CommunicatorHolder communicator = Ice::initialize();
+        Ice::PropertiesPtr properties = communicator->getProperties();
+
+        cout << "testing that creating an object adapter with unknown properties throws an exception..." << flush;
+        properties->setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
+        properties->setProperty("FooOA.UnknownProperty", "bar");
+        try
+        {
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FooOA");
+            test(false);
+        }
+        catch (const Ice::UnknownPropertyException&)
+        {
+        }
+        cout << "ok" << endl;
+
+        cout << "testing that creating a proxy with unknown properties throws an exception..." << flush;
+        properties->setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
+        properties->setProperty("FooProxy.UnknownProperty", "bar");
+        try
+        {
+            communicator->propertyToProxy("FooProxy");
+            test(false);
+        }
+        catch (const Ice::UnknownPropertyException&)
+        {
+        }
     }
 }
 
