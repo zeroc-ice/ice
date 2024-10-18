@@ -39,6 +39,7 @@ class Writer(Client, DataStormProcess):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
                 {
+                    "DataStorm.Node.Multicast.Enabled": 0,
                     "DataStorm.Node.Server.Enabled": 0,
                     "DataStorm.Node.ConnectTo": f"tcp -p {current.driver.getTestPort(10)}"
                 })
@@ -56,6 +57,7 @@ class Reader(Server, DataStormProcess):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
                 {
+                    "DataStorm.Node.Multicast.Enabled": 0,
                     "DataStorm.Node.Server.Endpoints": f"tcp -p {current.driver.getTestPort(10)}"
                 })
         return props

@@ -13,6 +13,20 @@ traceProps = {
     "Ice.Trace.Network" : 2
 }
 
+multicastProps = { "DataStorm.Node.Multicast.Enabled" : 1 }
+
 TestSuite(
     __file__,
-    [ ClientServerTestCase(client = Writer(), server = Reader(), traceProps=traceProps) ])
+    [
+        ClientServerTestCase(
+            name = "Writer/Reader",
+            client = Writer(),
+            server = Reader(),
+            traceProps=traceProps),
+        ClientServerTestCase(
+            name = "Writer/Reader multicast enabled",
+            client = Writer(props = multicastProps),
+            server = Reader(props = multicastProps),
+            traceProps=traceProps),
+    ],
+)
