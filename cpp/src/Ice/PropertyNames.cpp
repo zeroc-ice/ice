@@ -541,18 +541,18 @@ const PropertyArray PropertyNames::Glacier2Props
 
 const Property DataStormPropsData[] =
 {
+    Property{"Node.ConnectTo", "", false, false, nullptr},
     Property{"Node.Multicast", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.Multicast.Enabled", "1", false, false, nullptr},
+    Property{"Node.RetryCount", "6", false, false, nullptr},
+    Property{"Node.RetryDelay", "500", false, false, nullptr},
+    Property{"Node.RetryMultiplier", "2", false, false, nullptr},
     Property{"Node.Server", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.Server.Enabled", "1", false, false, nullptr},
     Property{"Node.Server.ForwardDiscoveryToMulticast", "0", false, false, nullptr},
-    Property{"Node.RetryDelay", "500", false, false, nullptr},
-    Property{"Node.RetryMultiplier", "2", false, false, nullptr},
-    Property{"Node.RetryCount", "6", false, false, nullptr},
-    Property{"Node.ConnectTo", "", false, false, nullptr},
-    Property{"Trace.Topic", "0", false, false, nullptr},
     Property{"Trace.Data", "0", false, false, nullptr},
-    Property{"Trace.Session", "0", false, false, nullptr}
+    Property{"Trace.Session", "0", false, false, nullptr},
+    Property{"Trace.Topic", "0", false, false, nullptr}
 };
 
 const PropertyArray PropertyNames::DataStormProps
