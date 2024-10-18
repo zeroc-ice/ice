@@ -21,7 +21,7 @@ serverProps = {
 }
 
 registryProps = {"IceGrid.Registry.DynamicRegistration": 1}
-registryTraceProps = {"IceGrid.Registry.Trace.Discovery": 2}
+registryTraceProps = {"IceGrid.Registry.Trace.Discovery": 2, "Ice.Trace.Network": 1}
 
 
 def clientProps(process, current):
@@ -37,7 +37,7 @@ def clientProps(process, current):
     }
 
 
-clientTraceProps = {"IceLocatorDiscovery.Trace.Lookup": 3}
+clientTraceProps = {"IceLocatorDiscovery.Trace.Lookup": 3, "Ice.Trace.Network": 1}
 
 # Filter-out the warning about invalid lookup proxy
 outfilters = [
