@@ -11,14 +11,11 @@
 
 namespace DataStorm
 {
-
     template<typename K, typename V, typename U> class Sample;
-
 }
 
 namespace DataStormI
 {
-
     template<typename T> class has_communicator_parameter
     {
         template<typename TT, typename SS>
@@ -572,5 +569,4 @@ namespace DataStormI
     private:
         std::map<std::string, std::unique_ptr<Factory>> _factories;
     };
-
 }

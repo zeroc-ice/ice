@@ -17,7 +17,6 @@ using namespace DataStormContract;
 
 namespace
 {
-
     class DispatchInterceptorI : public Ice::Object
     {
     public:
@@ -37,14 +36,14 @@ namespace
         Ice::ObjectPtr _servant;
         shared_ptr<CallbackExecutor> _executor;
     };
-
 }
 
-SessionI::SessionI(const std::shared_ptr<NodeI>& parent, optional<NodePrx> node)
+SessionI::SessionI(const std::shared_ptr<NodeI>& parent, NodePrx node, SessionPrx proxy)
     : _instance(parent->getInstance()),
       _traceLevels(_instance->getTraceLevels()),
       _parent(parent),
-      _node(node),
+      _proxy(std::move(proxy)),
+      _node(std::move(node)),
       _destroyed(false),
       _sessionInstanceId(0),
       _retryCount(0)
@@ -52,11 +51,9 @@ SessionI::SessionI(const std::shared_ptr<NodeI>& parent, optional<NodePrx> node)
 }
 
 void
-SessionI::init(optional<SessionPrx> prx)
+SessionI::init()
 {
-    assert(_node);
-    _proxy = prx;
-    _id = Ice::identityToString(prx->ice_getIdentity());
+    _id = Ice::identityToString(_proxy->ice_getIdentity());
 
     //
     // Even though the node register a default servant for sessions, we still need to
@@ -105,7 +102,7 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
                 {
                     for (auto id : info.ids)
                     {
-                        topic->attach(id, shared_from_this(), _session);
+                        topic->attach(id, shared_from_this(), *_session);
                     }
                     // TODO check the return value?
                     auto _ = _session->attachTopicAsync(topic->getTopicSpec());
@@ -155,7 +152,7 @@ SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
                     out << _id << ": attaching topic `" << spec << "' to `" << topic << "'";
                 }
 
-                topic->attach(spec.id, shared_from_this(), _session);
+                topic->attach(spec.id, shared_from_this(), *_session);
 
                 if (!spec.tags.empty())
                 {
@@ -329,7 +326,7 @@ SessionI::attachElements(int64_t id, ElementSpecSeq elements, bool initialize, c
                 }
             }
 
-            auto specAck = topic->attachElements(id, elements, shared_from_this(), _session, now);
+            auto specAck = topic->attachElements(id, elements, shared_from_this(), *_session, now);
 
             if (initialize)
             {
@@ -373,7 +370,7 @@ SessionI::attachElementsAck(int64_t id, ElementSpecAckSeq elements, const Ice::C
             }
 
             LongSeq removedIds;
-            auto samples = topic->attachElementsAck(id, elements, shared_from_this(), _session, now, removedIds);
+            auto samples = topic->attachElementsAck(id, elements, shared_from_this(), *_session, now, removedIds);
             if (!samples.empty())
             {
                 if (_traceLevels->session > 2)
@@ -529,7 +526,7 @@ SessionI::disconnected(const Ice::Current& current)
 }
 
 void
-SessionI::connected(optional<SessionPrx> session, const Ice::ConnectionPtr& connection, const TopicInfoSeq& topics)
+SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, const TopicInfoSeq& topics)
 {
     lock_guard<mutex> lock(_mutex);
     if (_destroyed || _session)
@@ -639,7 +636,7 @@ SessionI::disconnected(const Ice::ConnectionPtr& connection, exception_ptr ex)
 }
 
 bool
-SessionI::retry(optional<NodePrx> node, exception_ptr exception)
+SessionI::retry(NodePrx node, exception_ptr exception)
 {
     lock_guard<mutex> lock(_mutex);
 
@@ -651,10 +648,6 @@ SessionI::retry(optional<NodePrx> node, exception_ptr exception)
         try
         {
             rethrow_exception(exception);
-        }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
-        {
-            return false;
         }
         catch (const Ice::ObjectAdapterDestroyedException&)
         {
@@ -803,9 +796,6 @@ SessionI::destroyImpl(const exception_ptr& ex)
     {
         _instance->getObjectAdapter()->remove(_proxy->ice_getIdentity());
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
-    {
-    }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
     }
@@ -865,7 +855,7 @@ SessionI::getSession() const
     return _session;
 }
 
-optional<NodePrx>
+NodePrx
 SessionI::getNode() const
 {
     lock_guard<mutex> lock(_mutex);
@@ -873,7 +863,7 @@ SessionI::getNode() const
 }
 
 void
-SessionI::setNode(optional<NodePrx> node)
+SessionI::setNode(NodePrx node)
 {
     lock_guard<mutex> lock(_mutex);
     _node = node;
@@ -1245,8 +1235,8 @@ SessionI::runWithTopic(int64_t id, TopicI* topic, function<void(TopicSubscriber&
     }
 }
 
-SubscriberSessionI::SubscriberSessionI(const std::shared_ptr<NodeI>& parent, optional<NodePrx> node)
-    : SessionI(parent, node)
+SubscriberSessionI::SubscriberSessionI(const std::shared_ptr<NodeI>& parent, NodePrx node, SessionPrx proxy)
+    : SessionI(parent, std::move(node), std::move(proxy))
 {
 }
 
@@ -1344,7 +1334,7 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample s, const Ic
 }
 
 void
-SubscriberSessionI::reconnect(optional<NodePrx> node)
+SubscriberSessionI::reconnect(NodePrx node)
 {
     if (_traceLevels->session > 0)
     {
@@ -1360,8 +1350,8 @@ SubscriberSessionI::remove()
     _parent->removeSubscriberSession(getNode(), dynamic_pointer_cast<SubscriberSessionI>(shared_from_this()), nullptr);
 }
 
-PublisherSessionI::PublisherSessionI(const std::shared_ptr<NodeI>& parent, optional<NodePrx> node)
-    : SessionI(parent, node)
+PublisherSessionI::PublisherSessionI(const std::shared_ptr<NodeI>& parent, NodePrx node, SessionPrx proxy)
+    : SessionI(parent, std::move(node), std::move(proxy))
 {
 }
 
@@ -1372,7 +1362,7 @@ PublisherSessionI::getTopics(const string& name) const
 }
 
 void
-PublisherSessionI::reconnect(optional<NodePrx> node)
+PublisherSessionI::reconnect(NodePrx node)
 {
     if (_traceLevels->session > 0)
     {

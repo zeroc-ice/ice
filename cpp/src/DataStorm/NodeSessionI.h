@@ -10,7 +10,6 @@
 
 namespace DataStormI
 {
-
     class Instance;
     class TraceLevels;
 
@@ -23,7 +22,12 @@ namespace DataStormI
         void destroy();
         void addSession(std::optional<DataStormContract::SessionPrx>);
 
-        std::optional<DataStormContract::NodePrx> getPublicNode() const { return _publicNode; }
+        DataStormContract::NodePrx getPublicNode() const
+        {
+            // always set after init
+            assert(_publicNode);
+            return *_publicNode;
+        }
         std::optional<DataStormContract::LookupPrx> getLookup() const { return _lookup; }
         const Ice::ConnectionPtr& getConnection() const { return _connection; }
         template<typename T> std::optional<T> getSessionForwarder(std::optional<T> session) const
@@ -45,6 +49,5 @@ namespace DataStormI
         std::optional<DataStormContract::LookupPrx> _lookup;
         std::map<Ice::Identity, std::optional<DataStormContract::SessionPrx>> _sessions;
     };
-
 }
 #endif
