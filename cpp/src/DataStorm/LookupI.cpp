@@ -43,7 +43,11 @@ LookupI::announceTopicWriter(string name, optional<NodePrx> proxy, const Ice::Cu
 }
 
 void
-LookupI::announceTopics(StringSeq readers, StringSeq writers, optional<NodePrx> proxy, const Ice::Current& current)
+LookupI::announceTopics(
+    Ice::StringSeq readers,
+    Ice::StringSeq writers,
+    optional<NodePrx> proxy,
+    const Ice::Current& current)
 {
     if (proxy)
     {

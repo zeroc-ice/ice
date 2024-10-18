@@ -219,8 +219,8 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
 
 void
 NodeSessionManager::announceTopics(
-    const StringSeq& readers,
-    const StringSeq& writers,
+    const Ice::StringSeq& readers,
+    const Ice::StringSeq& writers,
     NodePrx node,
     const Ice::ConnectionPtr& connection) const
 {

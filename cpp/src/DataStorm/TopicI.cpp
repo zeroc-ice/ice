@@ -350,7 +350,7 @@ TopicI::attachElements(
                             {std::move(acks),
                              key->getId(),
                              "",
-                             spec.id < 0 ? key->encode(_instance->getCommunicator()) : ByteSeq(),
+                             spec.id < 0 ? key->encode(_instance->getCommunicator()) : Ice::ByteSeq(),
                              spec.id,
                              spec.name});
                     }
@@ -398,7 +398,7 @@ TopicI::attachElements(
                             {std::move(acks),
                              -filter->getId(),
                              filter->getName(),
-                             spec.id > 0 ? filter->encode(_instance->getCommunicator()) : ByteSeq(),
+                             spec.id > 0 ? filter->encode(_instance->getCommunicator()) : Ice::ByteSeq(),
                              spec.id,
                              spec.name});
                     }
@@ -416,7 +416,7 @@ TopicI::attachElementsAck(
     const shared_ptr<SessionI>& session,
     SessionPrx prx,
     const chrono::time_point<chrono::system_clock>& now,
-    LongSeq& removedIds)
+    Ice::LongSeq& removedIds)
 {
     DataSamplesSeq samples;
     vector<function<void()>> initCallbacks;

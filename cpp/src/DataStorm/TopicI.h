@@ -74,7 +74,7 @@ namespace DataStormI
             const std::shared_ptr<SessionI>&,
             DataStormContract::SessionPrx,
             const std::chrono::time_point<std::chrono::system_clock>&,
-            DataStormContract::LongSeq&);
+            Ice::LongSeq&);
 
         virtual void setUpdater(const std::shared_ptr<Tag>&, Updater) override;
         const Updater& getUpdater(const std::shared_ptr<Tag>&) const;

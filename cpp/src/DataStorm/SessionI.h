@@ -248,14 +248,14 @@ namespace DataStormI
         virtual void detachTopic(std::int64_t, const Ice::Current&) override;
 
         virtual void attachTags(std::int64_t, DataStormContract::ElementInfoSeq, bool, const Ice::Current&) override;
-        virtual void detachTags(std::int64_t, DataStormContract::LongSeq, const Ice::Current&) override;
+        virtual void detachTags(std::int64_t, Ice::LongSeq, const Ice::Current&) override;
 
         virtual void announceElements(std::int64_t, DataStormContract::ElementInfoSeq, const Ice::Current&) override;
         virtual void
         attachElements(std::int64_t, DataStormContract::ElementSpecSeq, bool, const Ice::Current&) override;
         virtual void
         attachElementsAck(std::int64_t, DataStormContract::ElementSpecAckSeq, const Ice::Current&) override;
-        virtual void detachElements(std::int64_t, DataStormContract::LongSeq, const Ice::Current&) override;
+        virtual void detachElements(std::int64_t, Ice::LongSeq, const Ice::Current&) override;
 
         virtual void initSamples(std::int64_t, DataStormContract::DataSamplesSeq, const Ice::Current&) override;
 

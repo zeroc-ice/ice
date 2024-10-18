@@ -242,7 +242,7 @@ SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, cons
 }
 
 void
-SessionI::detachTags(int64_t topicId, LongSeq tags, const Ice::Current&)
+SessionI::detachTags(int64_t topicId, Ice::LongSeq tags, const Ice::Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -369,7 +369,7 @@ SessionI::attachElementsAck(int64_t id, ElementSpecAckSeq elements, const Ice::C
                 out << _id << ": attaching elements ack `[" << elements << "]@" << id << "' on topic `" << topic << "'";
             }
 
-            LongSeq removedIds;
+            Ice::LongSeq removedIds;
             auto samples = topic->attachElementsAck(id, elements, shared_from_this(), *_session, now, removedIds);
             if (!samples.empty())
             {
@@ -391,7 +391,7 @@ SessionI::attachElementsAck(int64_t id, ElementSpecAckSeq elements, const Ice::C
 }
 
 void
-SessionI::detachElements(int64_t id, LongSeq elements, const Ice::Current&)
+SessionI::detachElements(int64_t id, Ice::LongSeq elements, const Ice::Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)

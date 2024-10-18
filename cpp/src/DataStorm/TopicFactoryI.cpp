@@ -259,11 +259,11 @@ TopicFactoryI::getTopicWriters() const
     return writers;
 }
 
-DataStormContract::StringSeq
+Ice::StringSeq
 TopicFactoryI::getTopicReaderNames() const
 {
     lock_guard<mutex> lock(_mutex);
-    DataStormContract::StringSeq readers;
+    Ice::StringSeq readers;
     readers.reserve(_readers.size());
     for (const auto& p : _readers)
     {
@@ -272,11 +272,11 @@ TopicFactoryI::getTopicReaderNames() const
     return readers;
 }
 
-DataStormContract::StringSeq
+Ice::StringSeq
 TopicFactoryI::getTopicWriterNames() const
 {
     lock_guard<mutex> lock(_mutex);
-    DataStormContract::StringSeq writers;
+    Ice::StringSeq writers;
     writers.reserve(_writers.size());
     for (const auto& p : _writers)
     {

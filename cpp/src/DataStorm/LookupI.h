@@ -23,11 +23,9 @@ namespace DataStormI
         virtual void
         announceTopicWriter(std::string, std::optional<DataStormContract::NodePrx>, const Ice::Current&) override;
 
-        virtual void announceTopics(
-            DataStormContract::StringSeq,
-            DataStormContract::StringSeq,
-            std::optional<DataStormContract::NodePrx>,
-            const Ice::Current&) override;
+        virtual void
+        announceTopics(Ice::StringSeq, Ice::StringSeq, std::optional<DataStormContract::NodePrx>, const Ice::Current&)
+            override;
 
         virtual std::optional<DataStormContract::NodePrx>
         createSession(std::optional<DataStormContract::NodePrx>, const Ice::Current&) override;

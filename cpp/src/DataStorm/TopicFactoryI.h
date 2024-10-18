@@ -57,8 +57,8 @@ namespace DataStormI
         DataStormContract::TopicInfoSeq getTopicReaders() const;
         DataStormContract::TopicInfoSeq getTopicWriters() const;
 
-        DataStormContract::StringSeq getTopicReaderNames() const;
-        DataStormContract::StringSeq getTopicWriterNames() const;
+        Ice::StringSeq getTopicReaderNames() const;
+        Ice::StringSeq getTopicWriterNames() const;
 
         void shutdown() const;
 
