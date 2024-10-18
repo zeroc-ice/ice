@@ -424,7 +424,9 @@ export class Properties {
         );
 
         if (unknownProps.length > 0) {
-            throw new UnknownPropertyException(`found unknown properties for ${propertyArray.name}: '${prefix}'\n    ${unknownProps.join("\n    ")}`);
+            throw new UnknownPropertyException(
+                `found unknown properties for ${propertyArray.name}: '${prefix}'\n    ${unknownProps.join("\n    ")}`,
+            );
         }
     }
 
