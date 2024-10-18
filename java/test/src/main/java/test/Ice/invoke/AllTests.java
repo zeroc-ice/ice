@@ -7,10 +7,12 @@ package test.Ice.invoke;
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.OutputStream;
-import java.io.PrintWriter;
-import java.util.concurrent.CompletableFuture;
+
 import test.Ice.invoke.Test.MyClassPrx;
 import test.Ice.invoke.Test.MyException;
+
+import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
 
 public class AllTests {
     static final String testString = "This is a test string";

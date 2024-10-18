@@ -12,6 +12,7 @@ import com.zeroc.Ice.LogMessage;
 import com.zeroc.Ice.LogMessageType;
 import com.zeroc.Ice.RemoteLoggerPrx;
 import com.zeroc.IceGridGUI.*;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,6 +20,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.prefs.Preferences;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;

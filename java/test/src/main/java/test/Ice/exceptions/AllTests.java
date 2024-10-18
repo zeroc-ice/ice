@@ -5,14 +5,16 @@
 package test.Ice.exceptions;
 
 import com.zeroc.Ice.ConnectionLostException;
-import java.io.PrintWriter;
-import java.util.concurrent.CompletionException;
+
 import test.Ice.exceptions.Test.A;
 import test.Ice.exceptions.Test.B;
 import test.Ice.exceptions.Test.C;
 import test.Ice.exceptions.Test.D;
 import test.Ice.exceptions.Test.ThrowerPrx;
 import test.Ice.exceptions.Test.WrongOperationPrx;
+
+import java.io.PrintWriter;
+import java.util.concurrent.CompletionException;
 
 public class AllTests {
     private static void test(boolean b) {

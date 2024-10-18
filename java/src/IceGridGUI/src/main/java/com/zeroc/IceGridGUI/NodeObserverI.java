@@ -3,6 +3,7 @@
 package com.zeroc.IceGridGUI;
 
 import com.zeroc.IceGrid.*;
+
 import javax.swing.SwingUtilities;
 
 class NodeObserverI implements NodeObserver {

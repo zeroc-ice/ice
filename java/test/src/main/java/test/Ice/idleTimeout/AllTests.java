@@ -8,8 +8,10 @@ import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
-import java.io.PrintWriter;
+
 import test.Ice.idleTimeout.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     static void allTests(test.TestHelper helper) {

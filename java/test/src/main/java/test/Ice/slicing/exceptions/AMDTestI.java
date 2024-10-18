@@ -4,9 +4,10 @@
 
 package test.Ice.slicing.exceptions;
 
+import test.Ice.slicing.exceptions.serverAMD.Test.*;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.slicing.exceptions.serverAMD.Test.*;
 
 public final class AMDTestI implements TestIntf {
     @Override

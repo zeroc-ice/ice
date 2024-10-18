@@ -4,9 +4,10 @@
 
 package test.Ice.background;
 
+import test.Ice.background.PluginFactory.PluginI;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.background.PluginFactory.PluginI;
 
 public class Server extends test.TestHelper {
     public static class LocatorI implements com.zeroc.Ice.Locator {

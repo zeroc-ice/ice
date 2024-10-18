@@ -4,9 +4,11 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+
 import java.awt.Component;
 import java.awt.Cursor;
 import java.text.NumberFormat;
+
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;

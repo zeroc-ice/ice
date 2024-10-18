@@ -81,6 +81,9 @@ spotless {
   }
 }
 
+// Run spotlessApply before compiling Java code
+compileJava.dependsOn 'spotlessApply'
+
 // Android does not have a compileJava task
 if(!(project.hasProperty('android') && project.android.sourceSets)) {
     compileJava {

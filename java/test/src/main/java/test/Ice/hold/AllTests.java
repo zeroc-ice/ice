@@ -5,9 +5,11 @@
 package test.Ice.hold;
 
 import com.zeroc.Ice.InvocationFuture;
+
+import test.Ice.hold.Test.HoldPrx;
+
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
-import test.Ice.hold.Test.HoldPrx;
 
 public class AllTests {
     private static void test(boolean b) {

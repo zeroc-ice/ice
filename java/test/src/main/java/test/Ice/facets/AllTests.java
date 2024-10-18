@@ -5,11 +5,13 @@
 package test.Ice.facets;
 
 import com.zeroc.Ice.ObjectPrx;
-import java.io.PrintWriter;
+
 import test.Ice.facets.Test.DPrx;
 import test.Ice.facets.Test.FPrx;
 import test.Ice.facets.Test.GPrx;
 import test.Ice.facets.Test.HPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

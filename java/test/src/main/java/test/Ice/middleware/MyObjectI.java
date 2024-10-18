@@ -2,9 +2,10 @@
 
 package test.Ice.middleware;
 
+import test.Ice.middleware.Test.*;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.middleware.Test.*;
 
 final class MyObjectI implements MyObject {
     @Override

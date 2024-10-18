@@ -8,8 +8,10 @@ import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.LogMessageType;
 import com.zeroc.Ice.ProcessPrx;
 import com.zeroc.Ice.PropertiesAdminPrx;
-import java.io.PrintWriter;
+
 import test.Ice.admin.Test.*;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

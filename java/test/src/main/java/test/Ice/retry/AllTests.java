@@ -4,8 +4,9 @@
 
 package test.Ice.retry;
 
-import java.io.PrintWriter;
 import test.Ice.retry.Test.RetryPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

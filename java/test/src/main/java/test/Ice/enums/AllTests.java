@@ -5,8 +5,10 @@
 package test.Ice.enums;
 
 import com.zeroc.Ice.MarshalException;
-import java.io.PrintWriter;
+
 import test.Ice.enums.Test.*;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

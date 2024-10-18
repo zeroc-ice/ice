@@ -19,8 +19,10 @@ import com.zeroc.Ice.WSConnectionInfo;
 import com.zeroc.Ice.WSEndpointInfo;
 import com.zeroc.Ice.WSEndpointType;
 import com.zeroc.Ice.WSSEndpointType;
-import java.io.PrintWriter;
+
 import test.Ice.info.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

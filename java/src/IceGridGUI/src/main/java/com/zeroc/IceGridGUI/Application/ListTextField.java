@@ -3,6 +3,7 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGridGUI.*;
+
 import javax.swing.JTextField;
 
 /** A special field used to show/edit a list of strings separated by whitespace */

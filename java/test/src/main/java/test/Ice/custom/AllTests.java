@@ -4,6 +4,12 @@
 
 package test.Ice.custom;
 
+import test.Ice.custom.Test.A;
+import test.Ice.custom.Test.E;
+import test.Ice.custom.Test.S;
+import test.Ice.custom.Test.TestIntf;
+import test.Ice.custom.Test.TestIntfPrx;
+
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -17,11 +23,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import test.Ice.custom.Test.A;
-import test.Ice.custom.Test.E;
-import test.Ice.custom.Test.S;
-import test.Ice.custom.Test.TestIntf;
-import test.Ice.custom.Test.TestIntfPrx;
 
 public class AllTests {
     private static void test(boolean b) {

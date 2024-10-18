@@ -4,8 +4,9 @@
 
 package test.Ice.udp;
 
-import java.io.PrintWriter;
 import test.Ice.udp.Test.*;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

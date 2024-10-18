@@ -3,7 +3,9 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGridGUI.*;
+
 import java.util.Enumeration;
+
 import javax.swing.tree.DefaultTreeModel;
 
 /** An editable TreeNode that holds a list of children */

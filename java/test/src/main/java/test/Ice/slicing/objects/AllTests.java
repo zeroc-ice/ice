@@ -6,8 +6,10 @@ package test.Ice.slicing.objects;
 
 import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.Util;
-import java.io.PrintWriter;
+
 import test.Ice.slicing.objects.client.Test.*;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

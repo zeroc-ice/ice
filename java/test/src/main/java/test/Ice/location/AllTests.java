@@ -6,14 +6,16 @@ package test.Ice.location;
 
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Util;
-import java.io.PrintWriter;
-import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
+
 import test.Ice.location.Test.HelloPrx;
 import test.Ice.location.Test.ServerManagerPrx;
 import test.Ice.location.Test.TestIntfPrx;
 import test.Ice.location.Test.TestLocatorPrx;
 import test.Ice.location.Test.TestLocatorRegistryPrx;
+
+import java.io.PrintWriter;
+import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 public class AllTests {
     private static void test(boolean b) {

@@ -6,9 +6,11 @@ package test.Ice.location;
 
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectPrx;
+
+import test.Ice.location.Test.TestLocatorRegistry;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.location.Test.TestLocatorRegistry;
 
 public class ServerLocatorRegistry implements TestLocatorRegistry {
     @Override

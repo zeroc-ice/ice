@@ -4,8 +4,9 @@
 
 package test.Ice.networkProxy;
 
-import java.io.PrintWriter;
 import test.Ice.networkProxy.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

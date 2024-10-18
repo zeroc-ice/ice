@@ -8,11 +8,13 @@ import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.InvocationFuture;
 import com.zeroc.Ice.SocketOperation;
 import com.zeroc.Ice.Util;
+
+import test.Ice.background.Test.BackgroundControllerPrx;
+import test.Ice.background.Test.BackgroundPrx;
+
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import test.Ice.background.Test.BackgroundControllerPrx;
-import test.Ice.background.Test.BackgroundPrx;
 
 public class AllTests {
     private static void test(boolean b) {

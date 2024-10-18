@@ -3,9 +3,11 @@
 package test.Ice.maxDispatches;
 
 import com.zeroc.Ice.Current;
+
+import test.Ice.maxDispatches.Test.TestIntf;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.maxDispatches.Test.TestIntf;
 
 class TestIntfI implements TestIntf {
     private int _dispatchCount;

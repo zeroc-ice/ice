@@ -5,6 +5,7 @@
 package test.Ice.retry;
 
 import com.zeroc.Ice.ConnectionLostException;
+
 import test.Ice.retry.Test.Retry;
 
 public final class RetryI implements Retry {

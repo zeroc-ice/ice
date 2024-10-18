@@ -6,10 +6,12 @@ package test.Ice.binding;
 
 import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.EndpointSelectionType;
-import java.io.PrintWriter;
+
 import test.Ice.binding.Test.RemoteCommunicatorPrx;
 import test.Ice.binding.Test.RemoteObjectAdapterPrx;
 import test.Ice.binding.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

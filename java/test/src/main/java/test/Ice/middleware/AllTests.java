@@ -3,13 +3,15 @@
 package test.Ice.middleware;
 
 import com.zeroc.Ice.*;
+
+import test.Ice.middleware.Test.*;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.middleware.Test.*;
 
 public class AllTests {
 

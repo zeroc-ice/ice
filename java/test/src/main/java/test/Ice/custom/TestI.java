@@ -4,6 +4,11 @@
 
 package test.Ice.custom;
 
+import test.Ice.custom.Test.A;
+import test.Ice.custom.Test.E;
+import test.Ice.custom.Test.S;
+import test.Ice.custom.Test.TestIntf;
+
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -14,10 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import test.Ice.custom.Test.A;
-import test.Ice.custom.Test.E;
-import test.Ice.custom.Test.S;
-import test.Ice.custom.Test.TestIntf;
 
 public final class TestI implements TestIntf {
     public TestI(com.zeroc.Ice.Communicator communicator) {

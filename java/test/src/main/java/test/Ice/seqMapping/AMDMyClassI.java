@@ -4,10 +4,11 @@
 
 package test.Ice.seqMapping;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import test.Ice.seqMapping.AMD.Test.*;
 import test.Ice.seqMapping.Serialize.*;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public final class AMDMyClassI implements MyClass {
     @Override
