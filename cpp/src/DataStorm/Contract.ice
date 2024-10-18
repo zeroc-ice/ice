@@ -18,9 +18,8 @@ module DataStormContract
         OnAll,
         OnAllExceptPartialUpdate,
         Never
-    };
+    }
 
-    /// A dictionary of <long, long>
     dictionary<long, long> LongLongDict;
 
     struct DataSample
