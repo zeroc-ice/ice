@@ -59,8 +59,8 @@ NodeSessionManager::NodeSessionManager(const shared_ptr<Instance>& instance, con
           instance->getCommunicator()->getProperties()->getPropertyAsInt(
               "DataStorm.Node.Server.ForwardDiscoveryToMulticast") > 0),
       _retryCount(0),
-      _forwarder(Ice::uncheckedCast<LookupPrx>(
-          instance->getCollocatedForwarder()->add([this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); })))
+      _forwarder(instance->getCollocatedForwarder()->add<LookupPrx>([this](Ice::ByteSeq e, const Ice::Current& c)
+                                                                    { forward(e, c); }))
 {
 }
 

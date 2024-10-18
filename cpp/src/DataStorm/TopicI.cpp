@@ -79,8 +79,8 @@ TopicI::TopicI(
       _instance(factory.lock()->getInstance()),
       _traceLevels(_instance->getTraceLevels()),
       _id(id),
-      _forwarder{Ice::uncheckedCast<SessionPrx>(
-          _instance->getCollocatedForwarder()->add([this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); }))},
+      _forwarder{_instance->getCollocatedForwarder()->add<SessionPrx>([this](Ice::ByteSeq e, const Ice::Current& c)
+                                                                      { forward(e, c); })},
       _destroyed(false),
       _listenerCount(0),
       _waiters(0),

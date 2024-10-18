@@ -14,33 +14,6 @@ ForwarderManager::ForwarderManager(const Ice::ObjectAdapterPtr& adapter, const s
 {
 }
 
-Ice::ObjectPrx
-ForwarderManager::add(function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)> forwarder)
-{
-    lock_guard<mutex> lock(_mutex);
-    const Ice::Identity id = {to_string(_nextId++), _category};
-    _forwarders.emplace(id.name, std::move(forwarder));
-    return _adapter->createProxy(std::move(id));
-}
-
-Ice::ObjectPrx
-ForwarderManager::add(function<void(Ice::ByteSeq, const Ice::Current&)> forwarder)
-{
-    return add(
-        [forwarder = std::move(forwarder)](auto inEncaps, auto response, auto exception, auto current)
-        {
-            try
-            {
-                forwarder(inEncaps, current);
-                response(true, Ice::ByteSeq());
-            }
-            catch (...)
-            {
-                exception(current_exception());
-            }
-        });
-}
-
 void
 ForwarderManager::remove(const Ice::Identity& id)
 {
