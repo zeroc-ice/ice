@@ -55,8 +55,9 @@ namespace IceInternal
         static const PropertyArray IceStormAdminProps;
         static const PropertyArray IceBTProps;
         static const PropertyArray Glacier2Props;
+        static const PropertyArray DataStormProps;
 
-        static const std::array<PropertyArray, 14> validProps;
+        static const std::array<PropertyArray, 15> validProps;
     };
 }
 

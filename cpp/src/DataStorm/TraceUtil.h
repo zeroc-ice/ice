@@ -215,7 +215,7 @@ namespace DataStormI
     class TraceLevels
     {
     public:
-        TraceLevels(Ice::CommunicatorPtr);
+        TraceLevels(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 
         const int topic;
         const char* topicCat;

@@ -295,6 +295,12 @@ final class PropertyNames
         new Property[] {
         });
 
+    public static final PropertyArray DataStormProps = new PropertyArray(
+        "DataStorm",
+        false,
+        new Property[] {
+        });
+
     public static final PropertyArray validProps[] =
     {
         IceProps,
@@ -310,6 +316,7 @@ final class PropertyNames
         IceStormProps,
         IceStormAdminProps,
         IceBTProps,
-        Glacier2Props
+        Glacier2Props,
+        DataStormProps
     };
 }

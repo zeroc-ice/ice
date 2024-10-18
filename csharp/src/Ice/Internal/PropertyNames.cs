@@ -275,6 +275,11 @@ internal sealed class PropertyNames
         false,
         []);
 
+    internal static PropertyArray DataStormProps = new(
+        "DataStorm",
+        false,
+        []);
+
     internal static PropertyArray[] validProps =
     [
         IceProps,
@@ -290,6 +295,7 @@ internal sealed class PropertyNames
         IceStormProps,
         IceStormAdminProps,
         IceBTProps,
-        Glacier2Props
+        Glacier2Props,
+        DataStormProps
     ];
 }
