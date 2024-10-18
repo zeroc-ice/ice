@@ -19,31 +19,23 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(com
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
-    if (properties->getPropertyAsIntWithDefault("DataStorm.Node.Server.Enabled", 1) > 0)
+    if (properties->getIcePropertyAsInt("DataStorm.Node.Server.Enabled") > 0)
     {
-        properties->setProperty("DataStorm.Node.Adapters.Server.ThreadPool.SizeMax", "1");
-        properties->setProperty("DataStorm.Node.Adapters.Server.Endpoints", "tcp");
-
-        const string pfx = "DataStorm.Node.Server";
-        auto props = properties->getPropertiesForPrefix(pfx);
-        for (const auto& p : props)
+        if (properties->getIceProperty("DataStorm.Node.Server.Endpoints").empty())
         {
-            if (p.first != "DataStorm.Node.Server.Enabled" &&
-                p.first != "DataStorm.Node.Server.ForwardDiscoveryToMulticast")
-            {
-                properties->setProperty("DataStorm.Node.Adapters.Server" + p.first.substr(pfx.length()), p.second);
-            }
+            properties->setProperty("DataStorm.Node.Server.Endpoints", "tcp");
         }
+        properties->setProperty("DataStorm.Node.Server.ThreadPool.SizeMax", "1");
 
         try
         {
-            _adapter = _communicator->createObjectAdapter("DataStorm.Node.Adapters.Server");
+            _adapter = _communicator->createObjectAdapter("DataStorm.Node.Server");
         }
         catch (const Ice::LocalException& ex)
         {
             ostringstream os;
             os << "failed to listen on server endpoints `";
-            os << properties->getProperty("DataStorm.Node.Adapters.Server.Endpoints") << "':\n";
+            os << properties->getIceProperty("DataStorm.Node.Server.Endpoints") << "':\n";
             os << ex.what();
             throw invalid_argument(os.str());
         }
@@ -53,42 +45,35 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(com
         _adapter = _communicator->createObjectAdapter("");
     }
 
-    if (properties->getPropertyAsIntWithDefault("DataStorm.Node.Multicast.Enabled", 1) > 0)
+    if (properties->getIcePropertyAsInt("DataStorm.Node.Multicast.Enabled") > 0)
     {
-        properties->setProperty("DataStorm.Node.Adapters.Multicast.Endpoints", "udp -h 239.255.0.1 -p 10000");
-        // Set the published host to the multicast address, ensuring that proxies are created with the multicast
-        // address.
-        properties->setProperty("DataStorm.Node.Adapters.Multicast.PublishedHost", "239.255.0.1");
-        properties->setProperty("DataStorm.Node.Adapters.Multicast.ProxyOptions", "-d");
-        properties->setProperty("DataStorm.Node.Adapters.Multicast.ThreadPool.SizeMax", "1");
-
-        const string pfx = "DataStorm.Node.Multicast";
-        auto props = properties->getPropertiesForPrefix(pfx);
-        for (const auto& p : props)
+        if (properties->getIceProperty("DataStorm.Node.Multicast.Endpoints").empty())
         {
-            if (p.first != "DataStorm.Node.Multicast.Enabled")
-            {
-                properties->setProperty("DataStorm.Node.Adapters.Multicast" + p.first.substr(pfx.length()), p.second);
-            }
+            properties->setProperty("DataStorm.Node.Multicast.Endpoints", "udp -h 239.255.0.1 -p 10000");
+            // Set the published host to the multicast address, ensuring that proxies are created with the multicast
+            // address.
+            properties->setProperty("DataStorm.Node.Multicast.PublishedHost", "239.255.0.1");
+            properties->setProperty("DataStorm.Node.Multicast.ProxyOptions", "-d");
         }
+        properties->setProperty("DataStorm.Node.Multicast.ThreadPool.SizeMax", "1");
 
         try
         {
-            _multicastAdapter = _communicator->createObjectAdapter("DataStorm.Node.Adapters.Multicast");
+            _multicastAdapter = _communicator->createObjectAdapter("DataStorm.Node.Multicast");
         }
         catch (const Ice::LocalException& ex)
         {
             ostringstream os;
             os << "failed to listen on multicast endpoints `";
-            os << properties->getProperty("DataStorm.Node.Adapters.Server.Endpoints") << "':\n";
+            os << properties->getIceProperty("DataStorm.Node.Multicast.Endpoints") << "':\n";
             os << ex.what();
             throw invalid_argument(os.str());
         }
     }
 
-    _retryDelay = chrono::milliseconds(properties->getPropertyAsIntWithDefault("DataStorm.Node.RetryDelay", 500));
-    _retryMultiplier = properties->getPropertyAsIntWithDefault("DataStorm.Node.RetryMultiplier", 2);
-    _retryCount = properties->getPropertyAsIntWithDefault("DataStorm.Node.RetryCount", 6);
+    _retryDelay = chrono::milliseconds(properties->getIcePropertyAsInt("DataStorm.Node.RetryDelay"));
+    _retryMultiplier = properties->getIcePropertyAsInt("DataStorm.Node.RetryMultiplier");
+    _retryCount = properties->getIcePropertyAsInt("DataStorm.Node.RetryCount");
 
     //
     // Create a collocated object adapter with a random name to prevent user configuration
@@ -104,7 +89,7 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(com
     _executor = make_shared<CallbackExecutor>();
     _connectionManager = make_shared<ConnectionManager>(_executor);
     _timer = make_shared<IceInternal::Timer>();
-    _traceLevels = make_shared<TraceLevels>(_communicator);
+    _traceLevels = make_shared<TraceLevels>(properties, _communicator->getLogger());
 }
 
 void

@@ -7,18 +7,13 @@
 using namespace std;
 using namespace DataStormI;
 
-TraceLevels::TraceLevels(Ice::CommunicatorPtr communicator)
-    : topic(0),
+TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& logger)
+    : topic(properties->getIcePropertyAsInt("DataStorm.Trace.Topic")),
       topicCat("Topic"),
-      data(0),
+      data(properties->getIcePropertyAsInt("DataStorm.Trace.Data")),
       dataCat("Data"),
-      session(0),
+      session(properties->getIcePropertyAsInt("DataStorm.Trace.Session")),
       sessionCat("Session"),
-      logger(communicator->getLogger())
+      logger(logger)
 {
-    auto properties = communicator->getProperties();
-    const string keyBase = "DataStorm.Trace.";
-    const_cast<int&>(topic) = properties->getPropertyAsInt(keyBase + topicCat);
-    const_cast<int&>(data) = properties->getPropertyAsInt(keyBase + dataCat);
-    const_cast<int&>(session) = properties->getPropertyAsInt(keyBase + sessionCat);
 }

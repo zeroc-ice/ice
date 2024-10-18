@@ -399,4 +399,19 @@
         <property name="Trace.RoutingTable" languages="cpp" default="0" />
         <property name="Trace.Session" languages="cpp" default="0" />
     </section>
+
+    <section name="DataStorm">
+        <property name="Node.Multicast" class="ObjectAdapter" languages="cpp" />
+        <property name="Node.Multicast.Enabled" default="1" languages="cpp" />
+        <property name="Node.Server" class="ObjectAdapter" languages="cpp" />
+        <property name="Node.Server.Enabled" default="1" languages="cpp" />
+        <property name="Node.Server.ForwardDiscoveryToMulticast" languages="cpp" default="0" />
+        <property name="Node.RetryDelay" languages="cpp" default="500" />
+        <property name="Node.RetryMultiplier" languages="cpp" default="2" />
+        <property name="Node.RetryCount" languages="cpp" default="6" />
+        <property name="Node.ConnectTo" languages="cpp" />
+        <property name="Trace.Topic" languages="cpp" default="0" />
+        <property name="Trace.Data" languages="cpp" default="0" />
+        <property name="Trace.Session" languages="cpp" default="0" />
+    </section>
 </properties>
