@@ -34,8 +34,8 @@ namespace DataStormI
         announceTopicWriter(const std::string&, DataStormContract::NodePrx, const Ice::ConnectionPtr& = nullptr) const;
 
         void announceTopics(
-            const DataStormContract::StringSeq&,
-            const DataStormContract::StringSeq&,
+            const Ice::StringSeq&,
+            const Ice::StringSeq&,
             DataStormContract::NodePrx,
             const Ice::ConnectionPtr& = nullptr) const;
 
