@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_REGISTRYI_H
-#define ICE_GRID_REGISTRYI_H
+#ifndef ICEGRID_REGISTRYI_H
+#define ICEGRID_REGISTRYI_H
 
 #include "../IceStorm/Service.h"
 #include "Glacier2/PermissionsVerifier.h"

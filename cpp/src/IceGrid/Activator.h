@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_ACTIVATOR_H
-#define ICE_GRID_ACTIVATOR_H
+#ifndef ICEGRID_ACTIVATOR_H
+#define ICEGRID_ACTIVATOR_H
 
 #include "Internal.h"
 

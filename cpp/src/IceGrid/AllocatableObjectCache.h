@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_ALLOCATABLEOBJECTCACHE_H
-#define ICE_GRID_ALLOCATABLEOBJECTCACHE_H
+#ifndef ICEGRID_ALLOCATABLEOBJECTCACHE_H
+#define ICEGRID_ALLOCATABLEOBJECTCACHE_H
 
 #include "Allocatable.h"
 #include "Cache.h"

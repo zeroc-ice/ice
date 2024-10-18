@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_CACHE_H
-#define ICE_GRID_CACHE_H
+#ifndef ICEGRID_CACHE_H
+#define ICEGRID_CACHE_H
 
 #include "TraceLevels.h"
 #include "Util.h"

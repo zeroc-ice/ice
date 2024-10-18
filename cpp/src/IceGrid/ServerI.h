@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_SERVER_I_H
-#define ICE_GRID_SERVER_I_H
+#ifndef ICEGRID_SERVER_I_H
+#define ICEGRID_SERVER_I_H
 
 #include "Activator.h"
 #include "Ice/Timer.h"

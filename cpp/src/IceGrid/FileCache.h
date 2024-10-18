@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_FILE_CACHE_H
-#define ICE_GRID_FILE_CACHE_H
+#ifndef ICEGRID_FILE_CACHE_H
+#define ICEGRID_FILE_CACHE_H
 
 #include "Ice/BuiltinSequences.h"
 #include "Ice/CommunicatorF.h"

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_SESSION_MANAGER_H
-#define ICE_GRID_SESSION_MANAGER_H
+#ifndef ICEGRID_SESSION_MANAGER_H
+#define ICEGRID_SESSION_MANAGER_H
 
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"

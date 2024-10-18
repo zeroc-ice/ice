@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_LOCATOR_I_H
-#define ICE_GRID_LOCATOR_I_H
+#ifndef ICEGRID_LOCATOR_I_H
+#define ICEGRID_LOCATOR_I_H
 
 #include "IceGrid/Registry.h"
 #include "Internal.h"

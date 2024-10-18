@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_GRID_NODECACHE_H
-#define ICE_GRID_NODECACHE_H
+#ifndef ICEGRID_NODECACHE_H
+#define ICEGRID_NODECACHE_H
 
 #include "Cache.h"
 #include "Internal.h"
