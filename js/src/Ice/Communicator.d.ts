@@ -102,8 +102,6 @@ declare module "ice" {
             /**
              * Creates a new object adapter.
              *
-             * The endpoints for the object adapter are taken from the property `<name>.Endpoints`.
-             *
              * It is valid to create an object adapter with an empty string as its name. Such an object adapter is
              * accessible via bidirectional connections. Attempts to create a named object adapter for which no
              * configuration can be found will raise an `InitializationException`.
@@ -112,27 +110,10 @@ declare module "ice" {
              * @returns A promise that resolves to the created object adapter.
              * @throws {@link InitializationException} - Thrown if the object adapter cannot be created.
              *
-             * @see {@link createObjectAdapterWithEndpoints}
              * @see {@link ObjectAdapter}
              * @see {@link Properties}
              */
             createObjectAdapter(name: string): Promise<Ice.ObjectAdapter>;
-
-            /**
-             * Creates a new object adapter with the given endpoints.
-             *
-             * This operation sets the property `<name>.Endpoints`, and then calls {@link Communicator#createObjectAdapter}.
-             * If the `name` parameter is an empty string, a UUID will be generated and used as the object adapter name.
-             *
-             * @param name - The object adapter name.
-             * @param endpoints - The endpoints for the object adapter.
-             * @returns A promise that resolves to the created object adapter.
-             *
-             * @see {@link createObjectAdapter}
-             * @see {@link ObjectAdapter}
-             * @see {@link Properties}
-             */
-            createObjectAdapterWithEndpoints(name: string, endpoints: string): Promise<Ice.ObjectAdapter>;
 
             /**
              * Gets the object adapter that is associated by default with new outgoing connections created by this

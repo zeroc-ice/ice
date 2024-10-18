@@ -524,7 +524,6 @@ export class Client extends TestHelper {
         const proxyProps = communicator.proxyToProperty(b1, "Test");
         test(proxyProps.size === 21);
         test(proxyProps.get("Test") === "test -t -e 1.0");
-        test(proxyProps.get("Test.CollocationOptimized") === "0");
         test(proxyProps.get("Test.ConnectionCached") === "1");
         test(proxyProps.get("Test.PreferSecure") === "0");
         test(proxyProps.get("Test.EndpointSelection") === "Ordered");
@@ -532,7 +531,6 @@ export class Client extends TestHelper {
         test(proxyProps.get("Test.InvocationTimeout") === "1234");
 
         test(proxyProps.get("Test.Locator") === "locator -t -e " + Ice.encodingVersionToString(Ice.currentEncoding()));
-        test(proxyProps.get("Test.Locator.CollocationOptimized") === "0");
         test(proxyProps.get("Test.Locator.ConnectionCached") === "0");
         test(proxyProps.get("Test.Locator.PreferSecure") === "1");
         test(proxyProps.get("Test.Locator.EndpointSelection") === "Random");
@@ -543,7 +541,6 @@ export class Client extends TestHelper {
             proxyProps.get("Test.Locator.Router") ===
                 "router -t -e " + Ice.encodingVersionToString(Ice.currentEncoding()),
         );
-        test(proxyProps.get("Test.Locator.Router.CollocationOptimized") === "0");
         test(proxyProps.get("Test.Locator.Router.ConnectionCached") === "1");
         test(proxyProps.get("Test.Locator.Router.PreferSecure") === "1");
         test(proxyProps.get("Test.Locator.Router.EndpointSelection") === "Random");

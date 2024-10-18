@@ -14,8 +14,7 @@
         <property name="Locator" languages="all" />
         <!-- TODO: set class="Proxy" once all languages support class props -->
         <property name="Router" languages="all" />
-        <!-- TODO: Remove from javascript -->
-        <property name="CollocationOptimized" languages="all" />
+        <property name="CollocationOptimized" languages="cpp,csharp,java" />
         <property name="Context.[any]" languages="all" />
     </class>
 
@@ -40,9 +39,8 @@
 
     <class name="ObjectAdapter" prefix-only="true">
         <property name="AdapterId" languages="cpp,csharp,java" />
-        <property name="Connection" class="Connection" languages="cpp,csharp,java"/>
-        <!-- TODO: remove from JavaScript -->
-        <property name="Endpoints" languages="all" />
+        <property name="Connection" class="Connection" languages="cpp,csharp,java" />
+        <property name="Endpoints" languages="cpp,csharp,java" />
         <property name="Locator" class="Proxy" languages="cpp,csharp,java" />
         <property name="PublishedEndpoints" languages="all" />
         <property name="PublishedHost" languages="cpp,csharp,java" />

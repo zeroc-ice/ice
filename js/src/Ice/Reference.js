@@ -948,7 +948,6 @@ export class RoutableReference extends Reference {
         const properties = new Map();
 
         properties.set(prefix, this.toString());
-        properties.set(prefix + ".CollocationOptimized", "0");
         properties.set(prefix + ".ConnectionCached", this._cacheConnection ? "1" : "0");
         properties.set(prefix + ".PreferSecure", this._preferSecure ? "1" : "0");
         properties.set(
