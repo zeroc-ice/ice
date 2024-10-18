@@ -4,9 +4,10 @@
 
 package test.Ice.invoke;
 
+import test.Ice.invoke.Test.MyException;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.invoke.Test.MyException;
 
 public class BlobjectAsyncI implements com.zeroc.Ice.BlobjectAsync {
     @Override

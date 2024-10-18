@@ -5,9 +5,11 @@
 package test.Ice.location;
 
 import com.zeroc.Ice.ObjectPrx;
+
+import test.Ice.location.Test.TestLocator;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.location.Test.TestLocator;
 
 public class ServerLocator implements TestLocator {
     public ServerLocator(

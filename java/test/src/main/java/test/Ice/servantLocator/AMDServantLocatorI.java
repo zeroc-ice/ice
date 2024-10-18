@@ -11,6 +11,7 @@ import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
 import com.zeroc.Ice.UserException;
+
 import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
 import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
 

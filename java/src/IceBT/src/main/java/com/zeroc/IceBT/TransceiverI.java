@@ -5,12 +5,14 @@ package com.zeroc.IceBT;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+
 import com.zeroc.Ice.Buffer;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ReadyCallback;
 import com.zeroc.Ice.SocketException;
 import com.zeroc.Ice.SocketOperation;
 import com.zeroc.Ice.Transceiver;
+
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.UUID;

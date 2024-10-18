@@ -11,6 +11,7 @@ import com.jgoodies.forms.util.LayoutStyle;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceLocatorDiscovery.Plugin;
 import com.zeroc.IceLocatorDiscovery.PluginFactory;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -39,6 +40,7 @@ import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
+
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.swing.*;

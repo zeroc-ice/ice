@@ -4,8 +4,9 @@
 
 package test.Ice.serialize;
 
-import java.io.*;
 import test.Ice.serialize.Test.*;
+
+import java.io.*;
 
 public final class InitialI implements Initial {
     InitialI(com.zeroc.Ice.ObjectAdapter adapter, com.zeroc.Ice.Identity ident) {

@@ -6,11 +6,13 @@ package test.Ice.metrics;
 
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.IceMX.*;
+
+import test.Ice.metrics.Test.*;
+
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import test.Ice.metrics.Test.*;
 
 public class AllTests {
     private static void test(boolean b) {

@@ -4,9 +4,10 @@
 
 package test.Ice.metrics;
 
+import test.Ice.metrics.AMD.Test.*;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.metrics.AMD.Test.*;
 
 public final class AMDMetricsI implements Metrics {
     public AMDMetricsI() {}

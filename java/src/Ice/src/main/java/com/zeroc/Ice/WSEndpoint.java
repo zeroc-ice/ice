@@ -5,6 +5,7 @@
 package com.zeroc.Ice;
 
 import com.zeroc.Ice.SSL.SSLEngineFactory;
+
 import java.util.stream.Collectors;
 
 final class WSEndpoint extends EndpointI {

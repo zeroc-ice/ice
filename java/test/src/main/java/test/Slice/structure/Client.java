@@ -2,12 +2,13 @@
 
 package test.Slice.structure;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import test.Slice.structure.Test.C;
 import test.Slice.structure.Test.S1;
 import test.Slice.structure.Test.S2;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Client extends test.TestHelper {
     private static void allTests(com.zeroc.Ice.Communicator communicator) {

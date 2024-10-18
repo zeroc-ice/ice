@@ -4,6 +4,7 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+
 import javax.swing.JPopupMenu;
 
 class ServerTemplates extends Templates {

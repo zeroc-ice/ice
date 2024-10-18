@@ -5,10 +5,12 @@
 package test.Ice.executor;
 
 import com.zeroc.Ice.InvocationFuture;
-import java.io.PrintWriter;
-import java.util.concurrent.CompletableFuture;
+
 import test.Ice.executor.Test.TestIntfControllerPrx;
 import test.Ice.executor.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
 
 public class AllTests {
     private static class Callback {

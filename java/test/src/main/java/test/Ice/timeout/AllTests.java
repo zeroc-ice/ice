@@ -6,10 +6,12 @@ package test.Ice.timeout;
 
 import com.zeroc.Ice.ConnectTimeoutException;
 import com.zeroc.Ice.InitializationData;
-import java.io.PrintWriter;
-import java.util.concurrent.CompletionException;
+
 import test.Ice.timeout.Test.ControllerPrx;
 import test.Ice.timeout.Test.TimeoutPrx;
+
+import java.io.PrintWriter;
+import java.util.concurrent.CompletionException;
 
 public class AllTests {
     private static void test(boolean b) {

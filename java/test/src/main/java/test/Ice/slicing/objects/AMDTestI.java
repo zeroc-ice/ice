@@ -4,9 +4,10 @@
 
 package test.Ice.slicing.objects;
 
+import test.Ice.slicing.objects.serverAMD.Test.*;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.slicing.objects.serverAMD.Test.*;
 
 public final class AMDTestI implements TestIntf {
     private static void test(boolean b) {

@@ -4,9 +4,10 @@
 
 package test.Ice.proxy;
 
+import test.Ice.proxy.AMD.Test.MyDerivedClass;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.proxy.AMD.Test.MyDerivedClass;
 
 public final class AMDMyDerivedClassI implements MyDerivedClass {
     public AMDMyDerivedClassI() {}

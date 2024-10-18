@@ -3,6 +3,7 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
+
 import javax.swing.JOptionPane;
 
 /** Base class for ServerEditor and ServerInstanceEditor */

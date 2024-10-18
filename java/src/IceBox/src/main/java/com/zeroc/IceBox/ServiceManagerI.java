@@ -5,6 +5,7 @@ package com.zeroc.IceBox;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
+
 import java.net.URLEncoder;
 
 // NOTE: the class isn't final on purpose to allow users to eventually extend it.

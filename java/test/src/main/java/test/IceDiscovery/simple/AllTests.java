@@ -2,11 +2,12 @@
 
 package test.IceDiscovery.simple;
 
+import test.IceDiscovery.simple.Test.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import test.IceDiscovery.simple.Test.*;
 
 public class AllTests {
     private static void test(boolean b) {

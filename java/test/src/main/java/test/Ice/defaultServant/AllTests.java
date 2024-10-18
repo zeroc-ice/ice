@@ -4,8 +4,9 @@
 
 package test.Ice.defaultServant;
 
-import java.io.PrintWriter;
 import test.Ice.defaultServant.Test.MyObjectPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

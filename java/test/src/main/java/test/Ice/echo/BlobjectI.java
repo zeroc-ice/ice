@@ -6,6 +6,7 @@ package test.Ice.echo;
 
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.ObjectPrx;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 

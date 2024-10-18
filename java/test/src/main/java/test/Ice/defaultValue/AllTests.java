@@ -4,8 +4,9 @@
 
 package test.Ice.defaultValue;
 
-import java.io.PrintWriter;
 import test.Ice.defaultValue.Test.*;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

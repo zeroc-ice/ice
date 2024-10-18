@@ -137,7 +137,7 @@ public final class Options {
                                         break;
                                     }
                                     switch (c = line.charAt(++i)) {
-                                            // Single-letter escape sequences.
+                                        // Single-letter escape sequences.
                                         case 'a':
                                             {
                                                 arg.append('\007');
@@ -189,7 +189,7 @@ public final class Options {
                                                 break;
                                             }
 
-                                            // Process up to three octal digits.
+                                        // Process up to three octal digits.
                                         case '0':
                                         case '1':
                                         case '2':
@@ -216,7 +216,7 @@ public final class Options {
                                                 break;
                                             }
 
-                                            // Process up to two hex digits.
+                                        // Process up to two hex digits.
                                         case 'x':
                                             {
                                                 final String hexDigits = "0123456789abcdefABCDEF";
@@ -251,7 +251,7 @@ public final class Options {
                                                 break;
                                             }
 
-                                            // Process control-chars.
+                                        // Process control-chars.
                                         case 'c':
                                             {
                                                 c = line.charAt(++i);
@@ -280,11 +280,11 @@ public final class Options {
                                                 break;
                                             }
 
-                                            // If inside an ANSI-quoted string, a backslash isn't
-                                            // followed by
-                                            // one of the recognized characters, both the backslash
-                                            // and the
-                                            // character are preserved.
+                                        // If inside an ANSI-quoted string, a backslash isn't
+                                        // followed by
+                                        // one of the recognized characters, both the backslash
+                                        // and the
+                                        // character are preserved.
                                         default:
                                             {
                                                 arg.append('\\');

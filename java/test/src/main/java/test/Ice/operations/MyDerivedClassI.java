@@ -5,8 +5,10 @@
 package test.Ice.operations;
 
 import com.zeroc.Ice.Current;
-import java.util.*;
+
 import test.Ice.operations.Test.*;
+
+import java.util.*;
 
 public final class MyDerivedClassI implements MyDerivedClass {
     private static void test(boolean b) {

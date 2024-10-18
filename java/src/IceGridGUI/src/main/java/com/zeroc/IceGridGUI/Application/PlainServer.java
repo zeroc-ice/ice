@@ -4,7 +4,9 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+
 import java.awt.Component;
+
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;

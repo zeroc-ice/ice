@@ -4,11 +4,12 @@
 
 package test.Ice.ami;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import test.Ice.ami.Test.PingReplyPrx;
 import test.Ice.ami.Test.TestIntf;
 import test.Ice.ami.Test.TestIntfException;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public class TestI implements TestIntf {
     private static void test(boolean b) {

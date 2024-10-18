@@ -5,10 +5,12 @@
 package test.Ice.operations;
 
 import com.zeroc.Ice.Current;
+
+import test.Ice.operations.AMD.Test.*;
+
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.operations.AMD.Test.*;
 
 public final class AMDMyDerivedClassI implements MyDerivedClass {
     private static void test(boolean b) {

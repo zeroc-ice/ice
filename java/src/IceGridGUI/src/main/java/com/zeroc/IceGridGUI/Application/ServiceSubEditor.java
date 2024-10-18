@@ -5,6 +5,7 @@ package com.zeroc.IceGridGUI.Application;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+
 import javax.swing.JTextField;
 
 class ServiceSubEditor extends CommunicatorSubEditor {

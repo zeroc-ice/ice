@@ -4,10 +4,11 @@
 
 package test.Ice.classLoader;
 
-import java.io.PrintWriter;
 import test.Ice.classLoader.Test.ConcreteClass;
 import test.Ice.classLoader.Test.E;
 import test.Ice.classLoader.Test.InitialPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static class MyClassLoader extends ClassLoader {

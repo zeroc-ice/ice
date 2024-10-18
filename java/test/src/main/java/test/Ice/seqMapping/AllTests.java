@@ -4,8 +4,9 @@
 
 package test.Ice.seqMapping;
 
-import java.io.PrintWriter;
 import test.Ice.seqMapping.Test.*;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     public static MyClassPrx allTests(test.TestHelper helper, boolean collocated) {

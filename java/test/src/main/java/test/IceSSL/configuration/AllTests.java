@@ -6,9 +6,11 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Util;
-import java.io.PrintWriter;
+
 import test.IceSSL.configuration.Test.ServerFactoryPrx;
 import test.IceSSL.configuration.Test.ServerPrx;
+
+import java.io.PrintWriter;
 
 // NOTE: This test is not interoperable with other language mappings.
 

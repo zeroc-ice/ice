@@ -10,11 +10,13 @@ import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.Util;
-import java.io.PrintWriter;
-import java.time.Duration;
+
 import test.Ice.proxy.Test.DiamondClassPrx;
 import test.Ice.proxy.Test.MyClassPrx;
 import test.Ice.proxy.Test.MyDerivedClassPrx;
+
+import java.io.PrintWriter;
+import java.time.Duration;
 
 public class AllTests {
     private static void test(boolean b) {

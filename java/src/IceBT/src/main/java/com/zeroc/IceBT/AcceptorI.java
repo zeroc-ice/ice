@@ -4,11 +4,13 @@ package com.zeroc.IceBT;
 
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+
 import com.zeroc.Ice.Acceptor;
 import com.zeroc.Ice.ReadyCallback;
 import com.zeroc.Ice.SocketException;
 import com.zeroc.Ice.SocketOperation;
 import com.zeroc.Ice.Transceiver;
+
 import java.util.UUID;
 
 final class AcceptorI implements Acceptor {

@@ -31,7 +31,9 @@
 package com.zeroc.IceGridGUI;
 
 import com.jgoodies.common.base.SystemUtils;
+
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 

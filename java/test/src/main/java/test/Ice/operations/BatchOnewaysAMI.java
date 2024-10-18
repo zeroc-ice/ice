@@ -5,8 +5,10 @@
 package test.Ice.operations;
 
 import com.zeroc.Ice.Util;
-import java.io.PrintWriter;
+
 import test.Ice.operations.Test.MyClassPrx;
+
+import java.io.PrintWriter;
 
 class BatchOnewaysAMI {
     private static class Callback {

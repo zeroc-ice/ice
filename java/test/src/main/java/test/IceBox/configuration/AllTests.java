@@ -2,8 +2,9 @@
 
 package test.IceBox.configuration;
 
-import java.io.PrintWriter;
 import test.IceBox.configuration.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

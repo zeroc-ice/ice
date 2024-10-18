@@ -8,8 +8,10 @@ import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.ProxyIdentityFacetKey;
 import com.zeroc.Ice.ProxyIdentityKey;
-import java.io.PrintWriter;
+
 import test.Ice.hash.Test.*;
+
+import java.io.PrintWriter;
 
 public class Client extends test.TestHelper {
     public void run(String[] args) {

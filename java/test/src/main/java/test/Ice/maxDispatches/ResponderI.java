@@ -3,6 +3,7 @@
 package test.Ice.maxDispatches;
 
 import com.zeroc.Ice.Current;
+
 import test.Ice.maxDispatches.Test.Responder;
 
 class ResponderI implements Responder {

@@ -9,11 +9,13 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
-import java.io.PrintWriter;
+
 import test.Ice.servantLocator.Test.TestActivationPrx;
 import test.Ice.servantLocator.Test.TestImpossibleException;
 import test.Ice.servantLocator.Test.TestIntfPrx;
 import test.Ice.servantLocator.Test.TestIntfUserException;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

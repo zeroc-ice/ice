@@ -2,11 +2,12 @@
 
 package test.Glacier2.router;
 
-import java.io.PrintWriter;
-import java.util.stream.Stream;
 import test.Glacier2.router.Test.CallbackException;
 import test.Glacier2.router.Test.CallbackPrx;
 import test.Glacier2.router.Test.CallbackReceiverPrx;
+
+import java.io.PrintWriter;
+import java.util.stream.Stream;
 
 public class Client extends test.TestHelper {
     public void run(String[] args) {

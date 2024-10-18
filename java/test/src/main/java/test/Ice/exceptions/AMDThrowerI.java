@@ -4,13 +4,14 @@
 
 package test.Ice.exceptions;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import test.Ice.exceptions.AMD.Test.A;
 import test.Ice.exceptions.AMD.Test.B;
 import test.Ice.exceptions.AMD.Test.C;
 import test.Ice.exceptions.AMD.Test.D;
 import test.Ice.exceptions.AMD.Test.Thrower;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public final class AMDThrowerI implements Thrower {
     public AMDThrowerI() {}

@@ -6,9 +6,11 @@ import com.jgoodies.forms.factories.Borders;
 import com.zeroc.IceGridGUI.Application.Editor;
 import com.zeroc.IceGridGUI.Application.Root;
 import com.zeroc.IceGridGUI.Application.TreeNode;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;

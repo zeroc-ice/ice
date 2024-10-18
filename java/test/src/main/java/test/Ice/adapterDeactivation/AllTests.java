@@ -7,8 +7,10 @@ package test.Ice.adapterDeactivation;
 import com.zeroc.Ice.EndpointInfo;
 import com.zeroc.Ice.IPEndpointInfo;
 import com.zeroc.Ice.ObjectAdapter;
-import java.util.Arrays;
+
 import test.Ice.adapterDeactivation.Test.TestIntfPrx;
+
+import java.util.Arrays;
 
 public class AllTests {
     private static void test(boolean b) {

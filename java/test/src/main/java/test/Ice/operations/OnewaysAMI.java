@@ -5,8 +5,10 @@
 package test.Ice.operations;
 
 import com.zeroc.Ice.Util;
-import java.util.concurrent.CompletableFuture;
+
 import test.Ice.operations.Test.MyClassPrx;
+
+import java.util.concurrent.CompletableFuture;
 
 class OnewaysAMI {
     private static void test(boolean b) {

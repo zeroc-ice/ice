@@ -4,12 +4,13 @@
 
 package test.Ice.inheritance;
 
-import java.io.PrintWriter;
 import test.Ice.inheritance.Test.InitialPrx;
 import test.Ice.inheritance.Test.MA.IAPrx;
 import test.Ice.inheritance.Test.MA.ICPrx;
 import test.Ice.inheritance.Test.MB.IB1Prx;
 import test.Ice.inheritance.Test.MB.IB2Prx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {
