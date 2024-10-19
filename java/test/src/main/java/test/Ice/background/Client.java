@@ -18,7 +18,7 @@ public class Client extends test.TestHelper {
         //
         // This test kills connections, so we don't want warnings.
         //
-        properties.setProperty("Ice.Warn.Connections", "0");
+        // properties.setProperty("Ice.Warn.Connections", "0");
 
         //
         // This test relies on filling the TCP send/recv buffer, so
