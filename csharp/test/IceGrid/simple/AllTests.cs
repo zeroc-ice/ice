@@ -194,8 +194,9 @@ public class AllTests : Test.AllTests
             {
                 com.stringToProxy("test @ TestAdapter").ice_ping();
             }
-            catch (Ice.NoEndpointException)
+            catch (System.Exception ex)
             {
+                Console.Out.WriteLine($"could not ping 'test': {ex}");
                 test(false);
             }
             com.destroy();

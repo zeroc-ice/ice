@@ -20,6 +20,8 @@ serverProps = {
     "TestAdapter.AdapterId": "TestAdapter",
 }
 
+serverTraceProps = {"Ice.Trace.Network": 1}
+
 registryProps = {"IceGrid.Registry.DynamicRegistration": 1}
 registryTraceProps = {"IceGrid.Registry.Trace.Discovery": 2, "Ice.Trace.Network": 1}
 
@@ -69,7 +71,7 @@ if isinstance(platform, Windows) or os.getuid() != 0:
                         outfilters=outfilters,
                         traceProps=clientTraceProps,
                     ),
-                    server=IceGridServer(props=serverProps),
+                    server=IceGridServer(props=serverProps, traceProps=serverTraceProps),
                 ),
             ),
             IceGridTestCase(
