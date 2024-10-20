@@ -356,8 +356,7 @@ namespace IceRuby
     class ClassInfo final : public TypeInfo, public std::enable_shared_from_this<ClassInfo>
     {
     public:
-        ClassInfo(VALUE);
-        void init();
+        static ClassInfoPtr create(VALUE);
 
         void define(VALUE, VALUE, VALUE, VALUE, VALUE);
 
@@ -392,14 +391,16 @@ namespace IceRuby
         const VALUE rubyClass;
         const VALUE typeObj;
         const bool defined;
+
+    private:
+        ClassInfo(VALUE);
     };
 
     // Proxy information.
-    class ProxyInfo final : public TypeInfo, public std::enable_shared_from_this<ProxyInfo>
+    class ProxyInfo final : public TypeInfo
     {
     public:
-        ProxyInfo(VALUE);
-        void init();
+        static ProxyInfoPtr create(VALUE);
 
         void define(VALUE, VALUE, VALUE);
 
@@ -426,6 +427,9 @@ namespace IceRuby
         const ProxyInfoList interfaces;
         const VALUE rubyClass;
         const VALUE typeObj;
+
+    private:
+        ProxyInfo(VALUE);
     };
 
     // Exception information.
