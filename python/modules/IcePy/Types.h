@@ -194,7 +194,13 @@ namespace IcePy
         Ice::OptionalFormat optionalFormat() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
-        void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = nullptr) final;
+        void unmarshal(
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = nullptr) final;
 
         void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
 
@@ -221,7 +227,13 @@ namespace IcePy
         Ice::OptionalFormat optionalFormat() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
-        void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = nullptr) final;
+        void unmarshal(
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = nullptr) final;
 
         void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
 
@@ -270,7 +282,13 @@ namespace IcePy
         bool usesClasses() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
-        void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = nullptr) final;
+        void unmarshal(
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = nullptr) final;
 
         void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
 
@@ -308,7 +326,13 @@ namespace IcePy
         bool usesClasses() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
-        void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = nullptr) final;
+        void unmarshal(
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = nullptr) final;
 
         void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
 
@@ -393,7 +417,13 @@ namespace IcePy
         bool usesClasses() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
-        void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = nullptr) final;
+        void unmarshal(
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = nullptr) final;
         void unmarshaled(PyObject*, PyObject*, void*) final;
 
         void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
@@ -439,7 +469,13 @@ namespace IcePy
         bool usesClasses() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
-        void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = nullptr) final;
+        void unmarshal(
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = nullptr) final;
 
         void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
 
@@ -476,7 +512,13 @@ namespace IcePy
         bool usesClasses() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
-        void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = nullptr) final;
+        void unmarshal(
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = nullptr) final;
 
         void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
 
@@ -515,7 +557,13 @@ namespace IcePy
         Ice::OptionalFormat optionalFormat() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
-        void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = nullptr) final;
+        void unmarshal(
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = nullptr) final;
 
         void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
 
