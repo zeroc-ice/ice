@@ -473,11 +473,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     }
 
     @Override
-    public synchronized void setAdapter(ObjectAdapter adapter) {
+    public void setAdapter(ObjectAdapter adapter) {
         if (adapter != null) {
-            // Go through the adapter to set the adapter and servant manager on this
-            // connection
-            // to ensure the object adapter is still active.
+            // Go through the adapter to set the adapter on this connection to ensure the
+            // object adapter is still active and to ensure proper locking order.
             adapter.setAdapterOnConnection(this);
         } else {
             synchronized (this) {
