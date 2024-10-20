@@ -139,7 +139,7 @@ namespace IceRuby
 
         virtual bool usesClasses() const; // Default implementation returns false.
 
-        virtual void unmarshaled(VALUE, VALUE, void*); // Default implementation is assert(false).
+        void unmarshaled(VALUE, VALUE, void*) override; // Default implementation is assert(false).
 
         virtual void destroy();
 
@@ -331,7 +331,7 @@ namespace IceRuby
         void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
         void printElement(VALUE, VALUE, IceInternal::Output&, PrintObjectHistory*);
 
-        virtual void destroy();
+        void destroy() final;
 
         class KeyCallback final : public UnmarshalCallback
         {
