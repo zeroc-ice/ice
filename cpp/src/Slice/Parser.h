@@ -237,7 +237,7 @@ namespace Slice
     // GrammarBase
     // ----------------------------------------------------------------------
 
-    class GrammarBase : public virtual std::enable_shared_from_this<GrammarBase>
+    class GrammarBase
     {
     public:
         virtual ~GrammarBase() = default;
@@ -380,7 +380,7 @@ namespace Slice
     // Container
     // ----------------------------------------------------------------------
 
-    class Container : public virtual SyntaxTreeBase
+    class Container : public virtual SyntaxTreeBase, public std::enable_shared_from_this<Container>
     {
     public:
         Container(const UnitPtr& unit);
@@ -493,7 +493,7 @@ namespace Slice
     // ClassDecl
     // ----------------------------------------------------------------------
 
-    class ClassDecl final : public virtual Constructed
+    class ClassDecl final : public virtual Constructed, public std::enable_shared_from_this<ClassDecl>
     {
     public:
         ClassDecl(const ContainerPtr& container, const std::string& name);
@@ -562,7 +562,7 @@ namespace Slice
     // InterfaceDecl
     // ----------------------------------------------------------------------
 
-    class InterfaceDecl final : public virtual Constructed
+    class InterfaceDecl final : public virtual Constructed, public std::enable_shared_from_this<InterfaceDecl>
     {
     public:
         InterfaceDecl(const ContainerPtr& container, const std::string& name);
@@ -757,7 +757,7 @@ namespace Slice
     // Sequence
     // ----------------------------------------------------------------------
 
-    class Sequence final : public virtual Constructed
+    class Sequence final : public virtual Constructed, public std::enable_shared_from_this<Sequence>
     {
     public:
         Sequence(
@@ -783,7 +783,7 @@ namespace Slice
     // Dictionary
     // ----------------------------------------------------------------------
 
-    class Dictionary final : public virtual Constructed
+    class Dictionary final : public virtual Constructed, public std::enable_shared_from_this<Dictionary>
     {
     public:
         Dictionary(
@@ -862,7 +862,7 @@ namespace Slice
     // Const
     // ----------------------------------------------------------------------
 
-    class Const final : public virtual Contained
+    class Const final : public virtual Contained, public std::enable_shared_from_this<Const>
     {
     public:
         Const(
@@ -890,7 +890,7 @@ namespace Slice
     // ParamDecl
     // ----------------------------------------------------------------------
 
-    class ParamDecl final : public virtual Contained
+    class ParamDecl final : public virtual Contained, public std::enable_shared_from_this<ParamDecl>
     {
     public:
         ParamDecl(
@@ -918,7 +918,7 @@ namespace Slice
     // DataMember
     // ----------------------------------------------------------------------
 
-    class DataMember final : public virtual Contained
+    class DataMember final : public virtual Contained, public std::enable_shared_from_this<DataMember>
     {
     public:
         DataMember(
