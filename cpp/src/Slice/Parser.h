@@ -317,9 +317,7 @@ namespace Slice
         inline static const std::array<std::string, 11> builtinTable =
             {"byte", "bool", "short", "int", "long", "float", "double", "string", "Object", "Object*", "Value"};
 
-    protected:
-        friend class Unit;
-
+    private:
         const Kind _kind;
     };
 
@@ -330,8 +328,7 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
-        Contained(const ContainerPtr& container, const std::string& name);
-        virtual void init();
+        void init();
         ContainerPtr container() const;
         std::string name() const;
         std::string scoped() const;
@@ -368,7 +365,7 @@ namespace Slice
         virtual std::string kindOf() const = 0;
 
     protected:
-        friend class Container;
+        Contained(const ContainerPtr& container, const std::string& name);
 
         ContainerPtr _container;
         std::string _name;
@@ -480,8 +477,6 @@ namespace Slice
         Module(const ContainerPtr& container, const std::string& name);
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
-
-        friend class Container;
     };
 
     // ----------------------------------------------------------------------
@@ -512,9 +507,8 @@ namespace Slice
         void visit(ParserVisitor* visitor) final;
         std::string kindOf() const final;
 
-    protected:
+    private:
         friend class Container;
-        friend class ClassDef;
 
         ClassDefPtr _definition;
     };
@@ -557,7 +551,7 @@ namespace Slice
         int compactId() const;
         std::string kindOf() const final;
 
-    protected:
+    private:
         friend class Container;
 
         ClassDeclPtr _declaration;
@@ -583,13 +577,11 @@ namespace Slice
 
         static void checkBasesAreLegal(const std::string& name, const InterfaceList& bases, const UnitPtr& unit);
 
-    protected:
+    private:
         friend class Container;
-        friend class InterfaceDef;
 
         InterfaceDefPtr _definition;
 
-    private:
         typedef std::list<InterfaceList> GraphPartitionList;
         typedef std::list<StringList> StringPartitionList;
 
@@ -650,9 +642,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class InterfaceDef;
-
+    private:
         TypePtr _returnType;
         bool _returnIsOptional;
         int _returnTag;
@@ -696,7 +686,7 @@ namespace Slice
         // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
         StringList ids() const;
 
-    protected:
+    private:
         friend class Container;
 
         InterfaceDeclPtr _declaration;
@@ -735,9 +725,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Container;
-
+    private:
         ExceptionPtr _base;
     };
 
@@ -764,8 +752,6 @@ namespace Slice
         bool isVariableLength() const final;
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
-
-        friend class Container;
     };
 
     // ----------------------------------------------------------------------
@@ -789,9 +775,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Container;
-
+    private:
         TypePtr _type;
         StringList _typeMetadata;
     };
@@ -823,9 +807,7 @@ namespace Slice
 
         static bool isLegalKeyType(const TypePtr& type);
 
-    protected:
-        friend class Container;
-
+    private:
         TypePtr _keyType;
         TypePtr _valueType;
         StringList _keyMetadata;
@@ -851,10 +833,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Container;
-        friend class Enumerator;
-
+    private:
         bool _hasExplicitValues;
         std::int64_t _minValue;
         std::int64_t _maxValue;
@@ -875,9 +854,7 @@ namespace Slice
         bool hasExplicitValue() const;
         int value() const;
 
-    protected:
-        friend class Container;
-
+    private:
         bool _hasExplicitValue;
         int _value;
     };
@@ -903,9 +880,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Container;
-
+    private:
         TypePtr _type;
         StringList _typeMetadata;
         SyntaxTreeBasePtr _valueType;
@@ -933,9 +908,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Operation;
-
+    private:
         TypePtr _type;
         bool _isOutParam;
         bool _optional;
@@ -965,11 +938,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class ClassDef;
-        friend class Struct;
-        friend class Exception;
-
+    private:
         TypePtr _type;
         bool _optional;
         int _tag;
