@@ -1916,25 +1916,16 @@ IceRuby::DictionaryInfo::destroy()
 //
 // ClassInfo implementation.
 //
-IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc)
+IceRuby::ClassInfo::ClassInfo(VALUE ident)
     : compactId(-1),
       isBase(false),
-      isLocal(loc),
       interface(false),
       rubyClass(Qnil),
       typeObj(Qnil),
       defined(false)
 {
     const_cast<string&>(id) = getString(ident);
-    if (isLocal)
-    {
-        // We don't define LocalObject anymore.
-        assert(id != "::Ice::LocalObject");
-    }
-    else
-    {
-        const_cast<bool&>(isBase) = id == Ice::Value::ice_staticId();
-    }
+    const_cast<bool&>(isBase) = id == Ice::Value::ice_staticId();
 }
 
 void
@@ -2187,7 +2178,7 @@ IceRuby::ClassInfo::isA(const ClassInfoPtr& info)
     //
     // Return true if this class has an is-a relationship with info.
     //
-    if (info->isBase && isLocal == info->isLocal)
+    if (info->isBase)
     {
         return true;
     }
@@ -2900,7 +2891,7 @@ IceRuby_declareClass(VALUE /*self*/, VALUE id)
         ClassInfoPtr info = lookupClassInfo(idstr);
         if (!info)
         {
-            info = make_shared<ClassInfo>(id, false);
+            info = make_shared<ClassInfo>(id);
             info->init();
             addClassInfo(idstr, info);
         }

@@ -356,7 +356,7 @@ namespace IceRuby
     class ClassInfo final : public TypeInfo, public std::enable_shared_from_this<ClassInfo>
     {
     public:
-        ClassInfo(VALUE, bool);
+        ClassInfo(VALUE);
         void init();
 
         void define(VALUE, VALUE, VALUE, VALUE, VALUE);
@@ -385,7 +385,6 @@ namespace IceRuby
         const std::string id;
         const std::int32_t compactId;
         const bool isBase; // Is this the ClassInfo for Value?
-        const bool isLocal;
         const bool interface;
         const ClassInfoPtr base;
         const DataMemberList members;
