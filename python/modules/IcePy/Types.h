@@ -26,10 +26,6 @@ namespace IcePy
     using ExceptionInfoPtr = std::shared_ptr<ExceptionInfo>;
     using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
 
-    class ClassInfo;
-    using ClassInfoPtr = std::shared_ptr<ClassInfo>;
-    using ClassInfoList = std::vector<ClassInfoPtr>;
-
     class ValueInfo;
     using ValueInfoPtr = std::shared_ptr<ValueInfo>;
 
@@ -450,45 +446,6 @@ namespace IcePy
     using DictionaryInfoPtr = std::shared_ptr<DictionaryInfo>;
     using TypeInfoList = std::vector<TypeInfoPtr>;
 
-    class ClassInfo final : public TypeInfo, public std::enable_shared_from_this<ClassInfo>
-    {
-    public:
-        ClassInfo(std::string);
-        void init();
-
-        void define(PyObject*, PyObject*, PyObject*);
-
-        std::string getId() const final;
-
-        bool validate(PyObject*) final;
-
-        bool variableLength() const final;
-        int wireSize() const final;
-        Ice::OptionalFormat optionalFormat() const final;
-
-        bool usesClasses() const final;
-
-        void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
-        void unmarshal(
-            Ice::InputStream*,
-            const UnmarshalCallbackPtr&,
-            PyObject*,
-            void*,
-            bool,
-            const Ice::StringSeq* = nullptr) final;
-
-        void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
-
-        void destroy() final;
-
-        const std::string id;
-        const ClassInfoPtr base;
-        const ClassInfoList interfaces;
-        PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-        PyObject* typeObj;    // Borrowed reference - the "_t_XXX" variable owns the reference.
-        const bool defined;
-    };
-
     //
     // Value type information
     //
@@ -702,7 +659,6 @@ namespace IcePy
 
     std::string resolveCompactId(std::int32_t id);
 
-    ClassInfoPtr lookupClassInfo(std::string_view);
     ValueInfoPtr lookupValueInfo(std::string_view);
     ExceptionInfoPtr lookupExceptionInfo(std::string_view);
 
@@ -723,8 +679,6 @@ extern "C" PyObject* IcePy_defineSequence(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineDictionary(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_declareProxy(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineProxy(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_declareClass(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_defineClass(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_declareValue(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineValue(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineException(PyObject*, PyObject*);

@@ -488,7 +488,6 @@ Slice::Python::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     {
         _out << sp << nl << "if " << getDictLookup(p) << ':';
         _out.inc();
-        _out << nl << "_M_" << getAbsolute(p, "_t_", "Disp") << " = IcePy.declareClass('" << scoped << "')";
         _out << nl << "_M_" << getAbsolute(p, "_t_", "Prx") << " = IcePy.declareProxy('" << scoped << "')";
         _out.dec();
         _classHistory.insert(scoped); // Avoid redundant declarations.
@@ -989,27 +988,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "__repr__ = __str__";
 
     _out.dec();
-
-    _out << sp << nl << "_M_" << classType << " = IcePy.defineClass('" << scoped << "', " << className << ", ";
-    writeMetadata(p->getMetadata());
-    _out << ", None, (";
-
-    int interfaceCount = 0;
-    for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-    {
-        if (interfaceCount > 0)
-        {
-            _out << ", ";
-        }
-        _out << "_M_" << getAbsolute(*q, "_t_", "Disp");
-        ++interfaceCount;
-    }
-    if (interfaceCount == 1)
-    {
-        _out << ',';
-    }
-    _out << "))";
-    _out << nl << className << "._ice_type = _M_" << classType;
 
     //
     // Define each operation. The arguments to the IcePy.Operation constructor are:
