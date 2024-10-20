@@ -219,6 +219,8 @@ namespace Slice
         std::map<std::string, StringList> exceptions() const;
 
     private:
+        friend class Contained;
+
         bool _isDeprecated;
         StringList _deprecated;
         StringList _overview;
@@ -228,8 +230,6 @@ namespace Slice
         StringList _returns;
         std::map<std::string, StringList> _parameters;
         std::map<std::string, StringList> _exceptions;
-
-        friend class Contained;
     };
     using CommentPtr = std::shared_ptr<Comment>;
 
@@ -328,7 +328,6 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
-        void init();
         ContainerPtr container() const;
         std::string name() const;
         std::string scoped() const;
@@ -955,8 +954,6 @@ namespace Slice
     public:
         static UnitPtr createUnit(bool all, const StringList& defaultFileMetadata = StringList());
 
-        Unit(bool all, const StringList& defaultFileMetadata);
-
         void setComment(const std::string& comment);
         void addToComment(const std::string& comment);
         std::string currentComment(); // Not const, as this function removes the current comment.
@@ -1006,10 +1003,10 @@ namespace Slice
         std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
+        Unit(bool all, const StringList& defaultFileMetadata);
+
         void pushDefinitionContext();
         void popDefinitionContext();
-
-        void init();
 
         bool _all;
         StringList _defaultFileMetadata;
