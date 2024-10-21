@@ -1381,7 +1381,6 @@ IcePy::SequenceInfo::SequenceInfo(string ident, PyObject* m, PyObject* t) : id(s
     assert(b);
 
     const_cast<SequenceMappingPtr&>(mapping) = make_shared<SequenceMapping>(metadata);
-    mapping->init(metadata);
     const_cast<TypeInfoPtr&>(elementType) = getType(t);
 }
 
@@ -1562,10 +1561,9 @@ IcePy::SequenceInfo::unmarshal(
         }
         else
         {
-            sm = make_shared<SequenceMapping>(type);
             try
             {
-                sm->init(*metadata);
+                sm = make_shared<SequenceMapping>(type, *metadata);
             }
             catch (const InvalidSequenceFactoryException&)
             {
@@ -2391,18 +2389,18 @@ IcePy::SequenceInfo::SequenceMapping::getType(const Ice::StringSeq& metadata, Ty
     return false;
 }
 
-IcePy::SequenceInfo::SequenceMapping::SequenceMapping(Type t) : type(t), factory(0) {}
-
-IcePy::SequenceInfo::SequenceMapping::SequenceMapping(const Ice::StringSeq& meta) : factory(0)
+SequenceInfo::SequenceMapping::Type
+IcePy::SequenceInfo::SequenceMapping::getTypeWithDefault(const Ice::StringSeq& metadata)
 {
-    if (!getType(meta, type))
+    Type t;
+    if (!getType(metadata, t))
     {
-        type = SEQ_DEFAULT;
+        t = SEQ_DEFAULT;
     }
+    return t;
 }
 
-void
-IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
+IcePy::SequenceInfo::SequenceMapping::SequenceMapping(Type t, const Ice::StringSeq& meta) : type(t), factory(nullptr)
 {
     if (type == SEQ_ARRAY)
     {
@@ -2445,6 +2443,11 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
             }
         }
     }
+}
+
+IcePy::SequenceInfo::SequenceMapping::SequenceMapping(const Ice::StringSeq& meta)
+    : SequenceMapping(getTypeWithDefault(meta), meta)
+{
 }
 
 void
@@ -2744,13 +2747,15 @@ IcePy::DictionaryInfo::destroy()
 //
 // ValueInfo implementation.
 //
-IcePy::ValueInfo::ValueInfo(string ident) : id(std::move(ident)), compactId(-1), interface(false), defined(false) {}
-
-void
-IcePy::ValueInfo::init()
+ValueInfoPtr
+IcePy::ValueInfo::create(string ident)
 {
-    typeObj = createType(shared_from_this());
+    ValueInfoPtr valueInfo{new ValueInfo{std::move(ident)}};
+    valueInfo->typeObj = createType(valueInfo);
+    return valueInfo;
 }
+
+IcePy::ValueInfo::ValueInfo(string ident) : id(std::move(ident)), compactId(-1), interface(false), defined(false) {}
 
 void
 IcePy::ValueInfo::define(PyObject* t, int compact, bool intf, PyObject* b, PyObject* m)
@@ -2987,13 +2992,15 @@ IcePy::ValueInfo::printMembers(PyObject* value, IceInternal::Output& out, PrintO
 //
 // ProxyInfo implementation.
 //
-IcePy::ProxyInfo::ProxyInfo(string ident) : id(std::move(ident)) {}
-
-void
-IcePy::ProxyInfo::init()
+ProxyInfoPtr
+IcePy::ProxyInfo::create(string ident)
 {
-    typeObj = createType(shared_from_this());
+    ProxyInfoPtr proxyInfo{new ProxyInfo{std::move(ident)}};
+    proxyInfo->typeObj = createType(proxyInfo);
+    return proxyInfo;
 }
+
+IcePy::ProxyInfo::ProxyInfo(string ident) : id(std::move(ident)) {}
 
 void
 IcePy::ProxyInfo::define(PyObject* t)
@@ -4092,8 +4099,7 @@ IcePy_declareProxy(PyObject*, PyObject* args)
     ProxyInfoPtr info = lookupProxyInfo(proxyId);
     if (!info)
     {
-        info = make_shared<ProxyInfo>(proxyId);
-        info->init();
+        info = ProxyInfo::create(proxyId);
         addProxyInfo(proxyId, info);
         return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
     }
@@ -4122,8 +4128,7 @@ IcePy_defineProxy(PyObject*, PyObject* args)
     ProxyInfoPtr info = lookupProxyInfo(proxyId);
     if (!info)
     {
-        info = make_shared<ProxyInfo>(proxyId);
-        info->init();
+        info = ProxyInfo::create(proxyId);
         addProxyInfo(proxyId, info);
         info->define(type);
         return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
@@ -4148,8 +4153,7 @@ IcePy_declareValue(PyObject*, PyObject* args)
     ValueInfoPtr info = lookupValueInfo(id);
     if (!info)
     {
-        info = make_shared<ValueInfo>(id);
-        info->init();
+        info = ValueInfo::create(id);
         addValueInfo(id, info);
         return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
     }
@@ -4187,8 +4191,7 @@ IcePy_defineValue(PyObject*, PyObject* args)
     ValueInfoPtr info = lookupValueInfo(id);
     if (!info || info->defined)
     {
-        info = make_shared<ValueInfo>(id);
-        info->init();
+        info = ValueInfo::create(id);
         addValueInfo(id, info);
         r = info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
     }
