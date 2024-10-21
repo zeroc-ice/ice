@@ -156,10 +156,16 @@ Instance::waitForShutdown() const
 void
 Instance::destroy(bool ownsCommunicator)
 {
+    IceInternal::TimerPtr timer;
     {
         unique_lock<mutex> lock(_mutex);
-        _timer->destroy();
+        timer = _timer;
         _timer = nullptr;
+    }
+
+    if (timer)
+    {
+        timer->destroy();
     }
 
     if (ownsCommunicator)
