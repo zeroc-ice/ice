@@ -13,17 +13,14 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     init(handle: ICECommunicator, initData: InitializationData) {
         defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
         self.initData = initData
-        let num = initData.properties!.getPropertyAsIntWithDefault(
-            key: "Ice.ClassGraphDepthMax", value: 10)
+        let num = try! initData.properties!.getIcePropertyAsInt("Ice.ClassGraphDepthMax")
         if num < 1 || num > 0x7FFF_FFFF {
             classGraphDepthMax = 0x7FFF_FFFF
         } else {
             classGraphDepthMax = num
         }
-        traceSlicing =
-            initData.properties!.getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
-        acceptClassCycles =
-            initData.properties!.getPropertyAsIntWithDefault(key: "Ice.AcceptClassCycles", value: 0) > 0
+        traceSlicing = try! initData.properties!.getIcePropertyAsInt("Ice.Trace.Slicing") > 0
+        acceptClassCycles = try! initData.properties!.getIcePropertyAsInt("Ice.AcceptClassCycles") > 0
 
         super.init(handle: handle)
     }

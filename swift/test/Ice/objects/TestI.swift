@@ -159,7 +159,7 @@ class InitialI: Initial {
 
     func acceptsClassCycles(current: Ice.Current) async throws -> Bool {
         let properties = current.adapter.getCommunicator().getProperties()
-        return properties.getPropertyAsIntWithDefault(key: "Ice.AcceptClassCycles", value: 0) > 0
+        return try properties.getIcePropertyAsInt("Ice.AcceptClassCycles") > 0
     }
 
     func getD1(d1: D1?, current _: Ice.Current) async throws -> D1? {

@@ -83,7 +83,7 @@ public func allTests(_ helper: TestHelper) async throws {
     }
     try test(ret)
 
-    if communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0 {
+    if try communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0 {
         //
         // Only run this test if compression is disabled, the test expect fixed message size
         // to be sent over the wire.
@@ -125,7 +125,7 @@ public func allTests(_ helper: TestHelper) async throws {
     //
     // Use loopback to prevent other machines to answer.
     //
-    if communicator.getProperties().getProperty("Ice.IPv6") == "1" {
+    if try communicator.getProperties().getIceProperty("Ice.IPv6") == "1" {
         endpoint += "udp -h \"ff15::1:1\" --interface \"::1\""
     } else {
         endpoint += "udp -h 239.255.1.1 --interface 127.0.0.1"
@@ -140,7 +140,7 @@ public func allTests(_ helper: TestHelper) async throws {
         do {
             try await objMcast.ping(reply)
             ret = replyI.waitReply(expectedReplies: 5, timeout: 5000)
-        } catch is Ice.SocketException where communicator.getProperties().getProperty("Ice.IPv6") == "1" {
+        } catch is Ice.SocketException where try! communicator.getProperties().getIceProperty("Ice.IPv6") == "1" {
             output.write("(not supported) ")
             ret = true
         }
