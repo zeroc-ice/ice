@@ -32,10 +32,9 @@
     return self.properties->getPropertyAsInt(fromNSString(key));
 }
 
-- (NSNumber*)getIcePropertyAsInt:(NSString*)key
+- (int32_t)getIcePropertyAsInt:(NSString*)key
 {
-    int32_t value = self.properties->getIcePropertyAsInt(fromNSString(key));
-    return [NSNumber numberWithInt:value];
+    return self.properties->getIcePropertyAsInt(fromNSString(key));
 }
 
 - (int32_t)getPropertyAsIntWithDefault:(NSString*)key value:(int32_t)value

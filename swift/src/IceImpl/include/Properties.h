@@ -8,13 +8,13 @@ ICEIMPL_API @interface ICEProperties : ICELocalObject
 - (NSString*)getIceProperty:(NSString*)key;
 - (NSString*)getPropertyWithDefault:(NSString*)key value:(NSString*)value;
 - (int32_t)getPropertyAsInt:(NSString*)key;
-- (NSNumber*)getIcePropertyAsInt:(NSString*)key NS_SWIFT_NAME(getIcePropertyAsInt(_:));
+- (int32_t)getIcePropertyAsInt:(NSString*)key NS_SWIFT_NAME(getIcePropertyAsInt(_:));
 - (int32_t)getPropertyAsIntWithDefault:(NSString*)key
                                  value:(int32_t)value NS_SWIFT_NAME(getPropertyAsIntWithDefault(key:value:));
 - (NSArray<NSString*>*)getPropertyAsList:(NSString* _Nonnull)key;
 - (NSArray<NSString*>*)getIcePropertyAsList:(NSString* _Nonnull)key NS_SWIFT_NAME(getIcePropertyAsList(_:));
 - (NSArray<NSString*>*)getPropertyAsListWithDefault:(NSString* _Nonnull)key
-                                                      value:(NSArray<NSString*>* _Nonnull)value
+                                              value:(NSArray<NSString*>* _Nonnull)value
     NS_SWIFT_NAME(getPropertyAsListWithDefault(key:value:));
 - (NSDictionary<NSString*, NSString*>*)getPropertiesForPrefix:(NSString* _Nonnull)prefix
     NS_SWIFT_NAME(getPropertiesForPrefix(_:));

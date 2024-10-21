@@ -20,7 +20,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
     }
 
     public func getIcePropertyAsInt(_ key: String) -> Int32 {
-        handle.getIcePropertyAsInt(key) as! Int32
+        handle.getIcePropertyAsInt(key)
     }
 
     public func getPropertyAsIntWithDefault(key: String, value: Int32) -> Int32 {
