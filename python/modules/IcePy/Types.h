@@ -29,6 +29,9 @@ namespace IcePy
     class ValueInfo;
     using ValueInfoPtr = std::shared_ptr<ValueInfo>;
 
+    class ProxyInfo;
+    using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
+
     //
     // This class is raised as an exception when object marshaling needs to be aborted.
     //
@@ -358,12 +361,11 @@ namespace IcePy
                 SEQ_MEMORYVIEW
             };
 
-            SequenceMapping(Type);
-            SequenceMapping(const Ice::StringSeq&);
-
-            void init(const Ice::StringSeq&);
+            SequenceMapping(Type type, const Ice::StringSeq& metadata);
+            SequenceMapping(const Ice::StringSeq& metadata);
 
             static bool getType(const Ice::StringSeq&, Type&);
+            static Type getTypeWithDefault(const Ice::StringSeq&);
 
             void unmarshaled(PyObject*, PyObject*, void*) final;
 
@@ -453,8 +455,7 @@ namespace IcePy
     class ValueInfo final : public TypeInfo, public std::enable_shared_from_this<ValueInfo>
     {
     public:
-        ValueInfo(std::string);
-        void init();
+        static ValueInfoPtr create(std::string);
 
         void define(PyObject*, int, bool, PyObject*, PyObject*);
 
@@ -492,16 +493,18 @@ namespace IcePy
         PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
         PyObject* typeObj;    // Borrowed reference - the "_t_XXX" variable owns the reference.
         const bool defined;
+
+    private:
+        ValueInfo(std::string);
     };
 
     //
     // Proxy information.
     //
-    class ProxyInfo final : public TypeInfo, public std::enable_shared_from_this<ProxyInfo>
+    class ProxyInfo final : public TypeInfo
     {
     public:
-        ProxyInfo(std::string);
-        void init();
+        static ProxyInfoPtr create(std::string);
 
         void define(PyObject*);
 
@@ -527,8 +530,10 @@ namespace IcePy
         const std::string id;
         PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
         PyObject* typeObj;    // Borrowed reference - the "_t_XXX" variable owns the reference.
+
+    private:
+        ProxyInfo(std::string);
     };
-    using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
 
     //
     // Exception information.
