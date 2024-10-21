@@ -99,7 +99,7 @@ open class TestHelperI: TestHelper {
         var s = ""
         s +=
             (prot == "")
-            ? try! properties.getIceProperty("Ice.Default.Protocol") : prot
+            ? properties.getIceProperty("Ice.Default.Protocol") : prot
         s += " -p "
         let port = properties.getPropertyAsIntWithDefault(key: "Test.BasePort", value: 12010) + num
         s += String(port)
