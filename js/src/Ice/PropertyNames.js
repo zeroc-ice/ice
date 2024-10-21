@@ -112,6 +112,9 @@ PropertyNames.IceBTProps = new PropertyArray("IceBT", false, [
 PropertyNames.Glacier2Props = new PropertyArray("Glacier2", false, [
 ]);
 
+PropertyNames.DataStormProps = new PropertyArray("DataStorm", false, [
+]);
+
 PropertyNames.validProps = [
     PropertyNames.IceProps,
     PropertyNames.IceMXProps,
@@ -127,4 +130,5 @@ PropertyNames.validProps = [
     PropertyNames.IceStormAdminProps,
     PropertyNames.IceBTProps,
     PropertyNames.Glacier2Props,
+    PropertyNames.DataStormProps,
 ];

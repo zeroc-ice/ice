@@ -56,7 +56,7 @@ NodeSessionManager::NodeSessionManager(const shared_ptr<Instance>& instance, con
       _traceLevels(instance->getTraceLevels()),
       _nodePrx(node->getProxy()),
       _forwardToMulticast(
-          instance->getCommunicator()->getProperties()->getPropertyAsInt(
+          instance->getCommunicator()->getProperties()->getIcePropertyAsInt(
               "DataStorm.Node.Server.ForwardDiscoveryToMulticast") > 0),
       _retryCount(0),
       _forwarder(instance->getCollocatedForwarder()->add<LookupPrx>([this](Ice::ByteSeq e, const Ice::Current& c)
@@ -80,7 +80,7 @@ NodeSessionManager::init()
     }
 
     auto communicator = instance->getCommunicator();
-    auto connectTo = communicator->getProperties()->getProperty("DataStorm.Node.ConnectTo");
+    const string connectTo = communicator->getProperties()->getIceProperty("DataStorm.Node.ConnectTo");
     if (!connectTo.empty())
     {
         connect(LookupPrx{communicator, "DataStorm/Lookup:" + connectTo}, _nodePrx);
