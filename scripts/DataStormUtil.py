@@ -52,7 +52,9 @@ class Reader(Server, DataStormProcess):
     processType = "reader"
 
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
-        Server.__init__(self, *args, **kargs)
+        # Set readyCount to 0 to skip waiting for adapter activation, as a DataStorm reader may not activate any adapters
+        # when both DataStorm.Node.Server.Enabled and DataStorm.Node.Multicast.Enabled are set to 0.
+        Server.__init__(self, readyCount=0, *args, **kargs)
 
     def getEffectiveProps(self, current, props):
         props = DataStormProcess.getEffectiveProps(self, current, props)

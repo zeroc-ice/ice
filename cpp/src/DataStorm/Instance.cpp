@@ -74,10 +74,11 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(com
     _retryMultiplier = properties->getIcePropertyAsInt("DataStorm.Node.RetryMultiplier");
     _retryCount = properties->getIcePropertyAsInt("DataStorm.Node.RetryCount");
 
+    // A collocated adapter is used with a unique AdapterId to enable collocation with default servants. Proxies created
+    // by this adapter will be indirect, and ObjectAdapter::isLocal will compare the adapter's AdapterId with the
+    // reference's AdapterId to determine if a collocated call can be used.
     //
-    // Create a collocated object adapter with a random name to prevent user configuration
-    // of the adapter.
-    //
+    // A named adapter is required because we cannot assign an AdapterId to a nameless adapter.
     auto collocated = Ice::generateUUID();
     properties->setProperty(collocated + ".AdapterId", collocated);
     _collocatedAdapter = _communicator->createObjectAdapter(collocated);
@@ -113,7 +114,6 @@ Instance::init()
     }
 
     _adapter->activate();
-    _collocatedAdapter->activate();
     if (_multicastAdapter)
     {
         _multicastAdapter->activate();
