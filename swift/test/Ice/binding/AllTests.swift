@@ -536,7 +536,7 @@ func testSecureEndpoints(helper: TestHelper, com: RemoteCommunicatorPrx) async t
 
     let output = helper.getWriter()
 
-    if helper.communicator().getProperties().getProperty("Ice.Default.Protocol") == "ssl" {
+    if try helper.communicator().getProperties().getIceProperty("Ice.Default.Protocol") == "ssl" {
         output.write("testing unsecure vs. secure endpoints... ")
         do {
             let adapters = try await [

@@ -72,7 +72,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     conn = try await p.ice_getConnection()
     if supportsCompress,
         conn != nil,
-        p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress") == ""
+        try! p.ice_getCommunicator().getProperties().getIceProperty("Ice.Override.Compress") == ""
     {
         let prx = try await p.ice_getConnection()!.createProxy(p.ice_getIdentity()).ice_batchOneway()
 
