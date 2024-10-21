@@ -365,6 +365,7 @@ Resolver::Resolver(
     _ignore.insert("node.machine");
     _ignore.insert("node.datadir");
     _ignore.insert("node.data");
+    _ignore.insert("node.ice.soversion");
 
     //
     // Deprecated variables
@@ -488,6 +489,15 @@ Resolver::Resolver(const shared_ptr<InternalNodeInfo>& info, const shared_ptr<Ic
     setReserved("node.machine", info->machine);
     setReserved("node.datadir", info->dataDir);
     setReserved("node.data", info->dataDir);
+    if (info->iceSoVersion)
+    {
+        setReserved("node.ice.soversion", *info->iceSoVersion);
+    }
+    else
+    {
+        // Since the node didn't supply this info, we're guessing it's a 3.7 node, but we don't know for sure.
+        setReserved("node.ice.soversion", "37");
+    }
 }
 
 string
@@ -958,11 +968,8 @@ Resolver::getProperties(const Ice::StringSeq& references, set<string>& resolved)
 map<string, string>
 Resolver::getReserved()
 {
-    //
-    // Allowed reserved variables (reserved variables can't be
-    // overrided, in this implementation an empty reserved variable is
-    // considered to be undefined (see getVariable))
-    //
+    // Allowed reserved variables (reserved variables can't be overridden, in this implementation an empty reserved
+    // variable is considered to be undefined (see getVariable))
     map<string, string> reserved;
     reserved["application"] = "";
     reserved["node"] = "";
@@ -973,6 +980,7 @@ Resolver::getReserved()
     reserved["node.machine"] = "";
     reserved["node.datadir"] = "";
     reserved["node.data"] = "";
+    reserved["node.ice.soversion"] = "";
     reserved["session.id"] = "";
     reserved["server"] = "";
     reserved["server.data"] = "${node.data}/servers/${server}/data";
