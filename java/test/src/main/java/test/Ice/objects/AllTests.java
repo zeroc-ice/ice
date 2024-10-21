@@ -4,7 +4,6 @@
 
 package test.Ice.objects;
 
-import java.io.PrintWriter;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.B;
 import test.Ice.objects.Test.Base;
@@ -30,6 +29,8 @@ import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.S;
 import test.Ice.objects.Test.StructKey;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

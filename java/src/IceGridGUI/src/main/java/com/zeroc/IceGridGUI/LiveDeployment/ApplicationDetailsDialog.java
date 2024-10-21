@@ -7,7 +7,9 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 import com.zeroc.IceGrid.*;
+
 import java.awt.Container;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTextField;

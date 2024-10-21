@@ -5,10 +5,12 @@
 package com.zeroc.Ice.SSL;
 
 import com.zeroc.Ice.InitializationException;
+
 import java.io.InputStream;
 import java.security.cert.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLParameters;

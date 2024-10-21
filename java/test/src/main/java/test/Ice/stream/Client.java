@@ -6,8 +6,10 @@ package test.Ice.stream;
 
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OutputStream;
-import java.io.PrintWriter;
+
 import test.Ice.stream.Test.*;
+
+import java.io.PrintWriter;
 
 public class Client extends test.TestHelper {
     private static class TestObjectWriter extends com.zeroc.Ice.Value {

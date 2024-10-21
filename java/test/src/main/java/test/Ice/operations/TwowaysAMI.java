@@ -4,11 +4,12 @@
 
 package test.Ice.operations;
 
+import test.Ice.operations.Test.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import test.Ice.operations.Test.*;
 
 class TwowaysAMI {
     private static void test(boolean b) {

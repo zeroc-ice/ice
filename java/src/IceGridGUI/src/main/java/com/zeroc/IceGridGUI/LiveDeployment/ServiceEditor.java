@@ -9,6 +9,7 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;

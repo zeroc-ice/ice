@@ -4,8 +4,9 @@
 
 package test.Ice.operations;
 
-import java.io.PrintWriter;
 import test.Ice.operations.Test.MyClassPrx;
+
+import java.io.PrintWriter;
 
 class BatchOneways {
     private static void test(boolean b) {

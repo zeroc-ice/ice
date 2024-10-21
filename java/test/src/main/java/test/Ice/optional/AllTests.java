@@ -8,12 +8,14 @@ import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.OptionalFormat;
 import com.zeroc.Ice.OutputStream;
+
+import test.Ice.optional.Test.*;
+
 import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import test.Ice.optional.Test.*;
 
 public class AllTests {
     private static void test(boolean b) {

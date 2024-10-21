@@ -2,8 +2,9 @@
 
 package test.IceGrid.simple;
 
-import java.io.PrintWriter;
 import test.IceGrid.simple.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

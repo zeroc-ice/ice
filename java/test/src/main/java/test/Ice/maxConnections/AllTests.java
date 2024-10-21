@@ -4,8 +4,10 @@ package test.Ice.maxConnections;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Connection;
-import java.io.PrintWriter;
+
 import test.Ice.maxConnections.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     static void allTests(test.TestHelper helper) {

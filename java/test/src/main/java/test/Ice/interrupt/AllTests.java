@@ -7,6 +7,11 @@ package test.Ice.interrupt;
 import com.zeroc.Ice.CompressBatch;
 import com.zeroc.Ice.InvocationFuture;
 import com.zeroc.Ice.Util;
+
+import test.Ice.interrupt.Test.CannotInterruptException;
+import test.Ice.interrupt.Test.TestIntfControllerPrx;
+import test.Ice.interrupt.Test.TestIntfPrx;
+
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -14,9 +19,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import test.Ice.interrupt.Test.CannotInterruptException;
-import test.Ice.interrupt.Test.TestIntfControllerPrx;
-import test.Ice.interrupt.Test.TestIntfPrx;
 
 public class AllTests {
     private static class Callback {

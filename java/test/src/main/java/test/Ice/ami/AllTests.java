@@ -7,6 +7,12 @@ package test.Ice.ami;
 import com.zeroc.Ice.CompressBatch;
 import com.zeroc.Ice.InvocationFuture;
 import com.zeroc.Ice.Util;
+
+import test.Ice.ami.Test.PingReplyPrx;
+import test.Ice.ami.Test.TestIntfControllerPrx;
+import test.Ice.ami.Test.TestIntfException;
+import test.Ice.ami.Test.TestIntfPrx;
+
 import java.io.PrintWriter;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -14,10 +20,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import test.Ice.ami.Test.PingReplyPrx;
-import test.Ice.ami.Test.TestIntfControllerPrx;
-import test.Ice.ami.Test.TestIntfException;
-import test.Ice.ami.Test.TestIntfPrx;
 
 public class AllTests {
     private static void test(boolean b) {

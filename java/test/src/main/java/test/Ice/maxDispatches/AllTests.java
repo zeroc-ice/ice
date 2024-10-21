@@ -3,11 +3,13 @@
 package test.Ice.maxDispatches;
 
 import com.zeroc.Ice.Communicator;
+
+import test.Ice.maxDispatches.Test.ResponderPrx;
+import test.Ice.maxDispatches.Test.TestIntfPrx;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import test.Ice.maxDispatches.Test.ResponderPrx;
-import test.Ice.maxDispatches.Test.TestIntfPrx;
 
 public class AllTests {
     static void allTests(test.TestHelper helper) {

@@ -4,9 +4,10 @@
 
 package test.Ice.objects;
 
+import test.Ice.objects.Test.*;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.objects.Test.*;
 
 public final class InitialI implements Initial {
     public InitialI(com.zeroc.Ice.ObjectAdapter adapter) {

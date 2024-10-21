@@ -5,11 +5,13 @@
 package test.Ice.optional;
 
 import com.zeroc.Ice.Current;
+
+import test.Ice.optional.Test.*;
+
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import test.Ice.optional.Test.*;
 
 public final class InitialI implements Initial {
     @Override

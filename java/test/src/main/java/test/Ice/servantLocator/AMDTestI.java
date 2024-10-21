@@ -4,11 +4,12 @@
 
 package test.Ice.servantLocator;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
 import test.Ice.servantLocator.AMD.Test.TestIntf;
 import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public final class AMDTestI implements TestIntf {
     @Override

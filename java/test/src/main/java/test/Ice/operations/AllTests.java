@@ -4,9 +4,10 @@
 
 package test.Ice.operations;
 
-import java.io.PrintWriter;
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyDerivedClassPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     public static MyClassPrx allTests(test.TestHelper helper) {

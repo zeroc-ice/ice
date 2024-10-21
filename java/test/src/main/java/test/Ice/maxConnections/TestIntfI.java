@@ -3,6 +3,7 @@
 package test.Ice.maxConnections;
 
 import com.zeroc.Ice.Current;
+
 import test.Ice.maxConnections.Test.TestIntf;
 
 class TestIntfI implements TestIntf {

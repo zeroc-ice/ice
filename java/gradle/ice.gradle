@@ -69,16 +69,20 @@ spotless {
 
     // Remove any unused imports, then ensure the remaining imports are correctly ordered.
     removeUnusedImports()
-    importOrder()
 
     // Linting
     cleanthat()
 
-    // Formatting
-    googleJavaFormat().aosp()
+    // We use google-java-format to format our Java code. We also set reorderImports and formatJavadoc to true to
+    // match the default behavior of the google-java-format tool.
+    // When updating the versio be sure to update the version in `.vscode/settings.json` as well.
+    googleJavaFormat("1.24.0").aosp().reorderImports(true).formatJavadoc(true)
     formatAnnotations()
   }
 }
+
+// Run spotlessApply before compiling Java code
+compileJava.dependsOn 'spotlessApply'
 
 // Android does not have a compileJava task
 if(!(project.hasProperty('android') && project.android.sourceSets)) {

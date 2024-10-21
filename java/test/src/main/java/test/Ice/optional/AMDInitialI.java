@@ -5,13 +5,15 @@
 package test.Ice.optional;
 
 import com.zeroc.Ice.Current;
+
+import test.Ice.optional.AMD.Test.*;
+
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import test.Ice.optional.AMD.Test.*;
 
 public final class AMDInitialI implements Initial {
     @Override

@@ -4,19 +4,22 @@ package test.IceSSL.configuration;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectPrx;
+
+import test.IceSSL.configuration.Test.ServerPrx;
+import test.TestHelper;
+
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
-import test.IceSSL.configuration.Test.ServerPrx;
-import test.TestHelper;
 
 public class PlatformTests {
     private static void test(boolean b) {

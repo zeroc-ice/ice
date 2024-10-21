@@ -4,7 +4,9 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+
 import java.util.Enumeration;
+
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultTreeModel;
 

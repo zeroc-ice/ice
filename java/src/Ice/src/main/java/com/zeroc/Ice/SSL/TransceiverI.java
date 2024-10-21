@@ -6,7 +6,9 @@ package com.zeroc.Ice.SSL;
 
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.SocketOperation;
+
 import java.nio.*;
+
 import javax.net.ssl.*;
 import javax.net.ssl.SSLEngineResult.*;
 

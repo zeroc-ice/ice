@@ -3,6 +3,7 @@
 package test.Ice.idleTimeout;
 
 import com.zeroc.Ice.Current;
+
 import test.Ice.idleTimeout.Test.TestIntf;
 
 class TestIntfI implements TestIntf {

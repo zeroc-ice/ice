@@ -4,8 +4,9 @@
 
 package test.Ice.faultTolerance;
 
-import java.io.PrintWriter;
 import test.Ice.faultTolerance.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     public static void test(boolean b) {

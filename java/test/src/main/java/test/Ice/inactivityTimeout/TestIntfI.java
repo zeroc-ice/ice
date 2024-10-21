@@ -3,6 +3,7 @@
 package test.Ice.inactivityTimeout;
 
 import com.zeroc.Ice.Current;
+
 import test.Ice.inactivityTimeout.Test.TestIntf;
 
 class TestIntfI implements TestIntf {

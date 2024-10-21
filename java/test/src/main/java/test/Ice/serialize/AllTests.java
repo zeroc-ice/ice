@@ -4,8 +4,9 @@
 
 package test.Ice.serialize;
 
-import java.io.*;
 import test.Ice.serialize.Test.*;
+
+import java.io.*;
 
 public class AllTests {
     private static void test(boolean b) {

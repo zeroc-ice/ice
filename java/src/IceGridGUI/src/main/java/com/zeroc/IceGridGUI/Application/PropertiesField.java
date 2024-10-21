@@ -4,7 +4,9 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JTable;

@@ -4,13 +4,14 @@
 
 package test.Ice.packagemd;
 
-import java.io.PrintWriter;
 import test.Ice.packagemd.Test.InitialPrx;
 import test.Ice.packagemd.Test1.C1;
 import test.Ice.packagemd.Test1.C2;
 import test.Ice.packagemd.Test1.E1;
 import test.Ice.packagemd.Test1.E2;
 import test.Ice.packagemd.Test1._notify;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

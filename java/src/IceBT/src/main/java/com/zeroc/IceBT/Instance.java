@@ -3,6 +3,7 @@
 package com.zeroc.IceBT;
 
 import android.bluetooth.BluetoothAdapter;
+
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.PluginInitializationException;
 
