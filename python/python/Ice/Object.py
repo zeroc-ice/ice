@@ -141,9 +141,6 @@ class Object(object):
         except BaseException:
             cb.exception(sys.exc_info()[1])
 
-IcePy._t_Object = IcePy.defineClass("::Ice::Object", Object, (), None, ())
-Object._ice_type = IcePy._t_Object
-
 Object._op_ice_isA = IcePy.Operation(
     "ice_isA",
     Ice.OperationMode.Idempotent,

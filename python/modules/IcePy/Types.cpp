@@ -26,9 +26,6 @@ using namespace IcePy;
 using namespace Ice;
 using namespace IceInternal;
 
-typedef map<string, ClassInfoPtr, std::less<>> ClassInfoMap;
-static ClassInfoMap _classInfoMap;
-
 typedef map<string, ValueInfoPtr, std::less<>> ValueInfoMap;
 static ValueInfoMap _valueInfoMap;
 
@@ -133,26 +130,6 @@ exceptionInfoDealloc(ExceptionInfoObject* self)
 {
     delete self->info;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
-}
-
-//
-// addClassInfo()
-//
-static void
-addClassInfo(string_view id, const ClassInfoPtr& info)
-{
-    //
-    // Do not assert. An application may load statically-
-    // translated definitions and then dynamically load
-    // duplicate definitions.
-    //
-    //    assert(_classInfoMap.find(id) == _classInfoMap.end());
-    ClassInfoMap::iterator p = _classInfoMap.find(id);
-    if (p != _classInfoMap.end())
-    {
-        _classInfoMap.erase(p);
-    }
-    _classInfoMap.insert(ClassInfoMap::value_type(id, info));
 }
 
 //
@@ -2765,143 +2742,6 @@ IcePy::DictionaryInfo::destroy()
 }
 
 //
-// ClassInfo implementation.
-//
-IcePy::ClassInfo::ClassInfo(string ident) : id(std::move(ident)), defined(false) {}
-
-void
-IcePy::ClassInfo::init()
-{
-    typeObj = createType(shared_from_this());
-}
-
-void
-IcePy::ClassInfo::define(PyObject* t, PyObject* b, PyObject* i)
-{
-    assert(PyType_Check(t));
-    assert(PyTuple_Check(i));
-
-    if (b != Py_None)
-    {
-        const_cast<ClassInfoPtr&>(base) = dynamic_pointer_cast<ClassInfo>(getType(b));
-        assert(base);
-    }
-
-    Py_ssize_t n, sz;
-    sz = PyTuple_GET_SIZE(i);
-    for (n = 0; n < sz; ++n)
-    {
-        PyObject* o = PyTuple_GET_ITEM(i, n);
-        auto iface = dynamic_pointer_cast<ClassInfo>(getType(o));
-        assert(iface);
-        const_cast<ClassInfoList&>(interfaces).push_back(iface);
-    }
-
-    pythonType = t;
-
-    const_cast<bool&>(defined) = true;
-}
-
-string
-IcePy::ClassInfo::getId() const
-{
-    return id;
-}
-
-bool
-IcePy::ClassInfo::validate(PyObject*)
-{
-    assert(false);
-    return true;
-}
-
-bool
-IcePy::ClassInfo::variableLength() const
-{
-    assert(false);
-    return true;
-}
-
-int
-IcePy::ClassInfo::wireSize() const
-{
-    return 1;
-}
-
-Ice::OptionalFormat
-IcePy::ClassInfo::optionalFormat() const
-{
-    return Ice::OptionalFormat::Class;
-}
-
-bool
-IcePy::ClassInfo::usesClasses() const
-{
-    return true;
-}
-
-void
-IcePy::ClassInfo::marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq*)
-{
-    assert(false);
-    throw AbortMarshaling();
-}
-
-void
-IcePy::ClassInfo::unmarshal(
-    Ice::InputStream*,
-    const UnmarshalCallbackPtr&,
-    PyObject*,
-    void*,
-    bool,
-    const Ice::StringSeq*)
-{
-    assert(false);
-    throw AbortMarshaling();
-}
-
-void
-IcePy::ClassInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
-{
-    if (!validate(value))
-    {
-        out << "<invalid value - expected " << id << ">";
-        return;
-    }
-
-    if (value == Py_None)
-    {
-        out << "<nil>";
-    }
-    else
-    {
-        map<PyObject*, int>::iterator q = history->objects.find(value);
-        if (q != history->objects.end())
-        {
-            out << "<object #" << q->second << ">";
-        }
-        else
-        {
-            PyObjectHandle iceType{getAttr(value, "_ice_type", false)};
-            ClassInfoPtr info;
-            assert(iceType.get());
-            info = dynamic_pointer_cast<ClassInfo>(getType(iceType.get()));
-            assert(info);
-            out << "object #" << history->index << " (" << info->id << ')';
-            history->objects.insert(map<PyObject*, int>::value_type(value, history->index));
-            ++history->index;
-        }
-    }
-}
-
-void
-IcePy::ClassInfo::destroy()
-{
-    const_cast<ClassInfoPtr&>(base) = 0;
-    const_cast<ClassInfoList&>(interfaces).clear();
-}
-
-//
 // ValueInfo implementation.
 //
 IcePy::ValueInfo::ValueInfo(string ident) : id(std::move(ident)), compactId(-1), interface(false), defined(false) {}
@@ -3077,21 +2917,11 @@ IcePy::ValueInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHi
         else
         {
             PyObjectHandle iceType{getAttr(value, "_ice_type", false)};
-            ValueInfoPtr info;
-            if (!iceType.get())
-            {
-                //
-                // The _ice_type attribute will be missing in an instance of LocalObject
-                // that does not derive from a user-defined type.
-                //
-                assert(id == "::Ice::LocalObject");
-                info = shared_from_this();
-            }
-            else
-            {
-                info = dynamic_pointer_cast<ValueInfo>(getType(iceType.get()));
-                assert(info);
-            }
+            assert(iceType.get());
+
+            ValueInfoPtr info = dynamic_pointer_cast<ValueInfo>(getType(iceType.get()));
+            assert(info);
+
             out << "object #" << history->index << " (" << info->id << ')';
             history->objects.insert(map<PyObject*, int>::value_type(value, history->index));
             ++history->index;
@@ -3917,20 +3747,6 @@ IcePy::resolveCompactId(int32_t id)
 }
 
 //
-// lookupClassInfo()
-//
-IcePy::ClassInfoPtr
-IcePy::lookupClassInfo(string_view id)
-{
-    ClassInfoMap::iterator p = _classInfoMap.find(id);
-    if (p != _classInfoMap.end())
-    {
-        return p->second;
-    }
-    return nullptr;
-}
-
-//
 // lookupValueInfo()
 //
 IcePy::ValueInfoPtr
@@ -4321,67 +4137,6 @@ IcePy_defineProxy(PyObject*, PyObject* args)
 }
 
 extern "C" PyObject*
-IcePy_declareClass(PyObject*, PyObject* args)
-{
-    char* id;
-    if (!PyArg_ParseTuple(args, "s", &id))
-    {
-        return nullptr;
-    }
-
-    ClassInfoPtr info = lookupClassInfo(id);
-    if (!info)
-    {
-        info = make_shared<ClassInfo>(id);
-        info->init();
-        addClassInfo(id, info);
-        return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
-    }
-    else
-    {
-        Py_INCREF(info->typeObj);
-        return info->typeObj;
-    }
-}
-
-extern "C" PyObject*
-IcePy_defineClass(PyObject*, PyObject* args)
-{
-    char* id;
-    PyObject* type;
-    PyObject* meta; // Not currently used.
-    PyObject* base;
-    PyObject* interfaces;
-    if (!PyArg_ParseTuple(args, "sOOOO", &id, &type, &meta, &base, &interfaces))
-    {
-        return nullptr;
-    }
-
-    assert(PyTuple_Check(meta));
-
-    //
-    // A ClassInfo object will already exist for this id if a forward declaration
-    // was encountered, or if the Slice definition is being reloaded. In the latter
-    // case, we act as if it hasn't been defined yet.
-    //
-    ClassInfoPtr info = lookupClassInfo(id);
-    if (!info || info->defined)
-    {
-        info = make_shared<ClassInfo>(id);
-        info->init();
-        addClassInfo(id, info);
-        info->define(type, base, interfaces);
-        return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
-    }
-    else
-    {
-        info->define(type, base, interfaces);
-        Py_INCREF(info->typeObj);
-        return info->typeObj;
-    }
-}
-
-extern "C" PyObject*
 IcePy_declareValue(PyObject*, PyObject* args)
 {
     char* id;
@@ -4425,7 +4180,7 @@ IcePy_defineValue(PyObject*, PyObject* args)
     PyObject* r;
 
     //
-    // A ClassInfo object will already exist for this id if a forward declaration
+    // A ValueInfo object will already exist for this id if a forward declaration
     // was encountered, or if the Slice definition is being reloaded. In the latter
     // case, we act as if it hasn't been defined yet.
     //

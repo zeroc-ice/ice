@@ -99,8 +99,6 @@ static PyMethodDef methods[] = {
      PyDoc_STR("internal function")},
     {"declareProxy", reinterpret_cast<PyCFunction>(IcePy_declareProxy), METH_VARARGS, PyDoc_STR("internal function")},
     {"defineProxy", reinterpret_cast<PyCFunction>(IcePy_defineProxy), METH_VARARGS, PyDoc_STR("internal function")},
-    {"declareClass", reinterpret_cast<PyCFunction>(IcePy_declareClass), METH_VARARGS, PyDoc_STR("internal function")},
-    {"defineClass", reinterpret_cast<PyCFunction>(IcePy_defineClass), METH_VARARGS, PyDoc_STR("internal function")},
     {"declareValue", reinterpret_cast<PyCFunction>(IcePy_declareValue), METH_VARARGS, PyDoc_STR("internal function")},
     {"defineValue", reinterpret_cast<PyCFunction>(IcePy_defineValue), METH_VARARGS, PyDoc_STR("internal function")},
     {"defineException",

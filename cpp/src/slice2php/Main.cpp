@@ -157,7 +157,6 @@ CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
         _out << nl << "global " << type << "Prx;";
         _out << nl << "if(!isset(" << type << "))";
         _out << sb;
-        _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
         _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
         _out << eb;
 
