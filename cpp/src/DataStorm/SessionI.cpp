@@ -557,7 +557,7 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, co
 
     if (_retryTask)
     {
-        _instance->getTimer()->cancel(_retryTask);
+        _instance->cancelTimerTask(_retryTask);
         _retryTask = nullptr;
     }
 
@@ -666,7 +666,7 @@ SessionI::retry(NodePrx node, exception_ptr exception)
     {
         if (_retryTask)
         {
-            _instance->getTimer()->cancel(_retryTask);
+            _instance->cancelTimerTask(_retryTask);
             _retryTask = nullptr;
         }
         _retryCount = 0;
@@ -686,7 +686,7 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         }
 
         _retryTask = make_shared<IceInternal::InlineTimerTask>([self = shared_from_this()] { self->remove(); });
-        _instance->getTimer()->schedule(_retryTask, delay);
+        _instance->scheduleTimerTask(_retryTask, delay);
     }
     else
     {
@@ -730,7 +730,7 @@ SessionI::retry(NodePrx node, exception_ptr exception)
 
         _retryTask =
             make_shared<IceInternal::InlineTimerTask>([node, self = shared_from_this()] { self->reconnect(node); });
-        _instance->getTimer()->schedule(_retryTask, delay);
+        _instance->scheduleTimerTask(_retryTask, delay);
     }
     return true;
 }
