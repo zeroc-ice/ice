@@ -493,6 +493,11 @@ Resolver::Resolver(const shared_ptr<InternalNodeInfo>& info, const shared_ptr<Ic
     {
         setReserved("node.ice.soversion", *info->iceSoVersion);
     }
+    else
+    {
+        // Since the node didn't supply this info, we're guessing it's a 3.7 node, but we don't know for sure.
+        setReserved("node.ice.soversion", "37");
+    }
 }
 
 string
@@ -975,7 +980,7 @@ Resolver::getReserved()
     reserved["node.machine"] = "";
     reserved["node.datadir"] = "";
     reserved["node.data"] = "";
-    reserved["node.ice.soversion"] = ICE_SO_VERSION; // defaults to the Ice version in the IceGrid registry.
+    reserved["node.ice.soversion"] = "";
     reserved["session.id"] = "";
     reserved["server"] = "";
     reserved["server.data"] = "${node.data}/servers/${server}/data";
