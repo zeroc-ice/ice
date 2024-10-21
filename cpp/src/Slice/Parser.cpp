@@ -1010,12 +1010,6 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name)
     _includeLevel = _unit->currentIncludeLevel();
 }
 
-void
-Slice::Contained::init()
-{
-    _unit->addContent(dynamic_pointer_cast<Contained>(shared_from_this()));
-}
-
 // ----------------------------------------------------------------------
 // Container
 // ----------------------------------------------------------------------
@@ -1081,8 +1075,8 @@ Slice::Container::createModule(const string& name)
         return nullptr;
     }
 
-    ModulePtr q = make_shared<Module>(dynamic_pointer_cast<Container>(shared_from_this()), name);
-    q->init();
+    ModulePtr q = make_shared<Module>(shared_from_this(), name);
+    _unit->addContent(q);
     _contents.push_back(q);
     return q;
 }
@@ -1140,8 +1134,8 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         return nullptr;
     }
 
-    ClassDefPtr def = make_shared<ClassDef>(dynamic_pointer_cast<Container>(shared_from_this()), name, id, base);
-    def->init();
+    ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
+    _unit->addContent(def);
     _contents.push_back(def);
 
     for (const auto& q : matches)
@@ -1226,8 +1220,8 @@ Slice::Container::createClassDecl(const string& name)
     }
 
     _unit->currentContainer();
-    ClassDeclPtr decl = make_shared<ClassDecl>(dynamic_pointer_cast<Container>(shared_from_this()), name);
-    decl->init();
+    ClassDeclPtr decl = make_shared<ClassDecl>(shared_from_this(), name);
+    _unit->addContent(decl);
     _contents.push_back(decl);
 
     if (def)
@@ -1293,8 +1287,8 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
 
     InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
 
-    InterfaceDefPtr def = make_shared<InterfaceDef>(dynamic_pointer_cast<Container>(shared_from_this()), name, bases);
-    def->init();
+    InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
+    _unit->addContent(def);
     _contents.push_back(def);
 
     for (const auto& q : matches)
@@ -1376,8 +1370,8 @@ Slice::Container::createInterfaceDecl(const string& name)
     }
 
     _unit->currentContainer();
-    InterfaceDeclPtr decl = make_shared<InterfaceDecl>(dynamic_pointer_cast<Container>(shared_from_this()), name);
-    decl->init();
+    InterfaceDeclPtr decl = make_shared<InterfaceDecl>(shared_from_this(), name);
+    _unit->addContent(decl);
     _contents.push_back(decl);
 
     if (def)
@@ -1417,8 +1411,8 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
         checkForGlobalDefinition("exceptions"); // Don't return here -- we create the exception anyway
     }
 
-    ExceptionPtr p = make_shared<Exception>(dynamic_pointer_cast<Container>(shared_from_this()), name, base);
-    p->init();
+    ExceptionPtr p = make_shared<Exception>(shared_from_this(), name, base);
+    _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -1452,8 +1446,8 @@ Slice::Container::createStruct(const string& name, NodeType nodeType)
         checkForGlobalDefinition("structs"); // Don't return here -- we create the struct anyway.
     }
 
-    StructPtr p = make_shared<Struct>(dynamic_pointer_cast<Container>(shared_from_this()), name);
-    p->init();
+    StructPtr p = make_shared<Struct>(shared_from_this(), name);
+    _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -1487,8 +1481,8 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
         checkForGlobalDefinition("sequences"); // Don't return here -- we create the sequence anyway.
     }
 
-    SequencePtr p = make_shared<Sequence>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, metadata);
-    p->init();
+    SequencePtr p = make_shared<Sequence>(shared_from_this(), name, type, metadata);
+    _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -1536,14 +1530,8 @@ Slice::Container::createDictionary(
         }
     }
 
-    DictionaryPtr p = make_shared<Dictionary>(
-        dynamic_pointer_cast<Container>(shared_from_this()),
-        name,
-        keyType,
-        keyMetadata,
-        valueType,
-        valueMetadata);
-    p->init();
+    DictionaryPtr p = make_shared<Dictionary>(shared_from_this(), name, keyType, keyMetadata, valueType, valueMetadata);
+    _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -1577,8 +1565,8 @@ Slice::Container::createEnum(const string& name, NodeType nodeType)
         checkForGlobalDefinition("enums"); // Don't return here -- we create the enumeration anyway.
     }
 
-    EnumPtr p = make_shared<Enum>(dynamic_pointer_cast<Container>(shared_from_this()), name);
-    p->init();
+    EnumPtr p = make_shared<Enum>(shared_from_this(), name);
+    _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -1626,14 +1614,8 @@ Slice::Container::createConst(
         return nullptr;
     }
 
-    ConstPtr p = make_shared<Const>(
-        dynamic_pointer_cast<Container>(shared_from_this()),
-        name,
-        type,
-        metadata,
-        resolvedValueType,
-        valueString);
-    p->init();
+    ConstPtr p = make_shared<Const>(shared_from_this(), name, type, metadata, resolvedValueType, valueString);
+    _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -1948,7 +1930,7 @@ Slice::Container::enumerators(const string& identifier) const
     if (lastColon == string::npos)
     {
         // check all enclosing scopes
-        ContainerPtr container = dynamic_pointer_cast<Container>(const_pointer_cast<GrammarBase>(shared_from_this()));
+        ContainerPtr container = const_pointer_cast<Container>(shared_from_this());
         do
         {
             EnumList enums = container->enums();
@@ -1968,7 +1950,7 @@ Slice::Container::enumerators(const string& identifier) const
     else
     {
         // Find the referenced scope
-        ContainerPtr container = dynamic_pointer_cast<Container>(const_pointer_cast<GrammarBase>(shared_from_this()));
+        ContainerPtr container = const_pointer_cast<Container>(shared_from_this());
         string scope = identifier.substr(0, identifier.rfind("::"));
         ContainedList cl = container->lookupContained(scope, false);
         if (!cl.empty())
@@ -2003,7 +1985,7 @@ string
 Slice::Container::thisScope() const
 {
     string s;
-    ContainedPtr contained = dynamic_pointer_cast<Contained>(const_pointer_cast<GrammarBase>(shared_from_this()));
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(const_pointer_cast<Container>(shared_from_this()));
     if (contained)
     {
         s = contained->scoped();
@@ -2373,7 +2355,7 @@ Slice::Module::kindOf() const
 void
 Slice::Module::visit(ParserVisitor* visitor)
 {
-    auto self = dynamic_pointer_cast<Module>(Container::shared_from_this());
+    auto self = dynamic_pointer_cast<Module>(shared_from_this());
     if (visitor->visitModuleStart(self))
     {
         Container::visit(visitor);
@@ -2455,7 +2437,7 @@ Slice::ClassDecl::kindOf() const
 void
 Slice::ClassDecl::visit(ParserVisitor* visitor)
 {
-    visitor->visitClassDecl(dynamic_pointer_cast<ClassDecl>(shared_from_this()));
+    visitor->visitClassDecl(shared_from_this());
 }
 
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name)
@@ -2566,15 +2548,8 @@ Slice::ClassDef::createDataMember(
         }
     }
 
-    DataMemberPtr member = make_shared<DataMember>(
-        dynamic_pointer_cast<Container>(shared_from_this()),
-        name,
-        type,
-        isOptional,
-        tag,
-        dlt,
-        dv);
-    member->init();
+    DataMemberPtr member = make_shared<DataMember>(shared_from_this(), name, type, isOptional, tag, dlt, dv);
+    _unit->addContent(member);
     _contents.push_back(member);
     return member;
 }
@@ -2713,7 +2688,7 @@ Slice::ClassDef::kindOf() const
 void
 Slice::ClassDef::visit(ParserVisitor* visitor)
 {
-    auto self = dynamic_pointer_cast<ClassDef>(Container::shared_from_this());
+    auto self = dynamic_pointer_cast<ClassDef>(shared_from_this());
     if (visitor->visitClassDefStart(self))
     {
         Container::visit(visitor);
@@ -2784,7 +2759,7 @@ Slice::InterfaceDecl::kindOf() const
 void
 Slice::InterfaceDecl::visit(ParserVisitor* visitor)
 {
-    visitor->visitInterfaceDecl(dynamic_pointer_cast<InterfaceDecl>(shared_from_this()));
+    visitor->visitInterfaceDecl(shared_from_this());
 }
 
 void
@@ -3042,14 +3017,8 @@ Slice::InterfaceDef::createOperation(
     }
 
     _hasOperations = true;
-    OperationPtr op = make_shared<Operation>(
-        dynamic_pointer_cast<Container>(shared_from_this()),
-        name,
-        returnType,
-        isOptional,
-        tag,
-        mode);
-    op->init();
+    OperationPtr op = make_shared<Operation>(shared_from_this(), name, returnType, isOptional, tag, mode);
+    _unit->addContent(op);
     _contents.push_back(op);
     return op;
 }
@@ -3154,7 +3123,7 @@ Slice::InterfaceDef::kindOf() const
 void
 Slice::InterfaceDef::visit(ParserVisitor* visitor)
 {
-    auto self = dynamic_pointer_cast<InterfaceDef>(Container::shared_from_this());
+    auto self = dynamic_pointer_cast<InterfaceDef>(shared_from_this());
     if (visitor->visitInterfaceDefStart(self))
     {
         Container::visit(visitor);
@@ -3303,14 +3272,8 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    ParamDeclPtr p = make_shared<ParamDecl>(
-        dynamic_pointer_cast<Container>(shared_from_this()),
-        name,
-        type,
-        isOutParam,
-        isOptional,
-        tag);
-    p->init();
+    ParamDeclPtr p = make_shared<ParamDecl>(shared_from_this(), name, type, isOutParam, isOptional, tag);
+    _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -3548,7 +3511,7 @@ Slice::Operation::kindOf() const
 void
 Slice::Operation::visit(ParserVisitor* visitor)
 {
-    visitor->visitOperation(dynamic_pointer_cast<Operation>(Container::shared_from_this()));
+    visitor->visitOperation(dynamic_pointer_cast<Operation>(shared_from_this()));
 }
 
 Slice::Operation::Operation(
@@ -3668,15 +3631,8 @@ Slice::Exception::createDataMember(
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(
-        dynamic_pointer_cast<Container>(shared_from_this()),
-        name,
-        type,
-        isOptional,
-        tag,
-        dlt,
-        dv);
-    p->init();
+    DataMemberPtr p = make_shared<DataMember>(shared_from_this(), name, type, isOptional, tag, dlt, dv);
+    _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -3834,7 +3790,7 @@ Slice::Exception::kindOf() const
 void
 Slice::Exception::visit(ParserVisitor* visitor)
 {
-    auto self = dynamic_pointer_cast<Exception>(Container::shared_from_this());
+    auto self = dynamic_pointer_cast<Exception>(shared_from_this());
     if (visitor->visitExceptionStart(self))
     {
         Container::visit(visitor);
@@ -3907,15 +3863,8 @@ Slice::Struct::createDataMember(
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(
-        dynamic_pointer_cast<Container>(shared_from_this()),
-        name,
-        type,
-        isOptional,
-        tag,
-        dlt,
-        dv);
-    p->init();
+    DataMemberPtr p = make_shared<DataMember>(shared_from_this(), name, type, isOptional, tag, dlt, dv);
+    _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -4007,7 +3956,7 @@ Slice::Struct::kindOf() const
 void
 Slice::Struct::visit(ParserVisitor* visitor)
 {
-    auto self = dynamic_pointer_cast<Struct>(Container::shared_from_this());
+    auto self = dynamic_pointer_cast<Struct>(shared_from_this());
     if (visitor->visitStructStart(self))
     {
         Container::visit(visitor);
@@ -4073,7 +4022,7 @@ Slice::Sequence::kindOf() const
 void
 Slice::Sequence::visit(ParserVisitor* visitor)
 {
-    visitor->visitSequence(dynamic_pointer_cast<Sequence>(shared_from_this()));
+    visitor->visitSequence(shared_from_this());
 }
 
 Slice::Sequence::Sequence(
@@ -4151,7 +4100,7 @@ Slice::Dictionary::kindOf() const
 void
 Slice::Dictionary::visit(ParserVisitor* visitor)
 {
-    visitor->visitDictionary(dynamic_pointer_cast<Dictionary>(shared_from_this()));
+    visitor->visitDictionary(shared_from_this());
 }
 
 // Checks whether the provided type is a legal dictionary key type.
@@ -4304,9 +4253,9 @@ Slice::Enum::createEnumerator(const string& name, optional<int> explicitValue)
     }
 
     // Create the enumerator.
-    ContainerPtr cont = dynamic_pointer_cast<Container>(shared_from_this());
+    ContainerPtr cont = shared_from_this();
     EnumeratorPtr p = make_shared<Enumerator>(cont, name, nextValue, explicitValue.has_value());
-    p->init();
+    _unit->addContent(p);
     _contents.push_back(p);
     _lastValue = nextValue;
     return p;
@@ -4357,7 +4306,7 @@ Slice::Enum::kindOf() const
 void
 Slice::Enum::visit(ParserVisitor* visitor)
 {
-    visitor->visitEnum(dynamic_pointer_cast<Enum>(Container::shared_from_this()));
+    visitor->visitEnum(dynamic_pointer_cast<Enum>(shared_from_this()));
 }
 
 Slice::Enum::Enum(const ContainerPtr& container, const string& name)
@@ -4446,7 +4395,7 @@ Slice::Const::kindOf() const
 void
 Slice::Const::visit(ParserVisitor* visitor)
 {
-    visitor->visitConst(dynamic_pointer_cast<Const>(shared_from_this()));
+    visitor->visitConst(shared_from_this());
 }
 
 Slice::Const::Const(
@@ -4502,7 +4451,7 @@ Slice::ParamDecl::kindOf() const
 void
 Slice::ParamDecl::visit(ParserVisitor* visitor)
 {
-    visitor->visitParamDecl(dynamic_pointer_cast<ParamDecl>(shared_from_this()));
+    visitor->visitParamDecl(shared_from_this());
 }
 
 Slice::ParamDecl::ParamDecl(
@@ -4564,7 +4513,7 @@ Slice::DataMember::kindOf() const
 void
 Slice::DataMember::visit(ParserVisitor* visitor)
 {
-    visitor->visitDataMember(dynamic_pointer_cast<DataMember>(shared_from_this()));
+    visitor->visitDataMember(shared_from_this());
 }
 
 Slice::DataMember::DataMember(
@@ -4592,15 +4541,9 @@ Slice::DataMember::DataMember(
 UnitPtr
 Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
 {
-    auto unit = make_shared<Unit>(all, defaultFileMetadata);
-    unit->init();
+    UnitPtr unit{new Unit{all, defaultFileMetadata}};
+    unit->_unit = unit;
     return unit;
-}
-
-void
-Slice::Unit::init()
-{
-    _unit = dynamic_pointer_cast<Unit>(shared_from_this());
 }
 
 void
@@ -4954,7 +4897,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debugMode)
     _currentComment = "";
     _currentIncludeLevel = 0;
     _topLevelFile = fullPath(filename);
-    pushContainer(dynamic_pointer_cast<Container>(shared_from_this()));
+    pushContainer(shared_from_this());
     pushDefinitionContext();
     setCurrentFile(_topLevelFile, 0);
 

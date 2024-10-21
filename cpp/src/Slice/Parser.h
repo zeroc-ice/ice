@@ -219,6 +219,8 @@ namespace Slice
         std::map<std::string, StringList> exceptions() const;
 
     private:
+        friend class Contained;
+
         bool _isDeprecated;
         StringList _deprecated;
         StringList _overview;
@@ -228,8 +230,6 @@ namespace Slice
         StringList _returns;
         std::map<std::string, StringList> _parameters;
         std::map<std::string, StringList> _exceptions;
-
-        friend class Contained;
     };
     using CommentPtr = std::shared_ptr<Comment>;
 
@@ -237,7 +237,7 @@ namespace Slice
     // GrammarBase
     // ----------------------------------------------------------------------
 
-    class GrammarBase : public virtual std::enable_shared_from_this<GrammarBase>
+    class GrammarBase
     {
     public:
         virtual ~GrammarBase() = default;
@@ -317,9 +317,7 @@ namespace Slice
         inline static const std::array<std::string, 11> builtinTable =
             {"byte", "bool", "short", "int", "long", "float", "double", "string", "Object", "Object*", "Value"};
 
-    protected:
-        friend class Unit;
-
+    private:
         const Kind _kind;
     };
 
@@ -330,8 +328,6 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
-        Contained(const ContainerPtr& container, const std::string& name);
-        virtual void init();
         ContainerPtr container() const;
         std::string name() const;
         std::string scoped() const;
@@ -368,7 +364,7 @@ namespace Slice
         virtual std::string kindOf() const = 0;
 
     protected:
-        friend class Container;
+        Contained(const ContainerPtr& container, const std::string& name);
 
         ContainerPtr _container;
         std::string _name;
@@ -384,7 +380,7 @@ namespace Slice
     // Container
     // ----------------------------------------------------------------------
 
-    class Container : public virtual SyntaxTreeBase
+    class Container : public virtual SyntaxTreeBase, public std::enable_shared_from_this<Container>
     {
     public:
         Container(const UnitPtr& unit);
@@ -480,8 +476,6 @@ namespace Slice
         Module(const ContainerPtr& container, const std::string& name);
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
-
-        friend class Container;
     };
 
     // ----------------------------------------------------------------------
@@ -499,7 +493,7 @@ namespace Slice
     // ClassDecl
     // ----------------------------------------------------------------------
 
-    class ClassDecl final : public virtual Constructed
+    class ClassDecl final : public virtual Constructed, public std::enable_shared_from_this<ClassDecl>
     {
     public:
         ClassDecl(const ContainerPtr& container, const std::string& name);
@@ -512,9 +506,8 @@ namespace Slice
         void visit(ParserVisitor* visitor) final;
         std::string kindOf() const final;
 
-    protected:
+    private:
         friend class Container;
-        friend class ClassDef;
 
         ClassDefPtr _definition;
     };
@@ -557,7 +550,7 @@ namespace Slice
         int compactId() const;
         std::string kindOf() const final;
 
-    protected:
+    private:
         friend class Container;
 
         ClassDeclPtr _declaration;
@@ -569,7 +562,7 @@ namespace Slice
     // InterfaceDecl
     // ----------------------------------------------------------------------
 
-    class InterfaceDecl final : public virtual Constructed
+    class InterfaceDecl final : public virtual Constructed, public std::enable_shared_from_this<InterfaceDecl>
     {
     public:
         InterfaceDecl(const ContainerPtr& container, const std::string& name);
@@ -583,13 +576,11 @@ namespace Slice
 
         static void checkBasesAreLegal(const std::string& name, const InterfaceList& bases, const UnitPtr& unit);
 
-    protected:
+    private:
         friend class Container;
-        friend class InterfaceDef;
 
         InterfaceDefPtr _definition;
 
-    private:
         typedef std::list<InterfaceList> GraphPartitionList;
         typedef std::list<StringList> StringPartitionList;
 
@@ -650,9 +641,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class InterfaceDef;
-
+    private:
         TypePtr _returnType;
         bool _returnIsOptional;
         int _returnTag;
@@ -696,7 +685,7 @@ namespace Slice
         // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
         StringList ids() const;
 
-    protected:
+    private:
         friend class Container;
 
         InterfaceDeclPtr _declaration;
@@ -735,9 +724,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Container;
-
+    private:
         ExceptionPtr _base;
     };
 
@@ -764,15 +751,13 @@ namespace Slice
         bool isVariableLength() const final;
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
-
-        friend class Container;
     };
 
     // ----------------------------------------------------------------------
     // Sequence
     // ----------------------------------------------------------------------
 
-    class Sequence final : public virtual Constructed
+    class Sequence final : public virtual Constructed, public std::enable_shared_from_this<Sequence>
     {
     public:
         Sequence(
@@ -789,9 +774,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Container;
-
+    private:
         TypePtr _type;
         StringList _typeMetadata;
     };
@@ -800,7 +783,7 @@ namespace Slice
     // Dictionary
     // ----------------------------------------------------------------------
 
-    class Dictionary final : public virtual Constructed
+    class Dictionary final : public virtual Constructed, public std::enable_shared_from_this<Dictionary>
     {
     public:
         Dictionary(
@@ -823,9 +806,7 @@ namespace Slice
 
         static bool isLegalKeyType(const TypePtr& type);
 
-    protected:
-        friend class Container;
-
+    private:
         TypePtr _keyType;
         TypePtr _valueType;
         StringList _keyMetadata;
@@ -851,10 +832,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Container;
-        friend class Enumerator;
-
+    private:
         bool _hasExplicitValues;
         std::int64_t _minValue;
         std::int64_t _maxValue;
@@ -875,9 +853,7 @@ namespace Slice
         bool hasExplicitValue() const;
         int value() const;
 
-    protected:
-        friend class Container;
-
+    private:
         bool _hasExplicitValue;
         int _value;
     };
@@ -886,7 +862,7 @@ namespace Slice
     // Const
     // ----------------------------------------------------------------------
 
-    class Const final : public virtual Contained
+    class Const final : public virtual Contained, public std::enable_shared_from_this<Const>
     {
     public:
         Const(
@@ -903,9 +879,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Container;
-
+    private:
         TypePtr _type;
         StringList _typeMetadata;
         SyntaxTreeBasePtr _valueType;
@@ -916,7 +890,7 @@ namespace Slice
     // ParamDecl
     // ----------------------------------------------------------------------
 
-    class ParamDecl final : public virtual Contained
+    class ParamDecl final : public virtual Contained, public std::enable_shared_from_this<ParamDecl>
     {
     public:
         ParamDecl(
@@ -933,9 +907,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class Operation;
-
+    private:
         TypePtr _type;
         bool _isOutParam;
         bool _optional;
@@ -946,7 +918,7 @@ namespace Slice
     // DataMember
     // ----------------------------------------------------------------------
 
-    class DataMember final : public virtual Contained
+    class DataMember final : public virtual Contained, public std::enable_shared_from_this<DataMember>
     {
     public:
         DataMember(
@@ -965,11 +937,7 @@ namespace Slice
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
-    protected:
-        friend class ClassDef;
-        friend class Struct;
-        friend class Exception;
-
+    private:
         TypePtr _type;
         bool _optional;
         int _tag;
@@ -985,8 +953,6 @@ namespace Slice
     {
     public:
         static UnitPtr createUnit(bool all, const StringList& defaultFileMetadata = StringList());
-
-        Unit(bool all, const StringList& defaultFileMetadata);
 
         void setComment(const std::string& comment);
         void addToComment(const std::string& comment);
@@ -1037,10 +1003,10 @@ namespace Slice
         std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
+        Unit(bool all, const StringList& defaultFileMetadata);
+
         void pushDefinitionContext();
         void popDefinitionContext();
-
-        void init();
 
         bool _all;
         StringList _defaultFileMetadata;
