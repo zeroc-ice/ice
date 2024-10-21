@@ -156,6 +156,18 @@ Instance::waitForShutdown() const
 void
 Instance::destroy(bool ownsCommunicator)
 {
+    IceInternal::TimerPtr timer;
+    {
+        unique_lock<mutex> lock(_mutex);
+        timer = _timer;
+        _timer = nullptr;
+    }
+
+    if (timer)
+    {
+        timer->destroy();
+    }
+
     if (ownsCommunicator)
     {
         _communicator->destroy();
@@ -174,7 +186,4 @@ Instance::destroy(bool ownsCommunicator)
     _executor->destroy();
     _connectionManager->destroy();
     _collocatedForwarder->destroy();
-    // Destroy the session manager before the timer to avoid scheduling new tasks after the timer has been destroyed.
-    _nodeSessionManager->destroy();
-    _timer->destroy();
 }

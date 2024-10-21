@@ -85,12 +85,6 @@ namespace DataStormI
             return _executor;
         }
 
-        IceInternal::TimerPtr getTimer() const
-        {
-            assert(_timer);
-            return _timer;
-        }
-
         std::chrono::milliseconds getRetryDelay(int count) const
         {
             return _retryDelay * static_cast<int>(std::pow(_retryMultiplier, std::min(count, _retryCount)));
@@ -104,6 +98,37 @@ namespace DataStormI
         void waitForShutdown() const;
 
         void destroy(bool);
+
+        // Helper methods to schedule and cancel timer tasks with the instance timers, schedule and cancel calls
+        // done after the instance is destroyed are ignored.
+
+        template<class Rep, class Period>
+        void scheduleTimerTask(std::function<void()> function, const std::chrono::duration<Rep, Period>& delay)
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            if (_timer)
+            {
+                _timer->schedule(std::move(function), delay);
+            }
+        }
+
+        void scheduleTimerTask(IceInternal::TimerTaskPtr task, const std::chrono::milliseconds& delay)
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            if (_timer)
+            {
+                _timer->schedule(std::move(task), delay);
+            }
+        }
+
+        void cancelTimerTask(IceInternal::TimerTaskPtr task)
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            if (_timer)
+            {
+                _timer->cancel(task);
+            }
+        }
 
     private:
         std::shared_ptr<TopicFactoryI> _topicFactory;

@@ -23,7 +23,6 @@ namespace DataStormI
         NodeSessionManager(const std::shared_ptr<Instance>&, const std::shared_ptr<NodeI>&);
 
         void init();
-        void destroy();
 
         std::shared_ptr<NodeSessionI> createOrGet(DataStormContract::NodePrx, const Ice::ConnectionPtr&, bool);
 

@@ -87,13 +87,6 @@ NodeSessionManager::init()
     }
 }
 
-void
-NodeSessionManager::destroy()
-{
-    unique_lock<mutex> lock(_mutex);
-    _instance.reset();
-}
-
 shared_ptr<NodeSessionI>
 NodeSessionManager::createOrGet(NodePrx node, const Ice::ConnectionPtr& connection, bool forwardAnnouncements)
 {
@@ -420,7 +413,7 @@ NodeSessionManager::disconnected(LookupPrx lookup)
     auto instance = _instance.lock();
     if (instance)
     {
-        instance->getTimer()->schedule(
+        instance->scheduleTimerTask(
             [=, this, self = shared_from_this()]
             {
                 auto instance = _instance.lock();
