@@ -1916,31 +1916,25 @@ IceRuby::DictionaryInfo::destroy()
 //
 // ClassInfo implementation.
 //
-IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc)
+
+ClassInfoPtr
+IceRuby::ClassInfo::create(VALUE ident)
+{
+    shared_ptr<ClassInfo> classInfo{new ClassInfo{ident}};
+    const_cast<VALUE&>(classInfo->typeObj) = createType(classInfo);
+    return classInfo;
+}
+
+IceRuby::ClassInfo::ClassInfo(VALUE ident)
     : compactId(-1),
       isBase(false),
-      isLocal(loc),
       interface(false),
       rubyClass(Qnil),
       typeObj(Qnil),
       defined(false)
 {
     const_cast<string&>(id) = getString(ident);
-    if (isLocal)
-    {
-        // We don't define LocalObject anymore.
-        assert(id != "::Ice::LocalObject");
-    }
-    else
-    {
-        const_cast<bool&>(isBase) = id == Ice::Value::ice_staticId();
-    }
-}
-
-void
-IceRuby::ClassInfo::init()
-{
-    const_cast<VALUE&>(typeObj) = createType(shared_from_this());
+    const_cast<bool&>(isBase) = id == Ice::Value::ice_staticId();
 }
 
 void
@@ -2187,7 +2181,7 @@ IceRuby::ClassInfo::isA(const ClassInfoPtr& info)
     //
     // Return true if this class has an is-a relationship with info.
     //
-    if (info->isBase && isLocal == info->isLocal)
+    if (info->isBase)
     {
         return true;
     }
@@ -2202,16 +2196,19 @@ IceRuby::ClassInfo::isA(const ClassInfoPtr& info)
 //
 // ProxyInfo implementation.
 //
+
+ProxyInfoPtr
+IceRuby::ProxyInfo::create(VALUE ident)
+{
+    shared_ptr<ProxyInfo> proxyInfo{new ProxyInfo{ident}};
+    const_cast<VALUE&>(proxyInfo->typeObj) = createType(proxyInfo);
+    return proxyInfo;
+}
+
 IceRuby::ProxyInfo::ProxyInfo(VALUE ident) : isBase(false), rubyClass(Qnil), typeObj(Qnil)
 {
     const_cast<string&>(id) = getString(ident);
     const_cast<bool&>(isBase) = id == Ice::Object::ice_staticId();
-}
-
-void
-IceRuby::ProxyInfo::init()
-{
-    const_cast<VALUE&>(typeObj) = createType(shared_from_this());
 }
 
 void
@@ -2880,8 +2877,7 @@ IceRuby_declareProxy(VALUE /*self*/, VALUE id)
         ProxyInfoPtr info = lookupProxyInfo(proxyId);
         if (!info)
         {
-            info = make_shared<ProxyInfo>(id);
-            info->init();
+            info = ProxyInfo::create(id);
             addProxyInfo(proxyId, info);
         }
 
@@ -2900,8 +2896,7 @@ IceRuby_declareClass(VALUE /*self*/, VALUE id)
         ClassInfoPtr info = lookupClassInfo(idstr);
         if (!info)
         {
-            info = make_shared<ClassInfo>(id, false);
-            info->init();
+            info = ClassInfo::create(id);
             addClassInfo(idstr, info);
         }
 

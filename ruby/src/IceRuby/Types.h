@@ -139,7 +139,7 @@ namespace IceRuby
 
         virtual bool usesClasses() const; // Default implementation returns false.
 
-        virtual void unmarshaled(VALUE, VALUE, void*); // Default implementation is assert(false).
+        void unmarshaled(VALUE, VALUE, void*) override; // Default implementation is assert(false).
 
         virtual void destroy();
 
@@ -331,7 +331,7 @@ namespace IceRuby
         void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
         void printElement(VALUE, VALUE, IceInternal::Output&, PrintObjectHistory*);
 
-        virtual void destroy();
+        void destroy() final;
 
         class KeyCallback final : public UnmarshalCallback
         {
@@ -356,8 +356,7 @@ namespace IceRuby
     class ClassInfo final : public TypeInfo, public std::enable_shared_from_this<ClassInfo>
     {
     public:
-        ClassInfo(VALUE, bool);
-        void init();
+        static ClassInfoPtr create(VALUE);
 
         void define(VALUE, VALUE, VALUE, VALUE, VALUE);
 
@@ -385,7 +384,6 @@ namespace IceRuby
         const std::string id;
         const std::int32_t compactId;
         const bool isBase; // Is this the ClassInfo for Value?
-        const bool isLocal;
         const bool interface;
         const ClassInfoPtr base;
         const DataMemberList members;
@@ -393,14 +391,16 @@ namespace IceRuby
         const VALUE rubyClass;
         const VALUE typeObj;
         const bool defined;
+
+    private:
+        ClassInfo(VALUE);
     };
 
     // Proxy information.
-    class ProxyInfo final : public TypeInfo, public std::enable_shared_from_this<ProxyInfo>
+    class ProxyInfo final : public TypeInfo
     {
     public:
-        ProxyInfo(VALUE);
-        void init();
+        static ProxyInfoPtr create(VALUE);
 
         void define(VALUE, VALUE, VALUE);
 
@@ -427,6 +427,9 @@ namespace IceRuby
         const ProxyInfoList interfaces;
         const VALUE rubyClass;
         const VALUE typeObj;
+
+    private:
+        ProxyInfo(VALUE);
     };
 
     // Exception information.
