@@ -53,7 +53,6 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(com
             // Set the published host to the multicast address, ensuring that proxies are created with the multicast
             // address.
             properties->setProperty("DataStorm.Node.Multicast.PublishedHost", "239.255.0.1");
-            properties->setProperty("DataStorm.Node.Multicast.ProxyOptions", "-d");
         }
         properties->setProperty("DataStorm.Node.Multicast.ThreadPool.SizeMax", "1");
 
@@ -110,7 +109,7 @@ Instance::init()
     if (_multicastAdapter)
     {
         auto lookup = _multicastAdapter->add<DataStormContract::LookupPrx>(lookupI, {"Lookup", "DataStorm"});
-        _lookup = lookup->ice_collocationOptimized(false);
+        _lookup = lookup->ice_collocationOptimized(false)->ice_datagram();
     }
 
     _adapter->activate();
