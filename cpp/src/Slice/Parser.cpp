@@ -1530,13 +1530,7 @@ Slice::Container::createDictionary(
         }
     }
 
-    DictionaryPtr p = make_shared<Dictionary>(
-        shared_from_this(),
-        name,
-        keyType,
-        keyMetadata,
-        valueType,
-        valueMetadata);
+    DictionaryPtr p = make_shared<Dictionary>(shared_from_this(), name, keyType, keyMetadata, valueType, valueMetadata);
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
@@ -1620,13 +1614,7 @@ Slice::Container::createConst(
         return nullptr;
     }
 
-    ConstPtr p = make_shared<Const>(
-        shared_from_this(),
-        name,
-        type,
-        metadata,
-        resolvedValueType,
-        valueString);
+    ConstPtr p = make_shared<Const>(shared_from_this(), name, type, metadata, resolvedValueType, valueString);
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
@@ -2560,14 +2548,7 @@ Slice::ClassDef::createDataMember(
         }
     }
 
-    DataMemberPtr member = make_shared<DataMember>(
-        shared_from_this(),
-        name,
-        type,
-        isOptional,
-        tag,
-        dlt,
-        dv);
+    DataMemberPtr member = make_shared<DataMember>(shared_from_this(), name, type, isOptional, tag, dlt, dv);
     _unit->addContent(member);
     _contents.push_back(member);
     return member;
@@ -3036,13 +3017,7 @@ Slice::InterfaceDef::createOperation(
     }
 
     _hasOperations = true;
-    OperationPtr op = make_shared<Operation>(
-        shared_from_this(),
-        name,
-        returnType,
-        isOptional,
-        tag,
-        mode);
+    OperationPtr op = make_shared<Operation>(shared_from_this(), name, returnType, isOptional, tag, mode);
     _unit->addContent(op);
     _contents.push_back(op);
     return op;
@@ -3297,13 +3272,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    ParamDeclPtr p = make_shared<ParamDecl>(
-        shared_from_this(),
-        name,
-        type,
-        isOutParam,
-        isOptional,
-        tag);
+    ParamDeclPtr p = make_shared<ParamDecl>(shared_from_this(), name, type, isOutParam, isOptional, tag);
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
@@ -3662,14 +3631,7 @@ Slice::Exception::createDataMember(
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(
-        shared_from_this(),
-        name,
-        type,
-        isOptional,
-        tag,
-        dlt,
-        dv);
+    DataMemberPtr p = make_shared<DataMember>(shared_from_this(), name, type, isOptional, tag, dlt, dv);
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
@@ -3901,14 +3863,7 @@ Slice::Struct::createDataMember(
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(
-        shared_from_this(),
-        name,
-        type,
-        isOptional,
-        tag,
-        dlt,
-        dv);
+    DataMemberPtr p = make_shared<DataMember>(shared_from_this(), name, type, isOptional, tag, dlt, dv);
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
