@@ -130,9 +130,6 @@ module IceGrid
 
         /// The path to the node data directory.
         string dataDir;
-
-        /// The Ice SO version used by this node, for example "38". An empty string means this version is unknown.
-        string iceSoVersion;
     }
 
     /// Information about an IceGrid registry replica.

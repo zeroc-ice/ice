@@ -135,7 +135,6 @@ namespace IceGrid
         info.machine = node->machine;
         info.nProcessors = node->nProcessors;
         info.dataDir = node->dataDir;
-        info.iceSoVersion = node->iceSoVersion.value_or("");
         return info;
     }
 }
