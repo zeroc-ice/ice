@@ -35,7 +35,7 @@ class Server: TestHelperI {
         //
         // Use loopback to prevent other machines to answer.
         //
-        if try properties.getIceProperty("Ice.IPv6") == "1" {
+        if properties.getIceProperty("Ice.IPv6") == "1" {
             endpoint += "udp -h \"ff15::1:1\" --interface \"::1\""
         } else {
             endpoint += "udp -h 239.255.1.1 --interface 127.0.0.1"

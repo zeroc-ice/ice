@@ -856,7 +856,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         "test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")!
     try test(communicator.proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
-    if try communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") == 0 {
+    if communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") == 0 {
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = try communicator.stringToProxy(
             "test -e 1.0:" + "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:"

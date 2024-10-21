@@ -4,43 +4,43 @@ import IceImpl
 
 class PropertiesI: LocalObject<ICEProperties>, Properties {
     public func getProperty(_ key: String) -> String {
-        return handle.getProperty(key)
+        handle.getProperty(key)
     }
 
-    public func getIceProperty(_ key: String) throws -> String {
-        try handle.getIceProperty(key)
+    public func getIceProperty(_ key: String) -> String {
+        handle.getIceProperty(key)
     }
 
     public func getPropertyWithDefault(key: String, value: String) -> String {
-        return handle.getPropertyWithDefault(key, value: value)
+        handle.getPropertyWithDefault(key, value: value)
     }
 
     public func getPropertyAsInt(_ key: String) -> Int32 {
-        return handle.getPropertyAsInt(key)
+        handle.getPropertyAsInt(key)
     }
 
-    public func getIcePropertyAsInt(_ key: String) throws -> Int32 {
-        try handle.getIcePropertyAsInt(key) as! Int32
+    public func getIcePropertyAsInt(_ key: String) -> Int32 {
+        handle.getIcePropertyAsInt(key)
     }
 
     public func getPropertyAsIntWithDefault(key: String, value: Int32) -> Int32 {
-        return handle.getPropertyAsIntWithDefault(key: key, value: value)
+        handle.getPropertyAsIntWithDefault(key: key, value: value)
     }
 
     public func getPropertyAsList(_ key: String) -> StringSeq {
-        return handle.getPropertyAsList(key)
+        handle.getPropertyAsList(key)
     }
 
-    public func getIcePropertyAsList(_ key: String) throws -> StringSeq {
-        try handle.getIcePropertyAsList(key)
+    public func getIcePropertyAsList(_ key: String) -> StringSeq {
+        handle.getIcePropertyAsList(key)
     }
 
     public func getPropertyAsListWithDefault(key: String, value: StringSeq) -> StringSeq {
-        return handle.getPropertyAsListWithDefault(key: key, value: value)
+        handle.getPropertyAsListWithDefault(key: key, value: value)
     }
 
     public func getPropertiesForPrefix(_ prefix: String) -> PropertyDict {
-        return handle.getPropertiesForPrefix(prefix)
+        handle.getPropertiesForPrefix(prefix)
     }
 
     public func setProperty(key: String, value: String) {
@@ -55,28 +55,28 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
     }
 
     public func getCommandLineOptions() -> StringSeq {
-        return handle.getCommandLineOptions()
+        handle.getCommandLineOptions()
     }
 
     public func parseCommandLineOptions(prefix: String, options: StringSeq) throws -> StringSeq {
-        return try autoreleasepool {
+        try autoreleasepool {
             try handle.parseCommandLineOptions(prefix, options: options)
         }
     }
 
     public func parseIceCommandLineOptions(_ options: StringSeq) throws -> StringSeq {
-        return try autoreleasepool {
+        try autoreleasepool {
             try handle.parseIceCommandLineOptions(options)
         }
     }
 
     public func load(_ file: String) throws {
-        return try autoreleasepool {
+        try autoreleasepool {
             try handle.load(file)
         }
     }
 
     public func clone() -> Properties {
-        return PropertiesI(handle: handle.clone())
+        PropertiesI(handle: handle.clone())
     }
 }

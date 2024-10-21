@@ -61,7 +61,7 @@ func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
     output.write("testing enum streaming... ")
 
     let encoding_1_0 =
-        try communicator.getProperties().getIceProperty("Ice.Default.EncodingVersion") == "1.0"
+        communicator.getProperties().getIceProperty("Ice.Default.EncodingVersion") == "1.0"
 
     var ostr = Ice.OutputStream(communicator: communicator)
     ostr.write(ByteEnum.benum11)
