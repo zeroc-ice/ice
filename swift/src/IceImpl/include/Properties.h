@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @interface ICEProperties : ICELocalObject
 - (NSString*)getProperty:(NSString*)key;
-- (NSString*)getIceProperty:(NSString*)key NS_SWIFT_NAME(getIceProperty(_:));
+- (NSString*)getIceProperty:(NSString*)key;
 - (NSString*)getPropertyWithDefault:(NSString*)key value:(NSString*)value;
 - (int32_t)getPropertyAsInt:(NSString*)key;
 - (NSNumber*)getIcePropertyAsInt:(NSString*)key NS_SWIFT_NAME(getIcePropertyAsInt(_:));

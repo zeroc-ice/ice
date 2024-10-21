@@ -149,7 +149,7 @@ func allTests(_ helper: TestHelper) async throws {
 
     let testIntf = try await checkedCast(prx: base, type: TestIntfPrx.self)!
 
-    let defaultHost = try communicator.getProperties().getIceProperty("Ice.Default.Host")
+    let defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host")
 
     output.write("test connection endpoint information... ")
     do {
