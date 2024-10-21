@@ -373,6 +373,10 @@ class InternalNodeInfo
 
     /// The path to the node data directory.
     string dataDir;
+
+    /// The Ice SO version, for example 38. It can be used to specify the version of an Ice plugin or of
+    /// the IceStorm service.
+    optional(1) string iceSoVersion;
 }
 
 /// Information about an IceGrid registry replica.
