@@ -480,7 +480,7 @@ MetricsAdminI::enableMetricsView(string viewName, const Current&)
 {
     {
         lock_guard lock(_mutex);
-        getMetricsView(viewName); // Throws if unkonwn metrics view.
+        getMetricsView(viewName); // Throws if unknown metrics view.
         _properties->setProperty("IceMX.Metrics." + viewName + ".Disabled", "0");
     }
     updateViews();
@@ -491,7 +491,7 @@ MetricsAdminI::disableMetricsView(string viewName, const Current&)
 {
     {
         lock_guard lock(_mutex);
-        getMetricsView(viewName); // Throws if unkonwn metrics view.
+        getMetricsView(viewName); // Throws if unknown metrics view.
         _properties->setProperty("IceMX.Metrics." + viewName + ".Disabled", "1");
     }
     updateViews();
