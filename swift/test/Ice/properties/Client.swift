@@ -101,13 +101,13 @@ public class Client: TestHelperI {
             output.write("testing ice properties with set default values...")
             let properties = Ice.createProperties()
 
-            let toStringMode = try properties.getIceProperty("Ice.ToStringMode")
+            let toStringMode = properties.getIceProperty("Ice.ToStringMode")
             try test(toStringMode == "Unicode")
 
-            let closeTimeout = try properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout")
+            let closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout")
             try test(closeTimeout == 10)
 
-            let retryIntervals = try properties.getIcePropertyAsList("Ice.RetryIntervals")
+            let retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals")
             try test(retryIntervals == ["0"])
 
             output.writeLine("ok")
@@ -117,18 +117,20 @@ public class Client: TestHelperI {
             output.write("testing ice properties with unset default values...")
             let properties = Ice.createProperties()
 
-            let stringValue = try properties.getIceProperty("Ice.Admin.Router")
+            let stringValue = properties.getIceProperty("Ice.Admin.Router")
             try test(stringValue == "")
 
-            let intValue = try properties.getIcePropertyAsInt("Ice.Admin.Router")
+            let intValue = properties.getIcePropertyAsInt("Ice.Admin.Router")
             try test(intValue == 0)
 
-            let listValue = try properties.getIcePropertyAsList("Ice.Admin.Router")
+            let listValue = properties.getIcePropertyAsList("Ice.Admin.Router")
             try test(listValue == [])
 
             output.writeLine("ok")
         }
 
+        // Cannot test in Swift since this generates a fatal error.
+        /*
         do {
             output.write("testing that getting an unknown ice property throws an exception...")
             let properties = Ice.createProperties()
@@ -143,5 +145,6 @@ public class Client: TestHelperI {
 
             output.writeLine("ok")
         }
+        */
     }
 }
