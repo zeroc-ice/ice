@@ -22,10 +22,10 @@ public class Client: TestHelperI {
             output.write("testing load properties from UTF-8 path... ")
             let properties = Ice.createProperties()
             try properties.load("./config/中国_client.config")
-            try test(properties.getProperty("Ice.Trace.Network") == "1")
-            try test(properties.getProperty("Ice.Trace.Protocol") == "1")
+            try test(properties.getIceProperty("Ice.Trace.Network") == "1")
+            try test(properties.getIceProperty("Ice.Trace.Protocol") == "1")
             try test(properties.getProperty("Config.Path") == "./config/中国_client.config")
-            try test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
+            try test(properties.getIceProperty("Ice.ProgramName") == "PropertiesClient")
             output.writeLine("ok")
         }
 
@@ -79,8 +79,8 @@ public class Client: TestHelperI {
             var args1 = ["--Foo=1", "--Ice.Default.InvocationTimeout=12345", "-T", "--Bar=2"]
             let properties1 = try Ice.createProperties(args1)
             var properties2 = try Ice.createProperties(&args1)
-            try test(properties1.getPropertyAsInt("Ice.Default.InvocationTimeout") == 12345)
-            try test(properties2.getPropertyAsInt("Ice.Default.InvocationTimeout") == 12345)
+            try test(properties1.getIcePropertyAsInt("Ice.Default.InvocationTimeout") == 12345)
+            try test(properties2.getIcePropertyAsInt("Ice.Default.InvocationTimeout") == 12345)
             try test(args1 == ["--Foo=1", "-T", "--Bar=2"])
 
             args1 = ["--Ice.Default.InvocationTimeout=10000"]
@@ -92,7 +92,7 @@ public class Client: TestHelperI {
             defer {
                 communicator.destroy()
             }
-            try test(communicator.getProperties().getPropertyAsInt("Ice.Default.InvocationTimeout") == 12345)
+            try test(communicator.getProperties().getIcePropertyAsInt("Ice.Default.InvocationTimeout") == 12345)
             try test(args1 == ["--Foo=1", "-T", "--Bar=2"])
             output.writeLine("ok")
         }

@@ -14,22 +14,22 @@ func allTests(_ helper: TestHelper) async throws -> GPrx {
     let communicator = helper.communicator()
 
     output.write("testing Ice.Admin.Facets property... ")
-    try test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").count == 0)
+    try test(communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets").count == 0)
     communicator.getProperties().setProperty(key: "Ice.Admin.Facets", value: "foobar")
-    var facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
+    var facetFilter = try communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets")
     try test(facetFilter == ["foobar"])
     communicator.getProperties().setProperty(key: "Ice.Admin.Facets", value: "foo\\'bar")
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
+    facetFilter = try communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets")
     try test(facetFilter == ["foo'bar"])
     communicator.getProperties().setProperty(key: "Ice.Admin.Facets", value: "'foo bar' toto 'titi'")
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
+    facetFilter = try communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets")
     try test(facetFilter == ["foo bar", "toto", "titi"])
     communicator.getProperties().setProperty(
         key: "Ice.Admin.Facets", value: "'foo bar\\' toto' 'titi'")
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
+    facetFilter = try communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets")
     try test(facetFilter == ["foo bar' toto", "titi"])
     // communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
-    // facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    // facetFilter = try communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
     // test(facetFilter.Length == 0);
     communicator.getProperties().setProperty(key: "Ice.Admin.Facets", value: "")
     output.writeLine("ok")
