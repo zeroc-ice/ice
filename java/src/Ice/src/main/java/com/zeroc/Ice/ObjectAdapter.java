@@ -1090,19 +1090,21 @@ public final class ObjectAdapter {
 
         final Properties properties = _instance.initializationData().properties;
 
-        Properties.validatePropertiesWithPrefix(
-                _name, properties, PropertyNames.ObjectAdapterProps);
+        try {
+            Properties.validatePropertiesWithPrefix(
+                    _name, properties, PropertyNames.ObjectAdapterProps);
+        } catch (UnknownPropertyException ex) {
+            // Prevent finalizer from complaining about the adapter not being destroyed.
+            _state = StateDestroyed;
+            throw ex;
+        }
 
         //
         // Make sure named adapter has some configuration.
         //
         if (router == null && properties.getPropertiesForPrefix(_name).isEmpty()) {
-            //
-            // These need to be set to prevent finalizer from complaining.
-            //
+            // Prevent finalizer from complaining about the adapter not being destroyed.
             _state = StateDestroyed;
-            _instance = null;
-            _incomingConnectionFactories = null;
 
             throw new InitializationException(
                     "Object adapter '" + _name + "' requires configuration.");
@@ -1119,6 +1121,8 @@ public final class ObjectAdapter {
         try {
             _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
         } catch (ParseException ex) {
+            // Prevent finalizer from complaining about the adapter not being destroyed.
+            _state = StateDestroyed;
             throw new InitializationException(
                     "invalid proxy options '"
                             + proxyOptions
