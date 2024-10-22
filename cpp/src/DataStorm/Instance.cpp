@@ -3,6 +3,7 @@
 //
 
 #include "Instance.h"
+#include "../Ice/Instance.h"
 #include "CallbackExecutor.h"
 #include "ConnectionManager.h"
 #include "DataStorm/Node.h"
@@ -86,7 +87,17 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(com
     _collocatedForwarder = make_shared<ForwarderManager>(_collocatedAdapter, "forwarders");
     _collocatedAdapter->addDefaultServant(_collocatedForwarder, "forwarders");
 
-    _executor = make_shared<CallbackExecutor>();
+    // The DataStorm callback executor forwards callback execution to the Ice communicator's executor if available.
+    auto executor = IceInternal::getInstance(_communicator)->initializationData().executor;
+    if (executor)
+    {
+        _executor = make_shared<CallbackExecutor>([executor](function<void()> cb) { executor(cb, nullptr); });
+    }
+    else
+    {
+        _executor = make_shared<CallbackExecutor>(nullptr);
+    }
+
     _connectionManager = make_shared<ConnectionManager>(_executor);
     _timer = make_shared<IceInternal::Timer>();
     _traceLevels = make_shared<TraceLevels>(properties, _communicator->getLogger());

@@ -7,7 +7,10 @@
 using namespace std;
 using namespace DataStormI;
 
-CallbackExecutor::CallbackExecutor() : _flush(false), _destroyed(false)
+CallbackExecutor::CallbackExecutor(function<void(function<void()> call)> executor)
+    : _flush(false),
+      _destroyed(false),
+      _executor(std::move(executor))
 {
     _thread = thread(
         [this]
@@ -32,7 +35,14 @@ CallbackExecutor::CallbackExecutor() : _flush(false), _destroyed(false)
                 {
                     try
                     {
-                        p.second();
+                        if (_executor)
+                        {
+                            _executor(p.second);
+                        }
+                        else
+                        {
+                            p.second();
+                        }
                     }
                     catch (...)
                     {

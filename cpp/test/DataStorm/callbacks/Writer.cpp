@@ -11,7 +11,20 @@ using namespace std;
 int
 main(int argc, char* argv[])
 {
-    Node node(argc, argv);
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties(argc, argv);
+    for (int i = 1; i < argc; ++i)
+    {
+        if (strcmp(argv[i], "--with-executor") == 0)
+        {
+            initData.executor = [](function<void()> cb, const Ice::ConnectionPtr&)
+            {
+                cb();
+            };
+        }
+    }
+    Ice::CommunicatorHolder communicatorHolder = Ice::initialize(initData);
+    Node node(communicatorHolder.communicator());
 
     WriterConfig config;
     config.sampleCount = -1; // Unlimited sample count
