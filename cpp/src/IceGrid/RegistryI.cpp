@@ -251,7 +251,7 @@ RegistryI::startImpl()
     _master = _replicaName == "Master";
 
     // TODO: temporary. For now, synchronized with the default idle timeout.
-    _sessionTimeout = chrono::seconds(60);
+    _sessionTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", 60));
 
     if (!_initFromReplica.empty() && (_initFromReplica == _replicaName || (_master && _initFromReplica == "Master")))
     {
