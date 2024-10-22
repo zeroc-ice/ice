@@ -160,18 +160,6 @@ final class PropertyNames
             new Property("ThreadInterruptSafe", false, "", false, null)
         });
 
-    public static final PropertyArray IceMXProps = new PropertyArray(
-        "IceMX",
-        false,
-        new Property[] {
-            new Property("Metrics\\.[^\\s]+\\.GroupBy", true, "", false, null),
-            new Property("Metrics\\.[^\\s]+\\.Map", true, "", false, null),
-            new Property("Metrics\\.[^\\s]+\\.RetainDetached", true, "10", false, null),
-            new Property("Metrics\\.[^\\s]+\\.Accept", true, "", false, null),
-            new Property("Metrics\\.[^\\s]+\\.Reject", true, "", false, null),
-            new Property("Metrics\\.[^\\s]+", true, "", false, null)
-        });
-
     public static final PropertyArray IceDiscoveryProps = new PropertyArray(
         "IceDiscovery",
         false,
@@ -304,7 +292,6 @@ final class PropertyNames
     public static final PropertyArray validProps[] =
     {
         IceProps,
-        IceMXProps,
         IceDiscoveryProps,
         IceLocatorDiscoveryProps,
         IceBoxProps,

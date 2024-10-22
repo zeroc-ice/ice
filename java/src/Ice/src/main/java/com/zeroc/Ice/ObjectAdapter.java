@@ -2,15 +2,15 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
-import com.zeroc.Ice.SSL.SSLEngineFactory;
-
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.Function;
+
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
+import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 /**
  * The object adapter provides an up-call interface from the Ice run time to the implementation of
@@ -1119,6 +1119,7 @@ public final class ObjectAdapter {
         try {
             _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
         } catch (ParseException ex) {
+            _state = StateDestroyed;
             throw new InitializationException(
                     "invalid proxy options '"
                             + proxyOptions

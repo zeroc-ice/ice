@@ -35,9 +35,10 @@ commonPreamble = """\
 
 
 class PropertyArray:
-    def __init__(self, name: str, prefixOnly: bool, isClass: bool):
+    def __init__(self, name: str, prefixOnly: bool, isClass: bool, enabled: bool):
         self.name = name
         self.prefixOnly = prefixOnly
+        self.enabled = False
         self.isClass = isClass
         self.properties = []
 
@@ -180,17 +181,29 @@ class PropertyHandler(ContentHandler):
             case "properties":
                 pass
             case "class":
-                self.validateKnownAttributes(["name", "prefix-only"], attrs)
-                self.parentNodeName = f"{attrs.get("name")}"
+                name = f"{attrs.get("name")}"
                 prefixOnly = attrs.get("prefix-only", "false").lower() == "true"
-                self.propertyArrayDict[self.parentNodeName] = PropertyArray(
-                    self.parentNodeName, prefixOnly, True
+                enabled = attrs.get("enabled", "true").lower() == "true"
+
+                self.validateKnownAttributes(["name", "prefix-only"], attrs)
+                self.parentNodeName = name
+                self.propertyArrayDict[name] = PropertyArray(
+                    name=name,
+                    prefixOnly=prefixOnly,
+                    isClass=True,
+                    enabled=enabled,
                 )
             case "section":
-                self.validateKnownAttributes(["name"], attrs)
-                self.parentNodeName = attrs.get("name")
+                enabled = attrs.get("enabled", "true").lower() == "true"
+                name = attrs.get("name")
+
+                self.validateKnownAttributes(["name", "enabled"], attrs)
+                self.parentNodeName = name
                 self.propertyArrayDict[self.parentNodeName] = PropertyArray(
-                    self.parentNodeName, False, False
+                    name=name,
+                    prefixOnly=False,
+                    isClass=False,
+                    enabled=enabled,
                 )
 
             case "property":
@@ -263,6 +276,7 @@ namespace IceInternal
         const bool prefixOnly;
         const Property* properties;
         const int length;
+        const bool enabled;
     }};
 
     class PropertyNames
@@ -304,7 +318,7 @@ const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> PropertyN
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
-
+        enabled = "true" if propertyArray.enabled else "false"
         self.hFile.write(f"        static const PropertyArray {name}Props;\n")
 
         self.cppFile.write(f"""\
@@ -315,10 +329,11 @@ const Property {name}PropsData[] =
 
 const PropertyArray PropertyNames::{name}Props
 {{
-    "{name}",
-    {prefixOnly},
-    {name}PropsData,
-    {len(propertyArray.properties)}
+    .name="{name}",
+    .prefixOnly={prefixOnly},
+    .properties={name}PropsData,
+    .length={len(propertyArray.properties)},
+    .enabled={enabled}
 }};
 
 """)
