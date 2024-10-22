@@ -17,8 +17,8 @@ final class PropertyNames
             new Property("PreferSecure", false, "", false, null),
             new Property("LocatorCacheTimeout", false, "", false, null),
             new Property("InvocationTimeout", false, "", false, null),
-            new Property("Locator", false, "", false, null),
-            new Property("Router", false, "", false, null),
+            new Property("Locator", false, "", false, PropertyNames.ProxyProps),
+            new Property("Router", false, "", false, PropertyNames.ProxyProps),
             new Property("CollocationOptimized", false, "", false, null),
             new Property("Context\\.[^\\s]+", true, "", false, null)
         });

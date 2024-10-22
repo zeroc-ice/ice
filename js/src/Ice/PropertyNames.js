@@ -14,8 +14,8 @@ PropertyNames.ProxyProps = new PropertyArray("Proxy", false, [
     new Property("PreferSecure", false, "", false, null),
     new Property("LocatorCacheTimeout", false, "", false, null),
     new Property("InvocationTimeout", false, "", false, null),
-    new Property("Locator", false, "", false, null),
-    new Property("Router", false, "", false, null),
+    new Property("Locator", false, "", false, PropertyNames.ProxyProps),
+    new Property("Router", false, "", false, PropertyNames.ProxyProps),
     new Property(/^Context\../, true, "", false, null)
 ]);
 

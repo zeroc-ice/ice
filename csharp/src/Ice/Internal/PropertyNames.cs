@@ -17,8 +17,8 @@ internal sealed class PropertyNames
             new(pattern: @"PreferSecure", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"LocatorCacheTimeout", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"InvocationTimeout", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"Router", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ProxyProps),
+            new(pattern: @"Router", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ProxyProps),
             new(pattern: @"CollocationOptimized", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"^Context\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null)
         ]);

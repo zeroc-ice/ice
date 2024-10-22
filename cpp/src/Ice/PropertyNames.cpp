@@ -16,8 +16,8 @@ const Property ProxyPropsData[] =
     Property{"PreferSecure", "", false, false, nullptr},
     Property{"LocatorCacheTimeout", "", false, false, nullptr},
     Property{"InvocationTimeout", "", false, false, nullptr},
-    Property{"Locator", "", false, false, nullptr},
-    Property{"Router", "", false, false, nullptr},
+    Property{"Locator", "", false, false, &PropertyNames::ProxyProps},
+    Property{"Router", "", false, false, &PropertyNames::ProxyProps},
     Property{"CollocationOptimized", "", false, false, nullptr},
     Property{"Context.*", "", true, false, nullptr}
 };
