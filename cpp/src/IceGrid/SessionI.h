@@ -24,6 +24,8 @@ namespace IceGrid
     public:
         virtual ~BaseSessionI() = default;
 
+        virtual void keepAlive(const Ice::Current&);
+
         std::chrono::steady_clock::time_point timestamp() const;
         void shutdown();
         std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet();
@@ -57,8 +59,7 @@ namespace IceGrid
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
-        // keepAlive is deprecated and kept only for compatibility with old clients. It does nothing now.
-        void keepAlive(const Ice::Current&) final {}
+        void keepAlive(const Ice::Current& current) final { BaseSessionI::keepAlive(current); }
         void allocateObjectByIdAsync(
             Ice::Identity id,
             std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,

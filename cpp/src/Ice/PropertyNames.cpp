@@ -374,11 +374,14 @@ const Property IceGridPropsData[] =
     Property{"Registry.DynamicRegistration", "", false, false, nullptr},
     Property{"Registry.Internal", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Registry.LMDB", "", false, false, &PropertyNames::LMDBProps},
+    Property{"Registry.NodeSessionTimeout", "30", false, false, nullptr},
     Property{"Registry.PermissionsVerifier", "", false, false, &PropertyNames::ProxyProps},
     Property{"Registry.ReplicaName", "Master", false, false, nullptr},
+    Property{"Registry.ReplicaSessionTimeout", "30", false, false, nullptr},
     Property{"Registry.Server", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Registry.SessionFilters", "0", false, false, nullptr},
     Property{"Registry.SessionManager", "", false, false, &PropertyNames::ObjectAdapterProps},
+    Property{"Registry.SessionTimeout", "30", false, false, nullptr},
     Property{"Registry.SSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyProps},
     Property{"Registry.Trace.Admin", "0", false, false, nullptr},
     Property{"Registry.Trace.Application", "0", false, false, nullptr},
@@ -402,7 +405,7 @@ const PropertyArray PropertyNames::IceGridProps
     "IceGrid",
     false,
     IceGridPropsData,
-    60
+    63
 };
 
 const Property IceSSLPropsData[] =
