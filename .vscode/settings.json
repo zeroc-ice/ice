@@ -21,6 +21,7 @@
     "[java]": {
         "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
     },
+    "netbeans.java.onSave.organizeImports": false, // This breaks google-java-format ordering
     "java.format.settings.google.extra": "--aosp",
     "java.format.settings.google.version": "1.24.0", // should match version in ice.gradle
     "gradle.nestedProjects": true,
