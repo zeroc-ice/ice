@@ -14,6 +14,7 @@
         "Browsable",
         "istr",
         "ostr",
+        "soversion",
         "unregisters",
         "Upcall"
     ],
