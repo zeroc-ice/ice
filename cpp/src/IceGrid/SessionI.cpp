@@ -77,7 +77,7 @@ BaseSessionI::keepAlive(const Ice::Current& current)
     if (_traceLevels->session > 1)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-        out << _prefix << " session `" << _id << "' keep alive";
+        out << _prefix << " session '" << _id << "' keep alive";
     }
 }
 
