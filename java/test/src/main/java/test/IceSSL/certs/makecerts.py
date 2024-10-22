@@ -95,8 +95,6 @@ certs = [
     (ca1, "s_rsa_ca1_cn8", None, {}),
     (ca2, "s_rsa_ca2", None, {}),
     (ca2, "c_rsa_ca2", None, {}),
-    (ca1, "s_dsa_ca1", None, {}),
-    (ca1, "c_dsa_ca1", None, {}),
     (cai1, "s_rsa_cai1", None, {}),
     (cai2, "s_rsa_cai2", None, {}),
     (cai2, "c_rsa_cai2", None, {}),
@@ -124,13 +122,3 @@ if force or not os.path.exists("cacerts.jks"):
 
 if force or not os.path.exists("s_cacert2.jks"):
     ca2.getCA().saveJKS("s_cacert2.jks", addkey=True)
-
-#
-# Create a client/server certificate that contains both the DSA and
-# RSA certs.
-#
-if force or not os.path.exists("s_rsa_dsa_ca1.jks"):
-    if os.path.exists("s_rsa_dsa_ca1.jks"):
-        os.remove("s_rsa_dsa_ca1.jks")
-    ca1.get("s_rsa_ca1").exportToKeyStore("s_rsa_dsa_ca1.jks", alias="rsacert")
-    ca1.get("s_dsa_ca1").exportToKeyStore("s_rsa_dsa_ca1.jks", alias="dsacert")
