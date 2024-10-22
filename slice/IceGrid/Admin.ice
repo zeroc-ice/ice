@@ -896,5 +896,4 @@ module IceGrid
         FileIterator * openRegistryStdOut(string name, int count)
             throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
     }
-
 }
