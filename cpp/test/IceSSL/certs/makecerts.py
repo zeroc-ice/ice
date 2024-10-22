@@ -80,8 +80,7 @@ if clean:
         IceCertUtils.CertificateFactory(home=h).destroy(True)
 
 #
-# Create 2 CAs, the DSA ca is actually ca1 but with a different the DSA key generation algorithm.
-# ca2 is also used as a server. The serverAuth extension is required on some OSs (macOS Catalina)
+# Create 2 CAs. The ca2 is also used as a server. The serverAuth extension is required on macOS.
 #
 ca1 = IceCertUtils.CertificateFactory(
     home=homeca1, cn="ZeroC Test CA 1", ip="127.0.0.1", email="issuer@zeroc.com"
@@ -110,10 +109,6 @@ ca4 = IceCertUtils.CertificateFactory(
     email="issuer@zeroc.com",
     ocspResponder="http://127.0.0.1:20002",
     caIssuers="http://127.0.0.1:20001/cacert4.der",
-)
-
-dsaca = IceCertUtils.OpenSSLCertificateFactory(
-    home=ca1.home, keyalg="dsa", keysize=2048
 )
 
 #
@@ -250,8 +245,6 @@ certs = [
     ),
     (ca2, "s_rsa_ca2", {"cn": "Server", "ip": "127.0.0.1", "dns": "server"}),
     (ca2, "c_rsa_ca2", {"cn": "Client", "ip": "127.0.0.1", "dns": "client"}),
-    (dsaca, "s_dsa_ca1", {"cn": "Server", "ip": "127.0.0.1", "dns": "server"}),  # DSA
-    (dsaca, "c_dsa_ca1", {"cn": "Client", "ip": "127.0.0.1", "dns": "client"}),  # DSA
     (cai1, "s_rsa_cai1", {"cn": "Server", "ip": "127.0.0.1", "dns": "server"}),
     (cai2, "s_rsa_cai2", {"cn": "Server", "ip": "127.0.0.1", "dns": "server"}),
     (cai2, "c_rsa_cai2", {"cn": "Client", "ip": "127.0.0.1", "dns": "client"}),
@@ -376,8 +369,6 @@ savecerts = [
     (ca1, "rsa_ca1_anyExtendedKeyUsage", None, {}),
     (ca2, "s_rsa_ca2", None, {}),
     (ca2, "c_rsa_ca2", None, {}),
-    (dsaca, "s_dsa_ca1", None, {}),
-    (dsaca, "c_dsa_ca1", None, {}),
     (cai1, "s_rsa_cai1", None, {}),
     (cai2, "s_rsa_cai2", None, {}),
     (cai2, "c_rsa_cai2", None, {}),

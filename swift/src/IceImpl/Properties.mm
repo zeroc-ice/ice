@@ -15,17 +15,11 @@
     return toNSString(self.properties->getProperty(fromNSString(key)));
 }
 
-- (NSString*)getIceProperty:(NSString*)key error:(NSError**)error;
+- (NSString*)getIceProperty:(NSString*)key;
 {
-    try
-    {
-        return toNSString(self.properties->getIceProperty(fromNSString(key)));
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
+    // We don't catch exceptions on purpose; in particular, we want Ice::UnknownPropertyException to terminate
+    // the application.
+    return toNSString(self.properties->getIceProperty(fromNSString(key)));
 }
 
 - (NSString*)getPropertyWithDefault:(NSString*)key value:(NSString*)value
@@ -38,18 +32,9 @@
     return self.properties->getPropertyAsInt(fromNSString(key));
 }
 
-- (NSNumber*)getIcePropertyAsInt:(NSString*)key error:(NSError**)error
+- (int32_t)getIcePropertyAsInt:(NSString*)key
 {
-    try
-    {
-        int32_t value = self.properties->getIcePropertyAsInt(fromNSString(key));
-        return [NSNumber numberWithInt:value];
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
+    return self.properties->getIcePropertyAsInt(fromNSString(key));
 }
 
 - (int32_t)getPropertyAsIntWithDefault:(NSString*)key value:(int32_t)value
@@ -62,17 +47,9 @@
     return toNSArray(self.properties->getPropertyAsList(fromNSString(key)));
 }
 
-- (NSArray<NSString*>*)getIcePropertyAsList:(NSString*)key error:(NSError**)error
+- (NSArray<NSString*>*)getIcePropertyAsList:(NSString*)key
 {
-    try
-    {
-        return toNSArray(self.properties->getIcePropertyAsList(fromNSString(key)));
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
+    return toNSArray(self.properties->getIcePropertyAsList(fromNSString(key)));
 }
 
 - (NSArray<NSString*>*)getPropertyAsListWithDefault:(NSString*)key value:(NSArray<NSString*>*)value
