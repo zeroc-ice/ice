@@ -64,12 +64,12 @@ BaseSessionI::BaseSessionI(const string& id, const string& prefix, const shared_
 }
 
 void
-BaseSessionI::keepAlive(const Ice::Current& current)
+BaseSessionI::keepAlive(const Ice::Current&)
 {
     lock_guard lock(_mutex);
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     _timestamp = chrono::steady_clock::now();
