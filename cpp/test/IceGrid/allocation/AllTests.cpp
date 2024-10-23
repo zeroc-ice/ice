@@ -126,7 +126,7 @@ public:
             }
 
             assert(session);
-            session->keepAlive();
+            session->ice_ping();
 
             optional<ObjectPrx> object;
             switch (_rd() % (_destroySession ? 4 : 2))

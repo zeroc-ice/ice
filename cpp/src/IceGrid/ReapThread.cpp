@@ -52,13 +52,9 @@ ReapThread::run()
             {
                 try
                 {
-                    if (p->timeout == 0s)
-                    {
-                        p->item->timestamp(); // This should throw if the reapable is destroyed.
-                        ++p;
-                        continue;
-                    }
-                    else if ((chrono::steady_clock::now() - p->item->timestamp()) > p->timeout)
+                    auto timestamp = p->item->timestamp(); // throws ONE if the reapable is destroyed.
+
+                    if (p->timeout > 0s && (chrono::steady_clock::now() - timestamp > p->timeout))
                     {
                         reap.push_back(*p);
                         // and go to the code after the catch block
@@ -71,6 +67,7 @@ ReapThread::run()
                 }
                 catch (const Ice::ObjectNotExistException&)
                 {
+                    // already destroyed
                 }
 
                 // Remove the reapable
