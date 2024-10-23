@@ -189,11 +189,7 @@ namespace DataStorm
     private:
         template<typename V, class... T> void init(int& argc, V argv, T&&... iceArgs)
         {
-            auto communicator = Ice::initialize(argc, argv, std::forward<T>(iceArgs)...);
-            auto args = Ice::argsToStringSeq(argc, argv);
-            args = communicator->getProperties()->parseCommandLineOptions("DataStorm", args);
-            Ice::stringSeqToArgs(args, argc, argv);
-            init(communicator);
+            init(Ice::initialize(argc, argv, std::forward<T>(iceArgs)...));
         }
 
         void init(const Ice::CommunicatorPtr&);
