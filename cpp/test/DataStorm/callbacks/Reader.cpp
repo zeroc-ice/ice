@@ -16,10 +16,7 @@ main(int argc, char* argv[])
     {
         if (strcmp(argv[i], "--with-executor") == 0)
         {
-            callbackExecutor = [](function<void()> cb)
-            {
-                cb();
-            };
+            callbackExecutor = [](function<void()> cb) { cb(); };
         }
     }
     Node node(callbackExecutor, argc, argv);

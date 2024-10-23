@@ -247,11 +247,6 @@ public class SessionKeeper {
         }
 
         void close(boolean destroySession) {
-            if (_keepAliveFuture != null) {
-                _keepAliveFuture.cancel(false);
-                _keepAliveFuture = null;
-            }
-
             if (_adapter != null) {
                 _adapter.destroy();
                 _adapter = null;
@@ -375,8 +370,6 @@ public class SessionKeeper {
 
         private final AdminSessionPrx _session;
         private final boolean _routed;
-
-        private java.util.concurrent.Future<?> _keepAliveFuture;
 
         private com.zeroc.Ice.ObjectAdapter _adapter;
         private AdminPrx _admin;
