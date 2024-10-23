@@ -113,10 +113,6 @@ namespace DataStorm
         Ice::ConnectionPtr getSessionConnection(const std::string& ident) const noexcept;
 
     private:
-        template<typename V, class... T> void init(int& argc, V argv, T&&... iceArgs)
-        {
-            init(Ice::initialize(argc, argv, std::forward<T>(iceArgs)...));
-        }
 
         void init(const Ice::CommunicatorPtr&);
 
