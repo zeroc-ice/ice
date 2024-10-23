@@ -207,9 +207,8 @@ DataElementI::attachKey(
     auto subscriber = p->second.addOrGet(topicId, elementId, keyId, nullptr, sampleFilter, name, priority, added);
     if (_onConnectedElements && added)
     {
-        _executor->queue(
-            shared_from_this(),
-            [=, this] { _onConnectedElements(DataStorm::CallbackReason::Connect, name); });
+        _executor->queue([self = shared_from_this(), name]
+                         { self->_onConnectedElements(DataStorm::CallbackReason::Connect, name); });
     }
     if (addConnectedKey(key, subscriber))
     {
@@ -265,8 +264,8 @@ DataElementI::detachKey(
             if (_onConnectedElements)
             {
                 _executor->queue(
-                    shared_from_this(),
-                    [=, this] { _onConnectedElements(DataStorm::CallbackReason::Disconnect, subscriber->name); });
+                    [self = shared_from_this(), subscriber]
+                    { self->_onConnectedElements(DataStorm::CallbackReason::Disconnect, subscriber->name); });
             }
             if (p->second.remove(topicId, elementId))
             {
@@ -319,9 +318,8 @@ DataElementI::attachFilter(
     auto subscriber = p->second.addOrGet(topicId, -elementId, filterId, filter, sampleFilter, name, priority, added);
     if (_onConnectedElements && added)
     {
-        _executor->queue(
-            shared_from_this(),
-            [=, this] { _onConnectedElements(DataStorm::CallbackReason::Connect, name); });
+        _executor->queue([self = shared_from_this(), name]
+                         { self->_onConnectedElements(DataStorm::CallbackReason::Connect, name); });
     }
     if (addConnectedKey(key, subscriber))
     {
@@ -377,8 +375,8 @@ DataElementI::detachFilter(
             if (_onConnectedElements)
             {
                 _executor->queue(
-                    shared_from_this(),
-                    [=, this] { _onConnectedElements(DataStorm::CallbackReason::Disconnect, subscriber->name); });
+                    [self = shared_from_this(), subscriber]
+                    { self->_onConnectedElements(DataStorm::CallbackReason::Disconnect, subscriber->name); });
             }
             if (p->second.remove(topicId, -elementId))
             {
@@ -449,7 +447,7 @@ DataElementI::onConnectedKeys(
         {
             keys.push_back(key.first);
         }
-        _executor->queue(shared_from_this(), [init, keys] { init(keys); }, true);
+        _executor->queue([self = shared_from_this(), init, keys = std::move(keys)] { init(std::move(keys)); }, true);
     }
 }
 
@@ -470,7 +468,7 @@ DataElementI::onConnectedElements(
                 elements.push_back(subscriber.second->name);
             }
         }
-        _executor->queue(shared_from_this(), [init, elements] { init(elements); }, true);
+        _executor->queue([init, elements = std::move(elements)] { init(std::move(elements)); }, true);
     }
 }
 
@@ -558,9 +556,8 @@ DataElementI::addConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subsc
     {
         if (key && subscribers.empty() && _onConnectedKeys)
         {
-            _executor->queue(
-                shared_from_this(),
-                [=, this] { _onConnectedKeys(DataStorm::CallbackReason::Connect, key); });
+            _executor->queue([self = shared_from_this(), key]
+                             { self->_onConnectedKeys(DataStorm::CallbackReason::Connect, key); });
         }
         subscribers.push_back(subscriber);
         return true;
@@ -580,9 +577,8 @@ DataElementI::removeConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Su
         {
             if (key && _onConnectedKeys)
             {
-                _executor->queue(
-                    shared_from_this(),
-                    [=, this] { _onConnectedKeys(DataStorm::CallbackReason::Disconnect, key); });
+                _executor->queue([self = shared_from_this(), key]
+                                 { self->_onConnectedKeys(DataStorm::CallbackReason::Disconnect, key); });
             }
             _connectedKeys.erase(key);
         }
@@ -773,12 +769,11 @@ DataReaderI::initSamples(
     if (_onSamples)
     {
         _executor->queue(
-            shared_from_this(),
-            [this, valid]
+            [self = dynamic_pointer_cast<DataReaderI>(shared_from_this()), valid]
             {
                 for (const auto& s : valid)
                 {
-                    _onSamples(s);
+                    self->_onSamples(s);
                 }
             });
     }
@@ -903,7 +898,8 @@ DataReaderI::queue(
 
     if (_onSamples)
     {
-        _executor->queue(shared_from_this(), [this, sample] { _onSamples(sample); });
+        _executor->queue([self = dynamic_pointer_cast<DataReaderI>(shared_from_this()), sample]
+                         { self->_onSamples(sample); });
     }
 
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
@@ -956,7 +952,7 @@ DataReaderI::onSamples(
     if (init && !_samples.empty())
     {
         vector<shared_ptr<Sample>> samples(_samples.begin(), _samples.end());
-        _executor->queue(shared_from_this(), [init, samples] { init(samples); }, true);
+        _executor->queue([init, samples] { init(samples); }, true);
     }
 }
 

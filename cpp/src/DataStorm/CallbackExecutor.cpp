@@ -15,7 +15,7 @@ CallbackExecutor::CallbackExecutor(function<void(function<void()> call)> callbac
     _thread = thread(
         [this]
         {
-            std::vector<std::pair<std::shared_ptr<DataElementI>, std::function<void()>>> queue;
+            std::vector<function<void()>> queue;
             while (true)
             {
                 unique_lock<mutex> lock(_mutex);
@@ -31,18 +31,18 @@ CallbackExecutor::CallbackExecutor(function<void(function<void()> call)> callbac
                 }
 
                 lock.unlock();
-                for (const auto& p : queue)
+                for (const auto& callback : queue)
                 {
                     try
                     {
                         if (_callbackExecutor)
                         {
-                            // TODO do we need to ensure p.second is executed before we continue?
-                            _callbackExecutor(p.second);
+                            // TODO do we need to ensure that the callback is executed before we continue?
+                            _callbackExecutor(callback);
                         }
                         else
                         {
-                            p.second();
+                            callback();
                         }
                     }
                     catch (...)
@@ -56,10 +56,10 @@ CallbackExecutor::CallbackExecutor(function<void(function<void()> call)> callbac
 }
 
 void
-CallbackExecutor::queue(const std::shared_ptr<DataElementI>& element, std::function<void()> cb, bool flush)
+CallbackExecutor::queue(function<void()> cb, bool flush)
 {
     unique_lock<mutex> lock(_mutex);
-    _queue.emplace_back(element, cb);
+    _queue.emplace_back(std::move(cb));
     if (flush)
     {
         _flush = true;
