@@ -44,7 +44,7 @@ namespace DataStorm
          * @param communicator The Ice communicator used by the topic factory for its configuration and
          *                     communications.
          */
-        Node(Ice::CommunicatorPtr communicator); 
+        Node(Ice::CommunicatorPtr communicator);
 
         /**
          * Construct a DataStorm node.
@@ -113,7 +113,6 @@ namespace DataStorm
         Ice::ConnectionPtr getSessionConnection(const std::string& ident) const noexcept;
 
     private:
-
         void init(const Ice::CommunicatorPtr&);
 
         std::shared_ptr<DataStormI::Instance> _instance;
