@@ -64,6 +64,24 @@ BaseSessionI::BaseSessionI(const string& id, const string& prefix, const shared_
 }
 
 void
+BaseSessionI::keepAlive(const Ice::Current&)
+{
+    lock_guard lock(_mutex);
+    if (_destroyed)
+    {
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+    }
+
+    _timestamp = chrono::steady_clock::now();
+
+    if (_traceLevels->session > 1)
+    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _prefix << " session '" << _id << "' keep alive";
+    }
+}
+
+void
 BaseSessionI::destroyImpl(bool)
 {
     lock_guard lock(_mutex);

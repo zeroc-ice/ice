@@ -202,6 +202,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             "IceGrid.Registry.Discovery.Port": current.driver.getTestPort(99),
             "IceGrid.Registry.SessionManager.Endpoints": "default",
             "IceGrid.Registry.AdminSessionManager.Endpoints": "default",
+            "IceGrid.Registry.SessionTimeout": 60,
             "IceGrid.Registry.ReplicaName": self.name,
             "Ice.ProgramName": self.name,
             "Ice.PrintAdapterReady": 1,

@@ -35,9 +35,8 @@ InternalRegistryI::InternalRegistryI(
       _session(session)
 {
     auto properties = database->getCommunicator()->getProperties();
-    // TODO: temporary. For now, synchronized with the default idle timeout.
-    _nodeSessionTimeout = chrono::seconds(60);
-    _replicaSessionTimeout = chrono::seconds(60);
+    _nodeSessionTimeout = chrono::seconds(properties->getIcePropertyAsInt("IceGrid.Registry.NodeSessionTimeout"));
+    _replicaSessionTimeout = chrono::seconds(properties->getIcePropertyAsInt("IceGrid.Registry.ReplicaSessionTimeout"));
 }
 
 optional<NodeSessionPrx>
