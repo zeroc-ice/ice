@@ -594,10 +594,6 @@ BridgeService::initializeCommunicator(
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);
 
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = initData.properties->parseCommandLineOptions("IceBridge", args);
-    stringSeqToArgs(args, argc, argv);
-
     //
     // Disable automatic retry by default.
     //
