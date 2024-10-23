@@ -1379,7 +1379,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1401,7 +1401,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1422,7 +1422,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1442,7 +1442,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly",
                   "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
@@ -1464,7 +1464,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly",
                   "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
@@ -1486,7 +1486,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1507,7 +1507,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1526,7 +1526,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "CN=Client");
             ServerPrx server = fact.createServer(d);
             try
@@ -1547,7 +1547,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "!CN=Client");
             ServerPrx server = fact.createServer(d);
             try
@@ -1568,7 +1568,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1587,7 +1587,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "CN=Server");
             ServerPrx server = fact.createServer(d);
             try
@@ -1608,7 +1608,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1628,7 +1628,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1649,7 +1649,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1670,7 +1670,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1690,7 +1690,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1710,7 +1710,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "!CN=Client1"); // Should not match "Client"
             ServerPrx server = fact.createServer(d);
             try
@@ -1735,7 +1735,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1757,7 +1757,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "ST=Florida;!CN=Client;C=US");
             ServerPrx server = fact.createServer(d);
             try
@@ -1783,7 +1783,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             // Should have no effect.
             d.put("IceSSL.TrustOnly.Client",
                 "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
@@ -1808,7 +1808,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1827,7 +1827,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             // Should have no effect.
             d.put("IceSSL.TrustOnly.Client", "CN=Client");
             ServerPrx server = fact.createServer(d);
@@ -1850,7 +1850,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1870,7 +1870,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1897,7 +1897,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server",
                 "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
@@ -1919,7 +1919,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server",
                   "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
@@ -1942,7 +1942,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1962,7 +1962,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "CN=Server");
             ServerPrx server = fact.createServer(d);
             try
@@ -1982,7 +1982,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "!CN=Client");
             ServerPrx server = fact.createServer(d);
             try
@@ -2006,7 +2006,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "CN=bogus");
             d.put("IceSSL.TrustOnly.Server.ServerAdapter",
                 "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
@@ -2029,7 +2029,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server.ServerAdapter",
                   "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
@@ -2050,7 +2050,7 @@ public class AllTests
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server.ServerAdapter", "CN=bogus");
             ServerPrx server = fact.createServer(d);
             try
@@ -2069,7 +2069,7 @@ public class AllTests
             Communicator comm = Util.initialize(args, initData);
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server.ServerAdapter", "!CN=bogus");
             ServerPrx server = fact.createServer(d);
             try
