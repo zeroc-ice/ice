@@ -22,6 +22,16 @@ test_cases = [
         traceProps=traceProps),
 ]
 
+# Repeat with callbacks running in the custom callback executor.
+
+test_cases.append(
+    ClientServerTestCase(
+        name = "Writer/Reader with custom callback executor",
+        client = Writer(args=["--with-executor"]),
+        server = Reader(args=["--with-executor"]),
+        traceProps=traceProps),
+)
+
 # TODO - enable once we figure out https://github.com/zeroc-ice/ice/issues/2929
 if sys.platform != "darwin":
     test_cases.append(

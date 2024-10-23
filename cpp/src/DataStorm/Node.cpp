@@ -17,14 +17,18 @@ NodeShutdownException::what() const noexcept
     return "::DataStorm::NodeShutdownException";
 }
 
-Node::Node(Ice::CommunicatorPtr communicator) : _ownsCommunicator(false) { init(communicator); }
+Node::Node(Ice::CommunicatorPtr communicator, function<void(function<void()> call)> callbackExecutor)
+    : _ownsCommunicator(false)
+{
+    init(communicator, std::move(callbackExecutor));
+}
 
 void
-Node::init(const Ice::CommunicatorPtr& communicator)
+Node::init(const Ice::CommunicatorPtr& communicator, std::function<void(std::function<void()> call)> callbackExecutor)
 {
     try
     {
-        _instance = make_shared<DataStormI::Instance>(communicator);
+        _instance = make_shared<DataStormI::Instance>(communicator, std::move(callbackExecutor));
         _instance->init();
     }
     catch (...)

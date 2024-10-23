@@ -25,7 +25,9 @@ namespace DataStormI
     class Instance : public std::enable_shared_from_this<Instance>
     {
     public:
-        Instance(const Ice::CommunicatorPtr&);
+        Instance(
+            const Ice::CommunicatorPtr& communicator,
+            std::function<void(std::function<void()> call)> callbackExecutor);
 
         void init();
 
