@@ -300,7 +300,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const optio
     assert(_servantManager);
 
     auto session = createSessionServant(sessionId);
-    auto proxy = session->_register(_servantManager, 0);
+    auto proxy = session->_register(_servantManager, nullptr);
 
     chrono::seconds timeout = 0s;
     if (ctl)
@@ -325,6 +325,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const optio
         }
     }
 
+    // TODO: how does this work? Who calls keepAlive on the Session object?
     _reaper->add(make_shared<SessionReapable<SessionI>>(_database->getTraceLevels()->logger, session), timeout);
     return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }

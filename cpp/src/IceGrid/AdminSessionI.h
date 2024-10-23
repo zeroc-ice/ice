@@ -95,7 +95,6 @@ namespace IceGrid
     private:
         const std::shared_ptr<SessionServantManager> _servantManager;
         const std::shared_ptr<Database> _database;
-        const std::chrono::seconds _timeout;
         const std::shared_ptr<ReapThread> _reaper;
         const std::shared_ptr<RegistryI> _registry;
         const bool _filters;

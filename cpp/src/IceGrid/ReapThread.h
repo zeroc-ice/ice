@@ -5,10 +5,7 @@
 #ifndef ICEGRID_REAPER_THREAD_H
 #define ICEGRID_REAPER_THREAD_H
 
-#include "Ice/Connection.h"
-#include "Ice/LocalExceptions.h"
-#include "Ice/Logger.h"
-#include "Ice/LoggerUtil.h"
+#include "Ice/Ice.h"
 
 #include <list>
 #include <set>
@@ -20,12 +17,14 @@ namespace IceGrid
     public:
         virtual ~Reapable() = default;
 
-        virtual void heartbeat() const {};
+        virtual void heartbeat() const {}; // TODO: remove
 
         virtual std::chrono::steady_clock::time_point timestamp() const = 0;
         virtual void destroy(bool) = 0;
     };
 
+    // We use this template with various Session servants to convert destroy(bool) calls into shutdown() or destroy()
+    // on the servant.
     template<class T> class SessionReapable : public Reapable
     {
     public:
@@ -63,26 +62,6 @@ namespace IceGrid
     protected:
         const Ice::LoggerPtr _logger;
         const std::shared_ptr<T> _session;
-    };
-
-    template<class T> class SessionReapableWithHeartbeat final : public SessionReapable<T>
-    {
-    public:
-        SessionReapableWithHeartbeat(const Ice::LoggerPtr& logger, const std::shared_ptr<T>& session)
-            : SessionReapable<T>(logger, session)
-        {
-        }
-
-        void heartbeat() const override
-        {
-            try
-            {
-                SessionReapable<T>::_session->keepAlive(Ice::Current());
-            }
-            catch (Ice::Exception&)
-            {
-            }
-        }
     };
 
     class ReapThread final

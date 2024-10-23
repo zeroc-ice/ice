@@ -285,7 +285,6 @@
         <property name="Registry.Server" class="ObjectAdapter" languages="cpp" />
         <property name="Registry.SessionFilters" languages="cpp" default="0" />
         <property name="Registry.SessionManager" class="ObjectAdapter" languages="cpp" />
-        <property name="Registry.SessionTimeout" languages="cpp" default="30" />
         <property name="Registry.SSLPermissionsVerifier" class="Proxy" languages="cpp"/>
         <property name="Registry.Trace.Admin" languages="cpp" default="0" />
         <property name="Registry.Trace.Application" languages="cpp" default="0" />

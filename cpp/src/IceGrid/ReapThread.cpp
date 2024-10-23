@@ -60,8 +60,7 @@ ReapThread::run()
                     }
                     else if ((chrono::steady_clock::now() - p->item->timestamp()) > p->timeout)
                     {
-                        // TODO: for now, we no longer reap anything. All this code should be removed in a follow-up PR.
-                        // reap.push_back(*p);
+                        reap.push_back(*p);
                     }
                     else
                     {
@@ -194,22 +193,18 @@ ReapThread::add(
 }
 
 void
-ReapThread::connectionClosed(const shared_ptr<Ice::Connection>& con)
+ReapThread::connectionClosed(const Ice::ConnectionPtr& con)
 {
     lock_guard lock(_mutex);
-
     auto p = _connections.find(con);
-    if (p == _connections.end())
+    if (p != _connections.end())
     {
-        con->setCloseCallback(nullptr);
-        return;
+        for (const auto& reapable : p->second)
+        {
+            reapable->destroy(false);
+        }
+        _connections.erase(p);
     }
-
-    for (const auto& reapable : p->second)
-    {
-        reapable->destroy(false);
-    }
-    _connections.erase(p);
 }
 
 //

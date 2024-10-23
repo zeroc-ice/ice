@@ -447,7 +447,6 @@ AdminSessionFactory::AdminSessionFactory(
     const shared_ptr<RegistryI>& registry)
     : _servantManager(servantManager),
       _database(database),
-      _timeout(registry->getSessionTimeout(Ice::emptyCurrent)),
       _reaper(reaper),
       _registry(registry),
       _filters(false)
@@ -489,6 +488,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const option
         }
     }
 
+    // TODO: how does this work? Who calls keepAlive on the AdminSession object?
     _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_database->getTraceLevels()->logger, session), timeout);
     return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }

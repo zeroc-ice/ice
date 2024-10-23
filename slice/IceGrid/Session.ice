@@ -25,9 +25,9 @@ module IceGrid
     /// @see Registry
     interface Session extends Glacier2::Session
     {
-        /// Keep the session alive. Clients should call this operation regularly to prevent the server from reaping the
-        /// session.
-        /// @see Registry#getSessionTimeout
+        /// Keep the session alive.
+        /// As of Ice 3.8, there is no need to call this operation, and its implementation does nothing.
+        ["deprecated"]
         idempotent void keepAlive();
 
         /// Allocate an object. Depending on the allocation timeout, this operation might hang until the object is
