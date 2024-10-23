@@ -10,10 +10,8 @@
         <property name="PreferSecure" languages="all" />
         <property name="LocatorCacheTimeout" languages="all" />
         <property name="InvocationTimeout" languages="all" />
-        <!-- TODO: set class="Proxy" once all languages support class props -->
-        <property name="Locator" languages="all" />
-        <!-- TODO: set class="Proxy" once all languages support class props -->
-        <property name="Router" languages="all" />
+        <property name="Locator" languages="all" class="Proxy"/>
+        <property name="Router" languages="all" class="Proxy"/>
         <property name="CollocationOptimized" languages="cpp,csharp,java" />
         <property name="Context.[any]" languages="all" />
     </class>
@@ -405,7 +403,7 @@
         <property name="Node.Multicast" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Multicast.Enabled" default="1" languages="cpp" />
         <property name="Node.RetryCount" default="6" languages="cpp" />
-        <property name="Node.RetryDelay"  default="500" languages="cpp" />
+        <property name="Node.RetryDelay" default="500" languages="cpp" />
         <property name="Node.RetryMultiplier" default="2" languages="cpp" />
         <property name="Node.Server" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Server.Enabled" default="1" languages="cpp" />
