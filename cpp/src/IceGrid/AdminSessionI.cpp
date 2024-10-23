@@ -466,7 +466,6 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const option
     auto session = createSessionServant(sessionId);
     auto proxy = session->_register(_servantManager, nullptr);
 
-    chrono::seconds timeout = 0s;
     if (ctl)
     {
         try
@@ -475,7 +474,6 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const option
             {
                 _servantManager->setSessionControl(session, *ctl, {{"Query", _database->getInstanceName()}});
             }
-            timeout = chrono::seconds(ctl->getSessionTimeout());
         }
         catch (const Ice::LocalException& e)
         {
@@ -488,8 +486,10 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const option
         }
     }
 
-    // TODO: how does this work? Who calls keepAlive on the AdminSession object?
-    _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_database->getTraceLevels()->logger, session), timeout);
+    // We can't use a non-0 timeout such as the Glacier2 session timeout. As of Ice 3.8, heartbeats may not be sent
+    // at all on a busy connection. Furthermore, as of Ice 3.8, Glacier2 no longer "converts" heartbeats into
+    // keepAlive requests.
+    _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_database->getTraceLevels()->logger, session), 0s);
     return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }
 

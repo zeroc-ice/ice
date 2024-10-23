@@ -17,15 +17,13 @@ namespace IceGrid
     public:
         virtual ~Reapable() = default;
 
-        virtual void heartbeat() const {}; // TODO: remove
-
         virtual std::chrono::steady_clock::time_point timestamp() const = 0;
         virtual void destroy(bool) = 0;
     };
 
     // We use this template with various Session servants to convert destroy(bool) calls into shutdown() or destroy()
     // on the servant.
-    template<class T> class SessionReapable : public Reapable
+    template<class T> class SessionReapable final : public Reapable
     {
     public:
         SessionReapable(const Ice::LoggerPtr& logger, const std::shared_ptr<T>& session)
@@ -34,9 +32,9 @@ namespace IceGrid
         {
         }
 
-        std::chrono::steady_clock::time_point timestamp() const override { return _session->timestamp(); }
+        std::chrono::steady_clock::time_point timestamp() const final { return _session->timestamp(); }
 
-        void destroy(bool shutdown) override
+        void destroy(bool shutdown) final
         {
             try
             {
@@ -59,7 +57,7 @@ namespace IceGrid
             }
         }
 
-    protected:
+    private:
         const Ice::LoggerPtr _logger;
         const std::shared_ptr<T> _session;
     };

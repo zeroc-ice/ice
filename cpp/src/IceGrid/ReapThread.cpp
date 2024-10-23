@@ -61,6 +61,7 @@ ReapThread::run()
                     else if ((chrono::steady_clock::now() - p->item->timestamp()) > p->timeout)
                     {
                         reap.push_back(*p);
+                        // and go to the code after the catch block
                     }
                     else
                     {
@@ -72,9 +73,7 @@ ReapThread::run()
                 {
                 }
 
-                //
                 // Remove the reapable
-                //
                 if (p->connection)
                 {
                     auto q = _connections.find(p->connection);
@@ -136,10 +135,7 @@ ReapThread::join()
 }
 
 void
-ReapThread::add(
-    const shared_ptr<Reapable>& reapable,
-    chrono::seconds timeout,
-    const shared_ptr<Ice::Connection>& connection)
+ReapThread::add(const shared_ptr<Reapable>& reapable, chrono::seconds timeout, const Ice::ConnectionPtr& connection)
 {
     lock_guard lock(_mutex);
     if (_terminated)
@@ -147,13 +143,11 @@ ReapThread::add(
         return;
     }
 
-    //
-    // NOTE: registering a reapable with a null timeout is allowed. The reapable is reaped
-    // only when the reaper thread is shutdown.
-    //
+    // NOTE: registering a reapable with a 0s timeout is allowed. The reapable is reaped only when the reaper thread is
+    // shutdown or the connection is closed.
 
     //
-    // 10 seconds is the minimum permissable timeout.
+    // 10 seconds is the minimum permissable timeout (for non-zero timeouts).
     //
     if (timeout > 0s && timeout < 10s)
     {
@@ -175,19 +169,13 @@ ReapThread::add(
 
     if (timeout > 0s)
     {
-        //
-        // If there is a new minimum wake interval then wake the reaping
-        // thread.
-        //
+        // If there is a new minimum wake interval then wake the reaping thread.
         if (calcWakeInterval())
         {
             _condVar.notify_one();
         }
 
-        //
-        // Since we just added a new session with a non null timeout there
-        // must be a non-zero wakeInterval.
-        //
+        // Since we just added a new session with a non-zero timeout there must be a non-zero wakeInterval.
         assert(_wakeInterval != 0s);
     }
 }
