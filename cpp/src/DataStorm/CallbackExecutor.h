@@ -19,7 +19,7 @@ namespace DataStormI
     class CallbackExecutor
     {
     public:
-        CallbackExecutor();
+        CallbackExecutor(std::function<void(std::function<void()> call)> callbackExecutor);
 
         void queue(const std::shared_ptr<DataElementI>&, std::function<void()>, bool = false);
         void flush();
@@ -32,6 +32,7 @@ namespace DataStormI
         bool _flush;
         bool _destroyed;
         std::vector<std::pair<std::shared_ptr<DataElementI>, std::function<void()>>> _queue;
+        std::function<void(std::function<void()> call)> _callbackExecutor;
     };
 }
 

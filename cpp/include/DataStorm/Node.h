@@ -43,8 +43,31 @@ namespace DataStorm
          *
          * @param communicator The Ice communicator used by the topic factory for its configuration and
          *                     communications.
+         * @param callbackExecutor An optional callback executor used to execute user callbacks, if no callback executor
+         *                         is provided the Node will use the default callback executor that executes callback in
+         *                         a dedicated thread.
          */
-        Node(Ice::CommunicatorPtr communicator); 
+        Node(
+            Ice::CommunicatorPtr communicator,
+            std::function<void(std::function<void()> call)> callbackExecutor = nullptr);
+
+        /**
+         * Construct a DataStorm node.
+         *
+         * A node is the main DataStorm object. It is required to construct topics. The constructor initializes
+         * the Ice communicator using the given arguments. If the communicator creation fails, an Ice exception is
+         * raised.
+         *
+         * @param callbackExecutor An optional callback executor used to execute user callbacks, if no callback executor
+         *                         is provided the Node will use the default callback executor that executes callback in
+         *                         a dedicated thread.
+         * @param iceArgs Arguments which are passed to the Ice::initialize function.
+         */
+        template<class... T>
+        Node(std::function<void(std::function<void()> call)> callbackExecutor, T&&... iceArgs) : _ownsCommunicator(true)
+        {
+            init(Ice::initialize(std::forward<T>(iceArgs)...), std::move(callbackExecutor));
+        }
 
         /**
          * Construct a DataStorm node.
@@ -57,7 +80,7 @@ namespace DataStorm
          */
         template<class... T> Node(T&&... iceArgs) : _ownsCommunicator(true)
         {
-            init(Ice::initialize(std::forward<T>(iceArgs)...));
+            init(Ice::initialize(std::forward<T>(iceArgs)...), nullptr);
         }
 
         /**
@@ -113,8 +136,7 @@ namespace DataStorm
         Ice::ConnectionPtr getSessionConnection(const std::string& ident) const noexcept;
 
     private:
-
-        void init(const Ice::CommunicatorPtr&);
+        void init(const Ice::CommunicatorPtr&, std::function<void(std::function<void()> call)> callbackExecutor);
 
         std::shared_ptr<DataStormI::Instance> _instance;
         std::shared_ptr<DataStormI::TopicFactory> _factory;
