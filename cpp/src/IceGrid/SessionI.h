@@ -24,9 +24,9 @@ namespace IceGrid
     public:
         virtual ~BaseSessionI() = default;
 
-        virtual void keepAlive(const Ice::Current&);
-
+        // Return value is never used. Just throws ONE when the session is destroyed.
         std::chrono::steady_clock::time_point timestamp() const;
+
         void shutdown();
         std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet();
         std::optional<Glacier2::StringSetPrx> getGlacier2AdapterIdSet();
@@ -43,7 +43,6 @@ namespace IceGrid
         const std::shared_ptr<Database> _database;
         std::shared_ptr<SessionServantManager> _servantManager;
         bool _destroyed;
-        std::chrono::steady_clock::time_point _timestamp;
 
         mutable std::mutex _mutex;
     };
@@ -59,7 +58,7 @@ namespace IceGrid
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
-        void keepAlive(const Ice::Current& current) final { BaseSessionI::keepAlive(current); }
+        void keepAlive(const Ice::Current&) final {} // no-op
         void allocateObjectByIdAsync(
             Ice::Identity id,
             std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
@@ -121,7 +120,7 @@ namespace IceGrid
         ClientSessionManagerI(const std::shared_ptr<ClientSessionFactory>&);
 
         std::optional<Glacier2::SessionPrx>
-        create(std::string, std::optional<Glacier2::SessionControlPrx>, const Ice::Current&) override;
+        create(std::string, std::optional<Glacier2::SessionControlPrx>, const Ice::Current&) final;
 
     private:
         const std::shared_ptr<ClientSessionFactory> _factory;
@@ -133,7 +132,7 @@ namespace IceGrid
         ClientSSLSessionManagerI(const std::shared_ptr<ClientSessionFactory>&);
 
         std::optional<Glacier2::SessionPrx>
-        create(Glacier2::SSLInfo, std::optional<Glacier2::SessionControlPrx>, const Ice::Current&) override;
+        create(Glacier2::SSLInfo, std::optional<Glacier2::SessionControlPrx>, const Ice::Current&) final;
 
     private:
         const std::shared_ptr<ClientSessionFactory> _factory;

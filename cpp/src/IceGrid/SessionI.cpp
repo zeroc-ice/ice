@@ -53,31 +53,12 @@ BaseSessionI::BaseSessionI(const string& id, const string& prefix, const shared_
       _prefix(prefix),
       _traceLevels(database->getTraceLevels()),
       _database(database),
-      _destroyed(false),
-      _timestamp(chrono::steady_clock::now())
+      _destroyed(false)
 {
     if (_traceLevels && _traceLevels->session > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _prefix << " session `" << _id << "' created";
-    }
-}
-
-void
-BaseSessionI::keepAlive(const Ice::Current&)
-{
-    lock_guard lock(_mutex);
-    if (_destroyed)
-    {
-        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
-    }
-
-    _timestamp = chrono::steady_clock::now();
-
-    if (_traceLevels->session > 1)
-    {
-        Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-        out << _prefix << " session '" << _id << "' keep alive";
     }
 }
 
@@ -104,9 +85,10 @@ BaseSessionI::timestamp() const
     lock_guard lock(_mutex);
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        // Just a "marker" exception here.
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
-    return _timestamp;
+    return std::chrono::steady_clock::time_point::min(); // not used
 }
 
 void
@@ -300,9 +282,8 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const optio
     assert(_servantManager);
 
     auto session = createSessionServant(sessionId);
-    auto proxy = session->_register(_servantManager, 0);
+    auto proxy = session->_register(_servantManager, nullptr);
 
-    chrono::seconds timeout = 0s;
     if (ctl)
     {
         try
@@ -312,7 +293,6 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const optio
                 Ice::Identity queryId = {"Query", _database->getInstanceName()};
                 _servantManager->setSessionControl(session, *ctl, {std::move(queryId)});
             }
-            timeout = chrono::seconds(ctl->getSessionTimeout());
         }
         catch (const Ice::LocalException& e)
         {
@@ -325,7 +305,10 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const optio
         }
     }
 
-    _reaper->add(make_shared<SessionReapable<SessionI>>(_database->getTraceLevels()->logger, session), timeout);
+    // We can't use a non-0 timeout such as the Glacier2 session timeout. As of Ice 3.8, heartbeats may not be sent
+    // at all on a busy connection. Furthermore, as of Ice 3.8, Glacier2 no longer "converts" heartbeats into
+    // keepAlive requests.
+    _reaper->add(make_shared<SessionReapable<SessionI>>(_database->getTraceLevels()->logger, session), 0s);
     return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }
 

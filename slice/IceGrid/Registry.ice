@@ -109,9 +109,11 @@ module IceGrid
         AdminSession* createAdminSessionFromSecureConnection()
             throws PermissionDeniedException;
 
-        /// TODO: update description or remove operation
+        /// Gets the session timeout. An Ice 3.7 or earlier client can use this value to determine how often it needs to
+        /// send heartbeats (using ACM) or call {@link Session#keepAlive} (resp. {@link AdminSession#keepAlive}) to keep
+        /// a session alive in the IceGrid registry.
         /// @return The session timeout (in seconds).
-        ["cpp:const"] idempotent int getSessionTimeout();
+        ["cpp:const", "deprecated"] idempotent int getSessionTimeout();
     }
 
     /// The IceGrid locator interface provides access to the {@link Query} and {@link Registry} object of the IceGrid
