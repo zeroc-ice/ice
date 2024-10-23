@@ -99,8 +99,10 @@ namespace IceGrid
             const IceInternal::TimerPtr&,
             const std::shared_ptr<ReapThread>&);
 
-        Glacier2::SessionPrx
-        createGlacier2Session(const std::string&, const std::optional<Glacier2::SessionControlPrx>&);
+        Glacier2::SessionPrx createGlacier2Session(
+            const std::string& sessionId,
+            const std::optional<Glacier2::SessionControlPrx>& ctl,
+            const Ice::ConnectionPtr& con);
 
         std::shared_ptr<SessionI> createSessionServant(const std::string&);
 

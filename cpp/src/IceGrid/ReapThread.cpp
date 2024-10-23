@@ -141,7 +141,7 @@ ReapThread::add(const shared_ptr<Reapable>& reapable, chrono::seconds timeout, c
     }
 
     // NOTE: registering a reapable with a 0s timeout is allowed. The reapable is reaped only when the reaper thread is
-    // shutdown or the connection is closed.
+    // shutdown or the connection is closed (when connection is not null).
 
     //
     // 10 seconds is the minimum permissable timeout (for non-zero timeouts).

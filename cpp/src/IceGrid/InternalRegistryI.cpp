@@ -62,7 +62,10 @@ InternalRegistryI::registerNode(
     try
     {
         auto session = NodeSessionI::create(_database, std::move(*node), info, _nodeSessionTimeout, load);
-        _reaper->add(make_shared<SessionReapable<NodeSessionI>>(logger, session), _nodeSessionTimeout);
+
+        // nullptr for the connection parameter, meaning the reaper won't destroy the session if the connection is
+        // closed.
+        _reaper->add(make_shared<SessionReapable<NodeSessionI>>(logger, session), _nodeSessionTimeout, nullptr);
         return session->getProxy();
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
@@ -93,7 +96,10 @@ InternalRegistryI::registerReplica(
     try
     {
         auto s = ReplicaSessionI::create(_database, _wellKnownObjects, info, std::move(*prx), _replicaSessionTimeout);
-        _reaper->add(make_shared<SessionReapable<ReplicaSessionI>>(logger, s), _replicaSessionTimeout);
+
+        // nullptr for the connection parameter, meaning the reaper won't destroy the session if the connection is
+        // closed.
+        _reaper->add(make_shared<SessionReapable<ReplicaSessionI>>(logger, s), _replicaSessionTimeout, nullptr);
         return s->getProxy();
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
