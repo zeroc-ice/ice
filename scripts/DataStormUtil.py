@@ -38,6 +38,7 @@ class Writer(Client, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {current.driver.getTestPort(20)}"
             props["DataStorm.Node.Multicast.PublishedHost"] = "239.255.0.1"
+            props["DataStorm.Node.Multicast.ProxyOptions"] = "-d --sourceAddress 127.0.0.1"
         elif not any(key.startswith("DataStorm.Node.") for key in props):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
@@ -61,6 +62,7 @@ class Reader(Server, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {current.driver.getTestPort(20)}"
             props["DataStorm.Node.Multicast.PublishedHost"] = "239.255.0.1"
+            props["DataStorm.Node.Multicast.ProxyOptions"] = "-d --sourceAddress 127.0.0.1"
         elif not any(key.startswith("DataStorm.Node.") for key in props):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
