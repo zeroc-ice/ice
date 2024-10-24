@@ -402,6 +402,7 @@
         <property name="Node.ConnectTo" languages="cpp" />
         <property name="Node.Multicast" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Multicast.Enabled" default="1" languages="cpp" />
+        <property name="Node.Multicast.Proxy" class="Proxy" languages="cpp" />
         <property name="Node.RetryCount" default="6" languages="cpp" />
         <property name="Node.RetryDelay" default="500" languages="cpp" />
         <property name="Node.RetryMultiplier" default="2" languages="cpp" />
