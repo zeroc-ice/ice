@@ -10,10 +10,8 @@
         <property name="PreferSecure" languages="all" />
         <property name="LocatorCacheTimeout" languages="all" />
         <property name="InvocationTimeout" languages="all" />
-        <!-- TODO: set class="Proxy" once all languages support class props -->
-        <property name="Locator" languages="all" />
-        <!-- TODO: set class="Proxy" once all languages support class props -->
-        <property name="Router" languages="all" />
+        <property name="Locator" languages="all" class="Proxy"/>
+        <property name="Router" languages="all" class="Proxy"/>
         <property name="CollocationOptimized" languages="cpp,csharp,java" />
         <property name="Context.[any]" languages="all" />
     </class>
@@ -278,8 +276,10 @@
         <property name="Registry.DynamicRegistration" languages="cpp" />
         <property name="Registry.Internal" class="ObjectAdapter" languages="cpp" />
         <property name="Registry.LMDB" class="LMDB" languages="cpp"/>
+        <property name="Registry.NodeSessionTimeout" languages="cpp" default="30" />
         <property name="Registry.PermissionsVerifier" class="Proxy" languages="cpp" />
         <property name="Registry.ReplicaName" languages="cpp" default="Master" />
+        <property name="Registry.ReplicaSessionTimeout" languages="cpp" default="30" />
         <property name="Registry.Server" class="ObjectAdapter" languages="cpp" />
         <property name="Registry.SessionFilters" languages="cpp" default="0" />
         <property name="Registry.SessionManager" class="ObjectAdapter" languages="cpp" />

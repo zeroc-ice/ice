@@ -16,8 +16,8 @@ const Property ProxyPropsData[] =
     Property{"PreferSecure", "", false, false, nullptr},
     Property{"LocatorCacheTimeout", "", false, false, nullptr},
     Property{"InvocationTimeout", "", false, false, nullptr},
-    Property{"Locator", "", false, false, nullptr},
-    Property{"Router", "", false, false, nullptr},
+    Property{"Locator", "", false, false, &PropertyNames::ProxyProps},
+    Property{"Router", "", false, false, &PropertyNames::ProxyProps},
     Property{"CollocationOptimized", "", false, false, nullptr},
     Property{"Context.*", "", true, false, nullptr}
 };
@@ -368,8 +368,10 @@ const Property IceGridPropsData[] =
     Property{"Registry.DynamicRegistration", "", false, false, nullptr},
     Property{"Registry.Internal", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Registry.LMDB", "", false, false, &PropertyNames::LMDBProps},
+    Property{"Registry.NodeSessionTimeout", "30", false, false, nullptr},
     Property{"Registry.PermissionsVerifier", "", false, false, &PropertyNames::ProxyProps},
     Property{"Registry.ReplicaName", "Master", false, false, nullptr},
+    Property{"Registry.ReplicaSessionTimeout", "30", false, false, nullptr},
     Property{"Registry.Server", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Registry.SessionFilters", "0", false, false, nullptr},
     Property{"Registry.SessionManager", "", false, false, &PropertyNames::ObjectAdapterProps},
@@ -396,7 +398,7 @@ const PropertyArray PropertyNames::IceGridProps
     .name="IceGrid",
     .prefixOnly=false,
     .properties=IceGridPropsData,
-    .length=60,
+    .length=62,
     .enabled=false
 };
 

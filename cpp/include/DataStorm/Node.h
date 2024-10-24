@@ -38,91 +38,6 @@ namespace DataStorm
         /**
          * Construct a DataStorm node.
          *
-         * A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
-         * communicator.
-         *
-         * @param communicator The Ice communicator used by the topic factory for its configuration and
-         *                     communications.
-         */
-        Node(Ice::CommunicatorPtr communicator);
-
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics. This constructor parses the
-         * command line arguments into Ice properties and initialize a new Node. The constructor initializes the
-         * Ice communicator using the given Ice arguments. If the communicator creation fails, an Ice exception is
-         * raised.
-         *
-         * @param argc The number of command line arguments in the argv array.
-         * @param argv The command line arguments.
-         * @param iceArgs Additional arguments which are passed to the Ice::initialize function in addition to the
-         *                argc and argv arguments.
-         */
-        template<class... T> Node(int& argc, const char* argv[], T&&... iceArgs) : _ownsCommunicator(true)
-        {
-            init(argc, argv, std::forward<T>(iceArgs)...);
-        }
-
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics. This constructor parses the
-         * command line arguments into Ice properties and initialize a new Node. The constructor initializes the
-         * Ice communicator using the given Ice arguments. If the communicator creation fails, an Ice exception is
-         * raised.
-         *
-         * @param argc The number of command line arguments in the argv array.
-         * @param argv The command line arguments.
-         * @param iceArgs Additional arguments which are passed to the Ice::initialize function in addition to the
-         *                argc and argv arguments.
-         */
-        template<class... T> Node(int& argc, char* argv[], T&&... iceArgs) : _ownsCommunicator(true)
-        {
-            init(argc, argv, std::forward<T>(iceArgs)...);
-        }
-
-#ifdef _WIN32
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics. This constructor parses the
-         * command line arguments into Ice properties and initialize a new Node. The constructor initializes the
-         * Ice communicator using the given Ice arguments. If the communicator creation fails, an Ice exception is
-         * raised.
-         *
-         * @param argc The number of command line arguments in the argv array.
-         * @param argv The command line arguments.
-         * @param iceArgs Additional arguments which are passed to the Ice::initialize function in addition to the
-         *                argc and argv arguments.
-         */
-        template<class... T> Node(int& argc, const wchar_t* argv[], T&&... iceArgs) : _ownsCommunicator(true)
-        {
-            init(argc, argv, std::forward<T>(iceArgs)...);
-        }
-
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics. This constructor parses the
-         * command line arguments into Ice properties and initialize a new Node. The constructor initializes the
-         * Ice communicator using the given Ice arguments. If the communicator creation fails, an Ice exception is
-         * raised.
-         *
-         * @param argc The number of command line arguments in the argv array.
-         * @param argv The command line arguments.
-         * @param iceArgs Additional arguments which are passed to the Ice::initialize function in addition to the
-         *                argc and argv arguments.
-         */
-        template<class... T> Node(int& argc, wchar_t* argv[], T&&... iceArgs) : _ownsCommunicator(true)
-        {
-            init(argc, argv, std::forward<T>(iceArgs)...);
-        }
-#endif
-
-        /**
-         * Construct a DataStorm node.
-         *
          * A node is the main DataStorm object. It is required to construct topics. The constructor initializes
          * the Ice communicator using the given arguments. If the communicator creation fails, an Ice exception is
          * raised.
@@ -131,7 +46,38 @@ namespace DataStorm
          */
         template<class... T> Node(T&&... iceArgs) : _ownsCommunicator(true)
         {
-            init(Ice::initialize(std::forward<T>(iceArgs)...));
+            init(Ice::initialize(std::forward<T>(iceArgs)...), nullptr);
+        }
+
+        /**
+         * Construct a DataStorm node.
+         *
+         * A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
+         * communicator.
+         *
+         * @param communicator The Ice communicator used by the topic factory for its configuration and communications.
+         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
+         */
+        Node(
+            Ice::CommunicatorPtr communicator,
+            std::function<void(std::function<void()> call)> customExecutor = nullptr);
+
+        /**
+         * Construct a DataStorm node.
+         *
+         * A node is the main DataStorm object. It is required to construct topics. The constructor initializes
+         * the Ice communicator using the given arguments. If the communicator creation fails, an Ice exception is
+         * raised.
+         *
+         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
+         * @param iceArgs Arguments which are passed to the Ice::initialize function.
+         */
+        template<class... T>
+        Node(std::function<void(std::function<void()> call)> customExecutor, T&&... iceArgs) : _ownsCommunicator(true)
+        {
+            init(Ice::initialize(std::forward<T>(iceArgs)...), std::move(customExecutor));
         }
 
         /**
@@ -187,16 +133,7 @@ namespace DataStorm
         Ice::ConnectionPtr getSessionConnection(const std::string& ident) const noexcept;
 
     private:
-        template<typename V, class... T> void init(int& argc, V argv, T&&... iceArgs)
-        {
-            auto communicator = Ice::initialize(argc, argv, std::forward<T>(iceArgs)...);
-            auto args = Ice::argsToStringSeq(argc, argv);
-            args = communicator->getProperties()->parseCommandLineOptions("DataStorm", args);
-            Ice::stringSeqToArgs(args, argc, argv);
-            init(communicator);
-        }
-
-        void init(const Ice::CommunicatorPtr&);
+        void init(const Ice::CommunicatorPtr&, std::function<void(std::function<void()> call)> customExecutor);
 
         std::shared_ptr<DataStormI::Instance> _instance;
         std::shared_ptr<DataStormI::TopicFactory> _factory;

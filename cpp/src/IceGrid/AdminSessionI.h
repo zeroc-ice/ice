@@ -15,18 +15,17 @@ namespace IceGrid
     class RegistryI;
     class FileIteratorI;
 
-    class AdminSessionI : public BaseSessionI, public AdminSession
+    class AdminSessionI final : public BaseSessionI, public AdminSession
     {
     public:
         AdminSessionI(const std::string&, const std::shared_ptr<Database>&, const std::shared_ptr<RegistryI>&);
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
-        // keepAlive is deprecated and kept only for compatibility with old clients. It does nothing now.
-        void keepAlive(const Ice::Current&) override {}
+        void keepAlive(const Ice::Current&) final {} // no-op
 
-        std::optional<AdminPrx> getAdmin(const Ice::Current&) const override;
-        std::optional<Ice::ObjectPrx> getAdminCallbackTemplate(const Ice::Current&) const override;
+        std::optional<AdminPrx> getAdmin(const Ice::Current&) const final;
+        std::optional<Ice::ObjectPrx> getAdminCallbackTemplate(const Ice::Current&) const final;
 
         void setObservers(
             std::optional<RegistryObserverPrx>,
@@ -34,7 +33,7 @@ namespace IceGrid
             std::optional<ApplicationObserverPrx>,
             std::optional<AdapterObserverPrx>,
             std::optional<ObjectObserverPrx>,
-            const Ice::Current&) override;
+            const Ice::Current&) final;
 
         void setObserversByIdentity(
             Ice::Identity,
@@ -42,24 +41,24 @@ namespace IceGrid
             Ice::Identity,
             Ice::Identity,
             Ice::Identity,
-            const Ice::Current&) override;
+            const Ice::Current&) final;
 
-        int startUpdate(const Ice::Current&) override;
-        void finishUpdate(const Ice::Current&) override;
+        int startUpdate(const Ice::Current&) final;
+        void finishUpdate(const Ice::Current&) final;
 
-        std::string getReplicaName(const Ice::Current&) const override;
+        std::string getReplicaName(const Ice::Current&) const final;
 
-        std::optional<FileIteratorPrx> openServerLog(std::string, std::string, int, const Ice::Current&) override;
-        std::optional<FileIteratorPrx> openServerStdOut(std::string, int, const Ice::Current&) override;
-        std::optional<FileIteratorPrx> openServerStdErr(std::string, int, const Ice::Current&) override;
+        std::optional<FileIteratorPrx> openServerLog(std::string, std::string, int, const Ice::Current&) final;
+        std::optional<FileIteratorPrx> openServerStdOut(std::string, int, const Ice::Current&) final;
+        std::optional<FileIteratorPrx> openServerStdErr(std::string, int, const Ice::Current&) final;
 
-        std::optional<FileIteratorPrx> openNodeStdOut(std::string, int, const Ice::Current&) override;
-        std::optional<FileIteratorPrx> openNodeStdErr(std::string, int, const Ice::Current&) override;
+        std::optional<FileIteratorPrx> openNodeStdOut(std::string, int, const Ice::Current&) final;
+        std::optional<FileIteratorPrx> openNodeStdErr(std::string, int, const Ice::Current&) final;
 
-        std::optional<FileIteratorPrx> openRegistryStdOut(std::string, int, const Ice::Current&) override;
-        std::optional<FileIteratorPrx> openRegistryStdErr(std::string, int, const Ice::Current&) override;
+        std::optional<FileIteratorPrx> openRegistryStdOut(std::string, int, const Ice::Current&) final;
+        std::optional<FileIteratorPrx> openRegistryStdErr(std::string, int, const Ice::Current&) final;
 
-        void destroy(const Ice::Current&) override;
+        void destroy(const Ice::Current&) final;
 
         void removeFileIterator(const Ice::Identity&, const Ice::Current&);
 
@@ -69,7 +68,7 @@ namespace IceGrid
         Ice::ObjectPrx addForwarder(Ice::ObjectPrx);
         FileIteratorPrx addFileIterator(FileReaderPrx, const std::string&, int, const Ice::Current&);
 
-        void destroyImpl(bool) override;
+        void destroyImpl(bool) final;
 
         const std::string _replicaName;
         std::optional<AdminPrx> _admin;
@@ -96,7 +95,6 @@ namespace IceGrid
     private:
         const std::shared_ptr<SessionServantManager> _servantManager;
         const std::shared_ptr<Database> _database;
-        const std::chrono::seconds _timeout;
         const std::shared_ptr<ReapThread> _reaper;
         const std::shared_ptr<RegistryI> _registry;
         const bool _filters;

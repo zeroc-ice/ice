@@ -589,10 +589,12 @@ PropertyNames.validProps = [
             if propertyArray.properties
             else ""
         )
-
+        # We assign the properties to the property array after creating it so that we can reference the array
+        # in the properties themselves
         self.srcFile.write(f"""\
-PropertyNames.{name}Props = new PropertyArray("{name}", {prefixOnly}, [{properties}
-]);
+PropertyNames.{name}Props = new PropertyArray("{name}", {prefixOnly});
+PropertyNames.{name}Props.properties = [{properties}
+];
 
 """)
 

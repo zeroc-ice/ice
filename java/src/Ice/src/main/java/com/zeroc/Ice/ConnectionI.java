@@ -2257,21 +2257,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     private void sendResponse(OutgoingResponse response, boolean isTwoWay, byte compress) {
         final OutputStream outputStream = response.outputStream;
-        boolean shutdown = false;
 
         // We may be executing on the "main thread" (e.g., in Android together with a
         // custom executor) and therefore we have to defer network calls to a separate
         // thread.
         final boolean queueResponse = isTwoWay && _instance.queueRequests();
-
-        synchronized (this) {
-            assert (_state > StateNotValidated);
-
-            if (!queueResponse) {
-                // shutdown can be true only when isTwoWay is false.
-                shutdown = sendResponseImpl(outputStream, isTwoWay, compress);
-            }
-        }
 
         if (queueResponse) {
             _instance
@@ -2284,18 +2274,21 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                     return null;
                                 }
                             });
-        }
-
-        if (shutdown) {
-            queueShutdown(false);
+        } else {
+            // Can return true only when isTwoWay is false.
+            if (sendResponseImpl(outputStream, isTwoWay, compress)) {
+                queueShutdown(false);
+            }
         }
     }
 
     private boolean sendResponseImpl(OutputStream outputStream, boolean isTwoWay, byte compress) {
+        // Must be called without synchronization!
         boolean shutdown = false;
         boolean finished = false;
         try {
             synchronized (this) {
+                assert (_state > StateNotValidated);
                 try {
                     if (--_upcallCount == 0) {
                         if (_state == StateFinished) {
