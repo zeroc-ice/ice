@@ -75,23 +75,6 @@ namespace
         }
     }
 
-    string getDeprecationMessageForComment(const ContainedPtr& p1, const string& type)
-    {
-        string deprecateReason;
-        if (p1->isDeprecated(true))
-        {
-            if (auto reason = p1->getDeprecationReason(true))
-            {
-                deprecateReason = *reason;
-            }
-            else
-            {
-                deprecateReason = "This " + type + " has been deprecated.";
-            }
-        }
-        return deprecateReason;
-    }
-
     void emitObsoleteAttribute(const ContainedPtr& p1, Output& out)
     {
         if (p1->isDeprecated(true))
@@ -947,7 +930,7 @@ Slice::CsVisitor::splitComment(const ContainedPtr& p, StringList& summaryLines, 
 }
 
 void
-Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecateReason, const string& extraParam)
+Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& extraParam)
 {
     StringList summaryLines;
     StringList remarksLines;
@@ -955,12 +938,6 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
 
     if (summaryLines.empty())
     {
-        if (!deprecateReason.empty())
-        {
-            _out << nl << "///";
-            _out << nl << "/// <summary>" << deprecateReason << "</summary>";
-            _out << nl << "///";
-        }
         return;
     }
 
@@ -973,17 +950,6 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
         {
             _out << " " << *i;
         }
-    }
-
-    //
-    // We generate everything into the summary tag (despite what the MSDN doc says) because
-    // Visual Studio only shows the <summary> text and omits the <remarks> text.
-    //
-    if (!deprecateReason.empty())
-    {
-        _out << nl << "///";
-        _out << nl << "/// <para>" << deprecateReason << "</para>";
-        _out << nl << "///";
     }
 
     bool summaryClosed = false;
@@ -1034,7 +1000,6 @@ void
 Slice::CsVisitor::writeDocCommentAMI(
     const OperationPtr& p,
     ParamDir paramType,
-    const string& deprecateReason,
     const string& extraParam1,
     const string& extraParam2,
     const string& extraParam3)
@@ -1043,7 +1008,7 @@ Slice::CsVisitor::writeDocCommentAMI(
     StringList remarksLines;
     splitComment(p, summaryLines, remarksLines);
 
-    if (summaryLines.empty() && deprecateReason.empty())
+    if (summaryLines.empty())
     {
         return;
     }
@@ -1160,17 +1125,11 @@ Slice::CsVisitor::writeDocCommentAMI(
             _out << returnsCloseTag;
         }
     }
-
-    if (!deprecateReason.empty())
-    {
-        _out << nl << "/// <para>" << deprecateReason << "</para>";
-    }
 }
 
 void
 Slice::CsVisitor::writeDocCommentTaskAsyncAMI(
     const OperationPtr& p,
-    const string& deprecateReason,
     const string& extraParam1,
     const string& extraParam2,
     const string& extraParam3)
@@ -1179,7 +1138,7 @@ Slice::CsVisitor::writeDocCommentTaskAsyncAMI(
     StringList remarksLines;
     splitComment(p, summaryLines, remarksLines);
 
-    if (summaryLines.empty() && deprecateReason.empty())
+    if (summaryLines.empty())
     {
         return;
     }
@@ -1241,23 +1200,16 @@ Slice::CsVisitor::writeDocCommentTaskAsyncAMI(
     }
 
     _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
-
-    if (!deprecateReason.empty())
-    {
-        _out << nl << "/// <para>" << deprecateReason << "</para>";
-    }
 }
 
 void
 Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraParam)
 {
-    string deprecateReason = getDeprecationMessageForComment(p, "operation");
-
     StringList summaryLines;
     StringList remarksLines;
     splitComment(p, summaryLines, remarksLines);
 
-    if (summaryLines.empty() && deprecateReason.empty())
+    if (summaryLines.empty())
     {
         return;
     }
@@ -1309,11 +1261,6 @@ Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraP
     }
 
     _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
-
-    if (!deprecateReason.empty())
-    {
-        _out << nl << "/// <para>" << deprecateReason << "</para>";
-    }
 }
 
 void
@@ -1789,7 +1736,6 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     {
         writeDocComment(
             op,
-            getDeprecationMessageForComment(op, "operation"),
             "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
     }
     emitAttributes(op);
@@ -1813,7 +1759,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
 
     _out << sp;
-    writeDocComment(p, getDeprecationMessageForComment(p, "type"));
+    writeDocComment(p);
     emitObsoleteAttribute(p, _out);
     emitAttributes(p);
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
@@ -2155,7 +2101,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     emitObsoleteAttribute(p, _out);
-    writeDocComment(p, getDeprecationMessageForComment(p, "type"));
+    writeDocComment(p);
     emitAttributes(p);
     _out << nl << "public enum " << name;
     _out << sb;
@@ -2447,7 +2393,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     InterfaceList bases = p->bases();
 
     _out << sp;
-    writeDocComment(p, getDeprecationMessageForComment(p, "interface"));
+    writeDocComment(p);
     _out << nl << "public interface " << name << "Prx : ";
 
     vector<string> baseInterfaces;
@@ -2489,7 +2435,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> inParams = getInParams(p, ns);
     ParamDeclList inParamDecls = p->inParameters();
     string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
-    string deprecateReason = getDeprecationMessageForComment(p, "operation");
 
     {
         //
@@ -2499,7 +2444,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         _out << sp;
         writeDocComment(
             p,
-            deprecateReason,
             "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
         emitObsoleteAttribute(p, _out);
         _out << nl << retS << " " << name << spar << getParams(p, ns)
@@ -2518,7 +2462,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         _out << sp;
         writeDocCommentTaskAsyncAMI(
             p,
-            deprecateReason,
             "<param name=\"" + context + "\">Context map to send with the invocation.</param>",
             "<param name=\"" + progress + "\">Sent progress provider.</param>",
             "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>");

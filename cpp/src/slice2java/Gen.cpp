@@ -1292,10 +1292,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
         out << sp;
         writeServantDocComment(out, op, package, dc, amd);
-        if (dc && dc->isDeprecated())
-        {
-            out << nl << "@Deprecated";
-        }
 
         if (amd)
         {
@@ -2207,16 +2203,6 @@ Slice::JavaVisitor::writeServantDocComment(
         }
     }
 
-    if (!dc->deprecated().empty())
-    {
-        out << nl << " * @deprecated ";
-        writeDocCommentLines(out, dc->deprecated());
-    }
-    else if (dc->isDeprecated())
-    {
-        out << nl << " * @deprecated";
-    }
-
     out << nl << " **/";
 }
 
@@ -2612,10 +2598,6 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(out, p->unit(), dc);
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
 
     out << nl << "public interface " << fixKwd(name) << " extends ";
     InterfaceList::const_iterator q = bases.begin();
