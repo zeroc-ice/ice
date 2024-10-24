@@ -111,7 +111,13 @@ Instance::init()
     _adapter->add(lookupI, {"Lookup", "DataStorm"});
     if (_multicastAdapter)
     {
+        Ice::PropertiesPtr properties = _communicator->getProperties();
         auto lookup = _multicastAdapter->add<DataStormContract::LookupPrx>(lookupI, {"Lookup", "DataStorm"});
+        if (!properties->getIceProperty("DataStorm.Node.Multicast.Proxy").empty())
+        {
+            // propertyToProxy only returns a nullopt proxy when the property is empty.
+            lookup = *_communicator->propertyToProxy<DataStormContract::LookupPrx>("DataStorm.Node.Multicast.Proxy");
+        }
         _lookup = lookup->ice_collocationOptimized(false)->ice_datagram();
     }
 
