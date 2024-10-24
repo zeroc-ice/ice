@@ -19,9 +19,9 @@ namespace DataStormI
     class CallbackExecutor
     {
     public:
-        CallbackExecutor();
+        CallbackExecutor(std::function<void(std::function<void()> call)> customExecutor);
 
-        void queue(const std::shared_ptr<DataElementI>&, std::function<void()>, bool = false);
+        void queue(std::function<void()>, bool = false);
         void flush();
         void destroy();
 
@@ -31,7 +31,9 @@ namespace DataStormI
         std::condition_variable _cond;
         bool _flush;
         bool _destroyed;
-        std::vector<std::pair<std::shared_ptr<DataElementI>, std::function<void()>>> _queue;
+        std::vector<std::function<void()>> _queue;
+        // An optional executor or null if no o custom executor is provided during Node construction.
+        std::function<void(std::function<void()> call)> _customExecutor;
     };
 }
 

@@ -15,7 +15,9 @@
 using namespace std;
 using namespace DataStormI;
 
-Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(communicator), _shutdown(false)
+Instance::Instance(const Ice::CommunicatorPtr& communicator, function<void(function<void()> call)> callbackExecutor)
+    : _communicator(communicator),
+      _shutdown(false)
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
@@ -86,7 +88,7 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator) : _communicator(com
     _collocatedForwarder = make_shared<ForwarderManager>(_collocatedAdapter, "forwarders");
     _collocatedAdapter->addDefaultServant(_collocatedForwarder, "forwarders");
 
-    _executor = make_shared<CallbackExecutor>();
+    _executor = make_shared<CallbackExecutor>(std::move(callbackExecutor));
     _connectionManager = make_shared<ConnectionManager>(_executor);
     _timer = make_shared<IceInternal::Timer>();
     _traceLevels = make_shared<TraceLevels>(properties, _communicator->getLogger());

@@ -250,9 +250,6 @@ RegistryI::startImpl()
     _replicaName = properties->getIceProperty("IceGrid.Registry.ReplicaName");
     _master = _replicaName == "Master";
 
-    // TODO: temporary. For now, synchronized with the default idle timeout.
-    _sessionTimeout = chrono::seconds(60);
-
     if (!_initFromReplica.empty() && (_initFromReplica == _replicaName || (_master && _initFromReplica == "Master")))
     {
         Error out(_communicator->getLogger());
@@ -919,10 +916,7 @@ RegistryI::createSession(string user, string password, const Current& current)
 
     auto session = _clientSessionFactory->createSessionServant(user);
     auto proxy = session->_register(_servantManager, current.con);
-    _reaper->add(
-        make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session),
-        _sessionTimeout,
-        current.con);
+    _reaper->add(make_shared<SessionReapable<SessionI>>(_traceLevels->logger, session), 0s, current.con);
     return uncheckedCast<SessionPrx>(proxy);
 }
 
@@ -968,10 +962,7 @@ RegistryI::createAdminSession(string user, string password, const Current& curre
 
     auto session = _adminSessionFactory->createSessionServant(user);
     auto proxy = session->_register(_servantManager, current.con);
-    _reaper->add(
-        make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session),
-        _sessionTimeout,
-        current.con);
+    _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_traceLevels->logger, session), 0s, current.con);
     return uncheckedCast<AdminSessionPrx>(proxy);
 }
 
@@ -1024,10 +1015,7 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
 
     auto session = _clientSessionFactory->createSessionServant(userDN);
     auto proxy = session->_register(_servantManager, current.con);
-    _reaper->add(
-        make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session),
-        _sessionTimeout,
-        current.con);
+    _reaper->add(make_shared<SessionReapable<SessionI>>(_traceLevels->logger, session), 0s, current.con);
     return uncheckedCast<SessionPrx>(proxy);
 }
 
@@ -1073,17 +1061,27 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
     //
     auto session = _adminSessionFactory->createSessionServant(userDN);
     auto proxy = session->_register(_servantManager, current.con);
-    _reaper->add(
-        make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session),
-        _sessionTimeout,
-        current.con);
+    _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_traceLevels->logger, session), 0s, current.con);
     return uncheckedCast<AdminSessionPrx>(proxy);
 }
 
 int
 RegistryI::getSessionTimeout(const Ice::Current&) const
 {
-    return secondsToInt(_sessionTimeout);
+    PropertiesPtr properties = _communicator->getProperties();
+
+    int serverIdleTimeout = properties->getIcePropertyAsInt("Ice.Connection.Server.IdleTimeout");
+    int adminSessionTimeout = properties->getPropertyAsIntWithDefault(
+        "IceGrid.Registry.AdminSessionManager.Connection.IdleTimeout",
+        serverIdleTimeout);
+    int sessionTimeout = properties->getPropertyAsIntWithDefault(
+        "IceGrid.Registry.SessionManager.Connection.IdleTimeout",
+        serverIdleTimeout);
+
+    // Users should not fine-tune the idle timeout so both timeouts are usually identical. In case they are different,
+    // we return the min to the caller (an old Ice client, with Ice version <= 3.7). The caller may then send keep alive
+    // more often than necessary (very minor).
+    return min(adminSessionTimeout, sessionTimeout);
 }
 
 string

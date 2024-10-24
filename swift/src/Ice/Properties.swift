@@ -18,9 +18,7 @@ public protocol Properties: AnyObject {
     /// - parameter key: `String` The property key.
     ///
     /// - returns: `String` - The property value or the default value.
-    ///
-    /// - throws: `NSException` if the key is not a valid Ice property
-    func getIceProperty(_ key: String) throws -> String
+    func getIceProperty(_ key: String) -> String
 
     /// Get a property by key. If the property is not set, the given default value is returned.
     ///
@@ -43,9 +41,7 @@ public protocol Properties: AnyObject {
     /// - parameter key: `String` The property key.
     ///
     /// - returns: `Int32` - The property value interpreted as an integer, or the default value.
-    ///
-    /// - throws: `NSException` if the key is not a valid Ice property
-    func getIcePropertyAsInt(_ key: String) throws -> Int32
+    func getIcePropertyAsInt(_ key: String) -> Int32
 
     /// Get a property as an integer. If the property is not set, the given default value is returned.
     ///
@@ -76,9 +72,7 @@ public protocol Properties: AnyObject {
     /// - parameter key: `String` The property key.
     ///
     /// - returns: `StringSeq` - The property value interpreted as list of strings, or the default value.
-    ///
-    /// - throws: `NSException` if the key is not a valid Ice property
-    func getIcePropertyAsList(_ key: String) throws -> StringSeq
+    func getIcePropertyAsList(_ key: String) -> StringSeq
 
     /// Get a property as a list of strings.  The strings must be separated by whitespace or comma. If the property is
     /// not set, the default list is returned. The strings in the list can contain whitespace and commas if they are

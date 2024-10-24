@@ -105,7 +105,6 @@ namespace IceGrid
         std::shared_ptr<ReapThread> _reaper;
         IceInternal::TimerPtr _timer;
         std::shared_ptr<SessionServantManager> _servantManager;
-        std::chrono::seconds _sessionTimeout;
         std::unique_ptr<ReplicaSessionManager> _session;
         mutable PlatformInfo _platform;
 

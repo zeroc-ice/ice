@@ -11,7 +11,15 @@ using namespace std;
 int
 main(int argc, char* argv[])
 {
-    Node node(argc, argv);
+    function<void(function<void()> call)> callbackExecutor = nullptr;
+    for (int i = 1; i < argc; ++i)
+    {
+        if (strcmp(argv[i], "--with-executor") == 0)
+        {
+            callbackExecutor = [](function<void()> cb) { cb(); };
+        }
+    }
+    Node node(callbackExecutor, argc, argv);
 
     WriterConfig config;
     config.sampleCount = -1; // Unlimited sample count

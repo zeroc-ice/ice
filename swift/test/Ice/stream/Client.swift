@@ -186,7 +186,7 @@ public class Client: TestHelperI {
             try inS.readPendingValues()
             try test(o2!.bo == o.bo)
             try test(o2!.by == o.by)
-            if try communicator.getProperties().getIceProperty("Ice.Default.EncodingVersion") == "1.0" {
+            if communicator.getProperties().getIceProperty("Ice.Default.EncodingVersion") == "1.0" {
                 try test(o2!.sh == nil)
                 try test(o2!.i == nil)
             } else {
