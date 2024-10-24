@@ -1734,9 +1734,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     }
     else
     {
-        writeDocComment(
-            op,
-            "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
+        writeDocComment(op, "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
     }
     emitAttributes(op);
     emitObsoleteAttribute(op, _out);
@@ -2442,9 +2440,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         string context = getEscapedParamName(p, "context");
         _out << sp;
-        writeDocComment(
-            p,
-            "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
+        writeDocComment(p, "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
         emitObsoleteAttribute(p, _out);
         _out << nl << retS << " " << name << spar << getParams(p, ns)
              << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar

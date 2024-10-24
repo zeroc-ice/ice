@@ -360,12 +360,14 @@ namespace
         return ostr.str();
     }
 
-    enum class GenerateDeprecated { Yes, No };
+    enum class GenerateDeprecated
+    {
+        Yes,
+        No
+    };
 
-    void writeDocSummary(
-        Output& out,
-        const ContainedPtr& p,
-        GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes)
+    void
+    writeDocSummary(Output& out, const ContainedPtr& p, GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes)
     {
         if (p->comment().empty())
         {
@@ -1703,7 +1705,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         StringList postParams;
         postParams.push_back(contextDoc);
-        writeOpDocSummary(H, p, comment, OpDocAllParams, true, GenerateDeprecated::Yes, StringList(), postParams, comment->returns());
+        writeOpDocSummary(
+            H,
+            p,
+            comment,
+            OpDocAllParams,
+            true,
+            GenerateDeprecated::Yes,
+            StringList(),
+            postParams,
+            comment->returns());
     }
     H << nl << deprecatedSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << contextDecl << epar
       << " const;";
@@ -1760,7 +1771,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         StringList postParams, returns;
         postParams.push_back(contextDoc);
         returns.push_back(futureDoc);
-        writeOpDocSummary(H, p, comment, OpDocInParams, false, GenerateDeprecated::Yes, StringList(), postParams, returns);
+        writeOpDocSummary(
+            H,
+            p,
+            comment,
+            OpDocInParams,
+            false,
+            GenerateDeprecated::Yes,
+            StringList(),
+            postParams,
+            returns);
     }
 
     H << nl << deprecatedSymbol << "[[nodiscard]] ::std::future<" << futureT << "> " << name << "Async" << spar
@@ -1796,7 +1816,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back("@param " + sentParam + " The sent callback.");
         postParams.push_back(contextDoc);
         returns.push_back("A function that can be called to cancel the invocation locally.");
-        writeOpDocSummary(H, p, comment, OpDocInParams, false, GenerateDeprecated::Yes, StringList(), postParams, returns);
+        writeOpDocSummary(
+            H,
+            p,
+            comment,
+            OpDocInParams,
+            false,
+            GenerateDeprecated::Yes,
+            StringList(),
+            postParams,
+            returns);
     }
     H << nl;
     H << deprecatedSymbol;
