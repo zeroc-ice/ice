@@ -38,7 +38,7 @@ namespace IceGrid
             const Ice::Current&) const final;
         void destroy(const Ice::Current&) final;
 
-        std::chrono::steady_clock::time_point timestamp() const;
+        std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
         void shutdown();
 
         const NodePrx& getNode() const;

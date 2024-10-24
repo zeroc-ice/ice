@@ -459,12 +459,15 @@ AdminSessionFactory::AdminSessionFactory(
 }
 
 Glacier2::SessionPrx
-AdminSessionFactory::createGlacier2Session(const string& sessionId, const optional<Glacier2::SessionControlPrx>& ctl)
+AdminSessionFactory::createGlacier2Session(
+    const string& sessionId,
+    const optional<Glacier2::SessionControlPrx>& ctl,
+    const Ice::ConnectionPtr& con)
 {
     assert(_servantManager);
 
     auto session = createSessionServant(sessionId);
-    auto proxy = session->_register(_servantManager, nullptr);
+    auto proxy = session->_register(_servantManager, con);
 
     if (ctl)
     {
@@ -489,7 +492,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const option
     // We can't use a non-0 timeout such as the Glacier2 session timeout. As of Ice 3.8, heartbeats may not be sent
     // at all on a busy connection. Furthermore, as of Ice 3.8, Glacier2 no longer "converts" heartbeats into
     // keepAlive requests.
-    _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_database->getTraceLevels()->logger, session), 0s);
+    _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_database->getTraceLevels()->logger, session), 0s, con);
     return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }
 
@@ -508,15 +511,18 @@ AdminSessionFactory::getTraceLevels() const
 AdminSessionManagerI::AdminSessionManagerI(const shared_ptr<AdminSessionFactory>& factory) : _factory(factory) {}
 
 optional<Glacier2::SessionPrx>
-AdminSessionManagerI::create(string userId, optional<Glacier2::SessionControlPrx> ctl, const Ice::Current&)
+AdminSessionManagerI::create(string userId, optional<Glacier2::SessionControlPrx> ctl, const Ice::Current& current)
 {
-    return _factory->createGlacier2Session(std::move(userId), std::move(ctl));
+    return _factory->createGlacier2Session(std::move(userId), std::move(ctl), current.con);
 }
 
 AdminSSLSessionManagerI::AdminSSLSessionManagerI(const shared_ptr<AdminSessionFactory>& factory) : _factory(factory) {}
 
 optional<Glacier2::SessionPrx>
-AdminSSLSessionManagerI::create(Glacier2::SSLInfo info, optional<Glacier2::SessionControlPrx> ctl, const Ice::Current&)
+AdminSSLSessionManagerI::create(
+    Glacier2::SSLInfo info,
+    optional<Glacier2::SessionControlPrx> ctl,
+    const Ice::Current& current)
 {
     string userDN;
     if (!info.certs.empty()) // TODO: Require userDN?
@@ -535,5 +541,5 @@ AdminSSLSessionManagerI::create(Glacier2::SSLInfo info, optional<Glacier2::Sessi
         }
     }
 
-    return _factory->createGlacier2Session(std::move(userDN), std::move(ctl));
+    return _factory->createGlacier2Session(std::move(userDN), std::move(ctl), current.con);
 }

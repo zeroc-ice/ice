@@ -79,14 +79,13 @@ BaseSessionI::destroyImpl(bool)
     }
 }
 
-std::chrono::steady_clock::time_point
-BaseSessionI::timestamp() const
+optional<chrono::steady_clock::time_point>
+BaseSessionI::timestamp() const noexcept
 {
     lock_guard lock(_mutex);
     if (_destroyed)
     {
-        // Just a "marker" exception here.
-        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+        return nullopt;
     }
     return std::chrono::steady_clock::time_point::min(); // not used
 }
@@ -277,12 +276,15 @@ ClientSessionFactory::ClientSessionFactory(
 }
 
 Glacier2::SessionPrx
-ClientSessionFactory::createGlacier2Session(const string& sessionId, const optional<Glacier2::SessionControlPrx>& ctl)
+ClientSessionFactory::createGlacier2Session(
+    const string& sessionId,
+    const optional<Glacier2::SessionControlPrx>& ctl,
+    const Ice::ConnectionPtr& con)
 {
     assert(_servantManager);
 
     auto session = createSessionServant(sessionId);
-    auto proxy = session->_register(_servantManager, nullptr);
+    auto proxy = session->_register(_servantManager, con);
 
     if (ctl)
     {
@@ -308,7 +310,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const optio
     // We can't use a non-0 timeout such as the Glacier2 session timeout. As of Ice 3.8, heartbeats may not be sent
     // at all on a busy connection. Furthermore, as of Ice 3.8, Glacier2 no longer "converts" heartbeats into
     // keepAlive requests.
-    _reaper->add(make_shared<SessionReapable<SessionI>>(_database->getTraceLevels()->logger, session), 0s);
+    _reaper->add(make_shared<SessionReapable<SessionI>>(_database->getTraceLevels()->logger, session), 0s, con);
     return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }
 
@@ -327,9 +329,9 @@ ClientSessionFactory::getTraceLevels() const
 ClientSessionManagerI::ClientSessionManagerI(const shared_ptr<ClientSessionFactory>& factory) : _factory(factory) {}
 
 std::optional<Glacier2::SessionPrx>
-ClientSessionManagerI::create(string user, std::optional<Glacier2::SessionControlPrx> ctl, const Ice::Current&)
+ClientSessionManagerI::create(string user, std::optional<Glacier2::SessionControlPrx> ctl, const Ice::Current& current)
 {
-    return _factory->createGlacier2Session(std::move(user), std::move(ctl));
+    return _factory->createGlacier2Session(std::move(user), std::move(ctl), current.con);
 }
 
 ClientSSLSessionManagerI::ClientSSLSessionManagerI(const shared_ptr<ClientSessionFactory>& factory) : _factory(factory)
@@ -340,7 +342,7 @@ std::optional<Glacier2::SessionPrx>
 ClientSSLSessionManagerI::create(
     Glacier2::SSLInfo info,
     std::optional<Glacier2::SessionControlPrx> ctl,
-    const Ice::Current&)
+    const Ice::Current& current)
 {
     string userDN;
     if (!info.certs.empty()) // TODO: Require userDN?
@@ -360,5 +362,5 @@ ClientSSLSessionManagerI::create(
         }
     }
 
-    return _factory->createGlacier2Session(userDN, ctl);
+    return _factory->createGlacier2Session(userDN, ctl, current.con);
 }

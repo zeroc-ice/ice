@@ -1068,20 +1068,16 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 int
 RegistryI::getSessionTimeout(const Ice::Current&) const
 {
+    // getSessionTimeout is called by clients that create sessions (resource allocation sessions aka client sessions and
+    // admin sessions) directly using the IceGrid::Registry interface. These sessions are hosted by the
+    // IceGrid.Registry.Client object adapter.
+
+    // A Glacier2 client that creates a session using the Glacier2::SessionManager can't call this operation since it
+    // doesn't have access to the IceGrid::Registry interface.
     PropertiesPtr properties = _communicator->getProperties();
 
     int serverIdleTimeout = properties->getIcePropertyAsInt("Ice.Connection.Server.IdleTimeout");
-    int adminSessionTimeout = properties->getPropertyAsIntWithDefault(
-        "IceGrid.Registry.AdminSessionManager.Connection.IdleTimeout",
-        serverIdleTimeout);
-    int sessionTimeout = properties->getPropertyAsIntWithDefault(
-        "IceGrid.Registry.SessionManager.Connection.IdleTimeout",
-        serverIdleTimeout);
-
-    // Users should not fine-tune the idle timeout so both timeouts are usually identical. In case they are different,
-    // we return the min to the caller (an old Ice client, with Ice version <= 3.7). The caller may then send keep alive
-    // more often than necessary (very minor).
-    return min(adminSessionTimeout, sessionTimeout);
+    return properties->getPropertyAsIntWithDefault("IceGrid.Registry.Client.Connection.IdleTimeout", serverIdleTimeout);
 }
 
 string

@@ -86,8 +86,11 @@ namespace IceGrid
             const std::shared_ptr<ReapThread>&,
             const std::shared_ptr<RegistryI>&);
 
-        Glacier2::SessionPrx
-        createGlacier2Session(const std::string&, const std::optional<Glacier2::SessionControlPrx>&);
+        Glacier2::SessionPrx createGlacier2Session(
+            const std::string& sessionId,
+            const std::optional<Glacier2::SessionControlPrx>& ctl,
+            const Ice::ConnectionPtr& con);
+
         std::shared_ptr<AdminSessionI> createSessionServant(const std::string&);
 
         const std::shared_ptr<TraceLevels>& getTraceLevels() const;
