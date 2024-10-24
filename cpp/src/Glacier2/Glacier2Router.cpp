@@ -430,13 +430,6 @@ RouterService::initializeCommunicator(
         initData.properties->setProperty("Glacier2.Client.Connection.InactivityTimeout", "0");
     }
 
-    // Turn-off the inactivity timeout for outgoing connections unless the application sets this property.
-    // This is necessary for connections to session managers, like the session managers hosted by the IceGrid registry.
-    if (initData.properties->getProperty("Ice.Connection.Client.InactivityTimeout").empty())
-    {
-        initData.properties->setProperty("Ice.Connection.Client.InactivityTimeout", "0");
-    }
-
     //
     // If Glacier2.PermissionsVerifier is not set and Glacier2.CryptPasswords is set,
     // load the Glacier2CryptPermissionsVerifier plug-in
