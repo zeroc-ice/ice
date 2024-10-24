@@ -360,7 +360,14 @@ namespace
         return ostr.str();
     }
 
-    void writeDocSummary(Output& out, const ContainedPtr& p)
+    enum class GenerateDeprecated
+    {
+        Yes,
+        No
+    };
+
+    void
+    writeDocSummary(Output& out, const ContainedPtr& p, GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes)
     {
         if (p->comment().empty())
         {
@@ -386,16 +393,19 @@ namespace
             writeSeeAlso(out, doc->seeAlso());
         }
 
-        if (!doc->deprecated().empty())
+        if (generateDeprecated == GenerateDeprecated::Yes)
         {
-            out << nl << " *";
-            out << nl << " * @deprecated ";
-            writeDocLines(out, doc->deprecated(), false);
-        }
-        else if (doc->isDeprecated())
-        {
-            out << nl << " *";
-            out << nl << " * @deprecated";
+            if (!doc->deprecated().empty())
+            {
+                out << nl << " *";
+                out << nl << " * @deprecated ";
+                writeDocLines(out, doc->deprecated(), false);
+            }
+            else if (doc->isDeprecated())
+            {
+                out << nl << " *";
+                out << nl << " * @deprecated";
+            }
         }
 
         if (dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<ClassDecl>(p) ||
@@ -489,6 +499,7 @@ namespace
         const CommentPtr& doc,
         OpDocParamType type,
         bool showExceptions,
+        GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes,
         const StringList& preParams = StringList(),
         const StringList& postParams = StringList(),
         const StringList& returns = StringList())
@@ -526,18 +537,22 @@ namespace
             writeSeeAlso(out, seeAlso);
         }
 
-        const auto& deprecated = doc->deprecated();
-        if (!deprecated.empty())
+        if (generateDeprecated == GenerateDeprecated::Yes)
         {
-            out << nl << " *";
-            out << nl << " * @deprecated ";
-            writeDocLines(out, deprecated, false);
+            const auto& deprecated = doc->deprecated();
+            if (!deprecated.empty())
+            {
+                out << nl << " *";
+                out << nl << " * @deprecated ";
+                writeDocLines(out, deprecated, false);
+            }
+            else if (doc->isDeprecated())
+            {
+                out << nl << " *";
+                out << nl << " * @deprecated";
+            }
         }
-        else if (doc->isDeprecated())
-        {
-            out << nl << " *";
-            out << nl << " * @deprecated";
-        }
+        // we don't generate the @deprecated doc-comment for servants
 
         out << nl << " */";
     }
@@ -1690,7 +1705,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         StringList postParams;
         postParams.push_back(contextDoc);
-        writeOpDocSummary(H, p, comment, OpDocAllParams, true, StringList(), postParams, comment->returns());
+        writeOpDocSummary(
+            H,
+            p,
+            comment,
+            OpDocAllParams,
+            true,
+            GenerateDeprecated::Yes,
+            StringList(),
+            postParams,
+            comment->returns());
     }
     H << nl << deprecatedSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << contextDecl << epar
       << " const;";
@@ -1747,7 +1771,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         StringList postParams, returns;
         postParams.push_back(contextDoc);
         returns.push_back(futureDoc);
-        writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
+        writeOpDocSummary(
+            H,
+            p,
+            comment,
+            OpDocInParams,
+            false,
+            GenerateDeprecated::Yes,
+            StringList(),
+            postParams,
+            returns);
     }
 
     H << nl << deprecatedSymbol << "[[nodiscard]] ::std::future<" << futureT << "> " << name << "Async" << spar
@@ -1783,7 +1816,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back("@param " + sentParam + " The sent callback.");
         postParams.push_back(contextDoc);
         returns.push_back("A function that can be called to cancel the invocation locally.");
-        writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
+        writeOpDocSummary(
+            H,
+            p,
+            comment,
+            OpDocInParams,
+            false,
+            GenerateDeprecated::Yes,
+            StringList(),
+            postParams,
+            returns);
     }
     H << nl;
     H << deprecatedSymbol;
@@ -2695,7 +2737,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     InterfaceList bases = p->bases();
 
     H << sp;
-    writeDocSummary(H, p);
+    writeDocSummary(H, p, GenerateDeprecated::No);
     H << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
     if (bases.empty())
@@ -3079,7 +3121,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             returns = comment->returns();
         }
         postParams.push_back("@param " + currentParam + " The Current object for the invocation.");
-        writeOpDocSummary(H, p, comment, pt, true, StringList(), postParams, returns);
+        writeOpDocSummary(H, p, comment, pt, true, GenerateDeprecated::No, StringList(), postParams, returns);
     }
     H << nl << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << nl << "/// \\cond INTERNAL";

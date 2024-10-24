@@ -59,7 +59,7 @@ namespace Slice
         StringList splitIntoLines(const std::string&);
         void splitComment(const ContainedPtr&, StringList&, StringList&);
         StringList getSummary(const ContainedPtr&);
-        void writeDocComment(const ContainedPtr&, const std::string&, const std::string& = "");
+        void writeDocComment(const ContainedPtr&, const std::string& = "");
         void writeDocCommentOp(const OperationPtr&);
 
         enum ParamDir
@@ -70,13 +70,11 @@ namespace Slice
         void writeDocCommentAMI(
             const OperationPtr&,
             ParamDir,
-            const std::string&,
             const std::string& = "",
             const std::string& = "",
             const std::string& = "");
         void writeDocCommentTaskAsyncAMI(
             const OperationPtr&,
-            const std::string&,
             const std::string& = "",
             const std::string& = "",
             const std::string& = "");
