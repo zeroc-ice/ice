@@ -85,8 +85,8 @@ namespace IceGrid
 
         // Add a session (wrapped in a Reapable object), with a specified timeout (can be 0s) and connection (can be
         // null).
-        void add(
-            const std::shared_ptr<Reapable>& reapable,
+        void
+        add(const std::shared_ptr<Reapable>& reapable,
             std::chrono::seconds timeout,
             const Ice::ConnectionPtr& connection);
 
