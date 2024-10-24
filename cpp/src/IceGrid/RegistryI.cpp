@@ -234,6 +234,11 @@ RegistryI::startImpl()
     properties->setProperty("IceGrid.Registry.Client.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Server.AdapterId", "");
     properties->setProperty("IceGrid.Registry.SessionManager.AdapterId", "");
+
+    // Turn-off the inactivity timeout for incoming connections from Glacier2 router.
+    properties->setProperty("IceGrid.Registry.SessionManager.Connection.InactivityTimeout", "0");
+    properties->setProperty("IceGrid.Registry.AdminSessionManager.Connection.InactivityTimeout", "0");
+
     properties->setProperty("IceGrid.Registry.AdminSessionManager.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Internal.AdapterId", "");
     if (properties->getProperty("IceGrid.Registry.Internal.MessageSizeMax").empty())

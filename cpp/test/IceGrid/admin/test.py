@@ -172,6 +172,8 @@ def routerProps(process, current):
         "Glacier2.SessionManager": "TestIceGrid/AdminSessionManager",
         "Glacier2.PermissionsVerifier": "Glacier2/NullPermissionsVerifier",
         "Glacier2.SSLSessionManager": "TestIceGrid/AdminSSLSessionManager",
+        # we disable the inactivity timeout for outgoing connections when we use an IceGrid session manager
+        "Ice.Connection.Client.InactivityTimeout": "0",
         "Glacier2.SSLPermissionsVerifier": "Glacier2/NullSSLPermissionsVerifier",
         "Ice.Default.Locator": current.testcase.getLocator(current),
         "IceSSL.VerifyPeer": 1,

@@ -15,6 +15,8 @@
 
         <property name="Glacier2.SessionManager" value="${manager}"/>
         <property name="Glacier2.SSLSessionManager" value="${ssl-manager}"/>
+        <!-- we disable the inactivity timeout for outgoing connections when we use an IceGrid session manager -->
+        <property name="Ice.Connection.Client.InactivityTimeout" value="0"/>
         <property name="Glacier2.PermissionsVerifier" value="${verifier}"/>
         <property name="Glacier2.SSLPermissionsVerifier" value="SSLPermissionsVerifier"/>
         <property name="Glacier2.Client.Trace.Reject" value="0"/>

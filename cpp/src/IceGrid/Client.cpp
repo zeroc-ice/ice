@@ -81,6 +81,10 @@ main(int argc, char* argv[])
         Ice::CtrlCHandler ctrlCHandler;
         auto defaultProps = Ice::createProperties();
         defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h localhost");
+
+        // Turn-off inactivity timeout for outgoing connections.
+        defaultProps->setProperty("Ice.Connection.Client.InactivityTimeout", "0");
+
         Ice::InitializationData id;
         id.properties = createProperties(args, defaultProps);
         id.properties->setProperty("Ice.Warn.Endpoints", "0");
