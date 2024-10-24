@@ -137,7 +137,7 @@ RouterService::start(int argc, char* argv[], int& status)
     const string clientEndpointsProperty = "Glacier2.Client.Endpoints";
     if (properties->getIceProperty(clientEndpointsProperty).empty())
     {
-        error("property `" + clientEndpointsProperty + "' is not set");
+        error("property '" + clientEndpointsProperty + "' is not set");
         return false;
     }
 
@@ -428,6 +428,13 @@ RouterService::initializeCommunicator(
     if (initData.properties->getProperty("Glacier2.Client.Connection.InactivityTimeout").empty())
     {
         initData.properties->setProperty("Glacier2.Client.Connection.InactivityTimeout", "0");
+    }
+
+    // Turn-off the inactivity timeout for outgoing connections unless the application sets this property.
+    // This is necessary for connections to session managers, like the session managers hosted by the IceGrid registry.
+    if (initData.properties->getProperty("Ice.Connection.Client.InactivityTimeout").empty())
+    {
+        initData.properties->setProperty("Ice.Connection.Client.InactivityTimeout", "0");
     }
 
     //
