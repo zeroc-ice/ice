@@ -50,25 +50,21 @@ ReapThread::run()
             auto p = _sessions.begin();
             while (p != _sessions.end())
             {
-                try
-                {
-                    auto timestamp = p->item->timestamp(); // throws ONE if the reapable is destroyed.
+                auto timestamp = p->item->timestamp();
 
-                    if (p->timeout > 0s && (chrono::steady_clock::now() - timestamp > p->timeout))
+                if (timestamp)
+                {
+                    if (p->timeout > 0s && (chrono::steady_clock::now() - *timestamp > p->timeout))
                     {
                         reap.push_back(*p);
-                        // and go to the code after the catch block
                     }
                     else
                     {
                         ++p;
-                        continue;
+                        continue; // while loop
                     }
                 }
-                catch (const Ice::ObjectNotExistException&)
-                {
-                    // already destroyed
-                }
+                // else session is already destroyed and we clean-up
 
                 // Remove the reapable
                 if (p->connection)
@@ -155,6 +151,8 @@ ReapThread::add(const shared_ptr<Reapable>& reapable, chrono::seconds timeout, c
 
     if (connection)
     {
+        assert(timeout == 0s);
+
         auto p = _connections.find(connection);
         if (p == _connections.end())
         {

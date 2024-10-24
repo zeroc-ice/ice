@@ -79,14 +79,13 @@ BaseSessionI::destroyImpl(bool)
     }
 }
 
-std::chrono::steady_clock::time_point
-BaseSessionI::timestamp() const
+optional<chrono::steady_clock::time_point>
+BaseSessionI::timestamp() const noexcept
 {
     lock_guard lock(_mutex);
     if (_destroyed)
     {
-        // Just a "marker" exception here.
-        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+        return nullopt;
     }
     return std::chrono::steady_clock::time_point::min(); // not used
 }

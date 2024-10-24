@@ -24,8 +24,8 @@ namespace IceGrid
     public:
         virtual ~BaseSessionI() = default;
 
-        // Return value is never used. Just throws ONE when the session is destroyed.
-        std::chrono::steady_clock::time_point timestamp() const;
+        // Return value is never used. Just returns nullopt when the session is destroyed.
+        std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
 
         void shutdown();
         std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet();

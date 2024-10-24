@@ -17,7 +17,8 @@ namespace IceGrid
     public:
         virtual ~Reapable() = default;
 
-        virtual std::chrono::steady_clock::time_point timestamp() const = 0;
+        // Returns the timestamp of the most recent keepAlive call, or nullopt if the session is destroyed.
+        virtual std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept = 0;
         virtual void destroy(bool) = 0;
     };
 
@@ -32,7 +33,10 @@ namespace IceGrid
         {
         }
 
-        std::chrono::steady_clock::time_point timestamp() const final { return _session->timestamp(); }
+        std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept final
+        {
+            return _session->timestamp();
+        }
 
         void destroy(bool shutdown) final
         {
@@ -62,6 +66,15 @@ namespace IceGrid
         const std::shared_ptr<T> _session;
     };
 
+    // A shared monitoring/reaping mechanism that destroys session servants. It's used for all session servants hosted
+    // by the IceGrid registry: admin sessions, client sessions (aka resource allocation sessions), internal node
+    // sessions and internal replica sessions.
+    // It supports two modes:
+    // - 0s timeout + non-null connection: the session is bound to the connection and is destroyed/reaped either
+    // explicitly (via a call to a Slice-defined destroy operation) or when the connection is closed
+    // - a null connection with usually a non-0 timeout: the session's lifetime is independent of the connection, and
+    // the reaper destroys the session when it doesn't receive a keepAlive call within timeout. If the timeout is 0s,
+    // the reaper only reaps the session when it's destroyed explicitly, or when the IceGrid registry shuts down.
     class ReapThread final
     {
     public:
@@ -69,7 +82,13 @@ namespace IceGrid
 
         void terminate();
         void join();
-        void add(const std::shared_ptr<Reapable>&, std::chrono::seconds, const Ice::ConnectionPtr&);
+
+        // Add a session (wrapped in a Reapable object), with a specified timeout (can be 0s) and connection (can be
+        // null).
+        void add(
+            const std::shared_ptr<Reapable>& reapable,
+            std::chrono::seconds timeout,
+            const Ice::ConnectionPtr& connection);
 
         void connectionClosed(const Ice::ConnectionPtr&);
 
