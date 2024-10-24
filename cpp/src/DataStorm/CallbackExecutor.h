@@ -19,7 +19,7 @@ namespace DataStormI
     class CallbackExecutor
     {
     public:
-        CallbackExecutor(std::function<void(std::function<void()> call)> callbackExecutor);
+        CallbackExecutor(std::function<void(std::function<void()> call)> customExecutor);
 
         void queue(std::function<void()>, bool = false);
         void flush();
@@ -32,7 +32,8 @@ namespace DataStormI
         bool _flush;
         bool _destroyed;
         std::vector<std::function<void()>> _queue;
-        std::function<void(std::function<void()> call)> _callbackExecutor;
+        // An optional executor or null if no o custom executor is provided during Node construction.
+        std::function<void(std::function<void()> call)> _customExecutor;
     };
 }
 

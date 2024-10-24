@@ -7,10 +7,10 @@
 using namespace std;
 using namespace DataStormI;
 
-CallbackExecutor::CallbackExecutor(function<void(function<void()> call)> callbackExecutor)
+CallbackExecutor::CallbackExecutor(function<void(function<void()> call)> customExecutor)
     : _flush(false),
       _destroyed(false),
-      _callbackExecutor(std::move(callbackExecutor))
+      _customExecutor(std::move(customExecutor))
 {
     _thread = thread(
         [this]
@@ -35,10 +35,9 @@ CallbackExecutor::CallbackExecutor(function<void(function<void()> call)> callbac
                 {
                     try
                     {
-                        if (_callbackExecutor)
+                        if (_customExecutor)
                         {
-                            // TODO do we need to ensure that the callback is executed before we continue?
-                            _callbackExecutor(callback);
+                            _customExecutor(callback);
                         }
                         else
                         {
