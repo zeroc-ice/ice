@@ -17,18 +17,16 @@ namespace DataStormI
     public:
         LookupI(std::shared_ptr<NodeSessionManager>, std::shared_ptr<TopicFactoryI>, DataStormContract::NodePrx);
 
-        virtual void
-        announceTopicReader(std::string, std::optional<DataStormContract::NodePrx>, const Ice::Current&) override;
+        void announceTopicReader(std::string, std::optional<DataStormContract::NodePrx>, const Ice::Current&) final;
 
-        virtual void
-        announceTopicWriter(std::string, std::optional<DataStormContract::NodePrx>, const Ice::Current&) override;
+        void announceTopicWriter(std::string, std::optional<DataStormContract::NodePrx>, const Ice::Current&) final;
 
-        virtual void
+        void
         announceTopics(Ice::StringSeq, Ice::StringSeq, std::optional<DataStormContract::NodePrx>, const Ice::Current&)
-            override;
+            final;
 
-        virtual std::optional<DataStormContract::NodePrx>
-        createSession(std::optional<DataStormContract::NodePrx>, const Ice::Current&) override;
+        std::optional<DataStormContract::NodePrx>
+        createSession(std::optional<DataStormContract::NodePrx>, const Ice::Current&) final;
 
     private:
         std::shared_ptr<NodeSessionManager> _nodeSessionManager;

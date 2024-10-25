@@ -7,7 +7,6 @@
 
 #include "DataStorm/Contract.h"
 #include "DataStorm/InternalI.h"
-#include "ForwarderManager.h"
 
 namespace DataStormI
 {

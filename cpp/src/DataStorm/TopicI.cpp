@@ -6,7 +6,6 @@
 #include "NodeI.h"
 #include "SessionI.h"
 #include "TopicFactoryI.h"
-#include "TraceUtil.h"
 
 using namespace std;
 using namespace DataStormI;
@@ -48,7 +47,7 @@ namespace
             return alwaysmatch;
         }
 
-        virtual Ice::ByteSeq encode(const Ice::CommunicatorPtr&) const { return Ice::ByteSeq{}; }
+        virtual Ice::ByteSeq encode(const Ice::CommunicatorPtr&) const { return {}; }
 
         virtual int64_t getId() const
         {
@@ -79,8 +78,8 @@ TopicI::TopicI(
       _instance(factory.lock()->getInstance()),
       _traceLevels(_instance->getTraceLevels()),
       _id(id),
-      _forwarder{_instance->getCollocatedForwarder()->add<SessionPrx>([this](Ice::ByteSeq e, const Ice::Current& c)
-                                                                      { forward(e, c); })},
+      _forwarder{_instance->getCollocatedForwarder()->add<SessionPrx>(
+          [this](Ice::ByteSeq inParams, const Ice::Current& current) { forward(inParams, current); })},
       _destroyed(false),
       _listenerCount(0),
       _waiters(0),
@@ -275,7 +274,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
 void
 TopicI::attach(int64_t id, const shared_ptr<SessionI>& session, SessionPrx prx)
 {
-    auto p = _listeners.find({session});
+    auto p = _listeners.find(ListenerKey{session});
     if (p == _listeners.end())
     {
         p = _listeners.emplace(ListenerKey{session}, Listener(std::move(prx))).first;
@@ -290,7 +289,7 @@ TopicI::attach(int64_t id, const shared_ptr<SessionI>& session, SessionPrx prx)
 void
 TopicI::detach(int64_t id, const shared_ptr<SessionI>& session)
 {
-    auto p = _listeners.find({session});
+    auto p = _listeners.find(ListenerKey{session});
     if (p != _listeners.end() && p->second.topics.erase(id))
     {
         session->unsubscribe(id, this);
@@ -350,7 +349,7 @@ TopicI::attachElements(
                             {std::move(acks),
                              key->getId(),
                              "",
-                             spec.id < 0 ? key->encode(_instance->getCommunicator()) : Ice::ByteSeq(),
+                             spec.id < 0 ? key->encode(_instance->getCommunicator()) : Ice::ByteSeq{},
                              spec.id,
                              spec.name});
                     }
@@ -398,7 +397,7 @@ TopicI::attachElements(
                             {std::move(acks),
                              -filter->getId(),
                              filter->getName(),
-                             spec.id > 0 ? filter->encode(_instance->getCommunicator()) : Ice::ByteSeq(),
+                             spec.id > 0 ? filter->encode(_instance->getCommunicator()) : Ice::ByteSeq{},
                              spec.id,
                              spec.name});
                     }
@@ -732,13 +731,15 @@ TopicI::disconnect()
 }
 
 void
-TopicI::forward(const Ice::ByteSeq& inEncaps, const Ice::Current& current) const
+TopicI::forward(const Ice::ByteSeq& inParams, const Ice::Current& current) const
 {
     // Forwarder proxy must be called with the mutex locked!
-    for (const auto& listener : _listeners)
+    for (const auto& [_, listener] : _listeners)
     {
-        // TODO check return value
-        auto _ = listener.second.proxy->ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx);
+        // Forward the call to all listeners using its session proxy, passing nullptr for the callbacks because we
+        // don't need to check the result.
+        listener.proxy
+            ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
     }
 }
 

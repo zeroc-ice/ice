@@ -4,7 +4,6 @@
 
 #include "LookupI.h"
 #include "Instance.h"
-#include "NodeI.h"
 #include "NodeSessionManager.h"
 #include "TopicFactoryI.h"
 
@@ -25,21 +24,17 @@ LookupI::LookupI(
 void
 LookupI::announceTopicReader(string name, optional<NodePrx> proxy, const Ice::Current& current)
 {
-    if (proxy)
-    {
-        _nodeSessionManager->announceTopicReader(name, *proxy, current.con);
-        _topicFactory->createSubscriberSession(name, *proxy, current.con);
-    }
+    Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
+    _nodeSessionManager->announceTopicReader(name, *proxy, current.con);
+    _topicFactory->createSubscriberSession(name, *proxy, current.con);
 }
 
 void
 LookupI::announceTopicWriter(string name, optional<NodePrx> proxy, const Ice::Current& current)
 {
-    if (proxy)
-    {
-        _nodeSessionManager->announceTopicWriter(name, *proxy, current.con);
-        _topicFactory->createPublisherSession(name, *proxy, current.con);
-    }
+    Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
+    _nodeSessionManager->announceTopicWriter(name, *proxy, current.con);
+    _topicFactory->createPublisherSession(name, *proxy, current.con);
 }
 
 void
@@ -49,30 +44,24 @@ LookupI::announceTopics(
     optional<NodePrx> proxy,
     const Ice::Current& current)
 {
-    if (proxy)
+    Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
+    _nodeSessionManager->announceTopics(readers, writers, *proxy, current.con);
+
+    for (const auto& name : readers)
     {
-        _nodeSessionManager->announceTopics(readers, writers, *proxy, current.con);
-        for (const auto& name : readers)
-        {
-            _topicFactory->createSubscriberSession(name, *proxy, current.con);
-        }
-        for (const auto& name : writers)
-        {
-            _topicFactory->createPublisherSession(name, *proxy, current.con);
-        }
+        _topicFactory->createSubscriberSession(name, *proxy, current.con);
+    }
+
+    for (const auto& name : writers)
+    {
+        _topicFactory->createPublisherSession(name, *proxy, current.con);
     }
 }
 
 optional<NodePrx>
 LookupI::createSession(optional<NodePrx> node, const Ice::Current& current)
 {
-    if (node)
-    {
-        _nodeSessionManager->createOrGet(std::move(*node), current.con, true);
-        return _nodePrx;
-    }
-    else
-    {
-        return nullopt;
-    }
+    Ice::checkNotNull(node, __FILE__, __LINE__, current);
+    _nodeSessionManager->createOrGet(std::move(*node), current.con, true);
+    return _nodePrx;
 }

@@ -135,7 +135,7 @@ namespace DataStormI
         const std::shared_ptr<Instance> _instance;
         const std::shared_ptr<TraceLevels> _traceLevels;
         const std::int64_t _id;
-        std::optional<DataStormContract::SessionPrx> _forwarder;
+        DataStormContract::SessionPrx _forwarder;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;
