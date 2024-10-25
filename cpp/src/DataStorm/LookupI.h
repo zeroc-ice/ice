@@ -12,7 +12,7 @@ namespace DataStormI
     class NodeSessionManager;
     class TopicFactoryI;
 
-    class LookupI : public DataStormContract::Lookup
+    class LookupI final : public DataStormContract::Lookup
     {
     public:
         LookupI(std::shared_ptr<NodeSessionManager>, std::shared_ptr<TopicFactoryI>, DataStormContract::NodePrx);

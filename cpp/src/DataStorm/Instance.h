@@ -27,7 +27,7 @@ namespace DataStormI
     public:
         Instance(
             const Ice::CommunicatorPtr& communicator,
-            std::function<void(std::function<void()> call)> callbackExecutor);
+            std::function<void(std::function<void()> call)> customExecutor);
 
         void init();
 

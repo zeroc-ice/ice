@@ -134,8 +134,8 @@ NodeSessionI::NodeSessionI(
 void
 NodeSessionI::init()
 {
-    // When the node doesn't have a public endpoint, we create a NodeForwarder object to forward calls to the target and
-    // assign it to the publicNode member, otherwise the publicNode member is set to the target node.
+    // When the target node doesn't have a public endpoint, we create a NodeForwarder object to forward calls to the
+    // target and assign it to the publicNode member, otherwise the publicNode member is set to the target node.
     if (_node->ice_getEndpoints().empty() && _node->ice_getAdapterId().empty())
     {
         _publicNode = _instance->getObjectAdapter()->add<NodePrx>(

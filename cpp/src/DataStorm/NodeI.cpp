@@ -106,7 +106,7 @@ NodeI::destroy(bool ownsCommunicator)
             {
                 try
                 {
-                    // Notify subscriber session of the disconnection, don't need to way for the result.
+                    // Notify subscriber session of the disconnection, don't need to wait for the result.
                     session->disconnectedAsync(nullptr);
                 }
                 catch (const Ice::LocalException&)
@@ -121,7 +121,7 @@ NodeI::destroy(bool ownsCommunicator)
             {
                 try
                 {
-                    // Notify publisher session of the disconnection, don't need to way for the result.
+                    // Notify publisher session of the disconnection, don't need to wait for the result.
                     session->disconnectedAsync(nullptr);
                 }
                 catch (const Ice::LocalException&)
