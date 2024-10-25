@@ -11,6 +11,8 @@ RUN set -eux \
     && sudo apt update \
     && sudo apt-get install -y php-dev python3 python3-dev python3-passlib ruby-full gdb \
     && sudo apt-get install -y libbluetooth-dev libbz2-dev libdbus-1-dev libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev libssl-dev libsystemd-dev \
+    # stress is a tool to impose load on and stress test systems
+    && stress \
     && sudo rm -rf /var/lib/apt/lists/* \
     && sudo apt-get clean
 
