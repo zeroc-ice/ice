@@ -4,7 +4,6 @@
 
 from DataStormUtil import Reader, Writer
 from Util import ClientServerTestCase, TestSuite
-import sys
 
 traceProps = {
     "DataStorm.Trace.Topic" : 1,
@@ -22,14 +21,12 @@ test_cases = [
         traceProps=traceProps),
 ]
 
-# TODO - enable once we figure out https://github.com/zeroc-ice/ice/issues/2929
-if sys.platform != "darwin":
-    test_cases.append(
-        ClientServerTestCase(
-            name = "Writer/Reader multicast enabled",
-            client = Writer(props = multicastProps),
-            server = Reader(props = multicastProps),
-            traceProps=traceProps),
-    )
+test_cases.append(
+    ClientServerTestCase(
+        name = "Writer/Reader multicast enabled",
+        client = Writer(props = multicastProps),
+        server = Reader(props = multicastProps),
+        traceProps=traceProps),
+)
 
 TestSuite(__file__, test_cases)

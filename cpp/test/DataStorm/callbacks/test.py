@@ -2,7 +2,6 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys
 from DataStormUtil import Reader, Writer
 from Util import ClientServerTestCase, TestSuite
 
@@ -23,7 +22,6 @@ test_cases = [
 ]
 
 # Repeat with callbacks running in the custom callback executor.
-
 test_cases.append(
     ClientServerTestCase(
         name = "Writer/Reader with custom callback executor",
@@ -32,14 +30,13 @@ test_cases.append(
         traceProps=traceProps),
 )
 
-# TODO - enable once we figure out https://github.com/zeroc-ice/ice/issues/2929
-if sys.platform != "darwin":
-    test_cases.append(
-        ClientServerTestCase(
-            name = "Writer/Reader multicast enabled",
-            client = Writer(props = multicastProps),
-            server = Reader(props = multicastProps),
-            traceProps=traceProps),
-    )
+# Repeat with multicast enabled.
+test_cases.append(
+    ClientServerTestCase(
+        name = "Writer/Reader multicast enabled",
+        client = Writer(props = multicastProps),
+        server = Reader(props = multicastProps),
+        traceProps=traceProps),
+)
 
 TestSuite(__file__, test_cases)
