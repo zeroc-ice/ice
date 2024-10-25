@@ -95,21 +95,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     }
 
     public synchronized void hold() {
-        var logger = _instance.initializationData().logger;
-
-        logger.trace(
-                _instance.traceLevels().networkCat, "Entering ConnectionI.hold: " + toString());
         if (_state <= StateNotValidated) {
             return;
         }
 
-        logger.trace(
-                _instance.traceLevels().networkCat,
-                "Setting connection state to StateHolding: " + toString());
         setState(StateHolding);
-        logger.trace(
-                _instance.traceLevels().networkCat,
-                "Connection state set to StateHolding: " + toString());
     }
 
     // DestructionReason.
