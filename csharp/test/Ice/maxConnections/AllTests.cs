@@ -134,6 +134,12 @@ internal class AllTests : global::Test.AllTests
         {
             await postCloseDelay();
         }
+        else
+        {
+            // We need to wait a tiny bit to let the server remove the connection from its incoming connection
+            // factory.
+            await Task.Delay(TimeSpan.FromMilliseconds(10));
+        }
 
         // Try again
         await p.ice_pingAsync();
