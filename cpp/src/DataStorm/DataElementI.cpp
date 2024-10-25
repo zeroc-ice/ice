@@ -55,7 +55,7 @@ DataElementI::DataElementI(TopicI* parent, const string& name, int64_t id, const
       // The collocated forwarder is initalized here to avoid using a nullable proxy. The forwarder is only used by
       // the instance that owns it and is removed in destroy implementation.
       _forwarder{parent->getInstance()->getCollocatedForwarder()->add<SessionPrx>(
-          [this](Ice::ByteSeq e, const Ice::Current& c) { forward(e, c); })},
+          [this](Ice::ByteSeq inParams, const Ice::Current& current) { forward(inParams, current); })},
       _parent(parent->shared_from_this()),
       _waiters(0),
       _notified(0),
@@ -627,15 +627,16 @@ DataElementI::disconnect()
 }
 
 void
-DataElementI::forward(const Ice::ByteSeq& inEncaps, const Ice::Current& current) const
+DataElementI::forward(const Ice::ByteSeq& inParams, const Ice::Current& current) const
 {
-    for (const auto& listener : _listeners)
+    for (const auto& [_, listener] : _listeners)
     {
         // If there's at least one subscriber interested in the update
-        if (!_sample || listener.second.matchOne(_sample, false))
+        if (!_sample || listener.matchOne(_sample, false))
         {
-            // TODO do we need to check the result?
-            auto _ = listener.second.proxy->ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx);
+            // Forward the call using the listener's session proxy don't need to wait for the result.
+            listener.proxy
+                ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
         }
     }
 }
@@ -1302,15 +1303,22 @@ KeyDataWriterI::send(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
 }
 
 void
-KeyDataWriterI::forward(const Ice::ByteSeq& inEncaps, const Ice::Current& current) const
+KeyDataWriterI::forward(const Ice::ByteSeq& inParams, const Ice::Current& current) const
 {
-    for (const auto& listener : _listeners)
+    for (const auto& [_, listener] : _listeners)
     {
         // If there's at least one subscriber interested in the update (check the key if any writer)
-        if (!_sample || listener.second.matchOne(_sample, _keys.empty()))
+        if (!_sample || listener.matchOne(_sample, _keys.empty()))
         {
-            // TODO do we need to check the result?
-            auto _ = listener.second.proxy->ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx);
+            // Forward the call using the listener's session proxy don't need to wait for the result.
+            auto _ = listener.proxy->ice_invokeAsync(
+                current.operation,
+                current.mode,
+                inParams,
+                nullptr,
+                nullptr,
+                nullptr,
+                current.ctx);
         }
     }
 }

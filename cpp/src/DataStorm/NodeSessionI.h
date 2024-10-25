@@ -7,10 +7,10 @@
 
 #include "DataStorm/Contract.h"
 #include "Ice/Ice.h"
+#include "Instance.h"
 
 namespace DataStormI
 {
-    class Instance;
     class TraceLevels;
 
     class NodeSessionI : public std::enable_shared_from_this<NodeSessionI>
@@ -20,7 +20,7 @@ namespace DataStormI
 
         void init();
         void destroy();
-        void addSession(std::optional<DataStormContract::SessionPrx>);
+        void addSession(DataStormContract::SessionPrx);
 
         DataStormContract::NodePrx getPublicNode() const
         {
@@ -28,16 +28,20 @@ namespace DataStormI
             assert(_publicNode);
             return *_publicNode;
         }
+
         std::optional<DataStormContract::LookupPrx> getLookup() const { return _lookup; }
         const Ice::ConnectionPtr& getConnection() const { return _connection; }
-        template<typename T> std::optional<T> getSessionForwarder(std::optional<T> session) const
+
+        // Helper method to create a forwarder proxy for a subscriber or publisher session proxy.
+        template<typename Prx> Prx forwarder(Prx session) const
         {
-            return Ice::uncheckedCast<T>(forwarder(session));
+            auto id = session->ice_getIdentity();
+            auto proxy = _instance->getObjectAdapter()->createProxy<Prx>(
+                {id.name + '-' + _node->ice_getIdentity().name, id.category + 'f'});
+            return proxy->ice_oneway();
         }
 
     private:
-        std::optional<DataStormContract::SessionPrx> forwarder(std::optional<DataStormContract::SessionPrx>) const;
-
         const std::shared_ptr<Instance> _instance;
         const std::shared_ptr<TraceLevels> _traceLevels;
         std::optional<DataStormContract::NodePrx> _node;

@@ -10,7 +10,6 @@
 
 #include <functional>
 #include <mutex>
-#include <optional>
 
 namespace DataStormI
 {
@@ -36,15 +35,15 @@ namespace DataStormI
         {
             return add<Prx>(
                 [forwarder = std::move(forwarder)](
-                    Ice::ByteSeq inEncaps,
+                    Ice::ByteSeq inParams,
                     Response response,
                     Exception exception,
                     const Ice::Current& current)
                 {
                     try
                     {
-                        forwarder(inEncaps, current);
-                        response(true, Ice::ByteSeq{});
+                        forwarder(std::move(inParams), current);
+                        response(true, {});
                     }
                     catch (...)
                     {
