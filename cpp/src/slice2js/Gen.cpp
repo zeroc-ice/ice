@@ -228,7 +228,7 @@ namespace
         return ostr.str();
     }
 
-    void writeDocSummary(Output& out, const ContainedPtr& p)
+    void writeDocSummary(Output& out, const ContainedPtr& p, bool includeDeprecated = true)
     {
         if (p->comment().empty())
         {
@@ -254,16 +254,19 @@ namespace
             writeSeeAlso(out, doc->seeAlso());
         }
 
-        if (!doc->deprecated().empty())
+        if (includeDeprecated)
         {
-            out << nl << " *";
-            out << nl << " * @deprecated ";
-            writeDocLines(out, doc->deprecated(), false);
-        }
-        else if (doc->isDeprecated())
-        {
-            out << nl << " *";
-            out << nl << " * @deprecated";
+            if (!doc->deprecated().empty())
+            {
+                out << nl << " *";
+                out << nl << " * @deprecated ";
+                writeDocLines(out, doc->deprecated(), false);
+            }
+            else if (doc->isDeprecated())
+            {
+                out << nl << " *";
+                out << nl << " * @deprecated";
+            }
         }
 
         out << nl << " */";
@@ -541,12 +544,12 @@ Slice::JsVisitor::splitComment(const ContainedPtr& p)
 }
 
 void
-Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p)
+Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated)
 {
     StringList lines = splitComment(p);
-    bool isDeprecated = p->isDeprecated(false);
+    CommentPtr dc = p->parseComment(false);
 
-    if (lines.empty() && !isDeprecated)
+    if (lines.empty())
     {
         // There's nothing to write for this doc-comment.
         return;
@@ -570,13 +573,13 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p)
         }
     }
 
-    if (isDeprecated)
+    if (includeDeprecated && dc && dc->isDeprecated())
     {
         _out << nl << " * @deprecated";
-        if (auto reason = p->getDeprecationReason(false))
+        if (!dc->deprecated().empty())
         {
             // If a reason was supplied, append it after the `@deprecated` tag.
-            _out << " " << *reason;
+            writeDocLines(_out, dc->deprecated(), false);
         }
     }
 
@@ -1308,7 +1311,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
 
     _out << sp;
-    writeDocCommentFor(p);
+    writeDocCommentFor(p, false);
     _out << nl << serviceType << " = class extends Ice.Object";
     _out << sb;
 
@@ -1338,6 +1341,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Generate a proxy class for interfaces
     //
     _out << sp;
+    writeDocCommentFor(p);
     _out << nl << proxyType << " = class extends Ice.ObjectPrx";
     _out << sb;
 
@@ -2590,16 +2594,19 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
         writeSeeAlso(out, doc->seeAlso());
     }
 
-    if (!doc->deprecated().empty())
+    if (!forDispatch)
     {
-        out << nl << " *";
-        out << nl << " * @deprecated ";
-        writeDocLines(out, doc->deprecated(), false);
-    }
-    else if (doc->isDeprecated())
-    {
-        out << nl << " *";
-        out << nl << " * @deprecated";
+        if (!doc->deprecated().empty())
+        {
+            out << nl << " *";
+            out << nl << " * @deprecated ";
+            writeDocLines(out, doc->deprecated(), false);
+        }
+        else if (doc->isDeprecated())
+        {
+            out << nl << " *";
+            out << nl << " * @deprecated";
+        }
     }
 
     out << nl << " */";
@@ -2737,7 +2744,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocSummary(_out, p, false);
     _out << nl << "export abstract class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.Object";
     _out << sb;
     for (const auto& op : p->allOperations())

@@ -704,26 +704,13 @@ Slice::Contained::parseComment(bool stripMarkup) const
 CommentPtr
 Slice::Contained::parseComment(const string& text, bool stripMarkup) const
 {
-    CommentPtr comment = make_shared<Comment>();
-
-    comment->_isDeprecated = isDeprecated(false);
-
-    //
-    // First check metadata for a deprecated tag.
-    //
-    if (auto reason = getDeprecationReason(false))
-    {
-        comment->_deprecated.push_back(IceInternal::trim(*reason));
-    }
-
-    if (!comment->_isDeprecated && text.empty())
+    if (text.empty())
     {
         return nullptr;
     }
 
-    //
-    // Split up the comment into lines.
-    //
+    // Split up the comment text into lines.
+    CommentPtr comment = make_shared<Comment>();
     StringList lines = splitComment(text, stripMarkup);
 
     StringList::const_iterator i;
