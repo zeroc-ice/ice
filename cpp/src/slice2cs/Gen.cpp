@@ -77,9 +77,9 @@ namespace
 
     void emitObsoleteAttribute(const ContainedPtr& p1, Output& out)
     {
-        if (p1->isDeprecated(true))
+        if (p1->isDeprecated())
         {
-            if (auto reason = p1->getDeprecationReason(true))
+            if (auto reason = p1->getDeprecationReason())
             {
                 out << nl << "[global::System.Obsolete(\"" << *reason << "\")]";
             }
