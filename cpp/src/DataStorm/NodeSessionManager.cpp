@@ -407,13 +407,20 @@ NodeSessionManager::disconnected(LookupPrx lookup)
     if (instance)
     {
         instance->scheduleTimerTask(
-            [=, this, self = shared_from_this()]
+            [=, self = shared_from_this()]
             {
-                auto instance = _instance.lock();
+#if defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+                auto instance = self->_instance.lock();
                 if (instance)
                 {
-                    self->connect(lookup, _nodePrx);
+                    self->connect(lookup, self->_nodePrx);
                 }
+#if defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
             },
             instance->getRetryDelay(_retryCount++));
     }

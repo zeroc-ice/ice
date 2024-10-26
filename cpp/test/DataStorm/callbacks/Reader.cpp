@@ -8,6 +8,11 @@
 using namespace DataStorm;
 using namespace std;
 
+// GCC should allow "shadowing" in lambda expressions but doesn't.
+#if defined(__GNUC__) && !defined(__clang__)
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 int
 main(int argc, char* argv[])
 {

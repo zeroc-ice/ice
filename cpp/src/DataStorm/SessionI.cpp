@@ -533,6 +533,11 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, co
     if (connection)
     {
         auto self = shared_from_this();
+
+#if defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
         _instance->getConnectionManager()->add(
             connection,
             self,
@@ -546,6 +551,9 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, co
                     }
                 }
             });
+#if defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
     }
 
     if (_retryTask)
