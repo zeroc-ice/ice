@@ -50,9 +50,7 @@ ReapThread::run()
             auto p = _sessions.begin();
             while (p != _sessions.end())
             {
-                auto timestamp = p->item->timestamp();
-
-                if (timestamp)
+                if (auto timestamp = p->item->timestamp())
                 {
                     if (p->timeout > 0s && (chrono::steady_clock::now() - *timestamp > p->timeout))
                     {
