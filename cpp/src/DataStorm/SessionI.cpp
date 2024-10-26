@@ -1108,16 +1108,16 @@ SessionI::subscriberInitialized(
     assert(_topics.find(topicId) != _topics.end());
     auto& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
     auto e = subscriber.get(elementId);
-    auto s = e->getSubscriber(element);
-    assert(s);
+    auto es = e->getSubscriber(element);
+    assert(es);
 
     if (_traceLevels->session > 1)
     {
         Trace out(_traceLevels, _traceLevels->sessionCat);
         out << _id << ": initialized `" << element << "' from `e" << elementId << '@' << topicId << "'";
     }
-    s->initialized = true;
-    s->lastId = samples.empty() ? 0 : samples.back().id;
+    es->initialized = true;
+    es->lastId = samples.empty() ? 0 : samples.back().id;
 
     vector<shared_ptr<Sample>> samplesI;
     samplesI.reserve(samples.size());

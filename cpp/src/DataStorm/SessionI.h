@@ -9,13 +9,12 @@
 #include "Ice/Ice.h"
 #include "NodeI.h"
 
-#if defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning(disable : 4456) // ... : declaration of 'identifier' hides previous local declaration
-#    pragma warning(disable : 4458) // ... : declaration of 'identifier' hides class member
-#elif defined(__clang__)
+#if defined(__clang__)
 #    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 namespace DataStormI
@@ -159,12 +158,12 @@ namespace DataStormI
 
             std::map<std::int64_t, ElementSubscribers>& getAll() { return _elements; }
 
-            void reap(int sessionInstanceId)
+            void reap(int id)
             {
                 auto p = _elements.begin();
                 while (p != _elements.end())
                 {
-                    if (p->second.reap(sessionInstanceId))
+                    if (p->second.reap(id))
                     {
                         _elements.erase(p++);
                     }
@@ -373,4 +372,11 @@ namespace DataStormI
         void remove() final;
     };
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
+
 #endif
