@@ -11,15 +11,15 @@ using namespace std;
 int
 main(int argc, char* argv[])
 {
-    function<void(function<void()> call)> callbackExecutor = nullptr;
+    function<void(function<void()> call)> customExecutor = nullptr;
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i], "--with-executor") == 0)
         {
-            callbackExecutor = [](function<void()> cb) { cb(); };
+            customExecutor = [](function<void()> cb) { cb(); };
         }
     }
-    Node node(callbackExecutor, argc, argv);
+    Node node(customExecutor, argc, argv);
 
     ReaderConfig config;
     config.sampleCount = -1; // Unlimited sample count

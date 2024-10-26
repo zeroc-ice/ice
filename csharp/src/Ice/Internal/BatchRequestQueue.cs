@@ -4,55 +4,41 @@ using System.Diagnostics;
 
 namespace Ice.Internal;
 
-internal sealed class BatchRequestI : Ice.BatchRequest
+internal sealed class BatchRequestI : BatchRequest
 {
-    public BatchRequestI(BatchRequestQueue queue)
-    {
-        _queue = queue;
-    }
+    internal BatchRequestI(BatchRequestQueue queue) => _queue = queue;
 
-    public void reset(Ice.ObjectPrx proxy, string operation, int size)
+    internal void reset(ObjectPrx proxy, string operation, int size)
     {
         _proxy = proxy;
         _operation = operation;
         _size = size;
     }
 
-    public void enqueue()
-    {
-        _queue.enqueueBatchRequest(_proxy);
-    }
+    public void enqueue() => _queue.enqueueBatchRequest(_proxy);
 
-    public Ice.ObjectPrx getProxy()
-    {
-        return _proxy;
-    }
+    public ObjectPrx getProxy() => _proxy;
 
-    public string getOperation()
-    {
-        return _operation;
-    }
+    public string getOperation() => _operation;
 
-    public int getSize()
-    {
-        return _size;
-    }
+    public int getSize() => _size;
 
     private readonly BatchRequestQueue _queue;
-    private Ice.ObjectPrx _proxy;
+    private ObjectPrx _proxy;
     private string _operation;
     private int _size;
 }
 
-public sealed class BatchRequestQueue
+internal sealed class BatchRequestQueue
 {
-    public BatchRequestQueue(Instance instance, bool datagram)
+    internal BatchRequestQueue(Instance instance, bool datagram)
     {
-        Ice.InitializationData initData = instance.initializationData();
+        InitializationData initData = instance.initializationData();
         _interceptor = initData.batchRequestInterceptor;
         _batchStreamInUse = false;
         _batchRequestNum = 0;
-        _batchStream = new OutputStream(Ice.Util.currentProtocolEncoding, instance.defaultsAndOverrides().defaultFormat);
+        _batchStream =
+            new OutputStream(Ice.Util.currentProtocolEncoding, instance.defaultsAndOverrides().defaultFormat);
         _batchStream.writeBlob(Protocol.requestBatchHdr);
         _batchMarker = _batchStream.size();
         _request = new BatchRequestI(this);
@@ -70,8 +56,7 @@ public sealed class BatchRequestQueue
         }
     }
 
-    public void
-    prepareBatchRequest(Ice.OutputStream os)
+    internal void prepareBatchRequest(OutputStream os)
     {
         lock (_mutex)
         {
@@ -85,8 +70,7 @@ public sealed class BatchRequestQueue
         }
     }
 
-    public void
-    finishBatchRequest(Ice.OutputStream os, Ice.ObjectPrx proxy, string operation)
+    internal void finishBatchRequest(OutputStream os, ObjectPrx proxy, string operation)
     {
         //
         // No need for synchronization, no other threads are supposed
@@ -112,7 +96,7 @@ public sealed class BatchRequestQueue
             }
             else
             {
-                bool? compress = ((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride();
+                bool? compress = ((ObjectPrxHelperBase)proxy).iceReference().getCompressOverride();
                 if (compress is not null)
                 {
                     _batchCompress |= compress.Value;
@@ -133,8 +117,7 @@ public sealed class BatchRequestQueue
         }
     }
 
-    public void
-    abortBatchRequest(Ice.OutputStream os)
+    internal void abortBatchRequest(OutputStream os)
     {
         lock (_mutex)
         {
@@ -148,8 +131,7 @@ public sealed class BatchRequestQueue
         }
     }
 
-    public int
-    swap(Ice.OutputStream os, out bool compress)
+    internal int swap(OutputStream os, out bool compress)
     {
         lock (_mutex)
         {
@@ -190,8 +172,7 @@ public sealed class BatchRequestQueue
         }
     }
 
-    public void
-    destroy(Ice.LocalException ex)
+    internal void destroy(LocalException ex)
     {
         lock (_mutex)
         {
@@ -199,8 +180,7 @@ public sealed class BatchRequestQueue
         }
     }
 
-    public bool
-    isEmpty()
+    internal bool isEmpty()
     {
         lock (_mutex)
         {
@@ -208,8 +188,7 @@ public sealed class BatchRequestQueue
         }
     }
 
-    private void
-    waitStreamInUse(bool flush)
+    private void waitStreamInUse(bool flush)
     {
         //
         // This is similar to a mutex lock in that the stream is
@@ -223,10 +202,10 @@ public sealed class BatchRequestQueue
         }
     }
 
-    internal void enqueueBatchRequest(Ice.ObjectPrx proxy)
+    internal void enqueueBatchRequest(ObjectPrx proxy)
     {
         Debug.Assert(_batchMarker < _batchStream.size());
-        bool? compress = ((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride();
+        bool? compress = ((ObjectPrxHelperBase)proxy).iceReference().getCompressOverride();
         if (compress is not null)
         {
             _batchCompress |= compress.Value;
@@ -235,17 +214,17 @@ public sealed class BatchRequestQueue
         ++_batchRequestNum;
     }
 
-    private readonly object _mutex = new object();
+    private readonly object _mutex = new();
 
-    private readonly System.Action<Ice.BatchRequest, int, int> _interceptor;
-    private Ice.OutputStream _batchStream;
+    private readonly System.Action<BatchRequest, int, int> _interceptor;
+    private OutputStream _batchStream;
     private bool _batchStreamInUse;
     private bool _batchStreamCanFlush;
     private int _batchRequestNum;
     private int _batchMarker;
     private bool _batchCompress;
     private BatchRequestI _request;
-    private Ice.LocalException _exception;
+    private LocalException _exception;
     private readonly int _maxSize;
     private const int _udpOverhead = 20 + 8;
 }

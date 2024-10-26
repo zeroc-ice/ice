@@ -1469,7 +1469,7 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
         _useCount = 1;
     }
 
-    public void flushConnection(Ice.ConnectionI con, Ice.CompressBatch compressBatch)
+    internal void flushConnection(Ice.ConnectionI con, Ice.CompressBatch compressBatch)
     {
         lock (mutex_)
         {

@@ -30,7 +30,7 @@ ForwarderManager::destroy()
 
 void
 ForwarderManager::ice_invokeAsync(
-    Ice::ByteSeq inEncaps,
+    Ice::ByteSeq inParams,
     function<void(bool, const Ice::ByteSeq&)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
@@ -41,9 +41,9 @@ ForwarderManager::ice_invokeAsync(
         auto p = _forwarders.find(current.id.name);
         if (p == _forwarders.end())
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
         }
         forwarder = p->second;
     }
-    forwarder(std::move(inEncaps), std::move(response), std::move(exception), current);
+    forwarder(std::move(inParams), std::move(response), std::move(exception), current);
 }
