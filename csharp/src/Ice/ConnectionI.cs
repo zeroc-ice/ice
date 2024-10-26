@@ -364,10 +364,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public BatchRequestQueue getBatchRequestQueue()
-    {
-        return _batchRequestQueue;
-    }
+    internal BatchRequestQueue getBatchRequestQueue() => _batchRequestQueue;
 
     public void flushBatchRequests(CompressBatch compress)
     {
