@@ -29,10 +29,6 @@ namespace IceGrid
     class ServerI final : public Server, public std::enable_shared_from_this<ServerI>
     {
     public:
-#if defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-#endif
         enum InternalServerState
         {
             Loading,
@@ -55,9 +51,6 @@ namespace IceGrid
             Manual,
             Disabled
         };
-#if defined(__clang__)
-#    pragma clang diagnostic pop
-#endif
 
         ServerI(const std::shared_ptr<NodeI>&, std::optional<ServerPrx>, const std::string&, const std::string&, int);
 

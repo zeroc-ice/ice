@@ -126,7 +126,10 @@ public:
             }
 
             assert(session);
-            session->ice_ping();
+#include <Ice/PushDisableWarnings.h>
+            // keepAlive is deprecated.
+            session->keepAlive();
+#include <Ice/PopDisableWarnings.h>
 
             optional<ObjectPrx> object;
             switch (_rd() % (_destroySession ? 4 : 2))
