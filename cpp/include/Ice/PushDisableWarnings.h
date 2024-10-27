@@ -19,7 +19,7 @@
 #    pragma clang diagnostic ignored "-Wredundant-decls"               // expected when using forward Slice declarations
 #    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"   // expected in some generated header files
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"       // allow referencing deprecated Slice definitions
-#    pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync" // see #211
+#    pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync"
 
 #elif defined(__GNUC__)
 #    pragma GCC diagnostic push
