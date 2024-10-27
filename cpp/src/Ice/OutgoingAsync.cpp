@@ -573,7 +573,7 @@ ProxyOutgoingAsyncBase::handleRetryAfterException(std::exception_ptr ex)
     }
     catch (const Ice::LocalException& localEx)
     {
-        if (!_sent || _mode == OperationMode::Nonmutating || _mode == OperationMode::Idempotent ||
+        if (!_sent || _mode != OperationMode::Normal ||
             dynamic_cast<const CloseConnectionException*>(&localEx) ||
             dynamic_cast<const ObjectNotExistException*>(&localEx))
         {
