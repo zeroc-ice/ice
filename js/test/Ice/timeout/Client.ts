@@ -42,7 +42,7 @@ export class Client extends TestHelper {
         }
 
         {
-            var properties = communicator.getProperties().clone();
+            const properties = communicator.getProperties().clone();
             properties.setProperty("Ice.Connection.Client.ConnectTimeout", "-1");
             const [communicator2, _] = this.initialize(properties);
 

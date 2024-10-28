@@ -272,7 +272,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
         ++this._cnt;
         Debug.assert(this._cnt > 0);
 
-        var retryIntervals = instance._retryIntervals;
+        const retryIntervals = instance._retryIntervals;
 
         let interval = 0;
         if (this._cnt == retryIntervals.length + 1 && ex instanceof CloseConnectionException) {

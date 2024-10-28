@@ -1418,7 +1418,7 @@ export class ConnectionI {
             while (requestCount > 0) {
                 // adapter can be null here, however the adapter set in current can't be null, and we never pass
                 // a null current.adapter to the application code.
-                var request = new IncomingRequest(requestId, this, adapter, stream);
+                const request = new IncomingRequest(requestId, this, adapter, stream);
 
                 if (dispatcher !== null) {
                     // We don't and can't await the dispatchAsync: with batch requests, we want all the dispatches to

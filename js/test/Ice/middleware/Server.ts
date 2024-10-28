@@ -14,7 +14,7 @@ class Middleware extends Ice.Object {
             return this._next.dispatch(request);
         } else {
             this._inLog.push(this._name);
-            var response = await this._next.dispatch(request);
+            const response = await this._next.dispatch(request);
             this._outLog.push(this._name);
             return response;
         }
