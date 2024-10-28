@@ -201,7 +201,11 @@ namespace Slice
 
     inline std::ostream& operator<<(std::ostream &ostr, const Metadata &metadata)
     {
-        ostr << metadata._directive << ":" << metadata._arguments;
+        ostr << metadata._directive;
+        if (!metadata._arguments.empty())
+        {
+            ostr << ":" << metadata._arguments;
+        }
         return ostr;
     }
 

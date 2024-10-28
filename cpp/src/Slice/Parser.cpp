@@ -136,7 +136,7 @@ Slice::Metadata::parseRawMetadata(const string& rawMetadata)
     }
 
     // Otherwise, we check whether the colon is for a language prefix or for arguments and split the string accordingly.
-    size_t secondColonPos = rawMetadata.find(':', firstColonPos);
+    size_t secondColonPos = rawMetadata.find(':', firstColonPos + 1);
     size_t splitPos;
     if (secondColonPos == string::npos)
     {
@@ -148,7 +148,7 @@ Slice::Metadata::parseRawMetadata(const string& rawMetadata)
         if (isLanguage)
         {
             // If the piece before the colon was a language prefix, don't split up the string.
-            splitPos = rawMetadata.size();
+            return { rawMetadata, "" };
         }
         else
         {
@@ -163,7 +163,7 @@ Slice::Metadata::parseRawMetadata(const string& rawMetadata)
     }
 
     string directive = rawMetadata.substr(0, splitPos);
-    string arguments = rawMetadata.substr(splitPos);
+    string arguments = rawMetadata.substr(splitPos + 1);
     return { directive, arguments };
 }
 
@@ -296,7 +296,7 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 else
                 {
                     ostringstream os;
-                    os << "invalid category `" << s << "' in file metadata suppress-warning";
+                    os << "invalid category '" << s << "' in file metadata suppress-warning";
                     warning(InvalidMetadata, "", -1, os.str());
                 }
             }

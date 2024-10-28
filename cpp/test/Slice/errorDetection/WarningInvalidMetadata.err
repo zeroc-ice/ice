@@ -1,21 +1,21 @@
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:header-ext:hh': directive can appear only once per file
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:source-ext:cc': directive can appear only once per file
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:dll-export:Test': directive can appear only once per file
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:header-ext'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:header-ext:'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:source-ext'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:source-ext:'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:dll-export'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:dll-export:'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:include'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata `cpp:include:'
-WarningInvalidMetadata.ice:35: warning: ignoring invalid metadata `cpp:type:std::list<::std::string>' for operation with void return type
-WarningInvalidMetadata.ice:38: warning: ignoring invalid metadata `cpp:array' for operation with void return type
-WarningInvalidMetadata.ice:40: warning: ignoring invalid metadata `cpp:type:my_string'
-WarningInvalidMetadata.ice:42: warning: ignoring invalid metadata `cpp:view-type:my_string'
-WarningInvalidMetadata.ice:47: warning: ignoring invalid metadata `cpp:const'
-WarningInvalidMetadata.ice:47: warning: ignoring invalid metadata `cpp:ice_print'
-WarningInvalidMetadata.ice:53: warning: ignoring invalid metadata `cpp:virtual'
-WarningInvalidMetadata.ice:58: warning: ignoring invalid metadata `cpp:bad'
-WarningInvalidMetadata.ice:63: warning: ignoring invalid metadata `cpp98:foo'
-WarningInvalidMetadata.ice:63: warning: ignoring invalid metadata `cpp11:bar'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:header-ext:hh': directive can appear only once per file
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:source-ext:cc': directive can appear only once per file
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:dll-export:Test': directive can appear only once per file
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:header-ext'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:header-ext:'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:source-ext'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:source-ext:'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:dll-export'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:dll-export:'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:include'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:include:'
+WarningInvalidMetadata.ice:35: warning: ignoring invalid metadata 'cpp:type:std::list<::std::string>' for operation with void return type
+WarningInvalidMetadata.ice:38: warning: ignoring invalid metadata 'cpp:array' for operation with void return type
+WarningInvalidMetadata.ice:40: warning: ignoring invalid metadata 'cpp:type:my_string'
+WarningInvalidMetadata.ice:42: warning: ignoring invalid metadata 'cpp:view-type:my_string'
+WarningInvalidMetadata.ice:47: warning: ignoring invalid metadata 'cpp:const'
+WarningInvalidMetadata.ice:47: warning: ignoring invalid metadata 'cpp:ice_print'
+WarningInvalidMetadata.ice:53: warning: ignoring invalid metadata 'cpp:virtual'
+WarningInvalidMetadata.ice:58: warning: ignoring invalid metadata 'cpp:bad'
+WarningInvalidMetadata.ice:63: warning: ignoring invalid metadata 'cpp98:foo'
+WarningInvalidMetadata.ice:63: warning: ignoring invalid metadata 'cpp11:bar'

@@ -785,7 +785,7 @@ Slice::Gen::generate(const UnitPtr& p)
                 else
                 {
                     ostringstream ostr;
-                    ostr << "ignoring invalid file metadata `" << metadata << "'";
+                    ostr << "ignoring invalid file metadata '" << *metadata << "'";
                     dc->warning(InvalidMetadata, file, -1, ostr.str());
                     fileMetadata.remove(metadata);
                 }
@@ -799,7 +799,7 @@ Slice::Gen::generate(const UnitPtr& p)
                 else
                 {
                     ostringstream ostr;
-                    ostr << "ignoring invalid file metadata `" << metadata << "'";
+                    ostr << "ignoring invalid file metadata '" << *metadata << "'";
                     dc->warning(InvalidMetadata, file, -1, ostr.str());
                     fileMetadata.remove(metadata);
                 }
@@ -926,7 +926,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                 static const string cppHeaderExtPrefix = "cpp:header-ext";
                 static const string cppSourceExtPrefix = "cpp:source-ext";
                 static const string cppDllExportPrefix = "cpp:dll-export";
-                static const string cppDoxygenIncludePrefix = "cpp:doxygen:include";
+                static const string cppDoxygenIncludePrefix = "cpp:doxygen";
 
                 if (directive == cppNoDefaultInclude || directive == cppNoStream)
                 {
@@ -945,7 +945,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                     if (seenHeaderExtension)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid file metadata '" << s << "': directive can appear only once per file";
+                        ostr << "ignoring invalid file metadata '" << *s << "': directive can appear only once per file";
                         dc->warning(InvalidMetadata, file, -1, ostr.str());
                         fileMetadata.remove(s);
                     }
@@ -957,7 +957,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                     if (seenSourceExtension)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid file metadata '" << s << "': directive can appear only once per file";
+                        ostr << "ignoring invalid file metadata '" << *s << "': directive can appear only once per file";
                         dc->warning(InvalidMetadata, file, -1, ostr.str());
                         fileMetadata.remove(s);
                     }
@@ -969,20 +969,20 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                     if (seenDllExport)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid file metadata '" << s << "': directive can appear only once per file";
+                        ostr << "ignoring invalid file metadata '" << *s << "': directive can appear only once per file";
                         dc->warning(InvalidMetadata, file, -1, ostr.str());
                         fileMetadata.remove(s);
                     }
                     seenDllExport = true;
                     continue;
                 }
-                else if (directive == cppDoxygenIncludePrefix && !arguments.empty())
+                else if (directive == cppDoxygenIncludePrefix && arguments.find("include:") == 0)
                 {
                     continue;
                 }
 
                 ostringstream ostr;
-                ostr << "ignoring invalid file metadata '" << s << "'";
+                ostr << "ignoring invalid file metadata '" << *s << "'";
                 dc->warning(InvalidMetadata, file, -1, ostr.str());
                 fileMetadata.remove(s);
             }
@@ -1048,7 +1048,7 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
             if (directive == "cpp:type" || directive == "cpp:view-type" || directive == "cpp:array")
             {
                 ostringstream ostr;
-                ostr << "ignoring invalid metadata '" << s << "' for operation with void return type";
+                ostr << "ignoring invalid metadata '" << *s << "' for operation with void return type";
                 dc->warning(InvalidMetadata, p->file(), p->line(), ostr.str());
                 metadata.remove(s);
             }
@@ -1123,7 +1123,7 @@ Slice::Gen::MetadataVisitor::validate(
         if (directive.find("cpp11:") == 0 || directive.find("cpp98:") == 0)
         {
             ostringstream ostr;
-            ostr << "ignoring invalid metadata '" << meta << "'";
+            ostr << "ignoring invalid metadata '" << *meta << "'";
             dc->warning(InvalidMetadata, file, line, ostr.str());
             newMetadata.remove(meta);
             continue;
@@ -1183,7 +1183,7 @@ Slice::Gen::MetadataVisitor::validate(
         }
 
         ostringstream ostr;
-        ostr << "ignoring invalid metadata '" << meta << "'";
+        ostr << "ignoring invalid metadata '" << *meta << "'";
         dc->warning(InvalidMetadata, file, line, ostr.str());
         newMetadata.remove(meta);
     }

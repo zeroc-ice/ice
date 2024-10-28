@@ -101,7 +101,7 @@ namespace
                         else
                         {
                             ostringstream msg;
-                            msg << "ignoring invalid file metadata '" << metadata << "'";
+                            msg << "ignoring invalid file metadata '" << *metadata << "'";
                             dc->warning(InvalidMetadata, file, -1,  msg.str());
                             fileMetadata.remove(metadata);
                         }
@@ -173,7 +173,7 @@ namespace
                     if (m->directive() == "java:type")
                     {
                         ostringstream msg;
-                        msg << "ignoring invalid metadata '" << m << "' for operation with void return type";
+                        msg << "ignoring invalid metadata '" << *m << "' for operation with void return type";
                         dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                         metadata.remove(m);
                         continue;
@@ -226,7 +226,7 @@ namespace
                     if (!builtin || builtin->kind() != Builtin::KindByte)
                     {
                         ostringstream msg;
-                        msg << "ignoring invalid metadata '" << m << "': this metadata can only be used with a byte sequence";
+                        msg << "ignoring invalid metadata '" << *m << "': this metadata can only be used with a byte sequence";
                         dc->warning(InvalidMetadata, file, line, msg.str());
                         continue;
                     }
@@ -242,7 +242,7 @@ namespace
                                      builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
                     {
                         ostringstream msg;
-                        msg << "ignoring invalid metadata '" << m << "': this metadata can not be used with this type";
+                        msg << "ignoring invalid metadata '" << *m << "': this metadata can not be used with this type";
                         dc->warning(InvalidMetadata, file, line, msg.str());
                         continue;
                     }
@@ -352,7 +352,7 @@ namespace
                     }
 
                     ostringstream msg;
-                    msg << "ignoring invalid metadata '" << m << "'";
+                    msg << "ignoring invalid metadata '" << *m << "'";
                     dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                 }
                 else
@@ -392,7 +392,9 @@ namespace
                         assert(b);
                         str = b->typeId();
                     }
-                    dc->warning(InvalidMetadata, file, line, "invalid metadata for " + str);
+                    ostringstream msg;
+                    msg << "ignoring invalid metadata '" << *m << "' for " << str;
+                    dc->warning(InvalidMetadata, file, line, msg.str());
                 }
                 else if (directive == "java:buffer")
                 {
@@ -411,14 +413,14 @@ namespace
                     }
 
                     ostringstream msg;
-                    msg << "ignoring invalid metadata '" << m << "'";
+                    msg << "ignoring invalid metadata '" << *m << "'";
                     dc->warning(InvalidMetadata, file, line, msg.str());
                 }
                 else if (directive == "java:serializable")
                 {
                     // Only valid in sequence definition which is checked in visitSequence
                     ostringstream msg;
-                    msg << "ignoring invalid metadata '" << m << "'";
+                    msg << "ignoring invalid metadata '" << *m << "'";
                     dc->warning(InvalidMetadata, file, line, msg.str());
                 }
                 else if (directive == "java:implements")
@@ -430,7 +432,7 @@ namespace
                     else
                     {
                         ostringstream msg;
-                        msg << "ignoring invalid metadata '" << m << "'";
+                        msg << "ignoring invalid metadata '" << *m << "'";
                         dc->warning(InvalidMetadata, file, line, msg.str());
                     }
                 }
@@ -444,7 +446,7 @@ namespace
                     else
                     {
                         ostringstream msg;
-                        msg << "ignoring invalid metadata '" << m << "'";
+                        msg << "ignoring invalid metadata '" << *m << "'";
                         dc->warning(InvalidMetadata, file, line, msg.str());
                     }
                 }
