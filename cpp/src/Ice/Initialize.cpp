@@ -196,49 +196,9 @@ Ice::ThreadHookPlugin::destroy()
 {
 }
 
-namespace
-{
-    inline void checkIceVersion(int version)
-    {
-#ifndef ICE_IGNORE_VERSION
-
-#    if ICE_INT_VERSION % 100 > 50
-        //
-        // Beta version: exact match required
-        //
-        if (ICE_INT_VERSION != version)
-        {
-            throw InitializationException{
-                __FILE__,
-                __LINE__,
-                "version mismatch: runtime = " + to_string(ICE_INT_VERSION) +
-                    ", generated code = " + to_string(version)};
-        }
-#    else
-
-        if ((ICE_INT_VERSION / 100 != version / 100) || // Major and minor version numbers must match.
-            (version % 100 > 50) ||                     // Reject beta caller
-            // The caller's patch level cannot be greater than library's patch level.
-            (version % 100 > ICE_INT_VERSION % 100))
-
-        {
-            throw InitializationException{
-                __FILE__,
-                __LINE__,
-                "version mismatch: runtime = " + to_string(ICE_INT_VERSION) +
-                    ", generated code = " + to_string(version)};
-        }
-
-#    endif
-#endif
-    }
-}
-
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const char* argv[], const InitializationData& initializationData, int version)
+Ice::initialize(int& argc, const char* argv[], const InitializationData& initializationData)
 {
-    checkIceVersion(version);
-
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
 
@@ -248,60 +208,57 @@ Ice::initialize(int& argc, const char* argv[], const InitializationData& initial
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const char* argv[], const string& configFile, int version)
+Ice::initialize(int& argc, const char* argv[], const string& configFile)
 {
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(argc, argv, initData, version);
+    return initialize(argc, argv, initData);
 }
 
 #ifdef _WIN32
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const wchar_t* argv[], const InitializationData& initializationData, int version)
+Ice::initialize(int& argc, const wchar_t* argv[], const InitializationData& initializationData)
 {
     Ice::StringSeq args = argsToStringSeq(argc, argv);
-    CommunicatorPtr communicator = initialize(args, initializationData, version);
+    CommunicatorPtr communicator = initialize(args, initializationData);
     stringSeqToArgs(args, argc, argv);
     return communicator;
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const wchar_t* argv[], const string& configFile, int version)
+Ice::initialize(int& argc, const wchar_t* argv[], const string& configFile)
 {
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(argc, argv, initData, version);
+    return initialize(argc, argv, initData);
 }
 #endif
 
 Ice::CommunicatorPtr
-Ice::initialize(StringSeq& args, const InitializationData& initializationData, int version)
+Ice::initialize(StringSeq& args, const InitializationData& initializationData)
 {
     IceInternal::ArgVector av(args);
-    CommunicatorPtr communicator = initialize(av.argc, av.argv, initializationData, version);
+    CommunicatorPtr communicator = initialize(av.argc, av.argv, initializationData);
     args = argsToStringSeq(av.argc, av.argv);
     return communicator;
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(StringSeq& args, const string& configFile, int version)
+Ice::initialize(StringSeq& args, const string& configFile)
 {
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(args, initData, version);
+    return initialize(args, initData);
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(const InitializationData& initData, int version)
+Ice::initialize(const InitializationData& initData)
 {
-    //
     // We can't simply call the other initialize() because this one does NOT read
     // the config file, while the other one always does.
-    //
-    checkIceVersion(version);
 
     CommunicatorPtr communicator = Communicator::create(initData);
     int argc = 0;
@@ -311,12 +268,12 @@ Ice::initialize(const InitializationData& initData, int version)
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(const string& configFile, int version)
+Ice::initialize(const string& configFile)
 {
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(initData, version);
+    return initialize(initData);
 }
 
 LoggerPtr
