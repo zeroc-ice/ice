@@ -114,7 +114,7 @@ namespace DataStorm
             wchar_t* argv[],
             std::optional<std::string_view> configFile = std::nullopt,
             std::function<void(std::function<void()> call)> customExecutor = nullptr)
-            : Node(argc, const_cast<wchar_t**>(argv), configFile, customExecutor)
+            : Node(argc, const_cast<const wchar_t**>(argv), configFile, customExecutor)
         {
         }
 #endif
