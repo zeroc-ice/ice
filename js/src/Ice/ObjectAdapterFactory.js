@@ -27,10 +27,6 @@ export class ObjectAdapterFactory {
     }
 
     createObjectAdapter(name, router, promise) {
-        if (this._instance === null) {
-            throw new CommunicatorDestroyedException();
-        }
-
         let adapter = null;
         try {
             if (name.length === 0) {
@@ -57,10 +53,6 @@ export class ObjectAdapterFactory {
     }
 
     removeObjectAdapter(adapter) {
-        if (this._instance === null) {
-            return;
-        }
-
         let n = this._adapters.indexOf(adapter);
         if (n !== -1) {
             this._adapters.splice(n, 1);
