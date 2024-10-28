@@ -1488,22 +1488,12 @@ export class ConnectionI {
     }
 
     checkState() {
-        if (this._state < StateHolding || this._upcallCount > 0) {
-            return;
-        }
-
-        //
-        // We aren't finished until the state is finished and all
-        // outstanding requests are completed. Otherwise we couldn't
-        // guarantee that there are no outstanding calls when deactivate()
-        // is called on the servant locators.
-        //
-        if (this._state === StateFinished && this._finishedPromises.length > 0) {
-            //
-            // Clear the OA. See bug 1673 for the details of why this is necessary.
-            //
-            this._adapter = null;
-            this._finishedPromises.forEach(p => p.resolve());
+        // We aren't finished until the state is finished and all outstanding requests are completed. Otherwise we
+        // couldn't guarantee that there are no outstanding calls when deactivate() is called on the servant locators.
+        if (this._state === StateFinished && this._upcallCount === 0) {
+            for (const p of this._finishedPromises) {
+                p.resolve();
+            }
             this._finishedPromises = [];
         }
     }
