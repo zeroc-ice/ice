@@ -25,10 +25,10 @@ namespace IceInternal
     class ServantManager final : public Ice::Object
     {
     public:
-        ServantManager(const InstancePtr&, const std::string&);
+        ServantManager(InstancePtr, std::string);
         ~ServantManager();
-        void addServant(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
-        void addDefaultServant(const Ice::ObjectPtr&, const std::string&);
+        void addServant(Ice::ObjectPtr, Ice::Identity, std::string);
+        void addDefaultServant(Ice::ObjectPtr, std::string);
         Ice::ObjectPtr removeServant(const Ice::Identity&, const std::string&);
         Ice::ObjectPtr removeDefaultServant(const std::string&);
         Ice::FacetMap removeAllFacets(const Ice::Identity&);
@@ -37,7 +37,7 @@ namespace IceInternal
         Ice::FacetMap findAllFacets(const Ice::Identity&) const;
         bool hasServant(const Ice::Identity&) const;
 
-        void addServantLocator(const Ice::ServantLocatorPtr& locator, const std::string&);
+        void addServantLocator(Ice::ServantLocatorPtr locator, std::string);
         Ice::ServantLocatorPtr removeServantLocator(const std::string&);
         Ice::ServantLocatorPtr findServantLocator(const std::string&) const;
 

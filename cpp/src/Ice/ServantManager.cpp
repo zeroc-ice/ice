@@ -15,7 +15,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)
+IceInternal::ServantManager::addServant(ObjectPtr object, Identity ident, string facet)
 {
     lock_guard lock(_mutex);
 
@@ -30,7 +30,7 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
 
     if (p == _servantMapMap.end())
     {
-        p = _servantMapMap.insert(_servantMapMapHint, pair<const Identity, FacetMap>(ident, FacetMap()));
+        p = _servantMapMap.insert(_servantMapMapHint, pair<const Identity, FacetMap>(std::move(ident), FacetMap()));
     }
     else
     {
@@ -49,11 +49,11 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
 
     _servantMapMapHint = p;
 
-    p->second.insert(pair<const string, ObjectPtr>(facet, object));
+    p->second.insert(pair<const string, ObjectPtr>(std::move(facet), std::move(object)));
 }
 
 void
-IceInternal::ServantManager::addDefaultServant(const ObjectPtr& object, const string& category)
+IceInternal::ServantManager::addDefaultServant(ObjectPtr object, string category)
 {
     lock_guard lock(_mutex);
 
@@ -65,7 +65,7 @@ IceInternal::ServantManager::addDefaultServant(const ObjectPtr& object, const st
         throw AlreadyRegisteredException(__FILE__, __LINE__, "default servant", category);
     }
 
-    _defaultServantMap.insert(pair<const string, ObjectPtr>(category, object));
+    _defaultServantMap.insert(pair<const string, ObjectPtr>(std::move(category), std::move(object)));
 }
 
 ObjectPtr
@@ -305,7 +305,7 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
 }
 
 void
-IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator, const string& category)
+IceInternal::ServantManager::addServantLocator(ServantLocatorPtr locator, string category)
 {
     lock_guard lock(_mutex);
 
@@ -317,7 +317,9 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
         throw AlreadyRegisteredException(__FILE__, __LINE__, "servant locator", category);
     }
 
-    _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(category, locator));
+    _locatorMapHint = _locatorMap.insert(
+        _locatorMapHint,
+        pair<const string, ServantLocatorPtr>(std::move(category), std::move(locator)));
 }
 
 ServantLocatorPtr
@@ -392,9 +394,9 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
     }
 }
 
-IceInternal::ServantManager::ServantManager(const InstancePtr& instance, const string& adapterName)
-    : _instance(instance),
-      _adapterName(adapterName),
+IceInternal::ServantManager::ServantManager(InstancePtr instance, string adapterName)
+    : _instance(std::move(instance)),
+      _adapterName(std::move(adapterName)),
       _servantMapMapHint(_servantMapMap.end()),
       _locatorMapHint(_locatorMap.end())
 {
