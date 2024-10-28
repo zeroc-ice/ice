@@ -34,7 +34,9 @@ main(int argc, char* argv[])
         Ice::CtrlCHandler ctrlCHandler;
 
         // Initialize with a Properties object with the correct property prefix enabled.
-        Ice::InitializationData initData{.properties = make_shared<Ice::Properties>("IceBoxAdmin")};
+        Ice::InitializationData initData;
+        initData.properties = make_shared<Ice::Properties>("IceBoxAdmin");
+
         Ice::CommunicatorHolder ich{argc, argv, initData};
 
         communicator = ich.communicator();

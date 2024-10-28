@@ -240,5 +240,7 @@ main(int argc, char* argv[])
 {
     RegistryService svc;
     // Initialize the service with a Properties object with the correct property prefix enabled.
-    return svc.main(argc, argv, {.properties = make_shared<Properties>("IceGrid")});
+    Ice::InitializationData initData;
+    initData.properties = make_shared<Properties>("IceGrid");
+    return svc.main(argc, argv, initData);
 }

@@ -630,5 +630,7 @@ main(int argc, char* argv[])
 {
     BridgeService svc;
     // Initialize the service with a Properties object with the correct property prefix enabled.
-    return svc.main(argc, argv, {.properties = make_shared<Properties>("IceBridge")});
+    Ice::InitializationData initData;
+    initData.properties = make_shared<Properties>("IceBridge");
+    return svc.main(argc, argv, initData);
 }

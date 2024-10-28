@@ -29,7 +29,7 @@ namespace
             //
             // Split the entire property value into arguments. An entry point containing spaces
             // must be enclosed in quotes.
-            // p
+            //
             try
             {
                 args = IceInternal::Options::split(value);

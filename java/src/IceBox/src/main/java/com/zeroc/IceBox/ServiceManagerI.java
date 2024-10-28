@@ -523,7 +523,7 @@ public class ServiceManagerI implements ServiceManager {
                     } catch (IllegalAccessException ex) {
                         throw new FailureException(
                                 "ServiceManager: unable to access default service constructor in"
-                                    + " class "
+                                        + " class "
                                         + className,
                                 ex);
                     }

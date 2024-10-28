@@ -23,7 +23,10 @@ namespace
             properties->load(*configFile);
         }
 
-        return Ice::initialize(argc, argv, {.properties = properties});
+        Ice::InitializationData initData;
+        initData.properties = properties;
+
+        return Ice::initialize(argc, argv, initData);
     }
 
 #ifdef _WIN32
@@ -36,7 +39,10 @@ namespace
             properties->load(*configFile);
         }
 
-        return Ice::initialize(argc, argv, {.properties = properties});
+        Ice::InitializationData initData;
+        initData.properties = properties;
+
+        return Ice::initialize(argc, argv, initData);
     }
 #endif
 
@@ -49,7 +55,10 @@ namespace
             properties->load(*configFile);
         }
 
-        return Ice::initialize({.properties = properties});
+        Ice::InitializationData initData;
+        initData.properties = properties;
+
+        return Ice::initialize(initData);
     }
 }
 
