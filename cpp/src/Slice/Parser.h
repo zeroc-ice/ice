@@ -9,6 +9,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <set>
 #include <stack>
 #include <stdio.h>
@@ -178,7 +179,7 @@ namespace Slice
     class Metadata final : public virtual GrammarBase
     {
     public:
-        Metadata(const std::string& rawMetadata, const UnitPtr& unit);
+        Metadata(const std::string& rawMetadata, const std::string& file, int line);
         std::string_view directive() const;
         std::string_view arguments() const;
 
@@ -577,7 +578,7 @@ namespace Slice
         DataMemberList classDataMembers() const;
         DataMemberList allClassDataMembers() const;
         bool canBeCyclic() const;
-        bool inheritsMetadata(string_view directive) const;
+        bool inheritsMetadata(std::string_view directive) const;
         bool hasBaseDataMembers() const;
         void visit(ParserVisitor* visitor) final;
         int compactId() const;
@@ -711,7 +712,7 @@ namespace Slice
         OperationList operations() const;
         OperationList allOperations() const;
         bool hasOperations() const;
-        bool inheritsMetadata(string_view directive) const;
+        bool inheritsMetadata(std::string_view directive) const;
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
@@ -752,7 +753,7 @@ namespace Slice
         ExceptionList allBases() const;
         bool isBaseOf(const ExceptionPtr& otherException) const;
         bool usesClasses() const;
-        bool inheritsMetadata(string_view metadata) const;
+        bool inheritsMetadata(std::string_view metadata) const;
         bool hasBaseDataMembers() const;
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;

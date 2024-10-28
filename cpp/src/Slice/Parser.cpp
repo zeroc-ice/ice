@@ -94,11 +94,11 @@ namespace Slice
 // ----------------------------------------------------------------------
 // Metadata
 // ----------------------------------------------------------------------
-Slice::Metadata::Metadata(const string& rawMetadata, const UnitPtr& unit) : GrammarBase()
+Slice::Metadata::Metadata(const string& rawMetadata, const string& file, int line) : GrammarBase()
 {
     std::tie(_directive, _arguments) = parseRawMetadata(rawMetadata);
-    _file = unit->currentFile();
-    _line = unit->currentLine();
+    _file = file;
+    _line = line;
 }
 
 string_view
@@ -143,7 +143,7 @@ Slice::Metadata::parseRawMetadata(const string& rawMetadata)
         // If the metadata contains only 1 colon, we need to check if it's for a language prefix, or for arguments.
         // NOTE: It is important that this list is kept in alphabetical order!
         static const string languages[] = { "cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift" };
-        string_view prefix = rawMetadata.substr(0, firstColonPos);
+        string prefix = rawMetadata.substr(0, firstColonPos);
         bool isLanguage = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
         if (isLanguage)
         {
@@ -4581,7 +4581,7 @@ Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
     MetadataList defaultMetadata;
     for (const auto& metadataString : defaultFileMetadata)
     {
-        defaultMetadata.push_back(make_shared<Metadata>(metadataString));
+        defaultMetadata.push_back(make_shared<Metadata>(metadataString, "<command-line>", 0));
     }
 
     UnitPtr unit{new Unit{all, defaultMetadata}};

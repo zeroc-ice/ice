@@ -25,6 +25,12 @@ namespace Slice
         std::string literal;
     };
 
+    struct MetadataListTok final : public GrammarBase
+    {
+        MetadataListTok() {}
+        MetadataList v;
+    };
+
     struct TypeStringTok final : public GrammarBase
     {
         TypeStringTok(TypePtr type, std::string name) : type(type), name(name) {}
