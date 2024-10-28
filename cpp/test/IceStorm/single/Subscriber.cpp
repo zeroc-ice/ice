@@ -106,7 +106,7 @@ public:
 void
 Subscriber::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, make_shared<Ice::Properties>("IceStormAdmin"));
     auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if (managerProxy.empty())

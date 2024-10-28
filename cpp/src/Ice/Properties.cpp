@@ -89,6 +89,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
     {
         lock_guard lock(defaults->_mutex);
         _properties = defaults->_properties;
+        _servicePrefix = defaults->_servicePrefix;
     }
 
     StringSeq::iterator q = args.begin();
@@ -319,9 +320,12 @@ Ice::Properties::setProperty(string_view key, string_view value)
     // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
     if (auto propertyArray = findIcePropertyArray(key))
     {
-        if (!propertyArray->enabled)
+        if (propertyArray->isServicePrefix &&
+            (_servicePrefix != propertyArray->name && propertyArray->name != string{"IceStorm"}))
         {
-            throw PropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
+            ostringstream os;
+            os << "unable to set '" << key << "': property prefix '" << propertyArray->name << "' is reserved.";
+            throw PropertyException{__FILE__, __LINE__, os.str()};
         }
         string propertyPrefix{propertyArray->name};
         auto prop = IceInternal::findProperty(key.substr(propertyPrefix.length() + 1), propertyArray);

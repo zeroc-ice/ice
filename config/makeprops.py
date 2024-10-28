@@ -35,10 +35,12 @@ commonPreamble = """\
 
 
 class PropertyArray:
-    def __init__(self, name: str, prefixOnly: bool, isClass: bool, enabled: bool):
+    def __init__(
+        self, name: str, prefixOnly: bool, isClass: bool, isServicePrefix: bool
+    ):
         self.name = name
         self.prefixOnly = prefixOnly
-        self.enabled = False
+        self.isServicePrefix = isServicePrefix
         self.isClass = isClass
         self.properties = []
 
@@ -183,7 +185,6 @@ class PropertyHandler(ContentHandler):
             case "class":
                 name = f"{attrs.get("name")}"
                 prefixOnly = attrs.get("prefix-only", "false").lower() == "true"
-                enabled = attrs.get("enabled", "true").lower() == "true"
 
                 self.validateKnownAttributes(["name", "prefix-only"], attrs)
                 self.parentNodeName = name
@@ -191,19 +192,19 @@ class PropertyHandler(ContentHandler):
                     name=name,
                     prefixOnly=prefixOnly,
                     isClass=True,
-                    enabled=enabled,
+                    isServicePrefix=False,
                 )
             case "section":
-                enabled = attrs.get("enabled", "true").lower() == "true"
+                isServicePrefix = attrs.get("service-prefix", "false").lower() == "true"
                 name = attrs.get("name")
 
-                self.validateKnownAttributes(["name", "enabled"], attrs)
+                self.validateKnownAttributes(["name", "service-prefix"], attrs)
                 self.parentNodeName = name
                 self.propertyArrayDict[self.parentNodeName] = PropertyArray(
                     name=name,
                     prefixOnly=False,
                     isClass=False,
-                    enabled=enabled,
+                    isServicePrefix=isServicePrefix,
                 )
 
             case "property":
@@ -276,7 +277,7 @@ namespace IceInternal
         const bool prefixOnly;
         const Property* properties;
         const int length;
-        const bool enabled;
+        const bool isServicePrefix;
     }};
 
     class PropertyNames
@@ -318,7 +319,7 @@ const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> PropertyN
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
-        enabled = "true" if propertyArray.enabled else "false"
+        isServicePrefix = "true" if propertyArray.isServicePrefix else "false"
         self.hFile.write(f"        static const PropertyArray {name}Props;\n")
 
         self.cppFile.write(f"""\
@@ -333,7 +334,7 @@ const PropertyArray PropertyNames::{name}Props
     .prefixOnly={prefixOnly},
     .properties={name}PropsData,
     .length={len(propertyArray.properties)},
-    .enabled={enabled}
+    .isServicePrefix={isServicePrefix}
 }};
 
 """)

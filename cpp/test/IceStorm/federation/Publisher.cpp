@@ -21,7 +21,7 @@ public:
 void
 Publisher::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, make_shared<Ice::Properties>("IceStormAdmin"));
     Ice::CommunicatorPtr communicator = ich.communicator();
     string managerProxy = communicator->getProperties()->getProperty("IceStormAdmin.TopicManager.Default");
     if (managerProxy.empty())

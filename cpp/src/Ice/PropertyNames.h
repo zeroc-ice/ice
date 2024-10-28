@@ -31,7 +31,7 @@ namespace IceInternal
         const bool prefixOnly;
         const Property* properties;
         const int length;
-        const bool enabled;
+        const bool isServicePrefix;
     };
 
     class PropertyNames
@@ -43,6 +43,7 @@ namespace IceInternal
         static const PropertyArray ObjectAdapterProps;
         static const PropertyArray LMDBProps;
         static const PropertyArray IceProps;
+        static const PropertyArray IceMXProps;
         static const PropertyArray IceDiscoveryProps;
         static const PropertyArray IceLocatorDiscoveryProps;
         static const PropertyArray IceBoxProps;
@@ -57,7 +58,7 @@ namespace IceInternal
         static const PropertyArray Glacier2Props;
         static const PropertyArray DataStormProps;
 
-        static const std::array<PropertyArray, 14> validProps;
+        static const std::array<PropertyArray, 15> validProps;
     };
 }
 

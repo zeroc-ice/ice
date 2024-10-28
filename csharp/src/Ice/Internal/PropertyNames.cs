@@ -155,6 +155,18 @@ internal sealed class PropertyNames
             new(pattern: @"CacheMessageBuffers", usesRegex: false, defaultValue: "2", deprecated: false, propertyArray: null)
         ]);
 
+    internal static PropertyArray IceMXProps = new(
+        "IceMX",
+        false,
+        [
+            new(pattern: @"^Metrics\.[^\s]+\.GroupBy$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"^Metrics\.[^\s]+\.Map$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"^Metrics\.[^\s]+\.RetainDetached$", usesRegex: true, defaultValue: "10", deprecated: false, propertyArray: null),
+            new(pattern: @"^Metrics\.[^\s]+\.Accept$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"^Metrics\.[^\s]+\.Reject$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"^Metrics\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null)
+        ]);
+
     internal static PropertyArray IceDiscoveryProps = new(
         "IceDiscovery",
         false,
@@ -271,6 +283,7 @@ internal sealed class PropertyNames
     internal static PropertyArray[] validProps =
     [
         IceProps,
+        IceMXProps,
         IceDiscoveryProps,
         IceLocatorDiscoveryProps,
         IceBoxProps,

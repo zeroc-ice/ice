@@ -65,7 +65,7 @@
         <property name="Reject.[any]" languages="cpp,csharp,java" />
     </class> -->
 
-    <section name="Ice" enabled="true">
+    <section name="Ice" service-prefix="false">
         <property name="AcceptClassCycles" languages="cpp,csharp,java" default="0" />
         <property name="Admin" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="Admin.DelayCreation" languages="cpp,csharp,java" default="0" />
@@ -160,16 +160,16 @@
         <property name="ThreadInterruptSafe" languages="java" />
     </section>
 
-    <!-- <section name="IceMX" enabled="true">
+    <section name="IceMX" service-prefix="false">
         <property name="Metrics.[any].GroupBy" languages="cpp,csharp,java" />
         <property name="Metrics.[any].Map" languages="cpp,csharp,java" />
         <property name="Metrics.[any].RetainDetached" default="10" languages="cpp,csharp,java" />
         <property name="Metrics.[any].Accept" languages="cpp,csharp,java" />
         <property name="Metrics.[any].Reject" languages="cpp,csharp,java" />
         <property name="Metrics.[any]" languages="cpp,csharp,java" />
-    </section> -->
+    </section>
 
-    <section name="IceDiscovery" enabled="true">
+    <section name="IceDiscovery" service-prefix="false">
         <property name="Multicast" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="Reply" class="ObjectAdapter" languages="cpp,csharp,java"/>
         <property name="Locator" class="ObjectAdapter" languages="cpp,csharp,java" />
@@ -184,7 +184,7 @@
         <property name="DomainId" languages="cpp,csharp,java" default=""/>
     </section>
 
-    <section name="IceLocatorDiscovery" enabled="true">
+    <section name="IceLocatorDiscovery" service-prefix="false">
         <property name="Reply" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="Locator" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="Lookup" languages="cpp,csharp,java"/>
@@ -198,7 +198,7 @@
         <property name="Trace.Lookup" languages="cpp,csharp,java" default="0" />
     </section>
 
-    <section name="IceBox" enabled="false">
+    <section name="IceBox" service-prefix="true">
         <property name="InheritProperties" languages="cpp,csharp,java" />
         <property name="LoadOrder" languages="cpp,csharp,java" />
         <property name="PrintServicesReady" languages="cpp,csharp,java" />
@@ -207,17 +207,17 @@
         <property name="UseSharedCommunicator.[any]" languages="cpp,csharp,java" />
     </section>
 
-    <section name="IceBoxAdmin" enabled="false">
+    <section name="IceBoxAdmin" service-prefix="true">
         <property name="ServiceManager.Proxy" class="Proxy" languages="cpp,java" />
     </section>
 
-    <section name="IceBridge" enabled="false">
+    <section name="IceBridge" service-prefix="true">
         <property name="Source" class="ObjectAdapter" languages="cpp" />
         <property name="Target.Endpoints" languages="cpp" />
         <property name="InstanceName" default="IceBridge" languages="cpp" />
     </section>
 
-    <section name="IceGridAdmin" enabled="false">
+    <section name="IceGridAdmin" service-prefix="true">
         <property name="AuthenticateUsingSSL" languages="cpp" />
         <property name="MetricsConfig" languages="java" />
         <property name="Username" languages="cpp" />
@@ -236,7 +236,7 @@
         <property name="Trace.SaveToRegistry" languages="java" />
     </section>
 
-    <section name="IceGrid" enabled="false">
+    <section name="IceGrid" service-prefix="true">
         <property name="AdminRouter" class="ObjectAdapter" languages="cpp" />
         <property name="InstanceName" languages="cpp" default="IceGrid" />
         <property name="Node" class="ObjectAdapter" languages="cpp" />
@@ -301,7 +301,7 @@
         <property name="Registry.UserAccounts" languages="cpp" />
     </section>
 
-    <section name="IceSSL" enabled="true">
+    <section name="IceSSL" service-prefix="false">
         <property name="Alias" languages="java" />
         <property name="CAs" languages="cpp,csharp"/>
         <property name="CertStore" languages="cpp,csharp" default="My" />
@@ -333,7 +333,7 @@
         <property name="VerifyPeer" languages="cpp,csharp,java" default="2" />
     </section>
 
-    <section name="IceStorm" enabled="false">
+    <section name="IceStorm" service-prefix="true">
         <property name="Discard.Interval" languages="cpp" default="60" />
         <property name="Election.ElectionTimeout" languages="cpp" default="10" />
         <property name="Election.MasterTimeout" languages="cpp" default="10" />
@@ -360,18 +360,18 @@
         <property name="Transient" languages="cpp" default="0" />
     </section>
 
-    <section name="IceStormAdmin" enabled="false">
+    <section name="IceStormAdmin" service-prefix="true">
         <property name="TopicManager.[any]" languages="cpp" />
         <property name="Host" languages="cpp" />
         <property name="Port" languages="cpp" />
     </section>
 
-    <section name="IceBT" enabled="true">
+    <section name="IceBT" service-prefix="false">
         <property name="RcvSize" languages="cpp,java" />
         <property name="SndSize" languages="cpp,java" />
     </section>
 
-    <section name="Glacier2" enabled="false">
+    <section name="Glacier2" service-prefix="true">
         <property name="AddConnectionContext" languages="cpp" default="0" />
         <property name="Client" languages="cpp" class="ObjectAdapter"/>
         <property name="Client.ForwardContext" languages="cpp" default="0" />
@@ -398,7 +398,7 @@
         <property name="Trace.Session" languages="cpp" default="0" />
     </section>
 
-    <section name="DataStorm" enabled="false">
+    <section name="DataStorm" service-prefix="true">
         <property name="Node.ConnectTo" languages="cpp" />
         <property name="Node.Multicast" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Multicast.Enabled" default="1" languages="cpp" />

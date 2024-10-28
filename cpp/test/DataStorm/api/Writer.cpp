@@ -24,10 +24,11 @@ main(int argc, char* argv[])
         nm2.getCommunicator();
         nm2.getSessionConnection("s");
 
-        Node n2(Ice::initialize());
+        // Communicators shared with DataStorm must have a property set that can use the "DataStorm" service prefix.
+        Node n2(Ice::initialize({.properties = make_shared<Ice::Properties>("DataStorm")}));
         n2.getCommunicator()->destroy();
 
-        auto c = Ice::initialize();
+        auto c = Ice::initialize({.properties = make_shared<Ice::Properties>("DataStorm")});
         {
             Node n22(c);
         }
@@ -45,7 +46,7 @@ main(int argc, char* argv[])
         }
         c->destroy();
 
-        Node n3(Ice::InitializationData{});
+        Node n3;
 
         try
         {
@@ -55,7 +56,7 @@ main(int argc, char* argv[])
         {
         }
 
-        Node n5(argc, argv, Ice::InitializationData{});
+        Node n5(argc, argv);
 
         {
             Node n6;

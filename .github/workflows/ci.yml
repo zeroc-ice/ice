@@ -118,8 +118,9 @@ jobs:
           if-no-files-found: ignore
         if: always()
 
-      # - name: Test Summary
-      #   uses: test-summary/action@v2
-      #   with:
-      #     paths: "${{ matrix.working_directory || '.' }}/test-report.xml"
-      #   if: always()
+      - name: Upload macOS crash diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-diagnostics-${{ matrix.config }}-${{ matrix.os }}
+          path: ~/Library/Logs/DiagnosticReports/*.ips
+        if: runner.os == 'macOS' && always()

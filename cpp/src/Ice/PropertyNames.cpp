@@ -28,7 +28,7 @@ const PropertyArray PropertyNames::ProxyProps
     .prefixOnly=false,
     .properties=ProxyPropsData,
     .length=9,
-    .enabled=false
+    .isServicePrefix=false
 };
 
 const Property ConnectionPropsData[] =
@@ -47,7 +47,7 @@ const PropertyArray PropertyNames::ConnectionProps
     .prefixOnly=true,
     .properties=ConnectionPropsData,
     .length=6,
-    .enabled=false
+    .isServicePrefix=false
 };
 
 const Property ThreadPoolPropsData[] =
@@ -65,7 +65,7 @@ const PropertyArray PropertyNames::ThreadPoolProps
     .prefixOnly=true,
     .properties=ThreadPoolPropsData,
     .length=5,
-    .enabled=false
+    .isServicePrefix=false
 };
 
 const Property ObjectAdapterPropsData[] =
@@ -90,7 +90,7 @@ const PropertyArray PropertyNames::ObjectAdapterProps
     .prefixOnly=true,
     .properties=ObjectAdapterPropsData,
     .length=12,
-    .enabled=false
+    .isServicePrefix=false
 };
 
 const Property LMDBPropsData[] =
@@ -105,7 +105,7 @@ const PropertyArray PropertyNames::LMDBProps
     .prefixOnly=true,
     .properties=LMDBPropsData,
     .length=2,
-    .enabled=false
+    .isServicePrefix=false
 };
 
 const Property IcePropsData[] =
@@ -201,7 +201,26 @@ const PropertyArray PropertyNames::IceProps
     .prefixOnly=false,
     .properties=IcePropsData,
     .length=83,
-    .enabled=false
+    .isServicePrefix=false
+};
+
+const Property IceMXPropsData[] =
+{
+    Property{"Metrics.*.GroupBy", "", true, false, nullptr},
+    Property{"Metrics.*.Map", "", true, false, nullptr},
+    Property{"Metrics.*.RetainDetached", "10", true, false, nullptr},
+    Property{"Metrics.*.Accept", "", true, false, nullptr},
+    Property{"Metrics.*.Reject", "", true, false, nullptr},
+    Property{"Metrics.*", "", true, false, nullptr}
+};
+
+const PropertyArray PropertyNames::IceMXProps
+{
+    .name="IceMX",
+    .prefixOnly=false,
+    .properties=IceMXPropsData,
+    .length=6,
+    .isServicePrefix=false
 };
 
 const Property IceDiscoveryPropsData[] =
@@ -225,7 +244,7 @@ const PropertyArray PropertyNames::IceDiscoveryProps
     .prefixOnly=false,
     .properties=IceDiscoveryPropsData,
     .length=11,
-    .enabled=false
+    .isServicePrefix=false
 };
 
 const Property IceLocatorDiscoveryPropsData[] =
@@ -249,7 +268,7 @@ const PropertyArray PropertyNames::IceLocatorDiscoveryProps
     .prefixOnly=false,
     .properties=IceLocatorDiscoveryPropsData,
     .length=11,
-    .enabled=false
+    .isServicePrefix=false
 };
 
 const Property IceBoxPropsData[] =
@@ -268,7 +287,7 @@ const PropertyArray PropertyNames::IceBoxProps
     .prefixOnly=false,
     .properties=IceBoxPropsData,
     .length=6,
-    .enabled=false
+    .isServicePrefix=true
 };
 
 const Property IceBoxAdminPropsData[] =
@@ -282,7 +301,7 @@ const PropertyArray PropertyNames::IceBoxAdminProps
     .prefixOnly=false,
     .properties=IceBoxAdminPropsData,
     .length=1,
-    .enabled=false
+    .isServicePrefix=true
 };
 
 const Property IceBridgePropsData[] =
@@ -298,7 +317,7 @@ const PropertyArray PropertyNames::IceBridgeProps
     .prefixOnly=false,
     .properties=IceBridgePropsData,
     .length=3,
-    .enabled=false
+    .isServicePrefix=true
 };
 
 const Property IceGridAdminPropsData[] =
@@ -324,7 +343,7 @@ const PropertyArray PropertyNames::IceGridAdminProps
     .prefixOnly=false,
     .properties=IceGridAdminPropsData,
     .length=13,
-    .enabled=false
+    .isServicePrefix=true
 };
 
 const Property IceGridPropsData[] =
@@ -399,7 +418,7 @@ const PropertyArray PropertyNames::IceGridProps
     .prefixOnly=false,
     .properties=IceGridPropsData,
     .length=62,
-    .enabled=false
+    .isServicePrefix=true
 };
 
 const Property IceSSLPropsData[] =
@@ -433,7 +452,7 @@ const PropertyArray PropertyNames::IceSSLProps
     .prefixOnly=false,
     .properties=IceSSLPropsData,
     .length=21,
-    .enabled=false
+    .isServicePrefix=false
 };
 
 const Property IceStormPropsData[] =
@@ -470,7 +489,7 @@ const PropertyArray PropertyNames::IceStormProps
     .prefixOnly=false,
     .properties=IceStormPropsData,
     .length=24,
-    .enabled=false
+    .isServicePrefix=true
 };
 
 const Property IceStormAdminPropsData[] =
@@ -486,7 +505,7 @@ const PropertyArray PropertyNames::IceStormAdminProps
     .prefixOnly=false,
     .properties=IceStormAdminPropsData,
     .length=3,
-    .enabled=false
+    .isServicePrefix=true
 };
 
 const Property IceBTPropsData[] =
@@ -501,7 +520,7 @@ const PropertyArray PropertyNames::IceBTProps
     .prefixOnly=false,
     .properties=IceBTPropsData,
     .length=2,
-    .enabled=false
+    .isServicePrefix=false
 };
 
 const Property Glacier2PropsData[] =
@@ -538,7 +557,7 @@ const PropertyArray PropertyNames::Glacier2Props
     .prefixOnly=false,
     .properties=Glacier2PropsData,
     .length=24,
-    .enabled=false
+    .isServicePrefix=true
 };
 
 const Property DataStormPropsData[] =
@@ -563,12 +582,13 @@ const PropertyArray PropertyNames::DataStormProps
     .prefixOnly=false,
     .properties=DataStormPropsData,
     .length=12,
-    .enabled=false
+    .isServicePrefix=true
 };
 
-const std::array<PropertyArray, 14> PropertyNames::validProps =
+const std::array<PropertyArray, 15> PropertyNames::validProps =
 {
     IceProps,
+    IceMXProps,
     IceDiscoveryProps,
     IceLocatorDiscoveryProps,
     IceBoxProps,

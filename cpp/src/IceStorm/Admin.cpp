@@ -36,16 +36,15 @@ main(int argc, char* argv[])
         Ice::CtrlCHandler ctrlCHandler;
 
         Ice::InitializationData id;
-        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-        id.properties = Ice::createProperties(args);
+        id.properties = make_shared<Ice::Properties>("IceStormAdmin");
         id.properties->setProperty("Ice.Warn.Endpoints", "0");
 
-        Ice::CommunicatorHolder ich(id);
+        Ice::CommunicatorHolder ich(argc, argv, id);
         auto communicator = ich.communicator();
 
         ctrlCHandler.setCallback([communicator](int) { communicator->destroy(); });
 
-        status = run(communicator, args);
+        status = run(communicator, Ice::argsToStringSeq(argc, argv));
     }
     catch (const std::exception& ex)
     {

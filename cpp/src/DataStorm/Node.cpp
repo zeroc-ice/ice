@@ -11,20 +11,89 @@
 using namespace std;
 using namespace DataStorm;
 
+namespace
+{
+
+    Ice::CommunicatorPtr argsToCommunicator(int& argc, const char* argv[], optional<string_view> configFile)
+    {
+        Ice::PropertiesPtr properties = make_shared<Ice::Properties>("DataStorm");
+
+        if (configFile)
+        {
+            properties->load(*configFile);
+        }
+
+        return Ice::initialize(argc, argv, {.properties = properties});
+    }
+
+#ifdef _WIN32
+    Ice::CommunicatorPtr argsToCommunicator(int& argc, const wchar_t* argv[], optional<string_view> configFile)
+    {
+        Ice::PropertiesPtr properties = make_shared<Ice::Properties>("DataStorm");
+
+        if (configFile)
+        {
+            properties->load(*configFile);
+        }
+
+        return Ice::initialize(argc, argv, {.properties = properties});
+    }
+#endif
+
+    Ice::CommunicatorPtr configToCommunicator(optional<string_view> configFile)
+    {
+        Ice::PropertiesPtr properties = make_shared<Ice::Properties>("DataStorm");
+
+        if (configFile)
+        {
+            properties->load(*configFile);
+        }
+
+        return Ice::initialize({.properties = properties});
+    }
+}
+
 const char*
 NodeShutdownException::what() const noexcept
 {
     return "::DataStorm::NodeShutdownException";
 }
 
-Node::Node(Ice::CommunicatorPtr communicator, function<void(function<void()> call)> callbackExecutor)
-    : _ownsCommunicator(false)
+Node::Node(
+    int& argc,
+    const char* argv[],
+    optional<string_view> configFile,
+    function<void(function<void()> call)> customExecutor)
+    : Node(argsToCommunicator(argc, argv, configFile), std::move(customExecutor), true)
 {
-    init(communicator, std::move(callbackExecutor));
 }
 
-void
-Node::init(const Ice::CommunicatorPtr& communicator, std::function<void(std::function<void()> call)> callbackExecutor)
+#ifdef _WIN32
+Node::Node(
+    int& argc,
+    const wchar_t* argv[],
+    optional<string_view> configFile,
+    function<void(function<void()> call)> customExecutor)
+    : Node(argsToCommunicator(argc, argv, configFile), std::move(customExecutor), true)
+{
+}
+#endif
+
+Node::Node(optional<string_view> configFile, function<void(function<void()> call)> customExecutor)
+    : Node(configToCommunicator(configFile), std::move(customExecutor), true)
+{
+}
+
+Node::Node(Ice::CommunicatorPtr communicator, function<void(function<void()> call)> callbackExecutor)
+    : Node(std::move(communicator), std::move(callbackExecutor), false)
+{
+}
+
+Node::Node(
+    const Ice::CommunicatorPtr& communicator,
+    std::function<void(std::function<void()> call)> callbackExecutor,
+    bool ownsCommunicator)
+    : _ownsCommunicator(ownsCommunicator)
 {
     try
     {

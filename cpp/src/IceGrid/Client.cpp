@@ -79,7 +79,8 @@ main(int argc, char* argv[])
     try
     {
         Ice::CtrlCHandler ctrlCHandler;
-        auto defaultProps = Ice::createProperties();
+        // Initialize IceGrid properties with a Properties object with the correct property prefix enabled.
+        auto defaultProps = make_shared<Ice::Properties>("IceGridAdmin");
         defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h localhost");
         Ice::InitializationData id;
         id.properties = createProperties(args, defaultProps);

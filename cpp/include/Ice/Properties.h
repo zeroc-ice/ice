@@ -35,6 +35,12 @@ namespace Ice
         Properties() = default;
 
         /**
+         * Constructs an empty property set with the given property service prefix.
+         * @param servicePrefix The property set to copy.
+         */
+        explicit Properties(std::string_view servicePrefix) : _servicePrefix(servicePrefix) {}
+
+        /**
          * Copy constructor.
          * @param source The property set to copy.
          */
@@ -213,6 +219,8 @@ namespace Ice
         static std::optional<std::pair<std::string, std::string>>
         parseLine(std::string_view, const StringConverterPtr&);
 
+        void loadArgs(StringSeq&);
+
         void loadConfig();
 
         struct PropertyValue
@@ -225,6 +233,8 @@ namespace Ice
             bool used;
         };
         std::map<std::string, PropertyValue, std::less<>> _properties;
+        // The service prefix is used to allow Ice services to set service specific prefixed properties.
+        std::optional<std::string> _servicePrefix;
         mutable std::mutex _mutex;
     };
 }

@@ -813,5 +813,6 @@ main(int argc, char* argv[])
 #endif
 {
     NodeService svc;
-    return svc.main(argc, argv);
+    // Initialize the service with a Properties object with the correct property prefix enabled.
+    return svc.main(argc, argv, {.properties = make_shared<Properties>("IceGrid")});
 }

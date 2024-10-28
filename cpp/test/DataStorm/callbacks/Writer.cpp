@@ -19,7 +19,7 @@ main(int argc, char* argv[])
             callbackExecutor = [](function<void()> cb) { cb(); };
         }
     }
-    Node node(callbackExecutor, argc, argv);
+    Node node(argc, argv, nullopt, callbackExecutor);
 
     WriterConfig config;
     config.sampleCount = -1; // Unlimited sample count

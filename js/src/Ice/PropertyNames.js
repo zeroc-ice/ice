@@ -79,6 +79,10 @@ PropertyNames.IceProps.properties = [
     new Property("Warn.UnusedProperties", false, "0", false, null)
 ];
 
+PropertyNames.IceMXProps = new PropertyArray("IceMX", false);
+PropertyNames.IceMXProps.properties = [
+];
+
 PropertyNames.IceDiscoveryProps = new PropertyArray("IceDiscovery", false);
 PropertyNames.IceDiscoveryProps.properties = [
 ];
@@ -133,6 +137,7 @@ PropertyNames.DataStormProps.properties = [
 
 PropertyNames.validProps = [
     PropertyNames.IceProps,
+    PropertyNames.IceMXProps,
     PropertyNames.IceDiscoveryProps,
     PropertyNames.IceLocatorDiscoveryProps,
     PropertyNames.IceBoxProps,

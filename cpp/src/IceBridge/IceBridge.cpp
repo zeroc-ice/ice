@@ -629,5 +629,6 @@ main(int argc, char* argv[])
 #endif
 {
     BridgeService svc;
-    return svc.main(argc, argv);
+    // Initialize the service with a Properties object with the correct property prefix enabled.
+    return svc.main(argc, argv, {.properties = make_shared<Properties>("IceBridge")});
 }

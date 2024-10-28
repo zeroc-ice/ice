@@ -239,7 +239,7 @@ public:
 void
 Subscriber::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, make_shared<Ice::Properties>("IceStormAdmin"));
     auto communicator = ich.communicator();
     IceInternal::Options opts;
     opts.addOpt("", "events", IceInternal::Options::NeedArg);
