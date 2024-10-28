@@ -88,11 +88,7 @@ namespace Slice
         ParamInfoList getAllOutParams(const OperationPtr&);
         void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
-        std::string typeToString(
-            const TypePtr&,
-            const ContainedPtr&,
-            const MetadataList& = MetadataList(),
-            bool = false);
+        std::string typeToString(const TypePtr&, const ContainedPtr&, bool = false);
 
         std::string getUnqualified(const std::string&, const std::string&);
         std::string modeToString(Operation::Mode);

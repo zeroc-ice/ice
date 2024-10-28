@@ -106,7 +106,7 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 
     return scope;
 }
-// getNamespace(seq) + "." + seq->name() + "Helper", scope
+
 string
 Slice::CsGenerator::getUnqualified(const string& type, const string& scope, bool builtin)
 {
@@ -1978,7 +1978,7 @@ Slice::CsGenerator::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
         for (const auto& metadata : dc->getMetadata())
         {
             string_view directive = metadata->directive();
-            if (directive.starts_with("cs:") && directive != "cs:attribute")
+            if (directive.find("cs:") == 0 && directive != "cs:attribute")
             {
                 dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata '" + string(directive) + "'");
                 continue;
@@ -2085,7 +2085,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
         string_view directive = metadata->directive();
         string_view arguments = metadata->arguments();
 
-        if (directive.starts_with("cs:"))
+        if (directive.find("cs:") == 0)
         {
             SequencePtr seq = dynamic_pointer_cast<Sequence>(cont);
             if (seq)

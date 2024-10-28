@@ -917,7 +917,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
             string_view directive = s->directive();
             string_view arguments = s->arguments();
 
-            if (directive.starts_with("cpp:"))
+            if (directive.find("cpp:") == 0)
             {
                 static const string cppIncludePrefix = "cpp:include";
                 static const string cppNoDefaultInclude = "cpp:no-default-include";
@@ -1120,7 +1120,7 @@ Slice::Gen::MetadataVisitor::validate(
 
         // Issue friendly warning for cpp11 and cpp98 metadata what were removed as Slice does not issue warnings
         // for unknown "top-level" metadata.
-        if (directive.starts_with("cpp11:") || directive.starts_with("cpp98:"))
+        if (directive.find("cpp11:") == 0 || directive.find("cpp98:") == 0)
         {
             ostringstream ostr;
             ostr << "ignoring invalid metadata '" << meta << "'";
@@ -1129,7 +1129,7 @@ Slice::Gen::MetadataVisitor::validate(
             continue;
         }
 
-        if (!directive.starts_with("cpp:"))
+        if (directive.find("cpp:") != 0)
         {
             continue;
         }

@@ -1841,7 +1841,7 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata)
     for (const auto& meta : metadata)
     {
         string_view directive = meta->directive();
-        if (directive.starts_with("python:"))
+        if (directive.find("python:") == 0)
         {
             if (i > 0)
             {
@@ -2922,7 +2922,7 @@ Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
             string_view directive = meta->directive();
             string_view arguments = meta->arguments();
 
-            if (directive.starts_with("python:"))
+            if (directive.find("python:") == 0)
             {
                 if (directive == "python:package" && !arguments.empty())
                 {
@@ -2953,7 +2953,7 @@ Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
         MetadataPtr meta = *r++;
         string_view directive = meta->directive();
 
-        if (directive.starts_with("python:"))
+        if (directive.find("python:") == 0)
         {
             // Must be a top-level module.
             if (dynamic_pointer_cast<Unit>(p->container()) && directive == "python:package")
@@ -3071,12 +3071,11 @@ Slice::Python::MetadataVisitor::validateSequence(
     MetadataList newMetadata = metadata;
     for (MetadataList::const_iterator p = newMetadata.begin(); p != newMetadata.end();)
     {
-        string prefix = "python:";
         MetadataPtr s = *p++;
         string_view directive = s->directive();
         string_view arguments = s->arguments();
 
-        if (directive.starts_with(prefix))
+        if (directive.find(prefix) == 0)
         {
             SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
             if (seq)
@@ -3144,7 +3143,7 @@ Slice::Python::MetadataVisitor::reject(const ContainedPtr& cont)
     {
         MetadataPtr s = *p++;
         string_view directive = s->directive();
-        if (directive.starts_with("python:"))
+        if (directive.find("python:") == 0)
         {
             string msg = "ignoring invalid metadata '" + string(directive) + "'";
             dc->warning(InvalidMetadata, cont->file(), cont->line(), msg);

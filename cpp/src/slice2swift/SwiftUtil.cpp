@@ -1067,11 +1067,7 @@ SwiftGenerator::writeConstantValue(
 }
 
 string
-SwiftGenerator::typeToString(
-    const TypePtr& type,
-    const ContainedPtr& toplevel,
-    const MetadataList& metadata,
-    bool optional)
+SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, bool optional)
 {
     static const char* builtinTable[] = {
         "Swift.UInt8",
@@ -1323,7 +1319,7 @@ SwiftGenerator::writeMemberwiseInitializer(
         for (DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
         {
             DataMemberPtr m = *i;
-            out << (fixIdent(m->name()) + ": " + typeToString(m->type(), p, m->getMetadata(), m->optional()));
+            out << (fixIdent(m->name()) + ": " + typeToString(m->type(), p, m->optional()));
         }
         out << epar;
         out << sb;
@@ -1365,7 +1361,7 @@ SwiftGenerator::writeMembers(
         const string defaultValue = member->defaultValue();
 
         const string memberName = fixIdent(member->name());
-        string memberType = typeToString(type, p, member->getMetadata(), member->optional());
+        string memberType = typeToString(type, p, member->optional());
 
         //
         // If the member type is equal to the member name, create a local type alias
@@ -1757,7 +1753,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         {
             os << paramLabel("returnValue", outParams) << ": ";
         }
-        os << typeToString(returnType, op, op->getMetadata(), op->returnIsOptional());
+        os << typeToString(returnType, op, op->returnIsOptional());
     }
 
     for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
@@ -1772,7 +1768,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
             os << (*q)->name() << ": ";
         }
 
-        os << typeToString((*q)->type(), *q, (*q)->getMetadata(), (*q)->optional());
+        os << typeToString((*q)->type(), *q, (*q)->optional());
     }
 
     if (returnIsTuple)
@@ -1860,7 +1856,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
                 os << ", ";
             }
 
-            os << typeToString((*q)->type(), *q, (*q)->getMetadata(), (*q)->optional());
+            os << typeToString((*q)->type(), *q, (*q)->optional());
         }
         if (isTuple)
         {
@@ -1881,7 +1877,7 @@ SwiftGenerator::getAllInParams(const OperationPtr& op)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetadata(), (*p)->optional());
+        info.typeStr = typeToString(info.type, op, (*p)->optional());
         info.optional = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
@@ -1928,7 +1924,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetadata(), (*p)->optional());
+        info.typeStr = typeToString(info.type, op, (*p)->optional());
         info.optional = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
@@ -1940,7 +1936,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         ParamInfo info;
         info.name = paramLabel("returnValue", params);
         info.type = op->returnType();
-        info.typeStr = typeToString(info.type, op, op->getMetadata(), op->returnIsOptional());
+        info.typeStr = typeToString(info.type, op, op->returnIsOptional());
         info.optional = op->returnIsOptional();
         info.tag = op->returnTag();
         l.push_back(info);
@@ -2444,7 +2440,7 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 
     for (const auto& metadata : p->keyMetadata())
     {
-        if (metadata->directive().starts_with(prefix))
+        if (metadata->directive().find(prefix) == 0)
         {
             string msg = "ignoring invalid metadata '" + string(metadata->directive()) + "' for dictionary key type";
             dc->warning(InvalidMetadata, p->file(), p->line(), msg);
@@ -2453,7 +2449,7 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 
     for (const auto& metadata : p->valueMetadata())
     {
-        if (metadata->directive().starts_with(prefix))
+        if (metadata->directive().find(prefix) == 0)
         {
             string msg = "ignoring invalid metadata '" + string(metadata->directive()) + "' for dictionary value type";
             dc->warning(InvalidMetadata, p->file(), p->line(), msg);
@@ -2492,7 +2488,7 @@ SwiftGenerator::MetadataVisitor::validate(
         MetadataPtr meta = *p++;
         string_view directive = meta->directive();
 
-        if (!directive.starts_with("swift:"))
+        if (directive.find("swift:") != 0)
         {
             continue;
         }
