@@ -349,11 +349,6 @@ Instance.prototype.destroy = async function () {
             this._timer.destroy();
         }
 
-        if (this._objectFactoryMap !== null) {
-            this._objectFactoryMap.forEach(factory => factory.destroy());
-            this._objectFactoryMap.clear();
-        }
-
         if (this._routerManager) {
             this._routerManager.destroy();
         }
