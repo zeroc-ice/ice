@@ -18,10 +18,11 @@ export class ObjectAdapterFactory {
     }
 
     destroy() {
+        // We cannot directly iterate over this._adapters because ObjectAdapter.destroy() will remove the
+        // adapter from the list of adapters by calling removeObjectAdapter. We use slice() to create a
+        // shallow copy of the array to avoid modifying the array during iteration.
         const adapters = this._adapters.slice();
         for (const adapter of adapters) {
-            // ObjectAdapter.destroy() will remove the adapter from the list of adapters
-            // by calling removeObjectAdapter
             adapter.destroy();
         }
     }
