@@ -62,10 +62,7 @@ namespace Ice
          * @param initData Configuration data for the new Communicator.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int main(
-            int argc,
-            const char* const argv[],
-            const InitializationData& initData = InitializationData());
+        int main(int argc, const char* const argv[], const InitializationData& initData = InitializationData());
 
 #ifdef _WIN32
         /**
@@ -91,10 +88,7 @@ namespace Ice
          * @param initData Configuration data for the new Communicator.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int main(
-            int argc,
-            const wchar_t* const argv[],
-            const InitializationData& initData = InitializationData());
+        int main(int argc, const wchar_t* const argv[], const InitializationData& initData = InitializationData());
 #endif
 
         /**
@@ -119,9 +113,7 @@ namespace Ice
          * @param initData Configuration data for the new Communicator.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int main(
-            const StringSeq& args,
-            const InitializationData& initData = InitializationData());
+        int main(const StringSeq& args, const InitializationData& initData = InitializationData());
 
         /**
          * Obtains the communicator created by the service.
@@ -170,10 +162,7 @@ namespace Ice
          * @param initData Configuration data for the new Communicator.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int
-        run(int argc,
-            const wchar_t* const argv[],
-            const InitializationData& initData = InitializationData());
+        int run(int argc, const wchar_t* const argv[], const InitializationData& initData = InitializationData());
 #endif
 
         /**
@@ -189,10 +178,7 @@ namespace Ice
          * @param initData Configuration data for the new Communicator.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int
-        run(int argc,
-            const char* const argv[],
-            const InitializationData& initData = InitializationData());
+        int run(int argc, const char* const argv[], const InitializationData& initData = InitializationData());
 
 #ifdef _WIN32
 
