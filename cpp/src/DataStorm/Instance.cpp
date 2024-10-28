@@ -15,7 +15,7 @@
 using namespace std;
 using namespace DataStormI;
 
-Instance::Instance(const Ice::CommunicatorPtr& communicator, function<void(function<void()> call)> callbackExecutor)
+Instance::Instance(const Ice::CommunicatorPtr& communicator, function<void(function<void()> call)> customExecutor)
     : _communicator(communicator),
       _shutdown(false)
 {
@@ -88,7 +88,7 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator, function<void(funct
     _collocatedForwarder = make_shared<ForwarderManager>(_collocatedAdapter, "forwarders");
     _collocatedAdapter->addDefaultServant(_collocatedForwarder, "forwarders");
 
-    _executor = make_shared<CallbackExecutor>(std::move(callbackExecutor));
+    _executor = make_shared<CallbackExecutor>(std::move(customExecutor));
     _connectionManager = make_shared<ConnectionManager>(_executor);
     _timer = make_shared<IceInternal::Timer>();
     _traceLevels = make_shared<TraceLevels>(properties, _communicator->getLogger());
@@ -112,6 +112,12 @@ Instance::init()
     if (_multicastAdapter)
     {
         auto lookup = _multicastAdapter->add<DataStormContract::LookupPrx>(lookupI, {"Lookup", "DataStorm"});
+        // The lookup proxy can be customized by setting the property DataStorm.Node.Multicast.Proxy.
+        if (!_communicator->getProperties()->getIceProperty("DataStorm.Node.Multicast.Proxy").empty())
+        {
+            // propertyToProxy only returns a nullopt proxy when the property is empty.
+            lookup = *_communicator->propertyToProxy<DataStormContract::LookupPrx>("DataStorm.Node.Multicast.Proxy");
+        }
         _lookup = lookup->ice_collocationOptimized(false)->ice_datagram();
     }
 
@@ -160,6 +166,7 @@ Instance::destroy(bool ownsCommunicator)
 {
     IceInternal::TimerPtr timer;
     {
+        // Clear the timer before it is destroyed to avoid tasks being scheduled after the timer is destroyed.
         unique_lock<mutex> lock(_mutex);
         timer = _timer;
         _timer = nullptr;

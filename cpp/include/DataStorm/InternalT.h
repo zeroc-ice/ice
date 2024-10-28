@@ -9,6 +9,14 @@
 #include "InternalI.h"
 #include "Types.h"
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 namespace DataStorm
 {
     template<typename K, typename V, typename U> class Sample;
@@ -570,3 +578,9 @@ namespace DataStormI
         std::map<std::string, std::unique_ptr<Factory>> _factories;
     };
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif

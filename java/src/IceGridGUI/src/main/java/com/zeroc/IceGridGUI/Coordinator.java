@@ -2257,10 +2257,11 @@ public class Coordinator {
             String[] args, java.util.List<String> rArgs) {
         com.zeroc.Ice.Properties properties = new com.zeroc.Ice.Properties();
 
-        //
         // Disable retries
-        //
         properties.setProperty("Ice.RetryIntervals", "-1");
+
+        // Turn-off inactivity timeout for outgoing connections
+        properties.setProperty("Ice.Connection.Client.InactivityTimeout", "0");
 
         return new com.zeroc.Ice.Properties(args, properties, rArgs);
     }

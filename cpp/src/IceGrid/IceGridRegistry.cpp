@@ -182,11 +182,19 @@ RegistryService::initializeCommunicator(
     initData.properties->setProperty("Ice.Admin.Endpoints", "");
 
     //
-    // Enable Admin unless explicitely disabled (or enabled) in configuration
+    // Enable Admin unless explicitly disabled (or enabled) in configuration
     //
     if (initData.properties->getProperty("Ice.Admin.Enabled").empty())
     {
         initData.properties->setProperty("Ice.Admin.Enabled", "1");
+    }
+
+    // Turn-off the inactivity timeout for the IceGrid.Registry.Client object adapter unless the application sets this
+    // property. That's because the IceGrid.Registry.Client object adapter hosts connection-bound sessions
+    // (admin sessions and resource allocation sessions).
+    if (initData.properties->getProperty("IceGrid.Registry.Client.Connection.InactivityTimeout").empty())
+    {
+        initData.properties->setProperty("IceGrid.Registry.Client.Connection.InactivityTimeout", "0");
     }
 
     //

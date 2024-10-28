@@ -9,13 +9,12 @@
 #include "Ice/Ice.h"
 #include "NodeI.h"
 
-#if defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning(disable : 4456) // ... : declaration of 'identifier' hides previous local declaration
-#    pragma warning(disable : 4458) // ... : declaration of 'identifier' hides class member
-#elif defined(__clang__)
+#if defined(__clang__)
 #    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 namespace DataStormI
@@ -159,12 +158,12 @@ namespace DataStormI
 
             std::map<std::int64_t, ElementSubscribers>& getAll() { return _elements; }
 
-            void reap(int sessionInstanceId)
+            void reap(int id)
             {
                 auto p = _elements.begin();
                 while (p != _elements.end())
                 {
-                    if (p->second.reap(sessionInstanceId))
+                    if (p->second.reap(id))
                     {
                         _elements.erase(p++);
                     }
@@ -243,23 +242,21 @@ namespace DataStormI
         SessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
         void init();
 
-        virtual void announceTopics(DataStormContract::TopicInfoSeq, bool, const Ice::Current&) override;
-        virtual void attachTopic(DataStormContract::TopicSpec, const Ice::Current&) override;
-        virtual void detachTopic(std::int64_t, const Ice::Current&) override;
+        void announceTopics(DataStormContract::TopicInfoSeq, bool, const Ice::Current&) final;
+        void attachTopic(DataStormContract::TopicSpec, const Ice::Current&) final;
+        void detachTopic(std::int64_t, const Ice::Current&) final;
 
-        virtual void attachTags(std::int64_t, DataStormContract::ElementInfoSeq, bool, const Ice::Current&) override;
-        virtual void detachTags(std::int64_t, Ice::LongSeq, const Ice::Current&) override;
+        void attachTags(std::int64_t, DataStormContract::ElementInfoSeq, bool, const Ice::Current&) final;
+        void detachTags(std::int64_t, Ice::LongSeq, const Ice::Current&) final;
 
-        virtual void announceElements(std::int64_t, DataStormContract::ElementInfoSeq, const Ice::Current&) override;
-        virtual void
-        attachElements(std::int64_t, DataStormContract::ElementSpecSeq, bool, const Ice::Current&) override;
-        virtual void
-        attachElementsAck(std::int64_t, DataStormContract::ElementSpecAckSeq, const Ice::Current&) override;
-        virtual void detachElements(std::int64_t, Ice::LongSeq, const Ice::Current&) override;
+        void announceElements(std::int64_t, DataStormContract::ElementInfoSeq, const Ice::Current&) final;
+        void attachElements(std::int64_t, DataStormContract::ElementSpecSeq, bool, const Ice::Current&) final;
+        void attachElementsAck(std::int64_t, DataStormContract::ElementSpecAckSeq, const Ice::Current&) final;
+        void detachElements(std::int64_t, Ice::LongSeq, const Ice::Current&) final;
 
-        virtual void initSamples(std::int64_t, DataStormContract::DataSamplesSeq, const Ice::Current&) override;
+        void initSamples(std::int64_t, DataStormContract::DataSamplesSeq, const Ice::Current&) final;
 
-        virtual void disconnected(const Ice::Current&) override;
+        void disconnected(const Ice::Current&) final;
 
         void
         connected(DataStormContract::SessionPrx, const Ice::ConnectionPtr&, const DataStormContract::TopicInfoSeq&);
@@ -356,12 +353,12 @@ namespace DataStormI
     public:
         SubscriberSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
 
-        virtual void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) override;
+        virtual void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) final;
 
     private:
-        virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const override;
-        virtual void reconnect(DataStormContract::NodePrx) override;
-        virtual void remove() override;
+        virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
+        virtual void reconnect(DataStormContract::NodePrx) final;
+        virtual void remove() final;
     };
 
     class PublisherSessionI : public SessionI, public DataStormContract::PublisherSession
@@ -370,9 +367,16 @@ namespace DataStormI
         PublisherSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
 
     private:
-        virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const override;
-        virtual void reconnect(DataStormContract::NodePrx) override;
-        virtual void remove() override;
+        std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
+        void reconnect(DataStormContract::NodePrx) final;
+        void remove() final;
     };
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
+
 #endif

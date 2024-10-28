@@ -7,7 +7,14 @@
 
 #include "DataStorm/Contract.h"
 #include "DataStorm/InternalI.h"
-#include "ForwarderManager.h"
+
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
 
 namespace DataStormI
 {
@@ -419,5 +426,11 @@ namespace DataStormI
         const std::shared_ptr<Filter> _filter;
     };
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
 #endif

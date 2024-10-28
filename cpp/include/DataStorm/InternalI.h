@@ -13,12 +13,19 @@
 #include <string>
 #include <vector>
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 //
 // Private abstract API used by the template based API and the internal DataStorm implementation.
 //
 namespace DataStormI
 {
-
     class Instance;
 
     class Filterable
@@ -271,6 +278,12 @@ namespace DataStormI
 
         virtual Ice::CommunicatorPtr getCommunicator() const = 0;
     };
-
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
+
 #endif

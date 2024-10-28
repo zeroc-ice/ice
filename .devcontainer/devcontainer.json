@@ -3,6 +3,10 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
+    "runArgs": [
+        // "--cpuset-cpus=0-1", // Limit CPU usage
+        // "--shm-size=4gb" // Limit memory usage
+    ],
     // Configure tool-specific properties
     "customizations": {
         "vscode": {

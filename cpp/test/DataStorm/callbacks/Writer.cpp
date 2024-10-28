@@ -8,18 +8,23 @@
 using namespace DataStorm;
 using namespace std;
 
+// GCC should allow "shadowing" in lambda expressions but doesn't.
+#if defined(__GNUC__) && !defined(__clang__)
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 int
 main(int argc, char* argv[])
 {
-    function<void(function<void()> call)> callbackExecutor = nullptr;
+    function<void(function<void()> call)> customExecutor = nullptr;
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i], "--with-executor") == 0)
         {
-            callbackExecutor = [](function<void()> cb) { cb(); };
+            customExecutor = [](function<void()> cb) { cb(); };
         }
     }
-    Node node(argc, argv, nullopt, callbackExecutor);
+    Node node(argc, argv, nullopt, customExecutor);
 
     WriterConfig config;
     config.sampleCount = -1; // Unlimited sample count

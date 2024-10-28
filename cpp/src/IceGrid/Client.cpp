@@ -82,6 +82,10 @@ main(int argc, char* argv[])
         // Initialize IceGrid properties with a Properties object with the correct property prefix enabled.
         auto defaultProps = make_shared<Ice::Properties>("IceGridAdmin");
         defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h localhost");
+
+        // Turn-off inactivity timeout for outgoing connections.
+        defaultProps->setProperty("Ice.Connection.Client.InactivityTimeout", "0");
+
         Ice::InitializationData id;
         id.properties = createProperties(args, defaultProps);
         id.properties->setProperty("Ice.Warn.Endpoints", "0");

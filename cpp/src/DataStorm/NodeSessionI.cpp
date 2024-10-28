@@ -14,110 +14,86 @@ using namespace DataStormContract;
 
 namespace
 {
-    class NodeForwarderI : public Node, public enable_shared_from_this<NodeForwarderI>
+    // The NodeForwarder class is used to forward calls to a Node that doesn't have a public endpoint.
+    // It implements the Slice DataContract::Node interface by forwarding calls to the target Node object.
+    class NodeForwarder : public Node, public enable_shared_from_this<NodeForwarder>
     {
     public:
-        NodeForwarderI(
-            shared_ptr<NodeSessionManager> nodeSessionManager,
-            shared_ptr<NodeSessionI> session,
-            optional<NodePrx> node)
+        NodeForwarder(shared_ptr<NodeSessionManager> nodeSessionManager, shared_ptr<NodeSessionI> session, NodePrx node)
             : _nodeSessionManager(std::move(nodeSessionManager)),
               _session(std::move(session)),
               _node(std::move(node))
         {
         }
 
-        virtual void initiateCreateSession(optional<NodePrx> publisher, const Ice::Current& current) override
+        void initiateCreateSession(optional<NodePrx> publisher, const Ice::Current& current) final
         {
-            if (publisher == nullopt)
+            Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
+            if (auto session = _session.lock())
             {
-                return;
-            }
-
-            auto session = _session.lock();
-            if (!session)
-            {
-                return;
-            }
-
-            try
-            {
-                optional<SessionPrx> session;
-                updateNodeAndSessionProxy(*publisher, session, current);
-                // TODO check the return value?
-                auto _ = _node->initiateCreateSessionAsync(publisher);
-            }
-            catch (const Ice::ObjectAdapterDestroyedException&)
-            {
-            }
-            catch (const Ice::CommunicatorDestroyedException&)
-            {
+                try
+                {
+                    optional<SessionPrx> sessionPrx;
+                    updateNodeAndSessionProxy(*publisher, sessionPrx, current);
+                    // Forward the call to the target Node object, don't need to wait for the result.
+                    _node->initiateCreateSessionAsync(publisher, nullptr);
+                }
+                catch (const Ice::CommunicatorDestroyedException&)
+                {
+                }
             }
         }
 
-        virtual void createSession(
+        void createSession(
             optional<NodePrx> subscriber,
             optional<SubscriberSessionPrx> subscriberSession,
             bool /* fromRelay */,
-            const Ice::Current& current) override
+            const Ice::Current& current) final
         {
-            if (subscriber == nullopt || subscriberSession == nullopt)
-            {
-                return;
-            }
+            Ice::checkNotNull(subscriber, __FILE__, __LINE__, current);
+            Ice::checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
-            auto session = _session.lock();
-            if (!session)
+            if (auto session = _session.lock())
             {
-                return;
-            }
-
-            try
-            {
-                updateNodeAndSessionProxy(*subscriber, subscriberSession, current);
-                session->addSession(subscriberSession);
-                // TODO check the return value?
-                auto _ = _node->createSessionAsync(subscriber, subscriberSession, true);
-            }
-            catch (const Ice::ObjectAdapterDestroyedException&)
-            {
-            }
-            catch (const Ice::CommunicatorDestroyedException&)
-            {
+                try
+                {
+                    updateNodeAndSessionProxy(*subscriber, subscriberSession, current);
+                    session->addSession(*subscriberSession);
+                    // Forward the call to the target Node object, don't need to wait for the result.
+                    _node->createSessionAsync(subscriber, subscriberSession, true, nullptr);
+                }
+                catch (const Ice::CommunicatorDestroyedException&)
+                {
+                }
             }
         }
 
-        virtual void confirmCreateSession(
+        void confirmCreateSession(
             optional<NodePrx> publisher,
             optional<PublisherSessionPrx> publisherSession,
-            const Ice::Current& current) override
+            const Ice::Current& current) final
         {
-            if (publisher == nullopt || publisherSession == nullopt)
-            {
-                return;
-            }
+            Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
+            Ice::checkNotNull(publisherSession, __FILE__, __LINE__, current);
 
-            auto session = _session.lock();
-            if (!session)
+            if (auto session = _session.lock())
             {
-                return;
-            }
-            try
-            {
-                updateNodeAndSessionProxy(*publisher, publisherSession, current);
-                session->addSession(publisherSession);
-                // TODO check the return value?
-                auto _ = _node->confirmCreateSessionAsync(publisher, publisherSession);
-            }
-            catch (const Ice::ObjectAdapterDestroyedException&)
-            {
-            }
-            catch (const Ice::CommunicatorDestroyedException&)
-            {
+                try
+                {
+                    updateNodeAndSessionProxy(*publisher, publisherSession, current);
+                    session->addSession(*publisherSession);
+                    // Forward the call to the target Node object, don't need to wait for the result.
+                    _node->confirmCreateSessionAsync(publisher, publisherSession, nullptr);
+                }
+                catch (const Ice::CommunicatorDestroyedException&)
+                {
+                }
             }
         }
 
     private:
+        // This helper method is used to replace the Node and Session proxies with forwarders when the calling Node
+        // doesn't have a public endpoint.
         template<typename T>
         void updateNodeAndSessionProxy(NodePrx& node, optional<T>& session, const Ice::Current& current)
         {
@@ -128,14 +104,14 @@ namespace
                 node = peerSession->getPublicNode();
                 if (session)
                 {
-                    session = peerSession->getSessionForwarder(session);
+                    session = peerSession->forwarder(*session);
                 }
             }
         }
 
         const shared_ptr<NodeSessionManager> _nodeSessionManager;
         const weak_ptr<NodeSessionI> _session;
-        const optional<NodePrx> _node;
+        const NodePrx _node;
     };
 }
 
@@ -158,11 +134,16 @@ NodeSessionI::NodeSessionI(
 void
 NodeSessionI::init()
 {
+    // When the target node doesn't have a public endpoint, we create a NodeForwarder object to forward calls to the
+    // target and assign it to the publicNode member, otherwise the publicNode member is set to the target node.
     if (_node->ice_getEndpoints().empty() && _node->ice_getAdapterId().empty())
     {
-        auto bidirNode = _node->ice_fixed(_connection);
-        auto fwd = make_shared<NodeForwarderI>(_instance->getNodeSessionManager(), shared_from_this(), bidirNode);
-        _publicNode = _instance->getObjectAdapter()->add<NodePrx>(fwd, _node->ice_getIdentity());
+        _publicNode = _instance->getObjectAdapter()->add<NodePrx>(
+            make_shared<NodeForwarder>(
+                _instance->getNodeSessionManager(),
+                shared_from_this(),
+                _node->ice_fixed(_connection)),
+            _node->ice_getIdentity());
     }
     else
     {
@@ -186,13 +167,14 @@ NodeSessionI::destroy()
     {
         if (_publicNode != _node)
         {
+            // Remove the NodeForwarder object from the object adapter.
             _instance->getObjectAdapter()->remove(_publicNode->ice_getIdentity());
         }
 
-        for (const auto& session : _sessions)
+        for (const auto& [_, session] : _sessions)
         {
-            // TODO check the return value?
-            auto _ = session.second->disconnectedAsync();
+            // Notify sessions of the disconnection, don't need to wait for the result.
+            session->disconnectedAsync(nullptr);
         }
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
@@ -210,17 +192,8 @@ NodeSessionI::destroy()
 }
 
 void
-NodeSessionI::addSession(optional<SessionPrx> session)
+NodeSessionI::addSession(SessionPrx session)
 {
     lock_guard<mutex> lock(_mutex);
     _sessions[session->ice_getIdentity()] = std::move(session);
-}
-
-optional<SessionPrx>
-NodeSessionI::forwarder(optional<SessionPrx> session) const
-{
-    auto id = session->ice_getIdentity();
-    auto proxy = _instance->getObjectAdapter()->createProxy<SessionPrx>(
-        {id.name + '-' + _node->ice_getIdentity().name, id.category + 'f'});
-    return proxy->ice_oneway();
 }

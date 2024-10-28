@@ -137,7 +137,7 @@ RouterService::start(int argc, char* argv[], int& status)
     const string clientEndpointsProperty = "Glacier2.Client.Endpoints";
     if (properties->getIceProperty(clientEndpointsProperty).empty())
     {
-        error("property `" + clientEndpointsProperty + "' is not set");
+        error("property '" + clientEndpointsProperty + "' is not set");
         return false;
     }
 

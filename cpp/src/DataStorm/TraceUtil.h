@@ -50,7 +50,7 @@ namespace Ice
 {
     inline std::ostream& operator<<(std::ostream& os, const Ice::Identity& id)
     {
-        return os << (id.category.empty() ? "" : id.category + "/") << id.name;
+        return os << Ice::identityToString(id);
     }
 }
 
@@ -58,16 +58,14 @@ namespace DataStormContract
 {
     inline std::string valueIdToString(std::int64_t valueId)
     {
-        std::ostringstream os;
         if (valueId < 0)
         {
-            os << "f" << -valueId;
+            return "f" + std::to_string(-valueId);
         }
         else
         {
-            os << "k" << valueId;
+            return "k" + std::to_string(valueId);
         }
-        return os.str();
     }
 
     inline std::ostream& operator<<(std::ostream& os, const ElementInfo& info)
@@ -174,12 +172,7 @@ namespace DataStormI
     {
         if (session)
         {
-            Ice::Identity id = session->getNode()->ice_getIdentity();
-            os << id.name;
-            if (!id.category.empty())
-            {
-                os << '/' << id.category;
-            }
+            os << Ice::identityToString(session->getNode()->ice_getIdentity());
         }
         else
         {

@@ -55,12 +55,12 @@ namespace DataStormI
         void removeSubscriberSession(
             DataStormContract::NodePrx,
             const std::shared_ptr<SubscriberSessionI>&,
-            const std::exception_ptr&);
+            std::exception_ptr);
 
         void removePublisherSession(
             DataStormContract::NodePrx,
             const std::shared_ptr<PublisherSessionI>&,
-            const std::exception_ptr&);
+            std::exception_ptr);
 
         Ice::ConnectionPtr getSessionConnection(const std::string&) const;
 
@@ -86,7 +86,8 @@ namespace DataStormI
 
         std::shared_ptr<PublisherSessionI> createPublisherSessionServant(DataStormContract::NodePrx);
 
-        void forward(const Ice::ByteSeq&, const Ice::Current&) const;
+        void forwardToSubscribers(const Ice::ByteSeq&, const Ice::Current&) const;
+        void forwardToPublishers(const Ice::ByteSeq&, const Ice::Current&) const;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;

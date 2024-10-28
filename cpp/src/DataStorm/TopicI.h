@@ -11,6 +11,14 @@
 #include "ForwarderManager.h"
 #include "Instance.h"
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 namespace DataStormI
 {
     class SessionI;
@@ -135,7 +143,7 @@ namespace DataStormI
         const std::shared_ptr<Instance> _instance;
         const std::shared_ptr<TraceLevels> _traceLevels;
         const std::int64_t _id;
-        std::optional<DataStormContract::SessionPrx> _forwarder;
+        DataStormContract::SessionPrx _forwarder;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;
@@ -218,4 +226,11 @@ namespace DataStormI
         DataStorm::WriterConfig _defaultConfig;
     };
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
+
 #endif

@@ -27,7 +27,7 @@ namespace DataStormI
     public:
         Instance(
             const Ice::CommunicatorPtr& communicator,
-            std::function<void(std::function<void()> call)> callbackExecutor);
+            std::function<void(std::function<void()> call)> customExecutor);
 
         void init();
 
@@ -101,8 +101,8 @@ namespace DataStormI
 
         void destroy(bool);
 
-        // Helper methods to schedule and cancel timer tasks with the instance timers, schedule and cancel calls
-        // done after the instance is destroyed are ignored.
+        // Helper methods to schedule and cancel timer tasks using the instance's timer. Any attempts to schedule or
+        // cancel tasks after the instance is destroyed are ignored.
 
         template<class Rep, class Period>
         void scheduleTimerTask(std::function<void()> function, const std::chrono::duration<Rep, Period>& delay)

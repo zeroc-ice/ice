@@ -104,8 +104,7 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
                     {
                         topic->attach(id, shared_from_this(), *_session);
                     }
-                    // TODO check the return value?
-                    auto _ = _session->attachTopicAsync(topic->getTopicSpec());
+                    _session->attachTopicAsync(topic->getTopicSpec(), nullptr);
                 });
         }
 
@@ -167,8 +166,7 @@ SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
                 auto tags = topic->getTags();
                 if (!tags.empty())
                 {
-                    // TODO check the return value?
-                    auto _ = _session->attachTagsAsync(topic->getId(), tags, true);
+                    _session->attachTagsAsync(topic->getId(), tags, true, nullptr);
                 }
 
                 auto specs = topic->getElementSpecs(spec.id, spec.elements, shared_from_this());
@@ -179,8 +177,7 @@ SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
                         Trace out(_traceLevels, _traceLevels->sessionCat);
                         out << _id << ": matched elements `" << spec << "' on `" << topic << "'";
                     }
-                    // TODO check the return value?
-                    auto _ = _session->attachElementsAsync(topic->getId(), specs, true);
+                    _session->attachElementsAsync(topic->getId(), specs, true, nullptr);
                 }
             });
     }
@@ -296,8 +293,7 @@ SessionI::announceElements(int64_t topicId, ElementInfoSeq elements, const Ice::
                     out << _id << ": announcing elements matched `[" << specs << "]@" << topicId << "' on topic `"
                         << topic << "'";
                 }
-                // TODO check the return value?
-                auto _ = _session->attachElementsAsync(topic->getId(), specs, false);
+                _session->attachElementsAsync(topic->getId(), specs, false, nullptr);
             }
         });
 }
@@ -344,8 +340,7 @@ SessionI::attachElements(int64_t id, ElementSpecSeq elements, bool initialize, c
                     out << _id << ": attaching elements matched `[" << specAck << "]@" << id << "' on topic `" << topic
                         << "'";
                 }
-                // TODO check the return value?
-                auto _ = _session->attachElementsAckAsync(topic->getId(), specAck);
+                _session->attachElementsAckAsync(topic->getId(), specAck, nullptr);
             }
         });
 }
@@ -379,13 +374,11 @@ SessionI::attachElementsAck(int64_t id, ElementSpecAckSeq elements, const Ice::C
                     out << _id << ": initializing elements `[" << samples << "]@" << id << "' on topic `" << topic
                         << "'";
                 }
-                // TODO check the return value?
-                auto _ = _session->initSamplesAsync(topic->getId(), samples);
+                _session->initSamplesAsync(topic->getId(), samples, nullptr);
             }
             if (!removedIds.empty())
             {
-                // TODO check the return value?
-                auto _ = _session->detachElementsAsync(topic->getId(), removedIds);
+                _session->detachElementsAsync(topic->getId(), removedIds, nullptr);
             }
         });
 }
@@ -540,6 +533,11 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, co
     if (connection)
     {
         auto self = shared_from_this();
+
+#if defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
         _instance->getConnectionManager()->add(
             connection,
             self,
@@ -553,6 +551,9 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, co
                     }
                 }
             });
+#if defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
     }
 
     if (_retryTask)
@@ -577,8 +578,7 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, co
     {
         try
         {
-            // TODO check the return value?
-            auto _ = _session->announceTopicsAsync(topics, true);
+            _session->announceTopicsAsync(topics, true, nullptr);
         }
         catch (const Ice::LocalException&)
         {
@@ -1116,16 +1116,16 @@ SessionI::subscriberInitialized(
     assert(_topics.find(topicId) != _topics.end());
     auto& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
     auto e = subscriber.get(elementId);
-    auto s = e->getSubscriber(element);
-    assert(s);
+    auto es = e->getSubscriber(element);
+    assert(es);
 
     if (_traceLevels->session > 1)
     {
         Trace out(_traceLevels, _traceLevels->sessionCat);
         out << _id << ": initialized `" << element << "' from `e" << elementId << '@' << topicId << "'";
     }
-    s->initialized = true;
-    s->lastId = samples.empty() ? 0 : samples.back().id;
+    es->initialized = true;
+    es->lastId = samples.empty() ? 0 : samples.back().id;
 
     vector<shared_ptr<Sample>> samplesI;
     samplesI.reserve(samples.size());
