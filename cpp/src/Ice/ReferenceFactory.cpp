@@ -31,65 +31,62 @@ using namespace IceInternal;
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(
-    const Identity& ident,
-    const string& facet,
+    Identity ident,
+    string facet,
     const ReferencePtr& tmpl,
-    const vector<EndpointIPtr>& endpoints)
+    vector<EndpointIPtr> endpoints)
 {
     assert(!ident.name.empty());
 
     return create(
-        ident,
-        facet,
+        std::move(ident),
+        std::move(facet),
         tmpl->getMode(),
         tmpl->getSecure(),
         tmpl->getProtocol(),
         tmpl->getEncoding(),
-        endpoints,
+        std::move(endpoints),
         "",
         "");
 }
 
 ReferencePtr
-IceInternal::ReferenceFactory::create(
-    const Identity& ident,
-    const string& facet,
-    const ReferencePtr& tmpl,
-    const string& adapterId)
+IceInternal::ReferenceFactory::create(Identity ident, string facet, const ReferencePtr& tmpl, string adapterId)
 {
     assert(!ident.name.empty());
 
     return create(
-        ident,
-        facet,
+        std::move(ident),
+        std::move(facet),
         tmpl->getMode(),
         tmpl->getSecure(),
         tmpl->getProtocol(),
         tmpl->getEncoding(),
         vector<EndpointIPtr>(),
-        adapterId,
+        std::move(adapterId),
         "");
 }
 
 ReferencePtr
-IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::ConnectionIPtr& connection)
+IceInternal::ReferenceFactory::create(Identity ident, Ice::ConnectionIPtr connection)
 {
     assert(!ident.name.empty());
 
-    //
+    Reference::Mode mode = connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway;
+    bool isSecure = connection->endpoint()->secure();
+
     // Create new reference
-    //
     return make_shared<FixedReference>(
         _instance,
         _communicator,
-        ident,
+        std::move(ident),
         "", // Facet
-        connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
-        connection->endpoint()->secure(),
+        mode,
+        isSecure,
         nullopt,
         Ice::Protocol_1_0,
         _instance->defaultsAndOverrides()->defaultEncoding,
-        connection,
+        std::move(connection),
         -1ms,
         Ice::Context());
 }
@@ -570,7 +567,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
 }
 
 ReferencePtr
-IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
+IceInternal::ReferenceFactory::create(Identity ident, InputStream* s)
 {
     //
     // Don't read the identity here. Operations calling this
@@ -636,11 +633,20 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
         s->read(adapterId);
     }
 
-    return create(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, "");
+    return create(
+        std::move(ident),
+        std::move(facet),
+        mode,
+        secure,
+        std::move(protocol),
+        std::move(encoding),
+        std::move(endpoints),
+        std::move(adapterId),
+        "");
 }
 
 ReferenceFactoryPtr
-IceInternal::ReferenceFactory::setDefaultRouter(const optional<RouterPrx>& defaultRouter)
+IceInternal::ReferenceFactory::setDefaultRouter(optional<RouterPrx> defaultRouter)
 {
     if (defaultRouter == _defaultRouter)
     {
@@ -649,7 +655,7 @@ IceInternal::ReferenceFactory::setDefaultRouter(const optional<RouterPrx>& defau
 
     ReferenceFactoryPtr factory = make_shared<ReferenceFactory>(_instance, _communicator);
     factory->_defaultLocator = _defaultLocator;
-    factory->_defaultRouter = defaultRouter;
+    factory->_defaultRouter = std::move(defaultRouter);
     return factory;
 }
 
@@ -660,7 +666,7 @@ IceInternal::ReferenceFactory::getDefaultRouter() const
 }
 
 ReferenceFactoryPtr
-IceInternal::ReferenceFactory::setDefaultLocator(const std::optional<LocatorPrx>& defaultLocator)
+IceInternal::ReferenceFactory::setDefaultLocator(std::optional<LocatorPrx> defaultLocator)
 {
     if (defaultLocator == _defaultLocator)
     {
@@ -669,7 +675,7 @@ IceInternal::ReferenceFactory::setDefaultLocator(const std::optional<LocatorPrx>
 
     ReferenceFactoryPtr factory = make_shared<ReferenceFactory>(_instance, _communicator);
     factory->_defaultRouter = _defaultRouter;
-    factory->_defaultLocator = defaultLocator;
+    factory->_defaultLocator = std::move(defaultLocator);
     return factory;
 }
 
@@ -679,23 +685,23 @@ IceInternal::ReferenceFactory::getDefaultLocator() const
     return _defaultLocator;
 }
 
-IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance, const CommunicatorPtr& communicator)
-    : _instance(instance),
-      _communicator(communicator)
+IceInternal::ReferenceFactory::ReferenceFactory(InstancePtr instance, CommunicatorPtr communicator)
+    : _instance(std::move(instance)),
+      _communicator(std::move(communicator))
 {
 }
 
 RoutableReferencePtr
 IceInternal::ReferenceFactory::create(
-    const Identity& ident,
-    const string& facet,
+    Identity ident,
+    string facet,
     Reference::Mode mode,
     bool secure,
-    const Ice::ProtocolVersion& protocol,
-    const Ice::EncodingVersion& encoding,
-    const vector<EndpointIPtr>& endpoints,
-    const string& adapterId,
-    const string& propertyPrefix)
+    Ice::ProtocolVersion protocol,
+    Ice::EncodingVersion encoding,
+    vector<EndpointIPtr> endpoints,
+    string adapterId,
+    string propertyPrefix)
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
 
@@ -818,22 +824,22 @@ IceInternal::ReferenceFactory::create(
     return make_shared<RoutableReference>(
         _instance,
         _communicator,
-        ident,
-        facet,
+        std::move(ident),
+        std::move(facet),
         mode,
         secure,
         nullopt,
-        protocol,
-        encoding,
-        endpoints,
-        adapterId,
-        locatorInfo,
-        routerInfo,
+        std::move(protocol),
+        std::move(encoding),
+        std::move(endpoints),
+        std::move(adapterId),
+        std::move(locatorInfo),
+        std::move(routerInfo),
         collocationOptimized,
         cacheConnection,
         preferSecure,
         endpointSelection,
         locatorCacheTimeout,
         invocationTimeout,
-        ctx);
+        std::move(ctx));
 }

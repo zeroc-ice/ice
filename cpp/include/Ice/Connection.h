@@ -156,9 +156,9 @@ namespace Ice
          * @see #setAdapter
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx createProxy(const Identity& id) const
+        Prx createProxy(Identity id) const
         {
-            return uncheckedCast<Prx>(_createProxy(id));
+            return uncheckedCast<Prx>(_createProxy(std::move(id)));
         }
 
         /**
@@ -259,7 +259,7 @@ namespace Ice
         virtual void throwException() const = 0;
 
     protected:
-        virtual ObjectPrx _createProxy(const Identity& id) const = 0;
+        virtual ObjectPrx _createProxy(Identity id) const = 0;
     };
 
     /**

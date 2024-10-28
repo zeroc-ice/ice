@@ -263,9 +263,7 @@ Ice::ObjectAdapterI::isDeactivated() const noexcept
 void
 Ice::ObjectAdapterI::destroy() noexcept
 {
-    //
     // Deactivate and wait for completion.
-    //
     deactivate();
     waitForDeactivate();
 
@@ -356,13 +354,13 @@ Ice::ObjectAdapterI::use(function<ObjectPtr(ObjectPtr)> middlewareFactory)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::_add(const ObjectPtr& object, const Identity& ident)
+Ice::ObjectAdapterI::_add(ObjectPtr object, Identity ident)
 {
-    return _addFacet(object, ident, "");
+    return _addFacet(std::move(object), std::move(ident), "");
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::_addFacet(const ObjectPtr& object, const Identity& ident, const string& facet)
+Ice::ObjectAdapterI::_addFacet(ObjectPtr object, Identity ident, string facet)
 {
     lock_guard lock(_mutex);
 
@@ -373,27 +371,27 @@ Ice::ObjectAdapterI::_addFacet(const ObjectPtr& object, const Identity& ident, c
     }
     checkIdentity(ident, __FILE__, __LINE__);
 
-    _servantManager->addServant(object, ident, facet);
+    _servantManager->addServant(std::move(object), ident, facet);
 
-    return newProxy(ident, facet);
+    return newProxy(std::move(ident), std::move(facet));
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::_addWithUUID(const ObjectPtr& object)
+Ice::ObjectAdapterI::_addWithUUID(ObjectPtr object)
 {
-    return _addFacetWithUUID(object, "");
+    return _addFacetWithUUID(std::move(object), "");
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::_addFacetWithUUID(const ObjectPtr& object, const string& facet)
+Ice::ObjectAdapterI::_addFacetWithUUID(ObjectPtr object, string facet)
 {
     Identity ident;
     ident.name = Ice::generateUUID();
-    return _addFacet(object, ident, facet);
+    return _addFacet(std::move(object), std::move(ident), std::move(facet));
 }
 
 void
-Ice::ObjectAdapterI::addDefaultServant(const ObjectPtr& servant, const string& category)
+Ice::ObjectAdapterI::addDefaultServant(ObjectPtr servant, string category)
 {
     if (!servant)
     {
@@ -403,7 +401,7 @@ Ice::ObjectAdapterI::addDefaultServant(const ObjectPtr& servant, const string& c
     lock_guard lock(_mutex);
 
     checkForDestruction();
-    _servantManager->addDefaultServant(servant, category);
+    _servantManager->addDefaultServant(std::move(servant), std::move(category));
 }
 
 ObjectPtr
@@ -494,13 +492,13 @@ Ice::ObjectAdapterI::findDefaultServant(const string& category) const
 }
 
 void
-Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const string& prefix)
+Ice::ObjectAdapterI::addServantLocator(ServantLocatorPtr locator, string prefix)
 {
     lock_guard lock(_mutex);
 
     checkForDestruction();
 
-    _servantManager->addServantLocator(locator, prefix);
+    _servantManager->addServantLocator(std::move(locator), std::move(prefix));
 }
 
 ServantLocatorPtr
@@ -540,40 +538,40 @@ Ice::ObjectAdapterI::dispatchPipeline() const noexcept
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::_createProxy(const Identity& ident) const
+Ice::ObjectAdapterI::_createProxy(Identity ident) const
 {
     lock_guard lock(_mutex);
 
     checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
-    return newProxy(ident, "");
+    return newProxy(std::move(ident), "");
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::_createDirectProxy(const Identity& ident) const
+Ice::ObjectAdapterI::_createDirectProxy(Identity ident) const
 {
     lock_guard lock(_mutex);
 
     checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
-    return newDirectProxy(ident, "");
+    return newDirectProxy(std::move(ident), "");
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::_createIndirectProxy(const Identity& ident) const
+Ice::ObjectAdapterI::_createIndirectProxy(Identity ident) const
 {
     lock_guard lock(_mutex);
 
     checkForDestruction();
     checkIdentity(ident, __FILE__, __LINE__);
 
-    return newIndirectProxy(ident, "", _id);
+    return newIndirectProxy(std::move(ident), "", _id);
 }
 
 void
-Ice::ObjectAdapterI::setLocator(const optional<LocatorPrx>& locator)
+Ice::ObjectAdapterI::setLocator(optional<LocatorPrx> locator)
 {
     lock_guard lock(_mutex);
     checkForDeactivation();
@@ -610,7 +608,7 @@ Ice::ObjectAdapterI::getPublishedEndpoints() const noexcept
 }
 
 void
-Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
+Ice::ObjectAdapterI::setPublishedEndpoints(EndpointSeq newEndpoints)
 {
     LocatorInfoPtr locatorInfo;
     vector<EndpointIPtr> oldPublishedEndpoints;
@@ -635,7 +633,7 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
     {
         Ice::Identity dummy;
         dummy.name = "dummy";
-        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+        updateLocatorRegistry(locatorInfo, createDirectProxy(std::move(dummy)));
     }
     catch (const Ice::LocalException&)
     {
@@ -799,22 +797,22 @@ Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connectio
 // crash if an exception was thrown from any calls within the constructor.
 //
 Ice::ObjectAdapterI::ObjectAdapterI(
-    const InstancePtr& instance,
-    const CommunicatorPtr& communicator,
-    const ObjectAdapterFactoryPtr& objectAdapterFactory,
-    const string& name,
+    InstancePtr instance,
+    CommunicatorPtr communicator,
+    ObjectAdapterFactoryPtr objectAdapterFactory,
+    string name,
     bool noConfig,
-    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
+    optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
     : _state(StateUninitialized),
       _instance(instance),
-      _communicator(communicator),
-      _objectAdapterFactory(objectAdapterFactory),
+      _communicator(std::move(communicator)),
+      _objectAdapterFactory(std::move(objectAdapterFactory)),
       _servantManager(make_shared<ServantManager>(instance, name)),
-      _name(name),
+      _name(std::move(name)),
       _directCount(0),
       _noConfig(noConfig),
       _messageSizeMax(0),
-      _serverAuthenticationOptions(serverAuthenticationOptions)
+      _serverAuthenticationOptions(std::move(serverAuthenticationOptions))
 {
 #if defined(ICE_USE_SCHANNEL)
     if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
@@ -1036,36 +1034,37 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
+Ice::ObjectAdapterI::newProxy(Identity ident, string facet) const
 {
     if (_id.empty())
     {
-        return newDirectProxy(ident, facet);
+        return newDirectProxy(std::move(ident), std::move(facet));
     }
     else if (_replicaGroupId.empty())
     {
-        return newIndirectProxy(ident, facet, _id);
+        return newIndirectProxy(std::move(ident), std::move(facet), _id);
     }
     else
     {
-        return newIndirectProxy(ident, facet, _replicaGroupId);
+        return newIndirectProxy(std::move(ident), std::move(facet), _replicaGroupId);
     }
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) const
+Ice::ObjectAdapterI::newDirectProxy(Identity ident, string facet) const
 {
     return ObjectPrx::_fromReference(
-        _instance->referenceFactory()->create(ident, facet, _reference, _publishedEndpoints));
+        _instance->referenceFactory()->create(std::move(ident), std::move(facet), _reference, _publishedEndpoints));
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet, const string& id) const
+Ice::ObjectAdapterI::newIndirectProxy(Identity ident, string facet, string id) const
 {
     //
     // Create an indirect reference with the given adapter id.
     //
-    return ObjectPrx::_fromReference(_instance->referenceFactory()->create(ident, facet, _reference, id));
+    return ObjectPrx::_fromReference(
+        _instance->referenceFactory()->create(std::move(ident), std::move(facet), _reference, std::move(id)));
 }
 
 void

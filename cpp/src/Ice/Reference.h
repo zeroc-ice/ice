@@ -141,17 +141,18 @@ namespace IceInternal
 
     protected:
         Reference(
-            const InstancePtr&,
-            const Ice::CommunicatorPtr&,
-            const Ice::Identity&,
-            const std::string&,
+            InstancePtr,
+            Ice::CommunicatorPtr,
+            Ice::Identity,
+            std::string,
             Mode,
             bool,
             std::optional<bool>,
-            const Ice::ProtocolVersion&,
-            const Ice::EncodingVersion&,
+            Ice::ProtocolVersion,
+            Ice::EncodingVersion,
             std::chrono::milliseconds,
-            const Ice::Context& ctx);
+            Ice::Context ctx);
+
         Reference(const Reference&);
 
         const InstancePtr _instance;
@@ -174,18 +175,18 @@ namespace IceInternal
     {
     public:
         FixedReference(
-            const InstancePtr&,
-            const Ice::CommunicatorPtr&,
-            const Ice::Identity&,
-            const std::string&,
+            InstancePtr,
+            Ice::CommunicatorPtr,
+            Ice::Identity,
+            std::string,
             Mode,
             bool,
             std::optional<bool>,
-            const Ice::ProtocolVersion&,
-            const Ice::EncodingVersion&,
+            Ice::ProtocolVersion,
+            Ice::EncodingVersion,
             Ice::ConnectionIPtr,
             std::chrono::milliseconds,
-            const Ice::Context&);
+            Ice::Context);
 
         FixedReference(const FixedReference&);
 
@@ -235,26 +236,26 @@ namespace IceInternal
     {
     public:
         RoutableReference(
-            const InstancePtr&,
-            const Ice::CommunicatorPtr&,
-            const Ice::Identity&,
-            const std::string&,
+            InstancePtr,
+            Ice::CommunicatorPtr,
+            Ice::Identity,
+            std::string,
             Mode,
             bool,
             std::optional<bool>,
-            const Ice::ProtocolVersion&,
-            const Ice::EncodingVersion&,
-            const std::vector<EndpointIPtr>&,
-            const std::string&,
-            const LocatorInfoPtr&,
-            const RouterInfoPtr&,
+            Ice::ProtocolVersion,
+            Ice::EncodingVersion,
+            std::vector<EndpointIPtr>,
+            std::string,
+            LocatorInfoPtr,
+            RouterInfoPtr,
             bool,
             bool,
             bool,
             Ice::EndpointSelectionType,
             std::chrono::milliseconds,
             std::chrono::milliseconds,
-            const Ice::Context&);
+            Ice::Context);
 
         RoutableReference(const RoutableReference&);
 
