@@ -356,19 +356,19 @@ Request::exception(std::exception_ptr ex)
     }
     catch (const Ice::NoEndpointException&)
     {
-        _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+        _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException{__FILE__, __LINE__}));
     }
     catch (const Ice::CommunicatorDestroyedException&)
     {
-        _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+        _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException{__FILE__, __LINE__}));
     }
     catch (const Ice::ObjectAdapterDeactivatedException&)
     {
-        _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+        _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException{__FILE__, __LINE__}));
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
-        _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+        _exceptionCallback(make_exception_ptr(Ice::ObjectNotExistException{__FILE__, __LINE__}));
     }
     catch (...)
     {

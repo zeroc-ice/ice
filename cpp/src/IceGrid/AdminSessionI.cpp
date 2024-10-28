@@ -34,7 +34,7 @@ namespace
                 [exception = std::move(exception)](exception_ptr)
                 {
                     // Throw ObjectNotExistException, the subscriber is unreachable
-                    exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+                    exception(make_exception_ptr(Ice::ObjectNotExistException{__FILE__, __LINE__}));
                 },
                 nullptr,
                 current.ctx);
@@ -138,13 +138,13 @@ AdminSessionI::setObservers(
     optional<ApplicationObserverPrx> appObserver,
     optional<AdapterObserverPrx> adapterObserver,
     optional<ObjectObserverPrx> objectObserver,
-    const Ice::Current& current)
+    const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     const auto locator = _registry->getLocator();
@@ -207,7 +207,7 @@ AdminSessionI::setObserversByIdentity(
 
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     setupObserverSubscription(TopicName::RegistryObserver, addForwarder(registryObserver, current), true);
@@ -218,13 +218,13 @@ AdminSessionI::setObserversByIdentity(
 }
 
 int
-AdminSessionI::startUpdate(const Ice::Current& current)
+AdminSessionI::startUpdate(const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     int serial = _database->lock(this, _id);
@@ -232,13 +232,13 @@ AdminSessionI::startUpdate(const Ice::Current& current)
 }
 
 void
-AdminSessionI::finishUpdate(const Ice::Current& current)
+AdminSessionI::finishUpdate(const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     _database->unlock(this);
@@ -375,13 +375,13 @@ AdminSessionI::addForwarder(Ice::ObjectPrx prx)
 }
 
 FileIteratorPrx
-AdminSessionI::addFileIterator(FileReaderPrx reader, const string& filename, int nLines, const Ice::Current& current)
+AdminSessionI::addFileIterator(FileReaderPrx reader, const string& filename, int nLines, const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     // Always call getOffsetFromEnd even if nLines < 0. This allows to throw right away if the file doesn't exit.

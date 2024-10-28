@@ -37,7 +37,7 @@ NodeServerAdminRouter::ice_invokeAsync(
             out << "could not find Admin proxy for server `" << current.id.name << "'";
         }
 
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException{__FILE__, __LINE__};
     }
 
     //
@@ -53,7 +53,7 @@ NodeServerAdminRouter::ice_invokeAsync(
             out << "no Process proxy registered with server `" << current.id.name << "'";
         }
 
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException{__FILE__, __LINE__};
     }
 
     //

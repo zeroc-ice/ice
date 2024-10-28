@@ -110,7 +110,7 @@ Ice::Object::dispatch(IncomingRequest& request, std::function<void(OutgoingRespo
 
     if (r.first == r.second)
     {
-        sendResponse(makeOutgoingResponse(make_exception_ptr(OperationNotExistException(__FILE__, __LINE__)), current));
+        sendResponse(makeOutgoingResponse(make_exception_ptr(OperationNotExistException{__FILE__, __LINE__}), current));
         return;
     }
 
@@ -140,7 +140,7 @@ Ice::Object::dispatch(IncomingRequest& request, std::function<void(OutgoingRespo
         {
             assert(false);
             sendResponse(
-                makeOutgoingResponse(make_exception_ptr(OperationNotExistException(__FILE__, __LINE__)), current));
+                makeOutgoingResponse(make_exception_ptr(OperationNotExistException{__FILE__, __LINE__}), current));
         }
     }
 }

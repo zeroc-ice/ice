@@ -6,17 +6,17 @@ import TestCommon
 final class MyObjectI: ObjectI<MyObjectTraits>, MyObject {
     override func ice_ping(current: Ice.Current) async throws {
         if current.id.name == "ObjectNotExist" {
-            throw Ice.ObjectNotExistException(id: current.id, facet: "", operation: "ice_ping")
+            throw Ice.ObjectNotExistException()
         } else if current.id.name == "FacetNotExist" {
-            throw Ice.FacetNotExistException(id: current.id, facet: "", operation: "ice_ping")
+            throw Ice.FacetNotExistException()
         }
     }
 
     func getName(current: Ice.Current) async throws -> String {
         if current.id.name == "ObjectNotExist" {
-            throw Ice.ObjectNotExistException(id: current.id, facet: "", operation: "ice_ping")
+            throw Ice.ObjectNotExistException()
         } else if current.id.name == "FacetNotExist" {
-            throw Ice.FacetNotExistException(id: current.id, facet: "", operation: "ice_ping")
+            throw Ice.FacetNotExistException()
         }
         return current.id.name
     }

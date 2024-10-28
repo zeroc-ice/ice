@@ -2888,8 +2888,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << nl << "if(r.first == r.second)";
         C << sb;
         C << nl
-          << "sendResponse(::Ice::makeOutgoingResponse(::std::make_exception_ptr(::Ice::OperationNotExistException(__"
-             "FILE__, __LINE__)), current));";
+          << "sendResponse(::Ice::makeOutgoingResponse(::std::make_exception_ptr(::Ice::OperationNotExistException{__"
+             "FILE__, __LINE__}), current));";
         C << nl << "return;";
         C << eb;
         C << sp;
@@ -2908,8 +2908,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << sb;
         C << nl << "assert(false);";
         C << nl
-          << "sendResponse(::Ice::makeOutgoingResponse(::std::make_exception_ptr(::Ice::OperationNotExistException(__"
-             "FILE__, __LINE__)), current));";
+          << "sendResponse(::Ice::makeOutgoingResponse(::std::make_exception_ptr(::Ice::OperationNotExistException{__"
+             "FILE__, __LINE__}), current));";
         C << eb;
         C << eb;
         C << eb;
