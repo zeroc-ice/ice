@@ -355,9 +355,6 @@ Instance.prototype.destroy = async function () {
         if (this._locatorManager) {
             this._locatorManager.destroy();
         }
-        if (this._endpointFactoryManager) {
-            this._endpointFactoryManager.destroy();
-        }
 
         if (this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
             const unusedProperties = this._initData.properties.getUnusedProperties();
