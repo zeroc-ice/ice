@@ -577,6 +577,9 @@ export class ConnectionI {
                 }
             }
         } catch (ex) {
+            console.log("State: " + this._state);
+            console.log(new Error().stack);
+            console.log(ex);
             this.setState(StateClosed, ex);
             return;
         }
@@ -627,6 +630,8 @@ export class ConnectionI {
                     try {
                         this.initiateShutdown();
                     } catch (ex) {
+                        console.log(new Error().stack);
+                        console.log(ex);
                         if (ex instanceof LocalException) {
                             this.setState(StateClosed, ex);
                         } else {
@@ -969,6 +974,8 @@ export class ConnectionI {
                 }
             }
         } catch (ex) {
+            console.log(new Error().stack);
+            console.log(ex);
             if (ex instanceof LocalException) {
                 this._logger.error(`unexpected connection exception:\n${this._desc}\n${ex.toString()}`);
             } else {
@@ -982,6 +989,8 @@ export class ConnectionI {
             try {
                 this.initiateShutdown();
             } catch (ex) {
+                console.log(new Error().stack);
+                console.log(ex);
                 if (ex instanceof LocalException) {
                     this.setState(StateClosed, ex);
                 } else {

@@ -30,7 +30,7 @@ jobs:
           - os: windows-2022
             config: "release"
             build_flags: "/p:Platform=x64"
-            test_flags: "--platform=x64"
+            test_flags: "--platform=x64 --filter js/Ice/ami --loop"
           - os: windows-2022
             config: "cpp-win32-release"
             working_directory: "cpp"
