@@ -77,7 +77,7 @@ Glacier2::ClientBlobject::ice_invokeAsync(
     auto proxy = _routingTable->get(current.id);
     if (!proxy)
     {
-        // We use a special operation name indicate to the client that the proxy for the Ice object has not been found
+        // We use a special operation name to indicate to the client that the proxy for the Ice object has not been found
         // in our routing table. This can happen if the proxy was evicted from the routing table.
         throw ObjectNotExistException{__FILE__, __LINE__, current.id, current.facet, "ice_add_proxy"};
     }
