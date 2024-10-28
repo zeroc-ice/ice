@@ -81,6 +81,7 @@ Ice::Properties::Properties(const Properties& p)
 {
     lock_guard lock(p._mutex);
     _properties = p._properties;
+    _servicePrefix = p._servicePrefix;
 }
 
 Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
