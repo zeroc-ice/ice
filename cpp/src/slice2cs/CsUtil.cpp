@@ -106,7 +106,7 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 
     return scope;
 }
-
+// getNamespace(seq) + "." + seq->name() + "Helper", scope
 string
 Slice::CsGenerator::getUnqualified(const string& type, const string& scope, bool builtin)
 {
@@ -1127,7 +1127,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     assert(cont);
     if (useHelper)
     {
-        string helperName = getUnqualified(getNamespace(seq) + "." + seq->name() + "Helper", scope);
+        string helperName = getUnqualified(seq, scope, "", "Helper");
         if (marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";

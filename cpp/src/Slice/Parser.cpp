@@ -113,7 +113,7 @@ Slice::Metadata::arguments() const
     return _arguments;
 }
 
-string_view
+string
 Slice::Metadata::file() const
 {
     return _file;

@@ -82,31 +82,30 @@ namespace
     public:
         bool visitUnitStart(const UnitPtr& unit) final
         {
-            static const string prefix = "java:";
-
             // Validate file metadata in the top-level file and all included files.
             for (const auto& file : unit->allFiles())
             {
                 DefinitionContextPtr dc = unit->findDefinitionContext(file);
                 assert(dc);
-                StringList fileMetadata = dc->getMetadata();
-                for (StringList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
+                MetadataList fileMetadata = dc->getMetadata();
+                for (MetadataList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
                 {
-                    string s = *r++;
-                    if (s.find(prefix) == 0)
+                    MetadataPtr metadata = *r++;
+                    const string_view directive = metadata->directive();
+                    if (directive.find("java:") == 0)
                     {
-                        static const string packagePrefix = "java:package:";
-                        if (s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
+                        if (directive == "java:package" && !metadata->arguments().empty())
                         {
                             continue;
                         }
                         else
                         {
-                            dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata `" + s + "'");
-                            fileMetadata.remove(s);
-                            continue;
+                            ostringstream msg;
+                            msg << "ignoring invalid file metadata '" << metadata << "'";
+                            dc->warning(InvalidMetadata, file, -1,  msg.str());
+                            fileMetadata.remove(metadata);
                         }
-                    };
+                    }
                 }
                 dc->setMetadata(fileMetadata);
             }
@@ -115,44 +114,44 @@ namespace
 
         bool visitModuleStart(const ModulePtr& p) final
         {
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
-            metadata = validateGetSet(p, metadata, p->file(), p->line());
+            metadata = validateGetSet(p, metadata);
             p->setMetadata(metadata);
             return true;
         }
 
         void visitClassDecl(const ClassDeclPtr& p) final
         {
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
-            metadata = validateGetSet(p, metadata, p->file(), p->line());
+            metadata = validateGetSet(p, metadata);
             p->setMetadata(metadata);
         }
 
         bool visitClassDefStart(const ClassDefPtr& p) final
         {
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
-            metadata = validateGetSet(p, metadata, p->file(), p->line());
+            metadata = validateGetSet(p, metadata);
             p->setMetadata(metadata);
             return true;
         }
 
         bool visitExceptionStart(const ExceptionPtr& p) final
         {
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
-            metadata = validateGetSet(p, metadata, p->file(), p->line());
+            metadata = validateGetSet(p, metadata);
             p->setMetadata(metadata);
             return true;
         }
 
         bool visitStructStart(const StructPtr& p) final
         {
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
-            metadata = validateGetSet(p, metadata, p->file(), p->line());
+            metadata = validateGetSet(p, metadata);
             p->setMetadata(metadata);
             return true;
         }
@@ -160,7 +159,7 @@ namespace
         void visitOperation(const OperationPtr& p) final
         {
             TypePtr returnType = p->returnType();
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
 
             UnitPtr unt = p->unit();
             string file = p->file();
@@ -168,17 +167,15 @@ namespace
 
             if (!returnType)
             {
-                for (StringList::const_iterator q = metadata.begin(); q != metadata.end();)
+                for (MetadataList::const_iterator q = metadata.begin(); q != metadata.end();)
                 {
-                    string s = *q++;
-                    if (s.find("java:type:", 0) == 0)
+                    MetadataPtr m = *q++;
+                    if (m->directive() == "java:type")
                     {
-                        dc->warning(
-                            InvalidMetadata,
-                            p->file(),
-                            p->line(),
-                            "ignoring invalid metadata `" + s + "' for operation with void return type");
-                        metadata.remove(s);
+                        ostringstream msg;
+                        msg << "ignoring invalid metadata '" << m << "' for operation with void return type";
+                        dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
+                        metadata.remove(m);
                         continue;
                     }
                 }
@@ -186,197 +183,181 @@ namespace
             else
             {
                 metadata = validateType(returnType, metadata, p->file(), p->line());
-                metadata = validateGetSet(p, metadata, p->file(), p->line());
+                metadata = validateGetSet(p, metadata);
             }
             p->setMetadata(metadata);
 
-            ParamDeclList params = p->parameters();
-            for (ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+            for (const auto& param : p->parameters())
             {
-                metadata = getMetadata(*q);
-                metadata = validateType((*q)->type(), metadata, p->file(), (*q)->line());
-                metadata = validateGetSet((*q)->type(), metadata, p->file(), (*q)->line());
-                (*q)->setMetadata(metadata);
+                metadata = getMetadata(param);
+                metadata = validateType(param->type(), metadata, param->file(), param->line());
+                metadata = validateGetSet(param, metadata);
+                param->setMetadata(metadata);
             }
         }
 
         void visitDataMember(const DataMemberPtr& p) final
         {
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
             metadata = validateType(p->type(), metadata, p->file(), p->line());
-            metadata = validateGetSet(p, metadata, p->file(), p->line());
+            metadata = validateGetSet(p, metadata);
             p->setMetadata(metadata);
         }
 
         void visitSequence(const SequencePtr& p) final
         {
-            static const string serializable = "java:serializable:";
-            static const string bytebuffer = "java:buffer";
-            StringList metadata = getMetadata(p);
-            StringList newMetadata;
+            MetadataList metadata = getMetadata(p);
+            MetadataList newMetadata;
 
             const string file = p->file();
             int line = p->line();
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);
 
-            for (StringList::const_iterator q = metadata.begin(); q != metadata.end();)
+            for (MetadataList::const_iterator q = metadata.begin(); q != metadata.end();)
             {
-                string s = *q++;
+                MetadataPtr m = *q++;
 
-                if (s.find(serializable) == 0)
+                if (m->directive() == "java:serializable")
                 {
-                    //
                     // Remove from list so validateType does not try to handle as well.
-                    //
-                    metadata.remove(s);
+                    metadata.remove(m);
                     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
                     if (!builtin || builtin->kind() != Builtin::KindByte)
                     {
-                        dc->warning(
-                            InvalidMetadata,
-                            file,
-                            line,
-                            "ignoring invalid metadata `" + s +
-                                "': " + "this metadata can only be used with a byte sequence");
+                        ostringstream msg;
+                        msg << "ignoring invalid metadata '" << m << "': this metadata can only be used with a byte sequence";
+                        dc->warning(InvalidMetadata, file, line, msg.str());
                         continue;
                     }
-                    newMetadata.push_back(s);
+                    newMetadata.push_back(m);
                 }
-                else if (s.find(bytebuffer) == 0)
+                else if (m->directive() == "java:buffer")
                 {
-                    metadata.remove(s);
+                    metadata.remove(m);
 
                     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
                     if (!builtin || (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
                                      builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
                                      builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
                     {
-                        dc->warning(
-                            InvalidMetadata,
-                            file,
-                            line,
-                            "ignoring invalid metadata `" + s + "': " + "this metadata can not be used with this type");
+                        ostringstream msg;
+                        msg << "ignoring invalid metadata '" << m << "': this metadata can not be used with this type";
+                        dc->warning(InvalidMetadata, file, line, msg.str());
                         continue;
                     }
-                    newMetadata.push_back(s);
+                    newMetadata.push_back(m);
                 }
             }
 
             metadata = validateType(p, metadata, file, line);
-            metadata = validateGetSet(p, metadata, file, line);
+            metadata = validateGetSet(p, metadata);
             newMetadata.insert(newMetadata.begin(), metadata.begin(), metadata.end());
             p->setMetadata(newMetadata);
         }
 
         void visitDictionary(const DictionaryPtr& p) final
         {
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
-            metadata = validateGetSet(p, metadata, p->file(), p->line());
+            metadata = validateGetSet(p, metadata);
             p->setMetadata(metadata);
         }
 
         void visitEnum(const EnumPtr& p) final
         {
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
-            metadata = validateGetSet(p, metadata, p->file(), p->line());
+            metadata = validateGetSet(p, metadata);
             p->setMetadata(metadata);
         }
 
         void visitConst(const ConstPtr& p) final
         {
-            StringList metadata = getMetadata(p);
+            MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
-            metadata = validateGetSet(p, metadata, p->file(), p->line());
+            metadata = validateGetSet(p, metadata);
             p->setMetadata(metadata);
         }
 
         bool shouldVisitIncludedDefinitions() const final { return true; }
 
     private:
-        StringList getMetadata(const ContainedPtr& cont)
+        MetadataList getMetadata(const ContainedPtr& cont)
         {
-            static const string prefix = "java:";
-
-            StringList metadata = cont->getMetadata();
-            StringList result;
+            MetadataList result;
 
             UnitPtr unt = cont->container()->unit();
             string file = cont->file();
             DefinitionContextPtr dc = unt->findDefinitionContext(file);
             assert(dc);
 
-            for (StringList::const_iterator p = metadata.begin(); p != metadata.end(); ++p)
+            for (const auto& m : cont->getMetadata())
             {
-                string s = *p;
-                if (s.find(prefix) == 0)
+                const string_view directive = m->directive();
+                if (directive.find("java:") == 0)
                 {
-                    string::size_type pos = s.find(':', prefix.size());
-                    if (pos == string::npos)
+                    if (m->arguments().empty())
                     {
-                        if (s.size() > prefix.size())
+                        if (directive == "java:getset")
                         {
-                            string rest = s.substr(prefix.size());
-                            if (rest == "getset")
-                            {
-                                result.push_back(s);
-                                continue;
-                            }
-                            else if (rest == "buffer")
-                            {
-                                result.push_back(s);
-                                continue;
-                            }
-                            else if (rest == "tie")
-                            {
-                                result.push_back(s);
-                                continue;
-                            }
-                            else if (rest == "UserException")
-                            {
-                                result.push_back(s);
-                                continue;
-                            }
-                            else if (rest == "optional")
-                            {
-                                result.push_back(s);
-                                continue;
-                            }
+                            result.push_back(m);
+                            continue;
+                        }
+                        else if (directive == "java:buffer")
+                        {
+                            result.push_back(m);
+                            continue;
+                        }
+                        else if (directive == "java:tie")
+                        {
+                            result.push_back(m);
+                            continue;
+                        }
+                        else if (directive == "java:UserException")
+                        {
+                            result.push_back(m);
+                            continue;
+                        }
+                        else if (directive == "java:optional")
+                        {
+                            result.push_back(m);
+                            continue;
                         }
                     }
-                    else if (s.substr(prefix.size(), pos - prefix.size()) == "type")
+                    else if (directive == "java:type")
                     {
-                        result.push_back(s);
+                        result.push_back(m);
                         continue;
                     }
-                    else if (s.substr(prefix.size(), pos - prefix.size()) == "serializable")
+                    else if (directive == "java:serializable")
                     {
-                        result.push_back(s);
+                        result.push_back(m);
                         continue;
                     }
-                    else if (s.substr(prefix.size(), pos - prefix.size()) == "serialVersionUID")
+                    else if (directive == "java:serialVersionUID")
                     {
-                        result.push_back(s);
+                        result.push_back(m);
                         continue;
                     }
-                    else if (s.substr(prefix.size(), pos - prefix.size()) == "implements")
+                    else if (directive == "java:implements")
                     {
-                        result.push_back(s);
+                        result.push_back(m);
                         continue;
                     }
-                    else if (s.substr(prefix.size(), pos - prefix.size()) == "package")
+                    else if (directive == "java:package")
                     {
-                        result.push_back(s);
+                        result.push_back(m);
                         continue;
                     }
 
-                    dc->warning(InvalidMetadata, cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
+                    ostringstream msg;
+                    msg << "ignoring invalid metadata '" << m << "'";
+                    dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                 }
                 else
                 {
-                    result.push_back(s);
+                    result.push_back(m);
                     continue;
                 }
             }
@@ -384,18 +365,19 @@ namespace
             return result;
         }
 
-        StringList validateType(const SyntaxTreeBasePtr& p, const StringList& metadata, const string& file, int line)
+        MetadataList validateType(const SyntaxTreeBasePtr& p, const MetadataList& metadata, const string& file, int line)
         {
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);
             assert(dc);
-            StringList newMetadata;
-            for (StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
+
+            MetadataList newMetadata;
+            for (const auto& m : metadata)
             {
-                //
+                const string_view directive = m->directive();
+
                 // Type metadata ("java:type:Foo") is only supported by sequences and dictionaries.
-                //
-                if (i->find("java:type:", 0) == 0 &&
+                if (directive == "java:type" &&
                     (!dynamic_pointer_cast<Sequence>(p) && !dynamic_pointer_cast<Dictionary>(p)))
                 {
                     string str;
@@ -412,7 +394,7 @@ namespace
                     }
                     dc->warning(InvalidMetadata, file, line, "invalid metadata for " + str);
                 }
-                else if (i->find("java:buffer") == 0)
+                else if (directive == "java:buffer")
                 {
                     SequencePtr seq = dynamic_pointer_cast<Sequence>(p);
                     if (seq)
@@ -423,87 +405,75 @@ namespace
                              builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
                              builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
                         {
-                            newMetadata.push_back(*i);
+                            newMetadata.push_back(m);
                             continue;
                         }
                     }
 
-                    dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + *i + "'");
+                    ostringstream msg;
+                    msg << "ignoring invalid metadata '" << m << "'";
+                    dc->warning(InvalidMetadata, file, line, msg.str());
                 }
-                else if (i->find("java:serializable:") == 0)
+                else if (directive == "java:serializable")
                 {
-                    //
                     // Only valid in sequence definition which is checked in visitSequence
-                    //
-                    dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + *i + "'");
+                    ostringstream msg;
+                    msg << "ignoring invalid metadata '" << m << "'";
+                    dc->warning(InvalidMetadata, file, line, msg.str());
                 }
-                // TODO: the delegate metadata is only for local interfaces, we should remove this check.
-                else if (i->find("delegate") == 0)
-                {
-                    dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + *i + "'");
-                }
-                else if (i->find("java:implements:") == 0)
+                else if (directive == "java:implements")
                 {
                     if (dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<Struct>(p))
                     {
-                        newMetadata.push_back(*i);
+                        newMetadata.push_back(m);
                     }
                     else
                     {
-                        dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + *i + "'");
+                        ostringstream msg;
+                        msg << "ignoring invalid metadata '" << m << "'";
+                        dc->warning(InvalidMetadata, file, line, msg.str());
                     }
                 }
-                else if (i->find("java:package:") == 0)
+                else if (directive == "java:package")
                 {
-                    ModulePtr m = dynamic_pointer_cast<Module>(p);
-                    if (m && dynamic_pointer_cast<Unit>(m->container()))
+                    ModulePtr mod = dynamic_pointer_cast<Module>(p);
+                    if (mod && dynamic_pointer_cast<Unit>(mod->container()))
                     {
-                        newMetadata.push_back(*i);
+                        newMetadata.push_back(m);
                     }
                     else
                     {
-                        dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata `" + *i + "'");
+                        ostringstream msg;
+                        msg << "ignoring invalid metadata '" << m << "'";
+                        dc->warning(InvalidMetadata, file, line, msg.str());
                     }
                 }
                 else
                 {
-                    newMetadata.push_back(*i);
+                    newMetadata.push_back(m);
                 }
             }
             return newMetadata;
         }
 
-        StringList validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metadata, const string& file, int line)
+        MetadataList validateGetSet(const ContainedPtr& p, const MetadataList& metadata)
         {
             const UnitPtr unt = p->unit();
-            const DefinitionContextPtr dc = unt->findDefinitionContext(file);
+            const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
             assert(dc);
-            StringList newMetadata;
-            for (StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
+
+            MetadataList newMetadata;
+            for (const auto& m : metadata)
             {
-                //
                 // The "getset" metadata can only be specified on a class, struct, exception or data member.
-                //
-                if ((*i) == "java:getset" &&
+                if (m->directive() == "java:getset" &&
                     (!dynamic_pointer_cast<ClassDef>(p) && !dynamic_pointer_cast<Struct>(p) &&
                      !dynamic_pointer_cast<Slice::Exception>(p) && !dynamic_pointer_cast<DataMember>(p)))
                 {
-                    string str;
-                    ContainedPtr cont = dynamic_pointer_cast<Contained>(p);
-                    if (cont)
-                    {
-                        str = cont->kindOf();
-                    }
-                    else
-                    {
-                        BuiltinPtr b = dynamic_pointer_cast<Builtin>(p);
-                        assert(b);
-                        str = b->typeId();
-                    }
-                    dc->warning(InvalidMetadata, file, line, "invalid metadata for " + str);
+                    dc->warning(InvalidMetadata, m->file(), m->line(), "invalid metadata for " + p->kindOf());
                     continue;
                 }
-                newMetadata.push_back(*i);
+                newMetadata.push_back(m);
             }
             return newMetadata;
         }
@@ -516,11 +486,10 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
     optional<std::int64_t> serialVersionUID = nullopt;
 
     // Check if the user provided their own UID value with metadata.
-    if (auto meta = p->findMetadata("java:serialVersionUID"))
+    if (auto meta = p->getMetadataArgs("java:serialVersionUID"))
     {
         string value = *meta;
-        string::size_type pos = value.rfind(":") + 1;
-        if (pos == string::npos)
+        if (value.empty())
         {
             ostringstream os;
             os << "missing serialVersionUID value for " << p->kindOf() << " `" << p->scoped()
@@ -532,7 +501,6 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
         {
             try
             {
-                value = value.substr(pos);
                 serialVersionUID = std::stoll(value, nullptr, 0);
             }
             catch (const std::exception&)
@@ -753,8 +721,6 @@ Slice::JavaOutput::printHeader()
     print("//\n");
 }
 
-const string Slice::JavaGenerator::_getSetMetadata = "java:getset";
-
 Slice::JavaGenerator::JavaGenerator(const string& dir) : _dir(dir), _out(0) {}
 
 Slice::JavaGenerator::~JavaGenerator()
@@ -904,26 +870,16 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
 
     assert(m);
 
-    //
-    // The java:package metadata can be defined as file metadata or applied to a top-level module.
+    // The 'java:package' metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
-    //
-    static const string prefix = "java:package:";
-
-    if (auto meta = m->findMetadata(prefix))
+    if (auto metadataArgs = cont->getMetadataArgs("java:package"))
     {
-        return meta->substr(prefix.size());
+        return *metadataArgs;
     }
-
     string file = cont->file();
     DefinitionContextPtr dc = cont->unit()->findDefinitionContext(file);
     assert(dc);
-    if (auto meta = dc->findMetadata(prefix))
-    {
-        return meta->substr(prefix.size());
-    }
-
-    return "";
+    return dc->getMetadataArgs("java:package").value_or("");
 }
 
 string
@@ -1089,7 +1045,7 @@ Slice::JavaGenerator::typeToString(
     const TypePtr& type,
     TypeMode mode,
     const string& package,
-    const StringList& metadata,
+    const MetadataList& metadata,
     bool formal,
     bool optional) const
 {
@@ -1218,7 +1174,7 @@ Slice::JavaGenerator::typeToObjectString(
     const TypePtr& type,
     TypeMode mode,
     const string& package,
-    const StringList& metadata,
+    const MetadataList& metadata,
     bool formal) const
 {
     static const char* builtinTable[] = {
@@ -1255,7 +1211,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
     bool marshal,
     int& iter,
     const string& customStream,
-    const StringList& metadata,
+    const MetadataList& metadata,
     const string& patchParams)
 {
     string stream = customStream;
@@ -1406,7 +1362,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
         {
             string instanceType, formalType, origInstanceType, origFormalType;
             getDictionaryTypes(dict, "", metadata, instanceType, formalType);
-            getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
+            getDictionaryTypes(dict, "", MetadataList(), origInstanceType, origFormalType);
             if (formalType == origFormalType && (marshal || instanceType == origInstanceType))
             {
                 //
@@ -1525,7 +1481,6 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
     {
         if (optionalParam || mode == OptionalMember)
         {
-            string ignored;
             TypePtr elemType = seq->type();
             BuiltinPtr eltBltin = dynamic_pointer_cast<Builtin>(elemType);
             if (!hasTypeMetadata(seq, metadata) && eltBltin && eltBltin->kind() < Builtin::KindObject)
@@ -1557,12 +1512,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                 }
             }
             else if (
-                !hasTypeMetadata(seq, metadata) || seq->hasMetadata("java:type") ||
-                findMetadata("java:type", metadata, ignored))
+                !hasTypeMetadata(seq, metadata) || seq->hasMetadata("java:type") || hasMetadata("java:type", metadata))
             {
                 string instanceType, formalType, origInstanceType, origFormalType;
                 getSequenceTypes(seq, "", metadata, instanceType, formalType);
-                getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
+                getSequenceTypes(seq, "", MetadataList(), origInstanceType, origFormalType);
                 if (formalType == origFormalType && (marshal || instanceType == origInstanceType))
                 {
                     string helper = getUnqualified(seq, package, "", "Helper");
@@ -1609,9 +1563,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                     string s = optionalParam && optionalMapping ? param + ".get()" : param;
                     if (sz > 1)
                     {
-                        string ignored2;
                         out << nl << "final int optSize = " << s << " == null ? 0 : ";
-                        if (seq->hasMetadata("java:buffer") || findMetadata("java:buffer", metadata, ignored2))
+                        if (seq->hasMetadata("java:buffer") || hasMetadata("java:buffer", metadata))
                         {
                             out << s << ".remaining() / " << sz << ";";
                         }
@@ -1713,7 +1666,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
     int& iter,
     bool useHelper,
     const string& customStream,
-    const StringList& metadata)
+    const MetadataList& metadata)
 {
     string stream = customStream;
     if (stream.empty())
@@ -1739,7 +1692,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
     //
     string instanceType, formalType, origInstanceType, origFormalType;
     getDictionaryTypes(dict, "", metadata, instanceType, formalType);
-    getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
+    getDictionaryTypes(dict, "", MetadataList(), origInstanceType, origFormalType);
     if (useHelper && formalType == origFormalType && (marshal || instanceType == origInstanceType))
     {
         //
@@ -1827,7 +1780,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
                 false,
                 iter,
                 customStream,
-                StringList(),
+                MetadataList(),
                 patchParams.str());
         }
         else
@@ -1854,7 +1807,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     int& iter,
     bool useHelper,
     const string& customStream,
-    const StringList& metadata)
+    const MetadataList& metadata)
 {
     string stream = customStream;
     if (stream.empty())
@@ -1872,8 +1825,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
     if (builtin && builtin->kind() == Builtin::KindByte)
     {
-        static const string serializable = "java:serializable:";
-        if (seq->hasMetadata(serializable))
+        if (seq->hasMetadata("java:serializable"))
         {
             if (marshal)
             {
@@ -1893,9 +1845,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                     builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
                     builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
     {
-        string meta;
         static const string bytebuffer = "java:buffer";
-        if (seq->hasMetadata(bytebuffer) || findMetadata(bytebuffer, metadata, meta))
+        if (seq->hasMetadata(bytebuffer) || hasMetadata(bytebuffer, metadata))
         {
             if (marshal)
             {
@@ -1938,7 +1889,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     //
     string instanceType, formalType, origInstanceType, origFormalType;
     bool customType = getSequenceTypes(seq, "", metadata, instanceType, formalType);
-    getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
+    getSequenceTypes(seq, "", MetadataList(), origInstanceType, origFormalType);
     if (useHelper && formalType == origFormalType && (marshal || instanceType == origInstanceType))
     {
         //
@@ -2038,7 +1989,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                     false,
                     iter,
                     customStream,
-                    StringList(),
+                    MetadataList(),
                     patchParams.str());
             }
             else
@@ -2275,7 +2226,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                         false,
                         iter,
                         customStream,
-                        StringList(),
+                        MetadataList(),
                         patchParams.str());
                 }
                 else
@@ -2300,13 +2251,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
 }
 
 bool
-Slice::JavaGenerator::findMetadata(const string& prefix, const StringList& metadata, string& value)
+Slice::JavaGenerator::hasMetadata(const string& directive, const MetadataList& metadata)
 {
-    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
+    for (const auto& m : metadata)
     {
-        if (q->find(prefix) == 0)
+        if (m->directive() == directive)
         {
-            value = *q;
             return true;
         }
     }
@@ -2315,55 +2265,51 @@ Slice::JavaGenerator::findMetadata(const string& prefix, const StringList& metad
 }
 
 bool
-Slice::JavaGenerator::getTypeMetadata(const StringList& metadata, string& instanceType, string& formalType)
+Slice::JavaGenerator::getTypeMetadata(const MetadataList& metadata, string& instanceType, string& formalType)
 {
     //
     // Extract the instance type and an optional formal type.
     // The correct syntax is "java:type:instance-type[:formal-type]".
     //
-    static const string prefix = "java:type:";
-    string directive;
-    if (findMetadata(prefix, metadata, directive))
+    for (const auto& m : metadata)
     {
-        string::size_type pos = directive.find(':', prefix.size());
-        if (pos != string::npos)
+        if (m->directive() == "java:type")
         {
-            instanceType = directive.substr(prefix.size(), pos - prefix.size());
-            formalType = directive.substr(pos + 1);
+            string_view arguments = m->arguments();
+            string::size_type pos = arguments.find(':');
+            if (pos != string::npos)
+            {
+                instanceType = string(arguments.substr(0, pos));
+                formalType = string(arguments.substr(pos + 1));
+            }
+            else
+            {
+                instanceType = string(arguments);
+                formalType.clear();
+            }
+            return true;
         }
-        else
-        {
-            instanceType = directive.substr(prefix.size());
-            formalType.clear();
-        }
-        return true;
     }
 
     return false;
 }
 
 bool
-Slice::JavaGenerator::hasTypeMetadata(const TypePtr& type, const StringList& localMetadata)
+Slice::JavaGenerator::hasTypeMetadata(const TypePtr& type, const MetadataList& localMetadata)
 {
     ContainedPtr cont = dynamic_pointer_cast<Contained>(type);
     if (cont)
     {
-        static const string prefix = "java:type:";
-        string directive;
-
-        if (findMetadata(prefix, localMetadata, directive))
+        if (hasMetadata("java:type:", localMetadata))
+        {
+            return true;
+        }
+        if (cont->hasMetadata("java:type"))
         {
             return true;
         }
 
-        StringList metadata = cont->getMetadata();
-
-        if (findMetadata(prefix, metadata, directive))
-        {
-            return true;
-        }
-
-        if (findMetadata("java:serializable:", metadata, directive))
+        if (cont->hasMetadata("java:serializable"))
         {
             SequencePtr seq = dynamic_pointer_cast<Sequence>(cont);
             if (seq)
@@ -2376,7 +2322,7 @@ Slice::JavaGenerator::hasTypeMetadata(const TypePtr& type, const StringList& loc
             }
         }
 
-        if (findMetadata("java:buffer", metadata, directive) || findMetadata("java:buffer", localMetadata, directive))
+        if (cont->hasMetadata("java:buffer") || hasMetadata("java:buffer", localMetadata))
         {
             SequencePtr seq = dynamic_pointer_cast<Sequence>(cont);
             if (seq)
@@ -2399,15 +2345,15 @@ bool
 Slice::JavaGenerator::getDictionaryTypes(
     const DictionaryPtr& dict,
     const string& package,
-    const StringList& metadata,
+    const MetadataList& metadata,
     string& instanceType,
     string& formalType) const
 {
     //
     // Get the types of the key and value.
     //
-    string keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package, StringList(), true);
-    string valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package, StringList(), true);
+    string keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package, MetadataList(), true);
+    string valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package, MetadataList(), true);
 
     //
     // Collect metadata for a custom type.
@@ -2435,7 +2381,7 @@ bool
 Slice::JavaGenerator::getSequenceTypes(
     const SequencePtr& seq,
     const string& package,
-    const StringList& metadata,
+    const MetadataList& metadata,
     string& instanceType,
     string& formalType) const
 {
@@ -2444,10 +2390,9 @@ Slice::JavaGenerator::getSequenceTypes(
     {
         if (builtin->kind() == Builtin::KindByte)
         {
-            string prefix = "java:serializable:";
-            if (auto meta = seq->findMetadata(prefix))
+            if (auto meta = seq->getMetadataArgs("java:serializable"))
             {
-                instanceType = formalType = meta->substr(prefix.size());
+                instanceType = formalType = *meta;
                 return true;
             }
         }
@@ -2457,8 +2402,7 @@ Slice::JavaGenerator::getSequenceTypes(
              builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
         {
             string prefix = "java:buffer";
-            string ignored;
-            if (seq->hasMetadata(prefix) || findMetadata(prefix, metadata, ignored))
+            if (seq->hasMetadata(prefix) || hasMetadata(prefix, metadata))
             {
                 instanceType = formalType = typeToBufferString(seq->type());
                 return true;
@@ -2476,7 +2420,7 @@ Slice::JavaGenerator::getSequenceTypes(
         if (formalType.empty())
         {
             formalType =
-                "java.util.List<" + typeToObjectString(seq->type(), TypeModeIn, package, StringList(), true) + ">";
+                "java.util.List<" + typeToObjectString(seq->type(), TypeModeIn, package, MetadataList(), true) + ">";
         }
         return true;
     }

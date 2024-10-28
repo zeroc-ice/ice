@@ -1947,12 +1947,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "public " << (classMapping ? "sealed partial record class" : "partial record struct") << ' ' << name;
 
     // Check for cs:implements metadata.
-    list<string_view> baseNames;
+    list<string> baseNames;
     for (const auto& metadata : p->getMetadata())
     {
         if (metadata->directive() == "cs:implements")
         {
-            baseNames.push_back(metadata->arguments());
+            baseNames.push_back(string(metadata->arguments()));
         }
     }
 

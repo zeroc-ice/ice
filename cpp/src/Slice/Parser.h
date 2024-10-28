@@ -183,7 +183,7 @@ namespace Slice
         std::string_view directive() const;
         std::string_view arguments() const;
 
-        std::string_view file() const;
+        std::string file() const;
         int line() const;
 
         friend std::ostream& operator<<(std::ostream &out, const Metadata &metadata);
