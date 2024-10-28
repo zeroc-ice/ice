@@ -154,7 +154,9 @@ namespace
             case OperationMode::Normal:
                 return "::Ice::Normal";
 
+#include "PushDisableDeprecatedWarnings.h"
             case OperationMode::Nonmutating:
+#include "Ice/PopDisableWarnings.h"
                 return "::Ice::Nonmutating";
 
             case OperationMode::Idempotent:
@@ -171,6 +173,7 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
     if (expected != received)
     {
+#include "PushDisableDeprecatedWarnings.h"
         assert(expected != OperationMode::Nonmutating); // We never expect Nonmutating
         if (expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
         {
@@ -183,6 +186,7 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
                    << " received = " << operationModeToString(received);
             throw Ice::MarshalException(__FILE__, __LINE__, reason.str());
         }
+#include "Ice/PopDisableWarnings.h"
     }
 }
 
