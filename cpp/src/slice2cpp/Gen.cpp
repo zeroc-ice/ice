@@ -74,9 +74,9 @@ namespace
     string getDeprecatedSymbol(const ContainedPtr& p1)
     {
         string deprecatedSymbol;
-        if (p1->isDeprecated(false)) // 'false' means: don't check the parent type.
+        if (p1->isDeprecated())
         {
-            if (auto reason = p1->getDeprecationReason(false))
+            if (auto reason = p1->getDeprecationReason())
             {
                 deprecatedSymbol = "[[deprecated(\"" + *reason + "\")]] ";
             }

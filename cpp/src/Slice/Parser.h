@@ -349,17 +349,14 @@ namespace Slice
 
         static std::optional<FormatType> parseFormatMetadata(const StringList& metadata);
 
-        /// Returns true if this item is deprecated (due to the presence of 'deprecated' metadata).
-        /// @param checkParent If true, this item's immediate container will also be checked for 'deprecated' metadata.
-        /// @return True if this item (or possibly its container) has 'deprecated' metadata on it, false otherwise.
-        bool isDeprecated(bool checkParent) const;
+        /// Returns true if this item is deprecated, due to the presence of 'deprecated' metadata.
+        /// @return True if this item has 'deprecated' metadata on it, false otherwise.
+        bool isDeprecated() const;
 
         /// If this item is deprecated, return its deprecation message (if present).
         /// This is the string argument that can be optionally provided with 'deprecated' metadata.
-        /// @param checkParent If true, this item's immediate container will also be checked for 'deprecated' messages.
-        /// @return The message provided to the 'deprecated' metadata, if present. If 'checkParent' is true, and both
-        /// this item and its parent have 'deprecated' messages, the item's message is returned, not its container's.
-        std::optional<std::string> getDeprecationReason(bool checkParent) const;
+        /// @return The message provided to the 'deprecated' metadata, if present.
+        std::optional<std::string> getDeprecationReason() const;
 
         virtual std::string kindOf() const = 0;
 
