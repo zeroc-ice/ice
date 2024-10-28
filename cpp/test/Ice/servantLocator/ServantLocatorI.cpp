@@ -90,7 +90,7 @@ ServantLocatorI::exception(const Ice::Current& current)
     }
     else if (current.operation == "requestFailedException")
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     else if (current.operation == "unknownUserException")
     {

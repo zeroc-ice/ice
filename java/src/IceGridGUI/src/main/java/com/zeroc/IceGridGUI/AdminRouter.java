@@ -9,8 +9,7 @@ class AdminRouter implements com.zeroc.Ice.Blobject {
     public com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(
             byte[] inParams, com.zeroc.Ice.Current current) {
         if (_admin == null) {
-            throw new com.zeroc.Ice.ObjectNotExistException(
-                    current.id, current.facet, current.operation);
+            throw new com.zeroc.Ice.ObjectNotExistException();
         } else if (current.operation.equals("ice_id")
                 || current.operation.equals("ice_ids")
                 || current.operation.equals("ice_isA")
@@ -19,8 +18,7 @@ class AdminRouter implements com.zeroc.Ice.Blobject {
             return _admin.ice_invoke(current.operation, current.mode, inParams, current.ctx);
         } else {
             // Routing other operations could be a security risk
-            throw new com.zeroc.Ice.OperationNotExistException(
-                    current.id, current.facet, current.operation);
+            throw new com.zeroc.Ice.OperationNotExistException();
         }
     }
 

@@ -44,7 +44,7 @@ namespace
 
         void synchronized(exception_ptr)
         {
-            _exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+            _exception(make_exception_ptr(Ice::ObjectNotExistException{__FILE__, __LINE__}));
         }
 
     private:
@@ -101,7 +101,7 @@ RegistryServerAdminRouter::ice_invokeAsync(
 
     if (target == nullopt)
     {
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException{__FILE__, __LINE__};
     }
     invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }
@@ -148,7 +148,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(
                 out << "could not find Admin proxy for node `" << current.id.name << "'";
             }
 
-            throw ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException{__FILE__, __LINE__};
         }
     }
 
@@ -196,7 +196,7 @@ RegistryReplicaAdminRouter::ice_invokeAsync(
             out << "could not find Admin proxy for replica `" << current.id.name << "'";
         }
 
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException{__FILE__, __LINE__};
     }
     invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }

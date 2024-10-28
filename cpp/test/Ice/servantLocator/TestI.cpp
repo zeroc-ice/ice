@@ -51,7 +51,7 @@ TestI::cppException(const Current&)
 void
 TestI::unknownExceptionWithServantException(const Current&)
 {
-    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    throw Ice::ObjectNotExistException{__FILE__, __LINE__};
 }
 
 string

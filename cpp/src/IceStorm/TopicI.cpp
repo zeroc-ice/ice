@@ -664,7 +664,7 @@ TopicImpl::unlink(const TopicPrx& topic)
 
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     Ice::Identity id = topic->ice_getIdentity();
@@ -775,7 +775,7 @@ TopicImpl::destroy()
 
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     _destroyed = true;
 

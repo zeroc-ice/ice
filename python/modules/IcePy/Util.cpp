@@ -334,30 +334,30 @@ IcePy::PyException::raise()
 
             if (typeName == "Ice.ObjectNotExistException")
             {
-                throw Ice::ObjectNotExistException(
+                throw Ice::ObjectNotExistException{
                     __FILE__,
                     __LINE__,
                     std::move(id),
                     std::move(facet),
-                    std::move(operation));
+                    std::move(operation)};
             }
             else if (typeName == "Ice.OperationNotExistException")
             {
-                throw Ice::OperationNotExistException(
+                throw Ice::OperationNotExistException{
                     __FILE__,
                     __LINE__,
                     std::move(id),
                     std::move(facet),
-                    std::move(operation));
+                    std::move(operation)};
             }
             else if (typeName == "Ice.FacetNotExistException")
             {
-                throw Ice::FacetNotExistException(
+                throw Ice::FacetNotExistException{
                     __FILE__,
                     __LINE__,
                     std::move(id),
                     std::move(facet),
-                    std::move(operation));
+                    std::move(operation)};
             }
         }
 

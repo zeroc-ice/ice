@@ -68,7 +68,7 @@ BaseSessionI::destroyImpl(bool)
     lock_guard lock(_mutex);
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     _destroyed = true;
 
