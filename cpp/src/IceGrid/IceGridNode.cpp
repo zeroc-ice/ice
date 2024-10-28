@@ -55,7 +55,7 @@ namespace
         bool startImpl(int, char*[], int&);
         void waitForShutdown() override;
         bool stop() override;
-        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&) override;
 
     private:
         void usage(const std::string&);
@@ -720,7 +720,7 @@ NodeService::stop()
 }
 
 CommunicatorPtr
-NodeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData, int version)
+NodeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
@@ -772,7 +772,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[], const Initializatio
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
-    return Service::initializeCommunicator(argc, argv, initData, version);
+    return Service::initializeCommunicator(argc, argv, initData);
 }
 
 void

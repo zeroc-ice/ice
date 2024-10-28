@@ -358,15 +358,10 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this vector upon return.
      * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(
-        int& argc,
-        const char* argv[],
-        const InitializationData& initData = InitializationData(),
-        int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr
+    initialize(int& argc, const char* argv[], const InitializationData& initData = InitializationData());
 
     /**
      * Initializes a new communicator.
@@ -379,17 +374,12 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this vector upon return.
      * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    inline CommunicatorPtr initialize(
-        int& argc,
-        char* argv[],
-        const InitializationData& initData = InitializationData(),
-        int version = ICE_INT_VERSION)
+    inline CommunicatorPtr
+    initialize(int& argc, char* argv[], const InitializationData& initData = InitializationData())
     {
-        return initialize(argc, const_cast<const char**>(argv), initData, version);
+        return initialize(argc, const_cast<const char**>(argv), initData);
     }
 
     /**
@@ -403,12 +393,9 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this vector upon return.
      * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr
-    initialize(int& argc, const char* argv[], const std::string& configFile, int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(int& argc, const char* argv[], const std::string& configFile);
 
     /**
      * Initializes a new communicator.
@@ -421,14 +408,11 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this vector upon return.
      * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    inline CommunicatorPtr
-    initialize(int& argc, char* argv[], const std::string& configFile, int version = ICE_INT_VERSION)
+    inline CommunicatorPtr initialize(int& argc, char* argv[], const std::string& configFile)
     {
-        return initialize(argc, const_cast<const char**>(argv), configFile, version);
+        return initialize(argc, const_cast<const char**>(argv), configFile);
     }
 
 #ifdef _WIN32
@@ -443,15 +427,10 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this vector upon return.
      * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(
-        int& argc,
-        const wchar_t* argv[],
-        const InitializationData& initData = InitializationData(),
-        int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr
+    initialize(int& argc, const wchar_t* argv[], const InitializationData& initData = InitializationData());
 
     /**
      * Initializes a new communicator.
@@ -464,17 +443,12 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this vector upon return.
      * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    inline CommunicatorPtr initialize(
-        int& argc,
-        wchar_t* argv[],
-        const InitializationData& initData = InitializationData(),
-        int version = ICE_INT_VERSION)
+    inline CommunicatorPtr
+    initialize(int& argc, wchar_t* argv[], const InitializationData& initData = InitializationData())
     {
-        return initialize(argc, const_cast<const wchar_t**>(argv), initData, version);
+        return initialize(argc, const_cast<const wchar_t**>(argv), initData);
     }
 
     /**
@@ -488,12 +462,9 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this vector upon return.
      * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr
-    initialize(int& argc, const wchar_t* argv[], const std::string& configFile, int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], const std::string& configFile);
 
     /**
      * Initializes a new communicator.
@@ -506,14 +477,11 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this vector upon return.
      * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    inline CommunicatorPtr
-    initialize(int& argc, wchar_t* argv[], const std::string& configFile, int version = ICE_INT_VERSION)
+    inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], const std::string& configFile)
     {
-        return initialize(argc, const_cast<const wchar_t**>(argv), configFile, version);
+        return initialize(argc, const_cast<const wchar_t**>(argv), configFile);
     }
 #endif
 
@@ -526,14 +494,9 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this container upon return.
      * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(
-        StringSeq& seq,
-        const InitializationData& initData = InitializationData(),
-        int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(StringSeq& seq, const InitializationData& initData = InitializationData());
 
     /**
      * Initializes a new communicator.
@@ -544,30 +507,23 @@ namespace Ice
      * file and in the arguments, the arguments take precedence.
      * Recognized options are removed from this container upon return.
      * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(StringSeq& seq, const std::string& configFile, int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(StringSeq& seq, const std::string& configFile);
 
     /**
      * Initializes a new communicator.
      * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr
-    initialize(const InitializationData& initData = InitializationData(), int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(const InitializationData& initData = InitializationData());
 
     /**
      * Initializes a new communicator.
      * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(const std::string& configFile, int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(const std::string& configFile);
 
     /**
      * Obtains the per-process logger. This logger is used by all communicators that do not have their

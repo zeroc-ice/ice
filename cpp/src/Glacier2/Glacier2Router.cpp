@@ -62,7 +62,7 @@ namespace
     protected:
         bool start(int, char*[], int&) override;
         bool stop() override;
-        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&) override;
 
     private:
         void usage(const std::string&);
@@ -410,11 +410,7 @@ RouterService::stop()
 }
 
 CommunicatorPtr
-RouterService::initializeCommunicator(
-    int& argc,
-    char* argv[],
-    const InitializationData& initializationData,
-    int version)
+RouterService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);
@@ -456,7 +452,7 @@ RouterService::initializeCommunicator(
     // for incoming connections from clients must be disabled in
     // the clients.
 
-    return Service::initializeCommunicator(argc, argv, initData, version);
+    return Service::initializeCommunicator(argc, argv, initData);
 }
 
 void

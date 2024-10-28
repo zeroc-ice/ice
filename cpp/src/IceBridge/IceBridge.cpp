@@ -158,7 +158,7 @@ namespace
     protected:
         bool start(int, char*[], int&) final;
         bool stop() final;
-        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) final;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&) final;
 
     private:
         void usage(const std::string&);
@@ -585,11 +585,7 @@ BridgeService::stop()
 }
 
 CommunicatorPtr
-BridgeService::initializeCommunicator(
-    int& argc,
-    char* argv[],
-    const InitializationData& initializationData,
-    int version)
+BridgeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);
@@ -602,7 +598,7 @@ BridgeService::initializeCommunicator(
         initData.properties->setProperty("Ice.RetryIntervals", "-1");
     }
 
-    return Service::initializeCommunicator(argc, argv, initData, version);
+    return Service::initializeCommunicator(argc, argv, initData);
 }
 
 void

@@ -60,15 +60,9 @@ namespace Ice
          * @param argc Specifies the number of arguments in argv.
          * @param argv The command-line arguments.
          * @param initData Configuration data for the new Communicator.
-         * @param version Indicates the Ice version with which the application is compatible. If not
-         * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int main(
-            int argc,
-            const char* const argv[],
-            const InitializationData& initData = InitializationData(),
-            int version = ICE_INT_VERSION);
+        int main(int argc, const char* const argv[], const InitializationData& initData = InitializationData());
 
 #ifdef _WIN32
         /**
@@ -92,15 +86,9 @@ namespace Ice
          * @param argc Specifies the number of arguments in argv.
          * @param argv The command-line arguments.
          * @param initData Configuration data for the new Communicator.
-         * @param version Indicates the Ice version with which the application is compatible. If not
-         * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int main(
-            int argc,
-            const wchar_t* const argv[],
-            const InitializationData& initData = InitializationData(),
-            int version = ICE_INT_VERSION);
+        int main(int argc, const wchar_t* const argv[], const InitializationData& initData = InitializationData());
 #endif
 
         /**
@@ -123,14 +111,9 @@ namespace Ice
          *
          * @param args The command-line arguments.
          * @param initData Configuration data for the new Communicator.
-         * @param version Indicates the Ice version with which the application is compatible. If not
-         * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int main(
-            const StringSeq& args,
-            const InitializationData& initData = InitializationData(),
-            int version = ICE_INT_VERSION);
+        int main(const StringSeq& args, const InitializationData& initData = InitializationData());
 
         /**
          * Obtains the communicator created by the service.
@@ -177,15 +160,9 @@ namespace Ice
          * @param argc Specifies the number of arguments in argv.
          * @param argv The command-line arguments.
          * @param initData Configuration data for the new Communicator.
-         * @param version Indicates the Ice version with which the application is compatible. If not
-         * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int
-        run(int argc,
-            const wchar_t* const argv[],
-            const InitializationData& initData = InitializationData(),
-            int version = ICE_INT_VERSION);
+        int run(int argc, const wchar_t* const argv[], const InitializationData& initData = InitializationData());
 #endif
 
         /**
@@ -199,15 +176,9 @@ namespace Ice
          * @param argc Specifies the number of arguments in argv.
          * @param argv The command-line arguments.
          * @param initData Configuration data for the new Communicator.
-         * @param version Indicates the Ice version with which the application is compatible. If not
-         * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int
-        run(int argc,
-            const char* const argv[],
-            const InitializationData& initData = InitializationData(),
-            int version = ICE_INT_VERSION);
+        int run(int argc, const char* const argv[], const InitializationData& initData = InitializationData());
 
 #ifdef _WIN32
 
@@ -275,12 +246,10 @@ namespace Ice
          * @param argc Specifies the number of arguments in argv.
          * @param argv The command-line arguments.
          * @param initData Configuration data for the new Communicator.
-         * @param version Indicates the Ice version with which the application is compatible. If not
-         * specified, the version of the Ice installation is used.
          * @return The new communicator instance.
          */
         virtual Ice::CommunicatorPtr
-        initializeCommunicator(int& argc, char* argv[], const InitializationData& initData, int version);
+        initializeCommunicator(int& argc, char* argv[], const InitializationData& initData);
 
         /**
          * Logs a system error, which includes a description of the
@@ -376,7 +345,7 @@ namespace Ice
 
 #else
 
-        int runDaemon(int, char*[], const InitializationData&, int);
+        int runDaemon(int, char*[], const InitializationData&);
 
         bool _changeDirectory;
         bool _closeFiles;
