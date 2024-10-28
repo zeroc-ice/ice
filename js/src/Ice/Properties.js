@@ -6,7 +6,7 @@ import { StringUtil } from "./StringUtil.js";
 import { PropertyNames } from "./PropertyNames.js";
 import { getProcessLogger } from "./ProcessLogger.js";
 import { InitializationException } from "./LocalExceptions.js";
-import { UnknownPropertyException } from "./LocalExceptions.js";
+import { PropertyException } from "./LocalExceptions.js";
 import { Debug } from "./Debug.js";
 
 const ParseStateKey = 0;
@@ -142,7 +142,7 @@ export class Properties {
             const prop = Properties.findProperty(key.substring(propertyArray.name.length + 1), propertyArray);
 
             if (prop === null) {
-                throw new UnknownPropertyException(`unknown Ice property: ${key}`);
+                throw new PropertyException(`unknown Ice property: ${key}`);
             }
 
             // If the property is deprecated, log a warning
@@ -424,7 +424,7 @@ export class Properties {
         );
 
         if (unknownProps.length > 0) {
-            throw new UnknownPropertyException(
+            throw new PropertyException(
                 `found unknown properties for ${propertyArray.name}: '${prefix}'\n    ${unknownProps.join("\n    ")}`,
             );
         }
@@ -447,12 +447,12 @@ export class Properties {
     static getDefaultProperty(key) {
         const propertyArray = Properties.findIcePropertyArray(key);
         if (!propertyArray) {
-            throw new UnknownPropertyException(`unknown Ice property: ${key}`);
+            throw new PropertyException(`unknown Ice property: ${key}`);
         }
 
         const prop = Properties.findProperty(key.substring(propertyArray.name.length + 1), propertyArray);
         if (!prop) {
-            throw new UnknownPropertyException(`unknown Ice property: ${key}`);
+            throw new PropertyException(`unknown Ice property: ${key}`);
         }
 
         return prop.defaultValue;

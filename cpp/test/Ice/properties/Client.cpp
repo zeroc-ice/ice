@@ -196,7 +196,6 @@ Client::run(int, char**)
         cout << "ok" << endl;
 
         cout << "testing that setting a property in a reserved service prefix throws an exception..." << flush;
-
         try
         {
             properties->setProperty("IceGrid.InstanceName", "TestGrid");
@@ -205,6 +204,7 @@ Client::run(int, char**)
         catch (const Ice::PropertyException&)
         {
         }
+        cout << "ok" << endl;
     }
 }
 

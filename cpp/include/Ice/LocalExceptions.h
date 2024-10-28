@@ -934,8 +934,8 @@ namespace Ice
     };
 
     /**
-     * This exception is raised during the getting or setting of an Ice property. For example, this can happen when
-     * trying to set an unknown property or when the property value is invalid.
+     * This exception is raised when there is an error while getting or setting a property. For example, when
+     * trying to set an unknown Ice property.
      */
     class ICE_API PropertyException final : public LocalException
     {

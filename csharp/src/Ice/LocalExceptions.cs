@@ -875,20 +875,21 @@ public sealed class TwowayOnlyException : LocalException
 }
 
 /// <summary>
-/// An unknown property was used when trying to get or set an unknown property.
+/// This exception is raised when there is an error while getting or setting a property. For example, when
+/// trying to set an unknown Ice property.
 /// </summary>
-public sealed class UnknownPropertyException : LocalException
+public sealed class PropertyException : LocalException
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="UnknownPropertyException" /> class.
+    /// Initializes a new instance of the <see cref="PropertyException" /> class.
     /// </summary>
     /// <param name="message">The exception message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public UnknownPropertyException(string message, System.Exception? innerException = null)
+    public PropertyException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
     /// <inheritdoc/>
-    public override string ice_id() => "::Ice::UnknownPropertyException";
+    public override string ice_id() => "::Ice::PropertyException";
 }
