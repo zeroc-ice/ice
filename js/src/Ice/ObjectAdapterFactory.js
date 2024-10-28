@@ -18,7 +18,12 @@ export class ObjectAdapterFactory {
     }
 
     destroy() {
-        this._adapters.forEach(adapter => adapter.destroy());
+        const adapters = this._adapters.slice();
+        for (const adapter of adapters) {
+            // ObjectAdapter.destroy() will remove the adapter from the list of adapters
+            // by calling removeObjectAdapter
+            adapter.destroy();
+        }
     }
 
     createObjectAdapter(name, router, promise) {
