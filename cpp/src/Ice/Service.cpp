@@ -469,7 +469,7 @@ Ice::Service::interrupt()
 }
 
 int
-Ice::Service::main(int argc, const char* const argv[], const InitializationData& initializationData, int version)
+Ice::Service::main(int argc, const char* const argv[], const InitializationData& initializationData)
 {
     _name = "";
     if (argc > 0)
@@ -659,22 +659,22 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
         }
     }
 
-    return run(av.argc, av.argv, initData, version);
+    return run(av.argc, av.argv, initData);
 }
 
 #ifdef _WIN32
 int
-Ice::Service::main(int argc, const wchar_t* const argv[], const InitializationData& initializationData, int version)
+Ice::Service::main(int argc, const wchar_t* const argv[], const InitializationData& initializationData)
 {
-    return main(Ice::argsToStringSeq(argc, argv), initializationData, version);
+    return main(Ice::argsToStringSeq(argc, argv), initializationData);
 }
 #endif
 
 int
-Ice::Service::main(const StringSeq& args, const InitializationData& initData, int version)
+Ice::Service::main(const StringSeq& args, const InitializationData& initData)
 {
     IceInternal::ArgVector av(args);
-    return main(av.argc, av.argv, initData, version);
+    return main(av.argc, av.argv, initData);
 }
 
 Ice::CommunicatorPtr
@@ -703,16 +703,16 @@ Ice::Service::name() const
 
 #ifdef _WIN32
 int
-Ice::Service::run(int argc, const wchar_t* const argv[], const InitializationData& initData, int version)
+Ice::Service::run(int argc, const wchar_t* const argv[], const InitializationData& initData)
 {
     StringSeq args = Ice::argsToStringSeq(argc, argv);
     IceInternal::ArgVector av(args);
-    return run(av.argc, av.argv, initData, version);
+    return run(av.argc, av.argv, initData);
 }
 #endif
 
 int
-Ice::Service::run(int argc, const char* const argv[], const InitializationData& initData, int version)
+Ice::Service::run(int argc, const char* const argv[], const InitializationData& initData)
 {
     IceInternal::ArgVector av(argc, argv); // copy args
 
@@ -721,7 +721,7 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
 #ifdef _WIN32
         return runService(av.argc, av.argv, initData);
 #else
-        return runDaemon(av.argc, av.argv, initData, version);
+        return runDaemon(av.argc, av.argv, initData);
 #endif
     }
 
@@ -742,7 +742,7 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
         //
         // Initialize the communicator.
         //
-        _communicator = initializeCommunicator(av.argc, av.argv, initData, version);
+        _communicator = initializeCommunicator(av.argc, av.argv, initData);
 
         //
         // Use the configured logger.
@@ -880,9 +880,9 @@ Ice::Service::stop()
 }
 
 Ice::CommunicatorPtr
-Ice::Service::initializeCommunicator(int& argc, char* argv[], const InitializationData& initData, int version)
+Ice::Service::initializeCommunicator(int& argc, char* argv[], const InitializationData& initData)
 {
-    return Ice::initialize(argc, argv, initData, version);
+    return Ice::initialize(argc, argv, initData);
 }
 
 void
@@ -1238,7 +1238,7 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
     //
     try
     {
-        _communicator = initializeCommunicator(argc, args, _initData, ICE_INT_VERSION);
+        _communicator = initializeCommunicator(argc, args, _initData);
     }
     catch (const Ice::Exception& ex)
     {
@@ -1435,7 +1435,7 @@ ServiceStatusManager::run()
 #else
 
 int
-Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initData, int version)
+Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initData)
 {
     assert(_service);
 
@@ -1620,7 +1620,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         //
         // Initialize the communicator.
         //
-        _communicator = initializeCommunicator(argc, argv, initData, version);
+        _communicator = initializeCommunicator(argc, argv, initData);
 
         if (_closeFiles)
         {
