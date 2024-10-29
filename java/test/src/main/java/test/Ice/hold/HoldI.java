@@ -20,10 +20,10 @@ public final class HoldI implements Hold {
     }
 
     @Override
-    public void putOnHold(int milliSeconds, com.zeroc.Ice.Current current) {
-        if (milliSeconds < 0) {
+    public void putOnHold(int delay, com.zeroc.Ice.Current current) {
+        if (delay < 0) {
             _adapter.hold();
-        } else if (milliSeconds == 0) {
+        } else if (delay == 0) {
             _adapter.hold();
             _adapter.activate();
         } else {
@@ -37,7 +37,7 @@ public final class HoldI implements Hold {
                             }
                         }
                     },
-                    milliSeconds);
+                    delay);
         }
     }
 

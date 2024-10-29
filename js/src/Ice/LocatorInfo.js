@@ -4,9 +4,8 @@
 
 import { HashMap } from "./HashMap.js";
 import { Ice as Ice_Locator } from "./Locator.js";
-const { LocatorRegistryPrx, AdapterNotFoundException, ObjectNotFoundException } = Ice_Locator;
+const { AdapterNotFoundException, ObjectNotFoundException } = Ice_Locator;
 import { Protocol } from "./Protocol.js";
-import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { Promise } from "./Promise.js";
 import { identityToString } from "./IdentityToString.js";
 import { LocalException } from "./LocalException.js";
@@ -48,24 +47,6 @@ export class LocatorInfo {
 
     getLocator() {
         return this._locator;
-    }
-
-    getLocatorRegistry() {
-        if (this._locatorRegistry !== null) {
-            return Promise.resolve(this._locatorRegistry);
-        }
-
-        return this._locator.getRegistry().then(reg => {
-            //
-            // The locator registry can't be located. We use ordered
-            // endpoint selection in case the locator returned a proxy
-            // with some endpoints which are preferred to be tried first.
-            //
-            this._locatorRegistry = LocatorRegistryPrx.uncheckedCast(
-                reg.ice_locator(null).ice_endpointSelection(EndpointSelectionType.Ordered),
-            );
-            return this._locatorRegistry;
-        });
     }
 
     getEndpoints(ref, wellKnownRef, ttl, p) {
@@ -349,43 +330,32 @@ class RequestCallback {
         this._promise = promise;
     }
 
-    response(locatorInfo, proxy) {
+    async response(locatorInfo, proxy) {
         let endpoints = null;
         if (proxy !== null) {
             const r = proxy._getReference();
             if (this._ref.isWellKnown() && !Protocol.isSupported(this._ref.getEncoding(), r.getEncoding())) {
-                //
-                // If a well-known proxy and the returned proxy
-                // encoding isn't supported, we're done: there's
-                // no compatible endpoint we can use.
-                //
+                // If a well-known proxy and the returned proxy encoding isn't supported, we're done: there's no
+                // compatible endpoint we can use.
             } else if (!r.isIndirect()) {
                 endpoints = r.getEndpoints();
             } else if (this._ref.isWellKnown() && !r.isWellKnown()) {
-                //
-                // We're resolving the endpoints of a well-known object and the proxy returned
-                // by the locator is an indirect proxy. We now need to resolve the endpoints
-                // of this indirect proxy.
-                //
+                // We're resolving the endpoints of a well-known object and the proxy returned by the locator is an
+                // indirect proxy. We now need to resolve the endpoints of this indirect proxy.
                 if (this._ref.getInstance().traceLevels().location >= 1) {
                     locatorInfo.traceWellKnown(
-                        "retrieved adapter for well-known object from locator, " + "adding to locator cache",
+                        "retrieved adapter for well-known object from locator, adding to locator cache",
                         this._ref,
                         r,
                     );
                 }
-                locatorInfo.getEndpoints(r, this._ref, this._ttl).then(
-                    values => {
-                        if (this._promise !== null) {
-                            this._promise.resolve(values);
-                        }
-                    },
-                    ex => {
-                        if (this._promise !== null) {
-                            this._promise.reject(ex);
-                        }
-                    },
-                );
+
+                try {
+                    const [endpoints, cached] = await locatorInfo.getEndpoints(r, this._ref, this._ttl);
+                    this._promise?.resolve([endpoints, cached]);
+                } catch (ex) {
+                    this._promise?.reject(ex);
+                }
                 return;
             }
         }
@@ -393,19 +363,14 @@ class RequestCallback {
         if (this._ref.getInstance().traceLevels().location >= 1) {
             locatorInfo.getEndpointsTrace(this._ref, endpoints, false);
         }
-
-        if (this._promise !== null) {
-            this._promise.resolve(endpoints === null ? [[], false] : [endpoints, false]);
-        }
+        this._promise?.resolve([endpoints ?? [], false]);
     }
 
     exception(locatorInfo, exc) {
         try {
             locatorInfo.getEndpointsException(this._ref, exc); // This throws.
         } catch (ex) {
-            if (this._promise !== null) {
-                this._promise.reject(ex);
-            }
+            this._promise?.reject(ex);
         }
     }
 }
@@ -466,15 +431,10 @@ class ObjectRequest extends Request {
         Debug.assert(reference.isWellKnown());
     }
 
-    send() {
+    async send() {
         try {
-            this._locatorInfo
-                .getLocator()
-                .findObjectById(this._ref.getIdentity())
-                .then(
-                    proxy => this.response(proxy),
-                    ex => this.exception(ex),
-                );
+            const proxy = await this._locatorInfo.getLocator().findObjectById(this._ref.getIdentity());
+            this.response(proxy);
         } catch (ex) {
             this.exception(ex);
         }
@@ -487,15 +447,10 @@ class AdapterRequest extends Request {
         Debug.assert(reference.isIndirect());
     }
 
-    send() {
+    async send() {
         try {
-            this._locatorInfo
-                .getLocator()
-                .findAdapterById(this._ref.getAdapterId())
-                .then(
-                    proxy => this.response(proxy),
-                    ex => this.exception(ex),
-                );
+            const proxy = await this._locatorInfo.getLocator().findAdapterById(this._ref.getAdapterId());
+            this.response(proxy);
         } catch (ex) {
             this.exception(ex);
         }

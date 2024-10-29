@@ -8,7 +8,6 @@ const { Identity } = Ice_Identity;
 import { generateUUID } from "./UUID.js";
 import {
     AlreadyRegisteredException,
-    FeatureNotSupportedException,
     InitializationException,
     ObjectAdapterDestroyedException,
     ParseException,
