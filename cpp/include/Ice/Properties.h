@@ -38,7 +38,7 @@ namespace Ice
          * Constructs an empty property set with a list of opt-in prefixes.
          * @param optInPrefixes The list of opt-in prefixes to allow in the property set.
          */
-        explicit Properties(std::vector<std::string> optInPrefixes) : _optInPrefixes(optInPrefixes) {}
+        explicit Properties(std::vector<std::string> optInPrefixes) : _optInPrefixes(std::move(optInPrefixes)) {}
 
         /**
          * Copy constructor.
