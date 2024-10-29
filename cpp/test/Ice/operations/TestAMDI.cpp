@@ -703,8 +703,7 @@ MyDerivedClassI::opContextAsync(
     function<void(exception_ptr)>,
     const Current& current)
 {
-    StringStringD r = current.ctx;
-    response(r);
+    response(current.ctx);
 }
 
 void
