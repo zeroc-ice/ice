@@ -54,8 +54,8 @@ namespace IceIAP
               name(std::move(name)),
               manufacturer(std::move(manufacturer)),
               modelNumber(std::move(modelNumber)),
-              firmwareRevision(std::move(std::move(firmwareRevision)),
-              hardwareRevision(hardwareRevision)),
+              firmwareRevision(std::move(firmwareRevision)),
+              hardwareRevision(std::move(hardwareRevision)),
               protocol(std::move(protocol))
         {
         }
