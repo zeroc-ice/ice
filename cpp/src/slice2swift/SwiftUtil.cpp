@@ -657,7 +657,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 
     if (!doc.misc.empty())
     {
-        out << "///" << nl;
+        out << nl << "///";
         writeDocLines(out, doc.misc);
     }
 
@@ -789,8 +789,8 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 
     if (!doc.misc.empty())
     {
-        out << nl;
-        writeDocLines(out, doc.misc, false);
+        out << nl << "///";
+        writeDocLines(out, doc.misc);
     }
 }
 
@@ -838,7 +838,8 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 
     if (!doc.misc.empty())
     {
-        writeDocLines(out, doc.misc, false);
+        out << nl << "///";
+        writeDocLines(out, doc.misc);
     }
 }
 
@@ -878,7 +879,8 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
 
     if (!doc.misc.empty())
     {
-        writeDocLines(out, doc.misc, false);
+        out << nl << "///";
+        writeDocLines(out, doc.misc);
     }
 }
 
@@ -907,6 +909,7 @@ SwiftGenerator::writeMemberDoc(IceInternal::Output& out, const DataMemberPtr& p)
 
     if (!doc.misc.empty())
     {
+        out << nl << "///";
         writeDocLines(out, doc.misc);
     }
 

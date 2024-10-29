@@ -10,8 +10,12 @@ enum continue
     var
 }
 
+/// The guard struct.
+/// @see defer
 struct guard
 {
+    /// A default
+    /// @foo Test
     int default;
 }
 
@@ -20,8 +24,15 @@ struct defer
     string else;
 }
 
+/// The break interface.
+/// @foo Test
 interface break
 {
+    /// The case operation.
+    /// @foo Test1
+    /// @param catch A catch
+    /// @param try A try
+    /// @bar Test2
     ["amd"] void case(int catch, out int try);
 }
 
