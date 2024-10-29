@@ -805,7 +805,7 @@ Slice::Gen::generate(const UnitPtr& p)
                 }
             }
         }
-        dc->setMetadata(fileMetadata);
+        dc->setMetadata(std::move(fileMetadata));
     }
 
     if (!dc->hasMetadata("cpp:no-default-include"))
@@ -990,7 +990,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                 fileMetadata.remove(s);
             }
         }
-        dc->setMetadata(fileMetadata);
+        dc->setMetadata(std::move(fileMetadata));
     }
 
     return true;
@@ -999,39 +999,34 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 bool
 Slice::Gen::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
     return true;
 }
 
 void
 Slice::Gen::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
 }
 
 bool
 Slice::Gen::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
     return true;
 }
 
 bool
 Slice::Gen::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
     return true;
 }
 
 bool
 Slice::Gen::MetadataVisitor::visitStructStart(const StructPtr& p)
 {
-    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
     return true;
 }
 
@@ -1056,7 +1051,7 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
                 metadata.remove(s);
             }
         }
-        p->setMetadata(metadata);
+        p->setMetadata(std::move(metadata));
     }
     else
     {
@@ -1072,36 +1067,31 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
 void
 Slice::Gen::MetadataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    MetadataList metadata = validate(p->type(), p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p->type(), p->getMetadata(), p->file(), p->line()));
 }
 
 void
 Slice::Gen::MetadataVisitor::visitSequence(const SequencePtr& p)
 {
-    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
 }
 
 void
 Slice::Gen::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
 }
 
 void
 Slice::Gen::MetadataVisitor::visitEnum(const EnumPtr& p)
 {
-    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
 }
 
 void
 Slice::Gen::MetadataVisitor::visitConst(const ConstPtr& p)
 {
-    MetadataList metadata = validate(p, p->getMetadata(), p->file(), p->line());
-    p->setMetadata(metadata);
+    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
 }
 
 MetadataList

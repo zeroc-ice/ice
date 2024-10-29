@@ -956,13 +956,13 @@ Slice::findMetadata(const MetadataList& metadata, TypeContext typeCtx)
         {
             if (directive == "cpp:view-type")
             {
-                return string(meta->arguments());
+                return string{meta->arguments()};
             }
         }
 
         if (directive == "cpp:type")
         {
-            return string(meta->arguments());
+            return string{meta->arguments()};
         }
 
         if ((typeCtx & (TypeContext::MarshalParam | TypeContext::UnmarshalParamZeroCopy)) != TypeContext::None)

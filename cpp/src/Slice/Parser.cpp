@@ -94,10 +94,10 @@ namespace Slice
 // ----------------------------------------------------------------------
 // Metadata
 // ----------------------------------------------------------------------
-Slice::Metadata::Metadata(const string& rawMetadata, const string& file, int line) : GrammarBase()
+Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBase()
 {
-    std::tie(_directive, _arguments) = parseRawMetadata(rawMetadata);
-    _file = file;
+    std::tie(_directive, _arguments) = parseRawMetadata(std::move(rawMetadata));
+    _file = std::move(file);
     _line = line;
 }
 
@@ -126,7 +126,7 @@ Slice::Metadata::line() const
 }
 
 pair<string, string>
-Slice::Metadata::parseRawMetadata(const string& rawMetadata)
+Slice::Metadata::parseRawMetadata(string rawMetadata)
 {
     // If the metadata contains no colons, then it must be a directive with no arguments.
     size_t firstColonPos = rawMetadata.find(':');
@@ -171,7 +171,7 @@ Slice::Metadata::parseRawMetadata(const string& rawMetadata)
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-Slice::DefinitionContext::DefinitionContext(int includeLevel, const MetadataList& metadata)
+Slice::DefinitionContext::DefinitionContext(int includeLevel, MetadataList metadata)
     : _includeLevel(includeLevel),
       _metadata(metadata),
       _seenDefinition(false)
@@ -242,7 +242,7 @@ Slice::DefinitionContext::getMetadataArgs(string_view directive) const
     {
         if (p->directive() == directive)
         {
-            return string(p->arguments());
+            return string{p->arguments()};
         }
     }
     return nullopt;
@@ -976,7 +976,7 @@ Slice::Contained::getMetadataArgs(string_view directive) const
     {
         if (p->directive() == directive)
         {
-            return string(p->arguments());
+            return string{p->arguments()};
         }
     }
     return nullopt;
@@ -1515,7 +1515,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, Metada
         checkForGlobalDefinition("sequences"); // Don't return here -- we create the sequence anyway.
     }
 
-    SequencePtr p = make_shared<Sequence>(shared_from_this(), name, type, metadata);
+    SequencePtr p = make_shared<Sequence>(shared_from_this(), name, type, std::move(metadata));
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
@@ -1564,7 +1564,7 @@ Slice::Container::createDictionary(
         }
     }
 
-    DictionaryPtr p = make_shared<Dictionary>(shared_from_this(), name, keyType, keyMetadata, valueType, valueMetadata);
+    DictionaryPtr p = make_shared<Dictionary>(shared_from_this(), name, keyType, std::move(keyMetadata), valueType, std::move(valueMetadata));
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
@@ -1648,7 +1648,7 @@ Slice::Container::createConst(
         return nullptr;
     }
 
-    ConstPtr p = make_shared<Const>(shared_from_this(), name, type, metadata, resolvedValueType, valueString);
+    ConstPtr p = make_shared<Const>(shared_from_this(), name, type, std::move(metadata), resolvedValueType, valueString);
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
@@ -4069,7 +4069,7 @@ Slice::Sequence::Sequence(
       Contained(container, name),
       Constructed(container, name),
       _type(type),
-      _typeMetadata(typeMetadata)
+      _typeMetadata(std::move(typeMetadata))
 {
 }
 
@@ -4202,8 +4202,8 @@ Slice::Dictionary::Dictionary(
       Constructed(container, name),
       _keyType(keyType),
       _valueType(valueType),
-      _keyMetadata(keyMetadata),
-      _valueMetadata(valueMetadata)
+      _keyMetadata(std::move(keyMetadata)),
+      _valueMetadata(std::move(valueMetadata))
 {
 }
 
@@ -4442,7 +4442,7 @@ Slice::Const::Const(
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       _type(type),
-      _typeMetadata(typeMetadata),
+      _typeMetadata(std::move(typeMetadata)),
       _valueType(valueType),
       _value(valueString)
 {
@@ -4581,7 +4581,7 @@ Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
         defaultMetadata.push_back(make_shared<Metadata>(metadataString, "<command-line>", 0));
     }
 
-    UnitPtr unit{new Unit{all, defaultMetadata}};
+    UnitPtr unit{new Unit{all, std::move(defaultMetadata)}};
     unit->_unit = unit;
     return unit;
 }
@@ -4760,7 +4760,7 @@ Slice::Unit::currentIncludeLevel() const
 }
 
 void
-Slice::Unit::addFileMetadata(const MetadataList& metadata)
+Slice::Unit::addFileMetadata(MetadataList metadata)
 {
     DefinitionContextPtr dc = currentDefinitionContext();
     assert(dc);
@@ -4772,7 +4772,7 @@ Slice::Unit::addFileMetadata(const MetadataList& metadata)
     {
         // Append the file metadata to any existing metadata (e.g., default file metadata).
         MetadataList l = dc->getMetadata();
-        copy(metadata.begin(), metadata.end(), back_inserter(l));
+        move(metadata.begin(), metadata.end(), back_inserter(l));
         dc->setMetadata(l);
     }
 }
@@ -5037,7 +5037,7 @@ Slice::Unit::Unit(bool all, MetadataList defaultFileMetadata)
     : SyntaxTreeBase(nullptr),
       Container(nullptr),
       _all(all),
-      _defaultFileMetadata(defaultFileMetadata),
+      _defaultFileMetadata(std::move(defaultFileMetadata)),
       _errors(0),
       _currentIncludeLevel(0)
 

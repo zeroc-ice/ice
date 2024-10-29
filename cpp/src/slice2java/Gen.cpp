@@ -2318,7 +2318,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if (metadata->directive() == "java:implements")
         {
-            implements.push_back(string(metadata->arguments()));
+            implements.push_back(string{metadata->arguments()});
         }
     }
 
@@ -2933,7 +2933,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     {
         if (metadata->directive() == "java:implements")
         {
-            implements.push_back(string(metadata->arguments()));
+            implements.push_back(string{metadata->arguments()});
         }
     }
 

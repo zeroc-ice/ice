@@ -1778,7 +1778,7 @@ yyreduce:
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[0]);
     if (!metadata->v.empty())
     {
-        currentUnit->addFileMetadata(metadata->v);
+        currentUnit->addFileMetadata(std::move(metadata->v));
     }
 }
 #line 1785 "src/Slice/Grammar.cpp"
@@ -1791,7 +1791,7 @@ yyreduce:
     auto contained = dynamic_pointer_cast<Contained>(yyvsp[0]);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(metadata->v);
+        contained->setMetadata(std::move(metadata->v));
     }
 }
 #line 1798 "src/Slice/Grammar.cpp"
@@ -2672,7 +2672,7 @@ yyreduce:
     auto contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(metadata->v);
+        contained->setMetadata(std::move(metadata->v));
     }
 }
 #line 2679 "src/Slice/Grammar.cpp"
@@ -3223,7 +3223,7 @@ yyreduce:
     auto contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(metadata->v);
+        contained->setMetadata(std::move(metadata->v));
     }
 }
 #line 3230 "src/Slice/Grammar.cpp"
@@ -3306,7 +3306,7 @@ yyreduce:
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-3]);
     auto type = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = currentUnit->currentContainer();
-    yyval = cont->createSequence(ident->v, type, metadata->v);
+    yyval = cont->createSequence(ident->v, type, std::move(metadata->v));
 }
 #line 3312 "src/Slice/Grammar.cpp"
     break;
@@ -3318,7 +3318,7 @@ yyreduce:
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-3]);
     auto type = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = currentUnit->currentContainer();
-    yyval = cont->createSequence(ident->v, type, metadata->v); // Dummy
+    yyval = cont->createSequence(ident->v, type, std::move(metadata->v)); // Dummy
     currentUnit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 #line 3325 "src/Slice/Grammar.cpp"
@@ -3333,7 +3333,7 @@ yyreduce:
     auto valueMetadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-3]);
     auto valueType = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = currentUnit->currentContainer();
-    yyval = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v);
+    yyval = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v));
 }
 #line 3339 "src/Slice/Grammar.cpp"
     break;
@@ -3347,7 +3347,7 @@ yyreduce:
     auto valueMetadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-3]);
     auto valueType = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = currentUnit->currentContainer();
-    yyval = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v); // Dummy
+    yyval = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v)); // Dummy
     currentUnit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 #line 3354 "src/Slice/Grammar.cpp"
@@ -3437,7 +3437,7 @@ yyreduce:
     auto enumerator = dynamic_pointer_cast<Enumerator>(yyvsp[-2]);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetadata(metadata->v);
+        enumerator->setMetadata(std::move(metadata->v));
     }
     auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>(yyvsp[0]);
     enumeratorList->v.push_front(enumerator);
@@ -3453,7 +3453,7 @@ yyreduce:
     auto enumerator = dynamic_pointer_cast<Enumerator>(yyvsp[0]);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetadata(metadata->v);
+        enumerator->setMetadata(std::move(metadata->v));
     }
     auto enumeratorList = make_shared<EnumeratorListTok>();
     enumeratorList->v.push_front(enumerator);
@@ -3601,7 +3601,7 @@ yyreduce:
         auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
         if (!metadata->v.empty())
         {
-            pd->setMetadata(metadata->v);
+            pd->setMetadata(std::move(metadata->v));
         }
     }
 }
@@ -3621,7 +3621,7 @@ yyreduce:
         auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
         if (!metadata->v.empty())
         {
-            pd->setMetadata(metadata->v);
+            pd->setMetadata(std::move(metadata->v));
         }
     }
 }
@@ -4017,7 +4017,7 @@ yyreduce:
     auto const_type = dynamic_pointer_cast<Type>(yyvsp[-3]);
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
     auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
-    yyval = currentUnit->currentContainer()->createConst(ident->v, const_type, metadata->v, value->v,
+    yyval = currentUnit->currentContainer()->createConst(ident->v, const_type, std::move(metadata->v), value->v,
                                                       value->valueAsString);
 }
 #line 4024 "src/Slice/Grammar.cpp"
@@ -4030,8 +4030,8 @@ yyreduce:
     auto const_type = dynamic_pointer_cast<Type>(yyvsp[-2]);
     auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
     currentUnit->error("missing constant name");
-    yyval = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, metadata->v, value->v,
-                                                      value->valueAsString, Dummy); // Dummy
+    yyval = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, std::move(metadata->v),
+                                                      value->v, value->valueAsString, Dummy); // Dummy
 }
 #line 4037 "src/Slice/Grammar.cpp"
     break;

@@ -107,7 +107,7 @@ namespace
                         }
                     }
                 }
-                dc->setMetadata(fileMetadata);
+                dc->setMetadata(std::move(fileMetadata));
             }
             return true;
         }
@@ -117,7 +117,7 @@ namespace
             MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
             metadata = validateGetSet(p, metadata);
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
             return true;
         }
 
@@ -126,7 +126,7 @@ namespace
             MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
             metadata = validateGetSet(p, metadata);
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
         }
 
         bool visitClassDefStart(const ClassDefPtr& p) final
@@ -134,7 +134,7 @@ namespace
             MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
             metadata = validateGetSet(p, metadata);
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
             return true;
         }
 
@@ -143,7 +143,7 @@ namespace
             MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
             metadata = validateGetSet(p, metadata);
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
             return true;
         }
 
@@ -152,7 +152,7 @@ namespace
             MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
             metadata = validateGetSet(p, metadata);
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
             return true;
         }
 
@@ -185,14 +185,14 @@ namespace
                 metadata = validateType(returnType, metadata, p->file(), p->line());
                 metadata = validateGetSet(p, metadata);
             }
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
 
             for (const auto& param : p->parameters())
             {
                 metadata = getMetadata(param);
                 metadata = validateType(param->type(), metadata, param->file(), param->line());
                 metadata = validateGetSet(param, metadata);
-                param->setMetadata(metadata);
+                param->setMetadata(std::move(metadata));
             }
         }
 
@@ -201,7 +201,7 @@ namespace
             MetadataList metadata = getMetadata(p);
             metadata = validateType(p->type(), metadata, p->file(), p->line());
             metadata = validateGetSet(p, metadata);
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
         }
 
         void visitSequence(const SequencePtr& p) final
@@ -254,7 +254,7 @@ namespace
             metadata = validateType(p, metadata, file, line);
             metadata = validateGetSet(p, metadata);
             newMetadata.insert(newMetadata.begin(), metadata.begin(), metadata.end());
-            p->setMetadata(newMetadata);
+            p->setMetadata(std::move(newMetadata));
         }
 
         void visitDictionary(const DictionaryPtr& p) final
@@ -262,7 +262,7 @@ namespace
             MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
             metadata = validateGetSet(p, metadata);
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
         }
 
         void visitEnum(const EnumPtr& p) final
@@ -270,7 +270,7 @@ namespace
             MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
             metadata = validateGetSet(p, metadata);
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
         }
 
         void visitConst(const ConstPtr& p) final
@@ -278,7 +278,7 @@ namespace
             MetadataList metadata = getMetadata(p);
             metadata = validateType(p, metadata, p->file(), p->line());
             metadata = validateGetSet(p, metadata);
-            p->setMetadata(metadata);
+            p->setMetadata(std::move(metadata));
         }
 
         bool shouldVisitIncludedDefinitions() const final { return true; }
@@ -2283,12 +2283,12 @@ Slice::JavaGenerator::getTypeMetadata(const MetadataList& metadata, string& inst
             string::size_type pos = arguments.find(':');
             if (pos != string::npos)
             {
-                instanceType = string(arguments.substr(0, pos));
-                formalType = string(arguments.substr(pos + 1));
+                instanceType = string{arguments.substr(0, pos)};
+                formalType = string{arguments.substr(pos + 1)};
             }
             else
             {
-                instanceType = string(arguments);
+                instanceType = string{arguments};
                 formalType.clear();
             }
             return true;

@@ -176,10 +176,10 @@ namespace Slice
     // Metadata
     // ----------------------------------------------------------------------
 
-    class Metadata final : public virtual GrammarBase
+    class Metadata final : public GrammarBase
     {
     public:
-        Metadata(const std::string& rawMetadata, const std::string& file, int line);
+        Metadata(std::string rawMetadata, std::string file, int line);
         std::string_view directive() const;
         std::string_view arguments() const;
 
@@ -190,7 +190,7 @@ namespace Slice
 
     private:
         /// Parses a metadata string into a pair of (directive, arguments) strings.
-        static std::pair<std::string, std::string> parseRawMetadata(const std::string& rawMetadata);
+        static std::pair<std::string, std::string> parseRawMetadata(std::string rawMetadata);
 
         std::string _directive;
         std::string _arguments;
@@ -216,7 +216,7 @@ namespace Slice
     class DefinitionContext final
     {
     public:
-        DefinitionContext(int includeLevel, const MetadataList& metadata);
+        DefinitionContext(int includeLevel, MetadataList metadata);
 
         std::string filename() const;
         int includeLevel() const;
@@ -999,7 +999,7 @@ namespace Slice
         int setCurrentFile(const std::string& currentFile, int lineNumber);
         int currentIncludeLevel() const;
 
-        void addFileMetadata(const MetadataList& metadata);
+        void addFileMetadata(MetadataList metadata);
 
         void setSeenDefinition();
 

@@ -1987,7 +1987,7 @@ Slice::CsGenerator::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
             }
             newFileMetadata.push_back(metadata);
         }
-        dc->setMetadata(newFileMetadata);
+        dc->setMetadata(std::move(newFileMetadata));
     }
     return true;
 }
@@ -2179,5 +2179,5 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
         newLocalMetadata.push_back(metadata);
     }
 
-    cont->setMetadata(newLocalMetadata);
+    cont->setMetadata(std::move(newLocalMetadata));
 }

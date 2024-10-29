@@ -225,7 +225,7 @@ definitions
     auto metadata = dynamic_pointer_cast<MetadataListTok>($2);
     if (!metadata->v.empty())
     {
-        currentUnit->addFileMetadata(metadata->v);
+        currentUnit->addFileMetadata(std::move(metadata->v));
     }
 }
 | definitions metadata definition
@@ -234,7 +234,7 @@ definitions
     auto contained = dynamic_pointer_cast<Contained>($3);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(metadata->v);
+        contained->setMetadata(std::move(metadata->v));
     }
 }
 | %empty
@@ -991,7 +991,7 @@ data_members
     auto contained = dynamic_pointer_cast<Contained>($2);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(metadata->v);
+        contained->setMetadata(std::move(metadata->v));
     }
 }
 | error ';' data_members
@@ -1472,7 +1472,7 @@ operations
     auto contained = dynamic_pointer_cast<Contained>($2);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(metadata->v);
+        contained->setMetadata(std::move(metadata->v));
     }
 }
 | error ';' operations
@@ -1538,7 +1538,7 @@ sequence_def
     auto metadata = dynamic_pointer_cast<MetadataListTok>($3);
     auto type = dynamic_pointer_cast<Type>($4);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, metadata->v);
+    $$ = cont->createSequence(ident->v, type, std::move(metadata->v));
 }
 | ICE_SEQUENCE '<' metadata type '>' keyword
 {
@@ -1546,7 +1546,7 @@ sequence_def
     auto metadata = dynamic_pointer_cast<MetadataListTok>($3);
     auto type = dynamic_pointer_cast<Type>($4);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, metadata->v); // Dummy
+    $$ = cont->createSequence(ident->v, type, std::move(metadata->v)); // Dummy
     currentUnit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 ;
@@ -1562,7 +1562,7 @@ dictionary_def
     auto valueMetadata = dynamic_pointer_cast<MetadataListTok>($6);
     auto valueType = dynamic_pointer_cast<Type>($7);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v);
+    $$ = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v));
 }
 | ICE_DICTIONARY '<' metadata type ',' metadata type '>' keyword
 {
@@ -1572,7 +1572,7 @@ dictionary_def
     auto valueMetadata = dynamic_pointer_cast<MetadataListTok>($6);
     auto valueType = dynamic_pointer_cast<Type>($7);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v); // Dummy
+    $$ = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v)); // Dummy
     currentUnit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 ;
@@ -1650,7 +1650,7 @@ enumerator_list
     auto enumerator = dynamic_pointer_cast<Enumerator>($2);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetadata(metadata->v);
+        enumerator->setMetadata(std::move(metadata->v));
     }
     auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>($4);
     enumeratorList->v.push_front(enumerator);
@@ -1662,7 +1662,7 @@ enumerator_list
     auto enumerator = dynamic_pointer_cast<Enumerator>($2);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetadata(metadata->v);
+        enumerator->setMetadata(std::move(metadata->v));
     }
     auto enumeratorList = make_shared<EnumeratorListTok>();
     enumeratorList->v.push_front(enumerator);
@@ -1790,7 +1790,7 @@ parameters
         auto metadata = dynamic_pointer_cast<MetadataListTok>($2);
         if (!metadata->v.empty())
         {
-            pd->setMetadata(metadata->v);
+            pd->setMetadata(std::move(metadata->v));
         }
     }
 }
@@ -1806,7 +1806,7 @@ parameters
         auto metadata = dynamic_pointer_cast<MetadataListTok>($4);
         if (!metadata->v.empty())
         {
-            pd->setMetadata(metadata->v);
+            pd->setMetadata(std::move(metadata->v));
         }
     }
 }
@@ -2099,7 +2099,7 @@ const_def
     auto const_type = dynamic_pointer_cast<Type>($3);
     auto ident = dynamic_pointer_cast<StringTok>($4);
     auto value = dynamic_pointer_cast<ConstDefTok>($6);
-    $$ = currentUnit->currentContainer()->createConst(ident->v, const_type, metadata->v, value->v,
+    $$ = currentUnit->currentContainer()->createConst(ident->v, const_type, std::move(metadata->v), value->v,
                                                       value->valueAsString);
 }
 | ICE_CONST metadata type '=' const_initializer
@@ -2108,8 +2108,8 @@ const_def
     auto const_type = dynamic_pointer_cast<Type>($3);
     auto value = dynamic_pointer_cast<ConstDefTok>($5);
     currentUnit->error("missing constant name");
-    $$ = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, metadata->v, value->v,
-                                                      value->valueAsString, Dummy); // Dummy
+    $$ = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, std::move(metadata->v),
+                                                      value->v, value->valueAsString, Dummy); // Dummy
 }
 ;
 

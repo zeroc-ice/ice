@@ -2966,7 +2966,7 @@ Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
         }
     }
 
-    p->setMetadata(metadata);
+    p->setMetadata(std::move(metadata));
     return true;
 }
 
@@ -3150,5 +3150,5 @@ Slice::Python::MetadataVisitor::reject(const ContainedPtr& cont)
             localMetadata.remove(s);
         }
     }
-    cont->setMetadata(localMetadata);
+    cont->setMetadata(std::move(localMetadata));
 }
