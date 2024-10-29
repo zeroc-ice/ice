@@ -349,19 +349,11 @@ Instance.prototype.destroy = async function () {
             this._timer.destroy();
         }
 
-        if (this._objectFactoryMap !== null) {
-            this._objectFactoryMap.forEach(factory => factory.destroy());
-            this._objectFactoryMap.clear();
-        }
-
         if (this._routerManager) {
             this._routerManager.destroy();
         }
         if (this._locatorManager) {
             this._locatorManager.destroy();
-        }
-        if (this._endpointFactoryManager) {
-            this._endpointFactoryManager.destroy();
         }
 
         if (this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {

@@ -184,10 +184,10 @@ namespace Ice
         IceInternal::EndpointIPtr endpoint() const;
         IceInternal::ConnectorPtr connector() const;
 
-        void setAdapter(const ObjectAdapterPtr&) final;            // From Connection.
-        ObjectAdapterPtr getAdapter() const noexcept final;        // From Connection.
-        EndpointPtr getEndpoint() const noexcept final;            // From Connection.
-        ObjectPrx _createProxy(const Identity& ident) const final; // From Connection.
+        void setAdapter(const ObjectAdapterPtr&) final;     // From Connection.
+        ObjectAdapterPtr getAdapter() const noexcept final; // From Connection.
+        EndpointPtr getEndpoint() const noexcept final;     // From Connection.
+        ObjectPrx _createProxy(Identity ident) const final; // From Connection.
 
         void setAdapterFromAdapter(const ObjectAdapterIPtr&); // From ObjectAdapterI.
 

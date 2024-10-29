@@ -32,6 +32,5 @@ export class Instance {
         this._retryQueue = null;
         this._endpointHostResolver = null;
         this._endpointFactoryManager = null;
-        this._objectFactoryMap = null;
     }
 }

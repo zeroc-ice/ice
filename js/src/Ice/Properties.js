@@ -62,7 +62,7 @@ export class Properties {
 
     getIcePropertyAsInt(key) {
         const defaultValueString = Properties.getDefaultProperty(key);
-        var defaultValue = 0;
+        let defaultValue = 0;
         if (defaultValueString != "") {
             defaultValue = parseInt(defaultValueString);
         }
@@ -84,7 +84,7 @@ export class Properties {
     }
 
     getIcePropertyAsList(key) {
-        var defaultPropertyList = StringUtil.splitString(Properties.getDefaultProperty(key), ", \t\r\n");
+        const defaultPropertyList = StringUtil.splitString(Properties.getDefaultProperty(key), ", \t\r\n");
         return this.getPropertyAsListWithDefault(key, defaultPropertyList);
     }
 

@@ -92,8 +92,7 @@ class ServantLocatorI: Ice.ServantLocator {
         if current.operation == "ice_ids" {
             throw TestIntfUserException()
         } else if current.operation == "requestFailedException" {
-            throw Ice.ObjectNotExistException(
-                id: current.id, facet: current.facet, operation: current.operation)
+            throw Ice.ObjectNotExistException()
         } else if current.operation == "unknownUserException" {
             throw Ice.UnknownUserException(badTypeId: "::Foo::BarException")
         } else if current.operation == "unknownLocalException" {

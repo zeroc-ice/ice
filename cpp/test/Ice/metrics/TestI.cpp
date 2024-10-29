@@ -29,7 +29,7 @@ MetricsI::opWithUserException(const Current&)
 void
 MetricsI::opWithRequestFailedException(const Current&)
 {
-    throw ObjectNotExistException(__FILE__, __LINE__);
+    throw ObjectNotExistException{__FILE__, __LINE__};
 }
 
 void

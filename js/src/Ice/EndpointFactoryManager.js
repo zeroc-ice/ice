@@ -110,9 +110,4 @@ export class EndpointFactoryManager {
         s.endEncapsulation();
         return e;
     }
-
-    destroy() {
-        this._factories.forEach(factory => factory.destroy());
-        this._factories = [];
-    }
 }

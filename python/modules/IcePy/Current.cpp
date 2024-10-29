@@ -68,7 +68,9 @@ IcePy::createCurrent(const Ice::Current& current)
         case Ice::OperationMode::Normal:
             enumerator = "Normal";
             break;
+#include "Ice/PushDisableDeprecatedWarnings.h"
         case Ice::OperationMode::Nonmutating:
+#include "Ice/PopDisableWarnings.h"
             enumerator = "Nonmutating";
             break;
         case Ice::OperationMode::Idempotent:

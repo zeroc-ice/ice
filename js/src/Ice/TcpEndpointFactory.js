@@ -29,10 +29,6 @@ export class TcpEndpointFactory {
         return e;
     }
 
-    destroy() {
-        this._instance = null;
-    }
-
     clone(instance) {
         return new TcpEndpointFactory(instance);
     }
