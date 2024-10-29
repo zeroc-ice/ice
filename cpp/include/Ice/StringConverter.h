@@ -139,7 +139,7 @@ namespace Ice
      * @param nc The narrow string converter. If null, the native string is returned.
      * @return A UTF-8 string.
      */
-    ICE_API std::string nativeToUTF8(const std::string& str, const StringConverterPtr& nc);
+    ICE_API std::string nativeToUTF8(std::string_view str, const StringConverterPtr& nc);
 
     /**
      * Converts the given string from UTF-8 to the native narrow string

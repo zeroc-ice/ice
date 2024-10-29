@@ -47,7 +47,7 @@ namespace IceInternal
     // (first parameter).
     // The second parameter adds characters to escape, and can be empty.
     //
-    ICE_API std::string escapeString(const std::string&, const std::string&, Ice::ToStringMode);
+    ICE_API std::string escapeString(std::string_view s, std::string_view special, Ice::ToStringMode toStringMode);
 
     //
     // Remove escape sequences added by escapeString. Throws std::invalid_argument

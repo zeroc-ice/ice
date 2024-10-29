@@ -110,7 +110,7 @@ namespace
 // Add escape sequences. Any characters that appear in special are prefixed with a backslash in the returned string.
 //
 string
-IceInternal::escapeString(const string& s, const string& special, ToStringMode toStringMode)
+IceInternal::escapeString(string_view s, string_view special, ToStringMode toStringMode)
 {
     for (string::size_type i = 0; i < special.size(); ++i)
     {
