@@ -98,8 +98,8 @@ namespace IceInternal
         Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
         std::optional<Ice::ObjectPrx> getAdmin();
         void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
-        Ice::ObjectPtr removeAdminFacet(const std::string&);
-        Ice::ObjectPtr findAdminFacet(const std::string&);
+        Ice::ObjectPtr removeAdminFacet(std::string_view);
+        Ice::ObjectPtr findAdminFacet(std::string_view);
         Ice::FacetMap findAllAdminFacets();
 
         const Ice::ImplicitContextPtr& getImplicitContext() const;
@@ -179,7 +179,7 @@ namespace IceInternal
         Ice::ObjectAdapterPtr _adminAdapter;
         Ice::FacetMap _adminFacets;
         Ice::Identity _adminIdentity;
-        std::set<std::string> _adminFacetFilter;
+        std::set<std::string, std::less<>> _adminFacetFilter;
         IceInternal::MetricsAdminIPtr _metricsAdmin;
         std::map<std::int16_t, BufSizeWarnInfo> _setBufSizeWarn;
         std::mutex _setBufSizeWarnMutex;

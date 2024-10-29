@@ -92,16 +92,16 @@ Ice::Communicator::proxyToString(const std::optional<ObjectPrx>& proxy) const
 }
 
 ReferencePtr
-Ice::Communicator::_propertyToProxy(const string& p) const
+Ice::Communicator::_propertyToProxy(string_view p) const
 {
     string proxy = _instance->initializationData().properties->getProperty(p);
-    return _instance->referenceFactory()->create(proxy, p);
+    return _instance->referenceFactory()->create(proxy, string{p});
 }
 
 PropertyDict
-Ice::Communicator::proxyToProperty(const std::optional<ObjectPrx>& proxy, const string& property) const
+Ice::Communicator::proxyToProperty(const std::optional<ObjectPrx>& proxy, string property) const
 {
-    return proxy ? proxy->_getReference()->toProperty(property) : PropertyDict();
+    return proxy ? proxy->_getReference()->toProperty(std::move(property)) : PropertyDict();
 }
 
 string
@@ -273,13 +273,13 @@ Ice::Communicator::addAdminFacet(const ObjectPtr& servant, const string& facet)
 }
 
 ObjectPtr
-Ice::Communicator::removeAdminFacet(const string& facet)
+Ice::Communicator::removeAdminFacet(string_view facet)
 {
     return _instance->removeAdminFacet(facet);
 }
 
 ObjectPtr
-Ice::Communicator::findAdminFacet(const string& facet)
+Ice::Communicator::findAdminFacet(string_view facet)
 {
     return _instance->findAdminFacet(facet);
 }

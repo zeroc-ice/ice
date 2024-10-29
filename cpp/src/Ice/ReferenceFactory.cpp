@@ -701,7 +701,7 @@ IceInternal::ReferenceFactory::create(
     Ice::EncodingVersion encoding,
     vector<EndpointIPtr> endpoints,
     string adapterId,
-    string propertyPrefix)
+    const string& propertyPrefix)
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
 

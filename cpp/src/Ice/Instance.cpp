@@ -747,7 +747,7 @@ IceInternal::Instance::addAdminFacet(const ObjectPtr& servant, const string& fac
 }
 
 ObjectPtr
-IceInternal::Instance::removeAdminFacet(const string& facet)
+IceInternal::Instance::removeAdminFacet(string_view facet)
 {
     lock_guard lock(_mutex);
 
@@ -763,7 +763,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
         FacetMap::iterator p = _adminFacets.find(facet);
         if (p == _adminFacets.end())
         {
-            throw NotRegisteredException(__FILE__, __LINE__, "facet", facet);
+            throw NotRegisteredException(__FILE__, __LINE__, "facet", string{facet});
         }
         else
         {
@@ -780,7 +780,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
 }
 
 ObjectPtr
-IceInternal::Instance::findAdminFacet(const string& facet)
+IceInternal::Instance::findAdminFacet(string_view facet)
 {
     lock_guard lock(_mutex);
 

@@ -122,7 +122,7 @@ namespace IceInternal
         //
         // Convert the reference to its property form.
         //
-        virtual Ice::PropertyDict toProperty(const std::string&) const = 0;
+        virtual Ice::PropertyDict toProperty(std::string) const = 0;
 
         //
         // Get a suitable connection for this reference.
@@ -216,7 +216,7 @@ namespace IceInternal
         bool isWellKnown() const noexcept final;
 
         void streamWrite(Ice::OutputStream*) const final;
-        Ice::PropertyDict toProperty(const std::string&) const final;
+        Ice::PropertyDict toProperty(std::string) const final;
 
         RequestHandlerPtr getRequestHandler() const final;
         const BatchRequestQueuePtr& getBatchRequestQueue() const noexcept final;
@@ -291,7 +291,7 @@ namespace IceInternal
 
         void streamWrite(Ice::OutputStream*) const final;
         std::string toString() const final;
-        Ice::PropertyDict toProperty(const std::string&) const final;
+        Ice::PropertyDict toProperty(std::string) const final;
 
         bool operator==(const Reference&) const noexcept final;
         bool operator<(const Reference&) const noexcept final;

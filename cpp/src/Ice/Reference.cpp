@@ -626,7 +626,7 @@ IceInternal::FixedReference::streamWrite(OutputStream*) const
 }
 
 PropertyDict
-IceInternal::FixedReference::toProperty(const string&) const
+IceInternal::FixedReference::toProperty(string) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -1093,11 +1093,10 @@ IceInternal::RoutableReference::toString() const
 }
 
 PropertyDict
-IceInternal::RoutableReference::toProperty(const string& prefix) const
+IceInternal::RoutableReference::toProperty(string prefix) const
 {
     Ice::PropertyDict properties;
 
-    properties[prefix] = toString();
     properties[prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0";
     properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
@@ -1124,6 +1123,8 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
             properties[p->first] = p->second;
         }
     }
+
+    properties[std::move(prefix)] = toString();
 
     return properties;
 }
