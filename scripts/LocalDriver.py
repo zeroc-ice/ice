@@ -771,9 +771,16 @@ class LocalDriver(Driver):
         if isinstance(process, IceProcess):
             if current.host:
                 props["Ice.Default.Host"] = current.host
-            # Ice process from the bin directory don't support Test.BasePort
-            if not process.isFromBinDir() and hasattr(self.threadlocal, "num"):
-                props["Test.BasePort"] = 14000 + self.threadlocal.num * 100
+
+            if not process.isFromBinDir():
+                # Ice process from the bin directory don't support Test.BasePort
+                if hasattr(self.threadlocal, "num"):
+                    props["Test.BasePort"] = 14000 + self.threadlocal.num * 100
+
+                # Add Test.Cross property if we are cross testing
+                if self.cross or self.allCross:
+                    props["Test.Cross"] = "1"
+
         return props
 
     def getMappings(self):

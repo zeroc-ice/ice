@@ -101,6 +101,11 @@ namespace Test
             return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
         }
 
+        public bool isCrossTest()
+        {
+            return _communicator.getProperties().getPropertyAsIntWithDefault("Test.Cross", 0) != 0;
+        }
+
         public TextWriter getWriter()
         {
             if (_writer == null)
