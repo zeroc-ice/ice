@@ -20,7 +20,7 @@ namespace Ice
     class PluginManagerI : public PluginManager
     {
     public:
-        static void registerPluginFactory(const std::string&, PluginFactory, bool);
+        static void registerPluginFactory(std::string, PluginFactory, bool);
 
         virtual void initializePlugins();
         virtual StringSeq getPlugins() noexcept;

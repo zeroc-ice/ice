@@ -19,8 +19,8 @@ const char* const Ice::PluginManagerI::_kindOfObject = "plugin";
 
 namespace
 {
-    map<string, PluginFactory>* factories = 0;
-    vector<string>* loadOnInitialization = 0;
+    map<string, PluginFactory>* factories = nullptr;
+    vector<string>* loadOnInitialization = nullptr;
 
     class PluginFactoryDestroy
     {
@@ -28,34 +28,34 @@ namespace
         ~PluginFactoryDestroy()
         {
             delete factories;
-            factories = 0;
+            factories = nullptr;
 
             delete loadOnInitialization;
-            loadOnInitialization = 0;
+            loadOnInitialization = nullptr;
         }
     };
     PluginFactoryDestroy destroy;
 }
 
 void
-Ice::PluginManagerI::registerPluginFactory(const std::string& name, PluginFactory factory, bool loadOnInit)
+Ice::PluginManagerI::registerPluginFactory(std::string name, PluginFactory factory, bool loadOnInit)
 {
-    if (factories == 0)
+    if (!factories)
     {
         factories = new map<string, PluginFactory>();
     }
 
-    map<string, PluginFactory>::const_iterator p = factories->find(name);
+    auto p = factories->find(name);
     if (p == factories->end())
     {
         factories->insert(make_pair(name, factory));
         if (loadOnInit)
         {
-            if (loadOnInitialization == 0)
+            if (!loadOnInitialization)
             {
                 loadOnInitialization = new vector<string>();
             }
-            loadOnInitialization->push_back(name);
+            loadOnInitialization->push_back(std::move(name));
         }
     }
 }

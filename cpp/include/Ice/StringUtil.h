@@ -54,7 +54,7 @@ namespace IceInternal
     // for an invalid input string.
     //
     ICE_API std::string
-    unescapeString(const std::string&, std::string::size_type, std::string::size_type, std::string_view special);
+    unescapeString(std::string_view, std::string_view::size_type, std::string_view::size_type, std::string_view special);
 
     //
     // Split a string using the given delimiters. Considers single and double quotes;
