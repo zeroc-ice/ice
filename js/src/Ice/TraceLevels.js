@@ -3,21 +3,11 @@
 //
 
 export function TraceLevels(properties) {
-    const networkCat = "Network";
-    const protocolCat = "Protocol";
-    const retryCat = "Retry";
-    const locationCat = "Locator";
-    const slicingCat = "Slicing";
-
-    const keyBase = "Ice.Trace.";
-
-    const network = properties.getPropertyAsInt(keyBase + networkCat);
-    const protocol = properties.getPropertyAsInt(keyBase + protocolCat);
-    const retry = properties.getPropertyAsInt(keyBase + retryCat);
-    const location = properties.getPropertyAsInt(keyBase + locationCat);
-    const slicing = properties.getPropertyAsInt(keyBase + slicingCat);
-
-    properties.getPropertyAsInt(keyBase + "ThreadPool"); // Avoid an "unused property" warning.
+    const network = properties.getPropertyAsInt("Ice.Trace.Network");
+    const protocol = properties.getPropertyAsInt("Ice.Trace.Protocol");
+    const retry = properties.getPropertyAsInt("Ice.Trace.Retry");
+    const location = properties.getPropertyAsInt("Ice.Trace.Locator");
+    const slicing = properties.getPropertyAsInt("Ice.Trace.Slicing");
 
     return class {
         static get network() {
@@ -25,7 +15,7 @@ export function TraceLevels(properties) {
         }
 
         static get networkCat() {
-            return networkCat;
+            return "Network";
         }
 
         static get protocol() {
@@ -33,7 +23,7 @@ export function TraceLevels(properties) {
         }
 
         static get protocolCat() {
-            return protocolCat;
+            return "Protocol";
         }
 
         static get retry() {
@@ -41,7 +31,7 @@ export function TraceLevels(properties) {
         }
 
         static get retryCat() {
-            return retryCat;
+            return "Retry";
         }
 
         static get location() {
@@ -49,7 +39,7 @@ export function TraceLevels(properties) {
         }
 
         static get locationCat() {
-            return locationCat;
+            return "Locator";
         }
 
         static get slicing() {
@@ -57,7 +47,7 @@ export function TraceLevels(properties) {
         }
 
         static get slicingCat() {
-            return slicingCat;
+            return "Slicing";
         }
     };
 }

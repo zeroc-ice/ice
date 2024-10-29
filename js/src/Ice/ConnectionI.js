@@ -97,7 +97,7 @@ export class ConnectionI {
 
         this._hasMoreData = { value: false };
 
-        this._warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
+        this._warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         this._nextRequestId = 1;
         this._messageSizeMax = instance.messageSizeMax();
         this._batchRequestQueue = new BatchRequestQueue(instance);
@@ -216,15 +216,6 @@ export class ConnectionI {
 
     isActiveOrHolding() {
         return this._state > StateNotValidated && this._state < StateClosing;
-    }
-
-    isFinished() {
-        if (this._state !== StateFinished || this._upcallCount !== 0) {
-            return false;
-        }
-
-        Debug.assert(this._state === StateFinished);
-        return true;
     }
 
     throwException() {
