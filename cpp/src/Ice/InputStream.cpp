@@ -1221,7 +1221,7 @@ Ice::InputStream::readReference()
     }
     else
     {
-        return _instance->referenceFactory()->create(ident, this);
+        return _instance->referenceFactory()->create(std::move(ident), this);
     }
 }
 

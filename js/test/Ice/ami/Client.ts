@@ -41,21 +41,28 @@ export class Client extends TestHelper {
         out.write("testing batch requests with connection... ");
         {
             test((await p.opBatchCount()) === 0);
-            const b1 = p.ice_batchOneway();
+            let connection = await p.ice_getConnection();
+            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
-            const bf = b1.opBatch();
-            test(bf.isCompleted());
-            await b1.ice_flushBatchRequests();
+            await b1.opBatch();
+            await connection.flushBatchRequests();
             test(await p.waitForBatch(2));
         }
 
         if ((await p.ice_getConnection()) !== null) {
             test((await p.opBatchCount()) == 0);
-            const b1 = p.ice_batchOneway();
+            let connection = await p.ice_getConnection();
+            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
-            await b1.ice_getConnection().then((conn) => conn.close());
-            await b1.ice_flushBatchRequests();
-            test(await p.waitForBatch(1));
+            await connection.close();
+            try {
+                connection = await b1.ice_getConnection();
+                await connection.flushBatchRequests();
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.ConnectionClosedException);
+            }
+            test(await p.waitForBatch(0));
         }
         out.writeLine("ok");
 

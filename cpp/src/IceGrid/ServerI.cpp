@@ -1360,7 +1360,7 @@ ServerI::checkDestroyed() const
     if (_state == Destroyed)
     {
         assert(_this);
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, _this->ice_getIdentity(), "", "");
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 }
 

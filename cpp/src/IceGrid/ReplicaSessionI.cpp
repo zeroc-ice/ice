@@ -88,7 +88,7 @@ ReplicaSessionI::keepAlive(const Ice::Current&)
     lock_guard lock(_mutex);
     if (_destroy)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     _timestamp = chrono::steady_clock::now();
@@ -168,7 +168,7 @@ ReplicaSessionI::setDatabaseObserver(
         lock_guard lock(_mutex);
         if (_destroy)
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
         }
         _observer = observer;
 
@@ -189,7 +189,7 @@ ReplicaSessionI::setEndpoints(StringObjectProxyDict endpoints, const Ice::Curren
         lock_guard lock(_mutex);
         if (_destroy)
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
         }
         _replicaEndpoints = std::move(endpoints);
     }
@@ -204,7 +204,7 @@ ReplicaSessionI::registerWellKnownObjects(ObjectInfoSeq objects, const Ice::Curr
         lock_guard lock(_mutex);
         if (_destroy)
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
         }
         _replicaWellKnownObjects = objects;
         serial = _database->addOrUpdateRegistryWellKnownObjects(objects);
@@ -255,7 +255,7 @@ ReplicaSessionI::timestamp() const
     lock_guard lock(_mutex);
     if (_destroy)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     return _timestamp;
 }
@@ -309,7 +309,7 @@ ReplicaSessionI::destroyImpl(bool shutdown)
         lock_guard lock(_mutex);
         if (_destroy)
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
         }
         _destroy = true;
     }

@@ -38,7 +38,7 @@ MetricsI::opWithRequestFailedExceptionAsync(function<void()>, function<void(exce
 {
     try
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     catch (...)
     {

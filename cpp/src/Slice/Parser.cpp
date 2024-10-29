@@ -936,23 +936,17 @@ Slice::Contained::parseFormatMetadata(const StringList& metadata)
 }
 
 bool
-Slice::Contained::isDeprecated(bool checkParent) const
+Slice::Contained::isDeprecated() const
 {
-    const string prefix1 = "deprecate";
-    const string prefix2 = "deprecated";
-    ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
-
-    return (hasMetadata(prefix1) || (parent && parent->hasMetadata(prefix1))) ||
-           (hasMetadata(prefix2) || (parent && parent->hasMetadata(prefix2)));
+    return (hasMetadata("deprecate") || hasMetadata("deprecated"));
 }
 
 optional<string>
-Slice::Contained::getDeprecationReason(bool checkParent) const
+Slice::Contained::getDeprecationReason() const
 {
     const string prefix1 = "deprecate:";
     const string prefix2 = "deprecated:";
 
-    // First, we check if the element itself is deprecated.
     if (auto meta = findMetadata(prefix1))
     {
         return meta->substr(prefix1.size());
@@ -960,20 +954,6 @@ Slice::Contained::getDeprecationReason(bool checkParent) const
     if (auto meta = findMetadata(prefix2))
     {
         return meta->substr(prefix2.size());
-    }
-
-    // Then, if necessary, we check if the container it's within is deprecated.
-    ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
-    if (checkParent && parent)
-    {
-        if (auto meta = parent->findMetadata(prefix1))
-        {
-            return meta->substr(prefix1.size());
-        }
-        if (auto meta = parent->findMetadata(prefix2))
-        {
-            return meta->substr(prefix2.size());
-        }
     }
 
     return nullopt;

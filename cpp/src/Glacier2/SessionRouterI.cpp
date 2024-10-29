@@ -695,7 +695,7 @@ SessionRouterI::destroySession(const ConnectionPtr& connection)
 
         if (_destroy)
         {
-            throw ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException{__FILE__, __LINE__};
         }
 
         map<ConnectionPtr, shared_ptr<RouterI>>::const_iterator p;
@@ -788,7 +788,7 @@ SessionRouterI::getServerBlobject(const string& category) const
 
     if (_destroy)
     {
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException{__FILE__, __LINE__};
     }
 
     if (_routersByCategoryHint != _routersByCategory.cend() && _routersByCategoryHint->first == category)
@@ -805,7 +805,7 @@ SessionRouterI::getServerBlobject(const string& category) const
     }
     else
     {
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException{__FILE__, __LINE__};
     }
 }
 
@@ -819,7 +819,7 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
     //
     if (_destroy || !connection)
     {
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException{__FILE__, __LINE__};
     }
 
     if (_routersByConnectionHint != _routersByConnection.cend() && _routersByConnectionHint->first == connection)
@@ -843,7 +843,7 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
             out << "identity: " << identityToString(id);
         }
         connection->abort();
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException{__FILE__, __LINE__};
     }
     return nullptr;
 }

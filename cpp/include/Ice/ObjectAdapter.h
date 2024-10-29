@@ -152,9 +152,9 @@ namespace Ice
          * @see #findFacet
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx addFacet(const ObjectPtr& servant, const Identity& id, const std::string& facet)
+        Prx addFacet(ObjectPtr servant, Identity id, std::string facet)
         {
-            return uncheckedCast<Prx>(_addFacet(servant, id, facet));
+            return uncheckedCast<Prx>(_addFacet(std::move(servant), std::move(id), std::move(facet)));
         }
 
         /**
@@ -170,9 +170,9 @@ namespace Ice
          * @see #find
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx addWithUUID(const ObjectPtr& servant)
+        Prx addWithUUID(ObjectPtr servant)
         {
-            return uncheckedCast<Prx>(_addWithUUID(servant));
+            return uncheckedCast<Prx>(_addWithUUID(std::move(servant)));
         }
 
         /**
@@ -189,9 +189,9 @@ namespace Ice
          * @see #findFacet
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx addFacetWithUUID(const ObjectPtr& servant, const std::string& facet)
+        Prx addFacetWithUUID(ObjectPtr servant, std::string facet)
         {
-            return uncheckedCast<Prx>(_addFacetWithUUID(servant, facet));
+            return uncheckedCast<Prx>(_addFacetWithUUID(std::move(servant), std::move(facet)));
         }
 
         /**
@@ -212,7 +212,7 @@ namespace Ice
          * @see #removeDefaultServant
          * @see #findDefaultServant
          */
-        virtual void addDefaultServant(const ObjectPtr& servant, const std::string& category) = 0;
+        virtual void addDefaultServant(ObjectPtr servant, std::string category) = 0;
 
         /**
          * Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
@@ -328,7 +328,7 @@ namespace Ice
          * @see #findServantLocator
          * @see ServantLocator
          */
-        virtual void addServantLocator(const ServantLocatorPtr& locator, const std::string& category) = 0;
+        virtual void addServantLocator(ServantLocatorPtr locator, std::string category) = 0;
 
         /**
          * Remove a Servant Locator from this object adapter.
@@ -380,9 +380,9 @@ namespace Ice
          * @see Identity
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx createProxy(const Identity& id)
+        Prx createProxy(Identity id)
         {
-            return uncheckedCast<Prx>(_createProxy(id));
+            return uncheckedCast<Prx>(_createProxy(std::move(id)));
         }
 
         /**
@@ -393,9 +393,9 @@ namespace Ice
          * @see Identity
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx createDirectProxy(const Identity& id)
+        Prx createDirectProxy(Identity id)
         {
-            return uncheckedCast<Prx>(_createDirectProxy(id));
+            return uncheckedCast<Prx>(_createDirectProxy(std::move(id)));
         }
 
         /**
@@ -407,9 +407,9 @@ namespace Ice
          * @see Identity
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx createIndirectProxy(const Identity& id)
+        Prx createIndirectProxy(Identity id)
         {
-            return uncheckedCast<Prx>(_createIndirectProxy(id));
+            return uncheckedCast<Prx>(_createIndirectProxy(std::move(id)));
         }
 
         /**
@@ -422,7 +422,7 @@ namespace Ice
          * @see Locator
          * @see LocatorRegistry
          */
-        virtual void setLocator(const std::optional<LocatorPrx>& loc) = 0;
+        virtual void setLocator(std::optional<LocatorPrx> loc) = 0;
 
         /**
          * Get the Ice locator used by this object adapter.
@@ -451,16 +451,16 @@ namespace Ice
          * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
          * @see Endpoint
          */
-        virtual void setPublishedEndpoints(const EndpointSeq& newEndpoints) = 0;
+        virtual void setPublishedEndpoints(EndpointSeq newEndpoints) = 0;
 
     protected:
-        virtual ObjectPrx _add(const ObjectPtr& servant, const Identity& id) = 0;
-        virtual ObjectPrx _addFacet(const ObjectPtr& servant, const Identity& id, const std::string& facet) = 0;
-        virtual ObjectPrx _addWithUUID(const ObjectPtr& servant) = 0;
-        virtual ObjectPrx _addFacetWithUUID(const ObjectPtr& servant, const std::string& facet) = 0;
-        virtual ObjectPrx _createProxy(const Identity& id) const = 0;
-        virtual ObjectPrx _createDirectProxy(const Identity& id) const = 0;
-        virtual ObjectPrx _createIndirectProxy(const Identity& id) const = 0;
+        virtual ObjectPrx _add(ObjectPtr servant, Identity id) = 0;
+        virtual ObjectPrx _addFacet(ObjectPtr servant, Identity id, std::string facet) = 0;
+        virtual ObjectPrx _addWithUUID(ObjectPtr servant) = 0;
+        virtual ObjectPrx _addFacetWithUUID(ObjectPtr servant, std::string facet) = 0;
+        virtual ObjectPrx _createProxy(Identity id) const = 0;
+        virtual ObjectPrx _createDirectProxy(Identity id) const = 0;
+        virtual ObjectPrx _createIndirectProxy(Identity id) const = 0;
     };
 }
 

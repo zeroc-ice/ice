@@ -83,11 +83,13 @@ printRequestHeader(ostream& s, InputStream& stream)
             break;
         }
 
+#include "PushDisableDeprecatedWarnings.h"
         case OperationMode::Nonmutating:
         {
             s << "(nonmutating)";
             break;
         }
+#include "Ice/PopDisableWarnings.h"
 
         case OperationMode::Idempotent:
         {

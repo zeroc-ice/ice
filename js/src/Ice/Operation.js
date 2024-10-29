@@ -498,7 +498,7 @@ export function defineOperations(classType, proxyType, ids, id, ops) {
         const method = getServantMethod(classType, request.current.operation);
 
         if (method === undefined || typeof method !== "function") {
-            throw new OperationNotExistException(request.current.id, request.current.facet, request.current.operation);
+            throw new OperationNotExistException();
         }
 
         return method.call(method, this, request);

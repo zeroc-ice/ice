@@ -47,7 +47,7 @@ namespace
         {
             case ThrowType::LocalException:
             {
-                throw ObjectNotExistException(__FILE__, __LINE__);
+                throw ObjectNotExistException{__FILE__, __LINE__};
                 break;
             }
             case ThrowType::UserException:

@@ -1033,11 +1033,11 @@ Ice::ConnectionI::getEndpoint() const noexcept
 }
 
 ObjectPrx
-Ice::ConnectionI::_createProxy(const Identity& ident) const
+Ice::ConnectionI::_createProxy(Identity ident) const
 {
     checkIdentity(ident, __FILE__, __LINE__);
     return ObjectPrx::_fromReference(
-        _instance->referenceFactory()->create(ident, const_cast<ConnectionI*>(this)->shared_from_this()));
+        _instance->referenceFactory()->create(std::move(ident), const_cast<ConnectionI*>(this)->shared_from_this()));
 }
 
 void

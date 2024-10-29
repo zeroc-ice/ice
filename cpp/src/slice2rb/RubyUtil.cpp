@@ -645,10 +645,10 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << "])";
 
-        if (op->isDeprecated(true))
+        if (op->isDeprecated())
         {
             // Get the deprecation reason if present, or default to an empty string.
-            string reason = op->getDeprecationReason(true).value_or("");
+            string reason = op->getDeprecationReason().value_or("");
             _out << nl << name << "Prx_mixin::OP_" << op->name() << ".deprecate(\"" << reason << "\")";
         }
     }

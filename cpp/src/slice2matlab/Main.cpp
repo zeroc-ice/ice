@@ -879,10 +879,10 @@ namespace
     {
         DocElements doc;
 
-        doc.deprecated = p->isDeprecated(false);
+        doc.deprecated = p->isDeprecated();
 
         // First check metadata for a deprecated tag.
-        if (auto reason = p->getDeprecationReason(false))
+        if (auto reason = p->getDeprecationReason())
         {
             doc.deprecateReason.push_back(IceInternal::trim(*reason));
         }

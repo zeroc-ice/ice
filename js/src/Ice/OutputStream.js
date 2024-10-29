@@ -489,7 +489,7 @@ EncapsEncoder11.InstanceData = class {
 
 export class OutputStream {
     constructor(arg1, arg2) {
-        var instance = null;
+        let instance = null;
         this._encoding = null;
 
         if (arg1 !== undefined && arg1 !== null) {
