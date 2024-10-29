@@ -724,7 +724,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
 }
 
 void
-IceInternal::Instance::addAdminFacet(const ObjectPtr& servant, const string& facet)
+IceInternal::Instance::addAdminFacet(ObjectPtr servant, string facet)
 {
     lock_guard lock(_mutex);
 
@@ -742,7 +742,7 @@ IceInternal::Instance::addAdminFacet(const ObjectPtr& servant, const string& fac
     }
     else
     {
-        _adminAdapter->addFacet(servant, _adminIdentity, facet);
+        _adminAdapter->addFacet(std::move(servant), _adminIdentity, std::move(facet));
     }
 }
 

@@ -116,9 +116,9 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
 
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(
-    const string& name,
-    const optional<Ice::RouterPrx>& router,
-    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
+    string name,
+    optional<Ice::RouterPrx> router,
+    optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
 {
     shared_ptr<ObjectAdapterI> adapter;
     {
@@ -138,7 +138,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(
                 shared_from_this(),
                 uuid,
                 true,
-                serverAuthenticationOptions);
+                std::move(serverAuthenticationOptions));
         }
         else
         {
@@ -152,7 +152,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(
                 shared_from_this(),
                 name,
                 false,
-                serverAuthenticationOptions);
+                std::move(serverAuthenticationOptions));
             _adapterNamesInUse.insert(name);
         }
     }
@@ -164,7 +164,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(
     bool initialized = false;
     try
     {
-        adapter->initialize(router);
+        adapter->initialize(std::move(router));
         initialized = true;
 
         lock_guard lock(_mutex);

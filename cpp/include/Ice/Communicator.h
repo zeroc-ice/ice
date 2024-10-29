@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_COMMUNICATOR_H
 #define ICE_COMMUNICATOR_H
@@ -167,8 +165,8 @@ namespace Ice
 
          */
         ObjectAdapterPtr createObjectAdapter(
-            const std::string& name,
-            const std::optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions = std::nullopt);
+            std::string name,
+            std::optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions = std::nullopt);
 
         /**
          * Create a new object adapter with endpoints. This operation sets the property
@@ -189,9 +187,9 @@ namespace Ice
          * @see SSL::SchannelServerAuthenticationOptions
          */
         ObjectAdapterPtr createObjectAdapterWithEndpoints(
-            const std::string& name,
-            const std::string& endpoints,
-            const std::optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions = std::nullopt);
+            std::string name,
+            std::string_view endpoints,
+            std::optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions = std::nullopt);
 
         /**
          * Create a new object adapter with a router. This operation creates a routed object adapter.
@@ -203,7 +201,7 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        ObjectAdapterPtr createObjectAdapterWithRouter(const std::string& name, const RouterPrx& rtr);
+        ObjectAdapterPtr createObjectAdapterWithRouter(std::string name, RouterPrx rtr);
 
         /**
          * Gets the object adapter that is associated by default with new outgoing connections created by this
@@ -367,7 +365,7 @@ namespace Ice
          * @param servant The servant that implements the new Admin facet.
          * @param facet The name of the new Admin facet.
          */
-        void addAdminFacet(const ObjectPtr& servant, const std::string& facet);
+        void addAdminFacet(ObjectPtr servant, std::string facet);
 
         /**
          * Remove the following facet to the Admin object. Removing a facet that was not previously registered throws
