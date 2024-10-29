@@ -66,7 +66,7 @@ namespace Ice
          * @return The plug-in.
          * @throws NotRegisteredException Raised if no plug-in is found with the given name.
          */
-        virtual PluginPtr getPlugin(const std::string& name) = 0;
+        virtual PluginPtr getPlugin(std::string_view name) = 0;
 
         /**
          * Install a new plug-in.
@@ -74,7 +74,7 @@ namespace Ice
          * @param pi The plug-in.
          * @throws AlreadyRegisteredException Raised if a plug-in already exists with the given name.
          */
-        virtual void addPlugin(const std::string& name, const PluginPtr& pi) = 0;
+        virtual void addPlugin(std::string name, PluginPtr pi) = 0;
 
         /**
          * Called when the communicator is being destroyed.

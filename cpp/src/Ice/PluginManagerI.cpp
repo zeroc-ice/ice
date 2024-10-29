@@ -136,7 +136,7 @@ Ice::PluginManagerI::getPlugins() noexcept
 }
 
 PluginPtr
-Ice::PluginManagerI::getPlugin(const string& name)
+Ice::PluginManagerI::getPlugin(string_view name)
 {
     lock_guard lock(_mutex);
 
@@ -151,11 +151,11 @@ Ice::PluginManagerI::getPlugin(const string& name)
         return p;
     }
 
-    throw NotRegisteredException(__FILE__, __LINE__, _kindOfObject, name);
+    throw NotRegisteredException(__FILE__, __LINE__, _kindOfObject, string{name});
 }
 
 void
-Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
+Ice::PluginManagerI::addPlugin(string name, PluginPtr plugin)
 {
     lock_guard lock(_mutex);
 
@@ -170,9 +170,9 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
     }
 
     PluginInfo info;
-    info.name = name;
-    info.plugin = plugin;
-    _plugins.push_back(info);
+    info.name = std::move(name);
+    info.plugin = std::move(plugin);
+    _plugins.push_back(std::move(info));
 }
 
 void
@@ -400,14 +400,14 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
 }
 
 Ice::PluginPtr
-Ice::PluginManagerI::findPlugin(const string& name) const
+Ice::PluginManagerI::findPlugin(string_view name) const
 {
-    for (PluginInfoList::const_iterator p = _plugins.begin(); p != _plugins.end(); ++p)
+    for (auto p : _plugins)
     {
-        if (name == p->name)
+        if (name == p.name)
         {
-            return p->plugin;
+            return p.plugin;
         }
     }
-    return 0;
+    return nullptr;
 }
