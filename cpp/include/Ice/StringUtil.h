@@ -53,8 +53,11 @@ namespace IceInternal
     // Remove escape sequences added by escapeString. Throws std::invalid_argument
     // for an invalid input string.
     //
-    ICE_API std::string
-    unescapeString(std::string_view, std::string_view::size_type, std::string_view::size_type, std::string_view special);
+    ICE_API std::string unescapeString(
+        std::string_view,
+        std::string_view::size_type,
+        std::string_view::size_type,
+        std::string_view special);
 
     //
     // Split a string using the given delimiters. Considers single and double quotes;

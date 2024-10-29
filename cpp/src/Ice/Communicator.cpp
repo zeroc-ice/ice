@@ -115,7 +115,10 @@ Ice::Communicator::createObjectAdapter(
     string name,
     optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(std::move(name), nullopt, std::move(serverAuthenticationOptions));
+    return _instance->objectAdapterFactory()->createObjectAdapter(
+        std::move(name),
+        nullopt,
+        std::move(serverAuthenticationOptions));
 }
 
 ObjectAdapterPtr
@@ -130,7 +133,10 @@ Ice::Communicator::createObjectAdapterWithEndpoints(
     }
 
     getProperties()->setProperty(name + ".Endpoints", endpoints);
-    return _instance->objectAdapterFactory()->createObjectAdapter(std::move(name), nullopt, std::move(serverAuthenticationOptions));
+    return _instance->objectAdapterFactory()->createObjectAdapter(
+        std::move(name),
+        nullopt,
+        std::move(serverAuthenticationOptions));
 }
 
 ObjectAdapterPtr

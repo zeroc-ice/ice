@@ -559,7 +559,11 @@ namespace
 // Remove escape sequences added by escapeString.
 //
 string
-IceInternal::unescapeString(string_view sv, string_view::size_type start, string_view::size_type end, string_view special)
+IceInternal::unescapeString(
+    string_view sv,
+    string_view::size_type start,
+    string_view::size_type end,
+    string_view special)
 {
     // Logically we only read sv, but we actually need a string (s) in the code below.
     string s{sv};
