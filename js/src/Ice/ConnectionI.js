@@ -218,15 +218,6 @@ export class ConnectionI {
         return this._state > StateNotValidated && this._state < StateClosing;
     }
 
-    isFinished() {
-        if (this._state !== StateFinished || this._upcallCount !== 0) {
-            return false;
-        }
-
-        Debug.assert(this._state === StateFinished);
-        return true;
-    }
-
     throwException() {
         if (this._exception !== null) {
             Debug.assert(this._state >= StateClosing);
