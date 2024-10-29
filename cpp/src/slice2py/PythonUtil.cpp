@@ -1847,8 +1847,7 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata)
             {
                 _out << ", ";
             }
-            // TODO are we really intentionally writing the _entire_ metadata here? And not just the arguments?
-            _out << "'" << directive << ":" << meta->arguments() << "'";
+            _out << "'" << *meta << "'";
             ++i;
         }
     }

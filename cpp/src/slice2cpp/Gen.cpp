@@ -1120,7 +1120,7 @@ Slice::Gen::MetadataVisitor::validate(
 
         // Issue friendly warning for cpp11 and cpp98 metadata what were removed as Slice does not issue warnings
         // for unknown "top-level" metadata.
-        if (directive.find("cpp11:") == 0 || directive.find("cpp98:") == 0)
+        if (directive.find("cpp11") == 0 || directive.find("cpp98") == 0)
         {
             ostringstream ostr;
             ostr << "ignoring invalid metadata '" << *meta << "'";

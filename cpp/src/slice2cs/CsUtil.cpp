@@ -1769,7 +1769,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
     const string typeS = typeToString(type, scope);
     const string seqS = typeToString(seq, scope);
 
-    const bool isArray = !seq->hasMetadata("cs:generic:");
+    const bool isArray = !seq->hasMetadata("cs:generic");
     const string length = isArray ? param + ".Length" : param + ".Count";
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);

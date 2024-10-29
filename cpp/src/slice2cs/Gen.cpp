@@ -1657,7 +1657,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
     InterfaceList bases = p->bases();
 
-    list<string_view> baseNames;
+    list<string> baseNames;
 
     _out << sp;
     emitAttributes(p);
@@ -1680,7 +1680,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         if (metadata->directive() == "cs:implements")
         {
-            baseNames.push_back(metadata->arguments());
+            baseNames.push_back(string(metadata->arguments()));
         }
     }
 

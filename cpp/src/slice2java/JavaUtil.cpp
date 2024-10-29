@@ -874,7 +874,7 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
 
     // The 'java:package' metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
-    if (auto metadataArgs = cont->getMetadataArgs("java:package"))
+    if (auto metadataArgs = m->getMetadataArgs("java:package"))
     {
         return *metadataArgs;
     }
@@ -2302,7 +2302,7 @@ Slice::JavaGenerator::hasTypeMetadata(const TypePtr& type, const MetadataList& l
     ContainedPtr cont = dynamic_pointer_cast<Contained>(type);
     if (cont)
     {
-        if (hasMetadata("java:type:", localMetadata))
+        if (hasMetadata("java:type", localMetadata))
         {
             return true;
         }

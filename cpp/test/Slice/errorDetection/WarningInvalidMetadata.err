@@ -2,13 +2,13 @@ WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:header-
 WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:source-ext:cc': directive can appear only once per file
 WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:dll-export:Test': directive can appear only once per file
 WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:header-ext'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:header-ext:'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:header-ext'
 WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:source-ext'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:source-ext:'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:source-ext'
 WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:dll-export'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:dll-export:'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:dll-export'
 WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:include'
-WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:include:'
+WarningInvalidMetadata.ice: warning: ignoring invalid file metadata 'cpp:include'
 WarningInvalidMetadata.ice:35: warning: ignoring invalid metadata 'cpp:type:std::list<::std::string>' for operation with void return type
 WarningInvalidMetadata.ice:38: warning: ignoring invalid metadata 'cpp:array' for operation with void return type
 WarningInvalidMetadata.ice:40: warning: ignoring invalid metadata 'cpp:type:my_string'
