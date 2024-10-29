@@ -81,6 +81,9 @@ jobs:
           - os: ubuntu-24.04
             config: "cross"
             test_flags: "--all-cross"
+          - os: macos-15
+            config: "cross"
+            test_flags: "--all-cross"
 
     runs-on: ${{ matrix.os }}
     steps:
