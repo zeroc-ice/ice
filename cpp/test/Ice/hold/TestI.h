@@ -10,17 +10,27 @@
 class HoldI final : public Test::Hold
 {
 public:
-    HoldI(const IceInternal::TimerPtr&, const Ice::ObjectAdapterPtr&);
+    HoldI(const Ice::ObjectAdapterPtr&);
 
-    void putOnHold(std::int32_t, const Ice::Current&) final;
-    void waitForHold(const Ice::Current&) final;
+    void putOnHoldAsync(
+        std::int32_t delay,
+        std::function<void()> response,
+        std::function<void(std::exception_ptr)> exception,
+        const Ice::Current&) final;
+
+    void waitForHoldAsync(
+        std::function<void()> response,
+        std::function<void(std::exception_ptr)> exception,
+        const Ice::Current&) final;
+
     std::int32_t set(std::int32_t, std::int32_t, const Ice::Current&) final;
+
     void setOneway(std::int32_t, std::int32_t, const Ice::Current&) final;
+
     void shutdown(const Ice::Current&) final;
 
 private:
     int _last;
-    const IceInternal::TimerPtr _timer;
     const Ice::ObjectAdapterPtr _adapter;
     std::mutex _mutex;
 };
