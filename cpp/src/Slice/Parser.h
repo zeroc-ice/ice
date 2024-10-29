@@ -1041,7 +1041,7 @@ namespace Slice
         std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
-        Unit(bool all, const MetadataList& defaultFileMetadata);
+        Unit(bool all, MetadataList defaultFileMetadata);
 
         void pushDefinitionContext();
         void popDefinitionContext();
