@@ -327,11 +327,11 @@ Ice::stringToWstring(const string& v, const StringConverterPtr& converter, const
 }
 
 string
-Ice::nativeToUTF8(const string& str, const Ice::StringConverterPtr& converter)
+Ice::nativeToUTF8(string_view str, const Ice::StringConverterPtr& converter)
 {
     if (!converter || str.empty())
     {
-        return str;
+        return string{str};
     }
     UTF8BufferI buffer;
     byte* last = converter->toUTF8(str.data(), str.data() + str.size(), buffer);

@@ -35,8 +35,8 @@ namespace Ice
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          */
-        EndpointInfo(const EndpointInfoPtr& underlying, int timeout, bool compress)
-            : underlying(underlying),
+        EndpointInfo(EndpointInfoPtr underlying, int timeout, bool compress)
+            : underlying(std::move(underlying)),
               timeout(timeout),
               compress(compress)
         {
@@ -127,16 +127,16 @@ namespace Ice
          * @param sourceAddress The source IP address.
          */
         IPEndpointInfo(
-            const EndpointInfoPtr& underlying,
+            EndpointInfoPtr underlying,
             int timeout,
             bool compress,
-            const std::string& host,
+            std::string host,
             int port,
-            const std::string& sourceAddress)
-            : EndpointInfo(underlying, timeout, compress),
-              host(host),
+            std::string sourceAddress)
+            : EndpointInfo(std::move(underlying), timeout, compress),
+              host(std::move(host)),
               port(port),
-              sourceAddress(sourceAddress)
+              sourceAddress(std::move(sourceAddress))
         {
         }
 
@@ -179,13 +179,13 @@ namespace Ice
          * @param sourceAddress The source IP address.
          */
         TCPEndpointInfo(
-            const EndpointInfoPtr& underlying,
+            EndpointInfoPtr underlying,
             int timeout,
             bool compress,
-            const std::string& host,
+            std::string host,
             int port,
-            const std::string& sourceAddress)
-            : IPEndpointInfo(underlying, timeout, compress, host, port, sourceAddress)
+            std::string sourceAddress)
+            : IPEndpointInfo(std::move(underlying), timeout, compress, std::move(host), port, std::move(sourceAddress))
         {
         }
 
@@ -217,16 +217,16 @@ namespace Ice
          * @param mcastTtl The multicast time-to-live (or hops).
          */
         UDPEndpointInfo(
-            const EndpointInfoPtr& underlying,
+            EndpointInfoPtr underlying,
             int timeout,
             bool compress,
-            const std::string& host,
+            std::string host,
             int port,
-            const std::string& sourceAddress,
-            const std::string& mcastInterface,
+            std::string sourceAddress,
+            std::string mcastInterface,
             int mcastTtl)
-            : IPEndpointInfo(underlying, timeout, compress, host, port, sourceAddress),
-              mcastInterface(mcastInterface),
+            : IPEndpointInfo(std::move(underlying), timeout, compress, std::move(host), port, std::move(sourceAddress)),
+              mcastInterface(std::move(mcastInterface)),
               mcastTtl(mcastTtl)
         {
         }
@@ -262,9 +262,9 @@ namespace Ice
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param resource The URI configured with the endpoint.
          */
-        WSEndpointInfo(const EndpointInfoPtr& underlying, int timeout, bool compress, const std::string& resource)
-            : EndpointInfo(underlying, timeout, compress),
-              resource(resource)
+        WSEndpointInfo(EndpointInfoPtr underlying, int timeout, bool compress, std::string resource)
+            : EndpointInfo(std::move(underlying), timeout, compress),
+              resource(std::move(resource))
         {
         }
 
@@ -298,13 +298,13 @@ namespace Ice
          * @param rawBytes The raw encoding of the opaque endpoint.
          */
         OpaqueEndpointInfo(
-            const EndpointInfoPtr& underlying,
+            EndpointInfoPtr underlying,
             int timeout,
             bool compress,
-            const EncodingVersion& rawEncoding,
+            EncodingVersion rawEncoding,
             std::vector<std::byte> rawBytes)
-            : EndpointInfo(underlying, timeout, compress),
-              rawEncoding(rawEncoding),
+            : EndpointInfo(std::move(underlying), timeout, compress),
+              rawEncoding(std::move(rawEncoding)),
               rawBytes(std::move(rawBytes))
         {
         }

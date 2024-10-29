@@ -15,7 +15,7 @@ public:
 
     Ice::ObjectPtr locate(const Ice::Current&, std::shared_ptr<void>&) final;
     void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&) final;
-    void deactivate(const std::string&) final;
+    void deactivate(std::string_view) final;
 
 public:
     bool _deactivated;

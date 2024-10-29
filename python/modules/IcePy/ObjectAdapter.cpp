@@ -55,7 +55,7 @@ namespace IcePy
 
         void finished(const Ice::Current&, const Ice::ObjectPtr&, const shared_ptr<void>&) final;
 
-        void deactivate(const string&) final;
+        void deactivate(string_view) final;
 
         PyObject* getObject();
 
@@ -245,11 +245,13 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr
 }
 
 void
-IcePy::ServantLocatorWrapper::deactivate(const string& category)
+IcePy::ServantLocatorWrapper::deactivate(string_view category)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle res{PyObject_CallMethod(_locator, "deactivate", "s", category.c_str())};
+    string categoryStr{category};
+
+    PyObjectHandle res{PyObject_CallMethod(_locator, "deactivate", "s", categoryStr.c_str())};
     if (PyErr_Occurred())
     {
         PyException ex; // Retrieve the exception before another Python API call clears it.

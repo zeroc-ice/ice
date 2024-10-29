@@ -23,7 +23,7 @@ class ServantLocatorI final : public Ice::ServantLocator
 public:
     Ice::ObjectPtr locate(const Ice::Current&, shared_ptr<void>&) final { return nullptr; }
     void finished(const Ice::Current&, const Ice::ObjectPtr&, const shared_ptr<void>&) final {}
-    void deactivate(const string&) final {}
+    void deactivate(string_view) final {}
 };
 
 bool

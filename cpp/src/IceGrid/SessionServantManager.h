@@ -31,7 +31,7 @@ namespace IceGrid
 
         Ice::ObjectPtr locate(const Ice::Current&, std::shared_ptr<void>&);
         void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&);
-        void deactivate(const std::string&);
+        void deactivate(std::string_view);
 
         Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const Ice::ConnectionPtr&, const std::string&);
         void setSessionControl(const Ice::ObjectPtr&, const Glacier2::SessionControlPrx&, const Ice::IdentitySeq&);

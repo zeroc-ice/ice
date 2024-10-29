@@ -12,6 +12,7 @@
 #include "Ice/InstanceF.h"
 
 #include <mutex>
+#include <string_view>
 #include <vector>
 
 namespace Ice
@@ -28,7 +29,7 @@ namespace IceInternal
         void initialize() const;
         void add(const EndpointFactoryPtr&);
         EndpointFactoryPtr get(std::int16_t) const;
-        EndpointIPtr create(const std::string&, bool) const;
+        EndpointIPtr create(std::string_view, bool) const;
         EndpointIPtr read(Ice::InputStream*) const;
 
     private:

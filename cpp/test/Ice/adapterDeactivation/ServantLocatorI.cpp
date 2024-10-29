@@ -63,7 +63,7 @@ ServantLocatorI::finished(const Current& current, const ObjectPtr&, const shared
 }
 
 void
-ServantLocatorI::deactivate(const string&)
+ServantLocatorI::deactivate(string_view)
 {
     test(!_deactivated);
 

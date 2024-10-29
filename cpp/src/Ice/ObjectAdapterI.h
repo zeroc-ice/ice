@@ -57,17 +57,17 @@ namespace Ice
         ObjectPrx _addFacetWithUUID(ObjectPtr, std::string) final;
         void addDefaultServant(ObjectPtr, std::string) final;
         ObjectPtr remove(const Identity&) final;
-        ObjectPtr removeFacet(const Identity&, const std::string&) final;
+        ObjectPtr removeFacet(const Identity&, std::string_view) final;
         FacetMap removeAllFacets(const Identity&) final;
-        ObjectPtr removeDefaultServant(const std::string&) final;
+        ObjectPtr removeDefaultServant(std::string_view) final;
         ObjectPtr find(const Identity&) const final;
-        ObjectPtr findFacet(const Identity&, const std::string&) const final;
+        ObjectPtr findFacet(const Identity&, std::string_view) const final;
         FacetMap findAllFacets(const Identity&) const final;
         ObjectPtr findByProxy(const ObjectPrx&) const final;
-        ObjectPtr findDefaultServant(const std::string&) const final;
+        ObjectPtr findDefaultServant(std::string_view) const final;
         void addServantLocator(ServantLocatorPtr, std::string) final;
-        ServantLocatorPtr removeServantLocator(const std::string&) final;
-        ServantLocatorPtr findServantLocator(const std::string&) const final;
+        ServantLocatorPtr removeServantLocator(std::string_view) final;
+        ServantLocatorPtr findServantLocator(std::string_view) const final;
 
         const ObjectPtr& dispatchPipeline() const noexcept final;
 
@@ -119,7 +119,7 @@ namespace Ice
         ObjectPrx newIndirectProxy(Identity, std::string, std::string) const;
         void checkForDeactivation() const;
         void checkForDestruction() const;
-        std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
+        std::vector<IceInternal::EndpointIPtr> parseEndpoints(std::string_view, bool) const;
         std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
         void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<ObjectPrx>&);
 

@@ -84,7 +84,7 @@ SessionServantManager::finished(const Ice::Current&, const Ice::ObjectPtr&, cons
 }
 
 void
-SessionServantManager::deactivate(const std::string&)
+SessionServantManager::deactivate(string_view)
 {
     lock_guard lock(_mutex);
     assert(_servants.empty());

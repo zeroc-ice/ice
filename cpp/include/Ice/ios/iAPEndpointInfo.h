@@ -37,18 +37,18 @@ namespace IceIAP
          * @param protocol The protocol supported by the accessory.
          */
         EndpointInfo(
-            const Ice::EndpointInfoPtr& underlying,
+            Ice::EndpointInfoPtr underlying,
             int timeout,
             bool compress,
-            const std::string& manufacturer,
-            const std::string& modelNumber,
-            const std::string& name,
-            const std::string& protocol)
-            : Ice::EndpointInfo(underlying, timeout, compress),
-              manufacturer(manufacturer),
-              modelNumber(modelNumber),
-              name(name),
-              protocol(protocol)
+            std::string manufacturer,
+            std::string modelNumber,
+            std::string name,
+            std::string protocol)
+            : Ice::EndpointInfo(std::move(underlying), timeout, compress),
+              manufacturer(std::move(manufacturer)),
+              modelNumber(std::move(modelNumber)),
+              name(std::move(name)),
+              protocol(std::move(protocol))
         {
         }
 
