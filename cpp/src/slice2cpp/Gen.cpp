@@ -945,7 +945,8 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                     if (seenHeaderExtension)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid file metadata '" << *s << "': directive can appear only once per file";
+                        ostr << "ignoring invalid file metadata '" << *s
+                             << "': directive can appear only once per file";
                         dc->warning(InvalidMetadata, file, -1, ostr.str());
                         fileMetadata.remove(s);
                     }
@@ -957,7 +958,8 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                     if (seenSourceExtension)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid file metadata '" << *s << "': directive can appear only once per file";
+                        ostr << "ignoring invalid file metadata '" << *s
+                             << "': directive can appear only once per file";
                         dc->warning(InvalidMetadata, file, -1, ostr.str());
                         fileMetadata.remove(s);
                     }
@@ -969,7 +971,8 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                     if (seenDllExport)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid file metadata '" << *s << "': directive can appear only once per file";
+                        ostr << "ignoring invalid file metadata '" << *s
+                             << "': directive can appear only once per file";
                         dc->warning(InvalidMetadata, file, -1, ostr.str());
                         fileMetadata.remove(s);
                     }

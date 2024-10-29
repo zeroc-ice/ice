@@ -2960,7 +2960,7 @@ Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
                 continue;
             }
 
-            string msg =  "ignoring invalid file metadata '" + string(directive) + "'";
+            string msg = "ignoring invalid file metadata '" + string(directive) + "'";
             p->definitionContext()->warning(InvalidMetadata, p->file(), -1, msg);
             metadata.remove(meta);
         }
@@ -3079,7 +3079,6 @@ Slice::Python::MetadataVisitor::validateSequence(
             SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
             if (seq)
             {
-                // TODO This implementation seems strange, but I preserved the current behavior.
                 if (directive == "python:seq")
                 {
                     if (arguments == "tuple" || arguments == "list" || arguments == "default")
@@ -3089,12 +3088,12 @@ Slice::Python::MetadataVisitor::validateSequence(
                 }
                 else if (directive.size() > prefix.size())
                 {
-                    string_view subDirective = directive.substr(prefix.size());
-                    if (subDirective == "tuple" || subDirective == "list" || subDirective == "default")
+                    string_view argument = directive.substr(prefix.size());
+                    if (argument == "tuple" || argument == "list" || argument == "default")
                     {
                         continue;
                     }
-                    else if (subDirective == "array.array" || subDirective == "numpy.ndarray" || subDirective == "memoryview")
+                    else if (argument == "array.array" || argument == "numpy.ndarray" || argument == "memoryview")
                     {
                         // The memoryview sequence metadata is only valid for integral builtin
                         // types excluding strings.

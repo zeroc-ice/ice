@@ -186,7 +186,7 @@ namespace Slice
         std::string file() const;
         int line() const;
 
-        friend std::ostream& operator<<(std::ostream &out, const Metadata &metadata);
+        friend std::ostream& operator<<(std::ostream& out, const Metadata& metadata);
 
     private:
         /// Parses a metadata string into a pair of (directive, arguments) strings.
@@ -199,7 +199,7 @@ namespace Slice
         int _line;
     };
 
-    inline std::ostream& operator<<(std::ostream &ostr, const Metadata &metadata)
+    inline std::ostream& operator<<(std::ostream& ostr, const Metadata& metadata)
     {
         ostr << metadata._directive;
         if (!metadata._arguments.empty())
@@ -430,11 +430,8 @@ namespace Slice
         InterfaceDeclPtr createInterfaceDecl(const std::string& name);
         ExceptionPtr createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
         StructPtr createStruct(const std::string& name, NodeType nodeType = Real);
-        SequencePtr createSequence(
-            const std::string& name,
-            const TypePtr& type,
-            MetadataList metadata,
-            NodeType nodeType = Real);
+        SequencePtr
+        createSequence(const std::string& name, const TypePtr& type, MetadataList metadata, NodeType nodeType = Real);
         DictionaryPtr createDictionary(
             const std::string& name,
             const TypePtr& keyType,

@@ -132,7 +132,7 @@ Slice::Metadata::parseRawMetadata(const string& rawMetadata)
     size_t firstColonPos = rawMetadata.find(':');
     if (firstColonPos == string::npos)
     {
-        return { rawMetadata, "" };
+        return {rawMetadata, ""};
     }
 
     // Otherwise, we check whether the colon is for a language prefix or for arguments and split the string accordingly.
@@ -142,13 +142,13 @@ Slice::Metadata::parseRawMetadata(const string& rawMetadata)
     {
         // If the metadata contains only 1 colon, we need to check if it's for a language prefix, or for arguments.
         // NOTE: It is important that this list is kept in alphabetical order!
-        static const string languages[] = { "cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift" };
+        static const string languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift"};
         string prefix = rawMetadata.substr(0, firstColonPos);
         bool isLanguage = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
         if (isLanguage)
         {
             // If the piece before the colon was a language prefix, don't split up the string.
-            return { rawMetadata, "" };
+            return {rawMetadata, ""};
         }
         else
         {
@@ -164,7 +164,7 @@ Slice::Metadata::parseRawMetadata(const string& rawMetadata)
 
     string directive = rawMetadata.substr(0, splitPos);
     string arguments = rawMetadata.substr(splitPos + 1);
-    return { directive, arguments };
+    return {directive, arguments};
 }
 
 // ----------------------------------------------------------------------

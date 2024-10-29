@@ -1986,21 +1986,13 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
 
 Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceInternal::Output& out) : JsVisitor(out) {}
 
-namespace
-{
-    string getDefinedIn(const ContainedPtr& p)
-    {
-        return p->getMetadataArgs("js:defined-in").value_or("");
-    }
-}
-
 void
 Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
 {
     string jsImportedModule = getJavaScriptModule(definition->definitionContext());
     if (jsImportedModule.empty())
     {
-        string definedIn = getDefinedIn(definition);
+        string definedIn = definition->getMetadataArgs("js:defined-in").value_or("");
         if (!definedIn.empty())
         {
             _importedTypes[definition->scoped()] = "__module_" + pathToModule(definedIn) + ".";

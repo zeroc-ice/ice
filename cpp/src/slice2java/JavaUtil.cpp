@@ -102,7 +102,7 @@ namespace
                         {
                             ostringstream msg;
                             msg << "ignoring invalid file metadata '" << *metadata << "'";
-                            dc->warning(InvalidMetadata, file, -1,  msg.str());
+                            dc->warning(InvalidMetadata, file, -1, msg.str());
                             fileMetadata.remove(metadata);
                         }
                     }
@@ -226,7 +226,8 @@ namespace
                     if (!builtin || builtin->kind() != Builtin::KindByte)
                     {
                         ostringstream msg;
-                        msg << "ignoring invalid metadata '" << *m << "': this metadata can only be used with a byte sequence";
+                        msg << "ignoring invalid metadata '" << *m
+                            << "': this metadata can only be used with a byte sequence";
                         dc->warning(InvalidMetadata, file, line, msg.str());
                         continue;
                     }
@@ -365,7 +366,8 @@ namespace
             return result;
         }
 
-        MetadataList validateType(const SyntaxTreeBasePtr& p, const MetadataList& metadata, const string& file, int line)
+        MetadataList
+        validateType(const SyntaxTreeBasePtr& p, const MetadataList& metadata, const string& file, int line)
         {
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);

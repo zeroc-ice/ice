@@ -971,7 +971,6 @@ Slice::findMetadata(const MetadataList& metadata, TypeContext typeCtx)
         {
             return "%unscoped";
         }
-
     }
     return "";
 }

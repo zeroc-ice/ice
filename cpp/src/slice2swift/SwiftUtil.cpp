@@ -2506,7 +2506,7 @@ SwiftGenerator::MetadataVisitor::validate(
         if ((dynamic_pointer_cast<ClassDef>(cont) || dynamic_pointer_cast<InterfaceDef>(cont) ||
              dynamic_pointer_cast<Enum>(cont) || dynamic_pointer_cast<Exception>(cont) ||
              dynamic_pointer_cast<Operation>(cont)) &&
-             directive == "swift:attribute")
+            directive == "swift:attribute")
         {
             continue;
         }
