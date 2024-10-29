@@ -2515,7 +2515,7 @@ SwiftGenerator::MetadataVisitor::validate(
 
         ostringstream msg;
         msg << "ignoring invalid metadata '" << *meta << "'";
-        dc->warning(InvalidMetadata, file, line, msg);
+        dc->warning(InvalidMetadata, file, line, msg.str());
         newMetadata.remove(meta);
         continue;
     }

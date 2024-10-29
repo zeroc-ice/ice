@@ -239,7 +239,8 @@ namespace Slice
         // The functions return true if a custom type was defined and false to indicate
         // the default mapping was used.
         //
-        bool getDictionaryTypes(const DictionaryPtr&, const std::string&, const MetadataList&, std::string&, std::string&)
+        bool
+        getDictionaryTypes(const DictionaryPtr&, const std::string&, const MetadataList&, std::string&, std::string&)
             const;
         bool
         getSequenceTypes(const SequencePtr&, const std::string&, const MetadataList&, std::string&, std::string&) const;

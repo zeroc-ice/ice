@@ -2932,7 +2932,7 @@ Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                 }
 
                 ostringstream msg;
-                msg << "ignoring invalid file metadata '" << *meta << "'"
+                msg << "ignoring invalid file metadata '" << *meta << "'";
                 dc->warning(InvalidMetadata, file, -1, msg.str());
                 fileMetadata.remove(meta);
             }
