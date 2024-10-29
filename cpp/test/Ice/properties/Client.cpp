@@ -195,7 +195,8 @@ Client::run(int, char**)
         }
         cout << "ok" << endl;
 
-        cout << "testing that setting a property in a reserved service prefix throws an exception..." << flush;
+        cout << "testing that setting a property in an opt-in prefix that is not configured throws an exception..."
+             << flush;
         try
         {
             properties->setProperty("IceGrid.InstanceName", "TestGrid");

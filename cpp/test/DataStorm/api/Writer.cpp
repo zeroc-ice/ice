@@ -27,15 +27,15 @@ main(int argc, char* argv[])
         }
 
         {
-            // Communicators shared with DataStorm must have a property set that can use the "DataStorm" service prefix.
+            // Communicators shared with DataStorm must have a property set that can use the "DataStorm" opt-in prefix.
             Ice::InitializationData initData;
-            initData.properties = make_shared<Ice::Properties>("DataStorm");
+            initData.properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
             Node n2(Ice::initialize(initData));
             n2.getCommunicator()->destroy();
         }
 
         Ice::InitializationData initData;
-        initData.properties = make_shared<Ice::Properties>("DataStorm");
+        initData.properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
         auto c = Ice::initialize(initData);
         {
             Node n22(c);

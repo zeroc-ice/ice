@@ -25,7 +25,8 @@ public:
 void
 Publisher::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, make_shared<Ice::Properties>("IceStormAdmin"));
+    Ice::CommunicatorHolder communicator =
+        initialize(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
     IceInternal::Options opts;
     opts.addOpt("", "events", IceInternal::Options::NeedArg);
     opts.addOpt("", "oneway");

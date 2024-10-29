@@ -16,7 +16,7 @@ namespace
 
     Ice::CommunicatorPtr argsToCommunicator(int& argc, const char* argv[], optional<string_view> configFile)
     {
-        Ice::PropertiesPtr properties = make_shared<Ice::Properties>("DataStorm");
+        Ice::PropertiesPtr properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
 
         if (configFile)
         {
@@ -32,7 +32,7 @@ namespace
 #ifdef _WIN32
     Ice::CommunicatorPtr argsToCommunicator(int& argc, const wchar_t* argv[], optional<string_view> configFile)
     {
-        Ice::PropertiesPtr properties = make_shared<Ice::Properties>("DataStorm");
+        Ice::PropertiesPtr properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
 
         if (configFile)
         {
@@ -48,7 +48,7 @@ namespace
 
     Ice::CommunicatorPtr configToCommunicator(optional<string_view> configFile)
     {
-        Ice::PropertiesPtr properties = make_shared<Ice::Properties>("DataStorm");
+        Ice::PropertiesPtr properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
 
         if (configFile)
         {

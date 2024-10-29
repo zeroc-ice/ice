@@ -35,12 +35,10 @@ commonPreamble = """\
 
 
 class PropertyArray:
-    def __init__(
-        self, name: str, prefixOnly: bool, isClass: bool, isServicePrefix: bool
-    ):
+    def __init__(self, name: str, prefixOnly: bool, isClass: bool, isOptIn: bool):
         self.name = name
         self.prefixOnly = prefixOnly
-        self.isServicePrefix = isServicePrefix
+        self.isOptIn = isOptIn
         self.isClass = isClass
         self.properties = []
 
@@ -192,19 +190,19 @@ class PropertyHandler(ContentHandler):
                     name=name,
                     prefixOnly=prefixOnly,
                     isClass=True,
-                    isServicePrefix=False,
+                    isOptIn=False,
                 )
             case "section":
-                isServicePrefix = attrs.get("service-prefix", "false").lower() == "true"
+                isOptIn = attrs.get("opt-in", "false").lower() == "true"
                 name = attrs.get("name")
 
-                self.validateKnownAttributes(["name", "service-prefix"], attrs)
+                self.validateKnownAttributes(["name", "opt-in"], attrs)
                 self.parentNodeName = name
                 self.propertyArrayDict[self.parentNodeName] = PropertyArray(
                     name=name,
                     prefixOnly=False,
                     isClass=False,
-                    isServicePrefix=isServicePrefix,
+                    isOptIn=isOptIn,
                 )
 
             case "property":
@@ -277,7 +275,7 @@ namespace IceInternal
         const bool prefixOnly;
         const Property* properties;
         const int length;
-        const bool isServicePrefix;
+        const bool isOptIn;
     }};
 
     class PropertyNames
@@ -319,7 +317,7 @@ const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> PropertyN
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
-        isServicePrefix = "true" if propertyArray.isServicePrefix else "false"
+        isOptIn = "true" if propertyArray.isOptIn else "false"
         self.hFile.write(f"        static const PropertyArray {name}Props;\n")
 
         self.cppFile.write(f"""\
@@ -334,7 +332,7 @@ const PropertyArray PropertyNames::{name}Props
     .prefixOnly={prefixOnly},
     .properties={name}PropsData,
     .length={len(propertyArray.properties)},
-    .isServicePrefix={isServicePrefix}
+    .isOptIn={isOptIn}
 }};
 
 """)

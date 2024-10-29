@@ -38,8 +38,7 @@ namespace DataStorm
         /**
          * Construct a DataStorm node.
          *
-         * A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
-         * communicator.
+         * A node is the main DataStorm object. It is required to construct topics.
          *
          * @param argc The number of arguments in argv.
          * @param argv The configuration arguments.
@@ -57,8 +56,7 @@ namespace DataStorm
         /**
          * Construct a DataStorm node.
          *
-         * A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
-         * communicator.
+         * A node is the main DataStorm object. It is required to construct topics.
          *
          * @param argc The number of arguments in argv.
          * @param argv The configuration arguments.
@@ -80,8 +78,7 @@ namespace DataStorm
         /**
          * Construct a DataStorm node.
          *
-         * A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
-         * communicator.
+         * A node is the main DataStorm object. It is required to construct topics.
          *
          * @param argc The number of arguments in argv.
          * @param argv The configuration arguments.
@@ -99,8 +96,7 @@ namespace DataStorm
         /**
          * Construct a DataStorm node.
          *
-         * A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
-         * communicator.
+         * A node is the main DataStorm object. It is required to construct topics.
          *
          * @param argc The number of arguments in argv.
          * @param argv The configuration arguments.
@@ -122,8 +118,7 @@ namespace DataStorm
         /**
          * Construct a DataStorm node.
          *
-         * A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
-         * communicator.
+         * A node is the main DataStorm object. It is required to construct topics.
          *
          * @param configFile The path to an optional Ice configuration file.
          * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
@@ -140,7 +135,7 @@ namespace DataStorm
          * communicator.
          *
          * @param communicator The Ice communicator used by the topic factory for its configuration and communications.
-         * This communicator must be initialized with a property set to use the "DataStorm" service prefix.
+         * This communicator must be initialized with a property set to use the "DataStorm" opt-in prefix.
          * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
          * provided the Node will use the default callback executor that executes callback in a dedicated thread.
          */

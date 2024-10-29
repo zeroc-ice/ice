@@ -35,10 +35,10 @@ namespace Ice
         Properties() = default;
 
         /**
-         * Constructs an empty property set with the given property service prefix.
-         * @param servicePrefix The property set to copy.
+         * Constructs an empty property set with a list of opt-in prefixes.
+         * @param optInPrefixes The list of opt-in prefixes to allow in the property set.
          */
-        explicit Properties(std::string_view servicePrefix) : _servicePrefix(servicePrefix) {}
+        explicit Properties(std::vector<std::string> optInPrefixes) : _optInPrefixes(optInPrefixes) {}
 
         /**
          * Copy constructor.
@@ -233,8 +233,9 @@ namespace Ice
             bool used;
         };
         std::map<std::string, PropertyValue, std::less<>> _properties;
-        // The service prefix is used to allow Ice services to set service specific prefixed properties.
-        std::optional<std::string> _servicePrefix;
+        // List of "opt-in" property prefixes to allow in the property set. Setting a property for a property prefix
+        // that is opt-in (eg. IceGrid, IceStorm, Glacier2, etc.) but not in this list is considered an error.
+        std::vector<std::string> _optInPrefixes;
         mutable std::mutex _mutex;
     };
 }

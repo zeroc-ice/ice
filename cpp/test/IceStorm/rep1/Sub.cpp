@@ -30,7 +30,8 @@ public:
 void
 Sub::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, make_shared<Ice::Properties>("IceStormAdmin"));
+    Ice::CommunicatorHolder communicator =
+        initialize(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
     IceInternal::Options opts;
     opts.addOpt("", "id", IceInternal::Options::NeedArg);
     opts.addOpt("", "unsub");

@@ -81,7 +81,7 @@ Ice::Properties::Properties(const Properties& p)
 {
     lock_guard lock(p._mutex);
     _properties = p._properties;
-    _servicePrefix = p._servicePrefix;
+    _optInPrefixes = p._optInPrefixes;
 }
 
 Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
@@ -90,7 +90,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
     {
         lock_guard lock(defaults->_mutex);
         _properties = defaults->_properties;
-        _servicePrefix = defaults->_servicePrefix;
+        _optInPrefixes = defaults->_optInPrefixes;
     }
 
     StringSeq::iterator q = args.begin();
@@ -321,11 +321,12 @@ Ice::Properties::setProperty(string_view key, string_view value)
     // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
     if (auto propertyArray = findIcePropertyArray(key))
     {
-        if (propertyArray->isServicePrefix &&
-            (_servicePrefix != propertyArray->name && propertyArray->name != string{"IceStorm"}))
+        if (propertyArray->isOptIn &&
+            find(_optInPrefixes.begin(), _optInPrefixes.end(), propertyArray->name) == _optInPrefixes.end())
         {
             ostringstream os;
-            os << "unable to set '" << key << "': property prefix '" << propertyArray->name << "' is reserved.";
+            os << "unable to set '" << key << "': property prefix '" << propertyArray->name
+               << "' is opt-in and must be explicitly enabled.";
             throw PropertyException{__FILE__, __LINE__, os.str()};
         }
         string propertyPrefix{propertyArray->name};

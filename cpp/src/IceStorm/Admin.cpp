@@ -36,7 +36,7 @@ main(int argc, char* argv[])
         Ice::CtrlCHandler ctrlCHandler;
 
         Ice::InitializationData id;
-        id.properties = make_shared<Ice::Properties>("IceStormAdmin");
+        id.properties = make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"});
         id.properties->setProperty("Ice.Warn.Endpoints", "0");
 
         Ice::CommunicatorHolder ich(argc, argv, id);

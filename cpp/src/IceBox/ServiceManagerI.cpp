@@ -851,8 +851,9 @@ IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, exc
 Ice::PropertiesPtr
 IceBox::ServiceManagerI::createServiceProperties(const string& service)
 {
-    // We don't want to clone the properties object as we don't want to copy the service prefix.
-    PropertiesPtr properties = make_shared<Properties>();
+    // We don't want to clone the properties object as we don't want to copy the opt-in prefix list.
+    // NOTE: We always enable the "IceStorm" prefix as there's currently no way  to distinguish it.
+    PropertiesPtr properties = make_shared<Properties>(vector<string>{"IceStorm"});
     PropertiesPtr communicatorProperties = _communicator->getProperties();
     if (communicatorProperties->getPropertyAsInt("IceBox.InheritProperties") > 0)
     {
@@ -864,10 +865,6 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
                 properties->setProperty(p.first, p.second);
             }
         }
-    }
-    else
-    {
-        properties = createProperties();
     }
 
     string programName = communicatorProperties->getProperty("Ice.ProgramName");

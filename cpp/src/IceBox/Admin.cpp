@@ -35,7 +35,7 @@ main(int argc, char* argv[])
 
         // Initialize with a Properties object with the correct property prefix enabled.
         Ice::InitializationData initData;
-        initData.properties = make_shared<Ice::Properties>("IceBoxAdmin");
+        initData.properties = make_shared<Ice::Properties>(vector<string>{"IceBoxAdmin"});
 
         Ice::CommunicatorHolder ich{argc, argv, initData};
 
