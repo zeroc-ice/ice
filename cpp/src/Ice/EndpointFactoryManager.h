@@ -12,6 +12,7 @@
 #include "Ice/InstanceF.h"
 
 #include <mutex>
+#include <string_view>
 #include <vector>
 
 namespace Ice
