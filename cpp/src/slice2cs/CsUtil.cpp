@@ -1980,7 +1980,9 @@ Slice::CsGenerator::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
             string_view directive = metadata->directive();
             if (directive.find("cs:") == 0 && directive != "cs:attribute")
             {
-                dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata '" + string(directive) + "'");
+                ostringstream msg;
+                msg << "ignoring invalid file metadata '" << *metadata << "'";
+                dc->warning(InvalidMetadata, file, -1, msg.str());
                 continue;
             }
             newFileMetadata.push_back(metadata);
@@ -2032,8 +2034,6 @@ Slice::CsGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
     {
         visitParamDecl(param);
     }
-
-    ParamDeclList params = p->parameters();
 }
 
 void
@@ -2109,7 +2109,12 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
             }
             else if (dynamic_pointer_cast<Struct>(cont))
             {
-                if (directive == "cs:class" || directive == "cs:property" || directive == "cs:implements")
+                if ((directive == "cs:class" || directive == "cs:property") && arguments.empty())
+                {
+                    newLocalMetadata.push_back(metadata);
+                    continue;
+                }
+                if (directive == "cs:implements" && !arguments.empty())
                 {
                     newLocalMetadata.push_back(metadata);
                     continue;
@@ -2117,7 +2122,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
             }
             else if (dynamic_pointer_cast<ClassDef>(cont) || dynamic_pointer_cast<Exception>(cont))
             {
-                if (directive == "cs:property")
+                if (directive == "cs:property" && arguments.empty())
                 {
                     newLocalMetadata.push_back(metadata);
                     continue;
@@ -2125,7 +2130,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
             }
             else if (dynamic_pointer_cast<InterfaceDef>(cont))
             {
-                if (directive == "cs:implements")
+                if (directive == "cs:implements" && !arguments.empty())
                 {
                     newLocalMetadata.push_back(metadata);
                     continue;
@@ -2166,8 +2171,9 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
                 continue;
             }
 
-            string message = "ignoring invalid metadata '" + string(directive) + "'";
-            dc->warning(InvalidMetadata, cont->file(), cont->line(), message);
+            ostringstream msg;
+            msg << "ignoring invalid metadata '" << *metadata << "'";
+            dc->warning(InvalidMetadata, cont->file(), cont->line(), msg.str());
             continue;
         }
         newLocalMetadata.push_back(metadata);

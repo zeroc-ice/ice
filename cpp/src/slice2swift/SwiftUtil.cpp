@@ -2442,8 +2442,9 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
     {
         if (metadata->directive().find(prefix) == 0)
         {
-            string msg = "ignoring invalid metadata '" + string(metadata->directive()) + "' for dictionary key type";
-            dc->warning(InvalidMetadata, p->file(), p->line(), msg);
+            ostringstream msg;
+            msg << "ignoring invalid metadata '" << *metadata << "' for dictionary key type";
+            dc->warning(InvalidMetadata, p->file(), p->line(), msg.str());
         }
     }
 
@@ -2451,8 +2452,9 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
     {
         if (metadata->directive().find(prefix) == 0)
         {
-            string msg = "ignoring invalid metadata '" + string(metadata->directive()) + "' for dictionary value type";
-            dc->warning(InvalidMetadata, p->file(), p->line(), msg);
+            ostringstream msg;
+            msg << "ignoring invalid metadata '" << *metadata << "' for dictionary value type";
+            dc->warning(InvalidMetadata, p->file(), p->line(), msg.str());
         }
     }
 
@@ -2487,31 +2489,33 @@ SwiftGenerator::MetadataVisitor::validate(
     {
         MetadataPtr meta = *p++;
         string_view directive = meta->directive();
+        string_view arguments = meta->arguments();
 
         if (directive.find("swift:") != 0)
         {
             continue;
         }
 
-        if (dynamic_pointer_cast<Module>(cont) && directive == "swift:module")
+        if (dynamic_pointer_cast<Module>(cont) && directive == "swift:module" && !arguments.empty())
         {
             continue;
         }
 
-        if (dynamic_pointer_cast<InterfaceDef>(cont) && directive == "swift:inherits")
+        if (dynamic_pointer_cast<InterfaceDef>(cont) && directive == "swift:inherits" && !arguments.empty())
         {
             continue;
         }
 
         if ((dynamic_pointer_cast<ClassDef>(cont) || dynamic_pointer_cast<InterfaceDef>(cont) ||
-             dynamic_pointer_cast<Enum>(cont) || dynamic_pointer_cast<Exception>(cont) ||
-             dynamic_pointer_cast<Operation>(cont)) &&
-            directive == "swift:attribute")
+             dynamic_pointer_cast<Enum>(cont) || dynamic_pointer_cast<Exception>(cont)) &&
+            directive == "swift:attribute" && !arguments.empty())
         {
             continue;
         }
 
-        dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata '" + string(directive) + "'");
+        ostringstream msg;
+        msg << "ignoring invalid metadata '" << *meta << "'";
+        dc->warning(InvalidMetadata, file, line, msg);
         newMetadata.remove(meta);
         continue;
     }

@@ -1014,14 +1014,11 @@ Slice::Contained::isDeprecated() const
 optional<string>
 Slice::Contained::getDeprecationReason() const
 {
-    const string prefix1 = "deprecate:";
-    const string prefix2 = "deprecated:";
-
-    if (auto reason = getMetadataArgs(prefix1))
+    if (auto reason = getMetadataArgs("deprecate"))
     {
         return *reason;
     }
-    if (auto reason = getMetadataArgs(prefix2))
+    if (auto reason = getMetadataArgs("deprecated"))
     {
         return *reason;
     }

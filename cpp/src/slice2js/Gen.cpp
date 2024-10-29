@@ -940,7 +940,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     {
         set<string> sliceTopLevelModules = p->getTopLevelModules(included);
 
-        // The JavaScript module corresponding to the "js:module:" metadata in the included file.
+        // The JavaScript module corresponding to the 'js:module' metadata in the included file.
         string jsImportedModule = getJavaScriptModule(p->findDefinitionContext(included));
 
         if (jsModule == jsImportedModule || jsImportedModule.empty())
@@ -2048,7 +2048,7 @@ Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& unit)
     // Iterate all the included files and generate an import statement for each top-level module in the included file.
     for (const auto& included : includes)
     {
-        // The JavaScript module corresponding to the `js:module` metadata in the included file.
+        // The JavaScript module corresponding to the 'js:module' metadata in the included file.
         string jsImportedModule = getJavaScriptModule(unit->findDefinitionContext(included));
 
         if (_module != jsImportedModule)

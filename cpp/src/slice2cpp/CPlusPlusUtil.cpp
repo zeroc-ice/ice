@@ -136,7 +136,12 @@ namespace
             for (const auto& meta : metadata)
             {
                 string_view directive = meta->directive();
-                if (directive == "cpp:view-type" || directive == "cpp:array")
+                string_view arguments = meta->arguments();
+                if (directive == "cpp:view-type" && !arguments.empty())
+                {
+                    return true;
+                }
+                if (directive == "cpp:array" && arguments.empty())
                 {
                     return true;
                 }
@@ -967,7 +972,7 @@ Slice::findMetadata(const MetadataList& metadata, TypeContext typeCtx)
                 return "%array";
             }
         }
-        else if (directive == "cpp:unscoped") // The 'else if' here seems dubious. Should probably just be 'if'.
+        else if (directive == "cpp:unscoped") // TODO: The 'else if' here seems dubious. Should probably just be 'if'.
         {
             return "%unscoped";
         }

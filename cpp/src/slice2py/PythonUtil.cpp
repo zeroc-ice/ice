@@ -1840,8 +1840,7 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata)
     _out << '(';
     for (const auto& meta : metadata)
     {
-        string_view directive = meta->directive();
-        if (directive.find("python:") == 0)
+        if (meta->directive().find("python:") == 0)
         {
             if (i > 0)
             {
@@ -2932,7 +2931,9 @@ Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                     continue;
                 }
 
-                dc->warning(InvalidMetadata, file, -1, "ignoring invalid file metadata '" + string(directive) + "'");
+                ostringstream msg;
+                msg << "ignoring invalid file metadata '" << *meta << "'"
+                dc->warning(InvalidMetadata, file, -1, msg.str());
                 fileMetadata.remove(meta);
             }
         }
@@ -2944,8 +2945,6 @@ Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 bool
 Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    static const string prefix = "python:package:";
-
     MetadataList metadata = p->getMetadata();
     for (MetadataList::const_iterator r = metadata.begin(); r != metadata.end();)
     {
@@ -2960,8 +2959,9 @@ Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
                 continue;
             }
 
-            string msg = "ignoring invalid file metadata '" + string(directive) + "'";
-            p->definitionContext()->warning(InvalidMetadata, p->file(), -1, msg);
+            ostringstream msg;
+            msg << "ignoring invalid file metadata '" << *meta << "'";
+            p->definitionContext()->warning(InvalidMetadata, p->file(), -1, msg.str());
             metadata.remove(meta);
         }
     }
@@ -3088,12 +3088,12 @@ Slice::Python::MetadataVisitor::validateSequence(
                 }
                 else if (directive.size() > prefix.size())
                 {
-                    string_view argument = directive.substr(prefix.size());
-                    if (argument == "tuple" || argument == "list" || argument == "default")
+                    string_view subArg = directive.substr(prefix.size());
+                    if (subArg == "tuple" || subArg == "list" || subArg == "default")
                     {
                         continue;
                     }
-                    else if (argument == "array.array" || argument == "numpy.ndarray" || argument == "memoryview")
+                    else if (subArg == "array.array" || subArg == "numpy.ndarray" || subArg.find("memoryview") == 0)
                     {
                         // The memoryview sequence metadata is only valid for integral builtin
                         // types excluding strings.
@@ -3121,7 +3121,9 @@ Slice::Python::MetadataVisitor::validateSequence(
                     }
                 }
             }
-            dc->warning(InvalidMetadata, file, line, "ignoring invalid metadata '" + string(directive) + "'");
+            ostringstream msg;
+            msg << "ignoring invalid metadata '" << *s << "'";
+            dc->warning(InvalidMetadata, file, line, msg.str());
             newMetadata.remove(s);
         }
     }
@@ -3140,11 +3142,11 @@ Slice::Python::MetadataVisitor::reject(const ContainedPtr& cont)
     for (MetadataList::const_iterator p = localMetadata.begin(); p != localMetadata.end();)
     {
         MetadataPtr s = *p++;
-        string_view directive = s->directive();
-        if (directive.find("python:") == 0)
+        if (s->directive().find("python:") == 0)
         {
-            string msg = "ignoring invalid metadata '" + string(directive) + "'";
-            dc->warning(InvalidMetadata, cont->file(), cont->line(), msg);
+            ostringstream msg;
+            msg << "ignoring invalid metadata '" << *s << "'";
+            dc->warning(InvalidMetadata, cont->file(), cont->line(), msg.str());
             localMetadata.remove(s);
         }
     }

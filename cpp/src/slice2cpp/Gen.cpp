@@ -1120,6 +1120,7 @@ Slice::Gen::MetadataVisitor::validate(
     for (const auto& meta : metadata)
     {
         string_view directive = meta->directive();
+        string_view arguments = meta->arguments();
 
         // Issue friendly warning for cpp11 and cpp98 metadata what were removed as Slice does not issue warnings
         // for unknown "top-level" metadata.
@@ -1137,12 +1138,11 @@ Slice::Gen::MetadataVisitor::validate(
             continue;
         }
 
-        if (operation && directive == "cpp:const")
+        if (operation && directive == "cpp:const" && arguments.empty())
         {
             continue;
         }
 
-        string_view arguments = meta->arguments();
         if (directive == "cpp:type" && (arguments == "wstring" || arguments == "string"))
         {
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(cont);
@@ -1159,27 +1159,34 @@ Slice::Gen::MetadataVisitor::validate(
         }
         if (dynamic_pointer_cast<Sequence>(cont))
         {
-            if (directive == "cpp:type" || directive == "cpp:view-type" || directive == "cpp:array")
+            if ((directive == "cpp:type" || directive == "cpp:view-type") && !arguments.empty())
+            {
+                continue;
+            }
+            if (directive == "cpp:array" && arguments.empty())
             {
                 continue;
             }
         }
-        if (dynamic_pointer_cast<Dictionary>(cont) && (directive == "cpp:type" || directive == "cpp:view-type"))
+        if (dynamic_pointer_cast<Dictionary>(cont))
+        {
+            if ((directive == "cpp:type" || directive == "cpp:view-type") && !arguments.empty())
+            {
+                continue;
+            }
+        }
+        if (dynamic_pointer_cast<Exception>(cont) && directive == "cpp:ice_print" && arguments.empty())
         {
             continue;
         }
-        if (dynamic_pointer_cast<Exception>(cont) && directive == "cpp:ice_print")
-        {
-            continue;
-        }
-        if (dynamic_pointer_cast<Enum>(cont) && directive == "cpp:unscoped")
+        if (dynamic_pointer_cast<Enum>(cont) && directive == "cpp:unscoped" && arguments.empty())
         {
             continue;
         }
 
         {
             ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(cont);
-            if (cl && directive == "cpp:type")
+            if (cl && directive == "cpp:type" && !arguments.empty())
             {
                 continue;
             }
