@@ -54,7 +54,7 @@ namespace IceInternal
     // for an invalid input string.
     //
     ICE_API std::string
-    unescapeString(const std::string&, std::string::size_type, std::string::size_type, const std::string&);
+    unescapeString(const std::string&, std::string::size_type, std::string::size_type, std::string_view special);
 
     //
     // Split a string using the given delimiters. Considers single and double quotes;
@@ -65,12 +65,12 @@ namespace IceInternal
     //
     // Join a list of strings using the given delimiter.
     //
-    ICE_API std::string joinString(const std::vector<std::string>&, const std::string&);
+    ICE_API std::string joinString(const std::vector<std::string>&, std::string_view delimiter);
 
     //
     // Trim white space
     //
-    ICE_API std::string trim(const std::string&);
+    ICE_API std::string trim(std::string_view);
 
     //
     // If a single or double quotation mark is found at the start
@@ -115,7 +115,7 @@ namespace IceInternal
     //
     // Remove all whitespace from a string
     //
-    ICE_API std::string removeWhitespace(const std::string&);
+    ICE_API std::string removeWhitespace(std::string_view);
 }
 
 #endif
