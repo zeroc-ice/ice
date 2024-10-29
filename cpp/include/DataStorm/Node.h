@@ -197,7 +197,7 @@ namespace DataStorm
 
     private:
         Node(
-            const Ice::CommunicatorPtr&,
+            Ice::CommunicatorPtr,
             std::function<void(std::function<void()> call)> customExecutor,
             bool ownsCommunicator);
 

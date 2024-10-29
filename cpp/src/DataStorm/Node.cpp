@@ -99,7 +99,7 @@ Node::Node(Ice::CommunicatorPtr communicator, function<void(function<void()> cal
 }
 
 Node::Node(
-    const Ice::CommunicatorPtr& communicator,
+    Ice::CommunicatorPtr communicator,
     std::function<void(std::function<void()> call)> customExecutor,
     bool ownsCommunicator)
     : _ownsCommunicator(ownsCommunicator)
