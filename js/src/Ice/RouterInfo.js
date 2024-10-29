@@ -63,7 +63,6 @@ export class RouterInfo {
         if (serverProxy === null) {
             throw new NoEndpointException("Router::getServerProxy returned a null proxy.");
         }
-        serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
         return serverProxy._getReference().getEndpoints();
     }
 
