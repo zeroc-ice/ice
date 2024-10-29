@@ -30,7 +30,7 @@ namespace
 
         void finished(const Current&, const ObjectPtr&, const shared_ptr<void>&) final {}
 
-        void deactivate(const string&) final {}
+        void deactivate(string_view) final {}
 
     private:
         const shared_ptr<SessionRouterI> _sessionRouter;
@@ -48,7 +48,7 @@ namespace
 
         void finished(const Current&, const ObjectPtr&, const shared_ptr<void>&) final {}
 
-        void deactivate(const string&) final {}
+        void deactivate(string_view) final {}
 
     private:
         const std::shared_ptr<SessionRouterI> _sessionRouter;

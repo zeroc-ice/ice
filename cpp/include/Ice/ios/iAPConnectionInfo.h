@@ -40,23 +40,23 @@ namespace IceIAP
          * @param protocol The protocol used by the accessory.
          */
         ConnectionInfo(
-            const Ice::ConnectionInfoPtr& underlying,
+            Ice::ConnectionInfoPtr underlying,
             bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId,
-            const std::string& name,
-            const std::string& manufacturer,
-            const std::string& modelNumber,
-            const std::string& firmwareRevision,
-            const std::string& hardwareRevision,
-            const std::string& protocol)
-            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
-              name(name),
-              manufacturer(manufacturer),
-              modelNumber(modelNumber),
-              firmwareRevision(firmwareRevision),
-              hardwareRevision(hardwareRevision),
-              protocol(protocol)
+            std::string adapterName,
+            std::string connectionId,
+            std::string name,
+            std::string manufacturer,
+            std::string modelNumber,
+            std::string firmwareRevision,
+            std::string hardwareRevision,
+            std::string protocol)
+            : Ice::ConnectionInfo(std::move(underlying), incoming, std::move(adapterName), std::move(connectionId)),
+              name(std::move(name)),
+              manufacturer(std::move(manufacturer)),
+              modelNumber(std::move(modelNumber)),
+              firmwareRevision(std::move(std::move(firmwareRevision)),
+              hardwareRevision(hardwareRevision)),
+              protocol(std::move(protocol))
         {
         }
 
