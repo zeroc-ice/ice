@@ -6,6 +6,7 @@ public sealed class HoldI : Test.HoldDisp_
 {
     private readonly Ice.ObjectAdapter _adapter;
     private int _last = 0;
+    private readonly object _taskMutex = new object();
 
     private static void test(bool b)
     {
@@ -33,7 +34,7 @@ public sealed class HoldI : Test.HoldDisp_
             _ = Task.Run(async () =>
             {
                 await Task.Delay(delay);
-                lock (this) // serialize task execution
+                lock (_taskMutex) // serialize task execution
                 {
                     try
                     {
@@ -51,14 +52,16 @@ public sealed class HoldI : Test.HoldDisp_
 
     public override void waitForHold(Ice.Current current)
     {
+        var adapter = current.adapter;
+
         _ = Task.Run(() =>
         {
-            lock (this) // serialize task execution
+            lock (_taskMutex) // serialize task execution
             {
                 try
                 {
-                    current.adapter.waitForHold();
-                    current.adapter.activate();
+                    adapter.waitForHold();
+                    adapter.activate();
                 }
                 catch
                 {

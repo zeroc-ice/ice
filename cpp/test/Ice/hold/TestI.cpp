@@ -35,7 +35,7 @@ HoldI::putOnHoldAsync(int32_t delay, function<void()> response, function<void(st
         this_thread::sleep_for(chrono::milliseconds(delay));
         try
         {
-            lock_guard lock(_mutex); // serialize background tasks
+            lock_guard lock(_taskMutex); // serialize background tasks
             _adapter->hold();
             _adapter->activate();
         }
@@ -55,7 +55,7 @@ HoldI::waitForHoldAsync(function<void()> response, function<void(std::exception_
 
     try
     {
-        lock_guard lock(_mutex); // serialize background tasks
+        lock_guard lock(_taskMutex); // serialize background tasks
         current.adapter->waitForHold();
         current.adapter->activate();
     }

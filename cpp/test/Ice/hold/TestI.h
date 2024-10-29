@@ -33,6 +33,7 @@ private:
     int _last;
     const Ice::ObjectAdapterPtr _adapter;
     std::mutex _mutex;
+    std::mutex _taskMutex;
 };
 
 #endif
