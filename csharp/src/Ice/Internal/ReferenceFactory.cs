@@ -442,8 +442,7 @@ internal class ReferenceFactory
                 throw new ParseException($"invalid endpoint '{unknownEndpoints[0]}' in '{s}'");
             }
             else if (unknownEndpoints.Count != 0 &&
-                    _instance.initializationData().properties.getPropertyAsIntWithDefault(
-                                                                            "Ice.Warn.Endpoints", 1) > 0)
+                    _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints", 1) > 0)
             {
                 StringBuilder msg = new StringBuilder("Proxy contains unknown endpoints:");
                 int sz = unknownEndpoints.Count;
