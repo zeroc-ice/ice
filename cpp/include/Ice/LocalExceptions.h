@@ -934,9 +934,10 @@ namespace Ice
     };
 
     /**
-     * An unknown property was used when trying to get or set an unknown property.
+     * This exception is raised when there is an error while getting or setting a property. For example, when
+     * trying to set an unknown Ice property.
      */
-    class ICE_API UnknownPropertyException final : public LocalException
+    class ICE_API PropertyException final : public LocalException
     {
     public:
         using LocalException::LocalException;

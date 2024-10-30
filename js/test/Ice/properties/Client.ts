@@ -102,7 +102,7 @@ export class Client extends TestHelper {
                 properties.getIceProperty("Ice.UnknownProperty");
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownPropertyException);
+                test(ex instanceof Ice.PropertyException);
             }
             out.writeLine("ok");
         }
@@ -114,7 +114,7 @@ export class Client extends TestHelper {
                 properties.setProperty("Ice.UnknownProperty", "bar");
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownPropertyException);
+                test(ex instanceof Ice.PropertyException);
             }
             out.writeLine("ok");
         }
@@ -130,7 +130,7 @@ export class Client extends TestHelper {
                 await communicator.createObjectAdapter("FooOA");
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownPropertyException);
+                test(ex instanceof Ice.PropertyException);
             }
             out.writeLine("ok");
 
@@ -141,7 +141,7 @@ export class Client extends TestHelper {
                 communicator.propertyToProxy("FooProxy");
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownPropertyException);
+                test(ex instanceof Ice.PropertyException);
             }
             out.writeLine("ok");
 

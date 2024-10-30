@@ -37,7 +37,7 @@ export class Client extends TestHelper {
             await communicator.createObjectAdapter("TestAdapter0");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.UnknownPropertyException, ex); // Expected
+            test(ex instanceof Ice.PropertyException, ex); // Expected
         }
         out.writeLine("ok");
 

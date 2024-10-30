@@ -145,7 +145,7 @@ Client::run(int, char**)
             properties->getIceProperty("Ice.UnknownProperty");
             test(false);
         }
-        catch (const Ice::UnknownPropertyException&)
+        catch (const Ice::PropertyException&)
         {
         }
         cout << "ok" << endl;
@@ -159,7 +159,7 @@ Client::run(int, char**)
             properties->setProperty("Ice.UnknownProperty", "value");
             test(false);
         }
-        catch (const Ice::UnknownPropertyException&)
+        catch (const Ice::PropertyException&)
         {
         }
         cout << "ok" << endl;
@@ -177,7 +177,7 @@ Client::run(int, char**)
             Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FooOA");
             test(false);
         }
-        catch (const Ice::UnknownPropertyException&)
+        catch (const Ice::PropertyException&)
         {
         }
         cout << "ok" << endl;
@@ -190,9 +190,22 @@ Client::run(int, char**)
             communicator->propertyToProxy("FooProxy");
             test(false);
         }
-        catch (const Ice::UnknownPropertyException&)
+        catch (const Ice::PropertyException&)
         {
         }
+        cout << "ok" << endl;
+
+        cout << "testing that setting a property in an opt-in prefix that is not configured throws an exception..."
+             << flush;
+        try
+        {
+            properties->setProperty("IceGrid.InstanceName", "TestGrid");
+            test(false);
+        }
+        catch (const Ice::PropertyException&)
+        {
+        }
+        cout << "ok" << endl;
     }
 }
 

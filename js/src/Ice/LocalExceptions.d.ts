@@ -260,9 +260,10 @@ declare module "ice" {
         }
 
         /**
-         * An unknown property was used when trying to get or set an unknown property.
+         * This exception is raised when there is an error while getting or setting a property. For example, when
+         * trying to set an unknown Ice property.
          */
-        class UnknownPropertyException extends LocalException {
+        class PropertyException extends LocalException {
             constructor(message: string);
         }
     }

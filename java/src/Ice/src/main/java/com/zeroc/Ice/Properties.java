@@ -364,7 +364,7 @@ public final class Properties {
             Property prop =
                     findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
             if (prop == null) {
-                throw new UnknownPropertyException("unknown Ice property: " + key);
+                throw new PropertyException("unknown Ice property: " + key);
             }
             // If the property is deprecated, log a warning
             if (prop.deprecated()) {
@@ -829,7 +829,7 @@ public final class Properties {
      * @param prefix The property prefix.
      * @param properties The properties to validate.
      * @param propertyArray The property array to validate against.
-     * @throws UnknownPropertyException if any unknown properties are found.
+     * @throws PropertyException if any unknown properties are found.
      */
     static void validatePropertiesWithPrefix(
             String prefix, Properties properties, PropertyArray propertyArray) {
@@ -851,7 +851,7 @@ public final class Properties {
                         .collect(Collectors.toList());
 
         if (unknownProperties.size() > 0) {
-            throw new UnknownPropertyException(
+            throw new PropertyException(
                     "found unknown properties for "
                             + propertyArray.name()
                             + ": '"
@@ -886,18 +886,18 @@ public final class Properties {
      * Gets the default value for a given Ice property.
      * @param key The property key.
      * @return The default value.
-     * @throws UnknownPropertyException if the property is unknown.
+     * @throws PropertyException if the property is unknown.
      */
     private static String getDefaultProperty(String key) {
         PropertyArray propertyArray = findIcePropertyArray(key);
         if (propertyArray == null) {
-            throw new UnknownPropertyException("unknown Ice property: " + key);
+            throw new PropertyException("unknown Ice property: " + key);
         }
 
         Property prop =
                 findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
         if (prop == null) {
-            throw new UnknownPropertyException("unknown Ice property: " + key);
+            throw new PropertyException("unknown Ice property: " + key);
         }
         return prop.defaultValue();
     }

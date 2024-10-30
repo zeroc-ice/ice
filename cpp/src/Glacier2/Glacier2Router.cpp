@@ -486,5 +486,8 @@ main(int argc, char* argv[])
 #endif
 {
     RouterService svc;
-    return svc.main(argc, argv);
+    // Initialize the service with a Properties object with the correct property prefix enabled.
+    Ice::InitializationData initData;
+    initData.properties = make_shared<Properties>(vector<string>{"Glacier2"});
+    return svc.main(argc, argv, initData);
 }

@@ -35,6 +35,12 @@ namespace Ice
         Properties() = default;
 
         /**
+         * Constructs an empty property set with a list of opt-in prefixes.
+         * @param optInPrefixes The list of opt-in prefixes to allow in the property set.
+         */
+        explicit Properties(std::vector<std::string> optInPrefixes) : _optInPrefixes(std::move(optInPrefixes)) {}
+
+        /**
          * Copy constructor.
          * @param source The property set to copy.
          */
@@ -213,6 +219,8 @@ namespace Ice
         static std::optional<std::pair<std::string, std::string>>
         parseLine(std::string_view, const StringConverterPtr&);
 
+        void loadArgs(StringSeq&);
+
         void loadConfig();
 
         struct PropertyValue
@@ -225,6 +233,9 @@ namespace Ice
             bool used;
         };
         std::map<std::string, PropertyValue, std::less<>> _properties;
+        // List of "opt-in" property prefixes to allow in the property set. Setting a property for a property prefix
+        // that is opt-in (eg. IceGrid, IceStorm, Glacier2, etc.) but not in this list is considered an error.
+        std::vector<std::string> _optInPrefixes;
         mutable std::mutex _mutex;
     };
 }

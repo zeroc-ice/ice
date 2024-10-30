@@ -146,6 +146,9 @@ static_cppflags = -fPIE
 static_objdir   = obj/pie
 static_ldflags  = -pie
 
+# Link the Slice compilers without any shared library at all.
+fully_static_ldflags = -static
+
 cppflags        = -fvisibility=hidden -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
 ldflags         = -pthread

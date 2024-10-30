@@ -65,13 +65,6 @@ namespace
     };
 }
 
-ServiceManagerIPtr
-IceBox::ServiceManagerI::create(Ice::CommunicatorPtr communicator, int& argc, char* argv[])
-{
-    ServiceManagerIPtr ptr(new ServiceManagerI(communicator, argc, argv));
-    return ptr;
-}
-
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[])
     : _communicator(communicator),
       _adminEnabled(false),
@@ -362,9 +355,9 @@ IceBox::ServiceManagerI::start()
             InitializationData initData;
             initData.properties = createServiceProperties("SharedCommunicator");
 
-            for (vector<StartServiceInfo>::iterator q = servicesInfo.begin(); q != servicesInfo.end(); ++q)
+            for (auto& info : servicesInfo)
             {
-                if (properties->getIcePropertyAsInt("IceBox.UseSharedCommunicator." + q->name) <= 0)
+                if (properties->getIcePropertyAsInt("IceBox.UseSharedCommunicator." + info.name) <= 0)
                 {
                     continue;
                 }
@@ -373,17 +366,17 @@ IceBox::ServiceManagerI::start()
                 // Load the service properties using the shared communicator properties as
                 // the default properties.
                 //
-                PropertiesPtr svcProperties = createProperties(q->args, initData.properties);
+                PropertiesPtr svcProperties = createProperties(info.args, initData.properties);
 
                 //
                 // Remove properties from the shared property set that a service explicitly clears.
                 //
                 PropertyDict allProps = initData.properties->getPropertiesForPrefix("");
-                for (PropertyDict::iterator p = allProps.begin(); p != allProps.end(); ++p)
+                for (auto& p : allProps)
                 {
-                    if (svcProperties->getProperty(p->first) == "")
+                    if (svcProperties->getProperty(p.first) == "")
                     {
-                        initData.properties->setProperty(p->first, "");
+                        initData.properties->setProperty(p.first, "");
                     }
                 }
 
@@ -391,16 +384,16 @@ IceBox::ServiceManagerI::start()
                 // Add the service properties to the shared communicator properties.
                 //
                 PropertyDict props = svcProperties->getPropertiesForPrefix("");
-                for (PropertyDict::const_iterator r = props.begin(); r != props.end(); ++r)
+                for (auto& r : props)
                 {
-                    initData.properties->setProperty(r->first, r->second);
+                    initData.properties->setProperty(r.first, r.second);
                 }
 
                 //
                 // Parse <service>.* command line options (the Ice command line options
                 // were parsed by the call to createProperties above).
                 //
-                q->args = initData.properties->parseCommandLineOptions(q->name, q->args);
+                info.args = initData.properties->parseCommandLineOptions(info.name, info.args);
             }
 
             const string facetNamePrefix = "IceBox.SharedCommunicator.";
@@ -522,7 +515,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     info.args = args;
 
     //
-    // If Ice.UseSharedCommunicator.<name> is not defined, create
+    // If IceBox.UseSharedCommunicator.<name> is not defined, create
     // a communicator for the service. The communicator inherits
     // from the shared communicator properties. If it's defined
     // add the service properties to the shared communicator
@@ -858,22 +851,20 @@ IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, exc
 Ice::PropertiesPtr
 IceBox::ServiceManagerI::createServiceProperties(const string& service)
 {
-    PropertiesPtr properties;
+    // We don't want to clone the properties object as we don't want to copy the opt-in prefix list.
+    // NOTE: We always enable the "IceStorm" prefix as there's currently no way  to distinguish it.
+    PropertiesPtr properties = make_shared<Properties>(vector<string>{"IceStorm"});
     PropertiesPtr communicatorProperties = _communicator->getProperties();
     if (communicatorProperties->getPropertyAsInt("IceBox.InheritProperties") > 0)
     {
-        properties = communicatorProperties->clone();
-
-        // Inherit all except Ice.Admin.xxx properties
-        PropertyDict pd = properties->getPropertiesForPrefix("Ice.Admin.");
-        for (PropertyDict::const_iterator p = pd.begin(); p != pd.end(); ++p)
+        for (const auto& p : communicatorProperties->getPropertiesForPrefix(""))
         {
-            properties->setProperty(p->first, "");
+            // Inherit all except IceBox. and Ice.Admin. properties
+            if (p.first.find("IceBox.") != 0 && p.first.find("Ice.Admin.") != 0)
+            {
+                properties->setProperty(p.first, p.second);
+            }
         }
-    }
-    else
-    {
-        properties = createProperties();
     }
 
     string programName = communicatorProperties->getProperty("Ice.ProgramName");

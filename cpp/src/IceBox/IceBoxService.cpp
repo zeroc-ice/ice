@@ -14,20 +14,15 @@ namespace IceBox
 {
     class IceBoxService : public Ice::Service
     {
-    public:
-        IceBoxService();
-
     protected:
-        virtual bool start(int, char*[], int&);
-        virtual bool stop();
+        bool start(int, char*[], int&) final;
+        bool stop() final;
 
     private:
         void usage(const std::string&);
         ServiceManagerIPtr _serviceManager;
     };
 }
-
-IceBox::IceBoxService::IceBoxService() {}
 
 bool
 IceBox::IceBoxService::start(int argc, char* argv[], int& status)
@@ -87,7 +82,7 @@ IceBox::IceBoxService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    _serviceManager = ServiceManagerI::create(communicator(), argc, argv);
+    _serviceManager = make_shared<ServiceManagerI>(communicator(), argc, argv);
 
     return _serviceManager->start();
 }
@@ -135,7 +130,10 @@ main(int argc, char* argv[])
     IceBox::IceBoxService svc;
 
     InitializationData initData;
-    initData.properties = createProperties();
+    // Initialize the service with a Properties object with the correct property prefix enabled.
+    // Since IceStorm is an IceBox service, we need to enable the IceBox property prefix as we allow configuring
+    // IceStorm properties through IceBox properties.
+    initData.properties = make_shared<Properties>(vector<string>{"IceBox", "IceStorm"});
     initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
     return svc.main(argc, argv, initData);
 }

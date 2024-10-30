@@ -45,7 +45,7 @@ function client(args)
         props.getIceProperty('Ice.UnknownProperty');
         assert(false);
     catch ex
-        assert(isa(ex, 'Ice.UnknownPropertyException'));
+        assert(isa(ex, 'Ice.PropertyException'));
     end
     fprintf('ok\n');
 

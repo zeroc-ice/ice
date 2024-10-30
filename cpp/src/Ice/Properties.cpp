@@ -53,14 +53,14 @@ namespace
     /// Find the default value for an Ice property. If there is no default value, return an empty string.
     /// @param key The ice property name.
     /// @return The default value for the property.
-    /// @throws UnknownPropertyException if the property is unknown.
+    /// @throws PropertyException if the property is unknown.
     string_view getDefaultValue(string_view key)
     {
         auto propertyArray = findIcePropertyArray(key);
 
         if (!propertyArray)
         {
-            throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
+            throw PropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
         }
 
         // The Ice property prefix.
@@ -70,7 +70,7 @@ namespace
 
         if (!prop)
         {
-            throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
+            throw PropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
         }
 
         return prop->defaultValue;
@@ -81,6 +81,7 @@ Ice::Properties::Properties(const Properties& p)
 {
     lock_guard lock(p._mutex);
     _properties = p._properties;
+    _optInPrefixes = p._optInPrefixes;
 }
 
 Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
@@ -89,6 +90,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
     {
         lock_guard lock(defaults->_mutex);
         _properties = defaults->_properties;
+        _optInPrefixes = defaults->_optInPrefixes;
     }
 
     StringSeq::iterator q = args.begin();
@@ -319,11 +321,19 @@ Ice::Properties::setProperty(string_view key, string_view value)
     // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
     if (auto propertyArray = findIcePropertyArray(key))
     {
+        if (propertyArray->isOptIn &&
+            find(_optInPrefixes.begin(), _optInPrefixes.end(), propertyArray->name) == _optInPrefixes.end())
+        {
+            ostringstream os;
+            os << "unable to set '" << key << "': property prefix '" << propertyArray->name
+               << "' is opt-in and must be explicitly enabled.";
+            throw PropertyException{__FILE__, __LINE__, os.str()};
+        }
         string propertyPrefix{propertyArray->name};
         auto prop = IceInternal::findProperty(key.substr(propertyPrefix.length() + 1), propertyArray);
         if (!prop)
         {
-            throw UnknownPropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
+            throw PropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
         }
 
         // If the property is deprecated, log a warning.
