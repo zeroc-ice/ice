@@ -374,13 +374,15 @@ final class OutgoingConnectionFactory {
             }
 
             if (addToPending(cb, connectors)) {
-                // A connection to one of our endpoints is pending. The callback will be notified once the connection
+                // A connection to one of our endpoints is pending. The callback will be notified
+                // once the connection
                 // is established. Returning null indicates that the connection is still pending.
                 return null;
             }
         }
 
-        // No connection is pending. Call nextConnector to initiate connection establishment. Return null to indicate
+        // No connection is pending. Call nextConnector to initiate connection establishment. Return
+        // null to indicate
         // that the connection is still pending.
         cb.nextConnector();
         return null;
