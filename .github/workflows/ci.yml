@@ -90,6 +90,10 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
+      - name: Setup MATLAB
+        uses: ./.github/actions/setup-matlab
+        if: matrix.config == 'matlab'
+
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
         timeout-minutes: 90

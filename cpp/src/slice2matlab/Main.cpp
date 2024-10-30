@@ -1785,7 +1785,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out.inc();
             writeBaseClassArrayParams(out, allMembers, false);
             out.dec();
-            out << nl << "end;";
+            out << nl << "end";
 
             out << nl << self << " = " << self << "@" << getAbsolute(base) << "(v{:});";
 
@@ -1817,7 +1817,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
             }
             out.dec();
-            out << nl << "end;";
+            out << nl << "end";
         }
 
         out.dec();

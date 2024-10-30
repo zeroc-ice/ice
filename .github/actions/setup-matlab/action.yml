@@ -1,0 +1,51 @@
+name: Setup MATLAB
+description: Setup MATLAB for use in GitHub Actions
+runs:
+  using: "composite"
+  steps:
+    #
+    # MATLAB
+    #
+    - name: Setup MATLAB
+      id: setup-matlab
+      uses: matlab-actions/setup-matlab@v2
+      with:
+        release: "R2024a"
+
+    - name: Set MATLAB_HOME and MATLAB_VERSION
+      run: |
+        # Needed for MATLAB R2024a
+        sudo apt install -y libgtk2.0-0
+        echo "MATLAB_VERSION=R2024a" >> $GITHUB_ENV
+        echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $GITHUB_ENV
+      shell: bash
+      if: runner.os == 'Linux'
+
+    - name: Set MATLAB_HOME and MATLAB_VERSION
+      run: |
+        echo "MATLAB_VERSION=R2024a" >> $env:GITHUB_ENV
+        echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $env:GITHUB_ENV
+      shell: powershell
+      if: runner.os == 'Windows'
+
+    # https://github.com/matlab-actions/run-command/issues/53
+    - name: Get run-matlab-command
+      run: |
+        wget -O /usr/local/bin/run-matlab-command https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/glnxa64/run-matlab-command
+        chmod +x /usr/local/bin/run-matlab-command
+        echo "MATLAB_COMMAND=/usr/local/bin/run-matlab-command" >> $GITHUB_ENV
+
+        # https://www.mathworks.com/matlabcentral/answers/1907290-how-to-manually-select-the-libstdc-library-to-use-to-resolve-a-version-glibcxx_-not-found
+        echo "LD_PRELOAD=/lib/x86_64-linux-gnu/libstdc++.so.6" >> $GITHUB_ENV
+
+      shell: bash
+      if: runner.os == 'Linux'
+
+    # Windows is currently not working. We get an error: "'matlab' executable not found on the system path"
+    # However, MATLAB is installed and the path is (seemingly) set correctly
+    - name: Get run-matlab-command
+      run: |
+        Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/win64/run-matlab-command.exe -OutFile C:\Windows\System32\run-matlab-command.exe
+        echo "MATLAB_COMMAND=C:\Windows\System32\run-matlab-command.exe" >> $env:GITHUB_ENV
+      shell: powershell
+      if: runner.os == 'Windows' && matrix.config == 'matlab'

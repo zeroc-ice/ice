@@ -10,7 +10,7 @@ function r = identityToString(id, varargin)
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
-    if length(varargin) == 1
+    if isscalar(varargin)
         mode = varargin{1};
     elseif isempty(varargin)
         mode = Ice.ToStringMode.Unicode;

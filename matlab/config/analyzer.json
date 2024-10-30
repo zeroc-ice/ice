@@ -1,0 +1,14 @@
+{
+    "baseConfiguration" : "factory",
+    "checks":
+    {
+        "PROPLC":
+        {
+            "enabled" : false
+        },
+        "PROP":
+        {
+            "enabled" : false
+        }
+    }
+}
