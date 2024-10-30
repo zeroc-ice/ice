@@ -491,8 +491,8 @@ namespace DataStormI
 
         template<typename Criteria> struct FactoryT : Factory
         {
-            FactoryT(const std::string& name, std::function<std::function<bool(const Value&)>(const Criteria&)> lambda)
-                : name(name),
+            FactoryT(std::string name, std::function<std::function<bool(const Value&)>(const Criteria&)> lambda)
+                : name(std::move(name)),
                   lambda(std::move(lambda))
             {
             }

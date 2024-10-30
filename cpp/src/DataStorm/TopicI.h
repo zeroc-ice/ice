@@ -167,14 +167,14 @@ namespace DataStormI
 
         std::shared_ptr<DataReader> createFiltered(
             const std::shared_ptr<Filter>&,
-            const std::string&,
+            std::string,
             DataStorm::ReaderConfig,
             const std::string&,
             Ice::ByteSeq) final;
 
         std::shared_ptr<DataReader> create(
             const std::vector<std::shared_ptr<Key>>&,
-            const std::string&,
+            std::string,
             DataStorm::ReaderConfig,
             const std::string&,
             Ice::ByteSeq) final;
@@ -205,7 +205,7 @@ namespace DataStormI
             std::int64_t);
 
         std::shared_ptr<DataWriter>
-        create(const std::vector<std::shared_ptr<Key>>&, const std::string&, DataStorm::WriterConfig) final;
+        create(const std::vector<std::shared_ptr<Key>>&, std::string, DataStorm::WriterConfig) final;
 
         void setDefaultConfig(DataStorm::WriterConfig) final;
         void waitForReaders(int) const final;

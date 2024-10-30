@@ -227,14 +227,14 @@ namespace DataStormI
     public:
         virtual std::shared_ptr<DataReader> createFiltered(
             const std::shared_ptr<Filter>&,
-            const std::string&,
+            std::string,
             DataStorm::ReaderConfig,
             const std::string& = std::string(),
             Ice::ByteSeq = {}) = 0;
 
         virtual std::shared_ptr<DataReader> create(
             const std::vector<std::shared_ptr<Key>>&,
-            const std::string&,
+            std::string,
             DataStorm::ReaderConfig,
             const std::string& = std::string(),
             Ice::ByteSeq = {}) = 0;
@@ -248,7 +248,7 @@ namespace DataStormI
     {
     public:
         virtual std::shared_ptr<DataWriter>
-        create(const std::vector<std::shared_ptr<Key>>&, const std::string&, DataStorm::WriterConfig) = 0;
+        create(const std::vector<std::shared_ptr<Key>>&, std::string, DataStorm::WriterConfig) = 0;
 
         virtual void setDefaultConfig(DataStorm::WriterConfig) = 0;
         virtual bool hasReaders() const = 0;

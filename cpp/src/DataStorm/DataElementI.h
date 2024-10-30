@@ -34,12 +34,12 @@ namespace DataStormI
                 std::int64_t id,
                 const std::shared_ptr<Filter>& filter,
                 const std::shared_ptr<Filter>& sampleFilter,
-                const std::string& name,
+                std::string name,
                 int priority)
                 : id(id),
                   filter(filter),
                   sampleFilter(sampleFilter),
-                  name(name),
+                  name(std::move(name)),
                   priority(priority)
             {
             }
@@ -133,7 +133,7 @@ namespace DataStormI
         };
 
     public:
-        DataElementI(TopicI*, const std::string&, std::int64_t, const DataStorm::Config&);
+        DataElementI(TopicI*, std::string, std::int64_t, const DataStorm::Config&);
         virtual ~DataElementI();
 
         virtual void destroy() override;
@@ -281,7 +281,7 @@ namespace DataStormI
     public:
         DataReaderI(
             TopicReaderI*,
-            const std::string&,
+            std::string,
             std::int64_t,
             const std::string&,
             Ice::ByteSeq,
@@ -330,7 +330,7 @@ namespace DataStormI
     class DataWriterI : public DataElementI, public DataWriter
     {
     public:
-        DataWriterI(TopicWriterI*, const std::string&, std::int64_t, const DataStorm::WriterConfig&);
+        DataWriterI(TopicWriterI*, std::string, std::int64_t, const DataStorm::WriterConfig&);
 
         virtual void publish(const std::shared_ptr<Key>&, const std::shared_ptr<Sample>&) override;
 
@@ -348,7 +348,7 @@ namespace DataStormI
     public:
         KeyDataReaderI(
             TopicReaderI*,
-            const std::string&,
+            std::string,
             std::int64_t,
             const std::vector<std::shared_ptr<Key>>&,
             const std::string&,
@@ -373,7 +373,7 @@ namespace DataStormI
     public:
         KeyDataWriterI(
             TopicWriterI*,
-            const std::string&,
+            std::string,
             std::int64_t,
             const std::vector<std::shared_ptr<Key>>&,
             const DataStorm::WriterConfig&);
@@ -406,7 +406,7 @@ namespace DataStormI
     public:
         FilteredDataReaderI(
             TopicReaderI*,
-            const std::string&,
+            std::string,
             std::int64_t,
             const std::shared_ptr<Filter>&,
             const std::string&,

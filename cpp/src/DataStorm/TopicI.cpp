@@ -874,7 +874,7 @@ TopicReaderI::TopicReaderI(
 shared_ptr<DataReader>
 TopicReaderI::createFiltered(
     const shared_ptr<Filter>& filter,
-    const string& name,
+    string name,
     DataStorm::ReaderConfig config,
     const string& sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria)
@@ -882,7 +882,7 @@ TopicReaderI::createFiltered(
     lock_guard<mutex> lock(_mutex);
     auto element = make_shared<FilteredDataReaderI>(
         this,
-        name,
+        std::move(name),
         ++_nextFilteredId,
         filter,
         sampleFilterName,
@@ -895,7 +895,7 @@ TopicReaderI::createFiltered(
 shared_ptr<DataReader>
 TopicReaderI::create(
     const vector<shared_ptr<Key>>& keys,
-    const string& name,
+    string name,
     DataStorm::ReaderConfig config,
     const string& sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria)
@@ -903,7 +903,7 @@ TopicReaderI::create(
     lock_guard<mutex> lock(_mutex);
     auto element = make_shared<KeyDataReaderI>(
         this,
-        name,
+        std::move(name),
         ++_nextId,
         keys,
         sampleFilterName,
@@ -1007,10 +1007,10 @@ TopicWriterI::TopicWriterI(
 }
 
 shared_ptr<DataWriter>
-TopicWriterI::create(const vector<shared_ptr<Key>>& keys, const string& name, DataStorm::WriterConfig config)
+TopicWriterI::create(const vector<shared_ptr<Key>>& keys, string name, DataStorm::WriterConfig config)
 {
     lock_guard<mutex> lock(_mutex);
-    auto element = make_shared<KeyDataWriterI>(this, name, ++_nextId, keys, mergeConfigs(std::move(config)));
+    auto element = make_shared<KeyDataWriterI>(this, std::move(name), ++_nextId, keys, mergeConfigs(std::move(config)));
     add(element, keys);
     return element;
 }
