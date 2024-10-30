@@ -8,7 +8,6 @@ import { Debug } from "./Debug.js";
 
 export class BatchRequestQueue {
     constructor(instance) {
-        this._batchStreamInUse = false;
         this._batchRequestNum = 0;
         this._batchStream = new OutputStream(
             Protocol.currentProtocolEncoding,
@@ -29,10 +28,6 @@ export class BatchRequestQueue {
     }
 
     finishBatchRequest(os, proxy, operation) {
-        //
-        // No need for synchronization, no other threads are supposed
-        // to modify the queue since we set this._batchStreamInUse to true.
-        //
         this._batchStream.swap(os);
 
         try {
