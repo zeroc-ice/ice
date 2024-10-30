@@ -430,5 +430,5 @@ public final class TwowayOnlyException: LocalException {
     }
 }
 
-/// This exception is raised when trying to get or set an unknown property.
-public final class UnknownPropertyException: LocalException {}
+/// This exception is raised when there is an error while getting or setting a property.
+public final class PropertyException: LocalException {}

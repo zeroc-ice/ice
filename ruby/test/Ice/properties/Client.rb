@@ -96,7 +96,7 @@ class Client < ::TestHelper
             properties = Ice.createProperties(args)
             properties.getIceProperty("Ice.UnknownProperty")
             test(false)
-        rescue Ice::UnknownPropertyException => ex
+        rescue Ice::PropertyException => ex
             test(ex.message["unknown Ice property: Ice.UnknownProperty"])
         end
         puts "ok"

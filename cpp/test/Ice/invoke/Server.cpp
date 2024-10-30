@@ -42,7 +42,7 @@ public:
 
     void finished(const Ice::Current&, const Ice::ObjectPtr&, const shared_ptr<void>&) final {}
 
-    void deactivate(const string&) final {}
+    void deactivate(string_view) final {}
 
 private:
     Ice::ObjectPtr _blobject;

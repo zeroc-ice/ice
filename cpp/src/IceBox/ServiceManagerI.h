@@ -18,8 +18,7 @@ namespace IceBox
     class ServiceManagerI final : public ServiceManager, public std::enable_shared_from_this<ServiceManagerI>
     {
     public:
-        // Temporary: use public ctor once the implementation uses only the new mapping.
-        static ServiceManagerIPtr create(Ice::CommunicatorPtr, int&, char*[]);
+        ServiceManagerI(Ice::CommunicatorPtr, int&, char*[]);
 
         void startService(std::string, const Ice::Current&) final;
         void stopService(std::string, const Ice::Current&) final;
@@ -53,8 +52,6 @@ namespace IceBox
             ServiceStatus status;
             Ice::StringSeq args;
         };
-
-        ServiceManagerI(Ice::CommunicatorPtr, int&, char*[]);
 
         void start(const std::string&, const std::string&, const Ice::StringSeq&);
         void stopAll();

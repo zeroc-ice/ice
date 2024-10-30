@@ -411,7 +411,7 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
+Ice::ObjectAdapterI::removeFacet(const Identity& ident, string_view facet)
 {
     lock_guard lock(_mutex);
 
@@ -433,7 +433,7 @@ Ice::ObjectAdapterI::removeAllFacets(const Identity& ident)
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::removeDefaultServant(const string& category)
+Ice::ObjectAdapterI::removeDefaultServant(string_view category)
 {
     lock_guard lock(_mutex);
 
@@ -449,7 +449,7 @@ Ice::ObjectAdapterI::find(const Identity& ident) const
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet) const
+Ice::ObjectAdapterI::findFacet(const Identity& ident, string_view facet) const
 {
     lock_guard lock(_mutex);
 
@@ -482,7 +482,7 @@ Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy) const
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::findDefaultServant(const string& category) const
+Ice::ObjectAdapterI::findDefaultServant(string_view category) const
 {
     lock_guard lock(_mutex);
 
@@ -502,7 +502,7 @@ Ice::ObjectAdapterI::addServantLocator(ServantLocatorPtr locator, string prefix)
 }
 
 ServantLocatorPtr
-Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
+Ice::ObjectAdapterI::removeServantLocator(string_view prefix)
 {
     lock_guard lock(_mutex);
 
@@ -512,7 +512,7 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 }
 
 ServantLocatorPtr
-Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
+Ice::ObjectAdapterI::findServantLocator(string_view prefix) const
 {
     lock_guard lock(_mutex);
 
@@ -1087,7 +1087,7 @@ Ice::ObjectAdapterI::checkForDestruction() const
 }
 
 vector<EndpointIPtr>
-Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) const
+Ice::ObjectAdapterI::parseEndpoints(string_view endpts, bool oaEndpoints) const
 {
     string::size_type beg;
     string::size_type end = 0;
@@ -1155,11 +1155,11 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
             throw ParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
         }
 
-        string s = endpts.substr(beg, end - beg);
+        string_view s = endpts.substr(beg, end - beg);
         EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, oaEndpoints);
         if (endp == 0)
         {
-            throw ParseException(__FILE__, __LINE__, "invalid object adapter endpoint '" + s + "'");
+            throw ParseException(__FILE__, __LINE__, "invalid object adapter endpoint '" + string{s} + "'");
         }
         endpoints.push_back(endp);
 

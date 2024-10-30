@@ -56,23 +56,23 @@ namespace IceBT
          * @param sndSize The connection buffer send size.
          */
         ConnectionInfo(
-            const Ice::ConnectionInfoPtr& underlying,
+            Ice::ConnectionInfoPtr underlying,
             bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId,
-            const std::string& localAddress,
+            std::string adapterName,
+            std::string connectionId,
+            std::string localAddress,
             int localChannel,
-            const std::string& remoteAddress,
+            std::string remoteAddress,
             int remoteChannel,
-            const std::string& uuid,
+            std::string uuid,
             int rcvSize,
             int sndSize)
-            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
-              localAddress(localAddress),
+            : Ice::ConnectionInfo(std::move(underlying), incoming, std::move(adapterName), std::move(connectionId)),
+              localAddress(std::move(localAddress)),
               localChannel(localChannel),
-              remoteAddress(remoteAddress),
+              remoteAddress(std::move(remoteAddress)),
               remoteChannel(remoteChannel),
-              uuid(uuid),
+              uuid(std::move(uuid)),
               rcvSize(rcvSize),
               sndSize(sndSize)
         {

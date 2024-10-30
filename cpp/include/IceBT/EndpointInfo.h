@@ -35,15 +35,10 @@ namespace IceBT
          * @param addr The address configured with the endpoint.
          * @param uuid The UUID configured with the endpoint.
          */
-        EndpointInfo(
-            const Ice::EndpointInfoPtr& underlying,
-            int timeout,
-            bool compress,
-            const std::string& addr,
-            const std::string& uuid)
-            : Ice::EndpointInfo(underlying, timeout, compress),
-              addr(addr),
-              uuid(uuid)
+        EndpointInfo(Ice::EndpointInfoPtr underlying, int timeout, bool compress, std::string addr, std::string uuid)
+            : Ice::EndpointInfo(std::move(underlying), timeout, compress),
+              addr(std::move(addr)),
+              uuid(std::move(uuid))
         {
         }
 

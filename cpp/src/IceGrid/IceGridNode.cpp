@@ -813,5 +813,8 @@ main(int argc, char* argv[])
 #endif
 {
     NodeService svc;
-    return svc.main(argc, argv);
+    // Initialize the service with a Properties object with the correct property prefix enabled.
+    Ice::InitializationData initData;
+    initData.properties = make_shared<Properties>(vector<string>{"IceGrid"});
+    return svc.main(argc, argv, initData);
 }

@@ -18,10 +18,9 @@ allTests(Test::TestHelper* helper)
     TestIntfPrx service3(com, "test:" + helper->getTestEndpoint(2));
     TestIntfPrx service4(com, "test:" + helper->getTestEndpoint(3));
 
-    if (service1->getProperty("IceBox.InheritProperties") == "")
+    if (service1->getProperty("TestInheritProperties") == "")
     {
         cout << "testing service properties... " << flush;
-
         test(service1->getProperty("Ice.ProgramName") == "IceBox-Service1");
         test(service1->getProperty("Service") == "1");
         test(service1->getProperty("Service1.Ovrd") == "2");
@@ -36,7 +35,6 @@ allTests(Test::TestHelper* helper)
         test(service2->getProperty("Ice.ProgramName") == "Test");
         test(service2->getProperty("Service") == "2");
         test(service2->getProperty("Service1.ArgProp") == "");
-        test(service2->getProperty("IceBox.InheritProperties") == "1");
 
         Ice::StringSeq args2;
         args2.push_back("--Service1.ArgProp=1");

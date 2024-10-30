@@ -456,9 +456,10 @@ class TwowayOnlyException(LocalException):
 
 
 @final
-class UnknownPropertyException(LocalException):
+class PropertyException(LocalException):
     """
-    An unknown property was used when trying to get or set an unknown property.
+    This exception is raised when there is an error while getting or setting a property. For example, when
+    trying to set an unknown Ice property.
     """
 
 
@@ -500,5 +501,5 @@ __all__ = [
     "ParseException",
     "SecurityException",
     "TwowayOnlyException",
-    "UnknownPropertyException",
+    "PropertyException",
 ]

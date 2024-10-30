@@ -38,16 +38,95 @@ namespace DataStorm
         /**
          * Construct a DataStorm node.
          *
-         * A node is the main DataStorm object. It is required to construct topics. The constructor initializes
-         * the Ice communicator using the given arguments. If the communicator creation fails, an Ice exception is
-         * raised.
+         * A node is the main DataStorm object. It is required to construct topics.
          *
-         * @param iceArgs Arguments which are passed to the Ice::initialize function.
+         * @param argc The number of arguments in argv.
+         * @param argv The configuration arguments.
+         * @param configFile The path to an optional Ice configuration file.
+         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
+         *
          */
-        template<class... T> Node(T&&... iceArgs) : _ownsCommunicator(true)
+        Node(
+            int& argc,
+            const char* argv[],
+            std::optional<std::string_view> configFile = std::nullopt,
+            std::function<void(std::function<void()> call)> customExecutor = nullptr);
+
+        /**
+         * Construct a DataStorm node.
+         *
+         * A node is the main DataStorm object. It is required to construct topics.
+         *
+         * @param argc The number of arguments in argv.
+         * @param argv The configuration arguments.
+         * @param configFile The path to an optional Ice configuration file.
+         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
+         *
+         */
+        Node(
+            int& argc,
+            char* argv[],
+            std::optional<std::string_view> configFile = std::nullopt,
+            std::function<void(std::function<void()> call)> customExecutor = nullptr)
+            : Node(argc, const_cast<const char**>(argv), configFile, customExecutor)
         {
-            init(Ice::initialize(std::forward<T>(iceArgs)...), nullptr);
         }
+
+#ifdef _WIN32
+        /**
+         * Construct a DataStorm node.
+         *
+         * A node is the main DataStorm object. It is required to construct topics.
+         *
+         * @param argc The number of arguments in argv.
+         * @param argv The configuration arguments.
+         * @param configFile The path to an optional Ice configuration file.
+         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
+         *
+         */
+        Node(
+            int& argc,
+            const wchar_t* argv[],
+            std::optional<std::string_view> configFile = std::nullopt,
+            std::function<void(std::function<void()> call)> customExecutor = nullptr);
+
+        /**
+         * Construct a DataStorm node.
+         *
+         * A node is the main DataStorm object. It is required to construct topics.
+         *
+         * @param argc The number of arguments in argv.
+         * @param argv The configuration arguments.
+         * @param configFile The path to an optional Ice configuration file.
+         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
+         *
+         */
+        Node(
+            int& argc,
+            wchar_t* argv[],
+            std::optional<std::string_view> configFile = std::nullopt,
+            std::function<void(std::function<void()> call)> customExecutor = nullptr)
+            : Node(argc, const_cast<const wchar_t**>(argv), configFile, customExecutor)
+        {
+        }
+#endif
+
+        /**
+         * Construct a DataStorm node.
+         *
+         * A node is the main DataStorm object. It is required to construct topics.
+         *
+         * @param configFile The path to an optional Ice configuration file.
+         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
+         */
+        Node(
+            std::optional<std::string_view> configFile = std::nullopt,
+            std::function<void(std::function<void()> call)> customExecutor = nullptr);
 
         /**
          * Construct a DataStorm node.
@@ -56,29 +135,13 @@ namespace DataStorm
          * communicator.
          *
          * @param communicator The Ice communicator used by the topic factory for its configuration and communications.
+         * This communicator must be initialized with a property set to use the "DataStorm" opt-in prefix.
          * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
          * provided the Node will use the default callback executor that executes callback in a dedicated thread.
          */
         Node(
             Ice::CommunicatorPtr communicator,
             std::function<void(std::function<void()> call)> customExecutor = nullptr);
-
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics. The constructor initializes
-         * the Ice communicator using the given arguments. If the communicator creation fails, an Ice exception is
-         * raised.
-         *
-         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
-         * @param iceArgs Arguments which are passed to the Ice::initialize function.
-         */
-        template<class... T>
-        Node(std::function<void(std::function<void()> call)> customExecutor, T&&... iceArgs) : _ownsCommunicator(true)
-        {
-            init(Ice::initialize(std::forward<T>(iceArgs)...), std::move(customExecutor));
-        }
 
         /**
          * Construct a new Node by taking ownership of the given node.
@@ -133,7 +196,10 @@ namespace DataStorm
         Ice::ConnectionPtr getSessionConnection(const std::string& ident) const noexcept;
 
     private:
-        void init(const Ice::CommunicatorPtr&, std::function<void(std::function<void()> call)> customExecutor);
+        Node(
+            Ice::CommunicatorPtr,
+            std::function<void(std::function<void()> call)> customExecutor,
+            bool ownsCommunicator);
 
         std::shared_ptr<DataStormI::Instance> _instance;
         std::shared_ptr<DataStormI::TopicFactory> _factory;

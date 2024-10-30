@@ -70,7 +70,7 @@ namespace Ice
          * @see Communicator#shutdown
          * @see Communicator#destroy
          */
-        virtual void deactivate(const std::string& category) = 0;
+        virtual void deactivate(std::string_view category) = 0;
     };
 
     using ServantLocatorPtr = std::shared_ptr<ServantLocator>;

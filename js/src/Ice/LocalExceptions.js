@@ -353,9 +353,9 @@ export class TwowayOnlyException extends LocalException {
     }
 }
 
-export class UnknownPropertyException extends LocalException {
+export class PropertyException extends LocalException {
     static get _ice_id() {
-        return "::Ice::UnknownPropertyException";
+        return "::Ice::PropertyException";
     }
 
     constructor(message) {
