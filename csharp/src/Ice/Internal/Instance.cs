@@ -115,7 +115,7 @@ public sealed class Instance
         }
     }
 
-    public OutgoingConnectionFactory outgoingConnectionFactory()
+    internal OutgoingConnectionFactory outgoingConnectionFactory()
     {
         lock (_mutex)
         {
@@ -823,7 +823,7 @@ public sealed class Instance
                 _initData.valueFactoryManager = new ValueFactoryManagerI();
             }
 
-            _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
+            _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
