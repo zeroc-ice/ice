@@ -115,7 +115,7 @@ public sealed class Instance
         }
     }
 
-    public OutgoingConnectionFactory outgoingConnectionFactory()
+    internal OutgoingConnectionFactory outgoingConnectionFactory()
     {
         lock (_mutex)
         {

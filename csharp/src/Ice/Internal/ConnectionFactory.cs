@@ -7,9 +7,9 @@ using System.Text;
 
 namespace Ice.Internal;
 
-public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>> where K : class
+internal class MultiDictionary<K, V> : Dictionary<K, ICollection<V>> where K : class
 {
-    public void Add(K key, V value)
+    internal void Add(K key, V value)
     {
         if (!TryGetValue(key, out ICollection<V>? list))
         {
@@ -19,7 +19,7 @@ public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>> where K : cla
         list.Add(value);
     }
 
-    public void Remove(K key, V value)
+    internal void Remove(K key, V value)
     {
         ICollection<V> list = this[key];
         list.Remove(value);
@@ -30,16 +30,16 @@ public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>> where K : cla
     }
 }
 
-public sealed class OutgoingConnectionFactory
+internal sealed class OutgoingConnectionFactory
 {
-    public interface CreateConnectionCallback
+    internal interface CreateConnectionCallback
     {
         void setConnection(ConnectionI connection, bool compress);
 
         void setException(LocalException ex);
     }
 
-    public void destroy()
+    internal void destroy()
     {
         lock (_mutex)
         {
@@ -62,7 +62,7 @@ public sealed class OutgoingConnectionFactory
         }
     }
 
-    public void updateConnectionObservers()
+    internal void updateConnectionObservers()
     {
         lock (_mutex)
         {
@@ -76,7 +76,7 @@ public sealed class OutgoingConnectionFactory
         }
     }
 
-    public void waitUntilFinished()
+    internal void waitUntilFinished()
     {
         Dictionary<Connector, ICollection<ConnectionI>> connections;
         lock (_mutex)
@@ -102,7 +102,7 @@ public sealed class OutgoingConnectionFactory
         }
     }
 
-    public void create(
+    internal void create(
         List<EndpointI> endpoints,
         bool hasMore,
         EndpointSelectionType selType,
@@ -129,7 +129,7 @@ public sealed class OutgoingConnectionFactory
         cb.getConnectors();
     }
 
-    public void setRouterInfo(RouterInfo routerInfo)
+    internal void setRouterInfo(RouterInfo routerInfo)
     {
         Debug.Assert(routerInfo is not null);
         ObjectAdapter adapter = routerInfo.getAdapter();
@@ -169,7 +169,7 @@ public sealed class OutgoingConnectionFactory
         }
     }
 
-    public void removeAdapter(ObjectAdapter adapter)
+    internal void removeAdapter(ObjectAdapter adapter)
     {
         lock (_mutex)
         {
@@ -191,7 +191,7 @@ public sealed class OutgoingConnectionFactory
         }
     }
 
-    public void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
+    internal void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
     {
         var c = new List<ConnectionI>();
 
@@ -653,8 +653,8 @@ public sealed class OutgoingConnectionFactory
 
         public override int GetHashCode() => connector.GetHashCode();
 
-        public Connector connector;
-        public EndpointI endpoint;
+        internal Connector connector;
+        internal EndpointI endpoint;
     }
 
     private class ConnectCallback : ConnectionI.StartCallback, EndpointI_connectors
@@ -744,7 +744,7 @@ public sealed class OutgoingConnectionFactory
             }
         }
 
-        public void setConnection(ConnectionI connection, bool compress)
+        internal void setConnection(ConnectionI connection, bool compress)
         {
             //
             // Callback from the factory: the connection to one of the callback
@@ -754,7 +754,7 @@ public sealed class OutgoingConnectionFactory
             _factory.decPendingConnectCount(); // Must be called last.
         }
 
-        public void setException(LocalException ex)
+        internal void setException(LocalException ex)
         {
             //
             // Callback from the factory: connection establishment failed.
@@ -763,17 +763,17 @@ public sealed class OutgoingConnectionFactory
             _factory.decPendingConnectCount(); // Must be called last.
         }
 
-        public bool hasConnector(ConnectorInfo ci) => _connectors.Contains(ci);
+        internal bool hasConnector(ConnectorInfo ci) => _connectors.Contains(ci);
 
-        public bool removeConnectors(List<ConnectorInfo> connectors)
+        internal bool removeConnectors(List<ConnectorInfo> connectors)
         {
             _connectors.RemoveAll(ci => connectors.Contains(ci));
             return _connectors.Count == 0;
         }
 
-        public void removeFromPending() => _factory.removeFromPending(this, _connectors);
+        internal void removeFromPending() => _factory.removeFromPending(this, _connectors);
 
-        public void getConnectors()
+        internal void getConnectors()
         {
             try
             {
@@ -933,7 +933,7 @@ public sealed class OutgoingConnectionFactory
     private readonly object _mutex = new();
 }
 
-public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartCallback
+internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartCallback
 {
     private class StartAcceptor(IncomingConnectionFactory factory) : TimerTask
     {
@@ -942,7 +942,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         private readonly IncomingConnectionFactory _factory = factory;
     }
 
-    public void startAcceptor()
+    internal void startAcceptor()
     {
         lock (_mutex)
         {
@@ -963,7 +963,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         }
     }
 
-    public void activate()
+    internal void activate()
     {
         lock (_mutex)
         {
@@ -971,7 +971,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         }
     }
 
-    public void hold()
+    internal void hold()
     {
         lock (_mutex)
         {
@@ -979,7 +979,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         }
     }
 
-    public void destroy()
+    internal void destroy()
     {
         lock (_mutex)
         {
@@ -987,7 +987,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         }
     }
 
-    public void updateConnectionObservers()
+    internal void updateConnectionObservers()
     {
         lock (_mutex)
         {
@@ -998,7 +998,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         }
     }
 
-    public void waitUntilHolding()
+    internal void waitUntilHolding()
     {
         ICollection<ConnectionI> connections;
 
@@ -1021,7 +1021,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         }
     }
 
-    public void waitUntilFinished()
+    internal void waitUntilFinished()
     {
         ICollection<ConnectionI> connections;
 
@@ -1049,7 +1049,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         }
     }
 
-    public EndpointI endpoint()
+    internal EndpointI endpoint()
     {
         lock (_mutex)
         {
@@ -1057,7 +1057,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         }
     }
 
-    public ICollection<ConnectionI> connections()
+    internal ICollection<ConnectionI> connections()
     {
         lock (_mutex)
         {
@@ -1076,7 +1076,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         }
     }
 
-    public void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
+    internal void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
     {
         // connections() is synchronized, no need to synchronize here.
         foreach (ConnectionI connection in connections())
@@ -1335,7 +1335,7 @@ public sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartC
         // Do not warn about connection exceptions here. The connection is not yet validated.
     }
 
-    public IncomingConnectionFactory(Instance instance, EndpointI endpoint, ObjectAdapter adapter)
+    internal IncomingConnectionFactory(Instance instance, EndpointI endpoint, ObjectAdapter adapter)
     {
         _instance = instance;
         _connectionOptions = instance.serverConnectionOptions(adapter.getName());
