@@ -388,7 +388,7 @@ NodeI::removePublisherSession(NodePrx node, const shared_ptr<PublisherSessionI>&
 }
 
 Ice::ConnectionPtr
-NodeI::getSessionConnection(const string& id) const
+NodeI::getSessionConnection(string_view id) const
 {
     auto session = getSession(Ice::stringToIdentity(id));
     if (session)

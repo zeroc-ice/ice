@@ -62,7 +62,7 @@ namespace DataStormI
             const std::shared_ptr<PublisherSessionI>&,
             std::exception_ptr);
 
-        Ice::ConnectionPtr getSessionConnection(const std::string&) const;
+        Ice::ConnectionPtr getSessionConnection(std::string_view) const;
 
         std::shared_ptr<SessionI> getSession(const Ice::Identity&) const;
 

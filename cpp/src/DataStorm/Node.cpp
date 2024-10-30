@@ -169,7 +169,7 @@ Node::getCommunicator() const noexcept
 }
 
 Ice::ConnectionPtr
-Node::getSessionConnection(const string& ident) const noexcept
+Node::getSessionConnection(string_view ident) const noexcept
 {
     return _instance ? _instance->getNode()->getSessionConnection(ident) : nullptr;
 }
