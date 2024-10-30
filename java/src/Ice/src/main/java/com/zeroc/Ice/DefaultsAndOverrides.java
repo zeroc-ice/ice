@@ -70,14 +70,14 @@ final class DefaultsAndOverrides {
         intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
         if (intValue < -1) {
             throw new InitializationException(
-                    "invalid value for Ice.Default.LocatorCacheTimeout '" + intValue + "'");
+                    "invalid value for Ice.Default.LocatorCacheTimeout: " + intValue);
         }
         defaultLocatorCacheTimeout = Duration.ofSeconds(intValue);
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
         if (intValue < 1 && intValue != -1) {
             throw new InitializationException(
-                    "invalid value for Ice.Default.InvocationTimeout '" + intValue + "'");
+                    "invalid value for Ice.Default.InvocationTimeout: " + intValue);
         }
         defaultInvocationTimeout = Duration.ofMillis(intValue);
 
