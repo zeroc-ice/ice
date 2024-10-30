@@ -18,10 +18,7 @@ class TestI: TestIntf {
     func userException(current _: Current) async throws {}
 
     func unknownExceptionWithServantException(current: Current) async throws {
-        throw ObjectNotExistException(
-            id: current.id,
-            facet: current.facet,
-            operation: current.operation)
+        throw ObjectNotExistException()
     }
 
     func impossibleException(throw t: Bool, current _: Current) async throws -> String {

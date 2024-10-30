@@ -80,7 +80,7 @@ Ice::Communicator::isShutdown() const noexcept
 }
 
 ReferencePtr
-Ice::Communicator::_stringToProxy(const string& s) const
+Ice::Communicator::_stringToProxy(string_view s) const
 {
     return _instance->referenceFactory()->create(s, "");
 }

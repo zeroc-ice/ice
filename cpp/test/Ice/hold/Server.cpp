@@ -22,7 +22,6 @@ Server::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Connection.Server.IdleTimeout", "1");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
-    IceInternal::TimerPtr timer = make_shared<IceInternal::Timer>();
     auto properties = communicator->getProperties();
 
     properties->setProperty("TestAdapter1.Endpoints", getTestEndpoint());
@@ -32,7 +31,7 @@ Server::run(int argc, char** argv)
     properties->setProperty("TestAdapter1.ThreadPool.Serialize", "0");
 
     Ice::ObjectAdapterPtr adapter1 = communicator->createObjectAdapter("TestAdapter1");
-    adapter1->add(make_shared<HoldI>(timer, adapter1), Ice::stringToIdentity("hold"));
+    adapter1->add(make_shared<HoldI>(adapter1), Ice::stringToIdentity("hold"));
 
     properties->setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
     properties->setProperty("TestAdapter2.ThreadPool.Size", "5");
@@ -40,7 +39,7 @@ Server::run(int argc, char** argv)
     properties->setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
     properties->setProperty("TestAdapter2.ThreadPool.Serialize", "1");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
-    adapter2->add(make_shared<HoldI>(timer, adapter2), Ice::stringToIdentity("hold"));
+    adapter2->add(make_shared<HoldI>(adapter2), Ice::stringToIdentity("hold"));
 
     adapter1->activate();
     adapter2->activate();
@@ -48,8 +47,6 @@ Server::run(int argc, char** argv)
     serverReady();
 
     communicator->waitForShutdown();
-
-    timer->destroy();
 }
 
 DEFINE_TEST(Server)

@@ -409,7 +409,7 @@ public class ServiceManagerI implements ServiceManager {
         info.status = StatusStopped;
         info.args = args;
 
-        // If Ice.UseSharedCommunicator.<name> is defined, create a
+        // If IceBox.UseSharedCommunicator.<name> is defined, create a
         // communicator for the service. The communicator inherits
         // from the shared communicator properties. If it's not
         // defined, add the service properties to the shared
@@ -522,7 +522,8 @@ public class ServiceManagerI implements ServiceManager {
                         obj = c.getDeclaredConstructor().newInstance();
                     } catch (IllegalAccessException ex) {
                         throw new FailureException(
-                                "ServiceManager: unable to access default service constructor in class "
+                                "ServiceManager: unable to access default service constructor in"
+                                        + " class "
                                         + className,
                                 ex);
                     }

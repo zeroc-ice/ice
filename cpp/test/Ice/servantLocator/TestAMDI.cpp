@@ -64,7 +64,7 @@ TestAMDI::unknownExceptionWithServantExceptionAsync(
 {
     try
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     catch (...)
     {
@@ -132,7 +132,7 @@ void
 TestAMDI::asyncResponseAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
-    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    throw Ice::ObjectNotExistException{__FILE__, __LINE__};
 }
 
 void
@@ -146,7 +146,7 @@ TestAMDI::asyncExceptionAsync(function<void()>, function<void(exception_ptr)> er
     {
         error(current_exception());
     }
-    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    throw Ice::ObjectNotExistException{__FILE__, __LINE__};
 }
 
 void

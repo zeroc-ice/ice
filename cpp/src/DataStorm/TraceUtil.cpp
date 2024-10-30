@@ -7,6 +7,14 @@
 using namespace std;
 using namespace DataStormI;
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& logger)
     : topic(properties->getIcePropertyAsInt("DataStorm.Trace.Topic")),
       topicCat("Topic"),
@@ -17,3 +25,9 @@ TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::Logger
       logger(logger)
 {
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif

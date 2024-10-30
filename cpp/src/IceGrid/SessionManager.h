@@ -16,10 +16,6 @@ namespace IceGrid
 {
     template<class TPrx> class SessionKeepAliveThread
     {
-#if defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-#endif
         enum State
         {
             Disconnected,
@@ -27,9 +23,6 @@ namespace IceGrid
             InProgress,
             Destroyed
         };
-#if defined(__clang__)
-#    pragma clang diagnostic pop
-#endif
 
         enum Action
         {

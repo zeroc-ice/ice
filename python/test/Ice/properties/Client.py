@@ -118,6 +118,6 @@ class Client(TestHelper):
             properties = Ice.createProperties()
             properties.getIceProperty("Ice.UnknownProperty")
             test(False)
-        except Ice.UnknownPropertyException:
+        except Ice.PropertyException:
             pass
         print("ok")

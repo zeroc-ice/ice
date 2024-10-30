@@ -32,7 +32,7 @@ export class IncomingRequest {
 
         // Read everything else from the input stream
         const start = inputStream.pos;
-        var identity = new Identity();
+        const identity = new Identity();
         identity._read(inputStream);
 
         let facet = "";
@@ -52,7 +52,7 @@ export class IncomingRequest {
         }
 
         const encapsulationSize = inputStream.readInt();
-        var encoding = new EncodingVersion();
+        const encoding = new EncodingVersion();
         encoding._read(inputStream);
 
         this._current = new Current(adapter, connection, identity, facet, operation, mode, ctx, requestId, encoding);

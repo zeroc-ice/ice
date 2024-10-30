@@ -402,12 +402,12 @@ namespace Ice
         //
         void finishSetup(int&, const char*[]);
 
-        IceInternal::ReferencePtr _stringToProxy(const std::string& str) const;
+        IceInternal::ReferencePtr _stringToProxy(std::string_view str) const;
         IceInternal::ReferencePtr _propertyToProxy(const std::string& property) const;
 
-        friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, std::int32_t);
-        friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);
-        friend ICE_API CommunicatorPtr initialize(const InitializationData&, std::int32_t);
+        friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&);
+        friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&);
+        friend ICE_API CommunicatorPtr initialize(const InitializationData&);
         friend ICE_API IceInternal::InstancePtr IceInternal::getInstance(const Ice::CommunicatorPtr&);
         friend ICE_API IceInternal::TimerPtr IceInternal::getInstanceTimer(const Ice::CommunicatorPtr&);
 

@@ -29,9 +29,4 @@ export class WSEndpointFactory {
         e.initWithStream(s);
         return e;
     }
-
-    destroy() {
-        this._delegate.destroy();
-        this._instance = null;
-    }
 }

@@ -110,7 +110,7 @@ namespace
 // Add escape sequences. Any characters that appear in special are prefixed with a backslash in the returned string.
 //
 string
-IceInternal::escapeString(const string& s, const string& special, ToStringMode toStringMode)
+IceInternal::escapeString(string_view s, string_view special, ToStringMode toStringMode)
 {
     for (string::size_type i = 0; i < special.size(); ++i)
     {
@@ -345,7 +345,7 @@ namespace
         string::size_type start,
         string::size_type end,
         string::size_type& nextStart,
-        const string& special,
+        string_view special,
         string& result)
     {
         assert(start < end);
@@ -559,7 +559,7 @@ namespace
 // Remove escape sequences added by escapeString.
 //
 string
-IceInternal::unescapeString(const string& s, string::size_type start, string::size_type end, const string& special)
+IceInternal::unescapeString(const string& s, string::size_type start, string::size_type end, string_view special)
 {
     assert(start <= end && end <= s.size());
 
@@ -690,7 +690,7 @@ IceInternal::splitString(string_view str, string_view delim, vector<string>& res
 }
 
 string
-IceInternal::joinString(const std::vector<std::string>& values, const std::string& delimiter)
+IceInternal::joinString(const std::vector<std::string>& values, string_view delimiter)
 {
     ostringstream out;
     for (unsigned int i = 0; i < values.size(); i++)
@@ -708,17 +708,17 @@ IceInternal::joinString(const std::vector<std::string>& values, const std::strin
 // Trim white space (" \t\r\n")
 //
 string
-IceInternal::trim(const string& s)
+IceInternal::trim(string_view s)
 {
-    static const string delim = " \t\r\n";
-    string::size_type beg = s.find_first_not_of(delim);
+    static const string_view delim = " \t\r\n";
+    string_view::size_type beg = s.find_first_not_of(delim);
     if (beg == string::npos)
     {
         return "";
     }
     else
     {
-        return s.substr(beg, s.find_last_not_of(delim) - beg + 1);
+        return string{s.substr(beg, s.find_last_not_of(delim) - beg + 1)};
     }
 }
 
@@ -1118,7 +1118,7 @@ IceInternal::isDigit(char c)
 }
 
 string
-IceInternal::removeWhitespace(const std::string& s)
+IceInternal::removeWhitespace(string_view s)
 {
     string result;
     for (unsigned int i = 0; i < s.length(); ++i)

@@ -4,6 +4,8 @@ Ice.ProgramName=IceBox2
 
 IceBox.InheritProperties=1
 
+TestInheritProperties=1
+
 ServerProp=1
 OverrideMe=1
 UnsetMe=1

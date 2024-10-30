@@ -197,8 +197,7 @@ Instance.prototype.finishSetup = function (communicator) {
 
         this._defaultsAndOverrides = new DefaultsAndOverrides(this._initData.properties, this._initData.logger);
 
-        const defMessageSizeMax = 1024;
-        let num = this._initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defMessageSizeMax);
+        let num = this._initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
         if (num < 1 || num > 0x7fffffff / 1024) {
             this._messageSizeMax = 0x7fffffff;
         } else {
@@ -209,11 +208,11 @@ Instance.prototype.finishSetup = function (communicator) {
             this._initData.properties.getProperty("Ice.BatchAutoFlushSize").length === 0 &&
             this._initData.properties.getProperty("Ice.BatchAutoFlush").length > 0
         ) {
-            if (this._initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0) {
+            if (this._initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0) {
                 this._batchAutoFlushSize = this._messageSizeMax;
             }
         } else {
-            num = this._initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
+            num = this._initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
             if (num < 1) {
                 this._batchAutoFlushSize = num;
             } else if (num > 0x7fffffff / 1024) {
@@ -230,16 +229,18 @@ Instance.prototype.finishSetup = function (communicator) {
             this._classGraphDepthMax = num;
         }
 
-        const toStringModeStr = this._initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+        const toStringModeStr = this._initData.properties.getIceProperty("Ice.ToStringMode");
         if (toStringModeStr === "ASCII") {
             this._toStringMode = ToStringMode.ASCII;
         } else if (toStringModeStr === "Compat") {
             this._toStringMode = ToStringMode.Compat;
         } else if (toStringModeStr !== "Unicode") {
-            throw new InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+            throw new InitializationException(
+                `illegal value '${toStringModeStr}' in property Ice.ToStringMode; expected 'Unicode', 'ASCII', or 'Compat'`,
+            );
         }
 
-        this._implicitContext = ImplicitContext.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
+        this._implicitContext = ImplicitContext.create(this._initData.properties.getIceProperty("Ice.ImplicitContext"));
 
         this._routerManager = new RouterManager();
 
@@ -274,7 +275,7 @@ Instance.prototype.finishSetup = function (communicator) {
         this._objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
         this._retryQueue = new RetryQueue(this);
-        const retryIntervals = this._initData.properties.getPropertyAsList("Ice.RetryIntervals");
+        const retryIntervals = this._initData.properties.getIcePropertyAsList("Ice.RetryIntervals");
         if (retryIntervals.length > 0) {
             this._retryIntervals = [];
 
@@ -349,19 +350,11 @@ Instance.prototype.destroy = async function () {
             this._timer.destroy();
         }
 
-        if (this._objectFactoryMap !== null) {
-            this._objectFactoryMap.forEach(factory => factory.destroy());
-            this._objectFactoryMap.clear();
-        }
-
         if (this._routerManager) {
             this._routerManager.destroy();
         }
         if (this._locatorManager) {
             this._locatorManager.destroy();
-        }
-        if (this._endpointFactoryManager) {
-            this._endpointFactoryManager.destroy();
         }
 
         if (this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {

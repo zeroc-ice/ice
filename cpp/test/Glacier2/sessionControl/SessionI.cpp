@@ -21,7 +21,7 @@ SessionManagerI::create(
     }
     if (userId == "localexception")
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     return current.adapter->addWithUUID<Glacier2::SessionPrx>(make_shared<SessionI>(sessionControl));
 }

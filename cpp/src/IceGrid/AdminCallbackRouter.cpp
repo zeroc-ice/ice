@@ -47,7 +47,7 @@ AdminCallbackRouter::ice_invokeAsync(
         auto p = _categoryToConnection.find(current.id.category);
         if (p == _categoryToConnection.end())
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
         }
         con = p->second;
     }
@@ -63,7 +63,7 @@ AdminCallbackRouter::ice_invokeAsync(
         inParams,
         std::move(response),
         [exception = std::move(exception)](exception_ptr)
-        { exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__))); },
+        { exception(make_exception_ptr(Ice::ObjectNotExistException{__FILE__, __LINE__})); },
         nullptr,
         current.ctx);
 }

@@ -295,7 +295,7 @@ namespace
             {
                 if (_destroyed)
                 {
-                    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+                    throw Ice::ObjectNotExistException{__FILE__, __LINE__};
                 }
 
                 _sendLogCommunicator =

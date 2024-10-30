@@ -7,7 +7,7 @@ supported-platforms             = macosx iphoneos iphonesimulator
 xcframeworks                    = Ice IceDiscovery IceLocatorDiscovery
 
 macosx_ar                       = libtool
-macosx_cppflags                 = -mmacosx-version-min=12.00
+macosx_cppflags                 = -mmacosx-version-min=14.00
 macosx_ldflags                  = $(macosx_cppflags) \
                                   $(if $(filter yes, $(allow-undefined-symbols)),-undefined dynamic_lookup,)
 macosx_targetdir                = $(if $(filter %/build,$5),/macosx)
@@ -38,6 +38,9 @@ ifneq ($(shell command -v brew 2> /dev/null),)
 MCPP_HOME                      ?= $(shell brew --prefix mcpp)
 LMDB_HOME                      ?= $(shell brew --prefix lmdb)
 endif
+
+# Always link with the static version of libmcpp on macos.
+mcpp_ldflags                   := $(MCPP_HOME)/lib/libmcpp.a
 
 # On macos, objects are always PIC/PIE, and executables are always PIE. So there is no need to pass -fPIC or -fPIE to
 # the compiler.

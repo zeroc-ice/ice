@@ -33,8 +33,8 @@ namespace
             {
                 try
                 {
-                    optional<SessionPrx> session;
-                    updateNodeAndSessionProxy(*publisher, session, current);
+                    optional<SessionPrx> sessionPrx;
+                    updateNodeAndSessionProxy(*publisher, sessionPrx, current);
                     // Forward the call to the target Node object, don't need to wait for the result.
                     _node->initiateCreateSessionAsync(publisher, nullptr);
                 }

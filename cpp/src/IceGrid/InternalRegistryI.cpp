@@ -70,7 +70,7 @@ InternalRegistryI::registerNode(
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 }
 
@@ -104,7 +104,7 @@ InternalRegistryI::registerReplica(
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 }
 

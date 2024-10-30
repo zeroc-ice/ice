@@ -18,14 +18,16 @@ export class ObjectAdapterFactory {
     }
 
     destroy() {
-        this._adapters.forEach(adapter => adapter.destroy());
+        // We cannot directly iterate over this._adapters because ObjectAdapter.destroy() will remove the
+        // adapter from the list of adapters by calling removeObjectAdapter. We use slice() to create a
+        // shallow copy of the array to avoid modifying the array during iteration.
+        const adapters = this._adapters.slice();
+        for (const adapter of adapters) {
+            adapter.destroy();
+        }
     }
 
     createObjectAdapter(name, router, promise) {
-        if (this._instance === null) {
-            throw new CommunicatorDestroyedException();
-        }
-
         let adapter = null;
         try {
             if (name.length === 0) {
@@ -52,10 +54,6 @@ export class ObjectAdapterFactory {
     }
 
     removeObjectAdapter(adapter) {
-        if (this._instance === null) {
-            return;
-        }
-
         let n = this._adapters.indexOf(adapter);
         if (n !== -1) {
             this._adapters.splice(n, 1);

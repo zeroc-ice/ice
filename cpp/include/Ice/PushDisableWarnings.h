@@ -1,13 +1,10 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 /*! \file
     \hideincludedbygraph
 */
 
-// No pragma once as this file can be included several times in a translation
-// unit
+// This file can be included several times in a translation unit.
 
 #if defined(_MSC_VER)
 #    pragma warning(push)
@@ -19,15 +16,10 @@
 
 #elif defined(__clang__)
 #    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wredundant-decls"               // expected when using forward Slice declarations
-#    pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync" // see zeroc-ice/ice issue #211
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"       // allow referencing deprecated Slice definitions
-
-#    if (__clang_major__ >= 4)
-#        pragma clang diagnostic ignored "-Wshadow-field-in-constructor" // expected in some generated header files
-#    else
-#        pragma clang diagnostic ignored "-Wshadow-all" // expected in some generated header files
-#    endif
+#    pragma clang diagnostic ignored "-Wredundant-decls"             // expected when using forward Slice declarations
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor" // expected in some generated header files
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"     // allow referencing deprecated Slice definitions
+#    pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync"
 
 #elif defined(__GNUC__)
 #    pragma GCC diagnostic push

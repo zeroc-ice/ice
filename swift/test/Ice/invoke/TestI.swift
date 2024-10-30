@@ -55,10 +55,7 @@ class DispatcherI: Ice.Dispatcher {
                 }
             }
         } else {
-            throw Ice.OperationNotExistException(
-                id: current.id,
-                facet: current.facet,
-                operation: current.operation)
+            throw Ice.OperationNotExistException()
         }
     }
 }

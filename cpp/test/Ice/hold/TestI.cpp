@@ -7,103 +7,63 @@
 #include "TestHelper.h"
 
 #include <chrono>
+#include <iostream>
 #include <stdexcept>
 #include <thread>
 
 using namespace std;
 
-HoldI::HoldI(const IceInternal::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter)
-    : _last(0),
-      _timer(timer),
-      _adapter(adapter)
-{
-}
+HoldI::HoldI(const Ice::ObjectAdapterPtr& adapter) : _last(0), _adapter(adapter) {}
 
 void
-HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
+HoldI::putOnHoldAsync(int32_t delay, function<void()> response, function<void(std::exception_ptr)>, const Ice::Current&)
 {
-    class PutOnHold : public IceInternal::TimerTask
-    {
-    public:
-        PutOnHold(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
-
-        void runTimerTask()
-        {
-            try
-            {
-                _adapter->hold();
-                _adapter->activate();
-            }
-            catch (const Ice::LocalException&)
-            {
-                //
-                // This shouldn't occur. The test ensures all the waitForHold timers are
-                // finished before shutting down the communicator.
-                //
-                test(false);
-            }
-        }
-
-    private:
-        const Ice::ObjectAdapterPtr _adapter;
-    };
-
-    if (milliSeconds < 0)
+    if (delay < 0)
     {
         _adapter->hold();
+        response();
     }
-    else if (milliSeconds == 0)
+    else if (delay == 0)
     {
         _adapter->hold();
         _adapter->activate();
+        response();
     }
     else
     {
+        response();
+        this_thread::sleep_for(chrono::milliseconds(delay));
         try
         {
-            _timer->schedule(make_shared<PutOnHold>(_adapter), chrono::milliseconds(milliSeconds));
+            lock_guard lock(_taskMutex); // serialize background tasks
+            _adapter->hold();
+            _adapter->activate();
         }
-        catch (const invalid_argument&)
+        catch (const std::exception& ex)
         {
+            // unexpected
+            cerr << "error: " << ex.what() << endl;
+            test(false);
         }
     }
 }
 
 void
-HoldI::waitForHold(const Ice::Current& current)
+HoldI::waitForHoldAsync(function<void()> response, function<void(std::exception_ptr)>, const Ice::Current& current)
 {
-    class WaitForHold final : public IceInternal::TimerTask
-    {
-    public:
-        WaitForHold(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
-
-        void runTimerTask() final
-        {
-            try
-            {
-                _adapter->waitForHold();
-                _adapter->activate();
-            }
-            catch (const Ice::LocalException&)
-            {
-                //
-                // This shouldn't occur. The test ensures all the waitForHold timers are
-                // finished before shutting down the communicator.
-                //
-                test(false);
-            }
-        }
-
-    private:
-        const Ice::ObjectAdapterPtr _adapter;
-    };
+    response();
 
     try
     {
-        _timer->schedule(make_shared<WaitForHold>(current.adapter), chrono::seconds::zero());
+        lock_guard lock(_taskMutex); // serialize background tasks
+        current.adapter->waitForHold();
+        current.adapter->activate();
     }
-    catch (const invalid_argument&)
+    catch (const std::exception& ex)
     {
+        // unexpected
+        cerr << "error: " << ex.what() << endl;
+        test(false);
     }
 }
 

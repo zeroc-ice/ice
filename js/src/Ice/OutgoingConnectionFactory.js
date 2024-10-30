@@ -200,45 +200,18 @@ export class OutgoingConnectionFactory {
             throw new CommunicatorDestroyedException();
         }
 
-        //
-        // Try to get the connection.
-        //
-        while (true) {
-            if (this._destroyed) {
-                throw new CommunicatorDestroyedException();
-            }
-
-            //
-            // Search for a matching connection. If we find one, we're done.
-            //
-            const connection = this.findConnectionByEndpoint(endpoints);
-            if (connection !== null) {
-                return connection;
-            }
-
-            if (this.addToPending(cb, endpoints)) {
-                //
-                // A connection is already pending.
-                //
-                return null;
-            } else {
-                //
-                // No connection is currently pending to one of our endpoints, so we
-                // get out of this loop and start the connection establishment to one of the
-                // given endpoints.
-                //
-                break;
-            }
+        // Search for an existing connections matching one of the given endpoints.
+        const connection = this.findConnectionByEndpoint(endpoints);
+        if (connection !== null) {
+            return connection;
         }
 
-        //
-        // At this point, we're responsible for establishing the connection to one of
-        // the given endpoints. If it's a non-blocking connect, calling nextEndpoint
-        // will start the connection establishment. Otherwise, we return null to get
-        // the caller to establish the connection.
-        //
-        cb.nextEndpoint();
-
+        if (!this.addToPending(cb, endpoints)) {
+            // No connection is currently pending to one of our endpoints, call nextEndpoint to start the connection
+            // establishment.
+            cb.nextEndpoint();
+        }
+        // Return null to indicate to the caller that the connection is being established.
         return null;
     }
 
@@ -362,33 +335,26 @@ export class OutgoingConnectionFactory {
     }
 
     addToPending(cb, endpoints) {
-        // cb is-a ConnectCallback
+        Debug.assert(cb !== null);
 
-        //
         // Add the callback to each pending list.
-        //
         let found = false;
-        if (cb !== null) {
-            endpoints.forEach(p => {
-                const cbs = this._pending.get(p);
-                if (cbs !== undefined) {
-                    found = true;
-                    if (cbs.indexOf(cb) === -1) {
-                        cbs.push(cb); // Add the callback to each pending endpoint.
-                    }
+        endpoints.forEach(p => {
+            const cbs = this._pending.get(p);
+            if (cbs !== undefined) {
+                found = true;
+                if (cbs.indexOf(cb) === -1) {
+                    cbs.push(cb); // Add the callback to each pending endpoint.
                 }
-            });
-        }
+            }
+        });
 
         if (found) {
             return true;
         }
 
-        //
-        // If there's no pending connection for the given endpoints, we're
-        // responsible for its establishment. We add empty pending lists,
-        // other callbacks to the same endpoints will be queued.
-        //
+        // If there's no pending connection for the given endpoints, we're responsible for its establishment. We add an
+        // empty pending lists, other callbacks to the same endpoints will be queued.
         endpoints.forEach(p => {
             if (!this._pending.has(p)) {
                 this._pending.set(p, []);
@@ -596,17 +562,10 @@ class ConnectCallback {
 
     getConnection() {
         try {
-            //
-            // Ask the factory to get a connection.
-            //
             const connection = this._factory.getConnection(this._endpoints, this);
             if (connection === null) {
-                //
-                // A null return value from getConnection indicates that the connection
-                // is being established and that everthing has been done to ensure that
-                // the callback will be notified when the connection establishment is
-                // done.
-                //
+                // A null return value from getConnection indicates that the connection is being established, and the
+                // callback will be notified when the connection establishment is done.
                 return;
             }
 

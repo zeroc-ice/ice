@@ -16,7 +16,7 @@ namespace Test
         ~ServantLocatorI() override;
         Ice::ObjectPtr locate(const Ice::Current&, std::shared_ptr<void>&) override;
         void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&) override;
-        void deactivate(const std::string&) override;
+        void deactivate(std::string_view) override;
 
     protected:
         virtual Ice::ObjectPtr newServantAndCookie(std::shared_ptr<void>&) const = 0;

@@ -213,9 +213,9 @@ class IceStormProcess:
                 )
             else:
                 for name in instanceNames:
-                    props[
-                        "IceStormAdmin.TopicManager.{0}".format(name)
-                    ] = testcase.getTopicManager(current, name)
+                    props["IceStormAdmin.TopicManager.{0}".format(name)] = (
+                        testcase.getTopicManager(current, name)
+                    )
         return props
 
 

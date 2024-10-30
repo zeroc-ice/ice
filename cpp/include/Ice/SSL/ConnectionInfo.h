@@ -47,12 +47,12 @@ namespace Ice::SSL
          * @param peerCertificate The peer certificate.
          */
         SchannelConnectionInfo(
-            const Ice::ConnectionInfoPtr& underlying,
+            Ice::ConnectionInfoPtr underlying,
             bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId,
+            std::string adapterName,
+            std::string connectionId,
             PCCERT_CONTEXT peerCertificate)
-            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
+            : Ice::ConnectionInfo(std::move(underlying), incoming, std::move(adapterName), std::move(connectionId)),
               peerCertificate(peerCertificate)
         {
         }
@@ -93,12 +93,12 @@ namespace Ice::SSL
          * @param peerCertificate The peer certificate.
          */
         SecureTransportConnectionInfo(
-            const Ice::ConnectionInfoPtr& underlying,
+            Ice::ConnectionInfoPtr underlying,
             bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId,
+            std::string adapterName,
+            std::string connectionId,
             SecCertificateRef peerCertificate)
-            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
+            : Ice::ConnectionInfo(std::move(underlying), incoming, std::move(adapterName), std::move(connectionId)),
               peerCertificate(peerCertificate)
         {
         }
@@ -139,12 +139,12 @@ namespace Ice::SSL
          * @param peerCertificate The peer certificate.
          */
         OpenSSLConnectionInfo(
-            const Ice::ConnectionInfoPtr& underlying,
+            Ice::ConnectionInfoPtr underlying,
             bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId,
+            std::string adapterName,
+            std::string connectionId,
             X509* peerCertificate)
-            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
+            : Ice::ConnectionInfo(std::move(underlying), incoming, std::move(adapterName), std::move(connectionId)),
               peerCertificate(peerCertificate)
         {
         }

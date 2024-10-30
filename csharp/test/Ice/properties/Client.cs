@@ -113,7 +113,7 @@ public class Client : Test.TestHelper
                 properties.getIceProperty("Ice.UnknownProperty");
                 test(false);
             }
-            catch (Ice.UnknownPropertyException)
+            catch (Ice.PropertyException)
             {
             }
             Console.Out.WriteLine("ok");
@@ -128,7 +128,7 @@ public class Client : Test.TestHelper
                 properties.setProperty("Ice.UnknownProperty", "bar");
                 test(false);
             }
-            catch (Ice.UnknownPropertyException)
+            catch (Ice.PropertyException)
             {
             }
             Console.Out.WriteLine("ok");
@@ -146,7 +146,7 @@ public class Client : Test.TestHelper
                 communicator.createObjectAdapter("FooOA");
                 test(false);
             }
-            catch (Ice.UnknownPropertyException)
+            catch (Ice.PropertyException)
             {
             }
             Console.Out.WriteLine("ok");
@@ -159,7 +159,7 @@ public class Client : Test.TestHelper
                 communicator.propertyToProxy("FooProxy");
                 test(false);
             }
-            catch (Ice.UnknownPropertyException)
+            catch (Ice.PropertyException)
             {
             }
 

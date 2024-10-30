@@ -1093,7 +1093,7 @@ public final class ObjectAdapter {
         try {
             Properties.validatePropertiesWithPrefix(
                     _name, properties, PropertyNames.ObjectAdapterProps);
-        } catch (UnknownPropertyException ex) {
+        } catch (PropertyException ex) {
             // Prevent finalizer from complaining about the adapter not being destroyed.
             _state = StateDestroyed;
             throw ex;

@@ -1311,7 +1311,7 @@ KeyDataWriterI::forward(const Ice::ByteSeq& inParams, const Ice::Current& curren
         if (!_sample || listener.matchOne(_sample, _keys.empty()))
         {
             // Forward the call using the listener's session proxy don't need to wait for the result.
-            auto _ = listener.proxy->ice_invokeAsync(
+            auto cancel = listener.proxy->ice_invokeAsync(
                 current.operation,
                 current.mode,
                 inParams,

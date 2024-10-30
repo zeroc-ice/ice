@@ -25,7 +25,7 @@ namespace IceGrid
         bool start(int, char*[], int&) override;
         void waitForShutdown() override;
         bool stop() override;
-        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&) override;
 
     private:
         void usage(const std::string&);
@@ -138,11 +138,7 @@ RegistryService::stop()
 }
 
 CommunicatorPtr
-RegistryService::initializeCommunicator(
-    int& argc,
-    char* argv[],
-    const InitializationData& initializationData,
-    int version)
+RegistryService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
@@ -202,7 +198,7 @@ RegistryService::initializeCommunicator(
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
-    return Service::initializeCommunicator(argc, argv, initData, version);
+    return Service::initializeCommunicator(argc, argv, initData);
 }
 
 void
@@ -239,5 +235,8 @@ main(int argc, char* argv[])
 #endif
 {
     RegistryService svc;
-    return svc.main(argc, argv);
+    // Initialize the service with a Properties object with the correct property prefix enabled.
+    Ice::InitializationData initData;
+    initData.properties = make_shared<Properties>(vector<string>{"IceGrid", "IceStorm"});
+    return svc.main(argc, argv, initData);
 }

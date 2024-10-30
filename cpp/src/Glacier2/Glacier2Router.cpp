@@ -30,7 +30,7 @@ namespace
 
         void finished(const Current&, const ObjectPtr&, const shared_ptr<void>&) final {}
 
-        void deactivate(const string&) final {}
+        void deactivate(string_view) final {}
 
     private:
         const shared_ptr<SessionRouterI> _sessionRouter;
@@ -48,7 +48,7 @@ namespace
 
         void finished(const Current&, const ObjectPtr&, const shared_ptr<void>&) final {}
 
-        void deactivate(const string&) final {}
+        void deactivate(string_view) final {}
 
     private:
         const std::shared_ptr<SessionRouterI> _sessionRouter;
@@ -62,7 +62,7 @@ namespace
     protected:
         bool start(int, char*[], int&) override;
         bool stop() override;
-        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&) override;
 
     private:
         void usage(const std::string&);
@@ -410,11 +410,7 @@ RouterService::stop()
 }
 
 CommunicatorPtr
-RouterService::initializeCommunicator(
-    int& argc,
-    char* argv[],
-    const InitializationData& initializationData,
-    int version)
+RouterService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);
@@ -456,7 +452,7 @@ RouterService::initializeCommunicator(
     // for incoming connections from clients must be disabled in
     // the clients.
 
-    return Service::initializeCommunicator(argc, argv, initData, version);
+    return Service::initializeCommunicator(argc, argv, initData);
 }
 
 void
@@ -490,5 +486,8 @@ main(int argc, char* argv[])
 #endif
 {
     RouterService svc;
-    return svc.main(argc, argv);
+    // Initialize the service with a Properties object with the correct property prefix enabled.
+    Ice::InitializationData initData;
+    initData.properties = make_shared<Properties>(vector<string>{"Glacier2"});
+    return svc.main(argc, argv, initData);
 }

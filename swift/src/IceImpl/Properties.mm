@@ -17,7 +17,7 @@
 
 - (NSString*)getIceProperty:(NSString*)key;
 {
-    // We don't catch exceptions on purpose; in particular, we want Ice::UnknownPropertyException to terminate
+    // We don't catch exceptions on purpose; in particular, we want Ice::PropertyException to terminate
     // the application.
     return toNSString(self.properties->getIceProperty(fromNSString(key)));
 }

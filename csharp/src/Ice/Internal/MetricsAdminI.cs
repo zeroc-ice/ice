@@ -700,7 +700,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
                 message.Append("\n    ");
                 message.Append(p);
             }
-            throw new UnknownPropertyException(message.ToString());
+            throw new PropertyException(message.ToString());
         }
     }
 

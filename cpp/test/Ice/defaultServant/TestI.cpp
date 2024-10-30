@@ -14,11 +14,11 @@ MyObjectI::ice_ping(const Ice::Current& current) const
 
     if (name == "ObjectNotExist")
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     else if (name == "FacetNotExist")
     {
-        throw Ice::FacetNotExistException(__FILE__, __LINE__);
+        throw Ice::FacetNotExistException{__FILE__, __LINE__};
     }
 }
 
@@ -29,11 +29,11 @@ MyObjectI::getName(const Ice::Current& current)
 
     if (name == "ObjectNotExist")
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     else if (name == "FacetNotExist")
     {
-        throw Ice::FacetNotExistException(__FILE__, __LINE__);
+        throw Ice::FacetNotExistException{__FILE__, __LINE__};
     }
 
     return name;

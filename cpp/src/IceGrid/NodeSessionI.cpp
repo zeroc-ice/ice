@@ -84,7 +84,7 @@ NodeSessionI::keepAlive(LoadInfo load, const Ice::Current&)
 
     if (_destroy)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     _timestamp = chrono::steady_clock::now();
@@ -242,7 +242,7 @@ NodeSessionI::destroyImpl(bool shutdown)
         lock_guard lock(_mutex);
         if (_destroy)
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
         }
         _destroy = true;
     }

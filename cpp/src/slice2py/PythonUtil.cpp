@@ -1109,10 +1109,10 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << "))";
 
-        if (operation->isDeprecated(true))
+        if (operation->isDeprecated())
         {
             // Get the deprecation reason if present, or default to an empty string.
-            string reason = operation->getDeprecationReason(true).value_or("");
+            string reason = operation->getDeprecationReason().value_or("");
             _out << nl << className << "._op_" << operation->name() << ".deprecate(\"" << reason << "\")";
         }
     }

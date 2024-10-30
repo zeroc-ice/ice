@@ -409,7 +409,7 @@ endef
 #
 # Creates all the target variables which are necessary to depend on the components
 # from the given project. This is used by various language mappings to depend on C++
-# components such as the translators or the C++ IceUtil or Ice libraries.
+# components such as the Slice compilers or the C++ IceUtil or Ice libraries.
 #
 define create-project-targets
 ifeq ($(filter $(SKIP),$1),)
@@ -835,7 +835,7 @@ endef
 #
 # $(call create-translator-project,$1=project)
 #
-# Defines a project for the given translator
+# Defines a project for the given translator (Slice compiler)
 #
 define create-translator-project
 $1_programs     := $(notdir $1)
@@ -846,6 +846,8 @@ $1_targetdir    := $(call bindir,$1)
 # Only build the translator with the static configuration
 #
 $1_configs              := static
+
+$1[static]_ldflags := $(fully_static_ldflags)
 
 # Make sure the static/$(build-platform) are always enabled, the native translators
 # are required to build the sources for foreign architectures

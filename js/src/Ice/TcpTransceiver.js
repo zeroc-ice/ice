@@ -59,7 +59,7 @@ if (typeof net.createConnection === "function") {
 
                     //
                     // The error callback can be triggered from the socket
-                    // write(). We don't want it to dispatched right away
+                    // write(). We don't want it to be dispatched right away
                     // from within the write() so we delay the call with
                     // setImmediate. We do the same for close as a
                     // precaution. See also issue #6226.
@@ -285,20 +285,6 @@ if (typeof net.createConnection === "function") {
             transceiver._sourceAddr = sourceAddr;
             transceiver._desc = "local address = <not connected>\nremote address = " + addr.host + ":" + addr.port;
             transceiver._state = StateNeedConnect;
-            transceiver._registered = false;
-            transceiver._exception = null;
-
-            return transceiver;
-        }
-
-        static createIncoming(instance, fd) {
-            const transceiver = new TcpTransceiver(instance);
-
-            transceiver._fd = fd;
-            transceiver._addr = null;
-            transceiver._sourceAddr = null;
-            transceiver._desc = fdToString(fd);
-            transceiver._state = StateConnected;
             transceiver._registered = false;
             transceiver._exception = null;
 

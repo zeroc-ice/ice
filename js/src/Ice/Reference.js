@@ -1026,7 +1026,7 @@ export class RoutableReference extends Reference {
     }
 
     getRequestHandler() {
-        var handler = new ConnectRequestHandler(this);
+        const handler = new ConnectRequestHandler(this);
         this.getConnection(handler);
         return handler;
     }

@@ -259,7 +259,7 @@ TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
 
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
 
     auto id = topic->ice_getIdentity();
@@ -335,7 +335,7 @@ TransientTopicImpl::destroy(const Ice::Current&)
 
     if (_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
     _destroyed = true;
 

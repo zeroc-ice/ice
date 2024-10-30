@@ -75,9 +75,9 @@ ConnectionManager::remove(const Ice::ConnectionPtr& connection)
         {
             object.second(connection, ex);
         }
-        catch (const std::exception& ex)
+        catch (const std::exception& e)
         {
-            cerr << ex.what() << endl;
+            cerr << e.what() << endl;
             assert(false);
             throw;
         }

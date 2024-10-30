@@ -16,14 +16,14 @@ class HoldI: Hold {
         _helper = helper
     }
 
-    func putOnHold(seconds: Int32, current: Ice.Current) async throws {
-        if seconds < 0 {
+    func putOnHold(delay: Int32, current _: Ice.Current) async throws {
+        if delay < 0 {
             _adapter.hold()
-        } else if seconds == 0 {
+        } else if delay == 0 {
             _adapter.hold()
             try _adapter.activate()
         } else {
-            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(seconds))) { [self] in
+            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(delay))) { [self] in
                 do {
                     _adapter.hold()
                     try _adapter.activate()

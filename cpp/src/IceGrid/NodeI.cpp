@@ -843,7 +843,7 @@ NodeI::loadServer(
                 // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the
                 // node has being unreachable upon receipt of this exception (like any other Ice::LocalException). We
                 // could also have disabled dispatch warnings but they can still useful to catch other issues.
-                throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+                throw Ice::ObjectNotExistException{__FILE__, __LINE__};
             }
 
             try
@@ -906,7 +906,7 @@ NodeI::destroyServer(
             // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the node
             // has being unreachable upon receipt of this exception (like any other Ice::LocalException). We could also
             // have disabled dispatch warnings but they can still useful to catch other issues.
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
         }
 
         if (!server)

@@ -18,16 +18,25 @@ main(int argc, char* argv[])
 
     cout << "testing node..." << flush;
     {
-        Node n;
-        Node nm(std::move(n));
-        auto nm2 = std::move(nm);
-        nm2.getCommunicator();
-        nm2.getSessionConnection("s");
+        {
+            Node n;
+            Node nm(std::move(n));
+            auto nm2 = std::move(nm);
+            nm2.getCommunicator();
+            nm2.getSessionConnection("s");
+        }
 
-        Node n2(Ice::initialize());
-        n2.getCommunicator()->destroy();
+        {
+            // Communicators shared with DataStorm must have a property set that can use the "DataStorm" opt-in prefix.
+            Ice::InitializationData initData;
+            initData.properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
+            Node n2(Ice::initialize(initData));
+            n2.getCommunicator()->destroy();
+        }
 
-        auto c = Ice::initialize();
+        Ice::InitializationData initData;
+        initData.properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
+        auto c = Ice::initialize(initData);
         {
             Node n22(c);
         }
@@ -45,7 +54,7 @@ main(int argc, char* argv[])
         }
         c->destroy();
 
-        Node n3(Ice::InitializationData{});
+        Node n3;
 
         try
         {
@@ -55,7 +64,7 @@ main(int argc, char* argv[])
         {
         }
 
-        Node n5(argc, argv, Ice::InitializationData{});
+        Node n5(argc, argv);
 
         {
             Node n6;

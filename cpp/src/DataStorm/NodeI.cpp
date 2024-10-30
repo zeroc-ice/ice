@@ -267,6 +267,10 @@ NodeI::createSubscriberSession(
         subscriber = getNodeWithExistingConnection(subscriber, connection);
 
         auto self = shared_from_this();
+#if defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
         subscriber->ice_getConnectionAsync(
             [=, this](auto connection)
             {
@@ -280,6 +284,9 @@ NodeI::createSubscriberSession(
                     [=](auto ex) { self->removePublisherSession(subscriber, session, ex); });
             },
             [=](auto ex) { self->removePublisherSession(subscriber, session, ex); });
+#if defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
     }
     catch (const Ice::LocalException&)
     {

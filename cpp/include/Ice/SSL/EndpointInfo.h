@@ -31,8 +31,8 @@ namespace Ice::SSL
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          */
-        EndpointInfo(const Ice::EndpointInfoPtr& underlying, int timeout, bool compress)
-            : Ice::EndpointInfo(underlying, timeout, compress)
+        EndpointInfo(Ice::EndpointInfoPtr underlying, int timeout, bool compress)
+            : Ice::EndpointInfo(std::move(underlying), timeout, compress)
         {
         }
 
