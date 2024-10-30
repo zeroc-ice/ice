@@ -11,19 +11,19 @@
 
 namespace Ice
 {
-    class SysLoggerI : public Logger
+    class SysLoggerI final : public Logger
     {
     public:
-        SysLoggerI(const std::string&, const std::string&);
-        SysLoggerI(const std::string&, int);
+        SysLoggerI(std::string prefix, const std::string& facilityString);
+        SysLoggerI(std::string prefix, int facility);
         ~SysLoggerI();
 
-        virtual void print(const std::string&);
-        virtual void trace(const std::string&, const std::string&);
-        virtual void warning(const std::string&);
-        virtual void error(const std::string&);
-        virtual std::string getPrefix();
-        virtual LoggerPtr cloneWithPrefix(const std::string&);
+        void print(const std::string&) final;
+        void trace(const std::string&, const std::string&) final;
+        void warning(const std::string&) final;
+        void error(const std::string&) final;
+        std::string getPrefix() final;
+        LoggerPtr cloneWithPrefix(std::string) final;
 
     private:
         int _facility;

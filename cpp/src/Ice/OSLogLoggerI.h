@@ -13,17 +13,17 @@
 
 namespace Ice
 {
-    class OSLogLoggerI : public Logger
+    class OSLogLoggerI final : public Logger
     {
     public:
-        OSLogLoggerI(const std::string&);
+        OSLogLoggerI(std::string);
 
-        virtual void print(const std::string&);
-        virtual void trace(const std::string&, const std::string&);
-        virtual void warning(const std::string&);
-        virtual void error(const std::string&);
-        virtual std::string getPrefix();
-        virtual LoggerPtr cloneWithPrefix(const std::string&);
+        void print(const std::string&) final;
+        void trace(const std::string&, const std::string&) final;
+        void warning(const std::string&) final;
+        void error(const std::string&) final;
+        std::string getPrefix() final;
+        LoggerPtr cloneWithPrefix(std::string) final;
 
     private:
         const std::string _prefix;

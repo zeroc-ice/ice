@@ -111,7 +111,8 @@ namespace
         void warning(const std::string&) final;
         void error(const std::string&) final;
         std::string getPrefix() final;
-        LoggerPtr cloneWithPrefix(const std::string&) final;
+        LoggerPtr cloneWithPrefix(std::string) final;
+
         ObjectPtr getFacet() const;
         void destroy() final;
 
@@ -629,9 +630,9 @@ namespace
 
     string LoggerAdminLoggerI::getPrefix() { return _localLogger->getPrefix(); }
 
-    LoggerPtr LoggerAdminLoggerI::cloneWithPrefix(const string& prefix)
+    LoggerPtr LoggerAdminLoggerI::cloneWithPrefix(string prefix)
     {
-        return _localLogger->cloneWithPrefix(prefix);
+        return _localLogger->cloneWithPrefix(std::move(prefix));
     }
 
     ObjectPtr LoggerAdminLoggerI::getFacet() const { return _loggerAdmin; }

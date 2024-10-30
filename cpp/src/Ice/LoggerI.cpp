@@ -25,15 +25,15 @@ namespace
     const chrono::minutes retryTimeout = chrono::minutes(5);
 }
 
-Ice::LoggerI::LoggerI(const string& prefix, const string& file, bool convert, size_t sizeMax)
-    : _prefix(prefix),
+Ice::LoggerI::LoggerI(string prefix, const string& file, bool convert, size_t sizeMax)
+    : _prefix(std::move(prefix)),
       _convert(convert),
       _converter(getProcessStringConverter()),
       _sizeMax(sizeMax)
 {
-    if (!prefix.empty())
+    if (!_prefix.empty())
     {
-        _formattedPrefix = prefix + ": ";
+        _formattedPrefix = _prefix + ": ";
     }
 
     if (!file.empty())
@@ -102,10 +102,10 @@ Ice::LoggerI::getPrefix()
 }
 
 LoggerPtr
-Ice::LoggerI::cloneWithPrefix(const std::string& prefix)
+Ice::LoggerI::cloneWithPrefix(std::string prefix)
 {
     lock_guard lock(outputMutex); // for _sizeMax
-    return make_shared<LoggerI>(prefix, _file, _convert, _sizeMax);
+    return make_shared<LoggerI>(std::move(prefix), _file, _convert, _sizeMax);
 }
 
 void

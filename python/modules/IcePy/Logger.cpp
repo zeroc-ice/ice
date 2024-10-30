@@ -86,7 +86,7 @@ IcePy::LoggerWrapper::getPrefix()
 }
 
 Ice::LoggerPtr
-IcePy::LoggerWrapper::cloneWithPrefix(const string& prefix)
+IcePy::LoggerWrapper::cloneWithPrefix(string prefix)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 

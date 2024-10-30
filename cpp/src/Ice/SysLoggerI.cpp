@@ -12,7 +12,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-Ice::SysLoggerI::SysLoggerI(const string& prefix, const string& facilityString) : _facility(0), _prefix(prefix)
+Ice::SysLoggerI::SysLoggerI(string prefix, const string& facilityString) : _facility(0), _prefix(std::move(prefix))
 {
     if (facilityString == "LOG_KERN")
     {
@@ -107,7 +107,7 @@ Ice::SysLoggerI::SysLoggerI(const string& prefix, const string& facilityString) 
     openlog(_prefix.c_str(), logopt, _facility);
 }
 
-Ice::SysLoggerI::SysLoggerI(const string& prefix, int facility) : _facility(facility), _prefix(prefix)
+Ice::SysLoggerI::SysLoggerI(string prefix, int facility) : _facility(facility), _prefix(std::move(prefix))
 {
     int logopt = LOG_PID | LOG_CONS;
     openlog(_prefix.c_str(), logopt, facility);
@@ -151,9 +151,9 @@ Ice::SysLoggerI::getPrefix()
 }
 
 Ice::LoggerPtr
-Ice::SysLoggerI::cloneWithPrefix(const string& prefix)
+Ice::SysLoggerI::cloneWithPrefix(string prefix)
 {
-    return make_shared<SysLoggerI>(prefix, _facility);
+    return make_shared<SysLoggerI>(std::move(prefix), _facility);
 }
 
 #endif

@@ -12,18 +12,18 @@
 
 namespace Ice
 {
-    class LoggerI : public Logger
+    class LoggerI final : public Logger
     {
     public:
-        LoggerI(const std::string&, const std::string&, bool convert = true, std::size_t sizeMax = 0);
+        LoggerI(std::string prefix, const std::string&, bool convert = true, std::size_t sizeMax = 0);
         ~LoggerI();
 
-        virtual void print(const std::string&);
-        virtual void trace(const std::string&, const std::string&);
-        virtual void warning(const std::string&);
-        virtual void error(const std::string&);
-        virtual std::string getPrefix();
-        virtual LoggerPtr cloneWithPrefix(const std::string&);
+        void print(const std::string&) final;
+        void trace(const std::string& category, const std::string& message) final;
+        void warning(const std::string&) final;
+        void error(const std::string&) final;
+        std::string getPrefix() final;
+        LoggerPtr cloneWithPrefix(std::string) final;
 
     private:
         void write(const std::string&, bool);
