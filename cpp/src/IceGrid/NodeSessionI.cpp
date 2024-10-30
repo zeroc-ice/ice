@@ -186,13 +186,13 @@ NodeSessionI::destroy(const Ice::Current&)
     destroyImpl(false);
 }
 
-chrono::steady_clock::time_point
-NodeSessionI::timestamp() const
+optional<chrono::steady_clock::time_point>
+NodeSessionI::timestamp() const noexcept
 {
     lock_guard lock(_mutex);
     if (_destroy)
     {
-        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+        return nullopt;
     }
     return _timestamp;
 }
