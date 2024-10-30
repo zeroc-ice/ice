@@ -574,11 +574,9 @@ public sealed class OutgoingConnectionFactory
             return true;
         }
 
-        //
-        // If there's no pending connection for the given connectors, we're
-        // responsible for its establishment. We add empty pending lists,
-        // other callbacks to the same connectors will be queued.
-        //
+        // If no pending connection exists for the specified connectors, the caller is responsible for initiating
+        // connection establishment. An empty pending list is added, and any additional callbacks for the same
+        // connectors will be queued.
         foreach (ConnectorInfo ci in connectors)
         {
             if (!_pending.ContainsKey(ci.connector))
