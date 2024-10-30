@@ -165,12 +165,9 @@ namespace DataStormI
             std::string,
             std::int64_t);
 
-        std::shared_ptr<DataReader> createFiltered(
-            const std::shared_ptr<Filter>&,
-            std::string,
-            DataStorm::ReaderConfig,
-            std::string,
-            Ice::ByteSeq) final;
+        std::shared_ptr<DataReader>
+        createFiltered(const std::shared_ptr<Filter>&, std::string, DataStorm::ReaderConfig, std::string, Ice::ByteSeq)
+            final;
 
         std::shared_ptr<DataReader> create(
             const std::vector<std::shared_ptr<Key>>&,

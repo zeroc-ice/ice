@@ -673,8 +673,8 @@ namespace DataStorm
          * @param criteria The criteria
          */
         template<typename TT>
-        Filter(std::string name, TT&& criteria) noexcept :
-            name(std::move(name)), criteria(std::forward<TT>(criteria))
+        Filter(std::string name, TT&& criteria) noexcept : name(std::move(name)),
+                                                           criteria(std::forward<TT>(criteria))
         {
         }
 
@@ -1453,7 +1453,8 @@ namespace DataStorm
         const Key& key,
         std::string name,
         const ReaderConfig& config)
-        : Reader<Key, Value, UpdateTag>(topic.getReader()->create({topic._keyFactory->create(key)}, std::move(name), config))
+        : Reader<Key, Value, UpdateTag>(
+              topic.getReader()->create({topic._keyFactory->create(key)}, std::move(name), config))
     {
     }
 
@@ -1494,7 +1495,8 @@ namespace DataStorm
         const std::vector<Key>& keys,
         std::string name,
         const ReaderConfig& config)
-        : Reader<Key, Value, UpdateTag>(topic.getReader()->create(topic._keyFactory->create(keys), std::move(name), config))
+        : Reader<Key, Value, UpdateTag>(
+              topic.getReader()->create(topic._keyFactory->create(keys), std::move(name), config))
     {
     }
 
@@ -1698,7 +1700,8 @@ namespace DataStorm
         const Key& key,
         std::string name,
         const WriterConfig& config) noexcept
-        : Writer<Key, Value, UpdateTag>(topic.getWriter()->create({topic._keyFactory->create(key)}, std::move(name), config)),
+        : Writer<Key, Value, UpdateTag>(
+              topic.getWriter()->create({topic._keyFactory->create(key)}, std::move(name), config)),
           _tagFactory(topic._tagFactory)
     {
     }
@@ -1762,7 +1765,8 @@ namespace DataStorm
         const std::vector<Key>& keys,
         std::string name,
         const WriterConfig& config) noexcept
-        : Writer<Key, Value, UpdateTag>(topic.getWriter()->create(topic._keyFactory->create(keys), std::move(name), config)),
+        : Writer<Key, Value, UpdateTag>(
+              topic.getWriter()->create(topic._keyFactory->create(keys), std::move(name), config)),
           _keyFactory(topic._keyFactory),
           _tagFactory(topic._tagFactory)
     {

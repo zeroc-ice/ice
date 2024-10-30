@@ -416,8 +416,15 @@ namespace DataStormI
             Ice::ByteSeq value,
             std::int64_t timestamp)
         {
-            return std::make_shared<
-                SampleT<Key, Value, UpdateTag>>(std::move(session), std::move(origin), id, type, key, tag, std::move(value), timestamp);
+            return std::make_shared<SampleT<Key, Value, UpdateTag>>(
+                std::move(session),
+                std::move(origin),
+                id,
+                type,
+                key,
+                tag,
+                std::move(value),
+                timestamp);
         }
     };
 

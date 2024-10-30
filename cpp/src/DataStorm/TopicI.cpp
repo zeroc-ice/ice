@@ -865,7 +865,15 @@ TopicReaderI::TopicReaderI(
     shared_ptr<FilterManager> sampleFilterFactories,
     string name,
     int64_t id)
-    : TopicI(std::move(factory), std::move(keyFactory), std::move(tagFactory), std::move(sampleFactory), std::move(keyFilterFactories), std::move(sampleFilterFactories), std::move(name), id)
+    : TopicI(
+          std::move(factory),
+          std::move(keyFactory),
+          std::move(tagFactory),
+          std::move(sampleFactory),
+          std::move(keyFilterFactories),
+          std::move(sampleFilterFactories),
+          std::move(name),
+          id)
 {
     _defaultConfig = {-1, 0, DataStorm::ClearHistoryPolicy::OnAll, DataStorm::DiscardPolicy::None};
     _defaultConfig = mergeConfigs(parseConfig("DataStorm.Topic"));
@@ -1000,7 +1008,15 @@ TopicWriterI::TopicWriterI(
     shared_ptr<FilterManager> sampleFilterFactories,
     string name,
     int64_t id)
-    : TopicI(std::move(factory), std::move(keyFactory), std::move(tagFactory), std::move(sampleFactory), std::move(keyFilterFactories), std::move(sampleFilterFactories), std::move(name), id)
+    : TopicI(
+          std::move(factory),
+          std::move(keyFactory),
+          std::move(tagFactory),
+          std::move(sampleFactory),
+          std::move(keyFilterFactories),
+          std::move(sampleFilterFactories),
+          std::move(name),
+          id)
 {
     _defaultConfig = {-1, 0, DataStorm::ClearHistoryPolicy::OnAll};
     _defaultConfig = mergeConfigs(parseConfig("DataStorm.Topic"));
