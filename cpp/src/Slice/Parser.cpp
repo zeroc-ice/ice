@@ -1564,7 +1564,13 @@ Slice::Container::createDictionary(
         }
     }
 
-    DictionaryPtr p = make_shared<Dictionary>(shared_from_this(), name, keyType, std::move(keyMetadata), valueType, std::move(valueMetadata));
+    DictionaryPtr p = make_shared<Dictionary>(
+        shared_from_this(),
+        name,
+        keyType,
+        std::move(keyMetadata),
+        valueType,
+        std::move(valueMetadata));
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
@@ -1648,7 +1654,8 @@ Slice::Container::createConst(
         return nullptr;
     }
 
-    ConstPtr p = make_shared<Const>(shared_from_this(), name, type, std::move(metadata), resolvedValueType, valueString);
+    ConstPtr p =
+        make_shared<Const>(shared_from_this(), name, type, std::move(metadata), resolvedValueType, valueString);
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
