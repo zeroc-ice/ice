@@ -83,7 +83,7 @@ jobs:
             test_flags: "--all-cross"
           - os: macos-15
             config: "cross"
-            test_flags: "--all-cross --filter cpp --filter swift"
+            test_flags: "--all-cross"
 
     runs-on: ${{ matrix.os }}
     steps:

@@ -97,8 +97,6 @@ namespace Test
         int getTestPort(int port = 0);
         static int getTestPort(const Ice::PropertiesPtr&, int port = 0);
 
-        bool isCrossTest() const;
-
         static Ice::PropertiesPtr createTestProperties(int&, char*[]);
 
         Ice::CommunicatorPtr initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = nullptr);

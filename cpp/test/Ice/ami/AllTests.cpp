@@ -1258,32 +1258,26 @@ allTests(TestHelper* helper, bool collocated)
 
     if (p->ice_getConnection())
     {
-        // Not all servers support back pressure via thread pool starvation (Swift).
-        if (!helper->isCrossTest())
+        cout << "testing back pressure... " << flush;
         {
-            cout << "testing back pressure... " << flush;
-            {
-                // Keep the 3 server thread pool threads busy.
-                auto sleep1Future = p->sleepAsync(1000);
-                auto sleep2Future = p->sleepAsync(1000);
-                auto sleep3Future = p->sleepAsync(1000);
+            // Keep the 3 server thread pool threads busy.
+            auto sleep1Future = p->sleepAsync(1000);
+            auto sleep2Future = p->sleepAsync(1000);
+            auto sleep3Future = p->sleepAsync(1000);
 
-                auto onewayProxy = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_oneway());
+            auto onewayProxy = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_oneway());
 
-                // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
-                Ice::ByteSeq seq;
-                seq.resize(768 * 1024);
-                auto future = onewayProxy->opWithPayloadAsync(seq);
+            // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
+            Ice::ByteSeq seq;
+            seq.resize(768 * 1024);
+            auto future = onewayProxy->opWithPayloadAsync(seq);
 
-                test(
-                    future.wait_for(200ms) == future_status::timeout &&
-                    sleep1Future.wait_for(0s) != future_status::ready);
-                sleep1Future.wait();
-                sleep2Future.wait();
-                sleep3Future.wait();
-            }
-            cout << "ok" << endl;
+            test(future.wait_for(200ms) == future_status::timeout && sleep1Future.wait_for(0s) != future_status::ready);
+            sleep1Future.wait();
+            sleep2Future.wait();
+            sleep3Future.wait();
         }
+        cout << "ok" << endl;
 
         cout << "testing bi-dir... " << flush;
         auto adapter = communicator->createObjectAdapter("");

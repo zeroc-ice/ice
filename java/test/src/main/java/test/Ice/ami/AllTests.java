@@ -1081,8 +1081,7 @@ public class AllTests {
         }
         out.println("ok");
 
-        if (p.ice_getConnection() != null && !helper.isCrossTest()) {
-
+        if (p.ice_getConnection() != null) {
             out.print("testing back pressure... ");
             out.flush();
             try {

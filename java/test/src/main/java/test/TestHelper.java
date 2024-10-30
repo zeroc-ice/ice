@@ -97,10 +97,6 @@ public abstract class TestHelper {
         return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
     }
 
-    public boolean isCrossTest() {
-        return _communicator.getProperties().getPropertyAsIntWithDefault("Test.Cross", 0) != 0;
-    }
-
     public Properties createTestProperties(String[] args) {
         return createTestProperties(args, null);
     }

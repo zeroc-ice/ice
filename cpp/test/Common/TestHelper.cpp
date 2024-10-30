@@ -272,13 +272,6 @@ Test::TestHelper::getTestPort(const Ice::PropertiesPtr& properties, int num)
     return properties->getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
 }
 
-bool
-Test::TestHelper::isCrossTest() const
-{
-    assert(_communicator);
-    return _communicator->getProperties()->getPropertyAsIntWithDefault("Test.Cross", 0) != 0;
-}
-
 Ice::PropertiesPtr
 Test::TestHelper::createTestProperties(int& argc, char* argv[])
 {
