@@ -329,12 +329,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
     @Override
     public synchronized void connectionStartFailed(ConnectionI connection, LocalException ex) {
-        if (_state >= StateClosed) {
-            return;
-        }
-        //
         // Do not warn about connection exceptions here. The connection is not yet validated.
-        //
     }
 
     public IncomingConnectionFactory(Instance instance, EndpointI endpoint, ObjectAdapter adapter) {

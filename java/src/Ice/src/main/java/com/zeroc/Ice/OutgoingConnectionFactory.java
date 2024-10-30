@@ -367,47 +367,22 @@ final class OutgoingConnectionFactory {
                 throw new CommunicatorDestroyedException();
             }
 
-            //
-            // Try to get the connection. We may need to wait for other threads to
-            // finish if one of them is currently establishing a connection to one
-            // of our connectors.
-            //
-            while (true) {
-                if (_destroyed) {
-                    throw new CommunicatorDestroyedException();
-                }
+            // Search for an existing connections matching one of the given endpoints.
+            ConnectionI connection = findConnection(connectors, compress);
+            if (connection != null) {
+                return connection;
+            }
 
-                //
-                // Search for a matching connection. If we find one, we're done.
-                //
-                ConnectionI connection = findConnection(connectors, compress);
-                if (connection != null) {
-                    return connection;
-                }
-
-                if (addToPending(cb, connectors)) {
-                    return null;
-                } else {
-                    //
-                    // If no thread is currently establishing a connection to one of our connectors,
-                    // we get out of this loop and start the connection establishment to one of the
-                    // given connectors.
-                    //
-                    break;
-                }
+            if (addToPending(cb, connectors)) {
+                // A connection to one of our endpoints is pending. The callback will be notified once the connection
+                // is established. Returning null indicates that the connection is still pending.
+                return null;
             }
         }
 
-        //
-        // At this point, we're responsible for establishing the connection to one of
-        // the given connectors. If it's a non-blocking connect, calling nextConnector
-        // will start the connection establishment. Otherwise, we return null to get
-        // the caller to establish the connection.
-        //
-        if (cb != null) {
-            cb.nextConnector();
-        }
-
+        // No connection is pending. Call nextConnector to initiate connection establishment. Return null to indicate
+        // that the connection is still pending.
+        cb.nextConnector();
         return null;
     }
 

@@ -457,77 +457,35 @@ IceInternal::OutgoingConnectionFactory::getConnection(
     bool& compress)
 {
     {
+        assert(cb);
         unique_lock lock(_mutex);
         if (_destroyed)
         {
             throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
         }
 
-        //
-        // Try to get the connection. We may need to wait for other threads to
-        // finish if one of them is currently establishing a connection to one
-        // of our connectors.
-        //
-        while (true)
+        // Search for an existing connections matching one of the given endpoints.
+        Ice::ConnectionIPtr connection = findConnection(connectors, compress);
+        if (connection)
         {
-            if (_destroyed)
-            {
-                throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
-            }
+            return connection;
+        }
 
-            //
-            // Search for a matching connection. If we find one, we're done.
-            //
-            Ice::ConnectionIPtr connection = findConnection(connectors, compress);
-            if (connection)
-            {
-                return connection;
-            }
-
-            //
-            // Determine whether another thread/request is currently attempting to connect to
-            // one of our endpoints; if so we wait until it's done.
-            //
-            if (addToPending(cb, connectors))
-            {
-                //
-                // If a callback is not specified we wait until another thread notifies us about a
-                // change to the pending list. Otherwise, if a callback is provided we're done:
-                // when the pending list changes the callback will be notified and will try to
-                // get the connection again.
-                //
-                if (!cb)
-                {
-                    _conditionVariable.wait(lock);
-                }
-                else
-                {
-                    return nullptr;
-                }
-            }
-            else
-            {
-                //
-                // If no thread is currently establishing a connection to one of our connectors,
-                // we get out of this loop and start the connection establishment to one of the
-                // given connectors.
-                //
-                break;
-            }
+        //
+        // Determine whether another thread/request is currently attempting to connect to
+        // one of our endpoints; if so we wait until it's done.
+        //
+        if (addToPending(cb, connectors))
+        {
+            // A connection to one of our endpoints is pending. The callback will be notified once the connection
+            // is established. Returning null indicates that the connection is still pending.
+            return nullptr;
         }
     }
 
-    //
-    // At this point, we're responsible for establishing the connection to one of
-    // the given connectors. If it's a non-blocking connect, calling nextConnector
-    // will start the connection establishment. Otherwise, we return null to get
-    // the caller to establish the connection.
-    //
-    if (cb)
-    {
-        cb->nextConnector();
-    }
-
+    // No connection is pending. Call nextConnector to initiate connection establishment. Return null to indicate
+    // that the connection is still pending.
+    cb->nextConnector();
     return nullptr;
 }
 
@@ -1578,7 +1536,7 @@ IceInternal::IncomingConnectionFactory::connectionStartCompleted(const Ice::Conn
     lock_guard lock(_mutex);
 
     //
-    // Initialy, connections are in the holding state. If the factory is active
+    // Initially, connections are in the holding state. If the factory is active
     // we activate the connection.
     //
     if (_state == StateActive)
@@ -1590,15 +1548,7 @@ IceInternal::IncomingConnectionFactory::connectionStartCompleted(const Ice::Conn
 void
 IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::ConnectionIPtr& /*connection*/, exception_ptr)
 {
-    lock_guard lock(_mutex);
-    if (_state >= StateClosed)
-    {
-        return;
-    }
-
-    //
     // Do not warn about connection exceptions here. The connection is not yet validated.
-    //
 }
 
 //
