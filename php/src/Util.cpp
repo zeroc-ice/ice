@@ -306,42 +306,6 @@ IcePHP::createStringMap(zval* zv, const map<string, string>& ctx)
     return true;
 }
 
-bool
-IcePHP::extractStringMap(zval* zv, map<string, string>& ctx)
-{
-    if (Z_TYPE_P(zv) != IS_ARRAY)
-    {
-        ostringstream os;
-        os << "expected an associative array but received " << zendTypeToString(Z_TYPE_P(zv));
-        invalidArgument(os.str());
-        return false;
-    }
-
-    HashTable* arr = Z_ARRVAL_P(zv);
-    [[maybe_unused]] zend_ulong num_key;
-    zend_string* key;
-    zval* val;
-    ZEND_HASH_FOREACH_KEY_VAL(arr, num_key, key, val)
-    {
-        if (!key)
-        {
-            invalidArgument("array key must be a string");
-            return false;
-        }
-
-        if (Z_TYPE_P(val) != IS_STRING)
-        {
-            invalidArgument("array value must be a string");
-            return false;
-        }
-
-        ctx[key->val] = Z_STRVAL_P(val);
-    }
-    ZEND_HASH_FOREACH_END();
-
-    return true;
-}
-
 // TODO: avoid duplication with code above.
 
 bool
