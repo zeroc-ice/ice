@@ -1284,7 +1284,7 @@ allTests(TestHelper* helper, bool collocated)
         auto replyI = make_shared<PingReplyI>();
         auto reply = adapter->addWithUUID<PingReplyPrx>(replyI);
 
-        map<string, string> context{{"ONE", ""}};
+        Ice::Context context{{"ONE", ""}};
         p->pingBiDir(reply, context);
 
         p->ice_getConnection()->setAdapter(adapter);

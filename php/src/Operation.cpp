@@ -628,7 +628,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     Ice::Context ctx;
     if (ZEND_NUM_ARGS() == static_cast<uint32_t>(_op->numParams) + 1)
     {
-        if (!extractStringMap(&args[ZEND_NUM_ARGS() - 1], ctx))
+        if (!extractContext(&args[ZEND_NUM_ARGS() - 1], ctx))
         {
             return;
         }

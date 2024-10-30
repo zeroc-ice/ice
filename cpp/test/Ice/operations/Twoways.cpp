@@ -1644,19 +1644,19 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             ctx["two"] = "TWO";
             ctx["three"] = "THREE";
             {
-                Test::StringStringD r = p->opContext();
+                Ice::Context r = p->opContext();
                 test(p->ice_getContext().empty());
                 test(r != ctx);
             }
             {
-                Test::StringStringD r = p->opContext(ctx);
+                Ice::Context r = p->opContext(ctx);
                 test(p->ice_getContext().empty());
                 test(r == ctx);
             }
             {
                 MyClassPrx p2 = p->ice_context(ctx);
                 test(p2->ice_getContext() == ctx);
-                Test::StringStringD r = p2->opContext();
+                Ice::Context r = p2->opContext();
                 test(r == ctx);
                 r = p2->opContext(ctx);
                 test(r == ctx);

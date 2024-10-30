@@ -174,7 +174,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getContext)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    if (!createStringMap(return_value, _this->proxy->ice_getContext()))
+    if (!createContext(return_value, _this->proxy->ice_getContext()))
     {
         RETURN_NULL();
     }
@@ -195,7 +195,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_context)
 
     // Populate the context.
     Ice::Context ctx;
-    if (arr && !extractStringMap(arr, ctx))
+    if (arr && !extractContext(arr, ctx))
     {
         RETURN_NULL();
     }
@@ -1474,7 +1474,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
     // Populate the context.
     Ice::Context ctx;
-    if (arr && !extractStringMap(arr, ctx))
+    if (arr && !extractContext(arr, ctx))
     {
         RETURN_NULL();
     }

@@ -24,9 +24,9 @@ namespace IceInternal
         void updateObservers(void (Ice::ObjectAdapterI::*)());
 
         Ice::ObjectAdapterPtr createObjectAdapter(
-            const std::string& name,
-            const std::optional<Ice::RouterPrx>&,
-            const std::optional<Ice::SSL::ServerAuthenticationOptions>&);
+            std::string name,
+            std::optional<Ice::RouterPrx>,
+            std::optional<Ice::SSL::ServerAuthenticationOptions>);
 
         Ice::ObjectAdapterPtr findObjectAdapter(const IceInternal::ReferencePtr&);
         void removeObjectAdapter(const Ice::ObjectAdapterPtr&);

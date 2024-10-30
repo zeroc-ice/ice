@@ -92,16 +92,16 @@ Ice::Communicator::proxyToString(const std::optional<ObjectPrx>& proxy) const
 }
 
 ReferencePtr
-Ice::Communicator::_propertyToProxy(const string& p) const
+Ice::Communicator::_propertyToProxy(string_view p) const
 {
     string proxy = _instance->initializationData().properties->getProperty(p);
-    return _instance->referenceFactory()->create(proxy, p);
+    return _instance->referenceFactory()->create(proxy, string{p});
 }
 
 PropertyDict
-Ice::Communicator::proxyToProperty(const std::optional<ObjectPrx>& proxy, const string& property) const
+Ice::Communicator::proxyToProperty(const std::optional<ObjectPrx>& proxy, string property) const
 {
-    return proxy ? proxy->_getReference()->toProperty(property) : PropertyDict();
+    return proxy ? proxy->_getReference()->toProperty(std::move(property)) : PropertyDict();
 }
 
 string
@@ -112,44 +112,48 @@ Ice::Communicator::identityToString(const Identity& ident) const
 
 ObjectAdapterPtr
 Ice::Communicator::createObjectAdapter(
-    const string& name,
-    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
+    string name,
+    optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, nullopt, serverAuthenticationOptions);
+    return _instance->objectAdapterFactory()->createObjectAdapter(
+        std::move(name),
+        nullopt,
+        std::move(serverAuthenticationOptions));
 }
 
 ObjectAdapterPtr
 Ice::Communicator::createObjectAdapterWithEndpoints(
-    const string& name,
-    const string& endpoints,
-    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
+    string name,
+    string_view endpoints,
+    optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
 {
-    string oaName = name;
-    if (oaName.empty())
+    if (name.empty())
     {
-        oaName = Ice::generateUUID();
+        name = Ice::generateUUID();
     }
 
-    getProperties()->setProperty(oaName + ".Endpoints", endpoints);
-    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, nullopt, serverAuthenticationOptions);
+    getProperties()->setProperty(name + ".Endpoints", endpoints);
+    return _instance->objectAdapterFactory()->createObjectAdapter(
+        std::move(name),
+        nullopt,
+        std::move(serverAuthenticationOptions));
 }
 
 ObjectAdapterPtr
-Ice::Communicator::createObjectAdapterWithRouter(const string& name, const RouterPrx& router)
+Ice::Communicator::createObjectAdapterWithRouter(string name, RouterPrx router)
 {
-    string oaName = name;
-    if (oaName.empty())
+    if (name.empty())
     {
-        oaName = Ice::generateUUID();
+        name = Ice::generateUUID();
     }
 
-    PropertyDict properties = proxyToProperty(router, oaName + ".Router");
+    PropertyDict properties = proxyToProperty(router, name + ".Router");
     for (PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
     {
         getProperties()->setProperty(p->first, p->second);
     }
 
-    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, router, nullopt);
+    return _instance->objectAdapterFactory()->createObjectAdapter(std::move(name), std::move(router), nullopt);
 }
 
 ObjectAdapterPtr
@@ -267,19 +271,19 @@ Ice::Communicator::getAdmin() const
 }
 
 void
-Ice::Communicator::addAdminFacet(const ObjectPtr& servant, const string& facet)
+Ice::Communicator::addAdminFacet(ObjectPtr servant, string facet)
 {
-    _instance->addAdminFacet(servant, facet);
+    _instance->addAdminFacet(std::move(servant), std::move(facet));
 }
 
 ObjectPtr
-Ice::Communicator::removeAdminFacet(const string& facet)
+Ice::Communicator::removeAdminFacet(string_view facet)
 {
     return _instance->removeAdminFacet(facet);
 }
 
 ObjectPtr
-Ice::Communicator::findAdminFacet(const string& facet)
+Ice::Communicator::findAdminFacet(string_view facet)
 {
     return _instance->findAdminFacet(facet);
 }

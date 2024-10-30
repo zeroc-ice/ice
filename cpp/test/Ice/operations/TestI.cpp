@@ -544,7 +544,7 @@ MyDerivedClassI::opByteSOnewayCallCount(const Ice::Current&)
     return count;
 }
 
-Test::StringStringD
+Ice::Context
 MyDerivedClassI::opContext(const Ice::Current& c)
 {
     return c.ctx;

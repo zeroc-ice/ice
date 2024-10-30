@@ -208,7 +208,7 @@ Ice::initialize(int& argc, const char* argv[], const InitializationData& initial
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const char* argv[], const string& configFile)
+Ice::initialize(int& argc, const char* argv[], string_view configFile)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -227,7 +227,7 @@ Ice::initialize(int& argc, const wchar_t* argv[], const InitializationData& init
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const wchar_t* argv[], const string& configFile)
+Ice::initialize(int& argc, const wchar_t* argv[], string_view configFile)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -246,7 +246,7 @@ Ice::initialize(StringSeq& args, const InitializationData& initializationData)
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(StringSeq& args, const string& configFile)
+Ice::initialize(StringSeq& args, string_view configFile)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -268,7 +268,7 @@ Ice::initialize(const InitializationData& initData)
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(const string& configFile)
+Ice::initialize(string_view configFile)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -299,10 +299,10 @@ Ice::setProcessLogger(const LoggerPtr& logger)
 }
 
 void
-Ice::registerPluginFactory(const std::string& name, PluginFactory factory, bool loadOnInitialize)
+Ice::registerPluginFactory(std::string name, PluginFactory factory, bool loadOnInitialize)
 {
     lock_guard lock(globalMutex);
-    PluginManagerI::registerPluginFactory(name, factory, loadOnInitialize);
+    PluginManagerI::registerPluginFactory(std::move(name), factory, loadOnInitialize);
 }
 
 //
@@ -376,7 +376,7 @@ IceInternal::getInstanceTimer(const CommunicatorPtr& communicator)
 }
 
 Identity
-Ice::stringToIdentity(const string& s)
+Ice::stringToIdentity(string_view s)
 {
     Identity ident;
 
@@ -408,7 +408,7 @@ Ice::stringToIdentity(const string& s)
                 //
                 // Extra unescaped slash found.
                 //
-                throw ParseException(__FILE__, __LINE__, "unescaped '/' in identity '" + s + "'");
+                throw ParseException(__FILE__, __LINE__, "unescaped '/' in identity '" + string{s} + "'");
             }
         }
         pos++;
@@ -422,7 +422,7 @@ Ice::stringToIdentity(const string& s)
         }
         catch (const invalid_argument& ex)
         {
-            throw ParseException(__FILE__, __LINE__, "invalid identity name '" + s + "': " + ex.what());
+            throw ParseException(__FILE__, __LINE__, "invalid identity name '" + string{s} + "': " + ex.what());
         }
     }
     else
@@ -433,7 +433,7 @@ Ice::stringToIdentity(const string& s)
         }
         catch (const invalid_argument& ex)
         {
-            throw ParseException(__FILE__, __LINE__, "invalid category in identity '" + s + "': " + ex.what());
+            throw ParseException(__FILE__, __LINE__, "invalid category in identity '" + string{s} + "': " + ex.what());
         }
 
         if (slash + 1 < s.size())
@@ -444,7 +444,7 @@ Ice::stringToIdentity(const string& s)
             }
             catch (const invalid_argument& ex)
             {
-                throw ParseException(__FILE__, __LINE__, "invalid name in identity '" + s + "': " + ex.what());
+                throw ParseException(__FILE__, __LINE__, "invalid name in identity '" + string{s} + "': " + ex.what());
             }
         }
     }

@@ -86,23 +86,23 @@ toNSData(const std::vector<T>& seq)
     return array;
 }
 
-template<typename K, typename V>
+template<typename K, typename V, class Compare = std::less<K>>
 NSMutableDictionary*
-toNSDictionary(const std::map<K, V>& dict)
+toNSDictionary(const std::map<K, V, Compare>& dict)
 {
     NSMutableDictionary* dictionary = [[NSMutableDictionary alloc] initWithCapacity:dict.size()];
-    for (typename std::map<K, V>::const_iterator p = dict.begin(); p != dict.end(); ++p)
+    for (const auto& p : dict)
     {
-        NSObject<NSCopying>* key = toObjC(p->first);
-        NSObject* value = toObjC(p->second);
+        NSObject<NSCopying>* key = toObjC(p.first);
+        NSObject* value = toObjC(p.second);
         [dictionary setObject:value forKey:key];
     }
     return dictionary;
 }
 
-template<typename K, typename V>
-std::map<K, V>&
-fromNSDictionary(NSDictionary* dictionary, std::map<K, V>& dict)
+template<typename K, typename V, class Compare = std::less<K>>
+std::map<K, V, Compare>&
+fromNSDictionary(NSDictionary* dictionary, std::map<K, V, Compare>& dict)
 {
     if (dictionary != nil)
     {
@@ -114,7 +114,7 @@ fromNSDictionary(NSDictionary* dictionary, std::map<K, V>& dict)
             fromObjC(obj, k);
             V v;
             fromObjC([dictionary objectForKey:obj], v);
-            dict.insert(std::pair<K, V>(k, v));
+            dict.emplace(std::move(k), std::move(v));
         }
     }
     return dict;

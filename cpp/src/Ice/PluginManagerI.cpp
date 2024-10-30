@@ -19,8 +19,8 @@ const char* const Ice::PluginManagerI::_kindOfObject = "plugin";
 
 namespace
 {
-    map<string, PluginFactory>* factories = 0;
-    vector<string>* loadOnInitialization = 0;
+    map<string, PluginFactory>* factories = nullptr;
+    vector<string>* loadOnInitialization = nullptr;
 
     class PluginFactoryDestroy
     {
@@ -28,34 +28,34 @@ namespace
         ~PluginFactoryDestroy()
         {
             delete factories;
-            factories = 0;
+            factories = nullptr;
 
             delete loadOnInitialization;
-            loadOnInitialization = 0;
+            loadOnInitialization = nullptr;
         }
     };
     PluginFactoryDestroy destroy;
 }
 
 void
-Ice::PluginManagerI::registerPluginFactory(const std::string& name, PluginFactory factory, bool loadOnInit)
+Ice::PluginManagerI::registerPluginFactory(std::string name, PluginFactory factory, bool loadOnInit)
 {
-    if (factories == 0)
+    if (!factories)
     {
         factories = new map<string, PluginFactory>();
     }
 
-    map<string, PluginFactory>::const_iterator p = factories->find(name);
+    auto p = factories->find(name);
     if (p == factories->end())
     {
         factories->insert(make_pair(name, factory));
         if (loadOnInit)
         {
-            if (loadOnInitialization == 0)
+            if (!loadOnInitialization)
             {
                 loadOnInitialization = new vector<string>();
             }
-            loadOnInitialization->push_back(name);
+            loadOnInitialization->push_back(std::move(name));
         }
     }
 }
@@ -136,7 +136,7 @@ Ice::PluginManagerI::getPlugins() noexcept
 }
 
 PluginPtr
-Ice::PluginManagerI::getPlugin(const string& name)
+Ice::PluginManagerI::getPlugin(string_view name)
 {
     lock_guard lock(_mutex);
 
@@ -151,11 +151,11 @@ Ice::PluginManagerI::getPlugin(const string& name)
         return p;
     }
 
-    throw NotRegisteredException(__FILE__, __LINE__, _kindOfObject, name);
+    throw NotRegisteredException(__FILE__, __LINE__, _kindOfObject, string{name});
 }
 
 void
-Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
+Ice::PluginManagerI::addPlugin(string name, PluginPtr plugin)
 {
     lock_guard lock(_mutex);
 
@@ -170,9 +170,9 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
     }
 
     PluginInfo info;
-    info.name = name;
-    info.plugin = plugin;
-    _plugins.push_back(info);
+    info.name = std::move(name);
+    info.plugin = std::move(plugin);
+    _plugins.push_back(std::move(info));
 }
 
 void
@@ -396,18 +396,18 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     PluginInfo info;
     info.name = name;
     info.plugin = plugin;
-    _plugins.push_back(info);
+    _plugins.push_back(std::move(info));
 }
 
 Ice::PluginPtr
-Ice::PluginManagerI::findPlugin(const string& name) const
+Ice::PluginManagerI::findPlugin(string_view name) const
 {
-    for (PluginInfoList::const_iterator p = _plugins.begin(); p != _plugins.end(); ++p)
+    for (const auto& p : _plugins)
     {
-        if (name == p->name)
+        if (name == p.name)
         {
-            return p->plugin;
+            return p.plugin;
         }
     }
-    return 0;
+    return nullptr;
 }

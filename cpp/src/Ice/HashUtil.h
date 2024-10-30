@@ -55,7 +55,8 @@ namespace IceInternal
         }
     }
 
-    inline void hashAdd(std::size_t& hashCode, const std::map<std::string, std::string>& map)
+    // For Ice::Context
+    inline void hashAdd(std::size_t& hashCode, const std::map<std::string, std::string, std::less<>>& map)
     {
         for (const auto& p : map)
         {

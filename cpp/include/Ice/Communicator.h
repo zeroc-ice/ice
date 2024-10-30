@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_COMMUNICATOR_H
 #define ICE_COMMUNICATOR_H
@@ -86,7 +84,7 @@ namespace Ice
          * @see #proxyToString
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        std::optional<Prx> stringToProxy(const std::string& str) const
+        std::optional<Prx> stringToProxy(std::string_view str) const
         {
             auto reference = _stringToProxy(str);
             if (reference)
@@ -118,7 +116,7 @@ namespace Ice
          * @return The proxy, or nullopt if the property is not set.
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        std::optional<Prx> propertyToProxy(const std::string& property) const
+        std::optional<Prx> propertyToProxy(std::string_view property) const
         {
             auto reference = _propertyToProxy(property);
             if (reference)
@@ -137,7 +135,7 @@ namespace Ice
          * @param property The base property name.
          * @return The property set.
          */
-        PropertyDict proxyToProperty(const std::optional<ObjectPrx>& proxy, const std::string& property) const;
+        PropertyDict proxyToProperty(const std::optional<ObjectPrx>& proxy, std::string property) const;
 
         /**
          * Convert an identity into a string.
@@ -167,8 +165,8 @@ namespace Ice
 
          */
         ObjectAdapterPtr createObjectAdapter(
-            const std::string& name,
-            const std::optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions = std::nullopt);
+            std::string name,
+            std::optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions = std::nullopt);
 
         /**
          * Create a new object adapter with endpoints. This operation sets the property
@@ -189,9 +187,9 @@ namespace Ice
          * @see SSL::SchannelServerAuthenticationOptions
          */
         ObjectAdapterPtr createObjectAdapterWithEndpoints(
-            const std::string& name,
-            const std::string& endpoints,
-            const std::optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions = std::nullopt);
+            std::string name,
+            std::string_view endpoints,
+            std::optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions = std::nullopt);
 
         /**
          * Create a new object adapter with a router. This operation creates a routed object adapter.
@@ -203,7 +201,7 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        ObjectAdapterPtr createObjectAdapterWithRouter(const std::string& name, const RouterPrx& rtr);
+        ObjectAdapterPtr createObjectAdapterWithRouter(std::string name, RouterPrx rtr);
 
         /**
          * Gets the object adapter that is associated by default with new outgoing connections created by this
@@ -367,7 +365,7 @@ namespace Ice
          * @param servant The servant that implements the new Admin facet.
          * @param facet The name of the new Admin facet.
          */
-        void addAdminFacet(const ObjectPtr& servant, const std::string& facet);
+        void addAdminFacet(ObjectPtr servant, std::string facet);
 
         /**
          * Remove the following facet to the Admin object. Removing a facet that was not previously registered throws
@@ -375,14 +373,14 @@ namespace Ice
          * @param facet The name of the Admin facet.
          * @return The servant associated with this Admin facet.
          */
-        ObjectPtr removeAdminFacet(const std::string& facet);
+        ObjectPtr removeAdminFacet(std::string_view facet);
 
         /**
          * Returns a facet of the Admin object.
          * @param facet The name of the Admin facet.
          * @return The servant associated with this Admin facet, or null if no facet is registered with the given name.
          */
-        ObjectPtr findAdminFacet(const std::string& facet);
+        ObjectPtr findAdminFacet(std::string_view facet);
 
         /**
          * Returns a map of all facets of the Admin object.
@@ -403,7 +401,7 @@ namespace Ice
         void finishSetup(int&, const char*[]);
 
         IceInternal::ReferencePtr _stringToProxy(std::string_view str) const;
-        IceInternal::ReferencePtr _propertyToProxy(const std::string& property) const;
+        IceInternal::ReferencePtr _propertyToProxy(std::string_view property) const;
 
         friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&);
         friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&);

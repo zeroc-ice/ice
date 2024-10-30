@@ -21,7 +21,7 @@ extern "C"
     {
         try
         {
-            return createResultValue(createStringMap(deref<Ice::ImplicitContext>(self)->getContext()));
+            return createResultValue(createContext(deref<Ice::ImplicitContext>(self)->getContext()));
         }
         catch (...)
         {
@@ -33,8 +33,8 @@ extern "C"
     {
         try
         {
-            map<string, string> ctx;
-            getStringMap(newContext, ctx);
+            Ice::Context ctx;
+            getContext(newContext, ctx);
             deref<Ice::ImplicitContext>(self)->setContext(ctx);
         }
         catch (...)

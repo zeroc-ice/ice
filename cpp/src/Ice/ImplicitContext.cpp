@@ -23,17 +23,17 @@ ImplicitContext::setContext(const Context& newContext)
 }
 
 bool
-ImplicitContext::containsKey(const string& key) const
+ImplicitContext::containsKey(string_view key) const
 {
     lock_guard lock(_mutex);
     return _context.find(key) != _context.end();
 }
 
 string
-ImplicitContext::get(const string& key) const
+ImplicitContext::get(string_view key) const
 {
     lock_guard lock(_mutex);
-    Context::const_iterator p = _context.find(key);
+    auto p = _context.find(key);
     if (p == _context.end())
     {
         return "";
@@ -42,21 +42,21 @@ ImplicitContext::get(const string& key) const
 }
 
 string
-ImplicitContext::put(const string& key, const string& value)
+ImplicitContext::put(string key, string value)
 {
     lock_guard lock(_mutex);
     string& val = _context[key];
 
     string oldVal = val;
-    val = value;
+    val = std::move(value);
     return oldVal;
 }
 
 string
-ImplicitContext::remove(const string& key)
+ImplicitContext::remove(string_view key)
 {
     lock_guard lock(_mutex);
-    Context::iterator p = _context.find(key);
+    auto p = _context.find(key);
     if (p == _context.end())
     {
         return "";
@@ -70,21 +70,21 @@ ImplicitContext::remove(const string& key)
 }
 
 void
-ImplicitContext::write(const Context& contex, ::Ice::OutputStream* os) const
+ImplicitContext::write(const Context& context, ::Ice::OutputStream* os) const
 {
     unique_lock lock(_mutex);
-    if (contex.size() == 0)
+    if (context.size() == 0)
     {
         os->write(_context);
     }
     else if (_context.size() == 0)
     {
         lock.unlock();
-        os->write(contex);
+        os->write(context);
     }
     else
     {
-        Context combined = contex;
+        Context combined = context;
         combined.insert(_context.begin(), _context.end());
         lock.unlock();
         os->write(combined);

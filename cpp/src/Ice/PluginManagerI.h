@@ -20,12 +20,12 @@ namespace Ice
     class PluginManagerI : public PluginManager
     {
     public:
-        static void registerPluginFactory(const std::string&, PluginFactory, bool);
+        static void registerPluginFactory(std::string, PluginFactory, bool);
 
         virtual void initializePlugins();
         virtual StringSeq getPlugins() noexcept;
-        virtual PluginPtr getPlugin(const std::string&);
-        virtual void addPlugin(const std::string&, const PluginPtr&);
+        virtual PluginPtr getPlugin(std::string_view);
+        virtual void addPlugin(std::string, PluginPtr);
         virtual void destroy() noexcept;
         PluginManagerI(const CommunicatorPtr&);
 
@@ -35,7 +35,7 @@ namespace Ice
         void loadPlugins(int&, const char*[]);
         void loadPlugin(const std::string&, const std::string&, StringSeq&);
 
-        PluginPtr findPlugin(const std::string&) const;
+        PluginPtr findPlugin(std::string_view) const;
 
         CommunicatorPtr _communicator;
 

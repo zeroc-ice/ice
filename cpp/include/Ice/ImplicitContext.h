@@ -52,7 +52,7 @@ namespace Ice
          * @param key The key.
          * @return True if the key has an associated value, False otherwise.
          */
-        bool containsKey(const std::string& key) const;
+        bool containsKey(std::string_view key) const;
 
         /**
          * Get the value associated with the given key in the underlying context. Returns an empty string if no value is
@@ -61,7 +61,7 @@ namespace Ice
          * @param key The key.
          * @return The value associated with the key.
          */
-        std::string get(const std::string& key) const;
+        std::string get(std::string_view key) const;
 
         /**
          * Create or update a key/value entry in the underlying context.
@@ -69,14 +69,14 @@ namespace Ice
          * @param value The value.
          * @return The previous value associated with the key, if any.
          */
-        std::string put(const std::string& key, const std::string& value);
+        std::string put(std::string key, std::string value);
 
         /**
          * Remove the entry for the given key in the underlying context.
          * @param key The key.
          * @return The value associated with the key, if any.
          */
-        std::string remove(const std::string& key);
+        std::string remove(std::string_view key);
 
         /**
          * Marshals the underlying context plus the given context. Entries in the given context overwrite entries in the

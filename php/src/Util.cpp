@@ -293,7 +293,27 @@ IcePHP::createStringMap(zval* zv, const map<string, string>& ctx)
 {
     array_init(zv);
 
-    for (map<string, string>::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
+    for (auto p = ctx.begin(); p != ctx.end(); ++p)
+    {
+        add_assoc_stringl_ex(
+            zv,
+            const_cast<char*>(p->first.c_str()),
+            static_cast<uint32_t>(p->first.length()),
+            const_cast<char*>(p->second.c_str()),
+            static_cast<uint32_t>(p->second.length()));
+    }
+
+    return true;
+}
+
+// TODO: avoid duplication with code above.
+
+bool
+IcePHP::createContext(zval* zv, const Ice::Context& ctx)
+{
+    array_init(zv);
+
+    for (auto p = ctx.begin(); p != ctx.end(); ++p)
     {
         add_assoc_stringl_ex(
             zv,
@@ -307,7 +327,7 @@ IcePHP::createStringMap(zval* zv, const map<string, string>& ctx)
 }
 
 bool
-IcePHP::extractStringMap(zval* zv, map<string, string>& ctx)
+IcePHP::extractContext(zval* zv, Ice::Context& ctx)
 {
     if (Z_TYPE_P(zv) != IS_ARRAY)
     {
@@ -318,7 +338,7 @@ IcePHP::extractStringMap(zval* zv, map<string, string>& ctx)
     }
 
     HashTable* arr = Z_ARRVAL_P(zv);
-    zend_ulong num_key;
+    [[maybe_unused]] zend_ulong num_key;
     zend_string* key;
     zval* val;
     ZEND_HASH_FOREACH_KEY_VAL(arr, num_key, key, val)
@@ -336,7 +356,6 @@ IcePHP::extractStringMap(zval* zv, map<string, string>& ctx)
         }
 
         ctx[key->val] = Z_STRVAL_P(val);
-        (void)num_key; // Avoids error from older versions of GCC about unused variable num_key.
     }
     ZEND_HASH_FOREACH_END();
 

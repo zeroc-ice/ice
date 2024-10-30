@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
@@ -21,8 +19,8 @@
 
 module Ice
 {
-    /// A request context. <code>Context</code> is used to transmit metadata about a request from the server to the
-    /// client, such as Quality-of-Service (QoS) parameters. Each operation on the client has a <code>Context</code> as
-    /// its implicit final parameter.
+    /// A string-string dictionary, used to transmit additional information with an Ice request. This context is only
+    /// transmitted with requests, from clients to servers; the Ice protocol does not provide response contexts.
+    ["cpp:type:std::map<std::string, std::string, std::less<>>"]
     dictionary<string, string> Context;
 }

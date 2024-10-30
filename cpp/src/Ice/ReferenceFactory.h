@@ -41,15 +41,15 @@ namespace IceInternal
 
     private:
         RoutableReferencePtr create(
-            Ice::Identity,
-            std::string,
-            Reference::Mode,
-            bool,
-            Ice::ProtocolVersion,
-            Ice::EncodingVersion,
-            std::vector<EndpointIPtr>,
-            std::string,
-            std::string);
+            Ice::Identity ident,
+            std::string facet,
+            Reference::Mode mode,
+            bool secure,
+            Ice::ProtocolVersion protocol,
+            Ice::EncodingVersion encoding,
+            std::vector<EndpointIPtr> endpoints,
+            std::string adapterId,
+            const std::string& propertyPrefix);
 
         const InstancePtr _instance;
         const Ice::CommunicatorPtr _communicator;

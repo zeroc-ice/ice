@@ -395,7 +395,7 @@ namespace Ice
      * @param configFile The name of an Ice configuration file.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(int& argc, const char* argv[], const std::string& configFile);
+    ICE_API CommunicatorPtr initialize(int& argc, const char* argv[], std::string_view configFile);
 
     /**
      * Initializes a new communicator.
@@ -410,7 +410,7 @@ namespace Ice
      * @param configFile The name of an Ice configuration file.
      * @return The new communicator.
      */
-    inline CommunicatorPtr initialize(int& argc, char* argv[], const std::string& configFile)
+    inline CommunicatorPtr initialize(int& argc, char* argv[], std::string_view configFile)
     {
         return initialize(argc, const_cast<const char**>(argv), configFile);
     }
@@ -464,7 +464,7 @@ namespace Ice
      * @param configFile The name of an Ice configuration file.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], const std::string& configFile);
+    ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], std::string_view configFile);
 
     /**
      * Initializes a new communicator.
@@ -479,7 +479,7 @@ namespace Ice
      * @param configFile The name of an Ice configuration file.
      * @return The new communicator.
      */
-    inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], const std::string& configFile)
+    inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], std::string_view configFile)
     {
         return initialize(argc, const_cast<const wchar_t**>(argv), configFile);
     }
@@ -509,7 +509,7 @@ namespace Ice
      * @param configFile The name of an Ice configuration file.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(StringSeq& seq, const std::string& configFile);
+    ICE_API CommunicatorPtr initialize(StringSeq& seq, std::string_view configFile);
 
     /**
      * Initializes a new communicator.
@@ -523,7 +523,7 @@ namespace Ice
      * @param configFile The name of an Ice configuration file.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(const std::string& configFile);
+    ICE_API CommunicatorPtr initialize(std::string_view configFile);
 
     /**
      * Obtains the per-process logger. This logger is used by all communicators that do not have their
@@ -557,7 +557,7 @@ namespace Ice
      * even if Ice.Plugin.name is not set. When false, the plug-in is loaded (created) during communication
      * initialization only if Ice.Plugin.name is set to a non-empty value (e.g.: Ice.Plugin.IceSSL=1).
      */
-    ICE_API void registerPluginFactory(const std::string& name, PluginFactory factory, bool loadOnInit);
+    ICE_API void registerPluginFactory(std::string name, PluginFactory factory, bool loadOnInit);
 
     /**
      * A helper class that uses Resource Acquisition Is Initialization (RAII) to initialize and hold a
@@ -640,7 +640,7 @@ namespace Ice
      * @param str The stringified identity.
      * @return An Identity structure containing the name and category components.
      */
-    ICE_API Identity stringToIdentity(const std::string& str);
+    ICE_API Identity stringToIdentity(std::string_view str);
 
     /**
      * Converts an Identity structure into a string using the specified mode.
