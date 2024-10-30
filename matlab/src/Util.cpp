@@ -166,8 +166,39 @@ IceMatlab::createStringMap(const map<string, string>& m)
     return r;
 }
 
+// TODO: reduce duplication with code above
+
+mxArray*
+IceMatlab::createContext(const Ice::Context& m)
+{
+    mxArray* r;
+    if (m.empty())
+    {
+        mexCallMATLAB(1, &r, 0, 0, "containers.Map");
+    }
+    else
+    {
+        mwSize dims[2] = {1, 0};
+        dims[1] = static_cast<int>(m.size());
+        auto keys = mxCreateCellArray(2, dims);
+        auto values = mxCreateCellArray(2, dims);
+        int idx = 0;
+        for (auto p : m)
+        {
+            mxSetCell(keys, idx, createStringFromUTF8(p.first));
+            mxSetCell(values, idx, createStringFromUTF8(p.second));
+            idx++;
+        }
+        mxArray* params[2];
+        params[0] = keys;
+        params[1] = values;
+        mexCallMATLAB(1, &r, 2, params, "containers.Map");
+    }
+    return r;
+}
+
 void
-IceMatlab::getStringMap(mxArray* p, map<string, string>& m)
+IceMatlab::getContext(mxArray* p, Ice::Context& m)
 {
     if (mxIsEmpty(p))
     {

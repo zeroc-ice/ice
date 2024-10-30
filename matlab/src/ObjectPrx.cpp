@@ -239,7 +239,7 @@ extern "C"
         try
         {
             Ice::Context ctx;
-            getStringMap(context, ctx);
+            getContext(context, ctx);
             auto ok = restoreProxy(self)->ice_invoke(op, mode, params, v, ctx);
             mxArray* results = 0;
             if (!v.empty())
@@ -309,7 +309,7 @@ extern "C"
         try
         {
             Ice::Context ctx;
-            getStringMap(context, ctx);
+            getContext(context, ctx);
             function<void()> token = proxy->ice_invokeAsync(
                 op,
                 mode,
@@ -400,7 +400,7 @@ extern "C"
 
     mxArray* Ice_ObjectPrx_ice_getContext(void* self)
     {
-        return createResultValue(createStringMap(restoreProxy(self)->ice_getContext()));
+        return createResultValue(createContext(restoreProxy(self)->ice_getContext()));
     }
 
     mxArray* Ice_ObjectPrx_ice_context(void* self, void** r, mxArray* c)
@@ -408,7 +408,7 @@ extern "C"
         try
         {
             Ice::Context ctx;
-            getStringMap(c, ctx);
+            getContext(c, ctx);
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_context(ctx);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));

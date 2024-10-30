@@ -17,6 +17,8 @@ namespace IceMatlab
     void getIdentity(mxArray*, Ice::Identity&);
     mxArray* createStringMap(const std::map<std::string, std::string>&);
     void getStringMap(mxArray*, std::map<std::string, std::string>&);
+    mxArray* createContext(const Ice::Context&);
+    void getContext(mxArray*, Ice::Context&);
     mxArray* createProtocolVersion(const Ice::ProtocolVersion&);
     mxArray* createEncodingVersion(const Ice::EncodingVersion&);
     void getEncodingVersion(mxArray*, Ice::EncodingVersion&);
