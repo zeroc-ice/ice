@@ -2,6 +2,8 @@
 
 package com.zeroc.IceBox;
 
+import java.util.Collections;
+
 public final class Admin {
     private static void usage() {
         System.err.println(
@@ -18,10 +20,14 @@ public final class Admin {
 
     public static void main(String[] args) {
         int status = 0;
-        java.util.List<String> commands = new java.util.ArrayList<String>();
+        java.util.List<String> commands = new java.util.ArrayList<>();
+
+        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        initData.properties =
+                new com.zeroc.Ice.Properties(Collections.singletonList("IceBoxAdmin"));
 
         try (com.zeroc.Ice.Communicator communicator =
-                com.zeroc.Ice.Util.initialize(args, commands)) {
+                com.zeroc.Ice.Util.initialize(args, initData, commands)) {
             Runtime.getRuntime()
                     .addShutdownHook(
                             new Thread(

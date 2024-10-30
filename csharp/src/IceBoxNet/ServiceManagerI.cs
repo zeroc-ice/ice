@@ -896,20 +896,18 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
     private Ice.Properties createServiceProperties(string service)
     {
-        Ice.Properties properties;
+        Ice.Properties properties = new Ice.Properties();
         Ice.Properties communicatorProperties = _communicator.getProperties();
         if (communicatorProperties.getIcePropertyAsInt("IceBox.InheritProperties") > 0)
         {
-            properties = communicatorProperties.Clone();
-            // Inherit all except Ice.Admin.xxx properties
-            foreach (string p in properties.getPropertiesForPrefix("Ice.Admin.").Keys)
+            // Inherit all except IceBox. and Ice.Admin. properties
+            foreach (var property in communicatorProperties.getPropertiesForPrefix(""))
             {
-                properties.setProperty(p, "");
+                if (!property.Key.StartsWith("IceBox.", StringComparison.Ordinal) && !property.Key.StartsWith("Ice.Admin.", StringComparison.Ordinal))
+                {
+                    properties.setProperty(property.Key, property.Value);
+                }
             }
-        }
-        else
-        {
-            properties = new Ice.Properties();
         }
 
         string programName = communicatorProperties.getIceProperty("Ice.ProgramName");

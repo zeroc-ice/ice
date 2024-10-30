@@ -11,6 +11,7 @@ internal sealed class PropertyNames
     internal static PropertyArray ProxyProps = new(
         "Proxy",
         false,
+        false,
         [
             new(pattern: @"EndpointSelection", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"ConnectionCached", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
@@ -26,6 +27,7 @@ internal sealed class PropertyNames
     internal static PropertyArray ConnectionProps = new(
         "Connection",
         true,
+        false,
         [
             new(pattern: @"CloseTimeout", usesRegex: false, defaultValue: "10", deprecated: false, propertyArray: null),
             new(pattern: @"ConnectTimeout", usesRegex: false, defaultValue: "10", deprecated: false, propertyArray: null),
@@ -38,6 +40,7 @@ internal sealed class PropertyNames
     internal static PropertyArray ThreadPoolProps = new(
         "ThreadPool",
         true,
+        false,
         [
             new(pattern: @"Size", usesRegex: false, defaultValue: "1", deprecated: false, propertyArray: null),
             new(pattern: @"SizeMax", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
@@ -51,6 +54,7 @@ internal sealed class PropertyNames
     internal static PropertyArray ObjectAdapterProps = new(
         "ObjectAdapter",
         true,
+        false,
         [
             new(pattern: @"AdapterId", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Connection", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ConnectionProps),
@@ -69,10 +73,12 @@ internal sealed class PropertyNames
     internal static PropertyArray LMDBProps = new(
         "LMDB",
         true,
+        false,
         []);
 
     internal static PropertyArray IceProps = new(
         "Ice",
+        false,
         false,
         [
             new(pattern: @"AcceptClassCycles", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
@@ -158,6 +164,7 @@ internal sealed class PropertyNames
     internal static PropertyArray IceMXProps = new(
         "IceMX",
         false,
+        false,
         [
             new(pattern: @"^Metrics\.[^\s]+\.GroupBy$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"^Metrics\.[^\s]+\.Map$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
@@ -169,6 +176,7 @@ internal sealed class PropertyNames
 
     internal static PropertyArray IceDiscoveryProps = new(
         "IceDiscovery",
+        false,
         false,
         [
             new(pattern: @"Multicast", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ObjectAdapterProps),
@@ -187,6 +195,7 @@ internal sealed class PropertyNames
     internal static PropertyArray IceLocatorDiscoveryProps = new(
         "IceLocatorDiscovery",
         false,
+        false,
         [
             new(pattern: @"Reply", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ObjectAdapterProps),
             new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ObjectAdapterProps),
@@ -204,6 +213,7 @@ internal sealed class PropertyNames
     internal static PropertyArray IceBoxProps = new(
         "IceBox",
         false,
+        true,
         [
             new(pattern: @"InheritProperties", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"LoadOrder", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
@@ -216,25 +226,30 @@ internal sealed class PropertyNames
     internal static PropertyArray IceBoxAdminProps = new(
         "IceBoxAdmin",
         false,
+        true,
         []);
 
     internal static PropertyArray IceBridgeProps = new(
         "IceBridge",
         false,
+        true,
         []);
 
     internal static PropertyArray IceGridAdminProps = new(
         "IceGridAdmin",
         false,
+        true,
         []);
 
     internal static PropertyArray IceGridProps = new(
         "IceGrid",
         false,
+        true,
         []);
 
     internal static PropertyArray IceSSLProps = new(
         "IceSSL",
+        false,
         false,
         [
             new(pattern: @"CAs", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
@@ -258,26 +273,31 @@ internal sealed class PropertyNames
     internal static PropertyArray IceStormProps = new(
         "IceStorm",
         false,
+        true,
         []);
 
     internal static PropertyArray IceStormAdminProps = new(
         "IceStormAdmin",
         false,
+        true,
         []);
 
     internal static PropertyArray IceBTProps = new(
         "IceBT",
+        false,
         false,
         []);
 
     internal static PropertyArray Glacier2Props = new(
         "Glacier2",
         false,
+        true,
         []);
 
     internal static PropertyArray DataStormProps = new(
         "DataStorm",
         false,
+        true,
         []);
 
     internal static PropertyArray[] validProps =

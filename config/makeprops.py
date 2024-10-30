@@ -273,9 +273,9 @@ namespace IceInternal
     {{
         const char* name;
         const bool prefixOnly;
+        const bool isOptIn;
         const Property* properties;
         const int length;
-        const bool isOptIn;
     }};
 
     class PropertyNames
@@ -330,9 +330,9 @@ const PropertyArray PropertyNames::{name}Props
 {{
     .name="{name}",
     .prefixOnly={prefixOnly},
+    .isOptIn={isOptIn}
     .properties={name}PropsData,
     .length={len(propertyArray.properties)},
-    .isOptIn={isOptIn}
 }};
 
 """)
@@ -408,6 +408,7 @@ final class PropertyNames
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
+        isOptIn = "true" if propertyArray.isOptIn else "false"
         properties = (
             "\n            " + ",\n            ".join(propertyArray.properties)
             if propertyArray.properties
@@ -418,6 +419,7 @@ final class PropertyNames
             f"""    public static final PropertyArray {name}Props = new PropertyArray(
         "{name}",
         {prefixOnly},
+        {isOptIn},
         new Property[] {{{properties}
         }});
 
@@ -505,6 +507,7 @@ internal sealed class PropertyNames
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
+        isOptIn = "true" if propertyArray.isOptIn else "false"
         properties = (
             f"\n            {",\n            ".join(propertyArray.properties)}\n        "
             if propertyArray.properties
@@ -515,6 +518,7 @@ internal sealed class PropertyNames
     internal static PropertyArray {name}Props = new(
         "{name}",
         {prefixOnly},
+        {isOptIn},
         [{properties}]);
 
 """)
@@ -583,6 +587,7 @@ PropertyNames.validProps = [
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
+        isOptIn = "true" if propertyArray.isOptIn else "false"
         properties = (
             "\n    " + ",\n    ".join(propertyArray.properties)
             if propertyArray.properties
@@ -591,7 +596,7 @@ PropertyNames.validProps = [
         # We assign the properties to the property array after creating it so that we can reference the array
         # in the properties themselves
         self.srcFile.write(f"""\
-PropertyNames.{name}Props = new PropertyArray("{name}", {prefixOnly});
+PropertyNames.{name}Props = new PropertyArray("{name}", {prefixOnly}, {isOptIn});
 PropertyNames.{name}Props.properties = [{properties}
 ];
 

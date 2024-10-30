@@ -603,7 +603,7 @@ Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
         }
         else
         {
-            unmatched.emplace_back(opt);
+            unmatched.push_back(std::move(opt));
         }
     }
 

@@ -55,7 +55,7 @@ public static class Server
         int status = 0;
 
         Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = new Ice.Properties();
+        initData.properties = new Ice.Properties(["IceBox"]);
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
         try
