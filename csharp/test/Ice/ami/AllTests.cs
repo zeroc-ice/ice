@@ -97,22 +97,22 @@ namespace Ice
                     switch (_t)
                     {
                         case ThrowType.LocalException:
-                            {
-                                throw new Ice.ObjectNotExistException();
-                            }
+                        {
+                            throw new Ice.ObjectNotExistException();
+                        }
                         case ThrowType.UserException:
-                            {
-                                throw new Test.TestIntfException();
-                            }
+                        {
+                            throw new Test.TestIntfException();
+                        }
                         case ThrowType.OtherException:
-                            {
-                                throw new System.Exception();
-                            }
+                        {
+                            throw new System.Exception();
+                        }
                         default:
-                            {
-                                Debug.Assert(false);
-                                break;
-                            }
+                        {
+                            Debug.Assert(false);
+                            break;
+                        }
                     }
                 }
 
