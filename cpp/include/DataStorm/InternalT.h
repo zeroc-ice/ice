@@ -571,7 +571,7 @@ namespace DataStormI
         {
             if (lambda)
             {
-                auto factory = make_unique<FactoryT<Criteria>>(name, std::move(lambda));
+                auto factory = std::make_unique<FactoryT<Criteria>>(name, std::move(lambda));
                 _factories.emplace(std::move(name), std::move(factory));
             }
             else
