@@ -27,6 +27,7 @@ namespace Ice
 
     private:
         const std::string _prefix;
+        const std::string _subsystem;
         IceInternal::UniqueRef<os_log_t> _log;
     };
 }

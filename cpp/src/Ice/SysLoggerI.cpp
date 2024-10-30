@@ -12,7 +12,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-Ice::SysLoggerI::SysLoggerI(string prefix, const string& facilityString) : _facility(0), _prefix(std::move(prefix))
+Ice::SysLoggerI::SysLoggerI(string prefix, string_view facilityString) : _facility(0), _prefix(std::move(prefix))
 {
     if (facilityString == "LOG_KERN")
     {
@@ -100,7 +100,10 @@ Ice::SysLoggerI::SysLoggerI(string prefix, const string& facilityString) : _faci
     }
     else
     {
-        throw InitializationException(__FILE__, __LINE__, "Invalid value for Ice.SyslogFacility: " + facilityString);
+        throw InitializationException(
+            __FILE__,
+            __LINE__,
+            "Invalid value for Ice.SyslogFacility: " + string{facilityString});
     }
 
     int logopt = LOG_PID | LOG_CONS;

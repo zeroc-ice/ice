@@ -8,13 +8,14 @@
 #include "Ice/Logger.h"
 
 #include <mutex>
+#include <string_view>
 
 namespace Ice
 {
     class SysLoggerI final : public Logger
     {
     public:
-        SysLoggerI(std::string prefix, const std::string& facilityString);
+        SysLoggerI(std::string prefix, std::string_view facilityString);
         SysLoggerI(std::string prefix, int facility);
         ~SysLoggerI();
 

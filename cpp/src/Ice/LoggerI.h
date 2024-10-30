@@ -15,7 +15,7 @@ namespace Ice
     class LoggerI final : public Logger
     {
     public:
-        LoggerI(std::string prefix, const std::string&, bool convert = true, std::size_t sizeMax = 0);
+        LoggerI(std::string prefix, std::string file, bool convert = true, std::size_t sizeMax = 0);
         ~LoggerI();
 
         void print(const std::string&) final;
@@ -34,7 +34,7 @@ namespace Ice
         const StringConverterPtr _converter;
         std::ofstream _out;
 
-        std::string _file;
+        const std::string _file;
         std::size_t _sizeMax;
 
         //
