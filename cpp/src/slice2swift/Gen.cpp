@@ -25,13 +25,7 @@ namespace
     {
         DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
         assert(dc);
-
-        static const string classResolverPrefix = "swift:class-resolver-prefix:";
-        if (auto meta = dc->findMetadata(classResolverPrefix))
-        {
-            return meta->substr(classResolverPrefix.size());
-        }
-        return "";
+        return dc->getMetadataArgs("swift:class-resolver-prefix").value_or("");
     }
 }
 
@@ -620,7 +614,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << "[" << typeToString(p->type(), p, p->getMetadata(), false) << "]";
+        out << "[" << typeToString(p->type(), p, false) << "]";
     }
 
     if (builtin && builtin->kind() <= Builtin::KindString)
@@ -764,8 +758,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getRelativeTypeString(p, swiftModule);
 
-    const string keyType = typeToString(p->keyType(), p, p->keyMetadata(), false);
-    const string valueType = typeToString(p->valueType(), p, p->valueMetadata(), false);
+    const string keyType = typeToString(p->keyType(), p, false);
+    const string valueType = typeToString(p->valueType(), p, false);
     out << sp;
     writeDocSummary(out, p);
     out << nl << "public typealias " << fixIdent(name) << " = [" << keyType << ": " << valueType << "]";
@@ -1020,7 +1014,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     writeDocSummary(out, p);
     out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
-    writeConstantValue(out, type, p->valueType(), p->value(), p->getMetadata(), swiftModule);
+    writeConstantValue(out, type, p->valueType(), p->value(), swiftModule);
     out << nl;
 }
 
@@ -1463,16 +1457,12 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         baseNames.push_back(fixIdent(getRelativeTypeString(*i, swiftModule)));
     }
 
-    //
-    // Check for swift:inherits metadata.
-    //
-    const StringList metadata = p->getMetadata();
-    static const string prefix = "swift:inherits:";
-    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
+    // Check for 'swift:inherits' metadata.
+    for (const auto& metadata : p->getMetadata())
     {
-        if (q->find(prefix) == 0)
+        if (metadata->directive() == "swift:inherits")
         {
-            baseNames.push_back(q->substr(prefix.size()));
+            baseNames.push_back(string{metadata->arguments()});
         }
     }
 

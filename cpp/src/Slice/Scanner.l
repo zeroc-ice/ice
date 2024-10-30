@@ -304,11 +304,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     ftp->v = strtod(literal.c_str(), 0);
     if ((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        currentUnit->error("floating-point constant `" + string(yytext) + "' too large (overflow)");
+        currentUnit->error("floating-point constant `" + string{yytext} + "' too large (overflow)");
     }
     else if (ftp->v == 0 && errno == ERANGE)
     {
-        currentUnit->error("floating-point constant `" + string(yytext) + "' too small (underflow)");
+        currentUnit->error("floating-point constant `" + string{yytext} + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }

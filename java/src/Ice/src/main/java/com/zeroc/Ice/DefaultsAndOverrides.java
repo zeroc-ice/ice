@@ -67,12 +67,19 @@ final class DefaultsAndOverrides {
                             + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
-        defaultLocatorCacheTimeout =
-                Duration.ofSeconds(
-                        properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
+        intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
+        if (intValue < -1) {
+            throw new InitializationException(
+                    "invalid value for Ice.Default.LocatorCacheTimeout: " + intValue);
+        }
+        defaultLocatorCacheTimeout = Duration.ofSeconds(intValue);
 
-        defaultInvocationTimeout =
-                Duration.ofMillis(properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
+        intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
+        if (intValue < 1 && intValue != -1) {
+            throw new InitializationException(
+                    "invalid value for Ice.Default.InvocationTimeout: " + intValue);
+        }
+        defaultInvocationTimeout = Duration.ofMillis(intValue);
 
         defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 

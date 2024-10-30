@@ -142,7 +142,7 @@ namespace Slice
             const TypePtr&,
             TypeMode,
             const std::string& = std::string(),
-            const StringList& = StringList(),
+            const MetadataList& = MetadataList(),
             bool = true,
             bool = false) const;
 
@@ -155,7 +155,7 @@ namespace Slice
             const TypePtr&,
             TypeMode,
             const std::string& = std::string(),
-            const StringList& = StringList(),
+            const MetadataList& = MetadataList(),
             bool = true) const;
 
         //
@@ -184,7 +184,7 @@ namespace Slice
             bool,
             int&,
             const std::string& = "",
-            const StringList& = StringList(),
+            const MetadataList& = MetadataList(),
             const std::string& = "");
 
         //
@@ -199,7 +199,7 @@ namespace Slice
             int&,
             bool,
             const std::string& = "",
-            const StringList& = StringList());
+            const MetadataList& = MetadataList());
 
         //
         // Generate code to marshal or unmarshal a sequence type.
@@ -213,40 +213,39 @@ namespace Slice
             int&,
             bool,
             const std::string& = "",
-            const StringList& = StringList());
+            const MetadataList& = MetadataList());
 
         //
-        // Search metadata for an entry with the given prefix and return the entire string.
+        // Returns true if the metadata has an entry with the given directive, and false otherwise.
         //
-        static bool findMetadata(const std::string&, const StringList&, std::string&);
+        static bool hasMetadata(const std::string&, const MetadataList&);
 
         //
         // Get custom type metadata. If metadata is found, the abstract and
         // concrete types are extracted and the function returns true. If an
         // abstract type is not specified, it is set to an empty string.
         //
-        static bool getTypeMetadata(const StringList&, std::string&, std::string&);
+        static bool getTypeMetadata(const MetadataList&, std::string&, std::string&);
 
         //
         // Determine whether a custom type is defined. The function checks the
         // metadata of the type's original definition, as well as any optional
         // metadata that typically represents a data member or parameter.
         //
-        static bool hasTypeMetadata(const TypePtr&, const StringList& = StringList());
+        static bool hasTypeMetadata(const TypePtr&, const MetadataList& = MetadataList());
 
         //
         // Obtain the concrete and abstract types for a dictionary or sequence type.
         // The functions return true if a custom type was defined and false to indicate
         // the default mapping was used.
         //
-        bool getDictionaryTypes(const DictionaryPtr&, const std::string&, const StringList&, std::string&, std::string&)
+        bool
+        getDictionaryTypes(const DictionaryPtr&, const std::string&, const MetadataList&, std::string&, std::string&)
             const;
         bool
-        getSequenceTypes(const SequencePtr&, const std::string&, const StringList&, std::string&, std::string&) const;
+        getSequenceTypes(const SequencePtr&, const std::string&, const MetadataList&, std::string&, std::string&) const;
 
         JavaOutput* createOutput();
-
-        static const std::string _getSetMetadata;
 
     private:
         std::string _dir;

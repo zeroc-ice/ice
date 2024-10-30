@@ -80,16 +80,27 @@ public sealed class DefaultsAndOverrides
             throw new ParseException($"illegal value '{val}' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
-        defaultLocatorCacheTimeout = TimeSpan.FromSeconds(
-            properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
-        defaultInvocationTimeout = TimeSpan.FromMilliseconds(
-            properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
+        {
+            int value = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
+            if (value < -1)
+            {
+                throw new InitializationException($"invalid value for Ice.Default.LocatorCacheTimeout: {value}");
+            }
+            defaultLocatorCacheTimeout = TimeSpan.FromSeconds(value);
+        }
+
+        {
+            int value = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
+            if (value < 1 && value != -1)
+            {
+                throw new InitializationException($"invalid value for Ice.Default.InvocationTimeout: {value}");
+            }
+            defaultInvocationTimeout = TimeSpan.FromMilliseconds(value);
+        }
 
         defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
-        val = properties.getPropertyWithDefault(
-            "Ice.Default.EncodingVersion",
-            Ice.Util.encodingVersionToString(Ice.Util.currentEncoding));
+        val = properties.getIceProperty("Ice.Default.EncodingVersion");
         defaultEncoding = Ice.Util.stringToEncodingVersion(val);
         Protocol.checkSupportedEncoding(defaultEncoding);
 
