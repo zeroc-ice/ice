@@ -1124,7 +1124,7 @@ IceInternal::RoutableReference::toProperty(string prefix) const
         }
     }
 
-    properties[std::move(prefix)] = toString();
+    properties.emplace(std::move(prefix), toString());
 
     return properties;
 }

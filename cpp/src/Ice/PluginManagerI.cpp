@@ -396,13 +396,13 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     PluginInfo info;
     info.name = name;
     info.plugin = plugin;
-    _plugins.push_back(info);
+    _plugins.push_back(std::move(info));
 }
 
 Ice::PluginPtr
 Ice::PluginManagerI::findPlugin(string_view name) const
 {
-    for (auto p : _plugins)
+    for (const auto& p : _plugins)
     {
         if (name == p.name)
         {
