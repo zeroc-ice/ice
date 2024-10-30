@@ -121,6 +121,12 @@ namespace Ice
                 return false;
             }
 
+            public override bool
+            supportsBackPressureTests(Ice.Current current)
+            {
+                return true;
+            }
+
             public override async Task
             opAsyncDispatchAsync(Ice.Current current)
             {

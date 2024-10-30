@@ -40,6 +40,7 @@ interface TestIntf
 
     bool supportsAMD();
     bool supportsFunctionalTests();
+    bool supportsBackPressureTests();
 
     ["amd"] void opAsyncDispatch();
     ["amd"] int opWithResultAsyncDispatch();

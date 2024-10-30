@@ -83,7 +83,8 @@ jobs:
             test_flags: "--all-cross"
           - os: macos-15
             config: "cross"
-            test_flags: "--all-cross"
+            # We want to test C++ and Swift only (in each direction)
+            test_flags: "--all-cross --filter cpp --filter swift"
 
     runs-on: ${{ matrix.os }}
     steps:
