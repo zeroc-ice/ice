@@ -70,15 +70,11 @@ namespace Ice
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
          */
-        ConnectionInfo(
-            const ConnectionInfoPtr& underlying,
-            bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId)
-            : underlying(underlying),
+        ConnectionInfo(ConnectionInfoPtr underlying, bool incoming, std::string adapterName, std::string connectionId)
+            : underlying(std::move(underlying)),
               incoming(incoming),
-              adapterName(adapterName),
-              connectionId(connectionId)
+              adapterName(std::move(adapterName)),
+              connectionId(std::move(connectionId))
         {
         }
 
@@ -283,18 +279,18 @@ namespace Ice
          * @param remotePort The remote port.
          */
         IPConnectionInfo(
-            const ConnectionInfoPtr& underlying,
+            ConnectionInfoPtr underlying,
             bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId,
-            const std::string& localAddress,
+            std::string adapterName,
+            std::string connectionId,
+            std::string localAddress,
             int localPort,
-            const std::string& remoteAddress,
+            std::string remoteAddress,
             int remotePort)
-            : ConnectionInfo(underlying, incoming, adapterName, connectionId),
-              localAddress(localAddress),
+            : ConnectionInfo(std::move(underlying), incoming, std::move(adapterName), std::move(connectionId)),
+              localAddress(std::move(localAddress)),
               localPort(localPort),
-              remoteAddress(remoteAddress),
+              remoteAddress(std::move(remoteAddress)),
               remotePort(remotePort)
         {
         }
@@ -346,24 +342,24 @@ namespace Ice
          * @param sndSize The connection buffer send size.
          */
         TCPConnectionInfo(
-            const ConnectionInfoPtr& underlying,
+            ConnectionInfoPtr underlying,
             bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId,
-            const std::string& localAddress,
+            std::string adapterName,
+            std::string connectionId,
+            std::string localAddress,
             int localPort,
-            const std::string& remoteAddress,
+            std::string remoteAddress,
             int remotePort,
             int rcvSize,
             int sndSize)
             : IPConnectionInfo(
-                  underlying,
+                  std::move(underlying),
                   incoming,
-                  adapterName,
-                  connectionId,
-                  localAddress,
+                  std::move(adapterName),
+                  std::move(connectionId),
+                  std::move(localAddress),
                   localPort,
-                  remoteAddress,
+                  std::move(remoteAddress),
                   remotePort),
               rcvSize(rcvSize),
               sndSize(sndSize)
@@ -411,28 +407,28 @@ namespace Ice
          * @param sndSize The connection buffer send size.
          */
         UDPConnectionInfo(
-            const ConnectionInfoPtr& underlying,
+            ConnectionInfoPtr underlying,
             bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId,
-            const std::string& localAddress,
+            std::string adapterName,
+            std::string connectionId,
+            std::string localAddress,
             int localPort,
-            const std::string& remoteAddress,
+            std::string remoteAddress,
             int remotePort,
-            const std::string& mcastAddress,
+            std::string mcastAddress,
             int mcastPort,
             int rcvSize,
             int sndSize)
             : IPConnectionInfo(
-                  underlying,
+                  std::move(underlying),
                   incoming,
-                  adapterName,
-                  connectionId,
-                  localAddress,
+                  std::move(adapterName),
+                  std::move(connectionId),
+                  std::move(localAddress),
                   localPort,
-                  remoteAddress,
+                  std::move(remoteAddress),
                   remotePort),
-              mcastAddress(mcastAddress),
+              mcastAddress(std::move(mcastAddress)),
               mcastPort(mcastPort),
               rcvSize(rcvSize),
               sndSize(sndSize)
@@ -481,13 +477,13 @@ namespace Ice
          * @param headers The headers from the HTTP upgrade request.
          */
         WSConnectionInfo(
-            const ConnectionInfoPtr& underlying,
+            ConnectionInfoPtr underlying,
             bool incoming,
-            const std::string& adapterName,
-            const std::string& connectionId,
-            const HeaderDict& headers)
-            : ConnectionInfo(underlying, incoming, adapterName, connectionId),
-              headers(headers)
+            std::string adapterName,
+            std::string connectionId,
+            HeaderDict headers)
+            : ConnectionInfo(std::move(underlying), incoming, std::move(adapterName), std::move(connectionId)),
+              headers(std::move(headers))
         {
         }
 

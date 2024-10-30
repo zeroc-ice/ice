@@ -144,18 +144,21 @@ namespace
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
-        StringList l = lines;
-        if (!commentFirst)
+        if (lines.size() > 0)
         {
-            out << l.front();
-            l.pop_front();
-        }
-        for (StringList::const_iterator i = l.begin(); i != l.end(); ++i)
-        {
-            out << nl << " *";
-            if (!i->empty())
+            StringList l = lines;
+            if (!commentFirst)
             {
-                out << space << *i;
+                out << l.front();
+                l.pop_front();
+            }
+            for (StringList::const_iterator i = l.begin(); i != l.end(); ++i)
+            {
+                out << nl << " *";
+                if (!i->empty())
+                {
+                    out << space << *i;
+                }
             }
         }
     }

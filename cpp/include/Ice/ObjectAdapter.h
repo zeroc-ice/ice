@@ -236,7 +236,7 @@ namespace Ice
          * @see #addFacet
          * @see #addFacetWithUUID
          */
-        virtual ObjectPtr removeFacet(const Identity& id, const std::string& facet) = 0;
+        virtual ObjectPtr removeFacet(const Identity& id, std::string_view facet) = 0;
 
         /**
          * Remove all facets with the given identity from the Active Servant Map. The operation completely removes the
@@ -257,7 +257,7 @@ namespace Ice
          * @see #addDefaultServant
          * @see #findDefaultServant
          */
-        virtual ObjectPtr removeDefaultServant(const std::string& category) = 0;
+        virtual ObjectPtr removeDefaultServant(std::string_view category) = 0;
 
         /**
          * Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it
@@ -283,7 +283,7 @@ namespace Ice
          * @see #find
          * @see #findByProxy
          */
-        virtual ObjectPtr findFacet(const Identity& id, const std::string& facet) const = 0;
+        virtual ObjectPtr findFacet(const Identity& id, std::string_view facet) const = 0;
 
         /**
          * Find all facets with the given identity in the Active Servant Map.
@@ -341,7 +341,7 @@ namespace Ice
          * @see #findServantLocator
          * @see ServantLocator
          */
-        virtual ServantLocatorPtr removeServantLocator(const std::string& category) = 0;
+        virtual ServantLocatorPtr removeServantLocator(std::string_view category) = 0;
 
         /**
          * Find a Servant Locator installed with this object adapter.
@@ -353,7 +353,7 @@ namespace Ice
          * @see #removeServantLocator
          * @see ServantLocator
          */
-        virtual ServantLocatorPtr findServantLocator(const std::string& category) const = 0;
+        virtual ServantLocatorPtr findServantLocator(std::string_view category) const = 0;
 
         /**
          * Find the default servant for a specific category.
@@ -362,7 +362,7 @@ namespace Ice
          * @see #addDefaultServant
          * @see #removeDefaultServant
          */
-        virtual ObjectPtr findDefaultServant(const std::string& category) const = 0;
+        virtual ObjectPtr findDefaultServant(std::string_view category) const = 0;
 
         /**
          * Get the dispatch pipeline of this object adapter.

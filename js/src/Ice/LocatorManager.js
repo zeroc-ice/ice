@@ -10,7 +10,7 @@ import { LocatorTable } from "./LocatorTable.js";
 
 export class LocatorManager {
     constructor(properties) {
-        this._background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
+        this._background = properties.getIcePropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
         this._table = new HashMap(HashMap.compareEquals); // Map<Ice.LocatorPrx, LocatorInfo>
         this._locatorTables = new HashMap(HashMap.compareEquals); // Map<Ice.Identity, LocatorTable>
     }
