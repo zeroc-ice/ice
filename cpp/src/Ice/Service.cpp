@@ -120,7 +120,9 @@ namespace
     class SMEventLoggerIWrapper final : public Ice::Logger
     {
     public:
-        SMEventLoggerIWrapper(const SMEventLoggerPtr& logger, string prefix) : _logger(logger), _prefix(std::move(prefix))
+        SMEventLoggerIWrapper(const SMEventLoggerPtr& logger, string prefix)
+            : _logger(logger),
+              _prefix(std::move(prefix))
         {
             assert(_logger);
         }
