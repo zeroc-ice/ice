@@ -943,7 +943,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     {
         set<string> sliceTopLevelModules = p->getTopLevelModules(included);
 
-        // The JavaScript module corresponding to the "js:module:" metadata in the included file.
+        // The JavaScript module corresponding to the 'js:module' metadata in the included file.
         string jsImportedModule = getJavaScriptModule(p->findDefinitionContext(included));
 
         if (jsModule == jsImportedModule || jsImportedModule.empty())
@@ -1989,26 +1989,13 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
 
 Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceInternal::Output& out) : JsVisitor(out) {}
 
-namespace
-{
-    string getDefinedIn(const ContainedPtr& p)
-    {
-        const string prefix = "js:defined-in:";
-        if (auto meta = p->findMetadata(prefix))
-        {
-            return meta->substr(prefix.size());
-        }
-        return "";
-    }
-}
-
 void
 Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
 {
     string jsImportedModule = getJavaScriptModule(definition->definitionContext());
     if (jsImportedModule.empty())
     {
-        string definedIn = getDefinedIn(definition);
+        string definedIn = definition->getMetadataArgs("js:defined-in").value_or("");
         if (!definedIn.empty())
         {
             _importedTypes[definition->scoped()] = "__module_" + pathToModule(definedIn) + ".";
@@ -2064,7 +2051,7 @@ Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& unit)
     // Iterate all the included files and generate an import statement for each top-level module in the included file.
     for (const auto& included : includes)
     {
-        // The JavaScript module corresponding to the "js:module:" metadata in the included file.
+        // The JavaScript module corresponding to the 'js:module' metadata in the included file.
         string jsImportedModule = getJavaScriptModule(unit->findDefinitionContext(included));
 
         if (_module != jsImportedModule)
