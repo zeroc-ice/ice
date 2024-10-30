@@ -330,9 +330,9 @@ const PropertyArray PropertyNames::{name}Props
 {{
     .name="{name}",
     .prefixOnly={prefixOnly},
-    .isOptIn={isOptIn}
+    .isOptIn={isOptIn},
     .properties={name}PropsData,
-    .length={len(propertyArray.properties)},
+    .length={len(propertyArray.properties)}
 }};
 
 """)
