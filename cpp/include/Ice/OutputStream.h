@@ -602,14 +602,6 @@ namespace Ice
         void write(const double* begin, const double* end);
 
         /**
-         * Writes a string to the stream.
-         * @param v The string to write.
-         * @param convert Determines whether the string is processed by the narrow string converter,
-         * if one has been configured. The default behavior is to convert the strings.
-         */
-        void write(const std::string& v, bool convert = true) { write(std::string_view(v), convert); }
-
-        /**
          * Writes a string view to the stream.
          * @param v The string view to write.
          * @param convert Determines whether the string view is processed by the narrow string converter,
