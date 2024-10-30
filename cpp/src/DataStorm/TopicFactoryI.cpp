@@ -22,12 +22,12 @@ TopicFactoryI::TopicFactoryI(const shared_ptr<Instance>& instance)
 
 shared_ptr<TopicReader>
 TopicFactoryI::createTopicReader(
-    const string& name,
-    const shared_ptr<KeyFactory>& keyFactory,
-    const shared_ptr<TagFactory>& tagFactory,
-    const shared_ptr<SampleFactory>& sampleFactory,
-    const shared_ptr<FilterManager>& keyFilterFactories,
-    const shared_ptr<FilterManager>& sampleFilterFactories)
+    string name,
+    shared_ptr<KeyFactory> keyFactory,
+    shared_ptr<TagFactory> tagFactory,
+    shared_ptr<SampleFactory> sampleFactory,
+    shared_ptr<FilterManager> keyFilterFactories,
+    shared_ptr<FilterManager> sampleFilterFactories)
 {
     shared_ptr<TopicReaderI> reader;
     bool hasWriters;
@@ -35,12 +35,12 @@ TopicFactoryI::createTopicReader(
         lock_guard<mutex> lock(_mutex);
         reader = make_shared<TopicReaderI>(
             shared_from_this(),
-            keyFactory,
-            tagFactory,
-            sampleFactory,
-            keyFilterFactories,
-            sampleFilterFactories,
-            name,
+            std::move(keyFactory),
+            std::move(tagFactory),
+            std::move(sampleFactory),
+            std::move(keyFilterFactories),
+            std::move(sampleFilterFactories),
+            name, // we keep using name below
             _nextReaderId++);
         _readers[name].push_back(reader);
         if (_traceLevels->topic > 0)
@@ -79,12 +79,12 @@ TopicFactoryI::createTopicReader(
 
 shared_ptr<TopicWriter>
 TopicFactoryI::createTopicWriter(
-    const string& name,
-    const shared_ptr<KeyFactory>& keyFactory,
-    const shared_ptr<TagFactory>& tagFactory,
-    const shared_ptr<SampleFactory>& sampleFactory,
-    const shared_ptr<FilterManager>& keyFilterFactories,
-    const shared_ptr<FilterManager>& sampleFilterFactories)
+    string name,
+    shared_ptr<KeyFactory> keyFactory,
+    shared_ptr<TagFactory> tagFactory,
+    shared_ptr<SampleFactory> sampleFactory,
+    shared_ptr<FilterManager> keyFilterFactories,
+    shared_ptr<FilterManager> sampleFilterFactories)
 {
     shared_ptr<TopicWriterI> writer;
     bool hasReaders;
@@ -92,12 +92,12 @@ TopicFactoryI::createTopicWriter(
         lock_guard<mutex> lock(_mutex);
         writer = make_shared<TopicWriterI>(
             shared_from_this(),
-            keyFactory,
-            tagFactory,
-            sampleFactory,
-            keyFilterFactories,
-            sampleFilterFactories,
-            name,
+            std::move(keyFactory),
+            std::move(tagFactory),
+            std::move(sampleFactory),
+            std::move(keyFilterFactories),
+            std::move(sampleFilterFactories),
+            name, // we keep using name below
             _nextWriterId++);
         _writers[name].push_back(writer);
         if (_traceLevels->topic > 0)

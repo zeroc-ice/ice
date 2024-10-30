@@ -261,20 +261,20 @@ namespace DataStormI
         virtual ~TopicFactory() = default;
 
         virtual std::shared_ptr<TopicReader> createTopicReader(
-            const std::string&,
-            const std::shared_ptr<KeyFactory>&,
-            const std::shared_ptr<TagFactory>&,
-            const std::shared_ptr<SampleFactory>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::shared_ptr<FilterManager>&) = 0;
+            std::string,
+            std::shared_ptr<KeyFactory>,
+            std::shared_ptr<TagFactory>,
+            std::shared_ptr<SampleFactory>,
+            std::shared_ptr<FilterManager>,
+            std::shared_ptr<FilterManager>) = 0;
 
         virtual std::shared_ptr<TopicWriter> createTopicWriter(
-            const std::string&,
-            const std::shared_ptr<KeyFactory>&,
-            const std::shared_ptr<TagFactory>&,
-            const std::shared_ptr<SampleFactory>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::shared_ptr<FilterManager>&) = 0;
+            std::string,
+            std::shared_ptr<KeyFactory>,
+            std::shared_ptr<TagFactory>,
+            std::shared_ptr<SampleFactory>,
+            std::shared_ptr<FilterManager>,
+            std::shared_ptr<FilterManager>) = 0;
 
         virtual Ice::CommunicatorPtr getCommunicator() const = 0;
     };
