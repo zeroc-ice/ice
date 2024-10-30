@@ -23,7 +23,7 @@ public:
 void
 Publisher::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
     auto communicator = ich.communicator();
     IceInternal::Options opts;
     opts.addOpt("", "count", IceInternal::Options::NeedArg);

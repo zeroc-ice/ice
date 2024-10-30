@@ -116,4 +116,4 @@ final class SecurityException extends LocalException {}
 
 final class TwowayOnlyException extends LocalException {}
 
-final class UnknownPropertyException extends LocalException {}
+final class PropertyException extends LocalException {}

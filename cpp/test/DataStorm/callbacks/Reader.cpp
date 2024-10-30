@@ -24,7 +24,7 @@ main(int argc, char* argv[])
             customExecutor = [](function<void()> cb) { cb(); };
         }
     }
-    Node node(customExecutor, argc, argv);
+    Node node(argc, argv, nullopt, customExecutor);
 
     ReaderConfig config;
     config.sampleCount = -1; // Unlimited sample count

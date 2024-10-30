@@ -45,10 +45,7 @@ main(int argc, char* argv[])
         //
         Ice::CtrlCHandler ctrlCHandler;
 
-        //
-        // Instantiates node.
-        //
-        DataStorm::Node node(argc, argv);
+        DataStorm::Node node{argc, argv};
 
         if (argc > 1)
         {

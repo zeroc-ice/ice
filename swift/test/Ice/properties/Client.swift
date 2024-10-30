@@ -138,8 +138,8 @@ public class Client: TestHelperI {
                 // Cannot test in Swift since this generates a fatal error.
                 _ = properties.getIceProperty("Ice.UnknownProperty")
                 try test(false)
-            } catch let error as UnknownPropertyException {
-                try test(error.ice_id() == "::Ice::UnknownPropertyException")
+            } catch let error as PropertyException {
+                try test(error.ice_id() == "::Ice::PropertyException")
                 try test(error.message == "unknown Ice property: Ice.UnknownProperty")
             }
 

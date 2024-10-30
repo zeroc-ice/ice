@@ -324,7 +324,7 @@ public sealed class Properties
         // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
         if (findIcePropertyArray(key) is PropertyArray propertyArray)
         {
-            Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new UnknownPropertyException($"unknown Ice property: {key}");
+            Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new PropertyException($"unknown Ice property: {key}");
 
             // If the property is deprecated, log a warning.
             if (prop.deprecated)
@@ -504,7 +504,7 @@ public sealed class Properties
     /// <param name="prefix">The property prefix to validate.</param>
     /// <param name="properties">The properties to consider. </param>
     /// <param name="propertyArray">The property array to search against.</param>
-    /// <exception cref="UnknownPropertyException"> Thrown if unknown properties are found.</exception>
+    /// <exception cref="PropertyException"> Thrown if unknown properties are found.</exception>
     internal static void validatePropertiesWithPrefix(string prefix, Properties properties, PropertyArray propertyArray)
     {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
@@ -537,7 +537,7 @@ public sealed class Properties
                 message.Append(s);
             }
 
-            throw new UnknownPropertyException(message.ToString());
+            throw new PropertyException(message.ToString());
         }
     }
 
@@ -622,10 +622,10 @@ public sealed class Properties
     private static string getDefaultProperty(string key)
     {
         // Find the property, don't log any warnings.
-        PropertyArray propertyArray = findIcePropertyArray(key) ?? throw new UnknownPropertyException($"unknown Ice property: {key}");
+        PropertyArray propertyArray = findIcePropertyArray(key) ?? throw new PropertyException($"unknown Ice property: {key}");
 
         // Find the property in the property array.
-        Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new UnknownPropertyException($"unknown Ice property: {key}");
+        Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new PropertyException($"unknown Ice property: {key}");
 
         return prop.defaultValue;
     }

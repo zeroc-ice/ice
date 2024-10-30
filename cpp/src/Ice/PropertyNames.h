@@ -31,6 +31,7 @@ namespace IceInternal
         const bool prefixOnly;
         const Property* properties;
         const int length;
+        const bool isOptIn;
     };
 
     class PropertyNames

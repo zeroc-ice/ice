@@ -63,7 +63,8 @@ public:
 void
 Subscriber::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder communicator =
+        initialize(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
     bool batch = false;
 
     int idx = 1;

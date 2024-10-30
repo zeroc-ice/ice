@@ -62,7 +62,7 @@ namespace
             {
                 os << "\n    " << prop;
             }
-            throw UnknownPropertyException{__FILE__, __LINE__, os.str()};
+            throw PropertyException{__FILE__, __LINE__, os.str()};
         }
     }
 
