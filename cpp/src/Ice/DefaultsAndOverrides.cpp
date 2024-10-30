@@ -65,8 +65,23 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     const_cast<chrono::milliseconds&>(defaultInvocationTimeout) =
         chrono::milliseconds(properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
+    if (defaultInvocationTimeout.count() < 1 && defaultInvocationTimeout.count() != -1)
+    {
+        throw InitializationException{
+            __FILE__,
+            __LINE__,
+            "invalid value for Ice.Default.InvocationTimeout: " + to_string(defaultInvocationTimeout.count())};
+    }
+
     const_cast<chrono::seconds&>(defaultLocatorCacheTimeout) =
         chrono::seconds(properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
+    if (defaultLocatorCacheTimeout.count() < -1)
+    {
+        throw InitializationException{
+            __FILE__,
+            __LINE__,
+            "invalid value for Ice.Default.LocatorCacheTimeout: " + to_string(defaultLocatorCacheTimeout.count())};
+    }
 
     const_cast<bool&>(defaultPreferSecure) = properties->getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 

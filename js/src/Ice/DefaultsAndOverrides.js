@@ -37,14 +37,14 @@ export class DefaultsAndOverrides {
         this.defaultLocatorCacheTimeout = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
         if (this.defaultLocatorCacheTimeout < -1) {
             throw new InitializationException(
-                `invalid value for Ice.Default.LocatorCacheTimeout '${this.defaultLocatorCacheTimeout}'`,
+                `invalid value for Ice.Default.LocatorCacheTimeout: ${this.defaultLocatorCacheTimeout}`,
             );
         }
 
         this.defaultInvocationTimeout = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
         if (this.defaultInvocationTimeout < 1 && this.defaultInvocationTimeout !== -1) {
             throw new InitializationException(
-                `invalid value for Ice.Default.InvocationTimeout '${this.defaultInvocationTimeout}'`,
+                `invalid value for Ice.Default.InvocationTimeout: ${this.defaultInvocationTimeout}`,
             );
         }
 
