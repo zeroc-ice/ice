@@ -218,7 +218,7 @@ namespace Slice
             void visitConst(const ConstPtr&) final;
 
         private:
-            MetadataList validate(const SyntaxTreeBasePtr&, MetadataList, const std::string&, int, bool = false);
+            MetadataList validate(const SyntaxTreeBasePtr&, MetadataList, const std::string&, bool = false);
         };
 
         static void validateMetadata(const UnitPtr&);

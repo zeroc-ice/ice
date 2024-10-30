@@ -1709,7 +1709,7 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
             }
         }
     }
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
     return true;
 }
 
@@ -2376,12 +2376,12 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
 bool
 SwiftGenerator::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
     for (const auto& member : p->dataMembers())
     {
         // TODO we should probably be passing `member` instead of `member->type()`.
         // Otherwise I'm pretty sure we're just skipping the data-member metadata.
-        member->setMetadata(validate(member->type(), member->getMetadata(), p->file(), member->line()));
+        member->setMetadata(validate(member->type(), member));
     }
     return true;
 }
@@ -2389,27 +2389,27 @@ SwiftGenerator::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 SwiftGenerator::MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
     return true;
 }
 
 void
 SwiftGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
     for (const auto& param : p->parameters())
     {
-        param->setMetadata(validate(param->type(), param->getMetadata(), param->file(), param->line()));
+        param->setMetadata(validate(param->type(), param));
     }
 }
 
 bool
 SwiftGenerator::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
     for (const auto& member : p->dataMembers())
     {
-        member->setMetadata(validate(member->type(), member->getMetadata(), member->file(), member->line()));
+        member->setMetadata(validate(member->type(), member));
     }
     return true;
 }
@@ -2417,10 +2417,10 @@ SwiftGenerator::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 SwiftGenerator::MetadataVisitor::visitStructStart(const StructPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
     for (const auto& member : p->dataMembers())
     {
-        member->setMetadata(validate(member->type(), member->getMetadata(), member->file(), member->line()));
+        member->setMetadata(validate(member->type(), member));
     }
     return true;
 }
@@ -2428,7 +2428,7 @@ SwiftGenerator::MetadataVisitor::visitStructStart(const StructPtr& p)
 void
 SwiftGenerator::MetadataVisitor::visitSequence(const SequencePtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
 }
 
 void
@@ -2444,7 +2444,7 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
         {
             ostringstream msg;
             msg << "ignoring invalid metadata '" << *metadata << "' for dictionary key type";
-            dc->warning(InvalidMetadata, p->file(), p->line(), msg.str());
+            dc->warning(InvalidMetadata, metadata->file(), metadata->line(), msg.str());
         }
     }
 
@@ -2454,40 +2454,35 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
         {
             ostringstream msg;
             msg << "ignoring invalid metadata '" << *metadata << "' for dictionary value type";
-            dc->warning(InvalidMetadata, p->file(), p->line(), msg.str());
+            dc->warning(InvalidMetadata, metadata->file(), metadata->line(), msg.str());
         }
     }
 
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
 }
 
 void
 SwiftGenerator::MetadataVisitor::visitEnum(const EnumPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
 }
 
 void
 SwiftGenerator::MetadataVisitor::visitConst(const ConstPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p));
 }
 
 MetadataList
-SwiftGenerator::MetadataVisitor::validate(
-    const SyntaxTreeBasePtr& cont,
-    const MetadataList& metadata,
-    const string& file,
-    int line)
-{
-    MetadataList newMetadata = metadata;
-    const UnitPtr ut = cont->unit();
-    const DefinitionContextPtr dc = ut->findDefinitionContext(file);
+SwiftGenerator::MetadataVisitor::validate(const SyntaxTreeBasePtr& p, const ContainedPtr& cont) {
+    MetadataList newMetadata = cont->getMetadata();
+    const UnitPtr ut = p->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
     assert(dc);
 
-    for (MetadataList::const_iterator p = newMetadata.begin(); p != newMetadata.end();)
+    for (MetadataList::const_iterator m = newMetadata.begin(); m != newMetadata.end();)
     {
-        MetadataPtr meta = *p++;
+        MetadataPtr meta = *m++;
         string_view directive = meta->directive();
         string_view arguments = meta->arguments();
 
@@ -2496,18 +2491,18 @@ SwiftGenerator::MetadataVisitor::validate(
             continue;
         }
 
-        if (dynamic_pointer_cast<Module>(cont) && directive == "swift:module" && !arguments.empty())
+        if (dynamic_pointer_cast<Module>(p) && directive == "swift:module" && !arguments.empty())
         {
             continue;
         }
 
-        if (dynamic_pointer_cast<InterfaceDef>(cont) && directive == "swift:inherits" && !arguments.empty())
+        if (dynamic_pointer_cast<InterfaceDef>(p) && directive == "swift:inherits" && !arguments.empty())
         {
             continue;
         }
 
-        if ((dynamic_pointer_cast<ClassDef>(cont) || dynamic_pointer_cast<InterfaceDef>(cont) ||
-             dynamic_pointer_cast<Enum>(cont) || dynamic_pointer_cast<Exception>(cont)) &&
+        if ((dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<InterfaceDef>(p) ||
+             dynamic_pointer_cast<Enum>(p) || dynamic_pointer_cast<Exception>(p)) &&
             directive == "swift:attribute" && !arguments.empty())
         {
             continue;
@@ -2515,7 +2510,7 @@ SwiftGenerator::MetadataVisitor::validate(
 
         ostringstream msg;
         msg << "ignoring invalid metadata '" << *meta << "'";
-        dc->warning(InvalidMetadata, file, line, msg.str());
+        dc->warning(InvalidMetadata, meta->file(), meta->line(), msg.str());
         newMetadata.remove(meta);
         continue;
     }
