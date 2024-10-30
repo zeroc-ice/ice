@@ -1119,7 +1119,7 @@ Slice::Gen::MetadataVisitor::validate(
             ostringstream ostr;
             ostr << "ignoring invalid metadata '" << *meta << "'";
             dc->warning(InvalidMetadata, file, line, ostr.str());
-            meta.remove(meta);
+            metadata.remove(meta);
             continue;
         }
 
