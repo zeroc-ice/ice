@@ -189,9 +189,6 @@ namespace Slice
         friend std::ostream& operator<<(std::ostream& out, const Metadata& metadata);
 
     private:
-        /// Parses a metadata string into a pair of (directive, arguments) strings.
-        static std::pair<std::string, std::string> parseRawMetadata(std::string rawMetadata);
-
         std::string _directive;
         std::string _arguments;
 

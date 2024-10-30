@@ -1097,7 +1097,7 @@ Slice::Gen::MetadataVisitor::visitConst(const ConstPtr& p)
 MetadataList
 Slice::Gen::MetadataVisitor::validate(
     const SyntaxTreeBasePtr& cont,
-    const MetadataList& metadata,
+    MetadataList metadata,
     const string& file,
     int line,
     bool operation)
@@ -1106,9 +1106,9 @@ Slice::Gen::MetadataVisitor::validate(
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
 
-    MetadataList newMetadata = metadata;
-    for (const auto& meta : metadata)
+    for (MetadataList::const_iterator q = metadata.begin(); q != metadata.end();)
     {
+        MetadataPtr meta = *q++;
         string_view directive = meta->directive();
         string_view arguments = meta->arguments();
 
@@ -1119,7 +1119,7 @@ Slice::Gen::MetadataVisitor::validate(
             ostringstream ostr;
             ostr << "ignoring invalid metadata '" << *meta << "'";
             dc->warning(InvalidMetadata, file, line, ostr.str());
-            newMetadata.remove(meta);
+            meta.remove(meta);
             continue;
         }
 
@@ -1185,9 +1185,9 @@ Slice::Gen::MetadataVisitor::validate(
         ostringstream ostr;
         ostr << "ignoring invalid metadata '" << *meta << "'";
         dc->warning(InvalidMetadata, file, line, ostr.str());
-        newMetadata.remove(meta);
+        metadata.remove(meta);
     }
-    return newMetadata;
+    return metadata;
 }
 
 TypeContext
