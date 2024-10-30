@@ -618,7 +618,7 @@ namespace DataStorm
          */
         template<typename Criteria>
         void setKeyFilter(
-            const std::string& name,
+            std::string name,
             std::function<std::function<bool(const Key&)>(const Criteria&)> factory) noexcept;
 
         /**
@@ -630,7 +630,7 @@ namespace DataStorm
          */
         template<typename Criteria>
         void setSampleFilter(
-            const std::string& name,
+            std::string name,
             std::function<std::function<bool(const SampleType&)>(const Criteria&)> factory) noexcept;
 
     private:
@@ -1829,6 +1829,7 @@ namespace DataStorm
     template<typename Value>
     std::function<std::function<bool(const Value&)>(const std::string&)> makeRegexFilter() noexcept
     {
+        // std::regex_match accepts a const string&.
         return [](const std::string& criteria)
         {
             std::regex expr(criteria);
@@ -2017,21 +2018,21 @@ namespace DataStorm
     template<typename Key, typename Value, typename UpdateTag>
     template<typename Criteria>
     void Topic<Key, Value, UpdateTag>::setKeyFilter(
-        const std::string& name,
+        std::string name,
         std::function<std::function<bool(const Key&)>(const Criteria&)> factory) noexcept
     {
         std::lock_guard<std::mutex> lock(_mutex);
-        _keyFilterFactories->set(name, factory);
+        _keyFilterFactories->set(std::move(name), factory);
     }
 
     template<typename Key, typename Value, typename UpdateTag>
     template<typename Criteria>
     void Topic<Key, Value, UpdateTag>::setSampleFilter(
-        const std::string& name,
+        std::string name,
         std::function<std::function<bool(const Sample<Key, Value, UpdateTag>&)>(const Criteria&)> factory) noexcept
     {
         std::lock_guard<std::mutex> lock(_mutex);
-        _sampleFilterFactories->set(name, factory);
+        _sampleFilterFactories->set(std::move(name), factory);
     }
 
     template<typename Key, typename Value, typename UpdateTag>

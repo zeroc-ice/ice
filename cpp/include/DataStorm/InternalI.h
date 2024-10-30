@@ -71,16 +71,16 @@ namespace DataStormI
     {
     public:
         Sample(
-            const std::string& session,
-            const std::string& origin,
+            std::string session,
+            std::string origin,
             std::int64_t id,
             DataStorm::SampleEvent event,
             const std::shared_ptr<Key>& key,
             const std::shared_ptr<Tag>& tag,
             Ice::ByteSeq value,
             std::int64_t timestamp)
-            : session(session),
-              origin(origin),
+            : session(std::move(session)),
+              origin(std::move(origin)),
               id(id),
               event(event),
               key(key),
@@ -119,8 +119,8 @@ namespace DataStormI
         virtual ~SampleFactory() = default;
 
         virtual std::shared_ptr<Sample> create(
-            const std::string&,
-            const std::string&,
+            std::string,
+            std::string,
             std::int64_t,
             DataStorm::SampleEvent,
             const std::shared_ptr<Key>&,
@@ -229,14 +229,14 @@ namespace DataStormI
             const std::shared_ptr<Filter>&,
             std::string,
             DataStorm::ReaderConfig,
-            const std::string& = std::string(),
+            std::string = std::string(),
             Ice::ByteSeq = {}) = 0;
 
         virtual std::shared_ptr<DataReader> create(
             const std::vector<std::shared_ptr<Key>>&,
             std::string,
             DataStorm::ReaderConfig,
-            const std::string& = std::string(),
+            std::string = std::string(),
             Ice::ByteSeq = {}) = 0;
 
         virtual void setDefaultConfig(DataStorm::ReaderConfig) = 0;

@@ -169,14 +169,14 @@ namespace DataStormI
             const std::shared_ptr<Filter>&,
             std::string,
             DataStorm::ReaderConfig,
-            const std::string&,
+            std::string,
             Ice::ByteSeq) final;
 
         std::shared_ptr<DataReader> create(
             const std::vector<std::shared_ptr<Key>>&,
             std::string,
             DataStorm::ReaderConfig,
-            const std::string&,
+            std::string,
             Ice::ByteSeq) final;
 
         void setDefaultConfig(DataStorm::ReaderConfig) final;

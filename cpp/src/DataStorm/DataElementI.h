@@ -283,7 +283,7 @@ namespace DataStormI
             TopicReaderI*,
             std::string,
             std::int64_t,
-            const std::string&,
+            std::string,
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);
 
@@ -351,7 +351,7 @@ namespace DataStormI
             std::string,
             std::int64_t,
             const std::vector<std::shared_ptr<Key>>&,
-            const std::string&,
+            std::string,
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);
 
@@ -409,7 +409,7 @@ namespace DataStormI
             std::string,
             std::int64_t,
             const std::shared_ptr<Filter>&,
-            const std::string&,
+            std::string,
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);
 

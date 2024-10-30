@@ -645,7 +645,7 @@ DataReaderI::DataReaderI(
     TopicReaderI* topic,
     string name,
     int64_t id,
-    const string& sampleFilterName,
+    string sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
     : DataElementI(topic, std::move(name), id, config),
@@ -654,7 +654,7 @@ DataReaderI::DataReaderI(
 {
     if (!sampleFilterName.empty())
     {
-        _config->sampleFilter = FilterInfo{sampleFilterName, std::move(sampleFilterCriteria)};
+        _config->sampleFilter = FilterInfo{std::move(sampleFilterName), std::move(sampleFilterCriteria)};
     }
 }
 
@@ -1046,10 +1046,10 @@ KeyDataReaderI::KeyDataReaderI(
     string name,
     int64_t id,
     const vector<shared_ptr<Key>>& keys,
-    const string& sampleFilterName,
+    string sampleFilterName,
     const Ice::ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
-    : DataReaderI(topic, std::move(name), id, sampleFilterName, sampleFilterCriteria, config),
+    : DataReaderI(topic, std::move(name), id, std::move(sampleFilterName), sampleFilterCriteria, config),
       _keys(keys)
 {
     if (_traceLevels->data > 0)
@@ -1328,10 +1328,10 @@ FilteredDataReaderI::FilteredDataReaderI(
     string name,
     int64_t id,
     const shared_ptr<Filter>& filter,
-    const string& sampleFilterName,
+    string sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
-    : DataReaderI(topic, std::move(name), id, sampleFilterName, sampleFilterCriteria, config),
+    : DataReaderI(topic, std::move(name), id, std::move(sampleFilterName), std::move(sampleFilterCriteria), config),
       _filter(filter)
 {
     if (_traceLevels->data > 0)

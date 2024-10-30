@@ -876,7 +876,7 @@ TopicReaderI::createFiltered(
     const shared_ptr<Filter>& filter,
     string name,
     DataStorm::ReaderConfig config,
-    const string& sampleFilterName,
+    string sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria)
 {
     lock_guard<mutex> lock(_mutex);
@@ -885,7 +885,7 @@ TopicReaderI::createFiltered(
         std::move(name),
         ++_nextFilteredId,
         filter,
-        sampleFilterName,
+        std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
         mergeConfigs(std::move(config)));
     addFiltered(element, filter);
@@ -897,7 +897,7 @@ TopicReaderI::create(
     const vector<shared_ptr<Key>>& keys,
     string name,
     DataStorm::ReaderConfig config,
-    const string& sampleFilterName,
+    string sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria)
 {
     lock_guard<mutex> lock(_mutex);
@@ -906,7 +906,7 @@ TopicReaderI::create(
         std::move(name),
         ++_nextId,
         keys,
-        sampleFilterName,
+        std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
         mergeConfigs(std::move(config)));
     add(element, keys);
