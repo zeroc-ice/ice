@@ -76,6 +76,9 @@ namespace IcePHP
     bool createStringMap(zval*, const std::map<std::string, std::string>&);
     bool extractStringMap(zval*, std::map<std::string, std::string>&);
 
+    bool createContext(zval*, const Ice::Context&);
+    bool extractContext(zval*, Ice::Context&);
+
     bool createStringArray(zval*, const Ice::StringSeq&);
     bool extractStringArray(zval*, Ice::StringSeq&);
 
