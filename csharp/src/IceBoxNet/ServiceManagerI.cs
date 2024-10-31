@@ -896,7 +896,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
     private Ice.Properties createServiceProperties(string service)
     {
-        Ice.Properties properties = new Ice.Properties();
+        var properties = new Ice.Properties();
         Ice.Properties communicatorProperties = _communicator.getProperties();
         if (communicatorProperties.getIcePropertyAsInt("IceBox.InheritProperties") > 0)
         {

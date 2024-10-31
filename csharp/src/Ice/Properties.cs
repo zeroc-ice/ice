@@ -37,10 +37,7 @@ public sealed class Properties
     {
     }
 
-    public Properties(List<string> optInPrefixes)
-    {
-        _optInPrefixes = optInPrefixes;
-    }
+    public Properties(List<string> optInPrefixes) => _optInPrefixes = optInPrefixes;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initialized from the
@@ -61,10 +58,7 @@ public sealed class Properties
                 _properties[entry.Key] = entry.Value.Clone();
             }
 
-            foreach (string prefix in defaults._optInPrefixes)
-            {
-                _optInPrefixes.Add(prefix);
-            }
+            _optInPrefixes.AddRange(defaults._optInPrefixes);
         }
 
         if (_properties.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
@@ -336,8 +330,8 @@ public sealed class Properties
         {
             if (propertyArray.isOptIn && !_optInPrefixes.Contains(propertyArray.name))
             {
-                throw new PropertyException($"unable to set '{key}': property prefix '{propertyArray.name}' is " +
-                "opt-in and must be explicitly enabled");
+                throw new PropertyException(
+                    $"unable to set '{key}': property prefix '{propertyArray.name}' is opt-in and must be explicitly enabled");
             }
 
             Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new PropertyException($"unknown Ice property: {key}");
