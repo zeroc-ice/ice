@@ -959,7 +959,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     size = os.buf.size;
                 end
 
-                if length(varargin) == 1
+                if isscalar(varargin)
                     %
                     % Avoid the string concatenation
                     %
@@ -1056,7 +1056,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     size = os.buf.size;
                 end
                 futPtr = libpointer('voidPtr'); % Output param
-                if length(varargin) == 1
+                if isscalar(varargin)
                     %
                     % Avoid the string concatenation
                     %
@@ -1116,7 +1116,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function r = uncheckedCast(p, varargin)
             if isempty(varargin)
                 r = p;
-            elseif length(varargin) == 1
+            elseif isscalar(varargin)
                 if ~isempty(p)
                     r = p.ice_facet(varargin{1});
                 else
@@ -1133,9 +1133,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             hasFacet = false;
             facet = [];
             context = {};
-            if length(varargin) == 1
+            if isscalar(varargin)
                 if isa(varargin{1}, 'containers.Map')
-                    context = { varargin{1} };
+                    context = varargin(1);
                 elseif isempty(varargin{1}) || isa(varargin{1}, 'char')
                     hasFacet = true;
                     facet = varargin{1};
@@ -1145,7 +1145,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             elseif length(varargin) == 2
                 hasFacet = true;
                 facet = varargin{1};
-                context = { varargin{2} };
+                context = varargin(2);
             elseif length(varargin) > 2
                 throw(LocalException('Ice:ArgumentException', 'too many arguments to checkedCast'));
             end
@@ -1167,7 +1167,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function r = iceUncheckedCast(p, cls, varargin)
             hasFacet = false;
             facet = [];
-            if length(varargin) == 1
+            if isscalar(varargin)
                 hasFacet = true;
                 facet = varargin{1};
             elseif length(varargin) > 1

@@ -1,0 +1,42 @@
+name: Matlab Analyzer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  matlab-analyzer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+        with:
+          use_matlab: true
+
+      - name: Build MATLAB on Ubuntu
+        uses: ./.github/actions/build
+        timeout-minutes: 90
+        with:
+          working_directory: "matlab"
+          build_cpp_and_python: true
+
+      - name: MATLAB Analyzer
+        run: |
+          $MATLAB_COMMAND code_analyzer
+        working-directory: ./matlab/config
+        shell: bash
+
+      - name: Upload Analyzer Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: matlab-analyzer-report
+          path: ./matlab/config/result.json
+          if-no-files-found: ignore
+        if: always()

@@ -93,6 +93,8 @@ jobs:
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
+        with:
+          use_matlab: ${{ matrix.config == 'matlab' }}
 
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build

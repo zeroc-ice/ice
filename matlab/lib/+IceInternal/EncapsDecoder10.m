@@ -119,7 +119,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             end
         end
 
-        function startInstance(obj, sliceType)
+        function startInstance(obj, ~)
             %assert(obj.sliceType == sliceType);
             obj.skipFirstSlice = true;
         end
@@ -203,7 +203,6 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             %
             obj.startSlice();
             mostDerivedId = obj.typeId;
-            v = [];
             while true
                 %
                 % For the 1.0 encoding, the type ID for the base Object class
