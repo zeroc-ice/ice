@@ -159,7 +159,7 @@ namespace Slice
             bool shouldVisitIncludedDefinitions() const final { return true; }
 
         private:
-            MetadataList validate(const SyntaxTreeBasePtr&, const MetadataList&, const std::string&, int);
+            MetadataList validate(const SyntaxTreeBasePtr&, const ContainedPtr&);
 
             typedef std::map<std::string, std::string> ModuleMap;
             typedef std::map<std::string, ModuleMap> ModulePrefix;

@@ -230,7 +230,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
    * it only matches 2 characters (the lowest any match), and it's beneath the others. */
 <STRING_LITERAL>"\\". {
-    currentUnit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
+    currentUnit->warning(All, "unknown escape sequence in string literal: '" + string{yytext} + "'");
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     // Escape the entire sequence.

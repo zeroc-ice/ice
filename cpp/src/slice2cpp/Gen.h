@@ -218,7 +218,14 @@ namespace Slice
             void visitConst(const ConstPtr&) final;
 
         private:
-            MetadataList validate(const SyntaxTreeBasePtr&, MetadataList, const std::string&, int, bool = false);
+            /// Validates any 'cpp' specific metadata that's been applied to `cont`.
+            /// Additional metadata to validate can also be passed in with the `metadata` field.
+            /// For example, type metadata applied to a sequence where it's being used instead of just defined.
+            MetadataList validate(
+                const SyntaxTreeBasePtr& cont,
+                MetadataList metadata,
+                const std::string& file,
+                bool operation = false);
         };
 
         static void validateMetadata(const UnitPtr&);

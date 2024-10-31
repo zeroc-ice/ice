@@ -22,7 +22,7 @@ ConstDef.ice:118: initializer `256' for constant `b4' out of range for type byte
 ConstDef.ice:130: initializer `32767' for constant `c5' out of range for type byte
 ConstDef.ice:131: initializer `2147483647' for constant `c6' out of range for type short
 ConstDef.ice:132: initializer `9223372036854775807' for constant `c7' out of range for type int
-ConstDef.ice:143: warning: unknown escape sequence in string literal: `\g'
+ConstDef.ice:143: warning: unknown escape sequence in string literal: '\g'
 ConstDef.ice:144: unknown escape sequence in string literal: `\u000N'
 ConstDef.ice:145: unknown escape sequence in string literal: `\U0000000K'
 ConstDef.ice:146: octal escape sequence out of range: `\455'
