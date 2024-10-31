@@ -62,6 +62,11 @@ public class TestI implements TestIntf {
     }
 
     @Override
+    public boolean supportsBackPressureTests(com.zeroc.Ice.Current current) {
+        return true;
+    }
+
+    @Override
     public boolean opBool(boolean b, com.zeroc.Ice.Current current) {
         return b;
     }

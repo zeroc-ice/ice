@@ -1081,7 +1081,7 @@ public class AllTests {
         }
         out.println("ok");
 
-        if (p.ice_getConnection() != null) {
+        if (p.ice_getConnection() != null && p.supportsBackPressureTests()) {
             out.print("testing back pressure... ");
             out.flush();
             try {

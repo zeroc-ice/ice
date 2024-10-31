@@ -39,6 +39,8 @@ interface TestIntf
 
     bool supportsAMD();
     bool supportsFunctionalTests();
+    bool supportsBackPressureTests();
+
     bool opBool(bool b);
     byte opByte(byte b);
     short opShort(short s);
