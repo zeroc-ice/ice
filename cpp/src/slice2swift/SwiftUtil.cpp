@@ -11,7 +11,6 @@
 #include "SwiftUtil.h"
 
 #include <cassert>
-#include <functional>
 
 using namespace std;
 using namespace Slice;

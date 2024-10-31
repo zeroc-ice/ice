@@ -100,10 +100,7 @@ namespace
     }
 
     /// Returns a javadoc formatted link to the provided Slice identifier.
-    string javaLinkFormatter(string identifier)
-    {
-        return "{@link " + Slice::JavaGenerator::fixKwd(identifier) + "}";
-    }
+    string javaLinkFormatter(string identifier) { return "{@link " + Slice::JavaGenerator::fixKwd(identifier) + "}"; }
 
 }
 
@@ -1355,7 +1352,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     // for inherited operations.
     for (const auto& op : ops)
     {
-        OperationPtr op = *r;
         string opName = op->name();
         out << sp;
 

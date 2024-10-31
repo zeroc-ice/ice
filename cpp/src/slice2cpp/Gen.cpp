@@ -274,10 +274,7 @@ namespace
     }
 
     /// Returns a doxygen formatted link to the provided Slice identifier.
-    string cppLinkFormatter(string identifier)
-    {
-        return "{@link " + fixKwd(identifier) + "}";
-    }
+    string cppLinkFormatter(string identifier) { return "{@link " + fixKwd(identifier) + "}"; }
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {

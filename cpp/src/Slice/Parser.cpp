@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <functional>
 #include <iterator>
 #include <limits>
 
@@ -757,10 +756,8 @@ namespace
 }
 
 CommentPtr
-Slice::Contained::parseComment(
-    function<string(string)> linkFormatter,
-    bool includeDeprecatedMetadata,
-    bool stripMarkup) const
+Slice::Contained::parseComment(function<string(string)> linkFormatter, bool includeDeprecatedMetadata, bool stripMarkup)
+    const
 {
     CommentPtr comment = make_shared<Comment>();
 
