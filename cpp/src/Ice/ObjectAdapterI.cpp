@@ -327,13 +327,13 @@ Ice::ObjectAdapterI::destroy() noexcept
         //
         // Remove object references (some of them cyclic).
         //
-        _instance = 0;
-        _threadPool = 0;
-        _routerInfo = 0;
+        _instance = nullptr;
+        _threadPool = nullptr;
+        _routerInfo = nullptr;
         _publishedEndpoints.clear();
-        _locatorInfo = 0;
-        _reference = 0;
-        _objectAdapterFactory = 0;
+        _locatorInfo = nullptr;
+        _reference = nullptr;
+        _objectAdapterFactory = nullptr;
 
         _state = StateDestroyed;
         _conditionVariable.notify_all();
@@ -582,7 +582,6 @@ optional<LocatorPrx>
 Ice::ObjectAdapterI::getLocator() const noexcept
 {
     lock_guard lock(_mutex);
-    checkForDeactivation();
     return _locatorInfo ? optional<LocatorPrx>(_locatorInfo->getLocator()) : nullopt;
 }
 
