@@ -903,7 +903,8 @@ internal class ServiceManagerI : ServiceManagerDisp_
             // Inherit all except IceBox. and Ice.Admin. properties
             foreach (var property in communicatorProperties.getPropertiesForPrefix(""))
             {
-                if (!property.Key.StartsWith("IceBox.", StringComparison.Ordinal) && !property.Key.StartsWith("Ice.Admin.", StringComparison.Ordinal))
+                if (!property.Key.StartsWith("IceBox.", StringComparison.Ordinal) &&
+                    !property.Key.StartsWith("Ice.Admin.", StringComparison.Ordinal))
                 {
                     properties.setProperty(property.Key, property.Value);
                 }
