@@ -125,22 +125,26 @@ class TestI: TestIntf {
     }
 
     func waitForBatch(count: Int32, current _: Current) async throws -> Bool {
-        if await count == _state.getBatchCount() {
-            await _state.clearBatchCount()
-            return true
-        }
-
         var sub: AnyCancellable?
-        let currentCount = await withCheckedContinuation { continuation in
+        await withCheckedContinuation { continuation in
             sub = _batchSubject.sink { batchCount in
-                if batchCount >= count {
-                    continuation.resume(returning: batchCount)
+                if batchCount == count {
+                    continuation.resume()
+                } else if batchCount > count {
+                    fatalError("Received more batches than expected: \(batchCount) > \(count)")
                 }
             }
         }
         sub!.cancel()
-        let result = count == currentCount
+        // Check the batch count again after the sink has been cancelled to get the current value.
+        // The client only ever sends the expect number of batches so it is impossible that the
+        // batch count will be greater than the expected count at this point unless there is a bug.
+        // The above sink with also crash if the continuation is resumed twice if an unexpected batch is
+        // received before the subscription is cancelled.
+        let batchCount = await _state.getBatchCount()
+        let result = count == batchCount
         await _state.clearBatchCount()
+        _batchSubject.send(0) // Reset batch subject
         return result
     }
 
