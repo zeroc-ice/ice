@@ -12,13 +12,13 @@ namespace DataStormI
 {
     class CallbackExecutor;
 
-    class ConnectionManager : public std::enable_shared_from_this<ConnectionManager>
+    class ConnectionManager final : public std::enable_shared_from_this<ConnectionManager>
     {
     public:
         ConnectionManager(const std::shared_ptr<CallbackExecutor>&);
 
-        void
-        add(const Ice::ConnectionPtr&,
+        void add(
+            const Ice::ConnectionPtr&,
             std::shared_ptr<void>,
             std::function<void(const Ice::ConnectionPtr&, std::exception_ptr)>);
 

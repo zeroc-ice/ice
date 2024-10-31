@@ -20,11 +20,11 @@ namespace DataStormI
     class PublisherSessionI;
     class SubscriberSessionI;
 
-    class NodeI final : virtual public DataStormContract::Node, public std::enable_shared_from_this<NodeI>
+    class NodeI final : public virtual DataStormContract::Node, public std::enable_shared_from_this<NodeI>
     {
     public:
         NodeI(const std::shared_ptr<Instance>&);
-        virtual ~NodeI();
+        ~NodeI() final;
 
         void init();
         void destroy(bool);

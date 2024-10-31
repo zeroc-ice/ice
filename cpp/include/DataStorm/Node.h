@@ -19,10 +19,10 @@ namespace DataStorm
      *
      * @headerfile DataStorm/DataStorm.h
      */
-    class DATASTORM_API NodeShutdownException : public std::exception
+    class DATASTORM_API NodeShutdownException final : public std::exception
     {
     public:
-        virtual const char* what() const noexcept;
+        const char* what() const noexcept final;
     };
 
     /**

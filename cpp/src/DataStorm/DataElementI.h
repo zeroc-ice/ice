@@ -25,7 +25,8 @@ namespace DataStormI
     class CallbackExecutor;
     class TraceLevels;
 
-    class DataElementI : virtual public DataElement, public std::enable_shared_from_this<DataElementI>
+    // Base class for DataReaderI and DataWriterI.
+    class DataElementI : public virtual DataElement, public std::enable_shared_from_this<DataElementI>
     {
     protected:
         struct Subscriber
@@ -134,9 +135,9 @@ namespace DataStormI
 
     public:
         DataElementI(TopicI*, std::string, std::int64_t, const DataStorm::Config&);
-        virtual ~DataElementI();
+        ~DataElementI() override;
 
-        virtual void destroy() override;
+        void destroy() override;
 
         void attach(
             std::int64_t,
@@ -201,12 +202,14 @@ namespace DataStormI
             const std::string&,
             bool);
 
-        virtual std::vector<std::shared_ptr<Key>> getConnectedKeys() const override;
-        virtual std::vector<std::string> getConnectedElements() const override;
-        virtual void onConnectedKeys(
+        std::vector<std::shared_ptr<Key>> getConnectedKeys() const override;
+        std::vector<std::string> getConnectedElements() const override;
+
+        void onConnectedKeys(
             std::function<void(std::vector<std::shared_ptr<Key>>)>,
             std::function<void(DataStorm::CallbackReason, std::shared_ptr<Key>)>) override;
-        virtual void onConnectedElements(
+
+        void onConnectedElements(
             std::function<void(std::vector<std::string>)>,
             std::function<void(DataStorm::CallbackReason, std::string)>) override;
 
@@ -217,6 +220,7 @@ namespace DataStormI
             int,
             const std::chrono::time_point<std::chrono::system_clock>&,
             bool);
+
         virtual DataStormContract::DataSamples getSamples(
             const std::shared_ptr<Key>&,
             const std::shared_ptr<Filter>&,
@@ -233,7 +237,8 @@ namespace DataStormI
             bool);
 
         virtual std::string toString() const = 0;
-        virtual Ice::CommunicatorPtr getCommunicator() const override;
+
+        Ice::CommunicatorPtr getCommunicator() const override;
 
         std::int64_t getId() const { return _id; }
 
@@ -287,21 +292,22 @@ namespace DataStormI
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);
 
-        virtual int getInstanceCount() const override;
+        int getInstanceCount() const override;
 
-        virtual std::vector<std::shared_ptr<Sample>> getAllUnread() override;
-        virtual void waitForUnread(unsigned int) const override;
-        virtual bool hasUnread() const override;
-        virtual std::shared_ptr<Sample> getNextUnread() override;
+        std::vector<std::shared_ptr<Sample>> getAllUnread() override;
+        void waitForUnread(unsigned int) const override;
+        bool hasUnread() const override;
+        std::shared_ptr<Sample> getNextUnread() override;
 
-        virtual void initSamples(
+        void initSamples(
             const std::vector<std::shared_ptr<Sample>>&,
             std::int64_t,
             std::int64_t,
             int,
             const std::chrono::time_point<std::chrono::system_clock>&,
             bool) override;
-        virtual void queue(
+
+        void queue(
             const std::shared_ptr<Sample>&,
             int,
             const std::shared_ptr<SessionI>&,
@@ -309,13 +315,13 @@ namespace DataStormI
             const std::chrono::time_point<std::chrono::system_clock>&,
             bool) override;
 
-        virtual void onSamples(
+        void onSamples(
             std::function<void(const std::vector<std::shared_ptr<Sample>>&)>,
             std::function<void(const std::shared_ptr<Sample>&)>) override;
 
     protected:
         virtual bool matchKey(const std::shared_ptr<Key>&) const = 0;
-        virtual bool addConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&) override;
+        bool addConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&) override;
 
         TopicReaderI* _parent;
 
@@ -332,7 +338,7 @@ namespace DataStormI
     public:
         DataWriterI(TopicWriterI*, std::string, std::int64_t, const DataStorm::WriterConfig&);
 
-        virtual void publish(const std::shared_ptr<Key>&, const std::shared_ptr<Sample>&) override;
+        void publish(const std::shared_ptr<Key>&, const std::shared_ptr<Sample>&) override;
 
     protected:
         virtual void send(const std::shared_ptr<Key>&, const std::shared_ptr<Sample>&) const = 0;
@@ -343,7 +349,7 @@ namespace DataStormI
         std::shared_ptr<Sample> _last;
     };
 
-    class KeyDataReaderI : public DataReaderI
+    class KeyDataReaderI final : public DataReaderI
     {
     public:
         KeyDataReaderI(
@@ -355,20 +361,20 @@ namespace DataStormI
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);
 
-        virtual void destroyImpl() override;
+        void destroyImpl() final;
 
-        virtual void waitForWriters(int) override;
-        virtual bool hasWriters() override;
+        void waitForWriters(int) final;
+        bool hasWriters() final;
 
-        virtual std::string toString() const override;
+        std::string toString() const final;
 
     private:
-        virtual bool matchKey(const std::shared_ptr<Key>&) const override;
+        bool matchKey(const std::shared_ptr<Key>&) const final;
 
         const std::vector<std::shared_ptr<Key>> _keys;
     };
 
-    class KeyDataWriterI : public DataWriterI
+    class KeyDataWriterI final : public DataWriterI
     {
     public:
         KeyDataWriterI(
@@ -378,30 +384,31 @@ namespace DataStormI
             const std::vector<std::shared_ptr<Key>>&,
             const DataStorm::WriterConfig&);
 
-        virtual void destroyImpl() override;
+        void destroyImpl() final;
 
-        virtual void waitForReaders(int) const override;
-        virtual bool hasReaders() const override;
+        void waitForReaders(int) const final;
+        bool hasReaders() const final;
 
-        virtual std::shared_ptr<Sample> getLast() const override;
-        virtual std::vector<std::shared_ptr<Sample>> getAll() const override;
+        std::shared_ptr<Sample> getLast() const final;
+        std::vector<std::shared_ptr<Sample>> getAll() const final;
 
-        virtual std::string toString() const override;
-        virtual DataStormContract::DataSamples getSamples(
+        std::string toString() const final;
+
+        DataStormContract::DataSamples getSamples(
             const std::shared_ptr<Key>&,
             const std::shared_ptr<Filter>&,
             const std::shared_ptr<DataStormContract::ElementConfig>&,
             std::int64_t,
-            const std::chrono::time_point<std::chrono::system_clock>&) override;
+            const std::chrono::time_point<std::chrono::system_clock>&) final;
 
     private:
-        virtual void send(const std::shared_ptr<Key>&, const std::shared_ptr<Sample>&) const override;
-        virtual void forward(const Ice::ByteSeq&, const Ice::Current&) const override;
+        void send(const std::shared_ptr<Key>&, const std::shared_ptr<Sample>&) const final;
+        void forward(const Ice::ByteSeq&, const Ice::Current&) const final;
 
         const std::vector<std::shared_ptr<Key>> _keys;
     };
 
-    class FilteredDataReaderI : public DataReaderI
+    class FilteredDataReaderI final : public DataReaderI
     {
     public:
         FilteredDataReaderI(
@@ -413,15 +420,15 @@ namespace DataStormI
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);
 
-        virtual void destroyImpl() override;
+        void destroyImpl() final;
 
-        virtual void waitForWriters(int) override;
-        virtual bool hasWriters() override;
+        void waitForWriters(int) final;
+        bool hasWriters() final;
 
-        virtual std::string toString() const override;
+        std::string toString() const final;
 
     private:
-        virtual bool matchKey(const std::shared_ptr<Key>&) const override;
+        bool matchKey(const std::shared_ptr<Key>&) const final;
 
         const std::shared_ptr<Filter> _filter;
     };

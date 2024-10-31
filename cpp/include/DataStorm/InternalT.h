@@ -106,24 +106,24 @@ namespace DataStormI
         }
     };
 
-    template<typename T> class AbstractElementT : virtual public Element
+    template<typename T> class AbstractElementT : public virtual Element
     {
     public:
         template<typename TT> AbstractElementT(TT&& v, std::int64_t id) : _value(std::forward<TT>(v)), _id(id) {}
 
-        virtual std::string toString() const override
+        std::string toString() const override
         {
             std::ostringstream os;
             os << _id << ':' << Stringifier<T>::toString(_value);
             return os.str();
         }
 
-        virtual Ice::ByteSeq encode(const Ice::CommunicatorPtr& communicator) const override
+        Ice::ByteSeq encode(const Ice::CommunicatorPtr& communicator) const override
         {
             return EncoderT<T>::encode(communicator, _value);
         }
 
-        virtual std::int64_t getId() const override { return _id; }
+        std::int64_t getId() const override { return _id; }
 
         const T& get() const { return _value; }
 
@@ -242,26 +242,26 @@ namespace DataStormI
         std::int64_t _nextId;
     };
 
-    template<typename K> class KeyT : public Key, public AbstractElementT<K>
+    template<typename K> class KeyT final : public Key, public AbstractElementT<K>
     {
     public:
-        virtual std::string toString() const override { return "k" + AbstractElementT<K>::toString(); }
+        std::string toString() const final { return "k" + AbstractElementT<K>::toString(); }
 
         using AbstractElementT<K>::AbstractElementT;
         using BaseClassType = Key;
     };
 
-    template<typename K> class KeyFactoryT : public KeyFactory, public AbstractFactoryT<K, KeyT<K>>
+    template<typename K> class KeyFactoryT final : public KeyFactory, public AbstractFactoryT<K, KeyT<K>>
     {
     public:
         using AbstractFactoryT<K, KeyT<K>>::AbstractFactoryT;
 
-        virtual std::shared_ptr<Key> get(std::int64_t id) const override
+        std::shared_ptr<Key> get(std::int64_t id) const final
         {
             return AbstractFactoryT<K, KeyT<K>>::getImpl(id);
         }
 
-        virtual std::shared_ptr<Key> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) override
+        std::shared_ptr<Key> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
         {
             return AbstractFactoryT<K, KeyT<K>>::create(DecoderT<K>::decode(communicator, data));
         }
@@ -274,26 +274,26 @@ namespace DataStormI
         }
     };
 
-    template<typename T> class TagT : public Tag, public AbstractElementT<T>
+    template<typename T> class TagT final : public Tag, public AbstractElementT<T>
     {
     public:
-        virtual std::string toString() const override { return "t" + AbstractElementT<T>::toString(); }
+        std::string toString() const final { return "t" + AbstractElementT<T>::toString(); }
 
         using AbstractElementT<T>::AbstractElementT;
         using BaseClassType = Tag;
     };
 
-    template<typename T> class TagFactoryT : public TagFactory, public AbstractFactoryT<T, TagT<T>>
+    template<typename T> class TagFactoryT final : public TagFactory, public AbstractFactoryT<T, TagT<T>>
     {
     public:
         using AbstractFactoryT<T, TagT<T>>::AbstractFactoryT;
 
-        virtual std::shared_ptr<Tag> get(std::int64_t id) const override
+        std::shared_ptr<Tag> get(std::int64_t id) const final
         {
             return AbstractFactoryT<T, TagT<T>>::getImpl(id);
         }
 
-        virtual std::shared_ptr<Tag> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) override
+        std::shared_ptr<Tag> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
         {
             return AbstractFactoryT<T, TagT<T>>::create(DecoderT<T>::decode(communicator, data));
         }
@@ -307,7 +307,7 @@ namespace DataStormI
     };
 
     template<typename Key, typename Value, typename UpdateTag>
-    class SampleT : public Sample, public std::enable_shared_from_this<SampleT<Key, Value, UpdateTag>>
+    class SampleT final : public Sample, public std::enable_shared_from_this<SampleT<Key, Value, UpdateTag>>
     {
     public:
         SampleT(
@@ -357,9 +357,9 @@ namespace DataStormI
             _hasValue = true;
         }
 
-        virtual bool hasValue() const override { return _hasValue; }
+        bool hasValue() const final { return _hasValue; }
 
-        virtual void setValue(const std::shared_ptr<Sample>& sample) override
+        void setValue(const std::shared_ptr<Sample>& sample) final
         {
             if (sample)
             {
@@ -373,7 +373,7 @@ namespace DataStormI
             _hasValue = true;
         }
 
-        virtual const Ice::ByteSeq& encode(const Ice::CommunicatorPtr& communicator) override
+        const Ice::ByteSeq& encode(const Ice::CommunicatorPtr& communicator) final
         {
             if (_encodedValue.empty())
             {
@@ -382,13 +382,13 @@ namespace DataStormI
             return _encodedValue;
         }
 
-        virtual Ice::ByteSeq encodeValue(const Ice::CommunicatorPtr& communicator) override
+        Ice::ByteSeq encodeValue(const Ice::CommunicatorPtr& communicator) final
         {
             assert(_hasValue || event == DataStorm::SampleEvent::Remove);
             return EncoderT<Value>::encode(communicator, _value);
         }
 
-        virtual void decode(const Ice::CommunicatorPtr& communicator) override
+        void decode(const Ice::CommunicatorPtr& communicator) final
         {
             if (!_encodedValue.empty())
             {
@@ -403,10 +403,10 @@ namespace DataStormI
         Value _value;
     };
 
-    template<typename Key, typename Value, typename UpdateTag> class SampleFactoryT : public SampleFactory
+    template<typename Key, typename Value, typename UpdateTag> class SampleFactoryT final : public SampleFactory
     {
     public:
-        virtual std::shared_ptr<Sample> create(
+        std::shared_ptr<Sample> create(
             std::string session,
             std::string origin,
             std::int64_t id,
@@ -414,7 +414,7 @@ namespace DataStormI
             const std::shared_ptr<DataStormI::Key>& key,
             const std::shared_ptr<DataStormI::Tag>& tag,
             Ice::ByteSeq value,
-            std::int64_t timestamp)
+            std::int64_t timestamp) final
         {
             return std::make_shared<SampleT<Key, Value, UpdateTag>>(
                 std::move(session),
@@ -428,7 +428,7 @@ namespace DataStormI
         }
     };
 
-    template<typename C, typename V> class FilterT : public Filter, public AbstractElementT<C>
+    template<typename C, typename V> class FilterT final : public Filter, public AbstractElementT<C>
     {
     public:
         template<typename CC>
@@ -436,14 +436,14 @@ namespace DataStormI
         {
         }
 
-        virtual std::string toString() const override { return "f" + AbstractElementT<C>::toString(); }
+        std::string toString() const final { return "f" + AbstractElementT<C>::toString(); }
 
-        virtual bool match(const std::shared_ptr<Filterable>& value) const override
+        bool match(const std::shared_ptr<Filterable>& value) const final
         {
             return _lambda(std::static_pointer_cast<V>(value)->get());
         }
 
-        virtual const std::string& getName() const override { return _name; }
+        const std::string& getName() const final { return _name; }
 
         template<typename FF> void init(const std::string& name, FF&& lambda)
         {
@@ -459,18 +459,17 @@ namespace DataStormI
     };
 
     template<typename C, typename V>
-    class FilterFactoryT : public FilterFactory, public AbstractFactoryT<C, FilterT<C, V>>
+    class FilterFactoryT final : public FilterFactory, public AbstractFactoryT<C, FilterT<C, V>>
     {
     public:
         FilterFactoryT() {}
 
-        virtual std::shared_ptr<Filter> get(std::int64_t id) const override
+        std::shared_ptr<Filter> get(std::int64_t id) const final
         {
             return AbstractFactoryT<C, FilterT<C, V>>::getImpl(id);
         }
 
-        virtual std::shared_ptr<Filter>
-        decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) override
+        std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
         {
             return AbstractFactoryT<C, FilterT<C, V>>::create(DecoderT<C>::decode(communicator, data));
         }
@@ -483,7 +482,7 @@ namespace DataStormI
         }
     };
 
-    template<typename ValueT> class FilterManagerT : public FilterManager
+    template<typename ValueT> class FilterManagerT final : public FilterManager
     {
         using Value = typename std::remove_reference<decltype(std::declval<ValueT>().get())>::type;
 
@@ -496,7 +495,7 @@ namespace DataStormI
             virtual std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq&) = 0;
         };
 
-        template<typename Criteria> struct FactoryT : Factory
+        template<typename Criteria> struct FactoryT final : Factory
         {
             FactoryT(std::string name, std::function<std::function<bool(const Value&)>(const Criteria&)> lambda)
                 : name(std::move(name)),
@@ -511,9 +510,9 @@ namespace DataStormI
                 return filter;
             }
 
-            virtual std::shared_ptr<Filter> get(std::int64_t id) const { return filterFactory.get(id); }
+            std::shared_ptr<Filter> get(std::int64_t id) const final { return filterFactory.get(id); }
 
-            virtual std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data)
+            std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
             {
                 return create(DecoderT<Criteria>::decode(communicator, data));
             }
@@ -543,8 +542,8 @@ namespace DataStormI
             return factory->create(criteria);
         }
 
-        virtual std::shared_ptr<Filter>
-        decode(const Ice::CommunicatorPtr& communicator, const std::string& name, const Ice::ByteSeq& data) override
+        std::shared_ptr<Filter>
+        decode(const Ice::CommunicatorPtr& communicator, const std::string& name, const Ice::ByteSeq& data) final
         {
             auto p = _factories.find(name);
             if (p == _factories.end())
@@ -555,7 +554,7 @@ namespace DataStormI
             return p->second->decode(communicator, data);
         }
 
-        virtual std::shared_ptr<Filter> get(const std::string& name, std::int64_t id) const override
+        std::shared_ptr<Filter> get(const std::string& name, std::int64_t id) const final
         {
             auto p = _factories.find(name);
             if (p == _factories.end())

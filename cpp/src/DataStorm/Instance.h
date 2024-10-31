@@ -22,7 +22,7 @@ namespace DataStormI
     class NodeI;
     class CallbackExecutor;
 
-    class Instance : public std::enable_shared_from_this<Instance>
+    class Instance final : public std::enable_shared_from_this<Instance>
     {
     public:
         Instance(
