@@ -719,333 +719,33 @@ namespace
         }
     }
 
-    void trimLines(StringList& l)
+    /// Returns a MATLAB formatted link to the provided Slice identifier.
+    string matlabLinkFormatter(string identifier)
     {
-        //
-        // Remove empty trailing lines.
-        //
-        while (!l.empty() && l.back().empty())
+        string::size_type hashPos = identifier.find("#");
+        if (hashPos != string::npos)
         {
-            l.pop_back();
-        }
-    }
-
-    StringList splitComment(const string& c)
-    {
-        string comment = c;
-
-        //
-        // Strip HTML markup and javadoc links -- MATLAB doesn't display them.
-        //
-        string::size_type pos = 0;
-        do
-        {
-            pos = comment.find('<', pos);
-            if (pos != string::npos)
+            string rest = identifier.substr(hashPos + 1);
+            identifier.erase(hashPos);
+            if (!identifier.empty())
             {
-                string::size_type endpos = comment.find('>', pos);
-                if (endpos == string::npos)
+                identifier = fixIdent(identifier);
+                if (!rest.empty())
                 {
-                    break;
+                    identifier += "." + fixIdent(rest);
                 }
-                comment.erase(pos, endpos - pos + 1);
-            }
-        } while (pos != string::npos);
-
-        const string link = "{@link";
-        pos = 0;
-        do
-        {
-            pos = comment.find(link, pos);
-            if (pos != string::npos)
-            {
-                comment.erase(pos, link.size() + 1); // Erase trailing white space too.
-                string::size_type endpos = comment.find('}', pos);
-                if (endpos != string::npos)
-                {
-                    string ident = comment.substr(pos, endpos - pos);
-                    comment.erase(pos, endpos - pos + 1);
-
-                    //
-                    // Check for links of the form {@link Type#member}.
-                    //
-                    string::size_type hash = ident.find('#');
-                    string rest;
-                    if (hash != string::npos)
-                    {
-                        rest = ident.substr(hash + 1);
-                        ident = ident.substr(0, hash);
-                        if (!ident.empty())
-                        {
-                            ident = fixIdent(ident);
-                            if (!rest.empty())
-                            {
-                                ident += "." + fixIdent(rest);
-                            }
-                        }
-                        else if (!rest.empty())
-                        {
-                            ident = fixIdent(rest);
-                        }
-                    }
-                    else
-                    {
-                        ident = fixIdent(ident);
-                    }
-
-                    comment.insert(pos, ident);
-                }
-            }
-        } while (pos != string::npos);
-
-        StringList result;
-
-        pos = 0;
-        string::size_type nextPos;
-        while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
-        {
-            result.push_back(IceInternal::trim(string(comment, pos, nextPos - pos)));
-            pos = nextPos + 1;
-        }
-        string lastLine = IceInternal::trim(string(comment, pos));
-        if (!lastLine.empty())
-        {
-            result.push_back(lastLine);
-        }
-
-        trimLines(result);
-
-        return result;
-    }
-
-    bool parseCommentLine(const string& l, const string& tag, bool namedTag, string& name, string& doc)
-    {
-        doc.clear();
-
-        if (l.find(tag) == 0)
-        {
-            const string ws = " \t";
-
-            if (namedTag)
-            {
-                string::size_type n = l.find_first_not_of(ws, tag.size());
-                if (n == string::npos)
-                {
-                    return false; // Malformed line, ignore it.
-                }
-                string::size_type end = l.find_first_of(ws, n);
-                if (end == string::npos)
-                {
-                    return false; // Malformed line, ignore it.
-                }
-                name = l.substr(n, end - n);
-                n = l.find_first_not_of(ws, end);
-                if (n != string::npos)
-                {
-                    doc = l.substr(n);
-                }
+                return identifier;
             }
             else
             {
-                name.clear();
-
-                string::size_type n = l.find_first_not_of(ws, tag.size());
-                if (n == string::npos)
-                {
-                    return false; // Malformed line, ignore it.
-                }
-                doc = l.substr(n);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    struct DocElements
-    {
-        StringList overview;
-        bool deprecated;
-        StringList deprecateReason;
-        StringList misc;
-        StringList seeAlso;
-        StringList returns;
-        map<string, StringList> params;
-        map<string, StringList> exceptions;
-    };
-
-    DocElements parseComment(const ContainedPtr& p)
-    {
-        DocElements doc;
-
-        doc.deprecated = p->isDeprecated();
-
-        // First check metadata for a deprecated tag.
-        if (auto reason = p->getDeprecationReason())
-        {
-            doc.deprecateReason.push_back(IceInternal::trim(*reason));
-        }
-
-        //
-        // Split up the comment into lines.
-        //
-        StringList lines = splitComment(p->comment());
-
-        StringList::const_iterator i;
-        for (i = lines.begin(); i != lines.end(); ++i)
-        {
-            const string l = *i;
-            if (l[0] == '@')
-            {
-                break;
-            }
-            doc.overview.push_back(l);
-        }
-
-        enum State
-        {
-            StateMisc,
-            StateParam,
-            StateThrows,
-            StateReturn,
-            StateDeprecated,
-            StateSee
-        };
-        State state = StateMisc;
-        string name;
-        const string ws = " \t";
-        const string paramTag = "@param";
-        const string throwsTag = "@throws";
-        const string exceptionTag = "@exception";
-        const string returnTag = "@return";
-        const string deprecatedTag = "@deprecated";
-        const string seeTag = "@see";
-        for (; i != lines.end(); ++i)
-        {
-            const string l = IceInternal::trim(*i);
-            string line;
-            if (parseCommentLine(l, paramTag, true, name, line))
-            {
-                if (!line.empty())
-                {
-                    state = StateParam;
-                    StringList sl;
-                    sl.push_back(line); // The first line of the description.
-                    doc.params[name] = sl;
-                }
-            }
-            else if (parseCommentLine(l, throwsTag, true, name, line))
-            {
-                if (!line.empty())
-                {
-                    state = StateThrows;
-                    StringList sl;
-                    sl.push_back(line); // The first line of the description.
-                    doc.exceptions[name] = sl;
-                }
-            }
-            else if (parseCommentLine(l, exceptionTag, true, name, line))
-            {
-                if (!line.empty())
-                {
-                    state = StateThrows;
-                    StringList sl;
-                    sl.push_back(line); // The first line of the description.
-                    doc.exceptions[name] = sl;
-                }
-            }
-            else if (parseCommentLine(l, seeTag, false, name, line))
-            {
-                if (!line.empty())
-                {
-                    state = StateSee;
-                    doc.seeAlso.push_back(line);
-                }
-            }
-            else if (parseCommentLine(l, returnTag, false, name, line))
-            {
-                if (!line.empty())
-                {
-                    state = StateReturn;
-                    doc.returns.push_back(line); // The first line of the description.
-                }
-            }
-            else if (parseCommentLine(l, deprecatedTag, false, name, line))
-            {
-                doc.deprecated = true;
-                if (!line.empty())
-                {
-                    state = StateDeprecated;
-                    doc.deprecateReason.push_back(line); // The first line of the description.
-                }
-            }
-            else if (!l.empty())
-            {
-                if (l[0] == '@')
-                {
-                    //
-                    // Treat all other tags as miscellaneous comments.
-                    //
-                    state = StateMisc;
-                }
-
-                switch (state)
-                {
-                    case StateMisc:
-                    {
-                        doc.misc.push_back(l);
-                        break;
-                    }
-                    case StateParam:
-                    {
-                        assert(!name.empty());
-                        StringList sl;
-                        if (doc.params.find(name) != doc.params.end())
-                        {
-                            sl = doc.params[name];
-                        }
-                        sl.push_back(l);
-                        doc.params[name] = sl;
-                        break;
-                    }
-                    case StateThrows:
-                    {
-                        assert(!name.empty());
-                        StringList sl;
-                        if (doc.exceptions.find(name) != doc.exceptions.end())
-                        {
-                            sl = doc.exceptions[name];
-                        }
-                        sl.push_back(l);
-                        doc.exceptions[name] = sl;
-                        break;
-                    }
-                    case StateReturn:
-                    {
-                        doc.returns.push_back(l);
-                        break;
-                    }
-                    case StateDeprecated:
-                    {
-                        doc.deprecateReason.push_back(l);
-                        break;
-                    }
-                    case StateSee:
-                    {
-                        doc.seeAlso.push_back(l);
-                        break;
-                    }
-                }
+                assert(!rest.empty());
+                return fixIdent(rest);
             }
         }
-
-        trimLines(doc.overview);
-        trimLines(doc.deprecateReason);
-        trimLines(doc.misc);
-        trimLines(doc.returns);
-
-        return doc;
+        else
+        {
+            return fixIdent(identifier);
+        }
     }
 
     void writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
@@ -1172,7 +872,11 @@ namespace
 
     void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
     {
-        DocElements doc = parseComment(p);
+        CommentPtr doc = p->parseComment(matlabLinkFormatter, true, true);
+        if (!doc)
+        {
+            return;
+        }
 
         string n = fixIdent(p->name());
 
@@ -1181,102 +885,128 @@ namespace
         //
         out << "% " << n << "   Summary of " << n;
 
-        if (!doc.overview.empty())
+        StringList docOverview = doc->overview();
+        if (!docOverview.empty())
         {
             out << nl << "%";
-            writeDocLines(out, doc.overview, true);
+            writeDocLines(out, docOverview, true);
         }
 
         if (EnumPtr en = dynamic_pointer_cast<Enum>(p))
         {
-            out << nl << "%";
-            out << nl << "% " << n << " Properties:";
-            const EnumeratorList el = en->enumerators();
-            for (EnumeratorList::const_iterator q = el.begin(); q != el.end(); ++q)
+            const EnumeratorList enumerators = en->enumerators();
+            if (!enumerators.empty())
             {
-                StringList sl = splitComment((*q)->comment());
-                out << nl << "%   " << fixEnumerator((*q)->name());
-                if (!sl.empty())
+                out << nl << "%";
+                out << nl << "% " << n << " Properties:";
+                for (const auto& enumerator : enumerators)
                 {
-                    out << " - ";
-                    writeDocSentence(out, sl);
+                    out << nl << "%   " << fixEnumerator(enumerator->name());
+                    CommentPtr enumeratorDoc = enumerator->parseComment(matlabLinkFormatter, true, true);
+                    if (enumeratorDoc)
+                    {
+                        StringList enumeratorOverview = enumeratorDoc->overview();
+                        if (!enumeratorOverview.empty())
+                        {
+                            out << " - ";
+                            writeDocSentence(out, enumeratorOverview);
+                        }
+                    }
                 }
             }
         }
         else if (StructPtr st = dynamic_pointer_cast<Struct>(p))
         {
-            out << nl << "%";
-            out << nl << "% " << n << " Properties:";
-            const DataMemberList dml = st->dataMembers();
-            for (DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+            const DataMemberList members = st->dataMembers();
+            if (!members.empty())
             {
-                StringList sl = splitComment((*q)->comment());
-                out << nl << "%   " << fixIdent((*q)->name());
-                if (!sl.empty())
+                out << nl << "%";
+                out << nl << "% " << n << " Properties:";
+                for (const auto& member : members)
                 {
-                    out << " - ";
-                    writeDocSentence(out, sl);
+                    out << nl << "%   " << fixIdent(member->name());
+                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true, true);
+                    if (memberDoc)
+                    {
+                        StringList memberOverview = memberDoc->overview();
+                        if (!memberOverview.empty())
+                        {
+                            out << " - ";
+                            writeDocSentence(out, memberOverview);
+                        }
+                    }
                 }
             }
         }
         else if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
         {
-            const DataMemberList dml = ex->dataMembers();
-            if (!dml.empty())
+            const DataMemberList members = ex->dataMembers();
+            if (!members.empty())
             {
                 out << nl << "%";
                 out << nl << "% " << n << " Properties:";
-                for (DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+                for (const auto& member : members)
                 {
-                    StringList sl = splitComment((*q)->comment());
-                    out << nl << "%   " << fixExceptionMember((*q)->name());
-                    if (!sl.empty())
+                    out << nl << "%   " << fixExceptionMember(member->name());
+                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true, true);
+                    if (memberDoc)
                     {
-                        out << " - ";
-                        writeDocSentence(out, sl);
+                        StringList memberOverview = memberDoc->overview();
+                        if (!memberOverview.empty())
+                        {
+                            out << " - ";
+                            writeDocSentence(out, memberOverview);
+                        }
                     }
                 }
             }
         }
         else if (ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p))
         {
-            const DataMemberList dml = cl->dataMembers();
-            if (!dml.empty())
+            const DataMemberList members = cl->dataMembers();
+            if (!members.empty())
             {
                 out << nl << "%";
                 out << nl << "% " << n << " Properties:";
-                for (DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+                for (const auto& member : members)
                 {
-                    StringList sl = splitComment((*q)->comment());
-                    out << nl << "%   " << fixIdent((*q)->name());
-                    if (!sl.empty())
+                    out << nl << "%   " << fixIdent(member->name());
+                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true, true);
+                    if (memberDoc)
                     {
-                        out << " - ";
-                        writeDocSentence(out, sl);
+                        StringList memberOverview = memberDoc->overview();
+                        if (!memberOverview.empty())
+                        {
+                            out << " - ";
+                            writeDocSentence(out, memberOverview);
+                        }
                     }
                 }
             }
         }
 
-        if (!doc.misc.empty())
+        StringList docMisc = doc->misc();
+        if (!docMisc.empty())
         {
             out << nl << "%";
-            writeDocLines(out, doc.misc, true);
+            writeDocLines(out, docMisc, true);
         }
 
-        if (!doc.seeAlso.empty())
+        StringList docSeeAlso = doc->seeAlso();
+        if (!docSeeAlso.empty())
         {
             out << nl << "%";
-            writeSeeAlso(out, doc.seeAlso, p->container());
+            writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        if (!doc.deprecateReason.empty())
+        StringList docDeprecated = doc->deprecated();
+        if (!docDeprecated.empty())
         {
             out << nl << "%";
             out << nl << "% Deprecated: ";
-            writeDocLines(out, doc.deprecateReason, false);
+            writeDocLines(out, docDeprecated, false);
         }
-        else if (doc.deprecated)
+        else if (doc->isDeprecated())
         {
             out << nl << "%";
             out << nl << "% Deprecated";
@@ -1287,18 +1017,24 @@ namespace
 
     void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async)
     {
-        DocElements doc = parseComment(p);
+        CommentPtr doc = p->parseComment(matlabLinkFormatter, true, true);
+        if (!doc)
+        {
+            return;
+        }
 
         out << nl << "% " << (async ? p->name() + "Async" : fixOp(p->name()));
 
-        if (!doc.overview.empty())
+        StringList docOverview = doc->overview();
+        if (!docOverview.empty())
         {
             out << "   ";
-            writeDocLines(out, doc.overview, false);
+            writeDocLines(out, docOverview, false);
         }
 
         out << nl << "%";
         out << nl << "% Parameters:";
+        auto docParameters = doc->parameters();
         const ParamDeclList inParams = p->inParameters();
         string ctxName = "context";
         string resultName = "result";
@@ -1314,8 +1050,8 @@ namespace
             }
 
             out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-            map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
-            if (r != doc.params.end() && !r->second.empty())
+            map<string, StringList>::const_iterator r = docParameters.find((*q)->name());
+            if (r != docParameters.end() && !r->second.empty())
             {
                 out << " - ";
                 writeDocLines(out, r->second, false, "     ");
@@ -1345,17 +1081,18 @@ namespace
                 if (p->returnType() && outParams.empty())
                 {
                     out << nl << "% Returns (" << typeToString(p->returnType()) << ")";
-                    if (!doc.returns.empty())
+                    StringList docReturns = doc->returns();
+                    if (!docReturns.empty())
                     {
                         out << " - ";
-                        writeDocLines(out, doc.returns, false);
+                        writeDocLines(out, docReturns, false);
                     }
                 }
                 else if (!p->returnType() && outParams.size() == 1)
                 {
                     out << nl << "% Returns (" << typeToString(outParams.front()->type()) << ")";
-                    map<string, StringList>::const_iterator q = doc.params.find(outParams.front()->name());
-                    if (q != doc.params.end() && !q->second.empty())
+                    map<string, StringList>::const_iterator q = docParameters.find(outParams.front()->name());
+                    if (q != docParameters.end() && !q->second.empty())
                     {
                         out << " - ";
                         writeDocLines(out, q->second, false);
@@ -1367,17 +1104,18 @@ namespace
                     if (p->returnType())
                     {
                         out << nl << "%   " << resultName << " (" << typeToString(p->returnType()) << ")";
-                        if (!doc.returns.empty())
+                        StringList docReturns = doc->returns();
+                        if (!docReturns.empty())
                         {
                             out << " - ";
-                            writeDocLines(out, doc.returns, false, "     ");
+                            writeDocLines(out, docReturns, false, "     ");
                         }
                     }
                     for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
                     {
                         out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-                        map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
-                        if (r != doc.params.end() && !r->second.empty())
+                        map<string, StringList>::const_iterator r = docParameters.find((*q)->name());
+                        if (r != docParameters.end() && !r->second.empty())
                         {
                             out << " - ";
                             writeDocLines(out, r->second, false, "     ");
@@ -1387,52 +1125,56 @@ namespace
             }
         }
 
-        if (!doc.exceptions.empty())
+        auto docExceptions = doc->exceptions();
+        if (!docExceptions.empty())
         {
             out << nl << "%";
             out << nl << "% Exceptions:";
-            for (map<string, StringList>::const_iterator q = doc.exceptions.begin(); q != doc.exceptions.end(); ++q)
+            for (const auto& docException : docExceptions)
             {
                 //
                 // Try to find the exception based on the name given in the doc comment.
                 //
                 out << nl << "%   ";
-                ExceptionPtr ex = p->container()->lookupException(q->first, false);
+                ExceptionPtr ex = p->container()->lookupException(docException.first, false);
                 if (ex)
                 {
                     out << getAbsolute(ex);
                 }
                 else
                 {
-                    out << q->first;
+                    out << docException.first;
                 }
-                if (!q->second.empty())
+                if (!docException.second.empty())
                 {
                     out << " - ";
-                    writeDocLines(out, q->second, false, "     ");
+                    writeDocLines(out, docException.second, false, "     ");
                 }
             }
         }
 
-        if (!doc.misc.empty())
+        StringList docMisc = doc->misc();
+        if (!docMisc.empty())
         {
             out << nl << "%";
-            writeDocLines(out, doc.misc, true);
+            writeDocLines(out, docMisc, true);
         }
 
-        if (!doc.seeAlso.empty())
+        StringList docSeeAlso = doc->seeAlso();
+        if (!docSeeAlso.empty())
         {
             out << nl << "%";
-            writeSeeAlso(out, doc.seeAlso, p->container());
+            writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        if (!doc.deprecateReason.empty())
+        StringList docDeprecated = doc->deprecated();
+        if (!docDeprecated.empty())
         {
             out << nl << "%";
             out << nl << "% Deprecated: ";
-            writeDocLines(out, doc.deprecateReason, false);
+            writeDocLines(out, docDeprecated, false);
         }
-        else if (doc.deprecated)
+        else if (doc->isDeprecated())
         {
             out << nl << "%";
             out << nl << "% Deprecated";
@@ -1443,7 +1185,11 @@ namespace
 
     void writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p)
     {
-        DocElements doc = parseComment(p);
+        CommentPtr doc = p->parseComment(matlabLinkFormatter, true, true);
+        if (!doc)
+        {
+            return;
+        }
 
         string n = p->name() + "Prx";
 
@@ -1452,10 +1198,11 @@ namespace
         //
         out << "% " << n << "   Summary of " << n;
 
-        if (!doc.overview.empty())
+        StringList docOverview = doc->overview();
+        if (!docOverview.empty())
         {
             out << nl << "%";
-            writeDocLines(out, doc.overview, true);
+            writeDocLines(out, docOverview, true);
         }
 
         out << nl << "%";
@@ -1466,43 +1213,54 @@ namespace
             for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
             {
                 OperationPtr op = *q;
-                DocElements opdoc = parseComment(op);
+                CommentPtr opdoc = op->parseComment(matlabLinkFormatter, true, true);
                 out << nl << "%   " << fixOp(op->name());
-                if (!opdoc.overview.empty())
+                if (opdoc)
                 {
-                    out << " - ";
-                    writeDocSentence(out, opdoc.overview);
+                    StringList opdocOverview = opdoc->overview();
+                    if (!opdocOverview.empty())
+                    {
+                        out << " - ";
+                        writeDocSentence(out, opdocOverview);
+                    }
                 }
                 out << nl << "%   " << op->name() << "Async";
-                if (!opdoc.overview.empty())
+                if (opdoc)
                 {
-                    out << " - ";
-                    writeDocSentence(out, opdoc.overview);
+                    StringList opdocOverview = opdoc->overview();
+                    if (!opdocOverview.empty())
+                    {
+                        out << " - ";
+                        writeDocSentence(out, opdocOverview);
+                    }
                 }
             }
         }
         out << nl << "%   checkedCast - Contacts the remote server to verify that the object implements this type.";
         out << nl << "%   uncheckedCast - Downcasts the given proxy to this type without contacting the remote server.";
 
-        if (!doc.misc.empty())
+        StringList docMisc = doc->misc();
+        if (!docMisc.empty())
         {
             out << nl << "%";
-            writeDocLines(out, doc.misc, true);
+            writeDocLines(out, docMisc, true);
         }
 
-        if (!doc.seeAlso.empty())
+        StringList docSeeAlso = doc->seeAlso();
+        if (!docSeeAlso.empty())
         {
             out << nl << "%";
-            writeSeeAlso(out, doc.seeAlso, p->container());
+            writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        if (!doc.deprecateReason.empty())
+        StringList docDeprecated = doc->deprecated();
+        if (!docDeprecated.empty())
         {
             out << nl << "%";
             out << nl << "% Deprecated: ";
-            writeDocLines(out, doc.deprecateReason, false);
+            writeDocLines(out, docDeprecated, false);
         }
-        else if (doc.deprecated)
+        else if (doc->isDeprecated())
         {
             out << nl << "%";
             out << nl << "% Deprecated";
@@ -1513,16 +1271,17 @@ namespace
 
     void writeMemberDoc(IceInternal::Output& out, const DataMemberPtr& p)
     {
-        DocElements doc = parseComment(p);
-
-        //
-        // Skip if there are no doc comments.
-        //
-        if (doc.overview.empty() && doc.misc.empty() && doc.seeAlso.empty() && doc.deprecateReason.empty() &&
-            !doc.deprecated)
+        CommentPtr doc = p->parseComment(matlabLinkFormatter, true, true);
+        if (!doc)
         {
             return;
         }
+
+        StringList docOverview = doc->overview();
+        StringList docMisc = doc->misc();
+        StringList docSeeAlso = doc->seeAlso();
+        StringList docDeprecated = doc->deprecated();
+        bool docIsDeprecated = doc->isDeprecated();
 
         string n;
 
@@ -1537,31 +1296,31 @@ namespace
 
         out << nl << "% " << n;
 
-        if (!doc.overview.empty())
+        if (!docOverview.empty())
         {
             out << " - ";
-            writeDocLines(out, doc.overview, false);
+            writeDocLines(out, docOverview, false);
         }
 
-        if (!doc.misc.empty())
+        if (!docMisc.empty())
         {
             out << nl << "%";
-            writeDocLines(out, doc.misc, true);
+            writeDocLines(out, docMisc, true);
         }
 
-        if (!doc.seeAlso.empty())
+        if (!docSeeAlso.empty())
         {
             out << nl << "%";
-            writeSeeAlso(out, doc.seeAlso, p->container());
+            writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        if (!doc.deprecateReason.empty())
+        if (!docDeprecated.empty())
         {
             out << nl << "%";
             out << nl << "% Deprecated: ";
-            writeDocLines(out, doc.deprecateReason, false);
+            writeDocLines(out, docDeprecated, false);
         }
-        else if (doc.deprecated)
+        else if (docIsDeprecated)
         {
             out << nl << "%";
             out << nl << "% Deprecated";
@@ -3440,14 +3199,10 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out.inc();
     out << nl << "enumeration";
     out.inc();
-    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (const auto& enumerator : enumerators)
     {
-        StringList sl = splitComment((*q)->comment());
-        if (!sl.empty())
-        {
-            writeDocLines(out, sl, true);
-        }
-        out << nl << fixEnumerator((*q)->name()) << " (" << (*q)->value() << ")";
+        writeDocSummary(out, enumerator);
+        out << nl << fixEnumerator(enumerator->name()) << " (" << enumerator->value() << ")";
     }
     out.dec();
     out << nl << "end";

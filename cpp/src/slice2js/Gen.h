@@ -30,7 +30,6 @@ namespace Slice
         std::string
         writeConstantValue(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
-        static StringList splitComment(const ContainedPtr&);
         void writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated = true);
 
         ::IceInternal::Output& _out;

@@ -272,9 +272,16 @@ namespace
         return os.str();
     }
 
+    string slice2LinkFormatter(string identifier)
+    {
+        // Replace links of the form `{@link Type#member}` with `{@link Type.member}`.
+        replace(identifier.begin(), identifier.end(), '#', '.');
+        return "{@link " + identifier + "}";
+    }
+
     void writeComment(const ContainedPtr& contained, Output& out)
     {
-        CommentPtr comment = contained->parseComment(true);
+        CommentPtr comment = contained->parseComment(slice2LinkFormatter, false, true);
         if (!comment)
         {
             return;

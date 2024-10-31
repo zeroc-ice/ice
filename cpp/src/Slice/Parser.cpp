@@ -639,14 +639,15 @@ namespace
         }
     }
 
-    StringList splitComment(const string& c, bool stripMarkup)
+    StringList splitComment(string_view c, function<string(string)> linkFormatter, bool stripMarkup)
     {
-        string comment = c;
+        string comment = string{c};
+        string::size_type pos;
 
         if (stripMarkup)
         {
-            // Strip HTML markup and javadoc links.
-            string::size_type pos = 0;
+            // Strip HTML markup.
+            pos = 0;
             do
             {
                 pos = comment.find('<', pos);
@@ -660,52 +661,38 @@ namespace
                     comment.erase(pos, endpos - pos + 1);
                 }
             } while (pos != string::npos);
-
-            const string link = "{@link";
-            pos = 0;
-            do
-            {
-                pos = comment.find(link, pos);
-                if (pos != string::npos)
-                {
-                    comment.erase(pos, link.size() + 1); // Erase trailing white space too.
-                    string::size_type endpos = comment.find('}', pos);
-                    if (endpos != string::npos)
-                    {
-                        string ident = comment.substr(pos, endpos - pos);
-                        comment.erase(pos, endpos - pos + 1);
-
-                        //
-                        // Replace links of the form {@link Type#member} with "Type.member".
-                        //
-                        string::size_type hash = ident.find('#');
-                        string rest;
-                        if (hash != string::npos)
-                        {
-                            rest = ident.substr(hash + 1);
-                            ident = ident.substr(0, hash);
-                            if (!ident.empty())
-                            {
-                                if (!rest.empty())
-                                {
-                                    ident += "." + rest;
-                                }
-                            }
-                            else if (!rest.empty())
-                            {
-                                ident = rest;
-                            }
-                        }
-
-                        comment.insert(pos, ident);
-                    }
-                }
-            } while (pos != string::npos);
         }
+
+        // Fix any javadoc using the provided link formatter.
+        const string link = "{@link ";
+        pos = 0;
+        do
+        {
+            pos = comment.find(link, pos);
+            if (pos != string::npos)
+            {
+                string::size_type endpos = comment.find('}', pos);
+                if (endpos != string::npos)
+                {
+                    // Extract the linked to identifier.
+                    string::size_type identStart = comment.find_first_not_of(" \t", pos + link.size());
+                    string::size_type identEnd = comment.find_last_not_of(" \t", endpos) + 1;
+                    string ident = comment.substr(identStart, identEnd - identStart);
+
+                    // Then erase the entire '{@link foo}' tag from the comment.
+                    comment.erase(pos, endpos - pos + 1);
+
+                    // In it's place, insert the correctly formatted link.
+                    string formattedLink = linkFormatter(ident);
+                    comment.insert(pos, formattedLink);
+                    pos += formattedLink.length();
+                }
+            }
+        } while (pos != string::npos);
 
         StringList result;
 
-        string::size_type pos = 0;
+        pos = 0;
         string::size_type nextPos;
         while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
         {
@@ -770,23 +757,31 @@ namespace
 }
 
 CommentPtr
-Slice::Contained::parseComment(bool stripMarkup) const
+Slice::Contained::parseComment(
+    function<string(string)> linkFormatter,
+    bool includeDeprecatedMetadata,
+    bool stripMarkup) const
 {
-    return parseComment(_comment, stripMarkup);
-}
+    CommentPtr comment = make_shared<Comment>();
 
-CommentPtr
-Slice::Contained::parseComment(const string& text, bool stripMarkup) const
-{
-    if (text.empty())
+    // Check for deprecated metadata and add it to the comment if necessary.
+    if (includeDeprecatedMetadata)
+    {
+        comment->_isDeprecated = isDeprecated();
+        if (auto reason = getDeprecationReason())
+        {
+            comment->_deprecated.push_back(IceInternal::trim(*reason));
+        }
+    }
+
+    // Split the comment's raw text up into lines.
+    StringList lines = splitComment(_comment, linkFormatter, stripMarkup);
+    if (lines.empty() && !comment->_isDeprecated)
     {
         return nullptr;
     }
 
-    // Split up the comment text into lines.
-    CommentPtr comment = make_shared<Comment>();
-    StringList lines = splitComment(text, stripMarkup);
-
+    // Parse the comment's text.
     StringList::const_iterator i;
     for (i = lines.begin(); i != lines.end(); ++i)
     {
@@ -853,6 +848,7 @@ Slice::Contained::parseComment(const string& text, bool stripMarkup) const
         {
             if (!line.empty())
             {
+                state = StateMisc; // Reset the state; `@see` cannot span multiple lines.
                 comment->_seeAlso.push_back(line);
             }
         }

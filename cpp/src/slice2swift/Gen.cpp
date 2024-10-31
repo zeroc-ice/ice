@@ -920,13 +920,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     for (const auto& enumerator : enumerators)
     {
-        StringList sl = splitComment(enumerator->comment());
-        out << nl << "/// " << fixIdent(enumerator->name());
-        if (!sl.empty())
-        {
-            out << " ";
-            writeDocLines(out, sl, false);
-        }
+        writeDocSummary(out, enumerator);
         out << nl << "case " << fixIdent(enumerator->name()) << " = " << enumerator->value();
     }
 
