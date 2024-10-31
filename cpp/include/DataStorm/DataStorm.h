@@ -1833,7 +1833,7 @@ namespace DataStorm
     template<typename Value>
     std::function<std::function<bool(const Value&)>(const std::string&)> makeRegexFilter() noexcept
     {
-        // std::regex_match accepts a const string&.
+        // std::regex's constructor accepts a const string&; it does not accept a string_view.
         return [](const std::string& criteria)
         {
             std::regex expr(criteria);
