@@ -311,15 +311,15 @@ namespace DataStormI
     {
     public:
         SampleT(
-            const std::string& session,
-            const std::string& origin,
+            std::string session,
+            std::string origin,
             std::int64_t id,
             DataStorm::SampleEvent event,
             const std::shared_ptr<DataStormI::Key>& key,
             const std::shared_ptr<DataStormI::Tag>& tag,
             Ice::ByteSeq value,
             std::int64_t timestamp)
-            : Sample(session, origin, id, event, key, tag, value, timestamp),
+            : Sample(std::move(session), std::move(origin), id, event, key, tag, value, timestamp),
               _hasValue(false)
         {
         }
@@ -407,8 +407,8 @@ namespace DataStormI
     {
     public:
         virtual std::shared_ptr<Sample> create(
-            const std::string& session,
-            const std::string& origin,
+            std::string session,
+            std::string origin,
             std::int64_t id,
             DataStorm::SampleEvent type,
             const std::shared_ptr<DataStormI::Key>& key,
@@ -416,8 +416,15 @@ namespace DataStormI
             Ice::ByteSeq value,
             std::int64_t timestamp)
         {
-            return std::make_shared<
-                SampleT<Key, Value, UpdateTag>>(session, origin, id, type, key, tag, std::move(value), timestamp);
+            return std::make_shared<SampleT<Key, Value, UpdateTag>>(
+                std::move(session),
+                std::move(origin),
+                id,
+                type,
+                key,
+                tag,
+                std::move(value),
+                timestamp);
         }
     };
 
@@ -491,8 +498,8 @@ namespace DataStormI
 
         template<typename Criteria> struct FactoryT : Factory
         {
-            FactoryT(const std::string& name, std::function<std::function<bool(const Value&)>(const Criteria&)> lambda)
-                : name(name),
+            FactoryT(std::string name, std::function<std::function<bool(const Value&)>(const Criteria&)> lambda)
+                : name(std::move(name)),
                   lambda(std::move(lambda))
             {
             }
@@ -560,11 +567,12 @@ namespace DataStormI
         }
 
         template<typename Criteria>
-        void set(const std::string& name, std::function<std::function<bool(const Value&)>(const Criteria&)> lambda)
+        void set(std::string name, std::function<std::function<bool(const Value&)>(const Criteria&)> lambda)
         {
             if (lambda)
             {
-                _factories[name] = std::unique_ptr<Factory>(new FactoryT<Criteria>(name, std::move(lambda)));
+                auto factory = std::make_unique<FactoryT<Criteria>>(name, std::move(lambda));
+                _factories.emplace(std::move(name), std::move(factory));
             }
             else
             {

@@ -71,16 +71,16 @@ namespace DataStormI
     {
     public:
         Sample(
-            const std::string& session,
-            const std::string& origin,
+            std::string session,
+            std::string origin,
             std::int64_t id,
             DataStorm::SampleEvent event,
             const std::shared_ptr<Key>& key,
             const std::shared_ptr<Tag>& tag,
             Ice::ByteSeq value,
             std::int64_t timestamp)
-            : session(session),
-              origin(origin),
+            : session(std::move(session)),
+              origin(std::move(origin)),
               id(id),
               event(event),
               key(key),
@@ -119,8 +119,8 @@ namespace DataStormI
         virtual ~SampleFactory() = default;
 
         virtual std::shared_ptr<Sample> create(
-            const std::string&,
-            const std::string&,
+            std::string,
+            std::string,
             std::int64_t,
             DataStorm::SampleEvent,
             const std::shared_ptr<Key>&,
@@ -227,16 +227,16 @@ namespace DataStormI
     public:
         virtual std::shared_ptr<DataReader> createFiltered(
             const std::shared_ptr<Filter>&,
-            const std::string&,
+            std::string,
             DataStorm::ReaderConfig,
-            const std::string& = std::string(),
+            std::string = std::string(),
             Ice::ByteSeq = {}) = 0;
 
         virtual std::shared_ptr<DataReader> create(
             const std::vector<std::shared_ptr<Key>>&,
-            const std::string&,
+            std::string,
             DataStorm::ReaderConfig,
-            const std::string& = std::string(),
+            std::string = std::string(),
             Ice::ByteSeq = {}) = 0;
 
         virtual void setDefaultConfig(DataStorm::ReaderConfig) = 0;
@@ -248,7 +248,7 @@ namespace DataStormI
     {
     public:
         virtual std::shared_ptr<DataWriter>
-        create(const std::vector<std::shared_ptr<Key>>&, const std::string&, DataStorm::WriterConfig) = 0;
+        create(const std::vector<std::shared_ptr<Key>>&, std::string, DataStorm::WriterConfig) = 0;
 
         virtual void setDefaultConfig(DataStorm::WriterConfig) = 0;
         virtual bool hasReaders() const = 0;
@@ -261,20 +261,20 @@ namespace DataStormI
         virtual ~TopicFactory() = default;
 
         virtual std::shared_ptr<TopicReader> createTopicReader(
-            const std::string&,
-            const std::shared_ptr<KeyFactory>&,
-            const std::shared_ptr<TagFactory>&,
-            const std::shared_ptr<SampleFactory>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::shared_ptr<FilterManager>&) = 0;
+            std::string,
+            std::shared_ptr<KeyFactory>,
+            std::shared_ptr<TagFactory>,
+            std::shared_ptr<SampleFactory>,
+            std::shared_ptr<FilterManager>,
+            std::shared_ptr<FilterManager>) = 0;
 
         virtual std::shared_ptr<TopicWriter> createTopicWriter(
-            const std::string&,
-            const std::shared_ptr<KeyFactory>&,
-            const std::shared_ptr<TagFactory>&,
-            const std::shared_ptr<SampleFactory>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::shared_ptr<FilterManager>&) = 0;
+            std::string,
+            std::shared_ptr<KeyFactory>,
+            std::shared_ptr<TagFactory>,
+            std::shared_ptr<SampleFactory>,
+            std::shared_ptr<FilterManager>,
+            std::shared_ptr<FilterManager>) = 0;
 
         virtual Ice::CommunicatorPtr getCommunicator() const = 0;
     };
