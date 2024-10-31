@@ -410,7 +410,7 @@ namespace Ice
         std::string startSlice()
         {
             assert(_currentEncaps && _currentEncaps->decoder);
-            return std::string{_currentEncaps->decoder->startSlice()};
+            return _currentEncaps->decoder->startSlice();
         }
 
         /**
