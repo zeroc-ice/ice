@@ -127,4 +127,5 @@ jobs:
         with:
           name: crash-diagnostics-${{ matrix.config }}-${{ matrix.os }}
           path: ~/Library/Logs/DiagnosticReports/*.ips
+          if-no-files-found: ignore
         if: runner.os == 'macOS' && always()
