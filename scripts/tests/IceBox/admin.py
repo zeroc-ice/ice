@@ -24,8 +24,9 @@ class IceBoxAdminTestCase(ClientServerTestCase):
 TestSuite(
     __name__,
     [
-        ClientServerTestCase(server=IceBox("{testdir}/config.icebox")),
-        IceBoxAdminTestCase("iceboxadmin", server=IceBox("{testdir}/config.icebox")),
+        # readyCount=2 for Ice.Admin and the "bundleName" from IceBox.PrintServicesReady
+        ClientServerTestCase(server=IceBox("{testdir}/config.icebox", readyCount=2)),
+        IceBoxAdminTestCase("iceboxadmin", server=IceBox("{testdir}/config.icebox", readyCount=2)),
     ],
     libDirs=["testservice"],
     runOnMainThread=True,

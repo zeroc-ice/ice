@@ -14,3 +14,5 @@ IceBox.UseSharedCommunicator.Service2=1
 IceBox.Service.Service2=msbuild/testservice/net8.0/testservice.dll:TestServiceI --Ice.Config=config.service2-2
 
 IceBox.LoadOrder=Service1 Service2
+
+IceBox.PrintServicesReady=IceBox.ServiceManager
