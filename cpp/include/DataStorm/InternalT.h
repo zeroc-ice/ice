@@ -256,10 +256,7 @@ namespace DataStormI
     public:
         using AbstractFactoryT<K, KeyT<K>>::AbstractFactoryT;
 
-        std::shared_ptr<Key> get(std::int64_t id) const final
-        {
-            return AbstractFactoryT<K, KeyT<K>>::getImpl(id);
-        }
+        std::shared_ptr<Key> get(std::int64_t id) const final { return AbstractFactoryT<K, KeyT<K>>::getImpl(id); }
 
         std::shared_ptr<Key> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
         {
@@ -288,10 +285,7 @@ namespace DataStormI
     public:
         using AbstractFactoryT<T, TagT<T>>::AbstractFactoryT;
 
-        std::shared_ptr<Tag> get(std::int64_t id) const final
-        {
-            return AbstractFactoryT<T, TagT<T>>::getImpl(id);
-        }
+        std::shared_ptr<Tag> get(std::int64_t id) const final { return AbstractFactoryT<T, TagT<T>>::getImpl(id); }
 
         std::shared_ptr<Tag> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
         {

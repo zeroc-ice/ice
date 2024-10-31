@@ -152,7 +152,8 @@ namespace DataStormI
 
         virtual std::shared_ptr<Filter> get(const std::string&, std::int64_t) const = 0;
 
-        virtual std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr&, const std::string&, const Ice::ByteSeq&) = 0;
+        virtual std::shared_ptr<Filter>
+        decode(const Ice::CommunicatorPtr&, const std::string&, const Ice::ByteSeq&) = 0;
     };
 
     class DataElement

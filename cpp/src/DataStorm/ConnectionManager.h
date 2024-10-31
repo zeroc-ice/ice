@@ -17,8 +17,8 @@ namespace DataStormI
     public:
         ConnectionManager(const std::shared_ptr<CallbackExecutor>&);
 
-        void add(
-            const Ice::ConnectionPtr&,
+        void
+        add(const Ice::ConnectionPtr&,
             std::shared_ptr<void>,
             std::function<void(const Ice::ConnectionPtr&, std::exception_ptr)>);
 
