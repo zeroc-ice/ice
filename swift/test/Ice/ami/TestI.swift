@@ -172,6 +172,10 @@ class TestI: TestIntf {
     func supportsFunctionalTests(current _: Current) async throws -> Bool {
         return false
     }
+
+    func supportsBackPressureTests(current _: Current) async throws -> Bool {
+        return false
+    }
 }
 
 class TestII: OuterInnerTestIntf {

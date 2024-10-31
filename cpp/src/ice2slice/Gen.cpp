@@ -100,12 +100,10 @@ namespace
 
         assert(m);
 
-        static const string prefix = "cs:namespace:";
-
-        if (auto meta = m->findMetadata(prefix))
+        if (auto metadata = m->getMetadataArgs("cs:namespace"))
         {
             hasCSharpNamespaceAttribute = true;
-            return meta->substr(prefix.size()) + "." + csharpNamespace;
+            return *metadata + "." + csharpNamespace;
         }
         else
         {
@@ -566,14 +564,11 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     out << nl << "typealias " << p->name() << " = ";
 
-    StringList metadata = p->getMetadata();
-    const string csGenericPrefix = "cs:generic:";
-    for (StringList::iterator q = metadata.begin(); q != metadata.end(); ++q)
+    for (const auto& metadata : p->getMetadata())
     {
-        string& s = *q;
-        if (s.find(csGenericPrefix) == 0)
+        if (metadata->directive() == "cs:generic")
         {
-            string type = s.substr(csGenericPrefix.size());
+            string_view type = metadata->arguments();
             if ((type == "LinkedList" || type == "Queue" || type == "Stack") && p->type()->isClassType())
             {
                 continue; // Ignored for objects
@@ -607,12 +602,9 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << nl << "typealias " << p->name() << " = ";
 
-    StringList metadata = p->getMetadata();
-    const string csGenericPrefix = "cs:generic:SortedDictionary";
-    for (StringList::iterator q = metadata.begin(); q != metadata.end(); ++q)
+    for (const auto& metadata : p->getMetadata())
     {
-        string& s = *q;
-        if (s.find(csGenericPrefix) == 0)
+        if (metadata->directive() == "cs:generic" && metadata->arguments() == "SortedDictionary")
         {
             out << "[cs::type(\"[System.Collections.Generic.SortedDictionary<"
                 // TODO the generic arguments must be the IceRPC C# mapped types

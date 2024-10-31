@@ -1004,7 +1004,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         bool optional;
         TypePtr type;
         int tag;
-        StringList metadata;
+        MetadataList metadata;
         if (ret)
         {
             type = ret;
@@ -1102,7 +1102,7 @@ Slice::JavaVisitor::writeMarshalServantResults(
         OptionalMode mode;
         TypePtr type;
         int tag;
-        StringList metadata;
+        MetadataList metadata;
         if (op->returnType())
         {
             type = op->returnType();
@@ -1343,18 +1343,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     out << nl << "return \"" << p->scoped() << "\";";
     out << eb;
 
-    //
     // Dispatch methods. We only generate methods for operations
     // defined in this InterfaceDef, because we reuse existing methods
     // for inherited operations.
-    //
-    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    for (const auto& op : ops)
     {
-        OperationPtr op = *r;
-        StringList opMetadata = op->getMetadata();
-
-        CommentPtr dc = op->parseComment(false);
-
         string opName = op->name();
         out << sp;
 
@@ -2319,17 +2312,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    //
-    // Check for java:implements metadata.
-    //
-    const StringList metadata = p->getMetadata();
-    static const string prefix = "java:implements:";
+    // Check for 'java:implements' metadata.
     StringList implements;
-    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
+    for (const auto& metadata : p->getMetadata())
     {
-        if (q->find(prefix) == 0)
+        if (metadata->directive() == "java:implements")
         {
-            implements.push_back(q->substr(prefix.size()));
+            implements.push_back(string{metadata->arguments()});
         }
     }
 
@@ -2938,17 +2927,13 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     Output& out = output();
 
-    //
-    // Check for java:implements metadata.
-    //
-    const StringList metadata = p->getMetadata();
-    static const string prefix = "java:implements:";
+    // Check for 'java:implements' metadata.
     StringList implements;
-    for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
+    for (const auto& metadata : p->getMetadata())
     {
-        if (q->find(prefix) == 0)
+        if (metadata->directive() == "java:implements")
         {
-            implements.push_back(q->substr(prefix.size()));
+            implements.push_back(string{metadata->arguments()});
         }
     }
 
@@ -3259,13 +3244,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const ContainedPtr contained = dynamic_pointer_cast<Contained>(container);
 
     const string name = fixKwd(p->name());
-    const StringList metadata = p->getMetadata();
-    const bool getSet = p->hasMetadata(_getSetMetadata) || contained->hasMetadata(_getSetMetadata);
+    const bool getSet = p->hasMetadata("java:getset") || contained->hasMetadata("java:getset");
     const bool optional = p->optional();
     const TypePtr type = p->type();
     const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     const bool classType = type->isClassType();
 
+    const MetadataList metadata = p->getMetadata();
     const string s = typeToString(type, TypeModeMember, getPackage(contained), metadata, true, false);
 
     Output& out = output();
@@ -3279,10 +3264,8 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << nl << "@Deprecated";
     }
 
-    //
     // Access visibility for class data members can be controlled by metadata.
     // If none is specified, the default is public.
-    //
     if (cls && (p->hasMetadata("protected") || contained->hasMetadata("protected")))
     {
         out << nl << "protected " << s << ' ' << name << ';';
@@ -3496,7 +3479,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             if (!hasTypeMetadata(seq, metadata))
             {
                 string elem =
-                    typeToString(seq->type(), TypeModeMember, getPackage(contained), StringList(), true, false);
+                    typeToString(seq->type(), TypeModeMember, getPackage(contained), MetadataList(), true, false);
 
                 //
                 // Indexed getter.
@@ -3783,7 +3766,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     bool suppressUnchecked = false;
 
     string instanceType, formalType;
-    bool customType = getSequenceTypes(p, "", StringList(), instanceType, formalType);
+    bool customType = getSequenceTypes(p, "", MetadataList(), instanceType, formalType);
 
     if (!customType)
     {
@@ -3876,16 +3859,13 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         }
         else
         {
-            //
             // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
             // If the element type is bool or byte, we do NOT write an extra size.
-            //
             const size_t sz = p->type()->minWireSize();
             if (sz > 1)
             {
-                string metadata;
                 out << nl << "final int optSize = v == null ? 0 : ";
-                if (findMetadata("java:buffer", p->getMetadata(), metadata))
+                if (p->hasMetadata("java:buffer"))
                 {
                     out << "v.remaining() / " << sz << ";";
                 }
@@ -3949,8 +3929,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     string absolute = getUnqualified(p);
     string helper = getUnqualified(p, "", "", "Helper");
     string package = getPackage(p);
-    StringList metadata = p->getMetadata();
-    string formalType = typeToString(p, TypeModeIn, package, StringList(), true);
+    string formalType = typeToString(p, TypeModeIn, package, MetadataList(), true);
 
     open(helper, p->file());
     Output& out = output();

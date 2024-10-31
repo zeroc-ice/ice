@@ -90,6 +90,9 @@ class TestIntfI(Test.TestIntf):
     def supportsFunctionalTests(self, current):
         return False
 
+    def supportsBackPressureTests(self, current):
+        return True
+
     async def pingBiDir(self, reply, current):
         expectSuccess = "ONE" not in current.ctx
         try:
@@ -99,6 +102,7 @@ class TestIntfI(Test.TestIntf):
         except Ice.ObjectNotExistException:
             if expectSuccess:
                 raise Test.TestIntfException()
+
 
 class TestIntfII(Test.Outer.Inner.TestIntf):
     def op(self, i, current):

@@ -81,6 +81,10 @@ jobs:
           - os: ubuntu-24.04
             config: "cross"
             test_flags: "--all-cross"
+          - os: macos-15
+            config: "cross"
+            # We want to test C++ and Swift only (in each direction)
+            test_flags: "--all-cross --filter cpp --filter swift"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -123,4 +127,5 @@ jobs:
         with:
           name: crash-diagnostics-${{ matrix.config }}-${{ matrix.os }}
           path: ~/Library/Logs/DiagnosticReports/*.ips
+          if-no-files-found: ignore
         if: runner.os == 'macOS' && always()

@@ -31,7 +31,7 @@ namespace Slice
         const TypePtr&,
         bool,
         const std::string& = "",
-        const StringList& = StringList(),
+        const MetadataList& = MetadataList(),
         TypeContext = TypeContext::None);
 
     // TODO: find a better name.
@@ -40,7 +40,7 @@ namespace Slice
         const TypePtr&,
         bool,
         const std::string& = "",
-        const StringList& = StringList(),
+        const MetadataList& = MetadataList(),
         TypeContext = TypeContext::None);
 
     // TODO: find a better name.
@@ -49,7 +49,7 @@ namespace Slice
         const TypePtr&,
         bool,
         const std::string& = "",
-        const StringList& = StringList(),
+        const MetadataList& = MetadataList(),
         TypeContext = TypeContext::None);
 
     std::string operationModeToString(Operation::Mode);
@@ -78,7 +78,7 @@ namespace Slice
 
     void writeIceTuple(::IceInternal::Output&, const DataMemberList&, TypeContext);
 
-    std::string findMetadata(const StringList&, TypeContext = TypeContext::None);
+    std::string findMetadata(const MetadataList&, TypeContext = TypeContext::None);
     bool inWstringModule(const SequencePtr&);
 }
 
