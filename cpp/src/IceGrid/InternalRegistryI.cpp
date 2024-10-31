@@ -41,7 +41,7 @@ InternalRegistryI::InternalRegistryI(
         throw Ice::PropertyException{
             __FILE__,
             __LINE__,
-            "invalid value for IceGrid.Registry.NodeSessionTimeout:" + to_string(_nodeSessionTimeout.count())};
+            "invalid value for IceGrid.Registry.NodeSessionTimeout: " + to_string(_nodeSessionTimeout.count())};
     }
 
     _replicaSessionTimeout = chrono::seconds(properties->getIcePropertyAsInt("IceGrid.Registry.ReplicaSessionTimeout"));
@@ -50,7 +50,7 @@ InternalRegistryI::InternalRegistryI(
         throw Ice::PropertyException{
             __FILE__,
             __LINE__,
-            "invalid value for IceGrid.Registry.ReplicaSessionTimeout:" + to_string(_replicaSessionTimeout.count())};
+            "invalid value for IceGrid.Registry.ReplicaSessionTimeout: " + to_string(_replicaSessionTimeout.count())};
     }
 }
 
