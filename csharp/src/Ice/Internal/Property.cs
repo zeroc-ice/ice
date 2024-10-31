@@ -4,7 +4,7 @@
 
 namespace Ice.Internal;
 
-internal sealed record class PropertyArray(string name, bool prefixOnly, Property[] properties);
+internal sealed record class PropertyArray(string name, bool prefixOnly, bool isOptIn, Property[] properties);
 
 internal sealed record class Property(
     string pattern,

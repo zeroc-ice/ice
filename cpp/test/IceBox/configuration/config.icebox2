@@ -3,7 +3,6 @@ Ice.Admin.Endpoints=default -p 9996 -h 127.0.0.1
 Ice.ProgramName=IceBox2
 
 IceBox.InheritProperties=1
-
 TestInheritProperties=1
 
 ServerProp=1

@@ -29,6 +29,7 @@ import java.security.KeyStore;
 import java.security.KeyStore.TrustedCertificateEntry;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -2255,7 +2256,8 @@ public class Coordinator {
 
     private static com.zeroc.Ice.Properties createProperties(
             String[] args, java.util.List<String> rArgs) {
-        com.zeroc.Ice.Properties properties = new com.zeroc.Ice.Properties();
+        com.zeroc.Ice.Properties properties =
+                new com.zeroc.Ice.Properties(Collections.singletonList("IceGridAdmin"));
 
         // Disable retries
         properties.setProperty("Ice.RetryIntervals", "-1");

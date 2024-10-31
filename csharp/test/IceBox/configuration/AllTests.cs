@@ -16,7 +16,7 @@ public class AllTests : Test.AllTests
         TestIntfPrx service4 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
                                                                                           helper.getTestEndpoint(3)));
 
-        if (service1.getProperty("IceBox.InheritProperties").Length == 0)
+        if (service1.getProperty("TestInheritProperties").Length == 0)
         {
             Console.Out.Write("testing service properties... ");
             Console.Out.Flush();
@@ -33,7 +33,6 @@ public class AllTests : Test.AllTests
             test(service2.getProperty("Ice.ProgramName") == "Test");
             test(service2.getProperty("Service") == "2");
             test(service2.getProperty("Service1.ArgProp").Length == 0);
-            test(service2.getProperty("IceBox.InheritProperties") == "1");
 
             string[] args2 = { "--Service1.ArgProp=1" };
             test(Enumerable.SequenceEqual(service2.getArgs(), args2));
