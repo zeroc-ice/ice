@@ -28,7 +28,7 @@ namespace
 
         string getPrefix() final { return "NullLogger"; }
 
-        LoggerPtr cloneWithPrefix(const string&) final { return shared_from_this(); }
+        LoggerPtr cloneWithPrefix(string) final { return shared_from_this(); }
     };
 }
 

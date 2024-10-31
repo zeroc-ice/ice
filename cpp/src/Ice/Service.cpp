@@ -117,27 +117,29 @@ namespace
     };
     using SMEventLoggerPtr = std::shared_ptr<SMEventLogger>;
 
-    class SMEventLoggerIWrapper : public Ice::Logger
+    class SMEventLoggerIWrapper final : public Ice::Logger
     {
     public:
-        SMEventLoggerIWrapper(const SMEventLoggerPtr& logger, const string& prefix) : _logger(logger), _prefix(prefix)
+        SMEventLoggerIWrapper(const SMEventLoggerPtr& logger, string prefix)
+            : _logger(logger),
+              _prefix(std::move(prefix))
         {
             assert(_logger);
         }
 
-        virtual void print(const string& message) { _logger->print(_prefix, message); }
+        void print(const string& message) final { _logger->print(_prefix, message); }
 
-        void trace(const string& category, const string& message) { _logger->trace(_prefix, category, message); }
+        void trace(const string& category, const string& message) final { _logger->trace(_prefix, category, message); }
 
-        virtual void warning(const string& message) { _logger->warning(_prefix, message); }
+        void warning(const string& message) final { _logger->warning(_prefix, message); }
 
-        virtual void error(const string& message) { _logger->error(_prefix, message); }
+        void error(const string& message) final { _logger->error(_prefix, message); }
 
-        virtual string getPrefix() { return _prefix; }
+        string getPrefix() final { return _prefix; }
 
-        virtual Ice::LoggerPtr cloneWithPrefix(const string& prefix)
+        Ice::LoggerPtr cloneWithPrefix(string prefix) final
         {
-            return make_shared<SMEventLoggerIWrapper>(_logger, prefix);
+            return make_shared<SMEventLoggerIWrapper>(_logger, std::move(prefix));
         }
 
     private:

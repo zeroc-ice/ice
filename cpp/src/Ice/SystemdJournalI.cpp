@@ -13,7 +13,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-Ice::SystemdJournalI::SystemdJournalI(const string& prefix) : _prefix(prefix) {}
+Ice::SystemdJournalI::SystemdJournalI(string prefix) : _prefix(std::move(prefix)) {}
 
 void
 Ice::SystemdJournalI::print(const string& message)
@@ -46,9 +46,9 @@ Ice::SystemdJournalI::getPrefix()
 }
 
 Ice::LoggerPtr
-Ice::SystemdJournalI::cloneWithPrefix(const string& prefix)
+Ice::SystemdJournalI::cloneWithPrefix(string prefix)
 {
-    return make_shared<SystemdJournalI>(prefix);
+    return make_shared<SystemdJournalI>(std::move(prefix));
 }
 
 void

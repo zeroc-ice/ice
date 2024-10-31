@@ -14,20 +14,15 @@ namespace
     // A no-op Logger, used when testing the Logger Admin
     //
 
-    class NullLogger : public Ice::Logger, public std::enable_shared_from_this<NullLogger>
+    class NullLogger final : public Ice::Logger, public std::enable_shared_from_this<NullLogger>
     {
     public:
-        virtual void print(const string&) {}
-
-        virtual void trace(const string&, const string&) {}
-
-        virtual void warning(const string&) {}
-
-        virtual void error(const string&) {}
-
-        virtual string getPrefix() { return "NullLogger"; }
-
-        virtual Ice::LoggerPtr cloneWithPrefix(const string&) { return shared_from_this(); }
+        void print(const string&) final {}
+        void trace(const string&, const string&) final {}
+        void warning(const string&) final {}
+        void error(const string&) final {}
+        string getPrefix() final { return "NullLogger"; }
+        Ice::LoggerPtr cloneWithPrefix(string) final { return shared_from_this(); }
     };
 }
 

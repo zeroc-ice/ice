@@ -16,17 +16,17 @@ namespace IcePy
     //
     // LoggerWrapper delegates to a Python implementation.
     //
-    class LoggerWrapper : public Ice::Logger
+    class LoggerWrapper final : public Ice::Logger
     {
     public:
         LoggerWrapper(PyObject*);
 
-        virtual void print(const std::string&);
-        virtual void trace(const std::string&, const std::string&);
-        virtual void warning(const std::string&);
-        virtual void error(const std::string&);
-        virtual std::string getPrefix();
-        virtual Ice::LoggerPtr cloneWithPrefix(const std::string&);
+        void print(const std::string&) final;
+        void trace(const std::string&, const std::string&) final;
+        void warning(const std::string&) final;
+        void error(const std::string&) final;
+        std::string getPrefix() final;
+        Ice::LoggerPtr cloneWithPrefix(std::string) final;
         PyObject* getObject();
 
     private:
