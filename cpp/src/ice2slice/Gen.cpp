@@ -275,7 +275,7 @@ namespace
     string slice2LinkFormatter(string identifier)
     {
         // Replace links of the form `{@link Type#member}` with `{@link Type.member}`.
-        replace(identifier.begin(), identifier.end(), '#', '.');
+        std::replace(identifier.begin(), identifier.end(), '#', '.');
         return "{@link " + identifier + "}";
     }
 
