@@ -365,8 +365,7 @@ namespace
             return result;
         }
 
-        MetadataList
-        validateType(const SyntaxTreeBasePtr& p, const MetadataList& metadata, const string& file)
+        MetadataList validateType(const SyntaxTreeBasePtr& p, const MetadataList& metadata, const string& file)
         {
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);

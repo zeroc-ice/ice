@@ -3056,7 +3056,8 @@ Slice::Python::MetadataVisitor::visitConst(const ConstPtr& p)
 }
 
 MetadataList
-Slice::Python::MetadataVisitor::validateSequence(const ContainedPtr& cont, const TypePtr& type) {
+Slice::Python::MetadataVisitor::validateSequence(const ContainedPtr& cont, const TypePtr& type)
+{
     const UnitPtr ut = type->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
     assert(dc);

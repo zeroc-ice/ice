@@ -2474,7 +2474,8 @@ SwiftGenerator::MetadataVisitor::visitConst(const ConstPtr& p)
 }
 
 MetadataList
-SwiftGenerator::MetadataVisitor::validate(const SyntaxTreeBasePtr& p, const ContainedPtr& cont) {
+SwiftGenerator::MetadataVisitor::validate(const SyntaxTreeBasePtr& p, const ContainedPtr& cont)
+{
     MetadataList newMetadata = cont->getMetadata();
     const UnitPtr ut = p->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
